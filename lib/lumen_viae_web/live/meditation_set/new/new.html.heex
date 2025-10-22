@@ -1,0 +1,70 @@
+<div class="min-h-screen bg-cream">
+  <div class="max-w-4xl mx-auto px-8 py-12">
+    <h2 class="font-cinzel text-4xl text-navy mb-8">
+      Create Meditation Set
+    </h2>
+
+    <div class="bg-white border-l-4 border-gold p-8">
+      <.form for={@meditation_set_form} phx-submit="create_meditation_set">
+        <div class="space-y-4">
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Set Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              required
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="e.g., St. Louis de Montfort - Joyful Mysteries"
+            />
+          </div>
+
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Category
+            </label>
+            <select
+              name="category"
+              required
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+            >
+              <option value="">Select a Category</option>
+              <option value="joyful">Joyful Mysteries</option>
+              <option value="sorrowful">Sorrowful Mysteries</option>
+              <option value="glorious">Glorious Mysteries</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Description (Optional)
+            </label>
+            <textarea
+              name="description"
+              rows="3"
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="Brief description of this meditation set..."
+            ></textarea>
+          </div>
+
+          <div class="flex justify-between items-center pt-4">
+            <.link
+              navigate="/admin/meditation-sets"
+              class="font-crimson text-navy hover:text-gold transition-colors"
+            >
+              ← Cancel
+            </.link>
+
+            <button
+              type="submit"
+              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+            >
+              Create Meditation Set
+            </button>
+          </div>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

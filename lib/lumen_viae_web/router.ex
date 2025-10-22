@@ -20,11 +20,21 @@ defmodule LumenViaeWeb.Router do
     # Rosary home - lists mystery categories (Joyful, Sorrowful, Glorious)
     live "/", Live.Rosary.List
 
-    # Admin dashboard for managing meditations and sets
+    # Admin dashboard - landing page with navigation
     live "/admin", Live.Admin.Dashboard
 
-    # Lists meditation sets for a specific mystery category
-    live "/mysteries/:category", Live.MysterySet.List
+    # Meditations management (admin access)
+    live "/admin/meditations", Live.Meditation.List
+    live "/admin/meditations/new", Live.Meditation.New
+    live "/admin/meditations/:id/edit", Live.Meditation.Edit
+
+    # Meditation Sets management (admin access)
+    live "/admin/meditation-sets", Live.MeditationSet.List
+    live "/admin/meditation-sets/new", Live.MeditationSet.New
+    live "/admin/meditation-sets/:id/edit", Live.MeditationSet.Edit
+
+    # Browse meditation sets by mystery category (public)
+    live "/mysteries/:category", Live.MysteryCategory.List
 
     # Prayer experience for a specific meditation set
     live "/meditation-sets/:set_id/pray", Live.MeditationSet.Pray

@@ -1,0 +1,132 @@
+<div class="min-h-screen bg-cream">
+  <div class="max-w-7xl mx-auto px-8 py-12">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="font-cinzel text-4xl text-navy">
+        Meditation Sets
+      </h2>
+      <.link
+        navigate="/admin/meditation-sets/new"
+        class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+      >
+        Create New Set
+      </.link>
+    </div>
+
+    <!-- Sets List -->
+    <div class="bg-white border-l-4 border-gold p-8 mb-8">
+      <h3 class="font-cinzel text-2xl text-navy mb-6">All Meditation Sets</h3>
+
+      <%= if @meditation_sets == [] do %>
+        <p class="font-crimson text-gray-600">No meditation sets yet. Create one to get started.</p>
+      <% else %>
+        <div class="space-y-4">
+          <%= for set <- @meditation_sets do %>
+            <div class="border border-gray-200 rounded-lg p-6 bg-gray-50">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h4 class="font-cinzel text-xl text-navy mb-2">
+                    <%= set.name %>
+                  </h4>
+                  <p class="font-crimson text-sm text-gray-600 mb-1">
+                    Category: <%= String.capitalize(set.category) %> Mysteries
+                  </p>
+                  <%= if set.description do %>
+                    <p class="font-crimson text-gray-700 mt-2">
+                      <%= set.description %>
+                    </p>
+                  <% end %>
+                </div>
+
+                <div class="flex items-center space-x-2 ml-4">
+                  <.link
+                    navigate={"/admin/meditation-sets/#{set.id}/edit"}
+                    class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+                  >
+                    Edit
+                  </.link>
+
+                  <button
+                    phx-click="delete_set"
+                    phx-value-id={set.id}
+                    data-confirm="Are you sure you want to delete this meditation set?"
+                    class="px-4 py-2 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-colors font-crimson text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- View Set Details -->
+    <%= if @meditation_sets != [] do %>
+      <div class="bg-white border-l-4 border-gold p-8">
+        <h3 class="font-cinzel text-2xl text-navy mb-6">View Set Details</h3>
+
+        <div class="mb-6">
+          <label class="font-crimson text-navy font-semibold block mb-2">
+            Select a Set to View
+          </label>
+          <.form for={%{}} phx-change="select_set">
+            <select
+              name="set_id"
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+            >
+              <option value="">Choose a set...</option>
+              <%= for set <- @meditation_sets do %>
+                <option value={set.id} selected={@selected_set && @selected_set.id == set.id}>
+                  <%= set.name %> (<%= String.capitalize(set.category) %>)
+                </option>
+              <% end %>
+            </select>
+          </.form>
+        </div>
+
+        <%= if @selected_set do %>
+          <div class="mt-6">
+            <h4 class="font-cinzel text-lg text-navy mb-3">
+              Meditations in <%= @selected_set.name %>
+            </h4>
+
+            <%= if @selected_set_meditations == [] do %>
+              <p class="font-crimson text-gray-600 text-sm italic">
+                No meditations in this set yet. Edit the set to add meditations.
+              </p>
+            <% else %>
+              <div class="space-y-2">
+                <%= for meditation <- @selected_set_meditations do %>
+                  <div class="flex items-center bg-cream p-3 rounded">
+                    <div class="flex-1">
+                      <span class="font-crimson text-navy">
+                        <%= meditation.mystery.name %>
+                        <%= if meditation.title, do: " - #{meditation.title}" %>
+                      </span>
+                      <%= if meditation.author do %>
+                        <span class="font-crimson text-sm text-gray-500 ml-2">
+                          by <%= meditation.author %>
+                        </span>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Back to Dashboard -->
+    <div class="mt-8 text-center">
+      <.link
+        navigate="/admin"
+        class="inline-block font-crimson text-navy hover:text-gold transition-colors"
+      >
+        ← Back to Dashboard
+      </.link>
+    </div>
+  </div>
+</div>

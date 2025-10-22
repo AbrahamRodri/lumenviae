@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.Live.MysterySet.List do
+defmodule LumenViaeWeb.Live.MysteryCategory.List do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
 

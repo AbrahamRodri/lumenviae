@@ -1,0 +1,127 @@
+<div class="min-h-screen bg-cream">
+  <div class="max-w-4xl mx-auto px-8 py-12">
+    <h2 class="font-cinzel text-4xl text-navy mb-8">
+      Create New Meditation
+    </h2>
+
+    <!-- Filter Category -->
+    <div class="bg-white border-l-4 border-gold p-6 mb-8">
+      <h3 class="font-cinzel text-xl text-navy mb-4">Filter Mysteries</h3>
+      <div>
+        <label class="font-crimson text-navy font-semibold block mb-2">
+          Filter by Category
+        </label>
+        <.form for={%{}} phx-change="filter_category">
+          <select
+            name="category"
+            class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+          >
+            <option value="" selected={is_nil(@filter_category)}>All Categories</option>
+            <option value="joyful" selected={@filter_category == "joyful"}>Joyful Mysteries</option>
+            <option value="sorrowful" selected={@filter_category == "sorrowful"}>
+              Sorrowful Mysteries
+            </option>
+            <option value="glorious" selected={@filter_category == "glorious"}>Glorious Mysteries</option>
+          </select>
+        </.form>
+        <%= if @filter_category do %>
+          <p class="font-crimson text-sm text-gray-600 mt-2">
+            Showing only <%= String.capitalize(@filter_category) %> mysteries in the form below
+          </p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Create Form -->
+    <div class="bg-white border-l-4 border-gold p-8">
+      <.form for={@meditation_form} phx-submit="create_meditation">
+        <div class="space-y-4">
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Mystery
+            </label>
+            <select
+              name="mystery_id"
+              required
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+            >
+              <option value="">Select a Mystery</option>
+              <%= for mystery <- filtered_mysteries(assigns) do %>
+                <option value={mystery.id}>
+                  <%= mystery.name %> (<%= String.capitalize(mystery.category) %>)
+                </option>
+              <% end %>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Title (Optional)
+            </label>
+            <input
+              type="text"
+              name="title"
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="e.g., First Meditation on the Annunciation"
+            />
+          </div>
+
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Content (Paste meditation text here)
+            </label>
+            <textarea
+              name="content"
+              required
+              rows="12"
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="Paste the meditation text here..."
+            ></textarea>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Author
+              </label>
+              <input
+                type="text"
+                name="author"
+                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                placeholder="e.g., St. Alphonsus Liguori"
+              />
+            </div>
+
+            <div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Source (Optional)
+              </label>
+              <input
+                type="text"
+                name="source"
+                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                placeholder="e.g., The Glories of Mary"
+              />
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-4">
+            <.link
+              navigate="/admin/meditations"
+              class="font-crimson text-navy hover:text-gold transition-colors"
+            >
+              ← Cancel
+            </.link>
+
+            <button
+              type="submit"
+              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+            >
+              Create Meditation
+            </button>
+          </div>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

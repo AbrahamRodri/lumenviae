@@ -1,0 +1,112 @@
+<div class="min-h-screen bg-cream">
+  <div class="max-w-4xl mx-auto px-8 py-12">
+    <h2 class="font-cinzel text-4xl text-navy mb-8">
+      Edit Meditation
+    </h2>
+
+    <!-- Current Mystery Info -->
+    <div class="bg-white border-l-4 border-gold p-6 mb-8">
+      <h3 class="font-cinzel text-xl text-navy mb-2">Current Mystery</h3>
+      <p class="font-crimson text-gray-800">
+        <%= @meditation.mystery.name %> (<%= String.capitalize(@meditation.mystery.category) %>)
+      </p>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="bg-white border-l-4 border-gold p-8">
+      <.form for={@edit_form} phx-submit="update_meditation">
+        <div class="space-y-4">
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Mystery
+            </label>
+            <select
+              name="mystery_id"
+              required
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+            >
+              <%= for mystery <- @mysteries do %>
+                <option
+                  value={mystery.id}
+                  selected={to_string(mystery.id) == @edit_form.data["mystery_id"]}
+                >
+                  <%= mystery.name %> (<%= String.capitalize(mystery.category) %>)
+                </option>
+              <% end %>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Title (Optional)
+            </label>
+            <input
+              type="text"
+              name="title"
+              value={@edit_form.data["title"]}
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="e.g., First Meditation on the Annunciation"
+            />
+          </div>
+
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Content
+            </label>
+            <textarea
+              name="content"
+              required
+              rows="12"
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="Paste the meditation text here..."
+            ><%= @edit_form.data["content"] %></textarea>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Author
+              </label>
+              <input
+                type="text"
+                name="author"
+                value={@edit_form.data["author"]}
+                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                placeholder="e.g., St. Alphonsus Liguori"
+              />
+            </div>
+
+            <div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Source (Optional)
+              </label>
+              <input
+                type="text"
+                name="source"
+                value={@edit_form.data["source"]}
+                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                placeholder="e.g., The Glories of Mary"
+              />
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-4">
+            <.link
+              navigate="/admin/meditations"
+              class="font-crimson text-navy hover:text-gold transition-colors"
+            >
+              ← Back to Meditations
+            </.link>
+
+            <button
+              type="submit"
+              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>
