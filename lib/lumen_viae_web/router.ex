@@ -17,10 +17,17 @@ defmodule LumenViaeWeb.Router do
   scope "/", LumenViaeWeb do
     pipe_through :browser
 
-    live "/", HomeLive
-    live "/admin", AdminLive
-    live "/:category", CategoryLive
-    live "/pray/:set_id", PrayLive
+    # Rosary home - lists mystery categories (Joyful, Sorrowful, Glorious)
+    live "/", Live.Rosary.List
+
+    # Admin dashboard for managing meditations and sets
+    live "/admin", Live.Admin.Dashboard
+
+    # Lists meditation sets for a specific mystery category
+    live "/mysteries/:category", Live.MysterySet.List
+
+    # Prayer experience for a specific meditation set
+    live "/meditation-sets/:set_id/pray", Live.MeditationSet.Pray
   end
 
   # Other scopes may use custom stacks.

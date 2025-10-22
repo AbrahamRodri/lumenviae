@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.HomeLive do
+defmodule LumenViaeWeb.Live.Rosary.List do
   use LumenViaeWeb, :live_view
 
   def mount(_params, _session, socket) do
@@ -25,7 +25,7 @@ defmodule LumenViaeWeb.HomeLive do
         <div class="grid md:grid-cols-3 gap-8">
           <!-- Joyful Mysteries -->
           <.link
-            navigate="/joyful"
+            navigate="/mysteries/joyful"
             class="block bg-white border-l-4 border-gold p-8 hover:shadow-lg transition-shadow"
           >
             <h3 class="font-cinzel text-2xl text-navy mb-3">
@@ -41,7 +41,7 @@ defmodule LumenViaeWeb.HomeLive do
 
           <!-- Sorrowful Mysteries -->
           <.link
-            navigate="/sorrowful"
+            navigate="/mysteries/sorrowful"
             class="block bg-white border-l-4 border-gold p-8 hover:shadow-lg transition-shadow"
           >
             <h3 class="font-cinzel text-2xl text-navy mb-3">
@@ -57,7 +57,7 @@ defmodule LumenViaeWeb.HomeLive do
 
           <!-- Glorious Mysteries -->
           <.link
-            navigate="/glorious"
+            navigate="/mysteries/glorious"
             class="block bg-white border-l-4 border-gold p-8 hover:shadow-lg transition-shadow"
           >
             <h3 class="font-cinzel text-2xl text-navy mb-3">

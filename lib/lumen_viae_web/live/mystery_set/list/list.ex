@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.CategoryLive do
+defmodule LumenViaeWeb.Live.MysterySet.List do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
 
@@ -52,7 +52,7 @@ defmodule LumenViaeWeb.CategoryLive do
           <% else %>
             <%= for set <- @meditation_sets do %>
               <.link
-                navigate={"/pray/#{set.id}"}
+                navigate={"/meditation-sets/#{set.id}/pray"}
                 class="block bg-white border-l-4 border-gold p-8 hover:shadow-lg transition-shadow"
               >
                 <h3 class="font-cinzel text-2xl text-navy mb-2">

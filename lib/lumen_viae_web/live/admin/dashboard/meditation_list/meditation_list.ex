@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.MeditationListComponent do
+defmodule LumenViaeWeb.Live.Admin.Dashboard.MeditationList do
   use Phoenix.Component
 
   attr :meditations, :list, required: true

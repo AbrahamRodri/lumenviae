@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.AdminLive do
+defmodule LumenViaeWeb.Live.Admin.Dashboard do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
 
@@ -41,9 +41,13 @@ defmodule LumenViaeWeb.AdminLive do
   end
 
   def handle_event("create_meditation", params, socket) do
+    # Get current remember states
+    remember_author = socket.assigns.remember_author
+    remember_source = socket.assigns.remember_source
+
     # Save author and source if remember checkboxes are checked
-    saved_author = if params["remember_author"] == "true", do: params["author"] || "", else: socket.assigns.saved_author
-    saved_source = if params["remember_source"] == "true", do: params["source"] || "", else: socket.assigns.saved_source
+    saved_author = if remember_author, do: params["author"] || "", else: ""
+    saved_source = if remember_source, do: params["source"] || "", else: ""
 
     case Rosary.create_meditation(params) do
       {:ok, _meditation} ->
