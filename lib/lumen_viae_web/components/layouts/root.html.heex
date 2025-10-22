@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title default="Lumen Viae">
+      {assigns[:page_title] || "Meditations on the Holy Rosary"}
+    </.live_title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
+    </script>
+  </head>
+  <body class="bg-cream">
+    <!-- Header -->
+    <header class="bg-navy border-b-3 border-gold py-8">
+      <div class="max-w-7xl mx-auto px-4 text-center">
+        <.link navigate="/" class="inline-block">
+          <img src="/images/logo.svg" alt="Lumen Viae Logo" class="w-20 h-20 mx-auto mb-4" />
+          <h1 class="font-cinzel text-gold text-4xl tracking-wider font-light">
+            LUMEN VIAE
+          </h1>
+          <p class="font-crimson text-gold opacity-80 text-sm tracking-widest uppercase mt-2">
+            Meditations on the Holy Rosary
+          </p>
+        </.link>
+      </div>
+    </header>
+
+    {@inner_content}
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gold text-center py-8 mt-16 border-t-3 border-gold">
+      <p class="font-crimson opacity-80 text-sm">
+        Lumen Viae - Light of the Way
+      </p>
+      <p class="font-crimson opacity-80 text-sm mt-1">
+        &copy; 2025 All Rights Reserved | Ad Majorem Dei Gloriam
+      </p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="195" fill="#1a1a2e" stroke="#d4af37" stroke-width="2"/>
+  
+  <!-- Inner decorative circle -->
+  <circle cx="200" cy="200" r="170" fill="none" stroke="#d4af37" stroke-width="1" opacity="0.3"/>
+  
+  <!-- Radiant light rays emanating from center -->
+  <g opacity="0.4">
+    <line x1="200" y1="200" x2="200" y2="60" stroke="#d4af37" stroke-width="2"/>
+    <line x1="200" y1="200" x2="280" y2="80" stroke="#d4af37" stroke-width="1.5"/>
+    <line x1="200" y1="200" x2="320" y2="120" stroke="#d4af37" stroke-width="1"/>
+    <line x1="200" y1="200" x2="340" y2="200" stroke="#d4af37" stroke-width="2"/>
+    <line x1="200" y1="200" x2="320" y2="280" stroke="#d4af37" stroke-width="1"/>
+    <line x1="200" y1="200" x2="280" y2="320" stroke="#d4af37" stroke-width="1.5"/>
+    <line x1="200" y1="200" x2="200" y2="340" stroke="#d4af37" stroke-width="2"/>
+    <line x1="200" y1="200" x2="120" y2="320" stroke="#d4af37" stroke-width="1.5"/>
+    <line x1="200" y1="200" x2="80" y2="280" stroke="#d4af37" stroke-width="1"/>
+    <line x1="200" y1="200" x2="60" y2="200" stroke="#d4af37" stroke-width="2"/>
+    <line x1="200" y1="200" x2="80" y2="120" stroke="#d4af37" stroke-width="1"/>
+    <line x1="200" y1="200" x2="120" y2="80" stroke="#d4af37" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Central illuminated cross -->
+  <g>
+    <!-- Vertical beam -->
+    <rect x="195" y="120" width="10" height="100" fill="#d4af37"/>
+    <!-- Horizontal beam -->
+    <rect x="170" y="155" width="60" height="10" fill="#d4af37"/>
+    
+    <!-- Glow effect around cross -->
+    <circle cx="200" cy="170" r="40" fill="#d4af37" opacity="0.15"/>
+    <circle cx="200" cy="170" r="30" fill="#d4af37" opacity="0.2"/>
+  </g>
+  
+  <!-- Stylized rosary beads forming a circular path -->
+  <g fill="#d4af37">
+    <!-- Decades markers (larger beads) at cardinal points -->
+    <circle cx="200" cy="85" r="5"/>
+    <circle cx="315" cy="200" r="5"/>
+    <circle cx="200" cy="315" r="5"/>
+    <circle cx="85" cy="200" r="5"/>
+    
+    <!-- Small beads between decades (3 beads per side) -->
+    <circle cx="230" cy="95" r="3"/>
+    <circle cx="255" cy="115" r="3"/>
+    <circle cx="275" cy="140" r="3"/>
+    
+    <circle cx="305" cy="170" r="3"/>
+    <circle cx="320" cy="200" r="3"/>
+    <circle cx="305" cy="230" r="3"/>
+    
+    <circle cx="275" cy="260" r="3"/>
+    <circle cx="255" cy="285" r="3"/>
+    <circle cx="230" cy="305" r="3"/>
+    
+    <circle cx="170" cy="305" r="3"/>
+    <circle cx="145" cy="285" r="3"/>
+    <circle cx="125" cy="260" r="3"/>
+    
+    <circle cx="95" cy="230" r="3"/>
+    <circle cx="80" cy="200" r="3"/>
+    <circle cx="95" cy="170" r="3"/>
+    
+    <circle cx="125" cy="140" r="3"/>
+    <circle cx="145" cy="115" r="3"/>
+    <circle cx="170" cy="95" r="3"/>
+  </g>
+  
+  <!-- Text: LUMEN VIAE -->
+  <text x="200" y="255" font-family="serif" font-size="28" font-weight="300" fill="#d4af37" text-anchor="middle" letter-spacing="4">LUMEN</text>
+  <text x="200" y="285" font-family="serif" font-size="28" font-weight="300" fill="#d4af37" text-anchor="middle" letter-spacing="4">VIAE</text>
+</svg>
