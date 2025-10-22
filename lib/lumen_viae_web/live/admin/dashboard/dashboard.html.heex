@@ -106,48 +106,24 @@
 
           <div class="grid md:grid-cols-2 gap-4">
             <div>
-              <div class="flex items-center justify-between mb-2">
-                <label class="font-crimson text-navy font-semibold">
-                  Author
-                </label>
-                <label class="flex items-center font-crimson text-sm text-gray-600">
-                  <input
-                    type="checkbox"
-                    checked={@remember_author}
-                    phx-click="toggle_remember_author"
-                    class="mr-2"
-                  />
-                  Remember for next time
-                </label>
-              </div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Author
+              </label>
               <input
                 type="text"
                 name="author"
-                value={@meditation_form.data["author"]}
                 class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
                 placeholder="e.g., St. Alphonsus Liguori"
               />
             </div>
 
             <div>
-              <div class="flex items-center justify-between mb-2">
-                <label class="font-crimson text-navy font-semibold">
-                  Source (Optional)
-                </label>
-                <label class="flex items-center font-crimson text-sm text-gray-600">
-                  <input
-                    type="checkbox"
-                    checked={@remember_source}
-                    phx-click="toggle_remember_source"
-                    class="mr-2"
-                  />
-                  Remember for next time
-                </label>
-              </div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Source (Optional)
+              </label>
               <input
                 type="text"
                 name="source"
-                value={@meditation_form.data["source"]}
                 class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
                 placeholder="e.g., The Glories of Mary"
               />
@@ -233,18 +209,19 @@
           <label class="font-crimson text-navy font-semibold block mb-2">
             Select a Set to Manage
           </label>
-          <select
-            phx-change="select_set"
-            name="set_id"
-            class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-          >
-            <option value="">Choose a set...</option>
-            <%= for set <- @meditation_sets do %>
-              <option value={set.id} selected={@selected_set && @selected_set.id == set.id}>
-                <%= set.name %> (<%= String.capitalize(set.category) %>)
-              </option>
-            <% end %>
-          </select>
+          <.form for={%{}} phx-change="select_set">
+            <select
+              name="set_id"
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+            >
+              <option value="">Choose a set...</option>
+              <%= for set <- @meditation_sets do %>
+                <option value={set.id} selected={@selected_set && @selected_set.id == set.id}>
+                  <%= set.name %> (<%= String.capitalize(set.category) %>)
+                </option>
+              <% end %>
+            </select>
+          </.form>
         </div>
 
         <%= if @selected_set do %>

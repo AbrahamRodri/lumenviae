@@ -12,10 +12,6 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
      |> assign(:selected_set, nil)
      |> assign(:selected_set_meditations, [])
      |> assign(:filter_category, nil)
-     |> assign(:saved_author, "")
-     |> assign(:saved_source, "")
-     |> assign(:remember_author, false)
-     |> assign(:remember_source, false)
      |> assign(:expanded_meditation_id, nil)
      |> assign(:editing_meditation_id, nil)
      |> assign(:edit_form, nil)
@@ -24,13 +20,25 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   end
 
   defp assign_meditation_form(socket) do
-    author = if socket.assigns.remember_author, do: socket.assigns.saved_author, else: ""
-    source = if socket.assigns.remember_source, do: socket.assigns.saved_source, else: ""
-    assign(socket, :meditation_form, to_form(%{"mystery_id" => "", "title" => "", "content" => "", "author" => author, "source" => source}))
+    assign(
+      socket,
+      :meditation_form,
+      to_form(%{
+        "mystery_id" => "",
+        "title" => "",
+        "content" => "",
+        "author" => "",
+        "source" => ""
+      })
+    )
   end
 
   defp assign_meditation_set_form(socket) do
-    assign(socket, :meditation_set_form, to_form(%{"name" => "", "category" => "", "description" => ""}))
+    assign(
+      socket,
+      :meditation_set_form,
+      to_form(%{"name" => "", "category" => "", "description" => ""})
+    )
   end
 
   defp filtered_mysteries(assigns) do
@@ -41,37 +49,17 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   end
 
   def handle_event("create_meditation", params, socket) do
-    # Get current remember states
-    remember_author = socket.assigns.remember_author
-    remember_source = socket.assigns.remember_source
-
-    # Save author and source if remember checkboxes are checked
-    saved_author = if remember_author, do: params["author"] || "", else: ""
-    saved_source = if remember_source, do: params["source"] || "", else: ""
-
     case Rosary.create_meditation(params) do
       {:ok, _meditation} ->
         {:noreply,
          socket
          |> put_flash(:info, "Meditation created successfully")
          |> assign(:meditations, Rosary.list_meditations())
-         |> assign(:saved_author, saved_author)
-         |> assign(:saved_source, saved_source)
          |> assign_meditation_form()}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to create meditation")}
     end
-  end
-
-  def handle_event("toggle_remember_author", _params, socket) do
-    remember = !socket.assigns.remember_author
-    {:noreply, assign(socket, :remember_author, remember)}
-  end
-
-  def handle_event("toggle_remember_source", _params, socket) do
-    remember = !socket.assigns.remember_source
-    {:noreply, assign(socket, :remember_source, remember)}
   end
 
   def handle_event("filter_category", %{"category" => category}, socket) do
@@ -81,7 +69,10 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
 
   def handle_event("toggle_meditation", %{"id" => id}, socket) do
     meditation_id = String.to_integer(id)
-    expanded_id = if socket.assigns.expanded_meditation_id == meditation_id, do: nil, else: meditation_id
+
+    expanded_id =
+      if socket.assigns.expanded_meditation_id == meditation_id, do: nil, else: meditation_id
+
     {:noreply, assign(socket, :expanded_meditation_id, expanded_id)}
   end
 
@@ -89,13 +80,14 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     meditation_id = String.to_integer(id)
     meditation = Rosary.get_meditation!(meditation_id)
 
-    edit_form = to_form(%{
-      "mystery_id" => to_string(meditation.mystery_id),
-      "title" => meditation.title || "",
-      "content" => meditation.content,
-      "author" => meditation.author || "",
-      "source" => meditation.source || ""
-    })
+    edit_form =
+      to_form(%{
+        "mystery_id" => to_string(meditation.mystery_id),
+        "title" => meditation.title || "",
+        "content" => meditation.content,
+        "author" => meditation.author || "",
+        "source" => meditation.source || ""
+      })
 
     {:noreply,
      socket
@@ -171,7 +163,11 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   def handle_event("add_to_set", %{"meditation_id" => meditation_id, "order" => order}, socket) do
     set_id = socket.assigns.selected_set.id
 
-    case Rosary.add_meditation_to_set(set_id, String.to_integer(meditation_id), String.to_integer(order)) do
+    case Rosary.add_meditation_to_set(
+           set_id,
+           String.to_integer(meditation_id),
+           String.to_integer(order)
+         ) do
       {:ok, _} ->
         set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
 
@@ -197,5 +193,4 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
      |> assign(:selected_set, set)
      |> assign(:selected_set_meditations, set.meditations)}
   end
-
 end
