@@ -101,32 +101,111 @@
 
 /* This file is for your main application CSS */
 
-/* Custom Lumen Viae theme */
-@theme {
-  --color-navy: #1a1a2e;
-  --color-gold: #d4af37;
-  --color-cream: #f5f5f0;
-
-  --font-family-cinzel: 'Cinzel', serif;
-  --font-family-crimson: 'Crimson Text', serif;
+/* Custom font: Roman Uncial Modern */
+@font-face {
+  font-family: 'Roman Uncial Modern';
+  src: url('/assets/fonts/Romanuncialmodern-jra0.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-/* Utility classes for custom colors */
-.bg-navy { background-color: var(--color-navy); }
-.text-navy { color: var(--color-navy); }
-.border-navy { border-color: var(--color-navy); }
+/* Custom Lumen Viae theme - Inspired by traditional Catholic aesthetics */
+@theme {
+  /* Primary Colors - Deep navy for depth and contemplation */
+  --color-navy: #003b5c;
+  --color-navy-dark: #002840;
+  --color-navy-light: #004d75;
 
-.bg-gold { background-color: var(--color-gold); }
-.text-gold { color: var(--color-gold); }
-.border-gold { border-color: var(--color-gold); }
+  /* Accent Colors - Warm ecclesiastical gold */
+  --color-gold: #b18b49;
+  --color-gold-light: #c9a96b;
+  --color-gold-dark: #8f6e38;
 
-.bg-cream { background-color: var(--color-cream); }
-.text-cream { color: var(--color-cream); }
-.border-cream { border-color: var(--color-cream); }
+  /* Base Colors - Soft, parchment-like cream */
+  --color-cream: #faf2e6;
+  --color-cream-dark: #f0e5d0;
+  --color-white: #ffffff;
 
-.border-b-3 { border-bottom-width: 3px; }
-.border-t-3 { border-top-width: 3px; }
+  /* Typography - Clear Creek inspired fonts */
+  --font-family-roman-uncial: 'Roman Uncial Modern', serif;
+  --font-family-ovo: 'Ovo', serif;
+  --font-family-work-sans: 'Work Sans', sans-serif;
+  --font-family-garamond: 'EB Garamond', serif;
+}
 
-/* Custom font families */
-.font-cinzel { font-family: var(--font-family-cinzel); }
-.font-crimson { font-family: var(--font-family-crimson); }
+
+/* Typography utilities for meditation-friendly reading */
+.text-meditation {
+  font-family: var(--font-family-work-sans);
+  font-size: 17px;
+  line-height: 1.8;
+  color: #42403e;
+}
+
+.heading-ornate {
+  font-family: var(--font-family-ovo);
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+.heading-elegant {
+  font-family: var(--font-family-ovo);
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+/* Ornate text styles */
+.text-ornate {
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--font-family-ovo);
+}
+
+/* Base body styling for readability - Clear Creek inspired */
+body {
+  font-family: var(--font-family-work-sans);
+  font-size: 17px;
+  line-height: 1.8;
+  color: #42403e;
+}
+
+h1 {
+  font-family: var(--font-family-roman-uncial);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+h2 {
+  font-family: var(--font-family-ovo);
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+h3, h4, h5, h6 {
+  font-family: var(--font-family-ovo);
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+
+/* Layout structure - Clear Creek inspired boxed layout */
+.container-boxed {
+  max-width: 1365px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+.content-main {
+  width: 100%;
+}
+
+@media (min-width: 1080px) {
+  .content-main {
+    width: 71%;
+  }
+}

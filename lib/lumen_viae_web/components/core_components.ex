@@ -432,6 +432,130 @@ defmodule LumenViaeWeb.CoreComponents do
   end
 
   @doc """
+  Renders an ornate divider for visual separation.
+
+  ## Examples
+
+      <.ornate_divider />
+      <.ornate_divider variant="white" class="my-12" />
+  """
+  attr :class, :string, default: nil
+  attr :variant, :string, default: "black", values: ["black", "white"]
+  attr :rest, :global
+
+  def ornate_divider(assigns) do
+    ~H"""
+    <div class={["flex justify-center items-center my-8", @class]} {@rest}>
+      <img
+        src={if @variant == "white", do: "/images/pngs/white-ornate.png", else: "/images/pngs/black-ornate.png"}
+        alt=""
+        class="w-full max-w-2xl h-auto opacity-60"
+      />
+    </div>
+    """
+  end
+
+  @doc """
+  Renders an ornate header image/pattern.
+
+  ## Examples
+
+      <.ornate_header />
+  """
+  attr :class, :string, default: nil
+  attr :rest, :global
+
+  def ornate_header(assigns) do
+    ~H"""
+    <div class={["relative w-full h-48 overflow-hidden", @class]} {@rest}>
+      <img
+        src="/images/pngs/white-ornate.png"
+        alt=""
+        class="w-full h-full object-cover opacity-10"
+      />
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a religious medallion or symbol image.
+
+  ## Examples
+
+      <.medallion type="holy_family" />
+      <.medallion type="crucifix" size="large" />
+      <.medallion type="deo_gratias" />
+  """
+  attr :type, :string,
+    required: true,
+    values: ["holy_family", "crucifix", "pax", "deo_gratias", "saint_benedict"]
+
+  attr :size, :string, default: "medium", values: ["small", "medium", "large"]
+  attr :class, :string, default: nil
+  attr :rest, :global
+
+  def medallion(assigns) do
+    assigns =
+      assigns
+      |> assign(:image_path, medallion_image_path(assigns.type))
+      |> assign(:size_class, medallion_size_class(assigns.size))
+
+    ~H"""
+    <div class={["flex justify-center items-center", @class]} {@rest}>
+      <img src={@image_path} alt="" class={["h-auto", @size_class]} />
+    </div>
+    """
+  end
+
+  defp medallion_image_path("holy_family"), do: "/images/pngs/holy-family.png"
+  defp medallion_image_path("crucifix"), do: "/images/pngs/crucifix.png"
+  defp medallion_image_path("pax"), do: "/images/pngs/olive-branch-pax.png"
+  defp medallion_image_path("deo_gratias"), do: "/images/pngs/deo-gratias.png"
+  defp medallion_image_path("saint_benedict"), do: "/images/pngs/saint-benedict-symbol.png"
+
+  defp medallion_size_class("small"), do: "w-10 md:w-12"
+  defp medallion_size_class("medium"), do: "w-28 md:w-32"
+  defp medallion_size_class("large"), do: "w-48 md:w-64"
+
+  @doc """
+  Renders a religious medallion with a light circular background.
+  Use this for dark medallion images that need contrast on dark backgrounds.
+
+  ## Examples
+
+      <.medallion_bg type="holy_family" />
+      <.medallion_bg type="pax" size="large" />
+      <.medallion_bg type="saint_benedict" size="small" />
+  """
+  attr :type, :string,
+    required: true,
+    values: ["holy_family", "crucifix", "pax", "deo_gratias", "saint_benedict"]
+
+  attr :size, :string, default: "medium", values: ["small", "medium", "large"]
+  attr :class, :string, default: nil
+  attr :rest, :global
+
+  def medallion_bg(assigns) do
+    assigns =
+      assigns
+      |> assign(:image_path, medallion_image_path(assigns.type))
+      |> assign(:size_class, medallion_size_class(assigns.size))
+      |> assign(:padding_class, medallion_bg_padding(assigns.size))
+
+    ~H"""
+    <div class={["flex justify-center items-center", @class]} {@rest}>
+      <div class={["bg-cream rounded-full", @padding_class]}>
+        <img src={@image_path} alt="" class={["h-auto", @size_class]} />
+      </div>
+    </div>
+    """
+  end
+
+  defp medallion_bg_padding("small"), do: "p-2"
+  defp medallion_bg_padding("medium"), do: "p-4"
+  defp medallion_bg_padding("large"), do: "p-6"
+
+  @doc """
   Translates an error message using gettext.
   """
   def translate_error({msg, opts}) do

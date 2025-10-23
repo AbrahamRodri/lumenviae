@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Ovo&family=Work+Sans:wght@300;400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
       rel="stylesheet"
     />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
@@ -18,31 +18,58 @@
     </script>
   </head>
   <body class="bg-cream">
-    <!-- Header -->
-    <header class="bg-navy border-b-3 border-gold py-8">
-      <div class="max-w-7xl mx-auto px-4 text-center">
+    <!-- Header with Ornate Background -->
+    <header class="bg-navy border-b-3 border-gold relative overflow-hidden">
+      <!-- Abstract Pattern Background -->
+      <div class="absolute inset-0 opacity-5">
+        <img
+          src="/images/abstract-3166168_1280-white-e1663264932228.png"
+          alt=""
+          class="w-full h-full object-cover"
+        />
+      </div>
+
+      <div class="relative max-w-7xl mx-auto px-4 py-12 text-center">
         <.link navigate="/" class="inline-block">
-          <img src="/images/logo.svg" alt="Lumen Viae Logo" class="w-20 h-20 mx-auto mb-4" />
-          <h1 class="font-cinzel text-gold text-4xl tracking-wider font-light">
+          <.medallion_bg type="holy_family" size="medium" class="mb-6" />
+
+          <h1 class="font-cinzel-decorative text-gold text-5xl md:text-6xl tracking-widest font-bold mb-2">
             LUMEN VIAE
           </h1>
-          <p class="font-crimson text-gold opacity-80 text-sm tracking-widest uppercase mt-2">
+
+          <.ornate_divider variant="white" class="my-4 opacity-30" />
+
+          <p class="font-garamond text-gold-light text-lg tracking-wide italic font-normal">
             Meditations on the Holy Rosary
           </p>
+
+          <.medallion_bg type="saint_benedict" size="small" class="mt-4" />
         </.link>
       </div>
     </header>
 
     {@inner_content}
+    
+<!-- Footer with Ornate Elements -->
+    <footer class="bg-navy text-gold text-center py-12 mt-20 border-t-3 border-gold relative">
+      <!-- Crucifix at Top -->
+      <div class="mx-auto px-8">
+        <.medallion type="crucifix" size="medium" />
+      </div>
 
-    <!-- Footer -->
-    <footer class="bg-navy text-gold text-center py-8 mt-16 border-t-3 border-gold">
-      <p class="font-crimson opacity-80 text-sm">
-        Lumen Viae - Light of the Way
-      </p>
-      <p class="font-crimson opacity-80 text-sm mt-1">
-        &copy; 2025 All Rights Reserved | Ad Majorem Dei Gloriam
-      </p>
+      <div class="mt-8">
+        <.ornate_divider variant="white" class="my-12 opacity-20 max-w-sm mx-auto" />
+
+        <p class="font-garamond text-gold-light text-base tracking-wide italic">
+          Lumen Viae - Light of the Way
+        </p>
+        <p class="font-garamond text-gold opacity-70 text-sm mt-2">
+          &copy; 2025 All Rights Reserved
+        </p>
+        <p class="font-cinzel text-gold text-sm tracking-widest uppercase mt-3">
+          Ad Majorem Dei Gloriam
+        </p>
+      </div>
     </footer>
   </body>
 </html>
