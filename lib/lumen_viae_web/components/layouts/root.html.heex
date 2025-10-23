@@ -18,40 +18,38 @@
     </script>
   </head>
   <body class="bg-cream">
-    <!-- Header with Ornate Background -->
-    <header class="bg-navy border-b-3 border-gold relative overflow-hidden">
-      <!-- Abstract Pattern Background -->
-      <div class="absolute inset-0 opacity-5">
-        <img
-          src="/images/abstract-3166168_1280-white-e1663264932228.png"
-          alt=""
-          class="w-full h-full object-cover"
-        />
-      </div>
+    <!-- Simplified Header / Navigation -->
+    <header class="bg-navy border-b-3 border-gold relative">
+      <div class="relative max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+        <.link navigate="/" class="flex items-center gap-4 hover:opacity-80 transition-opacity">
+          <.medallion_bg type="saint_benedict" size="small" />
 
-      <div class="relative max-w-7xl mx-auto px-4 py-12 text-center">
-        <.link navigate="/" class="inline-block">
-          <.medallion_bg type="holy_family" size="medium" class="mb-6" />
-
-          <h1 class="font-cinzel-decorative text-gold text-5xl md:text-6xl tracking-widest font-bold mb-2">
-            LUMEN VIAE
-          </h1>
-
-          <.ornate_divider variant="white" class="my-4 opacity-30" />
-
-          <p class="font-garamond text-gold-light text-lg tracking-wide italic font-normal">
-            Meditations on the Holy Rosary
-          </p>
-
-          <.medallion_bg type="saint_benedict" size="small" class="mt-4" />
+          <div>
+            <h1 class="font-cinzel-decorative text-gold text-2xl md:text-3xl tracking-widest font-bold">
+              LUMEN VIAE
+            </h1>
+            <p class="font-garamond text-gold-light text-sm tracking-wide italic">
+              Meditations on the Holy Rosary
+            </p>
+          </div>
         </.link>
+        
+<!-- Optional: Navigation links space -->
+        <div class="hidden md:flex items-center gap-6">
+          <.link
+            navigate="/rosary-methods"
+            class="font-work-sans text-gold-light hover:text-gold transition-colors text-sm"
+          >
+            Rosary Methods
+          </.link>
+        </div>
       </div>
     </header>
 
     {@inner_content}
     
 <!-- Footer with Ornate Elements -->
-    <footer class="bg-navy text-gold text-center py-12 mt-20 border-t-3 border-gold relative">
+    <footer class="bg-navy text-gold text-center py-12 border-t-3 border-gold relative">
       <!-- Crucifix at Top -->
       <div class="mx-auto px-8">
         <.medallion type="crucifix" size="medium" />

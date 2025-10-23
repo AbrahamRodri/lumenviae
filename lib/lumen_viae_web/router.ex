@@ -17,8 +17,11 @@ defmodule LumenViaeWeb.Router do
   scope "/", LumenViaeWeb do
     pipe_through :browser
 
-    # Rosary home - lists mystery categories (Joyful, Sorrowful, Glorious)
-    live "/", Live.Rosary.List
+    # Home page - welcome and mystery categories
+    live "/", Live.Home.Index
+
+    # Methods of praying the Rosary (St. Louis de Montfort)
+    live "/rosary-methods", Live.RosaryMethods.Index
 
     # Admin dashboard - landing page with navigation
     live "/admin", Live.Admin.Dashboard
