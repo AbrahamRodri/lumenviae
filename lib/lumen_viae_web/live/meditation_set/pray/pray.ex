@@ -49,7 +49,7 @@ defmodule LumenViaeWeb.Live.MeditationSet.Pray do
         <!-- Progress Indicator -->
         <div class="text-center mb-8">
           <p class="font-crimson text-gray-600 mb-2">
-            <%= @set.name %>
+            {@set.name}
           </p>
           <div class="flex justify-center items-center gap-2">
             <%= for i <- 0..(@total_count - 1) do %>
@@ -58,57 +58,57 @@ defmodule LumenViaeWeb.Live.MeditationSet.Pray do
             <% end %>
           </div>
           <p class="font-crimson text-sm text-gray-500 mt-2">
-            <%= @current_index + 1 %> of <%= @total_count %>
+            {@current_index + 1} of {@total_count}
           </p>
         </div>
-
-        <!-- Mystery and Meditation -->
+        
+    <!-- Mystery and Meditation -->
         <div class="bg-white border-l-4 border-gold p-12 mb-8">
           <!-- Mystery Title -->
           <h2 class="font-cinzel text-3xl text-navy mb-2 text-center">
-            <%= @meditation.mystery.name %>
+            {@meditation.mystery.name}
           </h2>
 
           <%= if @meditation.mystery.scripture_reference do %>
             <p class="font-crimson text-gray-500 italic text-center mb-8">
-              <%= @meditation.mystery.scripture_reference %>
+              {@meditation.mystery.scripture_reference}
             </p>
           <% end %>
-
-          <!-- Mystery Description -->
+          
+    <!-- Mystery Description -->
           <%= if @meditation.mystery.description do %>
             <p class="font-crimson text-gray-600 text-center mb-8 pb-8 border-b border-gray-200">
-              <%= @meditation.mystery.description %>
+              {@meditation.mystery.description}
             </p>
           <% end %>
-
-          <!-- Meditation Content -->
+          
+    <!-- Meditation Content -->
           <%= if @meditation.title do %>
             <h3 class="font-cinzel text-xl text-navy mb-4 mt-8">
-              <%= @meditation.title %>
+              {@meditation.title}
             </h3>
           <% end %>
 
           <div class="font-crimson text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">
-            <%= @meditation.content %>
+            {@meditation.content}
           </div>
-
-          <!-- Attribution -->
+          
+    <!-- Attribution -->
           <%= if @meditation.author || @meditation.source do %>
             <div class="mt-8 pt-6 border-t border-gray-200 text-right">
               <p class="font-crimson text-gray-500 italic text-sm">
                 <%= if @meditation.author do %>
-                  — <%= @meditation.author %>
+                  — {@meditation.author}
                 <% end %>
                 <%= if @meditation.source do %>
-                  <span class="block mt-1"><%= @meditation.source %></span>
+                  <span class="block mt-1">{@meditation.source}</span>
                 <% end %>
               </p>
             </div>
           <% end %>
         </div>
-
-        <!-- Navigation Controls -->
+        
+    <!-- Navigation Controls -->
         <div class="flex justify-between items-center">
           <button
             phx-click="previous"
@@ -120,7 +120,7 @@ defmodule LumenViaeWeb.Live.MeditationSet.Pray do
 
           <%= if @current_index == @total_count - 1 do %>
             <.link
-              navigate={"/" <> @set.category}
+              navigate={"/mysteries/" <> @set.category}
               class="font-cinzel px-6 py-3 bg-gold text-navy border-2 border-gold hover:bg-navy hover:text-gold transition-colors"
             >
               Complete Rosary
@@ -134,14 +134,14 @@ defmodule LumenViaeWeb.Live.MeditationSet.Pray do
             </button>
           <% end %>
         </div>
-
-        <!-- Exit to Category -->
+        
+    <!-- Exit to Category -->
         <div class="mt-8 text-center">
           <.link
             navigate={"/" <> @set.category}
             class="font-crimson text-navy hover:text-gold transition-colors text-sm"
           >
-            Exit to <%= String.capitalize(@set.category) %> Mysteries
+            Exit to {String.capitalize(@set.category)} Mysteries
           </.link>
         </div>
       </div>
