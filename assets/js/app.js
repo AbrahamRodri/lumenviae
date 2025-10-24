@@ -54,44 +54,6 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
-// Site navigation scroll effect
-const siteNav = {
-  initialized: false,
-  header: null,
-  scrollHandler: null
-}
-
-const updateSiteNavState = () => {
-  if (!siteNav.header) return
-
-  const hasScrolled = window.scrollY > 24
-  siteNav.header.classList.toggle("bg-navy", hasScrolled)
-  siteNav.header.classList.toggle("bg-transparent", !hasScrolled)
-  siteNav.header.classList.toggle("shadow-lg", hasScrolled)
-  siteNav.header.classList.toggle("backdrop-blur", hasScrolled)
-}
-
-const initializeSiteNav = () => {
-  const header = document.querySelector('[data-role="site-nav"]')
-  if (!header) return
-
-  if (siteNav.initialized && siteNav.header === header) {
-    updateSiteNavState()
-    return
-  }
-
-  if (siteNav.scrollHandler) {
-    window.removeEventListener("scroll", siteNav.scrollHandler)
-  }
-
-  siteNav.header = header
-  siteNav.scrollHandler = () => updateSiteNavState()
-  siteNav.header.classList.add("transition-colors", "duration-500", "ease-in-out")
-  window.addEventListener("scroll", siteNav.scrollHandler, {passive: true})
-  siteNav.initialized = true
-  updateSiteNavState()
-}
-
 window.addEventListener("DOMContentLoaded", initializeSiteNav)
 window.addEventListener("phx:page-loading-stop", initializeSiteNav)
 
