@@ -20,27 +20,53 @@
     </div>
   </div>
 
+  <!-- Category Tabs -->
+  <div class="container-boxed -mt-10">
+    <div class="max-w-2xl mx-auto flex flex-wrap justify-center gap-3 bg-white/70 backdrop-blur-sm p-4 rounded-full shadow-soft">
+      <%= for category <- @categories do %>
+        <button
+          type="button"
+          phx-click="select-category"
+          phx-value-id={category.id}
+          class={[
+            "px-6 py-2 rounded-full text-sm font-ovo uppercase tracking-wide transition-colors border",
+            if(category.id == @selected_category,
+              do: "bg-navy text-gold border-navy shadow-md",
+              else: "bg-cream text-navy border-gold hover:bg-gold-light/20"
+            )
+          ]}
+        >
+          <%= category.name %> Mysteries
+        </button>
+      <% end %>
+    </div>
+  </div>
+
   <!-- Main Content -->
   <div class="container-boxed py-16">
     <div class="max-w-4xl mx-auto">
 
       <!-- Introduction -->
       <div class="mb-16">
-        <div class="bg-white p-8 rounded-lg shadow-soft border-l-4 border-gold mb-8">
-          <h2 class="font-ovo text-navy text-2xl mb-6 text-center">
-            Traditional and Modern Practice
-          </h2>
+        <details class="group bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+          <summary
+            class="font-ovo text-navy text-lg md:text-xl flex items-center justify-between cursor-pointer select-none"
+          >
+            <span>History & Practice of the Rosary</span>
+            <span class="text-gold-dark text-xs md:text-sm uppercase tracking-wide group-open:hidden">Show Details</span>
+            <span class="text-gold-dark text-xs md:text-sm uppercase tracking-wide hidden group-open:inline">Hide Details</span>
+          </summary>
 
-          <div class="space-y-6 font-work-sans text-brown leading-relaxed">
+          <div class="mt-6 space-y-6 font-work-sans text-brown leading-relaxed text-sm md:text-base">
             <p>
               The Rosary contemplates the mysteries of Christ's life through the eyes of Mary.
               Traditionally, the Rosary consisted of <strong>fifteen mysteries</strong> divided into three sets:
               the Joyful, Sorrowful, and Glorious Mysteries.
             </p>
 
-            <div class="bg-cream-dark p-6 rounded">
-              <h3 class="font-ovo text-navy text-lg mb-3">Traditional Schedule (15 Mysteries)</h3>
-              <ul class="space-y-2 text-sm">
+            <div class="bg-cream-dark p-5 rounded">
+              <h3 class="font-ovo text-navy text-base md:text-lg mb-3">Traditional Schedule (15 Mysteries)</h3>
+              <ul class="space-y-2 text-xs md:text-sm">
                 <li><strong>Monday & Thursday:</strong> Joyful Mysteries</li>
                 <li><strong>Tuesday & Friday:</strong> Sorrowful Mysteries</li>
                 <li><strong>Wednesday & Saturday:</strong> Glorious Mysteries</li>
@@ -54,9 +80,9 @@
               and His Passion. This brought the total to <strong>twenty mysteries</strong>.
             </p>
 
-            <div class="bg-cream-dark p-6 rounded">
-              <h3 class="font-ovo text-navy text-lg mb-3">Modern Schedule (20 Mysteries)</h3>
-              <ul class="space-y-2 text-sm">
+            <div class="bg-cream-dark p-5 rounded">
+              <h3 class="font-ovo text-navy text-base md:text-lg mb-3">Modern Schedule (20 Mysteries)</h3>
+              <ul class="space-y-2 text-xs md:text-sm">
                 <li><strong>Monday:</strong> Joyful Mysteries</li>
                 <li><strong>Tuesday:</strong> Sorrowful Mysteries</li>
                 <li><strong>Wednesday:</strong> Glorious Mysteries</li>
@@ -67,24 +93,25 @@
               </ul>
             </div>
           </div>
-        </div>
+        </details>
       </div>
 
       <.ornate_divider variant="black" class="my-12 opacity-40" />
 
       <!-- Joyful Mysteries -->
-      <section class="mb-16">
-        <div class="text-center mb-10">
-          <h2 class="font-ovo text-navy text-4xl mb-4">
-            The Joyful Mysteries
-          </h2>
-          <p class="font-work-sans text-brown italic text-sm">
-            Traditional: Monday & Thursday | Modern: Monday & Saturday
-          </p>
-        </div>
+      <%= if @selected_category == "joyful" do %>
+        <section class="mb-16">
+          <div class="text-center mb-10">
+            <h2 class="font-ovo text-navy text-4xl mb-4">
+              The Joyful Mysteries
+            </h2>
+            <p class="font-work-sans text-brown italic text-sm">
+              Traditional: Monday & Thursday | Modern: Monday & Saturday
+            </p>
+          </div>
 
-        <div class="space-y-6">
-          <!-- 1. The Annunciation -->
+          <div class="space-y-6">
+            <!-- 1. The Annunciation -->
           <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
             <h3 class="font-ovo text-navy text-2xl mb-3">
               1. The Annunciation
@@ -333,24 +360,26 @@
               </div>
             </details>
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      <.ornate_divider variant="black" class="my-16 opacity-40" />
+        <.ornate_divider variant="black" class="my-16 opacity-40" />
+      <% end %>
 
       <!-- Luminous Mysteries -->
-      <section class="mb-16">
-        <div class="text-center mb-10">
-          <h2 class="font-ovo text-navy text-4xl mb-4">
-            The Luminous Mysteries
-          </h2>
-          <p class="font-work-sans text-brown italic text-sm">
-            Modern: Thursday | Added by Pope St. John Paul II (2002)
-          </p>
-        </div>
+      <%= if @selected_category == "luminous" do %>
+        <section class="mb-16">
+          <div class="text-center mb-10">
+            <h2 class="font-ovo text-navy text-4xl mb-4">
+              The Luminous Mysteries
+            </h2>
+            <p class="font-work-sans text-brown italic text-sm">
+              Modern: Thursday | Added by Pope St. John Paul II (2002)
+            </p>
+          </div>
 
-        <div class="space-y-6">
-          <!-- 1. Baptism in the Jordan -->
+          <div class="space-y-6">
+            <!-- 1. Baptism in the Jordan -->
           <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
             <h3 class="font-ovo text-navy text-2xl mb-3">
               1. The Baptism of Our Lord in the Jordan
@@ -648,24 +677,26 @@ Luke 22:19-20:
             </details>
           </div>
         </div>
-      </section>
+        </section>
 
-      <.ornate_divider variant="black" class="my-16 opacity-40" />
+        <.ornate_divider variant="black" class="my-16 opacity-40" />
+      <% end %>
 
       <!-- Sorrowful Mysteries -->
-      <section class="mb-16">
-        <div class="text-center mb-10">
-          <h2 class="font-ovo text-navy text-4xl mb-4">
-            The Sorrowful Mysteries
-          </h2>
-          <p class="font-work-sans text-brown italic text-sm">
-            Both: Tuesday & Friday
-          </p>
-        </div>
+      <%= if @selected_category == "sorrowful" do %>
+        <section class="mb-16">
+          <div class="text-center mb-10">
+            <h2 class="font-ovo text-navy text-4xl mb-4">
+              The Sorrowful Mysteries
+            </h2>
+            <p class="font-work-sans text-brown italic text-sm">
+              Both: Tuesday & Friday
+            </p>
+          </div>
 
-        <div class="space-y-6">
-          <!-- 1. Agony in the Garden -->
-          <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+          <div class="space-y-6">
+            <!-- 1. Agony in the Garden -->
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
             <h3 class="font-ovo text-navy text-2xl mb-3">
               1. The Agony in the Garden
             </h3>
@@ -996,24 +1027,26 @@ Matthew 27:33-54:
             </details>
           </div>
         </div>
-      </section>
+        </section>
 
-      <.ornate_divider variant="black" class="my-16 opacity-40" />
+        <.ornate_divider variant="black" class="my-16 opacity-40" />
+      <% end %>
 
       <!-- Glorious Mysteries -->
-      <section class="mb-16">
-        <div class="text-center mb-10">
-          <h2 class="font-ovo text-navy text-4xl mb-4">
-            The Glorious Mysteries
-          </h2>
-          <p class="font-work-sans text-brown italic text-sm">
-            Traditional: Wednesday & Saturday | Modern: Wednesday & Sunday
-          </p>
-        </div>
+      <%= if @selected_category == "glorious" do %>
+        <section class="mb-16">
+          <div class="text-center mb-10">
+            <h2 class="font-ovo text-navy text-4xl mb-4">
+              The Glorious Mysteries
+            </h2>
+            <p class="font-work-sans text-brown italic text-sm">
+              Traditional: Wednesday & Saturday | Modern: Wednesday & Sunday
+            </p>
+          </div>
 
-        <div class="space-y-6">
-          <!-- 1. Resurrection -->
-          <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+          <div class="space-y-6">
+            <!-- 1. Resurrection -->
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
             <h3 class="font-ovo text-navy text-2xl mb-3">
               1. The Resurrection
             </h3>
@@ -1332,7 +1365,8 @@ Psalm 45:10-17:
             </details>
           </div>
         </div>
-      </section>
+        </section>
+      <% end %>
 
       <!-- Closing -->
       <div class="text-center mt-16">
