@@ -30,6 +30,7 @@ if env == "prod" and not force_seed do
 
   Aborting...
   """)
+
   System.halt(1)
 end
 
@@ -59,17 +60,20 @@ insert_or_update_mystery = fn attrs ->
       mystery = Repo.insert!(struct(Mystery, attrs))
       IO.puts("  ✓ Created: #{attrs.name}")
       mystery
+
     existing ->
-      mystery = existing
-      |> Mystery.changeset(attrs)
-      |> Repo.update!()
+      mystery =
+        existing
+        |> Mystery.changeset(attrs)
+        |> Repo.update!()
+
       IO.puts("  ↻ Updated: #{attrs.name}")
       mystery
   end
 end
 
 # ============================================================================
-# Seed Mysteries (The 15 Traditional Mysteries)
+# Seed Mysteries (The 15  Mysteries)
 # ============================================================================
 
 IO.puts("\n" <> String.duplicate("-", 70))
@@ -78,70 +82,130 @@ IO.puts(String.duplicate("-", 70))
 
 mysteries_data = [
   # Joyful Mysteries
-  %{name: "The Annunciation", category: "joyful", order: 1,
+  %{
+    name: "The Annunciation",
+    category: "joyful",
+    order: 1,
     days_prayed: "Mondays, Thursdays, and Saturdays",
     description: "The angel Gabriel announces to Mary that she is to be the Mother of God.",
-    scripture_reference: "Luke 1:26-38"},
-  %{name: "The Visitation", category: "joyful", order: 2,
+    scripture_reference: "Luke 1:26-38"
+  },
+  %{
+    name: "The Visitation",
+    category: "joyful",
+    order: 2,
     days_prayed: "Mondays, Thursdays, and Saturdays",
     description: "Mary visits her cousin Elizabeth, who proclaims her blessed among women.",
-    scripture_reference: "Luke 1:39-56"},
-  %{name: "The Nativity", category: "joyful", order: 3,
+    scripture_reference: "Luke 1:39-56"
+  },
+  %{
+    name: "The Nativity",
+    category: "joyful",
+    order: 3,
     days_prayed: "Mondays, Thursdays, and Saturdays",
     description: "Jesus is born in Bethlehem and laid in a manger.",
-    scripture_reference: "Luke 2:1-20"},
-  %{name: "The Presentation", category: "joyful", order: 4,
+    scripture_reference: "Luke 2:1-20"
+  },
+  %{
+    name: "The Presentation",
+    category: "joyful",
+    order: 4,
     days_prayed: "Mondays, Thursdays, and Saturdays",
     description: "Mary and Joseph present the infant Jesus in the Temple.",
-    scripture_reference: "Luke 2:22-38"},
-  %{name: "The Finding in the Temple", category: "joyful", order: 5,
+    scripture_reference: "Luke 2:22-38"
+  },
+  %{
+    name: "The Finding in the Temple",
+    category: "joyful",
+    order: 5,
     days_prayed: "Mondays, Thursdays, and Saturdays",
     description: "Jesus is found in the Temple, discussing with the doctors of the Law.",
-    scripture_reference: "Luke 2:41-52"},
+    scripture_reference: "Luke 2:41-52"
+  },
 
   # Sorrowful Mysteries
-  %{name: "The Agony in the Garden", category: "sorrowful", order: 1,
+  %{
+    name: "The Agony in the Garden",
+    category: "sorrowful",
+    order: 1,
     days_prayed: "Tuesdays and Fridays",
     description: "Jesus suffers greatly and sweats blood in the Garden of Gethsemane.",
-    scripture_reference: "Matthew 26:36-46"},
-  %{name: "The Scourging at the Pillar", category: "sorrowful", order: 2,
+    scripture_reference: "Matthew 26:36-46"
+  },
+  %{
+    name: "The Scourging at the Pillar",
+    category: "sorrowful",
+    order: 2,
     days_prayed: "Tuesdays and Fridays",
     description: "Jesus is bound and cruelly scourged by the Roman soldiers.",
-    scripture_reference: "Matthew 27:26"},
-  %{name: "The Crowning with Thorns", category: "sorrowful", order: 3,
+    scripture_reference: "Matthew 27:26"
+  },
+  %{
+    name: "The Crowning with Thorns",
+    category: "sorrowful",
+    order: 3,
     days_prayed: "Tuesdays and Fridays",
     description: "A crown of thorns is pressed upon Jesus' sacred head.",
-    scripture_reference: "Matthew 27:27-31"},
-  %{name: "The Carrying of the Cross", category: "sorrowful", order: 4,
+    scripture_reference: "Matthew 27:27-31"
+  },
+  %{
+    name: "The Carrying of the Cross",
+    category: "sorrowful",
+    order: 4,
     days_prayed: "Tuesdays and Fridays",
     description: "Jesus carries His cross to Calvary, falling three times under its weight.",
-    scripture_reference: "John 19:17"},
-  %{name: "The Crucifixion", category: "sorrowful", order: 5,
+    scripture_reference: "John 19:17"
+  },
+  %{
+    name: "The Crucifixion",
+    category: "sorrowful",
+    order: 5,
     days_prayed: "Tuesdays and Fridays",
     description: "Jesus is nailed to the cross and dies for our salvation.",
-    scripture_reference: "John 19:18-30"},
+    scripture_reference: "John 19:18-30"
+  },
 
   # Glorious Mysteries
-  %{name: "The Resurrection", category: "glorious", order: 1,
+  %{
+    name: "The Resurrection",
+    category: "glorious",
+    order: 1,
     days_prayed: "Wednesdays, Thursdays, and Sundays",
     description: "Jesus rises from the dead on the third day, glorious and immortal.",
-    scripture_reference: "Matthew 28:1-10"},
-  %{name: "The Ascension", category: "glorious", order: 2,
+    scripture_reference: "Matthew 28:1-10"
+  },
+  %{
+    name: "The Ascension",
+    category: "glorious",
+    order: 2,
     days_prayed: "Wednesdays, Thursdays, and Sundays",
     description: "Jesus ascends into Heaven forty days after His Resurrection.",
-    scripture_reference: "Acts 1:6-11"},
-  %{name: "The Descent of the Holy Spirit", category: "glorious", order: 3,
+    scripture_reference: "Acts 1:6-11"
+  },
+  %{
+    name: "The Descent of the Holy Spirit",
+    category: "glorious",
+    order: 3,
     days_prayed: "Wednesdays, Thursdays, and Sundays",
     description: "The Holy Spirit descends upon Mary and the Apostles at Pentecost.",
-    scripture_reference: "Acts 2:1-4"},
-  %{name: "The Assumption", category: "glorious", order: 4,
+    scripture_reference: "Acts 2:1-4"
+  },
+  %{
+    name: "The Assumption",
+    category: "glorious",
+    order: 4,
     days_prayed: "Wednesdays, Thursdays, and Sundays",
     description: "Mary is taken up body and soul into Heaven.",
-    scripture_reference: "Revelation 12:1"},
-  %{name: "The Coronation of Mary", category: "glorious", order: 5,
+    scripture_reference: "Revelation 12:1"
+  },
+  %{
+    name: "The Coronation of Mary",
+    category: "glorious",
+    order: 5,
     days_prayed: "Wednesdays, Thursdays, and Sundays",
     description: "Mary is crowned Queen of Heaven and Earth.",
-    scripture_reference: "Revelation 12:1-6"}
+    scripture_reference: "Revelation 12:1-6"
+  }
 ]
 
 Enum.each(mysteries_data, insert_or_update_mystery)
@@ -153,7 +217,7 @@ IO.puts("\n✓ Mysteries seeded: #{Repo.aggregate(Mystery, :count)} total")
 # ============================================================================
 
 IO.puts("\n" <> String.duplicate("-", 70))
-IO.puts("Seeding Meditations from Traditional Sources...")
+IO.puts("Seeding Meditations from  Sources...")
 IO.puts(String.duplicate("-", 70))
 
 # Discover all meditation seed files in priv/repo/seeds/
@@ -186,8 +250,9 @@ IO.puts(String.duplicate("-", 70))
 # Get all meditations grouped by author and category
 all_meditations = Meditation |> Repo.all() |> Repo.preload(:mystery)
 
-meditations_by_source = all_meditations
-|> Enum.group_by(& {&1.author, &1.mystery.category})
+meditations_by_source =
+  all_meditations
+  |> Enum.group_by(&{&1.author, &1.mystery.category})
 
 # Create sets for each unique combination
 for {{author, category}, meditations} <- meditations_by_source do
@@ -196,18 +261,21 @@ for {{author, category}, meditations} <- meditations_by_source do
   # Check if set already exists
   existing_set = Repo.get_by(MeditationSet, name: set_name)
 
-  meditation_set = if existing_set do
-    IO.puts("  ↻ Updating: #{set_name}")
-    existing_set
-  else
-    set = Repo.insert!(%MeditationSet{
-      name: set_name,
-      category: category,
-      description: "Meditations on the #{category} mysteries from #{author}"
-    })
-    IO.puts("  ✓ Created: #{set_name}")
-    set
-  end
+  meditation_set =
+    if existing_set do
+      IO.puts("  ↻ Updating: #{set_name}")
+      existing_set
+    else
+      set =
+        Repo.insert!(%MeditationSet{
+          name: set_name,
+          category: category,
+          description: "Meditations on the #{category} mysteries from #{author}"
+        })
+
+      IO.puts("  ✓ Created: #{set_name}")
+      set
+    end
 
   # Clear existing relationships for this set if updating
   if existing_set do

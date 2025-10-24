@@ -21,6 +21,9 @@ defmodule LumenViaeWeb.Router do
     # Home page - welcome and mystery categories
     live "/", Live.Home.Index
 
+    # All 20 mysteries of the Rosary
+    live "/mysteries", Live.Mysteries.Index
+
     # Methods of praying the Rosary (St. Louis de Montfort)
     live "/rosary-methods", Live.RosaryMethods.Index
 

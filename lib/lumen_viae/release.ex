@@ -14,8 +14,8 @@ defmodule LumenViae.Release do
 
     # Run seeds idempotently after migrations
     # This adds new meditations/mysteries without wiping existing data
-    System.put_env("FORCE_SEED", "true")
-    seed()
+    # System.put_env("FORCE_SEED", "true")
+    # seed()
   end
 
   def rollback(repo, version) do

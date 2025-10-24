@@ -162,7 +162,7 @@ mysteries =
       # Check if meditation already exists for this mystery, author, and source
       existing = Repo.get_by(Meditation,
         mystery_id: mystery.id,
-        author: "Traditional Spiritual Author",
+        author: "Lumen Viae",
         source: "Meditations on Humility"
       )
 
@@ -182,7 +182,7 @@ mysteries =
         # Insert new meditation
         Repo.insert!(%Meditation{
           content: String.trim(data.content),
-          author: "Traditional Spiritual Author",
+          author: "Lumen Viae",
           source: "Meditations on Humility",
           mystery_id: mystery.id
         })
