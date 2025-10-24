@@ -11,6 +11,11 @@ defmodule LumenViae.Release do
     for repo <- repos() do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end
+
+    # Run seeds idempotently after migrations
+    # This adds new meditations/mysteries without wiping existing data
+    System.put_env("FORCE_SEED", "true")
+    seed()
   end
 
   def rollback(repo, version) do
