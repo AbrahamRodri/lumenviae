@@ -13,7 +13,6 @@ kill_signal = 'SIGTERM'
   release_command = '/app/bin/migrate'
 
 [env]
-  PHX_HOST = 'lumenviae.org'
   PORT = '8080'
 
 [http_service]
