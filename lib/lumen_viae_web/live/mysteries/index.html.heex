@@ -20,6 +20,28 @@
     </div>
   </div>
 
+  <!-- Category Tabs -->
+  <div class="container-boxed -mt-10">
+    <div class="max-w-2xl mx-auto flex flex-wrap justify-center gap-3 bg-white/70 backdrop-blur-sm p-4 rounded-full shadow-soft">
+      <%= for category <- @categories do %>
+        <button
+          type="button"
+          phx-click="select-category"
+          phx-value-id={category.id}
+          class={[
+            "px-6 py-2 rounded-full text-sm font-ovo uppercase tracking-wide transition-colors border",
+            if(category.id == @selected_category,
+              do: "bg-navy text-gold border-navy shadow-md",
+              else: "bg-cream text-navy border-gold hover:bg-gold-light/20"
+            )
+          ]}
+        >
+          <%= category.name %> Mysteries
+        </button>
+      <% end %>
+    </div>
+  </div>
+
   <!-- Main Content -->
   <div class="container-boxed py-16">
     <div class="max-w-4xl mx-auto">
@@ -73,7 +95,8 @@
       <.ornate_divider variant="black" class="my-12 opacity-40" />
 
       <!-- Joyful Mysteries -->
-      <section class="mb-16">
+      <%= if @selected_category == "joyful" do %>
+        <section class="mb-16">
         <div class="text-center mb-10">
           <h2 class="font-ovo text-navy text-4xl mb-4">
             The Joyful Mysteries
@@ -334,12 +357,14 @@
             </details>
           </div>
         </div>
-      </section>
+        </section>
 
-      <.ornate_divider variant="black" class="my-16 opacity-40" />
+        <.ornate_divider variant="black" class="my-16 opacity-40" />
+      <% end %>
 
       <!-- Luminous Mysteries -->
-      <section class="mb-16">
+      <%= if @selected_category == "luminous" do %>
+        <section class="mb-16">
         <div class="text-center mb-10">
           <h2 class="font-ovo text-navy text-4xl mb-4">
             The Luminous Mysteries
@@ -648,12 +673,14 @@ Luke 22:19-20:
             </details>
           </div>
         </div>
-      </section>
+        </section>
 
-      <.ornate_divider variant="black" class="my-16 opacity-40" />
+        <.ornate_divider variant="black" class="my-16 opacity-40" />
+      <% end %>
 
       <!-- Sorrowful Mysteries -->
-      <section class="mb-16">
+      <%= if @selected_category == "sorrowful" do %>
+        <section class="mb-16">
         <div class="text-center mb-10">
           <h2 class="font-ovo text-navy text-4xl mb-4">
             The Sorrowful Mysteries
@@ -996,12 +1023,14 @@ Matthew 27:33-54:
             </details>
           </div>
         </div>
-      </section>
+        </section>
 
-      <.ornate_divider variant="black" class="my-16 opacity-40" />
+        <.ornate_divider variant="black" class="my-16 opacity-40" />
+      <% end %>
 
       <!-- Glorious Mysteries -->
-      <section class="mb-16">
+      <%= if @selected_category == "glorious" do %>
+        <section class="mb-16">
         <div class="text-center mb-10">
           <h2 class="font-ovo text-navy text-4xl mb-4">
             The Glorious Mysteries
@@ -1332,7 +1361,8 @@ Psalm 45:10-17:
             </details>
           </div>
         </div>
-      </section>
+        </section>
+      <% end %>
 
       <!-- Closing -->
       <div class="text-center mt-16">
