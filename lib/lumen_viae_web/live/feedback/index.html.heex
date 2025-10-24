@@ -1,0 +1,46 @@
+<div class="bg-navy py-16 border-b-3 border-gold">
+  <div class="max-w-3xl mx-auto px-6 text-center text-gold">
+    <h2 class="font-ovo text-4xl md:text-5xl mb-4">We would love to hear from you</h2>
+    <p class="font-garamond text-lg md:text-xl opacity-80">
+      Share your thoughts, report a bug, or suggest a feature so we can continue improving Lumen Viae.
+    </p>
+  </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-6 py-16 grid gap-12 md:grid-cols-2">
+  <section class="bg-white border-2 border-gold rounded-lg shadow-soft px-8 py-10">
+    <h3 class="font-ovo text-2xl text-navy mb-4">Report an Issue</h3>
+    <p class="font-garamond text-navy text-base leading-relaxed mb-6">
+      If you notice a typo, broken link, or anything that doesn&apos;t look quite right, please send us a quick note.
+    </p>
+    <a
+      href={@issue_mailto}
+      class="inline-block px-6 py-3 bg-navy text-gold font-work-sans font-semibold rounded shadow-soft hover:bg-navy-light transition-colors"
+    >
+      Email {@contact_email}
+    </a>
+  </section>
+
+  <section class="bg-white border-2 border-gold rounded-lg shadow-soft px-8 py-10">
+    <h3 class="font-ovo text-2xl text-navy mb-4">Request a Feature</h3>
+    <p class="font-garamond text-navy text-base leading-relaxed mb-6">
+      Have an idea that would make the rosary meditations more helpful? We welcome your feature suggestions.
+    </p>
+    <a
+      href={@feature_mailto}
+      class="inline-block px-6 py-3 bg-gold text-navy font-work-sans font-semibold rounded shadow-soft hover:bg-gold-light transition-colors"
+    >
+      Send a feature idea
+    </a>
+  </section>
+</div>
+
+<div class="max-w-3xl mx-auto px-6 pb-20 text-center">
+  <p class="font-garamond text-navy text-base leading-relaxed">
+    Prefer to keep things simple? You can also email us directly at
+    <a href={"mailto:" <> @contact_email} class="font-semibold text-navy underline hover:text-gold transition-colors">
+      {@contact_email}
+    </a>
+    with any questions or general feedback.
+  </p>
+</div>
