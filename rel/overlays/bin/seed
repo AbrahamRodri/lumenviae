@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+cd -P -- "$(dirname -- "$0")"
+FORCE_SEED=true RESET_DB=true exec ./lumen_viae eval LumenViae.Release.seed
