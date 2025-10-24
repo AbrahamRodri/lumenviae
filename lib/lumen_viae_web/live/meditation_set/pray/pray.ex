@@ -138,7 +138,7 @@ defmodule LumenViaeWeb.Live.MeditationSet.Pray do
     <!-- Exit to Category -->
         <div class="mt-8 text-center">
           <.link
-            navigate={"/" <> @set.category}
+            navigate={"/mysteries/" <> @set.category}
             class="font-crimson text-navy hover:text-gold transition-colors text-sm"
           >
             Exit to {String.capitalize(@set.category)} Mysteries

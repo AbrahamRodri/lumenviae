@@ -29,7 +29,7 @@ const Hooks = {}
 
 Hooks.ScrollToTop = {
   updated() {
-    window.scrollTo({top: 0, behavior: 'smooth'})
+    window.scrollTo({top: 120, behavior: 'smooth'})
   }
 }
 
