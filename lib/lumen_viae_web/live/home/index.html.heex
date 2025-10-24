@@ -99,62 +99,64 @@
         The Fifteen  Mysteries
       </h3>
 
-      <p class="font-work-sans text-lg text-brown text-center mb-12 max-w-2xl mx-auto">
-        Choose a mystery set to begin—each contains meditations from  sources
-        and themed perspectives to deepen your contemplation
+      <p class="font-work-sans text-lg text-brown text-center mb-8 max-w-2xl mx-auto">
+        Choose a mystery set to begin—each contains meditations from sources
+        and themed perspectives to deepen your contemplation.
       </p>
 
+      <div class="max-w-3xl mx-auto mb-10 text-center">
+        <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold mb-3">
+          Today's suggestion · <%= Calendar.strftime(@today, "%A") %>
+        </p>
+        <.link
+          navigate={@recommended_set.path}
+          class="inline-flex flex-col gap-3 bg-white border border-gold/30 px-6 py-5 rounded shadow-sm hover:shadow-ornate transition-all hover:-translate-y-1"
+        >
+          <span class="font-ovo text-2xl text-navy">
+            <%= @recommended_set.title %>
+          </span>
+          <span class="font-work-sans text-brown-light italic text-sm">
+            <%= @recommended_set.schedule %>
+          </span>
+          <span class="font-work-sans text-brown text-base leading-relaxed">
+            <%= @recommended_set.description %>
+          </span>
+        </.link>
+      </div>
+
+      <div class="flex items-center gap-6 justify-center mb-12 text-gold/60">
+        <div class="h-px w-16 bg-gold/30"></div>
+        <span class="font-work-sans text-xs tracking-[0.35em] uppercase">or explore all</span>
+        <div class="h-px w-16 bg-gold/30"></div>
+      </div>
+
       <div class="grid md:grid-cols-3 gap-8">
-        <!-- Joyful Mysteries -->
-        <.link
-          navigate="/mysteries/joyful"
-          class="block bg-white border-l-4 border-gold p-8 hover:shadow-ornate transition-all hover:-translate-y-1"
-        >
-          <h4 class="font-ovo text-2xl text-navy mb-3">
-            The Joyful Mysteries
-          </h4>
-          <p class="font-work-sans text-brown-light mb-4 italic text-sm">
-            Mondays, Thursdays, and Saturdays
-          </p>
-          <p class="font-work-sans text-brown text-base leading-relaxed">
-            Contemplate the joyful events of Christ's early life and the
-            Blessed Virgin's faithful yes to God's will.
-          </p>
-        </.link>
-        
-<!-- Sorrowful Mysteries -->
-        <.link
-          navigate="/mysteries/sorrowful"
-          class="block bg-white border-l-4 border-gold p-8 hover:shadow-ornate transition-all hover:-translate-y-1"
-        >
-          <h4 class="font-ovo text-2xl text-navy mb-3">
-            The Sorrowful Mysteries
-          </h4>
-          <p class="font-work-sans text-brown-light mb-4 italic text-sm">
-            Tuesdays and Fridays
-          </p>
-          <p class="font-work-sans text-brown text-base leading-relaxed">
-            Meditate on Our Lord's passion and suffering, offered for
-            the redemption of mankind.
-          </p>
-        </.link>
-        
-<!-- Glorious Mysteries -->
-        <.link
-          navigate="/mysteries/glorious"
-          class="block bg-white border-l-4 border-gold p-8 hover:shadow-ornate transition-all hover:-translate-y-1"
-        >
-          <h4 class="font-ovo text-2xl text-navy mb-3">
-            The Glorious Mysteries
-          </h4>
-          <p class="font-work-sans text-brown-light mb-4 italic text-sm">
-            Wednesdays and Sundays
-          </p>
-          <p class="font-work-sans text-brown text-base leading-relaxed">
-            Rejoice in the triumph of Christ's resurrection and the
-            glory of His Most Holy Mother.
-          </p>
-        </.link>
+        <%= for {_key, set} <- @mystery_sets do %>
+          <% recommended? = set.key == @recommended_set_key %>
+          <.link
+            navigate={set.path}
+            class={
+              [
+                "block bg-white border-l-4 p-8 transition-all hover:shadow-ornate hover:-translate-y-1",
+                recommended? && "border-gold shadow-ornate",
+                !recommended? && "border-gold/70"
+              ]
+            }
+          >
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <h4 class="font-ovo text-2xl text-navy">
+                <%= set.title %>
+              </h4>
+            </div>
+
+            <p class="font-work-sans text-brown-light mb-4 italic text-sm">
+              <%= set.schedule %>
+            </p>
+            <p class="font-work-sans text-brown text-base leading-relaxed">
+              <%= set.description %>
+            </p>
+          </.link>
+        <% end %>
       </div>
     </div>
   </div>
