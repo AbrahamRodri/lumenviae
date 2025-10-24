@@ -45,7 +45,7 @@ defmodule LumenViaeWeb.Live.MeditationSet.Pray do
 
     ~H"""
     <div class="min-h-screen bg-cream pb-16">
-      <div class="max-w-4xl mx-auto px-8 py-12">
+      <div class="max-w-4xl mx-auto px-8 py-12" id="meditation-container" phx-hook="ScrollToTop">
         <!-- Progress Indicator -->
         <div class="text-center mb-8">
           <p class="font-crimson text-gray-600 mb-2">
