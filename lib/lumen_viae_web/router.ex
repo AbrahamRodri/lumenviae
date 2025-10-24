@@ -3,6 +3,7 @@ defmodule LumenViaeWeb.Router do
 
   pipeline :browser do
     plug :accepts, ["html"]
+    plug LumenViaeWeb.Plugs.CanonicalHost
     plug :fetch_session
     plug :fetch_live_flash
     plug :put_root_layout, html: {LumenViaeWeb.Layouts, :root}
