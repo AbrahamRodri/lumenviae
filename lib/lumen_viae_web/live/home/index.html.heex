@@ -104,7 +104,7 @@
         and themed perspectives to deepen your contemplation.
       </p>
 
-      <div class="max-w-3xl mx-auto mb-12 text-center">
+      <div class="max-w-3xl mx-auto mb-10 text-center">
         <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold mb-3">
           Today's suggestion · <%= Calendar.strftime(@today, "%A") %>
         </p>
@@ -124,6 +124,12 @@
         </.link>
       </div>
 
+      <div class="flex items-center gap-6 justify-center mb-12 text-gold/60">
+        <div class="h-px w-16 bg-gold/30"></div>
+        <span class="font-work-sans text-xs tracking-[0.35em] uppercase">or explore all</span>
+        <div class="h-px w-16 bg-gold/30"></div>
+      </div>
+
       <div class="grid md:grid-cols-3 gap-8">
         <%= for {_key, set} <- @mystery_sets do %>
           <% recommended? = set.key == @recommended_set_key %>
@@ -141,11 +147,6 @@
               <h4 class="font-ovo text-2xl text-navy">
                 <%= set.title %>
               </h4>
-              <%= if recommended? do %>
-                <span class="font-work-sans text-xs font-semibold uppercase tracking-wide text-gold">
-                  Start here
-                </span>
-              <% end %>
             </div>
 
             <p class="font-work-sans text-brown-light mb-4 italic text-sm">
