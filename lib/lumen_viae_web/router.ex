@@ -27,6 +27,9 @@ defmodule LumenViaeWeb.Router do
     # Methods of praying the Rosary (St. Louis de Montfort)
     live "/rosary-methods", Live.RosaryMethods.Index
 
+    # Feedback and feature requests
+    live "/feedback", Live.Feedback.Index
+
     # Admin dashboard - landing page with navigation
     live "/admin", Live.Admin.Dashboard
 
