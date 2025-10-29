@@ -102,4 +102,4 @@ As the application grows, consider:
 ## References
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Architectural patterns and standards
-- [CLAUDE.md](CLAUDE.md) - Instructions for AI assistants working on this codebase
+- [CLAUDE.md](../CLAUDE.md) - Instructions for AI assistants working on this codebase

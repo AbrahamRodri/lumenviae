@@ -1,8 +1,14 @@
 # Instructions for Claude Code
 
+## CRITICAL: NO EMOJIS
+
+**NEVER use emojis in any code, documentation, comments, or communication.**
+
+This is a strict project requirement. Keep all text professional and emoji-free.
+
 ## Architecture
 
-**IMPORTANT:** Before making any architectural decisions or creating new LiveViews, components, or modules, **always reference [ARCHITECTURE.md](ARCHITECTURE.md)** for the project's architectural standards and patterns.
+**IMPORTANT:** Before making any architectural decisions or creating new LiveViews, components, or modules, **always reference [ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the project's architectural standards and patterns.
 
 The ARCHITECTURE.md document defines:
 - LiveView organization and structure
@@ -16,22 +22,22 @@ The ARCHITECTURE.md document defines:
 
 ### When Creating New Features
 
-1. **Read ARCHITECTURE.md first** - Understand the established patterns before writing code
-2. **Follow the directory structure** - Match module names to file paths as defined in ARCHITECTURE.md
-3. **Choose the right component type** - Use the component decision tree in ARCHITECTURE.md
-4. **Break up complexity** - Never create monolithic views (see ARCHITECTURE.md for patterns)
+1. **Read docs/ARCHITECTURE.md first** - Understand the established patterns before writing code
+2. **Follow the directory structure** - Match module names to file paths as defined in docs/ARCHITECTURE.md
+3. **Choose the right component type** - Use the component decision tree in docs/ARCHITECTURE.md
+4. **Break up complexity** - Never create monolithic views (see docs/ARCHITECTURE.md for patterns)
 5. **Separate concerns** - Use `data.ex` for queries, `helpers.ex` for business logic
 
 ### When Refactoring
 
-1. **Reference ARCHITECTURE.md** - Align existing code with documented patterns
+1. **Reference docs/ARCHITECTURE.md** - Align existing code with documented patterns
 2. **Extract components** - Break large LiveViews into smaller, focused components
 3. **Create helper modules** - Move complex logic to dedicated helper files
 4. **Fragment templates** - Use private functions for complex template sections
 
 ### Code Organization
 
-Follow the patterns documented in ARCHITECTURE.md for:
+Follow the patterns documented in docs/ARCHITECTURE.md for:
 - LiveView module structure
 - Component hierarchy and nesting
 - File and directory naming
@@ -62,7 +68,7 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 
 ## Remember
 
-**Always check ARCHITECTURE.md before:**
+**Always check docs/ARCHITECTURE.md before:**
 - Creating new LiveViews or components
 - Organizing files and directories
 - Choosing between component types
