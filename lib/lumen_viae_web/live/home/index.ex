@@ -30,17 +30,41 @@ defmodule LumenViaeWeb.Live.Home.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    # Start with UTC as fallback until we get user's timezone
     today = Date.utc_today()
-    recommended_key = recommended_set(today)
     mystery_sets = build_mystery_sets()
-    recommended_set = Enum.into(mystery_sets, %{}, fn {key, data} -> {key, data} end)[recommended_key]
 
     {:ok,
      socket
      |> assign(:mystery_sets, mystery_sets)
-     |> assign(:recommended_set_key, recommended_key)
-     |> assign(:recommended_set, recommended_set)
-     |> assign(:today, today)}
+     |> assign(:today, today)
+     |> assign_recommended_set(today)}
+  end
+
+  @impl true
+  def handle_event("set_timezone", %{"offset" => offset_minutes}, socket) do
+    # Calculate user's local date from UTC
+    # offset_minutes is negative for timezones ahead of UTC (e.g., -180 for UTC-3 Argentina)
+    utc_now = DateTime.utc_now()
+    local_datetime = DateTime.add(utc_now, -offset_minutes * 60, :second)
+    local_date = DateTime.to_date(local_datetime)
+
+    {:noreply,
+     socket
+     |> assign(:today, local_date)
+     |> assign_recommended_set(local_date)}
+  end
+
+  defp assign_recommended_set(socket, date) do
+    recommended_key = recommended_set(date)
+    mystery_sets = socket.assigns.mystery_sets
+
+    recommended_set =
+      Enum.into(mystery_sets, %{}, fn {key, data} -> {key, data} end)[recommended_key]
+
+    socket
+    |> assign(:recommended_set_key, recommended_key)
+    |> assign(:recommended_set, recommended_set)
   end
 
   defp build_mystery_sets do
