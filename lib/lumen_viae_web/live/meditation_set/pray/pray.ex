@@ -30,6 +30,13 @@ defmodule LumenViaeWeb.Live.MeditationSet.Pray do
     {:noreply, assign(socket, :current_index, new_index)}
   end
 
+  def handle_event("restore_progress", %{"index" => index}, socket) do
+    total = length(socket.assigns.set.meditations)
+    # Ensure index is valid (within bounds)
+    valid_index = max(0, min(index, total - 1))
+    {:noreply, assign(socket, :current_index, valid_index)}
+  end
+
   defp current_meditation(assigns) do
     Enum.at(assigns.set.meditations, assigns.current_index)
   end
@@ -44,7 +51,7 @@ defmodule LumenViaeWeb.Live.MeditationSet.Pray do
       |> assign(:total_count, total_count)
 
     ~H"""
-    <div class="min-h-screen bg-cream pb-16">
+    <div class="min-h-screen bg-cream pb-16" id="rosary-progress-container" phx-hook="RosaryProgress" data-set-id={@set.id} data-current-index={@current_index}>
       <div class="max-w-4xl mx-auto px-8 py-12" id="meditation-container" phx-hook="ScrollToTop">
         <!-- Progress Indicator -->
         <div class="text-center mb-8">
