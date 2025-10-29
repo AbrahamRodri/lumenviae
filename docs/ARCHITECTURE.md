@@ -4,14 +4,154 @@ This document defines the standard architectural patterns used in this codebase 
 
 ## Table of Contents
 
-1. [LiveView Organization](#liveview-organization)
-2. [Component Architecture](#component-architecture)
-3. [Template Organization](#template-organization)
-4. [Parent-Child Communication](#parent-child-communication)
-5. [Supporting Modules](#supporting-modules)
-6. [Directory Structure](#directory-structure)
-7. [Naming Conventions](#naming-conventions)
-8. [Key Patterns](#key-patterns)
+1. [Lumen Viae Directory Organization](#lumen-viae-directory-organization)
+2. [LiveView Organization](#liveview-organization)
+3. [Component Architecture](#component-architecture)
+4. [Template Organization](#template-organization)
+5. [Parent-Child Communication](#parent-child-communication)
+6. [Supporting Modules](#supporting-modules)
+7. [Directory Structure](#directory-structure)
+8. [Naming Conventions](#naming-conventions)
+9. [Key Patterns](#key-patterns)
+
+---
+
+## Lumen Viae Directory Organization
+
+This section documents the actual directory organization used in the Lumen Viae codebase, which serves as the standard pattern for all future development.
+
+### Top-Level Organization
+
+LiveViews are organized by **domain/feature** rather than by resource type:
+
+```
+lib/lumen_viae_web/live/
+├── home/          # Info/marketing pages (public-facing, non-app content)
+├── mysteries/     # Mystery browsing (public app feature)
+├── meditations/   # Meditation & set management (admin features)
+├── pray/          # Core prayer experience (main app feature)
+└── admin/         # Admin dashboard and utilities
+```
+
+### Organizational Principles
+
+1. **Group Related Pages Under a Single Directory**
+   - **Example**: `home/` contains the homepage, feedback page, and methods page
+   - **Why**: These are all part of the informational/marketing side of the site
+   - **Pattern**: Subdirectories for related subpages (`home/feedback/`, `home/methods/`)
+
+2. **Consolidate Related Resources**
+   - **Example**: `meditations/` contains both meditation CRUD and meditation sets CRUD
+   - **Why**: Meditations and meditation sets are tightly coupled concepts
+   - **Pattern**: Use `sets/` subdirectory for the related resource
+
+3. **Elevate Core Features to Top Level**
+   - **Example**: `pray/` is its own top-level directory
+   - **Why**: Prayer is the core app feature and will expand with new functionality
+   - **Pattern**: Main feature gets its own directory, even if it's currently just one file
+
+4. **Group by Function, Not Just Resource**
+   - **Example**: `mysteries/` contains both the mysteries index AND category browsing
+   - **Why**: Both are part of the mystery browsing flow
+   - **Pattern**: Use `categories/` subdirectory for the related browsing feature
+
+### Detailed Structure
+
+#### home/ - Info & Marketing Pages
+
+```
+home/
+├── index.ex                # Main home page
+├── feedback/
+│   └── index.ex           # Feedback form
+└── methods/
+    └── index.ex           # Rosary methods info
+```
+
+**Module Pattern**: `LumenViaeWeb.Live.Home.{SubPage}.Index`
+- `LumenViaeWeb.Live.Home.Index`
+- `LumenViaeWeb.Live.Home.Feedback.Index`
+- `LumenViaeWeb.Live.Home.Methods.Index`
+
+#### mysteries/ - Mystery Browsing
+
+```
+mysteries/
+├── index.ex               # Browse all mysteries
+└── categories/
+    └── list/
+        └── list.ex        # Browse sets for a category
+```
+
+**Module Pattern**: `LumenViaeWeb.Live.Mysteries.{SubFeature}.{Action}`
+- `LumenViaeWeb.Live.Mysteries.Index`
+- `LumenViaeWeb.Live.Mysteries.Categories.List`
+
+#### meditations/ - Meditation Management (Admin)
+
+```
+meditations/
+├── list/
+│   └── list.ex            # List all meditations
+├── new/
+│   └── new.ex             # Create meditation
+├── edit/
+│   └── edit.ex            # Edit meditation
+└── sets/                  # Meditation sets (sub-resource)
+    ├── list/
+    │   └── list.ex        # List all sets
+    ├── new/
+    │   └── new.ex         # Create set
+    └── edit/
+        └── edit.ex        # Edit set
+```
+
+**Module Pattern**: `LumenViaeWeb.Live.Meditations.{Action}` or `Meditations.Sets.{Action}`
+- `LumenViaeWeb.Live.Meditations.List`
+- `LumenViaeWeb.Live.Meditations.New`
+- `LumenViaeWeb.Live.Meditations.Edit`
+- `LumenViaeWeb.Live.Meditations.Sets.List`
+- `LumenViaeWeb.Live.Meditations.Sets.New`
+- `LumenViaeWeb.Live.Meditations.Sets.Edit`
+
+#### pray/ - Core Prayer Experience
+
+```
+pray/
+└── index.ex               # Main prayer flow
+```
+
+**Module Pattern**: `LumenViaeWeb.Live.Pray.Index`
+- Future expansion: `LumenViaeWeb.Live.Pray.Journal.Index` for resolution journal
+- Future expansion: `LumenViaeWeb.Live.Pray.History.Index` for prayer history
+
+#### admin/ - Admin Dashboard
+
+```
+admin/
+└── dashboard/
+    ├── dashboard.ex       # Admin landing
+    └── meditation_list/   # Component (if needed)
+        └── meditation_list.ex
+```
+
+**Module Pattern**: `LumenViaeWeb.Live.Admin.{Feature}`
+- `LumenViaeWeb.Live.Admin.Dashboard`
+
+### Decision Tree: Where to Put a New LiveView
+
+1. **Is it informational/marketing content?** → Put it under `home/`
+2. **Is it related to browsing mysteries?** → Put it under `mysteries/`
+3. **Is it admin CRUD for meditations or sets?** → Put it under `meditations/` or `meditations/sets/`
+4. **Is it core prayer functionality?** → Put it under `pray/`
+5. **Is it admin utilities/dashboard?** → Put it under `admin/`
+
+### Benefits of This Organization
+
+- **Intuitive**: Easy to find related pages
+- **Scalable**: Each top-level directory can grow independently
+- **Maintainable**: Related code stays together
+- **Clear Boundaries**: Public vs app vs admin is obvious
 
 ---
 

@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.Live.Feedback.Index do
+defmodule LumenViaeWeb.Live.Home.Feedback.Index do
   @moduledoc """
   Simple LiveView for directing visitors to share feedback, issues, or feature requests.
   """

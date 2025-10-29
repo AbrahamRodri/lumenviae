@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.Live.RosaryMethods.Index do
+defmodule LumenViaeWeb.Live.Home.Methods.Index do
   @moduledoc """
   LiveView for displaying St. Louis de Montfort's methods of praying the Rosary
   """

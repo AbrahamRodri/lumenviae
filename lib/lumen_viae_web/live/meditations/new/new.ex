@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.Live.Meditation.New do
+defmodule LumenViaeWeb.Live.Meditations.New do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
 

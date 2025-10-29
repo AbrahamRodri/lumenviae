@@ -6,77 +6,115 @@ This document describes the current application structure following the patterns
 
 ```
 lib/lumen_viae_web/live/
-├── rosary/
-│   └── list/
-│       └── list.ex                    # Home page - lists mystery categories
-├── mystery_set/
-│   └── list/
-│       └── list.ex                    # Lists meditation sets for a mystery
-├── meditation_set/
-│   └── pray/
-│       └── pray.ex                    # Prayer experience
+├── home/                              # Info/marketing pages
+│   ├── index.ex                       # Home page (/)
+│   ├── feedback/
+│   │   └── index.ex                   # Feedback page (/feedback)
+│   └── methods/
+│       └── index.ex                   # Rosary methods (/rosary-methods)
+├── mysteries/                         # Mystery browsing
+│   ├── index.ex                       # Browse all mysteries (/mysteries)
+│   └── categories/
+│       └── list/
+│           └── list.ex                # Browse sets by category (/mysteries/:category)
+├── meditations/                       # Meditation & set management (admin)
+│   ├── list/
+│   │   └── list.ex                    # List meditations (admin)
+│   ├── new/
+│   │   └── new.ex                     # Create meditation (admin)
+│   ├── edit/
+│   │   └── edit.ex                    # Edit meditation (admin)
+│   └── sets/                          # Meditation sets (admin)
+│       ├── list/
+│       │   └── list.ex                # List sets (admin)
+│       ├── new/
+│       │   └── new.ex                 # Create set (admin)
+│       └── edit/
+│           └── edit.ex                # Edit set (admin)
+├── pray/                              # Core prayer experience
+│   └── index.ex                       # Prayer (/meditation-sets/:set_id/pray)
 └── admin/
     └── dashboard/
-        ├── dashboard.ex               # Admin dashboard
-        ├── dashboard.html.heex        # Admin template
+        ├── dashboard.ex               # Admin dashboard (/admin)
         └── meditation_list/
-            └── meditation_list.ex     # Meditation list component
+            └── meditation_list.ex     # Component
 ```
 
-## Module Naming
+## Module Organization
 
-All LiveViews follow the pattern: `{WebModule}.Live.{Resource}.{Action}`
+### Public/Info Pages (home/)
+These pages are grouped under `home/` as they're all part of the informational/marketing side:
 
-- **LumenViaeWeb.Live.Rosary.List** - Lists the three mystery categories (Joyful, Sorrowful, Glorious)
-- **LumenViaeWeb.Live.MysterySet.List** - Lists meditation sets for a specific mystery category
-- **LumenViaeWeb.Live.MeditationSet.Pray** - Sequential prayer experience through a meditation set
-- **LumenViaeWeb.Live.Admin.Dashboard** - Admin interface for managing content
+- **LumenViaeWeb.Live.Home.Index** - Welcome page with mystery categories and daily recommendations
+- **LumenViaeWeb.Live.Home.Feedback.Index** - Feedback and feature request page
+- **LumenViaeWeb.Live.Home.Methods.Index** - St. Louis de Montfort's Rosary methods
+
+### Mystery Browsing (mysteries/)
+Browse mysteries and select meditation sets by category:
+
+- **LumenViaeWeb.Live.Mysteries.Index** - Browse all 15 mysteries organized by category
+- **LumenViaeWeb.Live.Mysteries.Categories.List** - Browse meditation sets for a specific category (joyful, sorrowful, glorious)
+
+### Prayer Experience (pray/)
+Core prayer functionality - the main app feature:
+
+- **LumenViaeWeb.Live.Pray.Index** - Main prayer experience with progress persistence, navigation, and meditation display
+
+### Admin Pages (meditations/ & admin/)
+Content management for meditations and meditation sets:
+
+- **LumenViaeWeb.Live.Admin.Dashboard** - Admin landing page
+- **LumenViaeWeb.Live.Meditations.List/New/Edit** - Manage individual meditations
+- **LumenViaeWeb.Live.Meditations.Sets.List/New/Edit** - Manage meditation sets
 
 ## URL Structure
 
-| URL | LiveView | Purpose |
-|-----|----------|---------|
-| `/` | Rosary.List | Home page showing mystery categories |
-| `/mysteries/:category` | MysterySet.List | Shows sets for joyful/sorrowful/glorious |
-| `/meditation-sets/:set_id/pray` | MeditationSet.Pray | Prayer experience |
-| `/admin` | Admin.Dashboard | Content management |
-
-### Examples
-
-- `/` - Home page with three mystery categories
-- `/mysteries/joyful` - Meditation sets for Joyful Mysteries
-- `/mysteries/sorrowful` - Meditation sets for Sorrowful Mysteries
-- `/mysteries/glorious` - Meditation sets for Glorious Mysteries
-- `/meditation-sets/123/pray` - Pray through meditation set #123
-- `/admin` - Admin dashboard
-
-## Resources
-
-The application uses these domain resources:
-
-1. **Rosary** - The rosary as a whole (home page)
-2. **MysterySet** - Curated sets of meditations for a mystery category
-3. **MeditationSet** - Individual sets that can be prayed through
-4. **Admin** - Administrative functions
+| URL | LiveView | Type | Purpose |
+|-----|----------|------|---------|
+| `/` | Home.Index | Public | Welcome & mystery categories |
+| `/feedback` | Home.Feedback.Index | Public | Feedback submission |
+| `/rosary-methods` | Home.Methods.Index | Public | Educational content |
+| `/mysteries` | Mysteries.Index | Public | Browse all mysteries |
+| `/mysteries/:category` | Mysteries.Categories.List | Public | Browse sets for category |
+| `/meditation-sets/:set_id/pray` | Pray.Index | App Core | Prayer experience |
+| `/admin` | Admin.Dashboard | Admin | Admin landing |
+| `/admin/meditations` | Meditations.List | Admin | Manage meditations |
+| `/admin/meditations/new` | Meditations.New | Admin | Create meditation |
+| `/admin/meditations/:id/edit` | Meditations.Edit | Admin | Edit meditation |
+| `/admin/meditation-sets` | Meditations.Sets.List | Admin | Manage sets |
+| `/admin/meditation-sets/new` | Meditations.Sets.New | Admin | Create set |
+| `/admin/meditation-sets/:id/edit` | Meditations.Sets.Edit | Admin | Edit set |
 
 ## Navigation Flow
 
+### Public User Journey
 ```
-Home (Rosary.List)
-  ↓ Choose category (Joyful/Sorrowful/Glorious)
-MysterySet.List
+Home (/)
+  ↓ Choose category or browse all
+Mysteries (/mysteries) OR Mystery Category (/mysteries/:category)
   ↓ Choose a meditation set
-MeditationSet.Pray
-  ↓ Navigate through 5 mysteries sequentially
+Prayer Experience (/meditation-sets/:set_id/pray)
+  ↓ Navigate through meditations with progress persistence
 ```
 
-## Components
+### Admin Journey
+```
+Admin Dashboard (/admin)
+  ↓ Manage content
+Meditations (/admin/meditations) OR Sets (/admin/meditation-sets)
+  ↓ Create/Edit
+Forms for CRUD operations
+```
 
-### Function Components
+## Key Features & Organization
 
-- **LumenViaeWeb.Live.Admin.Dashboard.MeditationList** - Displays and manages meditations in admin
-
-Located in: `lib/lumen_viae_web/live/admin/dashboard/meditation_list/meditation_list.ex`
+- **Progress Persistence**: Prayer progress saved to localStorage, expires after 1 hour or on navigation away
+- **Organized Home Section**: All info/marketing pages grouped under `home/` (home, feedback, methods)
+- **Consolidated Meditations**: All meditation-related features under `meditations/` with sets as a subdirectory
+- **Consolidated Mysteries**: Mystery browsing organized under `mysteries/` with categories as a subdirectory
+- **Dedicated Prayer**: Core prayer experience in its own top-level `pray/` directory (will expand with future features)
+- **Clear Separation**: Public (home, mysteries), core app (pray), and admin (meditations, admin) clearly organized
+- **URL-Based State**: All LiveViews manage state through URL parameters
 
 ## Alignment with ARCHITECTURE.md
 

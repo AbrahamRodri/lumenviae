@@ -25,29 +25,29 @@ defmodule LumenViaeWeb.Router do
     live "/mysteries", Live.Mysteries.Index
 
     # Methods of praying the Rosary (St. Louis de Montfort)
-    live "/rosary-methods", Live.RosaryMethods.Index
+    live "/rosary-methods", Live.Home.Methods.Index
 
     # Feedback and feature requests
-    live "/feedback", Live.Feedback.Index
+    live "/feedback", Live.Home.Feedback.Index
 
     # Admin dashboard - landing page with navigation
     live "/admin", Live.Admin.Dashboard
 
     # Meditations management (admin access)
-    live "/admin/meditations", Live.Meditation.List
-    live "/admin/meditations/new", Live.Meditation.New
-    live "/admin/meditations/:id/edit", Live.Meditation.Edit
+    live "/admin/meditations", Live.Meditations.List
+    live "/admin/meditations/new", Live.Meditations.New
+    live "/admin/meditations/:id/edit", Live.Meditations.Edit
 
     # Meditation Sets management (admin access)
-    live "/admin/meditation-sets", Live.MeditationSet.List
-    live "/admin/meditation-sets/new", Live.MeditationSet.New
-    live "/admin/meditation-sets/:id/edit", Live.MeditationSet.Edit
+    live "/admin/meditation-sets", Live.Meditations.Sets.List
+    live "/admin/meditation-sets/new", Live.Meditations.Sets.New
+    live "/admin/meditation-sets/:id/edit", Live.Meditations.Sets.Edit
 
     # Browse meditation sets by mystery category (public)
-    live "/mysteries/:category", Live.MysteryCategory.List
+    live "/mysteries/:category", Live.Mysteries.Categories.List
 
     # Prayer experience for a specific meditation set
-    live "/meditation-sets/:set_id/pray", Live.MeditationSet.Pray
+    live "/meditation-sets/:set_id/pray", Live.Pray.Index
   end
 
   # Other scopes may use custom stacks.

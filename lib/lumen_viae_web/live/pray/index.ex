@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.Live.MeditationSet.Pray do
+defmodule LumenViaeWeb.Live.Pray.Index do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
 
