@@ -237,7 +237,7 @@ mysteries =
       existing = Repo.get_by(Meditation,
         mystery_id: mystery.id,
         author: "Bishop Fulton J. Sheen",
-        source: "The World's First Love"
+        source: "The Fifteen Mysteries of the Rosary"
       )
 
       if existing do
