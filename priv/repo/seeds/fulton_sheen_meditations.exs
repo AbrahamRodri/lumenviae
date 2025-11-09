@@ -257,7 +257,7 @@ mysteries =
         Repo.insert!(%Meditation{
           content: String.trim(data.content),
           author: "Bishop Fulton J. Sheen",
-          source: "The World's First Love",
+          source: "The Fifteen Mysteries of the Rosary",
           mystery_id: mystery.id
         })
         IO.puts("  ✓ Created: #{data.mystery_name}")
