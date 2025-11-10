@@ -7,7 +7,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
   @mystery_sets [
     joyful: %{
       title: "The Joyful Mysteries",
-      schedule: "Mondays and Saturdays (and Sundays in Advent)",
+      schedule: "Mondays and Thursdays (and Sundays in Advent)",
       description:
         "Contemplate the joyful events of Christ's early life and the Blessed Virgin's faithful yes to God's will.",
       path: "/mysteries/joyful"
@@ -21,7 +21,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
     },
     glorious: %{
       title: "The Glorious Mysteries",
-      schedule: "Wednesdays and Sundays (Ordinary Time)",
+      schedule: "Wednesdays, Saturdays (and Sundays in Ordinary Time)",
       description:
         "Rejoice in the triumph of Christ's resurrection and the glory of His Most Holy Mother.",
       path: "/mysteries/glorious"
