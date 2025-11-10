@@ -7,21 +7,21 @@ defmodule LumenViaeWeb.Live.Home.Index do
   @mystery_sets [
     joyful: %{
       title: "The Joyful Mysteries",
-      schedule: "Mondays, Thursdays, and Saturdays",
+      schedule: "Mondays and Saturdays (and Sundays in Advent)",
       description:
         "Contemplate the joyful events of Christ's early life and the Blessed Virgin's faithful yes to God's will.",
       path: "/mysteries/joyful"
     },
     sorrowful: %{
       title: "The Sorrowful Mysteries",
-      schedule: "Tuesdays and Fridays",
+      schedule: "Tuesdays and Fridays (and Sundays in Lent)",
       description:
         "Meditate on Our Lord's passion and suffering, offered for the redemption of mankind.",
       path: "/mysteries/sorrowful"
     },
     glorious: %{
       title: "The Glorious Mysteries",
-      schedule: "Wednesdays and Sundays",
+      schedule: "Wednesdays and Sundays (Ordinary Time)",
       description:
         "Rejoice in the triumph of Christ's resurrection and the glory of His Most Holy Mother.",
       path: "/mysteries/glorious"
@@ -73,19 +73,20 @@ defmodule LumenViaeWeb.Live.Home.Index do
 
   defp recommended_set(date) do
     case Date.day_of_week(date) do
-      # Monday
+      # Monday - Joyful
       1 -> :joyful
-      # Tuesday
+      # Tuesday - Sorrowful
       2 -> :sorrowful
-      # Wednesday
+      # Wednesday - Glorious
       3 -> :glorious
-      # Thursday
+      # Thursday - Joyful (traditionally, some sources say Joyful, others Glorious)
       4 -> :joyful
-      # Friday
+      # Friday - Sorrowful
       5 -> :sorrowful
-      # Saturday
+      # Saturday - Joyful
       6 -> :joyful
-      # Sunday
+      # Sunday - Glorious (Ordinary Time), Sorrowful (Lent), Joyful (Advent)
+      # For now, defaulting to Glorious until liturgical calendar is implemented
       7 -> :glorious
     end
   end

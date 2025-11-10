@@ -37,6 +37,7 @@ defmodule LumenViaeWeb.Router do
     live "/admin/meditations", Live.Meditations.List
     live "/admin/meditations/new", Live.Meditations.New
     live "/admin/meditations/:id/edit", Live.Meditations.Edit
+    live "/admin/meditations/import", Live.Admin.MeditationsImport.Import
 
     # Meditation Sets management (admin access)
     live "/admin/meditation-sets", Live.Meditations.Sets.List
