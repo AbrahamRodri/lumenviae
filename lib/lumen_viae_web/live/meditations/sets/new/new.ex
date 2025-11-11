@@ -1,5 +1,6 @@
 defmodule LumenViaeWeb.Live.Meditations.Sets.New do
   use LumenViaeWeb, :live_view
+  alias LumenViae.Meditations.Filtering
   alias LumenViae.Rosary
 
   def mount(_params, _session, socket) do
@@ -12,7 +13,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
      |> assign(:filter_category, nil)
      |> assign(:filter_author, nil)
      |> assign(:search_query, "")
-     |> assign(:available_authors, available_authors(meditations))
+     |> assign(:available_authors, Filtering.available_authors(meditations))
      |> assign_meditation_set_form()}
   end
 
@@ -32,8 +33,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
   def handle_event("update_filters", params, socket) do
     {:noreply,
      socket
-     |> assign(:filter_category, blank_to_nil(params["category"]))
-     |> assign(:filter_author, blank_to_nil(params["author"]))
+     |> assign(:filter_category, Filtering.blank_to_nil(params["category"]))
+     |> assign(:filter_author, Filtering.blank_to_nil(params["author"]))
      |> assign(:search_query, String.trim(params["query"] || ""))}
   end
 
@@ -45,51 +46,12 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
     )
   end
 
-  defp available_authors(meditations) do
-    meditations
-    |> Enum.map(&(&1.author || ""))
-    |> Enum.reject(&(&1 == ""))
-    |> Enum.uniq()
-    |> Enum.sort()
-  end
-
   defp filtered_meditations(assigns) do
-    assigns.meditations
-    |> filter_by_category(assigns.filter_category)
-    |> filter_by_author(assigns.filter_author)
-    |> filter_by_query(assigns.search_query)
-  end
-
-  defp filter_by_category(meditations, nil), do: meditations
-
-  defp filter_by_category(meditations, category) do
-    Enum.filter(meditations, fn meditation -> meditation.mystery.category == category end)
-  end
-
-  defp filter_by_author(meditations, nil), do: meditations
-
-  defp filter_by_author(meditations, author) do
-    Enum.filter(meditations, fn meditation -> meditation.author == author end)
-  end
-
-  defp filter_by_query(meditations, ""), do: meditations
-
-  defp filter_by_query(meditations, query) do
-    downcased_query = String.downcase(query)
-
-    Enum.filter(meditations, fn meditation ->
-      matches?(meditation.title, downcased_query) ||
-        matches?(meditation.author, downcased_query) ||
-        matches?(meditation.mystery.name, downcased_query)
-    end)
-  end
-
-  defp matches?(nil, _query), do: false
-
-  defp matches?(value, query) do
-    value
-    |> String.downcase()
-    |> String.contains?(query)
+    Filtering.filter_meditations(assigns.meditations, %{
+      category: assigns.filter_category,
+      author: assigns.filter_author,
+      query: assigns.search_query
+    })
   end
 
   defp content_snippet(nil), do: ""
@@ -108,7 +70,4 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
       snippet
     end
   end
-
-  defp blank_to_nil(""), do: nil
-  defp blank_to_nil(value), do: value
 end
