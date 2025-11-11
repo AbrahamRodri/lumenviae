@@ -96,7 +96,6 @@ defmodule LumenViaeWeb.Live.Mysteries.Categories.List do
     </div>
     """
   end
-end
 
   @impl true
   def handle_event("random_set", _params, %{assigns: %{meditation_sets: []}} = socket) do
@@ -108,3 +107,4 @@ end
 
     {:noreply, push_navigate(socket, to: "/meditation-sets/#{random_set.id}/pray")}
   end
+end
