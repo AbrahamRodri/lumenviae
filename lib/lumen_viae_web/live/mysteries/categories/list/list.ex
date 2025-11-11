@@ -40,6 +40,18 @@ defmodule LumenViaeWeb.Live.Mysteries.Categories.List do
 
         <!-- Meditation Sets -->
         <div class="space-y-6">
+          <%= if @meditation_sets != [] do %>
+            <div class="text-center">
+              <button
+                type="button"
+                phx-click="random_set"
+                class="inline-flex items-center px-6 py-3 bg-gold text-white font-cinzel tracking-wide uppercase shadow-md hover:bg-gold/90 focus:outline-none focus:ring-2 focus:ring-gold/70 focus:ring-offset-2"
+              >
+                Divine Providence
+              </button>
+            </div>
+          <% end %>
+
           <%= if @meditation_sets == [] do %>
             <div class="bg-white border-l-4 border-gold p-12 text-center">
               <p class="font-crimson text-gray-600 text-lg mb-6">
@@ -85,3 +97,14 @@ defmodule LumenViaeWeb.Live.Mysteries.Categories.List do
     """
   end
 end
+
+  @impl true
+  def handle_event("random_set", _params, %{assigns: %{meditation_sets: []}} = socket) do
+    {:noreply, socket}
+  end
+
+  def handle_event("random_set", _params, %{assigns: %{meditation_sets: meditation_sets}} = socket) do
+    random_set = Enum.random(meditation_sets)
+
+    {:noreply, push_navigate(socket, to: "/meditation-sets/#{random_set.id}/pray")}
+  end
