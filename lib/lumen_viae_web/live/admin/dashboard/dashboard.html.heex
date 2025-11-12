@@ -3,32 +3,32 @@
     <h2 class="font-cinzel text-4xl text-navy mb-8 text-center">
       Admin Dashboard
     </h2>
-
-    <!-- Stats Cards -->
+    
+<!-- Stats Cards -->
     <div class="grid md:grid-cols-3 gap-8 mb-12">
       <div class="bg-white border-l-4 border-gold p-6">
         <h3 class="font-cinzel text-xl text-navy mb-2">Meditations</h3>
         <p class="font-crimson text-3xl text-gold">
-          <%= @meditation_count %>
+          {@meditation_count}
         </p>
       </div>
 
       <div class="bg-white border-l-4 border-gold p-6">
         <h3 class="font-cinzel text-xl text-navy mb-2">Meditation Sets</h3>
         <p class="font-crimson text-3xl text-gold">
-          <%= @meditation_set_count %>
+          {@meditation_set_count}
         </p>
       </div>
 
       <div class="bg-white border-l-4 border-gold p-6">
         <h3 class="font-cinzel text-xl text-navy mb-2">Mysteries</h3>
         <p class="font-crimson text-3xl text-gold">
-          <%= @mystery_count %>
+          {@mystery_count}
         </p>
       </div>
     </div>
-
-    <!-- Navigation Cards -->
+    
+<!-- Navigation Cards -->
     <div class="grid md:grid-cols-2 gap-8 mb-12">
       <!-- Meditations Management -->
       <div class="bg-white border-l-4 border-gold p-8">
@@ -57,8 +57,8 @@
           </.link>
         </div>
       </div>
-
-      <!-- Meditation Sets Management -->
+      
+<!-- Meditation Sets Management -->
       <div class="bg-white border-l-4 border-gold p-8">
         <h3 class="font-cinzel text-2xl text-navy mb-4">Manage Meditation Sets</h3>
         <p class="font-crimson text-gray-600 mb-6">
@@ -80,8 +80,8 @@
         </div>
       </div>
     </div>
-
-    <!-- Back to Home -->
+    
+<!-- Back to Home -->
     <div class="mt-12 text-center">
       <.link
         navigate="/"

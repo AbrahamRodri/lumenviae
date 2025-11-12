@@ -447,7 +447,11 @@ defmodule LumenViaeWeb.CoreComponents do
     ~H"""
     <div class={["flex justify-center items-center my-8", @class]} {@rest}>
       <img
-        src={if @variant == "white", do: "/images/pngs/white-ornate.png", else: "/images/pngs/black-ornate.png"}
+        src={
+          if @variant == "white",
+            do: "/images/pngs/white-ornate.png",
+            else: "/images/pngs/black-ornate.png"
+        }
         alt=""
         class="w-full max-w-2xl h-auto opacity-60"
       />

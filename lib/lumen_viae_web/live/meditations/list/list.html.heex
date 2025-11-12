@@ -11,36 +11,20 @@
         Create New Meditation
       </.link>
     </div>
-
-    <!-- Filter Controls -->
-    <div class="bg-white border-l-4 border-gold p-6 mb-8">
-      <h3 class="font-cinzel text-xl text-navy mb-4">Filters</h3>
-      <div>
-        <label class="font-crimson text-navy font-semibold block mb-2">
-          Filter by Category
-        </label>
-        <.form for={%{}} phx-change="filter_category">
-          <select
-            name="category"
-            class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-          >
-            <option value="" selected={is_nil(@filter_category)}>All Categories</option>
-            <option value="joyful" selected={@filter_category == "joyful"}>Joyful Mysteries</option>
-            <option value="sorrowful" selected={@filter_category == "sorrowful"}>
-              Sorrowful Mysteries
-            </option>
-            <option value="glorious" selected={@filter_category == "glorious"}>Glorious Mysteries</option>
-          </select>
-        </.form>
-        <%= if @filter_category do %>
-          <p class="font-crimson text-sm text-gray-600 mt-2">
-            Showing <%= length(filtered_meditations(assigns)) %> <%= String.capitalize(@filter_category) %> meditations
-          </p>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Meditations List -->
+    
+<!-- Filter Controls -->
+    <% meditations = filtered_meditations(assigns) %>
+    <LumenViaeWeb.Components.MeditationFilters.meditation_filters
+      filter_category={@filter_category}
+      filter_author={@filter_author}
+      search_query={@search_query}
+      available_authors={@available_authors}
+      mystery_categories={@mystery_categories}
+      filtered_count={length(meditations)}
+      show_description={true}
+    />
+    
+<!-- Meditations List -->
     <div class="bg-white border-l-4 border-gold p-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">All Meditations</h3>
 
@@ -54,11 +38,11 @@
               <div class="flex items-center justify-between p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
                 <div class="flex-1">
                   <h4 class="font-crimson font-semibold text-navy">
-                    <%= meditation.mystery.name %>
-                    <%= if meditation.title, do: " - #{meditation.title}" %>
+                    {meditation.mystery.name}
+                    {if meditation.title, do: " - #{meditation.title}"}
                   </h4>
                   <%= if meditation.author do %>
-                    <p class="font-crimson text-sm text-gray-600">by <%= meditation.author %></p>
+                    <p class="font-crimson text-sm text-gray-600">by {meditation.author}</p>
                   <% end %>
                 </div>
 
@@ -75,7 +59,7 @@
                     phx-value-id={meditation.id}
                     class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
                   >
-                    <%= if @expanded_meditation_id == meditation.id, do: "Hide", else: "View" %>
+                    {if @expanded_meditation_id == meditation.id, do: "Hide", else: "View"}
                   </button>
 
                   <button
@@ -88,18 +72,18 @@
                   </button>
                 </div>
               </div>
-
-              <!-- Expanded Content -->
+              
+<!-- Expanded Content -->
               <%= if @expanded_meditation_id == meditation.id do %>
                 <div class="p-6 bg-white border-t border-gray-200">
                   <div class="prose max-w-none">
                     <p class="font-crimson text-gray-800 whitespace-pre-wrap">
-                      <%= meditation.content %>
+                      {meditation.content}
                     </p>
 
                     <%= if meditation.source do %>
                       <p class="font-crimson text-sm text-gray-500 mt-4 italic">
-                        Source: <%= meditation.source %>
+                        Source: {meditation.source}
                       </p>
                     <% end %>
                   </div>
@@ -110,8 +94,8 @@
         </div>
       <% end %>
     </div>
-
-    <!-- Back to Dashboard -->
+    
+<!-- Back to Dashboard -->
     <div class="mt-8 text-center">
       <.link
         navigate="/admin"

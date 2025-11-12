@@ -106,20 +106,20 @@
 
       <div class="max-w-3xl mx-auto mb-10 text-center">
         <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold mb-3">
-          Today's suggestion · <%= Calendar.strftime(@today, "%A") %>
+          Today's suggestion · {Calendar.strftime(@today, "%A")}
         </p>
         <.link
           navigate={@recommended_set.path}
           class="inline-flex flex-col gap-3 bg-white border border-gold/30 px-6 py-5 rounded shadow-sm hover:shadow-ornate transition-all hover:-translate-y-1"
         >
           <span class="font-ovo text-2xl text-navy">
-            <%= @recommended_set.title %>
+            {@recommended_set.title}
           </span>
           <span class="font-work-sans text-brown-light italic text-sm">
-            <%= @recommended_set.schedule %>
+            {@recommended_set.schedule}
           </span>
           <span class="font-work-sans text-brown text-base leading-relaxed">
-            <%= @recommended_set.description %>
+            {@recommended_set.description}
           </span>
         </.link>
       </div>
@@ -135,25 +135,23 @@
           <% recommended? = set.key == @recommended_set_key %>
           <.link
             navigate={set.path}
-            class={
-              [
-                "block bg-white border-l-4 p-8 transition-all hover:shadow-ornate hover:-translate-y-1",
-                recommended? && "border-gold shadow-ornate",
-                !recommended? && "border-gold/70"
-              ]
-            }
+            class={[
+              "block bg-white border-l-4 p-8 transition-all hover:shadow-ornate hover:-translate-y-1",
+              recommended? && "border-gold shadow-ornate",
+              !recommended? && "border-gold/70"
+            ]}
           >
             <div class="flex items-start justify-between gap-2 mb-3">
               <h4 class="font-ovo text-2xl text-navy">
-                <%= set.title %>
+                {set.title}
               </h4>
             </div>
 
             <p class="font-work-sans text-brown-light mb-4 italic text-sm">
-              <%= set.schedule %>
+              {set.schedule}
             </p>
             <p class="font-work-sans text-brown text-base leading-relaxed">
-              <%= set.description %>
+              {set.description}
             </p>
           </.link>
         <% end %>

@@ -25,7 +25,9 @@ defmodule LumenViaeWeb.Plugs.CanonicalHost do
     # Check if we're in production by looking at the configured host
     # In development/test, host will be "localhost"
     case Application.get_env(:lumen_viae, LumenViaeWeb.Endpoint) do
-      nil -> false
+      nil ->
+        false
+
       config ->
         host = get_in(config, [:url, :host])
         host != nil and host != "localhost"

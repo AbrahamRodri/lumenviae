@@ -3,8 +3,8 @@
     <h2 class="font-cinzel text-4xl text-navy mb-8">
       Edit Meditation Set
     </h2>
-
-    <!-- Edit Set Details -->
+    
+<!-- Edit Set Details -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">Set Details</h3>
       <.form for={@edit_form} phx-submit="update_meditation_set">
@@ -15,12 +15,15 @@
             </label>
             <input
               type="text"
-              name="name"
-              value={@edit_form.data["name"]}
+              name={@edit_form[:name].name}
+              value={@edit_form[:name].value || ""}
               required
               class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
               placeholder="e.g., St. Louis de Montfort - Joyful Mysteries"
             />
+            <%= for error <- @edit_form[:name].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+            <% end %>
           </div>
 
           <div>
@@ -28,20 +31,19 @@
               Category
             </label>
             <select
-              name="category"
+              name={@edit_form[:category].name}
               required
               class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
             >
-              <option value="joyful" selected={@edit_form.data["category"] == "joyful"}>
-                Joyful Mysteries
-              </option>
-              <option value="sorrowful" selected={@edit_form.data["category"] == "sorrowful"}>
-                Sorrowful Mysteries
-              </option>
-              <option value="glorious" selected={@edit_form.data["category"] == "glorious"}>
-                Glorious Mysteries
-              </option>
+              <%= for {label, value} <- @mystery_categories do %>
+                <option value={value} selected={@edit_form[:category].value == value}>
+                  {label}
+                </option>
+              <% end %>
             </select>
+            <%= for error <- @edit_form[:category].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+            <% end %>
           </div>
 
           <div>
@@ -49,11 +51,14 @@
               Description (Optional)
             </label>
             <textarea
-              name="description"
+              name={@edit_form[:description].name}
               rows="3"
               class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
               placeholder="Brief description of this meditation set..."
-            ><%= @edit_form.data["description"] %></textarea>
+            ><%= @edit_form[:description].value || "" %></textarea>
+            <%= for error <- @edit_form[:description].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+            <% end %>
           </div>
 
           <div class="flex justify-end">
@@ -67,15 +72,15 @@
         </div>
       </.form>
     </div>
-
-    <!-- Manage Meditations in Set -->
+    
+<!-- Manage Meditations in Set -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">Meditations in This Set</h3>
-
-      <!-- Current Meditations -->
+      
+<!-- Current Meditations -->
       <div class="mb-8">
         <h4 class="font-cinzel text-lg text-navy mb-3">
-          Current Meditations (<%= length(@selected_set_meditations) %>)
+          Current Meditations ({length(@selected_set_meditations)})
         </h4>
         <%= if @selected_set_meditations == [] do %>
           <p class="font-crimson text-gray-600 text-sm italic">
@@ -87,12 +92,12 @@
               <div class="flex justify-between items-center bg-cream p-3 rounded">
                 <div>
                   <span class="font-crimson text-navy">
-                    <%= meditation.mystery.name %>
-                    <%= if meditation.title, do: " - #{meditation.title}" %>
+                    {meditation.mystery.name}
+                    {if meditation.title, do: " - #{meditation.title}"}
                   </span>
                   <%= if meditation.author do %>
                     <span class="font-crimson text-sm text-gray-500 ml-2">
-                      by <%= meditation.author %>
+                      by {meditation.author}
                     </span>
                   <% end %>
                 </div>
@@ -108,53 +113,73 @@
           </div>
         <% end %>
       </div>
-
-      <!-- Add Meditation to Set -->
+      
+<!-- Add Meditation to Set -->
       <div>
-        <h4 class="font-cinzel text-lg text-navy mb-3">
+        <h4 class="font-cinzel text-lg text-navy mb-4">
           Add Meditation to Set
         </h4>
-        <.form for={%{}} phx-submit="add_to_set">
-          <div class="grid md:grid-cols-3 gap-4">
-            <div class="md:col-span-2">
-              <select
-                name="meditation_id"
-                required
-                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-              >
-                <option value="">Select a meditation...</option>
-                <%= for meditation <- @meditations do %>
-                  <option value={meditation.id}>
-                    <%= meditation.mystery.name %>
-                    <%= if meditation.title, do: " - #{meditation.title}" %>
-                    <%= if meditation.author, do: " (#{meditation.author})" %>
-                  </option>
-                <% end %>
-              </select>
+
+        <% meditations = filtered_meditations(assigns) %>
+        <LumenViaeWeb.Components.MeditationFilters.meditation_filters
+          filter_category={@filter_category}
+          filter_author={@filter_author}
+          search_query={@search_query}
+          available_authors={@available_authors}
+          mystery_categories={@mystery_categories}
+          filtered_count={length(meditations)}
+          show_description={true}
+          description="Use the filters to narrow the meditations list, then choose one to add with its display order."
+          inline={true}
+        />
+
+        <%= if meditations == [] do %>
+          <p class="font-crimson text-gray-600 text-sm italic">
+            No meditations match the current filters. Adjust the filters or import new meditations first.
+          </p>
+        <% else %>
+          <.form for={%{}} phx-submit="add_to_set">
+            <div class="grid md:grid-cols-3 gap-4">
+              <div class="md:col-span-2">
+                <select
+                  name="meditation_id"
+                  required
+                  class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                >
+                  <option value="">Select a meditation...</option>
+                  <%= for meditation <- meditations do %>
+                    <option value={meditation.id}>
+                      {meditation.mystery.name}
+                      {if meditation.title, do: " - #{meditation.title}"}
+                      {if meditation.author, do: " (#{meditation.author})"}
+                    </option>
+                  <% end %>
+                </select>
+              </div>
+              <div>
+                <input
+                  type="number"
+                  name="order"
+                  required
+                  min="1"
+                  max="5"
+                  placeholder="Order (1-5)"
+                  class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                />
+              </div>
             </div>
-            <div>
-              <input
-                type="number"
-                name="order"
-                required
-                min="1"
-                max="5"
-                placeholder="Order (1-5)"
-                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-              />
-            </div>
-          </div>
-          <button
-            type="submit"
-            class="mt-4 bg-navy text-white px-6 py-2 rounded hover:bg-gold hover:text-navy transition-colors font-crimson"
-          >
-            Add to Set
-          </button>
-        </.form>
+            <button
+              type="submit"
+              class="mt-4 bg-navy text-white px-6 py-2 rounded hover:bg-gold hover:text-navy transition-colors font-crimson"
+            >
+              Add to Set
+            </button>
+          </.form>
+        <% end %>
       </div>
     </div>
-
-    <!-- Back to Sets -->
+    
+<!-- Back to Sets -->
     <div class="mt-8 text-center">
       <.link
         navigate="/admin/meditation-sets"
