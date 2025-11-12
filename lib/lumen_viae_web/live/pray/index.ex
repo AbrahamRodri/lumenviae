@@ -22,35 +22,58 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     current = socket.assigns.current_index
     total = length(socket.assigns.set.meditations)
 
-    new_index = min(current + 1, total - 1)
-    {:noreply, assign(socket, :current_index, new_index)}
+    new_index = current + 1 |> clamp_index(total)
+    {:noreply, assign_current_meditation(socket, new_index)}
   end
 
   def handle_event("previous", _params, socket) do
     current = socket.assigns.current_index
-    new_index = max(current - 1, 0)
-    {:noreply, assign(socket, :current_index, new_index)}
+    total = length(socket.assigns.set.meditations)
+    new_index = current - 1 |> clamp_index(total)
+    {:noreply, assign_current_meditation(socket, new_index)}
   end
 
   def handle_event("restore_progress", %{"index" => index}, socket) do
     total = length(socket.assigns.set.meditations)
     # Ensure index is valid (within bounds)
-    valid_index = max(0, min(index, total - 1))
-    {:noreply, assign(socket, :current_index, valid_index)}
+    valid_index = index |> normalize_index() |> clamp_index(total)
+    {:noreply, assign_current_meditation(socket, valid_index)}
   end
 
   @impl true
   def handle_params(_params, _url, socket) do
-    meditation = current_meditation(socket.assigns)
     total_count = length(socket.assigns.set.meditations)
 
     {:noreply,
      socket
-     |> assign(:meditation, meditation)
-     |> assign(:total_count, total_count)}
+     |> assign(:total_count, total_count)
+     |> assign_current_meditation(socket.assigns.current_index)}
   end
 
-  defp current_meditation(assigns) do
-    Enum.at(assigns.set.meditations, assigns.current_index)
+  defp assign_current_meditation(socket, index) do
+    meditation = Enum.at(socket.assigns.set.meditations, index)
+
+    socket
+    |> assign(:current_index, index)
+    |> assign(:meditation, meditation)
   end
+
+  defp clamp_index(_index, total) when total <= 0, do: 0
+
+  defp clamp_index(index, total) do
+    index
+    |> max(0)
+    |> min(total - 1)
+  end
+
+  defp normalize_index(index) when is_integer(index), do: index
+
+  defp normalize_index(index) when is_binary(index) do
+    case Integer.parse(index) do
+      {value, _} -> value
+      :error -> 0
+    end
+  end
+
+  defp normalize_index(_), do: 0
 end
