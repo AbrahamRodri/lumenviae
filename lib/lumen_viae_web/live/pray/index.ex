@@ -51,7 +51,13 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       |> assign(:total_count, total_count)
 
     ~H"""
-    <div class="min-h-screen bg-cream pb-16" id="rosary-progress-container" phx-hook="RosaryProgress" data-set-id={@set.id} data-current-index={@current_index}>
+    <div
+      class="min-h-screen bg-cream pb-16"
+      id="rosary-progress-container"
+      phx-hook="RosaryProgress"
+      data-set-id={@set.id}
+      data-current-index={@current_index}
+    >
       <div class="max-w-4xl mx-auto px-8 py-12" id="meditation-container" phx-hook="ScrollToTop">
         <!-- Progress Indicator -->
         <div class="text-center mb-8">

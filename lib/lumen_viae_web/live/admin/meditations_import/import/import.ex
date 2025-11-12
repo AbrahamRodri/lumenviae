@@ -94,11 +94,14 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
           {:error, "Failed to create meditation for '#{mystery_name}': #{errors}"}
       end
     else
-      {:error, "Mystery not found: #{mystery_name}. Make sure the mystery name exactly matches an existing mystery."}
+      {:error,
+       "Mystery not found: #{mystery_name}. Make sure the mystery name exactly matches an existing mystery."}
     end
   end
 
   defp error_to_string(:too_large), do: "File is too large"
   defp error_to_string(:not_accepted), do: "File type not accepted. Please upload a CSV file"
-  defp error_to_string(:too_many_files), do: "Too many files selected. Please upload only one CSV file"
+
+  defp error_to_string(:too_many_files),
+    do: "Too many files selected. Please upload only one CSV file"
 end

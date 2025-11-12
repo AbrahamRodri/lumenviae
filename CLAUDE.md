@@ -1,10 +1,12 @@
 # Instructions for Claude Code
 
-## CRITICAL: NO EMOJIS
+## CRITICAL: NO EMOJIS 
 
 **NEVER use emojis in any code, documentation, comments, or communication.**
 
 This is a strict project requirement. Keep all text professional and emoji-free.
+
+NEVER when making PR descriptions on git commits add CO-Author by Claude
 
 ## Architecture
 

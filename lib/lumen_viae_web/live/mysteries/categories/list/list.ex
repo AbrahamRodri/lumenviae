@@ -31,19 +31,19 @@ defmodule LumenViaeWeb.Live.Mysteries.Categories.List do
         <!-- Category Header -->
         <div class="text-center mb-12">
           <h2 class="font-cinzel text-4xl text-navy mb-3">
-            <%= category_title(@category) %>
+            {category_title(@category)}
           </h2>
           <p class="font-crimson text-gray-600 italic text-lg">
-            <%= category_days(@category) %>
+            {category_days(@category)}
           </p>
         </div>
-
-        <!-- Meditation Sets -->
+        
+    <!-- Meditation Sets -->
         <div class="space-y-6">
           <%= if @meditation_sets == [] do %>
             <div class="bg-white border-l-4 border-gold p-12 text-center">
               <p class="font-crimson text-gray-600 text-lg mb-6">
-                No meditation sets available yet for <%= category_title(@category) %>.
+                No meditation sets available yet for {category_title(@category)}.
               </p>
               <p class="font-crimson text-gray-500 text-sm">
                 Meditation sets will appear here once they are created through the admin interface.
@@ -56,11 +56,11 @@ defmodule LumenViaeWeb.Live.Mysteries.Categories.List do
                 class="block bg-white border-l-4 border-gold p-8 hover:shadow-lg transition-shadow"
               >
                 <h3 class="font-cinzel text-2xl text-navy mb-2">
-                  <%= set.name %>
+                  {set.name}
                 </h3>
                 <%= if set.description do %>
                   <p class="font-crimson text-gray-600 mt-3">
-                    <%= set.description %>
+                    {set.description}
                   </p>
                 <% end %>
                 <div class="mt-4 font-crimson text-gold text-sm">
@@ -70,8 +70,8 @@ defmodule LumenViaeWeb.Live.Mysteries.Categories.List do
             <% end %>
           <% end %>
         </div>
-
-        <!-- Back to Home -->
+        
+    <!-- Back to Home -->
         <div class="mt-12 text-center">
           <.link
             navigate="/"

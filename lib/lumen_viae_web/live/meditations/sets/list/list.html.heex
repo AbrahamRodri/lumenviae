@@ -11,13 +11,15 @@
         Create New Set
       </.link>
     </div>
-
-    <!-- Sets List -->
+    
+<!-- Sets List -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">All Meditation Sets</h3>
 
       <%= if @meditation_sets == [] do %>
-        <p class="font-crimson text-gray-600">No meditation sets yet. Create one to get started.</p>
+        <p class="font-crimson text-gray-600">
+          No meditation sets yet. Create one to get started.
+        </p>
       <% else %>
         <div class="space-y-4">
           <%= for set <- @meditation_sets do %>
@@ -25,14 +27,14 @@
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <h4 class="font-cinzel text-xl text-navy mb-2">
-                    <%= set.name %>
+                    {set.name}
                   </h4>
                   <p class="font-crimson text-sm text-gray-600 mb-1">
-                    Category: <%= String.capitalize(set.category) %> Mysteries
+                    Category: {String.capitalize(set.category)} Mysteries
                   </p>
                   <%= if set.description do %>
                     <p class="font-crimson text-gray-700 mt-2">
-                      <%= set.description %>
+                      {set.description}
                     </p>
                   <% end %>
                 </div>
@@ -60,8 +62,8 @@
         </div>
       <% end %>
     </div>
-
-    <!-- View Set Details -->
+    
+<!-- View Set Details -->
     <%= if @meditation_sets != [] do %>
       <div class="bg-white border-l-4 border-gold p-8">
         <h3 class="font-cinzel text-2xl text-navy mb-6">View Set Details</h3>
@@ -78,7 +80,7 @@
               <option value="">Choose a set...</option>
               <%= for set <- @meditation_sets do %>
                 <option value={set.id} selected={@selected_set && @selected_set.id == set.id}>
-                  <%= set.name %> (<%= String.capitalize(set.category) %>)
+                  {set.name} ({String.capitalize(set.category)})
                 </option>
               <% end %>
             </select>
@@ -88,7 +90,7 @@
         <%= if @selected_set do %>
           <div class="mt-6">
             <h4 class="font-cinzel text-lg text-navy mb-3">
-              Meditations in <%= @selected_set.name %>
+              Meditations in {@selected_set.name}
             </h4>
 
             <%= if @selected_set_meditations == [] do %>
@@ -101,12 +103,12 @@
                   <div class="flex items-center bg-cream p-3 rounded">
                     <div class="flex-1">
                       <span class="font-crimson text-navy">
-                        <%= meditation.mystery.name %>
-                        <%= if meditation.title, do: " - #{meditation.title}" %>
+                        {meditation.mystery.name}
+                        {if meditation.title, do: " - #{meditation.title}"}
                       </span>
                       <%= if meditation.author do %>
                         <span class="font-crimson text-sm text-gray-500 ml-2">
-                          by <%= meditation.author %>
+                          by {meditation.author}
                         </span>
                       <% end %>
                     </div>
@@ -118,8 +120,8 @@
         <% end %>
       </div>
     <% end %>
-
-    <!-- Back to Dashboard -->
+    
+<!-- Back to Dashboard -->
     <div class="mt-8 text-center">
       <.link
         navigate="/admin"

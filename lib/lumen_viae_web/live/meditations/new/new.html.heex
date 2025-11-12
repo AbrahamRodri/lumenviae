@@ -3,8 +3,8 @@
     <h2 class="font-cinzel text-4xl text-navy mb-8">
       Create New Meditation
     </h2>
-
-    <!-- Filter Category -->
+    
+<!-- Filter Category -->
     <div class="bg-white border-l-4 border-gold p-6 mb-8">
       <h3 class="font-cinzel text-xl text-navy mb-4">Filter Mysteries</h3>
       <div>
@@ -17,22 +17,26 @@
             class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
           >
             <option value="" selected={is_nil(@filter_category)}>All Categories</option>
-            <option value="joyful" selected={@filter_category == "joyful"}>Joyful Mysteries</option>
+            <option value="joyful" selected={@filter_category == "joyful"}>
+              Joyful Mysteries
+            </option>
             <option value="sorrowful" selected={@filter_category == "sorrowful"}>
               Sorrowful Mysteries
             </option>
-            <option value="glorious" selected={@filter_category == "glorious"}>Glorious Mysteries</option>
+            <option value="glorious" selected={@filter_category == "glorious"}>
+              Glorious Mysteries
+            </option>
           </select>
         </.form>
         <%= if @filter_category do %>
           <p class="font-crimson text-sm text-gray-600 mt-2">
-            Showing only <%= String.capitalize(@filter_category) %> mysteries in the form below
+            Showing only {String.capitalize(@filter_category)} mysteries in the form below
           </p>
         <% end %>
       </div>
     </div>
-
-    <!-- Create Form -->
+    
+<!-- Create Form -->
     <div class="bg-white border-l-4 border-gold p-8">
       <.form for={@meditation_form} phx-submit="create_meditation">
         <div class="space-y-4">
@@ -48,7 +52,7 @@
               <option value="">Select a Mystery</option>
               <%= for mystery <- filtered_mysteries(assigns) do %>
                 <option value={mystery.id}>
-                  <%= mystery.name %> (<%= String.capitalize(mystery.category) %>)
+                  {mystery.name} ({String.capitalize(mystery.category)})
                 </option>
               <% end %>
             </select>
