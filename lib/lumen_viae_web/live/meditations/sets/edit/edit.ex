@@ -2,6 +2,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   use LumenViaeWeb, :live_view
   alias LumenViae.Meditations.Filtering
   alias LumenViae.Rosary
+  alias LumenViae.Rosary.MeditationSet
 
   def mount(%{"id" => id}, _session, socket) do
     set = Rosary.get_meditation_set_with_ordered_meditations!(id)
@@ -20,7 +21,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
      |> assign_edit_form(set)}
   end
 
-  def handle_event("update_meditation_set", params, socket) do
+  def handle_event("update_meditation_set", %{"meditation_set" => params}, socket) do
     case Rosary.update_meditation_set(socket.assigns.meditation_set, params) do
       {:ok, set} ->
         {:noreply,
@@ -29,9 +30,16 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
          |> assign(:meditation_set, set)
          |> assign_edit_form(set)}
 
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to update meditation set")}
+      {:error, changeset} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Failed to update meditation set")
+         |> assign_edit_form(changeset)}
     end
+  end
+
+  def handle_event("update_meditation_set", params, socket) do
+    handle_event("update_meditation_set", %{"meditation_set" => params}, socket)
   end
 
   def handle_event("add_to_set", %{"meditation_id" => meditation_id, "order" => order}, socket) do
@@ -76,16 +84,12 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
      |> assign(:selected_set_meditations, set.meditations)}
   end
 
-  defp assign_edit_form(socket, set) do
-    assign(
-      socket,
-      :edit_form,
-      to_form(%{
-        "name" => set.name,
-        "category" => set.category,
-        "description" => set.description || ""
-      })
-    )
+  defp assign_edit_form(socket, %MeditationSet{} = set) do
+    assign_edit_form(socket, Rosary.change_meditation_set(set))
+  end
+
+  defp assign_edit_form(socket, %Ecto.Changeset{} = changeset) do
+    assign(socket, :edit_form, to_form(changeset, as: :meditation_set))
   end
 
   defp filtered_meditations(assigns) do

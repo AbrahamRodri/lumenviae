@@ -15,12 +15,15 @@
             </label>
             <input
               type="text"
-              name="name"
-              value={@edit_form.data["name"]}
+              name={@edit_form[:name].name}
+              value={@edit_form[:name].value || ""}
               required
               class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
               placeholder="e.g., St. Louis de Montfort - Joyful Mysteries"
             />
+            <%= for error <- @edit_form[:name].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+            <% end %>
           </div>
 
           <div>
@@ -28,20 +31,23 @@
               Category
             </label>
             <select
-              name="category"
+              name={@edit_form[:category].name}
               required
               class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
             >
-              <option value="joyful" selected={@edit_form.data["category"] == "joyful"}>
+              <option value="joyful" selected={@edit_form[:category].value == "joyful"}>
                 Joyful Mysteries
               </option>
-              <option value="sorrowful" selected={@edit_form.data["category"] == "sorrowful"}>
+              <option value="sorrowful" selected={@edit_form[:category].value == "sorrowful"}>
                 Sorrowful Mysteries
               </option>
-              <option value="glorious" selected={@edit_form.data["category"] == "glorious"}>
+              <option value="glorious" selected={@edit_form[:category].value == "glorious"}>
                 Glorious Mysteries
               </option>
             </select>
+            <%= for error <- @edit_form[:category].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+            <% end %>
           </div>
 
           <div>
@@ -49,11 +55,14 @@
               Description (Optional)
             </label>
             <textarea
-              name="description"
+              name={@edit_form[:description].name}
               rows="3"
               class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
               placeholder="Brief description of this meditation set..."
-            ><%= @edit_form.data["description"] %></textarea>
+            ><%= @edit_form[:description].value || "" %></textarea>
+            <%= for error <- @edit_form[:description].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+            <% end %>
           </div>
 
           <div class="flex justify-end">

@@ -103,6 +103,10 @@ defmodule LumenViae.Rosary do
     |> Repo.update()
   end
 
+  def change_meditation_set(%MeditationSet{} = meditation_set, attrs \\ %{}) do
+    MeditationSet.changeset(meditation_set, attrs)
+  end
+
   def delete_meditation_set(%MeditationSet{} = meditation_set) do
     Repo.delete(meditation_set)
   end
