@@ -18,45 +18,7 @@
     </script>
   </head>
   <body class="bg-cream">
-    <!-- Simplified Header / Navigation -->
-    <header class="bg-navy border-b-3 border-gold">
-      <div class="relative max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-        <.link navigate="/" class="flex items-center gap-4 hover:opacity-80 transition-opacity">
-          <.medallion_bg type="saint_benedict" size="small" />
-
-          <div>
-            <h1 class="font-cinzel-decorative text-gold text-2xl md:text-3xl tracking-widest font-bold">
-              LUMEN VIAE
-            </h1>
-            <p class="font-garamond text-gold-light text-sm tracking-wide italic">
-              Meditations on the Holy Rosary
-            </p>
-          </div>
-        </.link>
-        
-<!-- Optional: Navigation links space -->
-        <div class="hidden md:flex items-center gap-6">
-          <.link
-            navigate="/mysteries"
-            class="font-work-sans text-gold-light hover:text-gold transition-colors text-sm"
-          >
-            Mysteries & Scripture
-          </.link>
-          <.link
-            navigate="/rosary-methods"
-            class="font-work-sans text-gold-light hover:text-gold transition-colors text-sm"
-          >
-            Rosary Methods
-          </.link>
-          <.link
-            navigate="/feedback"
-            class="font-work-sans text-gold-light hover:text-gold transition-colors text-sm"
-          >
-            Feedback
-          </.link>
-        </div>
-      </div>
-    </header>
+    <LumenViaeWeb.Components.Nav.header />
 
     {@inner_content}
     
