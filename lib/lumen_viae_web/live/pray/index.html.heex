@@ -13,7 +13,7 @@
       </p>
       <div class="flex justify-center items-center gap-2">
         <%= for i <- 0..(@total_count - 1) do %>
-          <div class={"w-3 h-3 rounded-full #{if i == @current_index, do: "bg-gold", else: "bg-gray-300"}"}>
+          <div class={"w-3 h-3 rounded-full transition-all duration-300 #{if i == @current_index, do: "bg-gold scale-125", else: "bg-gray-300 hover:scale-110"}"}>
           </div>
         <% end %>
       </div>
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Mystery and Meditation -->
-    <div class="bg-white border-l-4 border-gold p-12 mb-8">
+    <div class="bg-white border-l-4 border-gold p-12 mb-8 transition-all duration-300 hover:shadow-ornate">
       <!-- Mystery Title -->
       <h2 class="font-cinzel text-3xl text-navy mb-2 text-center">
         {@meditation.mystery.name}
@@ -73,7 +73,7 @@
       <button
         phx-click="previous"
         disabled={@current_index == 0}
-        class="font-cinzel px-6 py-3 bg-navy text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        class="font-cinzel px-6 py-3 bg-navy text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
       >
         ← Previous Mystery
       </button>
@@ -81,14 +81,14 @@
       <%= if @current_index == @total_count - 1 do %>
         <.link
           navigate={"/mysteries/" <> @set.category}
-          class="font-cinzel px-6 py-3 bg-gold text-navy border-2 border-gold hover:bg-navy hover:text-gold transition-colors"
+          class="font-cinzel px-6 py-3 bg-gold text-navy border-2 border-gold hover:bg-navy hover:text-gold transition-all duration-300 hover:scale-105 active:scale-95"
         >
           Complete Rosary
         </.link>
       <% else %>
         <button
           phx-click="next"
-          class="font-cinzel px-6 py-3 bg-gold text-navy border-2 border-gold hover:bg-navy hover:text-gold transition-colors"
+          class="font-cinzel px-6 py-3 bg-gold text-navy border-2 border-gold hover:bg-navy hover:text-gold transition-all duration-300 hover:scale-105 active:scale-95"
         >
           Next Mystery →
         </button>
@@ -99,7 +99,7 @@
     <div class="mt-8 text-center">
       <.link
         navigate={"/mysteries/" <> @set.category}
-        class="font-crimson text-navy hover:text-gold transition-colors text-sm"
+        class="font-crimson text-navy hover:text-gold transition-all duration-300 text-sm hover:underline"
       >
         Exit to {String.capitalize(@set.category)} Mysteries
       </.link>

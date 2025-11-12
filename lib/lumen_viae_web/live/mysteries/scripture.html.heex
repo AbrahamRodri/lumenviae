@@ -5,7 +5,7 @@
       <img
         src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
         alt="Blessed Mary with Child Jesus"
-        class="w-64 mx-auto mb-8 opacity-90"
+        class="w-64 mx-auto mb-8 opacity-90 transition-all duration-500 hover:opacity-100 hover:scale-105"
       />
 
       <h1 class="font-roman-uncial text-gold text-5xl md:text-6xl mb-4">
@@ -29,10 +29,10 @@
           phx-click="select-category"
           phx-value-id={category.id}
           class={[
-            "px-6 py-2 rounded-full text-sm font-ovo uppercase tracking-wide transition-colors border",
+            "px-6 py-2 rounded-full text-sm font-ovo uppercase tracking-wide transition-all duration-300 border",
             if(category.id == @selected_category,
               do: "bg-navy text-gold border-navy shadow-md",
-              else: "bg-cream text-navy border-gold hover:bg-gold-light/20"
+              else: "bg-cream text-navy border-gold hover:bg-gold-light/20 hover:scale-105"
             )
           ]}
         >
@@ -123,7 +123,7 @@
 
           <div class="space-y-6">
             <!-- 1. The Annunciation -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 1. The Annunciation
               </h3>
@@ -131,7 +131,7 @@
                 The angel Gabriel announces to Mary that she will conceive by the Holy Ghost.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">(Luke 1:26–38 - Douay-Rheims)</span>
                 </summary>
@@ -144,7 +144,7 @@
             </div>
             
 <!-- 2. The Visitation -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 2. The Visitation
               </h3>
@@ -152,7 +152,7 @@
                 Mary visits Elizabeth; St. John the Baptist leaps in the womb.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">(Luke 1:39–56 - Douay-Rheims)</span>
                 </summary>
@@ -165,7 +165,7 @@
             </div>
             
 <!-- 3. The Nativity -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 3. The Nativity of Our Lord
               </h3>
@@ -173,7 +173,7 @@
                 Christ is born in Bethlehem; angels announce peace to men of good will.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture <span class="text-gold-light font-bold">(Luke 2:1–20 - Douay-Rheims)</span>
                 </summary>
                 <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
@@ -185,7 +185,7 @@
             </div>
             
 <!-- 4. The Presentation -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 4. The Presentation in the Temple
               </h3>
@@ -193,7 +193,7 @@
                 Mary and Joseph present Jesus in the Temple; Simeon and Anna prophesy.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">(Luke 2:22–38 - Douay-Rheims)</span>
                 </summary>
@@ -206,7 +206,7 @@
             </div>
             
 <!-- 5. Finding in the Temple -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 5. The Finding of the Child Jesus in the Temple
               </h3>
@@ -214,7 +214,7 @@
                 The twelve-year-old Jesus is found teaching among the doctors.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">(Luke 2:41–52 - Douay-Rheims)</span>
                 </summary>
@@ -243,7 +243,7 @@
 
           <div class="space-y-6">
             <!-- 1. Baptism in the Jordan -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 1. The Baptism of Our Lord in the Jordan
               </h3>
@@ -251,7 +251,7 @@
                 Jesus is baptized by John; the Father and the Holy Spirit manifest.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Matthew 3:13–17; Mark 1:9–11; Luke 3:21–22 - Douay-Rheims)
@@ -269,7 +269,7 @@
             </div>
             
 <!-- 2. Wedding at Cana -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 2. The Wedding Feast at Cana
               </h3>
@@ -277,7 +277,7 @@
                 Jesus performs His first miracle at Mary's request.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture <span class="text-gold-light font-bold">(John 2:1–11 - Douay-Rheims)</span>
                 </summary>
                 <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
@@ -289,7 +289,7 @@
             </div>
             
 <!-- 3. Proclamation of the Kingdom -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 3. The Proclamation of the Kingdom and the Call to Conversion
               </h3>
@@ -297,7 +297,7 @@
                 Christ preaches repentance and the coming of the Kingdom.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Mark 1:14–15; Matthew 5–7 (excerpts); Luke 7:47–50 - Douay-Rheims)
@@ -314,7 +314,7 @@
             </div>
             
 <!-- 4. Transfiguration -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 4. The Transfiguration
               </h3>
@@ -322,7 +322,7 @@
                 Jesus is transfigured in glory before Peter, James, and John.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Matthew 17:1–8; Mark 9:2–8; Luke 9:28–36 - Douay-Rheims)
@@ -340,7 +340,7 @@
             </div>
             
 <!-- 5. Institution of the Eucharist -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 5. The Institution of the Holy Eucharist
               </h3>
@@ -348,7 +348,7 @@
                 At the Last Supper, Christ gives His Body and Blood.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Matthew 26:26–29; Mark 14:22–25; Luke 22:19–20; 1 Corinthians 11:23–26 - Douay-Rheims)
@@ -383,7 +383,7 @@
 
           <div class="space-y-6">
             <!-- 1. Agony in the Garden -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 1. The Agony in the Garden
               </h3>
@@ -391,7 +391,7 @@
                 Jesus prays in Gethsemane and accepts the chalice of suffering.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Matthew 26:36–46; Mark 14:32–42; Luke 22:39–46 - Douay-Rheims)
@@ -410,7 +410,7 @@
             </div>
             
 <!-- 2. Scourging at the Pillar -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 2. The Scourging at the Pillar
               </h3>
@@ -418,7 +418,7 @@
                 Jesus is scourged by order of Pilate.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (John 19:1; Matthew 27:26; Mark 15:15 - Douay-Rheims)
@@ -437,7 +437,7 @@
             </div>
             
 <!-- 3. Crowning with Thorns -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 3. The Crowning with Thorns
               </h3>
@@ -445,7 +445,7 @@
                 The soldiers mock Christ as King and crown Him with thorns.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Matthew 27:27–31; Mark 15:16–20; John 19:2–3 - Douay-Rheims)
@@ -463,7 +463,7 @@
             </div>
             
 <!-- 4. Carrying of the Cross -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 4. The Carrying of the Cross
               </h3>
@@ -471,7 +471,7 @@
                 Jesus carries His Cross to Calvary, meeting His Mother and Veronica.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Luke 23:26–32; Matthew 27:31–33; John 19:16–17 - Douay-Rheims)
@@ -489,7 +489,7 @@
             </div>
             
 <!-- 5. Crucifixion -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 5. The Crucifixion and Death of Our Lord
               </h3>
@@ -497,7 +497,7 @@
                 Jesus is nailed to the Cross, forgives His enemies, and dies for our salvation.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Luke 23:33–46; John 19:18–30; Matthew 27:33–54 - Douay-Rheims)
@@ -531,7 +531,7 @@
 
           <div class="space-y-6">
             <!-- 1. Resurrection -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 1. The Resurrection
               </h3>
@@ -539,7 +539,7 @@
                 Christ rises from the dead, glorious and immortal.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Matthew 28:1–10; Mark 16:1–14; Luke 24:1–12; John 20:1–29 - Douay-Rheims)
@@ -558,7 +558,7 @@
             </div>
             
 <!-- 2. Ascension -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 2. The Ascension
               </h3>
@@ -566,7 +566,7 @@
                 Jesus ascends to the right hand of the Father.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">(Luke 24:50–53; Acts 1:6–11 - Douay-Rheims)</span>
                 </summary>
@@ -581,7 +581,7 @@
             </div>
             
 <!-- 3. Descent of the Holy Ghost -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 3. The Descent of the Holy Ghost
               </h3>
@@ -589,7 +589,7 @@
                 The Holy Spirit descends upon Mary and the Apostles in tongues of fire.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture <span class="text-gold-light font-bold">(Acts 2:1–11 - Douay-Rheims)</span>
                 </summary>
                 <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
@@ -601,7 +601,7 @@
             </div>
             
 <!-- 4. Assumption -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 4. The Assumption of the Blessed Virgin Mary
               </h3>
@@ -609,7 +609,7 @@
                 The Church teaches that Mary, body and soul, was taken into heaven.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Revelation 12:1; Song of Songs 2:10–14; Judith 13:23–25 - Douay-Rheims)
@@ -624,7 +624,7 @@
             </div>
             
 <!-- 5. Coronation -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
+            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
               <h3 class="font-ovo text-navy text-2xl mb-3">
                 5. The Coronation of the Blessed Virgin Mary
               </h3>
@@ -632,7 +632,7 @@
                 Mary is crowned Queen of Heaven and Earth.
               </p>
               <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
+                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
                   Read Scripture
                   <span class="text-gold-light font-bold">
                     (Revelation 12:1; Psalm 45:10–17 - Douay-Rheims)

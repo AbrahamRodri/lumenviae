@@ -17,7 +17,7 @@
           <button
             type="button"
             phx-click="random_set"
-            class="inline-flex items-center px-6 py-3 bg-gold text-white font-cinzel tracking-wide uppercase shadow-md hover:bg-gold/90 focus:outline-none focus:ring-2 focus:ring-gold/70 focus:ring-offset-2"
+            class="inline-flex items-center px-6 py-3 bg-gold text-white font-cinzel tracking-wide uppercase shadow-md hover:bg-gold/90 focus:outline-none focus:ring-2 focus:ring-gold/70 focus:ring-offset-2 transition-all duration-300 hover:scale-105"
           >
             Divine Providence
           </button>
@@ -37,7 +37,7 @@
         <%= for set <- @meditation_sets do %>
           <.link
             navigate={"/meditation-sets/#{set.id}/pray"}
-            class="block bg-white border-l-4 border-gold p-8 hover:shadow-lg transition-shadow"
+            class="block bg-white border-l-4 border-gold p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
           >
             <h3 class="font-cinzel text-2xl text-navy mb-2">
               {set.name}
@@ -59,7 +59,7 @@
     <div class="mt-12 text-center">
       <.link
         navigate="/"
-        class="inline-block font-crimson text-navy hover:text-gold transition-colors"
+        class="inline-block font-crimson text-navy hover:text-gold transition-all duration-300 hover:translate-x-[-4px]"
       >
         ← Return to All Mysteries
       </.link>
