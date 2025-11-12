@@ -1,6 +1,7 @@
 defmodule LumenViaeWeb.Live.Meditations.Edit do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
+  alias LumenViae.Rosary.Meditation
 
   def mount(%{"id" => id}, _session, socket) do
     meditation = Rosary.get_meditation!(id)
@@ -13,7 +14,7 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
      |> assign_edit_form(meditation)}
   end
 
-  def handle_event("update_meditation", params, socket) do
+  def handle_event("update_meditation", %{"meditation" => params}, socket) do
     case Rosary.update_meditation(socket.assigns.meditation, params) do
       {:ok, meditation} ->
         {:noreply,
@@ -22,22 +23,23 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
          |> assign(:meditation, meditation)
          |> assign_edit_form(meditation)}
 
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to update meditation")}
+      {:error, changeset} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Failed to update meditation")
+         |> assign_edit_form(changeset)}
     end
   end
 
-  defp assign_edit_form(socket, meditation) do
-    assign(
-      socket,
-      :edit_form,
-      to_form(%{
-        "mystery_id" => to_string(meditation.mystery_id),
-        "title" => meditation.title || "",
-        "content" => meditation.content,
-        "author" => meditation.author || "",
-        "source" => meditation.source || ""
-      })
-    )
+  def handle_event("update_meditation", params, socket) do
+    handle_event("update_meditation", %{"meditation" => params}, socket)
+  end
+
+  defp assign_edit_form(socket, %Meditation{} = meditation) do
+    assign_edit_form(socket, Rosary.change_meditation(meditation))
+  end
+
+  defp assign_edit_form(socket, %Ecto.Changeset{} = changeset) do
+    assign(socket, :edit_form, to_form(changeset, as: :meditation))
   end
 end
