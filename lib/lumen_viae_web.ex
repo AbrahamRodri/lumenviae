@@ -87,6 +87,7 @@ defmodule LumenViaeWeb do
       # Core UI components
       import LumenViaeWeb.CoreComponents
       import LumenViaeWeb.Components.Scripture
+      import LumenViaeWeb.Components.Nav
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS
