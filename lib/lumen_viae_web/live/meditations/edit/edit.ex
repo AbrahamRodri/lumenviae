@@ -31,10 +31,6 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
     end
   end
 
-  def handle_event("update_meditation", params, socket) do
-    handle_event("update_meditation", %{"meditation" => params}, socket)
-  end
-
   defp assign_edit_form(socket, %Meditation{} = meditation) do
     assign_edit_form(socket, Rosary.change_meditation(meditation))
   end

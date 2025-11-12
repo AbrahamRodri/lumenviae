@@ -3,8 +3,8 @@
     <h2 class="font-cinzel text-4xl text-navy mb-8">
       Edit Meditation Set
     </h2>
-
-    <!-- Edit Set Details -->
+    
+<!-- Edit Set Details -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">Set Details</h3>
       <.form for={@edit_form} phx-submit="update_meditation_set">
@@ -22,7 +22,7 @@
               placeholder="e.g., St. Louis de Montfort - Joyful Mysteries"
             />
             <%= for error <- @edit_form[:name].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
             <% end %>
           </div>
 
@@ -35,18 +35,14 @@
               required
               class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
             >
-              <option value="joyful" selected={@edit_form[:category].value == "joyful"}>
-                Joyful Mysteries
-              </option>
-              <option value="sorrowful" selected={@edit_form[:category].value == "sorrowful"}>
-                Sorrowful Mysteries
-              </option>
-              <option value="glorious" selected={@edit_form[:category].value == "glorious"}>
-                Glorious Mysteries
-              </option>
+              <%= for {label, value} <- @mystery_categories do %>
+                <option value={value} selected={@edit_form[:category].value == value}>
+                  {label}
+                </option>
+              <% end %>
             </select>
             <%= for error <- @edit_form[:category].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
             <% end %>
           </div>
 
@@ -61,7 +57,7 @@
               placeholder="Brief description of this meditation set..."
             ><%= @edit_form[:description].value || "" %></textarea>
             <%= for error <- @edit_form[:description].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
             <% end %>
           </div>
 
@@ -76,15 +72,15 @@
         </div>
       </.form>
     </div>
-
-    <!-- Manage Meditations in Set -->
+    
+<!-- Manage Meditations in Set -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">Meditations in This Set</h3>
-
-      <!-- Current Meditations -->
+      
+<!-- Current Meditations -->
       <div class="mb-8">
         <h4 class="font-cinzel text-lg text-navy mb-3">
-          Current Meditations (<%= length(@selected_set_meditations) %>)
+          Current Meditations ({length(@selected_set_meditations)})
         </h4>
         <%= if @selected_set_meditations == [] do %>
           <p class="font-crimson text-gray-600 text-sm italic">
@@ -96,12 +92,12 @@
               <div class="flex justify-between items-center bg-cream p-3 rounded">
                 <div>
                   <span class="font-crimson text-navy">
-                    <%= meditation.mystery.name %>
-                    <%= if meditation.title, do: " - #{meditation.title}" %>
+                    {meditation.mystery.name}
+                    {if meditation.title, do: " - #{meditation.title}"}
                   </span>
                   <%= if meditation.author do %>
                     <span class="font-crimson text-sm text-gray-500 ml-2">
-                      by <%= meditation.author %>
+                      by {meditation.author}
                     </span>
                   <% end %>
                 </div>
@@ -117,73 +113,25 @@
           </div>
         <% end %>
       </div>
-
-      <!-- Add Meditation to Set -->
+      
+<!-- Add Meditation to Set -->
       <div>
-        <h4 class="font-cinzel text-lg text-navy mb-3">
+        <h4 class="font-cinzel text-lg text-navy mb-4">
           Add Meditation to Set
         </h4>
-        <p class="font-crimson text-gray-600 text-sm mb-4">
-          Use the filters to narrow the meditations list, then choose one to add with its display order.
-        </p>
-
-        <.form for={%{}} phx-change="update_filters" class="mb-4">
-          <div class="grid gap-3 md:grid-cols-3">
-            <div>
-              <label class="font-crimson text-navy font-semibold block mb-2">
-                Mystery Category
-              </label>
-              <select
-                name="category"
-                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-              >
-                <option value="" selected={is_nil(@filter_category)}>All Categories</option>
-                <option value="joyful" selected={@filter_category == "joyful"}>Joyful Mysteries</option>
-                <option value="sorrowful" selected={@filter_category == "sorrowful"}>Sorrowful Mysteries</option>
-                <option value="glorious" selected={@filter_category == "glorious"}>Glorious Mysteries</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="font-crimson text-navy font-semibold block mb-2">
-                Author
-              </label>
-              <select
-                name="author"
-                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-              >
-                <option value="" selected={is_nil(@filter_author)}>All Authors</option>
-                <%= for author <- @available_authors do %>
-                  <option value={author} selected={@filter_author == author}><%= author %></option>
-                <% end %>
-              </select>
-            </div>
-
-            <div>
-              <label class="font-crimson text-navy font-semibold block mb-2">
-                Search
-              </label>
-              <input
-                type="text"
-                name="query"
-                value={@search_query}
-                placeholder="Search meditations by title, mystery, or keyword"
-                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-                phx-debounce="400"
-              />
-            </div>
-          </div>
-        </.form>
 
         <% meditations = filtered_meditations(assigns) %>
-        <div class="flex items-center justify-between mb-3">
-          <span class="font-cinzel text-navy text-base">
-            <%= length(meditations) %> matching meditations
-          </span>
-          <%= if @filter_category || @filter_author || @search_query != "" do %>
-            <span class="font-crimson text-xs text-gray-500">Filters applied</span>
-          <% end %>
-        </div>
+        <LumenViaeWeb.Components.MeditationFilters.meditation_filters
+          filter_category={@filter_category}
+          filter_author={@filter_author}
+          search_query={@search_query}
+          available_authors={@available_authors}
+          mystery_categories={@mystery_categories}
+          filtered_count={length(meditations)}
+          show_description={true}
+          description="Use the filters to narrow the meditations list, then choose one to add with its display order."
+          inline={true}
+        />
 
         <%= if meditations == [] do %>
           <p class="font-crimson text-gray-600 text-sm italic">
@@ -201,9 +149,9 @@
                   <option value="">Select a meditation...</option>
                   <%= for meditation <- meditations do %>
                     <option value={meditation.id}>
-                      <%= meditation.mystery.name %>
-                      <%= if meditation.title, do: " - #{meditation.title}" %>
-                      <%= if meditation.author, do: " (#{meditation.author})" %>
+                      {meditation.mystery.name}
+                      {if meditation.title, do: " - #{meditation.title}"}
+                      {if meditation.author, do: " (#{meditation.author})"}
                     </option>
                   <% end %>
                 </select>
@@ -230,8 +178,8 @@
         <% end %>
       </div>
     </div>
-
-    <!-- Back to Sets -->
+    
+<!-- Back to Sets -->
     <div class="mt-8 text-center">
       <.link
         navigate="/admin/meditation-sets"

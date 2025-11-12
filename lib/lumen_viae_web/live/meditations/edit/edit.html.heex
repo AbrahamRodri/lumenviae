@@ -3,16 +3,16 @@
     <h2 class="font-cinzel text-4xl text-navy mb-8">
       Edit Meditation
     </h2>
-
-    <!-- Current Mystery Info -->
+    
+<!-- Current Mystery Info -->
     <div class="bg-white border-l-4 border-gold p-6 mb-8">
       <h3 class="font-cinzel text-xl text-navy mb-2">Current Mystery</h3>
       <p class="font-crimson text-gray-800">
-        <%= @meditation.mystery.name %> (<%= String.capitalize(@meditation.mystery.category) %>)
+        {@meditation.mystery.name} ({String.capitalize(@meditation.mystery.category)})
       </p>
     </div>
-
-    <!-- Edit Form -->
+    
+<!-- Edit Form -->
     <div class="bg-white border-l-4 border-gold p-8">
       <.form for={@edit_form} phx-submit="update_meditation">
         <div class="space-y-4">
@@ -30,12 +30,12 @@
                   value={mystery.id}
                   selected={to_string(mystery.id) == to_string(@edit_form[:mystery_id].value)}
                 >
-                  <%= mystery.name %> (<%= String.capitalize(mystery.category) %>)
+                  {mystery.name} ({String.capitalize(mystery.category)})
                 </option>
               <% end %>
             </select>
             <%= for error <- @edit_form[:mystery_id].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
             <% end %>
           </div>
 
@@ -51,7 +51,7 @@
               placeholder="e.g., First Meditation on the Annunciation"
             />
             <%= for error <- @edit_form[:title].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
             <% end %>
           </div>
 
@@ -67,7 +67,7 @@
               placeholder="Paste the meditation text here..."
             ><%= @edit_form[:content].value || "" %></textarea>
             <%= for error <- @edit_form[:content].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
             <% end %>
           </div>
 
@@ -84,7 +84,7 @@
                 placeholder="e.g., St. Alphonsus Liguori"
               />
               <%= for error <- @edit_form[:author].errors do %>
-                <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+                <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
               <% end %>
             </div>
 
@@ -100,7 +100,7 @@
                 placeholder="e.g., The Glories of Mary"
               />
               <%= for error <- @edit_form[:source].errors do %>
-                <p class="mt-2 text-sm text-red-600 font-crimson"><%= translate_error(error) %></p>
+                <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
               <% end %>
             </div>
           </div>

@@ -1,5 +1,7 @@
 defmodule LumenViaeWeb.Live.Meditations.List do
   use LumenViaeWeb, :live_view
+  import LumenViaeWeb.Live.Meditations.Helpers
+  alias LumenViae.Constants
   alias LumenViae.Meditations.Filtering
   alias LumenViae.Rosary
 
@@ -14,7 +16,8 @@ defmodule LumenViaeWeb.Live.Meditations.List do
      |> assign(:filter_category, nil)
      |> assign(:filter_author, nil)
      |> assign(:search_query, "")
-     |> assign(:available_authors, Filtering.available_authors(meditations))}
+     |> assign(:available_authors, Filtering.available_authors(meditations))
+     |> assign(:mystery_categories, Constants.mystery_category_options())}
   end
 
   def handle_event("toggle_meditation", %{"id" => id}, socket) do
@@ -52,13 +55,5 @@ defmodule LumenViaeWeb.Live.Meditations.List do
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to delete meditation")}
     end
-  end
-
-  defp filtered_meditations(assigns) do
-    Filtering.filter_meditations(assigns.meditations, %{
-      category: assigns.filter_category,
-      author: assigns.filter_author,
-      query: assigns.search_query
-    })
   end
 end
