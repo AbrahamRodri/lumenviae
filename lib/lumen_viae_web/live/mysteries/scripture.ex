@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.Live.Mysteries.Index do
+defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   @moduledoc """
   LiveView for displaying all 20 mysteries of the Rosary with their Biblical references
   """

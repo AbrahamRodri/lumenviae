@@ -22,7 +22,7 @@ defmodule LumenViaeWeb.Router do
     live "/", Live.Home.Index
 
     # All 20 mysteries of the Rosary
-    live "/mysteries", Live.Mysteries.Index
+    live "/mysteries", Live.Mysteries.Scripture
 
     # Methods of praying the Rosary (St. Louis de Montfort)
     live "/rosary-methods", Live.Home.Methods.Index
@@ -45,7 +45,7 @@ defmodule LumenViaeWeb.Router do
     live "/admin/meditation-sets/:id/edit", Live.Meditations.Sets.Edit
 
     # Browse meditation sets by mystery category (public)
-    live "/mysteries/:category", Live.Mysteries.Categories.List
+    live "/mysteries/:category", Live.Mysteries.CategoryList
 
     # Prayer experience for a specific meditation set
     live "/meditation-sets/:set_id/pray", Live.Pray.Index

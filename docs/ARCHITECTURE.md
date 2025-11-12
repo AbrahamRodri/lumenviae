@@ -77,15 +77,16 @@ home/
 
 ```
 mysteries/
-├── index.ex               # Browse all mysteries
-└── categories/
-    └── list/
-        └── list.ex        # Browse sets for a category
+├── scripture.ex                # Browse all mysteries with scripture
+├── scripture.html.heex
+└── category_list/
+    ├── category_list.ex        # Browse sets for a category
+    └── category_list.html.heex
 ```
 
-**Module Pattern**: `LumenViaeWeb.Live.Mysteries.{SubFeature}.{Action}`
-- `LumenViaeWeb.Live.Mysteries.Index`
-- `LumenViaeWeb.Live.Mysteries.Categories.List`
+**Module Pattern**: `LumenViaeWeb.Live.Mysteries.{SubFeature}`
+- `LumenViaeWeb.Live.Mysteries.Scripture`
+- `LumenViaeWeb.Live.Mysteries.CategoryList`
 
 #### meditations/ - Meditation Management (Admin)
 
@@ -1028,6 +1029,76 @@ lib/control_tower_web/pages/shipment/show/
 
 ---
 
+## Lumen Viae Specific Patterns
+
+### Scripture Component
+
+Lumen Viae uses a reusable scripture component for displaying Bible verses throughout the application.
+
+#### Scripture Module
+
+Scripture passages are centralized in `lib/lumen_viae/scripture.ex`:
+
+```elixir
+defmodule LumenViae.Scripture do
+  @scriptures %{
+    annunciation: %{
+      reference: "Luke 1:26–38 - Douay-Rheims",
+      verses: [
+        {"1:26", "And in the sixth month..."},
+        # ... more verses
+      ]
+    }
+  }
+
+  def get(key), do: Map.get(@scriptures, key)
+end
+```
+
+#### Scripture Component
+
+The component is defined in `lib/lumen_viae_web/components/scripture.ex` and imported globally:
+
+```heex
+<!-- Use with inline content -->
+<.scripture reference="Luke 1:26–38 - Douay-Rheims">
+  <span class="text-gold font-semibold">1:26</span> And in the sixth month...
+</.scripture>
+
+<!-- Use with scripture key -->
+<.scripture_by_key key={:annunciation} />
+```
+
+**Benefits:**
+- Consistent scripture formatting across the app
+- Easy to reference scripture passages by key
+- Collapsible details for better UX
+- Inline verse numbers for readability
+
+### Template Organization
+
+**All LiveViews must use separate .html.heex files** unless there's a specific technical reason not to. Never use embedded render functions in LiveView modules.
+
+**Good:**
+```
+pray/
+├── index.ex
+└── index.html.heex
+```
+
+**Bad:**
+```elixir
+defmodule LumenViaeWeb.Live.Pray.Index do
+  def render(assigns) do
+    ~H"""
+    <!-- large template -->
+    """
+  end
+end
+```
+
+---
+
 ## Summary
 
 Follow these principles for all new code:
@@ -1042,5 +1113,7 @@ Follow these principles for all new code:
 8. Match directory structure to module names
 9. Use appropriate component type for the job
 10. Never create monolithic views
+11. **Always use separate .html.heex files for LiveViews**
+12. **Use reusable components like Scripture for common patterns**
 
 This architecture ensures maintainability, testability, and consistency across the entire codebase.
