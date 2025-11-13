@@ -22,6 +22,33 @@
       </p>
     </div>
 
+    <!-- Prayer Mode Selector -->
+    <div class="mb-8 flex justify-center">
+      <div class="inline-flex rounded-md shadow-sm" role="group">
+        <button
+          type="button"
+          phx-click="set_prayer_mode"
+          phx-value-mode="manual"
+          class={"font-crimson px-6 py-2 text-sm border-2 border-gold rounded-l-md transition-all duration-300 #{if @prayer_mode == "manual", do: "bg-gold text-navy", else: "bg-white text-navy hover:bg-cream"}"}
+        >
+          Manual
+        </button>
+        <button
+          type="button"
+          phx-click="set_prayer_mode"
+          phx-value-mode="automatic"
+          class={"font-crimson px-6 py-2 text-sm border-2 border-l-0 border-gold rounded-r-md transition-all duration-300 #{if @prayer_mode == "automatic", do: "bg-gold text-navy", else: "bg-white text-navy hover:bg-cream"}"}
+        >
+          Automatic
+        </button>
+      </div>
+      <%= if @prayer_mode == "automatic" do %>
+        <p class="ml-4 font-crimson text-sm text-gray-500 self-center italic">
+          5 minute intervals
+        </p>
+      <% end %>
+    </div>
+
     <!-- Mystery and Meditation -->
     <div class="bg-white border-l-4 border-gold p-12 mb-8 transition-all duration-300 hover:shadow-ornate">
       <!-- Mystery Title -->
@@ -66,6 +93,9 @@
           </p>
         </div>
       <% end %>
+
+      <!-- Audio Player -->
+      <.audio_player audio_url={@audio_presigned_url} auto_play={@auto_play} />
     </div>
 
     <!-- Navigation Controls -->
