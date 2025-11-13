@@ -129,6 +129,10 @@ Hooks.AudioPlayer = {
 
     if (!this.audio) return
 
+    // Track current source URL for change detection
+    const sourceElement = this.audio.querySelector('source')
+    this.currentSrc = sourceElement ? sourceElement.src : null
+
     // Event listeners for audio element
     this.audio.addEventListener('ended', () => {
       this.handleEnded()
@@ -169,15 +173,30 @@ Hooks.AudioPlayer = {
   },
 
   updated() {
-    // Handle audio URL changes
-    const newAutoPlay = this.el.dataset.autoPlay === 'true'
+    if (!this.audio) return
 
-    if (newAutoPlay && this.audio && this.audio.src) {
-      // Reset and auto-play new audio after small delay
+    // Get the new source URL from the audio element
+    const sourceElement = this.audio.querySelector('source')
+    const newSrc = sourceElement ? sourceElement.src : null
+
+    // Check if the source has changed
+    if (newSrc && newSrc !== this.currentSrc) {
+      this.currentSrc = newSrc
+
+      // Pause current playback and reset
+      this.audio.pause()
+      this.audio.currentTime = 0
+
+      // Load the new audio source
       this.audio.load()
-      setTimeout(() => {
-        this.play()
-      }, 500)
+
+      // Auto-play if enabled
+      const shouldAutoPlay = this.el.dataset.autoPlay === 'true'
+      if (shouldAutoPlay) {
+        setTimeout(() => {
+          this.play()
+        }, 500)
+      }
     }
   },
 
