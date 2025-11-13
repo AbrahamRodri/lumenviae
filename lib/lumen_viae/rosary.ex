@@ -60,6 +60,27 @@ defmodule LumenViae.Rosary do
     Repo.delete(meditation)
   end
 
+  @doc """
+  Generates a pre-signed URL for a meditation's audio file.
+
+  Returns the pre-signed URL string if the meditation has an audio_url (S3 key),
+  or nil if no audio is available or if URL generation fails.
+
+  ## Examples
+
+      iex> get_meditation_audio_url(%Meditation{audio_url: "meditation1.mp3"})
+      "https://lumenviae-audio.s3.us-east-2.amazonaws.com/meditation1.mp3?..."
+
+      iex> get_meditation_audio_url(%Meditation{audio_url: nil})
+      nil
+  """
+  def get_meditation_audio_url(%Meditation{audio_url: nil}), do: nil
+  def get_meditation_audio_url(%Meditation{audio_url: ""}), do: nil
+
+  def get_meditation_audio_url(%Meditation{audio_url: s3_key}) when is_binary(s3_key) do
+    LumenViae.Storage.S3.generate_presigned_url!(s3_key)
+  end
+
   ## Meditation Sets
 
   def list_meditation_sets do
