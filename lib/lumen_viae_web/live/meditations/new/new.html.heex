@@ -109,6 +109,21 @@
             </div>
           </div>
 
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Audio S3 Key (Optional)
+            </label>
+            <input
+              type="text"
+              name="audio_url"
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="e.g., meditation1.mp3 or joyful/annunciation.mp3"
+            />
+            <p class="font-crimson text-sm text-gray-500 mt-1">
+              Enter the S3 key (filename or path) for the audio in the lumenviae-audio bucket
+            </p>
+          </div>
+
           <div class="flex justify-between items-center pt-4">
             <.link
               navigate="/admin/meditations"
