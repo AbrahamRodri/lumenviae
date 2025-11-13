@@ -7,6 +7,20 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 
+# AWS S3 Configuration for all environments
+config :ex_aws,
+  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+  region: System.get_env("AWS_REGION") || "us-east-2",
+  json_codec: Jason
+
+config :ex_aws, :s3,
+  scheme: "https://",
+  host: "s3.#{System.get_env("AWS_REGION") || "us-east-2"}.amazonaws.com",
+  region: System.get_env("AWS_REGION") || "us-east-2"
+
+config :lumen_viae, :aws_s3_bucket, System.get_env("AWS_S3_BUCKET") || "lumenviae-audio"
+
 # ## Using releases
 #
 # If you use `mix release`, you need to explicitly enable the server

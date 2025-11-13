@@ -120,6 +120,114 @@ Hooks.RosaryProgress = {
   }
 }
 
+Hooks.AudioPlayer = {
+  mounted() {
+    this.audio = this.el.querySelector('audio')
+    this.playButton = this.el.querySelector('[data-audio-play]')
+    this.pauseButton = this.el.querySelector('[data-audio-pause]')
+    this.autoPlay = this.el.dataset.autoPlay === 'true'
+
+    if (!this.audio) return
+
+    // Event listeners for audio element
+    this.audio.addEventListener('ended', () => {
+      this.handleEnded()
+    })
+
+    this.audio.addEventListener('play', () => {
+      this.updateUI('playing')
+    })
+
+    this.audio.addEventListener('pause', () => {
+      this.updateUI('paused')
+    })
+
+    this.audio.addEventListener('error', (e) => {
+      console.error('Audio error:', e)
+      this.updateUI('error')
+    })
+
+    // Button click handlers
+    if (this.playButton) {
+      this.playButton.addEventListener('click', () => {
+        this.play()
+      })
+    }
+
+    if (this.pauseButton) {
+      this.pauseButton.addEventListener('click', () => {
+        this.pause()
+      })
+    }
+
+    // Auto-play with small delay if enabled
+    if (this.autoPlay && this.audio.src) {
+      setTimeout(() => {
+        this.play()
+      }, 500)
+    }
+  },
+
+  updated() {
+    // Handle audio URL changes
+    const newAutoPlay = this.el.dataset.autoPlay === 'true'
+
+    if (newAutoPlay && this.audio && this.audio.src) {
+      // Reset and auto-play new audio after small delay
+      this.audio.load()
+      setTimeout(() => {
+        this.play()
+      }, 500)
+    }
+  },
+
+  play() {
+    if (this.audio) {
+      this.audio.play().catch(e => {
+        console.error('Failed to play audio:', e)
+        this.updateUI('error')
+      })
+    }
+  },
+
+  pause() {
+    if (this.audio) {
+      this.audio.pause()
+    }
+  },
+
+  handleEnded() {
+    this.updateUI('ended')
+    // Push event to LiveView when audio finishes
+    this.pushEvent('audio_ended', {})
+  },
+
+  updateUI(state) {
+    if (!this.playButton || !this.pauseButton) return
+
+    switch(state) {
+      case 'playing':
+        this.playButton.classList.add('hidden')
+        this.pauseButton.classList.remove('hidden')
+        break
+      case 'paused':
+      case 'ended':
+      case 'error':
+        this.playButton.classList.remove('hidden')
+        this.pauseButton.classList.add('hidden')
+        break
+    }
+  },
+
+  destroyed() {
+    // Clean up
+    if (this.audio) {
+      this.audio.pause()
+      this.audio.src = ''
+    }
+  }
+}
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
