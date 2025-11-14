@@ -125,88 +125,31 @@ Hooks.AudioPlayer = {
     this.audio = this.el.querySelector('audio')
     this.playButton = this.el.querySelector('[data-audio-play]')
     this.pauseButton = this.el.querySelector('[data-audio-pause]')
-    this.autoPlay = this.el.dataset.autoPlay === 'true'
+    this.trackLabel = this.el.querySelector('[data-track-label]')
+    this.playlist = []
+    this.playlistSignature = null
+    this.currentTrackIndex = 0
 
     if (!this.audio) return
 
-    // Track current source URL for change detection
-    const sourceElement = this.audio.querySelector('source')
-    this.currentSrc = sourceElement ? sourceElement.src : null
-
-    // Event listeners for audio element
-    this.audio.addEventListener('ended', () => {
-      this.handleEnded()
-    })
-
-    this.audio.addEventListener('play', () => {
-      this.updateUI('playing')
-    })
-
-    this.audio.addEventListener('pause', () => {
-      this.updateUI('paused')
-    })
-
-    this.audio.addEventListener('error', (e) => {
-      console.error('Audio error:', e)
-      this.updateUI('error')
-    })
-
-    // Button click handlers
-    if (this.playButton) {
-      this.playButton.addEventListener('click', () => {
-        this.play()
-      })
-    }
-
-    if (this.pauseButton) {
-      this.pauseButton.addEventListener('click', () => {
-        this.pause()
-      })
-    }
-
-    // Auto-play with small delay if enabled
-    if (this.autoPlay && this.audio.src) {
-      setTimeout(() => {
-        this.play()
-      }, 500)
-    }
+    this.registerAudioEvents()
+    this.registerButtonEvents()
+    this.setPlaylist(this.el.dataset.playlist)
   },
 
   updated() {
     if (!this.audio) return
 
-    // Get the new source URL from the audio element
-    const sourceElement = this.audio.querySelector('source')
-    const newSrc = sourceElement ? sourceElement.src : null
-
-    // Check if the source has changed
-    if (newSrc && newSrc !== this.currentSrc) {
-      this.currentSrc = newSrc
-
-      // Pause current playback and reset
-      this.audio.pause()
-      this.audio.currentTime = 0
-
-      // Load the new audio source
-      this.audio.load()
-
-      // Auto-play if enabled
-      const shouldAutoPlay = this.el.dataset.autoPlay === 'true'
-      if (shouldAutoPlay) {
-        setTimeout(() => {
-          this.play()
-        }, 500)
-      }
-    }
+    this.setPlaylist(this.el.dataset.playlist)
   },
 
   play() {
-    if (this.audio) {
-      this.audio.play().catch(e => {
-        console.error('Failed to play audio:', e)
-        this.updateUI('error')
-      })
-    }
+    if (!this.audio || !this.playlist.length) return
+
+    this.audio.play().catch(e => {
+      console.error('Failed to play audio:', e)
+      this.updateUI('error')
+    })
   },
 
   pause() {
@@ -216,9 +159,12 @@ Hooks.AudioPlayer = {
   },
 
   handleEnded() {
-    this.updateUI('ended')
-    // Push event to LiveView when audio finishes
-    this.pushEvent('audio_ended', {})
+    if (this.advanceTrack()) {
+      this.play()
+    } else {
+      this.updateUI('ended')
+      this.updateTrackLabel('Reflection complete')
+    }
   },
 
   updateUI(state) {
@@ -236,6 +182,98 @@ Hooks.AudioPlayer = {
         this.pauseButton.classList.add('hidden')
         break
     }
+  },
+
+  registerAudioEvents() {
+    this.audio.addEventListener('ended', () => this.handleEnded())
+    this.audio.addEventListener('play', () => this.updateUI('playing'))
+    this.audio.addEventListener('pause', () => this.updateUI('paused'))
+    this.audio.addEventListener('error', (e) => {
+      console.error('Audio error:', e)
+      this.updateUI('error')
+    })
+  },
+
+  registerButtonEvents() {
+    if (this.playButton) {
+      this.playButton.addEventListener('click', () => this.play())
+    }
+
+    if (this.pauseButton) {
+      this.pauseButton.addEventListener('click', () => this.pause())
+    }
+  },
+
+  setPlaylist(rawPlaylist) {
+    const parsed = this.parsePlaylist(rawPlaylist)
+    const signature = JSON.stringify(parsed)
+
+    if (signature === this.playlistSignature) return
+
+    this.playlist = parsed
+    this.playlistSignature = signature
+    this.currentTrackIndex = 0
+
+    if (this.audio) {
+      this.audio.pause()
+      this.audio.currentTime = 0
+    }
+
+    this.applyTrack()
+  },
+
+  parsePlaylist(rawPlaylist) {
+    if (!rawPlaylist) return []
+
+    try {
+      const parsed = JSON.parse(rawPlaylist)
+      if (Array.isArray(parsed)) {
+        return parsed.filter(item => item && item.url)
+      }
+    } catch (_e) {
+      console.warn('Unable to parse playlist payload')
+    }
+
+    return []
+  },
+
+  applyTrack() {
+    const track = this.playlist[this.currentTrackIndex]
+
+    if (!track) {
+      this.updateTrackLabel('Tap play to begin')
+      if (this.audio) {
+        this.audio.src = ''
+      }
+      this.updateUI('paused')
+      return
+    }
+
+    if (this.audio) {
+      this.audio.src = track.url
+      this.audio.load()
+    }
+
+    this.updateTrackLabel(track.label || 'Tap play to begin')
+    this.updateUI('paused')
+  },
+
+  advanceTrack() {
+    const nextIndex = this.currentTrackIndex + 1
+
+    if (nextIndex < this.playlist.length) {
+      this.currentTrackIndex = nextIndex
+      this.applyTrack()
+      return true
+    }
+
+    return false
+  },
+
+  updateTrackLabel(text) {
+    if (!this.trackLabel) return
+
+    this.trackLabel.textContent = text
   },
 
   destroyed() {

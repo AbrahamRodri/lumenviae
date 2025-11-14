@@ -8,6 +8,7 @@ defmodule LumenViae.Rosary.Meditation do
     field :author, :string
     field :source, :string
     field :audio_url, :string
+    field :intro_audio_url, :string
 
     belongs_to :mystery, LumenViae.Rosary.Mystery
 
@@ -20,7 +21,7 @@ defmodule LumenViae.Rosary.Meditation do
   @doc false
   def changeset(meditation, attrs) do
     meditation
-    |> cast(attrs, [:title, :content, :author, :source, :mystery_id, :audio_url])
+    |> cast(attrs, [:title, :content, :author, :source, :mystery_id, :audio_url, :intro_audio_url])
     |> validate_required([:content, :mystery_id])
   end
 end

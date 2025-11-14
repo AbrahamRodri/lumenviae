@@ -9,40 +9,49 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
 
   ## Examples
 
-      <.audio_player audio_url={@meditation.audio_url} auto_play={true} />
-
-      <.audio_player audio_url={@meditation.audio_url} auto_play={false} />
+      <.audio_player playlist={[
+        %{label: "Mystery Announcement", url: "https://..."},
+        %{label: "Meditation", url: "https://..."}
+      ]} />
   """
-  attr :audio_url, :string, default: nil, doc: "The URL of the audio file"
-  attr :auto_play, :boolean, default: false, doc: "Whether to auto-play the audio"
+  attr :playlist, :list, default: [], doc: "Ordered list of audio tracks"
 
   def audio_player(assigns) do
+    assigns =
+      assigns
+      |> assign(:encoded_playlist, encode_playlist(assigns.playlist))
+      |> assign(:has_tracks, Enum.any?(assigns.playlist))
+
     ~H"""
     <div
-      :if={@audio_url}
       id="audio-player"
       phx-hook="AudioPlayer"
-      data-auto-play={@auto_play}
-      class="mt-6 mb-4"
+      data-playlist={@encoded_playlist}
+      class="flex flex-col items-center gap-3"
     >
-      <audio preload="auto">
-        <source src={@audio_url} type="audio/mpeg" />
-        Your browser does not support the audio element.
-      </audio>
+      <audio preload="auto"></audio>
 
-      <div class="flex items-center justify-center gap-4">
+      <p
+        :if={@has_tracks}
+        class="font-crimson text-xs uppercase tracking-[0.3em] text-gold-light"
+        data-track-label
+      >
+        Tap play to begin
+      </p>
+
+      <p :if={!@has_tracks} class="font-crimson text-xs uppercase tracking-[0.3em] text-gold-light">
+        Audio unavailable
+      </p>
+
+      <div class="flex items-center justify-center">
         <button
           data-audio-play
           type="button"
-          class="flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
+          class="flex items-center justify-center w-20 h-20 rounded-full bg-gold text-navy shadow-ornate disabled:opacity-30"
+          disabled={!@has_tracks}
           aria-label="Play audio"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-            class="w-8 h-8 text-navy ml-1"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-8 h-8 ml-1">
             <path d="M8 5v14l11-7z" />
           </svg>
         </button>
@@ -50,15 +59,10 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
         <button
           data-audio-pause
           type="button"
-          class="hidden flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
+          class="hidden items-center justify-center w-20 h-20 rounded-full bg-gold text-navy shadow-ornate"
           aria-label="Pause audio"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-            class="w-8 h-8 text-navy"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-8 h-8">
             <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
           </svg>
         </button>
@@ -66,4 +70,7 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
     </div>
     """
   end
+
+  defp encode_playlist([]), do: "[]"
+  defp encode_playlist(playlist), do: Jason.encode!(playlist)
 end

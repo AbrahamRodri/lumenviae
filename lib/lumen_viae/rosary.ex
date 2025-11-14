@@ -81,6 +81,27 @@ defmodule LumenViae.Rosary do
     LumenViae.Storage.S3.generate_presigned_url!(s3_key)
   end
 
+  def get_meditation_intro_audio_url(%Meditation{intro_audio_url: nil}), do: nil
+  def get_meditation_intro_audio_url(%Meditation{intro_audio_url: ""}), do: nil
+
+  def get_meditation_intro_audio_url(%Meditation{intro_audio_url: s3_key}) when is_binary(s3_key) do
+    LumenViae.Storage.S3.generate_presigned_url!(s3_key)
+  end
+
+  def get_mystery_announcement_audio_url(%Mystery{announcement_audio_url: nil}), do: nil
+  def get_mystery_announcement_audio_url(%Mystery{announcement_audio_url: ""}), do: nil
+
+  def get_mystery_announcement_audio_url(%Mystery{announcement_audio_url: s3_key}) when is_binary(s3_key) do
+    LumenViae.Storage.S3.generate_presigned_url!(s3_key)
+  end
+
+  def get_mystery_description_audio_url(%Mystery{description_audio_url: nil}), do: nil
+  def get_mystery_description_audio_url(%Mystery{description_audio_url: ""}), do: nil
+
+  def get_mystery_description_audio_url(%Mystery{description_audio_url: s3_key}) when is_binary(s3_key) do
+    LumenViae.Storage.S3.generate_presigned_url!(s3_key)
+  end
+
   ## Meditation Sets
 
   def list_meditation_sets do
