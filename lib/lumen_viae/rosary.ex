@@ -61,6 +61,19 @@ defmodule LumenViae.Rosary do
   end
 
   @doc """
+  Generates a pre-signed URL for a mystery's announcement audio file.
+
+  Returns `nil` when no announcement audio has been configured.
+  """
+  def get_mystery_announcement_audio_url(%Mystery{announcement_audio_url: nil}), do: nil
+  def get_mystery_announcement_audio_url(%Mystery{announcement_audio_url: ""}), do: nil
+
+  def get_mystery_announcement_audio_url(%Mystery{announcement_audio_url: s3_key})
+      when is_binary(s3_key) do
+    LumenViae.Storage.S3.generate_presigned_url!(s3_key)
+  end
+
+  @doc """
   Generates a pre-signed URL for a meditation's audio file.
 
   Returns the pre-signed URL string if the meditation has an audio_url (S3 key),

@@ -1,138 +1,154 @@
 <div
-  class="min-h-screen bg-cream pb-16"
   id="rosary-progress-container"
+  class="min-h-screen bg-gradient-to-b from-navy via-navy to-navy text-cream flex flex-col"
   phx-hook="RosaryProgress"
   data-set-id={@set.id}
   data-current-index={@current_index}
 >
-  <div class="max-w-4xl mx-auto px-8 py-12" id="meditation-container" phx-hook="ScrollToTop">
-    <!-- Progress Indicator -->
-    <div class="text-center mb-8">
-      <p class="font-crimson text-gray-600 mb-2">
-        {@set.name}
-      </p>
-      <div class="flex justify-center items-center gap-2">
-        <%= for i <- 0..(@total_count - 1) do %>
-          <div class={"w-3 h-3 rounded-full transition-all duration-300 #{if i == @current_index, do: "bg-gold scale-125", else: "bg-gray-300 hover:scale-110"}"}>
-          </div>
+  <%= if !@prayer_started? do %>
+    <div class="flex-1 flex flex-col justify-center items-center text-center px-6 py-12 gap-8 max-w-xl mx-auto w-full">
+      <div class="space-y-3">
+        <p class="font-cinzel text-xs uppercase tracking-[0.4em] text-gold/80">Preparing to Pray</p>
+        <h1 class="font-cinzel text-3xl text-white">
+          {@set.name}
+        </h1>
+        <p class="font-crimson text-cream/80 text-base">
+          You're about to pray the {String.capitalize(@set.category)} Mysteries.
+        </p>
+      </div>
+
+      <div class="bg-white/10 border border-gold/40 rounded-3xl px-6 py-5 w-full">
+        <p class="font-cinzel text-sm text-gold uppercase tracking-[0.3em] mb-3">Mysteries</p>
+        <%= if @unique_mysteries == [] do %>
+          <p class="font-crimson text-cream/70 text-sm">
+            This prayer set does not have mysteries assigned yet.
+          </p>
+        <% else %>
+          <ul class="space-y-2 font-crimson text-cream text-base text-left">
+            <%= for mystery <- @unique_mysteries do %>
+              <li class="flex items-center gap-3">
+                <span class="inline-block w-2 h-2 rounded-full bg-gold"></span>
+                <span>{mystery.name}</span>
+              </li>
+            <% end %>
+          </ul>
         <% end %>
       </div>
-      <p class="font-crimson text-sm text-gray-500 mt-2">
-        {@current_index + 1} of {@total_count}
-      </p>
-    </div>
 
-    <!-- Prayer Mode Selector -->
-    <div class="mb-8 flex justify-center">
-      <div class="inline-flex rounded-md shadow-sm" role="group">
-        <button
-          type="button"
-          phx-click="set_prayer_mode"
-          phx-value-mode="manual"
-          class={"font-crimson px-6 py-2 text-sm border-2 border-gold rounded-l-md transition-all duration-300 #{if @prayer_mode == "manual", do: "bg-gold text-navy", else: "bg-white text-navy hover:bg-cream"}"}
-        >
-          Manual
-        </button>
-        <button
-          type="button"
-          phx-click="set_prayer_mode"
-          phx-value-mode="automatic"
-          class={"font-crimson px-6 py-2 text-sm border-2 border-l-0 border-gold rounded-r-md transition-all duration-300 #{if @prayer_mode == "automatic", do: "bg-gold text-navy", else: "bg-white text-navy hover:bg-cream"}"}
-        >
-          Automatic
-        </button>
-      </div>
-      <%= if @prayer_mode == "automatic" do %>
-        <p class="ml-4 font-crimson text-sm text-gray-500 self-center italic">
-          5 minute intervals
+      <div class="text-left bg-white/5 rounded-3xl px-6 py-5 w-full border border-white/10">
+        <p class="font-cinzel text-sm text-gold uppercase tracking-[0.3em] mb-2">Before You Begin</p>
+        <p class="font-crimson text-cream/80 text-sm leading-relaxed">
+          Please complete the introductory prayers of the Holy Rosary before continuing into the meditations.
         </p>
-      <% end %>
-    </div>
-
-    <!-- Mystery and Meditation -->
-    <div class="bg-white border-l-4 border-gold p-12 mb-8 transition-all duration-300 hover:shadow-ornate">
-      <!-- Mystery Title -->
-      <h2 class="font-cinzel text-3xl text-navy mb-2 text-center">
-        {@meditation.mystery.name}
-      </h2>
-
-      <%= if @meditation.mystery.scripture_reference do %>
-        <p class="font-crimson text-gray-500 italic text-center mb-8">
-          {@meditation.mystery.scripture_reference}
-        </p>
-      <% end %>
-
-      <!-- Mystery Description -->
-      <%= if @meditation.mystery.description do %>
-        <p class="font-crimson text-gray-600 text-center mb-8 pb-8 border-b border-gray-200">
-          {@meditation.mystery.description}
-        </p>
-      <% end %>
-
-      <!-- Meditation Content -->
-      <%= if @meditation.title do %>
-        <h3 class="font-cinzel text-xl text-navy mb-4 mt-8">
-          {@meditation.title}
-        </h3>
-      <% end %>
-
-      <div class="font-crimson text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">
-        {@meditation.content}
       </div>
 
-      <!-- Attribution -->
-      <%= if @meditation.author || @meditation.source do %>
-        <div class="mt-8 pt-6 border-t border-gray-200 text-right">
-          <p class="font-crimson text-gray-500 italic text-sm">
-            <%= if @meditation.author do %>
-              — {@meditation.author}
-            <% end %>
-            <%= if @meditation.source do %>
-              <span class="block mt-1">{@meditation.source}</span>
-            <% end %>
-          </p>
-        </div>
-      <% end %>
-
-      <!-- Audio Player -->
-      <.audio_player audio_url={@audio_presigned_url} auto_play={@auto_play} />
-    </div>
-
-    <!-- Navigation Controls -->
-    <div class="flex justify-between items-center">
       <button
-        phx-click="previous"
-        disabled={@current_index == 0}
-        class="font-cinzel px-6 py-3 bg-navy text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
+        phx-click="start_prayer"
+        class="w-full font-cinzel uppercase tracking-[0.4em] text-sm bg-gold text-navy rounded-full py-4 shadow-lg shadow-gold/30 transition-transform hover:scale-[1.02]"
       >
-        ← Previous Mystery
+        Start Prayer
       </button>
+    </div>
+  <% else %>
+    <div class="flex-1 flex flex-col justify-between max-w-3xl mx-auto w-full px-6 pt-10 pb-6 gap-6">
+      <div class="text-center">
+        <p class="font-cinzel text-xs uppercase tracking-[0.45em] text-gold/80">
+          {String.capitalize(@set.category)} Mysteries • {@current_index + 1} of {@total_count}
+        </p>
 
-      <%= if @current_index == @total_count - 1 do %>
-        <.link
-          navigate={"/mysteries/" <> @set.category}
-          class="font-cinzel px-6 py-3 bg-gold text-navy border-2 border-gold hover:bg-navy hover:text-gold transition-all duration-300 hover:scale-105 active:scale-95"
-        >
-          Complete Rosary
-        </.link>
-      <% else %>
-        <button
-          phx-click="next"
-          class="font-cinzel px-6 py-3 bg-gold text-navy border-2 border-gold hover:bg-navy hover:text-gold transition-all duration-300 hover:scale-105 active:scale-95"
-        >
-          Next Mystery →
-        </button>
-      <% end %>
+        <%= if @meditation && @meditation.mystery do %>
+          <h1 class="font-cinzel text-3xl text-white mt-4">
+            {@meditation.mystery.name}
+          </h1>
+
+          <%= if @meditation.mystery.scripture_reference do %>
+            <p class="font-crimson text-cream/70 italic mt-2">
+              {@meditation.mystery.scripture_reference}
+            </p>
+          <% end %>
+        <% end %>
+      </div>
+
+      <div class="flex-1 flex flex-col gap-4">
+        <div class="bg-white/95 text-navy rounded-3xl shadow-2xl p-6 flex-1 flex flex-col">
+          <%= if @meditation && @meditation.mystery && @meditation.mystery.description do %>
+            <p class="font-crimson text-base text-navy/80 italic mb-4">
+              {@meditation.mystery.description}
+            </p>
+          <% end %>
+
+          <div class="flex-1 overflow-y-auto pr-1">
+            <%= if @meditation && @meditation.title do %>
+              <h2 class="font-cinzel text-xl text-navy mb-3">
+                {@meditation.title}
+              </h2>
+            <% end %>
+
+            <div class="font-crimson text-lg leading-relaxed whitespace-pre-wrap text-navy/90">
+              <%= if @meditation do %>
+                {@meditation.content}
+              <% else %>
+                <p class="text-navy/60">No meditation has been provided for this mystery yet.</p>
+              <% end %>
+            </div>
+          </div>
+
+          <%= if @meditation && (@meditation.author || @meditation.source) do %>
+            <div class="mt-6 pt-4 border-t border-navy/10 text-right">
+              <p class="font-crimson text-sm text-navy/70 italic">
+                <%= if @meditation.author do %>
+                  — {@meditation.author}
+                <% end %>
+                <%= if @meditation.source do %>
+                  <span class="block mt-1">{@meditation.source}</span>
+                <% end %>
+              </p>
+            </div>
+          <% end %>
+        </div>
+      </div>
     </div>
 
-    <!-- Exit to Category -->
-    <div class="mt-8 text-center">
-      <.link
-        navigate={"/mysteries/" <> @set.category}
-        class="font-crimson text-navy hover:text-gold transition-all duration-300 text-sm hover:underline"
-      >
-        Exit to {String.capitalize(@set.category)} Mysteries
-      </.link>
+    <div class="px-4 pb-8">
+      <div class="max-w-3xl mx-auto">
+        <div class="bg-white text-navy rounded-3xl shadow-2xl px-6 py-6">
+          <.audio_player
+            intro_url={@announcement_audio_url}
+            main_url={@audio_presigned_url}
+            intro_label="Mystery introduction"
+            main_label="Meditation audio"
+            idle_label="Press play to begin"
+            complete_label="Meditation complete"
+          />
+
+          <div class="mt-6 flex items-center justify-between text-xs font-cinzel uppercase tracking-[0.35em] text-navy/60">
+            <button
+              phx-click="previous"
+              disabled={@current_index == 0}
+              class="px-4 py-3 rounded-full border border-navy/20 bg-navy/5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-navy/10 transition"
+            >
+              Previous
+            </button>
+
+            <button
+              phx-click="next"
+              disabled={@current_index == @total_count - 1}
+              class="px-4 py-3 rounded-full border border-navy/20 bg-navy/5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-navy/10 transition"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-4 text-center">
+          <.link
+            navigate={"/mysteries/" <> @set.category}
+            class="font-crimson text-cream/70 text-sm underline-offset-4 hover:text-gold transition"
+          >
+            Exit to {String.capitalize(@set.category)} Mysteries
+          </.link>
+        </div>
+      </div>
     </div>
-  </div>
+  <% end %>
 </div>

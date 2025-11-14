@@ -125,113 +125,181 @@ Hooks.AudioPlayer = {
     this.audio = this.el.querySelector('audio')
     this.playButton = this.el.querySelector('[data-audio-play]')
     this.pauseButton = this.el.querySelector('[data-audio-pause]')
-    this.autoPlay = this.el.dataset.autoPlay === 'true'
+    this.labelEl = this.el.querySelector('[data-track-label]')
+    this.queue = this.buildQueue()
+    this.labels = this.readLabels()
+    this.currentIndex = 0
 
-    if (!this.audio) return
-
-    // Track current source URL for change detection
-    const sourceElement = this.audio.querySelector('source')
-    this.currentSrc = sourceElement ? sourceElement.src : null
-
-    // Event listeners for audio element
-    this.audio.addEventListener('ended', () => {
-      this.handleEnded()
-    })
-
-    this.audio.addEventListener('play', () => {
-      this.updateUI('playing')
-    })
-
-    this.audio.addEventListener('pause', () => {
-      this.updateUI('paused')
-    })
-
-    this.audio.addEventListener('error', (e) => {
-      console.error('Audio error:', e)
-      this.updateUI('error')
-    })
-
-    // Button click handlers
-    if (this.playButton) {
-      this.playButton.addEventListener('click', () => {
-        this.play()
+    if (this.audio) {
+      this.audio.addEventListener('ended', () => this.handleEnded())
+      this.audio.addEventListener('play', () => this.updateUI('playing'))
+      this.audio.addEventListener('pause', () => this.updateUI('paused'))
+      this.audio.addEventListener('error', (e) => {
+        console.error('Audio error:', e)
+        this.updateUI('error')
       })
     }
 
-    if (this.pauseButton) {
-      this.pauseButton.addEventListener('click', () => {
-        this.pause()
-      })
-    }
+    this.playButton?.addEventListener('click', () => this.play())
+    this.pauseButton?.addEventListener('click', () => this.pause())
 
-    // Auto-play with small delay if enabled
-    if (this.autoPlay && this.audio.src) {
-      setTimeout(() => {
-        this.play()
-      }, 500)
-    }
+    this.setIdle()
   },
 
   updated() {
-    if (!this.audio) return
+    this.labels = this.readLabels()
+    const newQueue = this.buildQueue()
+    const queueChanged = JSON.stringify(newQueue) !== JSON.stringify(this.queue)
+    const wasPlaying = this.audio && !this.audio.paused && !this.audio.ended
 
-    // Get the new source URL from the audio element
-    const sourceElement = this.audio.querySelector('source')
-    const newSrc = sourceElement ? sourceElement.src : null
-
-    // Check if the source has changed
-    if (newSrc && newSrc !== this.currentSrc) {
-      this.currentSrc = newSrc
-
-      // Pause current playback and reset
-      this.audio.pause()
-      this.audio.currentTime = 0
-
-      // Load the new audio source
-      this.audio.load()
-
-      // Auto-play if enabled
-      const shouldAutoPlay = this.el.dataset.autoPlay === 'true'
-      if (shouldAutoPlay) {
-        setTimeout(() => {
-          this.play()
-        }, 500)
+    if (queueChanged) {
+      this.queue = newQueue
+      this.currentIndex = 0
+      this.resetAudio()
+      if (wasPlaying && this.queue.length > 0) {
+        this.play()
+      } else {
+        this.setIdle()
       }
     }
   },
 
+  buildQueue() {
+    const queue = []
+    const introUrl = this.el.dataset.introUrl
+    const mainUrl = this.el.dataset.mainUrl
+
+    if (introUrl) {
+      queue.push({ url: introUrl, kind: 'intro' })
+    }
+
+    if (mainUrl) {
+      queue.push({ url: mainUrl, kind: 'main' })
+    }
+
+    return queue
+  },
+
+  readLabels() {
+    return {
+      intro: this.el.dataset.introLabel || 'Mystery introduction',
+      main: this.el.dataset.mainLabel || 'Meditation audio',
+      idle: this.el.dataset.idleLabel || 'Press play to begin',
+      complete: this.el.dataset.completeLabel || 'Meditation complete'
+    }
+  },
+
+  loadTrack(index) {
+    if (!this.audio) return false
+    const track = this.queue[index]
+    if (!track) return false
+
+    if (this.audio.src !== track.url) {
+      this.audio.src = track.url
+      this.audio.load()
+    }
+
+    this.audio.dataset.trackIndex = index
+    this.setLabelForKind(track.kind)
+    return true
+  },
+
   play() {
-    if (this.audio) {
-      this.audio.play().catch(e => {
+    if (!this.audio || this.queue.length === 0) return
+
+    const currentTrackIndex = parseInt(this.audio.dataset.trackIndex ?? '-1')
+    if (currentTrackIndex !== this.currentIndex) {
+      const loaded = this.loadTrack(this.currentIndex)
+      if (!loaded) return
+    }
+
+    this.audio
+      .play()
+      .then(() => this.updateUI('playing'))
+      .catch((e) => {
         console.error('Failed to play audio:', e)
         this.updateUI('error')
       })
-    }
   },
 
   pause() {
-    if (this.audio) {
-      this.audio.pause()
-    }
+    if (!this.audio) return
+    this.audio.pause()
   },
 
   handleEnded() {
-    this.updateUI('ended')
-    // Push event to LiveView when audio finishes
-    this.pushEvent('audio_ended', {})
+    if (this.currentIndex < this.queue.length - 1) {
+      this.currentIndex += 1
+      const loaded = this.loadTrack(this.currentIndex)
+      if (loaded) {
+        this.audio
+          .play()
+          .then(() => this.updateUI('playing'))
+          .catch((e) => {
+            console.error('Failed to play audio:', e)
+            this.updateUI('error')
+          })
+      }
+    } else {
+      this.setComplete()
+      this.resetAudio()
+    }
+  },
+
+  resetAudio() {
+    if (!this.audio) return
+    this.audio.pause()
+    this.audio.currentTime = 0
+    this.audio.removeAttribute('src')
+    delete this.audio.dataset.trackIndex
+  },
+
+  setIdle() {
+    this.updateUI('paused')
+    this.setLabel('idle')
+  },
+
+  setComplete() {
+    this.updateUI('paused')
+    this.setLabel('complete')
+    this.currentIndex = 0
+  },
+
+  setLabel(state) {
+    if (!this.labelEl) return
+
+    switch (state) {
+      case 'complete':
+        this.labelEl.textContent = this.labels.complete
+        break
+      case 'idle':
+      default:
+        this.labelEl.textContent = this.labels.idle
+        break
+    }
+  },
+
+  setLabelForKind(kind) {
+    if (!this.labelEl) return
+
+    if (kind === 'intro') {
+      this.labelEl.textContent = this.labels.intro
+    } else {
+      this.labelEl.textContent = this.labels.main
+    }
   },
 
   updateUI(state) {
     if (!this.playButton || !this.pauseButton) return
 
-    switch(state) {
+    switch (state) {
       case 'playing':
         this.playButton.classList.add('hidden')
         this.pauseButton.classList.remove('hidden')
         break
       case 'paused':
-      case 'ended':
       case 'error':
+      default:
         this.playButton.classList.remove('hidden')
         this.pauseButton.classList.add('hidden')
         break
@@ -239,11 +307,7 @@ Hooks.AudioPlayer = {
   },
 
   destroyed() {
-    // Clean up
-    if (this.audio) {
-      this.audio.pause()
-      this.audio.src = ''
-    }
+    this.resetAudio()
   }
 }
 
