@@ -23,25 +23,25 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
       id="audio-player"
       phx-hook="AudioPlayer"
       data-auto-play={@auto_play}
-      class="mt-6 mb-4"
+      class="mt-4 md:mt-6"
     >
       <audio preload="auto">
         <source src={@audio_url} type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>
 
-      <div class="flex items-center justify-center gap-4">
+      <div class="flex items-center justify-center gap-3">
         <button
           data-audio-play
           type="button"
-          class="flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
+          class="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-md"
           aria-label="Play audio"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"
             viewBox="0 0 24 24"
-            class="w-8 h-8 text-navy ml-1"
+            class="w-6 h-6 md:w-7 md:h-7 text-navy ml-0.5"
           >
             <path d="M8 5v14l11-7z" />
           </svg>
@@ -50,14 +50,14 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
         <button
           data-audio-pause
           type="button"
-          class="hidden flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
+          class="hidden flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-md"
           aria-label="Pause audio"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"
             viewBox="0 0 24 24"
-            class="w-8 h-8 text-navy"
+            class="w-6 h-6 md:w-7 md:h-7 text-navy"
           >
             <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
           </svg>
