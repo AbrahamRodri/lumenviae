@@ -11,9 +11,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
        socket
        |> assign(:set, set)
        |> assign(:current_index, 0)
-       |> assign(:page_title, set.name)
-       |> assign(:auto_play, false)
-       |> assign(:hide_chrome, true)}
+       |> assign(:page_title, set.name)}
     else
       {:ok, push_navigate(socket, to: "/")}
     end
@@ -28,7 +26,6 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
     socket
     |> assign_current_meditation(new_index)
-    |> assign(:auto_play, true)
     |> then(&{:noreply, &1})
   end
 
@@ -39,7 +36,6 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
     socket
     |> assign_current_meditation(new_index)
-    |> assign(:auto_play, true)
     |> then(&{:noreply, &1})
   end
 

@@ -9,12 +9,9 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
 
   ## Examples
 
-      <.audio_player audio_url={@meditation.audio_url} auto_play={true} />
-
-      <.audio_player audio_url={@meditation.audio_url} auto_play={false} />
+      <.audio_player audio_url={@meditation.audio_url} />
   """
   attr :audio_url, :string, default: nil, doc: "The URL of the audio file"
-  attr :auto_play, :boolean, default: false, doc: "Whether to auto-play the audio"
 
   def audio_player(assigns) do
     ~H"""
@@ -22,7 +19,6 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
       :if={@audio_url}
       id="audio-player"
       phx-hook="AudioPlayer"
-      data-auto-play={@auto_play}
     >
       <audio preload="auto">
         <source src={@audio_url} type="audio/mpeg" />
