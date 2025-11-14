@@ -113,12 +113,13 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   defp assign_current_meditation(socket, index) do
     meditation = Enum.at(socket.assigns.set.meditations, index)
     audio_presigned_url = Rosary.get_meditation_audio_url(meditation)
+    intro_audio_presigned_url = Rosary.get_mystery_intro_audio_url(meditation.mystery)
 
     socket
     |> assign(:current_index, index)
     |> assign(:meditation, meditation)
     |> assign(:audio_presigned_url, audio_presigned_url)
-    |> assign(:intro_audio_presigned_url, Rosary.get_meditation_intro_audio_url(meditation))
+    |> assign(:intro_audio_presigned_url, intro_audio_presigned_url)
     |> assign(:intro_segments, intro_segments(meditation))
     |> assign(:meditation_segments, meditation_segments(meditation))
   end

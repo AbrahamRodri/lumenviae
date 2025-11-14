@@ -79,9 +79,9 @@ defmodule LumenViae.Rosary do
   end
 
   @doc """
-  Generates a pre-signed URL for a meditation's introductory announcement audio.
+  Generates a pre-signed URL for a mystery's introductory announcement audio.
   """
-  def get_meditation_intro_audio_url(%Meditation{intro_audio_url: intro_key}) do
+  def get_mystery_intro_audio_url(%Mystery{intro_audio_url: intro_key}) do
     presign_audio_url(intro_key)
   end
 

@@ -105,44 +105,23 @@
             </div>
           </div>
 
-          <div class="space-y-6">
-            <div>
-              <label class="font-crimson text-navy font-semibold block mb-2">
-                Meditation Audio S3 Key (Optional)
-              </label>
-              <input
-                type="text"
-                name={@edit_form[:audio_url].name}
-                value={@edit_form[:audio_url].value || ""}
-                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-                placeholder="e.g., meditation1.mp3 or joyful/annunciation.mp3"
-              />
-              <p class="font-crimson text-sm text-gray-500 mt-1">
-                Enter the S3 key (filename or path) for the meditation audio in the lumenviae-audio bucket.
-              </p>
-              <%= for error <- @edit_form[:audio_url].errors do %>
-                <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
-              <% end %>
-            </div>
-
-            <div>
-              <label class="font-crimson text-navy font-semibold block mb-2">
-                Announcement Audio S3 Key (Optional)
-              </label>
-              <input
-                type="text"
-                name={@edit_form[:intro_audio_url].name}
-                value={@edit_form[:intro_audio_url].value || ""}
-                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-                placeholder="e.g., announcements/joyful_annunciation_intro.mp3"
-              />
-              <p class="font-crimson text-sm text-gray-500 mt-1">
-                Provide a short introduction clip that proclaims the mystery and reflection before the meditation begins.
-              </p>
-              <%= for error <- @edit_form[:intro_audio_url].errors do %>
-                <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
-              <% end %>
-            </div>
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Meditation Audio S3 Key (Optional)
+            </label>
+            <input
+              type="text"
+              name={@edit_form[:audio_url].name}
+              value={@edit_form[:audio_url].value || ""}
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="e.g., meditation1.mp3 or joyful/annunciation.mp3"
+            />
+            <p class="font-crimson text-sm text-gray-500 mt-1">
+              Enter the S3 key (filename or path) for the meditation audio in the lumenviae-audio bucket.
+            </p>
+            <%= for error <- @edit_form[:audio_url].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+            <% end %>
           </div>
 
           <div class="flex justify-between items-center pt-4">
