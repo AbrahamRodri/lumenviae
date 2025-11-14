@@ -88,7 +88,6 @@ defmodule LumenViaeWeb do
       import LumenViaeWeb.CoreComponents
       import LumenViaeWeb.Components.Scripture
       import LumenViaeWeb.Components.Nav
-      import LumenViaeWeb.Components.AudioPlayer
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS
