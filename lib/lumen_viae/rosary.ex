@@ -74,11 +74,20 @@ defmodule LumenViae.Rosary do
       iex> get_meditation_audio_url(%Meditation{audio_url: nil})
       nil
   """
-  def get_meditation_audio_url(%Meditation{audio_url: nil}), do: nil
-  def get_meditation_audio_url(%Meditation{audio_url: ""}), do: nil
+  def get_meditation_audio_url(%Meditation{audio_url: audio_key}) do
+    presign_audio(audio_key)
+  end
 
-  def get_meditation_audio_url(%Meditation{audio_url: s3_key}) when is_binary(s3_key) do
-    LumenViae.Storage.S3.generate_presigned_url!(s3_key)
+  def get_mystery_announcement_audio_url(%Mystery{announcement_audio_url: audio_key}) do
+    presign_audio(audio_key)
+  end
+
+  def get_mystery_description_audio_url(%Mystery{description_audio_url: audio_key}) do
+    presign_audio(audio_key)
+  end
+
+  def get_meditation_set_intro_audio_url(%MeditationSet{intro_audio_url: audio_key}) do
+    presign_audio(audio_key)
   end
 
   ## Meditation Sets
@@ -149,5 +158,12 @@ defmodule LumenViae.Rosary do
       from msm in MeditationSetMeditation,
         where: msm.meditation_set_id == ^meditation_set_id and msm.meditation_id == ^meditation_id
     )
+  end
+
+  defp presign_audio(nil), do: nil
+  defp presign_audio(""), do: nil
+
+  defp presign_audio(s3_key) when is_binary(s3_key) do
+    LumenViae.Storage.S3.generate_presigned_url!(s3_key)
   end
 end

@@ -120,129 +120,230 @@ Hooks.RosaryProgress = {
   }
 }
 
-Hooks.AudioPlayer = {
+Hooks.PrayerAudioPlayer = {
   mounted() {
-    this.audio = this.el.querySelector('audio')
-    this.playButton = this.el.querySelector('[data-audio-play]')
-    this.pauseButton = this.el.querySelector('[data-audio-pause]')
-    this.autoPlay = this.el.dataset.autoPlay === 'true'
+    this.audio = new Audio()
+    this.playlist = []
+    this.currentSegment = 0
+    this.currentPlaylistJSON = null
+    this.currentTrigger = null
+    this.trackLabel = this.el.querySelector('[data-track-label]')
+    this.toggleButton = this.el.querySelector('[data-control="play-toggle"]')
+    this.playIcon = this.toggleButton?.querySelector('[data-icon="play"]')
+    this.pauseIcon = this.toggleButton?.querySelector('[data-icon="pause"]')
+    this.prevSegmentButton = this.el.querySelector('[data-control="segment-previous"]')
+    this.nextSegmentButton = this.el.querySelector('[data-control="segment-next"]')
 
-    if (!this.audio) return
+    this.handleEnded = this.handleEnded.bind(this)
+    this.handlePlay = this.handlePlay.bind(this)
+    this.handlePause = this.handlePause.bind(this)
 
-    // Track current source URL for change detection
-    const sourceElement = this.audio.querySelector('source')
-    this.currentSrc = sourceElement ? sourceElement.src : null
+    this.audio.addEventListener('ended', this.handleEnded)
+    this.audio.addEventListener('play', this.handlePlay)
+    this.audio.addEventListener('pause', this.handlePause)
 
-    // Event listeners for audio element
-    this.audio.addEventListener('ended', () => {
-      this.handleEnded()
-    })
+    this.toggleButton?.addEventListener('click', () => this.togglePlayback())
+    this.prevSegmentButton?.addEventListener('click', () => this.advanceSegment(-1))
+    this.nextSegmentButton?.addEventListener('click', () => this.advanceSegment(1))
 
-    this.audio.addEventListener('play', () => {
-      this.updateUI('playing')
-    })
-
-    this.audio.addEventListener('pause', () => {
-      this.updateUI('paused')
-    })
-
-    this.audio.addEventListener('error', (e) => {
-      console.error('Audio error:', e)
-      this.updateUI('error')
-    })
-
-    // Button click handlers
-    if (this.playButton) {
-      this.playButton.addEventListener('click', () => {
-        this.play()
-      })
-    }
-
-    if (this.pauseButton) {
-      this.pauseButton.addEventListener('click', () => {
-        this.pause()
-      })
-    }
-
-    // Auto-play with small delay if enabled
-    if (this.autoPlay && this.audio.src) {
-      setTimeout(() => {
-        this.play()
-      }, 500)
-    }
+    this.loadPlaylistFromDataset()
+    this.syncControls()
   },
 
   updated() {
-    if (!this.audio) return
+    const playlistChanged = this.loadPlaylistFromDataset()
+    const trigger = this.el.dataset.trigger || null
 
-    // Get the new source URL from the audio element
-    const sourceElement = this.audio.querySelector('source')
-    const newSrc = sourceElement ? sourceElement.src : null
-
-    // Check if the source has changed
-    if (newSrc && newSrc !== this.currentSrc) {
-      this.currentSrc = newSrc
-
-      // Pause current playback and reset
-      this.audio.pause()
-      this.audio.currentTime = 0
-
-      // Load the new audio source
-      this.audio.load()
-
-      // Auto-play if enabled
-      const shouldAutoPlay = this.el.dataset.autoPlay === 'true'
-      if (shouldAutoPlay) {
-        setTimeout(() => {
-          this.play()
-        }, 500)
+    if (trigger && trigger !== this.currentTrigger) {
+      this.currentTrigger = trigger
+      if (this.playlist.length > 0) {
+        this.startFromBeginning()
       }
+    } else if (!trigger) {
+      this.currentTrigger = null
     }
-  },
 
-  play() {
-    if (this.audio) {
-      this.audio.play().catch(e => {
-        console.error('Failed to play audio:', e)
-        this.updateUI('error')
-      })
-    }
-  },
-
-  pause() {
-    if (this.audio) {
-      this.audio.pause()
-    }
-  },
-
-  handleEnded() {
-    this.updateUI('ended')
-    // Push event to LiveView when audio finishes
-    this.pushEvent('audio_ended', {})
-  },
-
-  updateUI(state) {
-    if (!this.playButton || !this.pauseButton) return
-
-    switch(state) {
-      case 'playing':
-        this.playButton.classList.add('hidden')
-        this.pauseButton.classList.remove('hidden')
-        break
-      case 'paused':
-      case 'ended':
-      case 'error':
-        this.playButton.classList.remove('hidden')
-        this.pauseButton.classList.add('hidden')
-        break
+    if (playlistChanged) {
+      this.syncControls()
     }
   },
 
   destroyed() {
-    // Clean up
-    if (this.audio) {
+    this.audio.removeEventListener('ended', this.handleEnded)
+    this.audio.removeEventListener('play', this.handlePlay)
+    this.audio.removeEventListener('pause', this.handlePause)
+    this.audio.pause()
+    this.audio.src = ''
+  },
+
+  loadPlaylistFromDataset() {
+    const json = this.el.dataset.playlist || '[]'
+
+    if (json === this.currentPlaylistJSON) {
+      return false
+    }
+
+    this.currentPlaylistJSON = json
+
+    try {
+      const parsed = JSON.parse(json)
+      this.playlist = Array.isArray(parsed) ? parsed : []
+    } catch (error) {
+      console.error('Failed to parse prayer playlist:', error)
+      this.playlist = []
+    }
+
+    this.currentSegment = 0
+    this.setTrackLabel()
+
+    if (this.playlist.length > 0) {
+      this.loadSegment(this.currentSegment)
+    } else {
       this.audio.pause()
       this.audio.src = ''
+    }
+
+    return true
+  },
+
+  loadSegment(index) {
+    const segment = this.playlist[index]
+
+    if (!segment) {
+      return
+    }
+
+    if (this.audio.src !== segment.url) {
+      this.audio.src = segment.url
+    }
+
+    this.currentSegment = index
+    this.setTrackLabel(segment.label)
+    this.syncControls()
+  },
+
+  togglePlayback() {
+    if (this.playlist.length === 0) {
+      return
+    }
+
+    if (this.audio.paused) {
+      this.play()
+    } else {
+      this.pause()
+    }
+  },
+
+  play() {
+    if (this.playlist.length === 0) {
+      return
+    }
+
+    const segment = this.playlist[this.currentSegment]
+    if (!segment) {
+      return
+    }
+
+    if (!this.audio.src || this.audio.src !== segment.url) {
+      this.loadSegment(this.currentSegment)
+    }
+
+    this.audio
+      .play()
+      .catch(error => console.error('Unable to play audio segment:', error))
+  },
+
+  pause() {
+    this.audio.pause()
+  },
+
+  advanceSegment(direction) {
+    if (this.playlist.length === 0) {
+      return
+    }
+
+    const nextIndex = this.currentSegment + direction
+
+    if (nextIndex < 0 || nextIndex >= this.playlist.length) {
+      return
+    }
+
+    this.loadSegment(nextIndex)
+
+    if (!this.audio.paused) {
+      this.play()
+    }
+  },
+
+  startFromBeginning() {
+    this.currentSegment = 0
+    this.loadSegment(this.currentSegment)
+    this.play()
+  },
+
+  handleEnded() {
+    if (this.currentSegment < this.playlist.length - 1) {
+      this.advanceSegment(1)
+      this.play()
+    } else {
+      this.pause()
+    }
+  },
+
+  handlePlay() {
+    this.updateToggleButton(true)
+  },
+
+  handlePause() {
+    this.updateToggleButton(false)
+  },
+
+  setTrackLabel(label) {
+    if (!this.trackLabel) return
+
+    const text = label || 'Audio Ready'
+    this.trackLabel.textContent = text
+  },
+
+  updateToggleButton(playing) {
+    if (!this.toggleButton) return
+
+    if (this.playlist.length === 0) {
+      this.toggleButton.setAttribute('disabled', 'disabled')
+    } else {
+      this.toggleButton.removeAttribute('disabled')
+    }
+
+    if (playing) {
+      this.playIcon?.classList.add('hidden')
+      this.pauseIcon?.classList.remove('hidden')
+    } else {
+      this.playIcon?.classList.remove('hidden')
+      this.pauseIcon?.classList.add('hidden')
+    }
+  },
+
+  syncControls() {
+    const hasPlaylist = this.playlist.length > 0
+
+    if (this.prevSegmentButton) {
+      if (!hasPlaylist || this.currentSegment === 0) {
+        this.prevSegmentButton.setAttribute('disabled', 'disabled')
+      } else {
+        this.prevSegmentButton.removeAttribute('disabled')
+      }
+    }
+
+    if (this.nextSegmentButton) {
+      if (!hasPlaylist || this.currentSegment >= this.playlist.length - 1) {
+        this.nextSegmentButton.setAttribute('disabled', 'disabled')
+      } else {
+        this.nextSegmentButton.removeAttribute('disabled')
+      }
+    }
+
+    if (!hasPlaylist) {
+      this.updateToggleButton(false)
     }
   }
 }

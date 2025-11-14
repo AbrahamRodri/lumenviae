@@ -2,9 +2,6 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
 
-  # 5 minutes in milliseconds for automatic mode interval
-  @automatic_interval 300_000
-
   @impl true
   def mount(%{"set_id" => set_id}, _session, socket) do
     set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
@@ -15,9 +12,12 @@ defmodule LumenViaeWeb.Live.Pray.Index do
        |> assign(:set, set)
        |> assign(:current_index, 0)
        |> assign(:page_title, set.name)
-       |> assign(:prayer_mode, "manual")
-       |> assign(:timer_ref, nil)
-       |> assign(:auto_play, false)}
+       |> assign(:phase, :overview)
+       |> assign(:intro_pending?, true)
+       |> assign(:player_trigger, nil)
+       |> assign(:playlist, [])
+       |> assign(:current_segment_label, nil)
+       |> assign(:hide_nav_footer?, true)}
     else
       {:ok, push_navigate(socket, to: "/")}
     end
@@ -30,11 +30,10 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
     new_index = current + 1 |> clamp_index(total)
 
-    socket
-    |> cancel_timer()
-    |> assign_current_meditation(new_index)
-    |> assign(:auto_play, true)
-    |> then(&{:noreply, &1})
+    {:noreply,
+     socket
+     |> assign_current_meditation(new_index)
+     |> trigger_player()}
   end
 
   def handle_event("previous", _params, socket) do
@@ -42,11 +41,10 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     total = length(socket.assigns.set.meditations)
     new_index = current - 1 |> clamp_index(total)
 
-    socket
-    |> cancel_timer()
-    |> assign_current_meditation(new_index)
-    |> assign(:auto_play, true)
-    |> then(&{:noreply, &1})
+    {:noreply,
+     socket
+     |> assign_current_meditation(new_index)
+     |> trigger_player()}
   end
 
   def handle_event("restore_progress", %{"index" => index}, socket) do
@@ -56,48 +54,13 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     {:noreply, assign_current_meditation(socket, valid_index)}
   end
 
-  def handle_event("audio_ended", _params, socket) do
-    # Only advance automatically if in automatic mode
-    if socket.assigns.prayer_mode == "automatic" do
-      # Start 5-minute timer before advancing
-      timer_ref = Process.send_after(self(), :advance_meditation, @automatic_interval)
-
-      {:noreply, assign(socket, :timer_ref, timer_ref)}
-    else
-      {:noreply, socket}
-    end
-  end
-
-  def handle_event("set_prayer_mode", %{"mode" => mode}, socket) do
-    socket
-    |> cancel_timer()
-    |> assign(:prayer_mode, mode)
-    |> then(&{:noreply, &1})
-  end
-
-  @impl true
-  def handle_info(:advance_meditation, socket) do
-    current = socket.assigns.current_index
-    total = length(socket.assigns.set.meditations)
-    new_index = current + 1 |> clamp_index(total)
-
-    # Only advance if not at the last meditation
-    if new_index > current do
-      socket
-      |> assign_current_meditation(new_index)
-      |> assign(:auto_play, true)
-      |> assign(:timer_ref, nil)
-      |> then(&{:noreply, &1})
-    else
-      # At the last meditation - stop automatic mode
-      {:noreply, assign(socket, :timer_ref, nil)}
-    end
-  end
-
-  @impl true
-  def terminate(_reason, socket) do
-    cancel_timer(socket)
-    :ok
+  def handle_event("start_prayer", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:phase, :active)
+     |> assign(:intro_pending?, true)
+     |> assign_current_meditation(socket.assigns.current_index)
+     |> trigger_player()}
   end
 
   @impl true
@@ -112,20 +75,17 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   defp assign_current_meditation(socket, index) do
     meditation = Enum.at(socket.assigns.set.meditations, index)
-    audio_presigned_url = Rosary.get_meditation_audio_url(meditation)
+    meditation_audio_url = Rosary.get_meditation_audio_url(meditation)
+
+    include_intro? = include_intro_audio?(socket, index)
+    playlist = build_playlist(socket.assigns.set, meditation, meditation_audio_url, include_intro?)
 
     socket
     |> assign(:current_index, index)
     |> assign(:meditation, meditation)
-    |> assign(:audio_presigned_url, audio_presigned_url)
-  end
-
-  defp cancel_timer(socket) do
-    if socket.assigns.timer_ref do
-      Process.cancel_timer(socket.assigns.timer_ref)
-    end
-
-    assign(socket, :timer_ref, nil)
+    |> assign(:playlist, playlist)
+    |> assign(:current_segment_label, current_segment_label(playlist))
+    |> update_intro_flag(include_intro?)
   end
 
   defp clamp_index(_index, total) when total <= 0, do: 0
@@ -146,4 +106,65 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   end
 
   defp normalize_index(_), do: 0
+
+  defp trigger_player(socket) do
+    assign(socket, :player_trigger, System.unique_integer([:positive]) |> Integer.to_string())
+  end
+
+  defp include_intro_audio?(socket, index) do
+    socket.assigns.phase == :active && socket.assigns.intro_pending? && index == 0
+  end
+
+  defp build_playlist(set, meditation, meditation_audio_url, include_intro?) do
+    []
+    |> maybe_add_intro(set, include_intro?)
+    |> maybe_add_segment(
+      Rosary.get_mystery_announcement_audio_url(meditation.mystery),
+      "Mystery Announcement",
+      "announcement"
+    )
+    |> maybe_add_segment(
+      Rosary.get_mystery_description_audio_url(meditation.mystery),
+      "Mystery Description",
+      "description"
+    )
+    |> maybe_add_segment(meditation_audio_url, meditation_track_label(meditation), "meditation")
+  end
+
+  defp maybe_add_intro(playlist, set, true) do
+    case Rosary.get_meditation_set_intro_audio_url(set) do
+      nil -> playlist
+      url ->
+        playlist ++
+          [
+            %{
+              type: "intro",
+              label: "Rosary Introduction",
+              url: url
+            }
+          ]
+    end
+  end
+
+  defp maybe_add_intro(playlist, _set, _include?), do: playlist
+
+  defp maybe_add_segment(playlist, nil, _label, _type), do: playlist
+
+  defp maybe_add_segment(playlist, url, label, type) do
+    playlist ++ [%{type: type, label: label, url: url}]
+  end
+
+  defp meditation_track_label(%{title: title}) when is_binary(title) and title != "" do
+    "Meditation – #{title}"
+  end
+
+  defp meditation_track_label(meditation) do
+    "Meditation on #{meditation.mystery.name}"
+  end
+
+  defp current_segment_label([first | _]), do: first.label
+  defp current_segment_label(_), do: nil
+
+  defp update_intro_flag(socket, true), do: assign(socket, :intro_pending?, false)
+  defp update_intro_flag(socket, _), do: socket
 end
