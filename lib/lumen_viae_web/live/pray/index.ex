@@ -118,6 +118,9 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     |> assign(:current_index, index)
     |> assign(:meditation, meditation)
     |> assign(:audio_presigned_url, audio_presigned_url)
+    |> assign(:intro_audio_presigned_url, Rosary.get_meditation_intro_audio_url(meditation))
+    |> assign(:intro_segments, intro_segments(meditation))
+    |> assign(:meditation_segments, meditation_segments(meditation))
   end
 
   defp cancel_timer(socket) do
@@ -146,4 +149,34 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   end
 
   defp normalize_index(_), do: 0
+
+  defp intro_segments(%{mystery: %{description: description}} = meditation) do
+    description
+    |> text_segments()
+    |> case do
+      [] ->
+        meditation
+        |> meditation_segments()
+        |> Enum.take(1)
+
+      segments ->
+        segments
+    end
+  end
+
+  defp meditation_segments(%{content: content}) do
+    content
+    |> text_segments()
+  end
+
+  defp text_segments(nil), do: []
+
+  defp text_segments(text) when is_binary(text) do
+    text
+    |> String.split(~r/\r?\n\r?\n/, trim: true)
+    |> Enum.map(&String.trim/1)
+    |> Enum.reject(&(&1 == ""))
+  end
+
+  defp text_segments(_), do: []
 end

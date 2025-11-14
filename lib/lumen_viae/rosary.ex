@@ -61,7 +61,7 @@ defmodule LumenViae.Rosary do
   end
 
   @doc """
-  Generates a pre-signed URL for a meditation's audio file.
+  Generates a pre-signed URL for a meditation's primary audio file.
 
   Returns the pre-signed URL string if the meditation has an audio_url (S3 key),
   or nil if no audio is available or if URL generation fails.
@@ -74,10 +74,21 @@ defmodule LumenViae.Rosary do
       iex> get_meditation_audio_url(%Meditation{audio_url: nil})
       nil
   """
-  def get_meditation_audio_url(%Meditation{audio_url: nil}), do: nil
-  def get_meditation_audio_url(%Meditation{audio_url: ""}), do: nil
+  def get_meditation_audio_url(%Meditation{audio_url: audio_key}) do
+    presign_audio_url(audio_key)
+  end
 
-  def get_meditation_audio_url(%Meditation{audio_url: s3_key}) when is_binary(s3_key) do
+  @doc """
+  Generates a pre-signed URL for a meditation's introductory announcement audio.
+  """
+  def get_meditation_intro_audio_url(%Meditation{intro_audio_url: intro_key}) do
+    presign_audio_url(intro_key)
+  end
+
+  defp presign_audio_url(nil), do: nil
+  defp presign_audio_url(""), do: nil
+
+  defp presign_audio_url(s3_key) when is_binary(s3_key) do
     LumenViae.Storage.S3.generate_presigned_url!(s3_key)
   end
 

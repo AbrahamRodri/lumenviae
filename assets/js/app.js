@@ -123,126 +123,284 @@ Hooks.RosaryProgress = {
 Hooks.AudioPlayer = {
   mounted() {
     this.audio = this.el.querySelector('audio')
+    this.sourceElement = this.audio ? this.audio.querySelector('source') : null
     this.playButton = this.el.querySelector('[data-audio-play]')
     this.pauseButton = this.el.querySelector('[data-audio-pause]')
+    this.introLabel = this.el.querySelector('[data-phase-label-intro]')
+    this.mainLabel = this.el.querySelector('[data-phase-label-main]')
     this.autoPlay = this.el.dataset.autoPlay === 'true'
+    this.introSrc = this.el.dataset.introSrc || null
+    this.mainSrc = this.el.dataset.mainSrc || null
+    this.phase = this.introSrc ? 'intro' : 'meditation'
 
-    if (!this.audio) return
+    if (!this.audio || !this.sourceElement) return
 
-    // Track current source URL for change detection
-    const sourceElement = this.audio.querySelector('source')
-    this.currentSrc = sourceElement ? sourceElement.src : null
+    this.handleEnded = this.handleEnded.bind(this)
+    this.handlePlay = this.handlePlay.bind(this)
+    this.handlePause = this.handlePause.bind(this)
 
-    // Event listeners for audio element
-    this.audio.addEventListener('ended', () => {
-      this.handleEnded()
-    })
-
-    this.audio.addEventListener('play', () => {
-      this.updateUI('playing')
-    })
-
-    this.audio.addEventListener('pause', () => {
-      this.updateUI('paused')
-    })
-
+    this.audio.addEventListener('ended', this.handleEnded)
+    this.audio.addEventListener('play', this.handlePlay)
+    this.audio.addEventListener('pause', this.handlePause)
     this.audio.addEventListener('error', (e) => {
       console.error('Audio error:', e)
-      this.updateUI('error')
+      this.toggleButtons('error')
     })
 
-    // Button click handlers
     if (this.playButton) {
-      this.playButton.addEventListener('click', () => {
-        this.play()
-      })
+      this.playButton.addEventListener('click', () => this.play())
     }
 
     if (this.pauseButton) {
-      this.pauseButton.addEventListener('click', () => {
-        this.pause()
-      })
+      this.pauseButton.addEventListener('click', () => this.pause())
     }
 
-    // Auto-play with small delay if enabled
-    if (this.autoPlay && this.audio.src) {
-      setTimeout(() => {
-        this.play()
-      }, 500)
+    this.setSourceForPhase()
+    this.notifyPhase()
+
+    if (this.autoPlay && (this.introSrc || this.mainSrc)) {
+      setTimeout(() => this.play(), 500)
     }
   },
 
   updated() {
-    if (!this.audio) return
+    if (!this.audio || !this.sourceElement) return
 
-    // Get the new source URL from the audio element
-    const sourceElement = this.audio.querySelector('source')
-    const newSrc = sourceElement ? sourceElement.src : null
+    const newIntro = this.el.dataset.introSrc || null
+    const newMain = this.el.dataset.mainSrc || null
+    const introChanged = newIntro !== this.introSrc
+    const mainChanged = newMain !== this.mainSrc
 
-    // Check if the source has changed
-    if (newSrc && newSrc !== this.currentSrc) {
-      this.currentSrc = newSrc
+    this.autoPlay = this.el.dataset.autoPlay === 'true'
+    this.introSrc = newIntro
+    this.mainSrc = newMain
 
-      // Pause current playback and reset
+    if (introChanged || mainChanged) {
       this.audio.pause()
       this.audio.currentTime = 0
+      this.phase = this.introSrc ? 'intro' : 'meditation'
+      this.setSourceForPhase()
+      this.notifyPhase()
+      this.toggleButtons('paused')
 
-      // Load the new audio source
-      this.audio.load()
-
-      // Auto-play if enabled
-      const shouldAutoPlay = this.el.dataset.autoPlay === 'true'
-      if (shouldAutoPlay) {
-        setTimeout(() => {
-          this.play()
-        }, 500)
+      if (this.autoPlay && (this.introSrc || this.mainSrc)) {
+        setTimeout(() => this.play(), 500)
       }
     }
   },
 
-  play() {
-    if (this.audio) {
-      this.audio.play().catch(e => {
-        console.error('Failed to play audio:', e)
-        this.updateUI('error')
-      })
+  setSourceForPhase() {
+    const src = this.phase === 'intro' ? this.introSrc : this.mainSrc
+    if (this.sourceElement) {
+      this.sourceElement.src = src || ''
+      this.audio.load()
     }
+    this.updatePhaseUI()
+  },
+
+  play() {
+    if (!this.audio) return
+    const src = this.phase === 'intro' ? this.introSrc : this.mainSrc
+    if (!src) return
+
+    this.audio.play().catch(e => {
+      console.error('Failed to play audio:', e)
+      this.toggleButtons('error')
+    })
   },
 
   pause() {
-    if (this.audio) {
-      this.audio.pause()
-    }
+    if (!this.audio) return
+    this.audio.pause()
+  },
+
+  handlePlay() {
+    this.toggleButtons('playing')
+    this.notifyState('playing')
+  },
+
+  handlePause() {
+    this.toggleButtons('paused')
+    this.notifyState('paused')
   },
 
   handleEnded() {
-    this.updateUI('ended')
-    // Push event to LiveView when audio finishes
-    this.pushEvent('audio_ended', {})
-  },
+    this.toggleButtons('ended')
+    this.notifyState('ended')
 
-  updateUI(state) {
-    if (!this.playButton || !this.pauseButton) return
-
-    switch(state) {
-      case 'playing':
-        this.playButton.classList.add('hidden')
-        this.pauseButton.classList.remove('hidden')
-        break
-      case 'paused':
-      case 'ended':
-      case 'error':
-        this.playButton.classList.remove('hidden')
-        this.pauseButton.classList.add('hidden')
-        break
+    if (this.phase === 'intro' && this.mainSrc) {
+      this.phase = 'meditation'
+      this.setSourceForPhase()
+      this.notifyPhase()
+      this.play()
+    } else {
+      this.pushEvent('audio_ended', {})
     }
   },
 
+  toggleButtons(state) {
+    if (!this.playButton || !this.pauseButton) return
+
+    if (state === 'playing') {
+      this.playButton.classList.add('hidden')
+      this.pauseButton.classList.remove('hidden')
+    } else {
+      this.playButton.classList.remove('hidden')
+      this.pauseButton.classList.add('hidden')
+    }
+  },
+
+  updatePhaseUI() {
+    if (this.introLabel && this.mainLabel) {
+      if (this.phase === 'intro') {
+        this.introLabel.classList.remove('hidden')
+        this.mainLabel.classList.add('hidden')
+      } else {
+        this.introLabel.classList.add('hidden')
+        this.mainLabel.classList.remove('hidden')
+      }
+    }
+  },
+
+  notifyState(state) {
+    window.dispatchEvent(new CustomEvent('meditation-audio-state', {
+      detail: {state, phase: this.phase}
+    }))
+  },
+
+  notifyPhase() {
+    window.dispatchEvent(new CustomEvent('meditation-audio-phase', {
+      detail: {phase: this.phase}
+    }))
+  },
+
   destroyed() {
-    // Clean up
-    if (this.audio) {
-      this.audio.pause()
-      this.audio.src = ''
+    if (!this.audio) return
+
+    this.audio.removeEventListener('ended', this.handleEnded)
+    this.audio.removeEventListener('play', this.handlePlay)
+    this.audio.removeEventListener('pause', this.handlePause)
+    this.audio.pause()
+    if (this.sourceElement) {
+      this.sourceElement.src = ''
+    }
+    this.audio.src = ''
+  }
+}
+
+Hooks.MeditationLyrics = {
+  mounted() {
+    this.track = this.el.querySelector('[data-lyrics-track]')
+    this.segments = this.track
+      ? Array.from(this.track.querySelectorAll('[data-lyric-segment]'))
+      : []
+    this.phase = this.el.dataset.phase
+    this.intervalDuration = parseInt(this.el.dataset.interval || '10000', 10)
+    this.activeIndex = 0
+    this.interval = null
+
+    if (this.track) {
+      this.track.style.transform = 'translateY(0)'
+      this.track.style.transition = 'transform 0.8s ease'
+      this.track.style.willChange = 'transform'
+    }
+
+    this.setActive(0)
+
+    this.handleAudioState = (event) => {
+      const {phase, state} = event.detail
+
+      if (phase !== this.phase) return
+
+      switch(state) {
+        case 'playing':
+          this.startCycle()
+          break
+        case 'paused':
+          this.stopCycle()
+          break
+        case 'ended':
+          this.stopCycle()
+          this.setActive(this.segments.length - 1)
+          break
+      }
+    }
+
+    this.handlePhaseChange = (event) => {
+      const {phase} = event.detail
+      if (phase === this.phase) {
+        this.reset()
+      } else {
+        this.stopCycle()
+      }
+    }
+
+    window.addEventListener('meditation-audio-state', this.handleAudioState)
+    window.addEventListener('meditation-audio-phase', this.handlePhaseChange)
+  },
+
+  startCycle() {
+    if (this.segments.length <= 1) return
+    this.stopCycle()
+    this.interval = setInterval(() => this.advance(), this.intervalDuration)
+  },
+
+  advance() {
+    if (this.activeIndex >= this.segments.length - 1) {
+      this.stopCycle()
+      return
+    }
+
+    this.setActive(this.activeIndex + 1)
+  },
+
+  stopCycle() {
+    if (this.interval) {
+      clearInterval(this.interval)
+      this.interval = null
+    }
+  },
+
+  reset() {
+    this.stopCycle()
+    this.setActive(0)
+  },
+
+  setActive(index) {
+    if (this.segments.length === 0) return
+    this.activeIndex = Math.max(0, Math.min(index, this.segments.length - 1))
+    this.segments.forEach((segment, idx) => {
+      if (idx === this.activeIndex) {
+        segment.classList.add('is-active')
+      } else {
+        segment.classList.remove('is-active')
+      }
+    })
+    this.updateTrackPosition()
+  },
+
+  updateTrackPosition() {
+    if (!this.track || this.segments.length === 0) return
+
+    const activeSegment = this.segments[this.activeIndex]
+    if (!activeSegment) return
+
+    const containerHeight = this.el.clientHeight || 1
+    const segmentOffset = activeSegment.offsetTop
+    const segmentHeight = activeSegment.offsetHeight
+    const centerOffset = segmentOffset - (containerHeight / 2 - segmentHeight / 2)
+    const maxOffset = Math.max(0, (this.track.scrollHeight || 0) - containerHeight)
+    const clampedOffset = Math.max(0, Math.min(centerOffset, maxOffset))
+
+    this.track.style.transform = `translateY(${-clampedOffset}px)`
+  },
+
+  destroyed() {
+    window.removeEventListener('meditation-audio-state', this.handleAudioState)
+    window.removeEventListener('meditation-audio-phase', this.handlePhaseChange)
+    this.stopCycle()
+    if (this.track) {
+      this.track.style.transform = 'translateY(0)'
     }
   }
 }
