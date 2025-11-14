@@ -12,7 +12,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
        |> assign(:set, set)
        |> assign(:current_index, 0)
        |> assign(:page_title, set.name)
-       |> assign(:auto_play, false)}
+       |> assign(:auto_play, false)
+       |> assign(:hide_chrome, true)}
     else
       {:ok, push_navigate(socket, to: "/")}
     end
