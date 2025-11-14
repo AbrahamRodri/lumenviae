@@ -43,6 +43,10 @@ defmodule LumenViaeWeb.Router do
     # Admin dashboard - landing page with navigation
     live "/admin", Live.Admin.Dashboard
 
+    # Mysteries management (admin access)
+    live "/admin/mysteries", Live.Mysteries.List
+    live "/admin/mysteries/:id/edit", Live.Mysteries.Edit
+
     # Meditations management (admin access)
     live "/admin/meditations", Live.Meditations.List
     live "/admin/meditations/new", Live.Meditations.New

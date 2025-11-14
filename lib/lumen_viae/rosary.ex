@@ -26,6 +26,16 @@ defmodule LumenViae.Rosary do
     |> Repo.insert()
   end
 
+  def update_mystery(%Mystery{} = mystery, attrs) do
+    mystery
+    |> Mystery.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def change_mystery(%Mystery{} = mystery, attrs \\ %{}) do
+    Mystery.changeset(mystery, attrs)
+  end
+
   ## Meditations
 
   def list_meditations do

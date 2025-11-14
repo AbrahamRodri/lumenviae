@@ -1,0 +1,105 @@
+<div class="min-h-screen bg-cream">
+  <div class="max-w-7xl mx-auto px-8 py-12">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="font-cinzel text-4xl text-navy">
+        Mysteries
+      </h2>
+    </div>
+
+    <div class="bg-white border-l-4 border-gold p-8">
+      <h3 class="font-cinzel text-2xl text-navy mb-6">All 15 Mysteries</h3>
+
+      <div class="space-y-6">
+        <%= for {category, mysteries_in_category} <- Enum.group_by(@mysteries, & &1.category) do %>
+          <div>
+            <h4 class="font-cinzel text-xl text-navy mb-4 capitalize">
+              {category} Mysteries
+            </h4>
+
+            <div class="space-y-4">
+              <%= for mystery <- Enum.sort_by(mysteries_in_category, & &1.order) do %>
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                  <div class="flex items-center justify-between p-4 bg-gray-50">
+                    <div class="flex-1">
+                      <h5 class="font-crimson font-semibold text-navy">
+                        {mystery.name}
+                      </h5>
+                      <%= if mystery.scripture_reference do %>
+                        <p class="font-crimson text-sm text-gray-600 italic mt-1">
+                          {mystery.scripture_reference}
+                        </p>
+                      <% end %>
+                      <%= if mystery.intro_audio_url do %>
+                        <p class="font-crimson text-xs text-gold mt-1">
+                          Audio: {mystery.intro_audio_url}
+                        </p>
+                      <% else %>
+                        <p class="font-crimson text-xs text-gray-400 mt-1">
+                          No intro audio configured
+                        </p>
+                      <% end %>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                      <.link
+                        navigate={"/admin/mysteries/#{mystery.id}/edit"}
+                        class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+                      >
+                        Edit
+                      </.link>
+
+                      <button
+                        phx-click="toggle_mystery"
+                        phx-value-id={mystery.id}
+                        class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+                      >
+                        {if @expanded_mystery_id == mystery.id, do: "Hide", else: "View"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <%= if @expanded_mystery_id == mystery.id do %>
+                    <div class="p-6 bg-white border-t border-gray-200">
+                      <div class="space-y-4">
+                        <%= if mystery.description do %>
+                          <div>
+                            <p class="font-crimson text-sm text-gray-500 uppercase tracking-wide mb-2">
+                              Description
+                            </p>
+                            <p class="font-crimson text-gray-800 whitespace-pre-wrap">
+                              {mystery.description}
+                            </p>
+                          </div>
+                        <% end %>
+
+                        <%= if mystery.days_prayed do %>
+                          <div>
+                            <p class="font-crimson text-sm text-gray-500 uppercase tracking-wide mb-2">
+                              Days Prayed
+                            </p>
+                            <p class="font-crimson text-gray-800">
+                              {mystery.days_prayed}
+                            </p>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <.link
+        navigate="/admin"
+        class="inline-block font-crimson text-navy hover:text-gold transition-colors"
+      >
+        Back to Dashboard
+      </.link>
+    </div>
+  </div>
+</div>

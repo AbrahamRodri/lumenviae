@@ -1,0 +1,158 @@
+<div class="min-h-screen bg-cream">
+  <div class="max-w-4xl mx-auto px-8 py-12">
+    <h2 class="font-cinzel text-4xl text-navy mb-8">
+      Edit Mystery
+    </h2>
+
+    <div class="bg-white border-l-4 border-gold p-8">
+      <.form for={@edit_form} phx-submit="update_mystery">
+        <div class="space-y-4">
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Name
+            </label>
+            <input
+              type="text"
+              name={@edit_form[:name].name}
+              value={@edit_form[:name].value || ""}
+              required
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="e.g., The Annunciation"
+            />
+            <%= for error <- @edit_form[:name].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+            <% end %>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Category
+              </label>
+              <select
+                name={@edit_form[:category].name}
+                required
+                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              >
+                <option value="joyful" selected={@edit_form[:category].value == "joyful"}>
+                  Joyful
+                </option>
+                <option value="sorrowful" selected={@edit_form[:category].value == "sorrowful"}>
+                  Sorrowful
+                </option>
+                <option value="glorious" selected={@edit_form[:category].value == "glorious"}>
+                  Glorious
+                </option>
+              </select>
+              <%= for error <- @edit_form[:category].errors do %>
+                <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <% end %>
+            </div>
+
+            <div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Order (1-5)
+              </label>
+              <input
+                type="number"
+                name={@edit_form[:order].name}
+                value={@edit_form[:order].value || ""}
+                required
+                min="1"
+                max="5"
+                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              />
+              <%= for error <- @edit_form[:order].errors do %>
+                <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <% end %>
+            </div>
+          </div>
+
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Scripture Reference (Optional)
+            </label>
+            <input
+              type="text"
+              name={@edit_form[:scripture_reference].name}
+              value={@edit_form[:scripture_reference].value || ""}
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="e.g., Luke 1:26-38"
+            />
+            <%= for error <- @edit_form[:scripture_reference].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+            <% end %>
+          </div>
+
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Description (Optional)
+            </label>
+            <textarea
+              name={@edit_form[:description].name}
+              rows="6"
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="A brief description of this mystery..."
+            ><%= @edit_form[:description].value || "" %></textarea>
+            <%= for error <- @edit_form[:description].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+            <% end %>
+          </div>
+
+          <div>
+            <label class="font-crimson text-navy font-semibold block mb-2">
+              Days Prayed (Optional)
+            </label>
+            <input
+              type="text"
+              name={@edit_form[:days_prayed].name}
+              value={@edit_form[:days_prayed].value || ""}
+              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              placeholder="e.g., Monday and Saturday"
+            />
+            <%= for error <- @edit_form[:days_prayed].errors do %>
+              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+            <% end %>
+          </div>
+
+          <div class="border-t border-gray-200 pt-6 mt-6">
+            <div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Introduction Audio S3 Key (Optional)
+              </label>
+              <input
+                type="text"
+                name={@edit_form[:intro_audio_url].name}
+                value={@edit_form[:intro_audio_url].value || ""}
+                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                placeholder="e.g., mysteries/joyful_1_annunciation_intro.mp3"
+              />
+              <p class="font-crimson text-sm text-gray-500 mt-1">
+                Enter the S3 key for the mystery introduction audio. This audio announces the mystery name and description before meditation begins.
+              </p>
+              <%= for error <- @edit_form[:intro_audio_url].errors do %>
+                <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-4">
+            <.link
+              navigate="/admin/mysteries"
+              class="font-crimson text-navy hover:text-gold transition-colors"
+            >
+              Back to Mysteries
+            </.link>
+
+            <button
+              type="submit"
+              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

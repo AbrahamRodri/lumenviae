@@ -29,7 +29,23 @@
     </div>
     
 <!-- Navigation Cards -->
-    <div class="grid md:grid-cols-2 gap-8 mb-12">
+    <div class="grid md:grid-cols-3 gap-8 mb-12">
+      <!-- Mysteries Management -->
+      <div class="bg-white border-l-4 border-gold p-8">
+        <h3 class="font-cinzel text-2xl text-navy mb-4">Manage Mysteries</h3>
+        <p class="font-crimson text-gray-600 mb-6">
+          Edit the 15 traditional mysteries and configure their introduction audio.
+        </p>
+        <div class="space-y-3">
+          <.link
+            navigate="/admin/mysteries"
+            class="block bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold text-center"
+          >
+            View All Mysteries
+          </.link>
+        </div>
+      </div>
+
       <!-- Meditations Management -->
       <div class="bg-white border-l-4 border-gold p-8">
         <h3 class="font-cinzel text-2xl text-navy mb-4">Manage Meditations</h3>
@@ -57,7 +73,7 @@
           </.link>
         </div>
       </div>
-      
+
 <!-- Meditation Sets Management -->
       <div class="bg-white border-l-4 border-gold p-8">
         <h3 class="font-cinzel text-2xl text-navy mb-4">Manage Meditation Sets</h3>
