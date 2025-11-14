@@ -15,6 +15,7 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
   """
   attr :audio_url, :string, default: nil, doc: "The URL of the audio file"
   attr :auto_play, :boolean, default: false, doc: "Whether to auto-play the audio"
+  attr :label, :string, default: nil, doc: "Optional label displayed above the controls"
 
   def audio_player(assigns) do
     ~H"""
@@ -23,25 +24,29 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
       id="audio-player"
       phx-hook="AudioPlayer"
       data-auto-play={@auto_play}
-      class="mt-6 mb-4"
+      class="inline-flex flex-col items-center gap-3"
     >
       <audio preload="auto">
         <source src={@audio_url} type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>
 
+      <p :if={@label} class="text-xs uppercase tracking-[0.3em] text-gold/70">
+        {@label}
+      </p>
+
       <div class="flex items-center justify-center gap-4">
         <button
           data-audio-play
           type="button"
-          class="flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
+          class="flex h-14 w-14 items-center justify-center rounded-full bg-gold text-navy shadow-lg shadow-gold/40 transition-transform duration-200 hover:scale-105"
           aria-label="Play audio"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"
             viewBox="0 0 24 24"
-            class="w-8 h-8 text-navy ml-1"
+            class="w-7 h-7 ml-1"
           >
             <path d="M8 5v14l11-7z" />
           </svg>
@@ -50,14 +55,14 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
         <button
           data-audio-pause
           type="button"
-          class="hidden flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
+          class="hidden h-14 w-14 items-center justify-center rounded-full bg-gold text-navy shadow-lg shadow-gold/40 transition-transform duration-200 hover:scale-105"
           aria-label="Pause audio"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"
             viewBox="0 0 24 24"
-            class="w-8 h-8 text-navy"
+            class="w-7 h-7"
           >
             <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
           </svg>
