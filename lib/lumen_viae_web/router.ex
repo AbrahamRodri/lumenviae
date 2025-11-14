@@ -11,6 +11,16 @@ defmodule LumenViaeWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :prayer_browser do
+    plug :accepts, ["html"]
+    plug LumenViaeWeb.Plugs.CanonicalHost
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {LumenViaeWeb.Layouts, :prayer_root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -46,6 +56,11 @@ defmodule LumenViaeWeb.Router do
 
     # Browse meditation sets by mystery category (public)
     live "/mysteries/:category", Live.Mysteries.CategoryList
+
+  end
+
+  scope "/", LumenViaeWeb do
+    pipe_through :prayer_browser
 
     # Prayer experience for a specific meditation set
     live "/meditation-sets/:set_id/pray", Live.Pray.Index
