@@ -229,6 +229,9 @@ Hooks.AudioPlayer = {
     this.notifyState('ended')
 
     if (this.phase === 'intro' && this.mainSrc) {
+      // Notify server that intro audio has ended
+      this.pushEvent('intro_audio_ended', {})
+
       this.phase = 'meditation'
       this.setSourceForPhase()
       this.notifyPhase()

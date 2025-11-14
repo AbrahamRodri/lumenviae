@@ -5,6 +5,54 @@
   data-set-id={@set.id}
   data-current-index={@current_index}
 >
+  <%= if @show_intro_overlay and @intro_audio_presigned_url do %>
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/98 backdrop-blur-md animate-fade-in"
+      id="mystery-intro-overlay"
+      phx-remove={JS.transition("animate-fade-out")}
+    >
+      <div class="max-w-2xl px-8 text-center space-y-8 animate-scale-fade-in">
+        <div class="space-y-2">
+          <p class="font-crimson text-sm uppercase tracking-[0.35em] text-gold/70">
+            {String.capitalize(@set.category)} Mysteries
+          </p>
+          <h1 class="font-cinzel text-4xl md:text-5xl leading-tight text-gold">
+            {@meditation.mystery.name}
+          </h1>
+          <%= if @meditation.mystery.scripture_reference do %>
+            <p class="font-crimson text-base text-cream/80 italic mt-4">
+              {@meditation.mystery.scripture_reference}
+            </p>
+          <% end %>
+        </div>
+
+        <%= if @meditation.mystery.description do %>
+          <div class="space-y-4 text-cream/90 font-crimson text-lg leading-relaxed">
+            <%= for segment <- @intro_segments do %>
+              <p>{segment}</p>
+            <% end %>
+          </div>
+        <% end %>
+
+        <div class="flex justify-center">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30">
+            <svg
+              class="w-4 h-4 text-gold animate-pulse"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M12 3a1 1 0 0 1 .894.553l8 16A1 1 0 0 1 20 21H4a1 1 0 0 1-.894-1.447l8-16A1 1 0 0 1 12 3zm0 3.618L5.618 19h12.764L12 6.618z" />
+            </svg>
+            <span class="font-crimson text-xs uppercase tracking-[0.3em] text-gold/90">
+              Listening...
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="min-h-screen flex flex-col">
     <header class="px-6 pt-12 pb-6 text-center space-y-5">
       <div class="flex items-center justify-between text-[0.65rem] uppercase tracking-[0.35em] text-gold/80">

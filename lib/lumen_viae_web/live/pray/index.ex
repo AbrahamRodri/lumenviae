@@ -17,7 +17,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
        |> assign(:page_title, set.name)
        |> assign(:prayer_mode, "manual")
        |> assign(:timer_ref, nil)
-       |> assign(:auto_play, false)}
+       |> assign(:auto_play, false)
+       |> assign(:show_intro_overlay, true)}
     else
       {:ok, push_navigate(socket, to: "/")}
     end
@@ -54,6 +55,11 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     # Ensure index is valid (within bounds)
     valid_index = index |> normalize_index() |> clamp_index(total)
     {:noreply, assign_current_meditation(socket, valid_index)}
+  end
+
+  def handle_event("intro_audio_ended", _params, socket) do
+    # Hide the intro overlay when intro audio finishes
+    {:noreply, assign(socket, :show_intro_overlay, false)}
   end
 
   def handle_event("audio_ended", _params, socket) do
@@ -115,6 +121,12 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     audio_presigned_url = Rosary.get_meditation_audio_url(meditation)
     intro_audio_presigned_url = Rosary.get_mystery_intro_audio_url(meditation.mystery)
 
+    # Check if mystery has changed (show intro overlay for new mysteries)
+    mystery_changed = case Map.get(socket.assigns, :meditation) do
+      nil -> true
+      current_meditation -> current_meditation.mystery_id != meditation.mystery_id
+    end
+
     socket
     |> assign(:current_index, index)
     |> assign(:meditation, meditation)
@@ -122,6 +134,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     |> assign(:intro_audio_presigned_url, intro_audio_presigned_url)
     |> assign(:intro_segments, intro_segments(meditation))
     |> assign(:meditation_segments, meditation_segments(meditation))
+    |> assign(:show_intro_overlay, mystery_changed and not is_nil(intro_audio_presigned_url))
   end
 
   defp cancel_timer(socket) do
