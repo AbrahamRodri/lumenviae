@@ -48,7 +48,8 @@ defmodule LumenViaeWeb.Router do
     live "/mysteries/:category", Live.Mysteries.CategoryList
 
     # Prayer experience for a specific meditation set
-    live "/meditation-sets/:set_id/pray", Live.Pray.Index
+    live "/meditation-sets/:set_id/pray", Live.Pray.Index,
+      layout: {LumenViaeWeb.Layouts, :prayer}
   end
 
   # Other scopes may use custom stacks.

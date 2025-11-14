@@ -15,6 +15,10 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
   """
   attr :audio_url, :string, default: nil, doc: "The URL of the audio file"
   attr :auto_play, :boolean, default: false, doc: "Whether to auto-play the audio"
+  attr :theme, :atom,
+    default: :default,
+    values: [:default, :translucent],
+    doc: "Visual style variant for the player"
 
   def audio_player(assigns) do
     ~H"""
@@ -23,7 +27,7 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
       id="audio-player"
       phx-hook="AudioPlayer"
       data-auto-play={@auto_play}
-      class="mt-6 mb-4"
+      class={container_classes(@theme)}
     >
       <audio preload="auto">
         <source src={@audio_url} type="audio/mpeg" />
@@ -34,7 +38,7 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
         <button
           data-audio-play
           type="button"
-          class="flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
+          class={play_button_classes(@theme)}
           aria-label="Play audio"
         >
           <svg
@@ -50,7 +54,7 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
         <button
           data-audio-pause
           type="button"
-          class="hidden flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
+          class={pause_button_classes(@theme)}
           aria-label="Pause audio"
         >
           <svg
@@ -66,4 +70,26 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
     </div>
     """
   end
+
+  defp container_classes(:translucent),
+    do:
+      "mt-6 mb-4 px-4 py-3 rounded-2xl border border-gold/40 bg-white/10 backdrop-blur-sm shadow-soft"
+
+  defp container_classes(_), do: "mt-6 mb-4"
+
+  defp play_button_classes(:translucent),
+    do:
+      "flex items-center justify-center w-14 h-14 rounded-full bg-gold/90 hover:bg-gold transition-colors shadow-soft"
+
+  defp play_button_classes(_),
+    do:
+      "flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
+
+  defp pause_button_classes(:translucent),
+    do:
+      "hidden flex items-center justify-center w-14 h-14 rounded-full bg-gold/90 hover:bg-gold transition-colors shadow-soft"
+
+  defp pause_button_classes(_),
+    do:
+      "hidden flex items-center justify-center w-16 h-16 rounded-full bg-gold hover:bg-gold-dark transition-colors shadow-lg"
 end
