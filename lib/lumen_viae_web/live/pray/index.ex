@@ -17,7 +17,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
        |> assign(:page_title, set.name)
        |> assign(:prayer_mode, "manual")
        |> assign(:timer_ref, nil)
-       |> assign(:auto_play, false)}
+       |> assign(:auto_play, false),
+       layout: {LumenViaeWeb.Layouts, :prayer}}
     else
       {:ok, push_navigate(socket, to: "/")}
     end
