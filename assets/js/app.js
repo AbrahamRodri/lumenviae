@@ -247,6 +247,344 @@ Hooks.AudioPlayer = {
   }
 }
 
+Hooks.MeditationPlayer = {
+  mounted() {
+    this.handlePlayClick = () => this.playCurrent()
+    this.handlePauseClick = () => this.pauseCurrent()
+    this.introHandlers = {
+      play: () => this.onAudioPlay('intro'),
+      pause: () => this.onAudioPause('intro'),
+      ended: () => this.onIntroEnded(),
+      loadedmetadata: () => this.onMetadataLoaded('intro')
+    }
+    this.meditationHandlers = {
+      play: () => this.onAudioPlay('meditation'),
+      pause: () => this.onAudioPause('meditation'),
+      ended: () => this.onMeditationEnded(),
+      loadedmetadata: () => this.onMetadataLoaded('meditation')
+    }
+
+    this.currentMeditationId = null
+    this.stage = null
+    this.hasAutoPlayed = false
+    this.animationFrame = null
+    this.activeTrackInner = null
+
+    this.initialize()
+  },
+
+  updated() {
+    this.initialize()
+  },
+
+  initialize() {
+    this.refreshElements()
+
+    const meditationId = this.el.dataset.meditationId
+    const meditationChanged = this.currentMeditationId !== meditationId
+
+    if (meditationChanged) {
+      this.currentMeditationId = meditationId
+      this.hasAutoPlayed = false
+      this.pauseAll()
+      this.resetAudioPositions()
+      this.resetTrackPositions()
+
+      const initialStage = this.hasIntroAudio() ? 'intro' : 'meditation'
+      this.setStage(initialStage, {force: true})
+    } else if (!this.stage) {
+      const initialStage = this.hasIntroAudio() ? 'intro' : 'meditation'
+      this.setStage(initialStage, {force: true})
+    }
+
+    if (this.autoPlay && !this.hasAutoPlayed) {
+      this.playCurrent()
+    } else {
+      const state = this.activeAudio && !this.activeAudio.paused ? 'playing' : 'paused'
+      this.updateControls(state)
+    }
+  },
+
+  refreshElements() {
+    this.autoPlay = this.el.dataset.autoPlay === 'true'
+
+    this.introAudio = this.updateAudioReference(
+      this.introAudio,
+      '[data-intro-audio]',
+      this.introHandlers
+    )
+
+    this.meditationAudio = this.updateAudioReference(
+      this.meditationAudio,
+      '[data-meditation-audio]',
+      this.meditationHandlers
+    )
+
+    this.playButton = this.updateButtonReference(
+      this.playButton,
+      '[data-player-play]',
+      this.handlePlayClick
+    )
+
+    this.pauseButton = this.updateButtonReference(
+      this.pauseButton,
+      '[data-player-pause]',
+      this.handlePauseClick
+    )
+  },
+
+  updateAudioReference(current, selector, handlers) {
+    if (current) {
+      const stillConnected = current.closest('#' + this.el.id)
+      if (!stillConnected || current !== this.el.querySelector(selector)) {
+        this.detachAudioListeners(current, handlers)
+        current = null
+      }
+    }
+
+    const element = this.el.querySelector(selector)
+    if (element && current !== element) {
+      this.attachAudioListeners(element, handlers)
+      current = element
+    }
+
+    return element || null
+  },
+
+  attachAudioListeners(element, handlers) {
+    Object.entries(handlers).forEach(([event, handler]) => {
+      element.addEventListener(event, handler)
+    })
+  },
+
+  detachAudioListeners(element, handlers) {
+    Object.entries(handlers).forEach(([event, handler]) => {
+      element.removeEventListener(event, handler)
+    })
+  },
+
+  updateButtonReference(current, selector, handler) {
+    if (current) {
+      const stillConnected = current.closest('#' + this.el.id)
+      if (!stillConnected || current !== this.el.querySelector(selector)) {
+        current.removeEventListener('click', handler)
+        current = null
+      }
+    }
+
+    const element = this.el.querySelector(selector)
+    if (element && current !== element) {
+      element.addEventListener('click', handler)
+      current = element
+    }
+
+    return element || null
+  },
+
+  hasIntroAudio() {
+    return !!(this.introAudio && this.introAudio.getAttribute('src'))
+  },
+
+  setStage(stage, opts = {}) {
+    const force = !!opts.force
+    let nextStage = stage === 'intro' && this.hasIntroAudio() ? 'intro' : 'meditation'
+
+    if (!force && this.stage === nextStage) {
+      this.showTrack(nextStage)
+      return
+    }
+
+    this.stopTextSync(true)
+    this.stage = nextStage
+    this.activeAudio = nextStage === 'intro' ? this.introAudio : this.meditationAudio
+    this.showTrack(nextStage)
+  },
+
+  showTrack(stage) {
+    const tracks = this.el.querySelectorAll('[data-track]')
+    tracks.forEach((track) => {
+      if (track.dataset.track === stage) {
+        track.classList.remove('opacity-0', 'pointer-events-none')
+        track.classList.add('opacity-100')
+      } else {
+        track.classList.add('opacity-0', 'pointer-events-none')
+        track.classList.remove('opacity-100')
+      }
+    })
+  },
+
+  playCurrent() {
+    if (!this.activeAudio) {
+      this.setStage(this.hasIntroAudio() ? 'intro' : 'meditation', {force: true})
+    }
+
+    if (!this.activeAudio) {
+      return
+    }
+
+    this.activeAudio.play().then(() => {
+      this.hasAutoPlayed = true
+    }).catch((error) => {
+      console.warn('Unable to start playback automatically:', error)
+      this.updateControls('paused')
+    })
+  },
+
+  pauseCurrent() {
+    if (this.activeAudio) {
+      this.activeAudio.pause()
+    }
+  },
+
+  pauseAll() {
+    if (this.introAudio) {
+      this.introAudio.pause()
+    }
+    if (this.meditationAudio) {
+      this.meditationAudio.pause()
+    }
+  },
+
+  resetAudioPositions() {
+    if (this.introAudio) {
+      this.introAudio.currentTime = 0
+    }
+    if (this.meditationAudio) {
+      this.meditationAudio.currentTime = 0
+    }
+  },
+
+  resetTrackPositions() {
+    this.el.querySelectorAll('[data-track-inner]').forEach((inner) => {
+      inner.style.transform = 'translateY(0px)'
+    })
+  },
+
+  startTextSync(stage) {
+    this.stopTextSync(false)
+
+    const track = this.el.querySelector(`[data-track="${stage}"]`)
+    const audio = stage === 'intro' ? this.introAudio : this.meditationAudio
+
+    if (!track || !audio) {
+      return
+    }
+
+    const inner = track.querySelector('[data-track-inner]')
+    if (!inner) {
+      return
+    }
+
+    this.activeTrackInner = inner
+
+    const update = () => {
+      if (!this.activeTrackInner || !audio) {
+        return
+      }
+
+      const duration = audio.duration
+      if (!duration || !isFinite(duration) || duration <= 0) {
+        this.animationFrame = requestAnimationFrame(update)
+        return
+      }
+
+      const distance = Math.max(0, inner.scrollHeight - track.clientHeight)
+      const progress = Math.min(1, audio.currentTime / duration)
+      inner.style.transform = `translateY(-${distance * progress}px)`
+
+      this.animationFrame = requestAnimationFrame(update)
+    }
+
+    this.animationFrame = requestAnimationFrame(update)
+  },
+
+  stopTextSync(reset = false) {
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame)
+      this.animationFrame = null
+    }
+
+    if (reset && this.activeTrackInner) {
+      this.activeTrackInner.style.transform = 'translateY(0px)'
+    }
+
+    if (reset) {
+      this.activeTrackInner = null
+    }
+  },
+
+  onAudioPlay(stage) {
+    if (stage === this.stage) {
+      this.updateControls('playing')
+      this.startTextSync(stage)
+    }
+  },
+
+  onAudioPause(stage) {
+    if (stage === this.stage) {
+      this.updateControls('paused')
+      this.stopTextSync(false)
+    }
+  },
+
+  onIntroEnded() {
+    if (this.stage !== 'intro') {
+      return
+    }
+
+    this.stopTextSync(true)
+    this.setStage('meditation', {force: true})
+    this.playCurrent()
+  },
+
+  onMeditationEnded() {
+    if (this.stage !== 'meditation') {
+      return
+    }
+
+    this.stopTextSync(false)
+    this.updateControls('paused')
+    this.pushEvent('audio_ended', {})
+  },
+
+  onMetadataLoaded(stage) {
+    if (stage === this.stage && this.activeAudio && !this.activeAudio.paused) {
+      this.startTextSync(stage)
+    }
+  },
+
+  updateControls(state) {
+    if (!this.playButton || !this.pauseButton) {
+      return
+    }
+
+    if (state === 'playing') {
+      this.playButton.classList.add('hidden')
+      this.pauseButton.classList.remove('hidden')
+    } else {
+      this.playButton.classList.remove('hidden')
+      this.pauseButton.classList.add('hidden')
+    }
+  },
+
+  destroyed() {
+    this.pauseAll()
+    this.stopTextSync(true)
+    if (this.introAudio) {
+      this.detachAudioListeners(this.introAudio, this.introHandlers)
+    }
+    if (this.meditationAudio) {
+      this.detachAudioListeners(this.meditationAudio, this.meditationHandlers)
+    }
+    if (this.playButton) {
+      this.playButton.removeEventListener('click', this.handlePlayClick)
+    }
+    if (this.pauseButton) {
+      this.pauseButton.removeEventListener('click', this.handlePauseClick)
+    }
+  }
+}
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
