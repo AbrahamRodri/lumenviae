@@ -46,8 +46,6 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
-window.addEventListener("DOMContentLoaded", initializeSiteNav)
-window.addEventListener("phx:page-loading-stop", initializeSiteNav)
 
 // The lines below enable quality of life phoenix_live_reload
 // development features:
