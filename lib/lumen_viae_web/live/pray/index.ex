@@ -22,7 +22,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     current = socket.assigns.current_index
     total = length(socket.assigns.set.meditations)
 
-    new_index = current + 1 |> clamp_index(total)
+    new_index = (current + 1) |> clamp_index(total)
 
     socket
     |> assign_current_meditation(new_index)
@@ -32,7 +32,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   def handle_event("previous", _params, socket) do
     current = socket.assigns.current_index
     total = length(socket.assigns.set.meditations)
-    new_index = current - 1 |> clamp_index(total)
+    new_index = (current - 1) |> clamp_index(total)
 
     socket
     |> assign_current_meditation(new_index)
@@ -44,6 +44,10 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     # Ensure index is valid (within bounds)
     valid_index = index |> normalize_index() |> clamp_index(total)
     {:noreply, assign_current_meditation(socket, valid_index)}
+  end
+
+  def handle_event("audio_ended", _params, socket) do
+    {:noreply, socket}
   end
 
   @impl true
