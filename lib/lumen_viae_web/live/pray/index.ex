@@ -39,6 +39,17 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     |> then(&{:noreply, &1})
   end
 
+  def handle_event("audio_ended", _params, socket) do
+    current = socket.assigns.current_index
+    total = length(socket.assigns.set.meditations)
+
+    new_index = current + 1 |> clamp_index(total)
+
+    socket
+    |> assign_current_meditation(new_index)
+    |> then(&{:noreply, &1})
+  end
+
   def handle_event("restore_progress", %{"index" => index}, socket) do
     total = length(socket.assigns.set.meditations)
     # Ensure index is valid (within bounds)
