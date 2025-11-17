@@ -104,7 +104,7 @@
 /* Custom font: Roman Uncial Modern */
 @font-face {
   font-family: 'Roman Uncial Modern';
-  src: url('/assets/fonts/Romanuncialmodern-jra0.ttf') format('truetype');
+  src: url('/fonts/Romanuncialmodern-jra0.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
