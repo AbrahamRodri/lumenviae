@@ -89,6 +89,7 @@ defmodule LumenViae.Rosary do
 
   def list_meditation_sets_by_category(category) do
     Repo.all(from ms in MeditationSet, where: ms.category == ^category)
+    |> Repo.preload(:meditations)
   end
 
   def get_meditation_set!(id) do

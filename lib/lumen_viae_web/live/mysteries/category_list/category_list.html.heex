@@ -39,8 +39,13 @@
             navigate={"/meditation-sets/#{set.id}/pray"}
             class="block bg-white border-l-4 border-gold p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
           >
-            <h3 class="font-cinzel text-2xl text-navy mb-2">
+            <h3 class="font-cinzel text-2xl text-navy mb-2 flex items-center gap-3">
               {set.name}
+              <%= if Enum.any?(set.meditations, & &1.audio_url) do %>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-gold flex-shrink-0">
+                  <path d="M12 2C6.477 2 2 6.477 2 12v4a2 2 0 002 2h2a2 2 0 002-2v-3a2 2 0 00-2-2H4.062A8.001 8.001 0 0112 4a8.001 8.001 0 017.938 7H18a2 2 0 00-2 2v3a2 2 0 002 2h2a2 2 0 002-2v-4c0-5.523-4.477-10-10-10z"/>
+                </svg>
+              <% end %>
             </h3>
             <%= if set.description do %>
               <p class="font-crimson text-gray-600 mt-3">

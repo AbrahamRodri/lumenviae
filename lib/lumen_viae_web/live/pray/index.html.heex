@@ -5,7 +5,7 @@
   data-set-id={@set.id}
   data-current-index={@current_index}
 >
-  <div class="flex-1 flex flex-col max-w-4xl w-full mx-auto px-4 py-3 md:px-8 md:py-4" id="meditation-container" phx-hook="ScrollToTop">
+  <div class="flex-1 flex flex-col max-w-4xl w-full mx-auto px-4 py-3 md:px-8 md:py-4" id={"meditation-container-#{@current_index}"} phx-hook="ScrollToTop">
     <!-- Header: Set Name & Progress -->
     <div class="flex-shrink-0 mb-3 md:mb-4">
       <h1 class="font-cinzel text-base md:text-lg text-gold text-center mb-2">
@@ -50,7 +50,7 @@
           </h3>
         <% end %>
 
-        <div class="font-crimson text-gray-200 text-xs md:text-sm leading-relaxed whitespace-pre-wrap">
+        <div class="font-crimson text-gray-200 text-sm md:text-base leading-relaxed whitespace-pre-wrap">
           {@meditation.content}
         </div>
 
