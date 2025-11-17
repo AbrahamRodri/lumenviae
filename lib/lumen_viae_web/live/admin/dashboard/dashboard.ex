@@ -12,14 +12,14 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   end
 
   defp count_meditations do
-    length(Rosary.list_meditations())
+    Rosary.count_meditations()
   end
 
   defp count_meditation_sets do
-    length(Rosary.list_meditation_sets())
+    Rosary.count_meditation_sets()
   end
 
   defp count_mysteries do
-    length(Rosary.list_mysteries())
+    Rosary.count_mysteries()
   end
 end

@@ -7,9 +7,15 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
 
     if set do
+      # Pre-generate all audio URLs once on mount instead of on every navigation
+      audio_urls =
+        set.meditations
+        |> Enum.map(&Rosary.get_meditation_audio_url/1)
+
       {:ok,
        socket
        |> assign(:set, set)
+       |> assign(:audio_urls, audio_urls)
        |> assign(:current_index, 0)
        |> assign(:page_title, set.name)}
     else
@@ -62,7 +68,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   defp assign_current_meditation(socket, index) do
     meditation = Enum.at(socket.assigns.set.meditations, index)
-    audio_presigned_url = Rosary.get_meditation_audio_url(meditation)
+    audio_presigned_url = Enum.at(socket.assigns.audio_urls, index)
 
     socket
     |> assign(:current_index, index)

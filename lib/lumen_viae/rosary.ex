@@ -10,6 +10,10 @@ defmodule LumenViae.Rosary do
 
   ## Mysteries
 
+  def count_mysteries do
+    Repo.aggregate(Mystery, :count)
+  end
+
   def list_mysteries do
     Repo.all(from m in Mystery, order_by: [m.category, m.order])
   end
@@ -27,6 +31,10 @@ defmodule LumenViae.Rosary do
   end
 
   ## Meditations
+
+  def count_meditations do
+    Repo.aggregate(Meditation, :count)
+  end
 
   def list_meditations do
     Repo.all(Meditation) |> Repo.preload(:mystery)
@@ -83,6 +91,10 @@ defmodule LumenViae.Rosary do
 
   ## Meditation Sets
 
+  def count_meditation_sets do
+    Repo.aggregate(MeditationSet, :count)
+  end
+
   def list_meditation_sets do
     Repo.all(MeditationSet)
   end
@@ -98,19 +110,42 @@ defmodule LumenViae.Rosary do
   end
 
   def get_meditation_set_with_ordered_meditations!(id) do
-    set = Repo.get!(MeditationSet, id)
+    from(ms in MeditationSet,
+      where: ms.id == ^id,
+      left_join: msm in MeditationSetMeditation,
+      on: msm.meditation_set_id == ms.id,
+      left_join: m in Meditation,
+      on: msm.meditation_id == m.id,
+      left_join: my in Mystery,
+      on: m.mystery_id == my.id,
+      order_by: [asc: msm.order],
+      select: %{
+        set: ms,
+        meditation:
+          %Meditation{
+            id: m.id,
+            title: m.title,
+            content: m.content,
+            author: m.author,
+            source: m.source,
+            audio_url: m.audio_url,
+            mystery_id: m.mystery_id,
+            inserted_at: m.inserted_at,
+            updated_at: m.updated_at,
+            mystery: my
+          }
+      }
+    )
+    |> Repo.all()
+    |> case do
+      [] ->
+        raise Ecto.NoResultsError, queryable: MeditationSet
 
-    meditations =
-      from(m in Meditation,
-        join: msm in MeditationSetMeditation,
-        on: msm.meditation_id == m.id,
-        where: msm.meditation_set_id == ^id,
-        order_by: msm.order,
-        preload: [:mystery]
-      )
-      |> Repo.all()
-
-    %{set | meditations: meditations}
+      results ->
+        set = hd(results).set
+        meditations = Enum.map(results, & &1.meditation) |> Enum.reject(&is_nil(&1.id))
+        %{set | meditations: meditations}
+    end
   end
 
   def create_meditation_set(attrs \\ %{}) do
