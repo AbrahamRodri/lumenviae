@@ -11,7 +11,12 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
      |> assign(:page_title, "Edit Meditation")
      |> assign(:meditation, meditation)
      |> assign(:mysteries, Rosary.list_mysteries())
-     |> assign_edit_form(meditation)}
+     |> assign_edit_form(meditation), temporary_assigns: [return_to: nil]}
+  end
+
+  def handle_params(params, _uri, socket) do
+    return_to = Map.get(params, "return_to", "/admin/meditations")
+    {:noreply, assign(socket, :return_to, return_to)}
   end
 
   def handle_event("update_meditation", %{"meditation" => params}, socket) do

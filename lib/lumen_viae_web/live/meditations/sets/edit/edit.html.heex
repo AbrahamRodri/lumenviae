@@ -90,24 +90,39 @@
           <div class="space-y-2">
             <%= for meditation <- @selected_set_meditations do %>
               <div class="flex justify-between items-center bg-cream p-3 rounded">
-                <div>
-                  <span class="font-crimson text-navy">
-                    {meditation.mystery.name}
-                    {if meditation.title, do: " - #{meditation.title}"}
-                  </span>
-                  <%= if meditation.author do %>
-                    <span class="font-crimson text-sm text-gray-500 ml-2">
-                      by {meditation.author}
-                    </span>
+                <div class="flex items-center gap-2">
+                  <%= if meditation.audio_url do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gold flex-shrink-0">
+                      <path d="M12 2C6.477 2 2 6.477 2 12v4a2 2 0 002 2h2a2 2 0 002-2v-3a2 2 0 00-2-2H4.062A8.001 8.001 0 0112 4a8.001 8.001 0 017.938 7H18a2 2 0 00-2 2v3a2 2 0 002 2h2a2 2 0 002-2v-4c0-5.523-4.477-10-10-10z"/>
+                    </svg>
                   <% end %>
+                  <div>
+                    <span class="font-crimson text-navy">
+                      {meditation.mystery.name}
+                      {if meditation.title, do: " - #{meditation.title}"}
+                    </span>
+                    <%= if meditation.author do %>
+                      <span class="font-crimson text-sm text-gray-500 ml-2">
+                        by {meditation.author}
+                      </span>
+                    <% end %>
+                  </div>
                 </div>
-                <button
-                  phx-click="remove_from_set"
-                  phx-value-meditation_id={meditation.id}
-                  class="text-red-600 hover:text-red-800 font-crimson text-sm"
-                >
-                  Remove
-                </button>
+                <div class="flex items-center gap-3">
+                  <.link
+                    navigate={"/admin/meditations/#{meditation.id}/edit?return_to=/admin/meditation-sets/#{@meditation_set.id}/edit"}
+                    class="text-navy hover:text-gold font-crimson text-sm transition-colors"
+                  >
+                    Edit
+                  </.link>
+                  <button
+                    phx-click="remove_from_set"
+                    phx-value-meditation_id={meditation.id}
+                    class="text-red-600 hover:text-red-800 font-crimson text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             <% end %>
           </div>
