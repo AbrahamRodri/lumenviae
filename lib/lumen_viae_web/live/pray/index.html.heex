@@ -36,6 +36,11 @@
           </p>
         <% end %>
 
+        <!-- Audio Player -->
+        <div class="flex justify-center mb-4 md:mb-6">
+          <.audio_player audio_url={@audio_presigned_url} />
+        </div>
+
         <!-- Mystery Description -->
         <%= if @meditation.mystery.description do %>
           <p class="font-crimson text-xs md:text-sm text-gray-300 text-center mb-3 md:mb-4 pb-3 md:pb-4 border-b border-gold/30">
@@ -70,7 +75,7 @@
       </div>
     </div>
 
-    <!-- Bottom Controls: Previous | Audio Player | Next -->
+    <!-- Bottom Controls: Previous | Next -->
     <div class="flex-shrink-0 flex items-center justify-between gap-2 pb-2">
       <!-- Previous Button -->
       <button
@@ -80,11 +85,6 @@
       >
         ← Prev
       </button>
-
-      <!-- Audio Player in Center -->
-      <div class="flex-shrink-0">
-        <.audio_player audio_url={@audio_presigned_url} />
-      </div>
 
       <!-- Next/Complete Button -->
       <%= if @current_index == @total_count - 1 do %>
