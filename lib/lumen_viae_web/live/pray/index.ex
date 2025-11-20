@@ -6,20 +6,23 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   def mount(%{"set_id" => set_id}, _session, socket) do
     set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
 
-    if set do
-      # Pre-generate all audio URLs once on mount instead of on every navigation
-      audio_urls =
-        set.meditations
-        |> Enum.map(&Rosary.get_meditation_audio_url/1)
+    case set.meditations do
+      [_ | _] = meditations ->
+        # Pre-generate all audio URLs once on mount instead of on every navigation
+        audio_urls = Enum.map(meditations, &Rosary.get_meditation_audio_url/1)
 
-      {:ok,
-       socket
-       |> assign(:set, set)
-       |> assign(:audio_urls, audio_urls)
-       |> assign(:current_index, 0)
-       |> assign(:page_title, set.name)}
-    else
-      {:ok, push_navigate(socket, to: "/")}
+        {:ok,
+         socket
+         |> assign(:set, set)
+         |> assign(:audio_urls, audio_urls)
+         |> assign(:current_index, 0)
+         |> assign(:page_title, set.name)}
+
+      [] ->
+        {:ok,
+         socket
+         |> put_flash(:error, "This meditation set has no meditations yet")
+         |> push_navigate(to: "/")}
     end
   end
 
