@@ -1,65 +1,64 @@
 <div class="bg-cream min-h-screen">
   <!-- Hero Section -->
-  <div class="bg-navy py-16 border-b-3 border-gold">
-    <div class="max-w-4xl mx-auto px-6 text-center">
+  <div class="bg-navy py-6 md:py-12 border-b-3 border-gold">
+    <div class="max-w-4xl mx-auto px-3 md:px-6 text-center">
       <img
         src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
         alt="Blessed Mary with Child Jesus"
-        class="w-64 mx-auto mb-8 opacity-90 transition-all duration-500 hover:opacity-100 hover:scale-105"
+        class="w-32 md:w-56 mx-auto mb-4 md:mb-6 opacity-90 transition-all duration-500 hover:opacity-100 hover:scale-105"
       />
 
-      <h1 class="font-roman-uncial text-gold text-5xl md:text-6xl mb-4">
-        THE MYSTERIES OF THE ROSARY
+      <h1 class="font-roman-uncial text-gold text-3xl md:text-5xl lg:text-6xl mb-2 md:mb-3">
+        The Scripture of the Rosary
       </h1>
 
-      <.ornate_divider variant="white" class="my-6 opacity-30 max-w-2xl mx-auto" />
+      <.ornate_divider variant="white" class="my-3 md:my-4 opacity-30 max-w-2xl mx-auto" />
 
-      <p class="font-ovo text-gold-light text-2xl italic">
+      <p class="font-ovo text-gold-light text-lg md:text-2xl italic px-3">
         The Life, Passion, and Glory of Christ, with Scripture references gathered for each mystery
       </p>
     </div>
   </div>
-  
-<!-- Category Tabs -->
-  <div class="container-boxed -mt-10">
-    <div class="max-w-2xl mx-auto flex flex-wrap justify-center gap-3 bg-white/70 backdrop-blur-sm p-4 rounded-full shadow-soft">
+
+  <!-- Category Tabs -->
+  <div class="container-boxed -mt-5 md:-mt-8">
+    <div class="max-w-2xl mx-auto flex flex-wrap justify-center gap-2 bg-white/70 backdrop-blur-sm p-2 md:p-3 rounded-2xl md:rounded-full shadow-soft">
       <%= for category <- @categories do %>
         <button
           type="button"
           phx-click="select-category"
           phx-value-id={category.id}
           class={[
-            "px-6 py-2 rounded-full text-sm font-ovo uppercase tracking-wide transition-all duration-300 border",
+            "px-3 md:px-5 py-1.5 md:py-2 rounded-full text-sm font-ovo uppercase tracking-wide transition-all duration-300 border",
             if(category.id == @selected_category,
               do: "bg-navy text-gold border-navy shadow-md",
               else: "bg-cream text-navy border-gold hover:bg-gold-light/20 hover:scale-105"
             )
           ]}
         >
-          {category.name} Mysteries
+          {category.name}
         </button>
       <% end %>
     </div>
   </div>
-  
-<!-- Main Content -->
-  <div class="container-boxed py-16">
-    <div class="max-w-4xl mx-auto">
-      
-<!-- Introduction -->
-      <div class="mb-16">
-        <details class="group bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold">
-          <summary class="font-ovo text-navy text-lg md:text-xl flex items-center justify-between cursor-pointer select-none">
+
+  <!-- Main Content -->
+  <div class="container-boxed py-6 md:py-12">
+    <div class="max-w-4xl mx-auto px-3 md:px-6">
+      <!-- Introduction -->
+      <div class="mb-6 md:mb-10">
+        <details class="group bg-white p-3 md:p-5 rounded-lg shadow-soft border-l-4 border-gold">
+          <summary class="font-ovo text-navy text-base md:text-lg lg:text-xl flex items-center justify-between cursor-pointer select-none gap-2">
             <span>Traditional vs Modern Rosary Schedule</span>
-            <span class="text-gold-dark text-xs md:text-sm uppercase tracking-wide group-open:hidden">
-              Show Details
+            <span class="text-gold-dark text-xs uppercase tracking-wide group-open:hidden flex-shrink-0">
+              Show
             </span>
-            <span class="text-gold-dark text-xs md:text-sm uppercase tracking-wide hidden group-open:inline">
-              Hide Details
+            <span class="text-gold-dark text-xs uppercase tracking-wide hidden group-open:inline flex-shrink-0">
+              Hide
             </span>
           </summary>
 
-          <div class="mt-6 space-y-6 font-work-sans text-brown leading-relaxed text-sm md:text-base">
+          <div class="mt-3 md:mt-4 space-y-3 md:space-y-4 font-work-sans text-brown leading-relaxed text-sm md:text-base">
             <p>
               The Rosary contemplates the mysteries of Christ's life through the eyes of Mary.
               Traditionally, the Rosary consisted of <strong>fifteen mysteries</strong>
@@ -67,17 +66,15 @@
               the Joyful, Sorrowful, and Glorious Mysteries.
             </p>
 
-            <div class="bg-cream-dark p-5 rounded">
-              <h3 class="font-ovo text-navy text-base md:text-lg mb-3">
+            <div class="bg-cream-dark p-3 md:p-4 rounded">
+              <h3 class="font-ovo text-navy text-base md:text-lg mb-2">
                 Traditional Schedule (15 Mysteries)
               </h3>
-              <ul class="space-y-2 text-xs md:text-sm">
-                <li><strong class="underline">Monday & Thursday</strong> Joyful Mysteries</li>
-                <li><strong class="underline">Tuesday & Friday</strong> Sorrowful Mysteries</li>
-                <li><strong class="underline">Wednesday & Saturday</strong> Glorious Mysteries</li>
-                <li>
-                  <strong class="underline">Sunday</strong> Glorious Mysteries (or the mystery of the season)
-                </li>
+              <ul class="space-y-1 text-sm">
+                <li><strong>Monday & Thursday</strong> Joyful Mysteries</li>
+                <li><strong>Tuesday & Friday</strong> Sorrowful Mysteries</li>
+                <li><strong>Wednesday & Saturday</strong> Glorious Mysteries</li>
+                <li><strong>Sunday</strong> Glorious Mysteries (or the mystery of the season)</li>
               </ul>
             </div>
 
@@ -87,650 +84,37 @@
               and His Passion. This brought the total to <strong>twenty mysteries</strong>.
             </p>
 
-            <div class="bg-cream-dark p-5 rounded">
-              <h3 class="font-ovo text-navy text-base md:text-lg mb-3">
+            <div class="bg-cream-dark p-3 md:p-4 rounded">
+              <h3 class="font-ovo text-navy text-base md:text-lg mb-2">
                 Modern Schedule (20 Mysteries)
               </h3>
-              <ul class="space-y-2 text-xs md:text-sm">
-                <li><strong class="underline">Monday</strong> Joyful Mysteries</li>
-                <li><strong class="underline">Tuesday</strong> Sorrowful Mysteries</li>
-                <li><strong class="underline">Wednesday</strong> Glorious Mysteries</li>
-                <li><strong class="underline">Thursday</strong> Luminous Mysteries</li>
-                <li><strong class="underline">Friday</strong> Sorrowful Mysteries</li>
-                <li><strong class="underline">Saturday</strong> Joyful Mysteries</li>
-                <li><strong class="underline">Sunday</strong> Glorious Mysteries (or the mystery of the season)</li>
+              <ul class="space-y-1 text-sm">
+                <li><strong>Monday</strong> Joyful Mysteries</li>
+                <li><strong>Tuesday</strong> Sorrowful Mysteries</li>
+                <li><strong>Wednesday</strong> Glorious Mysteries</li>
+                <li><strong>Thursday</strong> Luminous Mysteries</li>
+                <li><strong>Friday</strong> Sorrowful Mysteries</li>
+                <li><strong>Saturday</strong> Joyful Mysteries</li>
+                <li><strong>Sunday</strong> Glorious Mysteries (or the mystery of the season)</li>
               </ul>
             </div>
           </div>
         </details>
       </div>
 
-      <.ornate_divider variant="black" class="my-12 opacity-40" />
-      
-<!-- Joyful Mysteries -->
-      <%= if @selected_category == "joyful" do %>
-        <section class="mb-16">
-          <div class="text-center mb-10">
-            <h2 class="font-ovo text-navy text-4xl mb-4">
-              The Joyful Mysteries
-            </h2>
-            <p class="font-work-sans text-brown italic text-sm">
-              Traditional: Monday & Thursday | Modern: Monday & Saturday
-            </p>
-          </div>
+      <.ornate_divider variant="black" class="my-8 opacity-40" />
 
-          <div class="space-y-6">
-            <!-- 1. The Annunciation -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                1. The Annunciation
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                The angel Gabriel announces to Mary that she will conceive by the Holy Ghost.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">(Luke 1:26–38)</span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">Luke 1:26–38</strong><br />
-                    <span class="text-gold font-semibold">1:26</span> And in the sixth month, the angel Gabriel was sent from God into a city of Galilee, called Nazareth, <span class="text-gold font-semibold">1:27</span> To a virgin espoused to a man whose name was Joseph, of the house of David; and the virgin's name was Mary. <span class="text-gold font-semibold">1:28</span> And the angel being come in, said unto her: Hail, full of grace, the Lord is with thee: blessed art thou among women. <span class="text-gold font-semibold">1:29</span> Who having heard, was troubled at his saying, and thought with herself what manner of salutation this should be. <span class="text-gold font-semibold">1:30</span> And the angel said to her: Fear not, Mary, for thou hast found grace with God. <span class="text-gold font-semibold">1:31</span> Behold thou shalt conceive in thy womb, and shalt bring forth a son; and thou shalt call his name Jesus. <span class="text-gold font-semibold">1:32</span> He shall be great, and shall be called the Son of the most High; and the Lord God shall give unto him the throne of David his father; and he shall reign in the house of Jacob for ever. <span class="text-gold font-semibold">1:33</span> And of his kingdom there shall be no end. <span class="text-gold font-semibold">1:34</span> And Mary said to the angel: How shall this be done, because I know not man? <span class="text-gold font-semibold">1:35</span> And the angel answering, said to her: The Holy Ghost shall come upon thee, and the power of the most High shall overshadow thee. And therefore also the Holy which shall be born of thee shall be called the Son of God. <span class="text-gold font-semibold">1:36</span> And behold thy cousin Elizabeth, she also hath conceived a son in her old age; and this is the sixth month with her that is called barren: <span class="text-gold font-semibold">1:37</span> Because no word shall be impossible with God. <span class="text-gold font-semibold">1:38</span> And Mary said: Behold the handmaid of the Lord; be it done to me according to thy word. And the angel departed from her.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 2. The Visitation -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                2. The Visitation
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Mary visits Elizabeth; St. John the Baptist leaps in the womb.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">(Luke 1:39–56)</span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">Luke 1:39–56</strong><br />
-                    <span class="text-gold font-semibold">1:39</span> And Mary rising up in those days, went into the hill country with haste into a city of Juda. <span class="text-gold font-semibold">1:40</span> And she entered into the house of Zachary, and saluted Elizabeth. <span class="text-gold font-semibold">1:41</span> And it came to pass, that when Elizabeth heard the salutation of Mary, the infant leaped in her womb. <span class="text-gold font-semibold">1:42</span> And she cried out with a loud voice, and said: Blessed art thou among women, and blessed is the fruit of thy womb. <span class="text-gold font-semibold">1:43</span> And whence is this to me, that the mother of my Lord should come to me? <span class="text-gold font-semibold">1:44</span> For behold as soon as the voice of thy salutation sounded in my ears, the infant in my womb leaped for joy. <span class="text-gold font-semibold">1:45</span> And blessed art thou that hast believed, because those things shall be accomplished that were spoken to thee by the Lord. <span class="text-gold font-semibold">1:46</span> My soul doth magnify the Lord. <span class="text-gold font-semibold">1:47</span> And my spirit hath rejoiced in God my Saviour. <span class="text-gold font-semibold">1:48</span> Because he hath regarded the humility of his handmaid; for behold from henceforth all generations shall call me blessed. <span class="text-gold font-semibold">1:49</span> Because he that is mighty, hath done great things to me; and holy is his name. <span class="text-gold font-semibold">1:50</span> And his mercy is from generation unto generations, to them that fear him. <span class="text-gold font-semibold">1:51</span> He hath shewed might in his arm: he hath scattered the proud in the conceit of their heart. <span class="text-gold font-semibold">1:52</span> He hath put down the mighty from their seat, and hath exalted the humble. <span class="text-gold font-semibold">1:53</span> He hath filled the hungry with good things; and the rich he hath sent empty away. <span class="text-gold font-semibold">1:54</span> He hath received Israel his servant, being mindful of his mercy: <span class="text-gold font-semibold">1:55</span> As he spoke to our fathers, to Abraham and to his seed for ever. <span class="text-gold font-semibold">1:56</span> And Mary abode with her about three months; and she returned to her own house.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 3. The Nativity -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                3. The Nativity of Our Lord
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Christ is born in Bethlehem; angels announce peace to men of good will.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture <span class="text-gold-light font-bold">(Luke 2:1–20; Matthew 1:18–25)</span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">Luke 2:1–20</strong><br />
-                    <span class="text-gold font-semibold">2:1</span> AND it came to pass, that in those days there went out a decree from Caesar Augustus, that the whole world should be enrolled. <span class="text-gold font-semibold">2:2</span> This enrolling was first made by Cyrinus, the governor of Syria. <span class="text-gold font-semibold">2:3</span> And all went to be enrolled, every one into his own city. <span class="text-gold font-semibold">2:4</span> And Joseph also went up from Galilee, out of the city of Nazareth into Judea, to the city of David, which is called Bethlehem: because he was of the house and family of David, <span class="text-gold font-semibold">2:5</span> To be enrolled with Mary his espoused wife, who was with child. <span class="text-gold font-semibold">2:6</span> And it came to pass, that when they were there, her days were accomplished, that she should be delivered. <span class="text-gold font-semibold">2:7</span> And she brought forth her firstborn son, and wrapped him up in swaddling clothes, and laid him in a manger; because there was no room for them in the inn. <span class="text-gold font-semibold">2:8</span> And there were in the same country shepherds watching, and keeping the night watches over their flock. <span class="text-gold font-semibold">2:9</span> And behold an angel of the Lord stood by them, and the brightness of God shone round about them; and they feared with a great fear. <span class="text-gold font-semibold">2:10</span> And the angel said to them: Fear not; for, behold, I bring you good tidings of great joy, that shall be to all the people: <span class="text-gold font-semibold">2:11</span> For, this day, is born to you a Saviour, who is Christ the Lord, in the city of David. <span class="text-gold font-semibold">2:12</span> And this shall be a sign unto you. You shall find the infant wrapped in swaddling clothes, and laid in a manger. <span class="text-gold font-semibold">2:13</span> And suddenly there was with the angel a multitude of the heavenly army, praising God, and saying: <span class="text-gold font-semibold">2:14</span> Glory to God in the highest; and on earth peace to men of good will. <span class="text-gold font-semibold">2:15</span> And it came to pass, after the angels departed from them into heaven, the shepherds said one to another: Let us go over to Bethlehem, and let us see this word that is come to pass, which the Lord hath shewed to us. <span class="text-gold font-semibold">2:16</span> And they came with haste; and they found Mary and Joseph, and the infant lying in the manger. <span class="text-gold font-semibold">2:17</span> And seeing, they understood of the word that had been spoken to them concerning this child. <span class="text-gold font-semibold">2:18</span> And all that heard, wondered; and at those things that were told them by the shepherds. <span class="text-gold font-semibold">2:19</span> But Mary kept all these words, pondering them in her heart. <span class="text-gold font-semibold">2:20</span> And the shepherds returned, glorifying and praising God, for all the things they had heard and seen, as it was told unto them.<br /><br />
-                    <strong class="underline">Matthew 1:18-25</strong><br />
-                    <span class="text-gold font-semibold">1:18</span> Now the generation of Christ was in this wise. When as his mother Mary was espoused to Joseph, before they came together, she was found with child, of the Holy Ghost. <span class="text-gold font-semibold">1:19</span> Whereupon Joseph her husband, being a just man, and not willing publicly to expose her, was minded to put her away privately. <span class="text-gold font-semibold">1:20</span> But while he thought on these things, behold the angel of the Lord appeared to him in his sleep, saying: Joseph, son of David, fear not to take unto thee Mary thy wife, for that which is conceived in her, is of the Holy Ghost. <span class="text-gold font-semibold">1:21</span> And she shall bring forth a son: and thou shalt call his name JESUS. For he shall save his people from their sins. <span class="text-gold font-semibold">1:22</span> Now all this was done that it might be fulfilled which the Lord spoke by the prophet, saying: <span class="text-gold font-semibold">1:23</span> Behold a virgin shall be with child, and bring forth a son, and they shall call his name Emmanuel, which being interpreted is, God with us. <span class="text-gold font-semibold">1:24</span> And Joseph rising up from sleep, did as the angel of the Lord had commanded him, and took unto him his wife. <span class="text-gold font-semibold">1:25</span> And he knew her not till she brought forth her first born son: and he called his name JESUS.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 4. The Presentation -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                4. The Presentation in the Temple
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Mary and Joseph present Jesus in the Temple; Simeon and Anna prophesy.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">(Luke 2:22–38)</span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">Luke 2:22–38</strong><br />
-                    <span class="text-gold font-semibold">2:22</span> And after the days of her purification, according to the law of Moses, were accomplished, they carried him to Jerusalem, to present him to the Lord: <span class="text-gold font-semibold">2:23</span> As it is written in the law of the Lord: Every male opening the womb shall be called holy to the Lord: <span class="text-gold font-semibold">2:24</span> And to offer a sacrifice, according as it is written in the law of the Lord, a pair of turtledoves, or two young pigeons: <span class="text-gold font-semibold">2:25</span> And behold there was a man in Jerusalem named Simeon, and this man was just and devout, waiting for the consolation of Israel; and the Holy Ghost was in him. <span class="text-gold font-semibold">2:26</span> And he had received an answer from the Holy Ghost, that he should not see death, before he had seen the Christ of the Lord. <span class="text-gold font-semibold">2:27</span> And he came by the Spirit into the temple. And when his parents brought in the child Jesus, to do for him according to the custom of the law, <span class="text-gold font-semibold">2:28</span> He also took him into his arms, and blessed God, and said: <span class="text-gold font-semibold">2:29</span> Now thou dost dismiss thy servant, O Lord, according to thy word in peace: <span class="text-gold font-semibold">2:30</span> Because my eyes have seen thy salvation, <span class="text-gold font-semibold">2:31</span> Which thou hast prepared before the face of all peoples: <span class="text-gold font-semibold">2:32</span> A light to the revelation of the Gentiles and the glory of thy people Israel. <span class="text-gold font-semibold">2:33</span> And his father and mother were wondering at those things which were spoken concerning him. <span class="text-gold font-semibold">2:34</span> And Simeon blessed them and said to Mary his mother: Behold this child is set for the fall and for the resurrection of many in Israel and for a sign which shall be contradicted. <span class="text-gold font-semibold">2:35</span> And thy own soul a sword shall pierce, that, out of many hearts thoughts may be revealed. <span class="text-gold font-semibold">2:36</span> And there was one Anna, a prophetess, the daughter of Phanuel, of the tribe of Aser. She was far advanced in years and had lived with her husband seven years from her virginity. <span class="text-gold font-semibold">2:37</span> And she was a widow until fourscore and four years: who departed not from the temple, by fastings and prayers serving night and day. <span class="text-gold font-semibold">2:38</span> Now she, at the same hour, coming in, confessed to the Lord: and spoke of him to all that looked for the redemption of Israel.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 5. Finding in the Temple -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                5. The Finding of the Child Jesus in the Temple
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                The twelve-year-old Jesus is found teaching among the doctors.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">(Luke 2:41–52)</span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">Luke 2:41–52</strong><br />
-                    <span class="text-gold font-semibold">2:41</span> And his parents went every year to Jerusalem, at the solemn day of the pasch, <span class="text-gold font-semibold">2:42</span> And when he was twelve years old, they going up into Jerusalem, according to the custom of the feast, <span class="text-gold font-semibold">2:43</span> And having fulfilled the days, when they returned, the child Jesus remained in Jerusalem; and his parents knew it not. <span class="text-gold font-semibold">2:44</span> And thinking that he was in the company, they came a day's journey, and sought him among their kinsfolks and acquaintance. <span class="text-gold font-semibold">2:45</span> And not finding him, they returned into Jerusalem, seeking him. <span class="text-gold font-semibold">2:46</span> And it came to pass, that, after three days, they found him in the temple, sitting in the midst of the doctors, hearing them, and asking them questions. <span class="text-gold font-semibold">2:47</span> And all that heard him were astonished at his wisdom and his answers. <span class="text-gold font-semibold">2:48</span> And seeing him, they wondered. And his mother said to him: Son, why hast thou done so to us? behold thy father and I have sought thee sorrowing. <span class="text-gold font-semibold">2:49</span> And he said to them: How is it that you sought me? did you not know, that I must be about my father's business? <span class="text-gold font-semibold">2:50</span> And they understood not the word that he spoke unto them. <span class="text-gold font-semibold">2:51</span> And he went down with them, and came to Nazareth, and was subject to them. And his mother kept all these words in her heart. <span class="text-gold font-semibold">2:52</span> And Jesus advanced in wisdom, and age, and grace with God and men.
-                  </p>
-                </div>
-              </details>
-            </div>
-          </div>
-        </section>
+      <!-- Mystery Content -->
+      <%= case @selected_category do %>
+        <% "joyful" -> %>
+          <.joyful />
+        <% "luminous" -> %>
+          <.luminous />
+        <% "sorrowful" -> %>
+          <.sorrowful />
+        <% "glorious" -> %>
+          <.glorious />
       <% end %>
-      
-<!-- Luminous Mysteries -->
-      <%= if @selected_category == "luminous" do %>
-        <section class="mb-16">
-          <div class="text-center mb-10">
-            <h2 class="font-ovo text-navy text-4xl mb-4">
-              The Luminous Mysteries
-            </h2>
-            <p class="font-work-sans text-brown italic text-sm">
-              Modern: Thursday | Added by Pope St. John Paul II (2002)
-            </p>
-          </div>
-
-          <div class="space-y-6">
-            <!-- 1. Baptism in the Jordan -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                1. The Baptism of Our Lord in the Jordan
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Jesus is baptized by John; the Father and the Holy Spirit manifest.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Matthew 3:13–17; Mark 1:9–11; Luke 3:21–22)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-
-                    <strong class="underline">Matthew 3:13-17</strong><br />
-                    <span class="text-gold font-semibold">3:13</span> Then cometh Jesus from Galilee to the Jordan, unto John, to be baptized by him. <span class="text-gold font-semibold">3:14</span> But John stayed him, saying: I ought to be baptized by thee, and comest thou to me? <span class="text-gold font-semibold">3:15</span> And Jesus answering, said to him: Suffer it to be so now. For so it becometh us to fulfill all justice. Then he suffered him. <span class="text-gold font-semibold">3:16</span> And Jesus being baptized, forthwith came out of the water: and lo, the heavens were opened to him: and he saw the Spirit of God descending as a dove, and coming upon him. <span class="text-gold font-semibold">3:17</span> And behold a voice from heaven, saying: This is my beloved Son, in whom I am well pleased.<br /><br />
-                    <strong class="underline">Mark 1:9-11</strong><br />
-                    <span class="text-gold font-semibold">1:9</span> And it came to pass, in those days, Jesus came from Nazareth of Galilee, and was baptized by John in the Jordan. <span class="text-gold font-semibold">1:10</span> And forthwith coming up out of he water, he saw the heavens opened, and the Spirit as a dove descending, and remaining on him. <span class="text-gold font-semibold">1:11</span> And there came a voice from heaven: Thou art my beloved Son; in thee I am well pleased.<br /><br />
-                    <strong class="underline">Luke 3:21-22</strong><br />
-                    <span class="text-gold font-semibold">3:21</span> Now it came to pass, when all the people were baptized, that Jesus also being baptized and praying, heaven was opened; <span class="text-gold font-semibold">3:22</span> And the Holy Ghost descended in a bodily shape, as a dove upon him; and a voice came from heaven: Thou art my beloved Son; in thee I am well pleased.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 2. Wedding at Cana -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                2. The Wedding Feast at Cana
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Jesus performs His first miracle at Mary's request.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture <span class="text-gold-light font-bold">(John 2:1–11)</span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">John 2:1–11</strong><br />
-                    <span class="text-gold font-semibold">2:1</span> AND the third day, there was a marriage in Cana of Galilee: and the mother of Jesus was there. <span class="text-gold font-semibold">2:2</span> And Jesus also was invited, and his disciples, to the marriage. <span class="text-gold font-semibold">2:3</span> And the wine failing, the mother of Jesus saith to him: They have no wine. <span class="text-gold font-semibold">2:4</span> And Jesus saith to her: Woman, what is that to me and to thee? my hour is not yet come. <span class="text-gold font-semibold">2:5</span> His mother saith to the waiters: Whatsoever he shall say to you, do ye. <span class="text-gold font-semibold">2:6</span> Now there were set there six waterpots of stone, according to the manner of the purifying of the Jews, containing two or three measures apiece. <span class="text-gold font-semibold">2:7</span> Jesus saith to them: Fill the waterpots with water. And they filled them up to the brim. <span class="text-gold font-semibold">2:8</span> And Jesus saith to them: Draw out now, and carry to the chief steward of the feast. And they carried it. <span class="text-gold font-semibold">2:9</span> And when the chief steward had tasted the water made wine, and knew not whence it was, but the waiters knew who had drawn the water; the chief steward calleth the bridegroom, <span class="text-gold font-semibold">2:10</span> And saith to him: Every man at first setteth forth good wine, and when men have well drunk, then that which is worse. But thou hast kept the good wine until now. <span class="text-gold font-semibold">2:11</span> This beginning of miracles did Jesus in Cana of Galilee; and manifested his glory, and his disciples believed in him.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 3. Proclamation of the Kingdom -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                3. The Proclamation of the Kingdom and the Call to Conversion
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Christ preaches repentance and the coming of the Kingdom.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Mark 1:14–15; Matthew 4:23–25; 5:1–12; 5:14–16; 6:9–13; 7:7–8, 12; 10:7–8; Luke 4:16–21; Matthew 16:18–19; Luke 7:47–50)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-
-                    <strong class="underline">Mark 1:14-15</strong><br />
-                    <span class="text-gold font-semibold">1:14</span> And after that John was delivered up, Jesus came into Galilee, preaching the gospel of the kingdom of God, <span class="text-gold font-semibold">1:15</span> And saying: The time is accomplished, and the kingdom of God is at hand: repent, and believe the gospel.<br /><br />
-                    <strong class="underline">Matthew 4:23-25</strong><br />
-                    <span class="text-gold font-semibold">4:23</span> And Jesus went about all Galilee, teaching in their synagogues, and preaching the gospel of the kingdom, and healing all manner of sickness and every infirmity among the people. <span class="text-gold font-semibold">4:24</span> And his fame went throughout all Syria, and they presented to him all sick people that were taken with divers diseases and torments, and such as were possessed by devils, and lunatics, and those that had the palsy, and he cured them: <span class="text-gold font-semibold">4:25</span> And great multitudes followed him from Galilee, and from Decapolis, and from Jerusalem, and from Judea, and from beyond the Jordan.<br /><br />
-                    <strong class="underline">Matthew 5:1-12 (The Beatitudes)</strong><br />
-                    <span class="text-gold font-semibold">5:1</span> And seeing the multitudes, he went up into a mountain, and when he was set down, his disciples came unto him. <span class="text-gold font-semibold">5:2</span> And opening his mouth he taught them, saying: <span class="text-gold font-semibold">5:3</span> Blessed are the poor in spirit: for theirs is the kingdom of heaven. <span class="text-gold font-semibold">5:4</span> Blessed are the meek: for they shall possess the land. <span class="text-gold font-semibold">5:5</span> Blessed are they that mourn: for they shall be comforted. <span class="text-gold font-semibold">5:6</span> Blessed are they that hunger and thirst after justice: for they shall have their fill. <span class="text-gold font-semibold">5:7</span> Blessed are the merciful: for they shall obtain mercy. <span class="text-gold font-semibold">5:8</span> Blessed are the clean of heart: they shall see God. <span class="text-gold font-semibold">5:9</span> Blessed are the peacemakers: for they shall be called the children of God. <span class="text-gold font-semibold">5:10</span> Blessed are they that suffer persecution for justice' sake: for theirs is the kingdom of heaven. <span class="text-gold font-semibold">5:11</span> Blessed are ye when they shall revile you, and persecute you, and speak all that is evil against you, untruly, for my sake: <span class="text-gold font-semibold">5:12</span> Be glad and rejoice for your reward is very great in heaven. For so they persecuted the prophets that were before you.<br /><br />
-                    <strong class="underline">Matthew 5:14-16 (Light of the World)</strong><br />
-                    <span class="text-gold font-semibold">5:14</span> You are the light of the world. A city seated on a mountain cannot be hid. <span class="text-gold font-semibold">5:15</span> Neither do men light a candle and put it under a bushel, but upon a candlestick, that it may shine to all that are in the house. <span class="text-gold font-semibold">5:16</span> So let your light shine before men, that they may see your good works, and glorify your Father who is in heaven.<br /><br />
-                    <strong class="underline">Matthew 6:9-13 (The Lord's Prayer)</strong><br />
-                    <span class="text-gold font-semibold">6:9</span> Thus therefore shall you pray: Our Father who art in heaven, hallowed be thy name. <span class="text-gold font-semibold">6:10</span> Thy kingdom come. Thy will be done on earth as it is in heaven. <span class="text-gold font-semibold">6:11</span> Give us this day our supersubstantial bread. <span class="text-gold font-semibold">6:12</span> And forgive us our debts, as we also forgive our debtors. <span class="text-gold font-semibold">6:13</span> And lead us not into temptation. But deliver us from evil. Amen.<br /><br />
-                    <strong class="underline">Matthew 7:7-8, 12</strong><br />
-                    <span class="text-gold font-semibold">7:7</span> Ask, and it shall be given you: seek, and you shall find: knock, and it shall be opened to you. <span class="text-gold font-semibold">7:8</span> For every one that asketh, receiveth: and he that seeketh, findeth: and to him that knocketh, it shall be opened. <span class="text-gold font-semibold">7:12</span> All things therefore whatsoever you would that men should do to you, do you also to them. For this is the law and the prophets.<br /><br />
-                    <strong class="underline">Matthew 10:7-8</strong><br />
-                    <span class="text-gold font-semibold">10:7</span> And going, preach, saying: The kingdom of heaven is at hand. <span class="text-gold font-semibold">10:8</span> Heal the sick, raise the dead, cleanse the lepers, cast out devils: freely have you received, freely give.<br /><br />
-                    <strong class="underline">Luke 4:16-21</strong><br />
-                    <span class="text-gold font-semibold">4:16</span> And he came to Nazareth, where he was brought up: and he went into the synagogue, according to his custom, on the sabbath day; and he rose up to read. <span class="text-gold font-semibold">4:17</span> And the book of Isaias the prophet was delivered unto him. And as he unfolded the book, he found the place where it was written: <span class="text-gold font-semibold">4:18</span> The spirit of the Lord is upon me. Wherefore he hath anointed me to preach the gospel to the poor, he hath sent me to heal the contrite of heart, to preach deliverance to the captives, and sight to the blind, to set at liberty them that are bruised, <span class="text-gold font-semibold">4:19</span> To preach the acceptable year of the Lord, and the day of reward. <span class="text-gold font-semibold">4:20</span> And when he had folded the book, he restored it to the minister, and sat down. And the eyes of all in the synagogue were fixed on him. <span class="text-gold font-semibold">4:21</span> And he began to say to them: This day is fulfilled this scripture in your ears.<br /><br />
-                    <strong class="underline">Matthew 16:18-19</strong><br />
-                    <span class="text-gold font-semibold">16:18</span> And I say to thee: That thou art Peter; and upon this rock I will build my church, and the gates of hell shall not prevail against it. <span class="text-gold font-semibold">16:19</span> And I will give to thee the keys of the kingdom of heaven. And whatsoever thou shalt bind upon earth, it shall be bound also in heaven: and whatsoever thou shalt loose on earth, it shall be loosed also in heaven.<br /><br />
-                    <strong class="underline">Luke 7:47-50</strong><br />
-                    <span class="text-gold font-semibold">7:47</span> Wherefore I say to thee: Many sins are forgiven her, because she hath loved much. But to whom less is forgiven, he loveth less. <span class="text-gold font-semibold">7:48</span> And he said to her: Thy sins are forgiven thee. <span class="text-gold font-semibold">7:49</span> And they that sat at meat with him began to say within themselves: Who is this that forgiveth sins also? <span class="text-gold font-semibold">7:50</span> And he said to the woman: Thy faith hath made thee safe, go in peace.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 4. Transfiguration -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                4. The Transfiguration
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Jesus is transfigured in glory before Peter, James, and John.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Matthew 17:1–8; Mark 9:2–8; Luke 9:28–36)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-
-                    <strong class="underline">Matthew 17:1-8</strong><br />
-                    <span class="text-gold font-semibold">17:1</span> AND after six days Jesus taketh unto him Peter and James, and John his brother, and bringeth them up into a high mountain apart: <span class="text-gold font-semibold">17:2</span> And he was transfigured before them. And his face did shine as the sun: and his garments became white as snow. <span class="text-gold font-semibold">17:3</span> And behold there appeared to them Moses and Elias talking with him. <span class="text-gold font-semibold">17:4</span> And Peter answering, said to Jesus: Lord, it is good for us to be here: if thou wilt, let us make here three tabernacles, one for thee, and one for Moses, and one for Elias. <span class="text-gold font-semibold">17:5</span> And as he was yet speaking, behold a bright cloud overshadowed them. And lo, a voice out of the cloud, saying: This is my beloved Son, in whom I am well pleased: hear ye him. <span class="text-gold font-semibold">17:6</span> And the disciples hearing, fell upon their face, and were very much afraid. <span class="text-gold font-semibold">17:7</span> And Jesus came and touched them: and said to them, Arise, and fear not. <span class="text-gold font-semibold">17:8</span> And they lifting up their eyes saw no one but only Jesus.<br /><br />
-                    <strong class="underline">Mark 9:2-8</strong><br />
-                    <span class="text-gold font-semibold">9:2</span> And his garments became shining and exceeding white as snow, so as no fuller upon earth can make white. <span class="text-gold font-semibold">9:3</span> And there appeared to them Elias with Moses; and they were talking with Jesus. <span class="text-gold font-semibold">9:4</span> And Peter answering, said to Jesus: Rabbi, it is good for us to be here: and let us make three tabernacles, one for thee, and one for Moses, and one for Elias. <span class="text-gold font-semibold">9:5</span> For he knew not what he said: for they were struck with fear. <span class="text-gold font-semibold">9:6</span> And there was a cloud overshadowing them: and a voice came out of the cloud, saying: This is my most beloved son; hear ye him. <span class="text-gold font-semibold">9:7</span> And immediately looking about, they saw no man any more, but Jesus only with them. <span class="text-gold font-semibold">9:8</span> And as they came down from the mountain, he charged them not to tell any man what things they had seen, till the Son of man shall be risen again from the dead.<br /><br />
-                    <strong class="underline">Luke 9:28-36</strong><br />
-                    <span class="text-gold font-semibold">9:28</span> And it came to pass about eight days after these words, that he took Peter, and James, and John, and went up into a mountain to pray. <span class="text-gold font-semibold">9:29</span> And whilst he prayed, the shape of his countenance was altered, and his raiment became white and glittering. <span class="text-gold font-semibold">9:30</span> And behold two men were talking with him. And they were Moses and Elias, <span class="text-gold font-semibold">9:31</span> Appearing in majesty. And they spoke of his decease that he should accomplish in Jerusalem. <span class="text-gold font-semibold">9:32</span> But Peter and they that were with him were heavy with sleep. And waking, they saw his glory, and the two men that stood with him. <span class="text-gold font-semibold">9:33</span> And it came to pass, that as they were departing from him, Peter saith to Jesus: Master, it is good for us to be here; and let us make three tabernacles, one for thee, and one for Moses, and one for Elias; not knowing what he said. <span class="text-gold font-semibold">9:34</span> And as he spoke these things, there came a cloud, and overshadowed them; and they were afraid, when they entered into the cloud. <span class="text-gold font-semibold">9:35</span> And a voice came out of the cloud, saying: This is my beloved Son; hear him. <span class="text-gold font-semibold">9:36</span> And whilst the voice was uttered, Jesus was found alone. And they held their peace, and told no man in those days any of these things which they had seen.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 5. Institution of the Eucharist -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                5. The Institution of the Holy Eucharist
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                At the Last Supper, Christ gives His Body and Blood.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Matthew 26:26–29; Mark 14:22–25; Luke 22:19–20; John 6:51–58; 1 Corinthians 11:23–26)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-
-                    <strong class="underline">Matthew 26:26-29</strong><br />
-                    <span class="text-gold font-semibold">26:26</span> And whilst they were at supper, Jesus took bread and blessed and broke and gave to his disciples and said: Take ye and eat. This is my body. <span class="text-gold font-semibold">26:27</span> And taking the chalice, he gave thanks and gave to them, saying: Drink ye all of this. <span class="text-gold font-semibold">26:28</span> For this is my blood of the new testament, which shall be shed for many unto remission of sins. <span class="text-gold font-semibold">26:29</span> And I say to you, I will not drink from henceforth of this fruit of the vine until that day when I shall drink it with you new in the kingdom of my Father.<br /><br />
-                    <strong class="underline">Mark 14:22-25</strong><br />
-                    <span class="text-gold font-semibold">14:22</span> And whilst they were eating, Jesus took bread; and blessing, broke, and gave to them, and said: Take ye. This is my body. <span class="text-gold font-semibold">14:23</span> And having taken the chalice, giving thanks, he gave it to them. And they all drank of it. <span class="text-gold font-semibold">14:24</span> And he said to them: This is my blood of the new testament, which shall be shed for many. <span class="text-gold font-semibold">14:25</span> Amen I say to you, that I will drink no more of the fruit of the vine, until that day when I shall drink it new in the kingdom of God.<br /><br />
-                    <strong class="underline">Luke 22:19-20</strong><br />
-                    <span class="text-gold font-semibold">22:19</span> And taking bread, he gave thanks and brake and gave to them, saying: This is my body, which is given for you. Do this for a commemoration of me. <span class="text-gold font-semibold">22:20</span> In like manner, the chalice also, after he had supped, saying: This is the chalice, the new testament in my blood, which shall be shed for you.<br /><br />
-                    <strong class="underline">John 6:51-58</strong><br />
-                    <span class="text-gold font-semibold">6:51</span> I am the living bread which came down from heaven. If any man eat of this bread, he shall live for ever; and the bread that I will give, is my flesh, for the life of the world. <span class="text-gold font-semibold">6:52</span> The Jews therefore strove among themselves, saying: How can this man give us his flesh to eat? <span class="text-gold font-semibold">6:53</span> Then Jesus said to them: Amen, amen I say unto you: Except you eat the flesh of the Son of man, and drink his blood, you shall not have life in you. <span class="text-gold font-semibold">6:54</span> He that eateth my flesh, and drinketh my blood, hath everlasting life: and I will raise him up in the last day. <span class="text-gold font-semibold">6:55</span> For my flesh is meat indeed: and my blood is drink indeed. <span class="text-gold font-semibold">6:56</span> He that eateth my flesh, and drinketh my blood, abideth in me, and I in him. <span class="text-gold font-semibold">6:57</span> As the living Father hath sent me, and I live by the Father; so he that eateth me, the same also shall live by me. <span class="text-gold font-semibold">6:58</span> This is the bread that came down from heaven. Not as your fathers did eat manna, and are dead. He that eateth this bread, shall live for ever.<br /><br />
-                    <strong class="underline">1 Corinthians 11:23-26</strong><br />
-                    <span class="text-gold font-semibold">11:23</span> For I have received of the Lord that which also I delivered unto you, that the Lord Jesus, the same night in which he was betrayed, took bread. <span class="text-gold font-semibold">11:24</span> And giving thanks, broke, and said: Take ye, and eat: this is my body, which shall be delivered for you: this do for the commemoration of me. <span class="text-gold font-semibold">11:25</span> In like manner also the chalice, after he had supped, saying: This chalice is the new testament in my blood: this do ye, as often as you shall drink, for the commemoration of me. <span class="text-gold font-semibold">11:26</span> For as often as you shall eat this bread, and drink the chalice, you shall shew the death of the Lord, until he come.
-                  </p>
-                </div>
-              </details>
-            </div>
-          </div>
-        </section>
-      <% end %>
-      
-<!-- Sorrowful Mysteries -->
-      <%= if @selected_category == "sorrowful" do %>
-        <section class="mb-16">
-          <div class="text-center mb-10">
-            <h2 class="font-ovo text-navy text-4xl mb-4">
-              The Sorrowful Mysteries
-            </h2>
-            <p class="font-work-sans text-brown italic text-sm">
-              Both: Tuesday & Friday
-            </p>
-          </div>
-
-          <div class="space-y-6">
-            <!-- 1. Agony in the Garden -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                1. The Agony in the Garden
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Jesus prays in Gethsemane and accepts the chalice of suffering.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Matthew 26:36–46; Mark 14:32–42; Luke 22:39–46)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">Matthew 26:36-46</strong><br />
-                    <span class="text-gold font-semibold">26:36</span> Then Jesus came with them into a country place which is called Gethsemani. And he said to his disciples: Sit you here, till I go yonder and pray. <span class="text-gold font-semibold">26:37</span> And taking with him Peter and the two sons of Zebedee, he began to grow sorrowful and to be sad. <span class="text-gold font-semibold">26:38</span> Then he saith to them: My soul is sorrowful even unto death. Stay you here and watch with me. <span class="text-gold font-semibold">26:39</span> And going a little further, he fell upon his face, praying and saying: My Father, if it be possible, let this chalice pass from me. Nevertheless, not as I will but as thou wilt. <span class="text-gold font-semibold">26:40</span> And he cometh to his disciples and findeth them asleep. And he saith to Peter: What? Could you not watch one hour with me? <span class="text-gold font-semibold">26:41</span> Watch ye: and pray that ye enter not into temptation. The spirit indeed is willing, but the flesh is weak. <span class="text-gold font-semibold">26:42</span> Again the second time, he went and prayed, saying: My Father, if this chalice may not pass away, but I must drink it, thy will be done. <span class="text-gold font-semibold">26:43</span> And he cometh again and findeth them sleeping: for their eyes were heavy. <span class="text-gold font-semibold">26:44</span> And leaving them, he went again: and he prayed the third time, saying the selfsame word. <span class="text-gold font-semibold">26:45</span> Then he cometh to his disciples and said to them: Sleep ye now and take your rest. Behold the hour is at hand: and the Son of man shall be betrayed into the hands of sinners. <span class="text-gold font-semibold">26:46</span> Rise: let us go. Behold he is at hand that will betray me.
-                    <br /><br />
-                    <strong class="underline">Mark 14:32-42</strong><br />
-                    <span class="text-gold font-semibold">14:32</span> And they came to a farm called Gethsemani. And he saith to his disciples: Sit you here, while I pray. <span class="text-gold font-semibold">14:33</span> And he taketh Peter and James and John with him; and he began to fear and to be heavy. <span class="text-gold font-semibold">14:34</span> And he saith to them: My soul is sorrowful even unto death; stay you here, and watch. <span class="text-gold font-semibold">14:35</span> And when he was gone forward a little, he fell flat on the ground; and he prayed, that if it might be, the hour might pass from him. <span class="text-gold font-semibold">14:36</span> And he saith: Abba, Father, all things are possible to thee: remove this chalice from me; but not what I will, but what thou wilt. <span class="text-gold font-semibold">14:37</span> And he cometh, and findeth them sleeping. And he saith to Peter: Simon, sleepest thou? couldst thou not watch one hour? <span class="text-gold font-semibold">14:38</span> Watch ye, and pray that you enter not into temptation. The spirit indeed is willing, but the flesh is weak. <span class="text-gold font-semibold">14:39</span> A going away again, he prayed, saying the same words. <span class="text-gold font-semibold">14:40</span> And when he returned, he found them again asleep, (for their eyes were heavy,) and they knew not what to answer him. <span class="text-gold font-semibold">14:41</span> And he cometh the third time, and saith to them: Sleep ye now, and take your rest. It is enough: the hour is come: behold the Son of man shall be betrayed into the hands of sinners. <span class="text-gold font-semibold">14:42</span> Rise up, let us go. Behold, he that will betray me is at hand.
-                    <br /><br />
-                    <strong class="underline">Luke 22:39-46</strong><br />
-                    <span class="text-gold font-semibold">22:39</span> And going out, he went, according to his custom, to the Mount of Olives. And his disciples also followed him. <span class="text-gold font-semibold">22:40</span> And when he was come to the place, he said to them: Pray, lest ye enter into temptation. <span class="text-gold font-semibold">22:41</span> And he was withdrawn away from them a stone's cast. And kneeling down, he prayed. <span class="text-gold font-semibold">22:42</span> Saying: Father, if thou wilt, remove this chalice from me: but yet not my will, but thine be done. <span class="text-gold font-semibold">22:43</span> And there appeared to him an angel from heaven, strengthening him. And being in an agony, he prayed the longer. <span class="text-gold font-semibold">22:44</span> And his sweat became as drops of blood, trickling down upon the ground. <span class="text-gold font-semibold">22:45</span> And when he rose up from prayer and was come to the disciples, he found them sleeping for sorrow. <span class="text-gold font-semibold">22:46</span> And he said to them: Why sleep you? Arise: pray: lest you enter into temptation.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 2. Scourging at the Pillar -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                2. The Scourging at the Pillar
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Jesus is scourged by order of Pilate.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (John 19:1; Matthew 27:26; Mark 15:15)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">John 19:1</strong><br />
-                    <span class="text-gold font-semibold">19:1</span> THEN therefore, Pilate took Jesus, and scourged him.
-                    <br /><br />
-                    <strong class="underline">Matthew 27:26</strong><br />
-                    <span class="text-gold font-semibold">27:26</span> Then he released to them Barabbas: and having scourged Jesus, delivered him unto them to be crucified.
-                    <br /><br />
-                    <strong class="underline">Mark 15:15</strong><br />
-                    <span class="text-gold font-semibold">15:15</span> And so Pilate being willing to satisfy the people, released to them Barabbas, and delivered up Jesus, when he had scourged him, to be crucified.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 3. Crowning with Thorns -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                3. The Crowning with Thorns
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                The soldiers mock Christ as King and crown Him with thorns.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Matthew 27:27–31; Mark 15:16–20; John 19:2–3)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-
-                    <strong class="underline">Matthew 27:27-31</strong><br />
-                    <span class="text-gold font-semibold">27:27</span> Then the soldiers of the governor, taking Jesus into the hall, gathered together unto him the whole band. <span class="text-gold font-semibold">27:28</span> And stripping him, they put a scarlet cloak about him. <span class="text-gold font-semibold">27:29</span> And platting a crown of thorns, they put it upon his head, and a reed in his right hand. And bowing the knee before him, they mocked him, saying: Hail, King of the Jews. <span class="text-gold font-semibold">27:30</span> And spitting upon him, they took the reed and struck his head. <span class="text-gold font-semibold">27:31</span> And after they had mocked him, they took off the cloak from him and put on him his own garments and led him away to crucify him.<br /><br />
-                    <strong class="underline">Mark 15:16-20</strong><br />
-                    <span class="text-gold font-semibold">15:16</span> And the soldiers led him away into the court of the palace, and they called together the whole band <span class="text-gold font-semibold">15:17</span> And they clothe him with purple, and platting a crown of thorns, they put it upon him. <span class="text-gold font-semibold">15:18</span> And they began to salute him: Hail, king of the Jews. <span class="text-gold font-semibold">15:19</span> And they struck his head with a reed: and they did spit on him. And bowing their knees, they adored him. <span class="text-gold font-semibold">15:20</span> And after they had mocked him, they took off the purple from him, and put his own garments on him, and they led him out to crucify him.<br /><br />
-                    <strong class="underline">John 19:2-3</strong><br />
-                    <span class="text-gold font-semibold">19:2</span> And the soldiers platting a crown of thorns, put it upon his head; and they put on him a purple garment. <span class="text-gold font-semibold">19:3</span> And they came to him, and said: Hail, king of the Jews; and they gave him blows.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 4. Carrying of the Cross -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                4. The Carrying of the Cross
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Jesus carries His Cross to Calvary, meeting His Mother and Veronica.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Luke 23:26–32; Matthew 27:31–33; Mark 15:20–22; John 19:16–17)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-
-                    <strong class="underline">Luke 23:26-32</strong><br />
-                    <span class="text-gold font-semibold">23:26</span> And as they led him away, they laid hold of one Simon of Cyrene, coming from the country; and they laid the cross on him to carry after Jesus. <span class="text-gold font-semibold">23:27</span> And there followed him a great multitude of people and of women, who bewailed and lamented him. <span class="text-gold font-semibold">23:28</span> But Jesus turning to them, said: Daughters of Jerusalem, weep not over me; but weep for yourselves and for your children. <span class="text-gold font-semibold">23:29</span> For behold, the days shall come, wherein they will say: Blessed are the barren and the wombs that have not borne and the paps that have not given suck. <span class="text-gold font-semibold">23:30</span> Then shall they begin to say to the mountains: Fall upon us. And to the hills: Cover us. <span class="text-gold font-semibold">23:31</span> For if in the green wood they do these things, what shall be done in the dry? <span class="text-gold font-semibold">23:32</span> And there were also two other malefactors led with him to be put to death.<br /><br />
-                    <strong class="underline">Matthew 27:31-33</strong><br />
-                    <span class="text-gold font-semibold">27:31</span> And after they had mocked him, they took off the cloak from him and put on him his own garments and led him away to crucify him. <span class="text-gold font-semibold">27:32</span> And going out, they found a man of Cyrene, named Simon: him they forced to take up his cross. <span class="text-gold font-semibold">27:33</span> And they came to the place that is called Golgotha, which is the place of Calvary.<br /><br />
-                    <strong class="underline">Mark 15:20-22</strong><br />
-                    <span class="text-gold font-semibold">15:20</span> And after they had mocked him, they took off the purple from him, and put his own garments on him, and they led him out to crucify him. <span class="text-gold font-semibold">15:21</span> And they forced one Simon a Cyrenean, who passed by coming out of the country, the father of Alexander and of Rufus, to take up his cross. <span class="text-gold font-semibold">15:22</span> And they bring him into the place called Golgotha, which being interpreted is, The place of Calvary.<br /><br />
-                    <strong class="underline">John 19:16-17</strong><br />
-                    <span class="text-gold font-semibold">19:16</span> Then therefore he delivered him to them to be crucified. And they took Jesus, and led him forth. <span class="text-gold font-semibold">19:17</span> And bearing his own cross, he went forth to that place which is called Calvary, but in Hebrew Golgotha.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 5. Crucifixion -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                5. The Crucifixion and Death of Our Lord
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Jesus is nailed to the Cross, forgives His enemies, and dies for our salvation.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Luke 23:33–49; John 19:18–37; Matthew 27:33–54; Mark 15:22–39)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-
-                    <strong class="underline">Luke 23:33-49</strong><br />
-                    <span class="text-gold font-semibold">23:33</span> And when they were come to the place which is called Calvary, they crucified him there: and the robbers, one on the right hand, and the other on the left. <span class="text-gold font-semibold">23:34</span> And Jesus said: Father, forgive them, for they know not what they do. But they, dividing his garments, cast lots. <span class="text-gold font-semibold">23:35</span> And the people stood beholding. And the rulers with them derided him, saying: He saved others: let him save himself, if he be Christ, the elect of God. <span class="text-gold font-semibold">23:36</span> And the soldiers also mocked him, coming to him and offering him vinegar <span class="text-gold font-semibold">23:37</span> And saying: If thou be the king of the Jews, save thyself. <span class="text-gold font-semibold">23:38</span> And there was also a superscription written over him in letters of Greek and Latin and Hebrew THIS IS THE KING OF THE JEWS <span class="text-gold font-semibold">23:39</span> And one of those robbers who were hanged blasphemed him, saying: If thou be Christ, save thyself and us. <span class="text-gold font-semibold">23:40</span> But the other answering, rebuked him, saying: Neither dost thou fear God, seeing; thou art under the same condemnation? <span class="text-gold font-semibold">23:41</span> And we indeed justly: for we receive the due reward of our deeds. But this man hath done no evil. <span class="text-gold font-semibold">23:42</span> And he said to Jesus: Lord, remember me when thou shalt come into thy kingdom. <span class="text-gold font-semibold">23:43</span> And Jesus said to him: Amen I say to thee: This day thou shalt be with me in paradise. <span class="text-gold font-semibold">23:44</span> And it was almost the sixth hour: and there was darkness over all the earth until the ninth hour. <span class="text-gold font-semibold">23:45</span> And the sun was darkened, and the veil of the temple was rent in the midst. <span class="text-gold font-semibold">23:46</span> And Jesus crying with a loud voice, said: Father, into thy hands I commend my spirit. And saying this, he gave up the ghost. <span class="text-gold font-semibold">23:47</span> Now the centurion, seeing what was done, glorified God, saying: Indeed this was a just man. <span class="text-gold font-semibold">23:48</span> And all the multitude of them that were come together to that sight, and saw the things that were done, returned striking their breasts. <span class="text-gold font-semibold">23:49</span> And all his acquaintance, and the women that had followed him from Galilee, stood afar off, beholding these things.<br /><br />
-                    <strong class="underline">John 19:18-37</strong><br />
-                    <span class="text-gold font-semibold">19:18</span> Where they crucified him, and with him two others, one on each side, and Jesus in the midst. <span class="text-gold font-semibold">19:19</span> And Pilate wrote a title also, and he put it upon the cross. And the writing was: JESUS OF NAZARETH, THE KING OF THE JEWS. <span class="text-gold font-semibold">19:20</span> This title therefore many of the Jews did read: because the place where Jesus was crucified was nigh to the city: and it was written in Hebrew, in Greek, and in Latin. <span class="text-gold font-semibold">19:21</span> Then the chief priests of the Jews said to Pilate: Write not, The King of the Jews; but that he said, I am the King of the Jews. <span class="text-gold font-semibold">19:22</span> Pilate answered: What I have written, I have written. <span class="text-gold font-semibold">19:23</span> The soldiers therefore, when they had crucified him, took his garments, (and they made four parts, to every soldier a part,) and also his coat. Now the coat was without seam, woven from the top throughout. <span class="text-gold font-semibold">19:24</span> They said then one to another: Let us not cut it, but let us cast lots for it, whose it shall be; that the scripture might be fulfilled, saying: They have parted my garments among them, and upon my vesture they have cast lot. And the soldiers indeed did these things. <span class="text-gold font-semibold">19:25</span> Now there stood by the cross of Jesus, his mother, and his mother's sister, Mary of Cleophas, and Mary Magdalen. <span class="text-gold font-semibold">19:26</span> When Jesus therefore had seen his mother and the disciple standing whom he loved, he saith to his mother: Woman, behold thy son. <span class="text-gold font-semibold">19:27</span> After that, he saith to the disciple: Behold thy mother. And from that hour, the disciple took her to his own. <span class="text-gold font-semibold">19:28</span> Afterwards, Jesus knowing that all things were now accomplished, that the scripture might be fulfilled, said: I thirst. <span class="text-gold font-semibold">19:29</span> Now there was a vessel set there full of vinegar. And they, putting a sponge full of vinegar and hyssop, put it to his mouth. <span class="text-gold font-semibold">19:30</span> Jesus therefore, when he had taken the vinegar, said: It is consummated. And bowing his head, he gave up the ghost. <span class="text-gold font-semibold">19:31</span> Then the Jews (because it was the parasceve), that the bodies might not remain upon the cross on the sabbath day, (for that was a great sabbath day,) besought Pilate that their legs might be broken, and that they might be taken away. <span class="text-gold font-semibold">19:32</span> The soldiers therefore came: and they broke the legs of the first, and of the other that was crucified with him. <span class="text-gold font-semibold">19:33</span> But after they were come to Jesus, when they saw that he was already dead, they did not break his legs. <span class="text-gold font-semibold">19:34</span> But one of the soldiers with a spear opened his side, and immediately there came out blood and water. <span class="text-gold font-semibold">19:35</span> And he that saw it hath given testimony, and his testimony is true. And he knoweth that he saith true, that you also may believe. <span class="text-gold font-semibold">19:36</span> For these things were done, that the scripture might be fulfilled: You shall not break a bone of him. <span class="text-gold font-semibold">19:37</span> And again another scripture saith: They shall look on him whom they pierced.<br /><br />
-                    <strong class="underline">Mark 15:22-39</strong><br />
-                    <span class="text-gold font-semibold">15:22</span> And they bring him into the place called Golgotha, which being interpreted is, The place of Calvary. <span class="text-gold font-semibold">15:23</span> And they gave him to drink wine mingled with myrrh; but he took it not. <span class="text-gold font-semibold">15:24</span> And crucifying him, they divided his garments, casting lots upon them, what every man should take. <span class="text-gold font-semibold">15:25</span> And it was the third hour, and they crucified him. <span class="text-gold font-semibold">15:26</span> And the inscription of his cause was written over: THE KING OF THE JEWS. <span class="text-gold font-semibold">15:27</span> And with him they crucify two thieves; the one on his right hand, and the other on his left. <span class="text-gold font-semibold">15:28</span> And the scripture was fulfilled, which saith: And with the wicked he was reputed. <span class="text-gold font-semibold">15:29</span> And they that passed by blasphemed him, wagging their heads, and saying: Vah, thou that destroyest the temple of God, and in three days buildest it up again: <span class="text-gold font-semibold">15:30</span> Save thyself, coming down from the cross. <span class="text-gold font-semibold">15:31</span> In like manner also the chief priests mocking, said with the scribes one to another: He saved others; himself he cannot save. <span class="text-gold font-semibold">15:32</span> Let Christ the king of Israel come down now from the cross, that we may see and believe. And they that were crucified with him, reviled him. <span class="text-gold font-semibold">15:33</span> And when the sixth hour was come, there was darkness over the whole earth until the ninth hour. <span class="text-gold font-semibold">15:34</span> And at the ninth hour, Jesus cried out with a loud voice, saying: Eloi, Eloi, lamma sabacthani? Which is, being interpreted: My God, My God, why hast thou forsaken me? <span class="text-gold font-semibold">15:35</span> And some of the standers by hearing, said: Behold he calleth Elias. <span class="text-gold font-semibold">15:36</span> And one running and filling a sponge with vinegar, and putting it upon a reed, gave him to drink, saying: Stay, let us see if Elias come to take him down. <span class="text-gold font-semibold">15:37</span> And Jesus having cried out with a loud voice, gave up the ghost. <span class="text-gold font-semibold">15:38</span> And the veil of the temple was rent in two, from the top to the bottom. <span class="text-gold font-semibold">15:39</span> And the centurion who stood over against him, seeing that crying out in this manner he had given up the ghost, said: Indeed this man was the Son of God.<br /><br />
-                    <strong class="underline">Matthew 27:33-54</strong><br />
-                    <span class="text-gold font-semibold">27:33</span> And they came to the place that is called Golgotha, which is the place of Calvary. <span class="text-gold font-semibold">27:34</span> And they gave him wine to drink mingled with gall. And when he had tasted, he would not drink. <span class="text-gold font-semibold">27:35</span> And after they had crucified him, they divided his garments, casting lots; that it might be fulfilled which was spoken by the prophet, saying: They divided my garments among them; and upon my vesture they cast lots. <span class="text-gold font-semibold">27:36</span> And they sat and watched him. <span class="text-gold font-semibold">27:37</span> And they put over his head his cause written: THIS IS JESUS THE KING OF THE JEWS. <span class="text-gold font-semibold">27:38</span> Then were crucified with him two thieves: one on the right hand and one on the left. <span class="text-gold font-semibold">27:39</span> And they that passed by blasphemed him, wagging their heads, <span class="text-gold font-semibold">27:40</span> And saying: Vah, thou that destroyest the temple of God and in three days dost rebuild it: save thy own self. If thou be the Son of God, come down from the cross. <span class="text-gold font-semibold">27:41</span> In like manner also the chief priests, with the scribes and ancients, mocking said: <span class="text-gold font-semibold">27:42</span> He saved others: himself he cannot save. If he be the king of Israel, let him now come down from the cross: and we will believe him. <span class="text-gold font-semibold">27:43</span> He trusted in God: let him now deliver him if he will have him. For he said: I am the Son of God. <span class="text-gold font-semibold">27:44</span> And the selfsame thing the thieves also that were crucified with him reproached him with. <span class="text-gold font-semibold">27:45</span> Now from the sixth hour, there was darkness over the whole earth, until the ninth hour. <span class="text-gold font-semibold">27:46</span> And about the ninth hour, Jesus cried with a loud voice, saying: Eli, Eli, lamma sabacthani? That is, My God, My God, why hast thou forsaken me? <span class="text-gold font-semibold">27:47</span> And some that stood there and heard said: This man calleth Elias. <span class="text-gold font-semibold">27:48</span> And immediately one of them running took a sponge and filled it with vinegar and put it on a reed and gave him to drink. <span class="text-gold font-semibold">27:49</span> And the others said: Let be. Let us see whether Elias will come to deliver him. <span class="text-gold font-semibold">27:50</span> And Jesus again crying with a loud voice, yielded up the ghost. <span class="text-gold font-semibold">27:51</span> And behold the veil of the temple was rent in two from the top even to the bottom: and the earth quaked and the rocks were rent. <span class="text-gold font-semibold">27:52</span> And the graves were opened: and many bodies of the saints that had slept arose, <span class="text-gold font-semibold">27:53</span> And coming out of the tombs after his resurrection, came into the holy city and appeared to many. <span class="text-gold font-semibold">27:54</span> Now the centurion and they that were with him watching Jesus, having seen the earthquake and the things that were done, were sore afraid, saying: Indeed this was the Son of God.
-                  </p>
-                </div>
-              </details>
-            </div>
-          </div>
-        </section>
-      <% end %>
-      
-<!-- Glorious Mysteries -->
-      <%= if @selected_category == "glorious" do %>
-        <section class="mb-16">
-          <div class="text-center mb-10">
-            <h2 class="font-ovo text-navy text-4xl mb-4">
-              The Glorious Mysteries
-            </h2>
-            <p class="font-work-sans text-brown italic text-sm">
-              Traditional: Wednesday & Saturday | Modern: Wednesday & Sunday
-            </p>
-          </div>
-
-          <div class="space-y-6">
-            <!-- 1. Resurrection -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                1. The Resurrection
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Christ rises from the dead, glorious and immortal.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Matthew 28:1–10; Mark 16:1–14; Luke 24:1–12; John 20:1–18; 20:19–29)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-
-                    <strong class="underline">Matthew 28:1-10</strong><br />
-                    <span class="text-gold font-semibold">28:1</span> And in the end of the sabbath, when it began to dawn towards the first day of the week, came Mary Magdalen and the other Mary, to see the sepulchre. <span class="text-gold font-semibold">28:2</span> And behold there was a great earthquake. For an angel of the Lord descended from heaven and coming rolled back the stone and sat upon it. <span class="text-gold font-semibold">28:3</span> And his countenance was as lightning and his raiment as snow. <span class="text-gold font-semibold">28:4</span> And for fear of him, the guards were struck with terror and became as dead men. <span class="text-gold font-semibold">28:5</span> And the angel answering, said to the women: Fear not you: for I know that you seek Jesus who was crucified. <span class="text-gold font-semibold">28:6</span> He is not here. For he is risen, as he said. Come, and see the place where the Lord was laid. <span class="text-gold font-semibold">28:7</span> And going quickly, tell ye his disciples that he is risen. And behold he will go before you into Galilee. There you shall see him. Lo, I have foretold it to you. <span class="text-gold font-semibold">28:8</span> And they went out quickly from the sepulchre with fear and great joy, running to tell his disciples. <span class="text-gold font-semibold">28:9</span> And behold, Jesus met them, saying: All hail. But they came up and took hold of his feet and adored him. <span class="text-gold font-semibold">28:10</span> Then Jesus said to them: Fear not. Go, tell my brethren that they go into Galilee. There they shall see me.<br /><br />
-                    <strong class="underline">Mark 16:1-14</strong><br />
-                    <span class="text-gold font-semibold">16:1</span> AND when the sabbath was past, Mary Magdalen, and Mary the mother of James, and Salome, bought sweet spices, that coming, they might anoint Jesus. <span class="text-gold font-semibold">16:2</span> And very early in the morning, the first day of the week, they come to the sepulchre, the sun being now risen. <span class="text-gold font-semibold">16:3</span> And they said one to another: Who shall roll us back the stone from the door of the sepulchre? <span class="text-gold font-semibold">16:4</span> And looking, they saw the stone rolled back. For it was very great. <span class="text-gold font-semibold">16:5</span> And entering into the sepulchre, they saw a young man sitting on the right side, clothed with a white robe: and they were astonished. <span class="text-gold font-semibold">16:6</span> Who saith to them: Be not affrighted; you seek Jesus of Nazareth, who was crucified: he is risen, he is not here, behold the place where they laid him. <span class="text-gold font-semibold">16:7</span> But go, tell his disciples and Peter that he goeth before you into Galilee; there you shall see him, as he told you. <span class="text-gold font-semibold">16:8</span> But they going out, fled from the sepulchre. For a trembling and fear had seized them: and they said nothing to any man; for they were afraid. <span class="text-gold font-semibold">16:9</span> But he rising early the first day of the week, appeared first to Mary Magdalen, out of whom he had cast seven devils. <span class="text-gold font-semibold">16:10</span> She went and told them that had been with him, who were mourning and weeping. <span class="text-gold font-semibold">16:11</span> And they hearing that he was alive, and had been seen by her, did not believe. <span class="text-gold font-semibold">16:12</span> And after that he appeared in another shape to two of them walking, as they were going into the country. <span class="text-gold font-semibold">16:13</span> And they going told it to the rest: neither did they believe them. <span class="text-gold font-semibold">16:14</span> At length he appeared to the eleven as they were at table: and he upbraided them with their incredulity and hardness of heart, because they did not believe them who had seen him after he was risen again.<br /><br />
-                    <strong class="underline">Luke 24:1-12</strong><br />
-                    <span class="text-gold font-semibold">24:1</span> And on the first day of the week, very early in the morning, they came to the sepulchre, bringing the spices which they had prepared. <span class="text-gold font-semibold">24:2</span> And they found the stone rolled back from the sepulchre. <span class="text-gold font-semibold">24:3</span> And going in, they found not the body of the Lord Jesus. <span class="text-gold font-semibold">24:4</span> And it came to pass, as they were astonished in their mind at this, behold, two men stood by them, in shining apparel. <span class="text-gold font-semibold">24:5</span> And as they were afraid and bowed down their countenance towards the ground, they said unto them: Why seek you the living with the dead? <span class="text-gold font-semibold">24:6</span> He is not here, but is risen. Remember how he spoke unto you, when he was yet in Galilee, <span class="text-gold font-semibold">24:7</span> Saying: The Son of man must be delivered into the hands of sinful men and be crucified and the third day rise again. <span class="text-gold font-semibold">24:8</span> And they remembered his words. <span class="text-gold font-semibold">24:9</span> And going back from the sepulchre, they told all these things to the eleven and to all the rest. <span class="text-gold font-semibold">24:10</span> And it was Mary Magdalen and Joanna and Mary of James and the other women that were with them, who told these things to the apostles. <span class="text-gold font-semibold">24:11</span> And these words seemed to them as idle tales: and they did not believe them. <span class="text-gold font-semibold">24:12</span> But Peter rising up, ran to the sepulchre and, stooping down, he saw the linen cloths laid by themselves: and went away wondering in himself at that which was come to pass.<br /><br />
-                    <strong class="underline">John 20:1-29</strong><br />
-                    <span class="text-gold font-semibold">20:1</span> AND on the first day of the week, Mary Magdalen cometh early, when it was yet dark, unto the sepulchre; and she saw the stone taken away from the sepulchre. <span class="text-gold font-semibold">20:2</span> She ran, therefore, and cometh to Simon Peter, and to the other disciple whom Jesus loved, and saith to them: They have taken away the Lord out of the sepulchre, and we know not where they have laid him. <span class="text-gold font-semibold">20:3</span> Peter therefore went out, and that other disciple, and they came to the sepulchre. <span class="text-gold font-semibold">20:4</span> And they both ran together, and that other disciple did outrun Peter, and came first to the sepulchre. <span class="text-gold font-semibold">20:5</span> And when he stooped down, he saw the linen cloths lying; but yet he went not in. <span class="text-gold font-semibold">20:6</span> Then cometh Simon Peter, following him, and went into the sepulchre, and saw the linen cloths lying, <span class="text-gold font-semibold">20:7</span> And the napkin that had been about his head, not lying with the linen cloths, but apart, wrapped up into one place. <span class="text-gold font-semibold">20:8</span> Then that other disciple also went in, who came first to the sepulchre: and he saw, and believed. <span class="text-gold font-semibold">20:9</span> For as yet they knew not the scripture, that he must rise again from the dead. <span class="text-gold font-semibold">20:10</span> The disciples therefore departed again to their home. <span class="text-gold font-semibold">20:11</span> But Mary stood at the sepulchre without, weeping. Now as she was weeping, she stooped down, and looked into the sepulchre, <span class="text-gold font-semibold">20:12</span> And she saw two angels in white, sitting, one at the head, and one at the feet, where the body of Jesus had been laid. <span class="text-gold font-semibold">20:13</span> They say to her: Woman, why weepest thou? She saith to them: Because they have taken away my Lord; and I know not where they have laid him. <span class="text-gold font-semibold">20:14</span> When she had thus said, she turned herself back, and saw Jesus standing; and she knew not that it was Jesus. <span class="text-gold font-semibold">20:15</span> Jesus saith to her: Woman, why weepest thou? whom seekest thou? She, thinking it was the gardener, saith to him: Sir, if thou hast taken him hence, tell me where thou hast laid him, and I will take him away. <span class="text-gold font-semibold">20:16</span> Jesus saith to her: Mary. She turning, saith to him: Rabboni (which is to say, Master). <span class="text-gold font-semibold">20:17</span> Jesus saith to her: Do not touch me, for I am not yet ascended to my Father. But go to my brethren, and say to them: I ascend to my Father and to your Father, to my God and your God. <span class="text-gold font-semibold">20:18</span> Mary Magdalen cometh, and telleth the disciples: I have seen the Lord, and these things he said to me. <span class="text-gold font-semibold">20:19</span> Now when it was late that same day, the first of the week, and the doors were shut, where the disciples were gathered together, for fear of the Jews, Jesus came and stood in the midst, and said to them: Peace be to you. <span class="text-gold font-semibold">20:20</span> And when he had said this, he shewed them his hands and his side. The disciples therefore were glad, when they saw the Lord. <span class="text-gold font-semibold">20:21</span> He said therefore to them again: Peace be to you. As the Father hath sent me, I also send you. <span class="text-gold font-semibold">20:22</span> When he had said this, he breathed on them; and he said to them: Receive ye the Holy Ghost. <span class="text-gold font-semibold">20:23</span> Whose sins you shall forgive, they are forgiven them; and whose sins you shall retain, they are retained. <span class="text-gold font-semibold">20:24</span> Now Thomas, one of the twelve, called Didymus, was not with them when Jesus came. <span class="text-gold font-semibold">20:25</span> The other disciples therefore said to him: We have seen the Lord. But he said to them: Except I shall see in his hands the print of the nails, and put my finger into the place of the nails, and put my hand into his side, I will not believe. <span class="text-gold font-semibold">20:26</span> And after eight days, again his disciples were within, and Thomas with them. Jesus cometh, the doors being shut, and stood in the midst, and said: Peace be to you. <span class="text-gold font-semibold">20:27</span> Then he said to Thomas: Put in thy finger hither, and see my hands; and bring hither thy hand, and put it into my side; and be not faithless, but believing. <span class="text-gold font-semibold">20:28</span> Thomas answered, and said to him: My Lord, and my God. <span class="text-gold font-semibold">20:29</span> Jesus saith to him: Because thou hast seen me, Thomas, thou hast believed: blessed are they that have not seen, and have believed.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 2. Ascension -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                2. The Ascension
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Jesus ascends to the right hand of the Father.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">(Luke 24:50–53; Acts 1:6–11)</span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-
-                    <strong class="underline">Luke 24:50-53</strong><br />
-                    <span class="text-gold font-semibold">24:50</span> And he led them out as far as Bethania: and lifting up his hands, he blessed them. <span class="text-gold font-semibold">24:51</span> And it came to pass, whilst he blessed them, he departed from them and was carried up to heaven. <span class="text-gold font-semibold">24:52</span> And they adoring went back into Jerusalem with great joy. <span class="text-gold font-semibold">24:53</span> And they were always in the temple, praising and blessing God. Amen.<br /><br />
-                    <strong class="underline">Acts 1:6-11</strong><br />
-                    <span class="text-gold font-semibold">1:6</span> They therefore who were come together, asked him, saying: Lord, wilt thou at this time restore again the kingdom to Israel? <span class="text-gold font-semibold">1:7</span> But he said to them: It is not for you to know the times or moments, which the Father hath put in his own power: <span class="text-gold font-semibold">1:8</span> But you shall receive the power of the Holy Ghost coming upon you, and you shall be witnesses unto me in Jerusalem, and in all Judea, and Samaria, and even to the uttermost part of the earth. <span class="text-gold font-semibold">1:9</span> And when he had said these things, while they looked on, he was raised up: and a cloud received him out of their sight. <span class="text-gold font-semibold">1:10</span> And while they were beholding him going up to heaven, behold two men stood by them in white garments. <span class="text-gold font-semibold">1:11</span> Who also said: Ye men of Galilee, why stand you looking up to heaven? This Jesus who is taken up from you into heaven, shall so come, as you have seen him going into heaven.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 3. Descent of the Holy Ghost -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                3. The Descent of the Holy Ghost
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                The Holy Spirit descends upon Mary and the Apostles in tongues of fire.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture <span class="text-gold-light font-bold">(Acts 2:1–21)</span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">Acts 2:1–21</strong><br />
-                    <span class="text-gold font-semibold">2:1</span> AND when the days of the Pentecost were accomplished, they were all together in one place: <span class="text-gold font-semibold">2:2</span> And suddenly there came a sound from heaven, as of a mighty wind coming, and it filled the whole house where they were sitting. <span class="text-gold font-semibold">2:3</span> And there appeared to them parted tongues as it were of fire, and it sat upon every one of them: <span class="text-gold font-semibold">2:4</span> And they were all filled with the Holy Ghost, and they began to speak with divers tongues, according as the Holy Ghost gave them to speak. <span class="text-gold font-semibold">2:5</span> Now there were dwelling at Jerusalem, Jews, devout men, out of every nation under heaven. <span class="text-gold font-semibold">2:6</span> And when this was noised abroad, the multitude came together, and were confounded in mind, because that every man heard them speak in his own tongue. <span class="text-gold font-semibold">2:7</span> And they were all amazed, and wondered, saying: Behold, are not all these, that speak, Galileans? <span class="text-gold font-semibold">2:8</span> And how have we heard, every man our own tongue wherein we were born? <span class="text-gold font-semibold">2:9</span> Parthians, and Medes, and Elamites, and inhabitants of Mesopotamia, Judea, and Cappadocia, Pontus and Asia, <span class="text-gold font-semibold">2:10</span> Phrygia, and Pamphylia, Egypt, and the parts of Libya about Cyrene, and strangers of Rome, <span class="text-gold font-semibold">2:11</span> Jews also, and proselytes, Cretes, and Arabians: we have heard them speak in our own tongues the wonderful works of God. <span class="text-gold font-semibold">2:12</span> And they were all astonished, and wondered, saying one to another: What meaneth this? <span class="text-gold font-semibold">2:13</span> But others mocking, said: These men are full of new wine. <span class="text-gold font-semibold">2:14</span> But Peter standing up with the eleven, lifted up his voice, and spoke to them: Ye men of Judea, and all you that dwell in Jerusalem, be this known to you, and with your ears receive my words. <span class="text-gold font-semibold">2:15</span> For these are not drunk, as you suppose, seeing it is but the third hour of the day: <span class="text-gold font-semibold">2:16</span> But this is that which was spoken of by the prophet Joel: <span class="text-gold font-semibold">2:17</span> And it shall come to pass, in the last days, (saith the Lord,) I will pour out of my Spirit upon all flesh: and your sons and your daughters shall prophesy: and your young men shall see visions, and your old men shall dream dreams. <span class="text-gold font-semibold">2:18</span> And upon my servants indeed and upon my handmaids will I pour out in those days of my Spirit: and they shall prophesy. <span class="text-gold font-semibold">2:19</span> And I will shew wonders in the heaven above, and signs on the earth beneath: blood and fire, and vapour of smoke. <span class="text-gold font-semibold">2:20</span> The sun shall be turned into darkness, and the moon into blood, before the great and manifest day of the Lord come. <span class="text-gold font-semibold">2:21</span> And it shall come to pass, that whosoever shall call upon the name of the Lord, shall be saved.
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 4. Assumption -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                4. The Assumption of the Blessed Virgin Mary
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                The Church teaches that Mary, body and soul, was taken into heaven.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Revelation 12:1; Judith 13:23–25)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">Revelation 12:1:</strong> <span class="text-gold font-semibold">12:1</span> And a great sign appeared in heaven: A woman clothed with the sun, and the moon under her feet, and on her head a crown of twelve stars.<br /><br />
-                    <strong class="underline">Judith 13:23–25:</strong> <span class="text-gold font-semibold">13:23</span> And Ozias the prince of the people of Israel, said to her: Blessed art thou, O daughter, by the Lord the most high God, above all women upon the earth. <span class="text-gold font-semibold">13:24</span> Blessed be the Lord who made heaven and earth, who hath directed thee to the cutting off the head of the prince of our enemies. <span class="text-gold font-semibold">13:25</span> Because he hath so magnified thy name this day, that thy praise shall not depart out of the mouth of men who shall be mindful of the power of the Lord for ever, for that thou hast not spared thy life, by reason of the distress and tribulation of thy people, but hast prevented our ruin in the presence of our God.<br /><br />
-                  </p>
-                </div>
-              </details>
-            </div>
-            
-<!-- 5. Coronation -->
-            <div class="bg-white p-6 rounded-lg shadow-soft border-l-4 border-gold transition-all duration-300 hover:shadow-ornate hover:-translate-y-1">
-              <h3 class="font-ovo text-navy text-2xl mb-3">
-                5. The Coronation of the Blessed Virgin Mary
-              </h3>
-              <p class="font-work-sans text-brown leading-relaxed mb-3">
-                Mary is crowned Queen of Heaven and Earth.
-              </p>
-              <details class="mt-4">
-                <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-sm uppercase tracking-wide transition-all duration-300 hover:tracking-widest">
-                  Read Scripture
-                  <span class="text-gold-light font-bold">
-                    (Revelation 12:1; Psalm 45:10–17;)
-                  </span>
-                </summary>
-                <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
-                  <p class="font-garamond text-brown text-base leading-loose">
-                    <strong class="underline">Revelation 12:1:</strong> <span class="text-gold font-semibold">12:1</span> And a great sign appeared in heaven: A woman clothed with the sun, and the moon under her feet, and on her head a crown of twelve stars.<br /><br />
-                    <strong class="underline">Psalm 45:10–17:</strong> <span class="text-gold font-semibold">45:10</span> Hearken, O daughter, and see, and incline thy ear: and forget thy people and thy father's house. <span class="text-gold font-semibold">45:11</span> And the king shall greatly desire thy beauty; for he is the Lord thy God, and him they shall adore. <span class="text-gold font-semibold">45:12</span> And the daughters of Tyre with gifts, yea, all the rich among the people, shall entreat thy countenance. <span class="text-gold font-semibold">45:13</span> All the glory of the king's daughter is within in golden borders, <span class="text-gold font-semibold">45:14</span> Clothed round about with varieties. After her shall virgins be brought to the king: her neighbours shall be brought to thee. <span class="text-gold font-semibold">45:15</span> They shall be brought with gladness and rejoicing: they shall be brought into the temple of the king. <span class="text-gold font-semibold">45:16</span> Instead of thy fathers, sons are born to thee: thou shalt make them princes over all the earth. <span class="text-gold font-semibold">45:17</span> They shall remember thy name throughout all generations. Therefore shall people praise thee for ever; yea, for ever and ever.<br /><br />
-                  </p>
-                </div>
-              </details>
-            </div>
-          </div>
-        </section>
-      <% end %>
-      
-<!-- Closing -->
-      <div class="text-center mt-16">
-        <.ornate_divider variant="black" class="my-8 opacity-40" />
-
-        <p class="font-ovo text-navy text-xl italic mb-4">
-          Sub tuum praesidium confugimus
-        </p>
-        <p class="font-work-sans text-brown text-sm mb-8">
-          We fly to thy protection, O holy Mother of God
-        </p>
-
-        <.link
-          navigate="/"
-          class="inline-block mt-4 px-8 py-3 bg-navy text-gold font-ovo text-lg rounded shadow-soft hover:bg-navy-light"
-        >
-          Return to Home
-        </.link>
-      </div>
     </div>
   </div>
 </div>

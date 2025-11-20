@@ -4,6 +4,8 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   """
   use LumenViaeWeb, :live_view
 
+  embed_templates "_partials/*"
+
   @categories [
     %{id: "joyful", name: "Joyful"},
     %{id: "sorrowful", name: "Sorrowful"},
