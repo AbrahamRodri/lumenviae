@@ -11,7 +11,7 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
       short_title: "Joyful",
       schedule: "Mondays & Thursdays",
       path: "/mysteries/joyful",
-      icon: "✦",
+      icon: "star",
       color: "gold"
     },
     sorrowful: %{
@@ -19,7 +19,7 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
       short_title: "Sorrowful",
       schedule: "Tuesdays & Fridays",
       path: "/mysteries/sorrowful",
-      icon: "✝",
+      icon: "cross",
       color: "purple"
     },
     glorious: %{
@@ -27,7 +27,7 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
       short_title: "Glorious",
       schedule: "Wednesdays & Saturdays",
       path: "/mysteries/glorious",
-      icon: "✧",
+      icon: "crown",
       color: "gold"
     }
   ]

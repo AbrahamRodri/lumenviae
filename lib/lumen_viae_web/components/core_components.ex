@@ -560,6 +560,39 @@ defmodule LumenViaeWeb.CoreComponents do
   defp medallion_bg_padding("large"), do: "p-6"
 
   @doc """
+  Renders a mystery icon as SVG.
+
+  ## Examples
+
+      <.mystery_icon icon="cross" class="w-6 h-6 text-gold" />
+  """
+  attr :icon, :string, required: true
+  attr :class, :string, default: "w-6 h-6"
+
+  def mystery_icon(assigns) do
+    ~H"""
+    <%= case @icon do %>
+      <% "cross" -> %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class={@class}>
+          <path d="M10.5 2h3v7h7.5v3h-7.5v10h-3v-10h-7.5v-3h7.5z" />
+        </svg>
+      <% "star" -> %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class={@class}>
+          <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6z" />
+        </svg>
+      <% "crown" -> %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class={@class}>
+          <path d="M2 20h20v2H2v-2zm1.5-7l3.5 2 5-7 5 7 3.5-2-1.5 7H5l-1.5-7z" />
+        </svg>
+      <% _ -> %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class={@class}>
+          <circle cx="12" cy="12" r="8" />
+        </svg>
+    <% end %>
+    """
+  end
+
+  @doc """
   Translates an error message using gettext.
   """
   def translate_error({msg, opts}) do

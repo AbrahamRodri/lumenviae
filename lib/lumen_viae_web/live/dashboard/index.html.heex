@@ -45,8 +45,8 @@
         class="block bg-gradient-to-br from-navy via-navy to-navy-light rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
       >
         <div class="flex items-center gap-6">
-          <div class="text-5xl md:text-6xl text-gold flex-shrink-0">
-            {@recommended_set.icon}
+          <div class="flex-shrink-0">
+            <.mystery_icon icon={@recommended_set.icon} class="w-14 h-14 md:w-16 md:h-16 text-gold" />
           </div>
           <div class="flex-1 min-w-0">
             <h2 class="font-ovo text-2xl md:text-3xl text-gold mb-2 truncate">
@@ -88,8 +88,8 @@
               navigate={set.path}
               class="flex items-center gap-4 p-4 hover:bg-cream-dark/30 transition-colors"
             >
-              <div class="w-12 h-12 rounded-xl bg-cream flex items-center justify-center text-2xl text-gold flex-shrink-0">
-                {set.icon}
+              <div class="w-12 h-12 rounded-xl bg-cream flex items-center justify-center flex-shrink-0">
+                <.mystery_icon icon={set.icon} class="w-6 h-6 text-gold" />
               </div>
               <div class="flex-1 min-w-0">
                 <h3 class="font-ovo text-lg text-navy mb-0.5 truncate">
