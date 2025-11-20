@@ -19,9 +19,9 @@
       </p>
     </div>
   </div>
-
-  <!-- Category Tabs -->
-  <div class="container-boxed -mt-5 md:-mt-8">
+  
+<!-- Category Tabs -->
+  <div class="-mt-5 md:-mt-8">
     <div class="max-w-2xl mx-auto flex flex-wrap justify-center gap-2 bg-white/70 backdrop-blur-sm p-2 md:p-3 rounded-2xl md:rounded-full shadow-soft">
       <%= for category <- @categories do %>
         <button
@@ -41,9 +41,9 @@
       <% end %>
     </div>
   </div>
-
-  <!-- Main Content -->
-  <div class="container-boxed py-6 md:py-12">
+  
+<!-- Main Content -->
+  <div class="py-6 md:py-12">
     <div class="max-w-4xl mx-auto px-3 md:px-6">
       <!-- Introduction -->
       <div class="mb-6 md:mb-10">
@@ -103,8 +103,8 @@
       </div>
 
       <.ornate_divider variant="black" class="my-8 opacity-40" />
-
-      <!-- Mystery Content -->
+      
+<!-- Mystery Content -->
       <%= case @selected_category do %>
         <% "joyful" -> %>
           <.joyful />
