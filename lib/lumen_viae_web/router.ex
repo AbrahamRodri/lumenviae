@@ -21,6 +21,9 @@ defmodule LumenViaeWeb.Router do
     # Home page - welcome and mystery categories
     live "/", Live.Home.Index
 
+    # Prayer dashboard - focused mystery selection
+    live "/dashboard", Live.Dashboard.Index
+
     # All 20 mysteries of the Rosary
     live "/mysteries", Live.Mysteries.Scripture
 

@@ -29,7 +29,7 @@ defmodule LumenViaeWeb.Components.Nav do
         <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center gap-6">
           <.nav_link navigate="/mysteries">
-            Mysteries & Scripture
+            Scripture of the Rosary
           </.nav_link>
           <.nav_link navigate="/rosary-methods">
             Rosary Methods
@@ -92,7 +92,7 @@ defmodule LumenViaeWeb.Components.Nav do
       >
         <nav class="px-6 py-4 space-y-3">
           <.nav_link navigate="/mysteries" mobile>
-            Mysteries & Scripture
+            Scripture of the Rosary
           </.nav_link>
           <.nav_link navigate="/rosary-methods" mobile>
             Rosary Methods
