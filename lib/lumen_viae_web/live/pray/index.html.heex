@@ -1,5 +1,5 @@
 <div
-  class="h-screen bg-navy flex flex-col overflow-hidden"
+  class="min-h-screen bg-navy flex flex-col"
   id="rosary-progress-container"
   phx-hook="RosaryProgress"
   data-set-id={@set.id}
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Scrollable Content Area -->
-    <div class="flex-1 overflow-y-auto mb-2 px-1">
+    <div class="flex-1 overflow-y-auto mb-2 px-1 pb-6 md:pb-8">
       <div class="bg-navy-light border-l-2 border-gold p-3 md:p-6">
         <!-- Mystery Title -->
         <h2 class="font-cinzel text-lg md:text-xl text-gold mb-1 text-center">
