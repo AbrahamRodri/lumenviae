@@ -24,11 +24,11 @@ defmodule LumenViaeWeb.Components.Scripture do
     ~H"""
     <details class="mt-4">
       <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
-        Read Scripture <span class="text-gold-light">({@reference})</span>
+        <span class="text-gold-light">({@reference})</span>
       </summary>
       <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
         <p class="font-garamond text-brown text-base leading-loose">
-          <%= render_slot(@inner_block) %>
+          {render_slot(@inner_block)}
         </p>
       </div>
     </details>
@@ -57,13 +57,13 @@ defmodule LumenViaeWeb.Components.Scripture do
     ~H"""
     <details class="mt-4">
       <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold transition-colors text-sm uppercase tracking-wide">
-        Read Scripture <span class="text-gold-light">({@reference})</span>
+        <span class="text-gold-light">({@reference})</span>
       </summary>
       <div class="mt-4 p-4 bg-cream-dark rounded border-l-2 border-gold">
         <p class="font-garamond text-brown text-base leading-loose">
           <%= for {verse_num, text} <- @verses do %>
-            <span class="text-gold font-semibold"><%= verse_num %></span>
-            <%= text %>
+            <span class="text-gold font-semibold">{verse_num}</span>
+            {text}
           <% end %>
         </p>
       </div>

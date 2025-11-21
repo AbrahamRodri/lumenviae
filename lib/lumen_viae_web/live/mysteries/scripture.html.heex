@@ -29,7 +29,7 @@
           phx-click="select-category"
           phx-value-id={category.id}
           class={[
-            "px-3 md:px-5 py-1.5 md:py-2 rounded-full text-sm font-ovo uppercase tracking-wide transition-all duration-300 border",
+            "px-3 md:px-5 py-1.5 md:py-2 rounded-full font-ovo uppercase tracking-wide transition-all duration-300 border",
             if(category.id == @selected_category,
               do: "bg-navy text-gold border-navy shadow-md",
               else: "bg-cream text-navy border-gold hover:bg-gold-light/20 hover:scale-105"
@@ -48,7 +48,7 @@
       <!-- Introduction -->
       <div class="mb-6 md:mb-10">
         <details class="group bg-white p-3 md:p-5 rounded-lg shadow-soft border-l-4 border-gold">
-          <summary class="font-ovo text-navy text-base md:text-lg lg:text-xl flex items-center justify-between cursor-pointer select-none gap-2">
+          <summary class="font-ovo text-navy md:text-lg lg:text-xl flex items-center justify-between cursor-pointer select-none gap-2">
             <span>Traditional vs Modern Rosary Schedule</span>
             <span class="text-gold-dark text-xs uppercase tracking-wide group-open:hidden flex-shrink-0">
               Show
@@ -58,7 +58,7 @@
             </span>
           </summary>
 
-          <div class="mt-3 md:mt-4 space-y-3 md:space-y-4 font-work-sans text-brown leading-relaxed text-sm md:text-base">
+          <div class="mt-3 md:mt-4 space-y-3 md:space-y-4 font-work-sans text-brown leading-relaxed md:text-base">
             <p>
               The Rosary contemplates the mysteries of Christ's life through the eyes of Mary.
               Traditionally, the Rosary consisted of <strong>fifteen mysteries</strong>
@@ -70,7 +70,7 @@
               <h3 class="font-ovo text-navy text-base md:text-lg mb-2">
                 Traditional Schedule (15 Mysteries)
               </h3>
-              <ul class="space-y-1 text-sm">
+              <ul class="space-y-1">
                 <li><strong>Monday & Thursday</strong> Joyful Mysteries</li>
                 <li><strong>Tuesday & Friday</strong> Sorrowful Mysteries</li>
                 <li><strong>Wednesday & Saturday</strong> Glorious Mysteries</li>
@@ -88,7 +88,7 @@
               <h3 class="font-ovo text-navy text-base md:text-lg mb-2">
                 Modern Schedule (20 Mysteries)
               </h3>
-              <ul class="space-y-1 text-sm">
+              <ul class="space-y-1">
                 <li><strong>Monday</strong> Joyful Mysteries</li>
                 <li><strong>Tuesday</strong> Sorrowful Mysteries</li>
                 <li><strong>Wednesday</strong> Glorious Mysteries</li>

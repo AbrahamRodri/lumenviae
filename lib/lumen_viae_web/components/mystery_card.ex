@@ -24,7 +24,7 @@ defmodule LumenViaeWeb.Components.MysteryCard do
       </p>
       <details class="mt-2 md:mt-3">
         <summary class="font-ovo text-gold-dark cursor-pointer hover:text-gold text-xs uppercase tracking-wide transition-colors">
-          Read Scripture <span class="text-gold-light font-bold">({@scripture_reference})</span>
+          <span class="text-gold-light font-bold">({@scripture_reference})</span>
         </summary>
         <div class="mt-2 md:mt-3 p-2 md:p-3 bg-cream-dark rounded border-l-2 border-gold">
           <div class="font-garamond text-brown text-xs md:text-sm leading-relaxed">
