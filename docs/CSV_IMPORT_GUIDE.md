@@ -25,6 +25,10 @@ Your CSV file must include the following columns:
 - **title** - A title for the meditation (optional)
 - **author** - The author of the meditation (e.g., "Bishop Fulton J. Sheen")
 - **source** - The source of the meditation (e.g., "The Fifteen Mysteries of the Rosary")
+- **audio_filename** - The filename for the audio file (e.g., "joyful_1_annunciation.mp3")
+  - When provided, the system will automatically generate audio using ElevenLabs API
+  - The generated audio will be uploaded to S3 with this filename
+  - If audio generation fails, the meditation will still be created without audio
 
 ## Available Mystery Names
 
@@ -58,10 +62,12 @@ A sample CSV file is provided at `priv/repo/sample_meditations.csv` with three e
 ### Example Format
 
 ```csv
-mystery_name,title,content,author,source
-The Annunciation,,"In the Annunciation, the birth of the Son of God...",Bishop Fulton J. Sheen,The Fifteen Mysteries of the Rosary
-The Visitation,,"The first miracle worked by our Lord...",Bishop Fulton J. Sheen,The Fifteen Mysteries of the Rosary
+mystery_name,title,content,author,source,audio_filename
+The Annunciation,,"In the Annunciation, the birth of the Son of God...",Bishop Fulton J. Sheen,The Fifteen Mysteries of the Rosary,joyful_1_annunciation.mp3
+The Visitation,,"The first miracle worked by our Lord...",Bishop Fulton J. Sheen,The Fifteen Mysteries of the Rosary,joyful_2_visitation.mp3
 ```
+
+Note: The audio_filename column is optional. You can omit it entirely or leave it empty for meditations that don't need audio.
 
 ## Using the Import Feature
 
@@ -101,6 +107,33 @@ Successfully imported meditations will not be affected by validation errors in o
 
   Paragraph two with a line break above."
   ```
+
+## Audio Generation
+
+When the `audio_filename` column is provided, the system will:
+
+1. Use the meditation content to generate audio via the ElevenLabs text-to-speech API
+2. Upload the generated audio to Amazon S3
+3. Associate the audio with the meditation for playback during prayer
+
+### Requirements for Audio Generation
+
+To enable audio generation, ensure the following environment variables are configured:
+
+- `ELEVEN_LABS_API_KEY` - Your ElevenLabs API key
+- `ELEVEN_LABS_VOICE_ID` - (Optional) The voice ID to use (defaults to RTFg9niKcgGLDwa3RFlz)
+- `AWS_ACCESS_KEY_ID` - Your AWS access key
+- `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
+- `AWS_S3_BUCKET` - Your S3 bucket name (defaults to lumenviae-audio)
+- `AWS_REGION` - AWS region (defaults to us-east-2)
+
+### Audio Processing During Import
+
+- Audio generation happens during the CSV import process
+- Each meditation with an audio_filename will trigger an API call to ElevenLabs
+- The import may take longer when generating audio (a few seconds per meditation)
+- If audio generation or upload fails, the meditation is still created, but without audio
+- Success messages will indicate "(with audio)" for meditations that have audio generated
 
 ## Notes
 
