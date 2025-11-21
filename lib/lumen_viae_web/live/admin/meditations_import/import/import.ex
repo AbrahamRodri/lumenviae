@@ -1,6 +1,10 @@
 defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
+  alias LumenViae.Audio.ElevenLabs
+  alias LumenViae.Storage.S3
+
+  require Logger
 
   NimbleCSV.define(MyParser, separator: ",", escape: "\"")
 
@@ -71,6 +75,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
     mystery = get_in(mysteries, [mystery_name, Access.at(0)])
 
     if mystery do
+      # Build base attributes
       attrs = %{
         "mystery_id" => mystery.id,
         "title" => Map.get(row, "title"),
@@ -79,10 +84,14 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
         "source" => Map.get(row, "source")
       }
 
-      case Rosary.create_meditation(attrs) do
+      # Generate and upload audio if audio_filename is provided
+      attrs_with_audio = maybe_generate_audio(attrs, row)
+
+      case Rosary.create_meditation(attrs_with_audio) do
         {:ok, _meditation} ->
-          title_info = if attrs["title"], do: " - #{attrs["title"]}", else: ""
-          {:ok, "Created meditation for #{mystery.name}#{title_info}"}
+          title_info = if attrs_with_audio["title"], do: " - #{attrs_with_audio["title"]}", else: ""
+          audio_info = if attrs_with_audio["audio_url"], do: " (with audio)", else: ""
+          {:ok, "Created meditation for #{mystery.name}#{title_info}#{audio_info}"}
 
         {:error, changeset} ->
           errors =
@@ -96,6 +105,40 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
     else
       {:error,
        "Mystery not found: #{mystery_name}. Make sure the mystery name exactly matches an existing mystery."}
+    end
+  end
+
+  defp maybe_generate_audio(attrs, row) do
+    audio_filename = Map.get(row, "audio_filename")
+    content = Map.get(attrs, "content")
+
+    # Only generate audio if both audio_filename and content are present
+    if audio_filename && content && String.trim(audio_filename) != "" do
+      Logger.info("Generating audio for: #{audio_filename}")
+
+      case generate_and_upload_audio(content, audio_filename) do
+        {:ok, s3_key} ->
+          Logger.info("Successfully generated and uploaded audio: #{s3_key}")
+          Map.put(attrs, "audio_url", s3_key)
+
+        {:error, reason} ->
+          Logger.error("Failed to generate audio for #{audio_filename}: #{inspect(reason)}")
+          # Still create the meditation without audio rather than failing the entire import
+          attrs
+      end
+    else
+      attrs
+    end
+  end
+
+  defp generate_and_upload_audio(text, filename) do
+    with {:ok, audio_binary} <- ElevenLabs.generate_audio(text),
+         {:ok, s3_key} <- S3.upload_audio(audio_binary, filename) do
+      {:ok, s3_key}
+    else
+      {:error, reason} = error ->
+        Logger.error("Audio generation/upload failed: #{inspect(reason)}")
+        error
     end
   end
 

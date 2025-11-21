@@ -93,6 +93,61 @@ defmodule LumenViae.Storage.S3 do
     end
   end
 
+  @doc """
+  Uploads audio binary data to S3.
+
+  ## Parameters
+
+    * `audio_binary` - The audio file content as binary data
+    * `s3_key` - The S3 object key (filename) to store the audio
+    * `opts` - Optional keyword list of options:
+      * `:bucket` - S3 bucket name (default: from config)
+      * `:content_type` - Content type (default: "audio/mpeg")
+
+  ## Returns
+
+    * `{:ok, s3_key}` - Successfully uploaded, returns the S3 key
+    * `{:error, reason}` - Error tuple if upload fails
+
+  ## Examples
+
+      iex> audio_binary = File.read!("meditation.mp3")
+      iex> LumenViae.Storage.S3.upload_audio(audio_binary, "joyful_1_annunciation.mp3")
+      {:ok, "joyful_1_annunciation.mp3"}
+  """
+  def upload_audio(audio_binary, s3_key, opts \\ []) when is_binary(audio_binary) and is_binary(s3_key) do
+    bucket = opts[:bucket] || Application.get_env(:lumen_viae, :aws_s3_bucket)
+    content_type = opts[:content_type] || "audio/mpeg"
+
+    case validate_aws_config() do
+      :ok ->
+        try do
+          Logger.info("Uploading audio to S3: #{s3_key} (#{byte_size(audio_binary)} bytes)")
+
+          result =
+            ExAws.S3.put_object(bucket, s3_key, audio_binary, content_type: content_type)
+            |> ExAws.request()
+
+          case result do
+            {:ok, _response} ->
+              Logger.info("Successfully uploaded audio to S3: #{s3_key}")
+              {:ok, s3_key}
+
+            {:error, reason} ->
+              Logger.error("Failed to upload audio to S3 #{s3_key}: #{inspect(reason)}")
+              {:error, reason}
+          end
+        rescue
+          e ->
+            Logger.error("Exception uploading audio to S3 #{s3_key}: #{Exception.message(e)}")
+            {:error, :upload_failed}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   # Private helper to validate AWS configuration
   defp validate_aws_config do
     config = ExAws.Config.new(:s3)
