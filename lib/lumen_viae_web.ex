@@ -52,6 +52,8 @@ defmodule LumenViaeWeb do
     quote do
       use Phoenix.LiveView
 
+      on_mount LumenViaeWeb.UserAuth
+
       unquote(html_helpers())
     end
   end

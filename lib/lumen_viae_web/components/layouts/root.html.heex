@@ -18,7 +18,7 @@
     </script>
   </head>
   <body class="bg-cream">
-    <LumenViaeWeb.Components.Nav.header />
+    <LumenViaeWeb.Components.Nav.header is_admin={assigns[:is_admin] || false} />
 
     {@inner_content}
 

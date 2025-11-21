@@ -21,6 +21,9 @@ config :ex_aws, :s3,
 
 config :lumen_viae, :aws_s3_bucket, System.get_env("AWS_S3_BUCKET") || "lumenviae-audio"
 
+# Admin password configuration
+config :lumen_viae, :admin_password, System.get_env("ADMIN_PASSWORD") || "changeme"
+
 # ## Using releases
 #
 # If you use `mix release`, you need to explicitly enable the server

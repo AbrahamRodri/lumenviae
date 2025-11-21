@@ -9,6 +9,8 @@ defmodule LumenViaeWeb.Components.Nav do
   @doc """
   Renders the site navigation header with mobile menu.
   """
+  attr :is_admin, :boolean, default: false
+
   def header(assigns) do
     ~H"""
     <header class="bg-navy border-b-3 border-gold">
@@ -25,9 +27,12 @@ defmodule LumenViaeWeb.Components.Nav do
             </p>
           </div>
         </.link>
-
-        <!-- Desktop Navigation -->
+        
+    <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center gap-6">
+          <.nav_link navigate="/dashboard">
+            Dashboard
+          </.nav_link>
           <.nav_link navigate="/mysteries">
             Scripture of the Rosary
           </.nav_link>
@@ -37,9 +42,14 @@ defmodule LumenViaeWeb.Components.Nav do
           <.nav_link navigate="/feedback">
             Feedback
           </.nav_link>
+          <%= if @is_admin do %>
+            <.nav_link navigate="/admin">
+              Admin
+            </.nav_link>
+          <% end %>
         </div>
-
-        <!-- Mobile Menu Button -->
+        
+    <!-- Mobile Menu Button -->
         <button
           type="button"
           phx-click={
@@ -84,13 +94,16 @@ defmodule LumenViaeWeb.Components.Nav do
           </svg>
         </button>
       </div>
-
-      <!-- Mobile Menu -->
+      
+    <!-- Mobile Menu -->
       <div
         id="mobile-menu"
         class="hidden md:hidden bg-navy border-t border-gold/30 overflow-hidden"
       >
         <nav class="px-6 py-4 space-y-3">
+          <.nav_link navigate="/dashboard" mobile>
+            Dashboard
+          </.nav_link>
           <.nav_link navigate="/mysteries" mobile>
             Scripture of the Rosary
           </.nav_link>
@@ -100,6 +113,21 @@ defmodule LumenViaeWeb.Components.Nav do
           <.nav_link navigate="/feedback" mobile>
             Feedback
           </.nav_link>
+          <%= if @is_admin do %>
+            <.nav_link navigate="/admin" mobile>
+              Admin
+            </.nav_link>
+            <form action="/admin/session" method="post" class="py-2">
+              <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+              <input type="hidden" name="_method" value="delete" />
+              <button
+                type="submit"
+                class="font-work-sans text-base text-gold-light hover:text-gold transition-colors w-full text-left"
+              >
+                Logout
+              </button>
+            </form>
+          <% end %>
         </nav>
       </div>
     </header>
@@ -118,7 +146,8 @@ defmodule LumenViaeWeb.Components.Nav do
         if @mobile do
           JS.hide(
             to: "#mobile-menu",
-            transition: {"ease-in duration-200", "opacity-100 translate-y-0", "opacity-0 -translate-y-2"}
+            transition:
+              {"ease-in duration-200", "opacity-100 translate-y-0", "opacity-0 -translate-y-2"}
           )
           |> JS.hide(to: "#menu-icon-close")
           |> JS.show(to: "#menu-icon-open")
@@ -131,7 +160,7 @@ defmodule LumenViaeWeb.Components.Nav do
         if(@mobile, do: "block text-base py-2", else: "text-sm")
       ]}
     >
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end

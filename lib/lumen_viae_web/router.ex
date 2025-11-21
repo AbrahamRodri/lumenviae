@@ -15,6 +15,10 @@ defmodule LumenViaeWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :admin do
+    plug LumenViaeWeb.Plugs.RequireAdmin
+  end
+
   scope "/", LumenViaeWeb do
     pipe_through :browser
 
@@ -33,25 +37,35 @@ defmodule LumenViaeWeb.Router do
     # Feedback and feature requests
     live "/feedback", Live.Home.Feedback.Index
 
-    # Admin dashboard - landing page with navigation
-    live "/admin", Live.Admin.Dashboard
-
-    # Meditations management (admin access)
-    live "/admin/meditations", Live.Meditations.List
-    live "/admin/meditations/new", Live.Meditations.New
-    live "/admin/meditations/:id/edit", Live.Meditations.Edit
-    live "/admin/meditations/import", Live.Admin.MeditationsImport.Import
-
-    # Meditation Sets management (admin access)
-    live "/admin/meditation-sets", Live.Meditations.Sets.List
-    live "/admin/meditation-sets/new", Live.Meditations.Sets.New
-    live "/admin/meditation-sets/:id/edit", Live.Meditations.Sets.Edit
+    # Admin login (public)
+    live "/admin/login", Live.Admin.Login
+    post "/admin/session", AdminSessionController, :create
+    delete "/admin/session", AdminSessionController, :delete
 
     # Browse meditation sets by mystery category (public)
     live "/mysteries/:category", Live.Mysteries.CategoryList
 
     # Prayer experience for a specific meditation set
     live "/meditation-sets/:set_id/pray", Live.Pray.Index
+  end
+
+  # Admin routes - protected by password authentication
+  scope "/admin", LumenViaeWeb do
+    pipe_through [:browser, :admin]
+
+    # Admin dashboard - landing page with navigation
+    live "/", Live.Admin.Dashboard
+
+    # Meditations management
+    live "/meditations", Live.Meditations.List
+    live "/meditations/new", Live.Meditations.New
+    live "/meditations/:id/edit", Live.Meditations.Edit
+    live "/meditations/import", Live.Admin.MeditationsImport.Import
+
+    # Meditation Sets management
+    live "/meditation-sets", Live.Meditations.Sets.List
+    live "/meditation-sets/new", Live.Meditations.Sets.New
+    live "/meditation-sets/:id/edit", Live.Meditations.Sets.Edit
   end
 
   # Other scopes may use custom stacks.

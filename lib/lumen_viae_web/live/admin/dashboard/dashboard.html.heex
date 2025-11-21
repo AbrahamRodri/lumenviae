@@ -1,8 +1,20 @@
 <div class="min-h-screen bg-cream">
   <div class="max-w-7xl mx-auto px-8 py-12">
-    <h2 class="font-cinzel text-4xl text-navy mb-8 text-center">
-      Admin Dashboard
-    </h2>
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="font-cinzel text-4xl text-navy">
+        Admin Dashboard
+      </h2>
+      <form action="/admin/session" method="post">
+        <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+        <input type="hidden" name="_method" value="delete" />
+        <button
+          type="submit"
+          class="bg-gold hover:bg-gold-light text-white px-6 py-2 rounded transition-colors font-crimson font-semibold"
+        >
+          Logout
+        </button>
+      </form>
+    </div>
     
 <!-- Stats Cards -->
     <div class="grid md:grid-cols-3 gap-8 mb-12">
