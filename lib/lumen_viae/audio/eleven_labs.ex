@@ -6,7 +6,7 @@ defmodule LumenViae.Audio.ElevenLabs do
 
   require Logger
 
-  @api_base_url "https://api.elevenlabs.io/v2"
+  @api_base_url "https://api.elevenlabs.io/v1"
 
   @doc """
   Generates audio from text using ElevenLabs API.
@@ -45,7 +45,7 @@ defmodule LumenViae.Audio.ElevenLabs do
     body =
       Jason.encode!(%{
         text: text,
-        model_id: "eleven_monolingual_v1",
+        model_id: "eleven_multilingual_v2",
         output_format: "mp3_44100_128",
         voice_settings: %{
           stability: 0.5,
