@@ -1,6 +1,9 @@
-<div class="min-h-screen" id="home-page" phx-hook="UserTimezone">
+<main class="min-h-screen" id="home-page" phx-hook="UserTimezone">
   <!-- Hero Section -->
-  <div class="bg-cream-dark py-20 px-8 border-b-3 border-gold">
+  <section
+    class="bg-cream-dark py-20 px-8 border-b-3 border-gold"
+    aria-labelledby="home-hero-heading"
+  >
     <div class="max-w-5xl mx-auto text-center">
       <img
         src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
@@ -8,25 +11,37 @@
         class="w-64 md:w-80 mx-auto mb-8 transition-transform duration-500 hover:scale-105"
       />
 
-      <h2 class="font-ovo text-5xl md:text-6xl text-navy mb-6">
+      <h1 id="home-hero-heading" class="font-ovo text-5xl md:text-6xl text-navy mb-4">
         Welcome to Lumen Viae
-      </h2>
+      </h1>
+
+      <p class="font-work-sans text-lg text-brown max-w-3xl mx-auto leading-relaxed">
+        A journey through the Holy Rosary, guided by the meditations of the saints , doctors
+        of the Church, and themed perspectives to illuminate the mysteries of Christ.
+      </p>
 
       <.ornate_divider variant="black" class="my-8 opacity-40 max-w-2xl mx-auto" />
 
-      <p class="font-garamond text-2xl text-navy italic mb-4">
-        Light of the Way
-      </p>
-
-      <p class="font-work-sans text-lg text-brown max-w-3xl mx-auto leading-relaxed">
-        A journey through the Holy Rosary, guided by the meditations of the saints
-        and doctors of the Church in the Catholic manner.
-      </p>
+      <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+        <.link
+          navigate={@recommended_set.path}
+          class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-navy text-cream text-lg font-ovo rounded shadow-soft hover:bg-navy-light hover:shadow-ornate transition-all duration-300"
+          aria-label="Pray today's recommended mystery set"
+        >
+          Pray Today's Mystery
+        </.link>
+        <.link
+          navigate="/rosary-methods"
+          class="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gold text-navy font-work-sans rounded hover:border-gold-dark transition-colors duration-200"
+        >
+          Learn the Methods
+        </.link>
+      </div>
     </div>
-  </div>
+  </section>
   
 <!-- Introduction Section -->
-  <div class="bg-white py-16 px-8">
+  <section class="bg-white py-16 px-8" aria-labelledby="home-intro-heading">
     <div class="max-w-6xl mx-auto">
       <div class="grid md:grid-cols-2 gap-12 items-center">
         <!-- Image Side -->
@@ -40,9 +55,12 @@
         
 <!-- Content Side -->
         <div class="space-y-6">
-          <h3 class="font-ovo text-3xl md:text-4xl text-navy leading-tight">
+          <h2
+            id="home-intro-heading"
+            class="font-ovo text-3xl md:text-4xl text-navy leading-tight"
+          >
             The Mysteries Through Many Lights
-          </h3>
+          </h2>
 
           <p class="font-work-sans text-lg text-brown leading-relaxed">
             Meditate on the same sacred mysteries through different spiritual perspectives—
@@ -88,16 +106,16 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <.ornate_divider variant="black" class="my-0 opacity-30" />
   
 <!-- Mystery Categories -->
-  <div class="bg-cream py-16 px-8">
+  <section class="bg-cream py-16 px-8" aria-labelledby="mystery-heading">
     <div class="max-w-5xl mx-auto">
-      <h3 class="font-ovo text-4xl text-navy text-center mb-4">
+      <h2 id="mystery-heading" class="font-ovo text-4xl text-navy text-center mb-4">
         The Fifteen  Mysteries
-      </h3>
+      </h2>
 
       <p class="font-work-sans text-lg text-brown text-center mb-8 max-w-2xl mx-auto">
         Choose a mystery set to begin—each contains meditations from sources
@@ -157,10 +175,13 @@
         <% end %>
       </div>
     </div>
-  </div>
+  </section>
   
 <!-- Coming Soon: Seven Sorrows Section -->
-  <div class="relative bg-navy py-20 px-8 overflow-hidden border-y-3 border-gold">
+  <section
+    class="relative bg-navy py-20 px-8 overflow-hidden border-y-3 border-gold"
+    aria-labelledby="seven-sorrows-heading"
+  >
     <!-- Background pattern overlay -->
     <div class="absolute inset-0 opacity-5">
       <img
@@ -178,9 +199,9 @@
           class="w-full max-w-2xl mx-auto mb-8 opacity-90 transition-opacity duration-500 hover:opacity-100"
         />
 
-        <h3 class="font-ovo text-4xl text-gold mb-6">
+        <h2 id="seven-sorrows-heading" class="font-ovo text-4xl text-gold mb-6">
           Coming Soon: The Seven Sorrows of Mary
-        </h3>
+        </h2>
 
         <.ornate_divider variant="white" class="my-8 opacity-30 max-w-xl mx-auto" />
       </div>
@@ -237,10 +258,10 @@
         </p>
       </div>
     </div>
-  </div>
+  </section>
   
 <!-- Methods of Praying Section -->
-  <div class="bg-white py-16 px-8">
+  <section class="bg-white py-16 px-8" aria-labelledby="methods-heading">
     <div class="max-w-4xl mx-auto">
       <div class="text-center mb-12">
         <img
@@ -249,9 +270,9 @@
           class="w-32 mx-auto mb-6 transition-transform duration-500 hover:scale-110"
         />
 
-        <h3 class="font-ovo text-4xl text-navy mb-6">
+        <h2 id="methods-heading" class="font-ovo text-4xl text-navy mb-6">
           Methods of Praying the Rosary
-        </h3>
+        </h2>
 
         <p class="font-work-sans text-lg text-brown leading-relaxed max-w-2xl mx-auto mb-8">
           Discover the  methods taught by St. Louis de Montfort
@@ -267,5 +288,5 @@
         </.link>
       </div>
     </div>
-  </div>
-</div>
+  </section>
+</main>
