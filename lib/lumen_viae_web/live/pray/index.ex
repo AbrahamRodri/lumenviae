@@ -16,6 +16,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
          |> assign(:set, set)
          |> assign(:audio_urls, audio_urls)
          |> assign(:current_index, 0)
+         |> assign(:completion_tracked, false)
          |> assign(:page_title, set.name)}
 
       [] ->
@@ -35,6 +36,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
     socket
     |> assign_current_meditation(new_index)
+    |> maybe_track_completion(new_index)
     |> then(&{:noreply, &1})
   end
 
@@ -97,4 +99,15 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   end
 
   defp normalize_index(_), do: 0
+
+  defp maybe_track_completion(socket, new_index) do
+    # Track completion when reaching the 5th mystery (index 4) for the first time
+    # Only track once per session to avoid double-counting if user navigates back
+    if new_index == 4 && !socket.assigns.completion_tracked do
+      Rosary.record_completion(socket.assigns.set.id)
+      assign(socket, :completion_tracked, true)
+    else
+      socket
+    end
+  end
 end

@@ -39,6 +39,67 @@
         </p>
       </div>
     </div>
+
+    <!-- Rosary Completion Analytics -->
+    <div class="mb-12">
+      <h3 class="font-cinzel text-2xl text-navy mb-6">Rosary Completion Analytics</h3>
+
+      <div class="grid md:grid-cols-2 gap-8 mb-8">
+        <div class="bg-white border-l-4 border-gold p-6">
+          <h4 class="font-cinzel text-lg text-navy mb-2">Total Completions</h4>
+          <p class="font-crimson text-4xl text-gold mb-1">
+            {@total_completions}
+          </p>
+          <p class="font-crimson text-sm text-gray-600">Users who reached the 5th mystery</p>
+        </div>
+
+        <div class="bg-white border-l-4 border-gold p-6">
+          <h4 class="font-cinzel text-lg text-navy mb-2">Completions Today</h4>
+          <p class="font-crimson text-4xl text-gold mb-1">
+            {@completions_today}
+          </p>
+          <p class="font-crimson text-sm text-gray-600">Rosaries completed today</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Completions by Set -->
+        <div class="bg-white border-l-4 border-gold p-6">
+          <h4 class="font-cinzel text-lg text-navy mb-4">Completions by Meditation Set</h4>
+          <%= if Enum.empty?(@completions_by_set) do %>
+            <p class="font-crimson text-gray-500 italic">No completions yet</p>
+          <% else %>
+            <div class="space-y-3">
+              <%= for completion <- @completions_by_set do %>
+                <div class="flex justify-between items-center border-b border-gray-200 pb-2">
+                  <span class="font-crimson text-navy"><%= completion.set_name %></span>
+                  <span class="font-crimson text-gold font-semibold"><%= completion.count %></span>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Recent Completions -->
+        <div class="bg-white border-l-4 border-gold p-6">
+          <h4 class="font-cinzel text-lg text-navy mb-4">Recent Completions</h4>
+          <%= if Enum.empty?(@recent_completions) do %>
+            <p class="font-crimson text-gray-500 italic">No recent completions</p>
+          <% else %>
+            <div class="space-y-3">
+              <%= for completion <- @recent_completions do %>
+                <div class="border-b border-gray-200 pb-2">
+                  <div class="font-crimson text-navy text-sm"><%= completion.set_name %></div>
+                  <div class="font-crimson text-gray-500 text-xs">
+                    <%= Calendar.strftime(completion.completed_at, "%B %d, %Y at %I:%M %p") %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
     
 <!-- Navigation Cards -->
     <div class="grid md:grid-cols-2 gap-8 mb-12">

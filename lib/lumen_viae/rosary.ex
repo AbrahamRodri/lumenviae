@@ -6,7 +6,7 @@ defmodule LumenViae.Rosary do
   import Ecto.Query, warn: false
   alias LumenViae.Repo
 
-  alias LumenViae.Rosary.{Mystery, Meditation, MeditationSet, MeditationSetMeditation}
+  alias LumenViae.Rosary.{Mystery, Meditation, MeditationSet, MeditationSetMeditation, RosaryCompletion}
 
   ## Mysteries
 
@@ -185,5 +185,84 @@ defmodule LumenViae.Rosary do
       from msm in MeditationSetMeditation,
         where: msm.meditation_set_id == ^meditation_set_id and msm.meditation_id == ^meditation_id
     )
+  end
+
+  ## Rosary Completions (Analytics)
+
+  @doc """
+  Records a rosary completion for analytics tracking.
+  Called when a user reaches the 5th mystery in a meditation set.
+  """
+  def record_completion(meditation_set_id) do
+    %RosaryCompletion{}
+    |> RosaryCompletion.changeset(%{
+      meditation_set_id: meditation_set_id,
+      completed_at: DateTime.utc_now()
+    })
+    |> Repo.insert()
+  end
+
+  @doc """
+  Gets the total count of rosary completions across all sets.
+  """
+  def count_total_completions do
+    Repo.aggregate(RosaryCompletion, :count)
+  end
+
+  @doc """
+  Gets completion statistics grouped by meditation set.
+  Returns a list of %{set_id, set_name, count} maps.
+  """
+  def get_completions_by_set do
+    from(rc in RosaryCompletion,
+      join: ms in MeditationSet,
+      on: rc.meditation_set_id == ms.id,
+      group_by: [ms.id, ms.name],
+      select: %{
+        set_id: ms.id,
+        set_name: ms.name,
+        count: count(rc.id)
+      },
+      order_by: [desc: count(rc.id)]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets recent completions for the dashboard.
+  Returns the last N completions with set information.
+  """
+  def get_recent_completions(limit \\ 10) do
+    from(rc in RosaryCompletion,
+      join: ms in MeditationSet,
+      on: rc.meditation_set_id == ms.id,
+      select: %{
+        id: rc.id,
+        set_name: ms.name,
+        completed_at: rc.completed_at
+      },
+      order_by: [desc: rc.completed_at],
+      limit: ^limit
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets completion count for a specific date range.
+  """
+  def count_completions_in_range(start_date, end_date) do
+    from(rc in RosaryCompletion,
+      where: rc.completed_at >= ^start_date and rc.completed_at <= ^end_date
+    )
+    |> Repo.aggregate(:count)
+  end
+
+  @doc """
+  Gets completion count for today.
+  """
+  def count_completions_today do
+    today_start = DateTime.utc_now() |> DateTime.to_date() |> DateTime.new!(~T[00:00:00])
+    today_end = DateTime.utc_now()
+    count_completions_in_range(today_start, today_end)
   end
 end
