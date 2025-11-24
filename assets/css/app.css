@@ -134,13 +134,39 @@
   --font-family-garamond: 'EB Garamond', serif;
 }
 
+:root {
+  /* Color roles */
+  --color-bg-primary: #faf2e6;
+  --color-bg-surface: #ffffff;
+  --color-text: #1f1b18;
+  --color-text-muted: #5a5148;
+  --color-accent-primary: #003b5c;
+  --color-accent-secondary: #b18b49;
+  --color-border: #c9a96b;
+  --color-cta-bg: #003b5c;
+  --color-cta-text: #faf2e6;
+
+  /* Spacing scale (4px baseline) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+  --space-8: 2.5rem;
+  --space-9: 3rem;
+  --space-10: 4rem;
+  --space-11: 5rem;
+}
+
 
 /* Typography utilities for meditation-friendly reading */
 .text-meditation {
   font-family: var(--font-family-work-sans);
-  font-size: 17px;
-  line-height: 1.8;
-  color: #42403e;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
 }
 
 .heading-ornate {
@@ -165,22 +191,22 @@
 /* Base body styling for readability - Clear Creek inspired */
 body {
   font-family: var(--font-family-work-sans);
-  font-size: 17px;
-  line-height: 1.8;
-  color: #42403e;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--color-text);
 }
 
 h1 {
   font-family: var(--font-family-roman-uncial);
-  line-height: 1.3;
-  letter-spacing: 0.02em;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
   font-weight: 400;
 }
 
 h2 {
   font-family: var(--font-family-ovo);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
   font-weight: 400;
 }
 
@@ -196,16 +222,11 @@ h3, h4, h5, h6 {
   max-width: 1365px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-inline: clamp(1rem, 3vw, 2rem);
 }
 
 .content-main {
-  width: 100%;
-}
-
-@media (min-width: 1080px) {
-  .content-main {
-    width: 71%;
-  }
+  width: min(72ch, 100%);
+  padding-inline: clamp(1rem, 3vw, 2rem);
+  margin-inline: auto;
 }
