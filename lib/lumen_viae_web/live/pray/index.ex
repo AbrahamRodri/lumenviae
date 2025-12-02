@@ -6,6 +6,9 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   def mount(%{"set_id" => set_id}, _session, socket) do
     set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
 
+    # Capture IP address during mount (only time connect_info is available)
+    ip_address = get_connect_info(socket, :peer_data) |> get_ip_address()
+
     case set.meditations do
       [_ | _] = meditations ->
         # Pre-generate all audio URLs once on mount instead of on every navigation
@@ -17,6 +20,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
          |> assign(:audio_urls, audio_urls)
          |> assign(:current_index, 0)
          |> assign(:completion_tracked, false)
+         |> assign(:ip_address, ip_address)
          |> assign(:page_title, set.name)}
 
       [] ->
@@ -104,10 +108,21 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     # Track completion when reaching the 5th mystery (index 4) for the first time
     # Only track once per session to avoid double-counting if user navigates back
     if new_index == 4 && !socket.assigns.completion_tracked do
-      Rosary.record_completion(socket.assigns.set.id)
+      Rosary.record_completion(socket.assigns.set.id, socket.assigns.ip_address)
       assign(socket, :completion_tracked, true)
     else
       socket
+    end
+  end
+
+  defp get_ip_address(nil), do: nil
+  defp get_ip_address(%{address: address}) do
+    case address do
+      {a, b, c, d} -> "#{a}.#{b}.#{c}.#{d}"
+      {a, b, c, d, e, f, g, h} ->
+        # IPv6 format (simplified)
+        "#{Integer.to_string(a, 16)}:#{Integer.to_string(b, 16)}:#{Integer.to_string(c, 16)}:#{Integer.to_string(d, 16)}:#{Integer.to_string(e, 16)}:#{Integer.to_string(f, 16)}:#{Integer.to_string(g, 16)}:#{Integer.to_string(h, 16)}"
+      _ -> nil
     end
   end
 end

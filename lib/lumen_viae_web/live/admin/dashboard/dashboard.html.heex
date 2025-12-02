@@ -91,8 +91,13 @@
                 <div class="border-b border-gray-200 pb-2">
                   <div class="font-crimson text-navy text-sm"><%= completion.set_name %></div>
                   <div class="font-crimson text-gray-500 text-xs">
-                    <%= Calendar.strftime(completion.completed_at, "%B %d, %Y at %I:%M %p") %>
+                    <%= format_central_time(completion.completed_at) %>
                   </div>
+                  <%= if completion.city || completion.region || completion.country do %>
+                    <div class="font-crimson text-gold text-xs mt-1">
+                      <%= format_location(completion) %>
+                    </div>
+                  <% end %>
                 </div>
               <% end %>
             </div>
@@ -102,7 +107,29 @@
     </div>
     
 <!-- Navigation Cards -->
-    <div class="grid md:grid-cols-2 gap-8 mb-12">
+    <div class="grid md:grid-cols-3 gap-8 mb-12">
+      <!-- Mysteries Management -->
+      <div class="bg-white border-l-4 border-gold p-8">
+        <h3 class="font-cinzel text-2xl text-navy mb-4">Manage Mysteries</h3>
+        <p class="font-crimson text-gray-600 mb-6">
+          Create and organize the mysteries of the Rosary (Joyful, Sorrowful, Glorious).
+        </p>
+        <div class="space-y-3">
+          <.link
+            navigate="/admin/mysteries"
+            class="block bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold text-center"
+          >
+            View All Mysteries
+          </.link>
+          <.link
+            navigate="/admin/mysteries/new"
+            class="block bg-white text-navy border-2 border-navy px-6 py-3 rounded hover:bg-navy hover:text-white transition-colors font-crimson font-semibold text-center"
+          >
+            Create New Mystery
+          </.link>
+        </div>
+      </div>
+
       <!-- Meditations Management -->
       <div class="bg-white border-l-4 border-gold p-8">
         <h3 class="font-cinzel text-2xl text-navy mb-4">Manage Meditations</h3>

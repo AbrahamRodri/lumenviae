@@ -1,0 +1,87 @@
+<div class="min-h-screen bg-cream">
+  <div class="max-w-7xl mx-auto px-8 py-12">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="font-cinzel text-4xl text-navy">
+        Mysteries
+      </h2>
+      <.link
+        navigate="/admin/mysteries/new"
+        class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+      >
+        Create New Mystery
+      </.link>
+    </div>
+
+    <div class="bg-white border-l-4 border-gold p-8 mb-8">
+      <h3 class="font-cinzel text-2xl text-navy mb-6">All Mysteries</h3>
+
+      <%= if @mysteries == [] do %>
+        <p class="font-crimson text-gray-600">No mysteries found.</p>
+      <% else %>
+        <%= for category <- ["joyful", "sorrowful", "glorious"] do %>
+          <% category_mysteries = Enum.filter(@mysteries, &(&1.category == category)) %>
+          <%= if category_mysteries != [] do %>
+            <div class="mb-8">
+              <h4 class="font-cinzel text-xl text-navy mb-4 capitalize">
+                {category} Mysteries
+              </h4>
+              <div class="space-y-3">
+                <%= for mystery <- category_mysteries do %>
+                  <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex-1">
+                      <h5 class="font-crimson font-semibold text-navy">
+                        {mystery.order}. {mystery.name}
+                      </h5>
+                      <%= if mystery.description do %>
+                        <p class="font-crimson text-sm text-gray-600 mt-1">
+                          {mystery.description}
+                        </p>
+                      <% end %>
+                      <%= if mystery.scripture_reference do %>
+                        <p class="font-crimson text-xs text-gold mt-1 italic">
+                          {mystery.scripture_reference}
+                        </p>
+                      <% end %>
+                      <%= if mystery.days_prayed do %>
+                        <p class="font-crimson text-xs text-gray-500 mt-1">
+                          Prayed on: {mystery.days_prayed}
+                        </p>
+                      <% end %>
+                    </div>
+
+                    <div class="flex items-center space-x-2 ml-4">
+                      <.link
+                        navigate={"/admin/mysteries/#{mystery.id}/edit"}
+                        class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+                      >
+                        Edit
+                      </.link>
+
+                      <button
+                        phx-click="delete_mystery"
+                        phx-value-id={mystery.id}
+                        data-confirm="Are you sure you want to delete this mystery? This will also delete all associated meditations."
+                        class="px-4 py-2 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-colors font-crimson text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="mt-8 text-center">
+      <.link
+        navigate="/admin"
+        class="inline-block font-crimson text-navy hover:text-gold transition-colors"
+      >
+        ← Back to Dashboard
+      </.link>
+    </div>
+  </div>
+</div>
