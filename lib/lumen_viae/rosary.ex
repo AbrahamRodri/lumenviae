@@ -30,6 +30,20 @@ defmodule LumenViae.Rosary do
     |> Repo.insert()
   end
 
+  def update_mystery(%Mystery{} = mystery, attrs) do
+    mystery
+    |> Mystery.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def change_mystery(%Mystery{} = mystery, attrs \\ %{}) do
+    Mystery.changeset(mystery, attrs)
+  end
+
+  def delete_mystery(%Mystery{} = mystery) do
+    Repo.delete(mystery)
+  end
+
   ## Meditations
 
   def count_meditations do
@@ -192,13 +206,28 @@ defmodule LumenViae.Rosary do
   @doc """
   Records a rosary completion for analytics tracking.
   Called when a user reaches the 5th mystery in a meditation set.
+
+  Optionally accepts an IP address to fetch and store location data.
   """
-  def record_completion(meditation_set_id) do
+  def record_completion(meditation_set_id, ip_address \\ nil) do
+    location_data =
+      case ip_address do
+        nil -> %{}
+        ip ->
+          case LumenViae.Services.Geolocation.get_location(ip) do
+            nil -> %{}
+            location -> Map.put(location, :ip_address, ip)
+          end
+      end
+
+    attrs =
+      Map.merge(%{
+        meditation_set_id: meditation_set_id,
+        completed_at: DateTime.utc_now()
+      }, location_data)
+
     %RosaryCompletion{}
-    |> RosaryCompletion.changeset(%{
-      meditation_set_id: meditation_set_id,
-      completed_at: DateTime.utc_now()
-    })
+    |> RosaryCompletion.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -230,7 +259,7 @@ defmodule LumenViae.Rosary do
 
   @doc """
   Gets recent completions for the dashboard.
-  Returns the last N completions with set information.
+  Returns the last N completions with set information and location data.
   """
   def get_recent_completions(limit \\ 10) do
     from(rc in RosaryCompletion,
@@ -239,7 +268,11 @@ defmodule LumenViae.Rosary do
       select: %{
         id: rc.id,
         set_name: ms.name,
-        completed_at: rc.completed_at
+        completed_at: rc.completed_at,
+        city: rc.city,
+        region: rc.region,
+        country: rc.country,
+        country_code: rc.country_code
       },
       order_by: [desc: rc.completed_at],
       limit: ^limit
