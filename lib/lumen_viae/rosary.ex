@@ -240,16 +240,17 @@ defmodule LumenViae.Rosary do
 
   @doc """
   Gets completion statistics grouped by meditation set.
-  Returns a list of %{set_id, set_name, count} maps.
+  Returns a list of %{set_id, set_name, category, count} maps.
   """
   def get_completions_by_set do
     from(rc in RosaryCompletion,
       join: ms in MeditationSet,
       on: rc.meditation_set_id == ms.id,
-      group_by: [ms.id, ms.name],
+      group_by: [ms.id, ms.name, ms.category],
       select: %{
         set_id: ms.id,
         set_name: ms.name,
+        category: ms.category,
         count: count(rc.id)
       },
       order_by: [desc: count(rc.id)]
@@ -268,6 +269,7 @@ defmodule LumenViae.Rosary do
       select: %{
         id: rc.id,
         set_name: ms.name,
+        category: ms.category,
         completed_at: rc.completed_at,
         city: rc.city,
         region: rc.region,
