@@ -66,6 +66,11 @@ defmodule LumenViaeWeb.Router do
     live "/meditation-sets", Live.Meditations.Sets.List
     live "/meditation-sets/new", Live.Meditations.Sets.New
     live "/meditation-sets/:id/edit", Live.Meditations.Sets.Edit
+
+    # Mysteries management
+    live "/mysteries", Live.Mysteries.List
+    live "/mysteries/new", Live.Mysteries.New
+    live "/mysteries/:id/edit", Live.Mysteries.Edit
   end
 
   # Other scopes may use custom stacks.
