@@ -212,11 +212,16 @@ defmodule LumenViae.Rosary do
   def record_completion(meditation_set_id, ip_address \\ nil) do
     location_data =
       case ip_address do
-        nil -> %{}
+        nil ->
+          %{}
         ip ->
+          # Always store the IP address
+          base_data = %{ip_address: ip}
+
+          # Try to fetch location data
           case LumenViae.Services.Geolocation.get_location(ip) do
-            nil -> %{}
-            location -> Map.put(location, :ip_address, ip)
+            nil -> base_data
+            location -> Map.merge(base_data, location)
           end
       end
 
