@@ -42,4 +42,23 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   defp get_recent_completions do
     Rosary.get_recent_completions(5)
   end
+
+  defp format_central_time(utc_datetime) do
+    # Convert UTC to Central Time (UTC-6 CST or UTC-5 CDT)
+    # Using DateTime.shift_zone/2 requires tzdata dependency
+    # For now, we'll subtract 6 hours (standard time offset)
+    central_datetime = DateTime.add(utc_datetime, -6 * 3600, :second)
+    Calendar.strftime(central_datetime, "%B %d, %Y at %I:%M %p CT")
+  end
+
+  defp format_location(completion) do
+    parts = [completion.city, completion.region, completion.country]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.reject(&(&1 == ""))
+
+    case parts do
+      [] -> nil
+      parts -> Enum.join(parts, ", ")
+    end
+  end
 end
