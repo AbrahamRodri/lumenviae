@@ -8,6 +8,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
     # Capture IP address during mount (only time connect_info is available)
     ip_address = get_connect_info(socket, :peer_data) |> get_ip_address()
+    require Logger
+    Logger.info("Captured IP address: #{inspect(ip_address)}")
 
     case set.meditations do
       [_ | _] = meditations ->
@@ -108,6 +110,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     # Track completion when reaching the 5th mystery (index 4) for the first time
     # Only track once per session to avoid double-counting if user navigates back
     if new_index == 4 && !socket.assigns.completion_tracked do
+      require Logger
+      Logger.info("Recording completion with IP: #{inspect(socket.assigns.ip_address)}")
       Rosary.record_completion(socket.assigns.set.id, socket.assigns.ip_address)
       assign(socket, :completion_tracked, true)
     else
