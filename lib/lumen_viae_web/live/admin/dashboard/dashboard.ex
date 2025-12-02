@@ -40,7 +40,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   end
 
   defp get_recent_completions do
-    Rosary.get_recent_completions(5)
+    Rosary.get_recent_completions(15)
   end
 
   defp format_central_time(utc_datetime) do
