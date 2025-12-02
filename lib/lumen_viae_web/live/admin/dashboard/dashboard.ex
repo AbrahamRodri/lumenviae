@@ -51,14 +51,15 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     Calendar.strftime(central_datetime, "%B %d, %Y at %I:%M %p CT")
   end
 
-  defp format_location(completion) do
-    parts = [completion.city, completion.region, completion.country]
-    |> Enum.reject(&is_nil/1)
-    |> Enum.reject(&(&1 == ""))
-
-    case parts do
-      [] -> nil
-      parts -> Enum.join(parts, ", ")
-    end
-  end
+  # TODO: Archived for future use when location tracking is re-enabled
+  # defp format_location(completion) do
+  #   parts = [completion.city, completion.region, completion.country]
+  #   |> Enum.reject(&is_nil/1)
+  #   |> Enum.reject(&(&1 == ""))
+  #
+  #   case parts do
+  #     [] -> nil
+  #     parts -> Enum.join(parts, ", ")
+  #   end
+  # end
 end

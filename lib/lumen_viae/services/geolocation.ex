@@ -2,6 +2,12 @@ defmodule LumenViae.Services.Geolocation do
   @moduledoc """
   Service for fetching geolocation data from IP addresses.
   Uses ip-api.com free tier (no API key required, 45 requests/minute limit).
+
+  NOTE: This functionality is currently DISABLED but archived for future use.
+  See lib/lumen_viae_web/live/pray/index.ex for TODO comments on re-enabling.
+
+  The service is fully functional and tested - it just needs IP capture
+  to be fixed in production (likely needs X-Forwarded-For header parsing).
   """
 
   require Logger
