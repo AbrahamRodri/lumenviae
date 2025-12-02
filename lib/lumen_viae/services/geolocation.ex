@@ -34,18 +34,25 @@ defmodule LumenViae.Services.Geolocation do
   end
 
   defp fetch_from_api(ip_address) do
+    # Ensure inets and ssl applications are started (needed in production)
+    Application.ensure_all_started(:inets)
+    Application.ensure_all_started(:ssl)
+
     url = "http://ip-api.com/json/#{ip_address}?fields=status,city,regionName,country,countryCode"
+    Logger.info("Fetching geolocation for IP: #{ip_address} from #{url}")
 
-    case :httpc.request(:get, {String.to_charlist(url), []}, [], []) do
+    case :httpc.request(:get, {String.to_charlist(url), []}, [{:timeout, 10000}], []) do
       {:ok, {{_, 200, _}, _headers, body}} ->
-        parse_response(List.to_string(body))
+        result = parse_response(List.to_string(body))
+        Logger.info("Geolocation success for #{ip_address}: #{inspect(result)}")
+        result
 
-      {:ok, {{_, status_code, _}, _headers, _body}} ->
-        Logger.warning("Geolocation API returned status #{status_code} for IP #{ip_address}")
+      {:ok, {{_, status_code, _}, _headers, body}} ->
+        Logger.warning("Geolocation API returned status #{status_code} for IP #{ip_address}, body: #{List.to_string(body)}")
         nil
 
       {:error, reason} ->
-        Logger.warning("Geolocation API request failed for IP #{ip_address}: #{inspect(reason)}")
+        Logger.error("Geolocation API request failed for IP #{ip_address}: #{inspect(reason)}")
         nil
     end
   end
