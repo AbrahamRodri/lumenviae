@@ -19,6 +19,6 @@ defmodule LumenViae.Rosary.MeditationSet do
     meditation_set
     |> cast(attrs, [:name, :category, :description])
     |> validate_required([:name, :category])
-    |> validate_inclusion(:category, ["joyful", "sorrowful", "glorious"])
+    |> validate_inclusion(:category, ["joyful", "sorrowful", "glorious", "seven_sorrows"])
   end
 end
