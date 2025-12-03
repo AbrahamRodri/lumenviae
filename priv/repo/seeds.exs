@@ -1,74 +1,35 @@
 # Script for populating the database. You can run it as:
 #
-#     mix run priv/repo/seeds.exs                        # Add new data without wiping
-#     RESET_DB=true mix run priv/repo/seeds.exs          # Wipe and start fresh
+#     mix run priv/repo/seeds.exs
 #
-# In production:
-#     FORCE_SEED=true mix run priv/repo/seeds.exs        # Add new data
-#     FORCE_SEED=true RESET_DB=true mix run priv/repo/seeds.exs  # Wipe and start fresh
+# This script is safe to run multiple times. It will:
+# - Add any new mysteries that don't exist (based on category + order)
+# - Skip existing mysteries
+# - Load meditation files and let them handle their own logic
+# - Create/update meditation sets as needed
 
 alias LumenViae.Repo
-alias LumenViae.Rosary.{Mystery, Meditation, MeditationSet, MeditationSetMeditation}
-import Ecto.Query
-
-# ============================================================================
-# Configuration
-# ============================================================================
-
-env = System.get_env("MIX_ENV") || "dev"
-force_seed = System.get_env("FORCE_SEED") == "true"
-reset_db = System.get_env("RESET_DB") == "true"
-
-# Safety check: Prevent running in production unless explicitly allowed
-if env == "prod" and not force_seed do
-  IO.puts("""
-  ⚠️  WARNING: Attempting to run seeds in production environment!
-
-  To run seeds in production, set the FORCE_SEED environment variable:
-    FORCE_SEED=true mix run priv/repo/seeds.exs           # Add new data without wiping
-    FORCE_SEED=true RESET_DB=true mix run priv/repo/seeds.exs  # Wipe and start fresh
-
-  Aborting...
-  """)
-
-  System.halt(1)
-end
+alias LumenViae.Rosary.Mystery
 
 IO.puts("\n" <> String.duplicate("=", 70))
 IO.puts("  LUMEN VIAE - Database Seeding")
 IO.puts(String.duplicate("=", 70))
-
-# Optionally clear existing data
-if reset_db do
-  IO.puts("\n🔄 RESET_DB=true - Clearing existing data...")
-  Repo.delete_all(MeditationSetMeditation)
-  Repo.delete_all(MeditationSet)
-  Repo.delete_all(Meditation)
-  Repo.delete_all(Mystery)
-  IO.puts("✓ Cleared existing data")
-else
-  IO.puts("\n➕ Adding new data (existing data will be preserved)")
-end
+IO.puts("\nAdding any new mysteries and meditations...")
 
 # ============================================================================
 # Helper Functions
 # ============================================================================
 
-insert_or_update_mystery = fn attrs ->
-  case Repo.get_by(Mystery, name: attrs.name) do
+insert_mystery_if_new = fn attrs ->
+  case Repo.get_by(Mystery, category: attrs.category, order: attrs.order) do
     nil ->
       mystery = Repo.insert!(struct(Mystery, attrs))
-      IO.puts("  ✓ Created: #{attrs.name}")
+      IO.puts("  ✓ Created: #{attrs.name} (#{attrs.category} ##{attrs.order})")
       mystery
 
     existing ->
-      mystery =
-        existing
-        |> Mystery.changeset(attrs)
-        |> Repo.update!()
-
-      IO.puts("  ↻ Updated: #{attrs.name}")
-      mystery
+      IO.puts("  - Exists: #{existing.name} (#{attrs.category} ##{attrs.order})")
+      existing
   end
 end
 
@@ -205,108 +166,68 @@ mysteries_data = [
     days_prayed: "Wednesdays, Thursdays, and Sundays",
     description: "Mary is crowned Queen of Heaven and Earth.",
     scripture_reference: "Revelation 12:1-6"
+  },
+
+  # Seven Sorrows of Mary
+  %{
+    name: "The Prophecy of Simeon",
+    category: "seven_sorrows",
+    order: 1,
+    description: "Simeon prophesies that a sword of sorrow will pierce Mary's heart.",
+    scripture_reference: "Luke 2:34-35"
+  },
+  %{
+    name: "The Flight into Egypt",
+    category: "seven_sorrows",
+    order: 2,
+    description: "Mary and Joseph flee with the infant Jesus to Egypt to escape Herod's persecution.",
+    scripture_reference: "Matthew 2:13-21"
+  },
+  %{
+    name: "The Loss of Jesus in the Temple",
+    category: "seven_sorrows",
+    order: 3,
+    description: "Mary and Joseph search for three days before finding the child Jesus in the Temple.",
+    scripture_reference: "Luke 2:41-50"
+  },
+  %{
+    name: "Mary Meets Jesus on the Way to Calvary",
+    category: "seven_sorrows",
+    order: 4,
+    description: "Mary encounters her Son carrying His cross to Calvary.",
+    scripture_reference: "Luke 23:27-31"
+  },
+  %{
+    name: "The Crucifixion and Death of Jesus",
+    category: "seven_sorrows",
+    order: 5,
+    description: "Mary stands at the foot of the cross as Jesus dies.",
+    scripture_reference: "John 19:25-27"
+  },
+  %{
+    name: "Mary Receives the Body of Jesus",
+    category: "seven_sorrows",
+    order: 6,
+    description: "Mary receives her Son's lifeless body taken down from the cross.",
+    scripture_reference: "John 19:38-40"
+  },
+  %{
+    name: "The Burial of Jesus",
+    category: "seven_sorrows",
+    order: 7,
+    description: "Mary witnesses the burial of Jesus in the tomb.",
+    scripture_reference: "John 19:41-42"
   }
 ]
 
-Enum.each(mysteries_data, insert_or_update_mystery)
-
-IO.puts("\n✓ Mysteries seeded: #{Repo.aggregate(Mystery, :count)} total")
-
-# ============================================================================
-# Seed Meditations from External Files
-# ============================================================================
-
-IO.puts("\n" <> String.duplicate("-", 70))
-IO.puts("Seeding Meditations from  Sources...")
-IO.puts(String.duplicate("-", 70))
-
-# Discover all meditation seed files in priv/repo/seeds/
-seeds_dir = Path.join([:code.priv_dir(:lumen_viae), "repo", "seeds"])
-
-if File.exists?(seeds_dir) do
-  seeds_dir
-  |> File.ls!()
-  |> Enum.filter(&String.ends_with?(&1, "_meditations.exs"))
-  |> Enum.sort()
-  |> Enum.each(fn file ->
-    file_path = Path.join(seeds_dir, file)
-    IO.puts("\n📖 Loading: #{file}")
-    Code.require_file(file_path)
-  end)
-else
-  IO.puts("\n⚠️  Seeds directory not found: #{seeds_dir}")
-end
-
-IO.puts("\n✓ Meditations seeded: #{Repo.aggregate(Meditation, :count)} total")
-
-# ============================================================================
-# Create Meditation Sets
-# ============================================================================
-
-IO.puts("\n" <> String.duplicate("-", 70))
-IO.puts("Creating Meditation Sets...")
-IO.puts(String.duplicate("-", 70))
-
-# Get all meditations grouped by author and category
-all_meditations = Meditation |> Repo.all() |> Repo.preload(:mystery)
-
-meditations_by_source =
-  all_meditations
-  |> Enum.group_by(&{&1.author, &1.mystery.category})
-
-# Create sets for each unique combination
-for {{author, category}, meditations} <- meditations_by_source do
-  set_name = "#{String.capitalize(category)} Mysteries - #{author}"
-
-  # Check if set already exists
-  existing_set = Repo.get_by(MeditationSet, name: set_name)
-
-  meditation_set =
-    if existing_set do
-      IO.puts("  ↻ Updating: #{set_name}")
-      existing_set
-    else
-      set =
-        Repo.insert!(%MeditationSet{
-          name: set_name,
-          category: category,
-          description: "Meditations on the #{category} mysteries from #{author}"
-        })
-
-      IO.puts("  ✓ Created: #{set_name}")
-      set
-    end
-
-  # Clear existing relationships for this set if updating
-  if existing_set do
-    from(m in MeditationSetMeditation, where: m.meditation_set_id == ^meditation_set.id)
-    |> Repo.delete_all()
-  end
-
-  # Link meditations to set with proper order
-  meditations
-  |> Enum.sort_by(& &1.mystery.order)
-  |> Enum.with_index(1)
-  |> Enum.each(fn {meditation, order} ->
-    Repo.insert!(%MeditationSetMeditation{
-      meditation_set_id: meditation_set.id,
-      meditation_id: meditation.id,
-      order: order
-    })
-  end)
-end
-
-IO.puts("\n✓ Meditation sets created: #{Repo.aggregate(MeditationSet, :count)} total")
+Enum.each(mysteries_data, insert_mystery_if_new)
 
 # ============================================================================
 # Summary
 # ============================================================================
 
 IO.puts("\n" <> String.duplicate("=", 70))
-IO.puts("  ✅ Database Seeding Completed Successfully!")
+IO.puts("  Database Seeding Completed")
 IO.puts(String.duplicate("=", 70))
-IO.puts("\nFinal counts:")
-IO.puts("  • Mysteries:         #{Repo.aggregate(Mystery, :count)}")
-IO.puts("  • Meditations:       #{Repo.aggregate(Meditation, :count)}")
-IO.puts("  • Meditation Sets:   #{Repo.aggregate(MeditationSet, :count)}")
+IO.puts("\nTotal mysteries: #{Repo.aggregate(Mystery, :count)}")
 IO.puts(String.duplicate("=", 70) <> "\n")

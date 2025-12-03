@@ -44,13 +44,16 @@
             >
               <option value="">Select a Category</option>
               <option value="joyful" selected={@edit_form[:category].value == "joyful"}>
-                Joyful
+                Joyful Mysteries
               </option>
               <option value="sorrowful" selected={@edit_form[:category].value == "sorrowful"}>
-                Sorrowful
+                Sorrowful Mysteries
               </option>
               <option value="glorious" selected={@edit_form[:category].value == "glorious"}>
-                Glorious
+                Glorious Mysteries
+              </option>
+              <option value="seven_sorrows" selected={@edit_form[:category].value == "seven_sorrows"}>
+                Seven Sorrows of Mary
               </option>
             </select>
             <%= for error <- @edit_form[:category].errors do %>
@@ -60,7 +63,7 @@
 
           <div>
             <label class="font-crimson text-navy font-semibold block mb-2">
-              Order (1-5)
+              Order (1-7)
             </label>
             <input
               type="number"
@@ -68,12 +71,12 @@
               value={@edit_form[:order].value || ""}
               required
               min="1"
-              max="5"
+              max="7"
               class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
               placeholder="e.g., 1"
             />
             <p class="font-crimson text-sm text-gray-500 mt-1">
-              Position within the category (1st through 5th mystery)
+              Position within the category (Rosary: 1-5, Seven Sorrows: 1-7)
             </p>
             <%= for error <- @edit_form[:order].errors do %>
               <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>

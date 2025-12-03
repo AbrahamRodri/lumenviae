@@ -46,7 +46,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
 
     with {meditation_id_int, ""} <- Integer.parse(meditation_id),
          {order_int, ""} <- Integer.parse(order),
-         true <- order_int >= 1 and order_int <= 5 do
+         true <- order_int >= 1 and order_int <= 7 do
       case Rosary.add_meditation_to_set(set_id, meditation_id_int, order_int) do
         {:ok, _} ->
           set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
@@ -62,7 +62,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
       end
     else
       _ ->
-        {:noreply, put_flash(socket, :error, "Invalid meditation ID or order (must be 1-5)")}
+        {:noreply, put_flash(socket, :error, "Invalid meditation ID or order (must be 1-7)")}
     end
   end
 

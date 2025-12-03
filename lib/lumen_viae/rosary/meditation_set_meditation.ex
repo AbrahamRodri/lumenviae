@@ -16,7 +16,7 @@ defmodule LumenViae.Rosary.MeditationSetMeditation do
     meditation_set_meditation
     |> cast(attrs, [:meditation_set_id, :meditation_id, :order])
     |> validate_required([:meditation_set_id, :meditation_id, :order])
-    |> validate_number(:order, greater_than: 0, less_than_or_equal_to: 5)
+    |> validate_number(:order, greater_than: 0, less_than_or_equal_to: 7)
     |> unique_constraint([:meditation_set_id, :meditation_id])
     |> unique_constraint([:meditation_set_id, :order])
   end

@@ -18,12 +18,12 @@
       <%= if @mysteries == [] do %>
         <p class="font-crimson text-gray-600">No mysteries found.</p>
       <% else %>
-        <%= for category <- ["joyful", "sorrowful", "glorious"] do %>
+        <%= for category <- ["joyful", "sorrowful", "glorious", "seven_sorrows"] do %>
           <% category_mysteries = Enum.filter(@mysteries, &(&1.category == category)) %>
           <%= if category_mysteries != [] do %>
             <div class="mb-8">
-              <h4 class="font-cinzel text-xl text-navy mb-4 capitalize">
-                {category} Mysteries
+              <h4 class="font-cinzel text-xl text-navy mb-4">
+                {LumenViae.Constants.mystery_category_label(category)}
               </h4>
               <div class="space-y-3">
                 <%= for mystery <- category_mysteries do %>
