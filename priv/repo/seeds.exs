@@ -180,14 +180,16 @@ mysteries_data = [
     name: "The Flight into Egypt",
     category: "seven_sorrows",
     order: 2,
-    description: "Mary and Joseph flee with the infant Jesus to Egypt to escape Herod's persecution.",
+    description:
+      "Mary and Joseph flee with the infant Jesus to Egypt to escape Herod's persecution.",
     scripture_reference: "Matthew 2:13-21"
   },
   %{
     name: "The Loss of Jesus in the Temple",
     category: "seven_sorrows",
     order: 3,
-    description: "Mary and Joseph search for three days before finding the child Jesus in the Temple.",
+    description:
+      "Mary and Joseph search for three days before finding the child Jesus in the Temple.",
     scripture_reference: "Luke 2:41-50"
   },
   %{
@@ -198,21 +200,21 @@ mysteries_data = [
     scripture_reference: "Luke 23:27-31"
   },
   %{
-    name: "The Crucifixion and Death of Jesus",
+    name: "Jesus Dies on the Cross",
     category: "seven_sorrows",
     order: 5,
     description: "Mary stands at the foot of the cross as Jesus dies.",
     scripture_reference: "John 19:25-27"
   },
   %{
-    name: "Mary Receives the Body of Jesus",
+    name: "Mary Receives the Dead Body of Jesus in Her Arms",
     category: "seven_sorrows",
     order: 6,
     description: "Mary receives her Son's lifeless body taken down from the cross.",
     scripture_reference: "John 19:38-40"
   },
   %{
-    name: "The Burial of Jesus",
+    name: "Jesus is Placed in the Tomb",
     category: "seven_sorrows",
     order: 7,
     description: "Mary witnesses the burial of Jesus in the tomb.",
