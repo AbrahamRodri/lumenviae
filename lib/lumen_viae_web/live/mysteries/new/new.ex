@@ -21,7 +21,7 @@ defmodule LumenViaeWeb.Live.Mysteries.New do
         {:noreply,
          socket
          |> put_flash(:error, "Failed to create mystery: #{format_errors(changeset)}")
-         |> assign(:mystery_form, to_form(changeset.changes))}
+         |> assign(:mystery_form, to_form(changeset))}
     end
   end
 
