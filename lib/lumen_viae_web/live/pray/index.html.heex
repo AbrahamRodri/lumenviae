@@ -1,11 +1,7 @@
 <div
   class="min-h-screen bg-navy flex flex-col"
-  id="rosary-progress-container"
-  phx-hook="RosaryProgress MobileMode"
-  data-set-id={@set.id}
-  data-current-index={@current_index}
-  data-mobile-mode-enabled={@mobile_mode_enabled}
-  data-mobile-mode-preference={@mobile_mode_preference}
+  id="prayer-container"
+  phx-hook="MobileMode"
 >
   <div class={[
     "flex-1 flex flex-col max-w-4xl w-full mx-auto",
@@ -21,16 +17,24 @@
         <h1 class="font-cinzel text-base md:text-lg text-gold text-center flex-1">
           {@set.name}
         </h1>
-        <div class="flex-1 flex justify-end">
+        <div class="flex-1 flex justify-end md:hidden">
           <button
             phx-click="toggle_mobile_mode"
-            phx-value-preference={cycle_preference(@mobile_mode_preference)}
             class="text-gold hover:text-gold-light transition-colors p-1"
-            title={mobile_mode_title(@mobile_mode_preference)}
+            title={if @mobile_mode_enabled, do: "Switch to full view", else: "Switch to mobile view"}
             aria-label="Toggle mobile mode"
             type="button"
           >
-            <.mobile_mode_icon preference={@mobile_mode_preference} enabled={@mobile_mode_enabled} />
+            <%= if @mobile_mode_enabled do %>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                <path d="M11.25 4.533A9.707 9.707 0 006 3a9.735 9.735 0 00-3.25.555.75.75 0 00-.5.707v14.25a.75.75 0 001 .707A8.237 8.237 0 016 18.75c1.995 0 3.823.707 5.25 1.886V4.533zM12.75 20.636A8.214 8.214 0 0118 18.75c.966 0 1.89.166 2.75.47a.75.75 0 001-.708V4.262a.75.75 0 00-.5-.707A9.735 9.735 0 0018 3a9.707 9.707 0 00-5.25 1.533v16.103z" />
+              </svg>
+            <% else %>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                <path d="M10.5 18.75a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" />
+                <path fill-rule="evenodd" d="M8.625.75A3.375 3.375 0 005.25 4.125v15.75a3.375 3.375 0 003.375 3.375h6.75a3.375 3.375 0 003.375-3.375V4.125A3.375 3.375 0 0015.375.75h-6.75zM7.5 4.125C7.5 3.504 8.004 3 8.625 3H9.75v.375c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125V3h1.125c.621 0 1.125.504 1.125 1.125v15.75c0 .621-.504 1.125-1.125 1.125h-6.75A1.125 1.125 0 017.5 19.875V4.125z" clip-rule="evenodd" />
+              </svg>
+            <% end %>
           </button>
         </div>
       </div>
