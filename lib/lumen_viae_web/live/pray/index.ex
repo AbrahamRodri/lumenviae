@@ -41,7 +41,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
     socket
     |> maybe_track_completion(new_index)
-    |> push_patch(to: ~p"/meditation-sets/#{socket.assigns.set.id}/pray?mystery=#{new_index}")
+    |> push_patch(to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled))
     |> then(&{:noreply, &1})
   end
 
@@ -51,7 +51,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     new_index = (current - 1) |> clamp_index(total)
 
     socket
-    |> push_patch(to: ~p"/meditation-sets/#{socket.assigns.set.id}/pray?mystery=#{new_index}")
+    |> push_patch(to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled))
     |> then(&{:noreply, &1})
   end
 
@@ -60,11 +60,19 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   end
 
   def handle_event("toggle_mobile_mode", _params, socket) do
-    {:noreply, assign(socket, :mobile_mode_enabled, !socket.assigns.mobile_mode_enabled)}
+    new_mobile_mode = !socket.assigns.mobile_mode_enabled
+
+    {:noreply,
+     push_patch(socket,
+       to: build_url(socket.assigns.set.id, socket.assigns.current_index, new_mobile_mode)
+     )}
   end
 
   def handle_event("init_mobile_mode", %{"enabled" => enabled}, socket) do
-    {:noreply, assign(socket, :mobile_mode_enabled, enabled)}
+    {:noreply,
+     push_patch(socket,
+       to: build_url(socket.assigns.set.id, socket.assigns.current_index, enabled)
+     )}
   end
 
   @impl true
@@ -77,6 +85,21 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       |> Map.get("mystery", "0")
       |> normalize_index()
       |> clamp_index(total_count)
+
+    # Read mobile mode from URL params, default to nil (will be set by hook)
+    mobile_mode =
+      case Map.get(params, "mobile") do
+        "true" -> true
+        "false" -> false
+        _ -> nil
+      end
+
+    socket =
+      if mobile_mode != nil do
+        assign(socket, :mobile_mode_enabled, mobile_mode)
+      else
+        socket
+      end
 
     {:noreply,
      socket
@@ -112,6 +135,10 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   end
 
   defp normalize_index(_), do: 0
+
+  defp build_url(set_id, mystery_index, mobile_mode_enabled) do
+    ~p"/meditation-sets/#{set_id}/pray?mystery=#{mystery_index}&mobile=#{mobile_mode_enabled}"
+  end
 
   defp maybe_track_completion(socket, new_index) do
     # Track completion when reaching the 5th mystery (index 4) for the first time

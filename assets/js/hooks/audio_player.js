@@ -59,6 +59,11 @@ export default {
 
       // Load the new audio source
       this.audio.load()
+
+      // Auto-play when navigating to a new mystery (not on initial load)
+      this.audio.addEventListener('loadeddata', () => {
+        this.play()
+      }, { once: true })
     }
   },
 
