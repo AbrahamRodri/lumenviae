@@ -73,10 +73,20 @@ defmodule LumenViaeWeb.Router do
     live "/mysteries/:id/edit", Live.Mysteries.Edit
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", LumenViaeWeb do
-  #   pipe_through :api
-  # end
+  # JSON API for iOS app
+  scope "/api", LumenViaeWeb.API do
+    pipe_through :api
+
+    # Meditation Sets
+    get "/meditation-sets", MeditationSetController, :index
+    get "/meditation-sets/:id", MeditationSetController, :show
+
+    # Mysteries
+    get "/mysteries", MysteryController, :index
+
+    # Completions
+    post "/completions", CompletionController, :create
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:lumen_viae, :dev_routes) do
