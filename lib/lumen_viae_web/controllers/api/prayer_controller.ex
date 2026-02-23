@@ -5,7 +5,7 @@ defmodule LumenViaeWeb.API.PrayerController do
 
   @prayers %{
     "veni_creator" => "prayers/veni_creator_spiritus.mp3",
-    "ave_maris_stella" => "prayers/ave_maris_stella.mp3",
+    "ave_maris_stella" => "prayers/ave_maris_stella.mp4",
     "magnificat" => "prayers/magnificat.mp3",
     "glory_be" => "prayers/gloria_patri.mp3"
   }
