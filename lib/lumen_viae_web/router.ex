@@ -86,6 +86,9 @@ defmodule LumenViaeWeb.Router do
 
     # Completions
     post "/completions", CompletionController, :create
+
+    # Prayers
+    get "/prayers/:id/audio", PrayerController, :audio
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
