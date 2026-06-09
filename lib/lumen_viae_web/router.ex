@@ -37,6 +37,9 @@ defmodule LumenViaeWeb.Router do
     # Feedback and feature requests
     live "/feedback", Live.Home.Feedback.Index
 
+    # Privacy policy (for iOS App Store listing)
+    live "/privacy-policy", Live.PrivacyPolicy.Index
+
     # Admin login (public)
     live "/admin/login", Live.Admin.Login
     post "/admin/session", AdminSessionController, :create
