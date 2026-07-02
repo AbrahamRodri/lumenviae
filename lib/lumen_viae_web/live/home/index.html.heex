@@ -1,151 +1,181 @@
 <main class="min-h-screen" id="home-page" phx-hook="UserTimezone">
   <!-- Hero Section -->
   <section
-    class="bg-cream-dark py-20 px-8 border-b-3 border-gold"
+    class="relative bg-navy overflow-hidden border-b-3 border-gold"
     aria-labelledby="home-hero-heading"
   >
-    <div class="max-w-5xl mx-auto text-center">
-      <img
-        src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
-        alt="Blessed Virgin Mary with Child Jesus"
-        class="w-64 md:w-80 mx-auto mb-8 transition-transform duration-500 hover:scale-105"
-      />
+    <!-- Ornate background pattern -->
+    <div class="absolute inset-0 opacity-[0.06]" aria-hidden="true">
+      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
+    </div>
+    <!-- Deep vignette to focus the center -->
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-navy-dark/60 via-transparent to-navy-dark/80"
+      aria-hidden="true"
+    >
+    </div>
 
-      <h1 id="home-hero-heading" class="font-ovo text-5xl md:text-6xl text-navy mb-4">
-        Welcome to Lumen Viae
-      </h1>
+    <div class="relative max-w-5xl mx-auto px-8 pt-16 pb-20 text-center">
+      <!-- Halo-lit image of Our Lady -->
+      <div class="relative inline-block mb-8 animate-rise">
+        <div
+          class="bg-halo absolute -inset-10 rounded-full animate-halo"
+          aria-hidden="true"
+        >
+        </div>
+        <img
+          src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
+          alt="Blessed Virgin Mary with Child Jesus"
+          class="relative w-52 md:w-64 mx-auto drop-shadow-2xl"
+        />
+      </div>
 
-      <p class="font-work-sans text-lg text-brown max-w-3xl mx-auto leading-relaxed">
-        A journey through the Holy Rosary, guided by the meditations of the saints , doctors
-        of the Church, and themed perspectives to illuminate the mysteries of Christ.
+      <p
+        class="font-work-sans text-xs md:text-sm tracking-[0.4em] uppercase text-gold-light mb-5 animate-rise"
+        style="animation-delay: 120ms"
+      >
+        Lumen Viae &middot; The Light of the Way
       </p>
 
-      <.ornate_divider variant="black" class="my-8 opacity-40 max-w-2xl mx-auto" />
+      <h1
+        id="home-hero-heading"
+        class="font-roman-uncial text-5xl md:text-7xl text-cream mb-6 animate-rise"
+        style="animation-delay: 200ms"
+      >
+        The Rosary, Illuminated
+      </h1>
 
-      <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+      <p
+        class="font-garamond text-xl md:text-2xl text-gold-light italic max-w-2xl mx-auto leading-relaxed mb-10 animate-rise"
+        style="animation-delay: 300ms"
+      >
+        A journey through the Holy Rosary, guided by the meditations of the saints
+        and doctors of the Church, to illuminate the mysteries of Christ.
+      </p>
+
+      <div
+        class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-14 animate-rise"
+        style="animation-delay: 400ms"
+      >
         <.link
           navigate={@recommended_set.path}
-          class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-navy text-cream text-lg font-ovo rounded shadow-soft hover:bg-navy-light hover:shadow-ornate transition-all duration-300"
+          class="inline-flex items-center justify-center gap-3 px-10 py-4 bg-gold text-navy-dark text-lg font-ovo tracking-wide rounded shadow-glow hover:bg-gold-light hover:scale-[1.03] transition-all duration-300"
           aria-label="Pray today's recommended mystery set"
         >
-          Pray Today's Mystery
+          Pray Today's Mysteries
         </.link>
         <.link
           navigate="/rosary-methods"
-          class="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gold text-navy font-work-sans rounded hover:border-gold-dark transition-colors duration-200"
+          class="inline-flex items-center justify-center gap-2 px-8 py-4 border border-gold/60 text-gold-light font-work-sans rounded hover:border-gold hover:text-gold hover:bg-gold/5 transition-colors duration-300"
         >
           Learn the Methods
         </.link>
       </div>
+
+      <!-- Rosary bead week strip -->
+      <div class="animate-rise" style="animation-delay: 500ms">
+        <div class="relative max-w-md mx-auto">
+          <div class="absolute top-[0.4rem] inset-x-8 h-px bg-gold/25" aria-hidden="true"></div>
+          <div class="relative flex items-start justify-between px-4">
+            <%= for day <- @week do %>
+              <div class="flex flex-col items-center gap-2 w-12">
+                <span class={["bead", day.today? && "bead-today"]} aria-hidden="true"></span>
+                <span class={[
+                  "font-work-sans text-[0.65rem] tracking-[0.2em] uppercase",
+                  day.today? && "text-gold font-semibold",
+                  !day.today? && "text-gold-light/50"
+                ]}>
+                  {day.label}
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <p class="font-work-sans text-sm text-gold-light/80 mt-5">
+          Today is {Calendar.strftime(@today, "%A")} &mdash;
+          <span class="text-gold font-medium">{@recommended_set.title}</span>
+        </p>
+      </div>
     </div>
   </section>
-  
-<!-- Introduction Section -->
-  <section class="bg-white py-16 px-8" aria-labelledby="home-intro-heading">
+
+  <!-- Today's Mysteries Feature -->
+  <section class="bg-cream py-20 px-8" aria-labelledby="today-heading">
     <div class="max-w-6xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-12 items-center">
-        <!-- Image Side -->
-        <div class="flex justify-center md:justify-end">
-          <img
-            src="/images/pngs/queen-of-heaven-white-bg.jpg"
-            alt="Queen of Heaven"
-            class="w-64 md:w-80 transition-transform duration-500 hover:scale-105"
-          />
-        </div>
-        
-<!-- Content Side -->
-        <div class="space-y-6">
-          <h2
-            id="home-intro-heading"
-            class="font-ovo text-3xl md:text-4xl text-navy leading-tight"
-          >
-            The Mysteries Through Many Lights
+      <div class="grid lg:grid-cols-5 gap-12 items-center">
+        <!-- The five mysteries of today -->
+        <div class="lg:col-span-3">
+          <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold-dark mb-3">
+            {Calendar.strftime(@today, "%A")}'s Devotion
+          </p>
+          <h2 id="today-heading" class="font-ovo text-4xl md:text-5xl text-navy mb-6">
+            {@recommended_set.title}
           </h2>
-
-          <p class="font-work-sans text-lg text-brown leading-relaxed">
-            Meditate on the same sacred mysteries through different spiritual perspectives—
-            discover the treasury of meditations from the saints, alongside
-            contemplations crafted for specific vocations, virtues, and seasons of life.
+          <p class="font-work-sans text-lg text-brown leading-relaxed mb-8 max-w-xl">
+            {@recommended_set.description}
           </p>
 
-          <p class="font-work-sans text-lg text-brown leading-relaxed">
-            Whether you pray as a father, through the lens of humility, or in times of
-            suffering, each meditation draws the soul deeper into the life, passion,
-            and glory of Our Lord Jesus Christ and His Most Holy Mother.
+          <ol class="space-y-0 mb-8 border-l-3 border-gold/40">
+            <%= for {mystery, index} <- Enum.with_index(@recommended_set.mysteries, 1) do %>
+              <li class="group flex items-baseline gap-5 pl-6 py-3 border-b border-gold/15 last:border-b-0 transition-colors">
+                <span class="font-ovo text-gold-dark text-xl w-8 shrink-0">
+                  {Enum.at(["I.", "II.", "III.", "IV.", "V."], index - 1)}
+                </span>
+                <span class="font-garamond text-xl text-navy group-hover:text-navy-light transition-colors">
+                  {mystery}
+                </span>
+              </li>
+            <% end %>
+          </ol>
+
+          <p class="font-garamond italic text-brown-light mb-8">
+            Fruits of these mysteries: {@recommended_set.fruit}.
           </p>
 
-          <div class="pt-4 border-l-3 border-gold pl-6">
-            <div class="flex items-start gap-3 text-brown">
-              <span class="font-ovo text-gold text-xl mt-1">✦</span>
-              <div>
-                <span class="font-work-sans font-semibold text-navy">Traditional Wisdom:</span>
-                <span class="font-work-sans">
-                  Meditations from the saints and doctors of the Church
-                </span>
-              </div>
+          <.link
+            navigate={@recommended_set.path}
+            class="inline-flex items-center gap-3 px-8 py-4 bg-navy text-cream text-lg font-ovo rounded shadow-soft hover:bg-navy-light hover:shadow-ornate transition-all duration-300"
+          >
+            Begin Praying
+            <span aria-hidden="true">&rarr;</span>
+          </.link>
+        </div>
+
+        <!-- Framed devotional image -->
+        <div class="lg:col-span-2 flex justify-center">
+          <div class="relative">
+            <div
+              class="absolute -inset-3 border border-gold/50 rounded translate-x-4 translate-y-4"
+              aria-hidden="true"
+            >
             </div>
-            <div class="flex items-start gap-3 text-brown mt-3">
-              <span class="font-ovo text-gold text-xl mt-1">✦</span>
-              <div>
-                <span class="font-work-sans font-semibold text-navy">Themed Perspectives:</span>
-                <span class="font-work-sans">
-                  View the mysteries through virtues, vocations, and life circumstances
-                </span>
-              </div>
-            </div>
-            <div class="flex items-start gap-3 text-brown mt-3">
-              <span class="font-ovo text-gold text-xl mt-1">✦</span>
-              <div>
-                <span class="font-work-sans font-semibold text-navy">One Rosary, Many Ways:</span>
-                <span class="font-work-sans">
-                  The sacred mysteries, illuminated by different spiritual lights
-                </span>
-              </div>
-            </div>
+            <img
+              src="/images/pngs/queen-of-heaven-white-bg.jpg"
+              alt="Queen of Heaven"
+              class="relative w-64 md:w-80 rounded shadow-ornate"
+            />
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <.ornate_divider variant="black" class="my-0 opacity-30" />
-  
-<!-- Mystery Categories -->
-  <section class="bg-cream py-16 px-8" aria-labelledby="mystery-heading">
-    <div class="max-w-5xl mx-auto">
-      <h2 id="mystery-heading" class="font-ovo text-4xl text-navy text-center mb-4">
-        The Mysteries of the Rosary
-      </h2>
+  <.ornate_divider variant="black" class="my-0 py-8 bg-cream opacity-30" />
 
-      <p class="font-work-sans text-lg text-brown text-center mb-8 max-w-2xl mx-auto">
-        Choose a mystery set to begin—each contains meditations from various sources
-        and themed perspectives to deepen your contemplation.
-      </p>
-
-      <div class="max-w-3xl mx-auto mb-10 text-center">
-        <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold mb-3">
-          Today's suggestion · {Calendar.strftime(@today, "%A")}
+  <!-- Mystery Categories -->
+  <section class="bg-cream pb-20 px-8" aria-labelledby="mystery-heading">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-14">
+        <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold-dark mb-3">
+          The Fifteen Mysteries
         </p>
-        <.link
-          navigate={@recommended_set.path}
-          class="inline-flex flex-col gap-3 bg-white border border-gold/30 px-6 py-5 rounded shadow-sm hover:shadow-ornate transition-all duration-300 hover:-translate-y-1 hover:border-gold"
-        >
-          <span class="font-ovo text-2xl text-navy">
-            {@recommended_set.title}
-          </span>
-          <span class="font-work-sans text-brown-light italic text-sm">
-            {@recommended_set.schedule}
-          </span>
-          <span class="font-work-sans text-brown text-base leading-relaxed">
-            {@recommended_set.description}
-          </span>
-        </.link>
-      </div>
-
-      <div class="flex items-center gap-6 justify-center mb-12 text-gold/60">
-        <div class="h-px w-16 bg-gold/30"></div>
-        <span class="font-work-sans text-xs tracking-[0.35em] uppercase">or explore all</span>
-        <div class="h-px w-16 bg-gold/30"></div>
+        <h2 id="mystery-heading" class="font-ovo text-4xl md:text-5xl text-navy mb-4">
+          Three Paths of Contemplation
+        </h2>
+        <p class="font-work-sans text-lg text-brown max-w-2xl mx-auto">
+          Each set contains meditations from the saints and themed perspectives
+          to deepen your contemplation of the life, passion, and glory of Our Lord.
+        </p>
       </div>
 
       <div class="grid md:grid-cols-3 gap-8">
@@ -154,147 +184,340 @@
           <.link
             navigate={set.path}
             class={[
-              "block bg-white border-l-4 p-8 transition-all duration-300 hover:shadow-ornate hover:-translate-y-1",
-              recommended? && "border-gold shadow-ornate",
-              !recommended? && "border-gold/70 hover:border-gold"
+              "group relative block bg-white overflow-hidden rounded p-8 pt-10 transition-all duration-300 hover:shadow-ornate hover:-translate-y-1.5",
+              recommended? && "shadow-ornate ring-1 ring-gold",
+              !recommended? && "shadow-soft"
             ]}
           >
-            <div class="flex items-start justify-between gap-2 mb-3">
-              <h4 class="font-ovo text-2xl text-navy">
-                {set.title}
-              </h4>
+            <!-- Gold top rule -->
+            <div
+              class={[
+                "absolute top-0 inset-x-0 h-1 transition-colors duration-300",
+                recommended? && "bg-gold",
+                !recommended? && "bg-gold/30 group-hover:bg-gold"
+              ]}
+              aria-hidden="true"
+            >
             </div>
 
-            <p class="font-work-sans text-brown-light mb-4 italic text-sm">
+            <!-- Watermark numeral -->
+            <span
+              class="absolute -top-6 right-2 font-ovo text-[9rem] leading-none text-navy/[0.05] group-hover:text-gold/10 transition-colors duration-500 select-none"
+              aria-hidden="true"
+            >
+              {set.numeral}
+            </span>
+
+            <%= if recommended? do %>
+              <span class="inline-block font-work-sans text-[0.65rem] tracking-[0.25em] uppercase text-navy bg-gold/90 px-3 py-1 rounded-full mb-4">
+                Today's Mysteries
+              </span>
+            <% else %>
+              <span class="inline-block font-work-sans text-[0.65rem] tracking-[0.25em] uppercase text-gold-dark border border-gold/40 px-3 py-1 rounded-full mb-4">
+                {set.short_title}
+              </span>
+            <% end %>
+
+            <h3 class="relative font-ovo text-2xl text-navy mb-3">
+              {set.title}
+            </h3>
+
+            <p class="relative font-work-sans text-brown-light italic text-sm mb-4">
               {set.schedule}
             </p>
-            <p class="font-work-sans text-brown text-base leading-relaxed">
+
+            <p class="relative font-work-sans text-brown text-base leading-relaxed mb-6">
               {set.description}
             </p>
+
+            <span class="relative font-work-sans text-sm text-gold-dark tracking-wide group-hover:text-gold transition-colors">
+              Enter the mysteries
+              <span
+                class="inline-block transition-transform duration-300 group-hover:translate-x-1"
+                aria-hidden="true"
+              >
+                &rarr;
+              </span>
+            </span>
           </.link>
         <% end %>
       </div>
     </div>
   </section>
 
-<!-- Seven Sorrows Section -->
+  <!-- Introduction Section - The Mysteries Through Many Lights -->
+  <section class="bg-white py-20 px-8" aria-labelledby="home-intro-heading">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid md:grid-cols-5 gap-12 md:gap-16">
+        <!-- Heading side -->
+        <div class="md:col-span-2">
+          <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold-dark mb-3">
+            One Rosary, Many Ways
+          </p>
+          <h2
+            id="home-intro-heading"
+            class="font-ovo text-4xl md:text-5xl text-navy leading-tight mb-6"
+          >
+            The Mysteries Through Many Lights
+          </h2>
+          <p class="font-work-sans text-lg text-brown leading-relaxed">
+            Meditate on the same sacred mysteries through different spiritual
+            perspectives&mdash;the treasury of the saints, alongside contemplations
+            crafted for specific vocations, virtues, and seasons of life.
+          </p>
+        </div>
+
+        <!-- Stacked pillars side -->
+        <div class="md:col-span-3 md:border-l md:border-gold/25 md:pl-14">
+          <div class="flex gap-6 py-6 border-b border-gold/20">
+            <span class="font-ovo text-4xl text-gold/50 leading-none pt-1 shrink-0">01</span>
+            <div>
+              <h3 class="font-ovo text-2xl text-navy mb-2">Traditional Wisdom</h3>
+              <p class="font-work-sans text-brown leading-relaxed">
+                Meditations drawn from the saints and doctors of the Church,
+                faithful to centuries of contemplative tradition.
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-6 py-6 border-b border-gold/20">
+            <span class="font-ovo text-4xl text-gold/50 leading-none pt-1 shrink-0">02</span>
+            <div>
+              <h3 class="font-ovo text-2xl text-navy mb-2">Themed Perspectives</h3>
+              <p class="font-work-sans text-brown leading-relaxed">
+                View the mysteries through virtues, vocations, and life
+                circumstances&mdash;as a father, through humility, in suffering.
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-6 pt-6">
+            <span class="font-ovo text-4xl text-gold/50 leading-none pt-1 shrink-0">03</span>
+            <div>
+              <h3 class="font-ovo text-2xl text-navy mb-2">A Living Library</h3>
+              <p class="font-work-sans text-brown leading-relaxed">
+                Curated meditation sets that grow over time, so the same decade
+                never grows stale.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seven Sorrows Section -->
   <section
     class="relative bg-navy py-20 px-8 overflow-hidden border-y-3 border-gold"
     aria-labelledby="seven-sorrows-heading"
   >
     <!-- Background pattern overlay -->
-    <div class="absolute inset-0 opacity-5">
-      <img
-        src="/images/ornate-blue-gold-bg-symbols.jpg"
-        alt=""
-        class="w-full h-full object-cover"
-      />
+    <div class="absolute inset-0 opacity-5" aria-hidden="true">
+      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
     </div>
 
-    <div class="relative max-w-4xl mx-auto">
-      <div class="text-center mb-12">
-        <img
-          src="/images/pngs/our-lady-of-sorrows-horizontal.jpg"
-          alt="Our Lady of Sorrows"
-          class="w-full max-w-2xl mx-auto mb-8 opacity-90 transition-opacity duration-500 hover:opacity-100"
-        />
+    <div class="relative max-w-4xl mx-auto text-center">
+      <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold-light/70 mb-3">
+        A Devotion of Compassion
+      </p>
+      <h2 id="seven-sorrows-heading" class="font-ovo text-4xl md:text-5xl text-gold mb-8">
+        The Seven Sorrows of Mary
+      </h2>
 
-        <h2 id="seven-sorrows-heading" class="font-ovo text-4xl text-gold mb-6">
-          The Seven Sorrows of Mary
-        </h2>
+      <img
+        src="/images/pngs/our-lady-of-sorrows-horizontal.jpg"
+        alt="Our Lady of Sorrows"
+        class="w-full max-w-2xl mx-auto rounded shadow-ornate opacity-90 hover:opacity-100 transition-opacity duration-500 mb-8"
+      />
 
-        <.ornate_divider variant="white" class="my-8 opacity-30 max-w-xl mx-auto" />
-      </div>
+      <p class="font-work-sans text-lg text-gold-light leading-relaxed max-w-2xl mx-auto mb-10">
+        Walk with the Blessed Virgin Mary through her seven sorrows, sharing in
+        her maternal suffering at the foot of the Cross.
+      </p>
 
-      <div class="max-w-2xl mx-auto">
-        <p class="font-work-sans text-lg text-gold-light leading-relaxed mb-6 text-center">
-          A powerful devotion that draws us into the heart of Our Lady's compassion
-          and sorrow at the foot of the Cross. Walk with the Blessed Virgin Mary
-          through her seven sorrows, sharing in her maternal suffering.
-        </p>
-
-        <div class="bg-cream-dark/10 border border-gold/30 rounded-lg p-6 mb-6">
-          <h4 class="font-ovo text-xl text-gold-light mb-4 text-center">
-            The Seven Sorrows
-          </h4>
-          <ul class="font-work-sans text-gold-light space-y-2 text-base">
-            <li class="flex items-start">
-              <span class="text-gold mr-3">I.</span>
+      <div class="bg-cream-dark/10 border border-gold/30 rounded-lg px-8 py-10 md:px-12 mb-10 text-left">
+        <div class="grid md:grid-cols-2 gap-x-12">
+          <ul class="font-garamond text-gold-light text-lg">
+            <li class="flex items-baseline gap-4 border-b border-gold/15 py-4">
+              <span class="font-ovo text-gold w-9 shrink-0">I.</span>
               <span>The Prophecy of Simeon</span>
             </li>
-            <li class="flex items-start">
-              <span class="text-gold mr-3">II.</span>
+            <li class="flex items-baseline gap-4 border-b border-gold/15 py-4">
+              <span class="font-ovo text-gold w-9 shrink-0">II.</span>
               <span>The Flight into Egypt</span>
             </li>
-            <li class="flex items-start">
-              <span class="text-gold mr-3">III.</span>
+            <li class="flex items-baseline gap-4 border-b border-gold/15 py-4">
+              <span class="font-ovo text-gold w-9 shrink-0">III.</span>
               <span>The Loss of Jesus in the Temple</span>
             </li>
-            <li class="flex items-start">
-              <span class="text-gold mr-3">IV.</span>
+            <li class="flex items-baseline gap-4 border-b border-gold/15 py-4 md:border-b-0">
+              <span class="font-ovo text-gold w-9 shrink-0">IV.</span>
               <span>Mary Meets Jesus on the Way to Calvary</span>
             </li>
-            <li class="flex items-start">
-              <span class="text-gold mr-3">V.</span>
+          </ul>
+          <ul class="font-garamond text-gold-light text-lg">
+            <li class="flex items-baseline gap-4 border-b border-gold/15 py-4">
+              <span class="font-ovo text-gold w-9 shrink-0">V.</span>
               <span>Jesus Dies on the Cross</span>
             </li>
-            <li class="flex items-start">
-              <span class="text-gold mr-3">VI.</span>
+            <li class="flex items-baseline gap-4 border-b border-gold/15 py-4">
+              <span class="font-ovo text-gold w-9 shrink-0">VI.</span>
               <span>Mary Receives the Dead Body of Jesus in Her Arms</span>
             </li>
-            <li class="flex items-start">
-              <span class="text-gold mr-3">VII.</span>
+            <li class="flex items-baseline gap-4 py-4">
+              <span class="font-ovo text-gold w-9 shrink-0">VII.</span>
               <span>Jesus is Placed in the Tomb</span>
             </li>
           </ul>
         </div>
+      </div>
 
-        <div class="text-center mb-6">
-          <.link
-            navigate="/mysteries/seven_sorrows"
-            class="inline-block px-8 py-4 bg-gold text-navy font-ovo text-lg rounded shadow-soft hover:bg-gold-light hover:shadow-ornate transition-all duration-300 hover:scale-105"
-          >
-            Explore the Seven Sorrows
-          </.link>
-        </div>
+      <.link
+        navigate="/mysteries/seven_sorrows"
+        class="inline-block px-8 py-4 bg-gold text-navy font-ovo text-lg rounded shadow-soft hover:bg-gold-light hover:shadow-glow transition-all duration-300 hover:scale-105"
+      >
+        Explore the Seven Sorrows
+      </.link>
 
-        <p class="font-garamond text-xl text-gold italic text-center">
-          "O most holy Virgin, Mother of our Lord Jesus Christ: by the overwhelming grief
-          you experienced when you witnessed the martyrdom, the crucifixion, and death of
-          your divine Son, look upon me with eyes of compassion, and awaken in my heart
-          a tender commiseration for those sufferings, as well as a sincere detestation
-          of my sins."
+      <.ornate_divider variant="white" class="my-10 opacity-25 max-w-xl mx-auto" />
+
+      <p class="font-garamond text-xl text-gold italic max-w-3xl mx-auto">
+        "O most holy Virgin, Mother of our Lord Jesus Christ: by the overwhelming grief
+        you experienced when you witnessed the martyrdom, the crucifixion, and death of
+        your divine Son, look upon me with eyes of compassion, and awaken in my heart
+        a tender commiseration for those sufferings, as well as a sincere detestation
+        of my sins."
+      </p>
+    </div>
+  </section>
+
+  <!-- Go Deeper Section -->
+  <section class="bg-white py-20 px-8" aria-labelledby="methods-heading">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14">
+        <img
+          src="/images/pngs/most-sacred-heart-white-bg.jpg"
+          alt="Most Sacred Heart"
+          class="w-24 mx-auto mb-6 transition-transform duration-500 hover:scale-110"
+        />
+        <h2 id="methods-heading" class="font-ovo text-4xl md:text-5xl text-navy mb-4">
+          Go Deeper into the Rosary
+        </h2>
+        <p class="font-work-sans text-lg text-brown leading-relaxed max-w-2xl mx-auto">
+          The Rosary rewards study as much as repetition. Learn how the saints
+          prayed it, and return to the scriptures it springs from.
         </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <.link
+          navigate="/rosary-methods"
+          class="group relative block bg-cream rounded p-10 shadow-soft hover:shadow-ornate hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+        >
+          <div
+            class="absolute top-0 inset-x-0 h-1 bg-gold/30 group-hover:bg-gold transition-colors duration-300"
+            aria-hidden="true"
+          >
+          </div>
+          <h3 class="font-ovo text-2xl text-navy mb-3">Methods of Praying</h3>
+          <p class="font-work-sans text-brown leading-relaxed mb-6">
+            The methods taught by St. Louis de Montfort to draw upon your soul the
+            grace of the mysteries of the Life, Passion, and Glory of Jesus and Mary.
+          </p>
+          <span class="font-work-sans text-sm text-gold-dark tracking-wide group-hover:text-gold transition-colors">
+            Learn the Methods
+            <span
+              class="inline-block transition-transform duration-300 group-hover:translate-x-1"
+              aria-hidden="true"
+            >
+              &rarr;
+            </span>
+          </span>
+        </.link>
+
+        <.link
+          navigate="/mysteries"
+          class="group relative block bg-cream rounded p-10 shadow-soft hover:shadow-ornate hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+        >
+          <div
+            class="absolute top-0 inset-x-0 h-1 bg-gold/30 group-hover:bg-gold transition-colors duration-300"
+            aria-hidden="true"
+          >
+          </div>
+          <h3 class="font-ovo text-2xl text-navy mb-3">Scripture of the Rosary</h3>
+          <p class="font-work-sans text-brown leading-relaxed mb-6">
+            Read the scriptural accounts behind all fifteen mysteries, and let the
+            words of the Gospel anchor every decade you pray.
+          </p>
+          <span class="font-work-sans text-sm text-gold-dark tracking-wide group-hover:text-gold transition-colors">
+            Read the Scriptures
+            <span
+              class="inline-block transition-transform duration-300 group-hover:translate-x-1"
+              aria-hidden="true"
+            >
+              &rarr;
+            </span>
+          </span>
+        </.link>
       </div>
     </div>
   </section>
 
-<!-- Methods of Praying Section -->
-  <section class="bg-white py-16 px-8" aria-labelledby="methods-heading">
-    <div class="max-w-4xl mx-auto">
-      <div class="text-center mb-12">
-        <img
-          src="/images/pngs/most-sacred-heart-white-bg.jpg"
-          alt="Most Sacred Heart"
-          class="w-32 mx-auto mb-6 transition-transform duration-500 hover:scale-110"
-        />
+  <!-- App Promotion -->
+  <section
+    class="relative bg-navy-dark overflow-hidden border-t-3 border-gold py-20 px-8"
+    aria-labelledby="app-promo-heading"
+  >
+    <div class="absolute inset-0 opacity-[0.04]" aria-hidden="true">
+      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
+    </div>
 
-        <h2 id="methods-heading" class="font-ovo text-4xl text-navy mb-6">
-          Methods of Praying the Rosary
-        </h2>
-
-        <p class="font-work-sans text-lg text-brown leading-relaxed max-w-2xl mx-auto mb-8">
-          Discover the  methods taught by St. Louis de Montfort
-          to draw upon your soul the grace of the mysteries of the Life,
-          Passion, and Glory of Jesus and Mary.
+    <div class="relative max-w-5xl mx-auto grid md:grid-cols-2 gap-14 items-center">
+      <div>
+        <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold-light/70 mb-3">
+          Lumen Viae for iPhone
         </p>
-
+        <h2 id="app-promo-heading" class="font-ovo text-4xl md:text-5xl text-cream mb-6">
+          Carry the Rosary in Your Pocket
+        </h2>
+        <p class="font-work-sans text-lg text-gold-light leading-relaxed mb-8">
+          Guided audio meditations, the daily mysteries, and the full meditation
+          library&mdash;wherever your day takes you.
+        </p>
         <.link
-          navigate="/rosary-methods"
-          class="inline-block px-8 py-4 bg-navy text-gold font-ovo text-lg rounded shadow-soft hover:bg-navy-light hover:shadow-ornate transition-all duration-300 hover:scale-105"
+          navigate="/app"
+          class="inline-flex items-center gap-3 px-8 py-4 bg-gold text-navy-dark font-ovo text-lg rounded shadow-glow hover:bg-gold-light transition-all duration-300 hover:scale-[1.03]"
         >
-          Learn the Methods →
+          Discover the App
+          <span aria-hidden="true">&rarr;</span>
         </.link>
+      </div>
+
+      <div class="flex justify-center">
+        <div class="phone-frame" style="width: 14rem">
+          <div class="phone-notch"></div>
+          <div class="phone-screen bg-gradient-to-b from-navy to-navy-dark items-center justify-center text-center px-6">
+            <img
+              src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
+              alt="Sample app screen showing Blessed Virgin Mary"
+              class="w-24 mx-auto mb-4 opacity-90"
+            />
+            <p class="font-work-sans text-[0.55rem] tracking-[0.3em] uppercase text-gold-light/70 mb-2">
+              {Calendar.strftime(@today, "%A")}
+            </p>
+            <p class="font-ovo text-lg text-cream leading-snug mb-4">
+              {@recommended_set.title}
+            </p>
+            <div class="flex justify-center gap-1.5 mb-4" aria-hidden="true">
+              <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-gold/60"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-gold/40"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-gold/40"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-gold/40"></span>
+            </div>
+            <span class="inline-block font-work-sans text-[0.6rem] tracking-widest uppercase text-navy bg-gold px-4 py-1.5 rounded-full">
+              Begin
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </section>

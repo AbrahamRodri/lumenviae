@@ -7,25 +7,65 @@ defmodule LumenViaeWeb.Live.Home.Index do
   @mystery_sets [
     joyful: %{
       title: "The Joyful Mysteries",
+      short_title: "Joyful",
+      numeral: "I",
       schedule: "Mondays and Thursdays (and Sundays in Advent)",
       description:
         "Contemplate the joyful events of Christ's early life and the Blessed Virgin's faithful yes to God's will.",
+      mysteries: [
+        "The Annunciation",
+        "The Visitation",
+        "The Nativity of Our Lord",
+        "The Presentation in the Temple",
+        "The Finding of Jesus in the Temple"
+      ],
+      fruit: "Humility, charity, poverty of spirit, obedience, and piety",
       path: "/mysteries/joyful"
     },
     sorrowful: %{
       title: "The Sorrowful Mysteries",
+      short_title: "Sorrowful",
+      numeral: "II",
       schedule: "Tuesdays and Fridays (and Sundays in Lent)",
       description:
         "Meditate on Our Lord's passion and suffering, offered for the redemption of mankind.",
+      mysteries: [
+        "The Agony in the Garden",
+        "The Scourging at the Pillar",
+        "The Crowning with Thorns",
+        "The Carrying of the Cross",
+        "The Crucifixion"
+      ],
+      fruit: "Contrition, mortification, patience, and conformity to the will of God",
       path: "/mysteries/sorrowful"
     },
     glorious: %{
       title: "The Glorious Mysteries",
+      short_title: "Glorious",
+      numeral: "III",
       schedule: "Wednesdays, Saturdays (and Sundays in Ordinary Time)",
       description:
         "Rejoice in the triumph of Christ's resurrection and the glory of His Most Holy Mother.",
+      mysteries: [
+        "The Resurrection",
+        "The Ascension",
+        "The Descent of the Holy Ghost",
+        "The Assumption of Our Lady",
+        "The Coronation of Our Lady"
+      ],
+      fruit: "Faith, hope, devotion to Mary, and the grace of a happy death",
       path: "/mysteries/glorious"
     }
+  ]
+
+  @week_days [
+    {1, "Mon"},
+    {2, "Tue"},
+    {3, "Wed"},
+    {4, "Thu"},
+    {5, "Fri"},
+    {6, "Sat"},
+    {7, "Sun"}
   ]
 
   @impl true
@@ -62,17 +102,29 @@ defmodule LumenViaeWeb.Live.Home.Index do
     recommended_set =
       Enum.into(mystery_sets, %{}, fn {key, data} -> {key, data} end)[recommended_key]
 
+    week =
+      Enum.map(@week_days, fn {dow, label} ->
+        %{
+          label: label,
+          key: recommended_set(dow),
+          today?: dow == Date.day_of_week(date)
+        }
+      end)
+
     socket
     |> assign(:recommended_set_key, recommended_key)
     |> assign(:recommended_set, recommended_set)
+    |> assign(:week, week)
   end
 
   defp build_mystery_sets do
     Enum.map(@mystery_sets, fn {key, attrs} -> {key, Map.put(attrs, :key, key)} end)
   end
 
-  defp recommended_set(date) do
-    case Date.day_of_week(date) do
+  defp recommended_set(%Date{} = date), do: recommended_set(Date.day_of_week(date))
+
+  defp recommended_set(day_of_week) when is_integer(day_of_week) do
+    case day_of_week do
       # Monday - Joyful
       1 -> :joyful
       # Tuesday - Sorrowful
@@ -83,8 +135,8 @@ defmodule LumenViaeWeb.Live.Home.Index do
       4 -> :joyful
       # Friday - Sorrowful
       5 -> :sorrowful
-      # Saturday - Joyful
-      6 -> :joyful
+      # Saturday - Glorious (matches the traditional schedule shown on the cards)
+      6 -> :glorious
       # Sunday - Glorious (Ordinary Time), Sorrowful (Lent), Joyful (Advent)
       # For now, defaulting to Glorious until liturgical calendar is implemented
       7 -> :glorious
