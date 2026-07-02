@@ -44,7 +44,7 @@
 
     <!-- Today's devotion: the altar card -->
     <section
-      class="relative bg-navy-light/40 border border-gold/30 rounded-lg overflow-hidden mb-8 animate-rise"
+      class="relative bg-navy-light border border-gold/30 rounded-lg overflow-hidden mb-8 shadow-ornate animate-rise"
       style="animation-delay: 300ms"
       aria-labelledby="todays-devotion-heading"
     >
@@ -151,7 +151,7 @@
         <%= for {_key, set} <- @mystery_sets, set.key != @recommended_set_key do %>
           <.link
             navigate={set.path}
-            class="group flex items-center gap-4 rounded-lg bg-white/5 border border-gold/15 px-5 py-4 hover:border-gold/60 hover:bg-gold/5 transition-all duration-300"
+            class="group flex items-center gap-4 rounded-lg bg-navy-light border border-gold/15 px-5 py-4 hover:border-gold/60 transition-all duration-300"
           >
             <span class="font-ovo text-gold/50 text-lg w-6 text-center shrink-0">
               {set.numeral}
