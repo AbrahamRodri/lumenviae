@@ -71,14 +71,14 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
       case assigns.size do
         "large" ->
           {
-            "flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-gold hover:bg-gold-dark transition-all shadow-lg hover:shadow-xl",
+            "flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-gold ring-1 ring-gold-light/60 ring-offset-4 ring-offset-transparent hover:bg-gold-light transition-all shadow-glow hover:scale-105",
             "w-10 h-10 md:w-12 md:h-12 text-navy ml-1",
             "w-10 h-10 md:w-12 md:h-12 text-navy"
           }
 
         _ ->
           {
-            "flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-gold hover:bg-gold-dark transition-colors",
+            "flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-gold ring-1 ring-gold-light/50 hover:bg-gold-light transition-all hover:scale-105",
             "w-5 h-5 md:w-6 md:h-6 text-navy ml-0.5",
             "w-5 h-5 md:w-6 md:h-6 text-navy"
           }

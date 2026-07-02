@@ -21,10 +21,25 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
   defp category_title("glorious"), do: "The Glorious Mysteries"
   defp category_title("seven_sorrows"), do: "The Seven Sorrows of Mary"
 
-  defp category_days("joyful"), do: "Mondays, Thursdays, and Saturdays"
+  defp category_days("joyful"), do: "Mondays and Thursdays"
   defp category_days("sorrowful"), do: "Tuesdays and Fridays"
-  defp category_days("glorious"), do: "Wednesdays, Thursdays, and Sundays"
+  defp category_days("glorious"), do: "Wednesdays, Saturdays, and Sundays"
   defp category_days("seven_sorrows"), do: "Fridays in Lent and September 15th"
+
+  defp category_epigraph("joyful"),
+    do:
+      {"Behold the handmaid of the Lord; be it done to me according to thy word.", "Luke 1:38"}
+
+  defp category_epigraph("sorrowful"),
+    do: {"Surely he hath borne our infirmities and carried our sorrows.", "Isaiah 53:4"}
+
+  defp category_epigraph("glorious"),
+    do: {"He is not here, but is risen.", "Luke 24:6"}
+
+  defp category_epigraph("seven_sorrows"),
+    do: {"And thy own soul a sword shall pierce.", "Luke 2:35"}
+
+  defp has_audio?(set), do: Enum.any?(set.meditations, & &1.audio_url)
 
   def handle_event("random_set", _params, %{assigns: %{meditation_sets: []}} = socket) do
     {:noreply, socket}

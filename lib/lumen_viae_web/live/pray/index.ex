@@ -59,6 +59,36 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     {:noreply, socket}
   end
 
+  def handle_event("go_to", %{"index" => index}, socket) do
+    total = length(socket.assigns.set.meditations)
+
+    new_index =
+      index
+      |> normalize_index()
+      |> clamp_index(total)
+
+    socket
+    |> maybe_track_completion(new_index)
+    |> push_patch(
+      to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled)
+    )
+    |> then(&{:noreply, &1})
+  end
+
+  def handle_event("key_nav", %{"key" => "ArrowRight"}, socket) do
+    if socket.assigns.current_index < socket.assigns.total_count - 1 do
+      handle_event("next", %{}, socket)
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("key_nav", %{"key" => "ArrowLeft"}, socket) do
+    handle_event("previous", %{}, socket)
+  end
+
+  def handle_event("key_nav", _params, socket), do: {:noreply, socket}
+
   def handle_event("toggle_mobile_mode", _params, socket) do
     new_mobile_mode = !socket.assigns.mobile_mode_enabled
 
@@ -140,10 +170,20 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     ~p"/meditation-sets/#{set_id}/pray?mystery=#{mystery_index}&mobile=#{mobile_mode_enabled}"
   end
 
+  # Roman numerals for mystery indices (sets range from 5 to 7 meditations)
+  defp roman(n) when n in 1..20 do
+    Enum.at(
+      ~w(I II III IV V VI VII VIII IX X XI XII XIII XIV XV XVI XVII XVIII XIX XX),
+      n - 1
+    )
+  end
+
+  defp roman(n), do: Integer.to_string(n)
+
   defp maybe_track_completion(socket, new_index) do
-    # Track completion when reaching the 5th mystery (index 4) for the first time
+    # Track completion when reaching the final meditation for the first time
     # Only track once per session to avoid double-counting if user navigates back
-    if new_index == 4 && !socket.assigns.completion_tracked do
+    if new_index == socket.assigns.total_count - 1 && !socket.assigns.completion_tracked do
       # TODO: IP tracking disabled - passing nil for now
       # To enable: pass socket.assigns.ip_address instead of nil
       Rosary.record_completion(socket.assigns.set.id, nil)
