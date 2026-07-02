@@ -4,12 +4,12 @@
     <div class="mb-6">
       <div class="flex items-center justify-between mb-2">
         <div>
+          <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold-dark mb-1">
+            {Calendar.strftime(@today, "%A, %B %d")}
+          </p>
           <h1 class="font-ovo text-2xl md:text-3xl text-navy">
             Prayer Dashboard
           </h1>
-          <p class="font-work-sans text-sm text-brown mt-1">
-            {Calendar.strftime(@today, "%A, %B %d")}
-          </p>
         </div>
         <.link
           navigate="/mysteries"
@@ -42,7 +42,7 @@
 
       <.link
         navigate={@recommended_set.path}
-        class="block bg-gradient-to-br from-navy via-navy to-navy-light rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+        class="block bg-gradient-to-br from-navy via-navy to-navy-light rounded-2xl p-8 border border-gold/40 shadow-ornate hover:shadow-glow transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
       >
         <div class="flex items-center gap-6">
           <div class="flex-shrink-0">
@@ -82,7 +82,7 @@
 
       <div class="grid gap-4">
         <%= for {_key, set} <- @mystery_sets do %>
-          <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+          <div class="bg-white rounded-xl shadow-soft overflow-hidden hover:shadow-ornate transition-shadow duration-300">
             <!-- Mystery Header -->
             <.link
               navigate={set.path}
