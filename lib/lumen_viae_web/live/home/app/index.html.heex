@@ -1,0 +1,435 @@
+<main class="min-h-screen" id="app-landing-page">
+  <!-- Hero Section -->
+  <section
+    class="relative bg-navy overflow-hidden border-b-3 border-gold"
+    aria-labelledby="app-hero-heading"
+  >
+    <div class="absolute inset-0 opacity-[0.05]" aria-hidden="true">
+      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
+    </div>
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-navy-dark/50 via-transparent to-navy-dark/70"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="relative max-w-6xl mx-auto px-8 py-20 grid lg:grid-cols-2 gap-16 items-center">
+      <!-- Copy side -->
+      <div class="text-center lg:text-left">
+        <p class="font-work-sans text-xs md:text-sm tracking-[0.4em] uppercase text-gold-light mb-5 animate-rise">
+          Lumen Viae for iPhone
+        </p>
+
+        <h1
+          id="app-hero-heading"
+          class="font-roman-uncial text-5xl md:text-6xl text-cream leading-tight mb-6 animate-rise"
+          style="animation-delay: 120ms"
+        >
+          The Holy Rosary, in Your Pocket
+        </h1>
+
+        <p
+          class="font-garamond text-xl md:text-2xl text-gold-light italic leading-relaxed mb-10 animate-rise"
+          style="animation-delay: 240ms"
+        >
+          Guided audio meditations from the saints and doctors of the Church,
+          for every mystery, every day, wherever you are.
+        </p>
+
+        <div
+          class="flex flex-col sm:flex-row items-center lg:items-start gap-5 animate-rise"
+          style="animation-delay: 360ms"
+        >
+          <a
+            href="#"
+            class="inline-flex items-center gap-3 bg-cream text-navy-dark px-6 py-3.5 rounded-lg shadow-glow hover:bg-white hover:scale-[1.03] transition-all duration-300"
+            aria-label="Download Lumen Viae on the App Store"
+          >
+            <svg viewBox="0 0 384 512" class="w-7 h-7 fill-current" aria-hidden="true">
+              <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.7-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+            </svg>
+            <span class="text-left leading-tight">
+              <span class="block font-work-sans text-[0.6rem] tracking-wide uppercase">
+                Download on the
+              </span>
+              <span class="block font-ovo text-xl">App Store</span>
+            </span>
+          </a>
+
+          <div class="flex flex-col items-center lg:items-start gap-1 pt-1">
+            <div class="text-gold text-lg tracking-widest" aria-label="Five star rating">
+              &#9733;&#9733;&#9733;&#9733;&#9733;
+            </div>
+            <p class="font-work-sans text-xs text-gold-light/70">
+              Free to download &middot; No account required
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone mockup: app home screen -->
+      <div class="flex justify-center animate-rise" style="animation-delay: 300ms">
+        <div class="relative">
+          <div class="bg-halo absolute -inset-12 rounded-full animate-halo" aria-hidden="true"></div>
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen bg-gradient-to-b from-navy to-navy-dark">
+              <!-- App header -->
+              <div class="pt-12 pb-4 px-5 text-center border-b border-gold/20">
+                <p class="font-cinzel-decorative text-gold text-sm tracking-[0.3em]">
+                  LUMEN VIAE
+                </p>
+              </div>
+
+              <!-- Today card -->
+              <div class="px-4 pt-4">
+                <div class="rounded-xl bg-gold/10 border border-gold/30 p-4 text-center">
+                  <p class="font-work-sans text-[0.55rem] tracking-[0.3em] uppercase text-gold-light/70 mb-1">
+                    Tuesday &middot; Today's Rosary
+                  </p>
+                  <p class="font-ovo text-lg text-cream mb-3">The Sorrowful Mysteries</p>
+                  <span class="inline-block font-work-sans text-[0.6rem] tracking-widest uppercase text-navy bg-gold px-4 py-1.5 rounded-full">
+                    Begin Praying
+                  </span>
+                </div>
+              </div>
+
+              <!-- Mystery set rows -->
+              <div class="px-4 pt-4 space-y-2.5 grow">
+                <div class="flex items-center gap-3 rounded-lg bg-white/5 border border-gold/15 px-4 py-3">
+                  <span class="font-ovo text-gold text-sm w-5">I</span>
+                  <div>
+                    <p class="font-ovo text-sm text-cream">Joyful Mysteries</p>
+                    <p class="font-work-sans text-[0.55rem] text-gold-light/60">
+                      Mondays and Thursdays
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 rounded-lg bg-white/5 border border-gold/15 px-4 py-3">
+                  <span class="font-ovo text-gold text-sm w-5">II</span>
+                  <div>
+                    <p class="font-ovo text-sm text-cream">Sorrowful Mysteries</p>
+                    <p class="font-work-sans text-[0.55rem] text-gold-light/60">
+                      Tuesdays and Fridays
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 rounded-lg bg-white/5 border border-gold/15 px-4 py-3">
+                  <span class="font-ovo text-gold text-sm w-5">III</span>
+                  <div>
+                    <p class="font-ovo text-sm text-cream">Glorious Mysteries</p>
+                    <p class="font-work-sans text-[0.55rem] text-gold-light/60">
+                      Wednesdays and Saturdays
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab bar -->
+              <div class="flex justify-around items-center border-t border-gold/20 px-6 py-3.5">
+                <span class="font-work-sans text-[0.55rem] tracking-widest uppercase text-gold">
+                  Pray
+                </span>
+                <span class="font-work-sans text-[0.55rem] tracking-widest uppercase text-gold-light/40">
+                  Library
+                </span>
+                <span class="font-work-sans text-[0.55rem] tracking-widest uppercase text-gold-light/40">
+                  Sorrows
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats band -->
+  <section class="bg-cream-dark border-b border-gold/30 py-10 px-8" aria-label="App highlights">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+      <div>
+        <p class="font-ovo text-4xl text-navy mb-1">15</p>
+        <p class="font-work-sans text-sm tracking-[0.2em] uppercase text-gold-dark">
+          Traditional Mysteries
+        </p>
+      </div>
+      <div>
+        <p class="font-ovo text-4xl text-navy mb-1">Every Decade</p>
+        <p class="font-work-sans text-sm tracking-[0.2em] uppercase text-gold-dark">
+          Guided in Audio
+        </p>
+      </div>
+      <div>
+        <p class="font-ovo text-4xl text-navy mb-1">One Purpose</p>
+        <p class="font-work-sans text-sm tracking-[0.2em] uppercase text-gold-dark">
+          Deeper Contemplation
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audio meditation feature -->
+  <section class="bg-white py-20 px-8" aria-labelledby="audio-feature-heading">
+    <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      <!-- Phone mockup: audio player screen -->
+      <div class="flex justify-center order-2 lg:order-1">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen bg-gradient-to-b from-navy-dark via-navy to-navy-dark px-6 justify-center text-center">
+            <p class="font-work-sans text-[0.55rem] tracking-[0.3em] uppercase text-gold-light/60 mb-4">
+              Sorrowful &middot; First Mystery
+            </p>
+
+            <img
+              src="/images/pngs/crucifix.png"
+              alt="Sample meditation artwork"
+              class="w-24 mx-auto mb-5 opacity-90"
+            />
+
+            <p class="font-ovo text-xl text-cream leading-snug mb-1">
+              The Agony in the Garden
+            </p>
+            <p class="font-garamond italic text-sm text-gold-light mb-6">
+              after St. Louis de Montfort
+            </p>
+
+            <!-- Decade beads -->
+            <div class="flex justify-center gap-1.5 mb-5" aria-hidden="true">
+              <span class="w-2 h-2 rounded-full bg-gold"></span>
+              <span class="w-2 h-2 rounded-full bg-gold"></span>
+              <span class="w-2 h-2 rounded-full bg-gold"></span>
+              <span class="w-2 h-2 rounded-full bg-gold/30"></span>
+              <span class="w-2 h-2 rounded-full bg-gold/30"></span>
+              <span class="w-2 h-2 rounded-full bg-gold/30"></span>
+              <span class="w-2 h-2 rounded-full bg-gold/30"></span>
+              <span class="w-2 h-2 rounded-full bg-gold/30"></span>
+              <span class="w-2 h-2 rounded-full bg-gold/30"></span>
+              <span class="w-2 h-2 rounded-full bg-gold/30"></span>
+            </div>
+
+            <!-- Progress -->
+            <div class="mb-2">
+              <div class="h-1 rounded-full bg-white/10">
+                <div class="h-1 w-1/3 rounded-full bg-gold"></div>
+              </div>
+            </div>
+            <div class="flex justify-between font-work-sans text-[0.55rem] text-gold-light/50 mb-6">
+              <span>2:14</span>
+              <span>6:40</span>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-center gap-8">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current text-gold-light/60" aria-hidden="true">
+                <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+              </svg>
+              <span class="flex items-center justify-center w-14 h-14 rounded-full bg-gold text-navy-dark">
+                <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current ml-1" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </span>
+              <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current text-gold-light/60" aria-hidden="true">
+                <path d="M16 6h2v12h-2zm-2.5 6L5 18V6z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-1 lg:order-2">
+        <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold-dark mb-3">
+          Pray With Your Ears
+        </p>
+        <h2 id="audio-feature-heading" class="font-ovo text-4xl md:text-5xl text-navy mb-6">
+          Guided Audio for Every Mystery
+        </h2>
+        <p class="font-work-sans text-lg text-brown leading-relaxed mb-6">
+          Each decade is accompanied by a narrated meditation, so the mind has
+          something to hold while the hands hold the beads. Choose a meditation,
+          press play, and pray along.
+        </p>
+        <p class="font-work-sans text-lg text-brown leading-relaxed mb-8">
+          The bead counter follows your place through each decade, and the audio
+          keeps playing when the screen is off, on a commute, on a walk, or in
+          the quiet of a chapel.
+        </p>
+        <div class="border-l-3 border-gold pl-6">
+          <p class="font-garamond text-xl text-navy italic">
+            "The Rosary is the most beautiful and the most rich in graces of all
+            prayers."
+          </p>
+          <p class="font-work-sans text-sm tracking-[0.2em] uppercase text-gold-dark mt-2">
+            Pope St. Pius X
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature grid -->
+  <section class="bg-cream py-20 px-8" aria-labelledby="features-heading">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-14">
+        <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold-dark mb-3">
+          Built for Recollection
+        </p>
+        <h2 id="features-heading" class="font-ovo text-4xl md:text-5xl text-navy">
+          Everything the Rosary Asks. Nothing It Does Not.
+        </h2>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <%= for {feature, index} <- Enum.with_index(@features, 1) do %>
+          <div class="group relative bg-white rounded p-8 shadow-soft hover:shadow-ornate hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+            <div
+              class="absolute top-0 inset-x-0 h-1 bg-gold/30 group-hover:bg-gold transition-colors duration-300"
+              aria-hidden="true"
+            >
+            </div>
+            <span class="font-ovo text-3xl text-gold/50 block mb-4">
+              {String.pad_leading(Integer.to_string(index), 2, "0")}
+            </span>
+            <h3 class="font-ovo text-xl text-navy mb-3">{feature.title}</h3>
+            <p class="font-work-sans text-brown leading-relaxed">{feature.description}</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="bg-white py-20 px-8" aria-labelledby="how-heading">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14">
+        <img
+          src="/images/pngs/most-sacred-heart-white-bg.jpg"
+          alt="Most Sacred Heart"
+          class="w-24 mx-auto mb-6"
+        />
+        <h2 id="how-heading" class="font-ovo text-4xl md:text-5xl text-navy">
+          Three Steps to Begin
+        </h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-10">
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-5 rounded-full border border-gold flex items-center justify-center">
+            <span class="font-ovo text-2xl text-gold-dark">I</span>
+          </div>
+          <h3 class="font-ovo text-xl text-navy mb-3">Open to Today</h3>
+          <p class="font-work-sans text-brown leading-relaxed">
+            The app greets you with the mysteries proper to the day, following
+            the traditional weekly schedule.
+          </p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-5 rounded-full border border-gold flex items-center justify-center">
+            <span class="font-ovo text-2xl text-gold-dark">II</span>
+          </div>
+          <h3 class="font-ovo text-xl text-navy mb-3">Choose Your Light</h3>
+          <p class="font-work-sans text-brown leading-relaxed">
+            Select a meditation set: the words of a saint, a virtue to grow in,
+            or a season of life you are walking through.
+          </p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-5 rounded-full border border-gold flex items-center justify-center">
+            <span class="font-ovo text-2xl text-gold-dark">III</span>
+          </div>
+          <h3 class="font-ovo text-xl text-navy mb-3">Pray Along</h3>
+          <p class="font-work-sans text-brown leading-relaxed">
+            Press play and pray. The audio guides each decade while the beads
+            keep your place.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section
+    class="relative bg-navy py-20 px-8 overflow-hidden border-y-3 border-gold"
+    aria-labelledby="testimonials-heading"
+  >
+    <div class="absolute inset-0 opacity-5" aria-hidden="true">
+      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
+    </div>
+
+    <div class="relative max-w-6xl mx-auto">
+      <div class="text-center mb-14">
+        <h2 id="testimonials-heading" class="font-ovo text-4xl md:text-5xl text-gold mb-4">
+          Voices from the Community
+        </h2>
+        <.ornate_divider variant="white" class="my-6 opacity-30 max-w-xl mx-auto" />
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <%= for testimonial <- @testimonials do %>
+          <figure class="bg-cream-dark/10 border border-gold/30 rounded-lg p-8 flex flex-col">
+            <span class="font-garamond text-6xl text-gold/40 leading-none mb-2" aria-hidden="true">
+              &ldquo;
+            </span>
+            <blockquote class="font-garamond text-xl text-gold-light italic leading-relaxed grow">
+              {testimonial.quote}
+            </blockquote>
+            <figcaption class="font-work-sans text-xs tracking-[0.25em] uppercase text-gold/60 mt-6">
+              {testimonial.author}
+            </figcaption>
+          </figure>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section
+    class="relative bg-navy-dark py-24 px-8 overflow-hidden"
+    aria-labelledby="final-cta-heading"
+  >
+    <div class="absolute inset-0 opacity-[0.04]" aria-hidden="true">
+      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
+    </div>
+
+    <div class="relative max-w-3xl mx-auto text-center">
+      <img
+        src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
+        alt="Blessed Virgin Mary with Child Jesus"
+        class="w-36 mx-auto mb-8 opacity-90"
+      />
+
+      <h2 id="final-cta-heading" class="font-roman-uncial text-4xl md:text-5xl text-cream mb-6">
+        Begin Tonight's Rosary
+      </h2>
+
+      <p class="font-garamond text-xl text-gold-light italic leading-relaxed mb-10">
+        Download Lumen Viae and let the saints lead you, decade by decade,
+        into the mysteries of Christ.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
+        <a
+          href="#"
+          class="inline-flex items-center gap-3 bg-cream text-navy-dark px-6 py-3.5 rounded-lg shadow-glow hover:bg-white hover:scale-[1.03] transition-all duration-300"
+          aria-label="Download Lumen Viae on the App Store"
+        >
+          <svg viewBox="0 0 384 512" class="w-7 h-7 fill-current" aria-hidden="true">
+            <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.7-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+          </svg>
+          <span class="text-left leading-tight">
+            <span class="block font-work-sans text-[0.6rem] tracking-wide uppercase">
+              Download on the
+            </span>
+            <span class="block font-ovo text-xl">App Store</span>
+          </span>
+        </a>
+
+        <.link
+          navigate="/"
+          class="font-work-sans text-gold-light hover:text-gold underline underline-offset-4 decoration-gold/40 transition-colors"
+        >
+          Or pray on the web
+        </.link>
+      </div>
+    </div>
+  </section>
+</main>

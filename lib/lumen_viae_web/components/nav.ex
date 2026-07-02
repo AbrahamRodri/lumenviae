@@ -39,6 +39,9 @@ defmodule LumenViaeWeb.Components.Nav do
           <.nav_link navigate="/rosary-methods">
             Rosary Methods
           </.nav_link>
+          <.nav_link navigate="/app">
+            The App
+          </.nav_link>
           <.nav_link navigate="/feedback">
             Feedback
           </.nav_link>
@@ -109,6 +112,9 @@ defmodule LumenViaeWeb.Components.Nav do
           </.nav_link>
           <.nav_link navigate="/rosary-methods" mobile>
             Rosary Methods
+          </.nav_link>
+          <.nav_link navigate="/app" mobile>
+            The App
           </.nav_link>
           <.nav_link navigate="/feedback" mobile>
             Feedback
