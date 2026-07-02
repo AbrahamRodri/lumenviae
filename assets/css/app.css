@@ -127,11 +127,50 @@
   --color-cream-dark: #f0e5d0;
   --color-white: #ffffff;
 
-  /* Typography - Clear Creek inspired fonts */
-  --font-family-roman-uncial: 'Roman Uncial Modern', serif;
-  --font-family-ovo: 'Ovo', serif;
-  --font-family-work-sans: 'Work Sans', sans-serif;
-  --font-family-garamond: 'EB Garamond', serif;
+  /* Text Colors - Warm ink browns for body copy */
+  --color-brown: #4a3f33;
+  --color-brown-light: #7c6f5e;
+
+  /* Typography - Clear Creek inspired fonts.
+     Tailwind v4 generates font-* utilities from the --font-* namespace. */
+  --font-roman-uncial: 'Roman Uncial Modern', serif;
+  --font-ovo: 'Ovo', serif;
+  --font-work-sans: 'Work Sans', sans-serif;
+  --font-garamond: 'EB Garamond', serif;
+  --font-cinzel-decorative: 'Cinzel Decorative', 'Cinzel', serif;
+  --font-cinzel: 'Cinzel', serif;
+
+  /* Shadows - soft ambient and gold-tinged ornate */
+  --shadow-soft: 0 2px 12px rgba(0, 40, 64, 0.08), 0 1px 3px rgba(0, 40, 64, 0.06);
+  --shadow-ornate: 0 8px 30px rgba(0, 59, 92, 0.12), 0 0 0 1px rgba(177, 139, 73, 0.25);
+  --shadow-glow: 0 0 40px rgba(201, 169, 107, 0.35);
+
+  /* Animations */
+  --animate-rise: rise 0.9s ease-out both;
+  --animate-rise-slow: rise 1.4s ease-out both;
+  --animate-halo: halo 6s ease-in-out infinite;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes halo {
+    0%, 100% {
+      opacity: 0.5;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.06);
+    }
+  }
 }
 
 :root {
@@ -163,20 +202,20 @@
 
 /* Typography utilities for meditation-friendly reading */
 .text-meditation {
-  font-family: var(--font-family-work-sans);
+  font-family: var(--font-work-sans);
   font-size: 1.0625rem;
   line-height: 1.6;
   color: var(--color-text-muted);
 }
 
 .heading-ornate {
-  font-family: var(--font-family-ovo);
+  font-family: var(--font-ovo);
   line-height: 1.4;
   letter-spacing: 0.02em;
 }
 
 .heading-elegant {
-  font-family: var(--font-family-ovo);
+  font-family: var(--font-ovo);
   line-height: 1.4;
   letter-spacing: 0.02em;
 }
@@ -185,36 +224,108 @@
 .text-ornate {
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  font-family: var(--font-family-ovo);
+  font-family: var(--font-ovo);
 }
 
 /* Base body styling for readability - Clear Creek inspired */
 body {
-  font-family: var(--font-family-work-sans);
+  font-family: var(--font-work-sans);
   font-size: 1.0625rem;
   line-height: 1.6;
   color: var(--color-text);
 }
 
 h1 {
-  font-family: var(--font-family-roman-uncial);
+  font-family: var(--font-roman-uncial);
   line-height: 1.25;
   letter-spacing: 0.01em;
   font-weight: 400;
 }
 
 h2 {
-  font-family: var(--font-family-ovo);
+  font-family: var(--font-ovo);
   line-height: 1.3;
   letter-spacing: 0.01em;
   font-weight: 400;
 }
 
 h3, h4, h5, h6 {
-  font-family: var(--font-family-ovo);
+  font-family: var(--font-ovo);
   line-height: 1.4;
   letter-spacing: 0.01em;
   font-weight: 400;
+}
+
+/* Illuminated drop cap for scripture and quote passages */
+.drop-cap::first-letter {
+  font-family: var(--font-roman-uncial);
+  font-size: 3.4em;
+  line-height: 0.85;
+  float: left;
+  padding-right: 0.12em;
+  padding-top: 0.08em;
+  color: var(--color-gold-dark);
+}
+
+/* Radial halo glow, used behind sacred imagery */
+.bg-halo {
+  background: radial-gradient(
+    closest-side,
+    rgba(201, 169, 107, 0.45),
+    rgba(201, 169, 107, 0.15) 55%,
+    transparent 100%
+  );
+}
+
+/* Rosary bead week strip - the small day markers on the home hero */
+.bead {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(201, 169, 107, 0.6);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.bead-today {
+  width: 0.875rem;
+  height: 0.875rem;
+  background: var(--color-gold);
+  border-color: var(--color-gold-light);
+  box-shadow: 0 0 12px rgba(201, 169, 107, 0.8);
+}
+
+/* Phone frame for app mockups - pure CSS device chrome */
+.phone-frame {
+  position: relative;
+  width: 18rem;
+  border-radius: 2.75rem;
+  padding: 0.625rem;
+  background: linear-gradient(160deg, #1c2b3a, #0a1622);
+  box-shadow:
+    0 24px 60px rgba(0, 26, 42, 0.45),
+    0 0 0 1px rgba(201, 169, 107, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.phone-screen {
+  border-radius: 2.15rem;
+  overflow: hidden;
+  aspect-ratio: 9 / 19;
+  display: flex;
+  flex-direction: column;
+}
+
+.phone-notch {
+  position: absolute;
+  top: 1.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6.5rem;
+  height: 1.35rem;
+  border-radius: 9999px;
+  background: #0a1622;
+  z-index: 10;
 }
 
 /* Layout structure - Clear Creek inspired boxed layout */
