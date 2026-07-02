@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-3xl mx-auto px-6 py-12 text-navy">
+    <div class="max-w-[70ch] mx-auto px-6 py-16 text-navy">
       <h1 class="font-ovo text-4xl mb-2 text-navy">Privacy Policy</h1>
       <p class="text-sm text-gray-500 mb-8">Last updated: June 8, 2026</p>
 
@@ -21,8 +21,8 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         describes what information we collect, how we use it, and your rights regarding that information.
       </p>
 
-      <section class="mb-8">
-        <h2 class="font-ovo text-2xl mb-3 text-gold-dark">Information We Collect</h2>
+      <section class="mt-10 pt-8 border-t border-gold/20">
+        <h2 class="font-ovo text-2xl mb-4 text-navy">Information We Collect</h2>
         <p class="font-garamond text-lg leading-relaxed mb-3">
           We collect minimal information necessary to provide the app's functionality:
         </p>
@@ -39,8 +39,8 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         </ul>
       </section>
 
-      <section class="mb-8">
-        <h2 class="font-ovo text-2xl mb-3 text-gold-dark">Information We Do Not Collect</h2>
+      <section class="mt-10 pt-8 border-t border-gold/20">
+        <h2 class="font-ovo text-2xl mb-4 text-navy">Information We Do Not Collect</h2>
         <ul class="list-disc list-inside font-garamond text-lg leading-relaxed space-y-2 pl-2">
           <li>We do not collect your name, email address, or any account information.</li>
           <li>We do not require you to create an account or log in.</li>
@@ -49,8 +49,8 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         </ul>
       </section>
 
-      <section class="mb-8">
-        <h2 class="font-ovo text-2xl mb-3 text-gold-dark">How We Use the Information</h2>
+      <section class="mt-10 pt-8 border-t border-gold/20">
+        <h2 class="font-ovo text-2xl mb-4 text-navy">How We Use the Information</h2>
         <p class="font-garamond text-lg leading-relaxed">
           Completion data is used solely to track aggregate prayer statistics for the purpose of
           improving the app and understanding which meditations are most used. It is never shared
@@ -58,8 +58,8 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         </p>
       </section>
 
-      <section class="mb-8">
-        <h2 class="font-ovo text-2xl mb-3 text-gold-dark">Data Retention</h2>
+      <section class="mt-10 pt-8 border-t border-gold/20">
+        <h2 class="font-ovo text-2xl mb-4 text-navy">Data Retention</h2>
         <p class="font-garamond text-lg leading-relaxed">
           Completion records are retained indefinitely in an anonymized form. Because no personal
           identifiers are attached to completion records, we are unable to identify or delete data
@@ -67,8 +67,8 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         </p>
       </section>
 
-      <section class="mb-8">
-        <h2 class="font-ovo text-2xl mb-3 text-gold-dark">Third-Party Services</h2>
+      <section class="mt-10 pt-8 border-t border-gold/20">
+        <h2 class="font-ovo text-2xl mb-4 text-navy">Third-Party Services</h2>
         <p class="font-garamond text-lg leading-relaxed">
           Audio files for meditations are served via Amazon Web Services (AWS) S3 pre-signed URLs.
           AWS may log standard server-side access metadata (IP address, timestamp) in accordance
@@ -76,8 +76,8 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         </p>
       </section>
 
-      <section class="mb-8">
-        <h2 class="font-ovo text-2xl mb-3 text-gold-dark">Children's Privacy</h2>
+      <section class="mt-10 pt-8 border-t border-gold/20">
+        <h2 class="font-ovo text-2xl mb-4 text-navy">Children's Privacy</h2>
         <p class="font-garamond text-lg leading-relaxed">
           Lumen Viae does not knowingly collect information from children under the age of 13.
           The app contains no account creation, social features, or targeted content, and is
@@ -85,8 +85,8 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         </p>
       </section>
 
-      <section class="mb-8">
-        <h2 class="font-ovo text-2xl mb-3 text-gold-dark">Changes to This Policy</h2>
+      <section class="mt-10 pt-8 border-t border-gold/20">
+        <h2 class="font-ovo text-2xl mb-4 text-navy">Changes to This Policy</h2>
         <p class="font-garamond text-lg leading-relaxed">
           We may update this privacy policy from time to time. Any changes will be posted at this
           URL with an updated revision date. Continued use of the app after changes constitutes
@@ -94,8 +94,8 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         </p>
       </section>
 
-      <section class="mb-8">
-        <h2 class="font-ovo text-2xl mb-3 text-gold-dark">Contact</h2>
+      <section class="mt-10 pt-8 border-t border-gold/20">
+        <h2 class="font-ovo text-2xl mb-4 text-navy">Contact</h2>
         <p class="font-garamond text-lg leading-relaxed">
           If you have questions about this privacy policy, you may contact us at:
           <a href="mailto:rodriguez.abrahamdev@gmail.com" class="text-gold-dark underline">
