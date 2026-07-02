@@ -82,7 +82,7 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
       3 -> :glorious
       4 -> :joyful
       5 -> :sorrowful
-      6 -> :joyful
+      6 -> :glorious
       7 -> :glorious
     end
   end
