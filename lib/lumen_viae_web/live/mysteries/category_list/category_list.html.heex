@@ -110,19 +110,16 @@
               {set.name}
             </h3>
 
-            <div class="flex flex-wrap items-center gap-3 mb-4">
-              <span class="inline-flex items-center gap-1.5 font-work-sans text-[0.65rem] tracking-[0.2em] uppercase text-gold-dark border border-gold/40 px-3 py-1 rounded-full">
-                {length(set.meditations)} Meditations
-              </span>
-              <%= if has_audio?(set) do %>
+            <%= if has_audio?(set) do %>
+              <div class="mb-4">
                 <span class="inline-flex items-center gap-1.5 font-work-sans text-[0.65rem] tracking-[0.2em] uppercase text-navy bg-gold/90 px-3 py-1 rounded-full">
                   <svg viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3" aria-hidden="true">
                     <path d="M12 2C6.477 2 2 6.477 2 12v4a2 2 0 002 2h2a2 2 0 002-2v-3a2 2 0 00-2-2H4.062A8.001 8.001 0 0112 4a8.001 8.001 0 017.938 7H18a2 2 0 00-2 2v3a2 2 0 002 2h2a2 2 0 002-2v-4c0-5.523-4.477-10-10-10z" />
                   </svg>
                   Guided Audio
                 </span>
-              <% end %>
-            </div>
+              </div>
+            <% end %>
 
             <%= if set.description do %>
               <p class="font-work-sans text-brown leading-relaxed mb-6 grow">
