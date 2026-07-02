@@ -1,38 +1,62 @@
 <div class="bg-cream min-h-screen">
   <!-- Hero Section -->
-  <div class="bg-navy py-6 md:py-12 border-b-3 border-gold">
-    <div class="max-w-4xl mx-auto px-3 md:px-6 text-center">
-      <img
-        src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
-        alt="Blessed Mary with Child Jesus"
-        class="w-32 md:w-56 mx-auto mb-4 md:mb-6 opacity-90 transition-all duration-500 hover:opacity-100 hover:scale-105"
-      />
+  <section class="relative bg-navy overflow-hidden border-b-3 border-gold">
+    <div class="absolute inset-0 opacity-[0.05]" aria-hidden="true">
+      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
+    </div>
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-navy-dark/50 via-transparent to-navy-dark/70"
+      aria-hidden="true"
+    >
+    </div>
 
-      <h1 class="font-roman-uncial text-gold text-3xl md:text-5xl lg:text-6xl mb-2 md:mb-3">
+    <div class="relative max-w-4xl mx-auto px-6 pt-12 pb-16 md:pt-16 md:pb-20 text-center">
+      <div class="relative inline-block mb-6 animate-rise">
+        <div class="bg-halo absolute -inset-8 rounded-full animate-halo" aria-hidden="true"></div>
+        <img
+          src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
+          alt="Blessed Mary with Child Jesus"
+          class="relative w-32 md:w-48 mx-auto drop-shadow-2xl"
+        />
+      </div>
+
+      <p
+        class="font-work-sans text-xs md:text-sm tracking-[0.4em] uppercase text-gold-light mb-4 animate-rise"
+        style="animation-delay: 120ms"
+      >
+        The Word Behind Every Decade
+      </p>
+
+      <h1
+        class="font-roman-uncial text-3xl md:text-5xl lg:text-6xl text-cream mb-4 animate-rise"
+        style="animation-delay: 200ms"
+      >
         The Scripture of the Rosary
       </h1>
 
-      <.ornate_divider variant="white" class="my-3 md:my-4 opacity-30 max-w-2xl mx-auto" />
-
-      <p class="font-ovo text-gold-light text-lg md:text-2xl italic px-3">
-        The Life, Passion, and Glory of Christ, with Scripture references gathered for each mystery
+      <p
+        class="font-garamond text-lg md:text-2xl text-gold-light italic px-3 max-w-2xl mx-auto animate-rise"
+        style="animation-delay: 300ms"
+      >
+        The Life, Passion, and Glory of Christ, with Scripture references
+        gathered for each mystery
       </p>
     </div>
-  </div>
-  
+  </section>
+
 <!-- Category Tabs -->
-  <div class="-mt-5 md:-mt-8">
-    <div class="max-w-2xl mx-auto flex flex-wrap justify-center gap-2 bg-white/70 backdrop-blur-sm p-2 md:p-3 rounded-2xl md:rounded-full shadow-soft">
+  <div class="-mt-6 md:-mt-7 relative z-10 px-4">
+    <div class="max-w-2xl mx-auto flex flex-wrap justify-center gap-2 bg-white/85 backdrop-blur-sm p-2 md:p-3 rounded-2xl md:rounded-full shadow-ornate">
       <%= for category <- @categories do %>
         <button
           type="button"
           phx-click="select-category"
           phx-value-id={category.id}
           class={[
-            "px-3 md:px-5 py-1.5 md:py-2 rounded-full font-ovo uppercase tracking-wide transition-all duration-300 border",
+            "px-3 md:px-5 py-1.5 md:py-2 rounded-full font-ovo tracking-wide transition-all duration-300 border",
             if(category.id == @selected_category,
               do: "bg-navy text-gold border-navy shadow-md",
-              else: "bg-cream text-navy border-gold hover:bg-gold-light/20 hover:scale-105"
+              else: "bg-cream text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
             )
           ]}
         >
