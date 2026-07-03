@@ -6,6 +6,7 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
   with any meditation set for the day, without intermediate pages.
   """
   use LumenViaeWeb, :live_view
+  alias LumenViae.LiturgicalCalendar
   alias LumenViae.Rosary
 
   @mystery_sets [
@@ -110,7 +111,7 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
   end
 
   defp assign_recommended_set(socket, date) do
-    recommended_key = recommended_set(date)
+    recommended_key = LiturgicalCalendar.recommended_mysteries(date)
     mystery_sets = socket.assigns.mystery_sets
 
     recommended_set =
@@ -121,9 +122,11 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
 
     week =
       Enum.map(@week_days, fn {dow, label} ->
+        day_date = Date.add(date, dow - Date.day_of_week(date))
+
         %{
           label: label,
-          key: recommended_set(dow),
+          key: LiturgicalCalendar.recommended_mysteries(day_date),
           today?: dow == Date.day_of_week(date)
         }
       end)
@@ -137,20 +140,6 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
 
   defp build_mystery_sets do
     Enum.map(@mystery_sets, fn {key, attrs} -> {key, Map.put(attrs, :key, key)} end)
-  end
-
-  defp recommended_set(%Date{} = date), do: recommended_set(Date.day_of_week(date))
-
-  defp recommended_set(day_of_week) when is_integer(day_of_week) do
-    case day_of_week do
-      1 -> :joyful
-      2 -> :sorrowful
-      3 -> :glorious
-      4 -> :joyful
-      5 -> :sorrowful
-      6 -> :glorious
-      7 -> :glorious
-    end
   end
 
   def meditation_sets_by_category(meditation_sets, category) do

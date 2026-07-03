@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
        |> assign(:meditation_sets, meditation_sets)
        |> assign(:page_title, category_title(category))}
     else
-      {:ok, push_navigate(socket, to: "/")}
+      raise LumenViaeWeb.NotFoundError, message: "unknown mystery category: #{category}"
     end
   end
 

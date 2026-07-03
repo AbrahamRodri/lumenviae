@@ -3,6 +3,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
   Home page - displays welcome message and mystery categories
   """
   use LumenViaeWeb, :live_view
+  alias LumenViae.LiturgicalCalendar
 
   @mystery_sets [
     joyful: %{
@@ -76,6 +77,11 @@ defmodule LumenViaeWeb.Live.Home.Index do
 
     {:ok,
      socket
+     |> assign(:page_title, "Meditations on the Holy Rosary")
+     |> assign(
+       :meta_description,
+       "Pray the traditional fifteen mysteries of the Holy Rosary with meditations from the saints and doctors of the Church. Daily mysteries, guided audio, and the methods of St. Louis de Montfort."
+     )
      |> assign(:mystery_sets, mystery_sets)
      |> assign(:today, today)
      |> assign_recommended_set(today)}
@@ -96,7 +102,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
   end
 
   defp assign_recommended_set(socket, date) do
-    recommended_key = recommended_set(date)
+    recommended_key = LiturgicalCalendar.recommended_mysteries(date)
     mystery_sets = socket.assigns.mystery_sets
 
     recommended_set =
@@ -104,9 +110,11 @@ defmodule LumenViaeWeb.Live.Home.Index do
 
     week =
       Enum.map(@week_days, fn {dow, label} ->
+        day_date = Date.add(date, dow - Date.day_of_week(date))
+
         %{
           label: label,
-          key: recommended_set(dow),
+          key: LiturgicalCalendar.recommended_mysteries(day_date),
           today?: dow == Date.day_of_week(date)
         }
       end)
@@ -119,27 +127,5 @@ defmodule LumenViaeWeb.Live.Home.Index do
 
   defp build_mystery_sets do
     Enum.map(@mystery_sets, fn {key, attrs} -> {key, Map.put(attrs, :key, key)} end)
-  end
-
-  defp recommended_set(%Date{} = date), do: recommended_set(Date.day_of_week(date))
-
-  defp recommended_set(day_of_week) when is_integer(day_of_week) do
-    case day_of_week do
-      # Monday - Joyful
-      1 -> :joyful
-      # Tuesday - Sorrowful
-      2 -> :sorrowful
-      # Wednesday - Glorious
-      3 -> :glorious
-      # Thursday - Joyful (traditionally, some sources say Joyful, others Glorious)
-      4 -> :joyful
-      # Friday - Sorrowful
-      5 -> :sorrowful
-      # Saturday - Glorious (matches the traditional schedule shown on the cards)
-      6 -> :glorious
-      # Sunday - Glorious (Ordinary Time), Sorrowful (Lent), Joyful (Advent)
-      # For now, defaulting to Glorious until liturgical calendar is implemented
-      7 -> :glorious
-    end
   end
 end

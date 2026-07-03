@@ -40,30 +40,11 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     }
   ]
 
-  @testimonials [
-    %{
-      quote:
-        "I had prayed the Rosary for years without really meditating on it. The audio meditations changed that completely.",
-      author: "Sample testimonial"
-    },
-    %{
-      quote:
-        "The meditations from the saints make every decade feel new. It is the only app on my phone that leads me to silence.",
-      author: "Sample testimonial"
-    },
-    %{
-      quote:
-        "Beautiful, reverent, and simple. I open it every morning before the house wakes up.",
-      author: "Sample testimonial"
-    }
-  ]
-
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
      |> assign(:page_title, "Lumen Viae for iPhone")
-     |> assign(:features, @features)
-     |> assign(:testimonials, @testimonials)}
+     |> assign(:features, @features)}
   end
 end

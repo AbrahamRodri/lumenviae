@@ -19,9 +19,9 @@ defmodule LumenViaeWeb.Components.Nav do
           <.medallion_bg type="saint_benedict" size="small" />
 
           <div>
-            <h1 class="font-cinzel-decorative text-gold text-2xl md:text-3xl tracking-widest font-bold">
+            <span class="block font-cinzel-decorative text-gold text-2xl md:text-3xl tracking-widest font-bold">
               LUMEN VIAE
-            </h1>
+            </span>
             <p class="font-garamond text-gold-light text-sm tracking-wide italic">
               Meditations on the Holy Rosary
             </p>
@@ -55,6 +55,7 @@ defmodule LumenViaeWeb.Components.Nav do
     <!-- Mobile Menu Button -->
         <button
           type="button"
+          id="mobile-menu-button"
           phx-click={
             JS.toggle(
               to: "#mobile-menu",
@@ -63,9 +64,12 @@ defmodule LumenViaeWeb.Components.Nav do
             )
             |> JS.toggle(to: "#menu-icon-open")
             |> JS.toggle(to: "#menu-icon-close")
+            |> JS.toggle_attribute({"aria-expanded", "true", "false"})
           }
           class="md:hidden text-gold-light hover:text-gold transition-colors p-2"
           aria-label="Toggle mobile menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
         >
           <svg
             id="menu-icon-open"
@@ -157,6 +161,7 @@ defmodule LumenViaeWeb.Components.Nav do
           )
           |> JS.hide(to: "#menu-icon-close")
           |> JS.show(to: "#menu-icon-open")
+          |> JS.set_attribute({"aria-expanded", "false"}, to: "#mobile-menu-button")
         else
           nil
         end

@@ -7,10 +7,25 @@
     <.live_title default="Lumen Viae">
       {assigns[:page_title] || "Meditations on the Holy Rosary"}
     </.live_title>
+    <% meta_description =
+      assigns[:meta_description] ||
+        "Pray the traditional fifteen mysteries of the Holy Rosary with meditations from the saints and doctors of the Church. Guided audio, scripture, and the methods of St. Louis de Montfort." %>
+    <meta name="description" content={meta_description} />
+    <link rel="canonical" href={"https://www.lumenviae.org#{@conn.request_path}"} />
+    <meta property="og:site_name" content="Lumen Viae" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={assigns[:page_title] || "Lumen Viae - Meditations on the Holy Rosary"} />
+    <meta property="og:description" content={meta_description} />
+    <meta property="og:url" content={"https://www.lumenviae.org#{@conn.request_path}"} />
+    <meta property="og:image" content="https://www.lumenviae.org/images/pngs/our-lady-of-sorrows-horizontal.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={assigns[:page_title] || "Lumen Viae - Meditations on the Holy Rosary"} />
+    <meta name="twitter:description" content={meta_description} />
+    <meta name="twitter:image" content="https://www.lumenviae.org/images/pngs/our-lady-of-sorrows-horizontal.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Ovo&family=Work+Sans:wght@300;400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Ovo&family=Work+Sans:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />

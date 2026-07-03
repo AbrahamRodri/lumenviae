@@ -346,41 +346,6 @@
     </div>
   </section>
 
-  <!-- Testimonials -->
-  <section
-    class="relative bg-navy py-20 px-8 overflow-hidden border-y-3 border-gold"
-    aria-labelledby="testimonials-heading"
-  >
-    <div class="absolute inset-0 opacity-5" aria-hidden="true">
-      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
-    </div>
-
-    <div class="relative max-w-6xl mx-auto">
-      <div class="text-center mb-14">
-        <h2 id="testimonials-heading" class="font-ovo text-4xl md:text-5xl text-gold mb-4">
-          Voices from the Community
-        </h2>
-        <.ornate_divider variant="white" class="my-6 opacity-30 max-w-xl mx-auto" />
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-8">
-        <%= for testimonial <- @testimonials do %>
-          <figure class="bg-cream-dark/10 border border-gold/30 rounded-lg p-8 flex flex-col">
-            <span class="font-garamond text-6xl text-gold/40 leading-none mb-2" aria-hidden="true">
-              &ldquo;
-            </span>
-            <blockquote class="font-garamond text-xl text-gold-light italic leading-relaxed grow">
-              {testimonial.quote}
-            </blockquote>
-            <figcaption class="font-work-sans text-xs tracking-[0.25em] uppercase text-gold/60 mt-6">
-              {testimonial.author}
-            </figcaption>
-          </figure>
-        <% end %>
-      </div>
-    </div>
-  </section>
-
   <!-- Final CTA -->
   <section
     class="relative bg-navy-dark py-24 px-8 overflow-hidden"
