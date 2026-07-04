@@ -32,6 +32,19 @@
                   <p class="font-crimson text-sm text-gray-600 mb-1">
                     Category: {String.capitalize(set.category)} Mysteries
                   </p>
+                  <%= if set.labels == [] do %>
+                    <p class="font-crimson text-xs text-gray-400 italic mb-1">
+                      No labels yet (shown under "More" in the app picker)
+                    </p>
+                  <% else %>
+                    <div class="flex flex-wrap gap-2 my-2">
+                      <%= for label <- set.labels do %>
+                        <span class="inline-block px-2 py-0.5 border border-gold text-navy font-crimson text-xs rounded">
+                          {label}
+                        </span>
+                      <% end %>
+                    </div>
+                  <% end %>
                   <%= if set.description do %>
                     <p class="font-crimson text-gray-700 mt-2">
                       {set.description}

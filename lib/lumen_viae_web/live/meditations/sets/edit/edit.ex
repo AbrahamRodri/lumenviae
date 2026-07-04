@@ -4,7 +4,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   alias LumenViae.Constants
   alias LumenViae.Meditations.Filtering
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.MeditationSet
+  alias LumenViae.Rosary.{Labels, MeditationSet}
 
   def mount(%{"id" => id}, _session, socket) do
     set = Rosary.get_meditation_set_with_ordered_meditations!(id)
@@ -21,6 +21,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
      |> assign(:search_query, "")
      |> assign(:selected_set_meditations, set.meditations)
      |> assign(:mystery_categories, Constants.mystery_category_options())
+     |> assign(:label_vocabulary, Labels.vocabulary())
+     |> assign(:max_labels, Labels.max_per_set())
      |> assign_edit_form(set)}
   end
 
@@ -39,6 +41,18 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
          |> put_flash(:error, "Failed to update meditation set")
          |> assign_edit_form(changeset)}
     end
+  end
+
+  def handle_event("add_label", %{"label" => label}, socket) do
+    update_labels(socket, socket.assigns.meditation_set.labels ++ [label])
+  end
+
+  def handle_event("remove_label", %{"label" => label}, socket) do
+    update_labels(socket, List.delete(socket.assigns.meditation_set.labels, label))
+  end
+
+  def handle_event("move_label", %{"label" => label, "direction" => direction}, socket) do
+    update_labels(socket, move_label(socket.assigns.meditation_set.labels, label, direction))
   end
 
   def handle_event("add_to_set", %{"meditation_id" => meditation_id, "order" => order}, socket) do
@@ -90,6 +104,37 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
 
       _ ->
         {:noreply, put_flash(socket, :error, "Invalid meditation ID")}
+    end
+  end
+
+  # Persists a label change immediately. The edit form assign is left alone so
+  # any unsaved edits in the Set Details inputs are not clobbered.
+  defp update_labels(socket, labels) do
+    case Rosary.update_meditation_set(socket.assigns.meditation_set, %{labels: labels}) do
+      {:ok, set} ->
+        {:noreply, assign(socket, :meditation_set, set)}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to update labels")}
+    end
+  end
+
+  defp move_label(labels, label, direction) do
+    index = Enum.find_index(labels, &(&1 == label))
+
+    target =
+      case direction do
+        "up" -> index && index - 1
+        "down" -> index && index + 1
+        _ -> nil
+      end
+
+    if is_nil(target) or target < 0 or target >= length(labels) do
+      labels
+    else
+      labels
+      |> List.delete_at(index)
+      |> List.insert_at(target, label)
     end
   end
 

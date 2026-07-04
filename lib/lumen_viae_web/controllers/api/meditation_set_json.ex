@@ -20,7 +20,8 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
       id: set.id,
       name: set.name,
       category: set.category,
-      description: set.description
+      description: set.description,
+      labels: set.labels || []
     }
   end
 
@@ -30,6 +31,7 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
       name: set.name,
       category: set.category,
       description: set.description,
+      labels: set.labels || [],
       meditations: Enum.map(set.meditations, &LumenViaeWeb.API.MeditationJSON.data/1)
     }
   end

@@ -72,7 +72,14 @@
         </div>
       </.form>
     </div>
-    
+
+<!-- Labels (iOS picker grouping and filter chips) -->
+    <LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection.labels_section
+      labels={@meditation_set.labels}
+      vocabulary={@label_vocabulary}
+      max_labels={@max_labels}
+    />
+
 <!-- Manage Meditations in Set -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">Meditations in This Set</h3>

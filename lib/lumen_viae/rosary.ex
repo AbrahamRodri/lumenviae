@@ -109,17 +109,20 @@ defmodule LumenViae.Rosary do
     Repo.aggregate(MeditationSet, :count)
   end
 
+  # Set ordering is part of the iOS API contract: the app builds its filter
+  # chips and sections from first appearance across the list response, so the
+  # list queries keep a deterministic creation order.
   def list_meditation_sets do
-    Repo.all(MeditationSet)
+    Repo.all(from ms in MeditationSet, order_by: [asc: ms.category, asc: ms.id])
   end
 
   def list_meditation_sets_with_meditations do
-    Repo.all(MeditationSet)
+    list_meditation_sets()
     |> Repo.preload(:meditations)
   end
 
   def list_meditation_sets_by_category(category) do
-    Repo.all(from ms in MeditationSet, where: ms.category == ^category)
+    Repo.all(from ms in MeditationSet, where: ms.category == ^category, order_by: [asc: ms.id])
     |> Repo.preload(:meditations)
   end
 
