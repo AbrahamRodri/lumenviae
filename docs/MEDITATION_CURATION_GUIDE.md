@@ -52,10 +52,15 @@ imported into LumenViae, whether curated by hand or with Claude's help.
 10. `title` is a short editorial theme (these may be our words), e.g.
     "The Fiat and the Flood of Light".
 11. `author` uses the honorific matching the Church's current recognition
-    (St., Blessed, Venerable). Labels follow the same convention as the
-    set-label backfill: only canonized authors' sets carry the "Saints"
-    label.
-12. Audio filenames follow `<category>_<author>_<n>.mp3`, e.g.
+    (St., Blessed, Venerable). Only canonized authors' sets carry the
+    "Saints" label.
+12. Every set carries exactly one style label. "Contemplative" is for
+    imaginative, scene-based writing that shows what was happening in the
+    mystery (Emmerich's visions, Ignatian composition of place).
+    "Considerations" is for discursive writing that explains the mystery's
+    meaning and doctrine (Sheen's essays, Liguori's "Consider how..."
+    points). Judge by how the text prays, not by the author's reputation.
+13. Audio filenames follow `<category>_<author>_<n>.mp3`, e.g.
     `joyful_emmerich_1.mp3`.
-13. Generated import CSVs live in `priv/repo/imports/` and are gitignored -
+14. Generated import CSVs live in `priv/repo/imports/` and are gitignored -
     meditation content stays out of version control.

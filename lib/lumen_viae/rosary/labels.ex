@@ -11,13 +11,23 @@ defmodule LumenViae.Rosary.Labels do
   Order matters on a set: the first label is the set's primary group in the
   picker. Keep labels per set small (1-3); filtering in the app is AND, so a
   set should carry every label that genuinely describes it and nothing more.
+
+  Style labels are mutually exclusive - a set carries at most one of:
+
+    * "Contemplative" - imaginative, scene-based prayer in the Ignatian
+      sense: the text places you inside the mystery and shows what was
+      happening (Emmerich's visions, composition of place).
+    * "Considerations" - discursive explanation in the classical manual
+      sense: the text reasons about the mystery's meaning and doctrine
+      (Sheen's essays, Liguori's "Consider how..." points).
   """
 
   @vocabulary [
     "Intentions",
     "Saints",
     "Scriptural",
-    "Contemplative"
+    "Contemplative",
+    "Considerations"
   ]
 
   @max_per_set 3
