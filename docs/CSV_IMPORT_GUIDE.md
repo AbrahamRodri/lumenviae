@@ -82,13 +82,32 @@ Note: The audio_filename column is optional. You can omit it entirely or leave i
 
 ## Validation Rules
 
-The system will validate each meditation against the following rules:
+The file itself is validated before any rows are processed:
+
+- The header row must include `mystery_name` and `content`
+- Unknown or duplicate column names are rejected (they are usually typos
+  that would otherwise be silently ignored)
+- A UTF-8 BOM (added by some spreadsheet exports) is tolerated
+- Fully blank rows are skipped
+
+Each row is then validated against the following rules:
 
 - `content` is required and cannot be empty
 - `mystery_name` must exactly match an existing mystery in the database
-- If the mystery_name doesn't match, you'll see an error message listing the mystery name that wasn't found
+- The row must have the same number of fields as the header (a mismatch
+  usually means an unescaped comma)
+- The same `audio_filename` cannot appear on more than one row (the second
+  upload would overwrite the first meditation's audio in S3)
 
 ## Error Handling
+
+Each row finishes in one of three states:
+
+- **OK** - the meditation was created exactly as requested
+- **Warning** - the meditation was created, but something non-fatal went
+  wrong: audio generation failed after retries, or the meditation could not
+  be attached to its set. Check these meditations afterwards
+- **Error** - the row failed validation and nothing was written for it
 
 If a meditation fails validation, the error message will include:
 - The mystery name that the meditation was intended for
@@ -120,8 +139,8 @@ When the `audio_filename` column is provided, the system will:
 
 To enable audio generation, ensure the following environment variables are configured:
 
-- `ELEVEN_LABS_API_KEY` - Your ElevenLabs API key
-- `ELEVEN_LABS_VOICE_ID` - (Optional) The voice ID to use (defaults to RTFg9niKcgGLDwa3RFlz)
+- `ELEVEN_LABS_API_KEY` - Your ElevenLabs API key (the voice ID is set in
+  `config/runtime.exs`)
 - `AWS_ACCESS_KEY_ID` - Your AWS access key
 - `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
 - `AWS_S3_BUCKET` - Your S3 bucket name (defaults to lumenviae-audio)
@@ -131,9 +150,16 @@ To enable audio generation, ensure the following environment variables are confi
 
 - Audio generation happens during the CSV import process
 - Each meditation with an audio_filename will trigger an API call to ElevenLabs
-- The import may take longer when generating audio (a few seconds per meditation)
-- If audio generation or upload fails, the meditation is still created, but without audio
+- Synthesis takes roughly 10-60 seconds per meditation; the client waits up
+  to 2 minutes per attempt before treating the request as timed out
+- Transient failures (timeouts, rate limits, ElevenLabs 5xx, S3 hiccups) are
+  retried up to 3 times with increasing backoff; permanent failures (bad API
+  key, missing AWS credentials, rejected request) fail immediately
+- If audio generation or upload still fails, the meditation is created
+  without audio and the row is reported as a warning naming the reason
 - Success messages will indicate "(with audio)" for meditations that have audio generated
+- Re-running a failed row's audio means re-importing that row; delete the
+  audio-less meditation first so the import does not create a duplicate
 
 ## Notes
 

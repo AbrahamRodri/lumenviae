@@ -33,6 +33,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
     |> assign(:elapsed, 0)
     |> assign(:cancelled, false)
     |> assign(:successes, [])
+    |> assign(:warnings, [])
     |> assign(:errors, [])
   end
 
@@ -75,6 +76,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   def handle_event("start-import", _params, %{assigns: %{stage: :ready}} = socket) do
     live_view = self()
     content = socket.assigns.csv_content
+
     opts = [
       skip_audio: socket.assigns.skip_audio,
       progress: fn event -> send(live_view, {:import_progress, event}) end
@@ -113,15 +115,11 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   ## Async import lifecycle
 
   def handle_async(:import, {:ok, results}, socket) do
-    successes = Enum.filter(results, fn {status, _} -> status == :ok end)
-    errors = Enum.filter(results, fn {status, _} -> status == :error end)
-
     {:noreply,
      socket
      |> assign(:stage, :done)
      |> assign(:current_activity, nil)
-     |> assign(:successes, successes)
-     |> assign(:errors, errors)}
+     |> assign_grouped_results(results)}
   end
 
   def handle_async(:import, {:exit, reason}, socket) do
@@ -207,6 +205,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
     |> Enum.sort_by(fn {index, _} -> index end)
     |> Enum.flat_map(fn
       {_index, {:ok, message}} -> [{:ok, message}]
+      {_index, {:warning, message}} -> [{:warning, message}]
       {_index, {:error, message}} -> [{:error, message}]
       _ -> []
     end)
@@ -214,10 +213,16 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
 
   defp collect_results_from_status(socket) do
     results = collect_results_from_socket_status(socket.assigns.rows_status)
+    assign_grouped_results(socket, results)
+  end
+
+  defp assign_grouped_results(socket, results) do
+    grouped = Enum.group_by(results, fn {status, _} -> status end)
 
     socket
-    |> assign(:successes, Enum.filter(results, fn {status, _} -> status == :ok end))
-    |> assign(:errors, Enum.filter(results, fn {status, _} -> status == :error end))
+    |> assign(:successes, Map.get(grouped, :ok, []))
+    |> assign(:warnings, Map.get(grouped, :warning, []))
+    |> assign(:errors, Map.get(grouped, :error, []))
   end
 
   def percent(%{done: _, total: 0}), do: 0
@@ -235,6 +240,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   def status_badge({:working, _}), do: {"bg-gold/20 text-navy animate-pulse", "Creating"}
   def status_badge({:audio, _}), do: {"bg-blue-100 text-blue-800 animate-pulse", "Audio"}
   def status_badge({:ok, _}), do: {"bg-green-100 text-green-800", "Done"}
+  def status_badge({:warning, _}), do: {"bg-amber-100 text-amber-800", "Partial"}
   def status_badge({:error, _}), do: {"bg-red-100 text-red-800", "Failed"}
 
   defp error_to_string(:too_large), do: "File is too large"

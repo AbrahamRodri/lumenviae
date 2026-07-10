@@ -51,12 +51,18 @@ defmodule Mix.Tasks.LumenViae.Import do
   defp run_import(path, opts) do
     results = LumenViae.Meditations.CsvImport.import_file(path, opts)
 
-    {successes, errors} = Enum.split_with(results, fn {status, _} -> status == :ok end)
+    grouped = Enum.group_by(results, fn {status, _} -> status end)
+    successes = Map.get(grouped, :ok, [])
+    warnings = Map.get(grouped, :warning, [])
+    errors = Map.get(grouped, :error, [])
 
     Enum.each(successes, fn {:ok, message} -> Mix.shell().info("OK    #{message}") end)
+    Enum.each(warnings, fn {:warning, message} -> Mix.shell().info("WARN  #{message}") end)
     Enum.each(errors, fn {:error, message} -> Mix.shell().error("ERROR #{message}") end)
 
-    Mix.shell().info("\n#{length(successes)} succeeded, #{length(errors)} failed")
+    Mix.shell().info(
+      "\n#{length(successes)} succeeded, #{length(warnings)} with warnings, #{length(errors)} failed"
+    )
 
     if errors != [], do: exit({:shutdown, 1})
   end

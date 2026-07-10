@@ -56,6 +56,7 @@ defmodule LumenViae.Release do
 
           Enum.each(results, fn
             {:ok, message} -> IO.puts("OK    " <> message)
+            {:warning, message} -> IO.puts("WARN  " <> message)
             {:error, message} -> IO.puts("ERROR " <> message)
           end)
 
