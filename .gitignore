@@ -39,3 +39,6 @@ npm-debug.log
 
 # Environment variables with secrets
 .env
+
+# Generated meditation import CSVs (content stays out of version control)
+/priv/repo/imports/

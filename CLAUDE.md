@@ -88,6 +88,16 @@ imports text only. See docs/CSV_IMPORT_GUIDE.md for the CSV format,
 including the meditation set columns (set_name, set_category,
 set_description, set_labels, order).
 
+Generated import CSVs belong in `priv/repo/imports/` (gitignored -
+meditation content stays out of version control).
+
+**When curating meditation content, always follow
+docs/MEDITATION_CURATION_GUIDE.md.** Key rules: verbatim public domain
+text only; excerpts must stand alone (named subjects and established
+scene from the first sentence - never open on a bare "He" or "She");
+focus on one aspect of the mystery, going longer when context requires
+it; format content with paragraph breaks so it reads and narrates well.
+
 ## Remember
 
 **Always check docs/ARCHITECTURE.md before:**

@@ -2,9 +2,9 @@ defmodule LumenViae.Meditations.CsvImport do
   @moduledoc """
   Shared CSV import engine for meditations and meditation sets.
 
-  Used by both the admin LiveView upload flow and the `mix lumen_viae.import`
-  task, so batch imports behave identically whether they come through the
-  browser or from Claude Code / the command line.
+  Used by the admin LiveView upload flow, the `mix lumen_viae.import` task,
+  and `LumenViae.Release.import_csv/2`, so batch imports behave identically
+  whether they come through the browser or the command line.
 
   ## CSV format
 
@@ -22,7 +22,7 @@ defmodule LumenViae.Meditations.CsvImport do
       uploaded to S3 under this key; the meditation is still created if audio
       generation fails
 
-  Optional meditation set columns (added with the labels schema update):
+  Optional meditation set columns:
 
     * `set_name` - find-or-create a meditation set with this name and attach
       the row's meditation to it
@@ -30,17 +30,28 @@ defmodule LumenViae.Meditations.CsvImport do
       joyful, sorrowful, glorious, seven_sorrows
     * `set_description` - set description (used on create only)
     * `set_labels` - pipe-separated labels from the managed vocabulary
-      (see `LumenViae.Rosary.Labels`), e.g. "Saints|Contemplative"; order
-      matters, the first label is the set's primary group (create only)
+      (see `LumenViae.Rosary.Labels`); order matters, the first label is the
+      set's primary group (create only)
     * `order` - explicit position of the meditation within the set; when
       omitted, rows are appended after the set's current highest order
 
   ## Options
 
-    * `:skip_audio` - when true, `audio_filename` columns are ignored and no
-      ElevenLabs/S3 calls are made
-    * `:dry_run` - when true, validates rows (mystery lookup, changesets,
-      label vocabulary) without writing to the database or generating audio
+    * `:skip_audio` - ignore audio_filename columns; no ElevenLabs/S3 calls
+    * `:dry_run` - validate rows without writing to the database or
+      generating audio
+    * `:progress` - a 1-arity function receiving progress events (see below)
+
+  ## Progress events
+
+  When a `:progress` fun is given, it is called with:
+
+    * `{:started, total}` - once, before the first row
+    * `{:row_started, index, total, description}` - a row began processing
+    * `{:row_audio, index, total, filename}` - audio generation began
+    * `{:row_audio_retry, index, total, filename, attempt, max}` - a
+      transient ElevenLabs/S3 failure is being retried
+    * `{:row_finished, index, total, {:ok | :error, message}}` - row result
 
   Results are returned as a list of `{:ok, message}` / `{:error, message}`
   tuples, in row order.
@@ -60,6 +71,8 @@ defmodule LumenViae.Meditations.CsvImport do
 
   alias LumenViae.Meditations.CsvImport.Parser
 
+  ## Importing
+
   @doc """
   Imports meditations from a CSV file on disk.
   """
@@ -74,25 +87,206 @@ defmodule LumenViae.Meditations.CsvImport do
   Imports meditations from CSV content in memory.
   """
   def import_string(content, opts \\ []) do
-    case Parser.parse_string(content, skip_headers: false) do
-      [] ->
-        [{:error, "CSV file is empty"}]
+    case parse(content) do
+      {:error, message} ->
+        [{:error, message}]
 
-      [headers | rows] ->
-        headers = Enum.map(headers, &(&1 |> String.trim() |> String.downcase()))
+      {:ok, headers, rows} ->
         process_rows(headers, rows, opts)
     end
   end
 
-  defp process_rows(_headers, [], _opts), do: [{:error, "CSV file has no data rows"}]
+  ## Preview (validation without writes)
+
+  @doc """
+  Parses and validates CSV content without writing anything, returning a
+  structured preview for UI display.
+
+  Returns `{:ok, preview}` where preview is a map with:
+
+    * `:rows` - a list of row maps with `:index`, `:mystery_name`,
+      `:mystery_ok`, `:title`, `:author`, `:content_chars`, `:paragraphs`,
+      `:content_excerpt`, `:audio_filename`, `:set_name`, `:set_status`
+      (`:existing` | `:new` | `nil`), `:set_labels`, `:order`, `:errors`,
+      `:warnings`
+    * `:total` - row count
+    * `:valid_count` / `:error_count` - rows without/with errors
+    * `:audio_count` - rows that will generate audio
+    * `:new_sets` / `:existing_sets` - distinct set names by status
+
+  Returns `{:error, message}` when the file itself is unusable.
+  """
+  def preview_string(content) do
+    case parse(content) do
+      {:error, message} ->
+        {:error, message}
+
+      {:ok, headers, rows} ->
+        mysteries = Rosary.list_mysteries() |> Enum.group_by(& &1.name)
+        set_statuses = preview_set_statuses(headers, rows)
+
+        row_infos =
+          rows
+          |> Enum.with_index(1)
+          |> Enum.map(fn {row, index} ->
+            row_map = headers |> Enum.zip(row) |> Map.new() |> normalize_row()
+            preview_row(index, row_map, mysteries, set_statuses)
+          end)
+
+        {:ok,
+         %{
+           rows: row_infos,
+           total: length(row_infos),
+           valid_count: Enum.count(row_infos, &(&1.errors == [])),
+           error_count: Enum.count(row_infos, &(&1.errors != [])),
+           audio_count: Enum.count(row_infos, & &1.audio_filename),
+           new_sets:
+             for({name, {:new, _}} <- set_statuses, do: name) |> Enum.sort(),
+           existing_sets:
+             for({name, {:existing, _}} <- set_statuses, do: name) |> Enum.sort()
+         }}
+    end
+  end
+
+  @doc """
+  Same as `preview_string/1` but reads from a file path.
+  """
+  def preview_file(path) do
+    case File.read(path) do
+      {:ok, content} -> preview_string(content)
+      {:error, reason} -> {:error, "Failed to read file: #{inspect(reason)}"}
+    end
+  end
+
+  defp preview_set_statuses(headers, rows) do
+    rows
+    |> Enum.map(fn row -> headers |> Enum.zip(row) |> Map.new() |> normalize_row() end)
+    |> Enum.filter(&Map.get(&1, "set_name"))
+    |> Enum.uniq_by(&Map.get(&1, "set_name"))
+    |> Map.new(fn row_map ->
+      set_name = Map.get(row_map, "set_name")
+
+      status =
+        case Repo.get_by(MeditationSet, name: set_name) do
+          %MeditationSet{} -> {:existing, []}
+          nil -> {:new, new_set_errors(row_map)}
+        end
+
+      {set_name, status}
+    end)
+  end
+
+  defp new_set_errors(row_map) do
+    changeset =
+      MeditationSet.changeset(%MeditationSet{}, %{
+        "name" => Map.get(row_map, "set_name"),
+        "category" => Map.get(row_map, "set_category"),
+        "description" => Map.get(row_map, "set_description"),
+        "labels" => parse_labels(Map.get(row_map, "set_labels"))
+      })
+
+    if changeset.valid?, do: [], else: ["set: #{changeset_errors(changeset)}"]
+  end
+
+  defp preview_row(index, row_map, mysteries, set_statuses) do
+    mystery_name = Map.get(row_map, "mystery_name")
+    mystery_ok = mystery_name && get_in(mysteries, [mystery_name, Access.at(0)]) != nil
+    content = Map.get(row_map, "content")
+    set_name = Map.get(row_map, "set_name")
+
+    {set_status, set_errors} =
+      case set_statuses[set_name] do
+        nil -> {nil, []}
+        {status, errors} -> {status, errors}
+      end
+
+    errors =
+      []
+      |> then(fn errs ->
+        cond do
+          is_nil(mystery_name) -> ["missing mystery_name" | errs]
+          not mystery_ok -> ["mystery not found: #{mystery_name}" | errs]
+          true -> errs
+        end
+      end)
+      |> then(fn errs -> if is_nil(content), do: ["missing content" | errs], else: errs end)
+      |> Kernel.++(set_errors)
+
+    warnings =
+      []
+      |> then(fn warns ->
+        if content && not String.contains?(content, "\n\n"),
+          do: ["no paragraph breaks (see curation guide)" | warns],
+          else: warns
+      end)
+      |> then(fn warns ->
+        if content && String.length(content) > 2500,
+          do: ["long content: audio will be lengthy and costly" | warns],
+          else: warns
+      end)
+
+    %{
+      index: index,
+      mystery_name: mystery_name,
+      mystery_ok: mystery_ok,
+      title: Map.get(row_map, "title"),
+      author: Map.get(row_map, "author"),
+      content_chars: (content && String.length(content)) || 0,
+      paragraphs: (content && String.split(content, "\n\n") |> length()) || 0,
+      content_excerpt: content_excerpt(content),
+      audio_filename: Map.get(row_map, "audio_filename"),
+      set_name: set_name,
+      set_status: set_status,
+      set_labels: parse_labels(Map.get(row_map, "set_labels")),
+      order: Map.get(row_map, "order"),
+      errors: Enum.reverse(errors),
+      warnings: Enum.reverse(warnings)
+    }
+  end
+
+  defp content_excerpt(nil), do: nil
+
+  defp content_excerpt(content) do
+    flat = content |> String.replace(~r/\s+/, " ") |> String.trim()
+    if String.length(flat) > 160, do: String.slice(flat, 0, 160) <> "...", else: flat
+  end
+
+  ## Shared parsing
+
+  defp parse(content) do
+    case Parser.parse_string(content, skip_headers: false) do
+      [] ->
+        {:error, "CSV file is empty"}
+
+      [headers | rows] ->
+        headers = Enum.map(headers, &(&1 |> String.trim() |> String.downcase()))
+
+        if rows == [] do
+          {:error, "CSV file has no data rows"}
+        else
+          {:ok, headers, rows}
+        end
+    end
+  end
+
+  ## Row processing
 
   defp process_rows(headers, rows, opts) do
     mysteries = Rosary.list_mysteries() |> Enum.group_by(& &1.name)
+    total = length(rows)
+    notify(opts, {:started, total})
 
     {results, _sets_cache} =
-      Enum.map_reduce(rows, %{}, fn row, sets_cache ->
+      rows
+      |> Enum.with_index(1)
+      |> Enum.map_reduce(%{}, fn {row, index}, sets_cache ->
         row_map = headers |> Enum.zip(row) |> Map.new() |> normalize_row()
-        process_row(row_map, mysteries, sets_cache, opts)
+        description = Map.get(row_map, "mystery_name") || "row #{index}"
+        notify(opts, {:row_started, index, total, description})
+
+        {result, sets_cache} = process_row(row_map, mysteries, sets_cache, {index, total}, opts)
+        notify(opts, {:row_finished, index, total, result})
+        {result, sets_cache}
       end)
 
     results
@@ -105,7 +299,7 @@ defmodule LumenViae.Meditations.CsvImport do
     end)
   end
 
-  defp process_row(row_map, mysteries, sets_cache, opts) do
+  defp process_row(row_map, mysteries, sets_cache, {index, total}, opts) do
     mystery_name = Map.get(row_map, "mystery_name")
 
     with {:ok, mystery} <- fetch_mystery(mysteries, mystery_name),
@@ -121,7 +315,7 @@ defmodule LumenViae.Meditations.CsvImport do
       if opts[:dry_run] do
         {dry_run_result(attrs, row_map, mystery, set), sets_cache}
       else
-        attrs = maybe_generate_audio(attrs, row_map, opts)
+        attrs = maybe_generate_audio(attrs, row_map, {index, total}, opts)
         {create_and_attach(attrs, row_map, mystery, set), sets_cache}
       end
     else
@@ -214,14 +408,12 @@ defmodule LumenViae.Meditations.CsvImport do
   defp dry_run_result(attrs, row_map, mystery, set) do
     changeset = Meditation.changeset(%Meditation{}, attrs)
 
-    cond do
-      not changeset.valid? ->
-        {:error, "Invalid meditation for '#{mystery.name}': #{changeset_errors(changeset)}"}
-
-      true ->
-        set_info = if set, do: " -> set '#{set.name}'#{order_info(row_map)}", else: ""
-        audio_info = if Map.get(row_map, "audio_filename"), do: " (audio)", else: ""
-        {:ok, "Would create meditation for #{mystery.name}#{set_info}#{audio_info}"}
+    if changeset.valid? do
+      set_info = if set, do: " -> set '#{set.name}'#{order_info(row_map)}", else: ""
+      audio_info = if Map.get(row_map, "audio_filename"), do: " (audio)", else: ""
+      {:ok, "Would create meditation for #{mystery.name}#{set_info}#{audio_info}"}
+    else
+      {:error, "Invalid meditation for '#{mystery.name}': #{changeset_errors(changeset)}"}
     end
   end
 
@@ -288,7 +480,7 @@ defmodule LumenViae.Meditations.CsvImport do
     current_max + 1
   end
 
-  defp maybe_generate_audio(attrs, row_map, opts) do
+  defp maybe_generate_audio(attrs, row_map, {index, total}, opts) do
     audio_filename = Map.get(row_map, "audio_filename")
     content = Map.get(attrs, "content")
 
@@ -300,9 +492,14 @@ defmodule LumenViae.Meditations.CsvImport do
         attrs
 
       true ->
+        notify(opts, {:row_audio, index, total, audio_filename})
         Logger.info("Generating audio for: #{audio_filename}")
 
-        case generate_and_upload_audio(content, audio_filename) do
+        on_retry = fn attempt, max ->
+          notify(opts, {:row_audio_retry, index, total, audio_filename, attempt, max})
+        end
+
+        case generate_and_upload_audio(content, audio_filename, on_retry) do
           {:ok, s3_key} ->
             Logger.info("Successfully generated and uploaded audio: #{s3_key}")
             Map.put(attrs, "audio_url", s3_key)
@@ -315,14 +512,54 @@ defmodule LumenViae.Meditations.CsvImport do
     end
   end
 
-  defp generate_and_upload_audio(text, filename) do
-    with {:ok, audio_binary} <- ElevenLabs.generate_audio(text),
-         {:ok, s3_key} <- S3.upload_audio(audio_binary, filename) do
+  # ElevenLabs in particular fails transiently, so both the generation call
+  # and the S3 upload are retried with increasing backoff before giving up.
+  @audio_attempts 3
+  @audio_retry_base_delay_ms 2_000
+
+  defp generate_and_upload_audio(text, filename, on_retry) do
+    with {:ok, audio_binary} <-
+           with_retries(fn -> ElevenLabs.generate_audio(text) end, "ElevenLabs", filename, on_retry),
+         {:ok, s3_key} <-
+           with_retries(fn -> S3.upload_audio(audio_binary, filename) end, "S3", filename, on_retry) do
       {:ok, s3_key}
     else
       {:error, reason} = error ->
         Logger.error("Audio generation/upload failed: #{inspect(reason)}")
         error
+    end
+  end
+
+  defp with_retries(fun, label, filename, on_retry, attempt \\ 1) do
+    case fun.() do
+      {:ok, result} ->
+        {:ok, result}
+
+      {:error, reason} when attempt < @audio_attempts ->
+        delay = @audio_retry_base_delay_ms * attempt
+
+        Logger.warning(
+          "#{label} failed for #{filename} (attempt #{attempt} of #{@audio_attempts}): " <>
+            "#{inspect(reason)}. Retrying in #{delay}ms"
+        )
+
+        on_retry.(attempt + 1, @audio_attempts)
+        Process.sleep(delay)
+        with_retries(fun, label, filename, on_retry, attempt + 1)
+
+      {:error, reason} ->
+        Logger.error(
+          "#{label} failed for #{filename} after #{@audio_attempts} attempts: #{inspect(reason)}"
+        )
+
+        {:error, reason}
+    end
+  end
+
+  defp notify(opts, event) do
+    case opts[:progress] do
+      fun when is_function(fun, 1) -> fun.(event)
+      _ -> :ok
     end
   end
 

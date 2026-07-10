@@ -5,8 +5,12 @@ description: Import a meditations CSV with mandatory dry-run first (local or pro
 Import a meditations CSV file into LumenViae. Arguments: $ARGUMENTS
 
 The first argument is the CSV path (default: the most recently modified CSV
-in priv/repo/). If the arguments include the word "prod", run the production
-workflow; otherwise run locally.
+in priv/repo/imports/). If the arguments include the word "prod", run the
+production workflow; otherwise run locally.
+
+CSV content must follow docs/MEDITATION_CURATION_GUIDE.md (verbatim text,
+standalone context, paragraph breaks). If a CSV clearly violates it, flag
+this to the user before importing.
 
 ## Rules (non-negotiable)
 
