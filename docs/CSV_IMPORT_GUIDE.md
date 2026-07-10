@@ -53,7 +53,20 @@ The following mystery names are available (must match exactly):
 - The Ascension
 - The Descent of the Holy Spirit
 - The Assumption
-- The Coronation
+- The Coronation of Mary
+
+**Seven Sorrows:**
+- The Prophecy of Simeon
+- The Flight into Egypt
+- The Loss of Jesus in the Temple
+- Mary Meets Jesus on the Way to Calvary
+- Jesus Dies on the Cross
+- Mary Receives the Dead Body of Jesus in Her Arms
+- Jesus is Placed in the Tomb
+
+Note: These names are taken from `priv/repo/seeds.exs`, which is the source
+of truth. If a name here ever disagrees with the seeds, trust the seeds (or
+better, check the database).
 
 ## Sample CSV File
 
