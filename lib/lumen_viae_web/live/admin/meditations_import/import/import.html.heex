@@ -19,6 +19,33 @@
         <strong>source</strong>
         (optional) - Source of the meditation (e.g., "The Fifteen Mysteries of the Rosary")
       </li>
+      <li>
+        <strong>audio_filename</strong>
+        (optional) - S3 key for generated audio (e.g., "joyful_1_annunciation.mp3").
+        When present, audio is generated with ElevenLabs and uploaded to S3.
+      </li>
+      <li>
+        <strong>set_name</strong>
+        (optional) - Attach the meditation to this meditation set, creating the set if needed
+      </li>
+      <li>
+        <strong>set_category</strong>
+        (required for new sets) - One of: joyful, sorrowful, glorious, seven_sorrows
+      </li>
+      <li>
+        <strong>set_description</strong>
+        (optional) - Description used when the set is created
+      </li>
+      <li>
+        <strong>set_labels</strong>
+        (optional) - Pipe-separated labels from the managed vocabulary
+        ({Enum.join(@label_vocabulary, ", ")}). Order matters: the first label is the
+        set's primary group in the iOS picker. Maximum 3.
+      </li>
+      <li>
+        <strong>order</strong>
+        (optional) - Position within the set; omitted rows are appended in file order
+      </li>
     </ul>
     <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800">
       <strong>Note:</strong>

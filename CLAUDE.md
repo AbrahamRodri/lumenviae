@@ -68,6 +68,26 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - Google Fonts: Cinzel (headings), Crimson Text (body)
 - Color scheme: Navy (#1a1a2e), Gold (#d4af37), Cream (#f5f5f0)
 
+## Meditation CSV Imports
+
+Batch imports run through `LumenViae.Meditations.CsvImport` (shared by the
+admin upload UI at `/admin/meditations/import`, the `mix lumen_viae.import`
+task, and `LumenViae.Release.import_csv/2` for production releases).
+
+**MANDATORY: Always dry-run an import before running it for real.**
+
+```
+mix lumen_viae.import path/to/file.csv --dry-run
+mix lumen_viae.import path/to/file.csv
+```
+
+Never run a real import (with audio generation or DB writes) unless the
+dry run completed with zero errors. Audio generation requires
+ELEVEN_LABS_API_KEY and AWS credentials in the environment; `--skip-audio`
+imports text only. See docs/CSV_IMPORT_GUIDE.md for the CSV format,
+including the meditation set columns (set_name, set_category,
+set_description, set_labels, order).
+
 ## Remember
 
 **Always check docs/ARCHITECTURE.md before:**

@@ -39,6 +39,33 @@ defmodule LumenViae.Release do
     end
   end
 
+  @doc """
+  Imports meditations from a CSV file inside a production release, where Mix
+  tasks are unavailable. Accepts the same options as
+  `LumenViae.Meditations.CsvImport.import_string/2`.
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.import_csv("/tmp/file.csv")'
+  """
+  def import_csv(path, opts \\ []) do
+    load_app()
+
+    for repo <- repos() do
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, fn _repo ->
+          results = LumenViae.Meditations.CsvImport.import_file(path, opts)
+
+          Enum.each(results, fn
+            {:ok, message} -> IO.puts("OK    " <> message)
+            {:error, message} -> IO.puts("ERROR " <> message)
+          end)
+
+          results
+        end)
+    end
+
+    :ok
+  end
+
   defp repos do
     Application.fetch_env!(@app, :ecto_repos)
   end
