@@ -83,7 +83,17 @@
 <!-- Manage Meditations in Set -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">Meditations in This Set</h3>
-      
+
+      <%= if Enum.any?(@selected_set_meditations, & &1.archived_at) do %>
+        <div class="mb-6 border-l-4 border-amber-600 bg-amber-50 p-4">
+          <p class="font-crimson text-amber-800 text-sm">
+            This set contains archived meditations, so it is hidden from the public site
+            and the app. Unarchive the meditations or remove them from the set to make
+            it visible again.
+          </p>
+        </div>
+      <% end %>
+
 <!-- Current Meditations -->
       <div class="mb-8">
         <h4 class="font-cinzel text-lg text-navy mb-3">
@@ -111,6 +121,11 @@
                     <%= if meditation.author do %>
                       <span class="font-crimson text-sm text-gray-500 ml-2">
                         by {meditation.author}
+                      </span>
+                    <% end %>
+                    <%= if meditation.archived_at do %>
+                      <span class="ml-2 inline-block px-2 py-0.5 bg-gray-200 text-gray-600 font-crimson text-xs rounded uppercase tracking-wide">
+                        Archived
                       </span>
                     <% end %>
                   </div>
@@ -174,6 +189,7 @@
                       {meditation.mystery.name}
                       {if meditation.title, do: " - #{meditation.title}"}
                       {if meditation.author, do: " (#{meditation.author})"}
+                      {if meditation.archived_at, do: " [Archived - adding it hides this set]"}
                     </option>
                   <% end %>
                 </select>

@@ -37,6 +37,24 @@ defmodule LumenViaeWeb.Live.Meditations.List do
      |> assign(:search_query, String.trim(params["query"] || ""))}
   end
 
+  def handle_event("archive_meditation", %{"id" => id}, socket) do
+    set_archived(
+      socket,
+      id,
+      &Rosary.archive_meditation/1,
+      "Meditation archived. It is hidden from the public site, along with any set containing it."
+    )
+  end
+
+  def handle_event("unarchive_meditation", %{"id" => id}, socket) do
+    set_archived(
+      socket,
+      id,
+      &Rosary.unarchive_meditation/1,
+      "Meditation restored and visible to the public again."
+    )
+  end
+
   def handle_event("delete_meditation", %{"id" => id}, socket) do
     meditation_id = String.to_integer(id)
     meditation = Rosary.get_meditation!(meditation_id)
@@ -54,6 +72,21 @@ defmodule LumenViaeWeb.Live.Meditations.List do
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to delete meditation")}
+    end
+  end
+
+  defp set_archived(socket, id, archive_fun, success_message) do
+    meditation = Rosary.get_meditation!(String.to_integer(id))
+
+    case archive_fun.(meditation) do
+      {:ok, _meditation} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, success_message)
+         |> assign(:meditations, Rosary.list_meditations())}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to update meditation")}
     end
   end
 end

@@ -28,6 +28,14 @@
                 <div class="flex-1">
                   <h4 class="font-cinzel text-xl text-navy mb-2">
                     {set.name}
+                    <%= if MapSet.member?(@hidden_set_ids, set.id) do %>
+                      <span
+                        class="ml-2 inline-block px-2 py-0.5 bg-gray-200 text-gray-600 font-crimson text-xs rounded uppercase tracking-wide align-middle"
+                        title="This set contains archived meditations, so it is not shown on the public site or in the app."
+                      >
+                        Hidden from public
+                      </span>
+                    <% end %>
                   </h4>
                   <p class="font-crimson text-sm text-gray-600 mb-1">
                     Category: {String.capitalize(set.category)} Mysteries
@@ -122,6 +130,11 @@
                       <%= if meditation.author do %>
                         <span class="font-crimson text-sm text-gray-500 ml-2">
                           by {meditation.author}
+                        </span>
+                      <% end %>
+                      <%= if meditation.archived_at do %>
+                        <span class="ml-2 inline-block px-2 py-0.5 bg-gray-200 text-gray-600 font-crimson text-xs rounded uppercase tracking-wide">
+                          Archived
                         </span>
                       <% end %>
                     </div>

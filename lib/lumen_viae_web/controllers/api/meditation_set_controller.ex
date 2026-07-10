@@ -8,12 +8,12 @@ defmodule LumenViaeWeb.API.MeditationSetController do
   Lists all meditation sets, optionally filtered by category.
   """
   def index(conn, %{"category" => category}) do
-    sets = Rosary.list_meditation_sets_by_category(category)
+    sets = Rosary.list_visible_meditation_sets_by_category(category)
     render(conn, :index, sets: sets)
   end
 
   def index(conn, _params) do
-    sets = Rosary.list_meditation_sets()
+    sets = Rosary.list_visible_meditation_sets()
     render(conn, :index, sets: sets)
   end
 
@@ -21,7 +21,7 @@ defmodule LumenViaeWeb.API.MeditationSetController do
   Shows a single meditation set with full details including ordered meditations and audio URLs.
   """
   def show(conn, %{"id" => id}) do
-    set = Rosary.get_meditation_set_with_ordered_meditations!(id)
+    set = Rosary.get_visible_meditation_set_with_ordered_meditations!(id)
 
     # Generate fresh pre-signed S3 URLs for all meditations
     meditations_with_audio =

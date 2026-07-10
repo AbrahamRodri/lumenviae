@@ -7,6 +7,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
      socket
      |> assign(:page_title, "Meditation Sets")
      |> assign(:meditation_sets, Rosary.list_meditation_sets())
+     |> assign(:hidden_set_ids, Rosary.hidden_meditation_set_ids())
      |> assign(:selected_set, nil)
      |> assign(:selected_set_meditations, [])}
   end
@@ -38,6 +39,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
          socket
          |> put_flash(:info, "Meditation set deleted successfully")
          |> assign(:meditation_sets, Rosary.list_meditation_sets())
+         |> assign(:hidden_set_ids, Rosary.hidden_meditation_set_ids())
          |> assign(:selected_set, nil)
          |> assign(:selected_set_meditations, [])}
 

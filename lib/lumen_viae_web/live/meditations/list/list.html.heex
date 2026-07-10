@@ -40,6 +40,11 @@
                   <h4 class="font-crimson font-semibold text-navy">
                     {meditation.mystery.name}
                     {if meditation.title, do: " - #{meditation.title}"}
+                    <%= if meditation.archived_at do %>
+                      <span class="ml-2 inline-block px-2 py-0.5 bg-gray-200 text-gray-600 font-crimson text-xs font-normal rounded uppercase tracking-wide align-middle">
+                        Archived
+                      </span>
+                    <% end %>
                   </h4>
                   <%= if meditation.author do %>
                     <p class="font-crimson text-sm text-gray-600">by {meditation.author}</p>
@@ -61,6 +66,25 @@
                   >
                     {if @expanded_meditation_id == meditation.id, do: "Hide", else: "View"}
                   </button>
+
+                  <%= if meditation.archived_at do %>
+                    <button
+                      phx-click="unarchive_meditation"
+                      phx-value-id={meditation.id}
+                      class="px-4 py-2 text-amber-700 border border-amber-700 rounded hover:bg-amber-700 hover:text-white transition-colors font-crimson text-sm"
+                    >
+                      Unarchive
+                    </button>
+                  <% else %>
+                    <button
+                      phx-click="archive_meditation"
+                      phx-value-id={meditation.id}
+                      data-confirm="Archive this meditation? It will be hidden from the public site, along with any meditation set that contains it. You can unarchive it at any time."
+                      class="px-4 py-2 text-amber-700 border border-amber-700 rounded hover:bg-amber-700 hover:text-white transition-colors font-crimson text-sm"
+                    >
+                      Archive
+                    </button>
+                  <% end %>
 
                   <button
                     phx-click="delete_meditation"

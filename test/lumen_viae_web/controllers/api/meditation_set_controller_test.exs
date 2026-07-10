@@ -9,6 +9,21 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     set
   end
 
+  defp create_meditation_in_set(set) do
+    {:ok, mystery} =
+      Rosary.create_mystery(%{
+        name: "Test Mystery #{System.unique_integer([:positive])}",
+        category: "joyful",
+        order: System.unique_integer([:positive])
+      })
+
+    {:ok, meditation} =
+      Rosary.create_meditation(%{content: "Test content", mystery_id: mystery.id})
+
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
+    meditation
+  end
+
   describe "GET /api/meditation-sets?category=" do
     test "each set carries a labels array of strings", %{conn: conn} do
       labeled = create_set(%{name: "St. Louis de Montfort", labels: ["Saints", "Contemplative"]})
@@ -84,6 +99,63 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
         |> Map.fetch!("data")
 
       assert data["labels"] == []
+    end
+  end
+
+  describe "archived meditations hide their sets from the API" do
+    test "index excludes sets containing an archived meditation", %{conn: conn} do
+      visible_set = create_set(%{name: "Visible Set"})
+      hidden_set = create_set(%{name: "Hidden Set"})
+
+      create_meditation_in_set(visible_set)
+      archived = create_meditation_in_set(hidden_set)
+      {:ok, _} = Rosary.archive_meditation(archived)
+
+      for path <- [~p"/api/meditation-sets", ~p"/api/meditation-sets?category=joyful"] do
+        ids =
+          conn
+          |> get(path)
+          |> json_response(200)
+          |> Map.fetch!("data")
+          |> Enum.map(& &1["id"])
+
+        assert visible_set.id in ids
+        refute hidden_set.id in ids
+      end
+    end
+
+    test "show returns 404 for a set containing an archived meditation", %{conn: conn} do
+      set = create_set(%{name: "Hidden Set"})
+      archived = create_meditation_in_set(set)
+      {:ok, _} = Rosary.archive_meditation(archived)
+
+      assert_error_sent 404, fn ->
+        get(conn, ~p"/api/meditation-sets/#{set.id}")
+      end
+    end
+
+    test "unarchiving restores the set in the API", %{conn: conn} do
+      set = create_set(%{name: "Restored Set"})
+      meditation = create_meditation_in_set(set)
+      {:ok, archived} = Rosary.archive_meditation(meditation)
+      {:ok, _} = Rosary.unarchive_meditation(archived)
+
+      ids =
+        conn
+        |> get(~p"/api/meditation-sets")
+        |> json_response(200)
+        |> Map.fetch!("data")
+        |> Enum.map(& &1["id"])
+
+      assert set.id in ids
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets/#{set.id}")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert data["id"] == set.id
     end
   end
 end

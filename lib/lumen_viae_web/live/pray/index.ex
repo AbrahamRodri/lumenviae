@@ -4,7 +4,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   @impl true
   def mount(%{"set_id" => set_id}, _session, socket) do
-    set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
+    set = Rosary.get_visible_meditation_set_with_ordered_meditations!(set_id)
 
     # TODO: IP-based geolocation tracking is disabled for now
     # To enable: uncomment the code below and in maybe_track_completion
@@ -41,7 +41,9 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
     socket
     |> maybe_track_completion(new_index)
-    |> push_patch(to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled))
+    |> push_patch(
+      to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled)
+    )
     |> then(&{:noreply, &1})
   end
 
@@ -51,7 +53,9 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     new_index = (current - 1) |> clamp_index(total)
 
     socket
-    |> push_patch(to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled))
+    |> push_patch(
+      to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled)
+    )
     |> then(&{:noreply, &1})
   end
 
@@ -205,5 +209,4 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   #     _ -> nil
   #   end
   # end
-
 end

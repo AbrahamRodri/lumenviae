@@ -8,6 +8,7 @@ defmodule LumenViae.Rosary.Meditation do
     field :author, :string
     field :source, :string
     field :audio_url, :string
+    field :archived_at, :utc_datetime
 
     belongs_to :mystery, LumenViae.Rosary.Mystery
 
@@ -18,9 +19,13 @@ defmodule LumenViae.Rosary.Meditation do
   end
 
   @doc false
+  # archived_at is intentionally not castable here; archiving goes through
+  # Rosary.archive_meditation/1 so imports and forms cannot flip it.
   def changeset(meditation, attrs) do
     meditation
     |> cast(attrs, [:title, :content, :author, :source, :mystery_id, :audio_url])
     |> validate_required([:content, :mystery_id])
   end
+
+  def archived?(%__MODULE__{archived_at: archived_at}), do: not is_nil(archived_at)
 end

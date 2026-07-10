@@ -6,7 +6,13 @@ defmodule LumenViae.Rosary do
   import Ecto.Query, warn: false
   alias LumenViae.Repo
 
-  alias LumenViae.Rosary.{Mystery, Meditation, MeditationSet, MeditationSetMeditation, RosaryCompletion}
+  alias LumenViae.Rosary.{
+    Mystery,
+    Meditation,
+    MeditationSet,
+    MeditationSetMeditation,
+    RosaryCompletion
+  }
 
   ## Mysteries
 
@@ -83,6 +89,28 @@ defmodule LumenViae.Rosary do
   end
 
   @doc """
+  Archives a meditation without deleting it.
+
+  Archived meditations stay fully editable in the admin, but they are
+  excluded from every public surface, and any set containing one is hidden
+  from public listings and the API (see the `visible` set functions).
+  """
+  def archive_meditation(%Meditation{} = meditation) do
+    meditation
+    |> Ecto.Changeset.change(archived_at: DateTime.utc_now(:second))
+    |> Repo.update()
+  end
+
+  @doc """
+  Restores an archived meditation, making it (and its sets) public again.
+  """
+  def unarchive_meditation(%Meditation{} = meditation) do
+    meditation
+    |> Ecto.Changeset.change(archived_at: nil)
+    |> Repo.update()
+  end
+
+  @doc """
   Generates a pre-signed URL for a meditation's audio file.
 
   Returns the pre-signed URL string if the meditation has an audio_url (S3 key),
@@ -126,6 +154,70 @@ defmodule LumenViae.Rosary do
     |> Repo.preload(:meditations)
   end
 
+  ## Visible Meditation Sets (public surfaces)
+  #
+  # A set is "visible" when none of its meditations are archived. Archiving a
+  # single meditation therefore hides every set that contains it from the
+  # public site and the iOS API, while the admin functions above keep
+  # returning everything.
+
+  def list_visible_meditation_sets do
+    visible_meditation_sets_query()
+    |> order_by([ms], asc: ms.category, asc: ms.id)
+    |> Repo.all()
+  end
+
+  def list_visible_meditation_sets_with_meditations do
+    list_visible_meditation_sets()
+    |> Repo.preload(:meditations)
+  end
+
+  def list_visible_meditation_sets_by_category(category) do
+    visible_meditation_sets_query()
+    |> where([ms], ms.category == ^category)
+    |> order_by([ms], asc: ms.id)
+    |> Repo.all()
+    |> Repo.preload(:meditations)
+  end
+
+  @doc """
+  Same as `get_meditation_set_with_ordered_meditations!/1` but raises
+  `Ecto.NoResultsError` (rendered as a 404) when the set contains an
+  archived meditation, so hidden sets cannot be reached by direct URL.
+  """
+  def get_visible_meditation_set_with_ordered_meditations!(id) do
+    set = get_meditation_set_with_ordered_meditations!(id)
+
+    if Enum.any?(set.meditations, & &1.archived_at) do
+      raise Ecto.NoResultsError, queryable: MeditationSet
+    end
+
+    set
+  end
+
+  @doc """
+  Returns a MapSet of ids of sets that are hidden from public surfaces
+  because they contain at least one archived meditation.
+  """
+  def hidden_meditation_set_ids do
+    hidden_set_ids_query()
+    |> Repo.all()
+    |> MapSet.new()
+  end
+
+  defp visible_meditation_sets_query do
+    from ms in MeditationSet, where: ms.id not in subquery(hidden_set_ids_query())
+  end
+
+  defp hidden_set_ids_query do
+    from msm in MeditationSetMeditation,
+      join: m in Meditation,
+      on: msm.meditation_id == m.id,
+      where: not is_nil(m.archived_at),
+      distinct: true,
+      select: msm.meditation_set_id
+  end
+
   def get_meditation_set!(id) do
     Repo.get!(MeditationSet, id)
     |> Repo.preload(meditations: from(m in Meditation, order_by: m.id))
@@ -143,19 +235,19 @@ defmodule LumenViae.Rosary do
       order_by: [asc: msm.order],
       select: %{
         set: ms,
-        meditation:
-          %Meditation{
-            id: m.id,
-            title: m.title,
-            content: m.content,
-            author: m.author,
-            source: m.source,
-            audio_url: m.audio_url,
-            mystery_id: m.mystery_id,
-            inserted_at: m.inserted_at,
-            updated_at: m.updated_at,
-            mystery: my
-          }
+        meditation: %Meditation{
+          id: m.id,
+          title: m.title,
+          content: m.content,
+          author: m.author,
+          source: m.source,
+          audio_url: m.audio_url,
+          archived_at: m.archived_at,
+          mystery_id: m.mystery_id,
+          inserted_at: m.inserted_at,
+          updated_at: m.updated_at,
+          mystery: my
+        }
       }
     )
     |> Repo.all()
@@ -222,6 +314,7 @@ defmodule LumenViae.Rosary do
       case ip_address do
         nil ->
           %{}
+
         ip ->
           # Always store the IP address
           base_data = %{ip_address: ip}
@@ -234,10 +327,13 @@ defmodule LumenViae.Rosary do
       end
 
     attrs =
-      Map.merge(%{
-        meditation_set_id: meditation_set_id,
-        completed_at: DateTime.utc_now()
-      }, location_data)
+      Map.merge(
+        %{
+          meditation_set_id: meditation_set_id,
+          completed_at: DateTime.utc_now()
+        },
+        location_data
+      )
 
     %RosaryCompletion{}
     |> RosaryCompletion.changeset(attrs)

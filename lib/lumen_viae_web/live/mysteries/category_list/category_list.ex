@@ -4,7 +4,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
 
   def mount(%{"category" => category}, _session, socket) do
     if category in ["joyful", "sorrowful", "glorious", "seven_sorrows"] do
-      meditation_sets = Rosary.list_meditation_sets_by_category(category)
+      meditation_sets = Rosary.list_visible_meditation_sets_by_category(category)
 
       {:ok,
        socket
@@ -27,8 +27,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
   defp category_days("seven_sorrows"), do: "Fridays in Lent and September 15th"
 
   defp category_epigraph("joyful"),
-    do:
-      {"Behold the handmaid of the Lord; be it done to me according to thy word.", "Luke 1:38"}
+    do: {"Behold the handmaid of the Lord; be it done to me according to thy word.", "Luke 1:38"}
 
   defp category_epigraph("sorrowful"),
     do: {"Surely he hath borne our infirmities and carried our sorrows.", "Isaiah 53:4"}
