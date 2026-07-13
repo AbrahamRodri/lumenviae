@@ -26,6 +26,13 @@ config :lumen_viae,
   eleven_labs_api_key: System.get_env("ELEVEN_LABS_API_KEY"),
   eleven_labs_voice_id: "RTFg9niKcgGLDwa3RFlz"
 
+# Optional override for the narration pause inserted at paragraph breaks
+# (seconds, e.g. "1.5"; ElevenLabs caps break tags at 3s).
+case Float.parse(System.get_env("TTS_PARAGRAPH_BREAK_SECONDS") || "") do
+  {seconds, _rest} -> config :lumen_viae, :tts_paragraph_break_seconds, seconds
+  :error -> :ok
+end
+
 # Admin password configuration
 config :lumen_viae, :admin_password, System.get_env("ADMIN_PASSWORD") || "changeme"
 

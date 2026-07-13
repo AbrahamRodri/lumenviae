@@ -70,6 +70,9 @@ defmodule LumenViae.Audio.ElevenLabs do
     body =
       Jason.encode!(%{
         text: text,
+        # The audio pipeline relies on <break time="Ns" /> tags for
+        # narration pauses; eleven_multilingual_v2 honors them (all
+        # ElevenLabs models except Eleven V3 do, capped at 3 seconds).
         model_id: "eleven_multilingual_v2",
         output_format: "mp3_44100_128",
         voice_settings: %{

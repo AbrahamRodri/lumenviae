@@ -11,6 +11,10 @@ config :lumen_viae,
   ecto_repos: [LumenViae.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+# Default narration pause inserted at each paragraph break when generating
+# meditation audio (seconds; ElevenLabs caps break tags at 3s).
+config :lumen_viae, :tts_paragraph_break_seconds, 1.2
+
 # Configures the endpoint
 config :lumen_viae, LumenViaeWeb.Endpoint,
   url: [host: "localhost"],
