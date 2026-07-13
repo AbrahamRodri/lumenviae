@@ -67,6 +67,55 @@ defmodule LumenViae.Release do
     :ok
   end
 
+  @doc """
+  Regenerates ElevenLabs audio inside a production release, replacing the
+  existing S3 files so already-imported meditations pick up new pause logic
+  without re-importing. Takes `set: "Set Name"` or `id: 42`, plus optional
+  `dry_run: true`.
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(set: "Set Name", dry_run: true)'
+  """
+  def regenerate_audio(opts) do
+    load_app()
+
+    target =
+      case {opts[:set], opts[:id]} do
+        {set_name, nil} when is_binary(set_name) ->
+          {:set, set_name}
+
+        {nil, id} when is_integer(id) ->
+          {:meditation, id}
+
+        _ ->
+          raise ArgumentError, "pass either set: \"Set Name\" or id: 42"
+      end
+
+    for repo <- repos() do
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, fn _repo ->
+          LumenViae.Meditations.AudioRegeneration.run(target,
+            dry_run: Keyword.get(opts, :dry_run, false),
+            progress: fn
+              {:started, total} ->
+                IO.puts("Processing #{total} meditation(s)")
+
+              {:item_finished, index, total, {status, message}} ->
+                prefix =
+                  case status do
+                    :ok -> "OK   "
+                    :warning -> "WARN "
+                    :error -> "ERROR"
+                  end
+
+                IO.puts("#{prefix} [#{index}/#{total}] #{message}")
+            end
+          )
+        end)
+    end
+
+    :ok
+  end
+
   defp repos do
     Application.fetch_env!(@app, :ecto_repos)
   end
