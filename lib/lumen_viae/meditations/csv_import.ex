@@ -16,7 +16,13 @@ defmodule LumenViae.Meditations.CsvImport do
   Required columns:
 
     * `mystery_name` - must exactly match an existing mystery name
-    * `content` - the meditation text
+    * `content` - the meditation text. It may carry inline `{pause:N}`
+      markers (N in seconds, decimals allowed, capped at 3) to tune the
+      narration pause at that spot; markers are stripped before the content
+      is stored and their positions are persisted as TTS annotations so only
+      the audio generation sees them (see `LumenViae.Audio.TtsText`). A
+      marker on its own line between two paragraphs replaces that paragraph
+      break's default pause. Literal `<break` tags are rejected.
 
   Optional meditation columns:
 
@@ -68,11 +74,11 @@ defmodule LumenViae.Meditations.CsvImport do
 
   import Ecto.Query
 
-  alias LumenViae.Audio.ElevenLabs
+  alias LumenViae.Audio.Pipeline
+  alias LumenViae.Audio.TtsText
   alias LumenViae.Repo
   alias LumenViae.Rosary
   alias LumenViae.Rosary.{Meditation, MeditationSet, MeditationSetMeditation}
-  alias LumenViae.Storage.S3
 
   require Logger
 
@@ -223,7 +229,7 @@ defmodule LumenViae.Meditations.CsvImport do
        ) do
     mystery_name = Map.get(row_map, "mystery_name")
     mystery_ok = mystery_name != nil and get_in(mysteries, [mystery_name, Access.at(0)]) != nil
-    content = Map.get(row_map, "content")
+    {content, tts_annotations, marker_errors} = preview_content(Map.get(row_map, "content"))
     audio_filename = Map.get(row_map, "audio_filename")
     set_name = Map.get(row_map, "set_name")
 
@@ -237,6 +243,7 @@ defmodule LumenViae.Meditations.CsvImport do
       structure_errors ++
         mystery_errors(mystery_name, mystery_ok) ++
         content_errors(content) ++
+        marker_errors ++
         duplicate_audio_errors(audio_filename, duplicate_audio) ++
         set_errors
 
@@ -252,6 +259,7 @@ defmodule LumenViae.Meditations.CsvImport do
       content_chars: (content && String.length(content)) || 0,
       paragraphs: (content && String.split(content, "\n\n") |> length()) || 0,
       content_excerpt: content_excerpt(content),
+      pause_count: length(tts_annotations),
       audio_filename: audio_filename,
       set_name: set_name,
       set_status: set_status,
@@ -266,7 +274,20 @@ defmodule LumenViae.Meditations.CsvImport do
   defp mystery_errors(mystery_name, false), do: ["mystery not found: #{mystery_name}"]
   defp mystery_errors(_mystery_name, true), do: []
 
+  # Preview counterpart of extract_content/2: cleans the content the same
+  # way the import will, surfacing marker problems as row errors. Unusable
+  # content is kept as-is so the excerpt still shows what is wrong.
+  defp preview_content(nil), do: {nil, [], []}
+
+  defp preview_content(raw_content) do
+    case TtsText.extract_pauses(raw_content) do
+      {:ok, clean_content, annotations} -> {clean_content, annotations, []}
+      {:error, message} -> {raw_content, [], [message]}
+    end
+  end
+
   defp content_errors(nil), do: ["missing content"]
+  defp content_errors(""), do: ["missing content"]
   defp content_errors(_content), do: []
 
   defp content_warnings(nil), do: []
@@ -468,11 +489,13 @@ defmodule LumenViae.Meditations.CsvImport do
     mystery_name = Map.get(row_map, "mystery_name")
 
     with {:ok, mystery} <- fetch_mystery(mysteries, mystery_name),
+         {:ok, content, tts_annotations} <- extract_content(row_map, mystery_name),
          {:ok, set, sets_cache} <- resolve_set(row_map, sets_cache, opts) do
       attrs = %{
         "mystery_id" => mystery.id,
         "title" => Map.get(row_map, "title"),
-        "content" => Map.get(row_map, "content"),
+        "content" => content,
+        "tts_annotations" => tts_annotations,
         "author" => Map.get(row_map, "author"),
         "source" => Map.get(row_map, "source")
       }
@@ -485,6 +508,25 @@ defmodule LumenViae.Meditations.CsvImport do
       end
     else
       {:error, message} -> {{:error, message}, sets_cache}
+    end
+  end
+
+  # Strips {pause:N} markers before anything is validated or stored; only
+  # audio generation ever sees pause information again, via the persisted
+  # annotations (see LumenViae.Audio.TtsText).
+  defp extract_content(row_map, mystery_name) do
+    case Map.get(row_map, "content") do
+      nil ->
+        {:ok, nil, []}
+
+      raw_content ->
+        case TtsText.extract_pauses(raw_content) do
+          {:ok, clean_content, annotations} ->
+            {:ok, clean_content, annotations}
+
+          {:error, message} ->
+            {:error, "Invalid content for '#{mystery_name}': #{message}"}
+        end
     end
   end
 
@@ -684,7 +726,12 @@ defmodule LumenViae.Meditations.CsvImport do
           notify(opts, {:row_audio_retry, index, total, audio_filename, attempt, max})
         end
 
-        case generate_and_upload_audio(content, audio_filename, on_retry) do
+        case Pipeline.generate_and_upload(
+               content,
+               Map.get(attrs, "tts_annotations", []),
+               audio_filename,
+               on_retry: on_retry
+             ) do
           {:ok, s3_key} ->
             Logger.info("Successfully generated and uploaded audio: #{s3_key}")
             {Map.put(attrs, "audio_url", s3_key), nil}
@@ -698,89 +745,6 @@ defmodule LumenViae.Meditations.CsvImport do
 
   defp format_audio_error(reason) when is_binary(reason), do: reason
   defp format_audio_error(reason), do: reason |> inspect() |> String.slice(0, 200)
-
-  # ElevenLabs in particular fails transiently, so both the generation call
-  # and the S3 upload are retried with increasing backoff before giving up.
-  # Errors tagged {:fatal, message} (bad API key, missing credentials, and
-  # the like) are never retried because they cannot succeed.
-  @audio_attempts 3
-  @audio_retry_base_delay_ms 2_000
-
-  defp generate_and_upload_audio(text, filename, on_retry) do
-    with {:ok, audio_binary} <-
-           with_retries(
-             fn -> ElevenLabs.generate_audio(text) end,
-             "ElevenLabs",
-             filename,
-             on_retry
-           ),
-         {:ok, s3_key} <-
-           with_retries(
-             fn -> S3.upload_audio(audio_binary, filename) end,
-             "S3",
-             filename,
-             on_retry
-           ) do
-      {:ok, s3_key}
-    else
-      {:error, reason} = error ->
-        Logger.error("Audio generation/upload failed: #{inspect(reason)}")
-        error
-    end
-  end
-
-  defp with_retries(fun, label, filename, on_retry, attempt \\ 1) do
-    case fun.() do
-      {:ok, result} ->
-        {:ok, result}
-
-      {:error, reason} ->
-        case fatal_reason(reason) do
-          nil ->
-            maybe_retry(fun, label, filename, on_retry, attempt, reason)
-
-          message ->
-            Logger.error("#{label} failed for #{filename} (not retryable): #{message}")
-            {:error, message}
-        end
-    end
-  end
-
-  defp maybe_retry(fun, label, filename, on_retry, attempt, reason)
-       when attempt < @audio_attempts do
-    delay = retry_delay(attempt)
-
-    Logger.warning(
-      "#{label} failed for #{filename} (attempt #{attempt} of #{@audio_attempts}): " <>
-        "#{inspect(reason)}. Retrying in #{delay}ms"
-    )
-
-    on_retry.(attempt + 1, @audio_attempts)
-    Process.sleep(delay)
-    with_retries(fun, label, filename, on_retry, attempt + 1)
-  end
-
-  defp maybe_retry(_fun, label, filename, _on_retry, _attempt, reason) do
-    Logger.error(
-      "#{label} failed for #{filename} after #{@audio_attempts} attempts: #{inspect(reason)}"
-    )
-
-    {:error, reason}
-  end
-
-  defp fatal_reason({:fatal, message}), do: message
-
-  defp fatal_reason(:missing_credentials),
-    do: "AWS credentials not configured (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY)"
-
-  defp fatal_reason(_reason), do: nil
-
-  defp retry_delay(attempt) do
-    base =
-      Application.get_env(:lumen_viae, :audio_retry_base_delay_ms, @audio_retry_base_delay_ms)
-
-    base * attempt
-  end
 
   defp notify(opts, event) do
     case opts[:progress] do

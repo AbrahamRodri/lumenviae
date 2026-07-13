@@ -275,6 +275,160 @@ defmodule LumenViae.Meditations.CsvImportTest do
     end
   end
 
+  describe "pause markers" do
+    @marked_content "First paragraph of the meditation.\n\n{pause:2.5}\n\nSecond paragraph of the meditation."
+
+    test "strips markers from stored content and persists annotations" do
+      content =
+        csv(~w(mystery_name content), ["The Annunciation,#{quoted(@marked_content)}"])
+
+      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true)
+
+      meditation = Repo.one!(Meditation)
+
+      # Stored content is the imported content minus the marker; the pause
+      # survives only as an annotation.
+      assert meditation.content == @content
+      refute meditation.content =~ "pause"
+
+      offset = String.length("First paragraph of the meditation.")
+      assert meditation.tts_annotations == [%{"offset" => offset, "seconds" => 2.5}]
+    end
+
+    test "dry run validates marker content without writing" do
+      content =
+        csv(~w(mystery_name content audio_filename), [
+          "The Annunciation,#{quoted(@marked_content)},clip.mp3"
+        ])
+
+      assert [{:ok, message}] = CsvImport.import_string(content, dry_run: true)
+      assert message =~ "Would create meditation"
+      assert message =~ "(audio)"
+
+      assert Repo.aggregate(Meditation, :count) == 0
+    end
+
+    test "rejects malformed pause markers" do
+      content =
+        csv(~w(mystery_name content), [
+          "The Annunciation,#{quoted("Pause {pause:soon} here.")}"
+        ])
+
+      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true)
+      assert message =~ "Invalid content for 'The Annunciation'"
+      assert message =~ "invalid pause marker"
+
+      assert [{:error, _}] = CsvImport.import_string(content, skip_audio: true)
+      assert Repo.aggregate(Meditation, :count) == 0
+    end
+
+    test "rejects literal <break tags in content" do
+      content =
+        csv(~w(mystery_name content), [
+          "The Annunciation,#{quoted(~s(Pause <break time="1s" /> here.))}"
+        ])
+
+      assert [{:error, message}] = CsvImport.import_string(content, skip_audio: true)
+      assert message =~ "<break"
+
+      assert Repo.aggregate(Meditation, :count) == 0
+    end
+
+    test "preview counts pauses against the cleaned content" do
+      content =
+        csv(~w(mystery_name content), [
+          "The Annunciation,#{quoted(@marked_content)}",
+          "The Visitation,#{quoted("Broken {pause:oops} marker.")}"
+        ])
+
+      assert {:ok, preview} = CsvImport.preview_string(content)
+      assert [clean_row, broken_row] = preview.rows
+
+      assert clean_row.errors == []
+      assert clean_row.pause_count == 1
+      assert clean_row.content_chars == String.length(@content)
+      assert clean_row.paragraphs == 2
+      refute clean_row.content_excerpt =~ "pause"
+
+      assert Enum.any?(broken_row.errors, &(&1 =~ "invalid pause marker"))
+      assert broken_row.pause_count == 0
+    end
+  end
+
+  describe "audio generation with pause tags" do
+    setup do
+      test_pid = self()
+
+      originals =
+        for {app, key} <- [
+              {:lumen_viae, :eleven_labs_api_key},
+              {:lumen_viae, :eleven_labs_req_options},
+              {:lumen_viae, :audio_retry_base_delay_ms},
+              {:lumen_viae, :fake_aws_test_pid},
+              {:ex_aws, :http_client},
+              {:ex_aws, :access_key_id},
+              {:ex_aws, :secret_access_key}
+            ] do
+          {app, key, Application.get_env(app, key)}
+        end
+
+      Application.put_env(:lumen_viae, :eleven_labs_api_key, "test-api-key")
+      Application.put_env(:lumen_viae, :audio_retry_base_delay_ms, 1)
+
+      Application.put_env(:lumen_viae, :eleven_labs_req_options,
+        plug: {Req.Test, LumenViae.Audio.ElevenLabs}
+      )
+
+      Application.put_env(:ex_aws, :http_client, LumenViae.Test.FakeAwsHttpClient)
+      Application.put_env(:ex_aws, :access_key_id, "test-key")
+      Application.put_env(:ex_aws, :secret_access_key, "test-secret")
+      Application.put_env(:lumen_viae, :fake_aws_test_pid, test_pid)
+
+      on_exit(fn ->
+        Enum.each(originals, fn
+          {app, key, nil} -> Application.delete_env(app, key)
+          {app, key, value} -> Application.put_env(app, key, value)
+        end)
+      end)
+
+      %{test_pid: test_pid}
+    end
+
+    test "sends break tags to ElevenLabs while storing clean content", %{test_pid: test_pid} do
+      Req.Test.stub(LumenViae.Audio.ElevenLabs, fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+        send(test_pid, {:tts_text, Jason.decode!(body)["text"]})
+
+        conn
+        |> Plug.Conn.put_resp_content_type("audio/mpeg")
+        |> Plug.Conn.send_resp(200, "audio-bytes")
+      end)
+
+      content =
+        csv(~w(mystery_name content audio_filename), [
+          "The Annunciation,#{quoted(@marked_content)},clip.mp3"
+        ])
+
+      assert [{:ok, message}] = CsvImport.import_string(content)
+      assert message =~ "(with audio)"
+
+      # The custom pause replaces the paragraph break's default pause.
+      assert_received {:tts_text, speech_text}
+
+      assert speech_text ==
+               ~s(First paragraph of the meditation. <break time="2.5s" /> Second paragraph of the meditation.)
+
+      assert_received {:aws_request, :put, url, "audio-bytes"}
+      assert url =~ "clip.mp3"
+
+      meditation = Repo.one!(Meditation)
+      assert meditation.audio_url == "clip.mp3"
+      assert meditation.content == @content
+      refute meditation.content =~ "pause"
+      refute meditation.content =~ "<break"
+    end
+  end
+
   describe "preview_string/1" do
     test "summarizes rows, sets, and audio" do
       content =
