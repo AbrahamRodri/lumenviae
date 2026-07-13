@@ -148,6 +148,54 @@ When the `audio_filename` column is provided, the system will:
 2. Upload the generated audio to Amazon S3
 3. Associate the audio with the meditation for playback during prayer
 
+### Narration Pauses
+
+Narration pauses only ever exist in the text sent to ElevenLabs; the stored
+and displayed meditation content never contains pause markup.
+
+- Every paragraph break (blank line) automatically becomes a spoken pause.
+  The default duration is 1.2 seconds, set by
+  `config :lumen_viae, :tts_paragraph_break_seconds` (override in production
+  with the `TTS_PARAGRAPH_BREAK_SECONDS` environment variable)
+- For a spot that needs a longer or shorter pause, put an inline
+  `{pause:N}` marker in the CSV content, where N is seconds (decimals
+  allowed, capped at 3 - the ElevenLabs maximum). Example:
+  `And the Word was made flesh. {pause:2.5} And dwelt among us.`
+- A marker on its own line between two paragraphs replaces that paragraph
+  break's default pause instead of adding a second pause:
+  ```csv
+  mystery_name,content
+  The Annunciation,"Paragraph one.
+
+  {pause:2.5}
+
+  Paragraph two, reached after a 2.5s pause instead of the default."
+  ```
+- Markers are stripped before the meditation is saved; their positions are
+  stored separately and used again by `mix lumen_viae.regenerate_audio`
+- Malformed markers (e.g. `{pause:abc}`) and literal `<break` tags are
+  rejected at validation, so run a dry run to catch them
+
+### Regenerating Audio
+
+To apply new pause logic (or a voice change) to already-imported
+meditations without re-importing, regenerate their audio in place. The
+existing S3 files are replaced under the same keys and no meditation rows
+are created or modified:
+
+```
+mix lumen_viae.regenerate_audio --set "Set Name" --dry-run
+mix lumen_viae.regenerate_audio --set "Set Name"
+mix lumen_viae.regenerate_audio --id 42
+```
+
+Always dry-run first: it lists each meditation with its pause plan and
+spends no ElevenLabs credits. On Fly:
+
+```
+fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(set: \"Set Name\")'"
+```
+
 ### Requirements for Audio Generation
 
 To enable audio generation, ensure the following environment variables are configured:

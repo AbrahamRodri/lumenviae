@@ -14,7 +14,10 @@
       <div class="px-4 pb-4 text-sm text-gray-600">
         <ul class="list-disc list-inside mt-2 space-y-1">
           <li><strong>mystery_name</strong> (required) - exact mystery name (e.g., "The Annunciation")</li>
-          <li><strong>content</strong> (required) - the meditation text, verbatim, with paragraph breaks</li>
+          <li>
+            <strong>content</strong>
+            (required) - the meditation text, verbatim, with paragraph breaks. Inline {"{pause:N}"} markers (N in seconds, max 3) tune the narration pause at that spot and are stripped before saving; a marker alone between two paragraphs replaces that paragraph break's default pause.
+          </li>
           <li><strong>title</strong> (optional) - meditation title</li>
           <li><strong>author</strong> (optional) - e.g., "Blessed Anne Catherine Emmerich"</li>
           <li><strong>source</strong> (optional) - the public domain edition quoted</li>
