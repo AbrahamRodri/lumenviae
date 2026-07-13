@@ -137,4 +137,62 @@ defmodule LumenViae.RosaryTest do
       assert Rosary.get_meditation_set_with_ordered_meditations!(set.id).id == set.id
     end
   end
+
+  describe "admin content statistics" do
+    test "list_meditations_with_sets preloads mystery and sets" do
+      mystery = create_mystery()
+      set = create_set()
+      meditation = create_meditation(mystery)
+      orphan = create_meditation(mystery)
+      put_in_set(set, meditation)
+
+      by_id = Map.new(Rosary.list_meditations_with_sets(), &{&1.id, &1})
+
+      assert by_id[meditation.id].mystery.id == mystery.id
+      assert Enum.map(by_id[meditation.id].meditation_sets, & &1.id) == [set.id]
+      assert by_id[orphan.id].meditation_sets == []
+    end
+
+    test "meditation counts for archive, audio, and set membership" do
+      mystery = create_mystery()
+      set = create_set()
+
+      in_set_with_audio = create_meditation(mystery, %{audio_url: "audio.mp3"})
+      _no_audio = create_meditation(mystery)
+      archived = create_meditation(mystery)
+      put_in_set(set, in_set_with_audio)
+      {:ok, _} = Rosary.archive_meditation(archived)
+
+      assert Rosary.count_archived_meditations() == 1
+      # the archived meditation is excluded even though it has no audio
+      assert Rosary.count_active_meditations_missing_audio() == 1
+      assert Rosary.count_meditations_not_in_any_set() == 2
+      assert Rosary.meditation_counts_by_mystery() == %{mystery.id => 3}
+    end
+
+    test "meditation_set_stats aggregates per-set counts" do
+      mystery = create_mystery()
+      set = create_set()
+      empty_set = create_set()
+
+      with_audio = create_meditation(mystery, %{audio_url: "audio.mp3"})
+      plain = create_meditation(mystery)
+      put_in_set(set, with_audio, 1)
+      put_in_set(set, plain, 2)
+      {:ok, _} = Rosary.archive_meditation(plain)
+
+      stats = Rosary.meditation_set_stats()
+
+      assert stats[set.id] == %{meditation_count: 2, audio_count: 1, archived_count: 1}
+      refute Map.has_key?(stats, empty_set.id)
+    end
+
+    test "count_completions_last_days counts recent completions" do
+      set = create_set()
+      {:ok, _} = Rosary.record_completion(set.id)
+
+      assert Rosary.count_completions_last_days(7) == 1
+      assert Rosary.count_completions_last_days(30) == 1
+    end
+  end
 end

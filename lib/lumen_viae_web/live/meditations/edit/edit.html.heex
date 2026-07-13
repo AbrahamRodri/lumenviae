@@ -1,10 +1,16 @@
-<div class="min-h-screen bg-cream">
-  <div class="max-w-4xl mx-auto px-8 py-12">
-    <h2 class="font-cinzel text-4xl text-navy mb-8">
-      Edit Meditation
-    </h2>
-
-    <Layouts.flash_group flash={@flash} />
+<.admin_page active="meditations" title="Edit Meditation" flash={@flash} max_width="max-w-4xl">
+  <div>
+    <%= if @meditation.archived_at do %>
+      <div class="mb-8 border-l-4 border-amber-600 bg-amber-50 p-4">
+        <p class="font-crimson text-amber-800 text-sm">
+          This meditation is archived: it is hidden from the public site and the app, along with
+          any set that contains it. You can restore it from the
+          <.link navigate="/admin/meditations?status=archived" class="underline hover:text-amber-950">
+            meditations list
+          </.link>.
+        </p>
+      </div>
+    <% end %>
 
 <!-- Current Mystery Info -->
     <div class="bg-white border-l-4 border-gold p-6 mb-8">
@@ -145,4 +151,4 @@
       </.form>
     </div>
   </div>
-</div>
+</.admin_page>

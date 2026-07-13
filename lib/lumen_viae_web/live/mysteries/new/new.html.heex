@@ -1,9 +1,5 @@
-<div class="min-h-screen bg-cream">
-  <div class="max-w-4xl mx-auto px-8 py-12">
-    <h2 class="font-cinzel text-4xl text-navy mb-8">
-      Create New Mystery
-    </h2>
-
+<.admin_page active="mysteries" title="Create New Mystery" flash={@flash} max_width="max-w-4xl">
+  <div>
     <div class="bg-white border-l-4 border-gold p-8">
       <.form for={@mystery_form} phx-submit="create_mystery">
         <div class="space-y-4">
@@ -113,4 +109,4 @@
       </.form>
     </div>
   </div>
-</div>
+</.admin_page>

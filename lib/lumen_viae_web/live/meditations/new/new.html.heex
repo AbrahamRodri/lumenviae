@@ -1,9 +1,10 @@
-<div class="min-h-screen bg-cream">
-  <div class="max-w-4xl mx-auto px-8 py-12">
-    <h2 class="font-cinzel text-4xl text-navy mb-8">
-      Create New Meditation
-    </h2>
-    
+<.admin_page
+  active="meditations"
+  title="Create New Meditation"
+  flash={@flash}
+  max_width="max-w-4xl"
+>
+  <div>
 <!-- Filter Category -->
     <div class="bg-white border-l-4 border-gold p-6 mb-8">
       <h3 class="font-cinzel text-xl text-navy mb-4">Filter Mysteries</h3>
@@ -146,4 +147,4 @@
       </.form>
     </div>
   </div>
-</div>
+</.admin_page>

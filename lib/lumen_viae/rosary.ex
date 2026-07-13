@@ -60,6 +60,17 @@ defmodule LumenViae.Rosary do
     Repo.all(Meditation) |> Repo.preload(:mystery)
   end
 
+  @doc """
+  Lists every meditation with its mystery and meditation sets preloaded.
+
+  Used by the admin meditations list so each row can show set membership
+  and be filtered by it.
+  """
+  def list_meditations_with_sets do
+    Repo.all(from m in Meditation, order_by: [asc: m.id])
+    |> Repo.preload([:mystery, meditation_sets: from(ms in MeditationSet, order_by: ms.id)])
+  end
+
   def list_meditations_by_mystery(mystery_id) do
     Repo.all(from m in Meditation, where: m.mystery_id == ^mystery_id)
   end
@@ -301,6 +312,68 @@ defmodule LumenViae.Rosary do
     )
   end
 
+  ## Admin content statistics
+
+  @doc """
+  Counts archived meditations.
+  """
+  def count_archived_meditations do
+    from(m in Meditation, where: not is_nil(m.archived_at))
+    |> Repo.aggregate(:count)
+  end
+
+  @doc """
+  Counts active (non-archived) meditations that have no audio file yet.
+  """
+  def count_active_meditations_missing_audio do
+    from(m in Meditation,
+      where: is_nil(m.archived_at) and (is_nil(m.audio_url) or m.audio_url == "")
+    )
+    |> Repo.aggregate(:count)
+  end
+
+  @doc """
+  Counts meditations that do not belong to any meditation set.
+  """
+  def count_meditations_not_in_any_set do
+    from(m in Meditation,
+      where: m.id not in subquery(from(msm in MeditationSetMeditation, select: msm.meditation_id))
+    )
+    |> Repo.aggregate(:count)
+  end
+
+  @doc """
+  Returns a map of mystery_id => meditation count for every mystery that has
+  at least one meditation.
+  """
+  def meditation_counts_by_mystery do
+    from(m in Meditation, group_by: m.mystery_id, select: {m.mystery_id, count(m.id)})
+    |> Repo.all()
+    |> Map.new()
+  end
+
+  @doc """
+  Returns a map of meditation_set_id => stats for every set that has at least
+  one meditation. Stats: meditation_count, audio_count (meditations with an
+  audio file), archived_count.
+  """
+  def meditation_set_stats do
+    from(msm in MeditationSetMeditation,
+      join: m in Meditation,
+      on: msm.meditation_id == m.id,
+      group_by: msm.meditation_set_id,
+      select:
+        {msm.meditation_set_id,
+         %{
+           meditation_count: count(m.id),
+           audio_count: filter(count(m.id), not is_nil(m.audio_url) and m.audio_url != ""),
+           archived_count: filter(count(m.id), not is_nil(m.archived_at))
+         }}
+    )
+    |> Repo.all()
+    |> Map.new()
+  end
+
   ## Rosary Completions (Analytics)
 
   @doc """
@@ -399,6 +472,14 @@ defmodule LumenViae.Rosary do
       where: rc.completed_at >= ^start_date and rc.completed_at <= ^end_date
     )
     |> Repo.aggregate(:count)
+  end
+
+  @doc """
+  Gets completion count for the trailing N days (including today).
+  """
+  def count_completions_last_days(days) when is_integer(days) and days > 0 do
+    now = DateTime.utc_now()
+    count_completions_in_range(DateTime.add(now, -days * 24 * 3600, :second), now)
   end
 
   @doc """

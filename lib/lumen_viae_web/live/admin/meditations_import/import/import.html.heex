@@ -1,11 +1,10 @@
-<div class="max-w-5xl mx-auto p-6">
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-navy mb-2">Import Meditations from CSV</h1>
-    <p class="text-gray-600">
-      Upload a CSV, review the preview, then run the import with live progress.
-    </p>
-  </div>
-
+<.admin_page
+  active="import"
+  title="Import Meditations from CSV"
+  subtitle="Upload a CSV, review the preview, then run the import with live progress."
+  flash={@flash}
+  max_width="max-w-5xl"
+>
   <%= if @stage == :idle do %>
     <details class="mb-6 border border-gray-200 rounded-lg">
       <summary class="cursor-pointer px-4 py-3 font-semibold text-navy hover:bg-gray-50">
@@ -413,4 +412,4 @@
       </div>
     <% end %>
   <% end %>
-</div>
+</.admin_page>

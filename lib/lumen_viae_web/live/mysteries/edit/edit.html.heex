@@ -1,11 +1,5 @@
-<div class="min-h-screen bg-cream">
-  <div class="max-w-4xl mx-auto px-8 py-12">
-    <h2 class="font-cinzel text-4xl text-navy mb-8">
-      Edit Mystery
-    </h2>
-
-    <Layouts.flash_group flash={@flash} />
-
+<.admin_page active="mysteries" title="Edit Mystery" flash={@flash} max_width="max-w-4xl">
+  <div>
     <div class="bg-white border-l-4 border-gold p-6 mb-8">
       <h3 class="font-cinzel text-xl text-navy mb-2">Current Mystery</h3>
       <p class="font-crimson text-gray-800">
@@ -152,4 +146,4 @@
       </.form>
     </div>
   </div>
-</div>
+</.admin_page>

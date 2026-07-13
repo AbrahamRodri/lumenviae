@@ -1,9 +1,5 @@
-<div class="min-h-screen bg-cream">
-  <div class="max-w-7xl mx-auto px-8 py-12">
-    <h2 class="font-cinzel text-4xl text-navy mb-8">
-      Edit Meditation Set
-    </h2>
-    
+<.admin_page active="sets" title="Edit Meditation Set" flash={@flash}>
+  <div>
 <!-- Edit Set Details -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">Set Details</h3>
@@ -216,7 +212,7 @@
         <% end %>
       </div>
     </div>
-    
+
 <!-- Back to Sets -->
     <div class="mt-8 text-center">
       <.link
@@ -227,4 +223,4 @@
       </.link>
     </div>
   </div>
-</div>
+</.admin_page>

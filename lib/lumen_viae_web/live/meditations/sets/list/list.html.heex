@@ -1,160 +1,144 @@
-<div class="min-h-screen bg-cream">
-  <div class="max-w-7xl mx-auto px-8 py-12">
-    <div class="flex items-center justify-between mb-8">
-      <h2 class="font-cinzel text-4xl text-navy">
-        Meditation Sets
-      </h2>
-      <.link
-        navigate="/admin/meditation-sets/new"
-        class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
-      >
-        Create New Set
-      </.link>
-    </div>
-    
-<!-- Sets List -->
-    <div class="bg-white border-l-4 border-gold p-8 mb-8">
-      <h3 class="font-cinzel text-2xl text-navy mb-6">All Meditation Sets</h3>
+<.admin_page
+  active="sets"
+  title="Meditation Sets"
+  subtitle="Curated collections shown in the app and on the public site."
+  flash={@flash}
+>
+  <:actions>
+    <.link
+      navigate="/admin/meditation-sets/new"
+      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+    >
+      Create New Set
+    </.link>
+  </:actions>
+  
+<!-- Set health shortcuts: each card applies the matching filter -->
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <.stat_card label="Total Sets" value={@summary.total} navigate="/admin/meditation-sets" />
+    <.stat_card
+      label="Hidden From Public"
+      value={@summary.hidden}
+      hint="Contain archived meditations"
+      navigate="/admin/meditation-sets?visibility=hidden"
+    />
+    <.stat_card
+      label="Incomplete"
+      value={@summary.incomplete}
+      hint="Wrong meditation count for their category"
+      navigate="/admin/meditation-sets?completeness=incomplete"
+    />
+    <.stat_card
+      label="Empty"
+      value={@summary.empty}
+      hint="No meditations yet"
+      navigate="/admin/meditation-sets?completeness=empty"
+    />
+  </div>
+  
+<!-- Filters -->
+  <div class="bg-white border-l-4 border-gold p-6 mb-8">
+    <h3 class="font-cinzel text-xl text-navy mb-4">Filters</h3>
 
-      <%= if @meditation_sets == [] do %>
-        <p class="font-crimson text-gray-600">
-          No meditation sets yet. Create one to get started.
-        </p>
-      <% else %>
-        <div class="space-y-4">
-          <%= for set <- @meditation_sets do %>
-            <div class="border border-gray-200 rounded-lg p-6 bg-gray-50">
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <h4 class="font-cinzel text-xl text-navy mb-2">
-                    {set.name}
-                    <%= if MapSet.member?(@hidden_set_ids, set.id) do %>
-                      <span
-                        class="ml-2 inline-block px-2 py-0.5 bg-gray-200 text-gray-600 font-crimson text-xs rounded uppercase tracking-wide align-middle"
-                        title="This set contains archived meditations, so it is not shown on the public site or in the app."
-                      >
-                        Hidden from public
-                      </span>
-                    <% end %>
-                  </h4>
-                  <p class="font-crimson text-sm text-gray-600 mb-1">
-                    Category: {String.capitalize(set.category)} Mysteries
-                  </p>
-                  <%= if set.labels == [] do %>
-                    <p class="font-crimson text-xs text-gray-400 italic mb-1">
-                      No labels yet (shown under "More" in the app picker)
-                    </p>
-                  <% else %>
-                    <div class="flex flex-wrap gap-2 my-2">
-                      <%= for label <- set.labels do %>
-                        <span class="inline-block px-2 py-0.5 border border-gold text-navy font-crimson text-xs rounded">
-                          {label}
-                        </span>
-                      <% end %>
-                    </div>
-                  <% end %>
-                  <%= if set.description do %>
-                    <p class="font-crimson text-gray-700 mt-2">
-                      {set.description}
-                    </p>
-                  <% end %>
-                </div>
+    <.form for={%{}} phx-change="update_filters">
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <.filter_search
+          name="q"
+          label="Search"
+          value={@filters.query}
+          placeholder="Name, description, or label"
+        />
 
-                <div class="flex items-center space-x-2 ml-4">
-                  <.link
-                    navigate={"/admin/meditation-sets/#{set.id}/edit"}
-                    class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
-                  >
-                    Edit
-                  </.link>
+        <.filter_select
+          name="category"
+          label="Category"
+          value={@filters.category}
+          prompt="All Categories"
+          options={@mystery_categories}
+        />
 
-                  <button
-                    phx-click="delete_set"
-                    phx-value-id={set.id}
-                    data-confirm="Are you sure you want to delete this meditation set?"
-                    class="px-4 py-2 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-colors font-crimson text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        </div>
+        <.filter_select
+          name="label"
+          label="Label"
+          value={@filters.label}
+          prompt="All Labels"
+          options={Enum.map(@label_vocabulary, &{&1, &1})}
+        />
+
+        <.filter_select
+          name="visibility"
+          label="Visibility"
+          value={@filters.visibility}
+          prompt="Visible and Hidden"
+          options={[{"Visible to public", "visible"}, {"Hidden from public", "hidden"}]}
+        />
+
+        <.filter_select
+          name="completeness"
+          label="Completeness"
+          value={@filters.completeness}
+          prompt="Any Meditation Count"
+          options={[
+            {"Complete (5, or 7 for Seven Sorrows)", "complete"},
+            {"Incomplete", "incomplete"},
+            {"Empty", "empty"}
+          ]}
+        />
+
+        <.filter_select
+          name="sort"
+          label="Sort By"
+          value={@filters.sort}
+          options={[
+            {"Category order", "category"},
+            {"Name (A-Z)", "name"},
+            {"Newest first", "newest"},
+            {"Most meditations", "meditations"}
+          ]}
+        />
+      </div>
+    </.form>
+
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <p class="font-crimson text-navy">
+        Showing {length(@filtered_sets)} of {@summary.total} sets
+      </p>
+      <%= if filters_applied?(@filters) do %>
+        <button
+          type="button"
+          phx-click="clear_filters"
+          class="font-crimson text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
+        >
+          Clear all filters
+        </button>
       <% end %>
     </div>
-    
-<!-- View Set Details -->
-    <%= if @meditation_sets != [] do %>
-      <div class="bg-white border-l-4 border-gold p-8">
-        <h3 class="font-cinzel text-2xl text-navy mb-6">View Set Details</h3>
+  </div>
+  
+<!-- Sets List -->
+  <div class="bg-white border-l-4 border-gold p-8">
+    <h3 class="font-cinzel text-2xl text-navy mb-6">
+      Meditation Sets ({length(@filtered_sets)})
+    </h3>
 
-        <div class="mb-6">
-          <label class="font-crimson text-navy font-semibold block mb-2">
-            Select a Set to View
-          </label>
-          <.form for={%{}} phx-change="select_set">
-            <select
-              name="set_id"
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
-            >
-              <option value="">Choose a set...</option>
-              <%= for set <- @meditation_sets do %>
-                <option value={set.id} selected={@selected_set && @selected_set.id == set.id}>
-                  {set.name} ({String.capitalize(set.category)})
-                </option>
-              <% end %>
-            </select>
-          </.form>
-        </div>
-
-        <%= if @selected_set do %>
-          <div class="mt-6">
-            <h4 class="font-cinzel text-lg text-navy mb-3">
-              Meditations in {@selected_set.name}
-            </h4>
-
-            <%= if @selected_set_meditations == [] do %>
-              <p class="font-crimson text-gray-600 text-sm italic">
-                No meditations in this set yet. Edit the set to add meditations.
-              </p>
-            <% else %>
-              <div class="space-y-2">
-                <%= for meditation <- @selected_set_meditations do %>
-                  <div class="flex items-center bg-cream p-3 rounded">
-                    <div class="flex-1">
-                      <span class="font-crimson text-navy">
-                        {meditation.mystery.name}
-                        {if meditation.title, do: " - #{meditation.title}"}
-                      </span>
-                      <%= if meditation.author do %>
-                        <span class="font-crimson text-sm text-gray-500 ml-2">
-                          by {meditation.author}
-                        </span>
-                      <% end %>
-                      <%= if meditation.archived_at do %>
-                        <span class="ml-2 inline-block px-2 py-0.5 bg-gray-200 text-gray-600 font-crimson text-xs rounded uppercase tracking-wide">
-                          Archived
-                        </span>
-                      <% end %>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
+    <%= if @filtered_sets == [] do %>
+      <.empty_state>
+        No meditation sets match the current filters. Adjust the filters above or create a new set.
+      </.empty_state>
+    <% else %>
+      <div class="space-y-4">
+        <%= for set <- @filtered_sets do %>
+          <.set_card
+            set={set}
+            stats={@set_stats}
+            hidden={MapSet.member?(@hidden_set_ids, set.id)}
+            expanded={@expanded_set_id == set.id}
+            expanded_meditations={
+              if @expanded_set_id == set.id, do: @expanded_meditations, else: []
+            }
+          />
         <% end %>
       </div>
     <% end %>
-    
-<!-- Back to Dashboard -->
-    <div class="mt-8 text-center">
-      <.link
-        navigate="/admin"
-        class="inline-block font-crimson text-navy hover:text-gold transition-colors"
-      >
-        ← Back to Dashboard
-      </.link>
-    </div>
   </div>
-</div>
+</.admin_page>
