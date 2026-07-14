@@ -1,0 +1,101 @@
+<section id="true-and-false" class="mb-20 scroll-mt-8">
+  <div class="text-center mb-10">
+    <p class="font-cinzel text-rubric text-sm tracking-[0.4em] uppercase mb-3">
+      Chapter II
+    </p>
+    <h2 class="font-ovo text-navy text-4xl md:text-5xl mb-4">
+      True and False Devotion
+    </h2>
+    <p class="font-garamond text-brown text-lg md:text-xl max-w-2xl mx-auto leading-relaxed italic">
+      Before teaching the true devotion, St. Louis unmasks seven counterfeit
+      devotions to Our Lady, and then gives five marks by which the genuine
+      devotion is known.
+    </p>
+  </div>
+
+  <div class="flex justify-center gap-2 mb-8" role="tablist" aria-label="True and false devotion">
+    <button
+      type="button"
+      role="tab"
+      aria-selected={to_string(@devotion_tab == "false")}
+      phx-click="select-devotion-tab"
+      phx-value-tab="false"
+      class={[
+        "px-6 py-2.5 rounded-full font-ovo tracking-wide transition-all duration-300 border",
+        if(@devotion_tab == "false",
+          do: "bg-navy text-gold border-navy shadow-md",
+          else: "bg-white text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
+        )
+      ]}
+    >
+      The Seven False Devotions
+    </button>
+    <button
+      type="button"
+      role="tab"
+      aria-selected={to_string(@devotion_tab == "true")}
+      phx-click="select-devotion-tab"
+      phx-value-tab="true"
+      class={[
+        "px-6 py-2.5 rounded-full font-ovo tracking-wide transition-all duration-300 border",
+        if(@devotion_tab == "true",
+          do: "bg-navy text-gold border-navy shadow-md",
+          else: "bg-white text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
+        )
+      ]}
+    >
+      The Five Marks of True Devotion
+    </button>
+  </div>
+
+  <%= if @devotion_tab == "false" do %>
+    <div class="grid md:grid-cols-2 gap-4">
+      <%= for {devotion, index} <- Enum.with_index(@false_devotions, 1) do %>
+        <details class="group bg-white rounded shadow-soft border-l-3 border-brown-light/40 hover:border-brown-light transition-all duration-300 open:shadow-ornate">
+          <summary class="flex items-baseline gap-4 p-5 cursor-pointer select-none">
+            <span class="font-ovo text-2xl text-brown-light/60 shrink-0">{index}</span>
+            <span class="font-ovo text-navy text-xl flex-1">{devotion.name}</span>
+            <span class="text-gold-dark text-xs uppercase tracking-wide group-open:hidden shrink-0">
+              Show
+            </span>
+            <span class="text-gold-dark text-xs uppercase tracking-wide hidden group-open:inline shrink-0">
+              Hide
+            </span>
+          </summary>
+          <p class="px-5 pb-5 pl-14 font-work-sans text-brown leading-relaxed">
+            {devotion.description}
+          </p>
+        </details>
+      <% end %>
+    </div>
+    <p class="text-center font-garamond italic text-brown-light mt-6">
+      True Devotion to the Blessed Virgin, nn. 92&ndash;104
+    </p>
+  <% else %>
+    <div class="grid md:grid-cols-2 gap-4">
+      <%= for {mark, index} <- Enum.with_index(@true_marks, 1) do %>
+        <details
+          class="group bg-white rounded shadow-soft border-l-3 border-gold/60 hover:border-gold transition-all duration-300 open:shadow-ornate"
+          open={index == 1}
+        >
+          <summary class="flex items-baseline gap-4 p-5 cursor-pointer select-none">
+            <span class="font-ovo text-2xl text-gold/70 shrink-0">{index}</span>
+            <span class="font-ovo text-navy text-xl flex-1">{mark.name}</span>
+            <span class="text-gold-dark text-xs uppercase tracking-wide group-open:hidden shrink-0">
+              Show
+            </span>
+            <span class="text-gold-dark text-xs uppercase tracking-wide hidden group-open:inline shrink-0">
+              Hide
+            </span>
+          </summary>
+          <p class="px-5 pb-5 pl-14 font-work-sans text-brown leading-relaxed">
+            {mark.description}
+          </p>
+        </details>
+      <% end %>
+    </div>
+    <p class="text-center font-garamond italic text-brown-light mt-6">
+      True Devotion to the Blessed Virgin, nn. 105&ndash;110
+    </p>
+  <% end %>
+</section>
