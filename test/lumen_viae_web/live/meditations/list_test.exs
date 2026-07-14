@@ -148,4 +148,44 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     assert Rosary.get_meditation!(first.id).archived_at
     assert Rosary.get_meditation!(second.id).archived_at
   end
+
+  test "bulk delete permanently removes selected meditations, including set members", %{
+    conn: conn
+  } do
+    mystery = create_mystery()
+    in_set = create_meditation(mystery)
+    orphan = create_meditation(mystery)
+    set = create_set()
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, in_set.id, 1)
+
+    {:ok, view, _html} = live(conn, "/admin/meditations")
+
+    view |> element("button[phx-click=select_all_shown]") |> render_click()
+    html = view |> element("button[phx-click=bulk_delete]") |> render_click()
+
+    assert html =~ "2 meditations permanently deleted."
+    assert Rosary.list_meditations() == []
+    assert Rosary.get_meditation_set!(set.id).meditations == []
+    assert orphan.id
+  end
+
+  test "bulk delete only removes the selected meditation", %{conn: conn} do
+    mystery = create_mystery()
+    doomed = create_meditation(mystery, %{title: "Title Doomed"})
+    survivor = create_meditation(mystery, %{title: "Title Survivor"})
+
+    {:ok, view, _html} = live(conn, "/admin/meditations")
+
+    view
+    |> element("input[type=checkbox][phx-value-id='#{doomed.id}']")
+    |> render_click()
+
+    html = view |> element("button[phx-click=bulk_delete]") |> render_click()
+
+    assert html =~ "1 meditation permanently deleted."
+    refute html =~ "Title Doomed"
+    assert html =~ "Title Survivor"
+    assert Rosary.get_meditation!(survivor.id)
+    assert_raise Ecto.NoResultsError, fn -> Rosary.get_meditation!(doomed.id) end
+  end
 end

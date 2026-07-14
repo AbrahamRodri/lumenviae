@@ -77,6 +77,24 @@ defmodule LumenViaeWeb.Live.Meditations.List do
     bulk_set_archived(socket, :unarchive)
   end
 
+  def handle_event("bulk_delete", _params, socket) do
+    selected = socket.assigns.selected_ids
+
+    count =
+      socket.assigns.meditations
+      |> Enum.filter(&MapSet.member?(selected, &1.id))
+      |> Enum.count(fn meditation ->
+        match?({:ok, _}, Rosary.delete_meditation(meditation))
+      end)
+
+    {:noreply,
+     socket
+     |> put_flash(:info, "#{count} #{pluralize_meditation(count)} permanently deleted.")
+     |> assign(:selected_ids, MapSet.new())
+     |> assign(:expanded_meditation_id, nil)
+     |> reload()}
+  end
+
   def handle_event("archive_meditation", %{"id" => id}, socket) do
     set_archived(
       socket,

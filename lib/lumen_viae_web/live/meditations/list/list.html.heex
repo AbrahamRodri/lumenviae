@@ -93,6 +93,14 @@
           >
             Unarchive selected
           </button>
+          <button
+            type="button"
+            phx-click="bulk_delete"
+            data-confirm={"Permanently delete #{MapSet.size(@selected_ids)} selected meditation(s)? This cannot be undone, and they will be removed from any sets that contain them. Archiving is usually the safer choice."}
+            class="px-4 py-1.5 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-colors font-crimson text-sm"
+          >
+            Delete selected
+          </button>
         </div>
       <% end %>
     </div>
