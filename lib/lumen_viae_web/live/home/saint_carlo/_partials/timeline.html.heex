@@ -1,0 +1,57 @@
+<section id="timeline" class="mb-20 scroll-mt-8">
+  <div class="text-center mb-10">
+    <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-carlo mb-3">
+      1991 &ndash; 2025
+    </p>
+    <h2 class="font-ovo text-navy text-4xl md:text-5xl mb-4">
+      A Short Life, Fully Given
+    </h2>
+    <p class="font-work-sans text-brown text-lg max-w-2xl mx-auto leading-relaxed">
+      Fifteen years on earth, and a road that leads from a London parish to the
+      altars of the universal Church. Select each moment of the journey.
+    </p>
+  </div>
+  
+<!-- Moment selector -->
+  <div
+    class="flex flex-wrap justify-center gap-2 mb-8"
+    role="tablist"
+    aria-label="Moments in the life of St. Carlo Acutis"
+  >
+    <%= for moment <- @moments do %>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={to_string(moment.id == @selected_moment)}
+        phx-click="select-moment"
+        phx-value-moment={moment.id}
+        class={[
+          "px-4 py-2 rounded-full font-ovo tracking-wide transition-all duration-300 border text-sm md:text-base",
+          if(moment.id == @selected_moment,
+            do: "bg-carlo text-cream border-carlo shadow-md scale-105",
+            else: "bg-white text-navy border-carlo/30 hover:border-carlo hover:bg-carlo/5"
+          )
+        ]}
+      >
+        <span class={[
+          "font-work-sans text-xs tracking-[0.15em] mr-1.5",
+          if(moment.id == @selected_moment, do: "text-cream/80", else: "text-carlo")
+        ]}>
+          {moment.year}
+        </span>
+        {moment.label}
+      </button>
+    <% end %>
+  </div>
+
+  <% moment = current_moment(@moments, @selected_moment) %>
+  <div class="bg-cream rounded-lg shadow-soft border-t-4 border-carlo p-6 md:p-10 max-w-3xl mx-auto">
+    <p class="font-ovo text-carlo text-3xl mb-2">{moment.year}</p>
+    <h3 class="font-ovo text-navy text-2xl md:text-3xl mb-4">
+      {moment.title}
+    </h3>
+    <p class="font-work-sans text-brown text-base md:text-lg leading-relaxed">
+      {moment.text}
+    </p>
+  </div>
+</section>
