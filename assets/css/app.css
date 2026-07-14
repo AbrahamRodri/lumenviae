@@ -131,6 +131,10 @@
   --color-brown: #4a3f33;
   --color-brown-light: #7c6f5e;
 
+  /* Accent Colors - manuscript rubric red and St. Carlo polo red */
+  --color-rubric: #8b2f23;
+  --color-carlo: #a63a2e;
+
   /* Typography - Clear Creek inspired fonts.
      Tailwind v4 generates font-* utilities from the --font-* namespace. */
   --font-roman-uncial: 'Roman Uncial Modern', serif;
@@ -265,6 +269,22 @@ h3, h4, h5, h6 {
   padding-right: 0.12em;
   padding-top: 0.08em;
   color: var(--color-gold-dark);
+}
+
+/* Parchment mottling for manuscript-styled pages - pure CSS, no image */
+.parchment-texture {
+  background-color: var(--color-cream);
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(177, 139, 73, 0.07), transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(177, 139, 73, 0.05), transparent 45%),
+    radial-gradient(ellipse at 40% 70%, rgba(143, 110, 56, 0.06), transparent 50%),
+    radial-gradient(ellipse at 90% 90%, rgba(177, 139, 73, 0.07), transparent 40%);
+}
+
+/* Woodcut scans sit into cream backgrounds instead of floating as white plates */
+.woodcut-blend {
+  mix-blend-mode: multiply;
+  filter: sepia(0.12) contrast(1.03);
 }
 
 /* Radial halo glow, used behind sacred imagery */
