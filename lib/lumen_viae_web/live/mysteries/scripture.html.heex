@@ -1,62 +1,58 @@
-<div class="bg-cream min-h-screen">
-  <!-- Hero Section -->
-  <section class="relative bg-navy overflow-hidden border-b-3 border-gold">
-    <div class="absolute inset-0 opacity-[0.05]" aria-hidden="true">
-      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
-    </div>
-    <div
-      class="absolute inset-0 bg-gradient-to-b from-navy-dark/50 via-transparent to-navy-dark/70"
-      aria-hidden="true"
-    >
-    </div>
-
-    <div class="relative max-w-4xl mx-auto px-6 pt-12 pb-16 md:pt-16 md:pb-20 text-center">
-      <div class="relative inline-block mb-6 animate-rise">
-        <div class="bg-halo absolute -inset-8 rounded-full animate-halo" aria-hidden="true"></div>
-        <img
-          src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
-          alt="Blessed Mary with Child Jesus"
-          class="relative w-32 md:w-48 mx-auto drop-shadow-2xl"
-        />
-      </div>
-
-      <p
-        class="font-work-sans text-xs md:text-sm tracking-[0.4em] uppercase text-gold-light mb-4 animate-rise"
-        style="animation-delay: 120ms"
-      >
+<div class="parchment-texture min-h-screen">
+  <!-- Frontispiece hero: an open page, not a poster -->
+  <section class="relative border-b-4 border-double border-gold/70">
+    <div class="max-w-3xl mx-auto px-6 pt-14 pb-10 md:pt-20 md:pb-14 text-center">
+      <p class="font-cinzel text-rubric text-xs md:text-sm tracking-[0.5em] uppercase mb-6 animate-rise">
         The Word Behind Every Decade
       </p>
 
-      <h1
-        class="font-roman-uncial text-3xl md:text-5xl lg:text-6xl text-cream mb-4 animate-rise"
-        style="animation-delay: 200ms"
+      <div
+        class="flex items-center justify-center gap-4 text-gold-dark mb-6 animate-rise"
+        style="animation-delay: 100ms"
+        aria-hidden="true"
       >
-        The Scripture of the Rosary
+        <span class="block h-px w-16 md:w-28 bg-gold/50"></span>
+        <span class="text-xl">&#10022;</span>
+        <span class="block h-px w-16 md:w-28 bg-gold/50"></span>
+      </div>
+
+      <h1
+        class="font-roman-uncial text-4xl md:text-6xl text-navy mb-5 animate-rise"
+        style="animation-delay: 180ms"
+      >
+        Finding the Mysteries<br class="hidden md:block" /> in Scripture
       </h1>
 
       <p
-        class="font-garamond text-lg md:text-2xl text-gold-light italic px-3 max-w-2xl mx-auto animate-rise"
-        style="animation-delay: 300ms"
+        class="font-garamond text-lg md:text-2xl text-brown italic max-w-2xl mx-auto animate-rise"
+        style="animation-delay: 280ms"
       >
-        The Life, Passion, and Glory of Christ, with Scripture references
-        gathered for each mystery
+        The Life, Passion, and Glory of Christ in the words of the
+        Douay-Rheims Bible, with the traditional fruit of every mystery
       </p>
     </div>
   </section>
-
-<!-- Category Tabs -->
-  <div class="-mt-6 md:-mt-7 relative z-10 px-4">
-    <div class="max-w-2xl mx-auto flex flex-wrap justify-center gap-2 bg-white/85 backdrop-blur-sm p-2 md:p-3 rounded-2xl md:rounded-full shadow-ornate">
+  
+<!-- Category tabs: bookmark ribbons hanging from the rule -->
+  <div class="relative z-10 px-4">
+    <div
+      class="max-w-3xl mx-auto flex flex-wrap justify-center gap-2 md:gap-3"
+      role="tablist"
+      aria-label="Sets of mysteries"
+    >
       <%= for category <- @categories do %>
         <button
           type="button"
+          role="tab"
+          aria-selected={to_string(category.id == @selected_category)}
           phx-click="select-category"
           phx-value-id={category.id}
           class={[
-            "px-3 md:px-5 py-1.5 md:py-2 rounded-full font-ovo tracking-wide transition-all duration-300 border",
+            "px-3 md:px-5 rounded-b-lg font-ovo tracking-wide transition-all duration-300 border border-t-0 shadow-soft",
             if(category.id == @selected_category,
-              do: "bg-navy text-gold border-navy shadow-md",
-              else: "bg-cream text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
+              do: "bg-rubric text-cream border-rubric pt-3 pb-3.5 md:pb-4 shadow-ornate",
+              else:
+                "bg-white text-navy border-gold/40 pt-1.5 pb-2 md:pb-2.5 hover:border-gold hover:bg-gold-light/20 hover:pb-3"
             )
           ]}
         >
@@ -71,7 +67,7 @@
     <div class="max-w-4xl mx-auto px-3 md:px-6">
       <!-- Introduction -->
       <div class="mb-6 md:mb-10">
-        <details class="group bg-white p-3 md:p-5 rounded-lg shadow-soft border-l-4 border-gold">
+        <details class="group bg-white/70 p-3 md:p-5 border-4 border-double border-gold/50 hover:border-gold/80 transition-colors duration-300">
           <summary class="font-ovo text-navy md:text-lg lg:text-xl flex items-center justify-between cursor-pointer select-none gap-2">
             <span>Traditional vs Modern Rosary Schedule</span>
             <span class="text-gold-dark text-xs uppercase tracking-wide group-open:hidden flex-shrink-0">
@@ -138,6 +134,8 @@
           <.sorrowful />
         <% "glorious" -> %>
           <.glorious />
+        <% "seven_sorrows" -> %>
+          <.seven_sorrows />
       <% end %>
     </div>
   </div>

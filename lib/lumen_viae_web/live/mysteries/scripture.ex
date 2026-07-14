@@ -10,7 +10,8 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
     %{id: "joyful", name: "Joyful"},
     %{id: "sorrowful", name: "Sorrowful"},
     %{id: "glorious", name: "Glorious"},
-    %{id: "luminous", name: "Luminous"}
+    %{id: "luminous", name: "Luminous"},
+    %{id: "seven_sorrows", name: "Seven Sorrows"}
   ]
 
   @impl true
@@ -22,7 +23,11 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
 
     socket =
       socket
-      |> assign(page_title: "The Mysteries of the Rosary")
+      |> assign(page_title: "Finding the Mysteries in Scripture")
+      |> assign(
+        meta_description:
+          "Read the scriptural accounts behind every mystery of the Holy Rosary and the Seven Sorrows of Mary, with Douay-Rheims passages and the traditional fruit of each mystery."
+      )
       |> assign(categories: @categories, selected_category: selected_category)
 
     {:ok, socket}
