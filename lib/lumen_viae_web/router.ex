@@ -34,8 +34,14 @@ defmodule LumenViaeWeb.Router do
     # All 20 mysteries of the Rosary
     live "/mysteries", Live.Mysteries.Scripture
 
-    # Methods of praying the Rosary (St. Louis de Montfort)
+    # How to pray the Rosary, with the methods of St. Louis de Montfort
     live "/rosary-methods", Live.Home.Methods.Index
+
+    # True Devotion to Mary (St. Louis de Montfort)
+    live "/true-devotion", Live.Home.TrueDevotion.Index
+
+    # St. Carlo Acutis - patron of Lumen Viae
+    live "/saint-carlo", Live.Home.SaintCarlo.Index
 
     # Feedback and feature requests
     live "/feedback", Live.Home.Feedback.Index

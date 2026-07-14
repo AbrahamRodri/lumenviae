@@ -44,7 +44,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
       title: "The Glorious Mysteries",
       short_title: "Glorious",
       numeral: "III",
-      schedule: "Wednesdays, Saturdays (and Sundays in Ordinary Time)",
+      schedule: "Wednesdays, Saturdays (and Sundays through the year)",
       description:
         "Rejoice in the triumph of Christ's resurrection and the glory of His Most Holy Mother.",
       mysteries: [

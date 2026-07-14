@@ -33,12 +33,56 @@ defmodule LumenViaeWeb.Components.Nav do
           <.nav_link navigate="/dashboard">
             Dashboard
           </.nav_link>
-          <.nav_link navigate="/mysteries">
-            Scripture of the Rosary
-          </.nav_link>
-          <.nav_link navigate="/rosary-methods">
-            Rosary Methods
-          </.nav_link>
+
+          <div class="relative">
+            <button
+              type="button"
+              id="learn-menu-button"
+              phx-click={
+                JS.toggle(
+                  to: "#learn-menu",
+                  in:
+                    {"ease-out duration-200", "opacity-0 -translate-y-1", "opacity-100 translate-y-0"},
+                  out:
+                    {"ease-in duration-150", "opacity-100 translate-y-0", "opacity-0 -translate-y-1"}
+                )
+                |> JS.toggle_attribute({"aria-expanded", "true", "false"})
+              }
+              class="inline-flex items-center gap-1.5 font-work-sans text-sm text-gold-light hover:text-gold transition-colors"
+              aria-expanded="false"
+              aria-controls="learn-menu"
+            >
+              Learn
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            <div
+              id="learn-menu"
+              class="hidden absolute right-0 top-full mt-3 w-72 bg-navy border border-gold/40 rounded-lg shadow-ornate py-2 z-50"
+              phx-click-away={JS.hide(to: "#learn-menu")}
+            >
+              <.learn_link navigate="/rosary-methods">
+                How to Pray the Rosary
+              </.learn_link>
+              <.learn_link navigate="/mysteries">
+                Finding the Mysteries in Scripture
+              </.learn_link>
+              <.learn_link navigate="/true-devotion">
+                True Devotion to Mary
+              </.learn_link>
+              <.learn_link navigate="/saint-carlo">
+                St. Carlo Acutis
+              </.learn_link>
+            </div>
+          </div>
+
           <.nav_link navigate="/app">
             The App
           </.nav_link>
@@ -111,12 +155,26 @@ defmodule LumenViaeWeb.Components.Nav do
           <.nav_link navigate="/dashboard" mobile>
             Dashboard
           </.nav_link>
-          <.nav_link navigate="/mysteries" mobile>
-            Scripture of the Rosary
-          </.nav_link>
+
+          <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold/60 pt-2">
+            Learn
+          </p>
           <.nav_link navigate="/rosary-methods" mobile>
-            Rosary Methods
+            How to Pray the Rosary
           </.nav_link>
+          <.nav_link navigate="/mysteries" mobile>
+            Finding the Mysteries in Scripture
+          </.nav_link>
+          <.nav_link navigate="/true-devotion" mobile>
+            True Devotion to Mary
+          </.nav_link>
+          <.nav_link navigate="/saint-carlo" mobile>
+            St. Carlo Acutis
+          </.nav_link>
+
+          <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold/60 pt-2">
+            More
+          </p>
           <.nav_link navigate="/app" mobile>
             The App
           </.nav_link>
@@ -141,6 +199,21 @@ defmodule LumenViaeWeb.Components.Nav do
         </nav>
       </div>
     </header>
+    """
+  end
+
+  attr :navigate, :string, required: true
+  slot :inner_block, required: true
+
+  defp learn_link(assigns) do
+    ~H"""
+    <.link
+      navigate={@navigate}
+      phx-click={JS.hide(to: "#learn-menu")}
+      class="block px-5 py-2.5 font-work-sans text-sm text-gold-light hover:text-gold hover:bg-gold/10 transition-colors"
+    >
+      {render_slot(@inner_block)}
+    </.link>
     """
   end
 
