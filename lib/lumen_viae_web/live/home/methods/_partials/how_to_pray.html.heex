@@ -1,0 +1,309 @@
+<section id="how-to-pray" class="mb-20 scroll-mt-8">
+  <div class="mb-10 max-w-3xl border-l-4 border-gold pl-5 md:pl-7">
+    <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-rubric mb-2">
+      Chapter 1 &middot; Step by Step
+    </p>
+    <h2 class="font-ovo text-navy text-3xl md:text-4xl mb-3">
+      The Beads in Your Hand
+    </h2>
+    <p class="font-work-sans text-brown text-lg leading-relaxed">
+      Follow the beads. Select any part of the rosary, or walk through the ten
+      steps in order&mdash;each one shows you exactly what to pray.
+    </p>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+    <!-- Interactive rosary diagram -->
+    <div class="bg-navy rounded-lg shadow-ornate p-4 md:p-6 lg:sticky lg:top-6">
+      <svg
+        viewBox="0 0 420 560"
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-full max-w-sm mx-auto select-none"
+        role="img"
+        aria-label="Diagram of a rosary showing which beads belong to the selected step"
+      >
+        <!-- Loop chain -->
+        <circle
+          cx="210"
+          cy="185"
+          r="148"
+          fill="none"
+          stroke="#b18b49"
+          stroke-opacity="0.35"
+          stroke-width="1.5"
+        />
+        <!-- Pendant chain -->
+        <line
+          x1="210"
+          y1="333"
+          x2="210"
+          y2="490"
+          stroke="#b18b49"
+          stroke-opacity="0.35"
+          stroke-width="1.5"
+        />
+        
+<!-- Loop beads -->
+        <%= for bead <- @loop_beads do %>
+          <circle
+            cx={bead.x}
+            cy={bead.y}
+            r={bead.r}
+            phx-click="select-step"
+            phx-value-step={step_for_bead(bead.key)}
+            class={[
+              "cursor-pointer transition-all duration-300",
+              if(bead_active?(@steps, @selected_step, bead.key),
+                do: "fill-gold stroke-gold-light",
+                else: "fill-navy-light stroke-gold/40 hover:fill-navy-light hover:stroke-gold"
+              )
+            ]}
+            stroke-width="1.5"
+          />
+        <% end %>
+        
+<!-- Centerpiece medal -->
+        <g
+          phx-click="select-step"
+          phx-value-step={if @selected_step >= 8, do: 9, else: 5}
+          class="cursor-pointer"
+        >
+          <ellipse
+            cx="210"
+            cy="333"
+            rx="12"
+            ry="15"
+            class={[
+              "transition-all duration-300",
+              if(bead_active?(@steps, @selected_step, "medal"),
+                do: "fill-gold stroke-gold-light",
+                else: "fill-navy-light stroke-gold/40 hover:stroke-gold"
+              )
+            ]}
+            stroke-width="1.5"
+          />
+          <text
+            x="210"
+            y="338"
+            text-anchor="middle"
+            class={[
+              "font-ovo text-[11px] pointer-events-none transition-all duration-300",
+              if(bead_active?(@steps, @selected_step, "medal"),
+                do: "fill-navy",
+                else: "fill-gold/70"
+              )
+            ]}
+          >
+            M
+          </text>
+        </g>
+        
+<!-- Pendant beads: Glory Be bead nearest the medal -->
+        <circle
+          cx="210"
+          cy="372"
+          r="8.5"
+          phx-click="select-step"
+          phx-value-step="4"
+          class={[
+            "cursor-pointer transition-all duration-300",
+            if(bead_active?(@steps, @selected_step, "of2"),
+              do: "fill-gold stroke-gold-light",
+              else: "fill-navy-light stroke-gold/40 hover:stroke-gold"
+            )
+          ]}
+          stroke-width="1.5"
+        />
+        <%= for y <- [396, 418, 440] do %>
+          <circle
+            cx="210"
+            cy={y}
+            r="6"
+            phx-click="select-step"
+            phx-value-step="3"
+            class={[
+              "cursor-pointer transition-all duration-300",
+              if(bead_active?(@steps, @selected_step, "hm3"),
+                do: "fill-gold stroke-gold-light",
+                else: "fill-navy-light stroke-gold/40 hover:stroke-gold"
+              )
+            ]}
+            stroke-width="1.5"
+          />
+        <% end %>
+        <circle
+          cx="210"
+          cy="464"
+          r="8.5"
+          phx-click="select-step"
+          phx-value-step="2"
+          class={[
+            "cursor-pointer transition-all duration-300",
+            if(bead_active?(@steps, @selected_step, "of1"),
+              do: "fill-gold stroke-gold-light",
+              else: "fill-navy-light stroke-gold/40 hover:stroke-gold"
+            )
+          ]}
+          stroke-width="1.5"
+        />
+        
+<!-- Crucifix -->
+        <g
+          phx-click="select-step"
+          phx-value-step={if @selected_step >= 9, do: 10, else: 1}
+          class="cursor-pointer"
+        >
+          <rect
+            x="206"
+            y="490"
+            width="8"
+            height="58"
+            rx="2"
+            class={[
+              "transition-all duration-300",
+              if(bead_active?(@steps, @selected_step, "crucifix"),
+                do: "fill-gold stroke-gold-light",
+                else: "fill-navy-light stroke-gold/40 hover:stroke-gold"
+              )
+            ]}
+            stroke-width="1.5"
+          />
+          <rect
+            x="188"
+            y="504"
+            width="44"
+            height="8"
+            rx="2"
+            class={[
+              "transition-all duration-300",
+              if(bead_active?(@steps, @selected_step, "crucifix"),
+                do: "fill-gold stroke-gold-light",
+                else: "fill-navy-light stroke-gold/40 hover:stroke-gold"
+              )
+            ]}
+            stroke-width="1.5"
+          />
+        </g>
+        
+<!-- Decade labels inside the ring (first decade runs clockwise from the medal) -->
+        <text
+          x="278"
+          y="281"
+          text-anchor="middle"
+          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+        >
+          1st
+        </text>
+        <text
+          x="319"
+          y="153"
+          text-anchor="middle"
+          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+        >
+          2nd
+        </text>
+        <text
+          x="210"
+          y="74"
+          text-anchor="middle"
+          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+        >
+          3rd
+        </text>
+        <text
+          x="101"
+          y="153"
+          text-anchor="middle"
+          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+        >
+          4th
+        </text>
+        <text
+          x="142"
+          y="281"
+          text-anchor="middle"
+          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+        >
+          5th
+        </text>
+      </svg>
+
+      <div class="flex items-center justify-between gap-4 mt-4 px-2">
+        <button
+          type="button"
+          phx-click="prev-step"
+          disabled={@selected_step == 1}
+          class="px-5 py-2 font-work-sans text-sm tracking-wide rounded border border-gold/50 text-gold-light hover:border-gold hover:text-gold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
+        <span class="font-work-sans text-xs tracking-[0.25em] uppercase text-gold-light/70">
+          Step {@selected_step} of {length(@steps)}
+        </span>
+        <button
+          type="button"
+          phx-click="next-step"
+          disabled={@selected_step == length(@steps)}
+          class="px-5 py-2 font-work-sans text-sm tracking-wide rounded bg-gold text-navy-dark hover:bg-gold-light transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+    
+<!-- Step panel -->
+    <div>
+      <!-- Step selector pills -->
+      <div class="flex flex-wrap gap-1.5 mb-6" role="tablist" aria-label="Steps of the Rosary">
+        <%= for step <- @steps do %>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={to_string(step.id == @selected_step)}
+            phx-click="select-step"
+            phx-value-step={step.id}
+            class={[
+              "w-9 h-9 rounded-full font-ovo text-sm transition-all duration-300 border",
+              if(step.id == @selected_step,
+                do: "bg-navy text-gold border-navy shadow-md scale-110",
+                else: "bg-white text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
+              )
+            ]}
+          >
+            {step.id}
+          </button>
+        <% end %>
+      </div>
+
+      <% step = current_step(@steps, @selected_step) %>
+      <div class="border-t-2 border-gold/50 pt-6">
+        <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-rubric mb-2">
+          Step {step.id}
+        </p>
+        <h3 class="font-ovo text-navy text-2xl md:text-3xl mb-4">
+          {step.title}
+        </h3>
+        <p class="font-work-sans text-brown text-base md:text-lg leading-relaxed mb-6 max-w-[60ch]">
+          {step.instruction}
+        </p>
+
+        <%= for prayer <- step.prayers do %>
+          <div class="mb-6 last:mb-0">
+            <p class="font-work-sans text-xs tracking-[0.2em] uppercase text-gold-dark mb-2">
+              {prayer.name}
+            </p>
+            <blockquote class="border-l-3 border-gold pl-5 font-garamond text-lg md:text-xl leading-relaxed text-navy max-w-[60ch]">
+              {prayer.text}
+            </blockquote>
+          </div>
+        <% end %>
+
+        <%= if step.note do %>
+          <p class="mt-6 font-garamond italic text-brown leading-relaxed max-w-[60ch]">
+            <span class="text-gold not-italic mr-2" aria-hidden="true">&#10022;</span>{step.note}
+          </p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

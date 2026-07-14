@@ -1,0 +1,36 @@
+<section id="promises" class="mb-16 scroll-mt-8">
+  <div class="relative bg-navy rounded-lg shadow-ornate overflow-hidden border-y-3 border-gold">
+    <div class="absolute inset-0 opacity-[0.05]" aria-hidden="true">
+      <img
+        src="/images/ornate-blue-gold-bg-symbols.jpg"
+        alt=""
+        class="w-full h-full object-cover"
+      />
+    </div>
+
+    <div class="relative p-8 md:p-12">
+      <div class="text-center mb-10">
+        <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold-light/70 mb-3">
+          Handed Down by Tradition
+        </p>
+        <h2 class="font-ovo text-gold text-4xl md:text-5xl mb-4">
+          The Fifteen Promises of the Rosary
+        </h2>
+        <p class="font-work-sans text-gold-light text-lg max-w-2xl mx-auto leading-relaxed">
+          According to a tradition cherished by the Church, Our Lady made these
+          fifteen promises to those devoted to her Rosary, given through
+          St. Dominic and Blessed Alan de la Roche.
+        </p>
+      </div>
+
+      <ol class="grid md:grid-cols-2 gap-x-10 max-w-4xl mx-auto">
+        <%= for {promise, index} <- Enum.with_index(@promises, 1) do %>
+          <li class="flex items-baseline gap-4 py-3.5 border-b border-gold/15">
+            <span class="font-ovo text-gold text-xl w-8 shrink-0 text-right">{index}.</span>
+            <span class="font-garamond text-gold-light text-lg leading-relaxed">{promise}</span>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+  </div>
+</section>

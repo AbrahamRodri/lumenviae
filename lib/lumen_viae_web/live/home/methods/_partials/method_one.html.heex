@@ -1,0 +1,99 @@
+<section id="method-i" class="mb-16 scroll-mt-8">
+  <div class="mb-10 max-w-3xl border-l-4 border-gold pl-5 md:pl-7">
+    <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-rubric mb-2">
+      Chapter 2 &middot; Method I
+    </p>
+    <h2 class="font-ovo text-navy text-3xl md:text-4xl">
+      The Offering of Each Decade
+    </h2>
+  </div>
+
+  <div class="mb-12 max-w-[70ch]">
+    <p class="font-work-sans text-brown text-base md:text-lg leading-relaxed mb-6">
+      <strong>FIRST,</strong>
+      say the "Come, Holy Ghost" . . . and then make your <strong>OFFERING OF THE ROSARY:</strong>
+    </p>
+
+    <blockquote class="border-l-3 border-gold pl-6 mb-6 font-garamond text-lg md:text-xl leading-relaxed text-navy">
+      I unite myself with all the Saints in Heaven, and with all the just on earth;
+      I unite myself with Thee, my Jesus, in order to praise Thy Holy Mother worthily
+      and to praise Thee in her and by her. I renounce all the distractions that may
+      come to me while I am saying this Rosary.
+    </blockquote>
+
+    <blockquote class="border-l-3 border-gold pl-6 mb-6 font-garamond text-lg md:text-xl leading-relaxed text-navy">
+      Oh, Blessed Virgin Mary, we offer thee this Creed in order to honor the faith
+      that thou didst have upon earth and to ask thee to have us share in the same faith.
+    </blockquote>
+
+    <blockquote class="border-l-3 border-gold pl-6 mb-6 font-garamond text-lg md:text-xl leading-relaxed text-navy">
+      Oh Lord; we offer Thee this Our Father so as to adore Thee in Thy oneness and
+      to recognize Thee as the first cause and the last end of all things.
+    </blockquote>
+
+    <blockquote class="border-l-3 border-gold pl-6 font-garamond text-lg md:text-xl leading-relaxed text-navy">
+      Most Holy Trinity, we offer Thee these three Hail Marys so as to thank Thee for
+      all the graces which Thou hast given to Mary and those which Thou hast given us
+      through her intercession.
+    </blockquote>
+  </div>
+  
+<!-- How to Offer Each Decade -->
+  <div class="mb-8">
+    <h3 class="font-ovo text-navy text-3xl text-center mb-6">
+      How to Offer Each Decade
+    </h3>
+    <p class="font-work-sans text-brown text-base md:text-lg leading-relaxed max-w-[65ch] mx-auto text-center mb-8">
+      St. Louis de Montfort composed an offering and a grace petition for all
+      fifteen decades of the traditional Rosary. Choose a set of mysteries below.
+    </p>
+
+    <div class="flex flex-wrap justify-center gap-2 mb-8" role="tablist" aria-label="Mystery sets">
+      <%= for set_id <- method_set_order() do %>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={to_string(set_id == @method_set)}
+          phx-click="select-method-set"
+          phx-value-set={set_id}
+          class={[
+            "px-5 py-2 rounded-full font-ovo tracking-wide transition-all duration-300 border",
+            if(set_id == @method_set,
+              do: "bg-navy text-gold border-navy shadow-md",
+              else: "bg-white text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
+            )
+          ]}
+        >
+          {@method_one[set_id].name}
+        </button>
+      <% end %>
+    </div>
+
+    <h4 class="font-ovo text-gold text-2xl mb-6">
+      {@method_one[@method_set].name}
+    </h4>
+
+    <div class="space-y-10">
+      <%= for decade <- @method_one[@method_set].decades do %>
+        <div class="max-w-[70ch] border-b border-gold/25 pb-10 last:border-b-0 last:pb-0">
+          <p class="font-work-sans text-[0.7rem] tracking-[0.25em] uppercase text-rubric mb-1">
+            {decade.number}
+          </p>
+          <h5 class="font-ovo text-navy text-xl md:text-2xl mb-4">
+            {decade.mystery}
+          </h5>
+          <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed mb-4">
+            {decade.offering}
+          </p>
+          <p class="font-work-sans text-[0.7rem] tracking-[0.2em] uppercase text-gold-dark mb-4">
+            One Our Father, ten Hail Marys, Glory be to the Father . . .
+          </p>
+          <p class="font-garamond text-navy italic text-lg md:text-xl leading-relaxed">
+            <span class="text-gold not-italic mr-2" aria-hidden="true">&#10022;</span>
+            {decade.grace}
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
