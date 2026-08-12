@@ -18,7 +18,13 @@ defmodule LumenViae.Meditations.Filtering do
       mystery name, and content
   """
 
-  @category_order %{"joyful" => 0, "sorrowful" => 1, "glorious" => 2, "seven_sorrows" => 3}
+  @category_order %{
+    "joyful" => 0,
+    "sorrowful" => 1,
+    "glorious" => 2,
+    "luminous" => 3,
+    "seven_sorrows" => 4
+  }
 
   def available_authors(meditations) do
     meditations

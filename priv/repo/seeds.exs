@@ -168,6 +168,54 @@ mysteries_data = [
     scripture_reference: "Revelation 12:1-6"
   },
 
+  # Luminous Mysteries
+  #
+  # Proposed by Pope St. John Paul II in 2002 and prayed on Thursdays under
+  # the modern schedule. The app's daily recommendation keeps the traditional
+  # schedule (Thursday remains Joyful), so these are browsable rather than
+  # auto-recommended - see LumenViae.LiturgicalCalendar.
+  %{
+    name: "The Baptism of Jesus",
+    category: "luminous",
+    order: 1,
+    days_prayed: "Thursdays (modern schedule)",
+    description: "Jesus is baptized in the Jordan and the voice of the Father is heard.",
+    scripture_reference: "Matthew 3:13-17"
+  },
+  %{
+    name: "The Wedding at Cana",
+    category: "luminous",
+    order: 2,
+    days_prayed: "Thursdays (modern schedule)",
+    description: "At Mary's request, Jesus works His first sign and changes water into wine.",
+    scripture_reference: "John 2:1-11"
+  },
+  %{
+    name: "The Proclamation of the Kingdom",
+    category: "luminous",
+    order: 3,
+    days_prayed: "Thursdays (modern schedule)",
+    description: "Jesus proclaims the Kingdom of God and calls all men to conversion.",
+    scripture_reference: "Mark 1:14-15"
+  },
+  %{
+    name: "The Transfiguration",
+    category: "luminous",
+    order: 4,
+    days_prayed: "Thursdays (modern schedule)",
+    description:
+      "Jesus is transfigured in glory upon the mountain before Peter, James, and John.",
+    scripture_reference: "Luke 9:28-36"
+  },
+  %{
+    name: "The Institution of the Eucharist",
+    category: "luminous",
+    order: 5,
+    days_prayed: "Thursdays (modern schedule)",
+    description: "Jesus gives His Body and Blood under the appearances of bread and wine.",
+    scripture_reference: "Matthew 26:26-28"
+  },
+
   # Seven Sorrows of Mary
   %{
     name: "The Prophecy of Simeon",

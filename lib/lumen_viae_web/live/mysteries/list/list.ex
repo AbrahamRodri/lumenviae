@@ -3,7 +3,7 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
   alias LumenViae.Constants
   alias LumenViae.Rosary
 
-  @categories ~w(joyful sorrowful glorious seven_sorrows)
+  @categories ~w(joyful sorrowful glorious luminous seven_sorrows)
 
   def mount(_params, _session, socket) do
     {:ok,

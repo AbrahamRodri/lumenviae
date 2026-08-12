@@ -117,7 +117,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
   defp parse_filters(params) do
     %{
       query: String.trim(params["q"] || ""),
-      category: allowed(params["category"], ~w(joyful sorrowful glorious seven_sorrows)),
+      category: allowed(params["category"], ~w(joyful sorrowful glorious luminous seven_sorrows)),
       label: allowed(params["label"], Labels.vocabulary()),
       visibility: allowed(params["visibility"], ~w(visible hidden)),
       completeness: allowed(params["completeness"], ~w(complete incomplete empty)),

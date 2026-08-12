@@ -41,8 +41,8 @@
         </div>
       </div>
     </header>
-
-    <!-- Today's devotion: the altar card -->
+    
+<!-- Today's devotion: the altar card -->
     <section
       class="relative bg-navy-light border border-gold/30 rounded-lg overflow-hidden mb-8 shadow-ornate animate-rise"
       style="animation-delay: 300ms"
@@ -59,8 +59,8 @@
             {@recommended_set.title}
           </h2>
         </div>
-
-        <!-- The five mysteries -->
+        
+<!-- The five mysteries -->
         <ol class="max-w-md mx-auto mb-10 space-y-0">
           <%= for {mystery, index} <- Enum.with_index(@recommended_set.mysteries, 1) do %>
             <li class="flex items-baseline gap-4 py-2.5 border-b border-gold/15 last:border-b-0">
@@ -73,8 +73,8 @@
             </li>
           <% end %>
         </ol>
-
-        <!-- Choose meditations, straight into prayer -->
+        
+<!-- Choose meditations, straight into prayer -->
         <%= if @todays_meditation_sets == [] do %>
           <div class="text-center">
             <p class="font-garamond text-lg text-gold-light italic mb-5">
@@ -140,8 +140,8 @@
         <% end %>
       </div>
     </section>
-
-    <!-- Other devotions -->
+    
+<!-- Other devotions -->
     <section class="mb-8 animate-rise" style="animation-delay: 400ms" aria-label="Other devotions">
       <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold-light/50 text-center mb-4">
         Other Devotions
@@ -174,6 +174,27 @@
         <% end %>
 
         <.link
+          navigate={@luminous.path}
+          class="group flex items-center gap-4 rounded-lg bg-white/5 border border-gold/15 px-5 py-4 hover:border-gold/60 hover:bg-gold/5 transition-all duration-300"
+        >
+          <span class="font-ovo text-gold/50 text-lg w-6 text-center shrink-0">IV</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-ovo text-base text-cream/90 group-hover:text-gold-light transition-colors">
+              {@luminous.title}
+            </p>
+            <p class="font-work-sans text-xs text-gold-light/50">
+              {@luminous.schedule}
+            </p>
+          </div>
+          <span
+            class="font-work-sans text-xs text-gold/50 group-hover:text-gold group-hover:translate-x-0.5 transition-all shrink-0"
+            aria-hidden="true"
+          >
+            &rarr;
+          </span>
+        </.link>
+
+        <.link
           navigate={@seven_sorrows.path}
           class="group flex items-center gap-4 rounded-lg bg-white/5 border border-gold/15 px-5 py-4 hover:border-gold/60 hover:bg-gold/5 transition-all duration-300"
         >
@@ -195,8 +216,8 @@
         </.link>
       </div>
     </section>
-
-    <!-- Study links -->
+    
+<!-- Study links -->
     <footer
       class="flex justify-center gap-8 pt-2 pb-6 animate-rise"
       style="animation-delay: 500ms"

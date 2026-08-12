@@ -55,6 +55,13 @@ The following mystery names are available (must match exactly):
 - The Assumption
 - The Coronation of Mary
 
+**Luminous Mysteries:**
+- The Baptism of Jesus
+- The Wedding at Cana
+- The Proclamation of the Kingdom
+- The Transfiguration
+- The Institution of the Eucharist
+
 **Seven Sorrows:**
 - The Prophecy of Simeon
 - The Flight into Egypt

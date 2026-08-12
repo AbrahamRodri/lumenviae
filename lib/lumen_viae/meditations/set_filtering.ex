@@ -17,7 +17,13 @@ defmodule LumenViae.Meditations.SetFiltering do
     * `:query` - case-insensitive match against name, description, and labels
   """
 
-  @category_order %{"joyful" => 0, "sorrowful" => 1, "glorious" => 2, "seven_sorrows" => 3}
+  @category_order %{
+    "joyful" => 0,
+    "sorrowful" => 1,
+    "glorious" => 2,
+    "luminous" => 3,
+    "seven_sorrows" => 4
+  }
 
   @doc """
   Number of meditations a set of the given category is expected to hold.

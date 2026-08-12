@@ -3,7 +3,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
   alias LumenViae.Rosary
 
   def mount(%{"category" => category}, _session, socket) do
-    if category in ["joyful", "sorrowful", "glorious", "seven_sorrows"] do
+    if category in ["joyful", "sorrowful", "glorious", "luminous", "seven_sorrows"] do
       meditation_sets = Rosary.list_visible_meditation_sets_by_category(category)
 
       {:ok,
@@ -19,11 +19,13 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
   defp category_title("joyful"), do: "The Joyful Mysteries"
   defp category_title("sorrowful"), do: "The Sorrowful Mysteries"
   defp category_title("glorious"), do: "The Glorious Mysteries"
+  defp category_title("luminous"), do: "The Luminous Mysteries"
   defp category_title("seven_sorrows"), do: "The Seven Sorrows of Mary"
 
   defp category_days("joyful"), do: "Mondays and Thursdays"
   defp category_days("sorrowful"), do: "Tuesdays and Fridays"
   defp category_days("glorious"), do: "Wednesdays, Saturdays, and Sundays"
+  defp category_days("luminous"), do: "Thursdays in the modern schedule"
   defp category_days("seven_sorrows"), do: "Fridays in Lent and September 15th"
 
   defp category_epigraph("joyful"),
@@ -34,6 +36,9 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
 
   defp category_epigraph("glorious"),
     do: {"He is not here, but is risen.", "Luke 24:6"}
+
+  defp category_epigraph("luminous"),
+    do: {"This is my beloved Son, in whom I am well pleased: hear ye him.", "Matthew 17:5"}
 
   defp category_epigraph("seven_sorrows"),
     do: {"And thy own soul a sword shall pierce.", "Luke 2:35"}

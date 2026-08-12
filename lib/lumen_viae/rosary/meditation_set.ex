@@ -22,7 +22,13 @@ defmodule LumenViae.Rosary.MeditationSet do
     meditation_set
     |> cast(attrs, [:name, :category, :description, :labels])
     |> validate_required([:name, :category])
-    |> validate_inclusion(:category, ["joyful", "sorrowful", "glorious", "seven_sorrows"])
+    |> validate_inclusion(:category, [
+      "joyful",
+      "sorrowful",
+      "glorious",
+      "luminous",
+      "seven_sorrows"
+    ])
     |> normalize_labels()
     |> validate_subset(:labels, Labels.vocabulary(),
       message: "contains a label outside the managed vocabulary"

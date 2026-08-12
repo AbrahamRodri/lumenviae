@@ -54,6 +54,16 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
     }
   ]
 
+  # Categories outside the weekly rotation. They are browsable from the
+  # dashboard but never returned by LiturgicalCalendar.recommended_mysteries/1,
+  # which follows the traditional schedule (Thursday stays Joyful).
+  @luminous %{
+    title: "The Luminous Mysteries",
+    short_title: "Luminous",
+    schedule: "Thursdays in the modern schedule",
+    path: "/mysteries/luminous"
+  }
+
   @seven_sorrows %{
     title: "The Seven Sorrows of Mary",
     short_title: "Seven Sorrows",
@@ -82,6 +92,7 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
      |> assign(:page_title, "Prayer Dashboard")
      |> assign(:mystery_sets, mystery_sets)
      |> assign(:meditation_sets, meditation_sets)
+     |> assign(:luminous, @luminous)
      |> assign(:seven_sorrows, @seven_sorrows)
      |> assign(:today, today)
      |> assign_recommended_set(today)}

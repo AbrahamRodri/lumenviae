@@ -3,7 +3,8 @@
     <div class="bg-white border-l-4 border-gold p-6 mb-8">
       <h3 class="font-cinzel text-xl text-navy mb-2">Current Mystery</h3>
       <p class="font-crimson text-gray-800">
-        {@mystery.name} ({String.capitalize(@mystery.category)} - {if @mystery.order, do: "#{@mystery.order}th Mystery"})
+        {@mystery.name} ({String.capitalize(@mystery.category)} - {if @mystery.order,
+          do: "#{@mystery.order}th Mystery"})
       </p>
     </div>
 
@@ -46,7 +47,13 @@
               <option value="glorious" selected={@edit_form[:category].value == "glorious"}>
                 Glorious Mysteries
               </option>
-              <option value="seven_sorrows" selected={@edit_form[:category].value == "seven_sorrows"}>
+              <option value="luminous" selected={@edit_form[:category].value == "luminous"}>
+                Luminous Mysteries
+              </option>
+              <option
+                value="seven_sorrows"
+                selected={@edit_form[:category].value == "seven_sorrows"}
+              >
                 Seven Sorrows of Mary
               </option>
             </select>

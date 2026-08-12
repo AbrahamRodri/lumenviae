@@ -7,6 +7,7 @@ defmodule LumenViae.Constants do
     {"Joyful Mysteries", "joyful"},
     {"Sorrowful Mysteries", "sorrowful"},
     {"Glorious Mysteries", "glorious"},
+    {"Luminous Mysteries", "luminous"},
     {"Seven Sorrows of Mary", "seven_sorrows"}
   ]
 
@@ -21,6 +22,7 @@ defmodule LumenViae.Constants do
       "joyful" -> "Joyful Mysteries"
       "sorrowful" -> "Sorrowful Mysteries"
       "glorious" -> "Glorious Mysteries"
+      "luminous" -> "Luminous Mysteries"
       "seven_sorrows" -> "Seven Sorrows of Mary"
       _ -> category
     end

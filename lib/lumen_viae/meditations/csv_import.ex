@@ -39,7 +39,7 @@ defmodule LumenViae.Meditations.CsvImport do
     * `set_name` - find-or-create a meditation set with this name and attach
       the row's meditation to it
     * `set_category` - required when the set does not exist yet; one of
-      joyful, sorrowful, glorious, seven_sorrows
+      joyful, sorrowful, glorious, luminous, seven_sorrows
     * `set_description` - set description (used on create only)
     * `set_labels` - pipe-separated labels from the managed vocabulary
       (see `LumenViae.Rosary.Labels`); order matters, the first label is the
