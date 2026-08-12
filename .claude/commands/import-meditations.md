@@ -47,6 +47,11 @@ only wants to test database writes.
    same command without `dry_run: true`.
 6. Remind the user to verify at www.lumenviae.org/admin.
 
-Machines auto-stop (min_machines_running = 0): if ssh fails to connect,
-start a machine first with `fly machine start`. Steps 3-5 must run against
-the same machine since /tmp is per-machine.
+Machines stay on (fly.toml sets auto_stop_machines = 'off' and
+min_machines_running = 1), so ssh should connect without starting one.
+Steps 3-5 must still run against the same machine since /tmp is
+per-machine.
+
+For general prod inspection and edits outside imports, see
+docs/PROD_ACCESS.md - the default is a remote IEx shell
+(`/app/bin/lumen_viae remote`) using the app's context modules.
