@@ -38,15 +38,24 @@ fly ssh console --app lumenviae
 This attaches to the running node. `Ctrl+C Ctrl+C` detaches. Detaching does
 not stop the app, but do not run `System.halt/0` - that kills the node.
 
-For a single command without an interactive session:
+For a single command without an interactive session, use `rpc`, which runs
+the expression on the running node with the application (and the Repo)
+already started:
 
 ```
-fly ssh console --app lumenviae -C "/app/bin/lumen_viae eval 'IO.inspect(LumenViae.Rosary.count_meditations())'"
+fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'IO.inspect(LumenViae.Rosary.count_meditations())'"
 ```
 
-Note `eval` starts a *separate* node and does not touch the running one;
-`remote` attaches to the live node. Prefer `eval` for one-off reads and
+`eval` is different: it boots a separate node WITHOUT starting the
+application, so context functions crash there with "could not lookup Ecto
+repo LumenViae.Repo because it was not started". Use `eval` only for the
+`LumenViae.Release.*` tasks, which start the repo themselves via
+`Ecto.Migrator.with_repo`. For everything else: `rpc` for one-off reads,
 `remote` for exploration.
+
+If the app ever runs more than one machine, pin commands to a specific one
+with `--machine <id>` (`fly machine list` shows ids) - /tmp and shell state
+are per-machine.
 
 ## Reports (read-only)
 
@@ -105,7 +114,14 @@ work. It exists for this and goes through the same validations.
 
 Use the shell only when the admin UI cannot express the change. When you do:
 
-1. Confirm a recent snapshot exists (`fly volumes snapshots list`).
+1. Confirm a recent snapshot exists on the Postgres app's volume (the
+   lumenviae app itself has no volumes, and the snapshots subcommand
+   requires a volume id):
+
+   ```
+   fly volumes list --app <postgres-app-name>
+   fly volumes snapshots list <volume-id> --app <postgres-app-name>
+   ```
 2. Read the current value first, so the change can be reversed by hand.
 3. Go through a context function or a changeset, never `Repo.update_all/2`
    or raw SQL, unless the change genuinely has no changeset path.
@@ -151,14 +167,36 @@ and use a read-only role rather than the app's credentials:
 fly proxy 15432:5432 --app <postgres-app-name>
 ```
 
+First confirm the actual database and app-role names rather than assuming
+them (Fly Postgres may name the database after the app, e.g. `lumenviae`):
+
 ```sql
-CREATE ROLE claude_ro LOGIN PASSWORD '...';
-GRANT CONNECT ON DATABASE lumen_viae TO claude_ro;
-GRANT USAGE ON SCHEMA public TO claude_ro;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO claude_ro;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO claude_ro;
+\l
+SELECT current_database(), current_user;
 ```
 
-Keep that connection string in `.env` (gitignored, untracked) and reference
-it as `$DATABASE_RO_URL` so the value stays out of shell history and
-transcripts.
+Then, substituting the confirmed names:
+
+```sql
+CREATE ROLE claude_ro LOGIN PASSWORD '...';
+GRANT CONNECT ON DATABASE <database> TO claude_ro;
+GRANT USAGE ON SCHEMA public TO claude_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO claude_ro;
+ALTER DEFAULT PRIVILEGES FOR ROLE <app-role> IN SCHEMA public
+  GRANT SELECT ON TABLES TO claude_ro;
+```
+
+The `FOR ROLE <app-role>` clause matters: without it, the default applies
+only to tables created by the admin role running the statement. Tables
+created by future migrations run as the app's DATABASE_URL role, so
+omitting the clause leaves every new table unreadable by claude_ro.
+
+Do NOT put the connection string in `.env`: dev.sh exports every line of
+that file into each local dev server's environment, which would hand prod
+credentials to the dev app (and its `export $(cat .env | xargs)` mangles
+values containing spaces). Keep it in a separate gitignored file such as
+`.env.prod-ro` and source it only in the shell session doing the reporting:
+
+```
+source .env.prod-ro && psql "$DATABASE_RO_URL" -c '...'
+```

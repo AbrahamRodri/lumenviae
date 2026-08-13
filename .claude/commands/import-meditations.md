@@ -50,7 +50,17 @@ only wants to test database writes.
 Machines stay on (fly.toml sets auto_stop_machines = 'off' and
 min_machines_running = 1), so ssh should connect without starting one.
 Steps 3-5 must still run against the same machine since /tmp is
-per-machine.
+per-machine. With more than one machine running, pin every step to the
+same one: `fly machine list` for the id, then add `--machine <id>` to
+both `fly ssh sftp shell` and `fly ssh console`.
+
+Known limitation: audio generation fails under `bin/lumen_viae eval`
+because the HTTP client applications (req, ex_aws, hackney) are not
+started in that environment - the first audio row crashes the import
+after earlier rows were already written. Until LumenViae.Release starts
+those apps, run audio-generating imports through the admin UI at
+/admin/meditations/import; `dry_run: true` and `skip_audio: true` are
+safe under eval.
 
 For general prod inspection and edits outside imports, see
 docs/PROD_ACCESS.md - the default is a remote IEx shell
