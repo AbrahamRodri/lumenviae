@@ -48,6 +48,7 @@ defmodule LumenViae.Release do
   """
   def import_csv(path, opts \\ []) do
     load_app()
+    start_audio_clients()
 
     for repo <- repos() do
       {:ok, _, _} =
@@ -77,6 +78,7 @@ defmodule LumenViae.Release do
   """
   def regenerate_audio(opts) do
     load_app()
+    start_audio_clients()
 
     target =
       case {opts[:set], opts[:id]} do
@@ -124,5 +126,17 @@ defmodule LumenViae.Release do
     # Many platforms require SSL when connecting to the database
     Application.ensure_all_started(:ssl)
     Application.ensure_loaded(@app)
+  end
+
+  # `bin/lumen_viae eval` boots a bare node with no applications started,
+  # but the audio pipeline needs Req (ElevenLabs) and ExAws over hackney
+  # (S3 uploads). Without these, the first audio row would crash the eval
+  # node with a noproc instead of degrading to a warning.
+  defp start_audio_clients do
+    for app <- [:req, :ex_aws, :hackney] do
+      {:ok, _} = Application.ensure_all_started(app)
+    end
+
+    :ok
   end
 end

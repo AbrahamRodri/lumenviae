@@ -15,6 +15,7 @@ kill_signal = 'SIGTERM'
 [env]
   PHX_HOST = 'www.lumenviae.org'
   PORT = '8080'
+  POOL_SIZE = '10'
 
 [http_service]
   internal_port = 8080
