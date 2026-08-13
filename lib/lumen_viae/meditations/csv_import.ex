@@ -179,16 +179,6 @@ defmodule LumenViae.Meditations.CsvImport do
     end
   end
 
-  @doc """
-  Same as `preview_string/1` but reads from a file path.
-  """
-  def preview_file(path) do
-    case File.read(path) do
-      {:ok, content} -> preview_string(content)
-      {:error, reason} -> {:error, "Failed to read file: #{inspect(reason)}"}
-    end
-  end
-
   defp preview_set_statuses(row_maps) do
     row_maps
     |> Enum.filter(&Map.get(&1, "set_name"))

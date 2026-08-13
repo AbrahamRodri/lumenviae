@@ -43,8 +43,6 @@ defmodule LumenViae.Audio.TtsText do
   @break_tag_regex ~r/<\s*break\b/i
   @paragraph_break_regex ~r/\s*\n\s*\n\s*/
 
-  def max_break_seconds, do: @max_break_seconds
-
   def default_paragraph_break_seconds do
     Application.get_env(
       :lumen_viae,

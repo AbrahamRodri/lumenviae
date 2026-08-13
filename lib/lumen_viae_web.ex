@@ -88,10 +88,8 @@ defmodule LumenViaeWeb do
       import Phoenix.HTML
       # Core UI components
       import LumenViaeWeb.CoreComponents
-      import LumenViaeWeb.Components.Scripture
       import LumenViaeWeb.Components.Nav
       import LumenViaeWeb.Components.AudioPlayer
-      import LumenViaeWeb.Components.MysteryCard
       import LumenViaeWeb.Components.Admin
 
       # Common modules used in templates

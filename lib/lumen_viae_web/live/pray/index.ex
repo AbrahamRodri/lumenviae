@@ -196,17 +196,4 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       socket
     end
   end
-
-  # TODO: Archived IP address extraction functions for future use
-  # Uncomment when re-enabling IP tracking
-  # defp get_ip_address(nil), do: nil
-  # defp get_ip_address(%{address: address}) do
-  #   case address do
-  #     {a, b, c, d} -> "#{a}.#{b}.#{c}.#{d}"
-  #     {a, b, c, d, e, f, g, h} ->
-  #       # IPv6 format (simplified)
-  #       "#{Integer.to_string(a, 16)}:#{Integer.to_string(b, 16)}:#{Integer.to_string(c, 16)}:#{Integer.to_string(d, 16)}:#{Integer.to_string(e, 16)}:#{Integer.to_string(f, 16)}:#{Integer.to_string(g, 16)}:#{Integer.to_string(h, 16)}"
-  #     _ -> nil
-  #   end
-  # end
 end

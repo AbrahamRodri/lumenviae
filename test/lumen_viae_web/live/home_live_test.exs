@@ -1,4 +1,4 @@
-defmodule LumenViaeWeb.PageControllerTest do
+defmodule LumenViaeWeb.HomeLiveTest do
   use LumenViaeWeb.ConnCase
 
   test "GET /", %{conn: conn} do

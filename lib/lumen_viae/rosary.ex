@@ -71,10 +71,6 @@ defmodule LumenViae.Rosary do
     |> Repo.preload([:mystery, meditation_sets: from(ms in MeditationSet, order_by: ms.id)])
   end
 
-  def list_meditations_by_mystery(mystery_id) do
-    Repo.all(from m in Meditation, where: m.mystery_id == ^mystery_id)
-  end
-
   def get_meditation!(id) do
     Repo.get!(Meditation, id) |> Repo.preload(:mystery)
   end
@@ -153,16 +149,6 @@ defmodule LumenViae.Rosary do
   # list queries keep a deterministic creation order.
   def list_meditation_sets do
     Repo.all(from ms in MeditationSet, order_by: [asc: ms.category, asc: ms.id])
-  end
-
-  def list_meditation_sets_with_meditations do
-    list_meditation_sets()
-    |> Repo.preload(:meditations)
-  end
-
-  def list_meditation_sets_by_category(category) do
-    Repo.all(from ms in MeditationSet, where: ms.category == ^category, order_by: [asc: ms.id])
-    |> Repo.preload(:meditations)
   end
 
   ## Visible Meditation Sets (public surfaces)

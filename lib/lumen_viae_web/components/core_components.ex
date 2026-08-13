@@ -266,31 +266,6 @@ defmodule LumenViaeWeb.CoreComponents do
     """
   end
 
-  @doc """
-  Renders a header with title.
-  """
-  attr :class, :string, default: nil
-
-  slot :inner_block, required: true
-  slot :subtitle
-  slot :actions
-
-  def header(assigns) do
-    ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", "pb-4", @class]}>
-      <div>
-        <h1 class="text-lg font-semibold leading-8">
-          {render_slot(@inner_block)}
-        </h1>
-        <p :if={@subtitle != []} class="text-sm text-base-content/70">
-          {render_slot(@subtitle)}
-        </p>
-      </div>
-      <div class="flex-none">{render_slot(@actions)}</div>
-    </header>
-    """
-  end
-
   @doc ~S"""
   Renders a table with generic styling.
 
@@ -460,28 +435,6 @@ defmodule LumenViaeWeb.CoreComponents do
   end
 
   @doc """
-  Renders an ornate header image/pattern.
-
-  ## Examples
-
-      <.ornate_header />
-  """
-  attr :class, :string, default: nil
-  attr :rest, :global
-
-  def ornate_header(assigns) do
-    ~H"""
-    <div class={["relative w-full h-48 overflow-hidden", @class]} {@rest}>
-      <img
-        src="/images/pngs/white-ornate.png"
-        alt=""
-        class="w-full h-full object-cover opacity-10"
-      />
-    </div>
-    """
-  end
-
-  @doc """
   Renders a religious medallion or symbol image.
 
   ## Examples
@@ -558,39 +511,6 @@ defmodule LumenViaeWeb.CoreComponents do
   defp medallion_bg_padding("small"), do: "p-2"
   defp medallion_bg_padding("medium"), do: "p-4"
   defp medallion_bg_padding("large"), do: "p-6"
-
-  @doc """
-  Renders a mystery icon as SVG.
-
-  ## Examples
-
-      <.mystery_icon icon="cross" class="w-6 h-6 text-gold" />
-  """
-  attr :icon, :string, required: true
-  attr :class, :string, default: "w-6 h-6"
-
-  def mystery_icon(assigns) do
-    ~H"""
-    <%= case @icon do %>
-      <% "cross" -> %>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class={@class}>
-          <path d="M10.5 2h3v7h7.5v3h-7.5v10h-3v-10h-7.5v-3h7.5z" />
-        </svg>
-      <% "star" -> %>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class={@class}>
-          <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6z" />
-        </svg>
-      <% "crown" -> %>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class={@class}>
-          <path d="M2 20h20v2H2v-2zm1.5-7l3.5 2 5-7 5 7 3.5-2-1.5 7H5l-1.5-7z" />
-        </svg>
-      <% _ -> %>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class={@class}>
-          <circle cx="12" cy="12" r="8" />
-        </svg>
-    <% end %>
-    """
-  end
 
   @doc """
   Translates an error message using gettext.
