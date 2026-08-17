@@ -3,6 +3,16 @@ defmodule LumenViaeWeb.Live.Home.LearnPagesTest do
 
   import Phoenix.LiveViewTest
 
+  # The phx-value-index of every devotion currently expanded in the
+  # true/false devotion accordion.
+  defp expanded_devotions(view) do
+    view
+    |> render()
+    |> Floki.parse_document!()
+    |> Floki.find("button[phx-click='toggle-devotion'][aria-expanded='true']")
+    |> Enum.flat_map(&Floki.attribute(&1, "phx-value-index"))
+  end
+
   describe "How to Pray the Rosary (/rosary-methods)" do
     test "renders the guide with the interactive first step", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/rosary-methods")
@@ -102,6 +112,24 @@ defmodule LumenViaeWeb.Live.Home.LearnPagesTest do
 
       assert false_html =~ "The Critical Devotees"
       assert false_html =~ "The Interested Devotees"
+    end
+
+    test "expands one devotion at a time", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/true-devotion")
+
+      assert expanded_devotions(view) == ["1"]
+
+      # Opening another mark closes the one that was open.
+      view |> element("button[phx-value-index='3']") |> render_click()
+      assert expanded_devotions(view) == ["3"]
+
+      # Clicking the open mark collapses it, leaving none expanded.
+      view |> element("button[phx-value-index='3']") |> render_click()
+      assert expanded_devotions(view) == []
+
+      # Switching tabs starts the new list from its first item.
+      view |> element("button[phx-value-tab='false']") |> render_click()
+      assert expanded_devotions(view) == ["1"]
     end
 
     test "selects preparation phases", %{conn: conn} do

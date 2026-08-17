@@ -252,7 +252,7 @@
     </div>
     
 <!-- Step panel -->
-    <div>
+    <div class="bg-white rounded-lg shadow-soft border border-gold/30 p-5 md:p-7">
       <!-- Step selector pills -->
       <div class="flex flex-wrap gap-1.5 mb-6" role="tablist" aria-label="Steps of the Rosary">
         <%= for step <- @steps do %>
@@ -266,7 +266,7 @@
               "w-9 h-9 rounded-full font-ovo text-sm transition-all duration-300 border",
               if(step.id == @selected_step,
                 do: "bg-navy text-gold border-navy shadow-md scale-110",
-                else: "bg-white text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
+                else: "bg-cream text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
               )
             ]}
           >
@@ -283,7 +283,7 @@
         <h3 class="font-ovo text-navy text-2xl md:text-3xl mb-4">
           {step.title}
         </h3>
-        <p class="font-work-sans text-brown text-base md:text-lg leading-relaxed mb-6 max-w-[60ch]">
+        <p class="font-work-sans text-brown text-base md:text-lg leading-[1.75] mb-6 max-w-[60ch]">
           {step.instruction}
         </p>
 
@@ -292,14 +292,14 @@
             <p class="font-work-sans text-xs tracking-[0.2em] uppercase text-gold-dark mb-2">
               {prayer.name}
             </p>
-            <blockquote class="border-l-3 border-gold pl-5 font-garamond text-lg md:text-xl leading-relaxed text-navy max-w-[60ch]">
+            <blockquote class="border-l-3 border-gold pl-5 font-garamond text-lg md:text-xl leading-[1.7] text-navy max-w-[60ch]">
               {prayer.text}
             </blockquote>
           </div>
         <% end %>
 
         <%= if step.note do %>
-          <p class="mt-6 font-garamond italic text-brown leading-relaxed max-w-[60ch]">
+          <p class="mt-6 font-garamond italic text-brown leading-[1.7] max-w-[60ch]">
             <span class="text-gold not-italic mr-2" aria-hidden="true">&#10022;</span>{step.note}
           </p>
         <% end %>

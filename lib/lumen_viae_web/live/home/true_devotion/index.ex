@@ -127,7 +127,7 @@ defmodule LumenViaeWeb.Live.Home.TrueDevotion.Index do
           "The Marian teaching of St. Louis de Montfort: to Jesus through Mary, the marks of true and false devotion, the total consecration with its 33-day preparation, and the remarkable story of the treatise itself."
       )
       |> assign(false_devotions: @false_devotions, true_marks: @true_marks)
-      |> assign(devotion_tab: "true")
+      |> assign(devotion_tab: "true", expanded_devotion: 1)
       |> assign(prep_phases: @prep_phases, prep_phase: "preliminary")
 
     {:ok, socket}
@@ -136,10 +136,21 @@ defmodule LumenViaeWeb.Live.Home.TrueDevotion.Index do
   @impl true
   def handle_event("select-devotion-tab", %{"tab" => tab}, socket)
       when tab in ["true", "false"] do
-    {:noreply, assign(socket, :devotion_tab, tab)}
+    {:noreply, assign(socket, devotion_tab: tab, expanded_devotion: 1)}
   end
 
   def handle_event("select-devotion-tab", _params, socket), do: {:noreply, socket}
+
+  def handle_event("toggle-devotion", %{"index" => index}, socket) do
+    case Integer.parse(index) do
+      {index, ""} ->
+        expanded = if socket.assigns.expanded_devotion == index, do: nil, else: index
+        {:noreply, assign(socket, :expanded_devotion, expanded)}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
 
   def handle_event("select-prep-phase", %{"phase" => phase}, socket) do
     valid? = Enum.any?(@prep_phases, &(&1.id == phase))

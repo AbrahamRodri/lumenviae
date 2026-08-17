@@ -6,14 +6,18 @@
     <h2 class="font-ovo text-navy text-4xl md:text-5xl mb-4">
       True and False Devotion
     </h2>
-    <p class="font-garamond text-brown text-lg md:text-xl max-w-2xl mx-auto leading-relaxed italic">
+    <p class="font-garamond text-brown text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
       Before teaching the true devotion, St. Louis unmasks seven counterfeit
       devotions to Our Lady, and then gives five marks by which the genuine
       devotion is known.
     </p>
   </div>
 
-  <div class="flex justify-center gap-2 mb-8" role="tablist" aria-label="True and false devotion">
+  <div
+    class="flex flex-wrap justify-center gap-2 mb-8"
+    role="tablist"
+    aria-label="True and false devotion"
+  >
     <button
       type="button"
       role="tab"
@@ -48,54 +52,54 @@
     </button>
   </div>
 
-  <%= if @devotion_tab == "false" do %>
-    <div class="grid md:grid-cols-2 gap-4">
-      <%= for {devotion, index} <- Enum.with_index(@false_devotions, 1) do %>
-        <details class="group bg-white rounded shadow-soft border-l-3 border-brown-light/40 hover:border-brown-light transition-all duration-300 open:shadow-ornate">
-          <summary class="flex items-baseline gap-4 p-5 cursor-pointer select-none">
-            <span class="font-ovo text-2xl text-brown-light/60 shrink-0">{index}</span>
-            <span class="font-ovo text-navy text-xl flex-1">{devotion.name}</span>
-            <span class="text-gold-dark text-xs uppercase tracking-wide group-open:hidden shrink-0">
-              Show
-            </span>
-            <span class="text-gold-dark text-xs uppercase tracking-wide hidden group-open:inline shrink-0">
-              Hide
-            </span>
-          </summary>
-          <p class="px-5 pb-5 pl-14 font-work-sans text-brown leading-relaxed">
-            {devotion.description}
-          </p>
-        </details>
-      <% end %>
-    </div>
-    <p class="text-center font-garamond italic text-brown-light mt-6">
-      True Devotion to the Blessed Virgin, nn. 92&ndash;104
-    </p>
-  <% else %>
-    <div class="grid md:grid-cols-2 gap-4">
-      <%= for {mark, index} <- Enum.with_index(@true_marks, 1) do %>
-        <details
-          class="group bg-white rounded shadow-soft border-l-3 border-gold/60 hover:border-gold transition-all duration-300 open:shadow-ornate"
-          open={index == 1}
+  <% {items, citation} =
+    if @devotion_tab == "false",
+      do: {@false_devotions, "nn. 92–104"},
+      else: {@true_marks, "nn. 105–110"} %>
+
+  <div class="max-w-3xl mx-auto space-y-3">
+    <%= for {item, index} <- Enum.with_index(items, 1) do %>
+      <% expanded? = @expanded_devotion == index %>
+      <div class={[
+        "bg-white rounded shadow-soft border-l-3 transition-all duration-300",
+        cond do
+          expanded? and @devotion_tab == "true" -> "border-gold shadow-ornate"
+          expanded? -> "border-brown-light shadow-ornate"
+          @devotion_tab == "true" -> "border-gold/50 hover:border-gold"
+          true -> "border-brown-light/40 hover:border-brown-light"
+        end
+      ]}>
+        <button
+          type="button"
+          phx-click="toggle-devotion"
+          phx-value-index={index}
+          aria-expanded={to_string(expanded?)}
+          aria-controls={"devotion-desc-#{@devotion_tab}-#{index}"}
+          class="w-full flex items-baseline gap-4 p-5 text-left cursor-pointer"
         >
-          <summary class="flex items-baseline gap-4 p-5 cursor-pointer select-none">
-            <span class="font-ovo text-2xl text-gold/70 shrink-0">{index}</span>
-            <span class="font-ovo text-navy text-xl flex-1">{mark.name}</span>
-            <span class="text-gold-dark text-xs uppercase tracking-wide group-open:hidden shrink-0">
-              Show
-            </span>
-            <span class="text-gold-dark text-xs uppercase tracking-wide hidden group-open:inline shrink-0">
-              Hide
-            </span>
-          </summary>
-          <p class="px-5 pb-5 pl-14 font-work-sans text-brown leading-relaxed">
-            {mark.description}
-          </p>
-        </details>
-      <% end %>
-    </div>
-    <p class="text-center font-garamond italic text-brown-light mt-6">
-      True Devotion to the Blessed Virgin, nn. 105&ndash;110
-    </p>
-  <% end %>
+          <span class={[
+            "font-ovo text-2xl shrink-0",
+            if(@devotion_tab == "true", do: "text-gold/70", else: "text-brown-light/60")
+          ]}>
+            {index}
+          </span>
+          <span class="font-ovo text-navy text-xl flex-1">{item.name}</span>
+          <span class="font-work-sans text-gold-dark text-xs uppercase tracking-wide shrink-0">
+            {if expanded?, do: "Hide", else: "Show"}
+          </span>
+        </button>
+        <p
+          id={"devotion-desc-#{@devotion_tab}-#{index}"}
+          hidden={not expanded?}
+          class="px-5 pb-5 pl-14 font-work-sans text-brown leading-[1.7]"
+        >
+          {item.description}
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <p class="text-center font-garamond italic text-brown-light mt-6">
+    True Devotion to the Blessed Virgin, {citation}
+  </p>
 </section>
