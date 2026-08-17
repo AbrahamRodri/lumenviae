@@ -1,10 +1,10 @@
 defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   use LumenViaeWeb, :live_view
   import LumenViaeWeb.Live.Meditations.Helpers
-  alias LumenViae.Constants
-  alias LumenViae.Meditations.Filtering
+  alias LumenViae.Rosary.Categories
+  alias LumenViaeWeb.Live.Meditations.Filtering
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.{Labels, MeditationSet}
+  alias LumenViae.Rosary.Labels
 
   def mount(%{"id" => id}, _session, socket) do
     set = Rosary.get_meditation_set_with_ordered_meditations!(id)
@@ -20,7 +20,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
      |> assign(:filter_author, nil)
      |> assign(:search_query, "")
      |> assign(:selected_set_meditations, set.meditations)
-     |> assign(:mystery_categories, Constants.mystery_category_options())
+     |> assign(:mystery_categories, Categories.options())
      |> assign(:label_vocabulary, Labels.vocabulary())
      |> assign(:max_labels, Labels.max_per_set())
      |> assign_edit_form(set)}
@@ -138,11 +138,11 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
     end
   end
 
-  defp assign_edit_form(socket, %MeditationSet{} = set) do
-    assign_edit_form(socket, Rosary.change_meditation_set(set))
-  end
-
   defp assign_edit_form(socket, %Ecto.Changeset{} = changeset) do
     assign(socket, :edit_form, to_form(changeset, as: :meditation_set))
+  end
+
+  defp assign_edit_form(socket, set) do
+    assign_edit_form(socket, Rosary.change_meditation_set(set))
   end
 end

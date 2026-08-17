@@ -2,7 +2,6 @@ defmodule LumenViae.RosaryTest do
   use LumenViae.DataCase, async: true
 
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.Meditation
 
   defp create_mystery do
     {:ok, mystery} =
@@ -35,14 +34,14 @@ defmodule LumenViae.RosaryTest do
   describe "archive_meditation/1 and unarchive_meditation/1" do
     test "archiving stamps archived_at and unarchiving clears it" do
       meditation = create_meditation(create_mystery())
-      refute Meditation.archived?(meditation)
+      refute Rosary.meditation_archived?(meditation)
 
       {:ok, archived} = Rosary.archive_meditation(meditation)
-      assert Meditation.archived?(archived)
+      assert Rosary.meditation_archived?(archived)
       assert %DateTime{} = archived.archived_at
 
       {:ok, restored} = Rosary.unarchive_meditation(archived)
-      refute Meditation.archived?(restored)
+      refute Rosary.meditation_archived?(restored)
       assert restored.archived_at == nil
     end
 

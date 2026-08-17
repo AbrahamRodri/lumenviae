@@ -85,7 +85,7 @@ defmodule Mix.Tasks.LumenViae.RegenerateAudio do
     end
 
     results =
-      LumenViae.Meditations.AudioRegeneration.run(target,
+      LumenViae.Curation.AudioRegeneration.run(target,
         dry_run: opts[:dry_run],
         progress: progress
       )

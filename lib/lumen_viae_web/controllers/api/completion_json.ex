@@ -1,6 +1,4 @@
 defmodule LumenViaeWeb.API.CompletionJSON do
-  alias LumenViae.Rosary.RosaryCompletion
-
   @doc """
   Renders a rosary completion.
   """
@@ -8,7 +6,7 @@ defmodule LumenViaeWeb.API.CompletionJSON do
     %{data: data(completion)}
   end
 
-  defp data(%RosaryCompletion{} = completion) do
+  defp data(completion) do
     %{
       id: completion.id,
       meditation_set_id: completion.meditation_set_id,

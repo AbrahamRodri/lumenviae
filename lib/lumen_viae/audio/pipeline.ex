@@ -13,8 +13,8 @@ defmodule LumenViae.Audio.Pipeline do
   Errors tagged `{:fatal, message}` (bad API key, missing credentials, and
   the like) are never retried because they cannot succeed.
 
-  Used by `LumenViae.Meditations.CsvImport` and
-  `LumenViae.Meditations.AudioRegeneration`.
+  Used by `LumenViae.Curation.CsvImport` and
+  `LumenViae.Curation.AudioRegeneration`.
   """
 
   alias LumenViae.Audio.{ElevenLabs, TtsText}

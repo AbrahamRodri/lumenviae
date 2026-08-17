@@ -1,8 +1,15 @@
-defmodule LumenViae.Rosary.RosaryCompletion do
+defmodule LumenViae.Rosary.Completions.Completion do
+  @moduledoc """
+  A record that someone finished praying a meditation set, with the
+  approximate location it was prayed from. Used for analytics only.
+
+  Private to `LumenViae.Rosary.Completions`; reach completions through
+  `LumenViae.Rosary`.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias LumenViae.Rosary.MeditationSet
+  alias LumenViae.Rosary.MeditationSets.MeditationSet
 
   schema "rosary_completions" do
     field :completed_at, :utc_datetime
@@ -19,7 +26,15 @@ defmodule LumenViae.Rosary.RosaryCompletion do
 
   def changeset(rosary_completion, attrs) do
     rosary_completion
-    |> cast(attrs, [:meditation_set_id, :completed_at, :ip_address, :city, :region, :country, :country_code])
+    |> cast(attrs, [
+      :meditation_set_id,
+      :completed_at,
+      :ip_address,
+      :city,
+      :region,
+      :country,
+      :country_code
+    ])
     |> validate_required([:meditation_set_id, :completed_at])
     |> foreign_key_constraint(:meditation_set_id)
   end

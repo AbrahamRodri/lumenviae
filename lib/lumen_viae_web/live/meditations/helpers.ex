@@ -3,7 +3,7 @@ defmodule LumenViaeWeb.Live.Meditations.Helpers do
   Helper functions for meditation-related LiveViews.
   """
 
-  alias LumenViae.Meditations.Filtering
+  alias LumenViaeWeb.Live.Meditations.Filtering
 
   @doc """
   Filters meditations based on assigns containing filter_category, filter_author, and search_query.

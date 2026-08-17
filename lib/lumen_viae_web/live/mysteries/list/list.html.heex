@@ -64,7 +64,7 @@
       <%= for {category, mysteries} <- @grouped_mysteries do %>
         <div class="mb-8 last:mb-0">
           <h4 class="font-cinzel text-xl text-navy mb-4">
-            {LumenViae.Constants.mystery_category_label(category)}
+            {LumenViae.Rosary.Categories.label(category)}
           </h4>
           <div class="space-y-3">
             <%= for mystery <- mysteries do %>

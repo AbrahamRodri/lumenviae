@@ -1,7 +1,6 @@
 defmodule LumenViaeWeb.Live.Meditations.Edit do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.Meditation
 
   def mount(%{"id" => id}, _session, socket) do
     meditation = Rosary.get_meditation!(id)
@@ -36,11 +35,11 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
     end
   end
 
-  defp assign_edit_form(socket, %Meditation{} = meditation) do
-    assign_edit_form(socket, Rosary.change_meditation(meditation))
-  end
-
   defp assign_edit_form(socket, %Ecto.Changeset{} = changeset) do
     assign(socket, :edit_form, to_form(changeset, as: :meditation))
+  end
+
+  defp assign_edit_form(socket, meditation) do
+    assign_edit_form(socket, Rosary.change_meditation(meditation))
   end
 end

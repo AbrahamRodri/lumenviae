@@ -1,4 +1,4 @@
-defmodule LumenViae.Meditations.AudioRegeneration do
+defmodule LumenViae.Curation.AudioRegeneration do
   @moduledoc """
   Regenerates ElevenLabs narration for meditations that already have audio,
   uploading to the same S3 key so existing meditations pick up new pause
@@ -22,36 +22,33 @@ defmodule LumenViae.Meditations.AudioRegeneration do
       `{:item_finished, index, total, result}` events
 
   Results are returned as a list of `{:ok | :warning | :error, message}`
-  tuples, matching `LumenViae.Meditations.CsvImport`. Meditations without
+  tuples, matching `LumenViae.Curation.CsvImport`. Meditations without
   an `audio_url` are reported as warnings and skipped: regeneration never
   invents S3 keys, it only replaces files the import already assigned.
   """
 
-  import Ecto.Query
-
   alias LumenViae.Audio.{Pipeline, TtsText}
-  alias LumenViae.Repo
-  alias LumenViae.Rosary.{Meditation, MeditationSet, MeditationSetMeditation}
+  alias LumenViae.Rosary
 
   def run(target, opts \\ [])
 
   def run({:set, set_name}, opts) do
-    case Repo.get_by(MeditationSet, name: set_name) do
+    case Rosary.get_meditation_set_by_name(set_name) do
       nil ->
         fail_target("Meditation set not found: #{set_name}", opts)
 
-      %MeditationSet{} = set ->
-        set |> set_meditations() |> process(opts)
+      set ->
+        set.id |> Rosary.list_meditations_in_set() |> process(opts)
     end
   end
 
   def run({:meditation, id}, opts) do
-    case Repo.get(Meditation, id) do
+    case Rosary.get_meditation(id) do
       nil ->
         fail_target("Meditation not found: id #{id}", opts)
 
-      %Meditation{} = meditation ->
-        meditation |> Repo.preload(:mystery) |> List.wrap() |> process(opts)
+      meditation ->
+        meditation |> List.wrap() |> process(opts)
     end
   end
 
@@ -59,17 +56,6 @@ defmodule LumenViae.Meditations.AudioRegeneration do
     result = {:error, message}
     notify(opts, {:item_finished, 1, 1, result})
     [result]
-  end
-
-  defp set_meditations(set) do
-    from(m in Meditation,
-      join: msm in MeditationSetMeditation,
-      on: msm.meditation_id == m.id,
-      where: msm.meditation_set_id == ^set.id,
-      order_by: msm.order,
-      preload: [:mystery]
-    )
-    |> Repo.all()
   end
 
   defp process(meditations, opts) do
@@ -85,7 +71,7 @@ defmodule LumenViae.Meditations.AudioRegeneration do
     end)
   end
 
-  defp process_meditation(%Meditation{audio_url: audio_url} = meditation, _opts)
+  defp process_meditation(%{audio_url: audio_url} = meditation, _opts)
        when audio_url in [nil, ""] do
     {:warning,
      "Skipped #{describe(meditation)}: it has no audio file (audio_url is not set; " <>
@@ -114,7 +100,7 @@ defmodule LumenViae.Meditations.AudioRegeneration do
     end
   end
 
-  defp describe(%Meditation{} = meditation) do
+  defp describe(meditation) do
     label =
       meditation.title || (Ecto.assoc_loaded?(meditation.mystery) && meditation.mystery.name)
 

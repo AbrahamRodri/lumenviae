@@ -1,7 +1,6 @@
 defmodule LumenViaeWeb.Live.Mysteries.Edit do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.Mystery
 
   def mount(%{"id" => id}, _session, socket) do
     mystery = Rosary.get_mystery!(id)
@@ -35,11 +34,11 @@ defmodule LumenViaeWeb.Live.Mysteries.Edit do
     end
   end
 
-  defp assign_edit_form(socket, %Mystery{} = mystery) do
-    assign_edit_form(socket, Rosary.change_mystery(mystery))
-  end
-
   defp assign_edit_form(socket, %Ecto.Changeset{} = changeset) do
     assign(socket, :edit_form, to_form(changeset, as: :mystery))
+  end
+
+  defp assign_edit_form(socket, mystery) do
+    assign_edit_form(socket, Rosary.change_mystery(mystery))
   end
 end

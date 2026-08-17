@@ -1,12 +1,31 @@
-defmodule LumenViae.Rosary.MeditationTest do
+defmodule LumenViae.Rosary.MeditationsTest do
   use LumenViae.DataCase, async: true
 
-  alias LumenViae.Rosary.Meditation
+  alias LumenViae.Rosary.Meditations
 
   @annotations [%{"offset" => 5, "seconds" => 2.0}]
 
-  defp changeset(attrs, meditation \\ %Meditation{}) do
-    Meditation.changeset(meditation, attrs)
+  defp changeset(attrs), do: Meditations.change_new(attrs)
+  defp changeset(attrs, meditation), do: Meditations.change(meditation, attrs)
+
+  # The annotation-lifecycle rules only bite on an edit, so these need a
+  # meditation that already exists rather than a bare struct.
+  defp stored_meditation do
+    {:ok, mystery} =
+      LumenViae.Rosary.create_mystery(%{
+        name: "The Annunciation",
+        category: "joyful",
+        order: 1
+      })
+
+    {:ok, meditation} =
+      Meditations.create(%{
+        "content" => "Old content",
+        "mystery_id" => mystery.id,
+        "tts_annotations" => @annotations
+      })
+
+    meditation
   end
 
   describe "changeset/2 content markup guard" do
@@ -45,17 +64,14 @@ defmodule LumenViae.Rosary.MeditationTest do
     end
 
     test "clears stale annotations when content changes without fresh ones" do
-      meditation = %Meditation{id: 1, content: "Old content", tts_annotations: @annotations}
-
-      changeset = changeset(%{"content" => "Edited content"}, meditation)
+      changeset = changeset(%{"content" => "Edited content"}, stored_meditation())
 
       assert Ecto.Changeset.get_field(changeset, :tts_annotations) == []
     end
 
     test "keeps annotations when content is untouched" do
-      meditation = %Meditation{id: 1, content: "Old content", tts_annotations: @annotations}
-
-      changeset = changeset(%{"author" => "New Author", "content" => "Old content"}, meditation)
+      changeset =
+        changeset(%{"author" => "New Author", "content" => "Old content"}, stored_meditation())
 
       assert Ecto.Changeset.get_field(changeset, :tts_annotations) == @annotations
     end

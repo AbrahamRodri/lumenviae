@@ -1,4 +1,10 @@
-defmodule LumenViae.Rosary.Meditation do
+defmodule LumenViae.Rosary.Meditations.Meditation do
+  @moduledoc """
+  A single meditation on one mystery.
+
+  Private to `LumenViae.Rosary.Meditations`; reach meditations through
+  `LumenViae.Rosary`.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -15,17 +21,17 @@ defmodule LumenViae.Rosary.Meditation do
     # ElevenLabs audio, never rendered.
     field :tts_annotations, {:array, :map}, default: []
 
-    belongs_to :mystery, LumenViae.Rosary.Mystery
+    belongs_to :mystery, LumenViae.Rosary.Mysteries.Mystery
 
-    many_to_many :meditation_sets, LumenViae.Rosary.MeditationSet,
-      join_through: LumenViae.Rosary.MeditationSetMeditation
+    many_to_many :meditation_sets, LumenViae.Rosary.MeditationSets.MeditationSet,
+      join_through: LumenViae.Rosary.SetMemberships.SetMembership
 
     timestamps()
   end
 
   @doc false
   # archived_at is intentionally not castable here; archiving goes through
-  # Rosary.archive_meditation/1 so imports and forms cannot flip it.
+  # Meditations.archive/1 so imports and forms cannot flip it.
   def changeset(meditation, attrs) do
     meditation
     |> cast(attrs, [:title, :content, :author, :source, :mystery_id, :audio_url, :tts_annotations])
@@ -68,6 +74,4 @@ defmodule LumenViae.Rosary.Meditation do
       changeset
     end
   end
-
-  def archived?(%__MODULE__{archived_at: archived_at}), do: not is_nil(archived_at)
 end

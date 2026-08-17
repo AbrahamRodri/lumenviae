@@ -1,6 +1,11 @@
-defmodule LumenViae.Meditations.SetFiltering do
+defmodule LumenViaeWeb.Live.Meditations.Sets.Filtering do
   @moduledoc """
   In-memory filtering and sorting for the admin meditation sets list.
+
+  Like `LumenViaeWeb.Live.Meditations.Filtering`, this narrows an
+  already-fetched list rather than querying. The visibility and completeness
+  filters need facts the sets themselves do not carry, so they are passed in
+  as `context`.
 
   All filter keys are optional; a nil (or absent) value leaves the list
   untouched.
@@ -10,26 +15,15 @@ defmodule LumenViae.Meditations.SetFiltering do
     * `:category` - set category string ("joyful", "sorrowful", ...)
     * `:label` - sets carrying this exact label
     * `:visibility` - "visible" or "hidden" (requires the MapSet of hidden
-      set ids from `Rosary.hidden_meditation_set_ids/0`)
+      set ids from `LumenViae.Rosary.hidden_meditation_set_ids/0`)
     * `:completeness` - "complete", "incomplete" (wrong meditation count for
       the category), or "empty" (requires the stats map from
-      `Rosary.meditation_set_stats/0`)
+      `LumenViae.Rosary.meditation_set_stats/0`)
     * `:query` - case-insensitive match against name, description, and labels
   """
 
-  @category_order %{
-    "joyful" => 0,
-    "sorrowful" => 1,
-    "glorious" => 2,
-    "luminous" => 3,
-    "seven_sorrows" => 4
-  }
-
-  @doc """
-  Number of meditations a set of the given category is expected to hold.
-  """
-  def expected_meditation_count("seven_sorrows"), do: 7
-  def expected_meditation_count(_category), do: 5
+  alias LumenViae.Rosary
+  alias LumenViae.Rosary.Categories
 
   def filter_sets(sets, filters, context \\ %{}) do
     hidden_ids = Map.get(context, :hidden_ids, MapSet.new())
@@ -60,7 +54,7 @@ defmodule LumenViae.Meditations.SetFiltering do
         Enum.sort_by(sets, &{-meditation_count(&1, stats), &1.id})
 
       _category ->
-        Enum.sort_by(sets, &{Map.get(@category_order, &1.category, 99), &1.id})
+        Enum.sort_by(sets, &{Categories.position(&1.category), &1.id})
     end
   end
 
@@ -94,11 +88,17 @@ defmodule LumenViae.Meditations.SetFiltering do
   defp filter_by_visibility(sets, _, _hidden_ids), do: sets
 
   defp filter_by_completeness(sets, "complete", stats) do
-    Enum.filter(sets, &(meditation_count(&1, stats) == expected_meditation_count(&1.category)))
+    Enum.filter(
+      sets,
+      &(meditation_count(&1, stats) == Rosary.expected_meditation_count(&1.category))
+    )
   end
 
   defp filter_by_completeness(sets, "incomplete", stats) do
-    Enum.filter(sets, &(meditation_count(&1, stats) != expected_meditation_count(&1.category)))
+    Enum.filter(
+      sets,
+      &(meditation_count(&1, stats) != Rosary.expected_meditation_count(&1.category))
+    )
   end
 
   defp filter_by_completeness(sets, "empty", stats) do

@@ -1,18 +1,15 @@
-defmodule LumenViae.Meditations.AudioRegenerationTest do
+defmodule LumenViae.Curation.AudioRegenerationTest do
   use LumenViae.DataCase, async: false
 
-  alias LumenViae.Meditations.AudioRegeneration
+  alias LumenViae.Curation.AudioRegeneration
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.{Meditation, Mystery}
 
   @content "First paragraph.\n\nSecond paragraph."
   @annotations [%{"offset" => 16, "seconds" => 2.5}]
 
   setup do
     {:ok, mystery} =
-      %Mystery{}
-      |> Mystery.changeset(%{name: "The Annunciation", category: "joyful", order: 1})
-      |> Repo.insert()
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
 
     {:ok, set} = Rosary.create_meditation_set(%{"name" => "Regen Set", "category" => "joyful"})
 
@@ -91,7 +88,7 @@ defmodule LumenViae.Meditations.AudioRegenerationTest do
     with_audio: with_audio
   } do
     stub_apis()
-    meditations_before = Repo.aggregate(Meditation, :count)
+    meditations_before = Rosary.count_meditations()
 
     results = AudioRegeneration.run({:set, set.name})
 
@@ -104,8 +101,8 @@ defmodule LumenViae.Meditations.AudioRegenerationTest do
     assert_received {:aws_request, :put, url, "regenerated-audio-bytes"}
     assert url =~ "regen_clip.mp3"
 
-    assert Repo.aggregate(Meditation, :count) == meditations_before
-    reloaded = Repo.get!(Meditation, with_audio.id)
+    assert Rosary.count_meditations() == meditations_before
+    reloaded = Rosary.get_meditation!(with_audio.id)
     assert reloaded.content == @content
     assert reloaded.audio_url == "regen_clip.mp3"
     assert reloaded.tts_annotations == @annotations

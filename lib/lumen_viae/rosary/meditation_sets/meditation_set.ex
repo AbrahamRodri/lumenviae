@@ -1,7 +1,14 @@
-defmodule LumenViae.Rosary.MeditationSet do
+defmodule LumenViae.Rosary.MeditationSets.MeditationSet do
+  @moduledoc """
+  A curated collection of meditations prayed together as one Rosary.
+
+  Private to `LumenViae.Rosary.MeditationSets`; reach sets through
+  `LumenViae.Rosary`.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias LumenViae.Rosary.Categories
   alias LumenViae.Rosary.Labels
 
   schema "meditation_sets" do
@@ -10,8 +17,8 @@ defmodule LumenViae.Rosary.MeditationSet do
     field :description, :string
     field :labels, {:array, :string}, default: []
 
-    many_to_many :meditations, LumenViae.Rosary.Meditation,
-      join_through: LumenViae.Rosary.MeditationSetMeditation,
+    many_to_many :meditations, LumenViae.Rosary.Meditations.Meditation,
+      join_through: LumenViae.Rosary.SetMemberships.SetMembership,
       on_replace: :delete
 
     timestamps()
@@ -22,13 +29,7 @@ defmodule LumenViae.Rosary.MeditationSet do
     meditation_set
     |> cast(attrs, [:name, :category, :description, :labels])
     |> validate_required([:name, :category])
-    |> validate_inclusion(:category, [
-      "joyful",
-      "sorrowful",
-      "glorious",
-      "luminous",
-      "seven_sorrows"
-    ])
+    |> validate_inclusion(:category, Categories.slugs())
     |> normalize_labels()
     |> validate_subset(:labels, Labels.vocabulary(),
       message: "contains a label outside the managed vocabulary"

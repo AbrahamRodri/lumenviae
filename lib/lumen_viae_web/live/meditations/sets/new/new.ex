@@ -1,8 +1,8 @@
 defmodule LumenViaeWeb.Live.Meditations.Sets.New do
   use LumenViaeWeb, :live_view
   import LumenViaeWeb.Live.Meditations.Helpers
-  alias LumenViae.Constants
-  alias LumenViae.Meditations.Filtering
+  alias LumenViae.Rosary.Categories
+  alias LumenViaeWeb.Live.Meditations.Filtering
   alias LumenViae.Rosary
 
   def mount(_params, _session, socket) do
@@ -16,7 +16,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
      |> assign(:filter_author, nil)
      |> assign(:search_query, "")
      |> assign(:available_authors, Filtering.available_authors(meditations))
-     |> assign(:mystery_categories, Constants.mystery_category_options())
+     |> assign(:mystery_categories, Categories.options())
      |> assign_meditation_set_form()}
   end
 

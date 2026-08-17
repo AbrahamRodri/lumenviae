@@ -1,121 +1,70 @@
 defmodule LumenViae.Rosary do
   @moduledoc """
-  The Rosary context.
+  The Rosary Primary Context: the single public entry point to the domain.
+
+  Everything outside the domain - LiveViews, controllers, mix tasks, the
+  release module, the curation services - talks to this module and only this
+  module. Behind it sit one Secondary Context per resource, each owning all
+  database access for its own table:
+
+    * `LumenViae.Rosary.Mysteries`
+    * `LumenViae.Rosary.Meditations`
+    * `LumenViae.Rosary.MeditationSets`
+    * `LumenViae.Rosary.SetMemberships`
+    * `LumenViae.Rosary.Completions`
+
+  Simple, single-resource operations pass straight through. The work this
+  module does itself is composition across resources, because a Secondary
+  Context never queries another resource's table:
+
+    * **Visibility.** A set is hidden from public surfaces when any of its
+      meditations is archived. `Meditations` reports which meditations are
+      archived, `SetMemberships` maps those to set ids, and `MeditationSets`
+      excludes them.
+    * **Prayer order.** A set's meditations are ordered by the join row, so
+      `SetMemberships` supplies the ordered ids and `Meditations` fetches
+      the records.
+    * **Reporting.** Completion and set statistics come back keyed by id
+      from each context and are folded together here.
+
+  See `docs/ARCHITECTURE.md` for the rules this layout follows.
   """
 
-  import Ecto.Query, warn: false
-  alias LumenViae.Repo
-
-  alias LumenViae.Rosary.{
-    Mystery,
-    Meditation,
-    MeditationSet,
-    MeditationSetMeditation,
-    RosaryCompletion
-  }
+  alias LumenViae.Rosary.Completions
+  alias LumenViae.Rosary.MeditationSets
+  alias LumenViae.Rosary.Meditations
+  alias LumenViae.Rosary.Mysteries
+  alias LumenViae.Rosary.SetMemberships
+  alias LumenViae.Services.Geolocation
+  alias LumenViae.Storage.S3
 
   ## Mysteries
 
-  def count_mysteries do
-    Repo.aggregate(Mystery, :count)
-  end
-
-  def list_mysteries do
-    Repo.all(from m in Mystery, order_by: [m.category, m.order])
-  end
-
-  def list_mysteries_by_category(category) do
-    Repo.all(from m in Mystery, where: m.category == ^category, order_by: m.order)
-  end
-
-  def get_mystery!(id), do: Repo.get!(Mystery, id)
-
-  def create_mystery(attrs \\ %{}) do
-    %Mystery{}
-    |> Mystery.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def update_mystery(%Mystery{} = mystery, attrs) do
-    mystery
-    |> Mystery.changeset(attrs)
-    |> Repo.update()
-  end
-
-  def change_mystery(%Mystery{} = mystery, attrs \\ %{}) do
-    Mystery.changeset(mystery, attrs)
-  end
-
-  def delete_mystery(%Mystery{} = mystery) do
-    Repo.delete(mystery)
-  end
+  defdelegate count_mysteries(), to: Mysteries, as: :count
+  defdelegate list_mysteries(), to: Mysteries, as: :list
+  defdelegate list_mysteries_by_category(category), to: Mysteries, as: :list_by_category
+  defdelegate get_mystery!(id), to: Mysteries, as: :get!
+  defdelegate create_mystery(attrs \\ %{}), to: Mysteries, as: :create
+  defdelegate update_mystery(mystery, attrs), to: Mysteries, as: :update
+  defdelegate change_mystery(mystery, attrs \\ %{}), to: Mysteries, as: :change
+  defdelegate delete_mystery(mystery), to: Mysteries, as: :delete
 
   ## Meditations
 
-  def count_meditations do
-    Repo.aggregate(Meditation, :count)
-  end
-
-  def list_meditations do
-    Repo.all(Meditation) |> Repo.preload(:mystery)
-  end
-
-  @doc """
-  Lists every meditation with its mystery and meditation sets preloaded.
-
-  Used by the admin meditations list so each row can show set membership
-  and be filtered by it.
-  """
-  def list_meditations_with_sets do
-    Repo.all(from m in Meditation, order_by: [asc: m.id])
-    |> Repo.preload([:mystery, meditation_sets: from(ms in MeditationSet, order_by: ms.id)])
-  end
-
-  def get_meditation!(id) do
-    Repo.get!(Meditation, id) |> Repo.preload(:mystery)
-  end
-
-  def create_meditation(attrs \\ %{}) do
-    %Meditation{}
-    |> Meditation.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def update_meditation(%Meditation{} = meditation, attrs) do
-    meditation
-    |> Meditation.changeset(attrs)
-    |> Repo.update()
-  end
-
-  def change_meditation(%Meditation{} = meditation, attrs \\ %{}) do
-    Meditation.changeset(meditation, attrs)
-  end
-
-  def delete_meditation(%Meditation{} = meditation) do
-    Repo.delete(meditation)
-  end
-
-  @doc """
-  Archives a meditation without deleting it.
-
-  Archived meditations stay fully editable in the admin, but they are
-  excluded from every public surface, and any set containing one is hidden
-  from public listings and the API (see the `visible` set functions).
-  """
-  def archive_meditation(%Meditation{} = meditation) do
-    meditation
-    |> Ecto.Changeset.change(archived_at: DateTime.utc_now(:second))
-    |> Repo.update()
-  end
-
-  @doc """
-  Restores an archived meditation, making it (and its sets) public again.
-  """
-  def unarchive_meditation(%Meditation{} = meditation) do
-    meditation
-    |> Ecto.Changeset.change(archived_at: nil)
-    |> Repo.update()
-  end
+  defdelegate count_meditations(), to: Meditations, as: :count
+  defdelegate list_meditations(), to: Meditations, as: :list
+  defdelegate list_meditations_with_sets(), to: Meditations, as: :list_with_sets
+  defdelegate get_meditation(id), to: Meditations, as: :get
+  defdelegate get_meditation!(id), to: Meditations, as: :get!
+  defdelegate create_meditation(attrs \\ %{}), to: Meditations, as: :create
+  defdelegate update_meditation(meditation, attrs), to: Meditations, as: :update
+  defdelegate change_meditation(meditation, attrs \\ %{}), to: Meditations, as: :change
+  defdelegate change_new_meditation(attrs \\ %{}), to: Meditations, as: :change_new
+  defdelegate delete_meditation(meditation), to: Meditations, as: :delete
+  defdelegate meditation_archived?(meditation), to: Meditations, as: :archived?
+  defdelegate archive_meditation(meditation), to: Meditations, as: :archive
+  defdelegate unarchive_meditation(meditation), to: Meditations, as: :unarchive
+  defdelegate list_taken_audio_urls(audio_urls), to: Meditations
 
   @doc """
   Generates a pre-signed URL for a meditation's audio file.
@@ -131,27 +80,48 @@ defmodule LumenViae.Rosary do
       iex> get_meditation_audio_url(%Meditation{audio_url: nil})
       nil
   """
-  def get_meditation_audio_url(%Meditation{audio_url: nil}), do: nil
-  def get_meditation_audio_url(%Meditation{audio_url: ""}), do: nil
+  def get_meditation_audio_url(%{audio_url: audio_url}) when audio_url in [nil, ""], do: nil
 
-  def get_meditation_audio_url(%Meditation{audio_url: s3_key}) when is_binary(s3_key) do
-    LumenViae.Storage.S3.generate_presigned_url!(s3_key)
+  def get_meditation_audio_url(%{audio_url: s3_key}) when is_binary(s3_key) do
+    S3.generate_presigned_url!(s3_key)
   end
 
-  ## Meditation Sets
+  ## Meditation sets
 
-  def count_meditation_sets do
-    Repo.aggregate(MeditationSet, :count)
+  defdelegate count_meditation_sets(), to: MeditationSets, as: :count
+  defdelegate get_meditation_set!(id), to: MeditationSets, as: :get_with_meditations!
+  defdelegate get_meditation_set_by_name(name), to: MeditationSets, as: :get_by_name
+  defdelegate create_meditation_set(attrs \\ %{}), to: MeditationSets, as: :create
+  defdelegate update_meditation_set(set, attrs), to: MeditationSets, as: :update
+  defdelegate change_meditation_set(set, attrs \\ %{}), to: MeditationSets, as: :change
+  defdelegate change_new_meditation_set(attrs \\ %{}), to: MeditationSets, as: :change_new
+  defdelegate delete_meditation_set(set), to: MeditationSets, as: :delete
+  defdelegate expected_meditation_count(category), to: MeditationSets
+
+  def list_meditation_sets, do: MeditationSets.list()
+
+  @doc """
+  Fetches a set with its meditations in the order the set is prayed, which
+  lives on the join row rather than on the meditations themselves.
+
+  Raises `Ecto.NoResultsError` when the set does not exist.
+  """
+  def get_meditation_set_with_ordered_meditations!(id) do
+    set = MeditationSets.get!(id)
+    %{set | meditations: list_meditations_in_set(set.id)}
   end
 
-  # Set ordering is part of the iOS API contract: the app builds its filter
-  # chips and sections from first appearance across the list response, so the
-  # list queries keep a deterministic creation order.
-  def list_meditation_sets do
-    Repo.all(from ms in MeditationSet, order_by: [asc: ms.category, asc: ms.id])
+  @doc """
+  A set's meditations in the order the set is prayed, with mysteries
+  preloaded.
+  """
+  def list_meditations_in_set(set_id) do
+    set_id
+    |> SetMemberships.list_meditation_ids_in_set()
+    |> Meditations.list_by_ids()
   end
 
-  ## Visible Meditation Sets (public surfaces)
+  ## Visible meditation sets (public surfaces)
   #
   # A set is "visible" when none of its meditations are archived. Archiving a
   # single meditation therefore hides every set that contains it from the
@@ -159,22 +129,16 @@ defmodule LumenViae.Rosary do
   # returning everything.
 
   def list_visible_meditation_sets do
-    visible_meditation_sets_query()
-    |> order_by([ms], asc: ms.category, asc: ms.id)
-    |> Repo.all()
+    MeditationSets.list(exclude_ids: hidden_meditation_set_ids())
   end
 
   def list_visible_meditation_sets_with_meditations do
-    list_visible_meditation_sets()
-    |> Repo.preload(:meditations)
+    list_visible_meditation_sets() |> MeditationSets.preload_meditations()
   end
 
   def list_visible_meditation_sets_by_category(category) do
-    visible_meditation_sets_query()
-    |> where([ms], ms.category == ^category)
-    |> order_by([ms], asc: ms.id)
-    |> Repo.all()
-    |> Repo.preload(:meditations)
+    MeditationSets.list(category: category, exclude_ids: hidden_meditation_set_ids())
+    |> MeditationSets.preload_meditations()
   end
 
   @doc """
@@ -185,8 +149,8 @@ defmodule LumenViae.Rosary do
   def get_visible_meditation_set_with_ordered_meditations!(id) do
     set = get_meditation_set_with_ordered_meditations!(id)
 
-    if Enum.any?(set.meditations, & &1.archived_at) do
-      raise Ecto.NoResultsError, queryable: MeditationSet
+    if Enum.any?(set.meditations, &Meditations.archived?/1) do
+      MeditationSets.raise_not_found!()
     end
 
     set
@@ -197,145 +161,40 @@ defmodule LumenViae.Rosary do
   because they contain at least one archived meditation.
   """
   def hidden_meditation_set_ids do
-    hidden_set_ids_query()
-    |> Repo.all()
+    Meditations.list_archived_ids()
+    |> SetMemberships.list_set_ids_containing()
     |> MapSet.new()
   end
 
-  defp visible_meditation_sets_query do
-    from ms in MeditationSet, where: ms.id not in subquery(hidden_set_ids_query())
-  end
+  ## Set membership
 
-  defp hidden_set_ids_query do
-    from msm in MeditationSetMeditation,
-      join: m in Meditation,
-      on: msm.meditation_id == m.id,
-      where: not is_nil(m.archived_at),
-      distinct: true,
-      select: msm.meditation_set_id
-  end
+  defdelegate add_meditation_to_set(set_id, meditation_id, order), to: SetMemberships, as: :add
+  defdelegate remove_meditation_from_set(set_id, meditation_id), to: SetMemberships, as: :remove
 
-  def get_meditation_set!(id) do
-    Repo.get!(MeditationSet, id)
-    |> Repo.preload(meditations: from(m in Meditation, order_by: m.id))
-  end
-
-  def get_meditation_set_with_ordered_meditations!(id) do
-    from(ms in MeditationSet,
-      where: ms.id == ^id,
-      left_join: msm in MeditationSetMeditation,
-      on: msm.meditation_set_id == ms.id,
-      left_join: m in Meditation,
-      on: msm.meditation_id == m.id,
-      left_join: my in Mystery,
-      on: m.mystery_id == my.id,
-      order_by: [asc: msm.order],
-      select: %{
-        set: ms,
-        meditation: %Meditation{
-          id: m.id,
-          title: m.title,
-          content: m.content,
-          author: m.author,
-          source: m.source,
-          audio_url: m.audio_url,
-          archived_at: m.archived_at,
-          mystery_id: m.mystery_id,
-          inserted_at: m.inserted_at,
-          updated_at: m.updated_at,
-          mystery: my
-        }
-      }
-    )
-    |> Repo.all()
-    |> case do
-      [] ->
-        raise Ecto.NoResultsError, queryable: MeditationSet
-
-      results ->
-        set = hd(results).set
-        meditations = Enum.map(results, & &1.meditation) |> Enum.reject(&is_nil(&1.id))
-        %{set | meditations: meditations}
-    end
-  end
-
-  def create_meditation_set(attrs \\ %{}) do
-    %MeditationSet{}
-    |> MeditationSet.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def update_meditation_set(%MeditationSet{} = meditation_set, attrs) do
-    meditation_set
-    |> MeditationSet.changeset(attrs)
-    |> Repo.update()
-  end
-
-  def change_meditation_set(%MeditationSet{} = meditation_set, attrs \\ %{}) do
-    MeditationSet.changeset(meditation_set, attrs)
-  end
-
-  def delete_meditation_set(%MeditationSet{} = meditation_set) do
-    Repo.delete(meditation_set)
-  end
-
-  ## Meditation Set Meditations (Join Table)
-
-  def add_meditation_to_set(meditation_set_id, meditation_id, order) do
-    %MeditationSetMeditation{}
-    |> MeditationSetMeditation.changeset(%{
-      meditation_set_id: meditation_set_id,
-      meditation_id: meditation_id,
-      order: order
-    })
-    |> Repo.insert()
-  end
-
-  def remove_meditation_from_set(meditation_set_id, meditation_id) do
-    Repo.delete_all(
-      from msm in MeditationSetMeditation,
-        where: msm.meditation_set_id == ^meditation_set_id and msm.meditation_id == ^meditation_id
-    )
+  @doc """
+  The order an appended meditation should take in a set: one past the
+  highest order currently used.
+  """
+  def next_order_in_set(set_id) do
+    SetMemberships.max_order_in_set(set_id) + 1
   end
 
   ## Admin content statistics
 
-  @doc """
-  Counts archived meditations.
-  """
-  def count_archived_meditations do
-    from(m in Meditation, where: not is_nil(m.archived_at))
-    |> Repo.aggregate(:count)
-  end
+  defdelegate count_archived_meditations(), to: Meditations, as: :count_archived
 
-  @doc """
-  Counts active (non-archived) meditations that have no audio file yet.
-  """
-  def count_active_meditations_missing_audio do
-    from(m in Meditation,
-      where: is_nil(m.archived_at) and (is_nil(m.audio_url) or m.audio_url == "")
-    )
-    |> Repo.aggregate(:count)
-  end
+  defdelegate count_active_meditations_missing_audio(),
+    to: Meditations,
+    as: :count_active_missing_audio
+
+  defdelegate meditation_counts_by_mystery(), to: Meditations, as: :count_by_mystery
 
   @doc """
   Counts meditations that do not belong to any meditation set.
   """
   def count_meditations_not_in_any_set do
-    from(m in Meditation,
-      where: m.id not in subquery(from(msm in MeditationSetMeditation, select: msm.meditation_id))
-    )
-    |> Repo.aggregate(:count)
-  end
-
-  @doc """
-  Returns a map of mystery_id => meditation count for every mystery that has
-  at least one meditation.
-  """
-  def meditation_counts_by_mystery do
-    from(m in Meditation, group_by: m.mystery_id, select: {m.mystery_id, count(m.id)})
-    |> Repo.all()
-    |> Map.new()
+    SetMemberships.list_member_meditation_ids()
+    |> Meditations.count_excluding_ids()
   end
 
   @doc """
@@ -344,120 +203,107 @@ defmodule LumenViae.Rosary do
   audio file), archived_count.
   """
   def meditation_set_stats do
-    from(msm in MeditationSetMeditation,
-      join: m in Meditation,
-      on: msm.meditation_id == m.id,
-      group_by: msm.meditation_set_id,
-      select:
-        {msm.meditation_set_id,
-         %{
-           meditation_count: count(m.id),
-           audio_count: filter(count(m.id), not is_nil(m.audio_url) and m.audio_url != ""),
-           archived_count: filter(count(m.id), not is_nil(m.archived_at))
-         }}
-    )
-    |> Repo.all()
-    |> Map.new()
+    flags = Meditations.list_audio_and_archive_flags()
+
+    SetMemberships.list_meditation_ids_by_set()
+    |> Map.new(fn {set_id, meditation_ids} ->
+      members = Enum.map(meditation_ids, &Map.get(flags, &1, %{audio?: false, archived?: false}))
+
+      {set_id,
+       %{
+         meditation_count: length(members),
+         audio_count: Enum.count(members, & &1.audio?),
+         archived_count: Enum.count(members, & &1.archived?)
+       }}
+    end)
   end
 
-  ## Rosary Completions (Analytics)
+  ## Rosary completions (analytics)
+
+  defdelegate count_total_completions(), to: Completions, as: :count
+  defdelegate count_completions_in_range(start_at, end_at), to: Completions, as: :count_in_range
 
   @doc """
   Records a rosary completion for analytics tracking.
-  Called when a user reaches the 5th mystery in a meditation set.
+  Called when a user reaches the last mystery in a meditation set.
 
   Optionally accepts an IP address to fetch and store location data.
   """
   def record_completion(meditation_set_id, ip_address \\ nil) do
-    location_data =
-      case ip_address do
-        nil ->
-          %{}
-
-        ip ->
-          # Always store the IP address
-          base_data = %{ip_address: ip}
-
-          # Try to fetch location data
-          case LumenViae.Services.Geolocation.get_location(ip) do
-            nil -> base_data
-            location -> Map.merge(base_data, location)
-          end
-      end
-
     attrs =
-      Map.merge(
-        %{
-          meditation_set_id: meditation_set_id,
-          completed_at: DateTime.utc_now()
-        },
-        location_data
-      )
+      %{meditation_set_id: meditation_set_id, completed_at: DateTime.utc_now()}
+      |> Map.merge(location_data(ip_address))
 
-    %RosaryCompletion{}
-    |> RosaryCompletion.changeset(attrs)
-    |> Repo.insert()
+    Completions.create(attrs)
   end
 
-  @doc """
-  Gets the total count of rosary completions across all sets.
-  """
-  def count_total_completions do
-    Repo.aggregate(RosaryCompletion, :count)
+  defp location_data(nil), do: %{}
+
+  defp location_data(ip) do
+    # The IP is always stored; the lookup that turns it into a place is
+    # best-effort and may be unavailable.
+    case Geolocation.get_location(ip) do
+      nil -> %{ip_address: ip}
+      location -> Map.merge(%{ip_address: ip}, location)
+    end
   end
 
   @doc """
   Gets completion statistics grouped by meditation set.
-  Returns a list of %{set_id, set_name, category, count} maps.
+  Returns a list of %{set_id, set_name, category, count} maps, most
+  completed first. Completions whose set has since been deleted are omitted.
   """
   def get_completions_by_set do
-    from(rc in RosaryCompletion,
-      join: ms in MeditationSet,
-      on: rc.meditation_set_id == ms.id,
-      group_by: [ms.id, ms.name, ms.category],
-      select: %{
-        set_id: ms.id,
-        set_name: ms.name,
-        category: ms.category,
-        count: count(rc.id)
-      },
-      order_by: [desc: count(rc.id)]
-    )
-    |> Repo.all()
+    counts = Completions.count_by_set()
+    sets = counts |> Enum.map(&elem(&1, 0)) |> sets_by_id()
+
+    Enum.flat_map(counts, fn {set_id, count} ->
+      case Map.fetch(sets, set_id) do
+        {:ok, set} ->
+          [%{set_id: set.id, set_name: set.name, category: set.category, count: count}]
+
+        :error ->
+          []
+      end
+    end)
   end
 
   @doc """
   Gets recent completions for the dashboard.
   Returns the last N completions with set information and location data.
+  Completions whose set has since been deleted are omitted.
   """
   def get_recent_completions(limit \\ 10) do
-    from(rc in RosaryCompletion,
-      join: ms in MeditationSet,
-      on: rc.meditation_set_id == ms.id,
-      select: %{
-        id: rc.id,
-        set_name: ms.name,
-        category: ms.category,
-        completed_at: rc.completed_at,
-        city: rc.city,
-        region: rc.region,
-        country: rc.country,
-        country_code: rc.country_code
-      },
-      order_by: [desc: rc.completed_at],
-      limit: ^limit
-    )
-    |> Repo.all()
+    completions = Completions.list_recent(limit)
+    sets = completions |> Enum.map(& &1.meditation_set_id) |> sets_by_id()
+
+    Enum.flat_map(completions, fn completion ->
+      case Map.fetch(sets, completion.meditation_set_id) do
+        {:ok, set} ->
+          [
+            %{
+              id: completion.id,
+              set_name: set.name,
+              category: set.category,
+              completed_at: completion.completed_at,
+              city: completion.city,
+              region: completion.region,
+              country: completion.country,
+              country_code: completion.country_code
+            }
+          ]
+
+        :error ->
+          []
+      end
+    end)
   end
 
-  @doc """
-  Gets completion count for a specific date range.
-  """
-  def count_completions_in_range(start_date, end_date) do
-    from(rc in RosaryCompletion,
-      where: rc.completed_at >= ^start_date and rc.completed_at <= ^end_date
-    )
-    |> Repo.aggregate(:count)
+  defp sets_by_id(set_ids) do
+    set_ids
+    |> Enum.uniq()
+    |> MeditationSets.list_by_ids()
+    |> Map.new(&{&1.id, &1})
   end
 
   @doc """
@@ -473,7 +319,6 @@ defmodule LumenViae.Rosary do
   """
   def count_completions_today do
     today_start = DateTime.utc_now() |> DateTime.to_date() |> DateTime.new!(~T[00:00:00])
-    today_end = DateTime.utc_now()
-    count_completions_in_range(today_start, today_end)
+    count_completions_in_range(today_start, DateTime.utc_now())
   end
 end

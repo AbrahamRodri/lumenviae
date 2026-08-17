@@ -1,6 +1,4 @@
 defmodule LumenViaeWeb.API.MysteryJSON do
-  alias LumenViae.Rosary.Mystery
-
   @doc """
   Renders a list of mysteries.
   """
@@ -11,7 +9,7 @@ defmodule LumenViaeWeb.API.MysteryJSON do
   @doc """
   Renders a single mystery.
   """
-  def data(%Mystery{} = mystery) do
+  def data(mystery) do
     %{
       id: mystery.id,
       name: mystery.name,

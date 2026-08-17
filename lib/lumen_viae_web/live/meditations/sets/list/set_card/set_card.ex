@@ -6,8 +6,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
   """
   use LumenViaeWeb, :html
 
-  alias LumenViae.Constants
-  alias LumenViae.Meditations.SetFiltering
+  alias LumenViae.Rosary
+  alias LumenViae.Rosary.Categories
 
   attr :set, :map, required: true
   attr :stats, :map, required: true
@@ -19,7 +19,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
     assigns =
       assigns
       |> assign(:counts, Map.get(assigns.stats, assigns.set.id, default_counts()))
-      |> assign(:expected, SetFiltering.expected_meditation_count(assigns.set.category))
+      |> assign(:expected, Rosary.expected_meditation_count(assigns.set.category))
 
     ~H"""
     <div class="border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
@@ -40,7 +40,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
 
             <div class="flex flex-wrap items-center gap-1.5 mt-2">
               <.admin_badge tone="navy">
-                {Constants.mystery_category_label(@set.category)}
+                {Categories.label(@set.category)}
               </.admin_badge>
 
               <%= for label <- @set.labels do %>

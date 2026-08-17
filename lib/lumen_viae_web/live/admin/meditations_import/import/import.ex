@@ -1,7 +1,7 @@
 defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   use LumenViaeWeb, :live_view
 
-  alias LumenViae.Meditations.CsvImport
+  alias LumenViae.Curation.CsvImport
   alias LumenViae.Rosary.Labels
 
   # Import flow stages:

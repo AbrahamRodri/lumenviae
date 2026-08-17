@@ -3,17 +3,14 @@ defmodule LumenViaeWeb.Live.Pray.IndexTest do
 
   import Phoenix.LiveViewTest
 
-  alias LumenViae.Meditations.CsvImport
-  alias LumenViae.Repo
-  alias LumenViae.Rosary.{MeditationSet, Mystery}
+  alias LumenViae.Curation.CsvImport
+  alias LumenViae.Rosary
 
   # CSV in, rendered page out: proves the whole import-to-display path never
   # leaks pause markers or break tags into what the user sees.
   test "imported pause markers never reach the rendered meditation", %{conn: conn} do
     {:ok, _mystery} =
-      %Mystery{}
-      |> Mystery.changeset(%{name: "The Annunciation", category: "joyful", order: 1})
-      |> Repo.insert()
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
 
     marked_content =
       "First paragraph of the meditation. {pause:1.5} Same paragraph continues.\n\n" <>
@@ -25,7 +22,7 @@ defmodule LumenViaeWeb.Live.Pray.IndexTest do
 
     assert [{:ok, _}] = CsvImport.import_string(csv, skip_audio: true)
 
-    set = Repo.get_by!(MeditationSet, name: "Round Trip Set")
+    set = Rosary.get_meditation_set_by_name("Round Trip Set")
 
     {:ok, _view, html} = live(conn, "/meditation-sets/#{set.id}/pray")
 

@@ -1,14 +1,10 @@
-defmodule LumenViae.Meditations.FilteringTest do
+defmodule LumenViaeWeb.Live.Meditations.FilteringTest do
   use ExUnit.Case, async: true
 
-  alias LumenViae.Meditations.Filtering
-  alias LumenViae.Rosary.{Meditation, MeditationSet, Mystery}
+  alias LumenViaeWeb.Live.Meditations.Filtering
 
   defp mystery(attrs) do
-    struct!(
-      Mystery,
-      Map.merge(%{id: 1, name: "The Annunciation", category: "joyful", order: 1}, attrs)
-    )
+    Map.merge(%{id: 1, name: "The Annunciation", category: "joyful", order: 1}, attrs)
   end
 
   defp meditation(attrs) do
@@ -26,7 +22,7 @@ defmodule LumenViae.Meditations.FilteringTest do
       updated_at: ~N[2026-01-01 00:00:00]
     }
 
-    struct!(Meditation, Map.merge(defaults, attrs))
+    Map.merge(defaults, attrs)
   end
 
   defp ids(meditations), do: Enum.map(meditations, & &1.id)
@@ -90,7 +86,7 @@ defmodule LumenViae.Meditations.FilteringTest do
     end
 
     test "filters by set membership" do
-      set = struct!(MeditationSet, id: 7, name: "Test Set", category: "joyful", labels: [])
+      set = %{id: 7, name: "Test Set", category: "joyful", labels: []}
       in_set = meditation(%{id: 1, meditation_sets: [set]})
       orphan = meditation(%{id: 2})
 

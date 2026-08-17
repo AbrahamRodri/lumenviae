@@ -1,6 +1,4 @@
 defmodule LumenViaeWeb.API.MeditationSetJSON do
-  alias LumenViae.Rosary.MeditationSet
-
   @doc """
   Renders a list of meditation sets (summary view).
   """
@@ -15,7 +13,7 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
     %{data: set_detail(set)}
   end
 
-  defp set_summary(%MeditationSet{} = set) do
+  defp set_summary(set) do
     %{
       id: set.id,
       name: set.name,
@@ -25,7 +23,7 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
     }
   end
 
-  defp set_detail(%MeditationSet{} = set) do
+  defp set_detail(set) do
     %{
       id: set.id,
       name: set.name,

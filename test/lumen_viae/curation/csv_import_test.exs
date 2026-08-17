@@ -1,22 +1,17 @@
-defmodule LumenViae.Meditations.CsvImportTest do
+defmodule LumenViae.Curation.CsvImportTest do
   use LumenViae.DataCase, async: false
 
-  alias LumenViae.Meditations.CsvImport
+  alias LumenViae.Curation.CsvImport
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.{Meditation, MeditationSet, MeditationSetMeditation, Mystery}
 
   @content "First paragraph of the meditation.\n\nSecond paragraph of the meditation."
 
   setup do
     {:ok, annunciation} =
-      %Mystery{}
-      |> Mystery.changeset(%{name: "The Annunciation", category: "joyful", order: 1})
-      |> Repo.insert()
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
 
     {:ok, visitation} =
-      %Mystery{}
-      |> Mystery.changeset(%{name: "The Visitation", category: "joyful", order: 2})
-      |> Repo.insert()
+      Rosary.create_mystery(%{name: "The Visitation", category: "joyful", order: 2})
 
     %{annunciation: annunciation, visitation: visitation}
   end
@@ -47,21 +42,14 @@ defmodule LumenViae.Meditations.CsvImportTest do
       assert first =~ "The Annunciation"
       assert second =~ "The Visitation"
 
-      assert Repo.aggregate(Meditation, :count) == 2
+      assert Rosary.count_meditations() == 2
 
-      set = Repo.get_by!(MeditationSet, name: "Test Set")
+      set = Rosary.get_meditation_set_by_name("Test Set")
       assert set.category == "joyful"
       assert set.labels == ["Intentions", "Saints"]
 
-      orders =
-        Repo.all(
-          from msm in MeditationSetMeditation,
-            where: msm.meditation_set_id == ^set.id,
-            order_by: msm.order,
-            select: msm.order
-        )
-
-      assert orders == [1, 2]
+      assert Rosary.get_meditation_set_with_ordered_meditations!(set.id).meditations
+             |> Enum.map(& &1.mystery.name) == ["The Annunciation", "The Visitation"]
     end
 
     test "appends after the existing highest order in a set", %{annunciation: mystery} do
@@ -81,14 +69,7 @@ defmodule LumenViae.Meditations.CsvImportTest do
 
       assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true)
 
-      max_order =
-        Repo.one(
-          from msm in MeditationSetMeditation,
-            where: msm.meditation_set_id == ^set.id,
-            select: max(msm.order)
-        )
-
-      assert max_order == 6
+      assert Rosary.next_order_in_set(set.id) == 7
     end
 
     test "dry run validates rows without writing anything" do
@@ -101,8 +82,8 @@ defmodule LumenViae.Meditations.CsvImportTest do
       assert [{:ok, message}] = CsvImport.import_string(content, dry_run: true)
       assert message =~ "Would create meditation"
 
-      assert Repo.aggregate(Meditation, :count) == 0
-      assert Repo.aggregate(MeditationSet, :count) == 0
+      assert Rosary.count_meditations() == 0
+      assert Rosary.count_meditation_sets() == 0
     end
 
     test "dry run reports when audio would be skipped" do
@@ -233,7 +214,7 @@ defmodule LumenViae.Meditations.CsvImportTest do
       assert message =~ "audio generation failed"
       assert message =~ "server error"
 
-      meditation = Repo.one!(Meditation)
+      [meditation] = Rosary.list_meditations()
       assert meditation.audio_url == nil
 
       # All three attempts hit the API, with two retry notifications.
@@ -284,7 +265,7 @@ defmodule LumenViae.Meditations.CsvImportTest do
 
       assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true)
 
-      meditation = Repo.one!(Meditation)
+      [meditation] = Rosary.list_meditations()
 
       # Stored content is the imported content minus the marker; the pause
       # survives only as an annotation.
@@ -305,7 +286,7 @@ defmodule LumenViae.Meditations.CsvImportTest do
       assert message =~ "Would create meditation"
       assert message =~ "(audio)"
 
-      assert Repo.aggregate(Meditation, :count) == 0
+      assert Rosary.count_meditations() == 0
     end
 
     test "rejects malformed pause markers" do
@@ -319,7 +300,7 @@ defmodule LumenViae.Meditations.CsvImportTest do
       assert message =~ "invalid pause marker"
 
       assert [{:error, _}] = CsvImport.import_string(content, skip_audio: true)
-      assert Repo.aggregate(Meditation, :count) == 0
+      assert Rosary.count_meditations() == 0
     end
 
     test "rejects literal <break tags in content" do
@@ -331,7 +312,7 @@ defmodule LumenViae.Meditations.CsvImportTest do
       assert [{:error, message}] = CsvImport.import_string(content, skip_audio: true)
       assert message =~ "<break"
 
-      assert Repo.aggregate(Meditation, :count) == 0
+      assert Rosary.count_meditations() == 0
     end
 
     test "preview counts pauses against the cleaned content" do
@@ -421,7 +402,7 @@ defmodule LumenViae.Meditations.CsvImportTest do
       assert_received {:aws_request, :put, url, "audio-bytes"}
       assert url =~ "clip.mp3"
 
-      meditation = Repo.one!(Meditation)
+      [meditation] = Rosary.list_meditations()
       assert meditation.audio_url == "clip.mp3"
       assert meditation.content == @content
       refute meditation.content =~ "pause"

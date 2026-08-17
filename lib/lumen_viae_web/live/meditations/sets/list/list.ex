@@ -1,8 +1,8 @@
 defmodule LumenViaeWeb.Live.Meditations.Sets.List do
   use LumenViaeWeb, :live_view
   import LumenViaeWeb.Live.Meditations.Sets.List.SetCard
-  alias LumenViae.Constants
-  alias LumenViae.Meditations.SetFiltering
+  alias LumenViae.Rosary.Categories
+  alias LumenViaeWeb.Live.Meditations.Sets.Filtering, as: SetFiltering
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Labels
 
@@ -13,7 +13,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
     {:ok,
      socket
      |> assign(:page_title, "Meditation Sets")
-     |> assign(:mystery_categories, Constants.mystery_category_options())
+     |> assign(:mystery_categories, Categories.options())
      |> assign(:label_vocabulary, Labels.vocabulary())
      |> assign(:expanded_set_id, nil)
      |> assign(:expanded_meditations, [])
@@ -88,7 +88,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
       incomplete:
         Enum.count(sets, fn set ->
           SetFiltering.meditation_count(set, stats) !=
-            SetFiltering.expected_meditation_count(set.category)
+            Rosary.expected_meditation_count(set.category)
         end)
     }
   end

@@ -1,6 +1,11 @@
-defmodule LumenViae.Meditations.Filtering do
+defmodule LumenViaeWeb.Live.Meditations.Filtering do
   @moduledoc """
-  In-memory filtering and sorting for admin meditation lists.
+  In-memory filtering and sorting for the admin meditations list.
+
+  The admin loads every meditation once and narrows it here, so the filters
+  work on already-fetched structs rather than on the database. Filter values
+  arrive from the URL query string, which is why blank strings are treated
+  as "no filter" (see `blank_to_nil/1`).
 
   All filter keys are optional; a nil (or absent) value leaves the list
   untouched, so callers that only use a subset of the filters keep working.
@@ -18,13 +23,7 @@ defmodule LumenViae.Meditations.Filtering do
       mystery name, and content
   """
 
-  @category_order %{
-    "joyful" => 0,
-    "sorrowful" => 1,
-    "glorious" => 2,
-    "luminous" => 3,
-    "seven_sorrows" => 4
-  }
+  alias LumenViae.Rosary.Categories
 
   def available_authors(meditations) do
     meditations
@@ -69,7 +68,7 @@ defmodule LumenViae.Meditations.Filtering do
 
       _mystery ->
         Enum.sort_by(meditations, fn m ->
-          {Map.get(@category_order, m.mystery.category, 99), m.mystery.order, m.id}
+          {Categories.position(m.mystery.category), m.mystery.order, m.id}
         end)
     end
   end

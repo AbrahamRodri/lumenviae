@@ -1,15 +1,15 @@
-defmodule LumenViae.Rosary.MeditationSetTest do
+defmodule LumenViae.Rosary.MeditationSetsTest do
   use ExUnit.Case, async: true
 
   import Ecto.Changeset
 
   alias LumenViae.Rosary.Labels
-  alias LumenViae.Rosary.MeditationSet
+  alias LumenViae.Rosary.MeditationSets
 
   @valid_attrs %{name: "Test Set", category: "joyful"}
 
   defp changeset(attrs) do
-    MeditationSet.changeset(%MeditationSet{}, Map.merge(@valid_attrs, attrs))
+    MeditationSets.change_new(Map.merge(@valid_attrs, attrs))
   end
 
   describe "changeset/2 labels" do
@@ -56,6 +56,14 @@ defmodule LumenViae.Rosary.MeditationSetTest do
 
       assert changeset.valid?
       assert get_field(changeset, :labels) == []
+    end
+  end
+
+  describe "expected_meditation_count/1" do
+    test "seven sorrows sets hold seven meditations, others five" do
+      assert MeditationSets.expected_meditation_count("seven_sorrows") == 7
+      assert MeditationSets.expected_meditation_count("joyful") == 5
+      assert MeditationSets.expected_meditation_count("glorious") == 5
     end
   end
 end

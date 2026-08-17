@@ -2,8 +2,8 @@ defmodule LumenViaeWeb.Live.Meditations.List do
   use LumenViaeWeb, :live_view
   import LumenViaeWeb.Live.Meditations.List.FiltersPanel
   import LumenViaeWeb.Live.Meditations.List.Row
-  alias LumenViae.Constants
-  alias LumenViae.Meditations.Filtering
+  alias LumenViae.Rosary.Categories
+  alias LumenViaeWeb.Live.Meditations.Filtering
   alias LumenViae.Rosary
 
   @sort_options ~w(mystery newest oldest updated author title)
@@ -15,7 +15,7 @@ defmodule LumenViaeWeb.Live.Meditations.List do
      |> assign(:page_title, "Meditations")
      |> assign(:expanded_meditation_id, nil)
      |> assign(:selected_ids, MapSet.new())
-     |> assign(:mystery_categories, Constants.mystery_category_options())
+     |> assign(:mystery_categories, Categories.options())
      |> load_data()}
   end
 

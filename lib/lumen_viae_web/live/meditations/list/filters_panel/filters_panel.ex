@@ -5,7 +5,7 @@ defmodule LumenViaeWeb.Live.Meditations.List.FiltersPanel do
   """
   use LumenViaeWeb, :html
 
-  alias LumenViae.Constants
+  alias LumenViae.Rosary.Categories
 
   attr :filters, :map, required: true
   attr :mystery_categories, :list, required: true
@@ -119,14 +119,14 @@ defmodule LumenViaeWeb.Live.Meditations.List.FiltersPanel do
 
   defp mystery_options(mysteries) do
     Enum.map(mysteries, fn mystery ->
-      {"#{mystery.name} (#{Constants.mystery_category_label(mystery.category)})", mystery.id}
+      {"#{mystery.name} (#{Categories.label(mystery.category)})", mystery.id}
     end)
   end
 
   defp set_options(meditation_sets) do
     [{"Not in any set", "none"}] ++
       Enum.map(meditation_sets, fn set ->
-        {"#{set.name} (#{Constants.mystery_category_label(set.category)})", set.id}
+        {"#{set.name} (#{Categories.label(set.category)})", set.id}
       end)
   end
 

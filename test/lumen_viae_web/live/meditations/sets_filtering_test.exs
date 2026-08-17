@@ -1,12 +1,11 @@
-defmodule LumenViae.Meditations.SetFilteringTest do
+defmodule LumenViaeWeb.Live.Meditations.Sets.FilteringTest do
   use ExUnit.Case, async: true
 
-  alias LumenViae.Meditations.SetFiltering
-  alias LumenViae.Rosary.MeditationSet
+  alias LumenViaeWeb.Live.Meditations.Sets.Filtering, as: SetFiltering
 
   defp set(attrs) do
     defaults = %{id: 1, name: "A Set", category: "joyful", description: nil, labels: []}
-    struct!(MeditationSet, Map.merge(defaults, attrs))
+    Map.merge(defaults, attrs)
   end
 
   defp ids(sets), do: Enum.map(sets, & &1.id)
@@ -15,14 +14,6 @@ defmodule LumenViae.Meditations.SetFilteringTest do
     Map.new(counts, fn {id, count} ->
       {id, %{meditation_count: count, audio_count: 0, archived_count: 0}}
     end)
-  end
-
-  describe "expected_meditation_count/1" do
-    test "seven sorrows sets hold seven meditations, others five" do
-      assert SetFiltering.expected_meditation_count("seven_sorrows") == 7
-      assert SetFiltering.expected_meditation_count("joyful") == 5
-      assert SetFiltering.expected_meditation_count("glorious") == 5
-    end
   end
 
   describe "filter_sets/3" do

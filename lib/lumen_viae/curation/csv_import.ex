@@ -1,4 +1,4 @@
-defmodule LumenViae.Meditations.CsvImport do
+defmodule LumenViae.Curation.CsvImport do
   @moduledoc """
   Shared CSV import engine for meditations and meditation sets.
 
@@ -72,19 +72,15 @@ defmodule LumenViae.Meditations.CsvImport do
   generation failed, or the meditation could not be attached to its set).
   """
 
-  import Ecto.Query
-
   alias LumenViae.Audio.Pipeline
   alias LumenViae.Audio.TtsText
-  alias LumenViae.Repo
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.{Meditation, MeditationSet, MeditationSetMeditation}
 
   require Logger
 
-  NimbleCSV.define(LumenViae.Meditations.CsvImport.Parser, separator: ",", escape: "\"")
+  NimbleCSV.define(LumenViae.Curation.CsvImport.Parser, separator: ",", escape: "\"")
 
-  alias LumenViae.Meditations.CsvImport.Parser
+  alias LumenViae.Curation.CsvImport.Parser
 
   @required_columns ~w(mystery_name content)
   @known_columns ~w(mystery_name content title author source audio_filename
@@ -187,9 +183,9 @@ defmodule LumenViae.Meditations.CsvImport do
       set_name = Map.get(row_map, "set_name")
 
       status =
-        case Repo.get_by(MeditationSet, name: set_name) do
-          %MeditationSet{} -> {:existing, []}
+        case Rosary.get_meditation_set_by_name(set_name) do
           nil -> {:new, new_set_errors(row_map)}
+          _set -> {:existing, []}
         end
 
       {set_name, status}
@@ -197,13 +193,7 @@ defmodule LumenViae.Meditations.CsvImport do
   end
 
   defp new_set_errors(row_map) do
-    changeset =
-      MeditationSet.changeset(%MeditationSet{}, %{
-        "name" => Map.get(row_map, "set_name"),
-        "category" => Map.get(row_map, "set_category"),
-        "description" => Map.get(row_map, "set_description"),
-        "labels" => parse_labels(Map.get(row_map, "set_labels"))
-      })
+    changeset = Rosary.change_new_meditation_set(set_attrs(row_map))
 
     if changeset.valid?, do: [], else: ["set: #{changeset_errors(changeset)}"]
   end
@@ -418,13 +408,7 @@ defmodule LumenViae.Meditations.CsvImport do
       |> Enum.reject(&is_nil/1)
       |> Enum.uniq()
 
-    if filenames == [] do
-      MapSet.new()
-    else
-      from(m in Meditation, where: m.audio_url in ^filenames, select: m.audio_url)
-      |> Repo.all()
-      |> MapSet.new()
-    end
+    filenames |> Rosary.list_taken_audio_urls() |> MapSet.new()
   end
 
   ## Row processing
@@ -556,17 +540,9 @@ defmodule LumenViae.Meditations.CsvImport do
   end
 
   defp find_or_create_set(set_name, row_map, opts) do
-    case Repo.get_by(MeditationSet, name: set_name) do
-      %MeditationSet{} = set ->
-        {:ok, set}
-
+    case Rosary.get_meditation_set_by_name(set_name) do
       nil ->
-        attrs = %{
-          "name" => set_name,
-          "category" => Map.get(row_map, "set_category"),
-          "description" => Map.get(row_map, "set_description"),
-          "labels" => parse_labels(Map.get(row_map, "set_labels"))
-        }
+        attrs = set_attrs(row_map)
 
         if opts[:dry_run] do
           validate_set_attrs(set_name, attrs)
@@ -576,14 +552,28 @@ defmodule LumenViae.Meditations.CsvImport do
             {:error, changeset} -> {:error, set_error(set_name, changeset)}
           end
         end
+
+      set ->
+        {:ok, set}
     end
   end
 
+  defp set_attrs(row_map) do
+    %{
+      "name" => Map.get(row_map, "set_name"),
+      "category" => Map.get(row_map, "set_category"),
+      "description" => Map.get(row_map, "set_description"),
+      "labels" => parse_labels(Map.get(row_map, "set_labels"))
+    }
+  end
+
+  # A dry run never writes, so the "set" carried through the rest of the row
+  # is just its name - there is no record and no id to attach to.
   defp validate_set_attrs(set_name, attrs) do
-    changeset = MeditationSet.changeset(%MeditationSet{}, attrs)
+    changeset = Rosary.change_new_meditation_set(attrs)
 
     if changeset.valid? do
-      {:ok, %MeditationSet{name: set_name}}
+      {:ok, %{id: nil, name: set_name}}
     else
       {:error, set_error(set_name, changeset)}
     end
@@ -603,7 +593,7 @@ defmodule LumenViae.Meditations.CsvImport do
   end
 
   defp dry_run_result(attrs, row_map, mystery, set, opts) do
-    changeset = Meditation.changeset(%Meditation{}, attrs)
+    changeset = Rosary.change_new_meditation(attrs)
 
     if changeset.valid? do
       set_info = if set, do: " -> set '#{set.name}'#{order_info(row_map)}", else: ""
@@ -662,7 +652,7 @@ defmodule LumenViae.Meditations.CsvImport do
   defp attach_to_set(nil, _meditation, _row_map), do: :ok
 
   defp attach_to_set(set, meditation, row_map) do
-    order = explicit_order(row_map) || next_order(set.id)
+    order = explicit_order(row_map) || Rosary.next_order_in_set(set.id)
 
     case Rosary.add_meditation_to_set(set.id, meditation.id, order) do
       {:ok, _} -> :ok
@@ -681,17 +671,6 @@ defmodule LumenViae.Meditations.CsvImport do
           _ -> nil
         end
     end
-  end
-
-  defp next_order(set_id) do
-    current_max =
-      Repo.one(
-        from msm in MeditationSetMeditation,
-          where: msm.meditation_set_id == ^set_id,
-          select: max(msm.order)
-      ) || 0
-
-    current_max + 1
   end
 
   # Returns {attrs, audio_error}. When audio generation or upload fails the

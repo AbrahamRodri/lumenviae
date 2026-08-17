@@ -1,7 +1,7 @@
 defmodule LumenViaeWeb.Live.Admin.Dashboard do
   use LumenViaeWeb, :live_view
 
-  alias LumenViae.Meditations.SetFiltering
+  alias LumenViaeWeb.Live.Meditations.Sets.Filtering, as: SetFiltering
   alias LumenViae.Rosary
 
   def mount(_params, _session, socket) do
@@ -40,7 +40,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     partial_sets =
       Enum.filter(sets, fn set ->
         count = SetFiltering.meditation_count(set, set_stats)
-        count > 0 and count != SetFiltering.expected_meditation_count(set.category)
+        count > 0 and count != Rosary.expected_meditation_count(set.category)
       end)
 
     bare_mysteries = Enum.filter(mysteries, &(Map.get(mystery_counts, &1.id, 0) == 0))

@@ -1,10 +1,8 @@
 defmodule LumenViaeWeb.API.MeditationJSON do
-  alias LumenViae.Rosary.Meditation
-
   @doc """
   Renders a single meditation with nested mystery data.
   """
-  def data(%Meditation{} = meditation) do
+  def data(meditation) do
     %{
       id: meditation.id,
       title: meditation.title,

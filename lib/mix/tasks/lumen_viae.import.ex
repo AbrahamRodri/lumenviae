@@ -3,7 +3,7 @@ defmodule Mix.Tasks.LumenViae.Import do
 
   @moduledoc """
   Imports meditations from a CSV file using the same engine as the admin
-  upload UI (`LumenViae.Meditations.CsvImport`), so imports can be run from
+  upload UI (`LumenViae.Curation.CsvImport`), so imports can be run from
   the command line or driven by Claude Code.
 
       mix lumen_viae.import priv/repo/emmerich_joyful_mysteries.csv
@@ -49,7 +49,7 @@ defmodule Mix.Tasks.LumenViae.Import do
   end
 
   defp run_import(path, opts) do
-    results = LumenViae.Meditations.CsvImport.import_file(path, opts)
+    results = LumenViae.Curation.CsvImport.import_file(path, opts)
 
     grouped = Enum.group_by(results, fn {status, _} -> status end)
     successes = Map.get(grouped, :ok, [])

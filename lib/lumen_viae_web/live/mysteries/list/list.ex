@@ -1,6 +1,6 @@
 defmodule LumenViaeWeb.Live.Mysteries.List do
   use LumenViaeWeb, :live_view
-  alias LumenViae.Constants
+  alias LumenViae.Rosary.Categories
   alias LumenViae.Rosary
 
   @categories ~w(joyful sorrowful glorious luminous seven_sorrows)
@@ -9,7 +9,7 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
     {:ok,
      socket
      |> assign(:page_title, "Mysteries")
-     |> assign(:mystery_categories, Constants.mystery_category_options())
+     |> assign(:mystery_categories, Categories.options())
      |> load_data()}
   end
 
