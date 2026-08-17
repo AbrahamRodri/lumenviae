@@ -67,13 +67,19 @@ The following mystery names are available (must match exactly):
 - The Flight into Egypt
 - The Loss of Jesus in the Temple
 - Mary Meets Jesus on the Way to Calvary
-- Jesus Dies on the Cross
-- Mary Receives the Dead Body of Jesus in Her Arms
-- Jesus is Placed in the Tomb
+- The Crucifixion and Death of Jesus
+- Mary Receives the Body of Jesus
+- The Burial of Jesus
 
-Note: These names are taken from `priv/repo/seeds.exs`, which is the source
-of truth. If a name here ever disagrees with the seeds, trust the seeds (or
-better, check the database).
+Note: the database is the source of truth, because `mystery_name` has to
+match a stored name character for character. `priv/repo/seeds.exs` is kept
+in step with it, but if this list ever disagrees with what is deployed,
+trust the database:
+
+```
+fly ssh console -C "/app/bin/lumen_viae eval \
+  'LumenViae.Rosary.list_mysteries() |> Enum.each(&IO.puts(&1.name))'"
+```
 
 ## Sample CSV File
 

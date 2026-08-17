@@ -8,8 +8,7 @@
 # - Load meditation files and let them handle their own logic
 # - Create/update meditation sets as needed
 
-alias LumenViae.Repo
-alias LumenViae.Rosary.Mystery
+alias LumenViae.Rosary
 
 IO.puts("\n" <> String.duplicate("=", 70))
 IO.puts("  LUMEN VIAE - Database Seeding")
@@ -20,10 +19,14 @@ IO.puts("\nAdding any new mysteries and meditations...")
 # Helper Functions
 # ============================================================================
 
+# Existing mysteries are matched on category + order, not name, so renaming a
+# mystery in this file never duplicates one that is already seeded.
+existing_mysteries = Map.new(Rosary.list_mysteries(), &{{&1.category, &1.order}, &1})
+
 insert_mystery_if_new = fn attrs ->
-  case Repo.get_by(Mystery, category: attrs.category, order: attrs.order) do
+  case Map.get(existing_mysteries, {attrs.category, attrs.order}) do
     nil ->
-      mystery = Repo.insert!(struct(Mystery, attrs))
+      {:ok, mystery} = Rosary.create_mystery(attrs)
       IO.puts("  ✓ Created: #{attrs.name} (#{attrs.category} ##{attrs.order})")
       mystery
 
@@ -34,7 +37,7 @@ insert_mystery_if_new = fn attrs ->
 end
 
 # ============================================================================
-# Seed Mysteries (The 15  Mysteries)
+# Seed Mysteries
 # ============================================================================
 
 IO.puts("\n" <> String.duplicate("-", 70))
@@ -248,21 +251,21 @@ mysteries_data = [
     scripture_reference: "Luke 23:27-31"
   },
   %{
-    name: "Jesus Dies on the Cross",
+    name: "The Crucifixion and Death of Jesus",
     category: "seven_sorrows",
     order: 5,
     description: "Mary stands at the foot of the cross as Jesus dies.",
     scripture_reference: "John 19:25-27"
   },
   %{
-    name: "Mary Receives the Dead Body of Jesus in Her Arms",
+    name: "Mary Receives the Body of Jesus",
     category: "seven_sorrows",
     order: 6,
     description: "Mary receives her Son's lifeless body taken down from the cross.",
     scripture_reference: "John 19:38-40"
   },
   %{
-    name: "Jesus is Placed in the Tomb",
+    name: "The Burial of Jesus",
     category: "seven_sorrows",
     order: 7,
     description: "Mary witnesses the burial of Jesus in the tomb.",
@@ -279,5 +282,5 @@ Enum.each(mysteries_data, insert_mystery_if_new)
 IO.puts("\n" <> String.duplicate("=", 70))
 IO.puts("  Database Seeding Completed")
 IO.puts(String.duplicate("=", 70))
-IO.puts("\nTotal mysteries: #{Repo.aggregate(Mystery, :count)}")
+IO.puts("\nTotal mysteries: #{Rosary.count_mysteries()}")
 IO.puts(String.duplicate("=", 70) <> "\n")

@@ -23,7 +23,17 @@ defmodule LumenViae.Rosary.ContextRulesTest do
 
   defp schema_files, do: Path.wildcard("#{@domain_root}/*/*.ex")
 
-  defp lib_files, do: Path.wildcard("lib/**/*.ex") ++ Path.wildcard("lib/**/*.heex")
+  # priv/repo/seeds.exs is checked alongside lib/ because it is real
+  # application code that `mix setup` and `LumenViae.Release.seed/0` run;
+  # it is just never compiled, so a stale module reference in it would only
+  # surface at runtime. Migrations are deliberately excluded: they run
+  # against whatever the schema was at the time and must not depend on
+  # today's modules.
+  defp lib_files do
+    Path.wildcard("lib/**/*.ex") ++
+      Path.wildcard("lib/**/*.heex") ++
+      ["priv/repo/seeds.exs"]
+  end
 
   defp read(path), do: {path, File.read!(path)}
 

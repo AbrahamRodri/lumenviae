@@ -13,12 +13,14 @@ NEVER when making PR descriptions on git commits add CO-Author by Claude
 **IMPORTANT:** Before making any architectural decisions or creating new LiveViews, components, or modules, **always reference [ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the project's architectural standards and patterns.
 
 The ARCHITECTURE.md document defines:
-- LiveView organization and structure
-- Component types (Live Components, Function Components, Page Components)
-- Template organization patterns
-- Parent-child communication patterns
-- Directory structure and naming conventions
-- Key architectural patterns and best practices
+- The context rules the domain follows (Primary Context, Secondary
+  Contexts, schemas) and where a new query or resource goes
+- LiveView organization and naming
+- Component and template conventions, including the `_partials` pattern
+- Design tokens (colors and fonts)
+
+These rules are enforced by `test/lumen_viae/rosary/context_rules_test.exs`,
+so breaking them fails the build rather than drifting quietly.
 
 ## Development Guidelines
 
@@ -26,9 +28,9 @@ The ARCHITECTURE.md document defines:
 
 1. **Read docs/ARCHITECTURE.md first** - Understand the established patterns before writing code
 2. **Follow the directory structure** - Match module names to file paths as defined in docs/ARCHITECTURE.md
-3. **Choose the right component type** - Use the component decision tree in docs/ARCHITECTURE.md
+3. **Go through `LumenViae.Rosary`** - It is the domain's only public entry point. Never call a Secondary Context, a schema, or the Repo from outside `lib/lumen_viae/rosary/`
 4. **Break up complexity** - Never create monolithic views (see docs/ARCHITECTURE.md for patterns)
-5. **Separate concerns** - Use `data.ex` for queries, `helpers.ex` for business logic
+5. **Separate concerns** - Queries belong in the Secondary Context that owns the table; presentation-only filtering belongs next to the LiveView
 
 ### When Refactoring
 
@@ -51,26 +53,44 @@ Follow the patterns documented in docs/ARCHITECTURE.md for:
 This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary meditation website.
 
 ### Key Features
-- Traditional 15 mysteries (Joyful, Sorrowful, Glorious)
+- Five mystery categories: Joyful, Sorrowful, Glorious, Luminous, and the
+  Seven Sorrows of Mary
 - Meditation library with flexible curation
-- Many-to-many relationship between meditation sets and meditations
+- Many-to-many relationship between meditation sets and meditations, with
+  the prayer order carried on the join row
+- ElevenLabs narration generated at import, stored in S3
 - Admin interface for managing meditations and sets
+- JSON API consumed by the iOS app
 - Traditional Latin Mass aesthetic (Navy/Gold color scheme)
 
 ### Database Structure
-- `mysteries` - The 15 traditional mysteries
+- `mysteries` - The mysteries of the Rosary, grouped by category
 - `meditations` - Individual meditations tied to mysteries
 - `meditation_sets` - Curated collections of meditations
 - `meditation_set_meditations` - Join table with ordering
+- `rosary_completions` - Completion analytics
+
+Every table is reached through `LumenViae.Rosary`. The category vocabulary
+lives in `LumenViae.Rosary.Categories` and the set label vocabulary in
+`LumenViae.Rosary.Labels` - never inline those lists.
 
 ### Styling
-- Tailwind CSS v4 with custom theme
-- Google Fonts: Cinzel (headings), Crimson Text (body)
-- Color scheme: Navy (#1a1a2e), Gold (#d4af37), Cream (#f5f5f0)
+- Tailwind CSS v4 with a custom theme in `assets/css/app.css`
+- Fonts: Roman Uncial Modern (display), Ovo (headings), Work Sans (body),
+  EB Garamond (quotations), Cinzel (small-caps labels)
+- Colors: Navy (#003b5c), Gold (#b18b49), Cream (#faf2e6),
+  Brown (#4a3f33), Rubric (#8b2f23)
+- Use the Tailwind tokens (`text-navy`, `bg-cream`, `font-ovo`), never raw
+  hex values. See the design tokens table in docs/ARCHITECTURE.md.
+
+### Local Development
+Start the server with `./dev.sh`, not `mix phx.server` - it loads `.env`
+first, and without the AWS credentials the audio players silently vanish.
+The dev server listens on port 8080.
 
 ## Meditation CSV Imports
 
-Batch imports run through `LumenViae.Meditations.CsvImport` (shared by the
+Batch imports run through `LumenViae.Curation.CsvImport` (shared by the
 admin upload UI at `/admin/meditations/import`, the `mix lumen_viae.import`
 task, and `LumenViae.Release.import_csv/2` for production releases).
 
@@ -101,10 +121,10 @@ it; format content with paragraph breaks so it reads and narrates well.
 ## Remember
 
 **Always check docs/ARCHITECTURE.md before:**
+- Adding a query, a field, or a resource to the domain
 - Creating new LiveViews or components
 - Organizing files and directories
-- Choosing between component types
-- Implementing parent-child communication
 - Structuring complex pages
+- Picking a color or a font
 
 Following these architectural patterns ensures consistency, maintainability, and alignment with the codebase standards.

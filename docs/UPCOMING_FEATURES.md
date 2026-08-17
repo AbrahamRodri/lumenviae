@@ -1,6 +1,6 @@
 # Upcoming Features Roadmap
 
-This document captures the high-level objectives and design intent for planned functionality that extends LumenViae's prayer and meditation experience.
+This document captures the high-level objectives and design intent for planned functionality that extends LumenViae's prayer and meditation experience. It records intent, not commitments; items are removed as they ship.
 
 ## 1. Optional Petition Prayer Appendices
 - Add an optional "petition prayer" section that can be appended to the end of each mystery.
@@ -24,9 +24,15 @@ This document captures the high-level objectives and design intent for planned f
 - Provide role-based access controls to differentiate between general users, content authors, and administrators.
 
 ## 5. Hardened Administration Experience
-- Audit the existing admin page to identify access control gaps and sensitive operations.
-- Require authentication and appropriate authorization checks before granting access to administrative functionality.
-- Employ defense-in-depth techniques (rate limiting, CSRF protection, secure headers, detailed logging) to protect administrative endpoints.
-- Document operational procedures for managing administrator accounts and handling suspicious activity.
+
+Partly shipped. In place today: every `/admin` route goes through
+`LumenViaeWeb.Plugs.RequireAdmin` behind a password session, and the browser
+pipeline applies CSRF protection and secure browser headers.
+
+Still open:
+- Rate limiting on the admin login endpoint, which is currently unthrottled.
+- Detailed logging of administrative actions and failed sign-in attempts.
+- Documented procedures for rotating the admin credential and responding to
+  suspicious activity (docs/PROD_ACCESS.md covers shell access but not this).
 
 These initiatives are intended to be iterative. Each feature can be delivered incrementally while maintaining the stability of the current production experience.

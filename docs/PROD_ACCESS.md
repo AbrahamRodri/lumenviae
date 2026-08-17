@@ -85,27 +85,31 @@ Rosary.get_recent_completions(10)
 Set completeness, for finding sets with the wrong number of meditations:
 
 ```elixir
-alias LumenViae.Meditations.SetFiltering
-
 stats = Rosary.meditation_set_stats()
+count = fn set -> get_in(stats, [set.id, :meditation_count]) || 0 end
 
 Rosary.list_meditation_sets()
-|> Enum.reject(fn set ->
-  SetFiltering.meditation_count(set, stats) ==
-    SetFiltering.expected_meditation_count(set.category)
-end)
-|> Enum.map(&{&1.name, &1.category, SetFiltering.meditation_count(&1, stats)})
+|> Enum.reject(&(count.(&1) == Rosary.expected_meditation_count(&1.category)))
+|> Enum.map(&{&1.name, &1.category, count.(&1)})
 ```
 
-Ad-hoc Ecto queries are fine for reads when no context function fits:
+Meditation counts per category, composed from context functions rather than
+a query:
 
 ```elixir
-import Ecto.Query
-alias LumenViae.Repo
-alias LumenViae.Rosary.Mystery
+counts = Rosary.meditation_counts_by_mystery()
 
-Repo.all(from m in Mystery, group_by: m.category, select: {m.category, count(m.id)})
+Rosary.list_mysteries()
+|> Enum.group_by(& &1.category)
+|> Map.new(fn {category, mysteries} ->
+  {category, mysteries |> Enum.map(&Map.get(counts, &1.id, 0)) |> Enum.sum()}
+end)
 ```
+
+If no context function fits, add one rather than writing a query in the
+shell. `LumenViae.Rosary` is the only way into the domain (see
+docs/ARCHITECTURE.md), and a one-off `Repo.all` here is both unreviewed and
+unrepeatable.
 
 ## Edits
 
@@ -123,15 +127,14 @@ Use the shell only when the admin UI cannot express the change. When you do:
    fly volumes snapshots list <volume-id> --app <postgres-app-name>
    ```
 2. Read the current value first, so the change can be reversed by hand.
-3. Go through a context function or a changeset, never `Repo.update_all/2`
-   or raw SQL, unless the change genuinely has no changeset path.
+3. Go through `LumenViae.Rosary`, never `Repo.update_all/2` or raw SQL. The
+   context functions run the same validations the admin UI does.
 
 ```elixir
 set = Rosary.get_meditation_set!(42)
+set.description
 
-set
-|> LumenViae.Rosary.MeditationSet.changeset(%{description: "..."})
-|> LumenViae.Repo.update()
+Rosary.update_meditation_set(set, %{description: "..."})
 ```
 
 Rules for anyone (including Claude) operating this shell:
