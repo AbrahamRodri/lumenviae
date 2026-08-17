@@ -127,9 +127,12 @@
   --color-cream-dark: #f0e5d0;
   --color-white: #ffffff;
 
-  /* Text Colors - Warm ink browns for body copy */
+  /* Text Colors - Warm ink browns for body copy.
+     brown-light is the quieter tier: captions, citations, pull-quotes. It has
+     to clear WCAG AA (4.5:1) on the lightest surface it is used on, which is
+     cream-dark, not cream - keep it at or below #6f6353. */
   --color-brown: #4a3f33;
-  --color-brown-light: #7c6f5e;
+  --color-brown-light: #6f6353;
 
   /* Accent Colors - manuscript rubric red and St. Carlo polo red */
   --color-rubric: #8b2f23;
