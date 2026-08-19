@@ -21,6 +21,21 @@ config :ex_aws, :s3,
 
 config :lumen_viae, :aws_s3_bucket, System.get_env("AWS_S3_BUCKET") || "lumenviae-audio"
 
+# Public assets - meditation set and meditation artwork.
+#
+# A separate bucket from the audio, and deliberately so: the audio bucket
+# holds paid narration and must stay private, while artwork has to be
+# served from a stable unsigned URL the app can cache for offline prayer.
+# Keeping them apart means a mistake in one bucket's policy cannot expose
+# the other. Object reads are public; listing and writing are not.
+config :lumen_viae, :aws_s3_public_bucket,
+       System.get_env("AWS_S3_PUBLIC_BUCKET") || "lumenviae-images"
+
+# Where public assets are read from. Nil means the bucket's own endpoint.
+# Only S3 keys are stored in the database, never whole URLs, so putting a
+# CDN in front later is this one variable and no data migration.
+config :lumen_viae, :public_asset_base_url, System.get_env("PUBLIC_ASSET_BASE_URL")
+
 # How long a presigned audio URL stays valid.
 #
 # One hour was too short for the iOS offline download, which collects a
