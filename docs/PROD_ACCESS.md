@@ -203,3 +203,65 @@ values containing spaces). Keep it in a separate gitignored file such as
 ```
 source .env.prod-ro && psql "$DATABASE_RO_URL" -c '...'
 ```
+
+## AWS: accounts, profiles, and who may do what
+
+Everything Lumen Viae uses lives in AWS account **536691528861**, region
+**us-east-2**. There is a second account (603052864662) created through the
+"new AWS experience" signup; it holds nothing and is not used.
+
+### Buckets
+
+| Bucket | Visibility | Holds |
+| --- | --- | --- |
+| `lumenviae-audio` | private; served as presigned URLs | ElevenLabs narration and the consecration chants under `prayers/` |
+| `lumenviae-images` | objects publicly readable; listing and writing denied | meditation set and meditation artwork |
+
+They are deliberately separate buckets rather than one bucket with a public
+prefix. Artwork has to be served from a stable unsigned URL the iOS app can
+cache for offline prayer, while narration is paid content that must stay
+private - and a mistake in one bucket's policy cannot then expose the other.
+
+On `lumenviae-images`, public ACLs are blocked and only the bucket policy
+grants access, so there is exactly one place to audit. That policy allows
+`s3:GetObject` and nothing else: the bucket is world-readable, never
+world-writable or enumerable.
+
+### Identities
+
+Two IAM users, each scoped to only those two buckets. Neither can create or
+delete a bucket, change a bucket policy, alter a public-access-block, or set
+an ACL - those are explicit `Deny` statements, which beat any `Allow` that a
+future policy might add.
+
+| User | Used by | May | May not |
+| --- | --- | --- | --- |
+| `lumenviae-s3-access` | the Phoenix app (`.env`, Fly secrets) | `GetObject`, `PutObject` | delete anything, list buckets |
+| `lumenviae-agent` | local CLI and agent work | list the two buckets, `GetObject`, `PutObject`, `DeleteObject` | anything else |
+
+The app cannot delete, because it never needs to: a re-import overwrites an
+object by writing the same key. Deletion belongs to a human at a terminal,
+which is why only `lumenviae-agent` has it.
+
+`lumenviae-s3-access` carried the AWS-managed `AmazonS3FullAccess` until
+19 August 2026. That granted every S3 action on every bucket in the account
+to a key that sits in a dotfile and in Fly secrets; it was replaced with the
+inline `LumenViaeAppBucketsOnly` policy above.
+
+### Local profiles
+
+```
+aws sts get-caller-identity --profile lumenviae-agent   # scoped, use this
+aws sts get-caller-identity --profile lumenviae-prod    # account root, rare admin only
+```
+
+`lumenviae-prod` is a browser-login session as the account **root** user. It
+expires after 12 hours and is renewable for 90 days with:
+
+```
+aws login --region us-east-2 --profile lumenviae-prod
+```
+
+Use it only for things the scoped user is deliberately denied - creating a
+bucket, changing a policy, managing IAM. Everything else goes through
+`lumenviae-agent`.
