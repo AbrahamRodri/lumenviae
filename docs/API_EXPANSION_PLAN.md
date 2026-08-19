@@ -45,7 +45,7 @@ lists for all five endpoints and was verified in both directions: removing
 `image_url` passes. The exact-map-equality assertion in
 `meditation_set_controller_test.exs` was replaced with field-by-field checks.
 
-### Stage 1 - PARTLY DONE
+### Stage 1 - DONE
 
 Done, outside the repo:
 
@@ -63,18 +63,20 @@ Done, in the repo:
 * `config/runtime.exs` - `:aws_s3_public_bucket` and `:public_asset_base_url`
 * `.env` - `AWS_S3_PUBLIC_BUCKET`. No Fly secret is needed; `runtime.exs`
   defaults to `lumenviae-images`.
-
-**Still to do, and Stage 2 will not compile without the first two:**
-
-* `S3.public_url/1` - stable unsigned URL for a key in the public bucket
-* `S3.upload_public/3` - upload with `image/jpeg` and
-  `public, max-age=31536000, immutable`
-* `lib/lumen_viae/images/inspector.ex` - JPEG/PNG header parsing for
-  dimensions and format. The production image carries no image library
-  (the Dockerfile runner installs only `libstdc++6 openssl libncurses5
-  locales ca-certificates`), so this is header pattern-matching with no
-  dependency, and validation is all it can do - nothing can be resized or
-  re-encoded server-side.
+* `S3.public_url/1` and `S3.upload_public/3`. The public URL is
+  **path-style** - `https://s3.us-east-2.amazonaws.com/lumenviae-images/<key>`
+  - because it is derived from the same `ExAws.Config` the presigner uses
+  and that config carries no `%{bucket}` placeholder. A test asserts the
+  two builders agree about bucket addressing, so neither can drift alone.
+* `lib/lumen_viae/images/inspector.ex` - JPEG and PNG header parsing, no
+  dependency, checked against the two real images already in
+  `priv/static/`. It refuses a frame segment cut short of its own declared
+  length rather than reporting plausible dimensions for a truncated file.
+* `lib/lumen_viae/curation/artwork_upload.ex` - the rules (12 MB, JPEG,
+  short side at least 1200px, long side at most 4000px, no CMYK) and the
+  content-addressed key. `prepare/3` is public so the rules and the naming
+  can be tested without a network round trip; nothing in the suite reaches
+  S3.
 
 ### Stage 6 - PARTLY DONE
 
@@ -106,7 +108,7 @@ today), and `Rosary.fetch_visible_meditation_set/1`.
 
 ### Where to start next
 
-Finish Stage 1's three modules, then Stage 2. The S3 rename (descriptive
+Stage 2, the artwork columns. The S3 rename (descriptive
 keys, see Decisions taken) should happen before any second narration voice
 is generated, but is independent of the artwork work and can go either
 side of it.
@@ -353,7 +355,7 @@ def artwork_url(_), do: nil
       "category": "sorrowful",
       "description": "Meditations on the Sorrowful Mysteries from Bishop Fulton J. Sheen",
       "labels": ["Considerations"],
-      "image_url": "https://lumenviae-images.s3.us-east-2.amazonaws.com/sets/27/8f21c4d9e0b3a7f6.jpg",
+      "image_url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/sets/27/8f21c4d9e0b3a7f6.jpg",
       "image_alignment": "top",
       "image_focal_x": 0.5,
       "image_focal_y": 0.24,
