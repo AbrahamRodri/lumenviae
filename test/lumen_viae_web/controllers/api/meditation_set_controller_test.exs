@@ -305,14 +305,19 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
       end
     end
 
+    # A rendered 404, not a raised one: a hidden set now comes back through
+    # the fallback controller in the same envelope as every other error.
     test "show returns 404 for a set containing an archived meditation", %{conn: conn} do
       set = create_set(%{name: "Hidden Set"})
       archived = create_meditation_in_set(set)
       {:ok, _} = Rosary.archive_meditation(archived)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/meditation-sets/#{set.id}")
-      end
+      body =
+        conn
+        |> get(~p"/api/meditation-sets/#{set.id}")
+        |> json_response(404)
+
+      assert body == %{"error" => %{"code" => "not_found", "message" => "Not found"}}
     end
 
     test "unarchiving restores the set in the API", %{conn: conn} do

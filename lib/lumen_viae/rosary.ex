@@ -285,6 +285,27 @@ defmodule LumenViae.Rosary do
   end
 
   @doc """
+  Result-shaped sibling of
+  `get_visible_meditation_set_with_ordered_meditations!/1`.
+
+  Returns `{:ok, set}`, or `{:error, :not_found}` for a set that does not
+  exist, is not an id at all, or is hidden because one of its meditations is
+  archived. The bang version stays for the admin surfaces, where a 404 by
+  exception is the right answer; the API wants the error in hand so it goes
+  through the fallback controller and comes back in the same envelope as
+  every other error.
+  """
+  def fetch_visible_meditation_set(id) do
+    with set when not is_nil(set) <- MeditationSets.get(id),
+         set = %{set | meditations: list_meditations_in_set(set.id)},
+         false <- Enum.any?(set.meditations, &Meditations.archived?/1) do
+      {:ok, resolve_attribution(set)}
+    else
+      _missing_or_hidden -> {:error, :not_found}
+    end
+  end
+
+  @doc """
   Returns a MapSet of ids of sets that are hidden from public surfaces
   because they contain at least one archived meditation.
   """

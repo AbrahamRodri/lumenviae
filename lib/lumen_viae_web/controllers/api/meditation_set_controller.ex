@@ -21,22 +21,25 @@ defmodule LumenViaeWeb.API.MeditationSetController do
   Shows a single meditation set with full details including ordered meditations and audio URLs.
   """
   def show(conn, %{"id" => id}) do
-    set = Rosary.get_visible_meditation_set_with_ordered_meditations!(id)
+    # Result-shaped rather than the bang version, so a missing or hidden set
+    # comes back through the fallback controller in the same envelope as
+    # every other error instead of as a rendered exception.
+    with {:ok, set} <- Rosary.fetch_visible_meditation_set(id) do
+      # Generate fresh pre-signed S3 URLs for all meditations
+      meditations_with_audio =
+        Enum.map(set.meditations, fn meditation ->
+          audio_url = Rosary.get_meditation_audio_url(meditation)
+          %{meditation | audio_url: audio_url}
+        end)
 
-    # Generate fresh pre-signed S3 URLs for all meditations
-    meditations_with_audio =
-      Enum.map(set.meditations, fn meditation ->
-        audio_url = Rosary.get_meditation_audio_url(meditation)
-        %{meditation | audio_url: audio_url}
-      end)
+      set_with_audio = %{set | meditations: meditations_with_audio}
 
-    set_with_audio = %{set | meditations: meditations_with_audio}
-
-    conn
-    # Every audio_url below is presigned and time-limited. Nothing in
-    # between may hold a copy to serve to somebody else after it expires.
-    |> put_resp_header("cache-control", "private, no-store")
-    |> render(:show, set: set_with_audio, audio_expires_at: audio_expiry())
+      conn
+      # Every audio_url below is presigned and time-limited. Nothing in
+      # between may hold a copy to serve to somebody else after it expires.
+      |> put_resp_header("cache-control", "private, no-store")
+      |> render(:show, set: set_with_audio, audio_expires_at: audio_expiry())
+    end
   end
 
   # The signing moment is the same for every URL in this response, so the

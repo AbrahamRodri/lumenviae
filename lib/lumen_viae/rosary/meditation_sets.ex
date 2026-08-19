@@ -70,6 +70,22 @@ defmodule LumenViae.Rosary.MeditationSets do
   def get!(id), do: Repo.get!(MeditationSet, id)
 
   @doc """
+  Non-raising sibling of `get!/1`. Returns nil for an id that does not
+  exist, and for one that is not an id at all, so a caller working from a
+  URL segment does not have to guard the cast itself.
+  """
+  def get(id) when is_integer(id), do: Repo.get(MeditationSet, id)
+
+  def get(id) when is_binary(id) do
+    case Integer.parse(id) do
+      {id, ""} -> get(id)
+      _not_an_id -> nil
+    end
+  end
+
+  def get(_id), do: nil
+
+  @doc """
   Fetches a set with its meditations preloaded in id order. Prefer
   `LumenViae.Rosary.get_meditation_set_with_ordered_meditations!/1` when the
   order the set is prayed in matters.

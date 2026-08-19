@@ -141,19 +141,34 @@ land out of order. `nudge_focal` uses `Float.parse/1`; a test feeds it
 `delta="1"` because `String.to_float/1` would have raised on it and taken
 the LiveView down.
 
-### Stage 6 - PARTLY DONE
+### Stage 6 - DONE
 
-Done: `:audio_url_ttl_seconds` (86400, was 3600), `Rosary.audio_url_ttl/0`,
-`Rosary.fetch_meditation_audio/1`, `GET /api/meditations/:id/audio` with its
-controller and route, `MeditationJSON.audio/1`, `audio_expires_at` on the set
-detail, `Cache-Control: private, no-store` on both responses carrying
-presigned URLs, and tests.
+`:audio_url_ttl_seconds` (86400, was 3600), `Rosary.audio_url_ttl/0`,
+`Rosary.fetch_meditation_audio/1`, `GET /api/meditations/:id/audio`,
+`MeditationJSON.audio/1`, `audio_expires_at` on the set detail, and
+`Cache-Control: private, no-store` on every response carrying a presigned
+URL - the prayer endpoint included, which had been missed.
 
-Still to do: the single error envelope (`error_json.ex`, plus fallback
-clauses for `:not_found`, `{:bad_request, message}`, changesets, **and a
-catch-all** - `PrayerController.audio` returns `{:error, reason}` verbatim
-from S3, so `{:error, :missing_credentials}` raises `FunctionClauseError`
-today), and `Rosary.fetch_visible_meditation_set/1`.
+The error envelope is in: `api/error_json.ex`, fallback clauses for
+`:not_found`, `{:bad_request, message}`, `:audio_unavailable`, changesets
+and a catch-all, and `changeset_json.ex` deleted, since one shape replaces
+two. `Rosary.fetch_visible_meditation_set/1` is the result-shaped sibling of
+the bang read, so a hidden or missing set renders a 404 through the fallback
+instead of raising one.
+
+Three client-visible changes, all in error paths nothing consumes
+(`APIService.send` reads only the status code):
+
+* the 404 and 422 bodies are now `{"error": {"code", "message"}}` rather
+  than two different `errors` shapes
+* `POST /api/completions` with no `meditation_set_id` answers **400**
+  `bad_request` naming the field, where it used to answer 404 - which said
+  "no such set" about a request that never named one
+* a signing failure answers **503** `audio_unavailable` rather than raising
+  `FunctionClauseError` and returning a 500 with a stacktrace
+
+`GET /api/prayers/:id/audio` also gained `expires_at` and now shares
+`Rosary.audio_url_ttl/0` instead of its own hardcoded 86400.
 
 ### Content and infrastructure changes not in any stage
 
@@ -171,15 +186,14 @@ today), and `Rosary.fetch_visible_meditation_set/1`.
 
 ### Where to start next
 
-The server side of the iOS request is complete and none of it is deployed.
+Stages 0 to 4 and 6 are done and none of it is deployed.
 The next move is a deploy, because everything after this needs it: the
 migrations have run locally only, `lumenviae-images` is empty, and all 27
 sets answer `image_url: null` until somebody uploads paintings through the
 admin form.
 
-After that, either Stage 5 (the iOS hero and byline, in the app repo) or the
-rest of Stage 6 (the single error envelope, which is the last thing in the
-API that can still raise a `FunctionClauseError` at a client).
+After that, Stage 5 - the iOS hero and byline, in the app repo. Everything
+the client needs is now served; nothing else on this side blocks it.
 
 The S3 rename (descriptive keys, see Decisions taken) should happen before
 any second narration voice is generated, but is independent of the artwork
