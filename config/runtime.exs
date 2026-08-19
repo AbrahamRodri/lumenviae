@@ -21,6 +21,19 @@ config :ex_aws, :s3,
 
 config :lumen_viae, :aws_s3_bucket, System.get_env("AWS_S3_BUCKET") || "lumenviae-audio"
 
+# How long a presigned audio URL stays valid.
+#
+# One hour was too short for the iOS offline download, which collects a
+# URL for every meditation in one pass and then downloads them serially: on
+# a slow connection the last file's URL had expired before its turn came. A
+# day covers the longest plausible download and costs nothing, since the
+# objects are narration rather than anything sensitive.
+#
+# S3 signature version 4 caps a presigned URL at seven days; anything larger
+# here is rejected by AWS at signing time rather than by us.
+config :lumen_viae, :audio_url_ttl_seconds,
+       String.to_integer(System.get_env("AUDIO_URL_TTL_SECONDS") || "86400")
+
 # ElevenLabs Text-to-Speech Configuration
 config :lumen_viae,
   eleven_labs_api_key: System.get_env("ELEVEN_LABS_API_KEY"),

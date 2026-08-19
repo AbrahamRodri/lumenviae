@@ -83,7 +83,44 @@ defmodule LumenViae.Rosary do
   def get_meditation_audio_url(%{audio_url: audio_url}) when audio_url in [nil, ""], do: nil
 
   def get_meditation_audio_url(%{audio_url: s3_key}) when is_binary(s3_key) do
-    S3.generate_presigned_url!(s3_key)
+    S3.generate_presigned_url!(s3_key, expires_in: audio_url_ttl())
+  end
+
+  @doc """
+  A meditation's audio as a URL and the moment that URL stops working.
+
+  The plain `get_meditation_audio_url/1` above cannot say when what it
+  returned expires, so a client that caches the URL has no way to know it
+  has gone stale except by being refused. This returns both, which is what
+  a client storing audio for offline use actually needs.
+
+  Returns `{:ok, %{url: url, expires_at: %DateTime{}}}`, or `:error` when
+  the meditation has no audio or the URL could not be signed.
+  """
+  def fetch_meditation_audio(%{audio_url: audio_url}) when audio_url in [nil, ""], do: :error
+
+  def fetch_meditation_audio(%{audio_url: s3_key}) when is_binary(s3_key) do
+    ttl = audio_url_ttl()
+
+    case S3.generate_presigned_url(s3_key, expires_in: ttl) do
+      {:ok, url} ->
+        expires_at = DateTime.utc_now() |> DateTime.add(ttl, :second) |> DateTime.truncate(:second)
+        {:ok, %{url: url, expires_at: expires_at}}
+
+      {:error, _reason} ->
+        :error
+    end
+  end
+
+  @doc """
+  How many seconds a presigned audio URL stays valid.
+
+  Read at call time rather than compiled in: every other AWS setting is
+  resolved in `runtime.exs`, and a `compile_env` read of a runtime key
+  raises at boot.
+  """
+  def audio_url_ttl do
+    Application.get_env(:lumen_viae, :audio_url_ttl_seconds, 3600)
   end
 
   ## Meditation sets

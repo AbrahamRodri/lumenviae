@@ -31,6 +31,21 @@ defmodule LumenViaeWeb.API.MeditationSetController do
       end)
 
     set_with_audio = %{set | meditations: meditations_with_audio}
-    render(conn, :show, set: set_with_audio)
+
+    conn
+    # Every audio_url below is presigned and time-limited. Nothing in
+    # between may hold a copy to serve to somebody else after it expires.
+    |> put_resp_header("cache-control", "private, no-store")
+    |> render(:show, set: set_with_audio, audio_expires_at: audio_expiry())
+  end
+
+  # The signing moment is the same for every URL in this response, so the
+  # expiry is carried once on the set rather than repeated on all seven
+  # meditations. A client storing this response for offline use compares it
+  # to the clock to know whether the URLs it holds are still worth trying.
+  defp audio_expiry do
+    DateTime.utc_now()
+    |> DateTime.add(Rosary.audio_url_ttl(), :second)
+    |> DateTime.truncate(:second)
   end
 end
