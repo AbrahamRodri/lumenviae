@@ -70,6 +70,15 @@ defmodule LumenViae.Curation.ArtworkUpload do
     end
   end
 
+  @doc """
+  The largest upload accepted, in bytes.
+
+  Public so the admin form's `allow_upload` enforces the same number rather
+  than its own: they disagreed, and a file between the two was refused by
+  the form with a message contradicting the rules printed above it.
+  """
+  def max_bytes, do: @max_bytes
+
   @doc "The rules, as a sentence, for the admin form's help text."
   def rules do
     "JPEG, at most #{div(@max_bytes, 1024 * 1024)} MB, " <>

@@ -31,6 +31,12 @@ defmodule LumenViaeWeb.API.ErrorEnvelopeTest do
       assert envelope(body)["code"] == "not_found"
     end
 
+    test "an id past what a bigint can hold, which used to reach the driver", %{conn: conn} do
+      body = conn |> get(~p"/api/meditation-sets/99999999999999999999") |> json_response(404)
+
+      assert envelope(body)["code"] == "not_found"
+    end
+
     test "a prayer that is not one of the four chants", %{conn: conn} do
       body = conn |> get(~p"/api/prayers/gregorian_chant/audio") |> json_response(404)
 

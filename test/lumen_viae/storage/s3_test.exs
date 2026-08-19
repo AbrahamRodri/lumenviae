@@ -85,4 +85,18 @@ defmodule LumenViae.Storage.S3Test do
       assert S3.public_url("") == nil
     end
   end
+
+  describe "upload_public/3" do
+    test "refuses a nil or empty key without reaching for credentials" do
+      assert S3.upload_public("bytes", nil) == {:error, :invalid_key}
+      assert S3.upload_public("bytes", "") == {:error, :invalid_key}
+    end
+
+    # The test environment has no credentials, which is the only way to
+    # exercise the guard without putting an object in a real bucket.
+    test "declines rather than attempting an unauthenticated PUT" do
+      assert S3.upload_public("bytes", "sets/27/painting.jpg") ==
+               {:error, :missing_credentials}
+    end
+  end
 end

@@ -82,6 +82,27 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
       assert html =~ "Replace the painting"
     end
 
+    # phx-update="ignore" here left a replaced painting showing the old image
+    # while the crops beside it showed the new one, because the <img> is a
+    # child of this container and children of an ignored element are never
+    # patched.
+    test "leaves the focal picker patchable so a replacement painting appears", %{conn: conn} do
+      {:ok, _view, html} = edit(conn, described(create_set()))
+
+      {:ok, doc} = Floki.parse_document(html)
+      [target] = Floki.find(doc, "#focal-target")
+
+      assert Floki.attribute(target, "phx-hook") == ["FocalPoint"]
+      assert Floki.attribute(target, "phx-update") == []
+    end
+
+    test "the upload limit the form enforces is the one the rules state", %{conn: conn} do
+      {:ok, _view, html} = edit(conn, create_set())
+
+      assert html =~
+               "at most #{div(LumenViae.Curation.ArtworkUpload.max_bytes(), 1024 * 1024)} MB"
+    end
+
     test "frames every crop from the stored focal point", %{conn: conn} do
       {:ok, set} =
         Rosary.update_meditation_set_artwork_metadata(described(create_set()), %{

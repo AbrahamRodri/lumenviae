@@ -69,12 +69,21 @@ defmodule LumenViae.Rosary.MeditationSets do
 
   def get!(id), do: Repo.get!(MeditationSet, id)
 
+  # The id column is a bigint, and a number outside its range is rejected by
+  # the driver as an encoding error rather than as a missing row - which
+  # reached a client as a 500 with a stacktrace for what is only a nonsense
+  # URL.
+  @id_range 1..9_223_372_036_854_775_807
+
   @doc """
   Non-raising sibling of `get!/1`. Returns nil for an id that does not
-  exist, and for one that is not an id at all, so a caller working from a
-  URL segment does not have to guard the cast itself.
+  exist, for one that is not an id at all, and for a number no id could ever
+  be, so a caller working from a URL segment does not have to guard the cast
+  itself.
   """
-  def get(id) when is_integer(id), do: Repo.get(MeditationSet, id)
+  def get(id) when is_integer(id) do
+    if id in @id_range, do: Repo.get(MeditationSet, id), else: nil
+  end
 
   def get(id) when is_binary(id) do
     case Integer.parse(id) do

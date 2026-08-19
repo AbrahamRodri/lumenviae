@@ -20,6 +20,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
 
   import LumenViaeWeb.CoreComponents, only: [translate_error: 1]
 
+  alias LumenViae.Curation.ArtworkUpload
   alias LumenViae.Rosary.Artwork
 
   attr :set, :map, required: true
@@ -46,6 +47,13 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
       <%= if @artwork_url do %>
         <div class="grid lg:grid-cols-2 gap-8 mb-8">
           <div>
+            <%!-- Deliberately not phx-update="ignore". The hook moves the
+            crosshair itself so it does not lag the pointer, but the painting
+            inside this container is server-rendered: ignoring updates here
+            left a replaced painting showing the old image while the crops
+            beside it showed the new one. The crosshair survives patches
+            anyway - LiveView only rewrites an attribute the server actually
+            changed. --%>
             <h4 class="font-cinzel text-lg text-navy mb-3">Focal point</h4>
             <p class="font-work-sans text-brown text-sm mb-3">
               Click or drag on the painting to mark the subject. The app keeps this point
@@ -54,7 +62,6 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
             <div
               id="focal-target"
               phx-hook="FocalPoint"
-              phx-update="ignore"
               class="relative cursor-crosshair select-none inline-block max-h-[28rem] overflow-hidden"
             >
               <img src={@artwork_url} alt={@set.image_alt || ""} class="max-h-[28rem] w-auto block" />
@@ -156,6 +163,10 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
               <%= for error <- upload_errors(@upload, entry) do %>
                 <p class="mb-3 text-sm text-red-600 font-work-sans">{upload_error(error)}</p>
               <% end %>
+            <% end %>
+
+            <%= for error <- upload_errors(@upload) do %>
+              <p class="mb-3 text-sm text-red-600 font-work-sans">{upload_error(error)}</p>
             <% end %>
 
             <%= if @upload.entries == [] do %>
@@ -331,7 +342,10 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
 
   defp format_focal(value), do: :erlang.float_to_binary(value * 1.0, decimals: 3)
 
-  defp upload_error(:too_large), do: "That file is larger than 12 MB."
+  defp upload_error(:too_large) do
+    "That file is larger than #{div(ArtworkUpload.max_bytes(), 1024 * 1024)} MB."
+  end
+
   defp upload_error(:not_accepted), do: "Artwork must be a JPEG."
   defp upload_error(:too_many_files), do: "One painting at a time."
   defp upload_error(error), do: "The file could not be accepted (#{inspect(error)})."

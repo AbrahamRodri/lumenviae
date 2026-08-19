@@ -30,7 +30,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
      |> allow_upload(:artwork,
        accept: ~w(.jpg .jpeg),
        max_entries: 1,
-       max_file_size: 12_000_000
+       max_file_size: ArtworkUpload.max_bytes()
      )
      |> assign_edit_form(set)
      |> assign_artwork(set)}
