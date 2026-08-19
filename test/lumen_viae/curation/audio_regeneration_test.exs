@@ -31,14 +31,21 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     %{set: set, with_audio: with_audio, without_audio: without_audio}
   end
 
+  # fetch_env rather than get_env, because a key set to nil and a key that was
+  # never set are different things here. `config/runtime.exs` sets
+  # :ex_aws, :access_key_id to System.get_env(...), which is nil in test -
+  # deleting it instead of restoring the nil makes ExAws fall back to its
+  # default credential chain, and the next call that resolves credentials
+  # blocks on the EC2 instance metadata endpoint until it times out.
   defp put_env(app, key, value) do
-    original = Application.get_env(app, key)
+    original = Application.fetch_env(app, key)
     Application.put_env(app, key, value)
 
     on_exit(fn ->
-      if original == nil,
-        do: Application.delete_env(app, key),
-        else: Application.put_env(app, key, original)
+      case original do
+        {:ok, original} -> Application.put_env(app, key, original)
+        :error -> Application.delete_env(app, key)
+      end
     end)
   end
 

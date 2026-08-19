@@ -42,30 +42,24 @@ defmodule LumenViae.Storage.S3Test do
     # ex_aws host carries no %{bucket} placeholder. If these two ever
     # disagree, one of them is pointing at a bucket that does not exist.
     test "addresses the bucket the same way the presigner does" do
-      # Signing is local arithmetic, so a throwaway key pair is enough to see
-      # which URL shape the presigner produces.
-      with_fake_credentials(fn ->
-        {:ok, presigned} = S3.generate_presigned_url("meditation.mp3")
-        [presigned_origin, _query] = String.split(presigned, "?", parts: 2)
+      # Signing is local arithmetic, so a throwaway key pair passed straight
+      # to ExAws is enough to see which URL shape the presigner produces -
+      # and passing it rather than putting it in the application environment
+      # keeps this test from disturbing anything running beside it.
+      config =
+        Map.merge(ExAws.Config.new(:s3), %{
+          access_key_id: "AKIATESTTESTTESTTEST",
+          secret_access_key: "test-secret-not-a-real-key"
+        })
 
-        public = S3.public_url("sets/27/painting.jpg")
+      {:ok, presigned} =
+        ExAws.S3.presigned_url(config, :get, "lumenviae-audio", "meditation.mp3")
 
-        assert String.starts_with?(presigned_origin, "https://s3.us-east-2.amazonaws.com/")
-        assert String.starts_with?(public, "https://s3.us-east-2.amazonaws.com/")
-      end)
-    end
+      [presigned_origin, _query] = String.split(presigned, "?", parts: 2)
+      public = S3.public_url("sets/27/painting.jpg")
 
-    defp with_fake_credentials(fun) do
-      previous = Application.get_all_env(:ex_aws)
-      Application.put_env(:ex_aws, :access_key_id, "AKIATESTTESTTESTTEST")
-      Application.put_env(:ex_aws, :secret_access_key, "test-secret-not-a-real-key")
-
-      try do
-        fun.()
-      after
-        Application.put_env(:ex_aws, :access_key_id, previous[:access_key_id])
-        Application.put_env(:ex_aws, :secret_access_key, previous[:secret_access_key])
-      end
+      assert String.starts_with?(presigned_origin, "https://s3.us-east-2.amazonaws.com/")
+      assert String.starts_with?(public, "https://s3.us-east-2.amazonaws.com/")
     end
 
     test "uses PUBLIC_ASSET_BASE_URL when one is configured, so a CDN needs no data change" do

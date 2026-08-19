@@ -54,6 +54,13 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
         names: []
       },
       %{
+        count: Rosary.count_meditation_sets_missing_artwork(),
+        label: "Sets without artwork",
+        description: "The app falls back to the mystery category's bundled painting for these.",
+        link: "/admin/meditation-sets",
+        names: []
+      },
+      %{
         count: Rosary.count_meditations_not_in_any_set(),
         label: "Meditations not in any set",
         description: "Meditations that never appear in the app or on the site.",

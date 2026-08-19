@@ -113,6 +113,34 @@ despite CLAUDE.md saying it documented them. It now has a Meditation Set
 Columns section covering all seven, including the create-only rule and the
 fact that a CSV cannot carry artwork.
 
+### Stage 4 - DONE
+
+`ArtworkSection` under `live/meditations/sets/edit/`, the `FocalPoint` hook,
+five handlers on `edit.ex`, and a "Sets without artwork" stat on the admin
+dashboard. Verified in a browser against a real painting: the crosshair sits
+on the stored focal point, and all three crops frame from it at the right
+aspect ratios (393/470, 11/10, 1/1).
+
+Two deviations from the stage as written:
+
+* **Author and Source went into the Set Details card, not the artwork
+  details form.** They are the set's byline, edited by the set changeset;
+  the artwork form edits the painting's own title, artist, year, source and
+  licence through a different changeset. One form spanning two changesets
+  would have needed extra machinery to say something the layout says for
+  free - and putting "who wrote these meditations" next to "who painted
+  this picture" invites a curator to confuse them.
+* **No `artwork=missing` filter on the sets list.** The dashboard stat links
+  to the unfiltered list. Adding the filter would have meant a new
+  dimension in `Sets.Filtering`, four call sites in `list.ex` and a select
+  in the filter bar, which is more surface than one stat justifies.
+
+The focal point debounces at 150ms in the hook and the crosshair is moved
+client-side, so dragging does not produce a burst of writes whose replies
+land out of order. `nudge_focal` uses `Float.parse/1`; a test feeds it
+`delta="1"` because `String.to_float/1` would have raised on it and taken
+the LiveView down.
+
 ### Stage 6 - PARTLY DONE
 
 Done: `:audio_url_ttl_seconds` (86400, was 3600), `Rosary.audio_url_ttl/0`,
@@ -143,13 +171,15 @@ today), and `Rosary.fetch_visible_meditation_set/1`.
 
 ### Where to start next
 
-Stage 4, the admin form. It is now the only thing standing between the
-catalogue and the iOS hero: the columns, the upload service and the byline
-all exist, but nothing can yet put a painting in the bucket, so
-`lumenviae-images` is still empty and every set still answers
-`image_url: null`. Stage 4 also carries the Author and Source inputs for
-the set itself, which Stage 3 left with no way to edit outside a CSV
-create or IEx.
+The server side of the iOS request is complete and none of it is deployed.
+The next move is a deploy, because everything after this needs it: the
+migrations have run locally only, `lumenviae-images` is empty, and all 27
+sets answer `image_url: null` until somebody uploads paintings through the
+admin form.
+
+After that, either Stage 5 (the iOS hero and byline, in the app repo) or the
+rest of Stage 6 (the single error envelope, which is the last thing in the
+API that can still raise a `FunctionClauseError` at a client).
 
 The S3 rename (descriptive keys, see Decisions taken) should happen before
 any second narration voice is generated, but is independent of the artwork

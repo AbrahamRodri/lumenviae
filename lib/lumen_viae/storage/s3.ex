@@ -242,11 +242,14 @@ defmodule LumenViae.Storage.S3 do
   so a set with no artwork renders a null in the API rather than a URL that
   404s.
 
-  The host is derived from the same `ExAws.Config` the presigner uses rather
-  than from a hardcoded virtual-hosted template. The configured
-  `config :ex_aws, :s3, host:` carries no `%{bucket}` placeholder, so ExAws
+  The scheme, host and port come from the same `config :ex_aws, :s3` the
+  presigner is configured from, rather than from a hardcoded virtual-hosted
+  template: that config carries no `%{bucket}` placeholder, so ExAws
   addresses buckets path-style, and a second builder that assumed
-  virtual-hosted would drift the first time that host changed.
+  virtual-hosted would drift the first time the host changed. Credentials
+  are deliberately not resolved - nothing here is signed - which keeps this
+  a pure function with no lookup of an instance role or an AWS CLI
+  profile.
 
   Setting PUBLIC_ASSET_BASE_URL moves artwork behind a CDN without touching
   the database, because only keys are ever stored.
@@ -263,17 +266,21 @@ defmodule LumenViae.Storage.S3 do
   defp public_bucket, do: Application.get_env(:lumen_viae, :aws_s3_public_bucket)
 
   defp bucket_base_url do
-    config = ExAws.Config.new(:s3)
+    config = Application.get_env(:ex_aws, :s3, [])
     scheme = config[:scheme] || "https://"
+    host = config[:host] || "s3.amazonaws.com"
 
-    "#{scheme}#{config[:host]}#{port_component(config)}/#{public_bucket()}"
+    "#{scheme}#{host}#{port_component(config)}/#{public_bucket()}"
   end
 
   # 80 and 443 are implied by the scheme, and ExAws omits them when it signs;
   # spelling one out here would only bake noise into every cached client copy.
-  defp port_component(%{port: port}) when port in [nil, 80, "80", 443, "443"], do: ""
-  defp port_component(%{port: port}), do: ":#{port}"
-  defp port_component(_config), do: ""
+  defp port_component(config) do
+    case config[:port] do
+      port when port in [nil, 80, "80", 443, "443"] -> ""
+      port -> ":#{port}"
+    end
+  end
 
   # Keys are ASCII by construction today, but a public URL is a contract with
   # clients that cache it, and one space in a hand-uploaded key would

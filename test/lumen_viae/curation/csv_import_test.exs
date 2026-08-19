@@ -390,7 +390,12 @@ defmodule LumenViae.Curation.CsvImportTest do
               {:ex_aws, :access_key_id},
               {:ex_aws, :secret_access_key}
             ] do
-          {app, key, Application.get_env(app, key)}
+          # fetch_env, not get_env: a key set to nil and a key that was never
+          # set restore differently, and :ex_aws, :access_key_id is nil in
+          # test. Deleting it drops ExAws onto its default credential chain,
+          # where the next resolution blocks on the EC2 instance metadata
+          # endpoint until it times out.
+          {app, key, Application.fetch_env(app, key)}
         end
 
       Application.put_env(:lumen_viae, :eleven_labs_api_key, "test-api-key")
@@ -407,8 +412,8 @@ defmodule LumenViae.Curation.CsvImportTest do
 
       on_exit(fn ->
         Enum.each(originals, fn
-          {app, key, nil} -> Application.delete_env(app, key)
-          {app, key, value} -> Application.put_env(app, key, value)
+          {app, key, {:ok, value}} -> Application.put_env(app, key, value)
+          {app, key, :error} -> Application.delete_env(app, key)
         end)
       end)
 
