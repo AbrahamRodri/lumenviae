@@ -1,6 +1,12 @@
 defmodule LumenViae.Storage.S3 do
   @moduledoc """
-  AWS S3 storage helper for generating pre-signed URLs for private audio files.
+  AWS S3 storage helper for the two buckets this app uses.
+
+  `lumenviae-audio` is private: narration is paid for and is reached only
+  through a pre-signed URL with a lifetime. `lumenviae-images` is public
+  read: artwork has to survive in a client-side cache for offline prayer, so
+  it is served from a stable unsigned URL that never expires. The two are
+  separate buckets so a mistake in one policy cannot expose the other.
   """
 
   require Logger
@@ -115,7 +121,8 @@ defmodule LumenViae.Storage.S3 do
       iex> LumenViae.Storage.S3.upload_audio(audio_binary, "joyful_1_annunciation.mp3")
       {:ok, "joyful_1_annunciation.mp3"}
   """
-  def upload_audio(audio_binary, s3_key, opts \\ []) when is_binary(audio_binary) and is_binary(s3_key) do
+  def upload_audio(audio_binary, s3_key, opts \\ [])
+      when is_binary(audio_binary) and is_binary(s3_key) do
     bucket = opts[:bucket] || Application.get_env(:lumen_viae, :aws_s3_bucket)
     content_type = opts[:content_type] || "audio/mpeg"
 
@@ -147,6 +154,138 @@ defmodule LumenViae.Storage.S3 do
         {:error, reason}
     end
   end
+
+  @public_cache_control "public, max-age=31536000, immutable"
+
+  @doc """
+  Uploads a binary to the public assets bucket.
+
+  Public assets are artwork. The iOS app caches them to disk for offline
+  prayer, so they are read from a stable unsigned URL rather than a
+  presigned one, and the bucket policy is what makes them readable. This
+  never sets an object ACL: the bucket blocks public ACLs, and the scoped
+  IAM user is denied every ACL action outright, so an ACL here would only
+  turn a working upload into an AccessDenied.
+
+  Keys are content-addressed by the caller (see
+  `LumenViae.Curation.ArtworkUpload`), so no object ever changes under a
+  key it already occupies. That is what lets the cache headers below claim
+  a year and immutability with no invalidation story anywhere in the chain.
+
+  ## Parameters
+
+    * `binary` - the image bytes
+    * `key` - the S3 object key, e.g. "sets/27/8f21c4d9e0b3a7f6.jpg"
+    * `opts` - optional keyword list of options:
+      * `:bucket` - S3 bucket name (default: from `:aws_s3_public_bucket`)
+      * `:content_type` - Content type (default: "image/jpeg")
+      * `:cache_control` - Cache-Control header (default: one immutable year)
+
+  ## Returns
+
+    * `{:ok, key}` - Successfully uploaded, returns the S3 key
+    * `{:error, reason}` - Error tuple if the upload fails
+
+  ## Examples
+
+      iex> LumenViae.Storage.S3.upload_public(bytes, "sets/27/8f21c4d9e0b3a7f6.jpg")
+      {:ok, "sets/27/8f21c4d9e0b3a7f6.jpg"}
+  """
+  @spec upload_public(binary, String.t(), keyword) :: {:ok, String.t()} | {:error, term}
+  def upload_public(binary, key, opts \\ [])
+
+  def upload_public(_binary, key, _opts) when key in [nil, ""], do: {:error, :invalid_key}
+
+  def upload_public(binary, key, opts) when is_binary(binary) and is_binary(key) do
+    bucket = opts[:bucket] || public_bucket()
+    content_type = opts[:content_type] || "image/jpeg"
+    cache_control = opts[:cache_control] || @public_cache_control
+
+    case validate_aws_config() do
+      :ok ->
+        try do
+          Logger.info("Uploading public asset to S3: #{key} (#{byte_size(binary)} bytes)")
+
+          result =
+            ExAws.S3.put_object(bucket, key, binary,
+              content_type: content_type,
+              cache_control: cache_control
+            )
+            |> ExAws.request()
+
+          case result do
+            {:ok, _response} ->
+              Logger.info("Successfully uploaded public asset to S3: #{key}")
+              {:ok, key}
+
+            {:error, reason} ->
+              Logger.error("Failed to upload public asset to S3 #{key}: #{inspect(reason)}")
+              {:error, reason}
+          end
+        rescue
+          e ->
+            Logger.error("Exception uploading public asset to S3 #{key}: #{Exception.message(e)}")
+            {:error, :upload_failed}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  @doc """
+  Stable, unsigned, cacheable URL for an object in the public assets bucket.
+
+  Unlike `generate_presigned_url/2` this signs nothing and expires never:
+  artwork lives in a public bucket precisely so the client can cache it and
+  still show it during offline prayer. Returns nil for a nil or empty key,
+  so a set with no artwork renders a null in the API rather than a URL that
+  404s.
+
+  The scheme, host and port come from the same `config :ex_aws, :s3` the
+  presigner is configured from, rather than from a hardcoded virtual-hosted
+  template: that config carries no `%{bucket}` placeholder, so ExAws
+  addresses buckets path-style, and a second builder that assumed
+  virtual-hosted would drift the first time the host changed. Credentials
+  are deliberately not resolved - nothing here is signed - which keeps this
+  a pure function with no lookup of an instance role or an AWS CLI
+  profile.
+
+  Setting PUBLIC_ASSET_BASE_URL moves artwork behind a CDN without touching
+  the database, because only keys are ever stored.
+  """
+  @spec public_url(String.t() | nil) :: String.t() | nil
+  def public_url(key) when key in [nil, ""], do: nil
+
+  def public_url(key) when is_binary(key) do
+    base = Application.get_env(:lumen_viae, :public_asset_base_url) || bucket_base_url()
+
+    String.trim_trailing(base, "/") <> "/" <> encode_key(key)
+  end
+
+  defp public_bucket, do: Application.get_env(:lumen_viae, :aws_s3_public_bucket)
+
+  defp bucket_base_url do
+    config = Application.get_env(:ex_aws, :s3, [])
+    scheme = config[:scheme] || "https://"
+    host = config[:host] || "s3.amazonaws.com"
+
+    "#{scheme}#{host}#{port_component(config)}/#{public_bucket()}"
+  end
+
+  # 80 and 443 are implied by the scheme, and ExAws omits them when it signs;
+  # spelling one out here would only bake noise into every cached client copy.
+  defp port_component(config) do
+    case config[:port] do
+      port when port in [nil, 80, "80", 443, "443"] -> ""
+      port -> ":#{port}"
+    end
+  end
+
+  # Keys are ASCII by construction today, but a public URL is a contract with
+  # clients that cache it, and one space in a hand-uploaded key would
+  # otherwise hand out a broken link.
+  defp encode_key(key), do: URI.encode(key, &(URI.char_unreserved?(&1) or &1 == ?/))
 
   # Private helper to validate AWS configuration
   defp validate_aws_config do

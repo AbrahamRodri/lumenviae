@@ -16,7 +16,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
 
   # Value modules hold shared vocabulary, not state or queries, so any layer
   # may call them (see docs/ARCHITECTURE.md, "Value modules").
-  @value_modules ~w(categories labels)
+  @value_modules ~w(categories labels artwork)
 
   defp secondary_context_files,
     do: Enum.map(@secondary_contexts, &"#{@domain_root}/#{&1}.ex")

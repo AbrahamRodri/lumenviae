@@ -83,7 +83,46 @@ defmodule LumenViae.Rosary do
   def get_meditation_audio_url(%{audio_url: audio_url}) when audio_url in [nil, ""], do: nil
 
   def get_meditation_audio_url(%{audio_url: s3_key}) when is_binary(s3_key) do
-    S3.generate_presigned_url!(s3_key)
+    S3.generate_presigned_url!(s3_key, expires_in: audio_url_ttl())
+  end
+
+  @doc """
+  A meditation's audio as a URL and the moment that URL stops working.
+
+  The plain `get_meditation_audio_url/1` above cannot say when what it
+  returned expires, so a client that caches the URL has no way to know it
+  has gone stale except by being refused. This returns both, which is what
+  a client storing audio for offline use actually needs.
+
+  Returns `{:ok, %{url: url, expires_at: %DateTime{}}}`, or `:error` when
+  the meditation has no audio or the URL could not be signed.
+  """
+  def fetch_meditation_audio(%{audio_url: audio_url}) when audio_url in [nil, ""], do: :error
+
+  def fetch_meditation_audio(%{audio_url: s3_key}) when is_binary(s3_key) do
+    ttl = audio_url_ttl()
+
+    case S3.generate_presigned_url(s3_key, expires_in: ttl) do
+      {:ok, url} ->
+        expires_at =
+          DateTime.utc_now() |> DateTime.add(ttl, :second) |> DateTime.truncate(:second)
+
+        {:ok, %{url: url, expires_at: expires_at}}
+
+      {:error, _reason} ->
+        :error
+    end
+  end
+
+  @doc """
+  How many seconds a presigned audio URL stays valid.
+
+  Read at call time rather than compiled in: every other AWS setting is
+  resolved in `runtime.exs`, and a `compile_env` read of a runtime key
+  raises at boot.
+  """
+  def audio_url_ttl do
+    Application.get_env(:lumen_viae, :audio_url_ttl_seconds, 3600)
   end
 
   ## Meditation sets
@@ -97,6 +136,33 @@ defmodule LumenViae.Rosary do
   defdelegate change_new_meditation_set(attrs \\ %{}), to: MeditationSets, as: :change_new
   defdelegate delete_meditation_set(set), to: MeditationSets, as: :delete
   defdelegate expected_meditation_count(category), to: MeditationSets
+
+  defdelegate update_meditation_set_artwork(set, attrs),
+    to: MeditationSets,
+    as: :update_artwork
+
+  defdelegate update_meditation_set_artwork_metadata(set, attrs),
+    to: MeditationSets,
+    as: :update_artwork_metadata
+
+  defdelegate change_meditation_set_artwork(set, attrs \\ %{}),
+    to: MeditationSets,
+    as: :change_artwork
+
+  defdelegate count_meditation_sets_missing_artwork(),
+    to: MeditationSets,
+    as: :count_missing_artwork
+
+  @doc """
+  Stable public URL for a set's or a meditation's artwork, or nil.
+
+  Unlike the audio URLs above this signs nothing and never expires: artwork
+  lives in the public assets bucket precisely so a client can cache it and
+  still show it during offline prayer. Building it is pure string work with
+  no I/O, so callers may do it per row without thinking about cost.
+  """
+  def artwork_url(%{image_key: key}), do: S3.public_url(key)
+  def artwork_url(_record), do: nil
 
   def list_meditation_sets, do: MeditationSets.list()
 
@@ -130,6 +196,7 @@ defmodule LumenViae.Rosary do
 
   def list_visible_meditation_sets do
     MeditationSets.list(exclude_ids: hidden_meditation_set_ids())
+    |> resolve_attribution()
   end
 
   def list_visible_meditation_sets_with_meditations do
@@ -139,6 +206,67 @@ defmodule LumenViae.Rosary do
   def list_visible_meditation_sets_by_category(category) do
     MeditationSets.list(category: category, exclude_ids: hidden_meditation_set_ids())
     |> MeditationSets.preload_meditations()
+    |> resolve_attribution()
+  end
+
+  @doc """
+  Fills in each set's derived byline.
+
+  An explicit `author` or `source` on the set always wins. Otherwise it is
+  derived from the set's meditations, and only when every meditation agrees:
+  a set of four Emmerich passages and one Liguori gets nil rather than a
+  name that is true of most of it.
+
+  Writes only the virtual `derived_author` and `derived_source`. Writing the
+  derivation into the persisted columns would mean any later save of that
+  struct - an admin form prefilled from a public read, a re-save - promoted
+  a guess to an explicit override, which is exactly the staleness having a
+  derivation is meant to avoid.
+
+  Two queries, whether it is given one set or all of them.
+  """
+  def resolve_attribution(sets) when is_list(sets) do
+    ids_by_set = SetMemberships.list_meditation_ids_by_set()
+
+    attribution =
+      sets
+      |> Enum.flat_map(&Map.get(ids_by_set, &1.id, []))
+      |> Enum.uniq()
+      |> Meditations.list_attribution_by_ids()
+
+    Enum.map(sets, fn set ->
+      rows =
+        ids_by_set
+        |> Map.get(set.id, [])
+        |> Enum.map(&Map.get(attribution, &1))
+        |> Enum.reject(&is_nil/1)
+
+      %{
+        set
+        | derived_author: unanimous(rows, :author),
+          derived_source: unanimous(rows, :source)
+      }
+    end)
+  end
+
+  def resolve_attribution(set), do: set |> List.wrap() |> resolve_attribution() |> hd()
+
+  defp unanimous([], _key), do: nil
+
+  defp unanimous(rows, key) do
+    case rows |> Enum.map(&blank_to_nil(Map.fetch!(&1, key))) |> Enum.uniq() do
+      [value] when is_binary(value) -> value
+      _disagreement_or_nothing -> nil
+    end
+  end
+
+  defp blank_to_nil(nil), do: nil
+
+  defp blank_to_nil(value) when is_binary(value) do
+    case String.trim(value) do
+      "" -> nil
+      trimmed -> trimmed
+    end
   end
 
   @doc """
@@ -153,7 +281,28 @@ defmodule LumenViae.Rosary do
       MeditationSets.raise_not_found!()
     end
 
-    set
+    resolve_attribution(set)
+  end
+
+  @doc """
+  Result-shaped sibling of
+  `get_visible_meditation_set_with_ordered_meditations!/1`.
+
+  Returns `{:ok, set}`, or `{:error, :not_found}` for a set that does not
+  exist, is not an id at all, or is hidden because one of its meditations is
+  archived. The bang version stays for the admin surfaces, where a 404 by
+  exception is the right answer; the API wants the error in hand so it goes
+  through the fallback controller and comes back in the same envelope as
+  every other error.
+  """
+  def fetch_visible_meditation_set(id) do
+    with set when not is_nil(set) <- MeditationSets.get(id),
+         set = %{set | meditations: list_meditations_in_set(set.id)},
+         false <- Enum.any?(set.meditations, &Meditations.archived?/1) do
+      {:ok, resolve_attribution(set)}
+    else
+      _missing_or_hidden -> {:error, :not_found}
+    end
   end
 
   @doc """

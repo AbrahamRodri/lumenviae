@@ -1,6 +1,8 @@
 defmodule LumenViae.Curation.AudioRegenerationTest do
   use LumenViae.DataCase, async: false
 
+  import LumenViae.Test.EnvStub, only: [put_env: 3]
+
   alias LumenViae.Curation.AudioRegeneration
   alias LumenViae.Rosary
 
@@ -29,17 +31,6 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     {:ok, _} = Rosary.add_meditation_to_set(set.id, without_audio.id, 2)
 
     %{set: set, with_audio: with_audio, without_audio: without_audio}
-  end
-
-  defp put_env(app, key, value) do
-    original = Application.get_env(app, key)
-    Application.put_env(app, key, value)
-
-    on_exit(fn ->
-      if original == nil,
-        do: Application.delete_env(app, key),
-        else: Application.put_env(app, key, original)
-    end)
   end
 
   defp stub_apis do

@@ -1,6 +1,6 @@
 <.admin_page active="sets" title="Edit Meditation Set" flash={@flash}>
   <div>
-<!-- Edit Set Details -->
+    <!-- Edit Set Details -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">Set Details</h3>
       <.form for={@edit_form} phx-submit="update_meditation_set">
@@ -57,6 +57,44 @@
             <% end %>
           </div>
 
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Author (Optional)
+              </label>
+              <input
+                type="text"
+                name={@edit_form[:author].name}
+                value={@edit_form[:author].value || ""}
+                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                placeholder="e.g., Bl. Anne Catherine Emmerich"
+              />
+              <p class="mt-2 text-xs text-gray-500 font-crimson">
+                Leave blank and the byline is taken from the meditations, but only when
+                every one of them agrees.
+              </p>
+              <%= for error <- @edit_form[:author].errors do %>
+                <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <% end %>
+            </div>
+
+            <div>
+              <label class="font-crimson text-navy font-semibold block mb-2">
+                Source (Optional)
+              </label>
+              <input
+                type="text"
+                name={@edit_form[:source].name}
+                value={@edit_form[:source].value || ""}
+                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                placeholder="e.g., The Dolorous Passion of Our Lord Jesus Christ"
+              />
+              <%= for error <- @edit_form[:source].errors do %>
+                <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <% end %>
+            </div>
+          </div>
+
           <div class="flex justify-end">
             <button
               type="submit"
@@ -68,14 +106,24 @@
         </div>
       </.form>
     </div>
-
+    
 <!-- Labels (iOS picker grouping and filter chips) -->
     <LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection.labels_section
       labels={@meditation_set.labels}
       vocabulary={@label_vocabulary}
       max_labels={@max_labels}
     />
-
+    
+<!-- Artwork (set detail hero on the app) -->
+    <LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection.artwork_section
+      set={@meditation_set}
+      artwork_url={@artwork_url}
+      form={@artwork_form}
+      upload={@uploads.artwork}
+      licenses={@license_options}
+      rules={@artwork_rules}
+    />
+    
 <!-- Manage Meditations in Set -->
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-6">Meditations in This Set</h3>
@@ -89,7 +137,7 @@
           </p>
         </div>
       <% end %>
-
+      
 <!-- Current Meditations -->
       <div class="mb-8">
         <h4 class="font-cinzel text-lg text-navy mb-3">
@@ -105,8 +153,13 @@
               <div class="flex justify-between items-center bg-cream p-3 rounded">
                 <div class="flex items-center gap-2">
                   <%= if meditation.audio_url do %>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gold flex-shrink-0">
-                      <path d="M12 2C6.477 2 2 6.477 2 12v4a2 2 0 002 2h2a2 2 0 002-2v-3a2 2 0 00-2-2H4.062A8.001 8.001 0 0112 4a8.001 8.001 0 017.938 7H18a2 2 0 00-2 2v3a2 2 0 002 2h2a2 2 0 002-2v-4c0-5.523-4.477-10-10-10z"/>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      class="w-5 h-5 text-gold flex-shrink-0"
+                    >
+                      <path d="M12 2C6.477 2 2 6.477 2 12v4a2 2 0 002 2h2a2 2 0 002-2v-3a2 2 0 00-2-2H4.062A8.001 8.001 0 0112 4a8.001 8.001 0 017.938 7H18a2 2 0 00-2 2v3a2 2 0 002 2h2a2 2 0 002-2v-4c0-5.523-4.477-10-10-10z" />
                     </svg>
                   <% end %>
                   <div>
@@ -212,7 +265,7 @@
         <% end %>
       </div>
     </div>
-
+    
 <!-- Back to Sets -->
     <div class="mt-8 text-center">
       <.link

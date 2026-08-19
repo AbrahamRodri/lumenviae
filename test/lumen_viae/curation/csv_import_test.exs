@@ -3,6 +3,7 @@ defmodule LumenViae.Curation.CsvImportTest do
 
   alias LumenViae.Curation.CsvImport
   alias LumenViae.Rosary
+  alias LumenViae.Test.EnvStub
 
   @content "First paragraph of the meditation.\n\nSecond paragraph of the meditation."
 
@@ -118,6 +119,46 @@ defmodule LumenViae.Curation.CsvImportTest do
 
       results = CsvImport.import_string(content, dry_run: true)
       assert length(results) == 1
+    end
+
+    test "writes the set's own byline from set_author and set_source" do
+      content =
+        csv(
+          ~w(mystery_name content set_name set_category set_author set_source),
+          [
+            "The Annunciation,#{quoted(@content)},Emmerich Set,joyful,Bl. Anne Catherine Emmerich,The Dolorous Passion",
+            "The Visitation,#{quoted(@content)},Emmerich Set,joyful,Bl. Anne Catherine Emmerich,The Dolorous Passion"
+          ]
+        )
+
+      assert Enum.all?(CsvImport.import_string(content, skip_audio: true), &match?({:ok, _}, &1))
+
+      set = Rosary.get_meditation_set_by_name("Emmerich Set")
+
+      assert set.author == "Bl. Anne Catherine Emmerich"
+      assert set.source == "The Dolorous Passion"
+    end
+
+    # Create-only, like set_description: re-importing into a set must not
+    # rewrite what a curator has since edited in the admin.
+    test "leaves an existing set's byline alone" do
+      {:ok, set} =
+        Rosary.create_meditation_set(%{
+          name: "Existing Set",
+          category: "joyful",
+          author: "Curated By Hand"
+        })
+
+      content =
+        csv(
+          ~w(mystery_name content set_name set_category set_author),
+          ["The Annunciation,#{quoted(@content)},Existing Set,joyful,From The CSV"]
+        )
+
+      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true)
+
+      assert Rosary.get_meditation_set_by_name("Existing Set").author == "Curated By Hand"
+      assert Rosary.get_meditation_set!(set.id).author == "Curated By Hand"
     end
 
     test "rejects unknown columns instead of silently ignoring them" do
@@ -340,37 +381,15 @@ defmodule LumenViae.Curation.CsvImportTest do
     setup do
       test_pid = self()
 
-      originals =
-        for {app, key} <- [
-              {:lumen_viae, :eleven_labs_api_key},
-              {:lumen_viae, :eleven_labs_req_options},
-              {:lumen_viae, :audio_retry_base_delay_ms},
-              {:lumen_viae, :fake_aws_test_pid},
-              {:ex_aws, :http_client},
-              {:ex_aws, :access_key_id},
-              {:ex_aws, :secret_access_key}
-            ] do
-          {app, key, Application.get_env(app, key)}
-        end
-
-      Application.put_env(:lumen_viae, :eleven_labs_api_key, "test-api-key")
-      Application.put_env(:lumen_viae, :audio_retry_base_delay_ms, 1)
-
-      Application.put_env(:lumen_viae, :eleven_labs_req_options,
-        plug: {Req.Test, LumenViae.Audio.ElevenLabs}
-      )
-
-      Application.put_env(:ex_aws, :http_client, LumenViae.Test.FakeAwsHttpClient)
-      Application.put_env(:ex_aws, :access_key_id, "test-key")
-      Application.put_env(:ex_aws, :secret_access_key, "test-secret")
-      Application.put_env(:lumen_viae, :fake_aws_test_pid, test_pid)
-
-      on_exit(fn ->
-        Enum.each(originals, fn
-          {app, key, nil} -> Application.delete_env(app, key)
-          {app, key, value} -> Application.put_env(app, key, value)
-        end)
-      end)
+      EnvStub.put_env([
+        {:lumen_viae, :eleven_labs_api_key, "test-api-key"},
+        {:lumen_viae, :audio_retry_base_delay_ms, 1},
+        {:lumen_viae, :eleven_labs_req_options, plug: {Req.Test, LumenViae.Audio.ElevenLabs}},
+        {:lumen_viae, :fake_aws_test_pid, test_pid},
+        {:ex_aws, :http_client, LumenViae.Test.FakeAwsHttpClient},
+        {:ex_aws, :access_key_id, "test-key"},
+        {:ex_aws, :secret_access_key, "test-secret"}
+      ])
 
       %{test_pid: test_pid}
     end

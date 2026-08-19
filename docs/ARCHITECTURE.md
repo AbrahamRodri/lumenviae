@@ -32,6 +32,7 @@ lib/mix/tasks/          command-line entry points
 lib/lumen_viae/
 ├── rosary.ex                  Primary Context - the domain's only public API
 ├── rosary/
+│   ├── artwork.ex             value module: licences and framing arithmetic
 │   ├── categories.ex          value module: mystery category vocabulary
 │   ├── labels.ex              value module: meditation set label vocabulary
 │   ├── mysteries.ex           Secondary Context
@@ -46,12 +47,14 @@ lib/lumen_viae/
 │   └── completions/completion.ex
 ├── curation/                  batch services over the domain's public API
 │   ├── csv_import.ex
-│   └── audio_regeneration.ex
+│   ├── audio_regeneration.ex
+│   └── artwork_upload.ex
 ├── audio/                     ElevenLabs narration
 │   ├── eleven_labs.ex
 │   ├── pipeline.ex
 │   └── tts_text.ex
-├── storage/s3.ex              S3 uploads and pre-signed URLs
+├── images/inspector.ex        image headers: format and dimensions
+├── storage/s3.ex              S3 uploads, pre-signed and public URLs
 ├── services/geolocation.ex    IP to approximate location
 ├── liturgical_calendar.ex     which mysteries are prayed today
 └── release.ex                 production tasks without Mix
@@ -175,11 +178,18 @@ fix is a documented, measured exception - not a quiet join.
 
 ## Value modules
 
-`LumenViae.Rosary.Categories` and `LumenViae.Rosary.Labels` hold controlled
-vocabulary: no state, no queries, no schema. Any layer may call them
-directly, including templates. They are the single source for their lists,
-so `Categories.slugs/0` feeds the changeset validations and
+`LumenViae.Rosary.Categories`, `LumenViae.Rosary.Labels` and
+`LumenViae.Rosary.Artwork` hold controlled vocabulary and the pure
+calculations that go with it: no state, no queries, no schema. Any layer may
+call them directly, including templates. They are the single source for
+their lists, so `Categories.slugs/0` feeds the changeset validations and
 `Categories.options/0` feeds the form selects from the same place.
+
+`Artwork` also owns the two changesets that write the artwork columns, which
+is what keeps the managed fields (`image_key` and the dimensions, written
+only after an upload is proved) out of reach of the admin form's changeset.
+It sits here rather than in the schema because the same split has to hold
+for every future entry point.
 
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.
@@ -188,19 +198,20 @@ layer. Do not add one for anything that reads the database.
 
 ## Services above the domain
 
-`LumenViae.Curation.CsvImport` and `LumenViae.Curation.AudioRegeneration`
-are batch operations that orchestrate many domain calls and report progress.
-They sit *outside* the domain and consume `LumenViae.Rosary` exactly like a
-LiveView does, which is why they live in `lib/lumen_viae/curation/` rather
-than under `rosary/`.
+`LumenViae.Curation.CsvImport`, `LumenViae.Curation.AudioRegeneration` and
+`LumenViae.Curation.ArtworkUpload` orchestrate many domain and
+infrastructure calls on the domain's behalf. They sit *outside* the domain
+and consume `LumenViae.Rosary` exactly like a LiveView does, which is why
+they live in `lib/lumen_viae/curation/` rather than under `rosary/`.
 
 They are shared entry points, so the admin upload UI, `mix lumen_viae.*`,
-and `LumenViae.Release` all drive the same code and behave identically. Both
-return `{:ok | :warning | :error, message}` lists and accept a `:progress`
-function.
+and `LumenViae.Release` all drive the same code and behave identically.
+`CsvImport` and `AudioRegeneration` return `{:ok | :warning | :error,
+message}` lists and accept a `:progress` function; `ArtworkUpload` handles
+one file at a time and returns `{:ok, fields} | {:error, message}`.
 
-`audio/`, `storage/` and `services/` are infrastructure: they wrap an
-external API and know nothing about the domain.
+`audio/`, `images/`, `storage/` and `services/` are infrastructure: they
+wrap an external API or a file format and know nothing about the domain.
 
 ---
 

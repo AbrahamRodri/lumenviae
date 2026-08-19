@@ -69,6 +69,31 @@ defmodule LumenViae.Rosary.MeditationSets do
 
   def get!(id), do: Repo.get!(MeditationSet, id)
 
+  # The id column is a bigint, and a number outside its range is rejected by
+  # the driver as an encoding error rather than as a missing row - which
+  # reached a client as a 500 with a stacktrace for what is only a nonsense
+  # URL.
+  @id_range 1..9_223_372_036_854_775_807
+
+  @doc """
+  Non-raising sibling of `get!/1`. Returns nil for an id that does not
+  exist, for one that is not an id at all, and for a number no id could ever
+  be, so a caller working from a URL segment does not have to guard the cast
+  itself.
+  """
+  def get(id) when is_integer(id) do
+    if id in @id_range, do: Repo.get(MeditationSet, id), else: nil
+  end
+
+  def get(id) when is_binary(id) do
+    case Integer.parse(id) do
+      {id, ""} -> get(id)
+      _not_an_id -> nil
+    end
+  end
+
+  def get(_id), do: nil
+
   @doc """
   Fetches a set with its meditations preloaded in id order. Prefer
   `LumenViae.Rosary.get_meditation_set_with_ordered_meditations!/1` when the
@@ -115,6 +140,44 @@ defmodule LumenViae.Rosary.MeditationSets do
 
   def change(%MeditationSet{} = set, attrs \\ %{}) do
     MeditationSet.changeset(set, attrs)
+  end
+
+  @doc """
+  Records a completed artwork upload: the S3 key and the dimensions
+  `LumenViae.Curation.ArtworkUpload` measured, plus any metadata supplied
+  with it.
+  """
+  def update_artwork(%MeditationSet{} = set, attrs) do
+    set
+    |> MeditationSet.artwork_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Records the artwork metadata a curator typed. Cannot reach the key or the
+  dimensions, so a crafted form post cannot repoint a set at another object
+  or desync the size the iOS hero reserves its crop from.
+  """
+  def update_artwork_metadata(%MeditationSet{} = set, attrs) do
+    set
+    |> MeditationSet.artwork_metadata_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def change_artwork(%MeditationSet{} = set, attrs \\ %{}) do
+    MeditationSet.artwork_metadata_changeset(set, attrs)
+  end
+
+  @doc """
+  How many sets are still waiting for a painting, for the admin dashboard.
+
+  No index backs this: the table holds 27 rows, so the planner would never
+  choose one.
+  """
+  def count_missing_artwork do
+    MeditationSet
+    |> where([ms], is_nil(ms.image_key))
+    |> Repo.aggregate(:count)
   end
 
   @doc """
