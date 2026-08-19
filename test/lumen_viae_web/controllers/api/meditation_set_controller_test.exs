@@ -55,7 +55,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
       assert Enum.map(data, & &1["id"]) == [first.id, second.id, third.id]
     end
 
-    test "keeps the existing summary shape alongside labels", %{conn: conn} do
+    test "carries the summary fields the picker reads", %{conn: conn} do
       set = create_set(%{name: "Shape Check", description: "A description"})
 
       [summary] =
@@ -64,13 +64,14 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
         |> json_response(200)
         |> Map.fetch!("data")
 
-      assert summary == %{
-               "id" => set.id,
-               "name" => "Shape Check",
-               "category" => "joyful",
-               "description" => "A description",
-               "labels" => []
-             }
+      # Asserted field by field rather than with map equality: an added key
+      # is a compatible change and must not fail here. Whether a *shipped*
+      # key can disappear is the contract test's job, not this one's.
+      assert summary["id"] == set.id
+      assert summary["name"] == "Shape Check"
+      assert summary["category"] == "joyful"
+      assert summary["description"] == "A description"
+      assert summary["labels"] == []
     end
   end
 
