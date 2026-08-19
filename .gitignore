@@ -45,3 +45,6 @@ npm-debug.log
 /priv/repo/imports/
 .claude/launch.json
 .claude/skills/
+
+# Production database snapshots pulled by sync_prod_db.sh
+/priv/repo/snapshots/
