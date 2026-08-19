@@ -1,4 +1,6 @@
 defmodule LumenViaeWeb.API.MeditationSetJSON do
+  alias LumenViaeWeb.API.ArtworkJSON
+
   @doc """
   Renders a list of meditation sets (summary view).
   """
@@ -28,6 +30,7 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
       description: set.description,
       labels: set.labels || []
     }
+    |> Map.merge(ArtworkJSON.data(set))
   end
 
   defp set_detail(set, audio_expires_at) do
@@ -40,6 +43,7 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
       audio_expires_at: encode_expiry(audio_expires_at),
       meditations: Enum.map(set.meditations, &LumenViaeWeb.API.MeditationJSON.data/1)
     }
+    |> Map.merge(ArtworkJSON.data(set))
   end
 
   defp encode_expiry(nil), do: nil

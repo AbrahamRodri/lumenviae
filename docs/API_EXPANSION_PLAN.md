@@ -30,8 +30,8 @@ then delete the old keys after the presigned window has drained.
 
 ## Status
 
-Updated 19 August 2026. Read this before picking up any stage: several
-stages are partly done, and one of them is a prerequisite for Stage 2.
+Updated 19 August 2026. Read this before picking up any stage: the stages
+are not being worked in order, and one of them is half done.
 
 **Nothing below is deployed.** Every code change is local; production is
 still running the old API. `audio_expires_at` is absent from the live
@@ -78,6 +78,27 @@ Done, in the repo:
   can be tested without a network round trip; nothing in the suite reaches
   S3.
 
+### Stage 2 - DONE
+
+Migration `20260820120000_add_artwork_to_meditation_sets.exs`,
+`LumenViae.Rosary.Artwork` with the two changeset builders, the four
+`MeditationSets` functions, the `Rosary` delegates and `artwork_url/1`, and
+`ArtworkJSON` merged into both the summary and the detail. `"artwork"` is
+in `@value_modules` and `docs/ARCHITECTURE.md` names it in both the
+directory tree and the "Value modules" section. The migration has run
+locally only.
+
+Two behaviours to know before Stage 4 builds the form:
+
+* Ecto replaces an empty value with the field's **default**, so a blank
+  focal input reads as "centred", not "leave it alone". The form has to
+  render the stored value into the input, or saving an otherwise untouched
+  form quietly recentres the painting.
+* The publish gate lives in `ArtworkJSON`, not in the changeset. A set with
+  a key but no alt text and no licence saves fine and serves
+  `image_url: null` - which is the intended behaviour, and is why the first
+  upload on a bare set is not deadlocked.
+
 ### Stage 6 - PARTLY DONE
 
 Done: `:audio_url_ttl_seconds` (86400, was 3600), `Rosary.audio_url_ttl/0`,
@@ -108,10 +129,15 @@ today), and `Rosary.fetch_visible_meditation_set/1`.
 
 ### Where to start next
 
-Stage 2, the artwork columns. The S3 rename (descriptive
-keys, see Decisions taken) should happen before any second narration voice
-is generated, but is independent of the artwork work and can go either
-side of it.
+Stage 4, the admin artwork form. The columns and the upload service both
+exist, but nothing can yet put a painting in the bucket: `lumenviae-images`
+is still empty and every set still answers `image_url: null`, so the iOS
+hero has nothing to draw. Stage 3 (set author and source) is independent
+and smaller if a shorter session is wanted first.
+
+The S3 rename (descriptive keys, see Decisions taken) should happen before
+any second narration voice is generated, but is independent of the artwork
+work and can go either side of it.
 
 ---
 

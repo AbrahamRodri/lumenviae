@@ -104,7 +104,9 @@ defmodule LumenViae.Rosary do
 
     case S3.generate_presigned_url(s3_key, expires_in: ttl) do
       {:ok, url} ->
-        expires_at = DateTime.utc_now() |> DateTime.add(ttl, :second) |> DateTime.truncate(:second)
+        expires_at =
+          DateTime.utc_now() |> DateTime.add(ttl, :second) |> DateTime.truncate(:second)
+
         {:ok, %{url: url, expires_at: expires_at}}
 
       {:error, _reason} ->
@@ -134,6 +136,33 @@ defmodule LumenViae.Rosary do
   defdelegate change_new_meditation_set(attrs \\ %{}), to: MeditationSets, as: :change_new
   defdelegate delete_meditation_set(set), to: MeditationSets, as: :delete
   defdelegate expected_meditation_count(category), to: MeditationSets
+
+  defdelegate update_meditation_set_artwork(set, attrs),
+    to: MeditationSets,
+    as: :update_artwork
+
+  defdelegate update_meditation_set_artwork_metadata(set, attrs),
+    to: MeditationSets,
+    as: :update_artwork_metadata
+
+  defdelegate change_meditation_set_artwork(set, attrs \\ %{}),
+    to: MeditationSets,
+    as: :change_artwork
+
+  defdelegate count_meditation_sets_missing_artwork(),
+    to: MeditationSets,
+    as: :count_missing_artwork
+
+  @doc """
+  Stable public URL for a set's or a meditation's artwork, or nil.
+
+  Unlike the audio URLs above this signs nothing and never expires: artwork
+  lives in the public assets bucket precisely so a client can cache it and
+  still show it during offline prayer. Building it is pure string work with
+  no I/O, so callers may do it per row without thinking about cost.
+  """
+  def artwork_url(%{image_key: key}), do: S3.public_url(key)
+  def artwork_url(_record), do: nil
 
   def list_meditation_sets, do: MeditationSets.list()
 

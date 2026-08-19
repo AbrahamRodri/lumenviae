@@ -103,6 +103,136 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     end
   end
 
+  describe "artwork on both endpoints" do
+    defp with_artwork(set, metadata \\ %{}) do
+      attrs =
+        Map.merge(
+          %{
+            "image_key" => "sets/#{set.id}/8f21c4d9e0b3a7f6.jpg",
+            "image_width" => 1600,
+            "image_height" => 2400,
+            "image_alt" => "Christ falls beneath the cross on the road out of the city.",
+            "image_license" => "public_domain",
+            "image_focal_y" => 0.24
+          },
+          metadata
+        )
+
+      {:ok, set} = Rosary.update_meditation_set_artwork(set, attrs)
+      set
+    end
+
+    defp summary_for(conn, set) do
+      conn
+      |> get(~p"/api/meditation-sets?category=joyful")
+      |> json_response(200)
+      |> Map.fetch!("data")
+      |> Enum.find(&(&1["id"] == set.id))
+    end
+
+    defp detail_for(conn, set) do
+      conn
+      |> get(~p"/api/meditation-sets/#{set.id}")
+      |> json_response(200)
+      |> Map.fetch!("data")
+    end
+
+    test "the summary carries a stable unsigned URL the client can cache", %{conn: conn} do
+      set = with_artwork(create_set(%{name: "Sheen"}))
+
+      summary = summary_for(conn, set)
+
+      assert summary["image_url"] ==
+               "https://s3.us-east-2.amazonaws.com/lumenviae-images/sets/#{set.id}/8f21c4d9e0b3a7f6.jpg"
+
+      refute summary["image_url"] =~ "X-Amz-Signature"
+    end
+
+    test "the summary carries the framing and the description", %{conn: conn} do
+      set = with_artwork(create_set(%{name: "Sheen"}))
+
+      summary = summary_for(conn, set)
+
+      assert summary["image_alignment"] == "top"
+      assert summary["image_focal_x"] == 0.5
+      assert summary["image_focal_y"] == 0.24
+      assert summary["image_width"] == 1600
+      assert summary["image_height"] == 2400
+      assert summary["image_alt"] =~ "Christ falls"
+    end
+
+    test "the summary carries the attribution as a nested object", %{conn: conn} do
+      set =
+        with_artwork(create_set(%{name: "Sheen"}), %{
+          "image_title" => "Christ Carrying the Cross",
+          "image_artist" => "El Greco",
+          "image_year" => "c. 1580",
+          "image_source_url" => "https://www.metmuseum.org/art/collection/search/436574"
+        })
+
+      assert summary_for(conn, set)["image_attribution"] == %{
+               "title" => "Christ Carrying the Cross",
+               "artist" => "El Greco",
+               "year" => "c. 1580",
+               "source_url" => "https://www.metmuseum.org/art/collection/search/436574",
+               "license" => "public_domain"
+             }
+    end
+
+    test "the detail carries the same block as the summary", %{conn: conn} do
+      set = with_artwork(create_set(%{name: "Sheen"}))
+
+      summary = summary_for(conn, set)
+      detail = detail_for(conn, set)
+
+      for key <- ~w(image_url image_alignment image_focal_x image_focal_y
+                    image_width image_height image_alt image_attribution) do
+        assert detail[key] == summary[key], "#{key} differs between the summary and the detail"
+      end
+    end
+
+    # The client branches on image_url alone, so a half-populated catalogue
+    # has to degrade one set at a time rather than break decoding.
+    test "every artwork key is null for a set with no painting", %{conn: conn} do
+      set = create_set(%{name: "Bare"})
+
+      for payload <- [summary_for(conn, set), detail_for(conn, set)] do
+        assert payload["image_url"] == nil
+        assert payload["image_alignment"] == nil
+        assert payload["image_focal_x"] == nil
+        assert payload["image_focal_y"] == nil
+        assert payload["image_width"] == nil
+        assert payload["image_height"] == nil
+        assert payload["image_alt"] == nil
+        assert payload["image_attribution"] == nil
+      end
+    end
+
+    test "artwork with no alt text is not served", %{conn: conn} do
+      {:ok, set} =
+        Rosary.update_meditation_set_artwork(create_set(%{name: "Undescribed"}), %{
+          "image_key" => "sets/1/a.jpg",
+          "image_width" => 1600,
+          "image_height" => 2400,
+          "image_license" => "public_domain"
+        })
+
+      assert summary_for(conn, set)["image_url"] == nil
+    end
+
+    test "artwork with no licence is not served", %{conn: conn} do
+      {:ok, set} =
+        Rosary.update_meditation_set_artwork(create_set(%{name: "Unprovenanced"}), %{
+          "image_key" => "sets/1/a.jpg",
+          "image_width" => 1600,
+          "image_height" => 2400,
+          "image_alt" => "A description."
+        })
+
+      assert summary_for(conn, set)["image_url"] == nil
+    end
+  end
+
   describe "archived meditations hide their sets from the API" do
     test "index excludes sets containing an archived meditation", %{conn: conn} do
       visible_set = create_set(%{name: "Visible Set"})

@@ -118,6 +118,44 @@ defmodule LumenViae.Rosary.MeditationSets do
   end
 
   @doc """
+  Records a completed artwork upload: the S3 key and the dimensions
+  `LumenViae.Curation.ArtworkUpload` measured, plus any metadata supplied
+  with it.
+  """
+  def update_artwork(%MeditationSet{} = set, attrs) do
+    set
+    |> MeditationSet.artwork_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Records the artwork metadata a curator typed. Cannot reach the key or the
+  dimensions, so a crafted form post cannot repoint a set at another object
+  or desync the size the iOS hero reserves its crop from.
+  """
+  def update_artwork_metadata(%MeditationSet{} = set, attrs) do
+    set
+    |> MeditationSet.artwork_metadata_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def change_artwork(%MeditationSet{} = set, attrs \\ %{}) do
+    MeditationSet.artwork_metadata_changeset(set, attrs)
+  end
+
+  @doc """
+  How many sets are still waiting for a painting, for the admin dashboard.
+
+  No index backs this: the table holds 27 rows, so the planner would never
+  choose one.
+  """
+  def count_missing_artwork do
+    MeditationSet
+    |> where([ms], is_nil(ms.image_key))
+    |> Repo.aggregate(:count)
+  end
+
+  @doc """
   Builds a changeset for a set that does not exist yet, so callers can
   validate attributes without inserting (used by the CSV import's dry run
   and preview).

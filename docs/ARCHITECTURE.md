@@ -32,6 +32,7 @@ lib/mix/tasks/          command-line entry points
 lib/lumen_viae/
 ├── rosary.ex                  Primary Context - the domain's only public API
 ├── rosary/
+│   ├── artwork.ex             value module: licences and framing arithmetic
 │   ├── categories.ex          value module: mystery category vocabulary
 │   ├── labels.ex              value module: meditation set label vocabulary
 │   ├── mysteries.ex           Secondary Context
@@ -177,11 +178,18 @@ fix is a documented, measured exception - not a quiet join.
 
 ## Value modules
 
-`LumenViae.Rosary.Categories` and `LumenViae.Rosary.Labels` hold controlled
-vocabulary: no state, no queries, no schema. Any layer may call them
-directly, including templates. They are the single source for their lists,
-so `Categories.slugs/0` feeds the changeset validations and
+`LumenViae.Rosary.Categories`, `LumenViae.Rosary.Labels` and
+`LumenViae.Rosary.Artwork` hold controlled vocabulary and the pure
+calculations that go with it: no state, no queries, no schema. Any layer may
+call them directly, including templates. They are the single source for
+their lists, so `Categories.slugs/0` feeds the changeset validations and
 `Categories.options/0` feeds the form selects from the same place.
+
+`Artwork` also owns the two changesets that write the artwork columns, which
+is what keeps the managed fields (`image_key` and the dimensions, written
+only after an upload is proved) out of reach of the admin form's changeset.
+It sits here rather than in the schema because the same split has to hold
+for every future entry point.
 
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.
