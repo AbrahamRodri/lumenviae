@@ -103,6 +103,56 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     end
   end
 
+  describe "the set byline" do
+    test "the summary carries an explicit author and source", %{conn: conn} do
+      set =
+        create_set(%{
+          name: "Emmerich",
+          author: "Bl. Anne Catherine Emmerich",
+          source: "The Dolorous Passion of Our Lord Jesus Christ"
+        })
+
+      summary =
+        conn
+        |> get(~p"/api/meditation-sets?category=joyful")
+        |> json_response(200)
+        |> Map.fetch!("data")
+        |> Enum.find(&(&1["id"] == set.id))
+
+      assert summary["author"] == "Bl. Anne Catherine Emmerich"
+      assert summary["source"] == "The Dolorous Passion of Our Lord Jesus Christ"
+    end
+
+    test "the summary derives a byline from meditations that agree", %{conn: conn} do
+      set = create_set(%{name: "Derived"})
+      create_meditation_in_set(set)
+
+      summary =
+        conn
+        |> get(~p"/api/meditation-sets?category=joyful")
+        |> json_response(200)
+        |> Map.fetch!("data")
+        |> Enum.find(&(&1["id"] == set.id))
+
+      # create_meditation_in_set/1 leaves the meditation unattributed, so
+      # there is nothing to derive and nothing must be invented.
+      assert summary["author"] == nil
+      assert summary["source"] == nil
+    end
+
+    test "the detail carries the byline too", %{conn: conn} do
+      set = create_set(%{name: "Liguori", author: "St. Alphonsus Liguori"})
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets/#{set.id}")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert data["author"] == "St. Alphonsus Liguori"
+    end
+  end
+
   describe "artwork on both endpoints" do
     defp with_artwork(set, metadata \\ %{}) do
       attrs =

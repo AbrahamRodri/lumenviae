@@ -99,6 +99,20 @@ Two behaviours to know before Stage 4 builds the form:
   `image_url: null` - which is the intended behaviour, and is why the first
   upload on a bare set is not deadlocked.
 
+### Stage 3 - DONE
+
+Migration `20260820120100_add_attribution_to_meditation_sets.exs`, the
+virtual `derived_author` and `derived_source`,
+`Meditations.list_attribution_by_ids/1`, `Rosary.resolve_attribution/1`
+wrapped around the three visible-set reads, the JSON fallback, and
+`set_summary/1` and `set_detail/2` promoted to public. `set_author` and
+`set_source` are in `@known_columns`, create-only like `set_description`.
+
+`docs/CSV_IMPORT_GUIDE.md` had no meditation set columns in it at all,
+despite CLAUDE.md saying it documented them. It now has a Meditation Set
+Columns section covering all seven, including the create-only rule and the
+fact that a CSV cannot carry artwork.
+
 ### Stage 6 - PARTLY DONE
 
 Done: `:audio_url_ttl_seconds` (86400, was 3600), `Rosary.audio_url_ttl/0`,
@@ -129,11 +143,13 @@ today), and `Rosary.fetch_visible_meditation_set/1`.
 
 ### Where to start next
 
-Stage 4, the admin artwork form. The columns and the upload service both
-exist, but nothing can yet put a painting in the bucket: `lumenviae-images`
-is still empty and every set still answers `image_url: null`, so the iOS
-hero has nothing to draw. Stage 3 (set author and source) is independent
-and smaller if a shorter session is wanted first.
+Stage 4, the admin form. It is now the only thing standing between the
+catalogue and the iOS hero: the columns, the upload service and the byline
+all exist, but nothing can yet put a painting in the bucket, so
+`lumenviae-images` is still empty and every set still answers
+`image_url: null`. Stage 4 also carries the Author and Source inputs for
+the set itself, which Stage 3 left with no way to edit outside a CSV
+create or IEx.
 
 The S3 rename (descriptive keys, see Decisions taken) should happen before
 any second narration voice is generated, but is independent of the artwork

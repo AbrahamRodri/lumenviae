@@ -30,6 +30,37 @@ Your CSV file must include the following columns:
   - The generated audio will be uploaded to S3 with this filename
   - If audio generation fails, the meditation will still be created without audio
 
+### Meditation Set Columns
+
+All optional, and all describing the set rather than the row's meditation.
+Put the same set columns on every row that belongs to the set; the set is
+found or created once, from the first row that names it.
+
+- **set_name** - find-or-create a set with this name and attach the row's
+  meditation to it
+- **set_category** - required when the set does not exist yet: one of
+  joyful, sorrowful, glorious, luminous, seven_sorrows
+- **set_description** - what the set is, shown under its name in the picker
+- **set_author** - the set's own byline, e.g. "Bl. Anne Catherine Emmerich"
+  - Leave it out and the byline is derived from the set's meditations, but
+    only when every one of them agrees. A set of four Emmerich passages and
+    one Liguori shows no byline unless you write one here.
+- **set_source** - the work the set is drawn from, e.g. "The Dolorous
+  Passion of Our Lord Jesus Christ"
+- **set_labels** - pipe-separated labels from the managed vocabulary
+  (Intentions, Saints, Scriptural, Contemplative, Considerations)
+  - Order matters: the first label is the set's primary group in the picker
+  - At most three, and at most one of Contemplative or Considerations
+- **order** - the meditation's position within the set; when omitted, rows
+  are appended after the set's current highest order
+
+Every set column except `set_name` is used **only when the set is created**.
+Importing more rows into a set that already exists will not change its
+description, byline or labels - edit those in the admin instead.
+
+There is no column for artwork: a CSV cannot carry the bytes. Upload a
+painting on the set's admin page.
+
 ## Available Mystery Names
 
 The following mystery names are available (must match exactly):

@@ -59,6 +59,25 @@ defmodule LumenViae.Rosary.Meditations do
     end)
   end
 
+  @doc """
+  Author and source for the given meditation ids, as
+  `%{id => %{author: author, source: source}}`.
+
+  Id-shaped rather than set-shaped: this module owns the meditations table
+  and must not join across to memberships, so `LumenViae.Rosary` composes
+  this with the membership ids to derive a set's byline.
+  """
+  def list_attribution_by_ids([]), do: %{}
+
+  def list_attribution_by_ids(ids) do
+    Repo.all(
+      from m in Meditation,
+        where: m.id in ^ids,
+        select: {m.id, %{author: m.author, source: m.source}}
+    )
+    |> Map.new()
+  end
+
   def get(id) do
     case Repo.get(Meditation, id) do
       nil -> nil

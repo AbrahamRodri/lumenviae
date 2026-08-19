@@ -120,6 +120,46 @@ defmodule LumenViae.Curation.CsvImportTest do
       assert length(results) == 1
     end
 
+    test "writes the set's own byline from set_author and set_source" do
+      content =
+        csv(
+          ~w(mystery_name content set_name set_category set_author set_source),
+          [
+            "The Annunciation,#{quoted(@content)},Emmerich Set,joyful,Bl. Anne Catherine Emmerich,The Dolorous Passion",
+            "The Visitation,#{quoted(@content)},Emmerich Set,joyful,Bl. Anne Catherine Emmerich,The Dolorous Passion"
+          ]
+        )
+
+      assert Enum.all?(CsvImport.import_string(content, skip_audio: true), &match?({:ok, _}, &1))
+
+      set = Rosary.get_meditation_set_by_name("Emmerich Set")
+
+      assert set.author == "Bl. Anne Catherine Emmerich"
+      assert set.source == "The Dolorous Passion"
+    end
+
+    # Create-only, like set_description: re-importing into a set must not
+    # rewrite what a curator has since edited in the admin.
+    test "leaves an existing set's byline alone" do
+      {:ok, set} =
+        Rosary.create_meditation_set(%{
+          name: "Existing Set",
+          category: "joyful",
+          author: "Curated By Hand"
+        })
+
+      content =
+        csv(
+          ~w(mystery_name content set_name set_category set_author),
+          ["The Annunciation,#{quoted(@content)},Existing Set,joyful,From The CSV"]
+        )
+
+      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true)
+
+      assert Rosary.get_meditation_set_by_name("Existing Set").author == "Curated By Hand"
+      assert Rosary.get_meditation_set!(set.id).author == "Curated By Hand"
+    end
+
     test "rejects unknown columns instead of silently ignoring them" do
       content = csv(~w(mystery_name content set_lables), ["The Annunciation,text,Saints"])
 

@@ -41,6 +41,10 @@ defmodule LumenViae.Curation.CsvImport do
     * `set_category` - required when the set does not exist yet; one of
       joyful, sorrowful, glorious, luminous, seven_sorrows
     * `set_description` - set description (used on create only)
+    * `set_author` - the set's own byline, e.g. "Bl. Anne Catherine
+      Emmerich" (create only). Leave it out and the byline is derived from
+      the meditations, but only when every one of them agrees.
+    * `set_source` - the work the set is drawn from (create only)
     * `set_labels` - pipe-separated labels from the managed vocabulary
       (see `LumenViae.Rosary.Labels`); order matters, the first label is the
       set's primary group (create only)
@@ -84,7 +88,8 @@ defmodule LumenViae.Curation.CsvImport do
 
   @required_columns ~w(mystery_name content)
   @known_columns ~w(mystery_name content title author source audio_filename
-                    set_name set_category set_description set_labels order)
+                    set_name set_category set_description set_author set_source
+                    set_labels order)
 
   ## Importing
 
@@ -563,6 +568,8 @@ defmodule LumenViae.Curation.CsvImport do
       "name" => Map.get(row_map, "set_name"),
       "category" => Map.get(row_map, "set_category"),
       "description" => Map.get(row_map, "set_description"),
+      "author" => Map.get(row_map, "set_author"),
+      "source" => Map.get(row_map, "set_source"),
       "labels" => parse_labels(Map.get(row_map, "set_labels"))
     }
   end

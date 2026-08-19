@@ -196,6 +196,7 @@ defmodule LumenViae.Rosary do
 
   def list_visible_meditation_sets do
     MeditationSets.list(exclude_ids: hidden_meditation_set_ids())
+    |> resolve_attribution()
   end
 
   def list_visible_meditation_sets_with_meditations do
@@ -205,6 +206,67 @@ defmodule LumenViae.Rosary do
   def list_visible_meditation_sets_by_category(category) do
     MeditationSets.list(category: category, exclude_ids: hidden_meditation_set_ids())
     |> MeditationSets.preload_meditations()
+    |> resolve_attribution()
+  end
+
+  @doc """
+  Fills in each set's derived byline.
+
+  An explicit `author` or `source` on the set always wins. Otherwise it is
+  derived from the set's meditations, and only when every meditation agrees:
+  a set of four Emmerich passages and one Liguori gets nil rather than a
+  name that is true of most of it.
+
+  Writes only the virtual `derived_author` and `derived_source`. Writing the
+  derivation into the persisted columns would mean any later save of that
+  struct - an admin form prefilled from a public read, a re-save - promoted
+  a guess to an explicit override, which is exactly the staleness having a
+  derivation is meant to avoid.
+
+  Two queries, whether it is given one set or all of them.
+  """
+  def resolve_attribution(sets) when is_list(sets) do
+    ids_by_set = SetMemberships.list_meditation_ids_by_set()
+
+    attribution =
+      sets
+      |> Enum.flat_map(&Map.get(ids_by_set, &1.id, []))
+      |> Enum.uniq()
+      |> Meditations.list_attribution_by_ids()
+
+    Enum.map(sets, fn set ->
+      rows =
+        ids_by_set
+        |> Map.get(set.id, [])
+        |> Enum.map(&Map.get(attribution, &1))
+        |> Enum.reject(&is_nil/1)
+
+      %{
+        set
+        | derived_author: unanimous(rows, :author),
+          derived_source: unanimous(rows, :source)
+      }
+    end)
+  end
+
+  def resolve_attribution(set), do: set |> List.wrap() |> resolve_attribution() |> hd()
+
+  defp unanimous([], _key), do: nil
+
+  defp unanimous(rows, key) do
+    case rows |> Enum.map(&blank_to_nil(Map.fetch!(&1, key))) |> Enum.uniq() do
+      [value] when is_binary(value) -> value
+      _disagreement_or_nothing -> nil
+    end
+  end
+
+  defp blank_to_nil(nil), do: nil
+
+  defp blank_to_nil(value) when is_binary(value) do
+    case String.trim(value) do
+      "" -> nil
+      trimmed -> trimmed
+    end
   end
 
   @doc """
@@ -219,7 +281,7 @@ defmodule LumenViae.Rosary do
       MeditationSets.raise_not_found!()
     end
 
-    set
+    resolve_attribution(set)
   end
 
   @doc """
