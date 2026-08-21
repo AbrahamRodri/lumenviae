@@ -120,9 +120,12 @@
   /* Accent Colors - Warm ecclesiastical gold */
   --color-gold: #b18b49;
   --color-gold-light: #c9a96b;
-  --color-gold-dark: #8f6e38;
+  --color-gold-dark: #7f6132;
 
-  /* Base Colors - Soft, parchment-like cream */
+  /* Base Colors - Soft, parchment-like cream.
+     parchment is the almost-white warm ground most sections sit on; cream and
+     cream-dark are the deeper steps for alternating bands and inset panels. */
+  --color-parchment: #fdfaf4;
   --color-cream: #faf2e6;
   --color-cream-dark: #f0e5d0;
   --color-white: #ffffff;
@@ -137,6 +140,37 @@
   /* Accent Colors - manuscript rubric red and St. Carlo polo red */
   --color-rubric: #8b2f23;
   --color-carlo: #a63a2e;
+
+  /* Status Colors - the admin surfaces need to say "saved", "careful", and
+     "this will delete something". Kept in the same warm, muted register as
+     the rest of the palette rather than stock Tailwind red/green/amber.
+
+     daisyUI already owns the names success/warning/info/error, so these are
+     deliberately named positive/caution/notice/danger instead - do not rename
+     them back or the utilities will silently resolve to daisyUI's oklch values.
+
+     Each family is three tiers: the base for text and borders, -strong for
+     text on its own surface, and -surface for the tinted panel behind it.
+     Every base clears WCAG AA on white, cream, and cream-dark; every -strong
+     clears AA on its own surface. Do not lighten a base without rechecking. */
+  --color-danger: #8b2f23;
+  --color-danger-strong: #6f2419;
+  --color-danger-surface: #fbeeec;
+  --color-danger-border: #e3c4bf;
+
+  --color-positive: #3d6b46;
+  --color-positive-strong: #2f5436;
+  --color-positive-surface: #edf4ee;
+  --color-positive-border: #c2d8c7;
+
+  --color-caution: #8a5a1f;
+  --color-caution-strong: #6d4718;
+  --color-caution-surface: #fbf1e0;
+  --color-caution-border: #e2cba3;
+
+  --color-notice: #1f4f6b;
+  --color-notice-surface: #ebf2f6;
+  --color-notice-border: #b9cfdc;
 
   /* Typography - Clear Creek inspired fonts.
      Tailwind v4 generates font-* utilities from the --font-* namespace. */
@@ -207,22 +241,24 @@
 }
 
 
-/* Typography utilities for meditation-friendly reading */
+/* Typography utilities for meditation-friendly reading.
+   The site follows the iOS app's two-family system: Cinzel (engraved Roman
+   capitals) for titles and tracked labels, EB Garamond for everything read. */
 .text-meditation {
-  font-family: var(--font-work-sans);
-  font-size: 1.0625rem;
-  line-height: 1.6;
+  font-family: var(--font-garamond);
+  font-size: 1.1875rem;
+  line-height: 1.7;
   color: var(--color-text-muted);
 }
 
 .heading-ornate {
-  font-family: var(--font-ovo);
+  font-family: var(--font-cinzel);
   line-height: 1.4;
   letter-spacing: 0.02em;
 }
 
 .heading-elegant {
-  font-family: var(--font-ovo);
+  font-family: var(--font-cinzel);
   line-height: 1.4;
   letter-spacing: 0.02em;
 }
@@ -231,47 +267,163 @@
 .text-ornate {
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  font-family: var(--font-ovo);
+  font-family: var(--font-cinzel);
 }
 
-/* Base body styling for readability - Clear Creek inspired */
+/* Base body styling for readability - matches the app's Garamond Medium body */
 body {
-  font-family: var(--font-work-sans);
-  font-size: 1.0625rem;
-  line-height: 1.6;
+  font-family: var(--font-garamond);
+  font-size: 1.1875rem;
+  font-weight: 500;
+  line-height: 1.7;
   color: var(--color-text);
 }
 
 h1 {
-  font-family: var(--font-roman-uncial);
+  font-family: var(--font-cinzel);
   line-height: 1.25;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   font-weight: 400;
 }
 
 h2 {
-  font-family: var(--font-ovo);
+  font-family: var(--font-cinzel);
   line-height: 1.3;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   font-weight: 400;
 }
 
 h3, h4, h5, h6 {
-  font-family: var(--font-ovo);
+  font-family: var(--font-cinzel);
   line-height: 1.4;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   font-weight: 400;
 }
 
-/* Illuminated drop cap for scripture and quote passages */
+/* Illuminated drop cap for scripture and quote passages - a gold Cinzel
+   versal leading into Garamond body, as in the app's DropCapText */
 .drop-cap::first-letter {
-  font-family: var(--font-roman-uncial);
-  font-size: 3.4em;
+  font-family: var(--font-cinzel);
+  font-size: 2.6em;
   line-height: 0.85;
   float: left;
-  padding-right: 0.12em;
-  padding-top: 0.08em;
+  padding-right: 0.14em;
+  padding-top: 0.06em;
   color: var(--color-gold-dark);
+}
+
+/* Gold call-to-action - the app's flat gold plate: a capsule struck from a
+   horizontal gold gradient (never vertical - no lit top edge), engraved caps,
+   a fine gold-light rim, and a quiet standing halo. ONE filled gold shape per
+   screen region; a second primary action means one of them is wrong.
+
+   Declared in the components layer so Tailwind utilities on the same element
+   (text-cream, px-*, ...) can override individual properties. */
+@layer components {
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 1rem 1.75rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
+  border: 1px solid rgba(201, 169, 107, 0.6);
+  color: var(--color-navy-dark);
+  font-family: var(--font-cinzel);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  box-shadow:
+    0 0 9px rgba(177, 139, 73, 0.21),
+    0 0 20px rgba(177, 139, 73, 0.1);
+  transition: all 0.16s ease-out;
+}
+
+.btn-gold:hover {
+  filter: brightness(1.05);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-gold:active {
+  transform: scale(0.97);
+  filter: brightness(0.94);
+}
+
+.btn-gold:focus-visible {
+  outline: 2px solid var(--color-gold-dark);
+  outline-offset: 3px;
+}
+
+/* Quiet secondary action: same capsule, hairline gold rule, transparent
+   interior, ink color inherited from context (navy on light, cream on navy) */
+.btn-outline-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 1.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(177, 139, 73, 0.5);
+  font-family: var(--font-cinzel);
+  font-size: 0.875rem;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  transition: all 0.16s ease-out;
+}
+
+.btn-outline-gold:hover {
+  border-color: var(--color-gold);
+  background: rgba(177, 139, 73, 0.08);
+}
+
+.btn-outline-gold:active {
+  transform: scale(0.97);
+}
+
+/* The app's card shell in daylight: a light surface behind a fine gold rule */
+.hairline-card {
+  background: var(--color-white);
+  border: 1px solid rgba(177, 139, 73, 0.3);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-soft);
+}
+}
+
+/* Double-hairline corner ticks, like the ruled corners of an illuminated
+   page (the app's OrnateCornersOverlay). Overlay on ceremonial panels. */
+.ornate-corners {
+  position: relative;
+}
+
+.ornate-corners::before,
+.ornate-corners::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  background-repeat: no-repeat;
+}
+
+.ornate-corners::before {
+  background-image:
+    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
+    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
+    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
+    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5));
+  background-size: 16px 1px, 1px 16px, 16px 1px, 1px 16px;
+  background-position: top left, top left, top right, top right;
+}
+
+.ornate-corners::after {
+  background-image:
+    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
+    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
+    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
+    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5));
+  background-size: 16px 1px, 1px 16px, 16px 1px, 1px 16px;
+  background-position: bottom left, bottom left, bottom right, bottom right;
 }
 
 /* Parchment mottling for manuscript-styled pages - pure CSS, no image */

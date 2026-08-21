@@ -22,7 +22,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
       |> assign(:expected, Rosary.expected_meditation_count(assigns.set.category))
 
     ~H"""
-    <div class="border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
+    <div class="border border-gold/20 rounded-lg bg-cream overflow-hidden">
       <div class="p-6">
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1 min-w-0">
@@ -58,13 +58,13 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
               <.meditation_count_badge counts={@counts} expected={@expected} />
               <.audio_badge counts={@counts} />
 
-              <span class="font-crimson text-xs text-gray-400 ml-1">
+              <span class="font-work-sans text-xs text-brown-light ml-1">
                 ID {@set.id} &middot; created {Calendar.strftime(@set.inserted_at, "%b %d, %Y")}
               </span>
             </div>
 
             <%= if @set.description do %>
-              <p class="font-crimson text-gray-700 mt-3">{@set.description}</p>
+              <p class="font-work-sans text-brown mt-3">{@set.description}</p>
             <% end %>
           </div>
 
@@ -72,14 +72,14 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
             <button
               phx-click="toggle_expand"
               phx-value-id={@set.id}
-              class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+              class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
             >
               {if @expanded, do: "Hide meditations", else: "View meditations"}
             </button>
 
             <.link
               navigate={"/admin/meditation-sets/#{@set.id}/edit"}
-              class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+              class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
             >
               Edit
             </.link>
@@ -88,7 +88,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
               phx-click="delete_set"
               phx-value-id={@set.id}
               data-confirm="Are you sure you want to delete this meditation set? The meditations themselves are kept."
-              class="px-3 py-1.5 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-colors font-crimson text-sm"
+              class="px-3 py-1.5 text-danger border border-danger rounded hover:bg-danger hover:text-white transition-colors font-work-sans text-sm"
             >
               Delete
             </button>
@@ -97,9 +97,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
       </div>
 
       <%= if @expanded do %>
-        <div class="px-6 pb-6 pt-4 bg-white border-t border-gray-200">
+        <div class="px-6 pb-6 pt-4 bg-white border-t border-gold/20">
           <%= if @expanded_meditations == [] do %>
-            <p class="font-crimson text-gray-600 text-sm italic">
+            <p class="font-work-sans text-brown text-sm italic">
               No meditations in this set yet. Edit the set to add meditations.
             </p>
           <% else %>
@@ -111,12 +111,12 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
                       {position}.
                     </span>
                     <div class="min-w-0">
-                      <span class="font-crimson text-navy">
+                      <span class="font-work-sans text-navy">
                         {meditation.mystery.name}
                         {if meditation.title, do: " - #{meditation.title}"}
                       </span>
                       <%= if meditation.author do %>
-                        <span class="font-crimson text-sm text-gray-500 ml-2">
+                        <span class="font-work-sans text-sm text-brown-light ml-2">
                           by {meditation.author}
                         </span>
                       <% end %>
@@ -130,7 +130,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetCard do
                   </div>
                   <.link
                     navigate={"/admin/meditations/#{meditation.id}/edit?return_to=/admin/meditation-sets"}
-                    class="text-navy hover:text-gold font-crimson text-sm transition-colors flex-shrink-0 ml-3"
+                    class="text-navy hover:text-gold font-work-sans text-sm transition-colors flex-shrink-0 ml-3"
                   >
                     Edit
                   </.link>

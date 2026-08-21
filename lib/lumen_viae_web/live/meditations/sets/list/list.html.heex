@@ -7,7 +7,7 @@
   <:actions>
     <.link
       navigate="/admin/meditation-sets/new"
-      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
     >
       Create New Set
     </.link>
@@ -100,14 +100,14 @@
     </.form>
 
     <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-      <p class="font-crimson text-navy">
+      <p class="font-work-sans text-navy">
         Showing {length(@filtered_sets)} of {@summary.total} sets
       </p>
       <%= if filters_applied?(@filters) do %>
         <button
           type="button"
           phx-click="clear_filters"
-          class="font-crimson text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
+          class="font-work-sans text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
         >
           Clear all filters
         </button>

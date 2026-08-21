@@ -94,14 +94,14 @@ defmodule LumenViaeWeb.Live.Meditations.List.FiltersPanel do
       </.form>
 
       <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <p class="font-crimson text-navy">
+        <p class="font-work-sans text-navy">
           Showing {@shown_count} of {@total_count} meditations
         </p>
         <%= if filters_applied?(@filters) do %>
           <button
             type="button"
             phx-click="clear_filters"
-            class="font-crimson text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
+            class="font-work-sans text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
           >
             Clear all filters
           </button>

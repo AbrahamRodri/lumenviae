@@ -48,7 +48,7 @@ defmodule LumenViaeWeb.Components.Nav do
                 )
                 |> JS.toggle_attribute({"aria-expanded", "true", "false"})
               }
-              class="inline-flex items-center gap-1.5 font-work-sans text-sm text-gold-light hover:text-gold transition-colors"
+              class="inline-flex items-center gap-1.5 font-cinzel text-[0.8rem] tracking-[0.18em] uppercase text-gold-light hover:text-gold transition-colors"
               aria-expanded="false"
               aria-controls="learn-menu"
             >
@@ -156,7 +156,7 @@ defmodule LumenViaeWeb.Components.Nav do
             Dashboard
           </.nav_link>
 
-          <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold/60 pt-2">
+          <p class="font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-gold/60 pt-2">
             Learn
           </p>
           <.nav_link navigate="/rosary-methods" mobile>
@@ -172,7 +172,7 @@ defmodule LumenViaeWeb.Components.Nav do
             St. Carlo Acutis
           </.nav_link>
 
-          <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold/60 pt-2">
+          <p class="font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-gold/60 pt-2">
             More
           </p>
           <.nav_link navigate="/app" mobile>
@@ -190,7 +190,7 @@ defmodule LumenViaeWeb.Components.Nav do
               <input type="hidden" name="_method" value="delete" />
               <button
                 type="submit"
-                class="font-work-sans text-base text-gold-light hover:text-gold transition-colors w-full text-left"
+                class="font-garamond text-lg text-gold-light hover:text-gold transition-colors w-full text-left"
               >
                 Logout
               </button>
@@ -210,7 +210,7 @@ defmodule LumenViaeWeb.Components.Nav do
     <.link
       navigate={@navigate}
       phx-click={JS.hide(to: "#learn-menu")}
-      class="block px-5 py-2.5 font-work-sans text-sm text-gold-light hover:text-gold hover:bg-gold/10 transition-colors"
+      class="block px-5 py-3 font-garamond text-base text-gold-light hover:text-gold hover:bg-gold/10 transition-colors"
     >
       {render_slot(@inner_block)}
     </.link>
@@ -240,8 +240,11 @@ defmodule LumenViaeWeb.Components.Nav do
         end
       }
       class={[
-        "font-work-sans text-gold-light hover:text-gold transition-colors",
-        if(@mobile, do: "block text-base py-2", else: "text-sm")
+        "text-gold-light hover:text-gold transition-colors",
+        if(@mobile,
+          do: "block font-garamond text-lg py-2",
+          else: "font-cinzel text-[0.8rem] tracking-[0.18em] uppercase"
+        )
       ]}
     >
       {render_slot(@inner_block)}

@@ -1,9 +1,9 @@
 <section id="consecration" class="mb-20 scroll-mt-8">
   <div class="text-center mb-10">
-    <p class="font-cinzel text-rubric text-sm tracking-[0.4em] uppercase mb-3">
+    <p class="font-cinzel text-gold-dark text-xs tracking-[0.4em] uppercase mb-3">
       Chapter III
     </p>
-    <h2 class="font-ovo text-navy text-4xl md:text-5xl mb-4">
+    <h2 class="font-cinzel text-navy text-3xl md:text-5xl mb-4">
       The Total Consecration
     </h2>
     <p class="font-garamond text-brown text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
@@ -13,35 +13,37 @@
     </p>
   </div>
 
-  <div class="bg-navy rounded-lg shadow-ornate overflow-hidden border-y-3 border-gold mb-10">
-    <div class="p-8 md:p-10 text-center">
-      <p class="font-work-sans text-xs tracking-[0.3em] uppercase text-gold-light/70 mb-4">
-        From the Act of Consecration
-      </p>
-      <blockquote class="font-garamond text-lg md:text-xl text-cream leading-[1.8] max-w-2xl mx-auto">
-        "I deliver and consecrate to thee, as thy slave, my body and soul, my goods,
-        both interior and exterior, and even the value of all my good actions, past,
-        present and future; leaving to thee the entire and full right of disposing of
-        me, and all that belongs to me, without exception, according to thy good
-        pleasure, for the greater glory of God, in time and in eternity."
-      </blockquote>
-      <p class="font-work-sans text-sm text-gold-light/60 mt-5">
-        St. Louis de Montfort, Act of Consecration to Jesus Christ through Mary
-      </p>
-    </div>
+  <div class="text-center mb-12">
+    <.sacred_divider class="max-w-[210px] mx-auto" />
+    <p class="font-cinzel text-xs tracking-[0.3em] uppercase text-gold-dark mb-4">
+      From the Act of Consecration
+    </p>
+    <blockquote class="font-garamond italic text-xl md:text-2xl text-navy leading-[1.8] max-w-2xl mx-auto">
+      "I deliver and consecrate to thee, as thy slave, my body and soul, my goods,
+      both interior and exterior, and even the value of all my good actions, past,
+      present and future; leaving to thee the entire and full right of disposing of
+      me, and all that belongs to me, without exception, according to thy good
+      pleasure, for the greater glory of God, in time and in eternity."
+    </blockquote>
+    <p class="font-garamond italic text-sm text-brown-light mt-5">
+      St. Louis de Montfort, Act of Consecration to Jesus Christ through Mary
+    </p>
+    <.sacred_divider cross={false} class="max-w-[120px] mx-auto opacity-60" />
   </div>
 
-  <h3 class="font-ovo text-navy text-3xl text-center mb-3">
+  <h3 class="font-cinzel text-navy text-3xl text-center mb-3">
     The 33-Day Preparation
   </h3>
-  <p class="font-work-sans text-brown text-center max-w-2xl mx-auto leading-relaxed mb-8">
+  <p class="font-garamond text-brown text-lg text-center max-w-2xl mx-auto leading-relaxed mb-8">
     St. Louis asks that the consecration be prepared by thirty-three days of prayer
     and self-examination. Select each stage of the journey below.
   </p>
   
 <!-- Phase selector: segmented timeline -->
   <div
-    class="flex flex-col sm:flex-row rounded-lg overflow-hidden border border-gold/40 shadow-soft mb-6"
+    id="prep-tablist"
+    phx-hook="Tablist"
+    class="flex flex-col sm:flex-row rounded-2xl overflow-hidden border border-gold/30 shadow-soft mb-6"
     role="tablist"
     aria-label="Stages of the 33-day preparation"
   >
@@ -49,7 +51,10 @@
       <button
         type="button"
         role="tab"
+        id={"prep-tab-#{phase.id}"}
         aria-selected={to_string(phase.id == @prep_phase)}
+        aria-controls="prep-panel"
+        tabindex={if phase.id == @prep_phase, do: "0", else: "-1"}
         phx-click="select-prep-phase"
         phx-value-phase={phase.id}
         class={[
@@ -61,12 +66,12 @@
         ]}
       >
         <span class={[
-          "block font-work-sans text-[0.6rem] tracking-[0.25em] uppercase mb-1",
+          "block font-cinzel text-[0.6rem] tracking-[0.25em] uppercase mb-1",
           if(phase.id == @prep_phase, do: "text-gold-light/80", else: "text-gold-dark")
         ]}>
           {phase.days}
         </span>
-        <span class="block font-ovo text-sm md:text-base leading-tight">
+        <span class="block font-cinzel text-sm md:text-base leading-tight">
           {phase.label}
         </span>
       </button>
@@ -74,17 +79,22 @@
   </div>
 
   <% phase = current_phase(@prep_phases, @prep_phase) %>
-  <div class="bg-white rounded-lg shadow-soft border-t-4 border-gold p-6 md:p-8">
-    <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold-dark mb-2">
+  <div
+    id="prep-panel"
+    role="tabpanel"
+    aria-labelledby={"prep-tab-#{@prep_phase}"}
+    class="hairline-card p-6 md:p-8"
+  >
+    <p class="font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-gold-dark mb-2">
       {phase.days}
     </p>
-    <h4 class="font-ovo text-navy text-2xl md:text-3xl mb-2">
+    <h4 class="font-cinzel text-navy text-2xl md:text-3xl mb-2">
       {phase.label}
     </h4>
-    <p class="font-garamond text-gold-dark text-xl mb-4">
+    <p class="font-garamond italic text-gold-dark text-xl mb-4">
       {phase.focus}
     </p>
-    <p class="font-work-sans text-brown text-base md:text-lg leading-[1.7] max-w-[65ch]">
+    <p class="font-garamond text-brown text-lg md:text-xl leading-[1.7] max-w-[65ch]">
       {phase.description}
     </p>
   </div>

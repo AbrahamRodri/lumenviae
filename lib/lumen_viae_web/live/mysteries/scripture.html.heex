@@ -2,22 +2,16 @@
   <!-- Frontispiece hero: an open page, not a poster -->
   <section class="relative border-b-4 border-double border-gold/70">
     <div class="max-w-3xl mx-auto px-6 pt-14 pb-10 md:pt-20 md:pb-14 text-center">
-      <p class="font-cinzel text-rubric text-xs md:text-sm tracking-[0.5em] uppercase mb-6 animate-rise">
+      <p class="font-cinzel text-gold-dark text-xs md:text-sm tracking-[0.5em] uppercase mb-6 animate-rise">
         The Word Behind Every Decade
       </p>
 
-      <div
-        class="flex items-center justify-center gap-4 text-gold-dark mb-6 animate-rise"
-        style="animation-delay: 100ms"
-        aria-hidden="true"
-      >
-        <span class="block h-px w-16 md:w-28 bg-gold/50"></span>
-        <span class="text-xl">&#10022;</span>
-        <span class="block h-px w-16 md:w-28 bg-gold/50"></span>
+      <div class="mb-6 animate-rise" style="animation-delay: 100ms" aria-hidden="true">
+        <.sacred_divider class="max-w-[210px] mx-auto" />
       </div>
 
       <h1
-        class="font-roman-uncial text-4xl md:text-6xl text-navy mb-5 animate-rise"
+        class="font-cinzel text-4xl md:text-6xl text-navy mb-5 animate-rise"
         style="animation-delay: 180ms"
       >
         Finding the Mysteries<br class="hidden md:block" /> in Scripture
@@ -36,6 +30,8 @@
 <!-- Category tabs: bookmark ribbons hanging from the rule -->
   <div class="relative z-10 px-4">
     <div
+      id="category-tablist"
+      phx-hook="Tablist"
       class="max-w-3xl mx-auto flex flex-wrap justify-center gap-2 md:gap-3"
       role="tablist"
       aria-label="Sets of mysteries"
@@ -44,13 +40,16 @@
         <button
           type="button"
           role="tab"
+          id={"category-tab-#{category.id}"}
           aria-selected={to_string(category.id == @selected_category)}
+          aria-controls="category-panel"
+          tabindex={if category.id == @selected_category, do: "0", else: "-1"}
           phx-click="select-category"
           phx-value-id={category.id}
           class={[
-            "px-3 md:px-5 rounded-b-lg font-ovo tracking-wide transition-all duration-300 border border-t-0 shadow-soft",
+            "px-3 md:px-5 rounded-b-lg font-cinzel text-sm md:text-base tracking-wide transition-all duration-300 border border-t-0 shadow-soft",
             if(category.id == @selected_category,
-              do: "bg-rubric text-cream border-rubric pt-3 pb-3.5 md:pb-4 shadow-ornate",
+              do: "bg-navy text-cream border-navy pt-3 pb-3.5 md:pb-4 shadow-ornate",
               else:
                 "bg-white text-navy border-gold/40 pt-1.5 pb-2 md:pb-2.5 hover:border-gold hover:bg-gold-light/20 hover:pb-3"
             )
@@ -67,18 +66,18 @@
     <div class="max-w-4xl mx-auto px-3 md:px-6">
       <!-- Introduction -->
       <div class="mb-6 md:mb-10">
-        <details class="group bg-white/70 p-3 md:p-5 border-4 border-double border-gold/50 hover:border-gold/80 transition-colors duration-300">
-          <summary class="font-ovo text-navy md:text-lg lg:text-xl flex items-center justify-between cursor-pointer select-none gap-2">
+        <details class="group hairline-card p-3 md:p-5 hover:border-gold/60 transition-colors duration-300">
+          <summary class="font-cinzel text-navy md:text-lg lg:text-xl flex items-center justify-between cursor-pointer select-none gap-2">
             <span>Traditional vs Modern Rosary Schedule</span>
-            <span class="text-gold-dark text-xs uppercase tracking-wide group-open:hidden flex-shrink-0">
+            <span class="font-cinzel text-gold-dark text-xs uppercase tracking-[0.15em] group-open:hidden flex-shrink-0">
               Show
             </span>
-            <span class="text-gold-dark text-xs uppercase tracking-wide hidden group-open:inline flex-shrink-0">
+            <span class="font-cinzel text-gold-dark text-xs uppercase tracking-[0.15em] hidden group-open:inline flex-shrink-0">
               Hide
             </span>
           </summary>
 
-          <div class="mt-3 md:mt-4 space-y-3 md:space-y-4 font-work-sans text-brown leading-relaxed md:text-base">
+          <div class="mt-3 md:mt-4 space-y-3 md:space-y-4 font-garamond text-brown leading-relaxed text-lg">
             <p>
               The Rosary contemplates the mysteries of Christ's life through the eyes of Mary.
               Traditionally, the Rosary consisted of <strong>fifteen mysteries</strong>
@@ -86,8 +85,8 @@
               the Joyful, Sorrowful, and Glorious Mysteries.
             </p>
 
-            <div class="bg-cream-dark p-3 md:p-4 rounded">
-              <h3 class="font-ovo text-navy text-base md:text-lg mb-2">
+            <div class="bg-cream p-3 md:p-4 rounded-lg border border-gold/20">
+              <h3 class="font-cinzel text-navy text-base md:text-lg mb-2">
                 Traditional Schedule (15 Mysteries)
               </h3>
               <ul class="space-y-1">
@@ -104,8 +103,8 @@
               and His Passion. This brought the total to <strong>twenty mysteries</strong>.
             </p>
 
-            <div class="bg-cream-dark p-3 md:p-4 rounded">
-              <h3 class="font-ovo text-navy text-base md:text-lg mb-2">
+            <div class="bg-cream p-3 md:p-4 rounded-lg border border-gold/20">
+              <h3 class="font-cinzel text-navy text-base md:text-lg mb-2">
                 Modern Schedule (20 Mysteries)
               </h3>
               <ul class="space-y-1">
@@ -122,21 +121,27 @@
         </details>
       </div>
 
-      <.ornate_divider variant="black" class="my-8 opacity-40" />
+      <.sacred_divider class="max-w-[240px] mx-auto my-8" />
       
 <!-- Mystery Content -->
-      <%= case @selected_category do %>
-        <% "joyful" -> %>
-          <.joyful />
-        <% "luminous" -> %>
-          <.luminous />
-        <% "sorrowful" -> %>
-          <.sorrowful />
-        <% "glorious" -> %>
-          <.glorious />
-        <% "seven_sorrows" -> %>
-          <.seven_sorrows />
-      <% end %>
+      <div
+        id="category-panel"
+        role="tabpanel"
+        aria-labelledby={"category-tab-#{@selected_category}"}
+      >
+        <%= case @selected_category do %>
+          <% "joyful" -> %>
+            <.joyful />
+          <% "luminous" -> %>
+            <.luminous />
+          <% "sorrowful" -> %>
+            <.sorrowful />
+          <% "glorious" -> %>
+            <.glorious />
+          <% "seven_sorrows" -> %>
+            <.seven_sorrows />
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

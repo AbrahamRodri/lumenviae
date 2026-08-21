@@ -379,25 +379,37 @@ instead.
 Defined in `assets/css/app.css` and consumed as Tailwind v4 utilities.
 Never hardcode a hex value in a template.
 
+The public site follows the iOS app's design language ("the sanctuary"),
+adapted to light backgrounds: two type families only, gold hairlines for
+structure, and the app's motifs (lancet arch frames, ornament dividers,
+gold capsule CTAs, Roman numerals, colophon quotes).
+
 **Colors**
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `navy` / `navy-dark` / `navy-light` | `#003b5c` / `#002840` / `#004d75` | headings, dark panels |
-| `gold` / `gold-light` / `gold-dark` | `#b18b49` / `#c9a96b` / `#8f6e38` | rules, borders, accents |
-| `cream` / `cream-dark` | `#faf2e6` / `#f0e5d0` | page and section backgrounds |
-| `brown` / `brown-light` | `#4a3f33` / `#7c6f5e` | body copy, captions |
-| `rubric` | `#8b2f23` | chapter eyebrows, in the manuscript sense |
+| `navy` / `navy-dark` / `navy-light` | `#003b5c` / `#002840` / `#004d75` | headings ink; hero and at most one accent band per page |
+| `gold` / `gold-light` / `gold-dark` | `#b18b49` / `#c9a96b` / `#7f6132` | rules and borders (`gold`), gold text on light (`gold-dark`) |
+| `parchment` | `#fdfaf4` | the almost-white default page ground |
+| `cream` / `cream-dark` | `#faf2e6` / `#f0e5d0` | alternating section backgrounds, inset panels |
+| `brown` / `brown-light` | `#4a3f33` / `#6f6353` | body copy, captions |
+| `rubric` | `#8b2f23` | admin status accents only; public kickers are gold |
 
 **Fonts**
 
 | Utility | Family | Use |
 | --- | --- | --- |
-| `font-roman-uncial` | Roman Uncial Modern | display headings and the wordmark |
-| `font-ovo` | Ovo | section and card headings |
-| `font-work-sans` | Work Sans | body copy and UI |
-| `font-garamond` | EB Garamond | quotations and captions |
-| `font-cinzel` | Cinzel | small-caps eyebrows and labels |
+| `font-cinzel` | Cinzel | all headings, tracked-caps kickers and labels, numerals, buttons |
+| `font-garamond` | EB Garamond | all body, reading, and quotation text |
+| `font-cinzel-decorative` | Cinzel Decorative | the LUMEN VIAE wordmark only |
+| `font-ovo` / `font-work-sans` | Ovo / Work Sans | legacy, admin surfaces only |
+| `font-roman-uncial` | Roman Uncial Modern | retired from pages |
+
+Shared vocabulary: `.btn-gold` / `<.gold_cta>` (gold capsule CTA, one filled
+gold shape per screen region), `<.sacred_divider>` (hairlines, diamonds,
+Latin cross), `<.arch_frame>` (lancet-arch image frame for devotional art),
+`.hairline-card`, `.ornate-corners`, `.drop-cap`. Quotes are set as centered
+colophons between dividers, never as filled bordered panels.
 
 Long passages are set upright, not italic - italics are for short asides,
 citations and captions. Keep body measure around 60-65 characters

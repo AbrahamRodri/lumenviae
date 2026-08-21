@@ -1,9 +1,9 @@
 <section id="true-and-false" class="mb-20 scroll-mt-8">
   <div class="text-center mb-10">
-    <p class="font-cinzel text-rubric text-sm tracking-[0.4em] uppercase mb-3">
+    <p class="font-cinzel text-gold-dark text-xs tracking-[0.4em] uppercase mb-3">
       Chapter II
     </p>
-    <h2 class="font-ovo text-navy text-4xl md:text-5xl mb-4">
+    <h2 class="font-cinzel text-navy text-3xl md:text-5xl mb-4">
       True and False Devotion
     </h2>
     <p class="font-garamond text-brown text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
@@ -14,6 +14,8 @@
   </div>
 
   <div
+    id="devotion-tablist"
+    phx-hook="Tablist"
     class="flex flex-wrap justify-center gap-2 mb-8"
     role="tablist"
     aria-label="True and false devotion"
@@ -21,11 +23,14 @@
     <button
       type="button"
       role="tab"
+      id="devotion-tab-false"
       aria-selected={to_string(@devotion_tab == "false")}
+      aria-controls="devotion-panel"
+      tabindex={if @devotion_tab == "false", do: "0", else: "-1"}
       phx-click="select-devotion-tab"
       phx-value-tab="false"
       class={[
-        "px-6 py-2.5 rounded-full font-ovo tracking-wide transition-all duration-300 border",
+        "px-6 py-2.5 rounded-full font-cinzel text-sm tracking-[0.12em] uppercase transition-all duration-300 border",
         if(@devotion_tab == "false",
           do: "bg-navy text-gold border-navy shadow-md",
           else: "bg-white text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
@@ -37,11 +42,14 @@
     <button
       type="button"
       role="tab"
+      id="devotion-tab-true"
       aria-selected={to_string(@devotion_tab == "true")}
+      aria-controls="devotion-panel"
+      tabindex={if @devotion_tab == "true", do: "0", else: "-1"}
       phx-click="select-devotion-tab"
       phx-value-tab="true"
       class={[
-        "px-6 py-2.5 rounded-full font-ovo tracking-wide transition-all duration-300 border",
+        "px-6 py-2.5 rounded-full font-cinzel text-sm tracking-[0.12em] uppercase transition-all duration-300 border",
         if(@devotion_tab == "true",
           do: "bg-navy text-gold border-navy shadow-md",
           else: "bg-white text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
@@ -57,17 +65,17 @@
       do: {@false_devotions, "nn. 92–104"},
       else: {@true_marks, "nn. 105–110"} %>
 
-  <div class="max-w-3xl mx-auto space-y-3">
+  <div
+    id="devotion-panel"
+    role="tabpanel"
+    aria-labelledby={"devotion-tab-#{@devotion_tab}"}
+    class="max-w-3xl mx-auto hairline-card overflow-hidden divide-y divide-gold/20"
+  >
     <%= for {item, index} <- Enum.with_index(items, 1) do %>
       <% expanded? = @expanded_devotion == index %>
       <div class={[
-        "bg-white rounded shadow-soft border-l-3 transition-all duration-300",
-        cond do
-          expanded? and @devotion_tab == "true" -> "border-gold shadow-ornate"
-          expanded? -> "border-brown-light shadow-ornate"
-          @devotion_tab == "true" -> "border-gold/50 hover:border-gold"
-          true -> "border-brown-light/40 hover:border-brown-light"
-        end
+        "transition-colors duration-300",
+        expanded? && "bg-parchment"
       ]}>
         <button
           type="button"
@@ -78,20 +86,20 @@
           class="w-full flex items-baseline gap-4 p-5 text-left cursor-pointer"
         >
           <span class={[
-            "font-ovo text-2xl shrink-0",
+            "font-cinzel text-2xl shrink-0 w-8 text-center",
             if(@devotion_tab == "true", do: "text-gold-dark", else: "text-brown-light")
           ]}>
             {index}
           </span>
-          <span class="font-ovo text-navy text-xl flex-1">{item.name}</span>
-          <span class="font-work-sans text-gold-dark text-xs uppercase tracking-wide shrink-0">
+          <span class="font-garamond text-navy text-xl flex-1">{item.name}</span>
+          <span class="font-cinzel text-gold-dark text-[0.7rem] uppercase tracking-[0.15em] shrink-0">
             {if expanded?, do: "Hide", else: "Show"}
           </span>
         </button>
         <p
           id={"devotion-desc-#{@devotion_tab}-#{index}"}
           hidden={not expanded?}
-          class="px-5 pb-5 pl-14 font-work-sans text-brown leading-[1.7]"
+          class="px-5 pb-5 pl-[4.25rem] font-garamond text-brown text-lg leading-[1.7]"
         >
           {item.description}
         </p>

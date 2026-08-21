@@ -122,8 +122,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
       <% end %>
 
       <%= if @artwork_url && !@publishable do %>
-        <div class="mb-8 border-l-4 border-amber-600 bg-amber-50 p-4">
-          <p class="font-work-sans text-amber-800 text-sm">
+        <div class="mb-8 border-l-4 border-caution bg-caution-surface p-4">
+          <p class="font-work-sans text-caution-strong text-sm">
             This painting is saved but is <strong>not being served</strong>. Artwork needs both
             a description and a licence before the app is shown it; the app falls back to the
             mystery category's bundled painting until then.
@@ -141,7 +141,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
           phx-submit="upload_artwork"
           phx-drop-target={@upload.ref}
         >
-          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <div class="border-2 border-dashed border-gold/40 rounded-lg p-6 text-center">
             <.live_file_input upload={@upload} class="hidden" />
 
             <%= for entry <- @upload.entries do %>
@@ -154,19 +154,19 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
                   type="button"
                   phx-click="remove_artwork_upload"
                   phx-value-ref={entry.ref}
-                  class="text-red-600 hover:text-red-800 font-work-sans text-sm"
+                  class="text-danger hover:text-danger-strong font-work-sans text-sm"
                 >
                   Remove
                 </button>
               </div>
 
               <%= for error <- upload_errors(@upload, entry) do %>
-                <p class="mb-3 text-sm text-red-600 font-work-sans">{upload_error(error)}</p>
+                <p class="mb-3 text-sm text-danger font-work-sans">{upload_error(error)}</p>
               <% end %>
             <% end %>
 
             <%= for error <- upload_errors(@upload) do %>
-              <p class="mb-3 text-sm text-red-600 font-work-sans">{upload_error(error)}</p>
+              <p class="mb-3 text-sm text-danger font-work-sans">{upload_error(error)}</p>
             <% end %>
 
             <%= if @upload.entries == [] do %>
@@ -203,7 +203,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
               <textarea
                 name={@form[:image_alt].name}
                 rows="2"
-                class="w-full p-3 border border-gray-300 rounded font-work-sans text-black"
+                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
                 placeholder="Describe what is shown, for readers using VoiceOver"
               ><%= @form[:image_alt].value || "" %></textarea>
               <.errors field={@form[:image_alt]} />
@@ -216,7 +216,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
                   type="text"
                   name={@form[:image_title].name}
                   value={@form[:image_title].value || ""}
-                  class="w-full p-3 border border-gray-300 rounded font-work-sans text-black"
+                  class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
                   placeholder="e.g., Christ Carrying the Cross"
                 />
                 <.errors field={@form[:image_title]} />
@@ -228,7 +228,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
                   type="text"
                   name={@form[:image_artist].name}
                   value={@form[:image_artist].value || ""}
-                  class="w-full p-3 border border-gray-300 rounded font-work-sans text-black"
+                  class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
                   placeholder="e.g., El Greco"
                 />
                 <.errors field={@form[:image_artist]} />
@@ -240,7 +240,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
                   type="text"
                   name={@form[:image_year].name}
                   value={@form[:image_year].value || ""}
-                  class="w-full p-3 border border-gray-300 rounded font-work-sans text-black"
+                  class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
                   placeholder="e.g., c. 1580"
                 />
                 <.errors field={@form[:image_year]} />
@@ -250,7 +250,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
                 <label class="font-work-sans text-navy font-semibold block mb-2">Licence</label>
                 <select
                   name={@form[:image_license].name}
-                  class="w-full p-3 border border-gray-300 rounded font-work-sans text-black"
+                  class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
                 >
                   <option value="">Not recorded</option>
                   <%= for {label, value} <- @licenses do %>
@@ -269,7 +269,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
                 type="url"
                 name={@form[:image_source_url].name}
                 value={@form[:image_source_url].value || ""}
-                class="w-full p-3 border border-gray-300 rounded font-work-sans text-black"
+                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
                 placeholder="https://www.metmuseum.org/art/collection/search/436574"
               />
               <.errors field={@form[:image_source_url]} />
@@ -335,7 +335,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
   defp errors(assigns) do
     ~H"""
     <%= for error <- @field.errors do %>
-      <p class="mt-2 text-sm text-red-600 font-work-sans">{translate_error(error)}</p>
+      <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
     <% end %>
     """
   end

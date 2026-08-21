@@ -22,7 +22,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection do
     ~H"""
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-2">Labels</h3>
-      <p class="font-crimson text-gray-600 text-sm mb-6">
+      <p class="font-work-sans text-brown text-sm mb-6">
         Labels drive the iOS meditation picker. The first label is the section this set
         appears under when browsing, and every label becomes a filter chip. Use one to {@max_labels} labels, primary group first. Changes save immediately.
       </p>
@@ -32,7 +32,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection do
           Current Labels ({length(@labels)}/{@max_labels})
         </h4>
         <%= if @labels == [] do %>
-          <p class="font-crimson text-gray-600 text-sm italic">
+          <p class="font-work-sans text-brown text-sm italic">
             No labels yet. Unlabeled sets appear under "More" at the end of the picker.
           </p>
         <% else %>
@@ -41,9 +41,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection do
               <div class="flex justify-between items-center bg-cream p-3 rounded">
                 <div class="flex items-center gap-3">
                   <span class="font-cinzel text-gold w-5 text-right">{index + 1}.</span>
-                  <span class="font-crimson text-navy font-semibold">{label}</span>
+                  <span class="font-work-sans text-navy font-semibold">{label}</span>
                   <%= if index == 0 do %>
-                    <span class="font-crimson text-xs text-gray-500 uppercase tracking-wide">
+                    <span class="font-work-sans text-xs text-brown-light uppercase tracking-wide">
                       Primary group
                     </span>
                   <% end %>
@@ -55,7 +55,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection do
                     phx-value-label={label}
                     phx-value-direction="up"
                     disabled={index == 0}
-                    class="px-3 py-1 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm disabled:opacity-30 disabled:pointer-events-none"
+                    class="px-3 py-1 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm disabled:opacity-30 disabled:pointer-events-none"
                   >
                     Up
                   </button>
@@ -65,7 +65,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection do
                     phx-value-label={label}
                     phx-value-direction="down"
                     disabled={index == length(@labels) - 1}
-                    class="px-3 py-1 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm disabled:opacity-30 disabled:pointer-events-none"
+                    class="px-3 py-1 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm disabled:opacity-30 disabled:pointer-events-none"
                   >
                     Down
                   </button>
@@ -73,7 +73,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection do
                     type="button"
                     phx-click="remove_label"
                     phx-value-label={label}
-                    class="px-3 py-1 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-colors font-crimson text-sm"
+                    class="px-3 py-1 text-danger border border-danger rounded hover:bg-danger hover:text-white transition-colors font-work-sans text-sm"
                   >
                     Remove
                   </button>
@@ -87,7 +87,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection do
       <div>
         <h4 class="font-cinzel text-lg text-navy mb-3">Add a Label</h4>
         <%= if @available == [] do %>
-          <p class="font-crimson text-gray-600 text-sm italic">
+          <p class="font-work-sans text-brown text-sm italic">
             All available labels are already applied to this set.
           </p>
         <% else %>
@@ -98,14 +98,14 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection do
                 phx-click="add_label"
                 phx-value-label={label}
                 disabled={@at_max}
-                class="px-4 py-2 text-navy border border-gray-300 rounded hover:border-gold hover:bg-gold hover:text-navy transition-colors font-crimson text-sm disabled:opacity-30 disabled:pointer-events-none"
+                class="px-4 py-2 text-navy border border-gold/40 rounded hover:border-gold hover:bg-gold hover:text-navy transition-colors font-work-sans text-sm disabled:opacity-30 disabled:pointer-events-none"
               >
                 {label}
               </button>
             <% end %>
           </div>
           <%= if @at_max do %>
-            <p class="font-crimson text-gray-500 text-xs mt-3">
+            <p class="font-work-sans text-brown-light text-xs mt-3">
               Maximum of {@max_labels} labels reached. Remove one to add another.
             </p>
           <% end %>

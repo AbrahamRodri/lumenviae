@@ -11,6 +11,10 @@ defmodule LumenViaeWeb.Live.Home.Feedback.Index do
     {:ok,
      socket
      |> assign(page_title: "Share Feedback")
+     |> assign(
+       meta_description:
+         "Report an issue or request a feature for Lumen Viae, the traditional Rosary meditation app and website."
+     )
      |> assign(contact_email: @contact_email)
      |> assign(issue_mailto: build_mailto("Lumen Viae Issue Report"))
      |> assign(feature_mailto: build_mailto("Lumen Viae Feature Request"))}

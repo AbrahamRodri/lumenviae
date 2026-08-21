@@ -7,7 +7,7 @@
   <:actions>
     <.link
       navigate="/admin/mysteries/new"
-      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
     >
       Create New Mystery
     </.link>
@@ -37,14 +37,14 @@
     </.form>
 
     <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-      <p class="font-crimson text-navy">
+      <p class="font-work-sans text-navy">
         Showing {@filtered_count} of {length(@mysteries)} mysteries
       </p>
       <%= if @filters.query != "" or @filters.category do %>
         <button
           type="button"
           phx-click="clear_filters"
-          class="font-crimson text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
+          class="font-work-sans text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
         >
           Clear all filters
         </button>
@@ -68,9 +68,9 @@
           </h4>
           <div class="space-y-3">
             <%= for mystery <- mysteries do %>
-              <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div class="flex items-start justify-between p-4 bg-cream rounded-lg hover:bg-cream-dark transition-colors">
                 <div class="flex-1 min-w-0">
-                  <h5 class="font-crimson font-semibold text-navy">
+                  <h5 class="font-work-sans font-semibold text-navy">
                     {mystery.order}. {mystery.name}
                     <%= if meditation_count(@meditation_counts, mystery.id) == 0 do %>
                       <.admin_badge tone="amber">No meditations</.admin_badge>
@@ -81,17 +81,17 @@
                     <% end %>
                   </h5>
                   <%= if mystery.description do %>
-                    <p class="font-crimson text-sm text-gray-600 mt-1">
+                    <p class="font-work-sans text-sm text-brown mt-1">
                       {mystery.description}
                     </p>
                   <% end %>
                   <%= if mystery.scripture_reference do %>
-                    <p class="font-crimson text-xs text-gold mt-1 italic">
+                    <p class="font-work-sans text-xs text-gold mt-1 italic">
                       {mystery.scripture_reference}
                     </p>
                   <% end %>
                   <%= if mystery.days_prayed do %>
-                    <p class="font-crimson text-xs text-gray-500 mt-1">
+                    <p class="font-work-sans text-xs text-brown-light mt-1">
                       Prayed on: {mystery.days_prayed}
                     </p>
                   <% end %>
@@ -100,14 +100,14 @@
                 <div class="flex items-center space-x-2 ml-4 flex-shrink-0">
                   <.link
                     navigate={"/admin/meditations?mystery=#{mystery.id}"}
-                    class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+                    class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
                   >
                     Meditations
                   </.link>
 
                   <.link
                     navigate={"/admin/mysteries/#{mystery.id}/edit"}
-                    class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+                    class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
                   >
                     Edit
                   </.link>
@@ -116,7 +116,7 @@
                     phx-click="delete_mystery"
                     phx-value-id={mystery.id}
                     data-confirm="Are you sure you want to delete this mystery? This will also delete all associated meditations."
-                    class="px-4 py-2 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-colors font-crimson text-sm"
+                    class="px-4 py-2 text-danger border border-danger rounded hover:bg-danger hover:text-white transition-colors font-work-sans text-sm"
                   >
                     Delete
                   </button>

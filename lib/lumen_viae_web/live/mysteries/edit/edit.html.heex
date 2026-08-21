@@ -2,7 +2,7 @@
   <div>
     <div class="bg-white border-l-4 border-gold p-6 mb-8">
       <h3 class="font-cinzel text-xl text-navy mb-2">Current Mystery</h3>
-      <p class="font-crimson text-gray-800">
+      <p class="font-work-sans text-navy">
         {@mystery.name} ({String.capitalize(@mystery.category)} - {if @mystery.order,
           do: "#{@mystery.order}th Mystery"})
       </p>
@@ -12,7 +12,7 @@
       <.form for={@edit_form} phx-submit="update_mystery">
         <div class="space-y-4">
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Name
             </label>
             <input
@@ -20,22 +20,22 @@
               name={@edit_form[:name].name}
               value={@edit_form[:name].value || ""}
               required
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
               placeholder="e.g., The Annunciation"
             />
             <%= for error <- @edit_form[:name].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
             <% end %>
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Category
             </label>
             <select
               name={@edit_form[:category].name}
               required
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
             >
               <option value="">Select a Category</option>
               <option value="joyful" selected={@edit_form[:category].value == "joyful"}>
@@ -58,12 +58,12 @@
               </option>
             </select>
             <%= for error <- @edit_form[:category].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
             <% end %>
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Order (1-7)
             </label>
             <input
@@ -73,78 +73,78 @@
               required
               min="1"
               max="7"
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
               placeholder="e.g., 1"
             />
-            <p class="font-crimson text-sm text-gray-500 mt-1">
+            <p class="font-work-sans text-sm text-brown-light mt-1">
               Position within the category (Rosary: 1-5, Seven Sorrows: 1-7)
             </p>
             <%= for error <- @edit_form[:order].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
             <% end %>
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Description
             </label>
             <textarea
               name={@edit_form[:description].name}
               rows="3"
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
               placeholder="e.g., The angel Gabriel announces to Mary that she is to be the Mother of God."
             ><%= @edit_form[:description].value || "" %></textarea>
             <%= for error <- @edit_form[:description].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
             <% end %>
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Scripture Reference
             </label>
             <input
               type="text"
               name={@edit_form[:scripture_reference].name}
               value={@edit_form[:scripture_reference].value || ""}
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
               placeholder="e.g., Luke 1:26-38"
             />
             <%= for error <- @edit_form[:scripture_reference].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
             <% end %>
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Days Prayed
             </label>
             <input
               type="text"
               name={@edit_form[:days_prayed].name}
               value={@edit_form[:days_prayed].value || ""}
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
               placeholder="e.g., Mondays, Thursdays, and Saturdays"
             />
-            <p class="font-crimson text-sm text-gray-500 mt-1">
+            <p class="font-work-sans text-sm text-brown-light mt-1">
               Traditional days of the week when this mystery is prayed
             </p>
             <%= for error <- @edit_form[:days_prayed].errors do %>
-              <p class="mt-2 text-sm text-red-600 font-crimson">{translate_error(error)}</p>
+              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
             <% end %>
           </div>
 
           <div class="flex justify-between items-center pt-4">
             <.link
               navigate={@return_to}
-              class="font-crimson text-navy hover:text-gold transition-colors"
+              class="font-work-sans text-navy hover:text-gold transition-colors"
             >
               ← Back
             </.link>
 
             <button
               type="submit"
-              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
             >
               Save Changes
             </button>

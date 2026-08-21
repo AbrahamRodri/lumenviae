@@ -76,12 +76,18 @@ lives in `LumenViae.Rosary.Categories` and the set label vocabulary in
 
 ### Styling
 - Tailwind CSS v4 with a custom theme in `assets/css/app.css`
-- Fonts: Roman Uncial Modern (display), Ovo (headings), Work Sans (body),
-  EB Garamond (quotations), Cinzel (small-caps labels)
-- Colors: Navy (#003b5c), Gold (#b18b49), Cream (#faf2e6),
-  Brown (#4a3f33), Rubric (#8b2f23)
-- Use the Tailwind tokens (`text-navy`, `bg-cream`, `font-ovo`), never raw
-  hex values. See the design tokens table in docs/ARCHITECTURE.md.
+- The public site follows the iOS app's design language on light
+  backgrounds: Cinzel (headings, tracked-caps labels, buttons) and
+  EB Garamond (all body and quotation text) are the only two public
+  families. Ovo and Work Sans remain on admin surfaces only.
+- Colors: Navy (#003b5c), Gold (#b18b49), Parchment (#fdfaf4),
+  Cream (#faf2e6), Brown (#4a3f33). Navy backgrounds are for the page
+  hero and at most one accent band per page; everything else stays light.
+- Shared vocabulary: `<.gold_cta>`, `<.sacred_divider>`, `<.arch_frame>`,
+  `.hairline-card`, `.drop-cap` - see the design tokens section in
+  docs/ARCHITECTURE.md.
+- Use the Tailwind tokens (`text-navy`, `bg-cream`, `font-cinzel`), never
+  raw hex values. See the design tokens table in docs/ARCHITECTURE.md.
 
 ### Local Development
 Start the server with `./dev.sh`, not `mix phx.server` - it loads `.env`

@@ -1,21 +1,16 @@
 <div
-  class="relative min-h-screen bg-navy overflow-hidden"
+  class="relative min-h-screen bg-parchment overflow-hidden"
   id="dashboard-page"
   phx-hook="UserTimezone"
 >
-  <!-- Ornate background -->
-  <div class="absolute inset-0 opacity-[0.04] pointer-events-none" aria-hidden="true">
-    <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
-  </div>
-
   <div class="relative max-w-3xl mx-auto px-4 md:px-8 py-10 md:py-14">
     <!-- Header: date and bead week strip -->
     <header class="text-center mb-10">
-      <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-gold-light/70 mb-2 animate-rise">
+      <p class="font-cinzel text-xs tracking-[0.35em] uppercase text-gold-dark mb-2 animate-rise">
         {Calendar.strftime(@today, "%A, %B %-d")}
       </p>
       <h1
-        class="font-ovo text-3xl md:text-4xl text-cream mb-8 animate-rise"
+        class="font-cinzel text-3xl md:text-4xl text-navy mb-8 animate-rise"
         style="animation-delay: 100ms"
       >
         Today's Rosary
@@ -23,15 +18,15 @@
 
       <div class="animate-rise" style="animation-delay: 200ms">
         <div class="relative max-w-sm mx-auto">
-          <div class="absolute top-[0.4rem] inset-x-8 h-px bg-gold/25" aria-hidden="true"></div>
+          <div class="absolute top-[0.4rem] inset-x-8 h-px bg-gold/30" aria-hidden="true"></div>
           <div class="relative flex items-start justify-between px-4">
             <%= for day <- @week do %>
               <div class="flex flex-col items-center gap-2 w-10">
                 <span class={["bead", day.today? && "bead-today"]} aria-hidden="true"></span>
                 <span class={[
-                  "font-work-sans text-[0.6rem] tracking-[0.2em] uppercase",
-                  day.today? && "text-gold font-semibold",
-                  !day.today? && "text-gold-light/50"
+                  "font-cinzel text-[0.6rem] tracking-[0.2em] uppercase",
+                  day.today? && "text-gold-dark font-semibold",
+                  !day.today? && "text-brown-light"
                 ]}>
                   {day.label}
                 </span>
@@ -41,67 +36,65 @@
         </div>
       </div>
     </header>
-    
+
 <!-- Today's devotion: the altar card -->
     <section
-      class="relative bg-navy-light border border-gold/30 rounded-lg overflow-hidden mb-8 shadow-ornate animate-rise"
+      class="relative hairline-card ornate-corners overflow-hidden mb-8 animate-rise"
       style="animation-delay: 300ms"
       aria-labelledby="todays-devotion-heading"
     >
-      <div class="absolute top-0 inset-x-0 h-1 bg-gold" aria-hidden="true"></div>
-
       <div class="p-6 md:p-10">
-        <div class="text-center mb-8">
-          <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold-light/70 mb-2">
+        <div class="text-center mb-2">
+          <p class="font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-gold-dark mb-2">
             {Calendar.strftime(@today, "%A")}'s Devotion
           </p>
-          <h2 id="todays-devotion-heading" class="font-ovo text-3xl md:text-4xl text-gold">
+          <h2 id="todays-devotion-heading" class="font-cinzel text-3xl md:text-4xl text-navy">
             {@recommended_set.title}
           </h2>
+          <.sacred_divider class="max-w-[150px] mx-auto" />
         </div>
-        
+
 <!-- The five mysteries -->
         <ol class="max-w-md mx-auto mb-10 space-y-0">
           <%= for {mystery, index} <- Enum.with_index(@recommended_set.mysteries, 1) do %>
             <li class="flex items-baseline gap-4 py-2.5 border-b border-gold/15 last:border-b-0">
-              <span class="font-ovo text-gold/70 w-8 shrink-0 text-right">
+              <span class="font-cinzel text-gold-dark w-8 shrink-0 text-right">
                 {Enum.at(["I.", "II.", "III.", "IV.", "V."], index - 1)}
               </span>
-              <span class="font-garamond text-lg md:text-xl text-cream/90">
+              <span class="font-garamond text-lg md:text-xl text-brown">
                 {mystery}
               </span>
             </li>
           <% end %>
         </ol>
-        
+
 <!-- Choose meditations, straight into prayer -->
         <%= if @todays_meditation_sets == [] do %>
           <div class="text-center">
-            <p class="font-garamond text-lg text-gold-light italic mb-5">
+            <p class="font-garamond text-lg text-brown italic mb-5">
               No meditation sets are available yet for these mysteries.
             </p>
-            <.link
-              navigate="/mysteries"
-              class="inline-block px-6 py-3 bg-gold text-navy-dark font-ovo rounded shadow-glow hover:bg-gold-light transition-all duration-300"
-            >
+            <.gold_cta navigate="/mysteries">
               Pray with the Scriptures
-            </.link>
+            </.gold_cta>
           </div>
         <% else %>
-          <div class="text-center mb-5">
-            <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold-light/70">
+          <div class="flex items-center gap-3 max-w-md mx-auto mb-5">
+            <span class="h-px bg-gold/40 grow" aria-hidden="true"></span>
+            <p class="font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-gold-dark whitespace-nowrap">
               Choose Your Meditations
             </p>
+            <span class="h-px bg-gold/40 grow" aria-hidden="true"></span>
           </div>
 
           <div class="max-w-md mx-auto space-y-2.5 mb-6">
             <%= for set <- @todays_meditation_sets do %>
               <.link
                 navigate={"/meditation-sets/#{set.id}/pray"}
-                class="group flex items-center gap-3 rounded-lg bg-white/5 border border-gold/20 px-5 py-3.5 hover:border-gold hover:bg-gold/10 transition-all duration-300"
+                class="group hairline-card flex items-center gap-3 px-5 py-3.5 hover:border-gold active:scale-[0.98] transition-all duration-300"
               >
                 <div class="flex-1 min-w-0">
-                  <p class="font-ovo text-base text-cream group-hover:text-gold-light transition-colors truncate">
+                  <p class="font-cinzel text-base text-navy group-hover:text-gold-dark transition-colors truncate">
                     {set.name}
                   </p>
                 </div>
@@ -109,14 +102,14 @@
                   <svg
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    class="w-4 h-4 text-gold/70 shrink-0"
+                    class="w-4 h-4 text-gold-dark/70 shrink-0"
                     aria-label="Guided audio available"
                   >
                     <path d="M12 2C6.477 2 2 6.477 2 12v4a2 2 0 002 2h2a2 2 0 002-2v-3a2 2 0 00-2-2H4.062A8.001 8.001 0 0112 4a8.001 8.001 0 017.938 7H18a2 2 0 00-2 2v3a2 2 0 002 2h2a2 2 0 002-2v-4c0-5.523-4.477-10-10-10z" />
                   </svg>
                 <% end %>
                 <span
-                  class="font-work-sans text-xs text-gold/60 group-hover:text-gold group-hover:translate-x-0.5 transition-all shrink-0"
+                  class="font-cinzel text-xs text-gold-dark/50 group-hover:text-gold-dark group-hover:translate-x-0.5 transition-all shrink-0"
                   aria-hidden="true"
                 >
                   &rarr;
@@ -126,46 +119,48 @@
           </div>
 
           <div class="text-center">
-            <button
-              type="button"
-              phx-click="providence"
-              class="inline-flex flex-col items-center gap-0.5 px-7 py-3 bg-gold text-navy-dark font-ovo rounded shadow-glow hover:bg-gold-light hover:scale-[1.02] transition-all duration-300"
-            >
-              <span>Divine Providence</span>
-              <span class="font-work-sans text-[0.6rem] tracking-[0.2em] uppercase opacity-70">
-                Let a set be chosen for you
+            <.gold_cta type="button" phx-click="providence">
+              <span class="flex flex-col items-center gap-0.5">
+                <span>Divine Providence</span>
+                <span class="text-[0.6rem] tracking-[0.2em] uppercase opacity-70">
+                  Let a set be chosen for you
+                </span>
               </span>
-            </button>
+            </.gold_cta>
           </div>
         <% end %>
       </div>
     </section>
-    
+
 <!-- Other devotions -->
     <section class="mb-8 animate-rise" style="animation-delay: 400ms" aria-label="Other devotions">
-      <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-gold-light/50 text-center mb-4">
-        Other Devotions
-      </p>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="h-px bg-gold/40 grow" aria-hidden="true"></span>
+        <p class="font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-gold-dark whitespace-nowrap">
+          Other Devotions
+        </p>
+        <span class="h-px bg-gold/40 grow" aria-hidden="true"></span>
+      </div>
 
       <div class="grid gap-2.5">
         <%= for {_key, set} <- @mystery_sets, set.key != @recommended_set_key do %>
           <.link
             navigate={set.path}
-            class="group flex items-center gap-4 rounded-lg bg-navy-light border border-gold/15 px-5 py-4 hover:border-gold/60 transition-all duration-300"
+            class="group hairline-card flex items-center gap-4 px-5 py-4 hover:border-gold/60 active:scale-[0.98] transition-all duration-300"
           >
-            <span class="font-ovo text-gold/50 text-lg w-6 text-center shrink-0">
+            <span class="font-cinzel text-gold-dark text-lg w-6 text-center shrink-0">
               {set.numeral}
             </span>
             <div class="flex-1 min-w-0">
-              <p class="font-ovo text-base text-cream/90 group-hover:text-gold-light transition-colors">
+              <p class="font-cinzel text-base text-navy group-hover:text-gold-dark transition-colors">
                 {set.title}
               </p>
-              <p class="font-work-sans text-xs text-gold-light/50">
+              <p class="font-garamond text-sm text-brown-light">
                 {set.schedule}
               </p>
             </div>
             <span
-              class="font-work-sans text-xs text-gold/50 group-hover:text-gold group-hover:translate-x-0.5 transition-all shrink-0"
+              class="font-cinzel text-xs text-gold-dark/50 group-hover:text-gold-dark group-hover:translate-x-0.5 transition-all shrink-0"
               aria-hidden="true"
             >
               &rarr;
@@ -175,19 +170,19 @@
 
         <.link
           navigate={@luminous.path}
-          class="group flex items-center gap-4 rounded-lg bg-white/5 border border-gold/15 px-5 py-4 hover:border-gold/60 hover:bg-gold/5 transition-all duration-300"
+          class="group hairline-card flex items-center gap-4 px-5 py-4 hover:border-gold/60 active:scale-[0.98] transition-all duration-300"
         >
-          <span class="font-ovo text-gold/50 text-lg w-6 text-center shrink-0">IV</span>
+          <span class="font-cinzel text-gold-dark text-lg w-6 text-center shrink-0">IV</span>
           <div class="flex-1 min-w-0">
-            <p class="font-ovo text-base text-cream/90 group-hover:text-gold-light transition-colors">
+            <p class="font-cinzel text-base text-navy group-hover:text-gold-dark transition-colors">
               {@luminous.title}
             </p>
-            <p class="font-work-sans text-xs text-gold-light/50">
+            <p class="font-garamond text-sm text-brown-light">
               {@luminous.schedule}
             </p>
           </div>
           <span
-            class="font-work-sans text-xs text-gold/50 group-hover:text-gold group-hover:translate-x-0.5 transition-all shrink-0"
+            class="font-cinzel text-xs text-gold-dark/50 group-hover:text-gold-dark group-hover:translate-x-0.5 transition-all shrink-0"
             aria-hidden="true"
           >
             &rarr;
@@ -196,19 +191,19 @@
 
         <.link
           navigate={@seven_sorrows.path}
-          class="group flex items-center gap-4 rounded-lg bg-white/5 border border-gold/15 px-5 py-4 hover:border-gold/60 hover:bg-gold/5 transition-all duration-300"
+          class="group hairline-card flex items-center gap-4 px-5 py-4 hover:border-gold/60 active:scale-[0.98] transition-all duration-300"
         >
-          <span class="font-ovo text-gold/50 text-lg w-6 text-center shrink-0">VII</span>
+          <span class="font-cinzel text-gold-dark text-lg w-6 text-center shrink-0">VII</span>
           <div class="flex-1 min-w-0">
-            <p class="font-ovo text-base text-cream/90 group-hover:text-gold-light transition-colors">
+            <p class="font-cinzel text-base text-navy group-hover:text-gold-dark transition-colors">
               {@seven_sorrows.title}
             </p>
-            <p class="font-work-sans text-xs text-gold-light/50">
+            <p class="font-garamond text-sm text-brown-light">
               {@seven_sorrows.schedule}
             </p>
           </div>
           <span
-            class="font-work-sans text-xs text-gold/50 group-hover:text-gold group-hover:translate-x-0.5 transition-all shrink-0"
+            class="font-cinzel text-xs text-gold-dark/50 group-hover:text-gold-dark group-hover:translate-x-0.5 transition-all shrink-0"
             aria-hidden="true"
           >
             &rarr;
@@ -216,29 +211,29 @@
         </.link>
       </div>
     </section>
-    
+
 <!-- Study links -->
     <footer
-      class="flex justify-center gap-8 pt-2 pb-6 animate-rise"
+      class="flex items-center justify-center gap-8 pt-2 pb-6 animate-rise"
       style="animation-delay: 500ms"
     >
       <.link
         navigate="/rosary-methods"
-        class="font-work-sans text-sm text-gold-light/70 hover:text-gold transition-colors"
+        class="font-cinzel text-[0.7rem] tracking-[0.15em] uppercase text-gold-dark hover:text-gold transition-colors"
       >
         How to Pray
       </.link>
-      <span class="text-gold/30" aria-hidden="true">&#10022;</span>
+      <span class="text-gold/40" aria-hidden="true">&#10022;</span>
       <.link
         navigate="/mysteries"
-        class="font-work-sans text-sm text-gold-light/70 hover:text-gold transition-colors"
+        class="font-cinzel text-[0.7rem] tracking-[0.15em] uppercase text-gold-dark hover:text-gold transition-colors"
       >
         Mysteries in Scripture
       </.link>
-      <span class="text-gold/30" aria-hidden="true">&#10022;</span>
+      <span class="text-gold/40" aria-hidden="true">&#10022;</span>
       <.link
         navigate="/true-devotion"
-        class="font-work-sans text-sm text-gold-light/70 hover:text-gold transition-colors"
+        class="font-cinzel text-[0.7rem] tracking-[0.15em] uppercase text-gold-dark hover:text-gold transition-colors"
       >
         True Devotion
       </.link>
