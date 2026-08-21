@@ -90,6 +90,10 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
     {:ok,
      socket
      |> assign(:page_title, "Prayer Dashboard")
+     |> assign(
+       :meta_description,
+       "Today's mysteries of the Holy Rosary and every meditation set available for them, in one place. Choose a saint to pray with and begin."
+     )
      |> assign(:mystery_sets, mystery_sets)
      |> assign(:meditation_sets, meditation_sets)
      |> assign(:luminous, @luminous)

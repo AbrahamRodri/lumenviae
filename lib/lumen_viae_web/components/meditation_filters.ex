@@ -19,7 +19,7 @@ defmodule LumenViaeWeb.Components.MeditationFilters do
     <div class={if @inline, do: "", else: "bg-white border-l-4 border-gold p-6 mb-8"}>
       <h3 class="font-cinzel text-xl text-navy mb-4">Filters</h3>
       <%= if @show_description do %>
-        <p class="font-crimson text-gray-600 mb-6">
+        <p class="font-work-sans text-brown mb-6">
           {@description ||
             "Narrow the list of meditations by mystery category, author, or keyword. Use the filters to quickly jump to the meditations you want to review or edit."}
         </p>
@@ -28,12 +28,12 @@ defmodule LumenViaeWeb.Components.MeditationFilters do
       <.form for={%{}} phx-change="update_filters">
         <div class="grid gap-4 md:grid-cols-3">
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Mystery Category
             </label>
             <select
               name="category"
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
             >
               <option value="" selected={is_nil(@filter_category)}>All Categories</option>
               <%= for {label, value} <- @mystery_categories do %>
@@ -43,12 +43,12 @@ defmodule LumenViaeWeb.Components.MeditationFilters do
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Author
             </label>
             <select
               name="author"
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
             >
               <option value="" selected={is_nil(@filter_author)}>All Authors</option>
               <%= for author <- @available_authors do %>
@@ -58,7 +58,7 @@ defmodule LumenViaeWeb.Components.MeditationFilters do
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Search
             </label>
             <input
@@ -66,7 +66,7 @@ defmodule LumenViaeWeb.Components.MeditationFilters do
               name="query"
               value={@search_query}
               placeholder="Search meditations by title, mystery, or keyword"
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
               phx-debounce="400"
             />
           </div>
@@ -74,11 +74,11 @@ defmodule LumenViaeWeb.Components.MeditationFilters do
       </.form>
 
       <div class="mt-6 flex items-center justify-between">
-        <p class="font-crimson text-navy">
+        <p class="font-work-sans text-navy">
           {@filtered_count} matching meditations
         </p>
         <%= if @filter_category || @filter_author || @search_query != "" do %>
-          <span class="font-crimson text-sm text-gray-500">Filters applied</span>
+          <span class="font-work-sans text-sm text-brown-light">Filters applied</span>
         <% end %>
       </div>
     </div>

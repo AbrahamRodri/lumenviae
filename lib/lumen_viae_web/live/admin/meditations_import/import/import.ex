@@ -236,12 +236,12 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
 
   def row_status(rows_status, index), do: Map.get(rows_status, index, :pending)
 
-  def status_badge(:pending), do: {"bg-gray-100 text-gray-500", "Waiting"}
+  def status_badge(:pending), do: {"bg-cream-dark text-brown-light", "Waiting"}
   def status_badge({:working, _}), do: {"bg-gold/20 text-navy animate-pulse", "Creating"}
-  def status_badge({:audio, _}), do: {"bg-blue-100 text-blue-800 animate-pulse", "Audio"}
-  def status_badge({:ok, _}), do: {"bg-green-100 text-green-800", "Done"}
-  def status_badge({:warning, _}), do: {"bg-amber-100 text-amber-800", "Partial"}
-  def status_badge({:error, _}), do: {"bg-red-100 text-red-800", "Failed"}
+  def status_badge({:audio, _}), do: {"bg-notice-surface text-notice animate-pulse", "Audio"}
+  def status_badge({:ok, _}), do: {"bg-positive-surface text-positive-strong", "Done"}
+  def status_badge({:warning, _}), do: {"bg-caution-surface text-caution-strong", "Partial"}
+  def status_badge({:error, _}), do: {"bg-danger-surface text-danger-strong", "Failed"}
 
   defp error_to_string(:too_large), do: "File is too large"
   defp error_to_string(:not_accepted), do: "File type not accepted. Please upload a CSV file"

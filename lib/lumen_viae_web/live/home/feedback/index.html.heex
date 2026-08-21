@@ -1,8 +1,12 @@
-<div class="bg-cream min-h-screen">
+<div class="bg-parchment min-h-screen">
   <!-- Hero -->
   <section class="relative bg-navy overflow-hidden border-b-3 border-gold">
     <div class="absolute inset-0 opacity-[0.05]" aria-hidden="true">
-      <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
+      <img
+        src="/images/ornate-blue-gold-bg-symbols.jpg"
+        alt=""
+        class="w-full h-full object-cover"
+      />
     </div>
     <div
       class="absolute inset-0 bg-gradient-to-b from-navy-dark/50 via-transparent to-navy-dark/70"
@@ -11,15 +15,16 @@
     </div>
 
     <div class="relative max-w-3xl mx-auto px-8 py-16 text-center">
-      <p class="font-work-sans text-xs md:text-sm tracking-[0.4em] uppercase text-gold-light mb-4 animate-rise">
+      <p class="font-cinzel text-xs md:text-sm tracking-[0.3em] uppercase text-gold-light mb-4 animate-rise">
         Feedback
       </p>
       <h1
-        class="font-ovo text-4xl md:text-5xl text-cream mb-5 animate-rise"
+        class="font-cinzel text-4xl md:text-5xl text-cream mb-5 animate-rise"
         style="animation-delay: 120ms"
       >
         We Would Love to Hear from You
       </h1>
+      <.sacred_divider class="max-w-[210px] mx-auto" />
       <p
         class="font-garamond text-xl md:text-2xl text-gold-light italic leading-relaxed animate-rise"
         style="animation-delay: 240ms"
@@ -29,56 +34,42 @@
       </p>
     </div>
   </section>
-
-  <!-- Cards -->
+  
+<!-- Cards -->
   <div class="max-w-4xl mx-auto px-8 py-16 grid gap-8 md:grid-cols-2">
-    <section class="group relative bg-white rounded p-10 shadow-soft hover:shadow-ornate hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">
-      <div
-        class="absolute top-0 inset-x-0 h-1 bg-gold/30 group-hover:bg-gold transition-colors duration-300"
-        aria-hidden="true"
-      >
-      </div>
-      <h2 class="font-ovo text-2xl text-navy mb-3">Report an Issue</h2>
-      <p class="font-work-sans text-brown leading-relaxed mb-8 grow">
+    <section class="hairline-card p-10 hover:shadow-ornate hover:-translate-y-1 transition-all duration-300 flex flex-col">
+      <h2 class="font-cinzel text-2xl text-navy mb-3">Report an Issue</h2>
+      <p class="font-garamond text-lg text-brown leading-relaxed mb-8 grow">
         If you notice a typo, broken link, or anything that doesn&apos;t look
         quite right, send a quick note our way.
       </p>
-      <a
-        href={@issue_mailto}
-        class="inline-block self-start px-6 py-3 bg-navy text-cream font-ovo rounded shadow-soft hover:bg-navy-light hover:shadow-ornate transition-all duration-300"
-      >
+      <a href={@issue_mailto} class="btn-outline-gold text-navy self-start">
         Send an Issue Report
       </a>
     </section>
 
-    <section class="group relative bg-white rounded p-10 shadow-soft hover:shadow-ornate hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">
-      <div
-        class="absolute top-0 inset-x-0 h-1 bg-gold/30 group-hover:bg-gold transition-colors duration-300"
-        aria-hidden="true"
-      >
-      </div>
-      <h2 class="font-ovo text-2xl text-navy mb-3">Request a Feature</h2>
-      <p class="font-work-sans text-brown leading-relaxed mb-8 grow">
+    <section class="hairline-card p-10 hover:shadow-ornate hover:-translate-y-1 transition-all duration-300 flex flex-col">
+      <h2 class="font-cinzel text-2xl text-navy mb-3">Request a Feature</h2>
+      <p class="font-garamond text-lg text-brown leading-relaxed mb-8 grow">
         Have an idea that would make the rosary meditations more helpful?
         We welcome your feature suggestions.
       </p>
-      <a
-        href={@feature_mailto}
-        class="inline-block self-start px-6 py-3 bg-gold text-navy-dark font-ovo rounded shadow-glow hover:bg-gold-light transition-all duration-300"
-      >
+      <.gold_cta href={@feature_mailto} class="self-start">
         Share a Feature Idea
-      </a>
+      </.gold_cta>
     </section>
   </div>
-
-  <!-- Direct contact -->
+  
+<!-- Direct contact -->
   <div class="max-w-3xl mx-auto px-8 pb-20 text-center">
-    <div class="flex items-center gap-6 justify-center mb-8 text-gold/60">
-      <div class="h-px w-16 bg-gold/30"></div>
-      <span class="font-work-sans text-xs tracking-[0.35em] uppercase">or write directly</span>
-      <div class="h-px w-16 bg-gold/30"></div>
+    <div class="flex items-center gap-6 justify-center mb-8">
+      <div class="h-px w-16 bg-gold/40"></div>
+      <span class="font-cinzel text-xs tracking-[0.35em] uppercase text-gold-dark">
+        or write directly
+      </span>
+      <div class="h-px w-16 bg-gold/40"></div>
     </div>
-    <p class="font-work-sans text-brown leading-relaxed">
+    <p class="font-garamond text-lg text-brown leading-relaxed">
       You can always reach us at
       <a
         href={"mailto:" <> @contact_email}

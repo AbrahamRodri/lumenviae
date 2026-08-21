@@ -10,7 +10,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
        socket
        |> assign(:category, category)
        |> assign(:meditation_sets, meditation_sets)
-       |> assign(:page_title, category_title(category))}
+       |> assign(:page_title, category_title(category))
+       |> assign(:meta_description, category_description(category))}
     else
       raise LumenViaeWeb.NotFoundError, message: "unknown mystery category: #{category}"
     end
@@ -21,6 +22,26 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
   defp category_title("glorious"), do: "The Glorious Mysteries"
   defp category_title("luminous"), do: "The Luminous Mysteries"
   defp category_title("seven_sorrows"), do: "The Seven Sorrows of Mary"
+
+  defp category_description("joyful"),
+    do:
+      "Pray the Joyful Mysteries with meditations from the saints: the Annunciation, Visitation, Nativity, Presentation, and Finding in the Temple, with guided audio."
+
+  defp category_description("sorrowful"),
+    do:
+      "Pray the Sorrowful Mysteries with meditations from the saints: the Agony in the Garden, Scourging, Crowning with Thorns, Carrying of the Cross, and Crucifixion, with guided audio."
+
+  defp category_description("glorious"),
+    do:
+      "Pray the Glorious Mysteries with meditations from the saints: the Resurrection, Ascension, Descent of the Holy Ghost, Assumption, and Coronation of Our Lady, with guided audio."
+
+  defp category_description("luminous"),
+    do:
+      "Pray the Luminous Mysteries with meditations from the saints: the Baptism of Our Lord, the wedding at Cana, the proclamation of the Kingdom, the Transfiguration, and the institution of the Eucharist."
+
+  defp category_description("seven_sorrows"),
+    do:
+      "Pray the Seven Sorrows of Mary with meditations from the saints, from the prophecy of Simeon to the burial of Our Lord, with guided audio."
 
   defp category_days("joyful"), do: "Mondays and Thursdays"
   defp category_days("sorrowful"), do: "Tuesdays and Fridays"

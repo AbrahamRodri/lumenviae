@@ -12,8 +12,8 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
 
   def meditation_row(assigns) do
     ~H"""
-    <div class="border border-gray-200 rounded-lg overflow-hidden">
-      <div class="flex items-start justify-between gap-4 p-4 bg-gray-50 hover:bg-gray-100 transition-colors">
+    <div class="border border-gold/20 rounded-lg overflow-hidden">
+      <div class="flex items-start justify-between gap-4 p-4 bg-cream hover:bg-cream-dark transition-colors">
         <div class="flex items-start gap-3 flex-1 min-w-0">
           <input
             type="checkbox"
@@ -23,16 +23,16 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
             class="mt-1.5 h-4 w-4 accent-[#b18b49] cursor-pointer"
           />
           <div class="min-w-0">
-            <h4 class="font-crimson font-semibold text-navy">
+            <h4 class="font-work-sans font-semibold text-navy">
               {@meditation.mystery.name}
               {if @meditation.title, do: " - #{@meditation.title}"}
             </h4>
-            <p class="font-crimson text-sm text-gray-600">
+            <p class="font-work-sans text-sm text-brown">
               <%= if @meditation.author do %>
                 by {@meditation.author}
               <% end %>
               <%= if @meditation.source do %>
-                <span class="italic text-gray-500">({@meditation.source})</span>
+                <span class="italic text-brown-light">({@meditation.source})</span>
               <% end %>
             </p>
             <div class="flex flex-wrap items-center gap-1.5 mt-2">
@@ -58,7 +58,7 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
                 <% end %>
               <% end %>
 
-              <span class="font-crimson text-xs text-gray-400 ml-1">
+              <span class="font-work-sans text-xs text-brown-light ml-1">
                 ID {@meditation.id} &middot; added {Calendar.strftime(
                   @meditation.inserted_at,
                   "%b %d, %Y"
@@ -72,14 +72,14 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
           <button
             phx-click="toggle_meditation"
             phx-value-id={@meditation.id}
-            class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+            class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
           >
             {if @expanded, do: "Hide", else: "View"}
           </button>
 
           <.link
             navigate={"/admin/meditations/#{@meditation.id}/edit"}
-            class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm"
+            class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
           >
             Edit
           </.link>
@@ -88,7 +88,7 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
             <button
               phx-click="unarchive_meditation"
               phx-value-id={@meditation.id}
-              class="px-3 py-1.5 text-amber-700 border border-amber-700 rounded hover:bg-amber-700 hover:text-white transition-colors font-crimson text-sm"
+              class="px-3 py-1.5 text-caution border border-caution rounded hover:bg-caution hover:text-white transition-colors font-work-sans text-sm"
             >
               Unarchive
             </button>
@@ -97,7 +97,7 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
               phx-click="archive_meditation"
               phx-value-id={@meditation.id}
               data-confirm="Archive this meditation? It will be hidden from the public site, along with any meditation set that contains it. You can unarchive it at any time."
-              class="px-3 py-1.5 text-amber-700 border border-amber-700 rounded hover:bg-amber-700 hover:text-white transition-colors font-crimson text-sm"
+              class="px-3 py-1.5 text-caution border border-caution rounded hover:bg-caution hover:text-white transition-colors font-work-sans text-sm"
             >
               Archive
             </button>
@@ -107,7 +107,7 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
             phx-click="delete_meditation"
             phx-value-id={@meditation.id}
             data-confirm="Are you sure you want to delete this meditation? This cannot be undone - archiving is usually the safer choice."
-            class="px-3 py-1.5 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-colors font-crimson text-sm"
+            class="px-3 py-1.5 text-danger border border-danger rounded hover:bg-danger hover:text-white transition-colors font-work-sans text-sm"
           >
             Delete
           </button>
@@ -115,23 +115,23 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
       </div>
 
       <%= if @expanded do %>
-        <div class="p-6 bg-white border-t border-gray-200">
+        <div class="p-6 bg-white border-t border-gold/20">
           <div class="prose max-w-none">
-            <p class="font-crimson text-gray-800 whitespace-pre-wrap">{@meditation.content}</p>
+            <p class="font-work-sans text-navy whitespace-pre-wrap">{@meditation.content}</p>
 
             <div class="mt-4 space-y-1">
               <%= if @meditation.source do %>
-                <p class="font-crimson text-sm text-gray-500 italic">
+                <p class="font-work-sans text-sm text-brown-light italic">
                   Source: {@meditation.source}
                 </p>
               <% end %>
               <%= if @meditation.audio_url not in [nil, ""] do %>
-                <p class="font-crimson text-sm text-gray-500">
+                <p class="font-work-sans text-sm text-brown-light">
                   Audio S3 key: {@meditation.audio_url}
                 </p>
               <% end %>
               <%= if @meditation.tts_annotations != [] do %>
-                <p class="font-crimson text-sm text-gray-500">
+                <p class="font-work-sans text-sm text-brown-light">
                   Narration pauses: {length(@meditation.tts_annotations)}
                 </p>
               <% end %>

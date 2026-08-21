@@ -435,6 +435,134 @@ defmodule LumenViaeWeb.CoreComponents do
   end
 
   @doc """
+  Renders the app's ornament divider: fading gold hairlines flanking two
+  rotated diamonds and a small Latin cross. The shared Catholic visual
+  vocabulary of the iOS app, translated to markup.
+
+  ## Examples
+
+      <.sacred_divider />
+      <.sacred_divider cross={false} class="my-12" />
+  """
+  attr :cross, :boolean, default: true
+  attr :class, :string, default: nil
+  attr :rest, :global
+
+  def sacred_divider(assigns) do
+    ~H"""
+    <div
+      class={["flex items-center justify-center gap-2.5 my-8", @class]}
+      aria-hidden="true"
+      {@rest}
+    >
+      <span class="h-px w-full max-w-40 bg-gradient-to-r from-transparent to-gold/60"></span>
+      <span class="w-1.5 h-1.5 rotate-45 bg-gold/80 shrink-0"></span>
+      <svg :if={@cross} viewBox="0 0 9 13" class="w-2.5 h-3.5 fill-gold/90 shrink-0">
+        <path d="M3.24 0 H5.76 V2.64 H9 V5.16 H5.76 V13 H3.24 V5.16 H0 V2.64 H3.24 Z" />
+      </svg>
+      <span class="w-1.5 h-1.5 rotate-45 bg-gold/80 shrink-0"></span>
+      <span class="h-px w-full max-w-40 bg-gradient-to-l from-transparent to-gold/60"></span>
+    </div>
+    """
+  end
+
+  @doc """
+  The app's primary call to action: a gold capsule in engraved caps, led by
+  the hand-drawn Latin cross. Renders a link when `navigate`/`href` is given,
+  a button otherwise. One filled gold shape per screen region.
+
+  ## Examples
+
+      <.gold_cta navigate="/mysteries/joyful">Begin Praying</.gold_cta>
+      <.gold_cta href={@app_store_url} cross={false}>Download the App</.gold_cta>
+  """
+  attr :navigate, :string, default: nil
+  attr :href, :string, default: nil
+  attr :cross, :boolean, default: true
+  attr :class, :string, default: nil
+  attr :rest, :global, include: ~w(target rel type disabled aria-label)
+  slot :inner_block, required: true
+
+  def gold_cta(assigns) do
+    ~H"""
+    <.link :if={@navigate} navigate={@navigate} class={["btn-gold", @class]} {@rest}>
+      <.latin_cross :if={@cross} />
+      {render_slot(@inner_block)}
+    </.link>
+    <a :if={!@navigate && @href} href={@href} class={["btn-gold", @class]} {@rest}>
+      <.latin_cross :if={@cross} />
+      {render_slot(@inner_block)}
+    </a>
+    <button :if={!@navigate && !@href} class={["btn-gold", @class]} {@rest}>
+      <.latin_cross :if={@cross} />
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  defp latin_cross(assigns) do
+    ~H"""
+    <svg viewBox="0 0 10 14" class="w-2.5 h-3.5 fill-current shrink-0" aria-hidden="true">
+      <path d="M3.6 0 H6.4 V2.8 H10 V5.6 H6.4 V14 H3.6 V5.6 H0 V2.8 H3.6 Z" />
+    </svg>
+    """
+  end
+
+  @doc """
+  Frames sacred artwork in a gothic lancet arch with a double gold hairline,
+  the app's signature image treatment. Reserve it for devotional paintings
+  and portraits; photographs and screenshots stay rectangular.
+
+  The clip path `#lancet-arch` is defined once in root.html.heex.
+
+  ## Examples
+
+      <.arch_frame src="/images/pngs/queen-of-heaven-white-bg.jpg" alt="Queen of Heaven" />
+      <.arch_frame src={...} alt={...} class="w-72" img_class="object-top" />
+  """
+  attr :src, :string, required: true
+  attr :alt, :string, required: true
+  attr :class, :string, default: nil
+  attr :img_class, :string, default: nil
+  attr :rest, :global
+
+  def arch_frame(assigns) do
+    ~H"""
+    <div class={["relative aspect-[10/13]", @class]} {@rest}>
+      <img
+        src={@src}
+        alt={@alt}
+        class={["absolute inset-0 w-full h-full object-cover", @img_class]}
+        style="clip-path: url(#lancet-arch)"
+      />
+      <svg
+        viewBox="0 0 100 130"
+        preserveAspectRatio="none"
+        class="absolute inset-0 w-full h-full pointer-events-none"
+        aria-hidden="true"
+      >
+        <path
+          d="M 0.5 129.5 L 0.5 36.4 Q 3.5 13.8 50 0.7 Q 96.5 13.8 99.5 36.4 L 99.5 129.5"
+          fill="none"
+          stroke="var(--color-gold)"
+          stroke-opacity="0.55"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+        />
+        <path
+          d="M 3.5 129.5 L 3.5 38 Q 6.3 17.2 50 4.8 Q 93.7 17.2 96.5 38 L 96.5 129.5"
+          fill="none"
+          stroke="var(--color-gold)"
+          stroke-opacity="0.25"
+          stroke-width="0.5"
+          vector-effect="non-scaling-stroke"
+        />
+      </svg>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a religious medallion or symbol image.
 
   ## Examples

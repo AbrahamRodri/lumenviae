@@ -9,13 +9,13 @@
     <div class="bg-white border-l-4 border-gold p-6 mb-8">
       <h3 class="font-cinzel text-xl text-navy mb-4">Filter Mysteries</h3>
       <div>
-        <label class="font-crimson text-navy font-semibold block mb-2">
+        <label class="font-work-sans text-navy font-semibold block mb-2">
           Filter by Category
         </label>
         <.form for={%{}} phx-change="filter_category">
           <select
             name="category"
-            class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+            class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
           >
             <option value="" selected={is_nil(@filter_category)}>All Categories</option>
             <option value="joyful" selected={@filter_category == "joyful"}>
@@ -36,7 +36,7 @@
           </select>
         </.form>
         <%= if @filter_category do %>
-          <p class="font-crimson text-sm text-gray-600 mt-2">
+          <p class="font-work-sans text-sm text-brown mt-2">
             Showing only {String.capitalize(@filter_category)} mysteries in the form below
           </p>
         <% end %>
@@ -48,13 +48,13 @@
       <.form for={@meditation_form} phx-submit="create_meditation">
         <div class="space-y-4">
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Mystery
             </label>
             <select
               name="mystery_id"
               required
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
             >
               <option value="">Select a Mystery</option>
               <%= for mystery <- filtered_mysteries(assigns) do %>
@@ -66,67 +66,67 @@
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Title (Optional)
             </label>
             <input
               type="text"
               name="title"
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
               placeholder="e.g., First Meditation on the Annunciation"
             />
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Content (Paste meditation text here)
             </label>
             <textarea
               name="content"
               required
               rows="12"
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
               placeholder="Paste the meditation text here..."
             ></textarea>
           </div>
 
           <div class="grid md:grid-cols-2 gap-4">
             <div>
-              <label class="font-crimson text-navy font-semibold block mb-2">
+              <label class="font-work-sans text-navy font-semibold block mb-2">
                 Author
               </label>
               <input
                 type="text"
                 name="author"
-                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
                 placeholder="e.g., St. Alphonsus Liguori"
               />
             </div>
 
             <div>
-              <label class="font-crimson text-navy font-semibold block mb-2">
+              <label class="font-work-sans text-navy font-semibold block mb-2">
                 Source (Optional)
               </label>
               <input
                 type="text"
                 name="source"
-                class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
                 placeholder="e.g., The Glories of Mary"
               />
             </div>
           </div>
 
           <div>
-            <label class="font-crimson text-navy font-semibold block mb-2">
+            <label class="font-work-sans text-navy font-semibold block mb-2">
               Audio S3 Key (Optional)
             </label>
             <input
               type="text"
               name="audio_url"
-              class="w-full p-3 border border-gray-300 rounded font-crimson text-black"
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
               placeholder="e.g., meditation1.mp3 or joyful/annunciation.mp3"
             />
-            <p class="font-crimson text-sm text-gray-500 mt-1">
+            <p class="font-work-sans text-sm text-brown-light mt-1">
               Enter the S3 key (filename or path) for the audio in the lumenviae-audio bucket
             </p>
           </div>
@@ -134,14 +134,14 @@
           <div class="flex justify-between items-center pt-4">
             <.link
               navigate="/admin/meditations"
-              class="font-crimson text-navy hover:text-gold transition-colors"
+              class="font-work-sans text-navy hover:text-gold transition-colors"
             >
               ← Cancel
             </.link>
 
             <button
               type="submit"
-              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
             >
               Create Meditation
             </button>

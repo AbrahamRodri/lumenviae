@@ -7,19 +7,19 @@
   <:actions>
     <.link
       navigate="/admin/meditations/new"
-      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
     >
       New Meditation
     </.link>
     <.link
       navigate="/admin/meditation-sets/new"
-      class="bg-white text-navy border-2 border-navy px-5 py-2.5 rounded hover:bg-navy hover:text-white transition-colors font-crimson font-semibold"
+      class="bg-white text-navy border-2 border-navy px-5 py-2.5 rounded hover:bg-navy hover:text-white transition-colors font-work-sans font-semibold"
     >
       New Set
     </.link>
     <.link
       navigate="/admin/meditations/import"
-      class="bg-gold text-navy border-2 border-gold px-5 py-2.5 rounded hover:bg-navy hover:text-gold transition-colors font-crimson font-semibold"
+      class="bg-gold text-navy border-2 border-gold px-5 py-2.5 rounded hover:bg-navy hover:text-gold transition-colors font-work-sans font-semibold"
     >
       Import CSV
     </.link>
@@ -50,7 +50,7 @@
 <!-- Content Health -->
   <div class="bg-white border-l-4 border-gold p-8 mb-12">
     <h3 class="font-cinzel text-2xl text-navy mb-2">Content Health</h3>
-    <p class="font-crimson text-gray-600 mb-4">
+    <p class="font-work-sans text-brown mb-4">
       Issues that keep content from reaching the app or the public site. Each item links to the
       pre-filtered admin list where it can be fixed.
     </p>
@@ -62,7 +62,7 @@
         <% end %>
       </div>
     <% else %>
-      <p class="font-crimson text-green-700 font-semibold">
+      <p class="font-work-sans text-positive font-semibold">
         No content issues found. Every meditation has audio, belongs to a set, and every set is
         complete and visible.
       </p>
@@ -89,20 +89,20 @@
       <div class="bg-white border-l-4 border-gold p-6">
         <h4 class="font-cinzel text-lg text-navy mb-4">Completions by Meditation Set</h4>
         <%= if Enum.empty?(@completions_by_set) do %>
-          <p class="font-crimson text-gray-500 italic">No completions yet</p>
+          <p class="font-work-sans text-brown-light italic">No completions yet</p>
         <% else %>
           <div class="space-y-3">
             <%= for completion <- @completions_by_set do %>
-              <div class="flex justify-between items-start border-b border-gray-200 pb-2">
+              <div class="flex justify-between items-start border-b border-gold/20 pb-2">
                 <div class="flex-1">
-                  <div class="font-crimson text-navy font-semibold">{completion.set_name}</div>
+                  <div class="font-work-sans text-navy font-semibold">{completion.set_name}</div>
                   <div class="flex items-center gap-1 mt-1">
                     <.admin_badge tone="navy">
                       {String.replace(completion.category, "_", " ")}
                     </.admin_badge>
                   </div>
                 </div>
-                <span class="font-crimson text-gold font-bold text-lg ml-2">
+                <span class="font-work-sans text-gold font-bold text-lg ml-2">
                   {completion.count}
                 </span>
               </div>
@@ -115,20 +115,20 @@
       <div class="bg-white border-l-4 border-gold p-6 max-h-[500px] overflow-y-auto">
         <h4 class="font-cinzel text-lg text-navy mb-4">Recent Completions</h4>
         <%= if Enum.empty?(@recent_completions) do %>
-          <p class="font-crimson text-gray-500 italic">No recent completions</p>
+          <p class="font-work-sans text-brown-light italic">No recent completions</p>
         <% else %>
           <div class="space-y-3">
             <%= for completion <- @recent_completions do %>
-              <div class="border-b border-gray-200 pb-2">
+              <div class="border-b border-gold/20 pb-2">
                 <div class="mb-1">
                   <.admin_badge tone="navy">
                     {String.replace(completion.category, "_", " ")}
                   </.admin_badge>
                 </div>
-                <div class="font-crimson text-navy text-sm font-semibold">
+                <div class="font-work-sans text-navy text-sm font-semibold">
                   {completion.set_name}
                 </div>
-                <div class="font-crimson text-gray-500 text-xs">
+                <div class="font-work-sans text-brown-light text-xs">
                   {format_central_time(completion.completed_at)}
                 </div>
               </div>

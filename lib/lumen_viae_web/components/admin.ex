@@ -40,7 +40,7 @@ defmodule LumenViaeWeb.Components.Admin do
           <div>
             <h2 class="font-cinzel text-4xl text-navy">{@title}</h2>
             <%= if @subtitle do %>
-              <p class="font-crimson text-gray-600 mt-2">{@subtitle}</p>
+              <p class="font-work-sans text-brown mt-2">{@subtitle}</p>
             <% end %>
           </div>
           <%= if @actions != [] do %>
@@ -69,7 +69,7 @@ defmodule LumenViaeWeb.Components.Admin do
               <.link
                 navigate={path}
                 class={[
-                  "font-crimson py-3 border-b-2 transition-colors",
+                  "font-work-sans py-3 border-b-2 transition-colors",
                   if(@active == key,
                     do: "text-gold border-gold font-semibold",
                     else: "text-cream border-transparent hover:text-gold"
@@ -83,7 +83,7 @@ defmodule LumenViaeWeb.Components.Admin do
           <div class="flex items-center gap-x-6">
             <.link
               navigate="/"
-              class="font-crimson py-3 text-cream border-b-2 border-transparent hover:text-gold transition-colors"
+              class="font-work-sans py-3 text-cream border-b-2 border-transparent hover:text-gold transition-colors"
             >
               View Site
             </.link>
@@ -96,7 +96,7 @@ defmodule LumenViaeWeb.Components.Admin do
               <input type="hidden" name="_method" value="delete" />
               <button
                 type="submit"
-                class="bg-gold hover:bg-gold-light text-navy px-4 py-1.5 rounded transition-colors font-crimson font-semibold text-sm"
+                class="bg-gold hover:bg-gold-light text-navy px-4 py-1.5 rounded transition-colors font-work-sans font-semibold text-sm"
               >
                 Logout
               </button>
@@ -122,7 +122,7 @@ defmodule LumenViaeWeb.Components.Admin do
     <%= if @navigate do %>
       <.link
         navigate={@navigate}
-        class="block bg-white border-l-4 border-gold p-5 hover:bg-gray-50 transition-colors"
+        class="block bg-white border-l-4 border-gold p-5 hover:bg-cream transition-colors"
       >
         <.stat_card_body label={@label} value={@value} hint={@hint} />
       </.link>
@@ -137,9 +137,9 @@ defmodule LumenViaeWeb.Components.Admin do
   defp stat_card_body(assigns) do
     ~H"""
     <h4 class="font-cinzel text-base text-navy mb-1">{@label}</h4>
-    <p class="font-crimson text-3xl text-gold leading-tight">{@value}</p>
+    <p class="font-work-sans text-3xl text-gold leading-tight">{@value}</p>
     <%= if @hint do %>
-      <p class="font-crimson text-sm text-gray-500 mt-1">{@hint}</p>
+      <p class="font-work-sans text-sm text-brown-light mt-1">{@hint}</p>
     <% end %>
     """
   end
@@ -157,7 +157,7 @@ defmodule LumenViaeWeb.Components.Admin do
     <span
       title={@title}
       class={[
-        "inline-block px-2 py-0.5 font-crimson text-xs rounded whitespace-nowrap align-middle",
+        "inline-block px-2 py-0.5 font-work-sans text-xs rounded whitespace-nowrap align-middle",
         badge_classes(@tone)
       ]}
     >
@@ -168,10 +168,10 @@ defmodule LumenViaeWeb.Components.Admin do
 
   defp badge_classes("gold"), do: "border border-gold text-navy"
   defp badge_classes("navy"), do: "bg-navy text-gold capitalize"
-  defp badge_classes("amber"), do: "bg-amber-100 text-amber-800"
-  defp badge_classes("red"), do: "bg-red-100 text-red-800"
-  defp badge_classes("green"), do: "bg-green-100 text-green-800"
-  defp badge_classes(_gray), do: "bg-gray-200 text-gray-600 uppercase tracking-wide"
+  defp badge_classes("amber"), do: "bg-caution-surface text-caution-strong"
+  defp badge_classes("red"), do: "bg-danger-surface text-danger-strong"
+  defp badge_classes("green"), do: "bg-positive-surface text-positive-strong"
+  defp badge_classes(_gray), do: "bg-cream-dark text-brown uppercase tracking-wide"
 
   @doc """
   Labeled select for filter forms. `options` is a list of {label, value}
@@ -186,10 +186,10 @@ defmodule LumenViaeWeb.Components.Admin do
   def filter_select(assigns) do
     ~H"""
     <div>
-      <label class="font-crimson text-navy font-semibold block mb-1 text-sm">{@label}</label>
+      <label class="font-work-sans text-navy font-semibold block mb-1 text-sm">{@label}</label>
       <select
         name={@name}
-        class="w-full p-2.5 border border-gray-300 rounded font-crimson text-black bg-white"
+        class="w-full p-2.5 border border-gold/40 rounded font-work-sans text-black bg-white"
       >
         <%= if @prompt do %>
           <option value="" selected={@value in [nil, ""]}>{@prompt}</option>
@@ -213,13 +213,13 @@ defmodule LumenViaeWeb.Components.Admin do
   def filter_search(assigns) do
     ~H"""
     <div>
-      <label class="font-crimson text-navy font-semibold block mb-1 text-sm">{@label}</label>
+      <label class="font-work-sans text-navy font-semibold block mb-1 text-sm">{@label}</label>
       <input
         type="text"
         name={@name}
         value={@value}
         placeholder={@placeholder}
-        class="w-full p-2.5 border border-gray-300 rounded font-crimson text-black bg-white"
+        class="w-full p-2.5 border border-gold/40 rounded font-work-sans text-black bg-white"
         phx-debounce="400"
       />
     </div>
@@ -233,8 +233,8 @@ defmodule LumenViaeWeb.Components.Admin do
 
   def empty_state(assigns) do
     ~H"""
-    <div class="border border-dashed border-gray-300 rounded-lg p-8 text-center">
-      <p class="font-crimson text-gray-500">{render_slot(@inner_block)}</p>
+    <div class="border border-dashed border-gold/40 rounded-lg p-8 text-center">
+      <p class="font-work-sans text-brown-light">{render_slot(@inner_block)}</p>
     </div>
     """
   end

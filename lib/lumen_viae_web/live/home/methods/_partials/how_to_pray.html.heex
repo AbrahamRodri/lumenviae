@@ -1,12 +1,16 @@
 <section id="how-to-pray" class="mb-20 scroll-mt-8">
-  <div class="mb-10 max-w-3xl border-l-4 border-gold pl-5 md:pl-7">
-    <p class="font-work-sans text-xs tracking-[0.35em] uppercase text-rubric mb-2">
-      Chapter 1 &middot; Step by Step
-    </p>
-    <h2 class="font-ovo text-navy text-3xl md:text-4xl mb-3">
+  <div class="mb-10 max-w-3xl">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="h-px w-10 bg-gold/40 shrink-0" aria-hidden="true"></span>
+      <p class="font-cinzel text-xs tracking-[0.3em] uppercase text-gold-dark">
+        Chapter 1 &middot; Step by Step
+      </p>
+      <span class="h-px bg-gold/40 grow" aria-hidden="true"></span>
+    </div>
+    <h2 class="font-cinzel text-navy text-3xl md:text-4xl mb-3">
       The Beads in Your Hand
     </h2>
-    <p class="font-work-sans text-brown text-lg leading-relaxed">
+    <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed">
       Follow the beads. Select any part of the rosary, or walk through the ten
       steps in order&mdash;each one shows you exactly what to pray.
     </p>
@@ -14,7 +18,7 @@
 
   <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
     <!-- Interactive rosary diagram -->
-    <div class="bg-navy rounded-lg shadow-ornate p-4 md:p-6 lg:sticky lg:top-6">
+    <div class="bg-navy rounded-2xl border border-gold/35 shadow-ornate p-4 md:p-6 lg:sticky lg:top-6">
       <svg
         viewBox="0 0 420 560"
         xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +32,7 @@
           cy="185"
           r="148"
           fill="none"
-          stroke="#b18b49"
+          class="stroke-gold"
           stroke-opacity="0.35"
           stroke-width="1.5"
         />
@@ -38,7 +42,7 @@
           y1="333"
           x2="210"
           y2="490"
-          stroke="#b18b49"
+          class="stroke-gold"
           stroke-opacity="0.35"
           stroke-width="1.5"
         />
@@ -87,7 +91,7 @@
             y="338"
             text-anchor="middle"
             class={[
-              "font-ovo text-[11px] pointer-events-none transition-all duration-300",
+              "font-cinzel text-[11px] pointer-events-none transition-all duration-300",
               if(bead_active?(@steps, @selected_step, "medal"),
                 do: "fill-navy",
                 else: "fill-gold/70"
@@ -190,7 +194,7 @@
           x="278"
           y="281"
           text-anchor="middle"
-          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+          class="fill-gold/60 font-cinzel text-[10px] uppercase tracking-widest pointer-events-none"
         >
           1st
         </text>
@@ -198,7 +202,7 @@
           x="319"
           y="153"
           text-anchor="middle"
-          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+          class="fill-gold/60 font-cinzel text-[10px] uppercase tracking-widest pointer-events-none"
         >
           2nd
         </text>
@@ -206,7 +210,7 @@
           x="210"
           y="74"
           text-anchor="middle"
-          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+          class="fill-gold/60 font-cinzel text-[10px] uppercase tracking-widest pointer-events-none"
         >
           3rd
         </text>
@@ -214,7 +218,7 @@
           x="101"
           y="153"
           text-anchor="middle"
-          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+          class="fill-gold/60 font-cinzel text-[10px] uppercase tracking-widest pointer-events-none"
         >
           4th
         </text>
@@ -222,7 +226,7 @@
           x="142"
           y="281"
           text-anchor="middle"
-          class="fill-gold/60 font-work-sans text-[10px] uppercase tracking-widest pointer-events-none"
+          class="fill-gold/60 font-cinzel text-[10px] uppercase tracking-widest pointer-events-none"
         >
           5th
         </text>
@@ -233,18 +237,18 @@
           type="button"
           phx-click="prev-step"
           disabled={@selected_step == 1}
-          class="px-5 py-2 font-work-sans text-sm tracking-wide rounded border border-gold/50 text-gold-light hover:border-gold hover:text-gold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          class="px-5 py-2 font-cinzel text-xs tracking-[0.15em] uppercase rounded-full border border-gold/50 text-gold-light hover:border-gold hover:text-gold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
           Previous
         </button>
-        <span class="font-work-sans text-xs tracking-[0.25em] uppercase text-gold-light/70">
+        <span class="font-cinzel text-[0.65rem] tracking-[0.25em] uppercase text-gold-light/70">
           Step {@selected_step} of {length(@steps)}
         </span>
         <button
           type="button"
           phx-click="next-step"
           disabled={@selected_step == length(@steps)}
-          class="px-5 py-2 font-work-sans text-sm tracking-wide rounded bg-gold text-navy-dark hover:bg-gold-light transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          class="px-5 py-2 font-cinzel text-xs tracking-[0.15em] uppercase rounded-full bg-gold text-navy-dark hover:bg-gold-light transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
           Next
         </button>
@@ -252,18 +256,28 @@
     </div>
     
 <!-- Step panel -->
-    <div class="bg-white rounded-lg shadow-soft border border-gold/30 p-5 md:p-7">
+    <div class="hairline-card p-5 md:p-7">
       <!-- Step selector pills -->
-      <div class="flex flex-wrap gap-1.5 mb-6" role="tablist" aria-label="Steps of the Rosary">
+      <div
+        id="step-tablist"
+        phx-hook="Tablist"
+        class="flex flex-wrap gap-1.5 mb-6"
+        role="tablist"
+        aria-label="Steps of the Rosary"
+      >
         <%= for step <- @steps do %>
           <button
             type="button"
             role="tab"
+            id={"step-tab-#{step.id}"}
             aria-selected={to_string(step.id == @selected_step)}
+            aria-controls="step-panel"
+            aria-label={"Step #{step.id}: #{step.title}"}
+            tabindex={if step.id == @selected_step, do: "0", else: "-1"}
             phx-click="select-step"
             phx-value-step={step.id}
             class={[
-              "w-9 h-9 rounded-full font-ovo text-sm transition-all duration-300 border",
+              "w-9 h-9 rounded-full font-cinzel text-sm transition-all duration-300 border",
               if(step.id == @selected_step,
                 do: "bg-navy text-gold border-navy shadow-md scale-110",
                 else: "bg-cream text-navy border-gold/40 hover:border-gold hover:bg-gold-light/20"
@@ -276,23 +290,28 @@
       </div>
 
       <% step = current_step(@steps, @selected_step) %>
-      <div class="border-t-2 border-gold/50 pt-6">
-        <p class="font-work-sans text-[0.65rem] tracking-[0.3em] uppercase text-rubric mb-2">
+      <div
+        id="step-panel"
+        role="tabpanel"
+        aria-labelledby={"step-tab-#{@selected_step}"}
+        class="border-t border-gold/30 pt-6"
+      >
+        <p class="font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-gold-dark mb-2">
           Step {step.id}
         </p>
-        <h3 class="font-ovo text-navy text-2xl md:text-3xl mb-4">
+        <h3 class="font-cinzel text-navy text-2xl md:text-3xl mb-4">
           {step.title}
         </h3>
-        <p class="font-work-sans text-brown text-base md:text-lg leading-[1.75] mb-6 max-w-[60ch]">
+        <p class="font-garamond text-brown text-lg md:text-xl leading-[1.75] mb-6 max-w-[60ch]">
           {step.instruction}
         </p>
 
         <%= for prayer <- step.prayers do %>
           <div class="mb-6 last:mb-0">
-            <p class="font-work-sans text-xs tracking-[0.2em] uppercase text-gold-dark mb-2">
+            <p class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark mb-2">
               {prayer.name}
             </p>
-            <blockquote class="border-l-3 border-gold pl-5 font-garamond text-lg md:text-xl leading-[1.7] text-navy max-w-[60ch]">
+            <blockquote class="border-l-2 border-gold/40 pl-5 font-garamond text-lg md:text-xl leading-[1.7] text-navy max-w-[60ch]">
               {prayer.text}
             </blockquote>
           </div>

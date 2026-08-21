@@ -26,11 +26,11 @@ defmodule LumenViaeWeb.Live.Home.SaintCarlo.Index do
     },
     %{
       id: "exhibition",
-      year: "2004",
+      year: "2002",
       label: "The Exhibition",
       title: "Cataloguing the miracles of God",
       text:
-        "A self-taught programmer, Carlo spends his teenage years building a website and exhibition documenting the Eucharistic miracles of the world and the recognized apparitions of Our Lady. The exhibition opens in Rome on October 4, 2006, and has since traveled to thousands of parishes on five continents."
+        "At eleven, Carlo sets himself to catalogue every Eucharistic miracle the Church has recognized. A self-taught programmer, he spends about two and a half years on the research and the website, helped by his family. By 2005, the year St. John Paul II dedicated to the Eucharist, the exhibition has begun to travel; it has since been received in thousands of parishes on five continents."
     },
     %{
       id: "death",

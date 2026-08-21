@@ -13,6 +13,103 @@ defmodule LumenViaeWeb.Live.Home.LearnPagesTest do
     |> Enum.flat_map(&Floki.attribute(&1, "phx-value-index"))
   end
 
+  # Collapses the template's line wrapping so prose assertions do not depend
+  # on where the formatter happened to break a sentence.
+  defp squish(html), do: String.replace(html, ~r/\s+/, " ")
+
+  # Every `role="tab"` must point at an element that is really a tabpanel.
+  # Without the pairing, `aria-selected` announces a state about nothing.
+  defp orphan_tabs(html) do
+    doc = Floki.parse_document!(html)
+    panel_ids = doc |> Floki.find("[role='tabpanel']") |> Floki.attribute("id") |> MapSet.new()
+
+    doc
+    |> Floki.find("[role='tab']")
+    |> Enum.reject(fn tab ->
+      tab
+      |> Floki.attribute("aria-controls")
+      |> List.first()
+      |> then(&MapSet.member?(panel_ids, &1))
+    end)
+    |> Enum.map(&(Floki.attribute(&1, "id") |> List.first()))
+  end
+
+  # A tablist is one stop in the tab order: exactly one tab carries
+  # tabindex="0" and the rest are removed with -1, so Tab moves past the whole
+  # group and the arrow keys move within it.
+  defp roving_tabindex(html) do
+    Floki.parse_document!(html)
+    |> Floki.find("[role='tablist']")
+    |> Enum.map(fn list ->
+      tabs = Floki.find(list, "[role='tab']")
+      indexes = Enum.map(tabs, &(Floki.attribute(&1, "tabindex") |> List.first()))
+      {Floki.attribute(list, "aria-label") |> List.first(), Enum.frequencies(indexes)}
+    end)
+  end
+
+  describe "tab widgets" do
+    for {name, path} <- [
+          {"rosary methods", "/rosary-methods"},
+          {"true devotion", "/true-devotion"},
+          {"saint carlo", "/saint-carlo"},
+          {"mysteries in scripture", "/mysteries"}
+        ] do
+      test "every tab on the #{name} page controls a tabpanel", %{conn: conn} do
+        {:ok, _view, html} = live(conn, unquote(path))
+
+        assert orphan_tabs(html) == []
+        assert html =~ ~s(role="tabpanel")
+      end
+
+      test "every tablist on the #{name} page is one tab stop", %{conn: conn} do
+        {:ok, _view, html} = live(conn, unquote(path))
+        lists = roving_tabindex(html)
+
+        assert lists != []
+
+        for {label, counts} <- lists do
+          assert Map.get(counts, "0") == 1,
+                 "#{label} should have exactly one focusable tab, got #{inspect(counts)}"
+
+          # Every other tab is explicitly removed from the tab order.
+          refute Map.has_key?(counts, nil), "#{label} has a tab with no tabindex"
+        end
+      end
+
+      test "every tablist on the #{name} page has the keyboard hook", %{conn: conn} do
+        {:ok, _view, html} = live(conn, unquote(path))
+
+        lists =
+          Floki.parse_document!(html)
+          |> Floki.find("[role='tablist']")
+
+        for list <- lists do
+          assert Floki.attribute(list, "phx-hook") == ["Tablist"]
+          refute Floki.attribute(list, "id") == []
+        end
+      end
+    end
+
+    test "selecting a tab moves the focusable tab with it", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/saint-carlo")
+
+      html = view |> element("button[phx-value-moment='assisi']") |> render_click()
+
+      tab =
+        Floki.parse_document!(html)
+        |> Floki.find("#moment-tab-assisi")
+
+      assert Floki.attribute(tab, "tabindex") == ["0"]
+      assert Floki.attribute(tab, "aria-selected") == ["true"]
+    end
+
+    test "step tabs announce their title, not a bare number", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/rosary-methods")
+
+      assert html =~ ~s(aria-label="Step 1: The Sign of the Cross and the Creed")
+    end
+  end
+
   describe "How to Pray the Rosary (/rosary-methods)" do
     test "renders the guide with the interactive first step", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/rosary-methods")
@@ -132,6 +229,15 @@ defmodule LumenViaeWeb.Live.Home.LearnPagesTest do
       assert expanded_devotions(view) == ["1"]
     end
 
+    test "dates the prophecy against the Revolution correctly", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/true-devotion")
+
+      # The treatise was written c. 1712; the manuscript was hidden in the
+      # 1790s. That is roughly eighty years, not more than a century.
+      assert html =~ "written some eighty years"
+      refute html =~ "written more than a century"
+    end
+
     test "selects preparation phases", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/true-devotion")
 
@@ -151,6 +257,27 @@ defmodule LumenViaeWeb.Live.Home.LearnPagesTest do
       assert html =~ "Saint Carlo Acutis"
       assert html =~ "Icon of St. Carlo Acutis"
       assert html =~ "The Eucharist is my highway to heaven."
+    end
+
+    test "does not credit Carlo with a smartphone he never owned", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/saint-carlo")
+      prose = squish(html)
+
+      # He died in October 2006, before the first smartphone shipped.
+      refute prose =~ "smartphone generation"
+      assert prose =~ "He died before the first smartphone"
+      assert prose =~ "one hour of video games a week"
+    end
+
+    test "dates the Eucharistic miracles exhibition to when he began it", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/saint-carlo")
+
+      html = view |> element("button[phx-value-moment='exhibition']") |> render_click()
+
+      assert html =~ "At eleven, Carlo sets himself to catalogue"
+      # The often-repeated "opened in Rome on October 4, 2006" conflates the
+      # exhibition with the unveiling of his website.
+      refute html =~ "opens in Rome"
     end
 
     test "selects timeline moments", %{conn: conn} do

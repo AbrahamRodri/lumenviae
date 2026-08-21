@@ -10,16 +10,8 @@ defmodule LumenViaeWeb.Components.Footer do
   """
   def footer(assigns) do
     ~H"""
-    <footer class="relative bg-navy text-gold text-center py-12 border-t-3 border-gold overflow-hidden">
-      <div class="absolute inset-0 opacity-[0.04]" aria-hidden="true">
-        <img
-          src="/images/ornate-blue-gold-bg-symbols.jpg"
-          alt=""
-          class="w-full h-full object-cover"
-        />
-      </div>
-
-      <div class="relative">
+    <footer class="relative bg-cream text-center py-14 border-t border-gold/30">
+      <div class="relative max-w-5xl mx-auto">
         <!-- Crucifix at Top -->
         <div class="mx-auto px-8">
           <.medallion type="crucifix" size="medium" />
@@ -27,7 +19,7 @@ defmodule LumenViaeWeb.Components.Footer do
         
     <!-- Site navigation -->
         <nav
-          class="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-3 px-8"
+          class="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-4 px-8"
           aria-label="Footer navigation"
         >
           <.footer_link navigate="/">Home</.footer_link>
@@ -41,15 +33,15 @@ defmodule LumenViaeWeb.Components.Footer do
         </nav>
 
         <div class="mt-6">
-          <.ornate_divider variant="white" class="my-8 opacity-20 max-w-sm mx-auto" />
+          <.sacred_divider class="my-8 max-w-sm mx-auto" />
 
-          <p class="font-garamond text-gold-light text-base tracking-wide italic">
+          <p class="font-garamond text-brown text-lg tracking-wide italic">
             Lumen Viae - Light of the Way
           </p>
-          <p class="font-garamond text-gold opacity-70 text-sm mt-2">
+          <p class="font-garamond text-brown-light text-sm mt-2">
             &copy; {Date.utc_today().year} All Rights Reserved
           </p>
-          <p class="font-cinzel text-gold text-sm tracking-widest uppercase mt-3">
+          <p class="font-cinzel text-gold-dark text-sm tracking-widest uppercase mt-3">
             Ad Majorem Dei Gloriam
           </p>
         </div>
@@ -65,7 +57,7 @@ defmodule LumenViaeWeb.Components.Footer do
     ~H"""
     <.link
       navigate={@navigate}
-      class="font-work-sans text-sm text-gold-light/80 hover:text-gold transition-colors"
+      class="font-cinzel text-[0.7rem] tracking-[0.15em] uppercase text-gold-dark hover:text-gold transition-colors"
     >
       {render_slot(@inner_block)}
     </.link>

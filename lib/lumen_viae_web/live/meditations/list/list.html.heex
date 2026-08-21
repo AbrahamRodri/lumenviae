@@ -7,13 +7,13 @@
   <:actions>
     <.link
       navigate="/admin/meditations/new"
-      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-crimson font-semibold"
+      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
     >
       Create New Meditation
     </.link>
     <.link
       navigate="/admin/meditations/import"
-      class="bg-white text-navy border-2 border-navy px-5 py-2.5 rounded hover:bg-navy hover:text-white transition-colors font-crimson font-semibold"
+      class="bg-white text-navy border-2 border-navy px-5 py-2.5 rounded hover:bg-navy hover:text-white transition-colors font-work-sans font-semibold"
     >
       Import CSV
     </.link>
@@ -56,13 +56,13 @@
   <div class="bg-white border-l-4 border-gold px-6 py-4 mb-8">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-3">
-        <p class="font-crimson text-navy font-semibold">
+        <p class="font-work-sans text-navy font-semibold">
           {MapSet.size(@selected_ids)} selected
         </p>
         <button
           type="button"
           phx-click="select_all_shown"
-          class="font-crimson text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
+          class="font-work-sans text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
         >
           Select all shown
         </button>
@@ -70,7 +70,7 @@
           <button
             type="button"
             phx-click="clear_selection"
-            class="font-crimson text-sm text-gray-600 border border-gray-400 rounded px-3 py-1 hover:bg-gray-100 transition-colors"
+            class="font-work-sans text-sm text-brown border border-gold/60 rounded px-3 py-1 hover:bg-cream-dark transition-colors"
           >
             Clear selection
           </button>
@@ -82,14 +82,14 @@
             type="button"
             phx-click="bulk_archive"
             data-confirm={"Archive #{MapSet.size(@selected_ids)} selected meditation(s)? They will be hidden from the public site, along with any set containing them."}
-            class="px-4 py-1.5 text-amber-700 border border-amber-700 rounded hover:bg-amber-700 hover:text-white transition-colors font-crimson text-sm"
+            class="px-4 py-1.5 text-caution border border-caution rounded hover:bg-caution hover:text-white transition-colors font-work-sans text-sm"
           >
             Archive selected
           </button>
           <button
             type="button"
             phx-click="bulk_unarchive"
-            class="px-4 py-1.5 text-green-700 border border-green-700 rounded hover:bg-green-700 hover:text-white transition-colors font-crimson text-sm"
+            class="px-4 py-1.5 text-positive border border-positive rounded hover:bg-positive-strong hover:text-white transition-colors font-work-sans text-sm"
           >
             Unarchive selected
           </button>
@@ -97,7 +97,7 @@
             type="button"
             phx-click="bulk_delete"
             data-confirm={"Permanently delete #{MapSet.size(@selected_ids)} selected meditation(s)? This cannot be undone, and they will be removed from any sets that contain them. Archiving is usually the safer choice."}
-            class="px-4 py-1.5 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-colors font-crimson text-sm"
+            class="px-4 py-1.5 text-danger border border-danger rounded hover:bg-danger hover:text-white transition-colors font-work-sans text-sm"
           >
             Delete selected
           </button>

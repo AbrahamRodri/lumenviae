@@ -121,19 +121,19 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
 
   defp health_item(assigns) do
     ~H"""
-    <div class="flex items-start justify-between gap-4 border-b border-gray-200 py-3 last:border-b-0">
+    <div class="flex items-start justify-between gap-4 border-b border-gold/20 py-3 last:border-b-0">
       <div class="flex items-start gap-3 min-w-0">
         <span class={[
-          "font-crimson font-bold text-lg w-8 text-right flex-shrink-0",
-          if(@item.count > 0, do: "text-amber-700", else: "text-green-700")
+          "font-work-sans font-bold text-lg w-8 text-right flex-shrink-0",
+          if(@item.count > 0, do: "text-caution", else: "text-positive")
         ]}>
           {@item.count}
         </span>
         <div class="min-w-0">
-          <p class="font-crimson text-navy font-semibold">{@item.label}</p>
-          <p class="font-crimson text-sm text-gray-600">{@item.description}</p>
+          <p class="font-work-sans text-navy font-semibold">{@item.label}</p>
+          <p class="font-work-sans text-sm text-brown">{@item.description}</p>
           <%= if @item.count > 0 and @item.names != [] do %>
-            <p class="font-crimson text-sm text-gray-500 italic mt-1">
+            <p class="font-work-sans text-sm text-brown-light italic mt-1">
               {names_preview(@item.names)}
             </p>
           <% end %>
@@ -142,7 +142,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
       <%= if @item.count > 0 do %>
         <.link
           navigate={@item.link}
-          class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-crimson text-sm flex-shrink-0"
+          class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm flex-shrink-0"
         >
           Review
         </.link>

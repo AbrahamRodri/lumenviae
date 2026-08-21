@@ -32,7 +32,7 @@
           </.link>
         </div>
 
-        <h1 class="font-ovo text-base md:text-lg text-gold text-center flex-[3] leading-snug">
+        <h1 class="font-cinzel text-base md:text-lg text-gold text-center flex-[3] leading-snug">
           {@set.name}
         </h1>
 
@@ -89,7 +89,7 @@
       </div>
 
       <p class={[
-        "font-work-sans tracking-[0.25em] uppercase text-center",
+        "font-cinzel tracking-[0.25em] uppercase text-center",
         if(@mobile_mode_enabled, do: "text-xs text-gold-light/50", else: "text-[0.65rem] text-gold-light/60")
       ]}>
         Mystery {roman(@current_index + 1)} of {roman(@total_count)}
@@ -101,12 +101,12 @@
       <div class={[
         if(@mobile_mode_enabled,
           do: "bg-transparent p-6 md:p-8",
-          else: "bg-navy-light/50 border border-gold/25 rounded-lg p-5 md:p-8"
+          else: "bg-navy-light/50 border border-gold/20 rounded-2xl p-5 md:p-8"
         )
       ]}>
         <!-- Mystery Title -->
         <h2 class={[
-          "font-ovo text-gold text-center",
+          "font-cinzel text-gold text-center",
           if(@mobile_mode_enabled,
             do: "text-2xl md:text-3xl mb-8 md:mb-12 leading-relaxed",
             else: "text-xl md:text-2xl mb-2"
@@ -117,14 +117,14 @@
 
         <%= if !@mobile_mode_enabled do %>
           <%= if @meditation.mystery.scripture_reference do %>
-            <p class="font-garamond text-sm md:text-base text-gold-light italic text-center mb-4">
+            <p class="font-cinzel text-[0.7rem] md:text-xs tracking-[0.25em] uppercase text-gold-light text-center mb-4">
               {@meditation.mystery.scripture_reference}
             </p>
           <% end %>
 
           <div class="flex items-center gap-4 justify-center mb-4 text-gold/50" aria-hidden="true">
             <div class="h-px w-12 bg-gold/25"></div>
-            <span class="font-ovo text-sm">&#10022;</span>
+            <span class="font-cinzel text-sm">&#10022;</span>
             <div class="h-px w-12 bg-gold/25"></div>
           </div>
         <% end %>
@@ -140,7 +140,7 @@
           <.audio_player audio_url={@audio_presigned_url} size={if @mobile_mode_enabled, do: "large", else: "normal"} />
           <%= if @meditation.audio_url && !@audio_presigned_url do %>
             <p
-              class="font-work-sans text-xs tracking-[0.2em] uppercase text-gold-light/50 border border-gold/20 rounded-full px-4 py-2"
+              class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-light/50 border border-gold/20 rounded-full px-4 py-2"
               title="This meditation has audio, but the audio URL could not be generated. Check that AWS credentials are configured on the server."
             >
               Audio unavailable
@@ -160,7 +160,7 @@
         <!-- Meditation Content -->
         <%= if !@mobile_mode_enabled do %>
           <%= if @meditation.title do %>
-            <h3 class="font-ovo text-base md:text-lg text-gold mb-3 mt-4 text-center">
+            <h3 class="font-cinzel text-base md:text-lg text-gold mb-3 mt-4 text-center">
               {@meditation.title}
             </h3>
           <% end %>
@@ -189,7 +189,7 @@
                 &mdash; {@meditation.author}
               <% end %>
               <%= if @meditation.source do %>
-                <span class="block mt-1 not-italic font-work-sans text-xs tracking-wide opacity-70">
+                <span class="block mt-1 not-italic font-garamond text-sm tracking-wide opacity-70">
                   {@meditation.source}
                 </span>
               <% end %>
@@ -201,30 +201,30 @@
 
     <!-- Bottom Controls: Previous | Next -->
     <%= if !@mobile_mode_enabled do %>
-      <div class="flex-shrink-0 flex items-center justify-between gap-3 pb-3">
+      <div class="flex-shrink-0 flex items-center justify-between gap-3 pb-3 text-cream">
         <button
           phx-click="previous"
           disabled={@current_index == 0}
-          class="font-ovo px-5 py-2.5 text-sm md:text-base text-gold-light border border-gold/50 rounded hover:border-gold hover:text-gold hover:bg-gold/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
+          class="btn-outline-gold disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
         >
           <span aria-hidden="true">&larr;</span> Previous
         </button>
 
-        <span class="hidden md:block font-work-sans text-[0.6rem] tracking-[0.2em] uppercase text-gold-light/40">
+        <span class="hidden md:block font-cinzel text-[0.6rem] tracking-[0.2em] uppercase text-gold-light/40">
           Use arrow keys to navigate
         </span>
 
         <%= if @current_index == @total_count - 1 do %>
           <.link
             navigate={"/mysteries/" <> @set.category}
-            class="font-ovo px-6 py-2.5 text-sm md:text-base bg-gold text-navy-dark rounded shadow-glow hover:bg-gold-light transition-colors text-center flex-shrink-0"
+            class="btn-gold text-center flex-shrink-0"
           >
             Complete <span aria-hidden="true">&#10022;</span>
           </.link>
         <% else %>
           <button
             phx-click="next"
-            class="font-ovo px-6 py-2.5 text-sm md:text-base bg-gold text-navy-dark rounded shadow-glow hover:bg-gold-light transition-colors flex-shrink-0"
+            class="btn-gold flex-shrink-0"
           >
             Next <span aria-hidden="true">&rarr;</span>
           </button>
@@ -247,7 +247,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 text-gold">
           <path fill-rule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clip-rule="evenodd" />
         </svg>
-        <span class="font-ovo text-gold text-sm">Previous</span>
+        <span class="font-cinzel tracking-[0.2em] uppercase text-gold text-sm">Previous</span>
       </div>
     </button>
 
@@ -263,7 +263,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 text-gold">
             <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
           </svg>
-          <span class="font-ovo text-gold text-sm">Complete</span>
+          <span class="font-cinzel tracking-[0.2em] uppercase text-gold text-sm">Complete</span>
         </div>
       </.link>
     <% else %>
@@ -277,7 +277,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 text-gold">
             <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z" clip-rule="evenodd" />
           </svg>
-          <span class="font-ovo text-gold text-sm">Continue</span>
+          <span class="font-cinzel tracking-[0.2em] uppercase text-gold text-sm">Continue</span>
         </div>
       </button>
     <% end %>

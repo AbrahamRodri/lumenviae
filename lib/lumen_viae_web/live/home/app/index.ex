@@ -21,12 +21,12 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     %{
       title: "Meditations of the Saints",
       description:
-        "St. Louis de Montfort, St. Alphonsus Liguori, and the doctors of the Church accompany every mystery."
+        "St. Alphonsus Liguori, Blessed Anne Catherine Emmerich, St. John Chrysostom, and the doctors of the Church accompany every mystery."
     },
     %{
-      title: "Themed Perspectives",
+      title: "Two Ways of Meditating",
       description:
-        "Pray the same mysteries as a father, through the lens of humility, or in a season of suffering."
+        "Enter the scene with the contemplatives, or reason on its meaning with the classical considerations. The same mystery, two paths in."
     },
     %{
       title: "Listen Anywhere",
@@ -45,6 +45,10 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     {:ok,
      socket
      |> assign(:page_title, "Lumen Viae for iPhone")
+     |> assign(
+       :meta_description,
+       "Lumen Viae for iPhone: guided audio meditations on the mysteries of the Holy Rosary from the saints and doctors of the Church. Free, no account, no distractions."
+     )
      |> assign(:features, @features)}
   end
 end
