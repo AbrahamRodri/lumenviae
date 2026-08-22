@@ -31,6 +31,16 @@
       </.form>
     </div>
 
+    <LumenViaeWeb.Components.ArtworkSection.artwork_section
+      record={@author}
+      intro="The portrait shown for this author's sets when a set has no painting of its own."
+      artwork_url={@artwork_url}
+      form={@artwork_form}
+      upload={@uploads.artwork}
+      licenses={@license_options}
+      rules={@artwork_rules}
+    />
+
     <div class="mt-8 text-center">
       <.link
         navigate="/admin/authors"

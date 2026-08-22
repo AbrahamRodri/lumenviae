@@ -1,6 +1,7 @@
-defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
+defmodule LumenViaeWeb.Components.ArtworkSection do
   @moduledoc """
-  Artwork card for the meditation set edit page.
+  Artwork card for any admin edit page whose record carries the artwork
+  columns - meditation sets and authors today.
 
   Three things in one place, because they are only useful together: upload a
   painting, say where its subject is, and record what it is and where it
@@ -11,6 +12,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
   set-detail hero, a home card and a mini-player thumbnail - rendered with
   CSS `object-position` from the same normalized pair the API returns and
   SwiftUI consumes. What the curator sees here is what the phone renders.
+  An author's portrait is drawn in the same frames, standing in for sets
+  with no painting of their own.
 
   The parent Edit LiveView handles `validate_artwork`, `upload_artwork`,
   `remove_artwork_upload`, `set_focal_point`, `nudge_focal` and
@@ -23,7 +26,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
   alias LumenViae.Curation.ArtworkUpload
   alias LumenViae.Rosary.Artwork
 
-  attr :set, :map, required: true
+  attr :record, :map, required: true
+  attr :intro, :string, required: true
   attr :artwork_url, :string, default: nil
   attr :form, :map, required: true
   attr :upload, :map, required: true
@@ -33,15 +37,15 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
   def artwork_section(assigns) do
     assigns =
       assigns
-      |> assign(:focal_x, assigns.set.image_focal_x || 0.5)
-      |> assign(:focal_y, assigns.set.image_focal_y || 0.5)
-      |> assign(:publishable, Artwork.publishable?(assigns.set))
+      |> assign(:focal_x, assigns.record.image_focal_x || 0.5)
+      |> assign(:focal_y, assigns.record.image_focal_y || 0.5)
+      |> assign(:publishable, Artwork.publishable?(assigns.record))
 
     ~H"""
     <div class="bg-white border-l-4 border-gold p-8 mb-8">
       <h3 class="font-cinzel text-2xl text-navy mb-2">Artwork</h3>
       <p class="font-work-sans text-brown text-sm mb-6">
-        The painting behind the set on the app's detail screen. {@rules} Nothing is resized on the server, so upload it at the size you want it shown.
+        {@intro} {@rules} Nothing is resized on the server, so upload it at the size you want it shown.
       </p>
 
       <%= if @artwork_url do %>
@@ -64,7 +68,11 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
               phx-hook="FocalPoint"
               class="relative cursor-crosshair select-none inline-block max-h-[28rem] overflow-hidden"
             >
-              <img src={@artwork_url} alt={@set.image_alt || ""} class="max-h-[28rem] w-auto block" />
+              <img
+                src={@artwork_url}
+                alt={@record.image_alt || ""}
+                class="max-h-[28rem] w-auto block"
+              />
               <div
                 data-focal-crosshair
                 class="absolute w-6 h-6 -ml-3 -mt-3 rounded-full border-2 border-gold bg-gold/20 pointer-events-none"
@@ -114,7 +122,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
             </div>
 
             <p class="font-work-sans text-brown text-sm mt-4">
-              Stored as {@set.image_width}x{@set.image_height},
+              Stored as {@record.image_width}x{@record.image_height},
               aligned <strong>{Artwork.alignment(@focal_y)}</strong>.
             </p>
           </div>
@@ -125,8 +133,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection do
         <div class="mb-8 border-l-4 border-caution bg-caution-surface p-4">
           <p class="font-work-sans text-caution-strong text-sm">
             This painting is saved but is <strong>not being served</strong>. Artwork needs both
-            a description and a licence before the app is shown it; the app falls back to the
-            mystery category's bundled painting until then.
+            a description and a licence before the app is shown it; until then the app
+            behaves as if there were no painting here.
           </p>
         </div>
       <% end %>

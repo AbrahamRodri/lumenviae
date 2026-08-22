@@ -142,8 +142,9 @@
     />
     
 <!-- Artwork (set detail hero on the app) -->
-    <LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSection.artwork_section
-      set={@meditation_set}
+    <LumenViaeWeb.Components.ArtworkSection.artwork_section
+      record={@meditation_set}
+      intro="The painting behind the set on the app's detail screen."
       artwork_url={@artwork_url}
       form={@artwork_form}
       upload={@uploads.artwork}
