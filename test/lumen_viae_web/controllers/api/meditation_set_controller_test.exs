@@ -344,4 +344,78 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
       assert data["id"] == set.id
     end
   end
+
+  describe "author portrait fallback" do
+    defp create_author_with_portrait do
+      {:ok, author} =
+        Rosary.create_author(%{name: "Author #{System.unique_integer([:positive])}"})
+
+      {:ok, author} =
+        Rosary.update_author_artwork(author, %{
+          "image_key" => "authors/#{author.id}/8f21c4d9e0b3a7f6.jpg",
+          "image_width" => 1600,
+          "image_height" => 2000,
+          "image_alt" => "A portrait of the author.",
+          "image_license" => "public_domain"
+        })
+
+      author
+    end
+
+    test "a set without artwork serves its author's portrait through the same fields",
+         %{conn: conn} do
+      author = create_author_with_portrait()
+      linked = create_set(%{name: "Linked", author_id: author.id})
+      unlinked = create_set(%{name: "Unlinked"})
+
+      by_id =
+        conn
+        |> get(~p"/api/meditation-sets?category=joyful")
+        |> json_response(200)
+        |> Map.fetch!("data")
+        |> Map.new(&{&1["id"], &1})
+
+      assert by_id[linked.id]["image_url"] =~ "authors/#{author.id}/"
+      assert by_id[linked.id]["image_alt"] == "A portrait of the author."
+      assert by_id[linked.id]["image_width"] == 1600
+      assert by_id[unlinked.id]["image_url"] == nil
+    end
+
+    test "a set's own artwork wins over its author's portrait", %{conn: conn} do
+      author = create_author_with_portrait()
+      set = create_set(%{name: "Has Both", author_id: author.id})
+
+      {:ok, set} =
+        Rosary.update_meditation_set_artwork(set, %{
+          "image_key" => "sets/#{set.id}/aaaa1111bbbb2222.jpg",
+          "image_width" => 1600,
+          "image_height" => 2400,
+          "image_alt" => "The set's own painting.",
+          "image_license" => "public_domain"
+        })
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets/#{set.id}")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert data["image_url"] =~ "sets/#{set.id}/"
+      assert data["image_alt"] == "The set's own painting."
+    end
+
+    test "the show endpoint also falls back to the author's portrait", %{conn: conn} do
+      author = create_author_with_portrait()
+      set = create_set(%{name: "Linked Detail", author_id: author.id})
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets/#{set.id}")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert data["image_url"] =~ "authors/#{author.id}/"
+      assert data["image_attribution"]["license"] == "public_domain"
+    end
+  end
 end
