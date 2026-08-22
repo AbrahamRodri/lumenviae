@@ -1,4 +1,5 @@
 defmodule LumenViaeWeb.API.MeditationSetJSON do
+  alias LumenViae.Rosary
   alias LumenViaeWeb.API.ArtworkJSON
 
   @doc """
@@ -36,7 +37,7 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
       author: byline(set.author, set.derived_author),
       source: byline(set.source, set.derived_source)
     }
-    |> Map.merge(ArtworkJSON.data(set))
+    |> Map.merge(ArtworkJSON.data(Rosary.artwork_record(set)))
   end
 
   @doc """
@@ -55,7 +56,7 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
       audio_expires_at: encode_expiry(audio_expires_at),
       meditations: Enum.map(set.meditations, &LumenViaeWeb.API.MeditationJSON.data/1)
     }
-    |> Map.merge(ArtworkJSON.data(set))
+    |> Map.merge(ArtworkJSON.data(Rosary.artwork_record(set)))
   end
 
   # The set's own byline always wins; the derivation only fills a gap, and

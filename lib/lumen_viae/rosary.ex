@@ -31,6 +31,7 @@ defmodule LumenViae.Rosary do
   See `docs/ARCHITECTURE.md` for the rules this layout follows.
   """
 
+  alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.Authors
   alias LumenViae.Rosary.Completions
   alias LumenViae.Rosary.MeditationSets
@@ -185,6 +186,30 @@ defmodule LumenViae.Rosary do
   def artwork_url(%{image_key: key}), do: S3.public_url(key)
   def artwork_url(_record), do: nil
 
+  @doc """
+  The record whose artwork a set displays: the set itself when its own
+  artwork is publishable, otherwise its linked author, otherwise nil.
+
+  The same shape as the byline derivation: what the set carries always
+  wins, the author only fills a gap. The clients cannot tell the two
+  apart - both render through the same image fields - which is what lets a
+  portrait uploaded once cover every set under that author with no API or
+  app change.
+
+  The author association must be preloaded for the fallback to apply; the
+  visible-set reads preload it. Where it is not loaded the set behaves as
+  if it had no author.
+  """
+  def artwork_record(set) do
+    author = Map.get(set, :author_profile)
+
+    cond do
+      Artwork.publishable?(set) -> set
+      Artwork.publishable?(author) -> author
+      true -> nil
+    end
+  end
+
   def list_meditation_sets, do: MeditationSets.list()
 
   @doc """
@@ -217,6 +242,7 @@ defmodule LumenViae.Rosary do
 
   def list_visible_meditation_sets do
     MeditationSets.list(exclude_ids: hidden_meditation_set_ids())
+    |> MeditationSets.preload_author_profile()
     |> resolve_attribution()
   end
 
@@ -227,6 +253,7 @@ defmodule LumenViae.Rosary do
   def list_visible_meditation_sets_by_category(category) do
     MeditationSets.list(category: category, exclude_ids: hidden_meditation_set_ids())
     |> MeditationSets.preload_meditations()
+    |> MeditationSets.preload_author_profile()
     |> resolve_attribution()
   end
 
@@ -318,6 +345,7 @@ defmodule LumenViae.Rosary do
   """
   def fetch_visible_meditation_set(id) do
     with set when not is_nil(set) <- MeditationSets.get(id),
+         set = MeditationSets.preload_author_profile(set),
          set = %{set | meditations: list_meditations_in_set(set.id)},
          false <- Enum.any?(set.meditations, &Meditations.archived?/1) do
       {:ok, resolve_attribution(set)}

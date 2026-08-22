@@ -27,7 +27,9 @@ defmodule LumenViaeWeb.API.ArtworkJSON do
   }
 
   @doc """
-  Renders the artwork block for a record, or the absent block.
+  Renders the artwork block for a record, or the absent block. Callers
+  rendering a set pass `Rosary.artwork_record(set)`, which is the set, its
+  linked author, or nil; a nil renders as absent.
 
   Artwork is served only when it has both alt text and a licence.
   Describing the painting is what makes the hero usable with VoiceOver, and
@@ -35,6 +37,8 @@ defmodule LumenViaeWeb.API.ArtworkJSON do
   provenance; artwork with neither is not ready to be published, whatever
   entry point uploaded it.
   """
+  def data(nil), do: @absent
+
   def data(record) do
     if Artwork.publishable?(record) do
       %{

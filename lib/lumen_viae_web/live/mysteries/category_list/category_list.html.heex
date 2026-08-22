@@ -94,16 +94,17 @@
 
       <div class="grid md:grid-cols-2 gap-6">
         <%= for set <- @meditation_sets do %>
-          <%= if LumenViae.Rosary.Artwork.publishable?(set) do %>
+          <% artwork = Rosary.artwork_record(set) %>
+          <%= if artwork do %>
             <.link
               navigate={"/meditation-sets/#{set.id}/pray"}
               class="group relative flex flex-col justify-end min-h-[24rem] rounded-2xl border border-gold/35 shadow-soft overflow-hidden hover:shadow-ornate hover:-translate-y-1 active:scale-[0.98] transition-all duration-300"
             >
               <img
-                src={Rosary.artwork_url(set)}
-                alt={set.image_alt}
+                src={Rosary.artwork_url(artwork)}
+                alt={artwork.image_alt}
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                style={"object-position: #{LumenViae.Rosary.Artwork.object_position(set.image_focal_x, set.image_focal_y)}"}
+                style={"object-position: #{LumenViae.Rosary.Artwork.object_position(artwork.image_focal_x, artwork.image_focal_y)}"}
               />
               <div
                 class="absolute inset-0 bg-gradient-to-b from-transparent via-navy/20 to-navy/70"
