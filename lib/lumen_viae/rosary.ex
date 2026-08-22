@@ -12,6 +12,7 @@ defmodule LumenViae.Rosary do
     * `LumenViae.Rosary.MeditationSets`
     * `LumenViae.Rosary.SetMemberships`
     * `LumenViae.Rosary.Completions`
+    * `LumenViae.Rosary.Authors`
 
   Simple, single-resource operations pass straight through. The work this
   module does itself is composition across resources, because a Secondary
@@ -30,6 +31,7 @@ defmodule LumenViae.Rosary do
   See `docs/ARCHITECTURE.md` for the rules this layout follows.
   """
 
+  alias LumenViae.Rosary.Authors
   alias LumenViae.Rosary.Completions
   alias LumenViae.Rosary.MeditationSets
   alias LumenViae.Rosary.Meditations
@@ -124,6 +126,24 @@ defmodule LumenViae.Rosary do
   def audio_url_ttl do
     Application.get_env(:lumen_viae, :audio_url_ttl_seconds, 3600)
   end
+
+  ## Authors
+
+  defdelegate list_authors(), to: Authors, as: :list
+  defdelegate get_author!(id), to: Authors, as: :get!
+  defdelegate create_author(attrs \\ %{}), to: Authors, as: :create
+  defdelegate update_author(author, attrs), to: Authors, as: :update
+  defdelegate change_author(author, attrs \\ %{}), to: Authors, as: :change
+  defdelegate delete_author(author), to: Authors, as: :delete
+  defdelegate update_author_artwork(author, attrs), to: Authors, as: :update_artwork
+
+  defdelegate update_author_artwork_metadata(author, attrs),
+    to: Authors,
+    as: :update_artwork_metadata
+
+  defdelegate change_author_artwork(author, attrs \\ %{}),
+    to: Authors,
+    as: :change_artwork
 
   ## Meditation sets
 

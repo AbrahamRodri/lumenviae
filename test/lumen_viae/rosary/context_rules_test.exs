@@ -12,7 +12,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   @domain_root "lib/lumen_viae/rosary"
   @primary_context "lib/lumen_viae/rosary.ex"
 
-  @secondary_contexts ~w(mysteries meditations meditation_sets set_memberships completions)
+  @secondary_contexts ~w(mysteries meditations meditation_sets set_memberships completions authors)
 
   # Value modules hold shared vocabulary, not state or queries, so any layer
   # may call them (see docs/ARCHITECTURE.md, "Value modules").
