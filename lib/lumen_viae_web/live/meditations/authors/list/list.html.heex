@@ -1,0 +1,82 @@
+<.admin_page active="authors" title="Authors" flash={@flash} max_width="max-w-5xl">
+  <:actions>
+    <.link
+      navigate="/admin/authors/new"
+      class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
+    >
+      New Author
+    </.link>
+  </:actions>
+
+  <div class="bg-white border-l-4 border-gold p-8">
+    <p class="font-work-sans text-brown text-sm mb-6">
+      An author's portrait is uploaded once, here, and the app shows it for every
+      linked set that has no painting of its own. Link sets to an author on the
+      set's edit page.
+    </p>
+
+    <%= if @authors == [] do %>
+      <p class="font-work-sans text-brown italic">
+        No authors yet. Create one, upload their portrait, then link their sets to it.
+      </p>
+    <% else %>
+      <div class="space-y-2">
+        <%= for author <- @authors do %>
+          <div class="flex items-center justify-between bg-cream p-3 rounded">
+            <div class="flex items-center gap-4">
+              <%= if author.image_key do %>
+                <img
+                  src={Rosary.artwork_url(author)}
+                  alt={author.image_alt || ""}
+                  class="w-12 h-12 object-cover rounded"
+                  style={"object-position: #{Artwork.object_position(author.image_focal_x, author.image_focal_y)}"}
+                />
+              <% else %>
+                <div class="w-12 h-12 rounded bg-cream-dark flex items-center justify-center">
+                  <span class="font-cinzel text-brown-light text-lg">
+                    {String.first(author.name)}
+                  </span>
+                </div>
+              <% end %>
+
+              <div>
+                <span class="font-work-sans text-navy">{author.name}</span>
+                <%= case portrait_state(author) do %>
+                  <% :served -> %>
+                    <span class="ml-2 inline-block px-2 py-0.5 bg-navy text-cream font-work-sans text-xs rounded uppercase tracking-wide">
+                      Portrait served
+                    </span>
+                  <% :incomplete -> %>
+                    <span class="ml-2 inline-block px-2 py-0.5 bg-caution-surface text-caution-strong font-work-sans text-xs rounded uppercase tracking-wide">
+                      Needs description or licence
+                    </span>
+                  <% :none -> %>
+                    <span class="ml-2 inline-block px-2 py-0.5 bg-cream-dark text-brown font-work-sans text-xs rounded uppercase tracking-wide">
+                      No portrait
+                    </span>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <.link
+                navigate={"/admin/authors/#{author.id}/edit"}
+                class="text-navy hover:text-gold font-work-sans text-sm transition-colors"
+              >
+                Edit
+              </.link>
+              <button
+                phx-click="delete_author"
+                phx-value-id={author.id}
+                data-confirm={"Delete #{author.name}? Their sets keep their own artwork and byline; only the link is removed."}
+                class="text-danger hover:text-danger-strong font-work-sans text-sm"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</.admin_page>

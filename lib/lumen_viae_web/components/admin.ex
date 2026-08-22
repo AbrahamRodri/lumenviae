@@ -11,6 +11,7 @@ defmodule LumenViaeWeb.Components.Admin do
     {"Dashboard", "/admin", "dashboard"},
     {"Meditations", "/admin/meditations", "meditations"},
     {"Meditation Sets", "/admin/meditation-sets", "sets"},
+    {"Authors", "/admin/authors", "authors"},
     {"Mysteries", "/admin/mysteries", "mysteries"},
     {"Import CSV", "/admin/meditations/import", "import"}
   ]
@@ -20,7 +21,7 @@ defmodule LumenViaeWeb.Components.Admin do
   header (title, subtitle, actions), and the page body.
 
   `active` marks the current section in the nav bar: one of "dashboard",
-  "meditations", "sets", "mysteries", "import".
+  "meditations", "sets", "authors", "mysteries", "import".
   """
   attr :active, :string, required: true
   attr :title, :string, required: true

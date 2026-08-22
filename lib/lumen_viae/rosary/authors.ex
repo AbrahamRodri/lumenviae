@@ -39,6 +39,14 @@ defmodule LumenViae.Rosary.Authors do
   end
 
   @doc """
+  Builds a changeset for an author that does not exist yet, so the admin
+  form can render and validate without the web layer naming the schema.
+  """
+  def change_new(attrs \\ %{}) do
+    Author.changeset(%Author{}, attrs)
+  end
+
+  @doc """
   Records a completed portrait upload: the S3 key and the dimensions
   `LumenViae.Curation.ArtworkUpload` measured, plus any metadata supplied
   with it.

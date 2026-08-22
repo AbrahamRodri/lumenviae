@@ -1,0 +1,43 @@
+<.admin_page active="authors" title="Edit Author" flash={@flash} max_width="max-w-5xl">
+  <div>
+    <div class="bg-white border-l-4 border-gold p-8 mb-8">
+      <h3 class="font-cinzel text-2xl text-navy mb-6">Author Details</h3>
+      <.form for={@edit_form} phx-submit="update_author">
+        <div class="space-y-4">
+          <div>
+            <label class="font-work-sans text-navy font-semibold block mb-2">Name</label>
+            <input
+              type="text"
+              name={@edit_form[:name].name}
+              value={@edit_form[:name].value || ""}
+              required
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
+              placeholder="e.g., Venerable Fulton J. Sheen"
+            />
+            <%= for error <- @edit_form[:name].errors do %>
+              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
+            <% end %>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </.form>
+    </div>
+
+    <div class="mt-8 text-center">
+      <.link
+        navigate="/admin/authors"
+        class="inline-block font-work-sans text-navy hover:text-gold transition-colors"
+      >
+        &larr; Back to Authors
+      </.link>
+    </div>
+  </div>
+</.admin_page>

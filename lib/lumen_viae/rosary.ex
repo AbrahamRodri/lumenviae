@@ -134,6 +134,7 @@ defmodule LumenViae.Rosary do
   defdelegate create_author(attrs \\ %{}), to: Authors, as: :create
   defdelegate update_author(author, attrs), to: Authors, as: :update
   defdelegate change_author(author, attrs \\ %{}), to: Authors, as: :change
+  defdelegate change_new_author(attrs \\ %{}), to: Authors, as: :change_new
   defdelegate delete_author(author), to: Authors, as: :delete
   defdelegate update_author_artwork(author, attrs), to: Authors, as: :update_artwork
 

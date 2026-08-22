@@ -79,6 +79,10 @@ defmodule LumenViaeWeb.Router do
     live "/meditation-sets/new", Live.Meditations.Sets.New
     live "/meditation-sets/:id/edit", Live.Meditations.Sets.Edit
 
+    live "/authors", Live.Meditations.Authors.List
+    live "/authors/new", Live.Meditations.Authors.New
+    live "/authors/:id/edit", Live.Meditations.Authors.Edit
+
     # Mysteries management
     live "/mysteries", Live.Mysteries.List
     live "/mysteries/new", Live.Mysteries.New

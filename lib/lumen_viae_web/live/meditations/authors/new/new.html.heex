@@ -1,0 +1,41 @@
+<.admin_page active="authors" title="New Author" flash={@flash} max_width="max-w-3xl">
+  <div class="bg-white border-l-4 border-gold p-8">
+    <.form for={@author_form} phx-submit="create_author">
+      <div class="space-y-4">
+        <div>
+          <label class="font-work-sans text-navy font-semibold block mb-2">Name</label>
+          <input
+            type="text"
+            name={@author_form[:name].name}
+            value={@author_form[:name].value || ""}
+            required
+            class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
+            placeholder="e.g., Venerable Fulton J. Sheen"
+          />
+          <p class="mt-2 text-xs text-brown-light font-work-sans">
+            Written the way it appears in bylines, title and all.
+          </p>
+          <%= for error <- @author_form[:name].errors do %>
+            <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
+          <% end %>
+        </div>
+
+        <div class="flex justify-between items-center pt-4">
+          <.link
+            navigate="/admin/authors"
+            class="font-work-sans text-navy hover:text-gold transition-colors"
+          >
+            &larr; Cancel
+          </.link>
+
+          <button
+            type="submit"
+            class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
+          >
+            Create Author
+          </button>
+        </div>
+      </div>
+    </.form>
+  </div>
+</.admin_page>
