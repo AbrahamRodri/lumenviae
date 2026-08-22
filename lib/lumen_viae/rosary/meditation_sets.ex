@@ -122,6 +122,14 @@ defmodule LumenViae.Rosary.MeditationSets do
     Repo.preload(sets, :meditations)
   end
 
+  @doc """
+  Preloads the linked author record on a set or a list of sets, for the
+  public surfaces that fall back to the author's portrait.
+  """
+  def preload_author_profile(set_or_sets) do
+    Repo.preload(set_or_sets, :author_profile)
+  end
+
   def create(attrs \\ %{}) do
     %MeditationSet{}
     |> MeditationSet.changeset(attrs)

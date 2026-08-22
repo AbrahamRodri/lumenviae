@@ -57,6 +57,33 @@
             <% end %>
           </div>
 
+          <div>
+            <label class="font-work-sans text-navy font-semibold block mb-2">
+              Linked Author (Optional)
+            </label>
+            <select
+              name={@edit_form[:author_id].name}
+              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
+            >
+              <option value="">None</option>
+              <%= for author <- @authors do %>
+                <option
+                  value={author.id}
+                  selected={to_string(@edit_form[:author_id].value) == to_string(author.id)}
+                >
+                  {author.name}
+                </option>
+              <% end %>
+            </select>
+            <p class="mt-2 text-xs text-brown-light font-work-sans">
+              When this set has no painting of its own, the app shows the linked
+              author's portrait instead. Manage authors under the Authors tab.
+            </p>
+            <%= for error <- @edit_form[:author_id].errors do %>
+              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
+            <% end %>
+          </div>
+
           <div class="grid md:grid-cols-2 gap-4">
             <div>
               <label class="font-work-sans text-navy font-semibold block mb-2">

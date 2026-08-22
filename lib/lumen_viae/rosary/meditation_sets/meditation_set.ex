@@ -27,6 +27,11 @@ defmodule LumenViae.Rosary.MeditationSets.MeditationSet do
     field :derived_author, :string, virtual: true
     field :derived_source, :string, virtual: true
 
+    # The linked author record, distinct from the `author` byline string
+    # above: the byline is display text, the link is what lets the set
+    # inherit the author's portrait when it has no artwork of its own.
+    belongs_to :author_profile, LumenViae.Rosary.Authors.Author, foreign_key: :author_id
+
     # Artwork. Written by the two changesets below, never by `changeset/2`,
     # for the same reason `archived_at` is not castable on `Meditation`.
     field :image_key, :string
@@ -52,9 +57,10 @@ defmodule LumenViae.Rosary.MeditationSets.MeditationSet do
   @doc false
   def changeset(meditation_set, attrs) do
     meditation_set
-    |> cast(attrs, [:name, :category, :description, :labels, :author, :source])
+    |> cast(attrs, [:name, :category, :description, :labels, :author, :source, :author_id])
     |> validate_required([:name, :category])
     |> validate_inclusion(:category, Categories.slugs())
+    |> foreign_key_constraint(:author_id, message: "does not exist")
     |> normalize_labels()
     |> validate_subset(:labels, Labels.vocabulary(),
       message: "contains a label outside the managed vocabulary"

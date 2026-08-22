@@ -16,6 +16,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
      socket
      |> assign(:page_title, "Edit Meditation Set")
      |> assign(:meditation_set, set)
+     |> assign(:authors, Rosary.list_authors())
      |> assign(:meditations, meditations)
      |> assign(:available_authors, Filtering.available_authors(meditations))
      |> assign(:filter_category, nil)
