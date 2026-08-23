@@ -570,8 +570,10 @@ app's analytics silently to zero.
 `LumenViae.RateLimit` caps completions per address per hour, and is the part
 that still holds when the agent string is a lie. It is keyed on the full
 address, not the stored prefix, because telling neighbours apart is the
-whole job. It is per-machine ETS; scaling past one Fly machine needs a
-shared store rather than a bigger number.
+whole job. It is per-machine ETS, and production runs two machines,
+so the real ceiling is twice the configured number. That is fine for what
+the limit is for - stopping a script, not metering - but it is not a precise
+quota. Making it exact needs a shared store, not a smaller number.
 
 `LumenViaeWeb.ClientIP` finds the address, and reads only `Fly-Client-IP`
 and the socket peer. `X-Forwarded-For` is deliberately not read from either

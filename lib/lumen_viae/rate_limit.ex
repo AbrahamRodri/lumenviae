@@ -3,11 +3,20 @@ defmodule LumenViae.RateLimit do
   A fixed-window counter in ETS, used to cap how often one caller can write
   a completion.
 
-  This is deliberately the smallest thing that works. It is per-machine
-  rather than shared, so two Fly machines would each allow the full budget;
-  at one machine with `min_machines_running = 1` that is the same number,
-  and if the app ever scales out the honest fix is a shared store rather
-  than pretending this one is distributed.
+  This is deliberately the smallest thing that works, and it is per-machine
+  rather than shared. **Production now runs two machines**, so each holds
+  its own counters and the effective ceiling is twice the number passed in:
+  a caller landing on one machine and then the other gets both budgets.
+
+  That is accepted rather than overlooked. The limit exists to stop a script
+  writing thousands of completions, and 40 an hour stops that as well as 20
+  does against a site seeing between one and two a day. What it is not is a
+  precise quota, and it should not be described as one.
+
+  If it ever needs to be exact, the honest fix is a shared store - a
+  Postgres table or Redis - rather than dividing the number by the machine
+  count and pretending this is distributed, which breaks the moment the
+  count changes or the load balancer stops splitting traffic evenly.
 
   A fixed window lets a caller spend the whole budget at the very end of
   one window and again at the start of the next. That burst is fine here:

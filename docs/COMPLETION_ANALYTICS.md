@@ -102,7 +102,7 @@ Unchanged. Still `201` with the three keys the app already decodes, so no
 | Status | `error.code` | Meaning |
 | --- | --- | --- |
 | `403` | `automated_client` | The request's user agent looks like a crawler |
-| `429` | `rate_limited` | More than 20 completions from this address this hour |
+| `429` | `rate_limited` | Too many completions from this address this hour (20 per machine, and production runs two) |
 
 Neither should happen to a real person using the app. If either starts
 appearing, something is wrong with the request rather than with the person:
@@ -164,7 +164,9 @@ fly secrets set GEOLOCATION_ENABLED=false
 `ipapi.co` is the default because it answers over **HTTPS** without an API
 key, on a free tier of 1,000 lookups a day. Answers are cached by address
 for 24 hours, so somebody praying a novena from the same sofa costs one
-lookup rather than nine.
+lookup rather than nine. The cache is per-machine, so with two machines an
+address can be looked up twice - still far inside the daily allowance at
+this volume.
 
 `ip_api_com` is more generous — 45 requests a minute — but its free tier is
 **plaintext HTTP only**, which means every visitor's address crosses the
