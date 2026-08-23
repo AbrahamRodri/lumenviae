@@ -5,6 +5,9 @@ defmodule LumenViaeWeb.Router do
     plug :accepts, ["html"]
     plug LumenViaeWeb.Plugs.CanonicalHost
     plug :fetch_session
+    # Must follow :fetch_session, and must come before any LiveView that
+    # reads the address out of the session. See Plugs.PutClientIP.
+    plug LumenViaeWeb.Plugs.PutClientIP
     plug :fetch_live_flash
     plug :put_root_layout, html: {LumenViaeWeb.Layouts, :root}
     plug :protect_from_forgery

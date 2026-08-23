@@ -573,11 +573,30 @@ address, not the stored prefix, because telling neighbours apart is the
 whole job. It is per-machine ETS; scaling past one Fly machine needs a
 shared store rather than a bigger number.
 
-`LumenViaeWeb.ClientIP` finds the address, and its header order is a
-security boundary rather than a preference. `Fly-Client-IP` first, then the
-**rightmost** `X-Forwarded-For` entry, then the socket peer. The leftmost
-forwarded entry is caller-supplied: reading it would let anyone pick which
-rate-limit bucket they spend and which country their completions land in.
+`LumenViaeWeb.ClientIP` finds the address, and reads only `Fly-Client-IP`
+and the socket peer. `X-Forwarded-For` is deliberately not read from either
+end.
+
+That is the correction to a bug worth keeping in mind. The header was read
+rightmost-first, on the reasoning that Fly appends the client's address so
+the left of it - which is caller-supplied and spoofable - could be ignored.
+Fly appends *its own* address. The first Rosary recorded in production came
+from `2a09:8280:1::`, which is `FLYIO-V6-ANYCAST`, and was duly reported as
+prayed in Chicago. Every completion would have agreed with every other, and
+the figures would have looked entirely plausible.
+
+The general lesson is that which entry in `X-Forwarded-For` is the client
+depends on the proxy layout, which this module cannot know. So it reads the
+two unambiguous things instead. **Moving off Fly, or putting a CDN in front
+of it, means revisiting this module** - `Fly-Client-IP` would stop arriving
+and every request would be attributed to the peer, which behind a proxy is
+the proxy.
+
+A LiveView cannot see `Fly-Client-IP` at all, because `connect_info`'s
+`:x_headers` collects only headers beginning with `x-`. So
+`LumenViaeWeb.Plugs.PutClientIP` reads it during the ordinary HTTP request
+and puts it in the session, which is signed and therefore not editable by
+the caller, and the prayer LiveView reads it from there.
 
 `priv/static/robots.txt` asks well-behaved crawlers away from the prayer
 flow, the console and the API, and asks the AI-training and SEO crawlers

@@ -1,89 +1,67 @@
 defmodule LumenViaeWeb.ClientIP do
   @moduledoc """
-  Finds the address a request actually came from, and reduces it to
-  something coarse enough to store.
+  Finds the address a request actually came from.
 
-  ## Why not just read `X-Forwarded-For` left to right
+  ## Why `X-Forwarded-For` is not read at all
 
-  The conventional reading - leftmost entry is the original client - is the
-  wrong one behind a proxy, because the leftmost entry is whatever the
-  caller typed. Anyone can open a terminal and send
+  It was, once, and it was wrong. The reasoning was that Fly appends the
+  client's address to the header, so the *rightmost* entry would be the
+  real one and the leftmost - which is caller-supplied and therefore
+  spoofable - could be ignored.
 
-      X-Forwarded-For: 8.8.8.8
+  Fly appends its own address. The first Rosary this recorded in production
+  came from `2a09:8280:1::`, which is `FLYIO-V6-ANYCAST`, and the lookup
+  duly reported the location of Fly's proxy. Every completion would have
+  agreed with every other one, and the figures would have looked plausible
+  and meant nothing.
 
-  and Fly's proxy will *append* the real address rather than replace the
-  header, leaving `8.8.8.8, 203.0.113.7`. Trusting the left of that hands
-  every visitor a free hand in the analytics and a way around a per-address
-  rate limit, which is the more expensive half.
+  The lesson is not "use the other end of the header". It is that the
+  correct entry in `X-Forwarded-For` depends on how many proxies sit in
+  front of the application and what each of them does, which is knowledge
+  this module has no reliable way to hold. So it reads the two things that
+  are unambiguous:
 
-  So the order here is: `Fly-Client-IP` first, which Fly sets itself and
-  overwrites on the way in; then the *rightmost* `X-Forwarded-For` entry,
-  which is the one the last proxy appended; and only then the socket peer,
-  which is correct when nothing is in front of the application at all.
+    * `Fly-Client-IP`, which Fly sets itself and overwrites on the way in,
+      so a caller cannot forge it; and
+    * the socket peer, which is correct when nothing is in front of the
+      application at all.
 
-  `@trusted_hops` is 1 because exactly one proxy sits in front of this app
-  in production. Putting a CDN in front of Fly would make it 2, and leaving
-  it at 1 would then read the CDN's address as the visitor's.
+  **If this app ever moves off Fly, or gains a CDN in front of it, this
+  module needs revisiting** - `Fly-Client-IP` would stop arriving and every
+  request would be attributed to the peer, which behind a proxy is the
+  proxy.
   """
 
-  @trusted_hops 1
+  @header "fly-client-ip"
 
   @doc """
-  The client address for a `Plug.Conn`, as a string, or `nil` if there is
-  nothing usable.
+  The client address for a `Plug.Conn`, as a string, or `nil`.
   """
   def from_conn(%Plug.Conn{} = conn) do
-    fly_client_ip(&Plug.Conn.get_req_header(conn, &1)) ||
-      forwarded_for(&Plug.Conn.get_req_header(conn, &1)) ||
-      peer_address(conn.remote_ip)
+    case Plug.Conn.get_req_header(conn, @header) do
+      [value | _] -> presence(value) || peer_address(conn.remote_ip)
+      [] -> peer_address(conn.remote_ip)
+    end
   end
 
   @doc """
-  The client address for a LiveView socket.
+  The client address a LiveView was given, which arrives through the
+  session rather than through `connect_info`.
 
-  Reads the same headers, which reach a LiveView only when the endpoint
-  asks for `:x_headers` and `:peer_data` in its socket `connect_info`.
-  Returns `nil` on the disconnected mount, where there is no connect info
-  to read - which is harmless here, because a completion is only ever
-  written from a connected socket.
+  `connect_info`'s `:x_headers` collects only headers beginning with `x-`,
+  so `Fly-Client-IP` never reaches a socket. Rather than fall back to a
+  header whose ordering cannot be trusted, `LumenViaeWeb.Plugs.PutClientIP`
+  reads the authoritative one during the ordinary HTTP request and puts it
+  in the session, which is signed and so cannot be edited by the caller.
   """
-  def from_connect_info(x_headers, peer_data) do
-    headers = x_headers || []
-    get = fn name -> for {^name, value} <- headers, do: value end
+  def from_session(%{"client_ip" => ip}) when is_binary(ip), do: presence(ip)
+  def from_session(_session), do: nil
 
-    fly_client_ip(get) || forwarded_for(get) || peer_address(peer_data)
+  defp peer_address(address) when is_tuple(address) do
+    address |> :inet.ntoa() |> to_string()
   end
 
-  defp fly_client_ip(get) do
-    case get.("fly-client-ip") do
-      [value | _] -> presence(value)
-      [] -> nil
-    end
-  end
-
-  defp forwarded_for(get) do
-    case get.("x-forwarded-for") do
-      [] ->
-        nil
-
-      values ->
-        values
-        |> Enum.join(",")
-        |> String.split(",")
-        |> Enum.map(&String.trim/1)
-        |> Enum.reject(&(&1 == ""))
-        |> Enum.reverse()
-        |> Enum.drop(@trusted_hops - 1)
-        |> List.first()
-        |> presence()
-    end
-  end
-
-  defp peer_address(%{address: address}), do: peer_address(address)
-  defp peer_address(address) when is_tuple(address), do: address |> :inet.ntoa() |> to_string()
   defp peer_address(_other), do: nil
-
-  defp presence(nil), do: nil
 
   defp presence(value) when is_binary(value) do
     case String.trim(value) do
@@ -91,4 +69,6 @@ defmodule LumenViaeWeb.ClientIP do
       trimmed -> trimmed
     end
   end
+
+  defp presence(_other), do: nil
 end

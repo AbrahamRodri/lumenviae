@@ -118,9 +118,16 @@ worth an error in front of somebody who has just finished praying.
 
 ## The website
 
-Nothing to do. The prayer LiveView reads the address and user agent from the
-socket's `connect_info` and records `source: "web"` when the Complete button
-is pressed.
+Nothing to do. `LumenViaeWeb.Plugs.PutClientIP` reads `Fly-Client-IP` during
+the HTTP request and puts it in the session; the prayer LiveView reads it
+from there, reads the user agent from the socket, and records
+`source: "web"` when Complete is pressed.
+
+The address cannot be taken from the socket directly - `connect_info` only
+carries headers beginning with `x-`, so `Fly-Client-IP` never reaches it,
+and `X-Forwarded-For` cannot be read without knowing the proxy layout. An
+earlier version guessed at that and attributed every website Rosary to Fly's
+own proxy in Chicago.
 
 ---
 

@@ -62,14 +62,24 @@ defmodule LumenViaeWeb.Live.Pray.CompletionContextTest do
 
     conn
     |> Plug.Conn.put_req_header("user-agent", @browser)
-    |> Plug.Conn.put_req_header("x-forwarded-for", "8.8.8.8, 203.0.113.44")
+    |> Plug.Conn.put_req_header("fly-client-ip", "203.0.113.44")
     |> press_complete(set)
 
-    completion = last_completion()
+    assert last_completion().ip_prefix == "203.0.113.0"
+  end
 
-    # The rightmost entry is the one the proxy appended; the leftmost is
-    # whatever the caller typed and must not be believed.
-    assert completion.ip_prefix == "203.0.113.0"
+  test "a forged forwarded header is not what gets recorded", %{conn: conn} do
+    set = create_set()
+
+    conn
+    |> Plug.Conn.put_req_header("user-agent", @browser)
+    |> Plug.Conn.put_req_header("fly-client-ip", "203.0.113.44")
+    |> Plug.Conn.put_req_header("x-forwarded-for", "8.8.8.8, 2a09:8280:1::")
+    |> press_complete(set)
+
+    # Neither the caller's claim nor Fly's own proxy address. The second is
+    # what this used to record, for every Rosary prayed on the website.
+    assert last_completion().ip_prefix == "203.0.113.0"
   end
 
   test "a crawler that walks the page and trips the button records nothing", %{conn: conn} do

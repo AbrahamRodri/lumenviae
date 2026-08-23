@@ -116,11 +116,12 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
       agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Version/17.2 Safari/605.1.15"
       real = "198.51.102.#{rem(System.unique_integer([:positive]), 250)}"
 
-      # The caller claims to be a different address each time; Fly appends
-      # the one it actually came from on the right.
+      # The caller claims a different address each time. Only Fly's header
+      # counts, and Fly overwrites it on the way in.
       request = fn claimed ->
         conn
-        |> Plug.Conn.put_req_header("x-forwarded-for", "#{claimed}, #{real}")
+        |> Plug.Conn.put_req_header("fly-client-ip", real)
+        |> Plug.Conn.put_req_header("x-forwarded-for", claimed)
         |> as(agent)
         |> complete(set)
       end

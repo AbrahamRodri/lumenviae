@@ -16,7 +16,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   @default_completions_per_hour 20
 
   @impl true
-  def mount(%{"set_id" => set_id}, _session, socket) do
+  def mount(%{"set_id" => set_id}, session, socket) do
     set = Rosary.get_visible_meditation_set_with_ordered_meditations!(set_id)
 
     case set.meditations do
@@ -31,7 +31,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
          |> assign(:current_index, 0)
          |> assign(:completion_tracked, false)
          |> assign(:mobile_mode_enabled, false)
-         |> assign(:completion_context, completion_context(socket))
+         |> assign(:completion_context, completion_context(socket, session))
          |> assign(:page_title, set.name)}
 
       [] ->
@@ -210,22 +210,21 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   ## Completion analytics
 
-  # Read once at mount rather than at the moment Complete is pressed,
-  # because connect info belongs to the connection and is not available
-  # later. `nil` on the disconnected mount is correct and harmless: the
-  # button that records a completion cannot be pressed until the socket has
-  # connected and mounted again with the real values.
-  defp completion_context(socket) do
-    user_agent = get_connect_info(socket, :user_agent)
-
+  # The address comes from the session, put there by Plugs.PutClientIP
+  # during the HTTP request. It cannot come from `connect_info`: the only
+  # header a socket is given is `X-Forwarded-For`, and reading that without
+  # knowing the proxy layout is what previously recorded every Rosary as
+  # having been prayed from Fly's proxy.
+  #
+  # The user agent does reach the socket, and is read here rather than at
+  # the moment Complete is pressed because connect info belongs to the
+  # connection. `nil` on the disconnected mount is harmless: the button
+  # cannot be pressed until the socket has connected and mounted again.
+  defp completion_context(socket, session) do
     %{
       source: "web",
-      ip:
-        ClientIP.from_connect_info(
-          get_connect_info(socket, :x_headers),
-          get_connect_info(socket, :peer_data)
-        ),
-      bot?: BotDetection.bot?(user_agent)
+      ip: ClientIP.from_session(session),
+      bot?: BotDetection.bot?(get_connect_info(socket, :user_agent))
     }
   end
 
