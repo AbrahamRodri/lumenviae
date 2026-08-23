@@ -88,3 +88,8 @@ config :swoosh, :api_client, false
 
 # Admin password for development (use a strong password in production via env var)
 config :lumen_viae, :admin_password, System.get_env("ADMIN_PASSWORD") || "admin123"
+
+# Skip the admin login locally: /admin is reachable straight from the browser
+# with no password. Development only - no other config file sets this, and
+# runtime.exs never reads it.
+config :lumen_viae, :skip_admin_auth, true

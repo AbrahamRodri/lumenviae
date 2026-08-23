@@ -1,35 +1,33 @@
-<.admin_page active="authors" title="Edit Author" flash={@flash} max_width="max-w-5xl">
-  <div>
-    <div class="bg-white border-l-4 border-gold p-8 mb-8">
-      <h3 class="font-cinzel text-2xl text-navy mb-6">Author Details</h3>
-      <.form for={@edit_form} phx-submit="update_author">
-        <div class="space-y-4">
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">Name</label>
-            <input
-              type="text"
-              name={@edit_form[:name].name}
-              value={@edit_form[:name].value || ""}
-              required
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="e.g., Venerable Fulton J. Sheen"
-            />
-            <%= for error <- @edit_form[:name].errors do %>
-              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-            <% end %>
-          </div>
+<.admin_page
+  active="authors"
+  title={@author.name}
+  subtitle="Author · their portrait stands in for linked sets with no painting of their own."
+  flash={@flash}
+  max_width="max-w-5xl"
+>
+  <:actions>
+    <.link navigate="/admin/authors" class="admin-btn admin-btn-secondary">Back to list</.link>
+  </:actions>
 
-          <div class="flex justify-end">
-            <button
-              type="submit"
-              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
-            >
-              Save Changes
-            </button>
-          </div>
+  <div class="space-y-5">
+    <.form for={@edit_form} phx-submit="update_author">
+      <.panel title="Author details">
+        <.field label="Name" required errors={@edit_form[:name].errors}>
+          <input
+            type="text"
+            name={@edit_form[:name].name}
+            value={@edit_form[:name].value || ""}
+            required
+            class="admin-input"
+            placeholder="e.g. Venerable Fulton J. Sheen"
+          />
+        </.field>
+
+        <div class="flex justify-end mt-6 pt-4 border-t border-admin-hairline">
+          <button type="submit" class="admin-btn admin-btn-primary">Save changes</button>
         </div>
-      </.form>
-    </div>
+      </.panel>
+    </.form>
 
     <LumenViaeWeb.Components.ArtworkSection.artwork_section
       record={@author}
@@ -40,14 +38,5 @@
       licenses={@license_options}
       rules={@artwork_rules}
     />
-
-    <div class="mt-8 text-center">
-      <.link
-        navigate="/admin/authors"
-        class="inline-block font-work-sans text-navy hover:text-gold transition-colors"
-      >
-        &larr; Back to Authors
-      </.link>
-    </div>
   </div>
 </.admin_page>

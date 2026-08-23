@@ -1,14 +1,23 @@
 defmodule LumenViaeWeb.Live.Pray.Index do
   use LumenViaeWeb, :live_view
+
+  alias LumenViae.RateLimit
   alias LumenViae.Rosary
+  alias LumenViaeWeb.BotDetection
+  alias LumenViaeWeb.ClientIP
+
+  # A generous ceiling on Rosaries from one address in an hour. A family
+  # sharing a connection, or a parish behind one router, stays well under
+  # it; a script does not. Praying twenty Rosaries in an hour is not a
+  # thing a person does, and this is the cheapest place to say so.
+  #
+  # Configurable because the whole test suite connects from 127.0.0.1 and
+  # would otherwise share a single budget between unrelated tests.
+  @default_completions_per_hour 20
 
   @impl true
   def mount(%{"set_id" => set_id}, _session, socket) do
     set = Rosary.get_visible_meditation_set_with_ordered_meditations!(set_id)
-
-    # TODO: IP-based geolocation tracking is disabled for now
-    # To enable: uncomment the code below and in maybe_track_completion
-    # ip_address = get_connect_info(socket, :peer_data) |> get_ip_address()
 
     case set.meditations do
       [_ | _] = meditations ->
@@ -22,6 +31,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
          |> assign(:current_index, 0)
          |> assign(:completion_tracked, false)
          |> assign(:mobile_mode_enabled, false)
+         |> assign(:completion_context, completion_context(socket))
          |> assign(:page_title, set.name)}
 
       [] ->
@@ -40,7 +50,6 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     new_index = (current + 1) |> clamp_index(total)
 
     socket
-    |> maybe_track_completion(new_index)
     |> push_patch(
       to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled)
     )
@@ -72,11 +81,26 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       |> clamp_index(total)
 
     socket
-    |> maybe_track_completion(new_index)
     |> push_patch(
       to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled)
     )
     |> then(&{:noreply, &1})
+  end
+
+  # The one place a completion is recorded. Pressing this is a deliberate
+  # act at the end of the last mystery; arriving at the last mystery is not,
+  # and counting arrivals meant every crawler that walked the set left a
+  # prayed Rosary behind it.
+  def handle_event("complete", _params, socket) do
+    socket =
+      if socket.assigns.completion_tracked do
+        socket
+      else
+        maybe_record_completion(socket)
+        assign(socket, :completion_tracked, true)
+      end
+
+    {:noreply, push_navigate(socket, to: ~p"/mysteries/#{socket.assigns.set.category}")}
   end
 
   def handle_event("key_nav", %{"key" => "ArrowRight"}, socket) do
@@ -184,16 +208,62 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   defp roman(n), do: Integer.to_string(n)
 
-  defp maybe_track_completion(socket, new_index) do
-    # Track completion when reaching the final meditation for the first time
-    # Only track once per session to avoid double-counting if user navigates back
-    if new_index == socket.assigns.total_count - 1 && !socket.assigns.completion_tracked do
-      # TODO: IP tracking disabled - passing nil for now
-      # To enable: pass socket.assigns.ip_address instead of nil
-      Rosary.record_completion(socket.assigns.set.id, nil)
-      assign(socket, :completion_tracked, true)
-    else
-      socket
+  ## Completion analytics
+
+  # Read once at mount rather than at the moment Complete is pressed,
+  # because connect info belongs to the connection and is not available
+  # later. `nil` on the disconnected mount is correct and harmless: the
+  # button that records a completion cannot be pressed until the socket has
+  # connected and mounted again with the real values.
+  defp completion_context(socket) do
+    user_agent = get_connect_info(socket, :user_agent)
+
+    %{
+      source: "web",
+      ip:
+        ClientIP.from_connect_info(
+          get_connect_info(socket, :x_headers),
+          get_connect_info(socket, :peer_data)
+        ),
+      bot?: BotDetection.bot?(user_agent)
+    }
+  end
+
+  # Two things can stop a completion being written, and they guard against
+  # different problems.
+  #
+  # The bot check is about the figures: a crawler that runs the LiveView
+  # and trips the button leaves a Rosary nobody prayed.
+  #
+  # The rate limit is about abuse, and is keyed on the full address rather
+  # than the truncated prefix that gets stored - the whole job here is
+  # telling neighbours apart, which is exactly what truncating destroys.
+  # With no address to key on the limit cannot apply, and the completion is
+  # allowed; that is the disconnected-mount case and a handful of proxies,
+  # not an open door.
+  defp maybe_record_completion(socket) do
+    context = socket.assigns.completion_context
+
+    cond do
+      context.bot? ->
+        :ok
+
+      rate_limited?(context.ip) ->
+        :ok
+
+      true ->
+        Rosary.record_completion(socket.assigns.set.id, context)
+        :ok
     end
+  end
+
+  defp rate_limited?(nil), do: false
+
+  defp rate_limited?(ip) do
+    RateLimit.check("completion:" <> ip, completions_per_hour(), :timer.hours(1)) != :ok
+  end
+
+  defp completions_per_hour do
+    Application.get_env(:lumen_viae, :completions_per_hour, @default_completions_per_hour)
   end
 end

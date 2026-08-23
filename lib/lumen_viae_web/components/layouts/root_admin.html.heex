@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <meta name="robots" content="noindex, nofollow" />
+    <.live_title default="Lumen Viae Console">
+      {assigns[:page_title] || "Console"}
+    </.live_title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
+    </script>
+  </head>
+  <%!-- No site header, no footer, no social meta: the console is a tool, not
+        a page of the site, and the public navigation above it only ever cost
+        vertical room and a second set of links going somewhere else. The way
+        out is in the rail. --%>
+  <body class="bg-admin-canvas">
+    {@inner_content}
+  </body>
+</html>

@@ -1,16 +1,16 @@
 <.admin_page
   active="import"
-  title="Import Meditations from CSV"
-  subtitle="Upload a CSV, review the preview, then run the import with live progress."
+  title="Import from CSV"
+  subtitle="Upload, review the preview, then run the import with live progress."
   flash={@flash}
   max_width="max-w-5xl"
 >
   <%= if @stage == :idle do %>
-    <details class="mb-6 border border-gold/20 rounded-lg">
-      <summary class="cursor-pointer px-4 py-3 font-semibold text-navy hover:bg-cream">
+    <details class="mb-5 bg-admin-surface border border-admin-hairline rounded-lg shadow-admin">
+      <summary class="cursor-pointer px-4 py-3 text-[0.9375rem] font-semibold text-admin-ink">
         CSV format reference
       </summary>
-      <div class="px-4 pb-4 text-sm text-brown">
+      <div class="px-4 pb-4 text-[0.8125rem] text-admin-ink-soft">
         <ul class="list-disc list-inside mt-2 space-y-1">
           <li>
             <strong>mystery_name</strong>
@@ -44,22 +44,22 @@
             <strong>order</strong> (optional) - position within the set; omitted rows are appended
           </li>
         </ul>
-        <p class="mt-3">
+        <p class="mt-3 text-admin-ink-faint">
           Content rules live in docs/MEDITATION_CURATION_GUIDE.md. Generated CSVs belong in priv/repo/imports/.
         </p>
       </div>
     </details>
 
-    <form phx-submit="preview" phx-change="validate" class="mb-6">
-      <div class="border-2 border-dashed border-gold/40 rounded-lg p-8 text-center">
+    <form phx-submit="preview" phx-change="validate" class="mb-5">
+      <div class="bg-admin-surface border border-dashed border-admin-hairline-strong rounded-lg p-8 text-center">
         <.live_file_input upload={@uploads.csv} class="hidden" />
 
         <div class="space-y-4">
           <%= for entry <- @uploads.csv.entries do %>
-            <div class="flex items-center justify-between bg-cream p-4 rounded">
+            <div class="flex items-center justify-between bg-admin-sunken p-3 rounded">
               <div class="flex items-center space-x-3">
                 <svg
-                  class="h-8 w-8 text-gold"
+                  class="h-7 w-7 text-admin-ink-faint"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -72,15 +72,15 @@
                   />
                 </svg>
                 <div class="text-left">
-                  <p class="font-medium">{entry.client_name}</p>
-                  <p class="text-sm text-brown-light">{entry.progress}%</p>
+                  <p class="font-medium text-admin-ink">{entry.client_name}</p>
+                  <p class="text-xs text-admin-ink-faint">{entry.progress}%</p>
                 </div>
               </div>
               <button
                 type="button"
                 phx-click="remove-upload"
                 phx-value-ref={entry.ref}
-                class="text-danger hover:text-danger-strong"
+                class="admin-btn admin-btn-ghost"
               >
                 Remove
               </button>
@@ -91,7 +91,7 @@
             <label for={@uploads.csv.ref} class="cursor-pointer">
               <div class="flex flex-col items-center">
                 <svg
-                  class="h-12 w-12 text-brown-light mb-3"
+                  class="h-10 w-10 text-admin-ink-faint mb-3"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -103,198 +103,174 @@
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                   />
                 </svg>
-                <span class="text-sm font-medium text-brown">Click to upload CSV file</span>
-                <span class="text-xs text-brown-light mt-1">CSV files only</span>
+                <span class="text-[0.8125rem] font-medium text-admin-ink">
+                  Click to choose a CSV, or drop one here
+                </span>
+                <span class="text-xs text-admin-ink-faint mt-1">CSV files only</span>
               </div>
             </label>
           <% end %>
         </div>
 
         <%= for error <- upload_errors(@uploads.csv) do %>
-          <p class="text-danger text-sm mt-2">{error_to_string(error)}</p>
+          <p class="text-danger-strong text-xs mt-2">{error_to_string(error)}</p>
         <% end %>
       </div>
 
-      <%= if @preview_error do %>
-        <div class="mt-4 p-3 bg-danger-surface border border-danger-border rounded text-sm text-danger-strong">
-          {@preview_error}
-        </div>
-      <% end %>
+      <.callout :if={@preview_error} tone="danger">{@preview_error}</.callout>
 
       <%= if @uploads.csv.entries != [] do %>
-        <div class="mt-4 flex justify-end space-x-3">
-          <.link
-            navigate="/admin"
-            class="px-4 py-2 border border-gold/40 rounded hover:bg-cream"
-          >
-            Cancel
-          </.link>
-          <button type="submit" class="px-4 py-2 bg-navy text-white rounded hover:bg-navy-dark">
-            Preview Import
-          </button>
+        <div class="mt-4 flex justify-end gap-2">
+          <.link navigate="/admin" class="admin-btn admin-btn-ghost">Cancel</.link>
+          <button type="submit" class="admin-btn admin-btn-primary">Preview import</button>
         </div>
       <% end %>
     </form>
   <% end %>
 
   <%= if @stage == :ready and @preview do %>
-    <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-navy">Preview: {@csv_filename}</h2>
-      <button phx-click="reset" class="text-sm text-brown-light hover:text-navy underline">
-        Choose a different file
-      </button>
+    <div class="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-5">
+      <.metric label="Rows" value={@preview.total} hint={@csv_filename} />
+      <.metric
+        label="Valid"
+        value={"#{@preview.valid_count} / #{@preview.total}"}
+        tone={if @preview.error_count == 0, do: "neutral", else: "danger"}
+        hint={"#{@preview.error_count} with errors"}
+      />
+      <.metric
+        label="Audio clips"
+        value={@preview.audio_count}
+        hint={if @skip_audio, do: "Skipped", else: "Will be generated"}
+      />
+      <.metric label="New sets" value={length(@preview.new_sets)} hint="Created by this import" />
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-      <div class="bg-white border border-gold/20 rounded-lg p-4 text-center">
-        <p class="text-2xl font-bold text-navy">{@preview.total}</p>
-        <p class="text-xs text-brown-light uppercase tracking-wide">Rows</p>
-      </div>
-      <div class="bg-white border border-gold/20 rounded-lg p-4 text-center">
-        <p class={"text-2xl font-bold " <> if(@preview.error_count == 0, do: "text-positive", else: "text-danger")}>
-          {@preview.valid_count} / {@preview.total}
-        </p>
-        <p class="text-xs text-brown-light uppercase tracking-wide">Valid</p>
-      </div>
-      <div class="bg-white border border-gold/20 rounded-lg p-4 text-center">
-        <p class="text-2xl font-bold text-navy">{@preview.audio_count}</p>
-        <p class="text-xs text-brown-light uppercase tracking-wide">Audio clips</p>
-      </div>
-      <div class="bg-white border border-gold/20 rounded-lg p-4 text-center">
-        <p class="text-2xl font-bold text-navy">{length(@preview.new_sets)}</p>
-        <p class="text-xs text-brown-light uppercase tracking-wide">New sets</p>
-      </div>
-    </div>
+    <.callout :if={@preview.new_sets != []} tone="notice">
+      Will create set(s): <strong>{Enum.join(@preview.new_sets, ", ")}</strong>
+    </.callout>
+    <.callout :if={@preview.existing_sets != []} tone="notice">
+      Appending to existing set(s): <strong>{Enum.join(@preview.existing_sets, ", ")}</strong>
+    </.callout>
 
-    <%= if @preview.new_sets != [] do %>
-      <div class="mb-4 p-3 bg-notice-surface border border-notice-border rounded text-sm text-notice">
-        Will create set(s): <strong>{Enum.join(@preview.new_sets, ", ")}</strong>
-      </div>
-    <% end %>
-    <%= if @preview.existing_sets != [] do %>
-      <div class="mb-4 p-3 bg-cream border border-gold/20 rounded text-sm text-brown">
-        Appending to existing set(s): <strong>{Enum.join(@preview.existing_sets, ", ")}</strong>
-      </div>
-    <% end %>
-
-    <div class="border border-gold/20 rounded-lg overflow-hidden mb-6">
-      <table class="w-full text-sm">
-        <thead class="bg-navy text-cream">
-          <tr>
-            <th class="px-3 py-2 text-left w-8">#</th>
-            <th class="px-3 py-2 text-left">Mystery</th>
-            <th class="px-3 py-2 text-left">Title</th>
-            <th class="px-3 py-2 text-left">Content</th>
-            <th class="px-3 py-2 text-left">Audio</th>
-            <th class="px-3 py-2 text-left">Set / Order</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gold/20 bg-white">
-          <%= for row <- @preview.rows do %>
-            <tr class={if row.errors != [], do: "bg-danger-surface", else: ""}>
-              <td class="px-3 py-2 text-brown-light">{row.index}</td>
-              <td class="px-3 py-2">
-                <span class={
-                  if row.mystery_ok,
-                    do: "text-positive font-medium",
-                    else: "text-danger font-medium"
-                }>
-                  {row.mystery_name || "(missing)"}
-                </span>
-              </td>
-              <td class="px-3 py-2 text-brown">{row.title}</td>
-              <td class="px-3 py-2 text-brown">
-                <p class="font-work-sans">{row.content_excerpt}</p>
-                <p class="text-xs text-brown-light mt-1">
-                  {row.content_chars} chars, {row.paragraphs} paragraph(s)
-                </p>
-                <%= for warning <- row.warnings do %>
-                  <p class="text-xs text-caution mt-1">Warning: {warning}</p>
-                <% end %>
-                <%= for error <- row.errors do %>
-                  <p class="text-xs text-danger mt-1 font-semibold">Error: {error}</p>
-                <% end %>
-              </td>
-              <td class="px-3 py-2">
-                <%= if row.audio_filename do %>
-                  <span class="inline-block bg-notice-surface text-notice text-xs px-2 py-1 rounded">
-                    {row.audio_filename}
+    <.panel flush class="mb-5">
+      <:actions>
+        <button phx-click="reset" class="admin-btn admin-btn-ghost">
+          Choose a different file
+        </button>
+      </:actions>
+      <div class="overflow-x-auto">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th class="w-8">#</th>
+              <th>Mystery</th>
+              <th>Title</th>
+              <th>Content</th>
+              <th>Audio</th>
+              <th>Set / order</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for row <- @preview.rows do %>
+              <tr class={if row.errors != [], do: "bg-danger-surface"}>
+                <td class="text-admin-ink-faint">{row.index}</td>
+                <td>
+                  <span class={
+                    if row.mystery_ok,
+                      do: "font-medium text-admin-ink",
+                      else: "font-medium text-danger-strong"
+                  }>
+                    {row.mystery_name || "(missing)"}
                   </span>
-                <% else %>
-                  <span class="text-brown-light text-xs">none</span>
-                <% end %>
-              </td>
-              <td class="px-3 py-2">
-                <%= if row.set_name do %>
-                  <p class="text-brown">{row.set_name}</p>
-                  <p class="text-xs text-brown-light">
-                    order {row.order || "auto"}
-                    <%= if row.set_status == :new do %>
-                      <span class="text-notice">
+                </td>
+                <td class="text-admin-ink-soft">{row.title}</td>
+                <td class="text-admin-ink-soft max-w-md">
+                  <p>{row.content_excerpt}</p>
+                  <p class="text-xs text-admin-ink-faint mt-1">
+                    {row.content_chars} chars, {row.paragraphs} paragraph(s)
+                  </p>
+                  <%= for warning <- row.warnings do %>
+                    <p class="text-xs text-caution-strong mt-1">Warning: {warning}</p>
+                  <% end %>
+                  <%= for error <- row.errors do %>
+                    <p class="text-xs text-danger-strong mt-1 font-semibold">Error: {error}</p>
+                  <% end %>
+                </td>
+                <td>
+                  <.admin_badge :if={row.audio_filename} tone="gold">
+                    {row.audio_filename}
+                  </.admin_badge>
+                  <span :if={is_nil(row.audio_filename)} class="text-admin-ink-faint">
+                    &mdash;
+                  </span>
+                </td>
+                <td>
+                  <%= if row.set_name do %>
+                    <p class="text-admin-ink">{row.set_name}</p>
+                    <p class="text-xs text-admin-ink-faint">
+                      order {row.order || "auto"}
+                      <%= if row.set_status == :new do %>
                         (new set<%= if row.set_labels != [] do %>
                           : {Enum.join(row.set_labels, ", ")}
                         <% end %>)
-                      </span>
-                    <% end %>
-                  </p>
-                <% else %>
-                  <span class="text-brown-light text-xs">none</span>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="flex items-center justify-between">
-      <label class="flex items-center space-x-2 text-sm text-brown cursor-pointer">
-        <input
-          type="checkbox"
-          checked={@skip_audio}
-          phx-click="toggle-skip-audio"
-          class="rounded border-gold/40 text-navy focus:ring-gold"
-        />
-        <span>
-          Skip audio generation
-          <span class="text-brown-light">(text only; no ElevenLabs credits, no S3 uploads)</span>
-        </span>
-      </label>
-
-      <div class="flex space-x-3">
-        <button
-          phx-click="reset"
-          class="px-4 py-2 border border-gold/40 rounded hover:bg-cream"
-        >
-          Cancel
-        </button>
-        <button
-          phx-click="start-import"
-          class="px-6 py-2 bg-gold text-navy-dark rounded hover:bg-gold-dark hover:text-cream font-semibold"
-        >
-          <%= if @preview.error_count > 0 do %>
-            Import {@preview.valid_count} Valid Row(s)
-          <% else %>
-            Start Import
-          <% end %>
-        </button>
+                      <% end %>
+                    </p>
+                  <% else %>
+                    <span class="text-admin-ink-faint">&mdash;</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       </div>
-    </div>
+    </.panel>
 
-    <%= if @preview.audio_count > 0 and not @skip_audio do %>
-      <p class="mt-3 text-right text-xs text-caution">
+    <.panel>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <label class="flex items-center gap-2 text-[0.8125rem] text-admin-ink cursor-pointer">
+          <input
+            type="checkbox"
+            checked={@skip_audio}
+            phx-click="toggle-skip-audio"
+            class="size-3.5 accent-navy"
+          />
+          <span>
+            Skip audio generation
+            <span class="text-admin-ink-faint">
+              (text only; no ElevenLabs credits, no S3 uploads)
+            </span>
+          </span>
+        </label>
+
+        <div class="flex gap-2">
+          <button phx-click="reset" class="admin-btn admin-btn-ghost">Cancel</button>
+          <button phx-click="start-import" class="admin-btn admin-btn-primary">
+            <%= if @preview.error_count > 0 do %>
+              Import {@preview.valid_count} valid row(s)
+            <% else %>
+              Start import
+            <% end %>
+          </button>
+        </div>
+      </div>
+
+      <p
+        :if={@preview.audio_count > 0 and not @skip_audio}
+        class="text-xs text-caution-strong mt-3 pt-3 border-t border-admin-hairline"
+      >
         {@preview.audio_count} audio clip(s) will be generated with ElevenLabs and uploaded to S3.
         This spends credits and takes roughly 10-60 seconds per clip.
       </p>
-    <% end %>
+    </.panel>
   <% end %>
 
   <%= if @stage in [:importing, :done] do %>
-    <div class="bg-white border border-gold/20 rounded-lg p-6 mb-6">
+    <.panel class="mb-5">
       <div class="flex items-center justify-between mb-2">
-        <h2 class="text-xl font-semibold text-navy">
+        <h2 class="text-[0.9375rem] font-semibold text-admin-ink">
           <%= if @stage == :importing do %>
-            Importing {@csv_filename}...
+            Importing {@csv_filename}
           <% else %>
             <%= if @cancelled do %>
               Import cancelled
@@ -303,25 +279,23 @@
             <% end %>
           <% end %>
         </h2>
-        <span class="text-sm text-brown-light tabular-nums">
-          {format_elapsed(@elapsed)} elapsed
-        </span>
+        <span class="text-xs text-admin-ink-faint">{format_elapsed(@elapsed)} elapsed</span>
       </div>
 
-      <div class="w-full bg-cream-dark rounded-full h-4 overflow-hidden mb-2">
+      <div class="w-full bg-admin-sunken rounded-full h-2 overflow-hidden mb-2">
         <div
-          class={"h-4 rounded-full transition-all duration-500 " <> if(@stage == :done and not @cancelled, do: "bg-positive", else: "bg-gold")}
+          class={"h-2 rounded-full transition-all duration-500 " <> if(@stage == :done and not @cancelled, do: "bg-positive", else: "bg-navy")}
           style={"width: #{percent(@progress)}%"}
         >
         </div>
       </div>
-      <div class="flex items-center justify-between text-sm text-brown mb-4">
+      <div class="flex items-center justify-between text-xs text-admin-ink-soft mb-4">
         <span>{@progress.done} of {@progress.total} rows processed ({percent(@progress)}%)</span>
         <%= if @stage == :importing do %>
           <button
             phx-click="cancel-import"
             data-confirm="Stop the import? Rows already created will remain in the database."
-            class="text-danger hover:text-danger-strong underline"
+            class="admin-btn admin-btn-danger"
           >
             Stop import
           </button>
@@ -329,8 +303,8 @@
       </div>
 
       <%= if @current_activity do %>
-        <div class="flex items-center space-x-2 text-sm text-navy bg-cream/50 border border-gold/30 rounded p-3 mb-4">
-          <svg class="h-4 w-4 animate-spin text-gold" fill="none" viewBox="0 0 24 24">
+        <div class="flex items-center gap-2 text-[0.8125rem] text-admin-ink bg-admin-sunken border border-admin-hairline rounded p-3 mb-4">
+          <svg class="h-4 w-4 animate-spin text-navy" fill="none" viewBox="0 0 24 24">
             <circle
               class="opacity-25"
               cx="12"
@@ -347,13 +321,13 @@
       <% end %>
 
       <%= if @preview do %>
-        <ul class="divide-y divide-gold/20">
+        <ul class="divide-y divide-admin-hairline">
           <%= for row <- @preview.rows do %>
             <li class="py-2 flex items-start justify-between">
-              <div class="flex items-center space-x-3 min-w-0">
-                <span class="text-brown-light text-sm w-6 shrink-0">{row.index}</span>
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="text-admin-ink-faint text-xs w-6 shrink-0">{row.index}</span>
                 <div class="min-w-0">
-                  <p class="text-sm font-medium text-navy">
+                  <p class="text-[0.8125rem] font-medium text-admin-ink">
                     {row.mystery_name}
                     <%= if row.title do %>
                       - {row.title}
@@ -361,11 +335,11 @@
                   </p>
                   <%= case row_status(@rows_status, row.index) do %>
                     <% {:ok, message} -> %>
-                      <p class="text-xs text-positive truncate">{message}</p>
+                      <p class="text-xs text-positive-strong truncate">{message}</p>
                     <% {:warning, message} -> %>
-                      <p class="text-xs text-caution">{message}</p>
+                      <p class="text-xs text-caution-strong">{message}</p>
                     <% {:error, message} -> %>
-                      <p class="text-xs text-danger">{message}</p>
+                      <p class="text-xs text-danger-strong">{message}</p>
                     <% {:audio, filename} -> %>
                       <p class="text-xs text-notice">Generating audio: {filename}</p>
                     <% _ -> %>
@@ -373,87 +347,59 @@
                 </div>
               </div>
               <% {badge_class, badge_text} = status_badge(row_status(@rows_status, row.index)) %>
-              <span class={"shrink-0 text-xs px-2 py-1 rounded-full font-medium " <> badge_class}>
+              <span class={"shrink-0 text-[0.6875rem] px-1.5 py-0.5 rounded font-medium " <> badge_class}>
                 {badge_text}
               </span>
             </li>
           <% end %>
         </ul>
       <% end %>
-    </div>
+    </.panel>
 
     <%= if @stage == :done do %>
       <div class="space-y-4">
-        <div class="grid grid-cols-3 gap-3">
-          <div class="bg-positive-surface border border-positive-border rounded-lg p-4 text-center">
-            <p class="text-2xl font-bold text-positive-strong">{length(@successes)}</p>
-            <p class="text-xs text-positive uppercase tracking-wide">Created</p>
-          </div>
-          <div class={"rounded-lg p-4 text-center border " <> if(@warnings == [], do: "bg-cream border-gold/20", else: "bg-caution-surface border-caution-border")}>
-            <p class={"text-2xl font-bold " <> if(@warnings == [], do: "text-brown-light", else: "text-caution-strong")}>
-              {length(@warnings)}
-            </p>
-            <p class={"text-xs uppercase tracking-wide " <> if(@warnings == [], do: "text-brown-light", else: "text-caution")}>
-              With warnings
-            </p>
-          </div>
-          <div class={"rounded-lg p-4 text-center border " <> if(@errors == [], do: "bg-cream border-gold/20", else: "bg-danger-surface border-danger-border")}>
-            <p class={"text-2xl font-bold " <> if(@errors == [], do: "text-brown-light", else: "text-danger-strong")}>
-              {length(@errors)}
-            </p>
-            <p class={"text-xs uppercase tracking-wide " <> if(@errors == [], do: "text-brown-light", else: "text-danger")}>
-              Failed
-            </p>
-          </div>
+        <div class="grid gap-3 grid-cols-3">
+          <.metric label="Created" value={length(@successes)} hint="Written to the database" />
+          <.metric
+            label="With warnings"
+            value={length(@warnings)}
+            tone="caution"
+            hint="Created, but worth checking"
+          />
+          <.metric label="Failed" value={length(@errors)} tone="danger" hint="Not created" />
         </div>
 
-        <%= if @cancelled do %>
-          <div class="bg-caution-surface border border-caution-border rounded-lg p-4 text-sm text-caution-strong">
-            The import was stopped early. Rows marked Done above were already written to the
-            database and remain there; unprocessed rows were not imported.
-          </div>
-        <% end %>
+        <.callout :if={@cancelled}>
+          The import was stopped early. Rows marked Done above were already written to the
+          database and remain there; unprocessed rows were not imported.
+        </.callout>
 
-        <%= if @errors != [] do %>
-          <div class="bg-danger-surface border border-danger-border rounded-lg p-4">
-            <h3 class="font-semibold text-danger-strong mb-2">Errors:</h3>
-            <ul class="list-disc list-inside text-sm text-danger max-h-60 overflow-y-auto">
-              <%= for {:error, message} <- @errors do %>
-                <li>{message}</li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
+        <.panel :if={@errors != []} title="Errors">
+          <ul class="list-disc list-inside text-[0.8125rem] text-danger-strong max-h-60 overflow-y-auto">
+            <%= for {:error, message} <- @errors do %>
+              <li>{message}</li>
+            <% end %>
+          </ul>
+        </.panel>
 
-        <%= if @warnings != [] do %>
-          <div class="bg-caution-surface border border-caution-border rounded-lg p-4">
-            <h3 class="font-semibold text-caution-strong mb-2">
-              Created with warnings (check these meditations):
-            </h3>
-            <ul class="list-disc list-inside text-sm text-caution max-h-60 overflow-y-auto">
-              <%= for {:warning, message} <- @warnings do %>
-                <li>{message}</li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
+        <.panel
+          :if={@warnings != []}
+          title="Created with warnings"
+          description="Worth opening these to check."
+        >
+          <ul class="list-disc list-inside text-[0.8125rem] text-caution-strong max-h-60 overflow-y-auto">
+            <%= for {:warning, message} <- @warnings do %>
+              <li>{message}</li>
+            <% end %>
+          </ul>
+        </.panel>
 
-        <div class="flex justify-end space-x-3">
-          <button
-            phx-click="reset"
-            class="px-4 py-2 border border-gold/40 rounded hover:bg-cream"
-          >
-            Import Another File
-          </button>
-          <.link
-            navigate="/admin/meditations"
-            class="px-4 py-2 bg-white border border-navy text-navy rounded hover:bg-cream"
-          >
-            View All Meditations
+        <div class="flex justify-end gap-2">
+          <button phx-click="reset" class="admin-btn admin-btn-ghost">Import another file</button>
+          <.link navigate="/admin/meditations" class="admin-btn admin-btn-secondary">
+            View all meditations
           </.link>
-          <.link navigate="/admin" class="px-4 py-2 bg-navy text-white rounded hover:bg-navy-dark">
-            Back to Admin Dashboard
-          </.link>
+          <.link navigate="/admin" class="admin-btn admin-btn-primary">Back to dashboard</.link>
         </div>
       </div>
     <% end %>

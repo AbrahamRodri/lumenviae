@@ -32,22 +32,23 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
     set
   end
 
-  test "lists sets with completeness badges", %{conn: conn} do
+  test "lists sets with their meditation and narration counts", %{conn: conn} do
     mystery = create_mystery()
     filled = create_set(%{name: "Filled Set"})
     create_set(%{name: "Empty Set"})
 
     for order <- 1..5 do
-      meditation = create_meditation(mystery)
+      meditation = create_meditation(mystery, %{audio_url: "clip#{order}.mp3"})
       {:ok, _} = Rosary.add_meditation_to_set(filled.id, meditation.id, order)
     end
 
-    {:ok, view, html} = live(conn, "/admin/meditation-sets")
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets")
 
     assert html =~ "Filled Set"
-    assert html =~ "5 meditations"
     assert html =~ "Empty Set"
-    assert has_element?(view, "span", "Empty")
+    # "5 / 5" meditations for the filled set, "0 / 5" for the empty one.
+    assert html =~ "5</span>"
+    assert html =~ "/ 5"
   end
 
   test "visibility filter separates hidden sets", %{conn: conn} do
@@ -66,6 +67,60 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
     {:ok, _view, html} = live(conn, "/admin/meditation-sets?visibility=visible")
     assert html =~ "Visible Set"
     refute html =~ "Hidden Set"
+  end
+
+  # The default the admin asked for: the list answers "what is the public
+  # being served?" until told otherwise.
+  test "the list shows live sets by default, and \"all\" opts back in", %{conn: conn} do
+    mystery = create_mystery()
+    hidden_set = create_set(%{name: "Withdrawn Set"})
+    create_set(%{name: "Serving Set"})
+
+    meditation = create_meditation(mystery)
+    {:ok, _} = Rosary.add_meditation_to_set(hidden_set.id, meditation.id, 1)
+    {:ok, _} = Rosary.archive_meditation(meditation)
+
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets")
+    assert html =~ "Serving Set"
+    refute html =~ "Withdrawn Set"
+
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets?visibility=all")
+    assert html =~ "Serving Set"
+    assert html =~ "Withdrawn Set"
+  end
+
+  # The dashboard's "Sets without artwork" row links here, so the filter it
+  # links to has to exist and mean the same thing.
+  test "artwork filter separates sets by what the app will draw", %{conn: conn} do
+    create_set(%{name: "Bare Set"})
+    illustrated = create_set(%{name: "Painted Set"})
+
+    {:ok, _} =
+      Rosary.update_meditation_set_artwork(illustrated, %{
+        "image_key" => "sets/#{illustrated.id}/painting.jpg",
+        "image_width" => 1600,
+        "image_height" => 2400,
+        "image_alt" => "A painting",
+        "image_license" => "public_domain"
+      })
+
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets?artwork=missing")
+    assert html =~ "Bare Set"
+    refute html =~ "Painted Set"
+
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets?artwork=served")
+    assert html =~ "Painted Set"
+    refute html =~ "Bare Set"
+  end
+
+  test "label filter picks out sets with no label at all", %{conn: conn} do
+    create_set(%{name: "Tagged Set", labels: ["Saints"]})
+    create_set(%{name: "Untagged Set"})
+
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets?label=none")
+
+    assert html =~ "Untagged Set"
+    refute html =~ "Tagged Set"
   end
 
   test "label filter matches sets carrying the label", %{conn: conn} do

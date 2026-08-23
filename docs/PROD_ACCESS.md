@@ -68,7 +68,7 @@ Rosary.count_mysteries()
 Rosary.count_meditations()
 Rosary.count_meditation_sets()
 Rosary.count_archived_meditations()
-Rosary.count_active_meditations_missing_audio()
+length(Rosary.public_meditation_ids_missing_audio())
 Rosary.count_meditations_not_in_any_set()
 
 # Per-set meditation counts, keyed by set id

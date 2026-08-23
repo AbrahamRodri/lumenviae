@@ -1,120 +1,83 @@
-<.admin_page active="sets" title="Create Meditation Set" flash={@flash} max_width="max-w-6xl">
-  <div>
-    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-      <div class="bg-white border-l-4 border-gold p-8">
-        <h3 class="font-cinzel text-2xl text-navy mb-6">Set Details</h3>
-        <.form for={@meditation_set_form} phx-submit="create_meditation_set">
-          <div class="space-y-4">
-            <div>
-              <label class="font-work-sans text-navy font-semibold block mb-2">
-                Set Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                required
-                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-                placeholder="e.g., St. Louis de Montfort - Joyful Mysteries"
-              />
-            </div>
+<.admin_page
+  active="sets"
+  title="New meditation set"
+  subtitle="Create the set first, then add its meditations in order on the edit page."
+  flash={@flash}
+  max_width="max-w-6xl"
+>
+  <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] items-start">
+    <.form for={@meditation_set_form} phx-submit="create_meditation_set">
+      <.panel title="Set details">
+        <div class="space-y-4">
+          <.field label="Name" required>
+            <input
+              type="text"
+              name="name"
+              required
+              class="admin-input"
+              placeholder="e.g. St. Louis de Montfort - Joyful Mysteries"
+            />
+          </.field>
 
-            <div>
-              <label class="font-work-sans text-navy font-semibold block mb-2">
-                Category
-              </label>
-              <select
-                name="category"
-                required
-                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              >
-                <option value="">Select a Category</option>
-                <%= for {label, value} <- @mystery_categories do %>
-                  <option value={value}>{label}</option>
-                <% end %>
-              </select>
-            </div>
+          <.field
+            label="Category"
+            required
+            hint="Decides how many meditations the set is expected to hold: five, or seven for the Seven Sorrows."
+          >
+            <select name="category" required class="admin-input">
+              <option value="">Select a category</option>
+              <option :for={{label, value} <- @mystery_categories} value={value}>{label}</option>
+            </select>
+          </.field>
 
-            <div>
-              <label class="font-work-sans text-navy font-semibold block mb-2">
-                Description (Optional)
-              </label>
-              <textarea
-                name="description"
-                rows="3"
-                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-                placeholder="Brief description of this meditation set..."
-              ></textarea>
-            </div>
-
-            <div class="flex justify-between items-center pt-4">
-              <.link
-                navigate="/admin/meditation-sets"
-                class="font-work-sans text-navy hover:text-gold transition-colors"
-              >
-                ← Cancel
-              </.link>
-
-              <button
-                type="submit"
-                class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
-              >
-                Create Meditation Set
-              </button>
-            </div>
-          </div>
-        </.form>
-      </div>
-
-      <div class="bg-white border-l-4 border-gold p-8">
-        <h3 class="font-cinzel text-2xl text-navy mb-6">Plan Your Meditation Set</h3>
-
-        <% meditations = filtered_meditations(assigns) %>
-        <LumenViaeWeb.Components.MeditationFilters.meditation_filters
-          filter_category={@filter_category}
-          filter_author={@filter_author}
-          search_query={@search_query}
-          available_authors={@available_authors}
-          mystery_categories={@mystery_categories}
-          filtered_count={length(meditations)}
-          show_description={true}
-          description="Explore existing meditations to decide which ones you'll add after creating the set. Use the filters to narrow the list by mystery, author, or keyword."
-          inline={true}
-        />
-
-        <div class="mt-6">
-          <%= if meditations == [] do %>
-            <p class="font-work-sans text-brown italic mt-4">
-              No meditations match your filters yet. Try adjusting the filters or import new meditations first.
-            </p>
-          <% else %>
-            <div class="mt-4 space-y-3 max-h-[28rem] overflow-y-auto pr-2">
-              <%= for meditation <- meditations do %>
-                <div class="border border-gold/20 rounded-lg p-4 bg-cream">
-                  <div class="flex flex-col md:flex-row md:items-start md:justify-between md:space-x-4">
-                    <div class="flex-1">
-                      <p class="font-cinzel text-navy text-lg">
-                        {meditation.mystery.name}
-                        {if meditation.title, do: " – #{meditation.title}"}
-                      </p>
-                      <p class="font-work-sans text-sm text-brown mt-1">
-                        <span>{String.capitalize(meditation.mystery.category)} Mystery</span>
-                        <%= if meditation.author do %>
-                          <span class="ml-2">• {meditation.author}</span>
-                        <% end %>
-                      </p>
-                      <%= if meditation.content do %>
-                        <p class="font-work-sans text-brown text-sm mt-3">
-                          {content_snippet(meditation.content)}
-                        </p>
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
+          <.field label="Description" hint="Optional. Shown under the set's name in the app.">
+            <textarea name="description" rows="3" class="admin-textarea"></textarea>
+          </.field>
         </div>
+
+        <.form_actions cancel_to="/admin/meditation-sets">
+          <button type="submit" class="admin-btn admin-btn-primary">Create set</button>
+        </.form_actions>
+      </.panel>
+    </.form>
+
+    <% meditations = filtered_meditations(assigns) %>
+    <.panel title="Plan the set">
+      <LumenViaeWeb.Components.MeditationFilters.meditation_filters
+        filter_category={@filter_category}
+        filter_author={@filter_author}
+        search_query={@search_query}
+        available_authors={@available_authors}
+        mystery_categories={@mystery_categories}
+        filtered_count={length(meditations)}
+        description="Browse what is already in the library to decide what this set will hold. You add meditations after the set exists."
+      />
+
+      <div class="mt-4">
+        <.empty_state :if={meditations == []}>
+          No meditations match these filters. Widen them, or import new meditations first.
+        </.empty_state>
+
+        <ul
+          :if={meditations != []}
+          class="divide-y divide-admin-hairline max-h-[26rem] overflow-y-auto -mx-1 px-1"
+        >
+          <li :for={meditation <- meditations} class="py-2.5">
+            <p class="font-medium text-admin-ink">
+              {meditation.mystery.name}{if meditation.title, do: " - #{meditation.title}"}
+            </p>
+            <p class="text-xs text-admin-ink-faint mt-0.5">
+              {LumenViae.Rosary.Categories.label(meditation.mystery.category)}<span :if={
+                meditation.author
+              }>
+                · {meditation.author}</span>
+            </p>
+            <p :if={meditation.content} class="text-xs text-admin-ink-soft mt-1">
+              {content_snippet(meditation.content)}
+            </p>
+          </li>
+        </ul>
       </div>
-    </div>
+    </.panel>
   </div>
 </.admin_page>

@@ -177,15 +177,34 @@ defmodule LumenViae.Rosary.MeditationSets do
   end
 
   @doc """
-  How many sets are still waiting for a painting, for the admin dashboard.
+  Ids of the sets still waiting for a painting, for the admin dashboard.
+
+  Id-shaped rather than a count because the dashboard only reports on sets
+  the public can reach, and which sets those are is decided in
+  `LumenViae.Rosary`.
 
   No index backs this: the table holds 27 rows, so the planner would never
   choose one.
   """
-  def count_missing_artwork do
+  def list_ids_missing_artwork do
     MeditationSet
     |> where([ms], is_nil(ms.image_key))
-    |> Repo.aggregate(:count)
+    |> select([ms], ms.id)
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns `%{author_id => set count}` for every author with at least one set
+  linked to them, so the authors list can say what each portrait is covering.
+  """
+  def count_by_author do
+    from(ms in MeditationSet,
+      where: not is_nil(ms.author_id),
+      group_by: ms.author_id,
+      select: {ms.author_id, count(ms.id)}
+    )
+    |> Repo.all()
+    |> Map.new()
   end
 
   @doc """

@@ -32,6 +32,7 @@ defmodule LumenViae.Rosary do
   """
 
   alias LumenViae.Rosary.Artwork
+  alias LumenViae.CentralTime
   alias LumenViae.Rosary.Authors
   alias LumenViae.Rosary.Completions
   alias LumenViae.Rosary.MeditationSets
@@ -171,9 +172,11 @@ defmodule LumenViae.Rosary do
     to: MeditationSets,
     as: :change_artwork
 
-  defdelegate count_meditation_sets_missing_artwork(),
+  defdelegate meditation_set_ids_missing_artwork(),
     to: MeditationSets,
-    as: :count_missing_artwork
+    as: :list_ids_missing_artwork
+
+  defdelegate meditation_set_counts_by_author(), to: MeditationSets, as: :count_by_author
 
   @doc """
   Stable public URL for a set's or a meditation's artwork, or nil.
@@ -210,7 +213,26 @@ defmodule LumenViae.Rosary do
     end
   end
 
-  def list_meditation_sets, do: MeditationSets.list()
+  @doc """
+  Every set, admin order, with the linked author preloaded and the byline
+  resolved.
+
+  Both come along because the admin's job is to show what the app will
+  actually do with each set. Artwork: a set with no painting of its own
+  still shows one when its author has a portrait (see `artwork_record/1`),
+  so the health check needs the author loaded or it reports paintings
+  missing that are not. Byline: a set with no `author` of its own still
+  prints one when its meditations agree, so a column reading it raw would
+  be a column of dashes.
+
+  Three extra queries over a table of a few dozen rows, for a list that is
+  not quietly wrong about either.
+  """
+  def list_meditation_sets do
+    MeditationSets.list()
+    |> MeditationSets.preload_author_profile()
+    |> resolve_attribution()
+  end
 
   @doc """
   Fetches a set with its meditations in the order the set is prayed, which
@@ -380,19 +402,43 @@ defmodule LumenViae.Rosary do
   ## Admin content statistics
 
   defdelegate count_archived_meditations(), to: Meditations, as: :count_archived
-
-  defdelegate count_active_meditations_missing_audio(),
-    to: Meditations,
-    as: :count_active_missing_audio
-
   defdelegate meditation_counts_by_mystery(), to: Meditations, as: :count_by_mystery
 
+  defdelegate active_meditation_counts_by_mystery(),
+    to: Meditations,
+    as: :count_active_by_mystery
+
   @doc """
-  Counts meditations that do not belong to any meditation set.
+  Counts active meditations that do not belong to any meditation set.
+
+  Archived ones are left out: a meditation deliberately taken out of
+  circulation and out of its sets is finished, not unfinished.
   """
   def count_meditations_not_in_any_set do
     SetMemberships.list_member_meditation_ids()
-    |> Meditations.count_excluding_ids()
+    |> Meditations.count_active_excluding_ids()
+  end
+
+  @doc """
+  Ids of active meditations with no narration that someone can actually
+  reach today: they belong to at least one set that is not hidden.
+
+  The dashboard reports on what the app and the site are serving, so a
+  meditation sitting in no set, or only in sets hidden by an archived
+  sibling, is not counted as missing audio. It shows up under its own
+  heading instead.
+  """
+  def public_meditation_ids_missing_audio do
+    hidden = hidden_meditation_set_ids()
+
+    reachable =
+      SetMemberships.list_meditation_ids_by_set()
+      |> Enum.reject(fn {set_id, _ids} -> MapSet.member?(hidden, set_id) end)
+      |> Enum.flat_map(fn {_set_id, ids} -> ids end)
+      |> MapSet.new()
+
+    Meditations.list_active_ids_missing_audio()
+    |> Enum.filter(&MapSet.member?(reachable, &1))
   end
 
   @doc """
@@ -417,42 +463,103 @@ defmodule LumenViae.Rosary do
   end
 
   ## Rosary completions (analytics)
+  #
+  # A completion is recorded when someone presses the button at the end of
+  # the last mystery, never by arriving at it. Reaching the final screen is
+  # something a crawler does for free; pressing the button is not, and the
+  # numbers below are only worth reading if they mean a Rosary was prayed.
 
   defdelegate count_total_completions(), to: Completions, as: :count
   defdelegate count_completions_in_range(start_at, end_at), to: Completions, as: :count_in_range
 
   @doc """
-  Records a rosary completion for analytics tracking.
-  Called when a user reaches the last mystery in a meditation set.
-
-  Optionally accepts an IP address to fetch and store location data.
+  The zone the admin analytics are reported in. Days start and end here, not
+  in UTC. See `LumenViae.CentralTime`.
   """
-  def record_completion(meditation_set_id, ip_address \\ nil) do
-    attrs =
-      %{meditation_set_id: meditation_set_id, completed_at: DateTime.utc_now()}
-      |> Map.merge(location_data(ip_address))
+  def reporting_time_zone, do: CentralTime.zone_name()
 
-    Completions.create(attrs)
+  @doc """
+  Records that somebody finished praying a set.
+
+  `context` describes where the completion came from and is entirely
+  optional - a completion with an empty context is still a completion, and
+  every field below can be missing:
+
+    * `:ip` - the caller's address, used to look up a rough place and then
+      truncated before it is stored. Never written down in full.
+    * `:source` - `"web"` or `"ios"`
+    * `:time_zone` - an IANA zone name reported by the client
+    * `:locale` - a locale reported by the client
+
+  ## Why the place is filled in afterwards
+
+  The row is written first and the geolocation lookup runs in a background
+  task that updates it. Doing the lookup inline would put a third-party
+  HTTP call between somebody pressing Complete and the page moving on, so a
+  slow provider would be felt as a slow Rosary - and a provider that was
+  down would fail the completion entirely. A place is worth having and is
+  not worth that.
+
+  The consequence, which is the honest trade: a row is briefly placeless
+  after it is written, and stays that way for good if the lookup fails.
+  """
+  def record_completion(meditation_set_id, context \\ %{}) when is_map(context) do
+    ip = context[:ip]
+
+    attrs = %{
+      meditation_set_id: meditation_set_id,
+      completed_at: DateTime.utc_now(),
+      ip_prefix: Geolocation.anonymize(ip),
+      source: context[:source],
+      time_zone: context[:time_zone],
+      locale: context[:locale]
+    }
+
+    case Completions.create(attrs) do
+      {:ok, completion} ->
+        locate_later(completion.id, ip)
+        {:ok, completion}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
-  defp location_data(nil), do: %{}
-
-  defp location_data(ip) do
-    # The IP is always stored; the lookup that turns it into a place is
-    # best-effort and may be unavailable.
-    case Geolocation.get_location(ip) do
-      nil -> %{ip_address: ip}
-      location -> Map.merge(%{ip_address: ip}, location)
+  # Nothing is scheduled when a lookup could not produce an answer anyway:
+  # geolocation switched off, no address, or an address on a private range.
+  # A task that starts only to return `nil` is noise in the supervisor.
+  defp locate_later(completion_id, ip) do
+    if is_binary(ip) and Geolocation.enabled?() and Geolocation.routable?(ip) do
+      Task.Supervisor.start_child(LumenViae.TaskSupervisor, fn ->
+        case Geolocation.locate(ip) do
+          nil -> :ok
+          location -> Completions.update_location(completion_id, location)
+        end
+      end)
     end
+
+    :ok
   end
 
   @doc """
   Gets completion statistics grouped by meditation set.
+
   Returns a list of %{set_id, set_name, category, count} maps, most
   completed first. Completions whose set has since been deleted are omitted.
+
+  ## Options
+
+    * `:days` - only count completions from the trailing N days, so the
+      dashboard can show what is being prayed *now* rather than a ranking
+      dominated by whichever set has existed longest
   """
-  def get_completions_by_set do
-    counts = Completions.count_by_set()
+  def get_completions_by_set(opts \\ []) do
+    counts =
+      case opts[:days] do
+        nil -> Completions.count_by_set()
+        days -> Completions.count_by_set_in_range(days_ago(days), DateTime.utc_now())
+      end
+
     sets = counts |> Enum.map(&elem(&1, 0)) |> sets_by_id()
 
     Enum.flat_map(counts, fn {set_id, count} ->
@@ -487,7 +594,8 @@ defmodule LumenViae.Rosary do
               city: completion.city,
               region: completion.region,
               country: completion.country,
-              country_code: completion.country_code
+              country_code: completion.country_code,
+              source: completion.source
             }
           ]
 
@@ -495,6 +603,41 @@ defmodule LumenViae.Rosary do
           []
       end
     end)
+  end
+
+  @doc """
+  Where the last `days` of Rosaries were prayed from, and on what.
+
+  Returns `%{countries:, cities:, sources:, located:, total:}`.
+
+  `located` and `total` are both here on purpose. A place is attached by a
+  best-effort lookup that can be switched off, rate limited, or simply
+  wrong about an address, so the country list is drawn from a subset of the
+  rows and the reader needs to know how large that subset is. A ranking
+  covering a tenth of the completions and one covering all of them look
+  identical otherwise.
+  """
+  def completion_locations(days) when is_integer(days) and days > 0 do
+    start_at = days_ago(days)
+    end_at = DateTime.utc_now()
+
+    %{
+      countries:
+        start_at
+        |> Completions.count_by_country(end_at)
+        |> Enum.map(fn {country, code, count} ->
+          %{country: country, country_code: code, count: count}
+        end),
+      cities:
+        start_at
+        |> Completions.count_by_city(end_at)
+        |> Enum.map(fn {city, region, code, count} ->
+          %{city: city, region: region, country_code: code, count: count}
+        end),
+      sources: Completions.count_by_source(start_at, end_at),
+      located: Completions.count_located_in_range(start_at, end_at),
+      total: Completions.count_in_range(start_at, end_at)
+    }
   end
 
   defp sets_by_id(set_ids) do
@@ -508,15 +651,64 @@ defmodule LumenViae.Rosary do
   Gets completion count for the trailing N days (including today).
   """
   def count_completions_last_days(days) when is_integer(days) and days > 0 do
-    now = DateTime.utc_now()
-    count_completions_in_range(DateTime.add(now, -days * 24 * 3600, :second), now)
+    count_completions_in_range(days_ago(days), DateTime.utc_now())
   end
 
   @doc """
-  Gets completion count for today.
+  Gets completion count for today, where today ends at midnight in the
+  reporting zone rather than at midnight UTC - which, for a Central-time
+  reader, used to roll the day over at six in the evening.
   """
   def count_completions_today do
-    today_start = DateTime.utc_now() |> DateTime.to_date() |> DateTime.new!(~T[00:00:00])
-    count_completions_in_range(today_start, DateTime.utc_now())
+    count_completions_in_range(CentralTime.day_start(CentralTime.today()), DateTime.utc_now())
   end
+
+  @doc """
+  Headline completion figures, each trailing window paired with the window
+  immediately before it so the dashboard can show movement rather than a
+  number with nothing to compare it to.
+
+  Returns `%{total:, today:, last_7:, previous_7:, last_30:, previous_30:,
+  active_sets_30:}`.
+  """
+  def completion_summary do
+    now = DateTime.utc_now()
+
+    %{
+      total: count_total_completions(),
+      today: count_completions_today(),
+      last_7: count_completions_in_range(days_ago(7), now),
+      previous_7: count_completions_in_range(days_ago(14), days_ago(7)),
+      last_30: count_completions_in_range(days_ago(30), now),
+      previous_30: count_completions_in_range(days_ago(60), days_ago(30)),
+      active_sets_30: Completions.count_distinct_sets_in_range(days_ago(30), now)
+    }
+  end
+
+  @doc """
+  A dense daily series for the trailing N days, oldest first, as
+  `[%{date: %Date{}, count: integer}]`.
+
+  Days with no completions are filled in with zero: a chart that silently
+  drops empty days draws a flat line through a week nobody prayed.
+  """
+  def completions_by_day(days) when is_integer(days) and days > 0 do
+    today = CentralTime.today()
+    first = Date.add(today, -(days - 1))
+
+    counted =
+      Completions.count_by_day(
+        CentralTime.day_start(first),
+        DateTime.utc_now(),
+        reporting_time_zone()
+      )
+      |> Map.new()
+
+    Enum.map(0..(days - 1), fn offset ->
+      date = Date.add(first, offset)
+      %{date: date, count: Map.get(counted, date, 0)}
+    end)
+  end
+
+  defp days_ago(days), do: DateTime.add(DateTime.utc_now(), -days * 24 * 3600, :second)
 end

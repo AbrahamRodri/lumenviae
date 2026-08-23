@@ -9,6 +9,12 @@ defmodule LumenViaeWeb.Live.Meditations.List do
   @sort_options ~w(mystery newest oldest updated author title)
   @default_sort "mystery"
 
+  # Archived meditations are out of circulation by definition, so the list
+  # starts on the ones that are actually in play. The archive is one click
+  # away in the Status filter and in the metric row above the table.
+  @status_options ~w(active archived all)
+  @default_status "active"
+
   def mount(_params, _session, socket) do
     {:ok,
      socket
@@ -100,7 +106,8 @@ defmodule LumenViaeWeb.Live.Meditations.List do
       socket,
       id,
       &Rosary.archive_meditation/1,
-      "Meditation archived. It is hidden from the public site, along with any set containing it."
+      "Meditation archived. It is hidden from the public site, along with any set containing it, " <>
+        "and has left this list - switch Status to Archived to see it."
     )
   end
 
@@ -141,12 +148,14 @@ defmodule LumenViaeWeb.Live.Meditations.List do
   end
 
   defp summarize(meditations) do
+    {archived, active} = Enum.split_with(meditations, & &1.archived_at)
+
     %{
       total: length(meditations),
-      archived: Enum.count(meditations, & &1.archived_at),
-      missing_audio:
-        Enum.count(meditations, &(is_nil(&1.archived_at) and &1.audio_url in [nil, ""])),
-      unassigned: Enum.count(meditations, &(&1.meditation_sets == []))
+      active: length(active),
+      archived: length(archived),
+      missing_audio: Enum.count(active, &(&1.audio_url in [nil, ""])),
+      unassigned: Enum.count(active, &(&1.meditation_sets == []))
     }
   end
 
@@ -185,7 +194,7 @@ defmodule LumenViaeWeb.Live.Meditations.List do
       mystery: parse_int(params["mystery"]),
       author: Filtering.blank_to_nil(params["author"]),
       audio: allowed(params["audio"], ~w(with without)),
-      status: allowed(params["status"], ~w(active archived)),
+      status: allowed(params["status"], @status_options) || @default_status,
       set: parse_set(params["set"]),
       sort: allowed(params["sort"], @sort_options) || @default_sort
     }
@@ -203,7 +212,8 @@ defmodule LumenViaeWeb.Live.Meditations.List do
       sort: params["sort"]
     ]
     |> Enum.reject(fn {key, value} ->
-      value in [nil, ""] or (key == :sort and value == @default_sort)
+      value in [nil, ""] or (key == :sort and value == @default_sort) or
+        (key == :status and value == @default_status)
     end)
   end
 
@@ -265,5 +275,11 @@ defmodule LumenViaeWeb.Live.Meditations.List do
 
   defp allowed(value, options) do
     if value in options, do: value
+  end
+
+  def filters_applied?(filters) do
+    filters.query != "" or filters.category != nil or filters.mystery != nil or
+      filters.author != nil or filters.audio != nil or filters.status != @default_status or
+      filters.set != nil or filters.sort != @default_sort
   end
 end

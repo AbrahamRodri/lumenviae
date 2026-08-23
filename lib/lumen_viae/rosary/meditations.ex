@@ -152,19 +152,32 @@ defmodule LumenViae.Rosary.Meditations do
   end
 
   @doc """
-  Counts active (non-archived) meditations that have no audio file yet.
+  Ids of active (non-archived) meditations that have no audio file yet.
+
+  Id-shaped rather than a count so `LumenViae.Rosary` can narrow it to the
+  ones the public can actually reach - a meditation that is in no set, or
+  only in hidden sets, is not silently missing narration on anyone.
   """
-  def count_active_missing_audio do
-    from(m in Meditation,
-      where: is_nil(m.archived_at) and (is_nil(m.audio_url) or m.audio_url == "")
+  def list_active_ids_missing_audio do
+    Repo.all(
+      from m in Meditation,
+        where: is_nil(m.archived_at) and (is_nil(m.audio_url) or m.audio_url == ""),
+        select: m.id
     )
-    |> Repo.aggregate(:count)
   end
 
-  def count_excluding_ids([]), do: count()
+  @doc """
+  Counts active meditations whose id is not in the given list.
 
-  def count_excluding_ids(ids) do
-    from(m in Meditation, where: m.id not in ^ids)
+  Archived meditations are excluded on purpose: one deliberately taken out
+  of circulation is not a gap to be filled.
+  """
+  def count_active_excluding_ids([]) do
+    from(m in Meditation, where: is_nil(m.archived_at)) |> Repo.aggregate(:count)
+  end
+
+  def count_active_excluding_ids(ids) do
+    from(m in Meditation, where: is_nil(m.archived_at) and m.id not in ^ids)
     |> Repo.aggregate(:count)
   end
 
@@ -174,6 +187,22 @@ defmodule LumenViae.Rosary.Meditations do
   """
   def count_by_mystery do
     from(m in Meditation, group_by: m.mystery_id, select: {m.mystery_id, count(m.id)})
+    |> Repo.all()
+    |> Map.new()
+  end
+
+  @doc """
+  The same map as `count_by_mystery/0`, counting only active meditations.
+
+  A mystery whose only meditation has been archived has nothing to pray, so
+  the dashboard's health check asks this one.
+  """
+  def count_active_by_mystery do
+    from(m in Meditation,
+      where: is_nil(m.archived_at),
+      group_by: m.mystery_id,
+      select: {m.mystery_id, count(m.id)}
+    )
     |> Repo.all()
     |> Map.new()
   end

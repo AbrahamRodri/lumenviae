@@ -1,154 +1,108 @@
-<.admin_page active="meditations" title="Edit Meditation" flash={@flash} max_width="max-w-4xl">
-  <div>
-    <%= if @meditation.archived_at do %>
-      <div class="mb-8 border-l-4 border-caution bg-caution-surface p-4">
-        <p class="font-work-sans text-caution-strong text-sm">
-          This meditation is archived: it is hidden from the public site and the app, along with
-          any set that contains it. You can restore it from the
-          <.link navigate="/admin/meditations?status=archived" class="underline hover:text-caution-strong">
-            meditations list
-          </.link>.
-        </p>
-      </div>
-    <% end %>
+<.admin_page
+  active="meditations"
+  title="Edit meditation"
+  subtitle={"#{@meditation.mystery.name} · #{LumenViae.Rosary.Categories.label(@meditation.mystery.category)}"}
+  flash={@flash}
+  max_width="max-w-3xl"
+>
+  <:actions>
+    <.link navigate={@return_to} class="admin-btn admin-btn-secondary">Back to list</.link>
+  </:actions>
 
-<!-- Current Mystery Info -->
-    <div class="bg-white border-l-4 border-gold p-6 mb-8">
-      <h3 class="font-cinzel text-xl text-navy mb-2">Current Mystery</h3>
-      <p class="font-work-sans text-navy">
-        {@meditation.mystery.name} ({String.capitalize(@meditation.mystery.category)})
-      </p>
-    </div>
-    
-<!-- Edit Form -->
-    <div class="bg-white border-l-4 border-gold p-8">
-      <.form for={@edit_form} phx-submit="update_meditation">
-        <div class="space-y-4">
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Mystery
-            </label>
-            <select
-              name={@edit_form[:mystery_id].name}
-              required
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
+  <.callout :if={@meditation.archived_at} tone="caution">
+    This meditation is archived: it is hidden from the public site and the app, along with any
+    set that contains it. Restore it from the <.link
+      navigate="/admin/meditations?status=archived"
+      class="underline underline-offset-2"
+    >
+      archived list
+    </.link>.
+  </.callout>
+
+  <.callout :if={@meditation.audio_url in [nil, ""] and is_nil(@meditation.archived_at)}>
+    No narration yet. The app has nothing to play for this meditation until an audio file is
+    generated or an S3 key is set below.
+  </.callout>
+
+  <.form for={@edit_form} phx-submit="update_meditation">
+    <.panel>
+      <div class="space-y-4">
+        <.field label="Mystery" required errors={@edit_form[:mystery_id].errors}>
+          <select name={@edit_form[:mystery_id].name} required class="admin-input">
+            <option
+              :for={mystery <- @mysteries}
+              value={mystery.id}
+              selected={to_string(mystery.id) == to_string(@edit_form[:mystery_id].value)}
             >
-              <%= for mystery <- @mysteries do %>
-                <option
-                  value={mystery.id}
-                  selected={to_string(mystery.id) == to_string(@edit_form[:mystery_id].value)}
-                >
-                  {mystery.name} ({String.capitalize(mystery.category)})
-                </option>
-              <% end %>
-            </select>
-            <%= for error <- @edit_form[:mystery_id].errors do %>
-              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-            <% end %>
-          </div>
+              {mystery.name} ({LumenViae.Rosary.Categories.label(mystery.category)})
+            </option>
+          </select>
+        </.field>
 
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Title (Optional)
-            </label>
+        <.field label="Title" hint="Optional." errors={@edit_form[:title].errors}>
+          <input
+            type="text"
+            name={@edit_form[:title].name}
+            value={@edit_form[:title].value || ""}
+            class="admin-input"
+            placeholder="e.g. First Meditation on the Annunciation"
+          />
+        </.field>
+
+        <.field
+          label="Content"
+          required
+          hint="Paragraph breaks carry through to the narration - keep them."
+          errors={@edit_form[:content].errors}
+        >
+          <textarea
+            name={@edit_form[:content].name}
+            required
+            rows="16"
+            class="admin-textarea"
+          ><%= @edit_form[:content].value || "" %></textarea>
+        </.field>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <.field label="Author" errors={@edit_form[:author].errors}>
             <input
               type="text"
-              name={@edit_form[:title].name}
-              value={@edit_form[:title].value || ""}
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="e.g., First Meditation on the Annunciation"
+              name={@edit_form[:author].name}
+              value={@edit_form[:author].value || ""}
+              class="admin-input"
+              placeholder="e.g. St. Alphonsus Liguori"
             />
-            <%= for error <- @edit_form[:title].errors do %>
-              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-            <% end %>
-          </div>
+          </.field>
 
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Content
-            </label>
-            <textarea
-              name={@edit_form[:content].name}
-              required
-              rows="12"
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="Paste the meditation text here..."
-            ><%= @edit_form[:content].value || "" %></textarea>
-            <%= for error <- @edit_form[:content].errors do %>
-              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-            <% end %>
-          </div>
-
-          <div class="grid md:grid-cols-2 gap-4">
-            <div>
-              <label class="font-work-sans text-navy font-semibold block mb-2">
-                Author
-              </label>
-              <input
-                type="text"
-                name={@edit_form[:author].name}
-                value={@edit_form[:author].value || ""}
-                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-                placeholder="e.g., St. Alphonsus Liguori"
-              />
-              <%= for error <- @edit_form[:author].errors do %>
-                <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-              <% end %>
-            </div>
-
-            <div>
-              <label class="font-work-sans text-navy font-semibold block mb-2">
-                Source (Optional)
-              </label>
-              <input
-                type="text"
-                name={@edit_form[:source].name}
-                value={@edit_form[:source].value || ""}
-                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-                placeholder="e.g., The Glories of Mary"
-              />
-              <%= for error <- @edit_form[:source].errors do %>
-                <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-              <% end %>
-            </div>
-          </div>
-
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Audio S3 Key (Optional)
-            </label>
+          <.field label="Source" hint="Optional." errors={@edit_form[:source].errors}>
             <input
               type="text"
-              name={@edit_form[:audio_url].name}
-              value={@edit_form[:audio_url].value || ""}
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="e.g., meditation1.mp3 or joyful/annunciation.mp3"
+              name={@edit_form[:source].name}
+              value={@edit_form[:source].value || ""}
+              class="admin-input"
+              placeholder="e.g. The Glories of Mary"
             />
-            <p class="font-work-sans text-sm text-brown-light mt-1">
-              Enter the S3 key (filename or path) for the audio in the lumenviae-audio bucket
-            </p>
-            <%= for error <- @edit_form[:audio_url].errors do %>
-              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-            <% end %>
-          </div>
-
-          <div class="flex justify-between items-center pt-4">
-            <.link
-              navigate={@return_to}
-              class="font-work-sans text-navy hover:text-gold transition-colors"
-            >
-              ← Back
-            </.link>
-
-            <button
-              type="submit"
-              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
-            >
-              Save Changes
-            </button>
-          </div>
+          </.field>
         </div>
-      </.form>
-    </div>
-  </div>
+
+        <.field
+          label="Audio S3 key"
+          hint="The filename or path in the lumenviae-audio bucket."
+          errors={@edit_form[:audio_url].errors}
+        >
+          <input
+            type="text"
+            name={@edit_form[:audio_url].name}
+            value={@edit_form[:audio_url].value || ""}
+            class="admin-input"
+            placeholder="e.g. joyful/annunciation.mp3"
+          />
+        </.field>
+      </div>
+
+      <.form_actions cancel_to={@return_to} cancel_label="Back">
+        <button type="submit" class="admin-btn admin-btn-primary">Save changes</button>
+      </.form_actions>
+    </.panel>
+  </.form>
 </.admin_page>

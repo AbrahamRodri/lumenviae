@@ -236,8 +236,8 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
 
   def row_status(rows_status, index), do: Map.get(rows_status, index, :pending)
 
-  def status_badge(:pending), do: {"bg-cream-dark text-brown-light", "Waiting"}
-  def status_badge({:working, _}), do: {"bg-gold/20 text-navy animate-pulse", "Creating"}
+  def status_badge(:pending), do: {"bg-admin-sunken text-admin-ink-faint", "Waiting"}
+  def status_badge({:working, _}), do: {"bg-navy/10 text-navy animate-pulse", "Creating"}
   def status_badge({:audio, _}), do: {"bg-notice-surface text-notice animate-pulse", "Audio"}
   def status_badge({:ok, _}), do: {"bg-positive-surface text-positive-strong", "Done"}
   def status_badge({:warning, _}), do: {"bg-caution-surface text-caution-strong", "Partial"}

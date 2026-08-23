@@ -5,127 +5,147 @@
   flash={@flash}
 >
   <:actions>
-    <.link
-      navigate="/admin/mysteries/new"
-      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
-    >
-      Create New Mystery
+    <.link navigate="/admin/mysteries/new" class="admin-btn admin-btn-primary">
+      New mystery
     </.link>
   </:actions>
-  
-<!-- Filters -->
-  <div class="bg-white border-l-4 border-gold p-6 mb-8">
-    <h3 class="font-cinzel text-xl text-navy mb-4">Filters</h3>
 
+  <div class="grid gap-3 grid-cols-2 lg:grid-cols-3 mb-5">
+    <.metric label="Mysteries" value={length(@mysteries)} hint="Across all five categories" />
+    <.metric
+      label="Without a meditation"
+      value={@bare_count}
+      tone="caution"
+      hint="Nothing active written for them yet"
+    />
+    <.metric
+      label="Categories"
+      value={length(@grouped_mysteries)}
+      hint="Showing in the current filter"
+    />
+  </div>
+
+  <.panel class="mb-5">
     <.form for={%{}} phx-change="update_filters">
-      <div class="grid gap-4 md:grid-cols-2">
+      <div class="grid gap-3 grid-cols-2 md:grid-cols-4">
         <.filter_search
           name="q"
           label="Search"
           value={@filters.query}
-          placeholder="Name, description, or scripture reference"
+          placeholder="Name, description, or scripture"
         />
-
         <.filter_select
           name="category"
           label="Category"
           value={@filters.category}
-          prompt="All Categories"
+          prompt="All"
           options={@mystery_categories}
         />
       </div>
     </.form>
 
-    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-      <p class="font-work-sans text-navy">
-        Showing {@filtered_count} of {length(@mysteries)} mysteries
-      </p>
-      <%= if @filters.query != "" or @filters.category do %>
-        <button
-          type="button"
-          phx-click="clear_filters"
-          class="font-work-sans text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
-        >
-          Clear all filters
-        </button>
-      <% end %>
-    </div>
-  </div>
-  
-<!-- Mysteries grouped by category -->
-  <div class="bg-white border-l-4 border-gold p-8 mb-8">
-    <h3 class="font-cinzel text-2xl text-navy mb-6">All Mysteries</h3>
+    <.filter_summary
+      shown={@filtered_count}
+      total={length(@mysteries)}
+      noun="mysteries"
+      filtered={filters_applied?(@filters)}
+    />
+  </.panel>
 
-    <%= if @grouped_mysteries == [] do %>
-      <.empty_state>
-        No mysteries match the current filters.
-      </.empty_state>
-    <% else %>
-      <%= for {category, mysteries} <- @grouped_mysteries do %>
-        <div class="mb-8 last:mb-0">
-          <h4 class="font-cinzel text-xl text-navy mb-4">
-            {LumenViae.Rosary.Categories.label(category)}
-          </h4>
-          <div class="space-y-3">
-            <%= for mystery <- mysteries do %>
-              <div class="flex items-start justify-between p-4 bg-cream rounded-lg hover:bg-cream-dark transition-colors">
-                <div class="flex-1 min-w-0">
-                  <h5 class="font-work-sans font-semibold text-navy">
-                    {mystery.order}. {mystery.name}
-                    <%= if meditation_count(@meditation_counts, mystery.id) == 0 do %>
-                      <.admin_badge tone="amber">No meditations</.admin_badge>
-                    <% else %>
-                      <.admin_badge tone="gold">
-                        {meditation_count(@meditation_counts, mystery.id)} meditations
-                      </.admin_badge>
-                    <% end %>
-                  </h5>
-                  <%= if mystery.description do %>
-                    <p class="font-work-sans text-sm text-brown mt-1">
-                      {mystery.description}
-                    </p>
-                  <% end %>
-                  <%= if mystery.scripture_reference do %>
-                    <p class="font-work-sans text-xs text-gold mt-1 italic">
-                      {mystery.scripture_reference}
-                    </p>
-                  <% end %>
-                  <%= if mystery.days_prayed do %>
-                    <p class="font-work-sans text-xs text-brown-light mt-1">
-                      Prayed on: {mystery.days_prayed}
-                    </p>
-                  <% end %>
-                </div>
-
-                <div class="flex items-center space-x-2 ml-4 flex-shrink-0">
-                  <.link
-                    navigate={"/admin/meditations?mystery=#{mystery.id}"}
-                    class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
-                  >
-                    Meditations
-                  </.link>
-
+  <%= if @grouped_mysteries == [] do %>
+    <.panel>
+      <.empty_state>No mysteries match these filters.</.empty_state>
+    </.panel>
+  <% else %>
+    <div class="space-y-5">
+      <.panel :for={{label, mysteries} <- @grouped_mysteries} title={label} flush>
+        <div class="overflow-x-auto">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th class="w-10">#</th>
+                <th>Mystery</th>
+                <th>Scripture</th>
+                <th>Prayed on</th>
+                <th>Meditations</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr :for={mystery <- mysteries}>
+                <td class="text-admin-ink-faint">{mystery.order}</td>
+                <td>
                   <.link
                     navigate={"/admin/mysteries/#{mystery.id}/edit"}
-                    class="px-4 py-2 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
+                    class="font-medium text-admin-ink hover:text-navy"
                   >
-                    Edit
+                    {mystery.name}
                   </.link>
-
-                  <button
-                    phx-click="delete_mystery"
-                    phx-value-id={mystery.id}
-                    data-confirm="Are you sure you want to delete this mystery? This will also delete all associated meditations."
-                    class="px-4 py-2 text-danger border border-danger rounded hover:bg-danger hover:text-white transition-colors font-work-sans text-sm"
+                  <p
+                    :if={mystery.description}
+                    class="text-xs text-admin-ink-faint truncate max-w-md"
                   >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            <% end %>
-          </div>
+                    {mystery.description}
+                  </p>
+                </td>
+                <td class="text-admin-ink-soft">
+                  {mystery.scripture_reference || "—"}
+                </td>
+                <td class="text-admin-ink-soft">{mystery.days_prayed || "—"}</td>
+                <td>
+                  <.admin_badge
+                    :if={meditation_count(@active_counts, mystery.id) == 0}
+                    tone="amber"
+                  >
+                    None
+                  </.admin_badge>
+                  <span :if={meditation_count(@active_counts, mystery.id) > 0}>
+                    <span class="font-medium text-admin-ink">
+                      {meditation_count(@active_counts, mystery.id)}
+                    </span>
+                    <span
+                      :if={
+                        meditation_count(@meditation_counts, mystery.id) >
+                          meditation_count(@active_counts, mystery.id)
+                      }
+                      class="text-admin-ink-faint"
+                      title="Active, of the total including archived"
+                    >
+                      of {meditation_count(@meditation_counts, mystery.id)}
+                    </span>
+                  </span>
+                </td>
+                <td>
+                  <div class="flex items-center justify-end gap-1">
+                    <.link
+                      navigate={"/admin/meditations?mystery=#{mystery.id}"}
+                      class="admin-btn admin-btn-secondary"
+                    >
+                      Meditations
+                    </.link>
+                    <.link
+                      navigate={"/admin/mysteries/#{mystery.id}/edit"}
+                      class="admin-btn admin-btn-secondary"
+                    >
+                      Edit
+                    </.link>
+                    <button
+                      type="button"
+                      phx-click="delete_mystery"
+                      phx-value-id={mystery.id}
+                      data-confirm={"Delete \"#{mystery.name}\"? Every meditation attached to it is deleted too."}
+                      class="admin-btn admin-btn-danger"
+                      aria-label={"Delete #{mystery.name}"}
+                    >
+                      <span class="hero-trash size-3.5" aria-hidden="true" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      <% end %>
-    <% end %>
-  </div>
+      </.panel>
+    </div>
+  <% end %>
 </.admin_page>

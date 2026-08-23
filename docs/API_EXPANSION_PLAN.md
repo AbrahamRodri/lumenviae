@@ -411,7 +411,7 @@ def artwork_metadata_changeset(set, attrs), do: Artwork.cast_metadata(set, attrs
 
 `changeset/2` is left alone: artwork is not castable there, for the same reason `archived_at` is not castable on `Meditation`.
 
-**Secondary Context** `lib/lumen_viae/rosary/meditation_sets.ex`: `update_artwork/2`, `update_artwork_metadata/2`, `change_artwork/2`, `count_missing_artwork/0`. No index on `image_key` — the table holds 27 rows, so the planner would never choose one.
+**Secondary Context** `lib/lumen_viae/rosary/meditation_sets.ex`: `update_artwork/2`, `update_artwork_metadata/2`, `change_artwork/2`, `list_ids_missing_artwork/0`. No index on `image_key` — the table holds 27 rows, so the planner would never choose one.
 
 **Primary Context** `lib/lumen_viae/rosary.ex`:
 
@@ -419,7 +419,7 @@ def artwork_metadata_changeset(set, attrs), do: Artwork.cast_metadata(set, attrs
 defdelegate update_meditation_set_artwork(set, attrs), to: MeditationSets, as: :update_artwork
 defdelegate update_meditation_set_artwork_metadata(set, attrs), to: MeditationSets, as: :update_artwork_metadata
 defdelegate change_meditation_set_artwork(set, attrs \\ %{}), to: MeditationSets, as: :change_artwork
-defdelegate count_meditation_sets_missing_artwork(), to: MeditationSets, as: :count_missing_artwork
+defdelegate meditation_set_ids_missing_artwork(), to: MeditationSets, as: :list_ids_missing_artwork
 
 @doc "Stable public URL for a set's or a meditation's artwork, or nil."
 def artwork_url(%{image_key: key}), do: S3.public_url(key)
@@ -992,7 +992,30 @@ Every new request field is optional, so a body carrying only `meditation_set_id`
 
 **The privacy policy edit ships in this commit, not after.** `live/privacy_policy/index.ex` currently describes completion data as "which set was completed and when". Widen it to name duration and narration use, and add a sentence that completions carry no device, install or account identifier.
 
-Explicitly rejected: any device or install identifier however rotated; IP on the API path (it stays `nil`); locale; timezone; and abandonment events. That last one is the only way to compute a true completion *rate*, so be clear about the consequence — `duration_seconds` and `audio_used` describe finished Rosaries and cannot tell you what fraction were finished.
+Explicitly rejected: any device or install identifier however rotated, and abandonment events. The latter is the only way to compute a true completion *rate*, so be clear about the consequence — `duration_seconds` and `audio_used` describe finished Rosaries and cannot tell you what fraction were finished.
+
+> **Reversed on 22 August 2026 — IP, locale and timezone on the API path.**
+>
+> This section previously rejected all three. They now ship, on both the API
+> and the website, and the reasoning above no longer applies to them.
+>
+> What changed is what they are used for. They were rejected as *identifiers*
+> — as ways to recognise a returning device — and that objection stands: none
+> of them may be used that way. What is stored instead is a place and a habit,
+> deliberately too coarse to identify anyone:
+>
+> * the address is truncated to a network prefix before it is written and the
+>   full value is never stored, so a household cannot be singled out;
+> * the timezone and locale are read from `TimeZone.current` and
+>   `Locale.current`, neither of which needs a permission prompt and neither of
+>   which is Core Location;
+> * nothing links two completions to each other, so there is still no way to
+>   assemble a history of one person's praying.
+>
+> The privacy policy was widened in the same change to describe all of this,
+> including the third-party geolocation lookup by name. See
+> `LumenViae.Rosary.record_completion/2`, `LumenViaeWeb.ClientIP` and
+> `LumenViae.Services.Geolocation`.
 
 ---
 
@@ -1162,7 +1185,15 @@ Considered and rejected, so they do not come back.
 
 **Pagination.** 27 sets and 27 mysteries. Revisit past roughly 200.
 
-**Rate limiting.** Public GETs of public content on a single Fly machine that already sleeps. The realistic failure mode is a cold start, not a flood. `POST /api/completions` is the one route where it might eventually matter, and the mitigation is a five-minute deploy if it does.
+**Rate limiting on the public GETs.** Public reads of public content on a single Fly machine that already sleeps. The realistic failure mode is a cold start, not a flood.
+
+> **Superseded for `POST /api/completions` on 22 August 2026.** This section
+> correctly named that route as the one where a limit might eventually matter.
+> It does now: the completion row carries a place and the dashboard reads it as
+> fact, so an afternoon of scripted posts is an afternoon of figures that mean
+> nothing. `LumenViaeWeb.Plugs.GuardCompletions` caps it per address, and turns
+> away crawlers that announce themselves. The other API routes are still
+> unlimited, for exactly the reason given above.
 
 **`Marian` and `Vocation` labels.** Labels answer "what kind of meditation is this" along two sub-axes — provenance (Saints, Scriptural) and style (Contemplative vs Considerations, mutually exclusive by the module's own doc). Marian and Vocation answer "what is it *about*", which is subject matter, which is the axis intentions exist to carry. Vocation is redundant with `discernment`/`children`/`family` on arrival; Marian applies to most of the catalogue, so it filters nothing. And `max_per_set` is 3 against a vocabulary of 5, so two subject labels would start pushing `Saints` off sets by actual saints. See decision 3 — this is your call, not mine, but the recommendation is no.
 

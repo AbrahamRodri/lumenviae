@@ -59,6 +59,10 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - Many-to-many relationship between meditation sets and meditations, with
   the prayer order carried on the join row
 - ElevenLabs narration generated at import, stored in S3
+- Completion analytics carrying an approximate place, taken from the
+  request's address with nobody prompted for anything. See
+  docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
+  change as any code that widens what is collected
 - Admin interface for managing meditations and sets
 - JSON API consumed by the iOS app
 - Traditional Latin Mass aesthetic (Navy/Gold color scheme)
@@ -68,11 +72,26 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - `meditations` - Individual meditations tied to mysteries
 - `meditation_sets` - Curated collections of meditations
 - `meditation_set_meditations` - Join table with ordering
-- `rosary_completions` - Completion analytics
+- `rosary_completions` - Completion analytics, including approximate
+  location, surface (web or iOS) and a truncated IP prefix. The full
+  address is never stored
 
 Every table is reached through `LumenViae.Rosary`. The category vocabulary
 lives in `LumenViae.Rosary.Categories` and the set label vocabulary in
 `LumenViae.Rosary.Labels` - never inline those lists.
+
+### The Admin Console
+Everything under `/admin` is a console with its own design language and its
+own root layout (no site header, no footer). It uses the `--color-admin-*`
+tokens, Work Sans only, and the `LumenViaeWeb.Components.Admin` vocabulary
+(`<.admin_page>`, `<.panel>`, `<.metric>`, `<.field>`, `.admin-btn`,
+`.admin-table`). Never use a public-site colour or font inside it, or a
+console token outside it. See the admin console section in
+docs/ARCHITECTURE.md before touching an admin screen.
+
+Local development skips the admin login (`config :lumen_viae,
+:skip_admin_auth, true` in `config/dev.exs`), so `/admin` opens straight
+from the browser.
 
 ### Styling
 - Tailwind CSS v4 with a custom theme in `assets/css/app.css`

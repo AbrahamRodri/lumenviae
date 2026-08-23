@@ -15,6 +15,14 @@ config :lumen_viae,
 # meditation audio (seconds; ElevenLabs caps break tags at 3s).
 config :lumen_viae, :tts_paragraph_break_seconds, 1.2
 
+# Turning an address into a rough place for the completion analytics.
+# Off unless a runtime config says otherwise, so a lookup is something
+# production opts into rather than something every laptop does by default.
+# See LumenViae.Services.Geolocation.
+config :lumen_viae, :geolocation,
+  enabled: false,
+  provider: :ipapi_co
+
 # Configures the endpoint
 config :lumen_viae, LumenViaeWeb.Endpoint,
   url: [host: "localhost"],

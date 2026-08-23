@@ -27,8 +27,20 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.List do
   end
 
   defp load_authors(socket) do
-    assign(socket, :authors, Rosary.list_authors())
+    authors = Rosary.list_authors()
+    set_counts = Rosary.meditation_set_counts_by_author()
+
+    socket
+    |> assign(:authors, authors)
+    |> assign(:set_counts, set_counts)
+    |> assign(:summary, %{
+      total: length(authors),
+      served: Enum.count(authors, &Artwork.publishable?/1),
+      unlinked: Enum.count(authors, &(Map.get(set_counts, &1.id, 0) == 0))
+    })
   end
+
+  def set_count(counts, author_id), do: Map.get(counts, author_id, 0)
 
   def portrait_state(author) do
     cond do

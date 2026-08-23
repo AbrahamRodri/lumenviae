@@ -1,0 +1,42 @@
+<div class="admin-root min-h-screen bg-admin-shell flex items-center justify-center px-4">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-6">
+      <p class="font-cinzel-decorative text-gold text-lg tracking-[0.18em]">LUMEN VIAE</p>
+      <p class="admin-eyebrow text-white/40 mt-1">Console</p>
+    </div>
+
+    <div class="bg-admin-surface border border-admin-hairline rounded-lg shadow-admin-raised p-6">
+      <LumenViaeWeb.Layouts.flash_group flash={@flash} />
+
+      <h1 class="text-[0.9375rem] font-semibold text-admin-ink mb-1">Sign in</h1>
+      <p class="text-xs text-admin-ink-soft mb-5">
+        The console is password protected. Ask the site owner if you need it.
+      </p>
+
+      <form action="/admin/session" method="post" class="space-y-4">
+        <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+
+        <.field label="Password" required>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="admin-input"
+            placeholder="Admin password"
+            autocomplete="current-password"
+            autofocus
+            required
+          />
+        </.field>
+
+        <button type="submit" class="admin-btn admin-btn-primary w-full">Sign in</button>
+      </form>
+    </div>
+
+    <p class="text-center mt-4">
+      <a href="/" class="text-xs text-white/50 hover:text-white transition-colors">
+        Back to the site
+      </a>
+    </p>
+  </div>
+</div>

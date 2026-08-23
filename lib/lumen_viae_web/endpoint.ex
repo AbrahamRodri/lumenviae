@@ -11,7 +11,18 @@ defmodule LumenViaeWeb.Endpoint do
     same_site: "Lax"
   ]
 
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  # `:x_headers` and `:peer_data` are what let a LiveView see who connected,
+  # which the completion analytics need; `:user_agent` is what lets it tell
+  # a crawler from a person.
+  #
+  # Note that `:x_headers` collects only headers beginning with `x-`, so
+  # Fly's own `Fly-Client-IP` never reaches a socket and the address here
+  # comes from `X-Forwarded-For`. `LumenViaeWeb.ClientIP` reads both and
+  # takes whichever it is given.
+  socket "/live", Phoenix.LiveView.Socket,
+    websocket: [
+      connect_info: [:peer_data, :x_headers, :user_agent, session: @session_options]
+    ]
 
   # Serve at "/" the static files from "priv/static" directory.
   #

@@ -15,6 +15,19 @@ defmodule LumenViaeWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Only the completion write goes through this. The other API routes serve
+  # content that is public on the site anyway, so turning a crawler away
+  # from them protects nothing and mostly risks turning away a reader.
+  pipeline :api_completions do
+    plug LumenViaeWeb.Plugs.GuardCompletions
+  end
+
+  # The console is a tool, not a page of the site: it gets a bare layout with
+  # no public header and no footer, so the full height belongs to the work.
+  pipeline :admin_layout do
+    plug :put_root_layout, html: {LumenViaeWeb.Layouts, :root_admin}
+  end
+
   pipeline :admin do
     plug LumenViaeWeb.Plugs.RequireAdmin
   end
@@ -49,8 +62,6 @@ defmodule LumenViaeWeb.Router do
     # Privacy policy (for iOS App Store listing)
     live "/privacy-policy", Live.PrivacyPolicy.Index
 
-    # Admin login (public)
-    live "/admin/login", Live.Admin.Login
     post "/admin/session", AdminSessionController, :create
     delete "/admin/session", AdminSessionController, :delete
 
@@ -61,9 +72,16 @@ defmodule LumenViaeWeb.Router do
     live "/meditation-sets/:set_id/pray", Live.Pray.Index
   end
 
+  # Admin login: the console's layout, but no admin session required yet.
+  scope "/", LumenViaeWeb do
+    pipe_through [:browser, :admin_layout]
+
+    live "/admin/login", Live.Admin.Login
+  end
+
   # Admin routes - protected by password authentication
   scope "/admin", LumenViaeWeb do
-    pipe_through [:browser, :admin]
+    pipe_through [:browser, :admin_layout, :admin]
 
     # Admin dashboard - landing page with navigation
     live "/", Live.Admin.Dashboard
@@ -104,11 +122,16 @@ defmodule LumenViaeWeb.Router do
     # Mysteries
     get "/mysteries", MysteryController, :index
 
-    # Completions
-    post "/completions", CompletionController, :create
-
     # Prayers
     get "/prayers/:id/audio", PrayerController, :audio
+  end
+
+  # The one write the public API exposes, and so the one route that gets a
+  # crawler check and a rate limit in front of it.
+  scope "/api", LumenViaeWeb.API do
+    pipe_through [:api, :api_completions]
+
+    post "/completions", CompletionController, :create
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

@@ -163,10 +163,76 @@ defmodule LumenViae.RosaryTest do
       {:ok, _} = Rosary.archive_meditation(archived)
 
       assert Rosary.count_archived_meditations() == 1
-      # the archived meditation is excluded even though it has no audio
-      assert Rosary.count_active_meditations_missing_audio() == 1
-      assert Rosary.count_meditations_not_in_any_set() == 2
+      # Archived meditations are not counted as gaps, and neither is an
+      # unnarrated one nobody can reach: only the meditation in a live set
+      # with no audio would be.
+      assert Rosary.public_meditation_ids_missing_audio() == []
+      assert Rosary.count_meditations_not_in_any_set() == 1
       assert Rosary.meditation_counts_by_mystery() == %{mystery.id => 3}
+      assert Rosary.active_meditation_counts_by_mystery() == %{mystery.id => 2}
+    end
+
+    test "missing audio counts only meditations the public can reach" do
+      mystery = create_mystery()
+      set = create_set()
+
+      reachable = create_meditation(mystery)
+      _orphan = create_meditation(mystery)
+      put_in_set(set, reachable)
+
+      assert Rosary.public_meditation_ids_missing_audio() == [reachable.id]
+    end
+
+    test "a set hidden by an archived meditation stops reporting missing audio" do
+      mystery = create_mystery()
+      set = create_set()
+
+      silent = create_meditation(mystery)
+      archived = create_meditation(mystery, %{audio_url: "narrated.mp3"})
+      put_in_set(set, silent, 1)
+      put_in_set(set, archived, 2)
+
+      assert Rosary.public_meditation_ids_missing_audio() == [silent.id]
+
+      {:ok, _} = Rosary.archive_meditation(archived)
+
+      # The set is now hidden, so its unnarrated meditation is nobody's
+      # problem until the set comes back.
+      assert Rosary.public_meditation_ids_missing_audio() == []
+    end
+
+    test "completions_by_day fills in the days nobody prayed" do
+      set = create_set()
+      {:ok, _} = Rosary.record_completion(set.id)
+
+      series = Rosary.completions_by_day(7)
+
+      assert length(series) == 7
+      assert Enum.map(series, & &1.date) == Enum.sort(Enum.map(series, & &1.date))
+      assert List.last(series).date == LumenViae.CentralTime.today()
+      assert Enum.sum(Enum.map(series, & &1.count)) == 1
+    end
+
+    test "completion_summary pairs each window with the one before it" do
+      set = create_set()
+      {:ok, _} = Rosary.record_completion(set.id)
+      {:ok, _} = Rosary.record_completion(set.id)
+
+      summary = Rosary.completion_summary()
+
+      assert summary.total == 2
+      assert summary.today == 2
+      assert summary.last_7 == 2
+      assert summary.previous_7 == 0
+      assert summary.active_sets_30 == 1
+    end
+
+    test "get_completions_by_set can be windowed to a trailing period" do
+      recent = create_set()
+      {:ok, _} = Rosary.record_completion(recent.id)
+
+      assert [%{set_id: id, count: 1}] = Rosary.get_completions_by_set(days: 30)
+      assert id == recent.id
     end
 
     test "meditation_set_stats aggregates per-set counts" do

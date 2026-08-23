@@ -1,10 +1,13 @@
 defmodule LumenViaeWeb.Live.Meditations.List.Row do
   @moduledoc """
-  A single meditation row in the admin meditations list, with selection
-  checkbox, status badges, actions, and expandable content. Stateless;
-  events are handled by the parent LiveView.
+  One meditation as a table row: selection checkbox, status columns,
+  actions, and an expansion holding the text itself.
+
+  Stateless; events are handled by the parent LiveView.
   """
   use LumenViaeWeb, :html
+
+  alias LumenViae.CentralTime
 
   attr :meditation, :map, required: true
   attr :expanded, :boolean, default: false
@@ -12,134 +15,167 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
 
   def meditation_row(assigns) do
     ~H"""
-    <div class="border border-gold/20 rounded-lg overflow-hidden">
-      <div class="flex items-start justify-between gap-4 p-4 bg-cream hover:bg-cream-dark transition-colors">
-        <div class="flex items-start gap-3 flex-1 min-w-0">
-          <input
-            type="checkbox"
-            checked={@selected}
-            phx-click="toggle_selected"
-            phx-value-id={@meditation.id}
-            class="mt-1.5 h-4 w-4 accent-[#b18b49] cursor-pointer"
-          />
-          <div class="min-w-0">
-            <h4 class="font-work-sans font-semibold text-navy">
-              {@meditation.mystery.name}
-              {if @meditation.title, do: " - #{@meditation.title}"}
-            </h4>
-            <p class="font-work-sans text-sm text-brown">
-              <%= if @meditation.author do %>
-                by {@meditation.author}
-              <% end %>
-              <%= if @meditation.source do %>
-                <span class="italic text-brown-light">({@meditation.source})</span>
-              <% end %>
-            </p>
-            <div class="flex flex-wrap items-center gap-1.5 mt-2">
-              <.admin_badge tone="navy">
-                {String.replace(@meditation.mystery.category, "_", " ")}
-              </.admin_badge>
+    <tr class={[@expanded && "bg-admin-sunken", @selected && "bg-navy/[0.03]"]}>
+      <td class="w-8">
+        <input
+          type="checkbox"
+          checked={@selected}
+          phx-click="toggle_selected"
+          phx-value-id={@meditation.id}
+          aria-label={"Select meditation #{@meditation.id}"}
+          class="size-3.5 accent-navy cursor-pointer align-middle"
+        />
+      </td>
 
-              <%= if @meditation.archived_at do %>
-                <.admin_badge tone="gray">Archived</.admin_badge>
-              <% end %>
-
-              <%= if @meditation.audio_url in [nil, ""] do %>
-                <.admin_badge tone="amber">No audio</.admin_badge>
-              <% else %>
-                <.admin_badge tone="green" title={@meditation.audio_url}>Audio</.admin_badge>
-              <% end %>
-
-              <%= if @meditation.meditation_sets == [] do %>
-                <.admin_badge tone="amber">Not in a set</.admin_badge>
-              <% else %>
-                <%= for set <- @meditation.meditation_sets do %>
-                  <.admin_badge tone="gold" title={"In set: #{set.name}"}>{set.name}</.admin_badge>
-                <% end %>
-              <% end %>
-
-              <span class="font-work-sans text-xs text-brown-light ml-1">
-                ID {@meditation.id} &middot; added {Calendar.strftime(
-                  @meditation.inserted_at,
-                  "%b %d, %Y"
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 flex-shrink-0">
+      <td>
+        <div class="flex items-start gap-2">
           <button
+            type="button"
             phx-click="toggle_meditation"
             phx-value-id={@meditation.id}
-            class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
+            class="mt-0.5 text-admin-ink-faint hover:text-admin-ink shrink-0"
+            aria-label={if @expanded, do: "Collapse meditation", else: "Read meditation"}
           >
-            {if @expanded, do: "Hide", else: "View"}
+            <span
+              class={[
+                if(@expanded, do: "hero-chevron-down", else: "hero-chevron-right"),
+                "size-4 block"
+              ]}
+              aria-hidden="true"
+            />
           </button>
+          <div class="min-w-0">
+            <.link
+              navigate={"/admin/meditations/#{@meditation.id}/edit"}
+              class="font-medium text-admin-ink hover:text-navy"
+            >
+              {@meditation.mystery.name}
+            </.link>
+            <p :if={@meditation.title} class="text-xs text-admin-ink-soft truncate max-w-sm">
+              {@meditation.title}
+            </p>
+          </div>
+        </div>
+      </td>
 
+      <td><.category_badge category={@meditation.mystery.category} /></td>
+
+      <td class="text-admin-ink-soft">
+        <span :if={@meditation.author}>{@meditation.author}</span>
+        <span :if={is_nil(@meditation.author)} class="text-admin-ink-faint">&mdash;</span>
+        <p :if={@meditation.source} class="text-xs text-admin-ink-faint truncate max-w-[14rem]">
+          {@meditation.source}
+        </p>
+      </td>
+
+      <td>
+        <div class="flex flex-wrap gap-1">
+          <.admin_badge
+            :for={set <- @meditation.meditation_sets}
+            tone="gold"
+            title={"In set: #{set.name}"}
+          >
+            {set.name}
+          </.admin_badge>
+          <.admin_badge :if={@meditation.meditation_sets == []} tone="amber">
+            Not in a set
+          </.admin_badge>
+        </div>
+      </td>
+
+      <td>
+        <.admin_badge
+          :if={@meditation.audio_url not in [nil, ""]}
+          tone="green"
+          title={@meditation.audio_url}
+        >
+          Audio
+        </.admin_badge>
+        <.admin_badge :if={@meditation.audio_url in [nil, ""]} tone="amber">No audio</.admin_badge>
+      </td>
+
+      <td>
+        <.admin_badge :if={@meditation.archived_at} tone="red">Archived</.admin_badge>
+        <.admin_badge :if={is_nil(@meditation.archived_at)} tone="green">Active</.admin_badge>
+      </td>
+
+      <td>
+        <div class="flex items-center justify-end gap-1">
           <.link
             navigate={"/admin/meditations/#{@meditation.id}/edit"}
-            class="px-3 py-1.5 text-navy border border-navy rounded hover:bg-navy hover:text-white transition-colors font-work-sans text-sm"
+            class="admin-btn admin-btn-secondary"
           >
             Edit
           </.link>
 
-          <%= if @meditation.archived_at do %>
-            <button
-              phx-click="unarchive_meditation"
-              phx-value-id={@meditation.id}
-              class="px-3 py-1.5 text-caution border border-caution rounded hover:bg-caution hover:text-white transition-colors font-work-sans text-sm"
-            >
-              Unarchive
-            </button>
-          <% else %>
-            <button
-              phx-click="archive_meditation"
-              phx-value-id={@meditation.id}
-              data-confirm="Archive this meditation? It will be hidden from the public site, along with any meditation set that contains it. You can unarchive it at any time."
-              class="px-3 py-1.5 text-caution border border-caution rounded hover:bg-caution hover:text-white transition-colors font-work-sans text-sm"
-            >
-              Archive
-            </button>
-          <% end %>
+          <button
+            :if={@meditation.archived_at}
+            type="button"
+            phx-click="unarchive_meditation"
+            phx-value-id={@meditation.id}
+            class="admin-btn admin-btn-secondary"
+          >
+            Restore
+          </button>
+          <button
+            :if={is_nil(@meditation.archived_at)}
+            type="button"
+            phx-click="archive_meditation"
+            phx-value-id={@meditation.id}
+            data-confirm="Archive this meditation? It will be hidden from the public site, along with any meditation set that contains it. You can restore it at any time."
+            class="admin-btn admin-btn-secondary"
+            title="Archive"
+          >
+            <span class="hero-archive-box size-3.5" aria-hidden="true" />
+          </button>
 
           <button
+            type="button"
             phx-click="delete_meditation"
             phx-value-id={@meditation.id}
-            data-confirm="Are you sure you want to delete this meditation? This cannot be undone - archiving is usually the safer choice."
-            class="px-3 py-1.5 text-danger border border-danger rounded hover:bg-danger hover:text-white transition-colors font-work-sans text-sm"
+            data-confirm="Permanently delete this meditation? This cannot be undone - archiving is usually the safer choice."
+            class="admin-btn admin-btn-danger"
+            aria-label="Delete meditation"
           >
-            Delete
+            <span class="hero-trash size-3.5" aria-hidden="true" />
           </button>
         </div>
-      </div>
+      </td>
+    </tr>
 
-      <%= if @expanded do %>
-        <div class="p-6 bg-white border-t border-gold/20">
-          <div class="prose max-w-none">
-            <p class="font-work-sans text-navy whitespace-pre-wrap">{@meditation.content}</p>
-
-            <div class="mt-4 space-y-1">
-              <%= if @meditation.source do %>
-                <p class="font-work-sans text-sm text-brown-light italic">
-                  Source: {@meditation.source}
-                </p>
-              <% end %>
-              <%= if @meditation.audio_url not in [nil, ""] do %>
-                <p class="font-work-sans text-sm text-brown-light">
-                  Audio S3 key: {@meditation.audio_url}
-                </p>
-              <% end %>
-              <%= if @meditation.tts_annotations != [] do %>
-                <p class="font-work-sans text-sm text-brown-light">
-                  Narration pauses: {length(@meditation.tts_annotations)}
-                </p>
-              <% end %>
+    <tr :if={@expanded} class="bg-admin-sunken">
+      <td colspan="8" class="pt-0">
+        <div class="pl-8 pr-2 pb-2 max-w-3xl">
+          <p class="whitespace-pre-wrap text-admin-ink leading-relaxed">
+            {@meditation.content}
+          </p>
+          <dl class="flex flex-wrap gap-x-6 gap-y-1 mt-3 text-xs text-admin-ink-faint">
+            <div :if={@meditation.source}>
+              <dt class="inline admin-eyebrow">Source</dt>
+              <dd class="inline ml-1">{@meditation.source}</dd>
             </div>
-          </div>
+            <div :if={@meditation.audio_url not in [nil, ""]}>
+              <dt class="inline admin-eyebrow">Audio key</dt>
+              <dd class="inline ml-1">{@meditation.audio_url}</dd>
+            </div>
+            <div :if={@meditation.tts_annotations != []}>
+              <dt class="inline admin-eyebrow">Narration pauses</dt>
+              <dd class="inline ml-1">{length(@meditation.tts_annotations)}</dd>
+            </div>
+            <div>
+              <dt class="inline admin-eyebrow">Added</dt>
+              <dd class="inline ml-1">
+                {Calendar.strftime(@meditation.inserted_at, "%b %-d, %Y")}
+              </dd>
+            </div>
+            <div>
+              <dt class="inline admin-eyebrow">Updated</dt>
+              <dd class="inline ml-1">{CentralTime.format(@meditation.updated_at)}</dd>
+            </div>
+          </dl>
         </div>
-      <% end %>
-    </div>
+      </td>
+    </tr>
     """
   end
 end

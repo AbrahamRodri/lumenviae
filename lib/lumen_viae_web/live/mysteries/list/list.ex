@@ -3,8 +3,6 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
   alias LumenViae.Rosary.Categories
   alias LumenViae.Rosary
 
-  @categories ~w(joyful sorrowful glorious luminous seven_sorrows)
-
   def mount(_params, _session, socket) do
     {:ok,
      socket
@@ -45,9 +43,14 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
   end
 
   defp load_data(socket) do
+    mysteries = Rosary.list_mysteries()
+    active_counts = Rosary.active_meditation_counts_by_mystery()
+
     socket
-    |> assign(:mysteries, Rosary.list_mysteries())
+    |> assign(:mysteries, mysteries)
     |> assign(:meditation_counts, Rosary.meditation_counts_by_mystery())
+    |> assign(:active_counts, active_counts)
+    |> assign(:bare_count, Enum.count(mysteries, &(Map.get(active_counts, &1.id, 0) == 0)))
   end
 
   defp apply_filters(socket) do
@@ -59,11 +62,11 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
       |> filter_by_query(filters.query)
 
     grouped =
-      @categories
+      Categories.slugs()
       |> Enum.map(fn category ->
-        {category, Enum.filter(filtered, &(&1.category == category))}
+        {Categories.label(category), Enum.filter(filtered, &(&1.category == category))}
       end)
-      |> Enum.reject(fn {_category, mysteries} -> mysteries == [] end)
+      |> Enum.reject(fn {_label, mysteries} -> mysteries == [] end)
 
     socket
     |> assign(:filtered_count, length(filtered))
@@ -94,7 +97,7 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
   defp parse_filters(params) do
     %{
       query: String.trim(params["q"] || ""),
-      category: if(params["category"] in @categories, do: params["category"])
+      category: if(params["category"] in Categories.slugs(), do: params["category"])
     }
   end
 
@@ -104,4 +107,6 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
   end
 
   def meditation_count(counts, mystery_id), do: Map.get(counts, mystery_id, 0)
+
+  def filters_applied?(filters), do: filters.query != "" or filters.category != nil
 end

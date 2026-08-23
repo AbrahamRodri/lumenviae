@@ -1,113 +1,75 @@
-<.admin_page active="mysteries" title="Create New Mystery" flash={@flash} max_width="max-w-4xl">
-  <div>
-    <div class="bg-white border-l-4 border-gold p-8">
-      <.form for={@mystery_form} phx-submit="create_mystery">
-        <div class="space-y-4">
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              required
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="e.g., The Annunciation"
-            />
-          </div>
+<.admin_page
+  active="mysteries"
+  title="New mystery"
+  subtitle="Mysteries are the fixed frame meditations attach to; you will rarely add one."
+  flash={@flash}
+  max_width="max-w-3xl"
+>
+  <.form for={@mystery_form} phx-submit="create_mystery">
+    <.panel>
+      <div class="space-y-4">
+        <.field label="Name" required>
+          <input
+            type="text"
+            name="name"
+            required
+            class="admin-input"
+            placeholder="e.g. The Annunciation"
+          />
+        </.field>
 
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Category
-            </label>
-            <select
-              name="category"
-              required
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-            >
-              <option value="">Select a Category</option>
-              <option value="joyful">Joyful Mysteries</option>
-              <option value="sorrowful">Sorrowful Mysteries</option>
-              <option value="glorious">Glorious Mysteries</option>
-              <option value="luminous">Luminous Mysteries</option>
-              <option value="seven_sorrows">Seven Sorrows of Mary</option>
+        <div class="grid md:grid-cols-2 gap-4">
+          <.field label="Category" required>
+            <select name="category" required class="admin-input">
+              <option value="">Select a category</option>
+              <option :for={{label, slug} <- LumenViae.Rosary.Categories.options()} value={slug}>
+                {label}
+              </option>
             </select>
-          </div>
+          </.field>
 
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Order (1-7)
-            </label>
-            <input
-              type="number"
-              name="order"
-              required
-              min="1"
-              max="7"
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="e.g., 1"
-            />
-            <p class="font-work-sans text-sm text-brown-light mt-1">
-              Position within the category (Rosary: 1-5, Seven Sorrows: 1-7)
-            </p>
-          </div>
+          <.field
+            label="Order"
+            required
+            hint="Position within the category. Rosary 1-5, Seven Sorrows 1-7."
+          >
+            <input type="number" name="order" required min="1" max="7" class="admin-input" />
+          </.field>
+        </div>
 
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Description
-            </label>
-            <textarea
-              name="description"
-              rows="3"
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="e.g., The angel Gabriel announces to Mary that she is to be the Mother of God."
-            ></textarea>
-          </div>
+        <.field label="Description">
+          <textarea
+            name="description"
+            rows="3"
+            class="admin-textarea"
+            placeholder="e.g. The angel Gabriel announces to Mary that she is to be the Mother of God."
+          ></textarea>
+        </.field>
 
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Scripture Reference
-            </label>
+        <div class="grid md:grid-cols-2 gap-4">
+          <.field label="Scripture reference">
             <input
               type="text"
               name="scripture_reference"
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="e.g., Luke 1:26-38"
+              class="admin-input"
+              placeholder="e.g. Luke 1:26-38"
             />
-          </div>
+          </.field>
 
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Days Prayed
-            </label>
+          <.field label="Days prayed" hint="The traditional days for this mystery.">
             <input
               type="text"
               name="days_prayed"
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="e.g., Mondays, Thursdays, and Saturdays"
+              class="admin-input"
+              placeholder="e.g. Mondays, Thursdays, and Saturdays"
             />
-            <p class="font-work-sans text-sm text-brown-light mt-1">
-              Traditional days of the week when this mystery is prayed
-            </p>
-          </div>
-
-          <div class="flex justify-between items-center pt-4">
-            <.link
-              navigate="/admin/mysteries"
-              class="font-work-sans text-navy hover:text-gold transition-colors"
-            >
-              ← Cancel
-            </.link>
-
-            <button
-              type="submit"
-              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
-            >
-              Create Mystery
-            </button>
-          </div>
+          </.field>
         </div>
-      </.form>
-    </div>
-  </div>
+      </div>
+
+      <.form_actions cancel_to="/admin/mysteries">
+        <button type="submit" class="admin-btn admin-btn-primary">Create mystery</button>
+      </.form_actions>
+    </.panel>
+  </.form>
 </.admin_page>

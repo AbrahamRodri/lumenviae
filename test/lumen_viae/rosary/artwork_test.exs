@@ -194,15 +194,20 @@ defmodule LumenViae.Rosary.ArtworkTest do
     end
   end
 
-  describe "count_missing_artwork/0" do
-    test "counts only the sets with no key" do
-      before = Rosary.count_meditation_sets_missing_artwork()
+  describe "meditation_set_ids_missing_artwork/0" do
+    test "returns only the sets with no key" do
+      before = length(Rosary.meditation_set_ids_missing_artwork())
 
-      create_set()
-      create_set()
-      with_artwork(create_set())
+      first = create_set()
+      second = create_set()
+      illustrated = with_artwork(create_set())
 
-      assert Rosary.count_meditation_sets_missing_artwork() == before + 2
+      ids = Rosary.meditation_set_ids_missing_artwork()
+
+      assert length(ids) == before + 2
+      assert first.id in ids
+      assert second.id in ids
+      refute illustrated.id in ids
     end
   end
 

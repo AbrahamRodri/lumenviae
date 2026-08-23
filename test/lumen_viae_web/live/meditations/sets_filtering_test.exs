@@ -4,7 +4,17 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FilteringTest do
   alias LumenViaeWeb.Live.Meditations.Sets.Filtering, as: SetFiltering
 
   defp set(attrs) do
-    defaults = %{id: 1, name: "A Set", category: "joyful", description: nil, labels: []}
+    defaults = %{
+      id: 1,
+      name: "A Set",
+      category: "joyful",
+      description: nil,
+      labels: [],
+      author: nil,
+      image_key: nil,
+      author_profile: nil
+    }
+
     Map.merge(defaults, attrs)
   end
 
@@ -21,6 +31,47 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FilteringTest do
       sets = [set(%{id: 1}), set(%{id: 2})]
 
       assert SetFiltering.filter_sets(sets, %{}) == sets
+    end
+
+    # The admin list's normal question is "what is the public being served?",
+    # so an absent visibility filter means live, not everything.
+    test "visibility defaults to live, and \"all\" opts back in" do
+      live = set(%{id: 1})
+      hidden = set(%{id: 2})
+      context = %{hidden_ids: MapSet.new([2])}
+
+      assert ids(SetFiltering.filter_sets([live, hidden], %{}, context)) == [1]
+
+      assert ids(SetFiltering.filter_sets([live, hidden], %{visibility: "visible"}, context)) == [
+               1
+             ]
+
+      assert ids(SetFiltering.filter_sets([live, hidden], %{visibility: "hidden"}, context)) == [
+               2
+             ]
+
+      assert ids(SetFiltering.filter_sets([live, hidden], %{visibility: "all"}, context)) == [
+               1,
+               2
+             ]
+    end
+
+    test "filters by artwork state" do
+      served = set(%{id: 1, image_key: "k.jpg", image_alt: "a", image_license: "public_domain"})
+      uploaded_only = set(%{id: 2, image_key: "k.jpg"})
+      none = set(%{id: 3})
+      sets = [served, uploaded_only, none]
+
+      assert ids(SetFiltering.filter_sets(sets, %{artwork: "served"})) == [1]
+      assert ids(SetFiltering.filter_sets(sets, %{artwork: "unpublishable"})) == [2]
+      assert ids(SetFiltering.filter_sets(sets, %{artwork: "missing"})) == [3]
+    end
+
+    test "the label filter picks out sets carrying no label at all" do
+      labelled = set(%{id: 1, labels: ["Saints"]})
+      bare = set(%{id: 2})
+
+      assert ids(SetFiltering.filter_sets([labelled, bare], %{label: "none"})) == [2]
     end
 
     test "filters by category" do

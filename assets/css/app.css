@@ -172,6 +172,36 @@
   --color-notice-surface: #ebf2f6;
   --color-notice-border: #b9cfdc;
 
+  /* Admin console surfaces.
+
+     The admin deliberately parts company with the public site's parchment.
+     A console is read at a glance and at density - small type, ruled tables,
+     status colour that has to carry meaning - and parchment plus gold rules
+     around every panel fights all three. So the admin gets a neutral, quiet
+     ground and hairline borders, and keeps navy and gold only where they
+     still do work: the navigation shell, the active state, and the one
+     accent on a figure worth looking at.
+
+     Neutrals are warm rather than blue-grey, which is what keeps this
+     recognisably the same product as the site next door. */
+  --color-admin-shell: #04202f;
+  --color-admin-shell-raised: #0a3049;
+  --color-admin-canvas: #f4f3f0;
+  --color-admin-surface: #ffffff;
+  --color-admin-sunken: #faf9f7;
+  --color-admin-hairline: #e5e2dc;
+  --color-admin-hairline-strong: #cfcabf;
+  --color-admin-ink: #1b2530;
+  --color-admin-ink-soft: #59626e;
+  --color-admin-ink-faint: #8b93a0;
+
+  /* The console's own type: one family, four weights, tabular figures.
+     Cinzel stays for the wordmark and nothing else. */
+  --font-admin: 'Work Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --shadow-admin: 0 1px 2px rgba(27, 37, 48, 0.05), 0 1px 3px rgba(27, 37, 48, 0.04);
+  --shadow-admin-raised: 0 4px 16px rgba(27, 37, 48, 0.1), 0 1px 3px rgba(27, 37, 48, 0.06);
+
   /* Typography - Clear Creek inspired fonts.
      Tailwind v4 generates font-* utilities from the --font-* namespace. */
   --font-roman-uncial: 'Roman Uncial Modern', serif;
@@ -270,34 +300,42 @@
   font-family: var(--font-cinzel);
 }
 
-/* Base body styling for readability - matches the app's Garamond Medium body */
-body {
-  font-family: var(--font-garamond);
-  font-size: 1.1875rem;
-  font-weight: 500;
-  line-height: 1.7;
-  color: var(--color-text);
-}
+/* Base body styling for readability - matches the app's Garamond Medium body.
 
-h1 {
-  font-family: var(--font-cinzel);
-  line-height: 1.25;
-  letter-spacing: 0.02em;
-  font-weight: 400;
-}
+   Declared in the base layer, not unlayered, so that a component can still
+   override it. Unlayered CSS beats every layer regardless of specificity,
+   which meant `.admin-root h1` could not take the console's headings off
+   Cinzel however specific it was. In `base` the ordinary cascade applies:
+   components beat base, utilities beat components. */
+@layer base {
+  body {
+    font-family: var(--font-garamond);
+    font-size: 1.1875rem;
+    font-weight: 500;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
 
-h2 {
-  font-family: var(--font-cinzel);
-  line-height: 1.3;
-  letter-spacing: 0.02em;
-  font-weight: 400;
-}
+  h1 {
+    font-family: var(--font-cinzel);
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
 
-h3, h4, h5, h6 {
-  font-family: var(--font-cinzel);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-  font-weight: 400;
+  h2 {
+    font-family: var(--font-cinzel);
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
+
+  h3, h4, h5, h6 {
+    font-family: var(--font-cinzel);
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
 }
 
 /* Illuminated drop cap for scripture and quote passages - a gold Cinzel
@@ -320,6 +358,226 @@ h3, h4, h5, h6 {
    Declared in the components layer so Tailwind utilities on the same element
    (text-cream, px-*, ...) can override individual properties. */
 @layer components {
+/* ---------------------------------------------------------------------
+   Admin console
+
+   Everything under /admin renders inside `.admin-root`, which resets the
+   body's Garamond reading type to the console's Work Sans and hands the
+   whole subtree tabular figures - a column of counts that shifts width as
+   it updates is unreadable at a glance.
+   --------------------------------------------------------------------- */
+.admin-root {
+  font-family: var(--font-admin);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-admin-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-root h1,
+.admin-root h2,
+.admin-root h3,
+.admin-root h4,
+.admin-root h5,
+.admin-root h6 {
+  font-family: var(--font-admin);
+  letter-spacing: -0.011em;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-admin-ink);
+}
+
+/* The small tracked-caps label above a figure or a group of controls. */
+.admin-eyebrow {
+  font-family: var(--font-admin);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-admin-ink-faint);
+}
+
+/* A figure meant to be read across a row of its peers. */
+.admin-figure {
+  font-family: var(--font-admin);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-admin-ink);
+}
+
+/* Buttons. Three weights and one destructive, all the same 32px height so
+   they line up in a toolbar without anyone counting padding. */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  font-family: var(--font-admin);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.admin-btn:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 1px;
+}
+
+.admin-btn-primary {
+  background: var(--color-navy);
+  color: #ffffff;
+}
+
+.admin-btn-primary:hover {
+  background: var(--color-navy-light);
+}
+
+.admin-btn-secondary {
+  background: var(--color-admin-surface);
+  border-color: var(--color-admin-hairline-strong);
+  color: var(--color-admin-ink);
+}
+
+.admin-btn-secondary:hover {
+  background: var(--color-admin-sunken);
+  border-color: var(--color-admin-ink-faint);
+}
+
+.admin-btn-ghost {
+  background: transparent;
+  color: var(--color-admin-ink-soft);
+}
+
+.admin-btn-ghost:hover {
+  background: var(--color-admin-sunken);
+  color: var(--color-admin-ink);
+}
+
+.admin-btn-danger {
+  background: var(--color-admin-surface);
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
+}
+
+.admin-btn-danger:hover {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #ffffff;
+}
+
+.admin-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Form controls, sized to sit level with .admin-btn. */
+.admin-field {
+  width: 100%;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-admin-hairline-strong);
+  background: var(--color-admin-surface);
+  font-family: var(--font-admin);
+  font-size: 0.8125rem;
+  color: var(--color-admin-ink);
+}
+
+.admin-field:focus,
+.admin-input:focus,
+.admin-textarea:focus {
+  outline: none;
+  border-color: var(--color-navy);
+  box-shadow: 0 0 0 3px rgba(0, 59, 92, 0.1);
+}
+
+/* The roomier sibling of .admin-field, for forms someone types into rather
+   than filter controls they flick through. */
+.admin-input,
+.admin-textarea {
+  width: 100%;
+  padding: 0.4375rem 0.625rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-admin-hairline-strong);
+  background: var(--color-admin-surface);
+  font-family: var(--font-admin);
+  font-size: 0.875rem;
+  color: var(--color-admin-ink);
+}
+
+.admin-input {
+  height: 2.25rem;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.admin-textarea {
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.admin-input::placeholder,
+.admin-textarea::placeholder,
+.admin-field::placeholder {
+  color: var(--color-admin-ink-faint);
+}
+
+.admin-input:disabled,
+.admin-textarea:disabled,
+.admin-field:disabled {
+  background: var(--color-admin-sunken);
+  color: var(--color-admin-ink-faint);
+}
+
+/* Table shell. Sticky header, hairline rules, no vertical borders - the
+   alignment does that work. */
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8125rem;
+}
+
+.admin-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-admin-sunken);
+  border-bottom: 1px solid var(--color-admin-hairline);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-admin-ink-faint);
+  white-space: nowrap;
+}
+
+.admin-table tbody td {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--color-admin-hairline);
+  vertical-align: top;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--color-admin-sunken);
+}
+
 .btn-gold {
   display: inline-flex;
   align-items: center;

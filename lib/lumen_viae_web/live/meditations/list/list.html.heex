@@ -1,43 +1,43 @@
 <.admin_page
   active="meditations"
   title="Meditations"
-  subtitle="Browse, filter, and manage every meditation in the library."
+  subtitle="Every passage in the library, and what is still missing from it."
   flash={@flash}
 >
   <:actions>
-    <.link
-      navigate="/admin/meditations/new"
-      class="bg-navy text-white px-5 py-2.5 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
-    >
-      Create New Meditation
-    </.link>
-    <.link
-      navigate="/admin/meditations/import"
-      class="bg-white text-navy border-2 border-navy px-5 py-2.5 rounded hover:bg-navy hover:text-white transition-colors font-work-sans font-semibold"
-    >
+    <.link navigate="/admin/meditations/import" class="admin-btn admin-btn-secondary">
       Import CSV
     </.link>
+    <.link navigate="/admin/meditations/new" class="admin-btn admin-btn-primary">
+      New meditation
+    </.link>
   </:actions>
-  
-<!-- Library health shortcuts: each card applies the matching filter -->
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-    <.stat_card label="Total Meditations" value={@summary.total} navigate="/admin/meditations" />
-    <.stat_card
-      label="Missing Audio"
+
+  <div class="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-5">
+    <.metric
+      label="Active"
+      value={@summary.active}
+      hint={"#{@summary.total} in the library"}
+      navigate="/admin/meditations"
+    />
+    <.metric
+      label="Missing narration"
       value={@summary.missing_audio}
-      hint="Active meditations without audio"
+      tone="caution"
+      hint="Active, with no audio file"
       navigate="/admin/meditations?audio=without&status=active"
     />
-    <.stat_card
-      label="Not In Any Set"
+    <.metric
+      label="Not in any set"
       value={@summary.unassigned}
-      hint="Never shown in the app"
+      tone="caution"
+      hint="Never reachable in the app"
       navigate="/admin/meditations?set=none"
     />
-    <.stat_card
+    <.metric
       label="Archived"
       value={@summary.archived}
-      hint="Hidden from all public surfaces"
+      hint="Hidden from every public surface"
       navigate="/admin/meditations?status=archived"
     />
   </div>
@@ -50,82 +50,91 @@
     meditation_sets={@meditation_sets}
     shown_count={length(@filtered_meditations)}
     total_count={@summary.total}
+    filtered={filters_applied?(@filters)}
   />
   
-<!-- Selection and bulk actions -->
-  <div class="bg-white border-l-4 border-gold px-6 py-4 mb-8">
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <div class="flex flex-wrap items-center gap-3">
-        <p class="font-work-sans text-navy font-semibold">
-          {MapSet.size(@selected_ids)} selected
-        </p>
-        <button
-          type="button"
-          phx-click="select_all_shown"
-          class="font-work-sans text-sm text-navy border border-navy rounded px-3 py-1 hover:bg-navy hover:text-white transition-colors"
-        >
-          Select all shown
-        </button>
-        <%= if MapSet.size(@selected_ids) > 0 do %>
-          <button
-            type="button"
-            phx-click="clear_selection"
-            class="font-work-sans text-sm text-brown border border-gold/60 rounded px-3 py-1 hover:bg-cream-dark transition-colors"
-          >
-            Clear selection
-          </button>
-        <% end %>
-      </div>
-      <%= if MapSet.size(@selected_ids) > 0 do %>
-        <div class="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            phx-click="bulk_archive"
-            data-confirm={"Archive #{MapSet.size(@selected_ids)} selected meditation(s)? They will be hidden from the public site, along with any set containing them."}
-            class="px-4 py-1.5 text-caution border border-caution rounded hover:bg-caution hover:text-white transition-colors font-work-sans text-sm"
-          >
-            Archive selected
-          </button>
-          <button
-            type="button"
-            phx-click="bulk_unarchive"
-            class="px-4 py-1.5 text-positive border border-positive rounded hover:bg-positive-strong hover:text-white transition-colors font-work-sans text-sm"
-          >
-            Unarchive selected
-          </button>
-          <button
-            type="button"
-            phx-click="bulk_delete"
-            data-confirm={"Permanently delete #{MapSet.size(@selected_ids)} selected meditation(s)? This cannot be undone, and they will be removed from any sets that contain them. Archiving is usually the safer choice."}
-            class="px-4 py-1.5 text-danger border border-danger rounded hover:bg-danger hover:text-white transition-colors font-work-sans text-sm"
-          >
-            Delete selected
-          </button>
-        </div>
-      <% end %>
+<!-- The bulk bar appears only when there is a selection to act on -->
+  <div
+    :if={MapSet.size(@selected_ids) > 0}
+    class="sticky top-[4.5rem] z-10 flex flex-wrap items-center justify-between gap-3 mb-3
+           bg-navy text-white rounded-lg px-4 py-2.5 shadow-admin-raised"
+  >
+    <p class="text-[0.8125rem] font-medium">
+      {MapSet.size(@selected_ids)} selected
+      <button
+        type="button"
+        phx-click="clear_selection"
+        class="ml-2 text-white/70 hover:text-white underline underline-offset-2"
+      >
+        Clear
+      </button>
+    </p>
+    <div class="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        phx-click="bulk_archive"
+        data-confirm={"Archive #{MapSet.size(@selected_ids)} selected meditation(s)? They will be hidden from the public site, along with any set containing them."}
+        class="admin-btn admin-btn-secondary"
+      >
+        Archive
+      </button>
+      <button type="button" phx-click="bulk_unarchive" class="admin-btn admin-btn-secondary">
+        Restore
+      </button>
+      <button
+        type="button"
+        phx-click="bulk_delete"
+        data-confirm={"Permanently delete #{MapSet.size(@selected_ids)} selected meditation(s)? This cannot be undone, and they will be removed from any sets that contain them. Archiving is usually the safer choice."}
+        class="admin-btn admin-btn-danger"
+      >
+        Delete
+      </button>
     </div>
   </div>
-  
-<!-- Meditations List -->
-  <div class="bg-white border-l-4 border-gold p-8">
-    <h3 class="font-cinzel text-2xl text-navy mb-6">
-      Meditations ({length(@filtered_meditations)})
-    </h3>
 
+  <.panel flush>
     <%= if @filtered_meditations == [] do %>
-      <.empty_state>
-        No meditations match the current filters. Adjust the filters above or import new meditations.
-      </.empty_state>
+      <div class="p-4">
+        <.empty_state>
+          No meditations match these filters. Widen them, or import a new CSV.
+        </.empty_state>
+      </div>
     <% else %>
-      <div class="space-y-4">
-        <%= for meditation <- @filtered_meditations do %>
-          <.meditation_row
-            meditation={meditation}
-            expanded={@expanded_meditation_id == meditation.id}
-            selected={MapSet.member?(@selected_ids, meditation.id)}
-          />
-        <% end %>
+      <div class="overflow-x-auto">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th class="w-8">
+                <button
+                  type="button"
+                  phx-click="select_all_shown"
+                  class="text-admin-ink-faint hover:text-navy"
+                  title="Select all shown"
+                  aria-label="Select all shown"
+                >
+                  <span class="hero-check-circle size-4 block" aria-hidden="true" />
+                </button>
+              </th>
+              <th>Mystery</th>
+              <th>Category</th>
+              <th>Attribution</th>
+              <th>Sets</th>
+              <th>Narration</th>
+              <th>Status</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for meditation <- @filtered_meditations do %>
+              <.meditation_row
+                meditation={meditation}
+                expanded={@expanded_meditation_id == meditation.id}
+                selected={MapSet.member?(@selected_ids, meditation.id)}
+              />
+            <% end %>
+          </tbody>
+        </table>
       </div>
     <% end %>
-  </div>
+  </.panel>
 </.admin_page>

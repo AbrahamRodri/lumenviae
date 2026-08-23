@@ -1,8 +1,16 @@
 defmodule LumenViaeWeb.Components.MeditationFilters do
   @moduledoc """
-  Reusable meditation filter controls component.
+  The three controls - category, author, keyword - that narrow the meditation
+  picker on the set new and edit pages.
+
+  Separate from `LumenViaeWeb.Live.Meditations.List.FiltersPanel` because
+  that one drives a URL-backed list of every meditation, and this one filters
+  a picker held in the LiveView's own assigns. They share the field
+  components but not the state model.
   """
   use Phoenix.Component
+
+  import LumenViaeWeb.Components.Admin
 
   attr :filter_category, :string, default: nil
   attr :filter_author, :string, default: nil
@@ -10,77 +18,41 @@ defmodule LumenViaeWeb.Components.MeditationFilters do
   attr :available_authors, :list, required: true
   attr :mystery_categories, :list, required: true
   attr :filtered_count, :integer, required: true
-  attr :show_description, :boolean, default: false
   attr :description, :string, default: nil
-  attr :inline, :boolean, default: false
 
   def meditation_filters(assigns) do
     ~H"""
-    <div class={if @inline, do: "", else: "bg-white border-l-4 border-gold p-6 mb-8"}>
-      <h3 class="font-cinzel text-xl text-navy mb-4">Filters</h3>
-      <%= if @show_description do %>
-        <p class="font-work-sans text-brown mb-6">
-          {@description ||
-            "Narrow the list of meditations by mystery category, author, or keyword. Use the filters to quickly jump to the meditations you want to review or edit."}
-        </p>
-      <% end %>
+    <div>
+      <p :if={@description} class="text-[0.8125rem] text-admin-ink-soft mb-3">{@description}</p>
 
       <.form for={%{}} phx-change="update_filters">
-        <div class="grid gap-4 md:grid-cols-3">
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Mystery Category
-            </label>
-            <select
-              name="category"
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-            >
-              <option value="" selected={is_nil(@filter_category)}>All Categories</option>
-              <%= for {label, value} <- @mystery_categories do %>
-                <option value={value} selected={@filter_category == value}>{label}</option>
-              <% end %>
-            </select>
-          </div>
-
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Author
-            </label>
-            <select
-              name="author"
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-            >
-              <option value="" selected={is_nil(@filter_author)}>All Authors</option>
-              <%= for author <- @available_authors do %>
-                <option value={author} selected={@filter_author == author}>{author}</option>
-              <% end %>
-            </select>
-          </div>
-
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Search
-            </label>
-            <input
-              type="text"
-              name="query"
-              value={@search_query}
-              placeholder="Search meditations by title, mystery, or keyword"
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              phx-debounce="400"
-            />
-          </div>
+        <div class="grid gap-3 md:grid-cols-3">
+          <.filter_select
+            name="category"
+            label="Category"
+            value={@filter_category}
+            prompt="All"
+            options={@mystery_categories}
+          />
+          <.filter_select
+            name="author"
+            label="Author"
+            value={@filter_author}
+            prompt="All"
+            options={Enum.map(@available_authors, &{&1, &1})}
+          />
+          <.filter_search
+            name="query"
+            label="Search"
+            value={@search_query}
+            placeholder="Title, mystery, or keyword"
+          />
         </div>
       </.form>
 
-      <div class="mt-6 flex items-center justify-between">
-        <p class="font-work-sans text-navy">
-          {@filtered_count} matching meditations
-        </p>
-        <%= if @filter_category || @filter_author || @search_query != "" do %>
-          <span class="font-work-sans text-sm text-brown-light">Filters applied</span>
-        <% end %>
-      </div>
+      <p class="text-xs text-admin-ink-soft mt-3">
+        <span class="font-semibold text-admin-ink">{@filtered_count}</span> matching meditations
+      </p>
     </div>
     """
   end

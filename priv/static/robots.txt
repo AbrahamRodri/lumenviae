@@ -1,5 +1,76 @@
+# Lumen Viae
+#
+# Search engines are welcome on the content pages: the mystery listings and
+# the written pages are what anyone looking for a Rosary should be able to
+# find. What is closed off below is the prayer flow itself, the console, and
+# the API.
+#
+# Note that this file is a request and not a fence. It is obeyed by the
+# crawlers that behave, which is most of them and not all of them. The
+# completion figures are protected in the application instead - see
+# LumenViaeWeb.Plugs.GuardCompletions - because anything that decides to
+# ignore this file will ignore it completely.
+
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /api/
+# The prayer flow. A crawler walking it gains nothing a category page does
+# not already give it, and used to walk far enough to trip the Complete
+# button and leave a Rosary nobody prayed.
+Disallow: /meditation-sets/
+
+# Crawlers that gather text for model training. Nothing here is stopping
+# them by force; they are simply asked, in the terms they publish, not to
+# take the meditation texts.
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+# Backlink and SEO auditing crawlers. They index nothing anyone searches,
+# and on a single small machine they are most of the automated traffic.
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
 
 Sitemap: https://www.lumenviae.org/sitemap.xml

@@ -15,6 +15,7 @@ this before adding a module, a query, or a page.
 8. [Templates and partials](#templates-and-partials)
 9. [Where does this go?](#where-does-this-go)
 10. [Design tokens](#design-tokens)
+11. [The admin console](#the-admin-console)
 
 ---
 
@@ -56,6 +57,7 @@ lib/lumen_viae/
 ├── images/inspector.ex        image headers: format and dimensions
 ├── storage/s3.ex              S3 uploads, pre-signed and public URLs
 ├── services/geolocation.ex    IP to approximate location
+├── central_time.ex            US Central offsets, calculated not looked up
 ├── liturgical_calendar.ex     which mysteries are prayed today
 └── release.ex                 production tasks without Mix
 ```
@@ -212,6 +214,12 @@ one file at a time and returns `{:ok, fields} | {:error, message}`.
 
 `audio/`, `images/`, `storage/` and `services/` are infrastructure: they
 wrap an external API or a file format and know nothing about the domain.
+`LumenViae.Services.Geolocation` is one of these: it turns an address into a
+city and country through a third-party provider, owns its own cache, and is
+switched off by default so no address leaves a development machine.
+
+`LumenViae.RateLimit` sits alongside them. It is a supervised ETS counter
+with no domain knowledge, used by the web layer to cap completion writes.
 
 ---
 
@@ -289,6 +297,7 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.Admin` | admin page chrome | yes |
 | `Components.Footer` | site footer | no, used by the layout |
 | `Components.MeditationFilters` | shared filter controls | no, called fully qualified |
+| `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
 
 If you add a component that most pages will use, add it to
@@ -414,3 +423,188 @@ colophons between dividers, never as filled bordered panels.
 Long passages are set upright, not italic - italics are for short asides,
 citations and captions. Keep body measure around 60-65 characters
 (`max-w-[60ch]`).
+
+---
+
+## The admin console
+
+Everything under `/admin` is a **console**, and it deliberately does not look
+like the site.
+
+The public pages are parchment, Cinzel and EB Garamond, with gold rules
+around every panel. That is right for a page someone reads a paragraph of at
+a time. A console is scanned, not read: it wants density, alignment, one type
+family with tabular figures, and colour reserved for status so that an amber
+cell means something. Every gold rule that only decorates is a rule the eye
+has to discount before it can find the number it came for.
+
+So the console keeps navy and gold for its navigation and its accents, and
+takes a neutral warm-grey ground, hairline rules and Work Sans for everything
+else.
+
+**Its own layout.** `layouts/root_admin.html.heex` carries no site header and
+no footer - the way out is in the navigation rail. The `:admin_layout`
+pipeline in the router selects it for the `/admin` scope and for the login
+page.
+
+**Its own tokens**, in `assets/css/app.css` under `--color-admin-*`. Never
+reach for a public-site colour inside the console, or a console colour
+outside it.
+
+| Token | Use |
+| --- | --- |
+| `admin-shell` / `admin-shell-raised` | the navigation rail, and its active row |
+| `admin-canvas` | the page ground |
+| `admin-surface` / `admin-sunken` | panels and tables; table headers, hover rows, insets |
+| `admin-hairline` / `admin-hairline-strong` | 1px rules; input and button borders |
+| `admin-ink` / `admin-ink-soft` / `admin-ink-faint` | primary, secondary and label text |
+| `font-admin` | Work Sans, the console's only family |
+
+The status families (`positive`, `caution`, `notice`, `danger`) are shared
+with the site and keep their meaning here.
+
+**Its own vocabulary**, in `LumenViaeWeb.Components.Admin`, imported globally:
+
+| Component | Use |
+| --- | --- |
+| `<.admin_page>` | the shell: rail, sticky page header, canvas |
+| `<.panel>` | every card; `flush` for one whose body is a table |
+| `<.metric>` | one figure in a metric row, with an optional delta |
+| `<.admin_badge>` / `<.category_badge>` | status pills |
+| `<.field>` / `<.form_actions>` | one labelled control; the row that closes a form |
+| `<.callout>` | a standing note about why a record is not behaving as expected |
+| `<.filter_select>` / `<.filter_search>` / `<.filter_summary>` | filter controls and the bar under them |
+| `<.day_chart>` / `<.bar_list>` | the two charts, both inline SVG and CSS - no chart library |
+| `<.empty_state>` | a list with no rows |
+
+CSS classes for the pieces that are not components: `.admin-btn` with
+`-primary`, `-secondary`, `-ghost`, `-danger`; `.admin-input` and
+`.admin-textarea` for forms, `.admin-field` for the shorter filter controls;
+`.admin-table`; `.admin-eyebrow` for tracked-caps labels; `.admin-figure`.
+
+### Two rules the console screens follow
+
+**Lists default to what the public is being served.** The meditation sets
+list starts on live sets, the meditations list on active meditations. The
+curator's normal question is about what is in circulation; the archive is one
+select away and is counted in the metric row above the table. Defaults are
+left out of the query string, so a URL carries what differs from the default
+view rather than the whole form.
+
+**Every number is a link.** A count with no way through to the rows it counts
+is trivia. Each metric tile and each dashboard health row lands on the admin
+list already filtered to exactly those rows - which means a health check and
+a list filter have to be added together, or the link goes nowhere useful.
+
+### Health reports on live content only
+
+The dashboard's checklist counts problems with content the public can reach.
+A set hidden because one of its meditations is archived is **one** problem,
+listed once under its own heading - not counted again under "no artwork",
+"incomplete" and "no labels". Rows that read zero are dropped entirely, so
+"nothing outstanding" means the list is genuinely empty.
+
+The cross-resource part of that lives in the Primary Context
+(`Rosary.public_meditation_ids_missing_audio/0`), and the set-shaped part is
+computed in the LiveView from the already-loaded list, which is presentation
+filtering in the sense described above.
+
+### Completions are recorded on a press, never on a view
+
+`Rosary.record_completion/2` is called from exactly two places: the
+`"complete"` event in `live/pray/index.ex`, fired by the button at the end of
+the last mystery, and the iOS app's `POST /api/completions`. It used to fire
+when the last mystery came into view, which anything crawling the site got
+for free - so the analytics counted crawlers as people who had prayed a
+Rosary. Do not reattach it to navigation.
+
+### What a completion records about where it came from
+
+A completion carries an approximate place, the surface it was prayed on, and
+the timezone and locale the client reported. None of it requires asking
+anyone for anything: the place is derived from the address the request
+arrives on, and on iOS the timezone and locale are read from
+`TimeZone.current` and `Locale.current`, neither of which prompts. Core
+Location is deliberately not used.
+
+Four rules hold this together, and breaking any of them changes what the
+published privacy policy promises:
+
+1. **The address is truncated before it is stored.**
+   `Geolocation.anonymize/1` keeps the IPv4 `/24` or the IPv6 `/48` and
+   `ip_prefix` holds only that. The full address exists in memory long
+   enough to do the lookup and to key the rate limit, and is never written
+   down.
+2. **Nothing links two completions.** No account, device or install
+   identifier, however rotated. Two Rosaries from the same phone are
+   indistinguishable from two prayed by strangers.
+3. **The lookup never runs on the request path.**
+   `record_completion/2` writes the row and fills the place in from a
+   background task under `LumenViae.TaskSupervisor`. A third party being
+   slow must not be felt as a slow Rosary, and a third party being down
+   must not fail a completion. The cost is that a row is briefly placeless,
+   and stays so for good if the lookup fails - which is why the dashboard
+   shows how many rows in the period actually have a place.
+4. **The privacy policy is part of the feature.**
+   `live/privacy_policy/index.ex` describes all of the above, names the
+   geolocation provider, and is edited in the same change as the code. It is
+   also the App Store listing's policy, so it cannot be allowed to drift.
+
+Client-supplied strings (`time_zone`, `locale`) come from a request body and
+are length-bounded in the changeset. Anything that is not a string is
+dropped by the controller rather than allowed to fail the completion.
+
+### Crawlers are kept out of the figures
+
+Two layers, guarding different things, and only the second is load-bearing.
+
+`LumenViaeWeb.BotDetection` matches user agents. It is hygiene, not
+security - an agent string is whatever the caller says it is - and it
+catches the crawlers that announce themselves honestly. Its generic match is
+bounded on the left so `Cubot` and its relatives are not read as bots; a new
+crawler that runs a word into `bot` has to be named in `@named_agents`. A
+*missing* agent is treated as unknown rather than as a bot, because the iOS
+app's agent is set outside this repo and refusing a blank one would take the
+app's analytics silently to zero.
+
+`LumenViae.RateLimit` caps completions per address per hour, and is the part
+that still holds when the agent string is a lie. It is keyed on the full
+address, not the stored prefix, because telling neighbours apart is the
+whole job. It is per-machine ETS; scaling past one Fly machine needs a
+shared store rather than a bigger number.
+
+`LumenViaeWeb.ClientIP` finds the address, and its header order is a
+security boundary rather than a preference. `Fly-Client-IP` first, then the
+**rightmost** `X-Forwarded-For` entry, then the socket peer. The leftmost
+forwarded entry is caller-supplied: reading it would let anyone pick which
+rate-limit bucket they spend and which country their completions land in.
+
+`priv/static/robots.txt` asks well-behaved crawlers away from the prayer
+flow, the console and the API, and asks the AI-training and SEO crawlers
+away entirely. It is a request, not a fence, which is why the two layers
+above exist.
+
+### Analytics are reported in Central time
+
+Days on the dashboard start and end in `America/Chicago`, not in UTC - a
+Rosary prayed at nine in the evening in Texas belongs to that evening.
+`LumenViae.CentralTime` computes the two US daylight-saving rules rather than
+taking on a timezone database, and Postgres groups by local day using the
+zone name from the same module, so the two halves cannot disagree.
+
+`completed_at` is `timestamp without time zone`, which makes the Postgres
+side easy to get backwards: for a naive timestamp, `AT TIME ZONE zone` means
+"this value is already in `zone`" and converts *out* of it. A single
+conversion therefore shifted every row the wrong way by the offset and filed
+each Rosary prayed between seven in the evening and midnight Central under
+the following day. The query stamps the value as UTC first and only then
+converts - `(? AT TIME ZONE 'UTC') AT TIME ZONE ?` - and the doubled clause
+is load-bearing.
+
+### Signing in locally
+
+`config/dev.exs` sets `:skip_admin_auth`, and
+`LumenViaeWeb.Plugs.RequireAdmin` marks the session authenticated instead of
+skipping the check - so the LiveView mount hook, the logout form and
+`@is_admin` all behave exactly as they do in production. No other config file
+sets the flag and `runtime.exs` never reads it.

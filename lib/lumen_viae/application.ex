@@ -12,8 +12,15 @@ defmodule LumenViae.Application do
       LumenViae.Repo,
       {DNSCluster, query: Application.get_env(:lumen_viae, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: LumenViae.PubSub},
-      # Start a worker by calling: LumenViae.Worker.start_link(arg)
-      # {LumenViae.Worker, arg},
+      # Owns the counters that cap how often one caller can write a
+      # completion.
+      LumenViae.RateLimit,
+      # Owns the IP-to-place cache.
+      LumenViae.Services.Geolocation,
+      # Where a completion's geolocation lookup runs. Off the request path
+      # on purpose: filling in a place is worth a background task and never
+      # worth making somebody wait at the end of a Rosary.
+      {Task.Supervisor, name: LumenViae.TaskSupervisor},
       # Start to serve requests, typically the last entry
       LumenViaeWeb.Endpoint
     ]

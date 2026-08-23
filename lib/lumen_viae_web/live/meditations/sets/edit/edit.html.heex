@@ -1,240 +1,177 @@
-<.admin_page active="sets" title="Edit Meditation Set" flash={@flash}>
-  <div>
-    <!-- Edit Set Details -->
-    <div class="bg-white border-l-4 border-gold p-8 mb-8">
-      <h3 class="font-cinzel text-2xl text-navy mb-6">Set Details</h3>
-      <.form for={@edit_form} phx-submit="update_meditation_set">
-        <div class="space-y-4">
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Set Name
-            </label>
-            <input
-              type="text"
-              name={@edit_form[:name].name}
-              value={@edit_form[:name].value || ""}
-              required
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="e.g., St. Louis de Montfort - Joyful Mysteries"
-            />
-            <%= for error <- @edit_form[:name].errors do %>
-              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-            <% end %>
-          </div>
+<.admin_page
+  active="sets"
+  title={@meditation_set.name}
+  subtitle={"Meditation set · #{LumenViae.Rosary.Categories.label(@meditation_set.category)}"}
+  flash={@flash}
+  max_width="max-w-6xl"
+>
+  <:actions>
+    <.link
+      navigate={"/meditation-sets/#{@meditation_set.id}/pray"}
+      class="admin-btn admin-btn-secondary"
+    >
+      Preview
+    </.link>
+    <.link navigate="/admin/meditation-sets" class="admin-btn admin-btn-secondary">
+      Back to list
+    </.link>
+  </:actions>
 
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Category
-            </label>
-            <select
-              name={@edit_form[:category].name}
-              required
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-            >
-              <%= for {label, value} <- @mystery_categories do %>
-                <option value={value} selected={@edit_form[:category].value == value}>
+  <.callout :if={Enum.any?(@selected_set_meditations, & &1.archived_at)} tone="danger">
+    This set contains an archived meditation, so neither the public site nor the app will show
+    it. Restore the meditation or remove it from the set to bring the set back.
+  </.callout>
+
+  <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] items-start">
+    <div class="space-y-5">
+      <.form for={@edit_form} phx-submit="update_meditation_set">
+        <.panel title="Set details">
+          <div class="space-y-4">
+            <.field label="Name" required errors={@edit_form[:name].errors}>
+              <input
+                type="text"
+                name={@edit_form[:name].name}
+                value={@edit_form[:name].value || ""}
+                required
+                class="admin-input"
+              />
+            </.field>
+
+            <.field label="Category" required errors={@edit_form[:category].errors}>
+              <select name={@edit_form[:category].name} required class="admin-input">
+                <option
+                  :for={{label, value} <- @mystery_categories}
+                  value={value}
+                  selected={@edit_form[:category].value == value}
+                >
                   {label}
                 </option>
-              <% end %>
-            </select>
-            <%= for error <- @edit_form[:category].errors do %>
-              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-            <% end %>
-          </div>
+              </select>
+            </.field>
 
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Description (Optional)
-            </label>
-            <textarea
-              name={@edit_form[:description].name}
-              rows="3"
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-              placeholder="Brief description of this meditation set..."
-            ><%= @edit_form[:description].value || "" %></textarea>
-            <%= for error <- @edit_form[:description].errors do %>
-              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-            <% end %>
-          </div>
-
-          <div>
-            <label class="font-work-sans text-navy font-semibold block mb-2">
-              Linked Author (Optional)
-            </label>
-            <select
-              name={@edit_form[:author_id].name}
-              class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
+            <.field
+              label="Description"
+              hint="Optional. Shown under the set's name in the app."
+              errors={@edit_form[:description].errors}
             >
-              <option value="">None</option>
-              <%= for author <- @authors do %>
+              <textarea
+                name={@edit_form[:description].name}
+                rows="3"
+                class="admin-textarea"
+              ><%= @edit_form[:description].value || "" %></textarea>
+            </.field>
+
+            <.field
+              label="Linked author"
+              hint="When this set has no painting of its own, the app shows this author's portrait instead."
+              errors={@edit_form[:author_id].errors}
+            >
+              <select name={@edit_form[:author_id].name} class="admin-input">
+                <option value="">None</option>
                 <option
+                  :for={author <- @authors}
                   value={author.id}
                   selected={to_string(@edit_form[:author_id].value) == to_string(author.id)}
                 >
                   {author.name}
                 </option>
-              <% end %>
-            </select>
-            <p class="mt-2 text-xs text-brown-light font-work-sans">
-              When this set has no painting of its own, the app shows the linked
-              author's portrait instead. Manage authors under the Authors tab.
-            </p>
-            <%= for error <- @edit_form[:author_id].errors do %>
-              <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-            <% end %>
-          </div>
+              </select>
+            </.field>
 
-          <div class="grid md:grid-cols-2 gap-4">
-            <div>
-              <label class="font-work-sans text-navy font-semibold block mb-2">
-                Author (Optional)
-              </label>
-              <input
-                type="text"
-                name={@edit_form[:author].name}
-                value={@edit_form[:author].value || ""}
-                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-                placeholder="e.g., Bl. Anne Catherine Emmerich"
-              />
-              <p class="mt-2 text-xs text-brown-light font-work-sans">
-                Leave blank and the byline is taken from the meditations, but only when
-                every one of them agrees.
-              </p>
-              <%= for error <- @edit_form[:author].errors do %>
-                <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-              <% end %>
-            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <.field
+                label="Byline"
+                hint="Leave blank and it is taken from the meditations, but only when every one of them agrees."
+                errors={@edit_form[:author].errors}
+              >
+                <input
+                  type="text"
+                  name={@edit_form[:author].name}
+                  value={@edit_form[:author].value || ""}
+                  class="admin-input"
+                  placeholder="e.g. Bl. Anne Catherine Emmerich"
+                />
+              </.field>
 
-            <div>
-              <label class="font-work-sans text-navy font-semibold block mb-2">
-                Source (Optional)
-              </label>
-              <input
-                type="text"
-                name={@edit_form[:source].name}
-                value={@edit_form[:source].value || ""}
-                class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-                placeholder="e.g., The Dolorous Passion of Our Lord Jesus Christ"
-              />
-              <%= for error <- @edit_form[:source].errors do %>
-                <p class="mt-2 text-sm text-danger font-work-sans">{translate_error(error)}</p>
-              <% end %>
+              <.field label="Source" errors={@edit_form[:source].errors}>
+                <input
+                  type="text"
+                  name={@edit_form[:source].name}
+                  value={@edit_form[:source].value || ""}
+                  class="admin-input"
+                  placeholder="e.g. The Dolorous Passion of Our Lord Jesus Christ"
+                />
+              </.field>
             </div>
           </div>
 
-          <div class="flex justify-end">
-            <button
-              type="submit"
-              class="bg-navy text-white px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans font-semibold"
-            >
-              Save Changes
-            </button>
+          <div class="flex justify-end mt-6 pt-4 border-t border-admin-hairline">
+            <button type="submit" class="admin-btn admin-btn-primary">Save changes</button>
           </div>
-        </div>
+        </.panel>
       </.form>
-    </div>
-    
-<!-- Labels (iOS picker grouping and filter chips) -->
-    <LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection.labels_section
-      labels={@meditation_set.labels}
-      vocabulary={@label_vocabulary}
-      max_labels={@max_labels}
-    />
-    
-<!-- Artwork (set detail hero on the app) -->
-    <LumenViaeWeb.Components.ArtworkSection.artwork_section
-      record={@meditation_set}
-      intro="The painting behind the set on the app's detail screen."
-      artwork_url={@artwork_url}
-      form={@artwork_form}
-      upload={@uploads.artwork}
-      licenses={@license_options}
-      rules={@artwork_rules}
-    />
-    
-<!-- Manage Meditations in Set -->
-    <div class="bg-white border-l-4 border-gold p-8 mb-8">
-      <h3 class="font-cinzel text-2xl text-navy mb-6">Meditations in This Set</h3>
 
-      <%= if Enum.any?(@selected_set_meditations, & &1.archived_at) do %>
-        <div class="mb-6 border-l-4 border-caution bg-caution-surface p-4">
-          <p class="font-work-sans text-caution-strong text-sm">
-            This set contains archived meditations, so it is hidden from the public site
-            and the app. Unarchive the meditations or remove them from the set to make
-            it visible again.
-          </p>
-        </div>
-      <% end %>
-      
-<!-- Current Meditations -->
-      <div class="mb-8">
-        <h4 class="font-cinzel text-lg text-navy mb-3">
-          Current Meditations ({length(@selected_set_meditations)})
-        </h4>
-        <%= if @selected_set_meditations == [] do %>
-          <p class="font-work-sans text-brown text-sm italic">
-            No meditations in this set yet. Add some below.
-          </p>
-        <% else %>
-          <div class="space-y-2">
-            <%= for meditation <- @selected_set_meditations do %>
-              <div class="flex justify-between items-center bg-cream p-3 rounded">
-                <div class="flex items-center gap-2">
-                  <%= if meditation.audio_url do %>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      class="w-5 h-5 text-gold flex-shrink-0"
-                    >
-                      <path d="M12 2C6.477 2 2 6.477 2 12v4a2 2 0 002 2h2a2 2 0 002-2v-3a2 2 0 00-2-2H4.062A8.001 8.001 0 0112 4a8.001 8.001 0 017.938 7H18a2 2 0 00-2 2v3a2 2 0 002 2h2a2 2 0 002-2v-4c0-5.523-4.477-10-10-10z" />
-                    </svg>
-                  <% end %>
-                  <div>
-                    <span class="font-work-sans text-navy">
-                      {meditation.mystery.name}
-                      {if meditation.title, do: " - #{meditation.title}"}
-                    </span>
-                    <%= if meditation.author do %>
-                      <span class="font-work-sans text-sm text-brown-light ml-2">
-                        by {meditation.author}
-                      </span>
-                    <% end %>
-                    <%= if meditation.archived_at do %>
-                      <span class="ml-2 inline-block px-2 py-0.5 bg-cream-dark text-brown font-work-sans text-xs rounded uppercase tracking-wide">
-                        Archived
-                      </span>
-                    <% end %>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <.link
-                    navigate={"/admin/meditations/#{meditation.id}/edit?return_to=/admin/meditation-sets/#{@meditation_set.id}/edit"}
-                    class="text-navy hover:text-gold font-work-sans text-sm transition-colors"
-                  >
-                    Edit
-                  </.link>
-                  <button
-                    phx-click="remove_from_set"
-                    phx-value-meditation_id={meditation.id}
-                    class="text-danger hover:text-danger-strong font-work-sans text-sm"
-                  >
-                    Remove
-                  </button>
+      <LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection.labels_section
+        labels={@meditation_set.labels}
+        vocabulary={@label_vocabulary}
+        max_labels={@max_labels}
+      />
+    </div>
+
+    <div class="space-y-5">
+      <.panel
+        title={"Meditations in this set (#{length(@selected_set_meditations)} of #{LumenViae.Rosary.expected_meditation_count(@meditation_set.category)})"}
+        description="Prayed in this order."
+      >
+        <.empty_state :if={@selected_set_meditations == []}>
+          No meditations in this set yet. Add some below.
+        </.empty_state>
+
+        <ol :if={@selected_set_meditations != []} class="divide-y divide-admin-hairline">
+          <li
+            :for={{meditation, position} <- Enum.with_index(@selected_set_meditations, 1)}
+            class="flex items-center justify-between gap-3 py-2"
+          >
+            <div class="flex items-baseline gap-2 min-w-0">
+              <span class="text-admin-ink-faint text-xs w-4 text-right shrink-0">{position}</span>
+              <div class="min-w-0">
+                <p class="text-admin-ink truncate">
+                  {meditation.mystery.name}{if meditation.title, do: " - #{meditation.title}"}
+                </p>
+                <div class="flex flex-wrap items-center gap-1.5 mt-0.5">
+                  <span :if={meditation.author} class="text-xs text-admin-ink-faint">
+                    {meditation.author}
+                  </span>
+                  <.admin_badge :if={meditation.archived_at} tone="red">Archived</.admin_badge>
+                  <.admin_badge :if={meditation.audio_url in [nil, ""]} tone="amber">
+                    No audio
+                  </.admin_badge>
                 </div>
               </div>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-      
-<!-- Add Meditation to Set -->
-      <div>
-        <h4 class="font-cinzel text-lg text-navy mb-4">
-          Add Meditation to Set
-        </h4>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <.link
+                navigate={"/admin/meditations/#{meditation.id}/edit?return_to=/admin/meditation-sets/#{@meditation_set.id}/edit"}
+                class="admin-btn admin-btn-secondary"
+              >
+                Edit
+              </.link>
+              <button
+                type="button"
+                phx-click="remove_from_set"
+                phx-value-meditation_id={meditation.id}
+                class="admin-btn admin-btn-danger"
+                aria-label="Remove from set"
+              >
+                <span class="hero-x-mark size-3.5" aria-hidden="true" />
+              </button>
+            </div>
+          </li>
+        </ol>
+      </.panel>
 
-        <% meditations = filtered_meditations(assigns) %>
+      <% meditations = filtered_meditations(assigns) %>
+      <.panel title="Add a meditation">
         <LumenViaeWeb.Components.MeditationFilters.meditation_filters
           filter_category={@filter_category}
           filter_author={@filter_author}
@@ -242,66 +179,52 @@
           available_authors={@available_authors}
           mystery_categories={@mystery_categories}
           filtered_count={length(meditations)}
-          show_description={true}
-          description="Use the filters to narrow the meditations list, then choose one to add with its display order."
-          inline={true}
         />
 
-        <%= if meditations == [] do %>
-          <p class="font-work-sans text-brown text-sm italic">
-            No meditations match the current filters. Adjust the filters or import new meditations first.
-          </p>
-        <% else %>
-          <.form for={%{}} phx-submit="add_to_set">
-            <div class="grid md:grid-cols-3 gap-4">
-              <div class="md:col-span-2">
-                <select
-                  name="meditation_id"
-                  required
-                  class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-                >
-                  <option value="">Select a meditation...</option>
-                  <%= for meditation <- meditations do %>
-                    <option value={meditation.id}>
-                      {meditation.mystery.name}
-                      {if meditation.title, do: " - #{meditation.title}"}
-                      {if meditation.author, do: " (#{meditation.author})"}
-                      {if meditation.archived_at, do: " [Archived - adding it hides this set]"}
-                    </option>
-                  <% end %>
-                </select>
-              </div>
-              <div>
-                <input
-                  type="number"
-                  name="order"
-                  required
-                  min="1"
-                  max="7"
-                  placeholder="Order (1-7)"
-                  class="w-full p-3 border border-gold/40 rounded font-work-sans text-black"
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              class="mt-4 bg-navy text-white px-6 py-2 rounded hover:bg-gold hover:text-navy transition-colors font-work-sans"
-            >
-              Add to Set
-            </button>
-          </.form>
-        <% end %>
-      </div>
-    </div>
-    
-<!-- Back to Sets -->
-    <div class="mt-8 text-center">
-      <.link
-        navigate="/admin/meditation-sets"
-        class="inline-block font-work-sans text-navy hover:text-gold transition-colors"
-      >
-        ← Back to Meditation Sets
-      </.link>
+        <.empty_state :if={meditations == []} class="mt-4">
+          No meditations match these filters. Widen them, or import new meditations first.
+        </.empty_state>
+
+        <.form :if={meditations != []} for={%{}} phx-submit="add_to_set" class="mt-4">
+          <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_6rem_auto] items-end">
+            <.field label="Meditation" required>
+              <select name="meditation_id" required class="admin-input">
+                <option value="">Select a meditation</option>
+                <option :for={meditation <- meditations} value={meditation.id}>
+                  {meditation.mystery.name}{if meditation.title,
+                    do: " - #{meditation.title}"}{if meditation.author,
+                    do: " (#{meditation.author})"}{if meditation.archived_at,
+                    do: " [Archived - adding it hides this set]"}
+                </option>
+              </select>
+            </.field>
+
+            <.field label="Order" required>
+              <input
+                type="number"
+                name="order"
+                required
+                min="1"
+                max="7"
+                value={length(@selected_set_meditations) + 1}
+                class="admin-input"
+              />
+            </.field>
+
+            <button type="submit" class="admin-btn admin-btn-primary">Add</button>
+          </div>
+        </.form>
+      </.panel>
+
+      <LumenViaeWeb.Components.ArtworkSection.artwork_section
+        record={@meditation_set}
+        intro="The painting behind the set on the app's detail screen."
+        artwork_url={@artwork_url}
+        form={@artwork_form}
+        upload={@uploads.artwork}
+        licenses={@license_options}
+        rules={@artwork_rules}
+      />
     </div>
   </div>
 </.admin_page>

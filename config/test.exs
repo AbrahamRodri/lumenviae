@@ -35,3 +35,9 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# The whole suite connects from 127.0.0.1, so a realistic per-address
+# completion limit would be spent collectively by unrelated tests and the
+# failures would land wherever the seed happened to put them. The tests that
+# actually exercise the limit set their own.
+config :lumen_viae, :completions_per_hour, 1_000_000

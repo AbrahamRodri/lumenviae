@@ -28,7 +28,8 @@ config :lumen_viae, :aws_s3_bucket, System.get_env("AWS_S3_BUCKET") || "lumenvia
 # served from a stable unsigned URL the app can cache for offline prayer.
 # Keeping them apart means a mistake in one bucket's policy cannot expose
 # the other. Object reads are public; listing and writing are not.
-config :lumen_viae, :aws_s3_public_bucket,
+config :lumen_viae,
+       :aws_s3_public_bucket,
        System.get_env("AWS_S3_PUBLIC_BUCKET") || "lumenviae-images"
 
 # Where public assets are read from. Nil means the bucket's own endpoint.
@@ -46,7 +47,8 @@ config :lumen_viae, :public_asset_base_url, System.get_env("PUBLIC_ASSET_BASE_UR
 #
 # S3 signature version 4 caps a presigned URL at seven days; anything larger
 # here is rejected by AWS at signing time rather than by us.
-config :lumen_viae, :audio_url_ttl_seconds,
+config :lumen_viae,
+       :audio_url_ttl_seconds,
        String.to_integer(System.get_env("AUDIO_URL_TTL_SECONDS") || "86400")
 
 # ElevenLabs Text-to-Speech Configuration
@@ -111,6 +113,20 @@ if config_env() == :prod do
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :lumen_viae, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
+
+  # Completion analytics look up a rough place for the address a Rosary was
+  # prayed from. Set GEOLOCATION_ENABLED=false to turn every lookup off
+  # without a deploy - completions carry on being recorded, they just have
+  # no place attached.
+  geolocation_provider =
+    case System.get_env("GEOLOCATION_PROVIDER", "ipapi_co") do
+      "ip_api_com" -> :ip_api_com
+      _ipapi_co -> :ipapi_co
+    end
+
+  config :lumen_viae, :geolocation,
+    enabled: System.get_env("GEOLOCATION_ENABLED", "true") == "true",
+    provider: geolocation_provider
 
   config :lumen_viae, LumenViaeWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],

@@ -1,6 +1,6 @@
 defmodule LumenViaeWeb.Live.Meditations.Sets.List do
   use LumenViaeWeb, :live_view
-  import LumenViaeWeb.Live.Meditations.Sets.List.SetCard
+  import LumenViaeWeb.Live.Meditations.Sets.List.SetRow
   alias LumenViae.Rosary.Categories
   alias LumenViaeWeb.Live.Meditations.Sets.Filtering, as: SetFiltering
   alias LumenViae.Rosary
@@ -8,6 +8,11 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
 
   @sort_options ~w(category name newest meditations)
   @default_sort "category"
+
+  # The list answers "what is the public being served?" unless asked
+  # otherwise, so visibility starts at "visible" rather than at "everything".
+  @default_visibility "visible"
+  @visibility_options ~w(visible hidden all)
 
   def mount(_params, _session, socket) do
     {:ok,
@@ -80,16 +85,24 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
     |> assign(:summary, summarize(sets, hidden_ids, stats))
   end
 
+  # The summary counts live sets only, apart from the hidden tally itself:
+  # an incomplete set that nobody can reach is not the same problem as an
+  # incomplete set on the shelf, and mixing them makes the number useless.
   defp summarize(sets, hidden_ids, stats) do
+    {hidden, live} = Enum.split_with(sets, &MapSet.member?(hidden_ids, &1.id))
+
     %{
       total: length(sets),
-      hidden: Enum.count(sets, &MapSet.member?(hidden_ids, &1.id)),
-      empty: Enum.count(sets, &(SetFiltering.meditation_count(&1, stats) == 0)),
+      live: length(live),
+      hidden: length(hidden),
+      empty: Enum.count(live, &(SetFiltering.meditation_count(&1, stats) == 0)),
       incomplete:
-        Enum.count(sets, fn set ->
+        Enum.count(live, fn set ->
           SetFiltering.meditation_count(set, stats) !=
             Rosary.expected_meditation_count(set.category)
-        end)
+        end),
+      no_artwork: Enum.count(live, &(SetFiltering.artwork_state(&1) == :missing)),
+      no_labels: Enum.count(live, &(&1.labels == []))
     }
   end
 
@@ -105,7 +118,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
           category: filters.category,
           label: filters.label,
           visibility: filters.visibility,
-          completeness: filters.completeness
+          completeness: filters.completeness,
+          artwork: filters.artwork
         },
         %{hidden_ids: socket.assigns.hidden_set_ids, stats: stats}
       )
@@ -117,10 +131,11 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
   defp parse_filters(params) do
     %{
       query: String.trim(params["q"] || ""),
-      category: allowed(params["category"], ~w(joyful sorrowful glorious luminous seven_sorrows)),
-      label: allowed(params["label"], Labels.vocabulary()),
-      visibility: allowed(params["visibility"], ~w(visible hidden)),
+      category: allowed(params["category"], Categories.slugs()),
+      label: allowed(params["label"], ["none" | Labels.vocabulary()]),
+      visibility: allowed(params["visibility"], @visibility_options) || @default_visibility,
       completeness: allowed(params["completeness"], ~w(complete incomplete empty)),
+      artwork: allowed(params["artwork"], ~w(missing unpublishable served)),
       sort: allowed(params["sort"], @sort_options) || @default_sort
     }
   end
@@ -132,10 +147,12 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
       label: params["label"],
       visibility: params["visibility"],
       completeness: params["completeness"],
+      artwork: params["artwork"],
       sort: params["sort"]
     ]
     |> Enum.reject(fn {key, value} ->
-      value in [nil, ""] or (key == :sort and value == @default_sort)
+      value in [nil, ""] or (key == :sort and value == @default_sort) or
+        (key == :visibility and value == @default_visibility)
     end)
   end
 
@@ -145,7 +162,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
 
   def filters_applied?(filters) do
     filters.query != "" or filters.category != nil or filters.label != nil or
-      filters.visibility != nil or filters.completeness != nil or
-      filters.sort != @default_sort
+      filters.visibility != @default_visibility or filters.completeness != nil or
+      filters.artwork != nil or filters.sort != @default_sort
   end
 end

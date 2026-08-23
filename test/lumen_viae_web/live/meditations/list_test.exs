@@ -100,7 +100,31 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     |> element("form[phx-change=update_filters]")
     |> render_change(%{"q" => "humility", "status" => "active"})
 
-    assert_patch(view, "/admin/meditations?q=humility&status=active")
+    # "active" is the list's default, so it is left out of the URL - the
+    # query string carries what differs from the default view, not the whole
+    # form.
+    assert_patch(view, "/admin/meditations?q=humility")
+
+    view
+    |> element("form[phx-change=update_filters]")
+    |> render_change(%{"q" => "humility", "status" => "archived"})
+
+    assert_patch(view, "/admin/meditations?q=humility&status=archived")
+  end
+
+  test "the list shows active meditations by default", %{conn: conn} do
+    mystery = create_mystery()
+    create_meditation(mystery, %{title: "Title Active"})
+    archived = create_meditation(mystery, %{title: "Title Archived"})
+    {:ok, _} = Rosary.archive_meditation(archived)
+
+    {:ok, _view, html} = live(conn, "/admin/meditations")
+    assert html =~ "Title Active"
+    refute html =~ "Title Archived"
+
+    {:ok, _view, html} = live(conn, "/admin/meditations?status=all")
+    assert html =~ "Title Active"
+    assert html =~ "Title Archived"
   end
 
   test "search matches content text", %{conn: conn} do
@@ -114,20 +138,26 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     refute html =~ "Title Other"
   end
 
+  # Archiving from the default view takes the row out of it, which is the
+  # point - so the restore leg is driven from the archived view.
   test "archive and unarchive from the list", %{conn: conn} do
     mystery = create_mystery()
-    meditation = create_meditation(mystery)
+    meditation = create_meditation(mystery, %{title: "Title Archivable"})
 
     {:ok, view, _html} = live(conn, "/admin/meditations")
 
-    view
-    |> element("button[phx-click=archive_meditation][phx-value-id='#{meditation.id}']")
-    |> render_click()
+    html =
+      view
+      |> element("button[phx-click=archive_meditation][phx-value-id='#{meditation.id}']")
+      |> render_click()
 
     assert Rosary.get_meditation!(meditation.id).archived_at
-    assert render(view) =~ "Archived"
+    refute html =~ "Title Archivable"
 
-    view
+    {:ok, archived_view, html} = live(conn, "/admin/meditations?status=archived")
+    assert html =~ "Title Archivable"
+
+    archived_view
     |> element("button[phx-click=unarchive_meditation][phx-value-id='#{meditation.id}']")
     |> render_click()
 
