@@ -28,7 +28,7 @@ so breaking them fails the build rather than drifting quietly.
 
 1. **Read docs/ARCHITECTURE.md first** - Understand the established patterns before writing code
 2. **Follow the directory structure** - Match module names to file paths as defined in docs/ARCHITECTURE.md
-3. **Go through `LumenViae.Rosary`** - It is the domain's only public entry point. Never call a Secondary Context, a schema, or the Repo from outside `lib/lumen_viae/rosary/`
+3. **Go through `LumenViae.Rosary`** - It is the domain's only public entry point. Never call a Secondary Context, a schema, or the Repo from outside `lib/lumen_viae/rosary/`. The Divine Office domain works the same way: everything goes through `LumenViae.Office`, and its internals stay inside `lib/lumen_viae/office/`
 4. **Break up complexity** - Never create monolithic views (see docs/ARCHITECTURE.md for patterns)
 5. **Separate concerns** - Queries belong in the Secondary Context that owns the table; presentation-only filtering belongs next to the LiveView
 
@@ -65,6 +65,9 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   change as any code that widens what is collected
 - Admin interface for managing meditations and sets
 - JSON API consumed by the iOS app
+- The pre-Vatican II Divine Office under `/api/office`, assembled by the
+  open-source Divinum Officium engine and cached - see docs/OFFICE_API.md
+  and the Office domain section of docs/ARCHITECTURE.md
 - Traditional Latin Mass aesthetic (Navy/Gold color scheme)
 
 ### Database Structure

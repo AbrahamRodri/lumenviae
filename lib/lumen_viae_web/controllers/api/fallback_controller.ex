@@ -27,6 +27,15 @@ defmodule LumenViaeWeb.API.FallbackController do
     send_error(conn, :service_unavailable, "audio_unavailable", "Audio temporarily unavailable")
   end
 
+  def call(conn, {:error, :office_unavailable}) do
+    send_error(
+      conn,
+      :service_unavailable,
+      "office_unavailable",
+      "Divine Office temporarily unavailable"
+    )
+  end
+
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     send_error(
       conn,

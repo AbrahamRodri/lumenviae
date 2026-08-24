@@ -1,0 +1,742 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD>
+
+  <META NAME="Resource-type" CONTENT="Document">
+  <META NAME="description" CONTENT="Divine Office">
+  <META NAME="keywords" CONTENT="Divine Office, Breviarium, Liturgy, Traditional, Zsolozsma">
+  <META NAME="Copyright" CONTENT="Like GNU">
+  <meta name="color-scheme" content="dark light">
+  <STYLE>
+    /* https://www.30secondsofcode.org/css/s/offscreen/ */
+    .offscreen {
+      border: 0;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+    h1, h2 {
+      text-align: center;
+      font-weight: normal;
+    }
+    h2 {
+      margin-top: 4ex;
+      color: maroon;
+      font-size: 112%;
+      font-weight: bold;
+      font-style: italic;
+    }
+    p {
+      color: black;
+    }
+    a:link { color: blue; }
+    a:visited { color: blue; }
+    body {
+      background: #eeeeee;
+    }
+    .contrastbg { background: white; }
+    .nigra { color: black; }
+    .lw .gloss { display: none; }
+    body.interlinear-hint .lw { cursor: pointer; }
+    body.interlinear-hint .lw.revealed .gloss { display: inline; font-size: 0.85em; font-weight: normal; font-style: normal; }
+    body.interlinear-all .lw .gloss { display: inline; font-size: 0.85em; font-weight: normal; font-style: normal; }
+    body.interlinear-all .lw.learned .gloss { display: none; }
+    body.interlinear-all .lw { cursor: pointer; }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: black;
+        color: white;
+      }
+      table { color: white; }
+      a:link { color: #AFAFFF; }
+      a:visited { color: #AFAFFF; }
+      p { color: white; }
+      .contrastbg {
+        background: #3F3F3F;
+        color: white;
+      }
+      .nigra {  color: white;  }
+      }
+  </STYLE>
+  <TITLE>Divinum Officium Completorium</TITLE>
+<SCRIPT TYPE='text/JavaScript' LANGUAGE='JavaScript1.2'>
+
+//position
+function startup() {
+  if (!"") {
+    var d = new Date();
+    var day = d.getDate();
+    document.forms[0].browsertime.value = (d.getMonth() + 1) + "-" + day + "-" + d.getFullYear();
+    if (!"08-24-2026") {
+      var a = (day > 24) ? "-+" : (day < 24) ? "--" : "";
+      document.forms[0].date.value = document.forms[0].browsertime.value + a;
+      if (a) document.forms[0].submit();
+    }
+  }
+  var i = 1;
+  while (i <= 0) {
+    a = document.getElementById('L' + i);
+    i++;
+    if (a) a.scrollIntoView();
+  }
+}
+
+//call a setup table
+function pset(p) {
+  clearradio();
+  
+  var pc = document.createElement("input");
+  pc.setAttribute("type", "hidden");
+  pc.setAttribute("name", "pcommand");
+  pc.setAttribute("value", "pray" + document.forms[0].command.value);
+  document.forms[0].appendChild(pc);
+  document.forms[0].command.value = "setup" + p;
+  document.forms[0].submit();
+}
+
+//call an individual hora
+function hset(p, d) {
+  clearradio();
+
+  if (p != 'Laudes' && d) {
+    document.forms[0].date.value = d;
+    document.forms[0].caller.value = 1;
+  }
+  if (0) {document.forms[0].caller.value = 1;}
+  document.forms[0].command.value = "pray" + p;
+  document.forms[0].action = "officium.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+// call appendix
+function appendix(a) {
+  document.forms[0].command.value = "Appendix " + a;
+  console.log(document.forms[0].command.value);
+  document.forms[0].submit();
+}
+
+// Jump straight to an hour of the Office for the Dead.
+function defunctorum(hour) {
+  clearradio();
+
+  document.forms[0].caller.value = 1;
+  document.forms[0].votive.value = "C9";
+  document.forms[0].command.value = "pray" + hour;
+  document.forms[0].action = "officium.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+//calls compare
+function callcompare() {
+  document.forms[0].action = "Cofficium.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+//to prevent inhearitance of popup
+function clearradio() {
+  var a= document.forms[0].popup;
+  if (a) a.value = 0;
+  document.forms[0].action = "officium.pl";
+  document.forms[0].target = "_self"
+  return;
+}
+
+// set a popup tab
+function linkit(name,ind,lang) {
+  document.forms[0].popup.value = name;
+  document.forms[0].popuplang.value=lang;
+  document.forms[0].expandnum.value=ind;
+  if (ind == 0) {
+     document.forms[0].action = 'popup.pl';
+     document.forms[0].target = '_BLANK';
+  } else {
+     var c = document.forms[0].command.value;
+     if (!c.match('pray')) document.forms[0].command.value = "pray" + c;
+  }
+  document.forms[0].submit();
+}
+
+//finishing horas back to main page
+function okbutton() {
+  document.forms[0].action = "officium.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].command.value = '';
+  document.forms[0].submit();
+}
+
+//restart the programlet if parameter change
+function parchange() {
+  var c = document.forms[0].command.value;
+  if (c && !c.match("change")) {
+     clearradio();
+  }
+  if (c && !c.match("pray")) document.forms[0].command.value = "pray" + c;
+  document.forms[0].submit();
+}
+
+//calls kalendar
+function callkalendar(mode) {
+  document.forms[0].action = 'kalendar.pl';
+  document.forms[0].target = "_self"
+  if (mode == 'kalendar') {
+    document.forms[0].kmonth.value = 15;
+    document.forms[0].submit();
+  }
+  document.forms[0].submit();
+}
+
+// for Cofficium
+function callbrevi(date) {
+  document.forms[0].date.value = date;
+  document.forms[0].action = 'officium.pl'
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+//calls missa
+function callmissa() {
+  document.forms[0].action = "../missa/missa.pl";
+  if (document.forms[0].command.value != "") {
+    document.forms[0].command.value = "praySanctaMissa"
+  }
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+function prevnext(ch) {
+  var dat = document.forms[0].date.value;
+  var adat = dat.split('-');
+  var mtab = new Array(31,28,31,30,31,30,31,31,30,31,30,31);
+  var m = eval(adat[0]);
+  var d = eval(adat[1]);
+  var y = eval(adat[2]);
+  var c = eval(ch);
+
+  var leapyear = 0;
+  if ((y % 4) == 0) leapyear = 1;
+  if ((y % 100) == 0) leapyear = 0;
+  if ((y % 400) == 0) leapyear = 1;
+  if (leapyear) mtab[1] = 29;
+  d = d + c;
+  if (d < 1) {
+    m--;
+	if (m < 1) {y--; m = 12;}
+	d = mtab[m-1];
+  }
+  if (d > mtab[m-1]) {
+    m++;
+	  d = 1;
+	  if (m > 12) {y++; m = 1;}
+  }
+  document.forms[0].date.value = m + "-" + d + "-" + y;
+}
+
+function applyLearnedWords() {
+  var learned = JSON.parse(localStorage.getItem('learnedWords') || '[]');
+  document.querySelectorAll('.lw').forEach(function(el) {
+    if (learned.indexOf(el.childNodes[0].textContent.toLowerCase()) !== -1) {
+      el.classList.add('learned');
+    }
+  });
+}
+
+function dismissGloss(el) {
+  var word = el.childNodes[0].textContent.toLowerCase();
+  var learned = JSON.parse(localStorage.getItem('learnedWords') || '[]');
+  var idx = learned.indexOf(word);
+  if (idx === -1) {
+    learned.push(word);
+  } else {
+    learned.splice(idx, 1);
+  }
+  localStorage.setItem('learnedWords', JSON.stringify(learned));
+  var hidden = idx === -1;
+  document.querySelectorAll('.lw').forEach(function(e) {
+    if (e.childNodes[0].textContent.toLowerCase() === word) {
+      e.classList.toggle('learned', hidden);
+    }
+  });
+}
+
+function resetLearnedWords() {
+  localStorage.removeItem('learnedWords');
+  document.querySelectorAll('.lw.learned').forEach(function(el) {
+    el.classList.remove('learned');
+  });
+}
+
+function toggleInterlinear() {
+  var on = document.body.classList.toggle('interlinear');
+  var toggle = document.getElementById('interlinear-toggle');
+  if (toggle) {
+    toggle.textContent = on ? 'Interlinear: on' : 'Interlinear: off';
+  }
+  var form = document.querySelector('form');
+  if (form) {
+    var data = new FormData(form);
+    data.set('interlinear', on ? '1' : '0');
+    fetch(form.action, { method: 'POST', body: data });
+  }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  applyLearnedWords();
+  function handleGlossTap(e) {
+    var lw = e.target.closest && e.target.closest('.lw');
+    if (!lw) return;
+    if (document.body.classList.contains('interlinear-hint')) {
+      e.preventDefault();
+      lw.classList.toggle('revealed');
+    } else if (document.body.classList.contains('interlinear-all')) {
+      e.preventDefault();
+      dismissGloss(lw);
+    }
+  }
+  document.addEventListener('click', handleGlossTap);
+  document.addEventListener('touchend', handleGlossTap);
+});
+</SCRIPT>
+</HEAD>
+<BODY  onload="startup()"; onresize="layoutChant()"><a href="https://www.divinumofficium.com/cdn-cgi/content?id=6.4WJasW0qrYz6foKqDFLKMUXmkctyLtvTfK.zuTQgY-1787579026.2610629-1.2.1.1-y6nfzhb2FNqVnsif.FAyEy_2_f2vlNRDSSI_n2kIkR1_viY5ckMFUva8xmiKZWdn" aria-hidden="true" rel="nofollow noopener" style="display: none !important; visibility: hidden !important"></a>
+<FORM ACTION="officium.pl" METHOD="post" TARGET="_self">
+<P ALIGN=CENTER><FONT COLOR="red">S. Bartholomæi Apostoli ~ Duplex II. classis</FONT></P>
+<H1><FONT COLOR='MAROON' SIZE='+1'><B><I>Divinum Officium</I></B></FONT>&nbsp;<FONT COLOR='RED' SIZE='+1'>Divino Afflatu - 1954</FONT></H1>
+<P ALIGN=CENTER><A HREF="#" onclick="callcompare()">Compare</A>
+&ensp;
+<A HREF="#" onclick="callmissa();">Sancta Missa</A>
+&ensp;
+<LABEL FOR="date" CLASS="offscreen">Date</LABEL>
+<INPUT TYPE="TEXT" ID="date" NAME="date" VALUE="08-24-2026" SIZE="10">
+<A HREF="#" onclick="prevnext(-1)">&darr;</A>
+<INPUT TYPE="submit" NAME="SUBMIT" VALUE=" " onclick="parchange();">
+<A HREF="#" onclick="prevnext(1)">&uarr;</A>
+&ensp;
+<A HREF="#" onclick="callkalendar();">Ordo</A>
+&ensp;
+<A HREF="#" onclick="callkalendar('kalendar');">Kalendarium</A>
+&ensp;
+<A HREF="#" onclick="pset('parameters')">Options</A>
+&ensp;
+<!-- interlinear controls (re-enable in officium_html.pl if needed)
+<A HREF="#" id="interlinear-toggle" onclick="toggleInterlinear()">Interlinear: on</A>
+&ensp;
+<A HREF="#" onclick="resetLearnedWords()">Reset learned</A>
+-->
+</P>
+<H2 ID='Completoriumtop'>Ad Completorium</H2>
+<TABLE BORDER='1' ALIGN='CENTER' CELLPADDING='8' WIDTH='100%'  class="contrastbg"><TR><TD VALIGN='TOP'  ALIGN='CENTER'>
+<INPUT TYPE='RADIO' NAME='link' onclick='linkit("$Ante", 0, "Latin");'>
+<FONT SIZE='1'>Ante Divinum officium</FONT></TD></TR><TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium1'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium2'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Incipit</I></B></FONT> 
+<br/>
+<FONT SIZE='1' COLOR="red">Extra Chorum, quando ab uno tantum recitatur Officium dicitur: <span class='nigra'>Jube, Dómine, benedícere;</span> et subjungitur congruens Benedictio.</FONT><br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Jube, domne, benedícere.<br/>
+<FONT COLOR="red"><I>Benedictio.</I></FONT> Noctem quiétam et finem perféctum concédat nobis Dóminus omnípotens.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium2'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium3'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Lectio brevis</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>1 Pet 5:8-9</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>F</I></B></FONT>ratres: Sóbrii estóte, et vigiláte: quia adversárius vester diábolus tamquam leo rúgiens círcuit, quærens quem dévoret: cui resístite fortes in fide.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Tu autem, Dómine, miserére nobis.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Deo grátias.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium3'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium4'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>℣.</I></FONT> Adjutórium nostrum <span style='color:red; font-size:1.25em'>✠</span> in nómine Dómini.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Qui fecit cælum et terram.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>ater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo et in terra. Panem nostrum quotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris: et ne nos indúcas in tentatiónem: sed líbera nos a malo. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>onfíteor Deo omnipoténti, beátæ Maríæ semper Vírgini, beáto Michaéli Archángelo, beáto Joánni Baptístæ, sanctis Apóstolis Petro et Paulo, et ómnibus Sanctis, quia peccávi nimis, cogitatióne, verbo et ópere: <FONT SIZE='1' COLOR="red">(percutit sibi pectus)</FONT> mea culpa, mea culpa, mea máxima culpa. Ídeo precor beátam Maríam semper Vírginem, beátum Michaélem Archángelum, beátum Joánnem Baptístam, sanctos Apóstolos Petrum et Paulum, et omnes Sanctos, oráre pro me ad Dóminum Deum nostrum.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>M</I></B></FONT>isereátur nostri omnípotens Deus, et dimíssis peccátis nostris, perdúcat nos ad vitam ætérnam. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT>ndulgéntiam, <span style='color:red; font-size:1.25em'>✠</span> absolutiónem et remissiónem peccatórum nostrórum tríbuat nobis omnípotens et miséricors Dóminus. Amen.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Convérte nos <span style='color:red; font-size:1.25em'>✙︎</span> Deus, salutáris noster.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et avérte iram tuam a nobis.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium4'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium5'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>℣.</I></FONT> Deus <span style='color:red; font-size:1.25em'>✠</span> in adjutórium meum inténde.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Dómine, ad adjuvándum me festína.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>G</I></B></FONT>lória Patri, et Fílio, * et Spirítui Sancto.<br/>
+Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>llelúja.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium5'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium6'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Psalmi</I></B></FONT> <FONT SIZE='-1' >{Psalmi et Antiphona de Dominica}</FONT>
+<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Miserére.<br/>
+<FONT COLOR="red"><I>Psalmus 4</I></FONT><FONT SIZE='-1' > [1]</FONT><br/>
+<FONT SIZE='1' COLOR="red">4:2</FONT> Cum invocárem exaudívit me Deus justítiæ meæ: * in tribulatióne dilatásti mihi.<br/>
+<FONT SIZE='1' COLOR="red">4:2</FONT> Miserére mei, * et exáudi oratiónem meam.<br/>
+<FONT SIZE='1' COLOR="red">4:3</FONT> Fílii hóminum, úsquequo gravi corde? * ut quid dilígitis vanitátem, et quǽritis mendácium?<br/>
+<FONT SIZE='1' COLOR="red">4:4</FONT> Et scitóte quóniam mirificávit Dóminus sanctum suum: * Dóminus exáudiet me cum clamávero ad eum.<br/>
+<FONT SIZE='1' COLOR="red">4:5</FONT> Irascímini, et nolíte peccáre: * quæ dícitis in córdibus vestris, in cubílibus vestris compungímini.<br/>
+<FONT SIZE='1' COLOR="red">4:6</FONT> Sacrificáte sacrifícium justítiæ, et speráte in Dómino. * Multi dicunt: Quis osténdit nobis bona?<br/>
+<FONT SIZE='1' COLOR="red">4:7</FONT> Signátum est super nos lumen vultus tui, Dómine: * dedísti lætítiam in corde meo.<br/>
+<FONT SIZE='1' COLOR="red">4:8</FONT> A fructu fruménti, vini, et ólei sui * multiplicáti sunt.<br/>
+<FONT SIZE='1' COLOR="red">4:9</FONT> In pace in idípsum * dórmiam, et requiéscam;<br/>
+<FONT SIZE='1' COLOR="red">4:10</FONT> Quóniam tu, Dómine, singuláriter in spe * constituísti me.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium6'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium7'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>Psalmus 90</I></FONT><FONT SIZE='-1' > [2]</FONT><br/>
+<FONT SIZE='1' COLOR="red">90:1</FONT> Qui hábitat in adjutório Altíssimi, * in protectióne Dei cæli commorábitur.<br/>
+<FONT SIZE='1' COLOR="red">90:2</FONT> Dicet Dómino: Suscéptor meus es tu, et refúgium meum: * Deus meus sperábo in eum.<br/>
+<FONT SIZE='1' COLOR="red">90:3</FONT> Quóniam ipse liberávit me de láqueo venántium, * et a verbo áspero.<br/>
+<FONT SIZE='1' COLOR="red">90:4</FONT> Scápulis suis obumbrábit tibi: * et sub pennis ejus sperábis.<br/>
+<FONT SIZE='1' COLOR="red">90:5</FONT> Scuto circúmdabit te véritas ejus: * non timébis a timóre noctúrno,<br/>
+<FONT SIZE='1' COLOR="red">90:6</FONT> A sagítta volánte in die, a negótio perambulánte in ténebris: * ab incúrsu, et dæmónio meridiáno.<br/>
+<FONT SIZE='1' COLOR="red">90:7</FONT> Cadent a látere tuo mille, et decem míllia a dextris tuis: * ad te autem non appropinquábit.<br/>
+<FONT SIZE='1' COLOR="red">90:8</FONT> Verúmtamen óculis tuis considerábis: * et retributiónem peccatórum vidébis.<br/>
+<FONT SIZE='1' COLOR="red">90:9</FONT> Quóniam tu es, Dómine, spes mea: * Altíssimum posuísti refúgium tuum.<br/>
+<FONT SIZE='1' COLOR="red">90:10</FONT> Non accédet ad te malum: * et flagéllum non appropinquábit tabernáculo tuo.<br/>
+<FONT SIZE='1' COLOR="red">90:11</FONT> Quóniam Ángelis suis mandávit de te: * ut custódiant te in ómnibus viis tuis.<br/>
+<FONT SIZE='1' COLOR="red">90:12</FONT> In mánibus portábunt te: * ne forte offéndas ad lápidem pedem tuum.<br/>
+<FONT SIZE='1' COLOR="red">90:13</FONT> Super áspidem, et basilíscum ambulábis: * et conculcábis leónem et dracónem.<br/>
+<FONT SIZE='1' COLOR="red">90:14</FONT> Quóniam in me sperávit, liberábo eum: * prótegam eum, quóniam cognóvit nomen meum.<br/>
+<FONT SIZE='1' COLOR="red">90:15</FONT> Clamábit ad me, et ego exáudiam eum: * cum ipso sum in tribulatióne: erípiam eum et glorificábo eum.<br/>
+<FONT SIZE='1' COLOR="red">90:16</FONT> Longitúdine diérum replébo eum: * et osténdam illi salutáre meum.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium7'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium8'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>Psalmus 133</I></FONT><FONT SIZE='-1' > [3]</FONT><br/>
+<FONT SIZE='1' COLOR="red">133:1</FONT> Ecce nunc benedícite Dóminum, * omnes servi Dómini:<br/>
+<FONT SIZE='1' COLOR="red">133:1</FONT> Qui statis in domo Dómini, * in átriis domus Dei nostri.<br/>
+<FONT SIZE='1' COLOR="red">133:2</FONT> In nóctibus extóllite manus vestras in sancta, * et benedícite Dóminum.<br/>
+<FONT SIZE='1' COLOR="red">133:3</FONT> Benedícat te Dóminus ex Sion, * qui fecit cælum et terram.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Miserére mihi, Dómine, et exáudi oratiónem meam.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium8'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium9'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Hymnus</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>e lucis ante términum,<br/>
+Rerum Creátor, póscimus,<br/>
+Ut pro tua cleméntia<br/>
+Sis præsul et custódia.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>P</I></B></FONT>rocul recédant sómnia,<br/>
+Et nóctium phantásmata;<br/>
+Hostémque nostrum cómprime,<br/>
+Ne polluántur córpora.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>P</I></B></FONT>ræsta, Pater piíssime,<br/>
+Patríque compar Únice,<br/>
+Cum Spíritu Paráclito<br/>
+Regnans per omne sǽculum.<br/>
+Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium9'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium10'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Capitulum Responsorium Versus</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>Jer 14:9</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>u autem in nobis es, Dómine, et nomen sanctum tuum invocátum est super nos: ne derelínquas nos, Dómine, Deus noster.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Deo grátias.<br/>
+ <br/>
+<FONT COLOR="red"><I>℟.br.</I></FONT> In manus tuas, Dómine, * Comméndo spíritum meum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> In manus tuas, Dómine, * Comméndo spíritum meum.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Redemísti nos, Dómine, Deus veritátis.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Comméndo spíritum meum.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> In manus tuas, Dómine, * Comméndo spíritum meum.<br/>
+ <br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Custódi nos, Dómine, ut pupíllam óculi.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sub umbra alárum tuárum prótege nos.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium10'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium11'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Canticum: Nunc dimittis</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Salva nos.<br/>
+<FONT COLOR="red"><I>Canticum Simeonis</I></FONT><br/>
+<FONT COLOR="red"><I>Luc. 2:29-32</I></FONT><br/>
+<FONT SIZE='1' COLOR="red">2:29</FONT> Nunc dimíttis <span style='color:red; font-size:1.25em'>✠</span> servum tuum, Dómine, * secúndum verbum tuum in pace:<br/>
+<FONT SIZE='1' COLOR="red">2:30</FONT> Quia vidérunt óculi mei * salutáre tuum,<br/>
+<FONT SIZE='1' COLOR="red">2:31</FONT> Quod parásti * ante fáciem ómnium populórum,<br/>
+<FONT SIZE='1' COLOR="red">2:32</FONT> Lumen ad revelatiónem géntium, * et glóriam plebis tuæ Israël.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Salva nos, Dómine, vigilántes, custódi nos dormiéntes; ut vigilémus cum Christo, et requiescámus in pace.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%'><FONT SIZE='-1' >Preces Dominicales{omittitur}</FONT><br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium11'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium12'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Oratio</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dómine, exáudi oratiónem meam.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et clamor meus ad te véniat.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>rémus.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>V</I></B></FONT>ísita, quǽsumus, Dómine, habitatiónem istam, et omnes insídias inimíci ab ea longe repélle: Ángeli tui sancti hábitent in ea, qui nos in pace custódiant; et benedíctio tua sit super nos semper.<br/>
+<FONT SIZE='+1' COLOR="red"><B><I>P</I></B></FONT>er Dóminum nostrum Jesum Christum, Fílium tuum: qui tecum vivit et regnat in unitáte Spíritus Sancti, Deus, per ómnia sǽcula sæculórum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium12'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium13'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Conclusio</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dómine, exáudi oratiónem meam.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et clamor meus ad te véniat.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Benedicámus Dómino.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Deo grátias.<br/>
+<FONT COLOR="red"><I>Benedictio.</I></FONT> Benedícat et custódiat nos omnípotens et miséricors Dóminus, <span style='color:red; font-size:1.25em'>✠</span> Pater, et Fílius, et Spíritus Sanctus.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium13'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium14'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Antiphona finalis B.M.V.</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>alve, Regína, mater misericórdiæ;<br/>
+vita, dulcédo et spes nóstra, salve.<br/>
+Ad te clamámus éxsules fílii Hevæ.<br/>
+Ad te suspirámus geméntes et flentes<br/>
+in hac lacrimárum valle.<br/>
+Eja ergo, advocáta nostra,<br/>
+illos tuos misericórdes óculos ad nos convérte.<br/>
+Et Jesum, benedíctum fructum ventris tui,<br/>
+nobis post hoc exsílium osténde.<br/>
+O clemens, o pia, o dulcis Virgo María.<br/>
+ <br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Ora pro nobis, sancta Dei Génitrix.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Ut digni efficiámur promissiónibus Christi.<br/>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>rémus.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>mnípotens sempitérne Deus, qui gloriósæ Vírginis Matris Maríæ corpus et ánimam, ut dignum Fílii tui habitáculum éffici mererétur, Spíritu Sancto cooperánte, præparásti: da, ut, cujus commemoratióne lætámur, ejus pia intercessióne, ab instántibus malis et a morte perpétua liberémur. Per eúmdem Christum Dóminum nostrum. Amen.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Divínum auxílium <span style='color:red; font-size:1.25em'>✠</span> máneat semper nobíscum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='100%' ID='Completorium14'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Completoriumtop'>Top</A>&nbsp;&nbsp;<A HREF='#Completorium15'>Next</A></FONT></DIV>
+<FONT SIZE='1' COLOR="red">Deinde dicitur secreto</FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>ater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo et in terra. Panem nostrum quotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris: et ne nos indúcas in tentatiónem: sed líbera nos a malo. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>ve María, grátia plena; Dóminus tecum: benedícta tu in muliéribus, et benedíctus fructus ventris tui Jesus. Sancta María, Mater Dei, ora pro nobis peccatóribus, nunc et in hora mortis nostræ. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>redo in Deum, Patrem omnipoténtem, Creatórem cæli et terræ. Et in Jesum Christum, Fílium ejus únicum, Dóminum nostrum: qui concéptus est de Spíritu Sancto, natus ex María Vírgine, passus sub Póntio Piláto, crucifíxus, mórtuus, et sepúltus: descéndit ad ínferos; tértia die resurréxit a mórtuis; ascéndit ad cælos; sedet ad déxteram Dei Patris omnipoténtis: inde ventúrus est judicáre vivos et mórtuos. Credo in Spíritum Sanctum, sanctam Ecclésiam cathólicam, Sanctórum communiónem, remissiónem peccatórum, carnis resurrectiónem, vitam ætérnam. Amen.<br/>
+<FONT SIZE='1' COLOR="red">Si post Completorium immediate sequatur Matutinum, tunc bis dicitur <span class='nigra'>Pater noster, Ave Maria</span> et <span class='nigra'>Credo,</span> pro fine videlicet Officii diei præcedentis, et pro initio Officii diei sequentis.</FONT><br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP'  ALIGN='CENTER'>
+<INPUT TYPE='RADIO' NAME='link' onclick='linkit("$Post", 0, "Latin");'>
+<FONT SIZE='1'>Post Divinum officium</FONT></TD></TR></TABLE><A ID='Completorium14'></A><P ALIGN=CENTER><INPUT TYPE='SUBMIT' VALUE='Completorium persolut.' onclick='okbutton();'></P>
+<P ALIGN=CENTER><I>
+<A HREF=# onclick="hset('Matutinum');">Matutinum</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Laudes');">Laudes</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Prima');">Prima</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Tertia');">Tertia</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Sexta');">Sexta</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Nona');">Nona</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Vesperae');">Vesperae</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Completorium');">Completorium</A>
+<br/>
+<A HREF=# onclick="hset('Omnes');">Omnes</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Plures');">Plures</A>
+&nbsp;&nbsp;
+<A HREF="#" onclick="appendix('Index')"><FONT COLOR=>Appendix</FONT></A>
+</I></P>
+<P ALIGN=CENTER><LABEL FOR='expand' CLASS='offscreen'>Expand</LABEL>
+<SELECT ID=expand NAME=expand SIZE=1 onchange="parchange();">
+<OPTION SELECTED VALUE="tota">tota
+<OPTION  VALUE="psalteria">psalteria
+<OPTION  VALUE="propria">propria
+<OPTION  VALUE="lineamenta">lineamenta
+</SELECT>
+&ensp;<LABEL FOR='version' CLASS='offscreen'>Version</LABEL>
+<SELECT ID=version NAME=version SIZE=1 onchange="parchange();">
+<OPTION  VALUE="Tridentine - 1570">Tridentine - 1570
+<OPTION  VALUE="Tridentine - 1888">Tridentine - 1888
+<OPTION  VALUE="Tridentine - 1906">Tridentine - 1906
+<OPTION  VALUE="Divino Afflatu - 1939">Divino Afflatu - 1939
+<OPTION SELECTED VALUE="Divino Afflatu - 1954">Divino Afflatu - 1954
+<OPTION  VALUE="Reduced - 1955">Reduced - 1955
+<OPTION  VALUE="Rubrics 1960 - 1960">Rubrics 1960 - 1960
+<OPTION  VALUE="Rubrics 1960 - 2020 USA">Rubrics 1960 - 2020 USA
+<OPTION  VALUE="Monastic Tridentinum 1617">Monastic - 1617
+<OPTION  VALUE="Monastic Divino 1930">Monastic - 1930
+<OPTION  VALUE="Monastic - 1963">Monastic - 1963
+<OPTION  VALUE="Monastic - 1963 - Barroux">Monastic - 1963 - Barroux
+<OPTION  VALUE="Monastic Tridentinum Cisterciensis 1951">Ordo Cisterciensis - 1951
+<OPTION  VALUE="Monastic Tridentinum Cisterciensis Altovadensis">Ordo Cisterciensis - Abbatia B.M.V. de Altovado
+<OPTION  VALUE="Ordo Praedicatorum - 1962">Ordo Praedicatorum - 1962
+</SELECT>
+&ensp;<LABEL FOR='dioecesis' CLASS='offscreen'>Dioecesis</LABEL>
+<SELECT ID=dioecesis NAME=dioecesis SIZE=1 onchange="parchange();">
+<OPTION SELECTED VALUE="Generale">Calendarium Generale
+<OPTION  VALUE="Urbis">Diœcesis Urbis seu Romana
+<OPTION  VALUE="Monacensis">Archidiœcesis Monacensis et Frisingensis
+<OPTION  VALUE="Passaviensis">Diœcesis Passaviensis
+<OPTION  VALUE="Ratisbonensis">Diœcesis Ratisbonensis
+<OPTION  VALUE="Spirensis">Diœcesis Spirensis
+<OPTION  VALUE="Brasilia">Brasília (Brasil)
+</SELECT>
+&ensp;<LABEL FOR='lang2' CLASS='offscreen'>Language 2</LABEL>
+<SELECT ID=lang2 NAME=lang2 SIZE=1 onchange="parchange();">
+<OPTION SELECTED VALUE="Latin">Latin
+<OPTION  VALUE="Latin-gabc">Cantilenæ
+<OPTION  VALUE="English">English
+<OPTION  VALUE="Bohemice">Čeština
+<OPTION  VALUE="Cesky-Schaller">Čeština - Schaller
+<OPTION  VALUE="Dansk">Dansk
+<OPTION  VALUE="Deutsch">Deutsch
+<OPTION  VALUE="Espanol">Español
+<OPTION  VALUE="Francais">Français
+<OPTION  VALUE="Italiano">Italiano
+<OPTION  VALUE="Magyar">Magyar
+<OPTION  VALUE="Magyar-Kaldi">Magyar-Káldi
+<OPTION  VALUE="Nederlands">Nederlands
+<OPTION  VALUE="Polski">Polski
+<OPTION  VALUE="Portugues">Português
+<OPTION  VALUE="Vietnamice">Tiếng Việt
+<OPTION  VALUE="Latin-Bea">Latin-Bea
+<OPTION  VALUE="Polski-Newer">Polski-Newer
+<OPTION  VALUE="Hebrew">עברית
+</SELECT>
+&ensp;<LABEL FOR='votive' CLASS='offscreen'>Votive</LABEL>
+<SELECT ID=votive NAME=votive SIZE=1 onchange="parchange();">
+<OPTION SELECTED VALUE="Hodie">Hodie
+<OPTION  VALUE="C1">Apostolorum
+<OPTION  VALUE="C1a">Evangelistarum
+<OPTION  VALUE="C2">Unius Martyris Pontificis
+<OPTION  VALUE="C2a">Unius Martyris non Pontificis
+<OPTION  VALUE="C3">Plurium Martyrum Pontificum
+<OPTION  VALUE="C3a">Plurium Martyrum non Pontificum
+<OPTION  VALUE="C4">Confessoris Pontificis
+<OPTION  VALUE="C4a">Doctoris Pontificis
+<OPTION  VALUE="C4c">Plurium Confessorum Pontificum
+<OPTION  VALUE="C5">Confessoris non Pontificis
+<OPTION  VALUE="C5a">Doctoris non Pontificis
+<OPTION  VALUE="C5b">Abbatis
+<OPTION  VALUE="C5c">Plurium Confessorum non Pontificum
+<OPTION  VALUE="C6">Unius Virginis Martyris
+<OPTION  VALUE="C6a">Unius Virginis tantum
+<OPTION  VALUE="C6b">Plurium Virginum Martyrum
+<OPTION  VALUE="C7">Unius non Virginis Martyris
+<OPTION  VALUE="C7a">Unius non Virginis nec Martyris
+<OPTION  VALUE="C7b">Plurium non Virginum Martyrum
+<OPTION  VALUE="C8">Dedicationis Ecclesiae
+<OPTION  VALUE="C9">Officium defunctorum
+<OPTION  VALUE="C10">Beata Maria in Sabbato
+<OPTION  VALUE="C11">Beatae Mariae Virginis
+<OPTION  VALUE="C12">Officium parvum Beatae Mariae Virginis
+<OPTION  VALUE="V4">De S. Joseph Sponso BMV (Feria IV)
+<OPTION  VALUE="V6">De Passione DNJC (Feria VI)
+</SELECT>
+</P>
+<P ALIGN=CENTER>
+<A HREF="../../www/horas/Help/versions.html" TARGET="_BLANK">Versions</A>
+&emsp;
+<A HREF="../../www/horas/Help/credits.html" TARGET="_BLANK">Credits</A>
+&emsp;
+<A HREF="../../www/horas/Help/download.html" TARGET="_BLANK">Download</A>
+&emsp;
+<A HREF="../../www/horas/Help/rubrics.html" TARGET="_BLANK">Rubrics</A>
+&emsp;
+<A HREF="../../www/horas/Help/technical.html" TARGET="_BLANK">Technical</A>
+&emsp;
+<A HREF="../../www/horas/Help/help.html" TARGET="_BLANK">Help</A>
+</P>
+<INPUT TYPE="HIDDEN" NAME="expandnum" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="popup" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="popuplang" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="setup" VALUE="general;;;$expand='tota';;$version='Divino Afflatu - 1954';;$dioecesis='Generale';;$lang2='Latin';;$votive='Hodie';;;generalc;;;$expand='tota';;$version='Divino Afflatu';;$version2='Rubrics 1960 - 1960';;$dioecesis='Generale';;$langc='Latin';;$votive='Hodie';;$accented='plain';;;generalccheck;;;ooooooo;;;generalcheck;;;ooooo;;;parameters;;;$priest='0';;$building='0';;$lang1='Latin';;$psalmvar='0';;$whitebground='1';;$blackfont='';;$smallblack='-1';;$redfont=' italic red';;$initiale='+2 bold italic red';;$largefont='+1 bold italic red';;$smallfont='1 red';;$titlefont='+1 red';;$screenheight='1024';;$textwidth='100';;$oldhymns='0';;$nonumbers='0';;$nofancychars='0';;$noinnumbers='1';;$noflexa='1';;$langfb='English';;$testmode='Proper';;$singleCell='1';;$interlinear='disabled';;$glossfont='';;;parameterscheck;;;bbtbbbtcccccnnbbbbbttbot;;;">
+<INPUT TYPE="HIDDEN" NAME="command" VALUE="Completorium">
+<INPUT TYPE="HIDDEN" NAME="date1" VALUE="08-24-2026">
+<INPUT TYPE="HIDDEN" NAME="searchvalue" VALUE="0">
+<INPUT TYPE="HIDDEN" NAME="officium" VALUE="officium.pl">
+<INPUT TYPE="HIDDEN" NAME="browsertime" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="version" VALUE="Divino Afflatu - 1954">
+<INPUT TYPE="HIDDEN" NAME="version2" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="caller" VALUE='0'>
+<INPUT TYPE="HIDDEN" NAME="compare" VALUE=>
+<INPUT TYPE="HIDDEN" NAME="plures" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="kmonth" VALUE="">
+
+<SCRIPT TYPE='text/JavaScript'>
+    
+  
+  
+    const scores = [];
+    const mappings = [];
+    const ctexts = [];
+    var gabcSources = [];
+    var chantContainers = [];
+  
+    $('.GABC').each(function(gabcidx, gabcSource) {
+      gabcSources.push(gabcSource);
+      chantContainer = document.getElementById(gabcSource.id.replace("GABC", "GCHANT"));
+      chantContainers.push(chantContainer);
+    });
+  
+  var updateChant = function() {
+    if (scores.length) {
+      for (let i = 0; i < scores.length; i++) {
+        exsurge.Gabc.updateMappingsFromSource(ctexts[i], mappings[i], gabcSources[i].innerHTML.replace(/&gt;/g, '>').replace(/&lt;/g, '<'));
+        scores[i].updateNotations(ctexts[i]);
+      }
+    } else {
+      for (let i = 0; i < gabcSources.length; i++) {
+        let ctxt = new exsurge.ChantContext();
+        ctxt.lyricTextFont = "'Crimson Text', serif";
+        ctxt.lyricTextSize *= 1.2;
+        ctxt.spaceBetweenSystems = 0;
+        ctxt.dropCapTextFont = ctxt.lyricTextFont;
+        ctxt.annotationTextFont = ctxt.lyricTextFont;
+      
+
+        header = getHeader(gabcSources[i].innerHTML);
+        header["centering-scheme"] = 'latin';
+        let mapping = exsurge.Gabc.createMappingsFromSource(ctxt, gabcSources[i].innerHTML.replace(/&gt;/g, '>').replace(/&lt;/g, '<'));
+        let score = new exsurge.ChantScore(ctxt, mapping, header['initial-style']!=='0');
+        if(header['initial-style']!=='0' && header.annotation) {
+          score.annotation = new exsurge.Annotation(ctxt, header.annotation);
+        }
+        ctexts.push(ctxt);
+        scores.push(score);
+        mappings.push(mapping);
+      };
+    }
+    layoutChant();
+  };
+
+  var layoutChant = function() {
+    for (let i = 0; i < chantContainers.length; i++) {
+      // perform layout on the chant
+      if(scores.length) {
+        scores[i].performLayoutAsync(ctexts[i], function() {
+          scores[i].layoutChantLines(ctexts[i], chantContainers[i].clientWidth, function() {
+            // render the score to svg code
+            chantContainers[i].innerHTML = scores[i].createSvg(ctexts[i]);
+          });
+        });
+        
+        gabcSources[i].style.display = 'none'; // hide Chant text
+      }
+    }
+  };
+  
+  updateChant();
+  
+  
+  $("body").on("resize", layoutChant());
+    </SCRIPT>
+</FORM><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a302c9b22f442dbb',t:'MTc4NzU3OTAyNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></BODY></HTML>

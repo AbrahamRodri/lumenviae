@@ -127,6 +127,14 @@ defmodule LumenViaeWeb.Router do
 
     # Prayers
     get "/prayers/:id/audio", PrayerController, :audio
+
+    # The Divine Office (pre-Vatican II breviary), assembled by a Divinum
+    # Officium instance and served as data. The two fixed segments must
+    # stay above "/office/:date", which would otherwise swallow them.
+    get "/office/versions", OfficeController, :versions
+    get "/office/calendar/:year/:month", OfficeController, :calendar
+    get "/office/:date", OfficeController, :day
+    get "/office/:date/:hour", OfficeController, :hour
   end
 
   # The one write the public API exposes, and so the one route that gets a

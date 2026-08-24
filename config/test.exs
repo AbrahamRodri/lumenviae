@@ -41,3 +41,8 @@ config :phoenix_live_view,
 # failures would land wherever the seed happened to put them. The tests that
 # actually exercise the limit set their own.
 config :lumen_viae, :completions_per_hour, 1_000_000
+
+# Every Divine Office fetch in the suite goes through Req.Test. A test
+# that forgets to stub gets a loud "no stub" error instead of a quiet
+# request to the real Divinum Officium site.
+config :lumen_viae, :office, req_options: [plug: {Req.Test, LumenViae.Office.DivinumOfficium}]

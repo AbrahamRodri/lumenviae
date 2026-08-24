@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD>
+
+  <META NAME="Resource-type" CONTENT="Document">
+  <META NAME="description" CONTENT="Divine Office">
+  <META NAME="keywords" CONTENT="Divine Office, Breviarium, Liturgy, Traditional, Zsolozsma">
+  <META NAME="Copyright" CONTENT="Like GNU">
+  <meta name="color-scheme" content="dark light">
+  <STYLE>
+    /* https://www.30secondsofcode.org/css/s/offscreen/ */
+    .offscreen {
+      border: 0;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+    h1, h2 {
+      text-align: center;
+      font-weight: normal;
+    }
+    h2 {
+      margin-top: 4ex;
+      color: maroon;
+      font-size: 112%;
+      font-weight: bold;
+      font-style: italic;
+    }
+    p {
+      color: black;
+    }
+    a:link { color: blue; }
+    a:visited { color: blue; }
+    body {
+      background: #eeeeee;
+    }
+    .contrastbg { background: white; }
+    .nigra { color: black; }
+    .lw .gloss { display: none; }
+    body.interlinear-hint .lw { cursor: pointer; }
+    body.interlinear-hint .lw.revealed .gloss { display: inline; font-size: 0.85em; font-weight: normal; font-style: normal; }
+    body.interlinear-all .lw .gloss { display: inline; font-size: 0.85em; font-weight: normal; font-style: normal; }
+    body.interlinear-all .lw.learned .gloss { display: none; }
+    body.interlinear-all .lw { cursor: pointer; }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: black;
+        color: white;
+      }
+      table { color: white; }
+      a:link { color: #AFAFFF; }
+      a:visited { color: #AFAFFF; }
+      p { color: white; }
+      .contrastbg {
+        background: #3F3F3F;
+        color: white;
+      }
+      .nigra {  color: white;  }
+      }
+  </STYLE>
+  <TITLE>Ordo: Augustus 2026</TITLE>
+<SCRIPT TYPE='text/JavaScript' LANGUAGE='JavaScript1.2'>
+
+function callbrevi(date) {
+  if (!date) date = '';
+  var officium = "officium.pl";
+  if (!officium || !officium.match('.pl')) officium = "officium.pl";
+  document.forms[0].date.value = date;
+  document.forms[0].action = ((officium.match(/missa/)) ? '../missa/' : '' ) + officium;
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+//calls missa
+function callmissa() {
+  document.forms[0].action = "../missa/missa.pl";
+  if (document.forms[0].command.value != "") {
+    document.forms[0].command.value = "praySanctaMissa"
+  }
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+//calls compare kalendar
+function callkalendar(c,m) {
+  document.forms[0].action = 'kalendar.pl';
+  if (m == 'kal') { document.forms[0].kmonth.value = 15; }
+  document.forms[0].compare.value = c;
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+function prevnext(d) {
+  document.forms[0].kyear.value = parseInt(document.forms[0].kyear.value) + d;
+}
+
+function setkm(km) {
+  document.forms[0].kmonth.value = km;
+  if (km == -1) {
+    document.forms[0].kmonth.value = 12;
+    document.forms[0].kyear.value--;
+  }
+  else {
+    if (km == 13) {
+      document.forms[0].kmonth.value = 1;
+      document.forms[0].kyear.value++;
+    }
+  }
+  document.forms[0].submit();
+}
+
+function setky(ky) {
+  document.forms[0].kyear.value = ky;
+  document.forms[0].submit();
+}
+
+function readings() {
+  document.forms[0].readings.value = 1;
+  document.forms[0].submit();
+}
+</SCRIPT>
+</HEAD>
+<BODY  onresize="layoutChant()"><a href="https://www.divinumofficium.com/cdn-cgi/content?id=ogh9gaOw6zlitqCgui9VSXG1mO_oA3ofDwISrbhnL0A-1787577919.5609014-1.2.1.1-lg5U1GXOEnoN7RkmC4sfPd3kMyomx3S6UAKTwkcEXtFU5A0s8Ey7qvq.knRFGX_c" aria-hidden="true" rel="nofollow noopener" style="display: none !important; visibility: hidden !important"></a>
+<FORM ACTION="" METHOD="post" TARGET="_self">
+<H1>
+<FONT COLOR="MAROON" SIZE="+1"><B><I>Divinum Officium</I></B></FONT>&nbsp;
+<FONT COLOR="RED" SIZE="+1">Rubrics 1960 - 1960</FONT>
+</H1>
+<P ALIGN="CENTER">
+<A HREF=# onclick="setkm(15)">Kalendarium</A>&ensp;
+<FONT COLOR="MAROON" SIZE="+1"><B><I>Ordo Augustus A. D.</I></B></FONT>&nbsp;
+<LABEL FOR="kyear" CLASS="offscreen">Year</LABEL>
+<INPUT TYPE="TEXT" ID="kyear" NAME="kyear" VALUE="2026" SIZE=4>
+<A HREF=# onclick="prevnext(-1)">&darr;</A>
+<INPUT TYPE="submit" NAME="SUBMIT" VALUE=" " onclick="document.forms[0].submit();">
+<A HREF=# onclick="prevnext(1)">&uarr;</A>
+&ensp;<A HREF=# onclick="setkm(14)">Totus</A>
+</P><P ALIGN="CENTER">
+<A HREF=# onclick="setkm(1)">Jan</A>
+&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(2)">Feb</A>
+&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(3)">Mar</A>
+&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(4)">Apr</A>
+&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(5)">Mai</A>
+&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(6)">Jun</A>
+&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(7)">Jul</A>
+&nbsp;&nbsp;&nbsp;Aug&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(9)">Sep</A>
+&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(10)">Oct</A>
+&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(11)">Nov</A>
+&nbsp;&nbsp;&nbsp;<A HREF=# onclick="setkm(12)">Dec</A>
+</P><P ALIGN="CENTER">
+<TABLE BORDER="1" WIDTH="90%" CELLPADDING="3"  class="contrastbg">
+<TR><TH>Dies</TH><TH>de Tempore</TH><TH>Sanctorum</TH><TH>Vespera</TH><TH>d.h.</TH></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-01-2026');">1</A></TD><TD><B><FONT COLOR="blue">Sanctæ Mariæ Sabbato</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;IV. classis</FONT></TD><TD><FONT SIZE='-1' >Commemoratio  ad Laudes tantum:</FONT><I><FONT COLOR="red"> Ss. Martyrum Machabæorum</FONT></I></TD><TD><FONT SIZE="-2">Vespera de sequenti.</FONT></TD><TD ALIGN="CENTER">Sabb.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-02-2026');">2</A></TD><TD><B><FONT COLOR="green">Dominica X Post Pentecosten I. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD ALIGN="CENTER"></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">Dom.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-03-2026');">3</A></TD><TD><B><FONT COLOR="green">Feria secunda infra Hebd X post Octavam Pentecostes I. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;IV. classis</FONT></TD><TD ALIGN="CENTER"></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.II</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-04-2026');">4</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria tertia infra Hebd X post Octavam Pentecostes I. Augusti</FONT></I></TD><TD><B><FONT >S. Dominici Confessoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.III</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-05-2026');">5</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria quarta infra Hebd X post Octavam Pentecostes I. Augusti</FONT></I></TD><TD><B><FONT COLOR="blue">Sanctæ Mariæ Virginis ad Nives</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.IV</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-06-2026');">6</A></TD><TD><FONT SIZE='-1' >Commemoratio ad Laudes tantum:</FONT><I><FONT COLOR="red"> Ss. Xysti II Papæ, Felicissimi et Agapiti Martyrum</FONT></I></TD><TD><B><FONT >In Transfiguratione Domini Nostri Jesu Christi</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.V</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-07-2026');">7</A></TD><TD><FONT SIZE='-1' >Commemoratio ad Laudes tantum:</FONT><I><FONT COLOR="red"> S. Donati Episcopi et Martyris</FONT></I></TD><TD><B><FONT >S. Cajetani Confessoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.VI</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-08-2026');">8</A></TD><TD><FONT SIZE='-1' >Commemoratio ad Laudes tantum:</FONT><I><FONT COLOR="red"> Ss. Cyriaci, Largi et Smaragdi Martyrum</FONT></I></TD><TD><B><FONT >S. Joannis Mariæ Vianney Confessoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2">Vespera de sequenti; nihil de præcedenti</FONT></TD><TD ALIGN="CENTER">Sabb.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-09-2026');">9</A></TD><TD><B><FONT COLOR="green">Dominica XI Post Pentecosten II. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD ALIGN="CENTER"></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">Dom.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-10-2026');">10</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria secunda infra Hebd XI post Octavam Pentecostes II. Augusti</FONT></I></TD><TD><B><FONT COLOR="red">S. Laurentii Martyris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.II</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-11-2026');">11</A></TD><TD><B><FONT COLOR="green">Feria tertia infra Hebd XI post Octavam Pentecostes II. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;IV. classis</FONT></TD><TD><FONT SIZE='-1' >Commemoratio  ad Laudes tantum:</FONT><I><FONT COLOR="red"> Ss. Tiburtii et Susannæ Virginis, Martyrum</FONT></I></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.III</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-12-2026');">12</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria quarta infra Hebd XI post Octavam Pentecostes II. Augusti</FONT></I></TD><TD><B><FONT >S. Claræ Virginis</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.IV</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-13-2026');">13</A></TD><TD><B><FONT COLOR="green">Feria quinta infra Hebd XI post Octavam Pentecostes II. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;IV. classis</FONT></TD><TD><FONT SIZE='-1' >Commemoratio  ad Laudes tantum:</FONT><I><FONT COLOR="red"> Ss. Hippolyti et Cassiani Martyrum</FONT></I></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.V</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-14-2026');">14</A></TD><TD><FONT SIZE='-1' >Commemoratio ad Laudes tantum:</FONT><I><FONT > S. Eusebii Confessoris</FONT></I></TD><TD><B><FONT COLOR="purple">In Vigilia Assumptionis B.M.V.</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD><FONT SIZE="-2">Vespera de sequenti; nihil de præcedenti</FONT></TD><TD ALIGN="CENTER">F.VI</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-15-2026');">15</A></TD><TD ALIGN="CENTER"></TD><TD><B><FONT COLOR="blue">In Assumptione Beatæ Mariæ Virginis</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;I. classis</FONT></TD><TD><FONT SIZE="-2">Vespera de præcedenti; commemoratio de sequenti Dominica</FONT></TD><TD ALIGN="CENTER">Sabb.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-16-2026');">16</A></TD><TD><B><FONT COLOR="green">Dominica XII Post Pentecosten III. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD><FONT SIZE='-1' >Commemoratio:</FONT><I><FONT > S. Joachim Confessoris, Patris B. M. V.</FONT></I></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">Dom.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-17-2026');">17</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria secunda infra Hebd XII post Octavam Pentecostes III. Augusti</FONT></I></TD><TD><B><FONT >S. Hyacinthi Confessoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.II</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-18-2026');">18</A></TD><TD><B><FONT COLOR="green">Feria Tertia infra Hebd XII post Octavam Pentecostes III. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;IV. classis</FONT></TD><TD><FONT SIZE='-1' >Commemoratio  ad Laudes tantum:</FONT><I><FONT COLOR="red"> S. Agapiti Martyris</FONT></I></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.III</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-19-2026');">19</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria Quarta infra Hebd XII post Octavam Pentecostes III. Augusti</FONT></I></TD><TD><B><FONT >S. Joannis Eudes Confessoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.IV</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-20-2026');">20</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria Quinta infra Hebd XII post Octavam Pentecostes III. Augusti</FONT></I></TD><TD><B><FONT >S. Bernardi Abbatis et Ecclesiæ Doctoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.V</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-21-2026');">21</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria Sexta infra Hebd XII post Octavam Pentecostes III. Augusti</FONT></I></TD><TD><B><FONT >S. Joannæ Franciscæ Frémiot de Chantal Viduæ</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.VI</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-22-2026');">22</A></TD><TD><FONT SIZE='-1' >Commemoratio ad Laudes tantum:</FONT><I><FONT COLOR="red"> Ss. Timothei, Hippolyti et Symphoriani Martyres</FONT></I></TD><TD><B><FONT COLOR="blue">Immaculati Cordis Beatæ Mariæ Virginis</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD><FONT SIZE="-2">Vespera de præcedenti; commemoratio de sequenti Dominica</FONT></TD><TD ALIGN="CENTER">Sabb.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-23-2026');">23</A></TD><TD><B><FONT COLOR="green">Dominica XIII Post Pentecosten IV. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD ALIGN="CENTER"></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">Dom.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-24-2026');">24</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria Secunda infra Hebd XIII post Octavam Pentecostes IV. Augusti</FONT></I></TD><TD><B><FONT COLOR="red">S. Bartholomæi Apostoli</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.II</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-25-2026');">25</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria Tertia infra Hebd XIII post Octavam Pentecostes IV. Augusti</FONT></I></TD><TD><B><FONT >S. Ludovici Regis Franciæ Confessoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.III</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-26-2026');">26</A></TD><TD><B><FONT COLOR="green">Feria Quarta infra Hebd XIII post Octavam Pentecostes IV. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;IV. classis</FONT></TD><TD><FONT SIZE='-1' >Commemoratio  ad Laudes tantum:</FONT><I><FONT COLOR="red"> S. Zephyrini Papæ et Martyris</FONT></I></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.IV</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-27-2026');">27</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria Quinta infra Hebd XIII post Octavam Pentecostes IV. Augusti</FONT></I></TD><TD><B><FONT >S. Josephi Calasanctii Confessoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.V</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-28-2026');">28</A></TD><TD><FONT SIZE='-1' >Commemoratio ad Laudes tantum:</FONT><I><FONT COLOR="red"> S. Hermetis Martyris</FONT></I></TD><TD><B><FONT >S. Augustini Episcopi et Confessoris et Ecclesiæ Doctoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.VI</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-29-2026');">29</A></TD><TD><FONT SIZE='-1' >Commemoratio ad Laudes tantum:</FONT><I><FONT COLOR="red"> S. Sabinæ Martyris</FONT></I></TD><TD><B><FONT COLOR="red">In Decollatione S. Joannis Baptistæ</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2">Vespera de sequenti; nihil de præcedenti</FONT></TD><TD ALIGN="CENTER">Sabb.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-30-2026');">30</A></TD><TD><B><FONT COLOR="green">Dominica XIV Post Pentecosten V. Augusti</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;II. classis</FONT></TD><TD ALIGN="CENTER"></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">Dom.</TD></TR>
+<TR><TD ALIGN="CENTER"><A HREF=# onclick="callbrevi('08-31-2026');">31</A></TD><TD><FONT SIZE='-1' >Tempora:</FONT><I><FONT COLOR="green"> Feria Secunda infra Hebd XIV post Octavam Pentecostes V. Augusti</FONT></I></TD><TD><B><FONT >S. Raymundi Nonnati Confessoris</FONT></B><FONT SIZE='1' COLOR="maroon">&ensp;III. classis</FONT></TD><TD><FONT SIZE="-2"></FONT></TD><TD ALIGN="CENTER">F.II</TD></TR>
+</TABLE></P>
+<P ALIGN='CENTER'>
+<SELECT ID=version NAME=version SIZE=1 onchange="document.forms[0].submit();">
+<OPTION  VALUE="Tridentine - 1570">Tridentine - 1570
+<OPTION  VALUE="Tridentine - 1888">Tridentine - 1888
+<OPTION  VALUE="Tridentine - 1906">Tridentine - 1906
+<OPTION  VALUE="Divino Afflatu - 1939">Divino Afflatu - 1939
+<OPTION  VALUE="Divino Afflatu - 1954">Divino Afflatu - 1954
+<OPTION  VALUE="Reduced - 1955">Reduced - 1955
+<OPTION SELECTED VALUE="Rubrics 1960 - 1960">Rubrics 1960 - 1960
+<OPTION  VALUE="Rubrics 1960 - 2020 USA">Rubrics 1960 - 2020 USA
+<OPTION  VALUE="Monastic Tridentinum 1617">Monastic - 1617
+<OPTION  VALUE="Monastic Divino 1930">Monastic - 1930
+<OPTION  VALUE="Monastic - 1963">Monastic - 1963
+<OPTION  VALUE="Monastic - 1963 - Barroux">Monastic - 1963 - Barroux
+<OPTION  VALUE="Monastic Tridentinum Cisterciensis 1951">Ordo Cisterciensis - 1951
+<OPTION  VALUE="Monastic Tridentinum Cisterciensis Altovadensis">Ordo Cisterciensis - Abbatia B.M.V. de Altovado
+<OPTION  VALUE="Ordo Praedicatorum - 1962">Ordo Praedicatorum - 1962
+</SELECT>
+<SELECT ID=dioecesis NAME=dioecesis SIZE=1 onchange="document.forms[0].submit();">
+<OPTION SELECTED VALUE="Generale">Calendarium Generale
+<OPTION  VALUE="Urbis">Diœcesis Urbis seu Romana
+<OPTION  VALUE="Monacensis">Archidiœcesis Monacensis et Frisingensis
+<OPTION  VALUE="Passaviensis">Diœcesis Passaviensis
+<OPTION  VALUE="Ratisbonensis">Diœcesis Ratisbonensis
+<OPTION  VALUE="Spirensis">Diœcesis Spirensis
+<OPTION  VALUE="Brasilia">Brasília (Brasil)
+</SELECT>
+</P><P ALIGN='CENTER'>
+<A HREF="../../www/horas/Help/versions.html" TARGET="_BLANK">Versions</A>
+&emsp;
+<A HREF="../../www/horas/Help/credits.html" TARGET="_BLANK">Credits</A>
+&emsp;
+<A HREF="../../www/horas/Help/download.html" TARGET="_BLANK">Download</A>
+&emsp;
+<A HREF="../../www/horas/Help/rubrics.html" TARGET="_BLANK">Rubrics</A>
+&emsp;
+<A HREF="../../www/horas/Help/technical.html" TARGET="_BLANK">Technical</A>
+&emsp;
+<A HREF="../../www/horas/Help/help.html" TARGET="_BLANK">Help</A>
+</P>
+<P ALIGN="CENTER"><A HREF="#" onclick="callkalendar(1, 'ordo')">Compare Calendars</A>
+&nbsp;&nbsp;&nbsp;<A HREF='?format=ical&version=Rubrics 1960 - 1960&dioecesis=Generale'>iCal</A>&nbsp;&nbsp;&nbsp;&nbsp;<A HREF='?format=ical_comm&version=Rubrics 1960 - 1960&dioecesis=Generale'>iCal with Commemorations</A></P>
+<INPUT TYPE="HIDDEN" NAME="setup" VALUE="general;;;$expand='tota';;$version='Rubrics 1960 - 1960';;$dioecesis='Generale';;$lang2='English';;$votive='Hodie';;;generalc;;;$expand='tota';;$version='Divino Afflatu';;$version2='Rubrics 1960 - 1960';;$dioecesis='Generale';;$langc='Latin';;$votive='Hodie';;$accented='plain';;;generalccheck;;;ooooooo;;;generalcheck;;;ooooo;;;parameters;;;$priest='0';;$building='0';;$lang1='Latin';;$psalmvar='0';;$whitebground='1';;$blackfont='';;$smallblack='-1';;$redfont=' italic red';;$initiale='+2 bold italic red';;$largefont='+1 bold italic red';;$smallfont='1 red';;$titlefont='+1 red';;$screenheight='1024';;$textwidth='100';;$oldhymns='0';;$nonumbers='0';;$nofancychars='0';;$noinnumbers='1';;$noflexa='1';;$langfb='English';;$testmode='Proper';;$singleCell='1';;$interlinear='disabled';;$glossfont='';;;parameterscheck;;;bbtbbbtcccccnnbbbbbttbot;;;">
+<INPUT TYPE="HIDDEN" NAME="date1" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="kmonth" VALUE=8>
+<INPUT TYPE="HIDDEN" NAME="date" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="command" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="officium" VALUE="officium.pl">
+<INPUT TYPE="HIDDEN" NAME="browsertime" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="compare" VALUE="0">
+<INPUT TYPE="HIDDEN" NAME="readings" VALUE="0">
+</FORM><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a302aead48c8b2d9',t:'MTc4NzU3NzkxOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></BODY></HTML>

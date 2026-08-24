@@ -105,9 +105,9 @@ without stuttering: `Meditations.list/0`, not
 
 ### Rule 3: only Secondary Contexts touch the Repo
 
-`Repo` appears in exactly five files. If code outside them needs data, it
-calls the Primary Context, which calls the Secondary Context that owns the
-table.
+`Repo` appears in the Secondary Contexts and nowhere else. If code outside
+them needs data, it calls the Primary Context, which calls the Secondary
+Context that owns the table.
 
 A Secondary Context may preload its own schema's associations, since the
 associations are part of the schema definition. It may **not** hand-write a
@@ -220,6 +220,43 @@ switched off by default so no address leaves a development machine.
 
 `LumenViae.RateLimit` sits alongside them. It is a supervised ETS counter
 with no domain knowledge, used by the web layer to cap completion writes.
+
+---
+
+## The Office domain
+
+`LumenViae.Office` is the codebase's second domain: the pre-Vatican II
+Divine Office, served through the JSON API. It sits in
+`lib/lumen_viae/office/` as a sibling of `rosary/`, follows the same
+entry-point rule - nothing outside `lib/lumen_viae/office/` names its
+internal modules - and owns **no tables**. That last point is structural,
+not incidental: the domain's data source is the open-source Divinum
+Officium engine (MIT, github.com/DivinumOfficium/divinum-officium), whose
+rubrical logic nobody should reimplement, and whose answers are immutable
+per date, so a cache is all the persistence the domain needs. Because it
+never touches the Repo, `context_rules_test.exs` holds as written.
+
+```
+lib/lumen_viae/office.ex          Primary Context: fetch_hour, fetch_day,
+                                  fetch_calendar, vocabulary; validates the
+                                  web layer's raw params itself
+lib/lumen_viae/office/
+├── versions.ex                   value module: version/hour/language slugs
+│                                 and their engine spellings - never inline
+│                                 these lists
+├── divinum_officium.ex           Req client; base_url swappable through
+│                                 config :lumen_viae, :office (self-hosted
+│                                 engine = one env var, no code change)
+├── parser.ex                     the engine's HTML into sections of plain
+│                                 text lines, Latin and translation
+└── cache.ex                      supervised ETS, month TTL, same recipe as
+                                  the geolocation cache
+```
+
+The web surface is `LumenViaeWeb.API.OfficeController` + `OfficeJSON`
+under the existing unversioned `/api` scope, with `office_unavailable` in
+the fallback controller for upstream trouble. See `docs/OFFICE_API.md`
+for the endpoint reference.
 
 ---
 

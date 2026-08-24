@@ -66,6 +66,14 @@ end
 # Admin password configuration
 config :lumen_viae, :admin_password, System.get_env("ADMIN_PASSWORD") || "changeme"
 
+# Which Divinum Officium instance assembles the Divine Office texts.
+# Unset means the public site; set it to a self-hosted copy's URL to take
+# the public site out of the request path entirely.
+case System.get_env("DIVINUM_OFFICIUM_BASE_URL") do
+  nil -> :ok
+  base_url -> config :lumen_viae, :office, base_url: base_url
+end
+
 # ## Using releases
 #
 # If you use `mix release`, you need to explicitly enable the server

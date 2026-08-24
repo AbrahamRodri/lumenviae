@@ -17,6 +17,8 @@ defmodule LumenViae.Application do
       LumenViae.RateLimit,
       # Owns the IP-to-place cache.
       LumenViae.Services.Geolocation,
+      # Owns the parsed Divine Office cache.
+      LumenViae.Office.Cache,
       # Where a completion's geolocation lookup runs. Off the request path
       # on purpose: filling in a place is worth a background task and never
       # worth making somebody wait at the end of a Rosary.

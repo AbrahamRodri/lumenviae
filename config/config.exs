@@ -23,6 +23,12 @@ config :lumen_viae, :geolocation,
   enabled: false,
   provider: :ipapi_co
 
+# Where the Divine Office texts come from: a Divinum Officium instance.
+# The public site by default; production can point at a self-hosted copy
+# of the engine through DIVINUM_OFFICIUM_BASE_URL without a code change.
+# See LumenViae.Office.DivinumOfficium.
+config :lumen_viae, :office, base_url: "https://www.divinumofficium.com"
+
 # Configures the endpoint
 config :lumen_viae, LumenViaeWeb.Endpoint,
   url: [host: "localhost"],
