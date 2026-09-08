@@ -12,9 +12,20 @@ defmodule LumenViae.Office.DivinumOfficium do
 
   `:base_url` exists so production can point at a self-hosted copy of the
   engine (the project publishes a Docker image) without a code change;
-  the public site is the default. `:req_options` is the test seam - the
-  suite injects `plug: {Req.Test, LumenViae.Office.DivinumOfficium}`
-  through it, the same arrangement `LumenViae.Services.Geolocation` uses.
+  the public site is the default. Production does exactly that: since
+  September 2026 divinumofficium.com's Cloudflare answers 403 on
+  `officium.pl` to datacenter IPs whatever the User-Agent, so the engine
+  runs as the private Fly app in `deploy/divinum-officium/fly.toml` and
+  `DIVINUM_OFFICIUM_BASE_URL` (config/runtime.exs) names it. `:req_options`
+  is the test seam - the suite injects
+  `plug: {Req.Test, LumenViae.Office.DivinumOfficium}` through it, the
+  same arrangement `LumenViae.Services.Geolocation` uses.
+
+  Fly's private names (`*.flycast`, `*.internal`) resolve to IPv6 only,
+  and Erlang's resolver asks for IPv4 unless told otherwise - the symptom
+  is a bare "non-existing domain". So a base URL on one of those names is
+  connected over IPv6 explicitly (`transport_options/1`); the public site
+  and a local engine keep the default.
 
   The public site refuses requests whose User-Agent does not begin with
   "Mozilla/5.0", so the client sends the standard well-behaved-bot form:
@@ -76,17 +87,19 @@ defmodule LumenViae.Office.DivinumOfficium do
   end
 
   defp get(path, params) do
+    base_url = base_url()
+
     options =
       [
         params: params,
         headers: [user_agent: @user_agent],
         receive_timeout: @receive_timeout_ms,
-        connect_options: [timeout: @connect_timeout_ms],
+        connect_options: [timeout: @connect_timeout_ms] ++ transport_options(base_url),
         retry: false
       ]
       |> Keyword.merge(config(:req_options, []))
 
-    case Req.get(base_url() <> path, options) do
+    case Req.get(base_url <> path, options) do
       {:ok, %Req.Response{status: 200, body: body}} when is_binary(body) ->
         {:ok, body}
 
@@ -105,6 +118,19 @@ defmodule LumenViae.Office.DivinumOfficium do
   end
 
   defp format_date(date), do: Calendar.strftime(date, "%m-%d-%Y")
+
+  @private_name_suffixes [".flycast", ".internal"]
+
+  @doc false
+  # The extra `connect_options` a base URL needs: IPv6 for a Fly private
+  # name, which has no IPv4 address to find, and nothing otherwise.
+  def transport_options(base_url) do
+    host = URI.parse(base_url).host || ""
+
+    if String.ends_with?(host, @private_name_suffixes),
+      do: [transport_opts: [inet6: true]],
+      else: []
+  end
 
   defp base_url, do: config(:base_url, "https://www.divinumofficium.com")
 

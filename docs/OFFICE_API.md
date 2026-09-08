@@ -20,10 +20,23 @@ Every hour response carries a `source` object crediting the project and
 linking the page it was read from. Keep that attribution.
 
 By default the fetch goes to the public site with an identifying
-User-Agent. To take their server out of the request path, run the
-project's Docker image (`ghcr.io/divinumofficium/divinum-officium`)
-anywhere - a small Fly app beside this one works - and set
-`DIVINUM_OFFICIUM_BASE_URL` to it. Nothing else changes.
+User-Agent, and that is how the API shipped. It is not how it runs:
+since September 2026 divinumofficium.com sits behind a Cloudflare rule
+that answers 403 on `/cgi-bin/horas/officium.pl` to datacenter IPs -
+Fly's included - whatever the User-Agent, while `kalendar.pl` still
+passes. So every hour 503'd `office_unavailable` while the day and
+calendar endpoints kept working, and no client-side change could help.
+
+Production therefore runs the project's own Docker image
+(`ghcr.io/divinumofficium/divinum-officium`, pinned by digest) as the
+private Fly app `lumenviae-office` - `deploy/divinum-officium/fly.toml`,
+deployed with `fly deploy -c deploy/divinum-officium/fly.toml`. It has a
+Flycast address and no public IPs, suspends when idle and wakes on the
+first request, and `DIVINUM_OFFICIUM_BASE_URL` in the root `fly.toml`
+points the API at it. Fly private names resolve to IPv6 only, which
+`LumenViae.Office.DivinumOfficium` allows for. Attribution in the
+responses still names the public site, where the same office can be
+read; keep it that way.
 
 ## Endpoints
 

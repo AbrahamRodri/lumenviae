@@ -16,6 +16,9 @@ kill_signal = 'SIGTERM'
   PHX_HOST = 'www.lumenviae.org'
   PORT = '8080'
   POOL_SIZE = '5'
+  # The Divine Office engine, self-hosted as the private Fly app in
+  # deploy/divinum-officium/fly.toml (see docs/OFFICE_API.md for why).
+  DIVINUM_OFFICIUM_BASE_URL = 'http://lumenviae-office.flycast'
 
 [http_service]
   internal_port = 8080

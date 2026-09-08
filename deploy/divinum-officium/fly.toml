@@ -1,0 +1,61 @@
+# The Divinum Officium engine that LumenViae.Office reads the breviary from.
+#
+# The public divinumofficium.com sits behind Cloudflare, which since
+# September 2026 answers 403 on /cgi-bin/horas/officium.pl to datacenter
+# IPs - Fly's included - whatever the User-Agent, while kalendar.pl still
+# passes. So the API runs its own copy of the engine here, as
+# docs/OFFICE_API.md always allowed for. The app is private: it has a
+# Flycast address only (`fly ips allocate-v6 --private`) and no public
+# IPs, and the Phoenix app reaches it as http://lumenviae-office.flycast
+# (DIVINUM_OFFICIUM_BASE_URL in the root fly.toml). Attribution in API
+# responses still names the public site, by design.
+#
+# Deploy from the repo root:
+#   fly deploy -c deploy/divinum-officium/fly.toml
+#
+# The image is pinned by digest so the HTML shape LumenViae.Office.Parser
+# was written against cannot move under it. To take an upstream update:
+#   docker manifest inspect -v ghcr.io/divinumofficium/divinum-officium:master
+# for the new digest, deploy, and run the office tests against the result.
+
+app = 'lumenviae-office'
+primary_region = 'dfw'
+
+[build]
+  # ghcr.io/divinumofficium/divinum-officium:master as of 8 Sept 2026
+  image = 'ghcr.io/divinumofficium/divinum-officium@sha256:c09dc81f7627e62d3faf245063e3daa639f41f95c8a3a8d6b4c6e8529726d256'
+
+# The image's own CMD runs cron and a warmer that pre-generates the
+# full-year Ordo for every rubrical version, then Starman with
+# `--workers 20` - all sized for the public site. This API only ever
+# asks for one hour or one month at a time, never the year, so the
+# warmer is dropped and four workers are plenty; twenty Perl workers
+# would not fit the machine below.
+[processes]
+  app = '''starman --port 8080 --host 0.0.0.0 --workers 4 --preload-app --user www-data --group www-data /var/www/app.psgi'''
+
+[http_service]
+  internal_port = 8080
+  force_https = false
+  auto_stop_machines = 'suspend'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+  [http_service.concurrency]
+    type = 'requests'
+    hard_limit = 8
+    soft_limit = 4
+
+  [[http_service.checks]]
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '30s'
+    method = 'GET'
+    # A static file the Dockerfile writes; cheap, and never a CGI run.
+    path = '/buildinfo'
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
