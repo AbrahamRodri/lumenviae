@@ -191,16 +191,19 @@ Successfully imported meditations will not be affected by validation errors in o
 When the `audio_filename` column is provided, the system will, for every
 configured narration voice:
 
-1. Use the meditation content to generate audio via the ElevenLabs text-to-speech API
-   (model `eleven_v3`, set by `config :lumen_viae, :eleven_labs_model_id`)
+1. Use the meditation content to generate audio via the ElevenLabs text-to-speech API,
+   on the model and with the voice settings that voice is configured with
+   (the female voice on `eleven_v3`; the male voice on `eleven_multilingual_v2`
+   with style exaggeration 0.5)
 2. Upload the generated audio to Amazon S3 at `voices/<voice>/<audio_filename>`
 3. Record the narration against the meditation, so the API can offer that voice
 
 ### Narration Voices
 
 The voices live in `config/config.exs` under `:narration_voices`: a slug the
-app and the S3 layout use (`female`, `male`), a display name, and the
-ElevenLabs voice id behind it. Exactly one is the default; it is the voice
+app and the S3 layout use (`female`, `male`), a display name, the ElevenLabs
+voice id behind it, the model it is synthesized with, and its voice
+settings (stability, similarity_boost, style). Exactly one is the default; it is the voice
 the website plays and the one the API's legacy single `audio_url` field
 carries, so an app build that predates voices keeps working. Every other
 voice reaches the app through `narrations` on each meditation and
@@ -229,10 +232,11 @@ and displayed meditation content never contains pause markup.
   `{pause:N}` marker in the CSV content, where N is seconds (decimals
   allowed, capped at 3). Example:
   `And the Word was made flesh. {pause:2.5} And dwelt among us.`
-- How the seconds are spoken depends on the model. Models before Eleven v3
-  take an SSML `<break time="Ns" />` tag and honor the duration exactly.
-  Eleven v3 (the configured model) does not support break tags and offers
-  three fixed pauses instead, so the seconds are bucketed: under 1s becomes
+- How the seconds are spoken depends on the voice's model. Models before
+  Eleven v3 (the male voice's `eleven_multilingual_v2`) take an SSML
+  `<break time="Ns" />` tag and honor the duration exactly. Eleven v3 (the
+  female voice) does not support break tags and offers three fixed pauses
+  instead, so the seconds are bucketed: under 1s becomes
   `[short pause]` (about a second), under 2.5s becomes `[pause]` (about two
   seconds, where the paragraph default lands), and 2.5s or more becomes
   `[long pause]` (several seconds, for a deliberate reflective stop)
@@ -278,6 +282,40 @@ spends no ElevenLabs credits. On Fly:
 fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(set: \"Set Name\")'"
 fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(all: true, voices: [\"female\"], only_missing: true)'"
 ```
+
+### Updating meditations that already exist
+
+A curated row re-cut after it shipped - a better opening, an extended
+ending, a re-sourced excerpt - is edited in place rather than deleted and
+re-imported, so it keeps its id, its set membership, its order and its
+audio filename. The CSV names the meditation by id and carries the new
+text (with the same `{pause:N}` markers), plus any of `title`, `author`
+and `source`; an empty optional cell leaves that column alone:
+
+```csv
+meditation_id,title,content,source
+353,Bear Them in Our Mind,"But let us not merely read of these things...","Homilies on the Gospel of St. John, Homily LXXXIV (...)"
+```
+
+```
+mix lumen_viae.update priv/repo/imports/fixes.csv --dry-run
+mix lumen_viae.update priv/repo/imports/fixes.csv
+```
+
+Every voice's narration is regenerated from the new words (`--skip-audio`
+to leave the recordings, `--voice` to limit them). On Fly:
+
+```
+fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.update_csv(\"/tmp/fixes.csv\", dry_run: true)'"
+```
+
+### Set names repeat across categories
+
+The importer looks a set up by `set_name` and `set_category` together,
+because production names sets by their author and the same author has a
+set in several categories ("St. Alphonsus Liguori" is four sets). A row
+that names a set without its category is refused when more than one set
+carries that name, rather than appended to whichever one came first.
 
 ### The voice layout, and the one-time move into it
 

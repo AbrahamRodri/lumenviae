@@ -40,7 +40,10 @@ defmodule LumenViae.Curation.CsvImport do
   Optional meditation set columns:
 
     * `set_name` - find-or-create a meditation set with this name and attach
-      the row's meditation to it
+      the row's meditation to it. Sets are looked up by name and
+      `set_category` together, because a name repeats across categories
+      ("St. Alphonsus Liguori" is four sets); a row that names a set
+      without its category is an error when more than one set has that name
     * `set_category` - required when the set does not exist yet; one of
       joyful, sorrowful, glorious, luminous, seven_sorrows
     * `set_description` - set description (used on create only)
@@ -195,9 +198,10 @@ defmodule LumenViae.Curation.CsvImport do
       set_name = Map.get(row_map, "set_name")
 
       status =
-        case Rosary.get_meditation_set_by_name(set_name) do
-          nil -> {:new, new_set_errors(row_map)}
-          _set -> {:existing, []}
+        case lookup_set(row_map) do
+          {:ok, nil} -> {:new, new_set_errors(row_map)}
+          {:ok, _set} -> {:existing, []}
+          {:error, message} -> {:new, [message]}
         end
 
       {set_name, status}
@@ -554,8 +558,8 @@ defmodule LumenViae.Curation.CsvImport do
   end
 
   defp find_or_create_set(set_name, row_map, opts) do
-    case Rosary.get_meditation_set_by_name(set_name) do
-      nil ->
+    case lookup_set(row_map) do
+      {:ok, nil} ->
         attrs = set_attrs(row_map)
 
         if opts[:dry_run] do
@@ -567,8 +571,39 @@ defmodule LumenViae.Curation.CsvImport do
           end
         end
 
-      set ->
+      {:ok, set} ->
         {:ok, set}
+
+      {:error, message} ->
+        {:error, message}
+    end
+  end
+
+  # The set a row names, by name and category together. A row without a
+  # category can only mean a name that exists once; when the same name
+  # stands in several categories the row has to say which, or the
+  # meditation would be appended to the wrong Rosary.
+  defp lookup_set(row_map) do
+    set_name = Map.get(row_map, "set_name")
+
+    case Map.get(row_map, "set_category") do
+      nil ->
+        case Rosary.get_meditation_set_by_name(set_name) do
+          nil ->
+            if Rosary.count_meditation_sets_by_name(set_name) > 1 do
+              {:error,
+               "set '#{set_name}' exists in more than one category; add a set_category column " <>
+                 "to say which one"}
+            else
+              {:ok, nil}
+            end
+
+          set ->
+            {:ok, set}
+        end
+
+      category ->
+        {:ok, Rosary.get_meditation_set_by_name(set_name, category)}
     end
   end
 

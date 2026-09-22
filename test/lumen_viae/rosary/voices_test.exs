@@ -32,8 +32,14 @@ defmodule LumenViae.Rosary.VoicesTest do
     assert %Voice{slug: "male"} = Voices.default()
   end
 
-  test "looks voices up by slug" do
-    assert %Voice{eleven_labs_voice_id: "RTFg9niKcgGLDwa3RFlz"} = Voices.get("male")
+  test "looks voices up by slug, with each voice's model and settings" do
+    assert %Voice{
+             eleven_labs_voice_id: "RTFg9niKcgGLDwa3RFlz",
+             model_id: "eleven_multilingual_v2",
+             voice_settings: %{stability: 0.5, similarity_boost: 0.75, style: 0.5}
+           } = Voices.get("male")
+
+    assert %Voice{model_id: "eleven_v3", voice_settings: %{stability: 0.5}} = Voices.get("female")
     assert Voices.get("tenor") == nil
     assert Voices.get(nil) == nil
     assert {:ok, %Voice{slug: "female"}} = Voices.fetch("female")

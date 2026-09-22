@@ -134,12 +134,23 @@ defmodule LumenViae.Audio.ElevenLabsTest do
 
     assert_received {:request, "/v1/text-to-speech/voice-123", body}
     assert body["model_id"] == "eleven_v3"
-    assert body["voice_settings"]["stability"] == 0.5
+    assert body["voice_settings"] == %{"stability" => 0.5, "similarity_boost" => 0.75}
+
+    assert {:ok, "bytes"} =
+             ElevenLabs.generate_audio("text", "voice-456",
+               model_id: "eleven_multilingual_v2",
+               voice_settings: %{style: 0.5}
+             )
+
+    assert_received {:request, "/v1/text-to-speech/voice-456", body}
+    assert body["model_id"] == "eleven_multilingual_v2"
+
+    assert body["voice_settings"] ==
+             %{"stability" => 0.5, "similarity_boost" => 0.75, "style" => 0.5}
   end
 
   test "the pause style follows the model" do
     assert ElevenLabs.pause_style("eleven_v3") == :audio_tags
     assert ElevenLabs.pause_style("eleven_multilingual_v2") == :break_tags
-    assert ElevenLabs.pause_style() == :audio_tags
   end
 end

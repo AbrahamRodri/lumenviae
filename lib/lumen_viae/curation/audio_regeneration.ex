@@ -132,7 +132,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
       opts[:dry_run] ->
         {:ok,
          "Would regenerate #{s3_key} for #{describe(meditation)} " <>
-           "(#{voice.slug} voice, #{pause_plan(meditation)})"}
+           "(#{voice.slug} voice on #{voice.model_id}, #{pause_plan(meditation, voice)})"}
 
       true ->
         regenerate(meditation, voice, s3_key)
@@ -167,8 +167,8 @@ defmodule LumenViae.Curation.AudioRegeneration do
     if label, do: "meditation #{meditation.id} (#{label})", else: "meditation #{meditation.id}"
   end
 
-  defp pause_plan(meditation) do
-    speech_text = Pipeline.speech_text(meditation.content, meditation.tts_annotations)
+  defp pause_plan(meditation, voice) do
+    speech_text = Pipeline.speech_text(meditation.content, meditation.tts_annotations, voice)
     pause_count = length(Regex.scan(~r/<break\b|\[(?:short |long )?pause\]/, speech_text))
     custom_count = length(meditation.tts_annotations || [])
     "#{pause_count} pause(s), #{custom_count} custom"

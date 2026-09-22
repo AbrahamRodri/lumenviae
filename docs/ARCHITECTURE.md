@@ -51,6 +51,7 @@ lib/lumen_viae/
 │   └── narrations/narration.ex
 ├── curation/                  batch services over the domain's public API
 │   ├── csv_import.ex
+│   ├── csv_update.ex          edit shipped meditations in place, re-record
 │   ├── audio_regeneration.ex
 │   ├── narration_relocation.ex  one-time move into the voices/ layout
 │   └── artwork_upload.ex

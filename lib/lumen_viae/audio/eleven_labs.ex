@@ -33,6 +33,7 @@ defmodule LumenViae.Audio.ElevenLabs do
   @connect_timeout_ms 10_000
 
   @default_model_id "eleven_v3"
+  @default_voice_settings %{stability: 0.5, similarity_boost: 0.75}
 
   # Eleven v3 reads audio tags ([pause], [long pause]) and does not honor
   # SSML break tags; every earlier model is the other way round. The text
@@ -40,20 +41,12 @@ defmodule LumenViae.Audio.ElevenLabs do
   @audio_tag_models ["eleven_v3"]
 
   @doc """
-  The ElevenLabs model narration is synthesized with
-  (`config :lumen_viae, :eleven_labs_model_id`).
+  How a model expects pauses to be written: `:audio_tags` (`[pause]`) for
+  Eleven v3, `:break_tags` (`<break time="1s" />`) for every other model.
+  See `LumenViae.Audio.TtsText`.
   """
-  def model_id do
-    Application.get_env(:lumen_viae, :eleven_labs_model_id, @default_model_id)
-  end
-
-  @doc """
-  How the configured model expects pauses to be written: `:audio_tags`
-  (`[pause]`) for Eleven v3, `:break_tags` (`<break time="1s" />`) for
-  every other model. See `LumenViae.Audio.TtsText`.
-  """
-  def pause_style(model \\ model_id()) do
-    if model in @audio_tag_models, do: :audio_tags, else: :break_tags
+  def pause_style(model_id) do
+    if model_id in @audio_tag_models, do: :audio_tags, else: :break_tags
   end
 
   @doc """
@@ -61,9 +54,13 @@ defmodule LumenViae.Audio.ElevenLabs do
 
   ## Parameters
     - text: The meditation content to convert to speech, already prepared
-      by `LumenViae.Audio.TtsText` for this model's pause syntax
+      by `LumenViae.Audio.TtsText` for the model's pause syntax
     - voice_id: The ElevenLabs voice ID (defaults to the default narration
       voice's, see `LumenViae.Rosary.Voices`)
+    - opts:
+      - `:model_id` - the ElevenLabs model (default `eleven_v3`)
+      - `:voice_settings` - a map of stability, similarity_boost, style and
+        use_speaker_boost (default stability 0.5, similarity 0.75)
 
   ## Returns
     - {:ok, audio_binary} on success
@@ -74,7 +71,7 @@ defmodule LumenViae.Audio.ElevenLabs do
       iex> generate_audio("Hail Mary, full of grace...", "RTFg9niKcgGLDwa3RFlz")
       {:ok, <<...audio binary...>>}
   """
-  def generate_audio(text, voice_id \\ nil) do
+  def generate_audio(text, voice_id \\ nil, opts \\ []) do
     voice_id = voice_id || get_voice_id()
     api_key = get_api_key()
 
@@ -86,25 +83,24 @@ defmodule LumenViae.Audio.ElevenLabs do
         {:error, {:fatal, "ElevenLabs voice ID not configured"}}
 
       true ->
-        do_generate_audio(text, voice_id, api_key)
+        do_generate_audio(text, voice_id, api_key, opts)
     end
   end
 
-  defp do_generate_audio(text, voice_id, api_key) do
+  defp do_generate_audio(text, voice_id, api_key, opts) do
     url = "#{@api_base_url}/text-to-speech/#{voice_id}"
 
     body =
       Jason.encode!(%{
         text: text,
-        model_id: model_id(),
+        model_id: Keyword.get(opts, :model_id) || @default_model_id,
         output_format: "mp3_44100_128",
-        # 0.5 is "Natural" on Eleven v3 and the balanced middle on v2;
-        # lower drifts toward expressive readings that are wrong for a
-        # meditation, higher toward a flat one.
-        voice_settings: %{
-          stability: 0.5,
-          similarity_boost: 0.75
-        }
+        # Stability 0.5 is "Natural" on Eleven v3 and the balanced middle on
+        # v2; lower drifts toward expressive readings that are wrong for a
+        # meditation, higher toward a flat one. A voice may override any
+        # of these from its config (the male voice adds style: 0.5).
+        voice_settings:
+          Map.merge(@default_voice_settings, Keyword.get(opts, :voice_settings) || %{})
       })
 
     request_options =

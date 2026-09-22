@@ -259,7 +259,12 @@ defmodule LumenViae.Rosary do
 
   defdelegate count_meditation_sets(), to: MeditationSets, as: :count
   defdelegate get_meditation_set!(id), to: MeditationSets, as: :get_with_meditations!
-  defdelegate get_meditation_set_by_name(name), to: MeditationSets, as: :get_by_name
+
+  defdelegate get_meditation_set_by_name(name, category \\ nil),
+    to: MeditationSets,
+    as: :get_by_name
+
+  defdelegate count_meditation_sets_by_name(name), to: MeditationSets, as: :count_by_name
   defdelegate create_meditation_set(attrs \\ %{}), to: MeditationSets, as: :create
   defdelegate update_meditation_set(set, attrs), to: MeditationSets, as: :update
   defdelegate change_meditation_set(set, attrs \\ %{}), to: MeditationSets, as: :change

@@ -69,6 +69,35 @@ defmodule LumenViae.Release do
   end
 
   @doc """
+  Replaces the text of existing meditations from a CSV inside a production
+  release and re-records them. Accepts the options of
+  `LumenViae.Curation.CsvUpdate.update_string/2`.
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.update_csv("/tmp/fixes.csv", dry_run: true)'
+  """
+  def update_csv(path, opts \\ []) do
+    load_app()
+    start_audio_clients()
+
+    for repo <- repos() do
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, fn _repo ->
+          results = LumenViae.Curation.CsvUpdate.update_file(path, opts)
+
+          Enum.each(results, fn
+            {:ok, message} -> IO.puts("OK    " <> message)
+            {:warning, message} -> IO.puts("WARN  " <> message)
+            {:error, message} -> IO.puts("ERROR " <> message)
+          end)
+
+          results
+        end)
+    end
+
+    :ok
+  end
+
+  @doc """
   Regenerates ElevenLabs audio inside a production release, replacing the
   S3 objects so already-imported meditations pick up new pause logic, a new
   model, or a new voice without re-importing. Takes one of `set: "Set

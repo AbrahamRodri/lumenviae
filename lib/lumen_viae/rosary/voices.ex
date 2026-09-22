@@ -15,6 +15,10 @@ defmodule LumenViae.Rosary.Voices do
     * `name` - what the app shows in its picker
     * `description` - one line under the name
     * `eleven_labs_voice_id` - which ElevenLabs voice synthesizes it
+    * `model_id` - the ElevenLabs model it is synthesized with; the pause
+      syntax follows it (`LumenViae.Audio.ElevenLabs.pause_style/1`)
+    * `voice_settings` - the stability, similarity_boost, style and
+      use_speaker_boost sent with every request for this voice
     * `default` - the voice the legacy single `audio_url` plays and the
       website uses; exactly one voice carries it
 
@@ -29,13 +33,23 @@ defmodule LumenViae.Rosary.Voices do
   defmodule Voice do
     @moduledoc "One narration voice. See `LumenViae.Rosary.Voices`."
     @enforce_keys [:slug, :name, :eleven_labs_voice_id]
-    defstruct [:slug, :name, :eleven_labs_voice_id, description: nil, default: false]
+    defstruct [
+      :slug,
+      :name,
+      :eleven_labs_voice_id,
+      description: nil,
+      model_id: "eleven_v3",
+      voice_settings: %{stability: 0.5, similarity_boost: 0.75},
+      default: false
+    ]
 
     @type t :: %__MODULE__{
             slug: String.t(),
             name: String.t(),
             description: String.t() | nil,
             eleven_labs_voice_id: String.t(),
+            model_id: String.t(),
+            voice_settings: map,
             default: boolean
           }
   end

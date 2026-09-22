@@ -68,10 +68,11 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     assert [{:ok, female}, {:ok, male}, {:warning, skipped}] = results
     assert female =~ "Would regenerate voices/female/regen_clip.mp3"
     assert female =~ "Fiat"
-    assert female =~ "female voice"
+    assert female =~ "female voice on eleven_v3"
     # The custom pause sits at the only paragraph break and replaces it.
     assert female =~ "1 pause(s), 1 custom"
     assert male =~ "Would regenerate voices/male/regen_clip.mp3"
+    assert male =~ "male voice on eleven_multilingual_v2"
     assert skipped =~ "no audio file"
 
     refute_received {:tts_text, _, _}
@@ -91,9 +92,10 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     assert female =~ "Regenerated voices/female/regen_clip.mp3"
     assert male =~ "Regenerated voices/male/regen_clip.mp3"
 
-    expected_text = "First paragraph. [long pause] Second paragraph."
-    assert_received {:tts_text, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", ^expected_text}
-    assert_received {:tts_text, "/v1/text-to-speech/RTFg9niKcgGLDwa3RFlz", ^expected_text}
+    v3_text = "First paragraph. [long pause] Second paragraph."
+    v2_text = ~s(First paragraph. <break time="2.5s" /> Second paragraph.)
+    assert_received {:tts_text, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", ^v3_text}
+    assert_received {:tts_text, "/v1/text-to-speech/RTFg9niKcgGLDwa3RFlz", ^v2_text}
 
     assert_received {:aws_request, :put, female_url, "regenerated-audio-bytes"}
     assert_received {:aws_request, :put, male_url, "regenerated-audio-bytes"}

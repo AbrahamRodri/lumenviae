@@ -207,6 +207,50 @@ defmodule LumenViae.Curation.CsvImportTest do
     end
   end
 
+  describe "sets that share a name across categories" do
+    setup do
+      {:ok, mystery} =
+        Rosary.create_mystery(%{
+          name: "The Prophecy of Simeon",
+          category: "seven_sorrows",
+          order: 1
+        })
+
+      {:ok, joyful} = Rosary.create_meditation_set(%{"name" => "Faber", "category" => "joyful"})
+      %{joyful: joyful, mystery: mystery}
+    end
+
+    test "a row with a category attaches to the set of that category, creating it", %{
+      joyful: joyful
+    } do
+      content =
+        csv(~w(mystery_name content set_name set_category), [
+          "The Prophecy of Simeon,#{quoted(@content)},Faber,seven_sorrows"
+        ])
+
+      assert [{:ok, message}] = CsvImport.import_string(content, skip_audio: true)
+      assert message =~ "[set: Faber]"
+
+      sorrows = Rosary.get_meditation_set_by_name("Faber", "seven_sorrows")
+      assert sorrows.id != joyful.id
+      assert Rosary.list_meditations_in_set(joyful.id) == []
+      assert length(Rosary.list_meditations_in_set(sorrows.id)) == 1
+    end
+
+    test "a row naming an ambiguous set without a category is refused" do
+      {:ok, _} = Rosary.create_meditation_set(%{"name" => "Faber", "category" => "sorrowful"})
+
+      content =
+        csv(~w(mystery_name content set_name), [
+          "The Prophecy of Simeon,#{quoted(@content)},Faber"
+        ])
+
+      assert [{:error, message}] = CsvImport.import_string(content, skip_audio: true)
+      assert message =~ "exists in more than one category"
+      assert Rosary.count_meditations() == 0
+    end
+  end
+
   describe "audio generation failures" do
     setup do
       original_key = Application.get_env(:lumen_viae, :eleven_labs_api_key)
@@ -413,7 +457,12 @@ defmodule LumenViae.Curation.CsvImportTest do
       Req.Test.stub(LumenViae.Audio.ElevenLabs, fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         decoded = Jason.decode!(body)
-        send(test_pid, {:tts_request, conn.request_path, decoded["model_id"], decoded["text"]})
+
+        send(
+          test_pid,
+          {:tts_request, conn.request_path, decoded["model_id"], decoded["text"],
+           decoded["voice_settings"]}
+        )
 
         conn
         |> Plug.Conn.put_resp_content_type("audio/mpeg")
@@ -421,7 +470,7 @@ defmodule LumenViae.Curation.CsvImportTest do
       end)
     end
 
-    test "records every configured voice under its own prefix with v3 pause tags",
+    test "records every configured voice under its own prefix, each on its own model",
          %{test_pid: test_pid} do
       stub_success(test_pid)
 
@@ -433,19 +482,24 @@ defmodule LumenViae.Curation.CsvImportTest do
       assert [{:ok, message}] = CsvImport.import_string(content)
       assert message =~ "(with audio)"
 
-      # One request per voice, each to that voice's ElevenLabs id, on the
-      # v3 model; the custom 2.5s pause replaces the paragraph break's
-      # default and is written as a v3 audio tag.
-      expected_text =
+      # One request per voice, each to that voice's ElevenLabs id on that
+      # voice's model, with the custom 2.5s pause (which replaces the
+      # paragraph break's default) written in that model's syntax: a v3
+      # audio tag for the female voice, an SSML break tag for the male.
+      v3_text =
         "First paragraph of the meditation. [long pause] Second paragraph of the meditation."
 
+      v2_text =
+        ~s(First paragraph of the meditation. <break time="2.5s" /> Second paragraph of the meditation.)
+
       assert_received {:tts_request, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", "eleven_v3",
-                       ^expected_text}
+                       ^v3_text, %{"stability" => 0.5, "similarity_boost" => 0.75}}
 
-      assert_received {:tts_request, "/v1/text-to-speech/RTFg9niKcgGLDwa3RFlz", "eleven_v3",
-                       ^expected_text}
+      assert_received {:tts_request, "/v1/text-to-speech/RTFg9niKcgGLDwa3RFlz",
+                       "eleven_multilingual_v2", ^v2_text,
+                       %{"stability" => 0.5, "similarity_boost" => 0.75, "style" => 0.5}}
 
-      refute_received {:tts_request, _, _, _}
+      refute_received {:tts_request, _, _, _, _}
 
       assert_received {:aws_request, :put, female_url, "audio-bytes"}
       assert_received {:aws_request, :put, male_url, "audio-bytes"}
@@ -466,8 +520,24 @@ defmodule LumenViae.Curation.CsvImportTest do
                [{"female", "voices/female/clip.mp3"}, {"male", "voices/male/clip.mp3"}]
     end
 
-    test "sends SSML break tags when the model is not v3", %{test_pid: test_pid} do
-      EnvStub.put_env(:lumen_viae, :eleven_labs_model_id, "eleven_multilingual_v2")
+    test "a voice configured on v3 gets audio tags whatever the other voices use",
+         %{test_pid: test_pid} do
+      EnvStub.put_env(:lumen_viae, :narration_voices, [
+        %{
+          slug: "male",
+          name: "Male",
+          eleven_labs_voice_id: "m",
+          model_id: "eleven_multilingual_v2"
+        },
+        %{
+          slug: "female",
+          name: "Female",
+          eleven_labs_voice_id: "f",
+          model_id: "eleven_v3",
+          default: true
+        }
+      ])
+
       stub_success(test_pid)
 
       content =
@@ -477,10 +547,9 @@ defmodule LumenViae.Curation.CsvImportTest do
 
       assert [{:ok, _}] = CsvImport.import_string(content, voices: ["female"])
 
-      assert_received {:tts_request, _path, "eleven_multilingual_v2", speech_text}
-
-      assert speech_text ==
-               ~s(First paragraph of the meditation. <break time="2.5s" /> Second paragraph of the meditation.)
+      assert_received {:tts_request, "/v1/text-to-speech/f", "eleven_v3", speech_text, _}
+      assert speech_text =~ "[long pause]"
+      refute_received {:tts_request, _, _, _, _}
     end
 
     test "a voice that fails still leaves the others recorded" do

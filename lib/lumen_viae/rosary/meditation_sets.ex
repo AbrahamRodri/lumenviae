@@ -104,7 +104,34 @@ defmodule LumenViae.Rosary.MeditationSets do
     %{set | meditations: Enum.sort_by(set.meditations, & &1.id)}
   end
 
-  def get_by_name(name), do: Repo.get_by(MeditationSet, name: name)
+  @doc """
+  The set with this name, or nil.
+
+  Names repeat across categories - the four Liguori sets are all
+  "St. Alphonsus Liguori" - so a category narrows the search when the
+  caller has one. Without a category the name must be unique: several
+  matches answer nil rather than one of them at random, since anything
+  that then appended to "the" set would land in whichever came first.
+  """
+  def get_by_name(name, category \\ nil)
+
+  def get_by_name(name, nil) do
+    case Repo.all(from s in MeditationSet, where: s.name == ^name, limit: 2) do
+      [set] -> set
+      _none_or_several -> nil
+    end
+  end
+
+  def get_by_name(name, category) do
+    Repo.get_by(MeditationSet, name: name, category: category)
+  end
+
+  @doc """
+  How many sets carry this name, across every category.
+  """
+  def count_by_name(name) do
+    Repo.aggregate(from(s in MeditationSet, where: s.name == ^name), :count)
+  end
 
   @doc """
   Raises the same `Ecto.NoResultsError` a missing row would.

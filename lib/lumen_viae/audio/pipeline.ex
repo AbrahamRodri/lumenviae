@@ -6,9 +6,9 @@ defmodule LumenViae.Audio.Pipeline do
 
   Every ElevenLabs call goes through this module so the pause transforms are
   applied to the text sent to the API and never anywhere else; stored
-  content is never narrated verbatim. The pause syntax follows the
-  configured model (`ElevenLabs.pause_style/0`): audio tags for Eleven v3,
-  SSML break tags for the rest.
+  content is never narrated verbatim. The pause syntax follows the voice's
+  model (`ElevenLabs.pause_style/1`): audio tags for Eleven v3, SSML break
+  tags for the rest.
 
   A call names the voice it is for (`LumenViae.Rosary.Voices`), and the
   caller chooses the S3 key - normally `Voices.narration_key/2` - so the
@@ -50,11 +50,16 @@ defmodule LumenViae.Audio.Pipeline do
   def generate_and_upload(content, tts_annotations, s3_key, opts \\ []) do
     on_retry = Keyword.get(opts, :on_retry, fn _attempt, _max -> :ok end)
     voice = Keyword.get(opts, :voice) || Voices.default()
-    text = speech_text(content, tts_annotations)
+    text = speech_text(content, tts_annotations, voice)
 
     with {:ok, audio_binary} <-
            with_retries(
-             fn -> ElevenLabs.generate_audio(text, voice.eleven_labs_voice_id) end,
+             fn ->
+               ElevenLabs.generate_audio(text, voice.eleven_labs_voice_id,
+                 model_id: voice.model_id,
+                 voice_settings: voice.voice_settings
+               )
+             end,
              "ElevenLabs",
              s3_key,
              on_retry
@@ -70,11 +75,13 @@ defmodule LumenViae.Audio.Pipeline do
   end
 
   @doc """
-  The text ElevenLabs is sent for this content, in the configured model's
-  pause syntax. Exposed so dry runs can describe what a real run would say.
+  The text ElevenLabs is sent for this content, in the pause syntax of the
+  voice's model. Exposed so dry runs can describe what a real run would say.
   """
-  def speech_text(content, tts_annotations) do
-    TtsText.to_speech_text(content, tts_annotations || [], pause_style: ElevenLabs.pause_style())
+  def speech_text(content, tts_annotations, voice \\ Voices.default()) do
+    TtsText.to_speech_text(content, tts_annotations || [],
+      pause_style: ElevenLabs.pause_style(voice.model_id)
+    )
   end
 
   defp with_retries(fun, label, filename, on_retry, attempt \\ 1) do

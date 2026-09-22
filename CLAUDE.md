@@ -58,9 +58,10 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - Meditation library with flexible curation
 - Many-to-many relationship between meditation sets and meditations, with
   the prayer order carried on the join row
-- ElevenLabs narration (Eleven v3) generated at import, once per narration
-  voice, stored in S3 at `voices/<voice>/<filename>`. The voices are the
-  `:narration_voices` list in `config/config.exs`; see
+- ElevenLabs narration generated at import, once per narration voice
+  (each on its own model and settings), stored in S3 at
+  `voices/<voice>/<filename>`. The voices are the `:narration_voices` list
+  in `config/config.exs`; see
   `LumenViae.Rosary.Voices` and docs/CSV_IMPORT_GUIDE.md
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
