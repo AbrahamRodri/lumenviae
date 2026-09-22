@@ -36,6 +36,7 @@ lib/lumen_viae/
 │   ├── artwork.ex             value module: licences and framing arithmetic
 │   ├── categories.ex          value module: mystery category vocabulary
 │   ├── labels.ex              value module: meditation set label vocabulary
+│   ├── voices.ex              value module: narration voices and the S3 key layout
 │   ├── mysteries.ex           Secondary Context
 │   ├── mysteries/mystery.ex   schema
 │   ├── meditations.ex
@@ -45,10 +46,13 @@ lib/lumen_viae/
 │   ├── set_memberships.ex
 │   ├── set_memberships/set_membership.ex
 │   ├── completions.ex
-│   └── completions/completion.ex
+│   ├── completions/completion.ex
+│   ├── narrations.ex          one voice's recording of one meditation
+│   └── narrations/narration.ex
 ├── curation/                  batch services over the domain's public API
 │   ├── csv_import.ex
 │   ├── audio_regeneration.ex
+│   ├── narration_relocation.ex  one-time move into the voices/ layout
 │   └── artwork_upload.ex
 ├── audio/                     ElevenLabs narration
 │   ├── eleven_labs.ex
@@ -180,12 +184,20 @@ fix is a documented, measured exception - not a quiet join.
 
 ## Value modules
 
-`LumenViae.Rosary.Categories`, `LumenViae.Rosary.Labels` and
-`LumenViae.Rosary.Artwork` hold controlled vocabulary and the pure
-calculations that go with it: no state, no queries, no schema. Any layer may
-call them directly, including templates. They are the single source for
-their lists, so `Categories.slugs/0` feeds the changeset validations and
-`Categories.options/0` feeds the form selects from the same place.
+`LumenViae.Rosary.Categories`, `LumenViae.Rosary.Labels`,
+`LumenViae.Rosary.Artwork` and `LumenViae.Rosary.Voices` hold controlled
+vocabulary and the pure calculations that go with it: no state, no queries,
+no schema. Any layer may call them directly, including templates. They are
+the single source for their lists, so `Categories.slugs/0` feeds the
+changeset validations and `Categories.options/0` feeds the form selects
+from the same place.
+
+`Voices` reads the narration voices from application config rather than a
+table (a voice is a deploy, not an edit) and is the one place the audio
+bucket's layout is spelled out: `Voices.narration_key/2` turns a voice and a
+meditation's audio filename into `voices/<slug>/<filename>`. Which voices
+have actually recorded a meditation is data, and lives in the `Narrations`
+Secondary Context.
 
 `Artwork` also owns the two changesets that write the artwork columns, which
 is what keeps the managed fields (`image_key` and the dimensions, written

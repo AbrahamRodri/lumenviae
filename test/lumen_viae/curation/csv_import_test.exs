@@ -247,24 +247,27 @@ defmodule LumenViae.Curation.CsvImportTest do
 
       results =
         CsvImport.import_string(content,
+          voices: ["female"],
           progress: fn event -> send(test_pid, {:progress, event}) end
         )
 
       assert [{:warning, message}] = results
       assert message =~ "Created meditation for The Annunciation"
       assert message =~ "audio generation failed"
+      assert message =~ "female: "
       assert message =~ "server error"
 
       [meditation] = Rosary.list_meditations()
       assert meditation.audio_url == nil
+      assert Rosary.meditation_narrations(meditation) == []
 
       # All three attempts hit the API, with two retry notifications.
       assert_received :api_called
       assert_received :api_called
       assert_received :api_called
       refute_received :api_called
-      assert_received {:progress, {:row_audio_retry, 1, 1, "clip.mp3", 2, 3}}
-      assert_received {:progress, {:row_audio_retry, 1, 1, "clip.mp3", 3, 3}}
+      assert_received {:progress, {:row_audio_retry, 1, 1, "voices/female/clip.mp3", 2, 3}}
+      assert_received {:progress, {:row_audio_retry, 1, 1, "voices/female/clip.mp3", 3, 3}}
     end
 
     test "does not retry when ElevenLabs rejects the API key" do
@@ -285,6 +288,7 @@ defmodule LumenViae.Curation.CsvImportTest do
 
       results =
         CsvImport.import_string(content,
+          voices: ["female"],
           progress: fn event -> send(test_pid, {:progress, event}) end
         )
 
@@ -294,6 +298,17 @@ defmodule LumenViae.Curation.CsvImportTest do
       assert_received :api_called
       refute_received :api_called
       refute_received {:progress, {:row_audio_retry, _, _, _, _, _}}
+    end
+
+    test "raises on an unknown voice rather than importing without it" do
+      content =
+        csv(~w(mystery_name content audio_filename), [
+          "The Annunciation,#{quoted(@content)},clip.mp3"
+        ])
+
+      assert_raise ArgumentError, ~r/unknown voice: tenor/, fn ->
+        CsvImport.import_string(content, voices: ["tenor"])
+      end
     end
   end
 
@@ -394,15 +409,21 @@ defmodule LumenViae.Curation.CsvImportTest do
       %{test_pid: test_pid}
     end
 
-    test "sends break tags to ElevenLabs while storing clean content", %{test_pid: test_pid} do
+    defp stub_success(test_pid) do
       Req.Test.stub(LumenViae.Audio.ElevenLabs, fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        send(test_pid, {:tts_text, Jason.decode!(body)["text"]})
+        decoded = Jason.decode!(body)
+        send(test_pid, {:tts_request, conn.request_path, decoded["model_id"], decoded["text"]})
 
         conn
         |> Plug.Conn.put_resp_content_type("audio/mpeg")
         |> Plug.Conn.send_resp(200, "audio-bytes")
       end)
+    end
+
+    test "records every configured voice under its own prefix with v3 pause tags",
+         %{test_pid: test_pid} do
+      stub_success(test_pid)
 
       content =
         csv(~w(mystery_name content audio_filename), [
@@ -412,20 +433,81 @@ defmodule LumenViae.Curation.CsvImportTest do
       assert [{:ok, message}] = CsvImport.import_string(content)
       assert message =~ "(with audio)"
 
-      # The custom pause replaces the paragraph break's default pause.
-      assert_received {:tts_text, speech_text}
+      # One request per voice, each to that voice's ElevenLabs id, on the
+      # v3 model; the custom 2.5s pause replaces the paragraph break's
+      # default and is written as a v3 audio tag.
+      expected_text =
+        "First paragraph of the meditation. [long pause] Second paragraph of the meditation."
 
-      assert speech_text ==
-               ~s(First paragraph of the meditation. <break time="2.5s" /> Second paragraph of the meditation.)
+      assert_received {:tts_request, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", "eleven_v3",
+                       ^expected_text}
 
-      assert_received {:aws_request, :put, url, "audio-bytes"}
-      assert url =~ "clip.mp3"
+      assert_received {:tts_request, "/v1/text-to-speech/RTFg9niKcgGLDwa3RFlz", "eleven_v3",
+                       ^expected_text}
+
+      refute_received {:tts_request, _, _, _}
+
+      assert_received {:aws_request, :put, female_url, "audio-bytes"}
+      assert_received {:aws_request, :put, male_url, "audio-bytes"}
+
+      assert Enum.sort([female_url, male_url]) |> Enum.map(&URI.parse(&1).path) ==
+               [
+                 "/lumenviae-audio/voices/female/clip.mp3",
+                 "/lumenviae-audio/voices/male/clip.mp3"
+               ]
 
       [meditation] = Rosary.list_meditations()
       assert meditation.audio_url == "clip.mp3"
       assert meditation.content == @content
       refute meditation.content =~ "pause"
       refute meditation.content =~ "<break"
+
+      assert Enum.map(Rosary.meditation_narrations(meditation), &{&1.voice.slug, &1.s3_key}) ==
+               [{"female", "voices/female/clip.mp3"}, {"male", "voices/male/clip.mp3"}]
+    end
+
+    test "sends SSML break tags when the model is not v3", %{test_pid: test_pid} do
+      EnvStub.put_env(:lumen_viae, :eleven_labs_model_id, "eleven_multilingual_v2")
+      stub_success(test_pid)
+
+      content =
+        csv(~w(mystery_name content audio_filename), [
+          "The Annunciation,#{quoted(@marked_content)},clip.mp3"
+        ])
+
+      assert [{:ok, _}] = CsvImport.import_string(content, voices: ["female"])
+
+      assert_received {:tts_request, _path, "eleven_multilingual_v2", speech_text}
+
+      assert speech_text ==
+               ~s(First paragraph of the meditation. <break time="2.5s" /> Second paragraph of the meditation.)
+    end
+
+    test "a voice that fails still leaves the others recorded" do
+      Req.Test.stub(LumenViae.Audio.ElevenLabs, fn conn ->
+        if String.ends_with?(conn.request_path, "RTFg9niKcgGLDwa3RFlz") do
+          conn
+          |> Plug.Conn.put_status(401)
+          |> Req.Test.json(%{"detail" => %{"message" => "Invalid API key"}})
+        else
+          conn
+          |> Plug.Conn.put_resp_content_type("audio/mpeg")
+          |> Plug.Conn.send_resp(200, "audio-bytes")
+        end
+      end)
+
+      content =
+        csv(~w(mystery_name content audio_filename), [
+          "The Annunciation,#{quoted(@content)},clip.mp3"
+        ])
+
+      assert [{:warning, message}] = CsvImport.import_string(content)
+      assert message =~ "(with audio)"
+      assert message =~ "male: ElevenLabs rejected the API key"
+
+      [meditation] = Rosary.list_meditations()
+      assert meditation.audio_url == "clip.mp3"
+      assert [%{voice: %{slug: "female"}}] = Rosary.meditation_narrations(meditation)
     end
   end
 

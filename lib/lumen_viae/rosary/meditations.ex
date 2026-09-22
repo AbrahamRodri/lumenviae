@@ -22,7 +22,7 @@ defmodule LumenViae.Rosary.Meditations do
   end
 
   def list do
-    Meditation |> Repo.all() |> Repo.preload(:mystery)
+    Meditation |> Repo.all() |> Repo.preload([:mystery, :narrations])
   end
 
   @doc """
@@ -34,13 +34,13 @@ defmodule LumenViae.Rosary.Meditations do
   def list_with_sets do
     from(m in Meditation, order_by: [asc: m.id])
     |> Repo.all()
-    |> Repo.preload([:mystery, :meditation_sets])
+    |> Repo.preload([:mystery, :meditation_sets, :narrations])
     |> Enum.map(&%{&1 | meditation_sets: Enum.sort_by(&1.meditation_sets, fn s -> s.id end)})
   end
 
   @doc """
-  Fetches the given meditations, with mysteries preloaded, in the order the
-  ids were given. Ids with no matching row are dropped.
+  Fetches the given meditations, with mysteries and narrations preloaded,
+  in the order the ids were given. Ids with no matching row are dropped.
   """
   def list_by_ids([]), do: []
 
@@ -48,7 +48,7 @@ defmodule LumenViae.Rosary.Meditations do
     by_id =
       from(m in Meditation, where: m.id in ^ids)
       |> Repo.all()
-      |> Repo.preload(:mystery)
+      |> Repo.preload([:mystery, :narrations])
       |> Map.new(&{&1.id, &1})
 
     Enum.flat_map(ids, fn id ->
@@ -81,12 +81,20 @@ defmodule LumenViae.Rosary.Meditations do
   def get(id) do
     case Repo.get(Meditation, id) do
       nil -> nil
-      meditation -> Repo.preload(meditation, :mystery)
+      meditation -> Repo.preload(meditation, [:mystery, :narrations])
     end
   end
 
   def get!(id) do
-    Meditation |> Repo.get!(id) |> Repo.preload(:mystery)
+    Meditation |> Repo.get!(id) |> Repo.preload([:mystery, :narrations])
+  end
+
+  @doc """
+  Reloads the narrations of a meditation whose recordings changed since it
+  was read, leaving everything else as it was.
+  """
+  def reload_narrations(%Meditation{} = meditation) do
+    Repo.preload(meditation, :narrations, force: true)
   end
 
   def create(attrs \\ %{}) do
@@ -162,6 +170,18 @@ defmodule LumenViae.Rosary.Meditations do
     Repo.all(
       from m in Meditation,
         where: is_nil(m.archived_at) and (is_nil(m.audio_url) or m.audio_url == ""),
+        select: m.id
+    )
+  end
+
+  @doc """
+  Ids of active meditations that have an audio filename, and so are
+  expected to have a recording in every voice.
+  """
+  def list_active_ids_with_audio do
+    Repo.all(
+      from m in Meditation,
+        where: is_nil(m.archived_at) and not is_nil(m.audio_url) and m.audio_url != "",
         select: m.id
     )
   end

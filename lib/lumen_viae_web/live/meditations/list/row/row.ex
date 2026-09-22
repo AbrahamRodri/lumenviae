@@ -8,6 +8,7 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
   use LumenViaeWeb, :html
 
   alias LumenViae.CentralTime
+  alias LumenViae.Rosary
 
   attr :meditation, :map, required: true
   attr :expanded, :boolean, default: false
@@ -155,8 +156,12 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
               <dd class="inline ml-1">{@meditation.source}</dd>
             </div>
             <div :if={@meditation.audio_url not in [nil, ""]}>
-              <dt class="inline admin-eyebrow">Audio key</dt>
+              <dt class="inline admin-eyebrow">Audio file</dt>
               <dd class="inline ml-1">{@meditation.audio_url}</dd>
+            </div>
+            <div :if={@meditation.audio_url not in [nil, ""]}>
+              <dt class="inline admin-eyebrow">Voices</dt>
+              <dd class="inline ml-1">{narration_voices(@meditation)}</dd>
             </div>
             <div :if={@meditation.tts_annotations != []}>
               <dt class="inline admin-eyebrow">Narration pauses</dt>
@@ -177,5 +182,15 @@ defmodule LumenViaeWeb.Live.Meditations.List.Row do
       </td>
     </tr>
     """
+  end
+
+  # Which voices have recorded this meditation, or a plain "none" for a
+  # filename with no object behind it yet (an import whose audio failed, or
+  # a set awaiting regeneration).
+  defp narration_voices(meditation) do
+    case Rosary.meditation_narrations(meditation) do
+      [] -> "none"
+      narrations -> Enum.map_join(narrations, ", ", & &1.voice.slug)
+    end
   end
 end

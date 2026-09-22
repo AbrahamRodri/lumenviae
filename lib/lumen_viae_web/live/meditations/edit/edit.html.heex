@@ -86,8 +86,8 @@
         </div>
 
         <.field
-          label="Audio S3 key"
-          hint="The filename or path in the lumenviae-audio bucket."
+          label="Audio filename"
+          hint="The narration's filename. Each voice's recording lives at voices/<voice>/<filename> in the lumenviae-audio bucket."
           errors={@edit_form[:audio_url].errors}
         >
           <input
@@ -95,7 +95,7 @@
             name={@edit_form[:audio_url].name}
             value={@edit_form[:audio_url].value || ""}
             class="admin-input"
-            placeholder="e.g. joyful/annunciation.mp3"
+            placeholder="e.g. Joyful-Annunciation-1.mp3"
           />
         </.field>
       </div>

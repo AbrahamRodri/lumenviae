@@ -118,9 +118,13 @@ defmodule LumenViaeWeb.Router do
     get "/meditation-sets", MeditationSetController, :index
     get "/meditation-sets/:id", MeditationSetController, :show
 
-    # Meditations - a fresh narration URL for one meditation, so a client
-    # holding an expired one does not have to refetch its whole set
+    # Meditations - a fresh narration URL for one meditation (in one voice,
+    # ?voice=slug), so a client holding an expired one does not have to
+    # refetch its whole set
     get "/meditations/:id/audio", MeditationController, :audio
+
+    # The narration voices a meditation can be heard in
+    get "/voices", VoiceController, :index
 
     # Mysteries
     get "/mysteries", MysteryController, :index

@@ -155,6 +155,58 @@ defmodule LumenViae.Storage.S3 do
     end
   end
 
+  @doc """
+  Copies one object to another key inside the audio bucket, server side:
+  nothing is downloaded. Used once, to move the original narrations under
+  their voice prefix (`LumenViae.Release.copy_narration_to_voice_prefix/0`).
+
+  Returns `{:ok, destination_key}` or `{:error, reason}`. A missing source
+  comes back as `{:error, :not_found}` so the caller can report it by name
+  rather than as an XML body.
+  """
+  @spec copy_audio(String.t(), String.t(), keyword) :: {:ok, String.t()} | {:error, term}
+  def copy_audio(source_key, destination_key, opts \\ [])
+      when is_binary(source_key) and is_binary(destination_key) do
+    bucket = opts[:bucket] || Application.get_env(:lumen_viae, :aws_s3_bucket)
+
+    with :ok <- validate_aws_config() do
+      Logger.info("Copying audio in S3: #{source_key} -> #{destination_key}")
+
+      case ExAws.S3.put_object_copy(bucket, destination_key, bucket, source_key)
+           |> ExAws.request() do
+        {:ok, _response} ->
+          {:ok, destination_key}
+
+        {:error, {:http_error, 404, _body}} ->
+          {:error, :not_found}
+
+        {:error, reason} ->
+          Logger.error("Failed to copy #{source_key} to #{destination_key}: #{inspect(reason)}")
+          {:error, reason}
+      end
+    end
+  end
+
+  @doc """
+  Whether an object exists in the audio bucket, by a HEAD request.
+
+  Returns `{:ok, true | false}`, or `{:error, reason}` when the question
+  itself could not be asked (no credentials, network). A caller deciding
+  whether to copy must treat the error as "do not know", never as "no".
+  """
+  @spec audio_exists?(String.t(), keyword) :: {:ok, boolean} | {:error, term}
+  def audio_exists?(s3_key, opts \\ []) when is_binary(s3_key) do
+    bucket = opts[:bucket] || Application.get_env(:lumen_viae, :aws_s3_bucket)
+
+    with :ok <- validate_aws_config() do
+      case ExAws.S3.head_object(bucket, s3_key) |> ExAws.request() do
+        {:ok, _response} -> {:ok, true}
+        {:error, {:http_error, 404, _body}} -> {:ok, false}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+  end
+
   @public_cache_control "public, max-age=31536000, immutable"
 
   @doc """

@@ -131,6 +131,26 @@ defmodule LumenViae.Audio.TtsTextTest do
                ~s(One. <break time="1.2s" /> Two. <break time="0.5s" /> Still two. <break time="1.2s" /> Three.)
     end
 
+    test "writes Eleven v3 audio tags when asked, bucketed by duration" do
+      {:ok, clean, annotations} =
+        TtsText.extract_pauses("One.\n\nTwo. {pause:0.5} Still two. {pause:3}\n\nThree.")
+
+      assert TtsText.to_speech_text(clean, annotations, pause_style: :audio_tags) ==
+               "One. [pause] Two. [short pause] Still two. [long pause] Three."
+    end
+
+    test "audio tags follow the configured paragraph break" do
+      assert TtsText.to_speech_text("A.\n\nB.", [],
+               pause_style: :audio_tags,
+               paragraph_break_seconds: 2.5
+             ) == "A. [long pause] B."
+
+      assert TtsText.to_speech_text("A.\n\nB.", [],
+               pause_style: :audio_tags,
+               paragraph_break_seconds: 0.9
+             ) == "A. [short pause] B."
+    end
+
     test "honors the :paragraph_break_seconds option" do
       assert TtsText.to_speech_text("A.\n\nB.", [], paragraph_break_seconds: 0.8) ==
                ~s(A. <break time="0.8s" /> B.)

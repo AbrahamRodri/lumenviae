@@ -13,6 +13,7 @@ defmodule LumenViae.Rosary do
     * `LumenViae.Rosary.SetMemberships`
     * `LumenViae.Rosary.Completions`
     * `LumenViae.Rosary.Authors`
+    * `LumenViae.Rosary.Narrations`
 
   Simple, single-resource operations pass straight through. The work this
   module does itself is composition across resources, because a Secondary
@@ -27,6 +28,9 @@ defmodule LumenViae.Rosary do
       the records.
     * **Reporting.** Completion and set statistics come back keyed by id
       from each context and are folded together here.
+    * **Narration.** A meditation's recordings come from `Narrations`, the
+      voices they are in from the `Voices` value module, and the presigned
+      URLs a client plays are assembled here, default voice first.
 
   See `docs/ARCHITECTURE.md` for the rules this layout follows.
   """
@@ -38,7 +42,9 @@ defmodule LumenViae.Rosary do
   alias LumenViae.Rosary.MeditationSets
   alias LumenViae.Rosary.Meditations
   alias LumenViae.Rosary.Mysteries
+  alias LumenViae.Rosary.Narrations
   alias LumenViae.Rosary.SetMemberships
+  alias LumenViae.Rosary.Voices
   alias LumenViae.Services.Geolocation
   alias LumenViae.Storage.S3
 
@@ -70,40 +76,141 @@ defmodule LumenViae.Rosary do
   defdelegate unarchive_meditation(meditation), to: Meditations, as: :unarchive
   defdelegate list_taken_audio_urls(audio_urls), to: Meditations
 
+  ## Narration
+
+  defdelegate list_voices(), to: Voices, as: :list
+  defdelegate default_voice(), to: Voices, as: :default
+  defdelegate fetch_voice(slug), to: Voices, as: :fetch
+  defdelegate narration_counts_by_voice(), to: Narrations, as: :count_by_voice
+
+  defdelegate meditation_ids_with_narration(voice_slug),
+    to: Narrations,
+    as: :list_meditation_ids_with_voice
+
   @doc """
-  Generates a pre-signed URL for a meditation's audio file.
+  Records that `s3_key` now holds `voice`'s recording of the meditation.
 
-  Returns the pre-signed URL string if the meditation has an audio_url (S3 key),
-  or nil if no audio is available or if URL generation fails.
-
-  ## Examples
-
-      iex> get_meditation_audio_url(%Meditation{audio_url: "meditation1.mp3"})
-      "https://lumenviae-audio.s3.us-east-2.amazonaws.com/meditation1.mp3?..."
-
-      iex> get_meditation_audio_url(%Meditation{audio_url: nil})
-      nil
+  Called by the audio pipeline's callers once the upload has succeeded; a
+  row here is a promise that the object exists. Returns the meditation with
+  its narrations reloaded so the caller can go on rendering it.
   """
-  def get_meditation_audio_url(%{audio_url: audio_url}) when audio_url in [nil, ""], do: nil
-
-  def get_meditation_audio_url(%{audio_url: s3_key}) when is_binary(s3_key) do
-    S3.generate_presigned_url!(s3_key, expires_in: audio_url_ttl())
+  def record_narration(%{id: meditation_id} = meditation, voice_slug, s3_key)
+      when is_binary(voice_slug) and is_binary(s3_key) do
+    with {:ok, _voice} <- Voices.fetch(voice_slug),
+         {:ok, _narration} <- Narrations.upsert(meditation_id, voice_slug, s3_key) do
+      {:ok, Meditations.reload_narrations(meditation)}
+    end
   end
 
   @doc """
-  A meditation's audio as a URL and the moment that URL stops working.
+  The voices a meditation can be heard in, default first, each with the S3
+  key of its recording: `[%{voice: %Voice{}, s3_key: key}]`.
+
+  Only configured voices count. A row for a voice that has since been
+  removed from config is a file nobody can be offered, so it is left out
+  rather than rendered as a voice the app has no name for. Uses the
+  preloaded association when the meditation carries one, and asks the
+  table otherwise.
+  """
+  def meditation_narrations(%{id: meditation_id} = meditation) do
+    rows =
+      case Map.get(meditation, :narrations) do
+        narrations when is_list(narrations) -> narrations
+        _not_loaded -> Narrations.list_for_meditation(meditation_id)
+      end
+
+    by_voice = Map.new(rows, &{&1.voice, &1.s3_key})
+
+    Voices.list()
+    |> Enum.flat_map(fn voice ->
+      case Map.fetch(by_voice, voice.slug) do
+        {:ok, s3_key} -> [%{voice: voice, s3_key: s3_key}]
+        :error -> []
+      end
+    end)
+  end
+
+  @doc """
+  Every narration of a meditation as a presigned URL, default voice first:
+  `[%{voice: %Voice{}, url: url}]`. A narration whose URL could not be
+  signed is left out rather than rendered as a link that will fail.
+  """
+  def sign_meditation_narrations(meditation) do
+    ttl = audio_url_ttl()
+
+    meditation
+    |> meditation_narrations()
+    |> Enum.flat_map(fn %{voice: voice, s3_key: s3_key} ->
+      case S3.generate_presigned_url(s3_key, expires_in: ttl) do
+        {:ok, url} -> [%{voice: voice, url: url}]
+        {:error, _reason} -> []
+      end
+    end)
+  end
+
+  @doc """
+  Generates a pre-signed URL for a meditation's narration in the default
+  voice - or, when the default voice has not recorded it yet, in the first
+  voice that has. This is what the website plays and what the legacy single
+  `audio_url` field carries.
+
+  Returns nil when the meditation has no narration or the URL could not be
+  signed.
+
+  ## Examples
+
+      iex> get_meditation_audio_url(%Meditation{narrations: [...]})
+      "https://lumenviae-audio.s3.us-east-2.amazonaws.com/voices/female/meditation1.mp3?..."
+
+      iex> get_meditation_audio_url(%Meditation{narrations: []})
+      nil
+  """
+  def get_meditation_audio_url(meditation) do
+    case fetch_meditation_audio(meditation) do
+      {:ok, %{url: url}} -> url
+      _none -> nil
+    end
+  end
+
+  @doc """
+  A meditation's narration in one voice as a URL, with the voice and the
+  moment that URL stops working.
 
   The plain `get_meditation_audio_url/1` above cannot say when what it
   returned expires, so a client that caches the URL has no way to know it
   has gone stale except by being refused. This returns both, which is what
   a client storing audio for offline use actually needs.
 
-  Returns `{:ok, %{url: url, expires_at: %DateTime{}}}`, or `:error` when
-  the meditation has no audio or the URL could not be signed.
-  """
-  def fetch_meditation_audio(%{audio_url: audio_url}) when audio_url in [nil, ""], do: :error
+  `voice_slug` is nil for the default voice, falling back to whichever
+  voice has recorded the meditation when the default has not; a named voice
+  is exact, since a client asking for the male voice has made a choice.
 
-  def fetch_meditation_audio(%{audio_url: s3_key}) when is_binary(s3_key) do
+  Returns `{:ok, %{voice: %Voice{}, url: url, expires_at: %DateTime{}}}`,
+  `{:error, :unknown_voice}` for a slug that is not configured, or `:error`
+  when the meditation has no such narration or the URL could not be signed.
+  """
+  def fetch_meditation_audio(meditation, voice_slug \\ nil)
+
+  def fetch_meditation_audio(meditation, nil) do
+    case meditation_narrations(meditation) do
+      [] -> :error
+      [first | _] -> sign_narration(first)
+    end
+  end
+
+  def fetch_meditation_audio(meditation, voice_slug) when is_binary(voice_slug) do
+    with {:ok, _voice} <- Voices.fetch(voice_slug) do
+      meditation
+      |> meditation_narrations()
+      |> Enum.find(&(&1.voice.slug == voice_slug))
+      |> case do
+        nil -> :error
+        narration -> sign_narration(narration)
+      end
+    end
+  end
+
+  defp sign_narration(%{voice: voice, s3_key: s3_key}) do
     ttl = audio_url_ttl()
 
     case S3.generate_presigned_url(s3_key, expires_in: ttl) do
@@ -111,7 +218,7 @@ defmodule LumenViae.Rosary do
         expires_at =
           DateTime.utc_now() |> DateTime.add(ttl, :second) |> DateTime.truncate(:second)
 
-        {:ok, %{url: url, expires_at: expires_at}}
+        {:ok, %{voice: voice, url: url, expires_at: expires_at}}
 
       {:error, _reason} ->
         :error
@@ -439,6 +546,23 @@ defmodule LumenViae.Rosary do
 
     Meditations.list_active_ids_missing_audio()
     |> Enum.filter(&MapSet.member?(reachable, &1))
+  end
+
+  @doc """
+  Ids of active meditations that have an audio filename but lack a recording
+  in at least one configured voice - an import whose generation failed
+  partway, or a set imported before a voice was added. Each is one
+  `regenerate_audio --only-missing` away from being whole.
+  """
+  def meditation_ids_missing_a_voice do
+    expected = Meditations.list_active_ids_with_audio()
+
+    complete =
+      Voices.list()
+      |> Enum.map(&MapSet.new(Narrations.list_meditation_ids_with_voice(&1.slug)))
+      |> Enum.reduce(MapSet.new(expected), &MapSet.intersection(&2, &1))
+
+    Enum.reject(expected, &MapSet.member?(complete, &1))
   end
 
   @doc """

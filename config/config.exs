@@ -15,6 +15,33 @@ config :lumen_viae,
 # meditation audio (seconds; ElevenLabs caps break tags at 3s).
 config :lumen_viae, :tts_paragraph_break_seconds, 1.2
 
+# The ElevenLabs model every narration is synthesized with. Eleven v3 takes
+# audio tags ([pause], [long pause]) rather than SSML break tags for its
+# pauses; LumenViae.Audio.TtsText picks the syntax from this id.
+config :lumen_viae, :eleven_labs_model_id, "eleven_v3"
+
+# The narration voices, in the order clients list them. Every meditation
+# with audio is narrated once per voice, stored under
+# voices/<slug>/<filename> in the audio bucket. The first voice marked
+# default: true is what the legacy `audio_url` fields and the website play.
+# See LumenViae.Rosary.Voices.
+config :lumen_viae, :narration_voices, [
+  %{
+    slug: "female",
+    name: "Female",
+    description: "A gentle, emotive narrator",
+    eleven_labs_voice_id: "Z3R5wn05IrDiVCyEkUrK",
+    default: true
+  },
+  %{
+    slug: "male",
+    name: "Male",
+    description: "A calm, measured narrator",
+    eleven_labs_voice_id: "RTFg9niKcgGLDwa3RFlz",
+    default: false
+  }
+]
+
 # Turning an address into a rough place for the completion analytics.
 # Off unless a runtime config says otherwise, so a lookup is something
 # production opts into rather than something every laptop does by default.

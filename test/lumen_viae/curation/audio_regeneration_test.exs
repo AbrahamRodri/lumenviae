@@ -30,7 +30,7 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     {:ok, _} = Rosary.add_meditation_to_set(set.id, with_audio.id, 1)
     {:ok, _} = Rosary.add_meditation_to_set(set.id, without_audio.id, 2)
 
-    %{set: set, with_audio: with_audio, without_audio: without_audio}
+    %{set: set, with_audio: with_audio, without_audio: without_audio, mystery: mystery}
   end
 
   defp stub_apis do
@@ -48,7 +48,7 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
 
     Req.Test.stub(LumenViae.Audio.ElevenLabs, fn conn ->
       {:ok, body, conn} = Plug.Conn.read_body(conn)
-      send(test_pid, {:tts_text, Jason.decode!(body)["text"]})
+      send(test_pid, {:tts_text, conn.request_path, Jason.decode!(body)["text"]})
 
       conn
       |> Plug.Conn.put_resp_content_type("audio/mpeg")
@@ -58,23 +58,27 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     test_pid
   end
 
-  test "dry run lists the pause plan without calling ElevenLabs or S3", %{set: set} do
+  defp key_of(url), do: URI.parse(url).path
+
+  test "dry run lists the pause plan per voice without calling ElevenLabs or S3", %{set: set} do
     stub_apis()
 
     results = AudioRegeneration.run({:set, set.name}, dry_run: true)
 
-    assert [{:ok, would}, {:warning, skipped}] = results
-    assert would =~ "Would regenerate regen_clip.mp3"
-    assert would =~ "Fiat"
+    assert [{:ok, female}, {:ok, male}, {:warning, skipped}] = results
+    assert female =~ "Would regenerate voices/female/regen_clip.mp3"
+    assert female =~ "Fiat"
+    assert female =~ "female voice"
     # The custom pause sits at the only paragraph break and replaces it.
-    assert would =~ "1 break tag(s), 1 custom pause(s)"
+    assert female =~ "1 pause(s), 1 custom"
+    assert male =~ "Would regenerate voices/male/regen_clip.mp3"
     assert skipped =~ "no audio file"
 
-    refute_received {:tts_text, _}
+    refute_received {:tts_text, _, _}
     refute_received {:aws_request, _, _, _}
   end
 
-  test "regenerates audio in place with pause tags, without touching meditations", %{
+  test "regenerates every voice under its prefix and records the narrations", %{
     set: set,
     with_audio: with_audio
   } do
@@ -83,28 +87,99 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
 
     results = AudioRegeneration.run({:set, set.name})
 
-    assert [{:ok, regenerated}, {:warning, _skipped}] = results
-    assert regenerated =~ "Regenerated regen_clip.mp3"
+    assert [{:ok, female}, {:ok, male}, {:warning, _skipped}] = results
+    assert female =~ "Regenerated voices/female/regen_clip.mp3"
+    assert male =~ "Regenerated voices/male/regen_clip.mp3"
 
-    assert_received {:tts_text, text}
-    assert text == ~s(First paragraph. <break time="2.5s" /> Second paragraph.)
+    expected_text = "First paragraph. [long pause] Second paragraph."
+    assert_received {:tts_text, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", ^expected_text}
+    assert_received {:tts_text, "/v1/text-to-speech/RTFg9niKcgGLDwa3RFlz", ^expected_text}
 
-    assert_received {:aws_request, :put, url, "regenerated-audio-bytes"}
-    assert url =~ "regen_clip.mp3"
+    assert_received {:aws_request, :put, female_url, "regenerated-audio-bytes"}
+    assert_received {:aws_request, :put, male_url, "regenerated-audio-bytes"}
+
+    assert Enum.sort(Enum.map([female_url, male_url], &key_of/1)) ==
+             [
+               "/lumenviae-audio/voices/female/regen_clip.mp3",
+               "/lumenviae-audio/voices/male/regen_clip.mp3"
+             ]
 
     assert Rosary.count_meditations() == meditations_before
     reloaded = Rosary.get_meditation!(with_audio.id)
     assert reloaded.content == @content
     assert reloaded.audio_url == "regen_clip.mp3"
     assert reloaded.tts_annotations == @annotations
+
+    assert Enum.map(Rosary.meditation_narrations(reloaded), &{&1.voice.slug, &1.s3_key}) ==
+             [{"female", "voices/female/regen_clip.mp3"}, {"male", "voices/male/regen_clip.mp3"}]
   end
 
-  test "targets a single meditation by id", %{with_audio: with_audio} do
+  test "limits itself to the voices asked for", %{with_audio: with_audio} do
     stub_apis()
 
-    assert [{:ok, message}] = AudioRegeneration.run({:meditation, with_audio.id})
-    assert message =~ "Regenerated regen_clip.mp3"
-    assert_received {:tts_text, _text}
+    assert [{:ok, message}] =
+             AudioRegeneration.run({:meditation, with_audio.id}, voices: ["female"])
+
+    assert message =~ "Regenerated voices/female/regen_clip.mp3"
+    assert_received {:tts_text, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", _}
+    refute_received {:tts_text, _, _}
+
+    assert [%{voice: %{slug: "female"}}] =
+             Rosary.meditation_narrations(Rosary.get_meditation!(with_audio.id))
+  end
+
+  test "rejects an unknown voice before spending anything", %{with_audio: with_audio} do
+    stub_apis()
+
+    assert [{:error, message}] =
+             AudioRegeneration.run({:meditation, with_audio.id}, voices: ["female", "tenor"])
+
+    assert message =~ "Unknown voice(s): tenor"
+    refute_received {:tts_text, _, _}
+  end
+
+  test "only_missing keeps recordings already on record", %{with_audio: with_audio} do
+    stub_apis()
+    {:ok, _} = Rosary.record_narration(with_audio, "male", "voices/male/regen_clip.mp3")
+
+    results = AudioRegeneration.run({:meditation, with_audio.id}, only_missing: true)
+
+    assert [{:ok, female}, {:ok, male}] = results
+    assert female =~ "Regenerated voices/female/regen_clip.mp3"
+    assert male =~ "Kept voices/male/regen_clip.mp3"
+
+    assert_received {:tts_text, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", _}
+    refute_received {:tts_text, _, _}
+  end
+
+  test ":all covers every active meditation with a filename, in id order", %{
+    with_audio: with_audio,
+    mystery: mystery
+  } do
+    stub_apis()
+
+    {:ok, later} =
+      Rosary.create_meditation(%{
+        "content" => @content,
+        "mystery_id" => mystery.id,
+        "audio_url" => "later_clip.mp3"
+      })
+
+    {:ok, archived} =
+      Rosary.create_meditation(%{
+        "content" => @content,
+        "mystery_id" => mystery.id,
+        "audio_url" => "archived_clip.mp3"
+      })
+
+    {:ok, _} = Rosary.archive_meditation(archived)
+
+    results = AudioRegeneration.run(:all, voices: ["female"], dry_run: true)
+
+    assert [{:ok, first}, {:warning, _no_file}, {:ok, second}] = results
+    assert first =~ "meditation #{with_audio.id}"
+    assert second =~ "meditation #{later.id}"
+    refute Enum.any?(results, fn {_, message} -> message =~ "archived_clip" end)
   end
 
   test "reports unknown targets as errors through the progress fun" do

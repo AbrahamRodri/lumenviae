@@ -26,9 +26,11 @@ Your CSV file must include the following columns:
 - **author** - The author of the meditation (e.g., "Bishop Fulton J. Sheen")
 - **source** - The source of the meditation (e.g., "The Fifteen Mysteries of the Rosary")
 - **audio_filename** - The filename for the audio file (e.g., "joyful_1_annunciation.mp3")
-  - When provided, the system will automatically generate audio using ElevenLabs API
-  - The generated audio will be uploaded to S3 with this filename
-  - If audio generation fails, the meditation will still be created without audio
+  - When provided, the system will automatically generate audio using ElevenLabs API,
+    once per narration voice (see "Narration Voices" below)
+  - Each voice's recording is uploaded to S3 at `voices/<voice>/<audio_filename>`
+  - If audio generation fails for a voice, the meditation is still created and
+    the missing voice can be filled in later with `regenerate_audio --only-missing`
 
 ### Meditation Set Columns
 
@@ -186,11 +188,33 @@ Successfully imported meditations will not be affected by validation errors in o
 
 ## Audio Generation
 
-When the `audio_filename` column is provided, the system will:
+When the `audio_filename` column is provided, the system will, for every
+configured narration voice:
 
 1. Use the meditation content to generate audio via the ElevenLabs text-to-speech API
-2. Upload the generated audio to Amazon S3
-3. Associate the audio with the meditation for playback during prayer
+   (model `eleven_v3`, set by `config :lumen_viae, :eleven_labs_model_id`)
+2. Upload the generated audio to Amazon S3 at `voices/<voice>/<audio_filename>`
+3. Record the narration against the meditation, so the API can offer that voice
+
+### Narration Voices
+
+The voices live in `config/config.exs` under `:narration_voices`: a slug the
+app and the S3 layout use (`female`, `male`), a display name, and the
+ElevenLabs voice id behind it. Exactly one is the default; it is the voice
+the website plays and the one the API's legacy single `audio_url` field
+carries, so an app build that predates voices keeps working. Every other
+voice reaches the app through `narrations` on each meditation and
+`GET /api/voices`.
+
+Adding a voice is a config line plus one regeneration run:
+
+```
+mix lumen_viae.regenerate_audio --all --voice newvoice
+```
+
+Pass `--voice` to an import to record fewer voices than are configured
+(`mix lumen_viae.import file.csv --voice female`), for instance to hear a set
+in one voice before paying for the rest.
 
 ### Narration Pauses
 
@@ -203,8 +227,15 @@ and displayed meditation content never contains pause markup.
   with the `TTS_PARAGRAPH_BREAK_SECONDS` environment variable)
 - For a spot that needs a longer or shorter pause, put an inline
   `{pause:N}` marker in the CSV content, where N is seconds (decimals
-  allowed, capped at 3 - the ElevenLabs maximum). Example:
+  allowed, capped at 3). Example:
   `And the Word was made flesh. {pause:2.5} And dwelt among us.`
+- How the seconds are spoken depends on the model. Models before Eleven v3
+  take an SSML `<break time="Ns" />` tag and honor the duration exactly.
+  Eleven v3 (the configured model) does not support break tags and offers
+  three fixed pauses instead, so the seconds are bucketed: under 1s becomes
+  `[short pause]` (about a second), under 2.5s becomes `[pause]` (about two
+  seconds, where the paragraph default lands), and 2.5s or more becomes
+  `[long pause]` (several seconds, for a deliberate reflective stop)
 - A marker on its own line between two paragraphs replaces that paragraph
   break's default pause instead of adding a second pause:
   ```csv
@@ -222,30 +253,56 @@ and displayed meditation content never contains pause markup.
 
 ### Regenerating Audio
 
-To apply new pause logic (or a voice change) to already-imported
-meditations without re-importing, regenerate their audio in place. The
-existing S3 files are replaced under the same keys and no meditation rows
-are created or modified:
+To apply new pause logic, a new model, or a new voice to already-imported
+meditations without re-importing, regenerate their audio in place. The S3
+objects are replaced under their voice keys, the narration records are
+updated, and no meditation rows are created or modified:
 
 ```
 mix lumen_viae.regenerate_audio --set "Set Name" --dry-run
 mix lumen_viae.regenerate_audio --set "Set Name"
 mix lumen_viae.regenerate_audio --id 42
+mix lumen_viae.regenerate_audio --all --voice female --only-missing
 ```
 
-Always dry-run first: it lists each meditation with its pause plan and
+`--voice` limits the run to one voice (repeatable; every configured voice
+otherwise), and `--only-missing` skips recordings that already exist, so an
+interrupted run can be resumed without paying ElevenLabs twice. The admin
+dashboard's "Meditations missing a voice" check counts what `--all
+--only-missing` would fill in.
+
+Always dry-run first: it lists each recording with its pause plan and
 spends no ElevenLabs credits. On Fly:
 
 ```
 fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(set: \"Set Name\")'"
+fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(all: true, voices: [\"female\"], only_missing: true)'"
 ```
+
+### The voice layout, and the one-time move into it
+
+Before voices, each meditation's `audio_url` was the whole S3 key of its
+one recording - a root-level object such as `Glorious-Fulton-1.mp3`. It is
+now the *filename*, and every voice's object sits at
+`voices/<voice>/<filename>`. The migration that created the narrations
+table recorded every existing recording as the `male` voice at its new
+key; the objects are moved there (server-side copies, originals left in
+place) by:
+
+```
+fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.copy_narration_to_voice_prefix()'"
+```
+
+It is idempotent - re-run it after any failure - and reports a meditation
+whose original object is missing as a warning. Once the new keys have been
+verified to play, the root-level originals can be deleted by hand.
 
 ### Requirements for Audio Generation
 
 To enable audio generation, ensure the following environment variables are configured:
 
-- `ELEVEN_LABS_API_KEY` - Your ElevenLabs API key (the voice ID is set in
-  `config/runtime.exs`)
+- `ELEVEN_LABS_API_KEY` - Your ElevenLabs API key (the voices and model are
+  set in `config/config.exs`)
 - `AWS_ACCESS_KEY_ID` - Your AWS access key
 - `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
 - `AWS_S3_BUCKET` - Your S3 bucket name (defaults to lumenviae-audio)
@@ -254,17 +311,21 @@ To enable audio generation, ensure the following environment variables are confi
 ### Audio Processing During Import
 
 - Audio generation happens during the CSV import process
-- Each meditation with an audio_filename will trigger an API call to ElevenLabs
+- Each meditation with an audio_filename will trigger one API call to
+  ElevenLabs per configured voice
 - Synthesis takes roughly 10-60 seconds per meditation; the client waits up
   to 2 minutes per attempt before treating the request as timed out
 - Transient failures (timeouts, rate limits, ElevenLabs 5xx, S3 hiccups) are
   retried up to 3 times with increasing backoff; permanent failures (bad API
   key, missing AWS credentials, rejected request) fail immediately
-- If audio generation or upload still fails, the meditation is created
-  without audio and the row is reported as a warning naming the reason
-- Success messages will indicate "(with audio)" for meditations that have audio generated
-- Re-running a failed row's audio means re-importing that row; delete the
-  audio-less meditation first so the import does not create a duplicate
+- If audio generation or upload still fails for a voice, the meditation is
+  still created and the row is reported as a warning naming the voice and
+  the reason; when every voice fails it is created without audio
+- Success messages will indicate "(with audio)" for meditations that have
+  at least one voice recorded
+- A failed voice is filled in later with
+  `mix lumen_viae.regenerate_audio --all --only-missing`; nothing needs
+  re-importing
 
 ## Notes
 

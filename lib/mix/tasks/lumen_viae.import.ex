@@ -13,11 +13,12 @@ defmodule Mix.Tasks.LumenViae.Import do
     * `--dry-run` - validate the file (mystery names, changesets, label
       vocabulary) without writing to the database or generating audio
     * `--skip-audio` - import rows but ignore audio_filename columns
+    * `--voice SLUG` - record only this voice (repeatable); every configured
+      voice by default, see `LumenViae.Rosary.Voices`
 
   ## Environment
 
-  Audio generation requires ELEVEN_LABS_API_KEY (and optional voice config)
-  plus AWS credentials for the S3 upload, as configured in runtime.exs.
+  Audio generation requires ELEVEN_LABS_API_KEY plus AWS credentials for the S3 upload, as configured in runtime.exs.
   Run against the production database by exporting DATABASE_URL first, or
   import on Fly with:
 
@@ -33,14 +34,16 @@ defmodule Mix.Tasks.LumenViae.Import do
   @impl Mix.Task
   def run(args) do
     {opts, argv, invalid} =
-      OptionParser.parse(args, strict: [dry_run: :boolean, skip_audio: :boolean])
+      OptionParser.parse(args, strict: [dry_run: :boolean, skip_audio: :boolean, voice: :keep])
 
     cond do
       invalid != [] ->
         Mix.raise("Invalid options: #{inspect(invalid)}")
 
       argv == [] ->
-        Mix.raise("Usage: mix lumen_viae.import PATH [--dry-run] [--skip-audio]")
+        Mix.raise(
+          "Usage: mix lumen_viae.import PATH [--dry-run] [--skip-audio] [--voice SLUG]..."
+        )
 
       true ->
         [path | _] = argv
@@ -49,7 +52,13 @@ defmodule Mix.Tasks.LumenViae.Import do
   end
 
   defp run_import(path, opts) do
-    results = LumenViae.Curation.CsvImport.import_file(path, opts)
+    import_opts = [
+      dry_run: opts[:dry_run],
+      skip_audio: opts[:skip_audio],
+      voices: Keyword.get_values(opts, :voice)
+    ]
+
+    results = LumenViae.Curation.CsvImport.import_file(path, import_opts)
 
     grouped = Enum.group_by(results, fn {status, _} -> status end)
     successes = Map.get(grouped, :ok, [])

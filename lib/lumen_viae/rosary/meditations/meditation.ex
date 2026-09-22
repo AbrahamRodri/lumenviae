@@ -13,6 +13,12 @@ defmodule LumenViae.Rosary.Meditations.Meditation do
     field :content, :string
     field :author, :string
     field :source, :string
+
+    # The narration filename, e.g. "Glorious-Fulton-1.mp3", assigned at
+    # import. Not a URL and, since narrations gained voices, not a whole S3
+    # key either: each voice's object sits at voices/<slug>/<filename> (see
+    # LumenViae.Rosary.Voices.narration_key/2), and the narrations
+    # association says which voices actually have one.
     field :audio_url, :string
     field :archived_at, :utc_datetime
 
@@ -22,6 +28,8 @@ defmodule LumenViae.Rosary.Meditations.Meditation do
     field :tts_annotations, {:array, :map}, default: []
 
     belongs_to :mystery, LumenViae.Rosary.Mysteries.Mystery
+
+    has_many :narrations, LumenViae.Rosary.Narrations.Narration
 
     many_to_many :meditation_sets, LumenViae.Rosary.MeditationSets.MeditationSet,
       join_through: LumenViae.Rosary.SetMemberships.SetMembership

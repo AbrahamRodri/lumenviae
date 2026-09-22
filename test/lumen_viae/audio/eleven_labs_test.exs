@@ -110,11 +110,36 @@ defmodule LumenViae.Audio.ElevenLabsTest do
   end
 
   test "a missing voice ID is fatal and makes no request" do
-    original_voice = Application.get_env(:lumen_viae, :eleven_labs_voice_id)
-    Application.put_env(:lumen_viae, :eleven_labs_voice_id, nil)
-    on_exit(fn -> restore_env(:eleven_labs_voice_id, original_voice) end)
+    original_voices = Application.get_env(:lumen_viae, :narration_voices)
+    Application.put_env(:lumen_viae, :narration_voices, [])
+    on_exit(fn -> restore_env(:narration_voices, original_voices) end)
 
     assert {:error, {:fatal, message}} = ElevenLabs.generate_audio("text")
     assert message =~ "voice ID not configured"
+  end
+
+  test "synthesizes with the configured model and the voice it is given" do
+    test_pid = self()
+
+    Req.Test.stub(ElevenLabs, fn conn ->
+      {:ok, body, conn} = Plug.Conn.read_body(conn)
+      send(test_pid, {:request, conn.request_path, Jason.decode!(body)})
+
+      conn
+      |> Plug.Conn.put_resp_content_type("audio/mpeg")
+      |> Plug.Conn.send_resp(200, "bytes")
+    end)
+
+    assert {:ok, "bytes"} = ElevenLabs.generate_audio("text", "voice-123")
+
+    assert_received {:request, "/v1/text-to-speech/voice-123", body}
+    assert body["model_id"] == "eleven_v3"
+    assert body["voice_settings"]["stability"] == 0.5
+  end
+
+  test "the pause style follows the model" do
+    assert ElevenLabs.pause_style("eleven_v3") == :audio_tags
+    assert ElevenLabs.pause_style("eleven_multilingual_v2") == :break_tags
+    assert ElevenLabs.pause_style() == :audio_tags
   end
 end

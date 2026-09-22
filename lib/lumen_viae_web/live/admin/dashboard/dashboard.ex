@@ -86,6 +86,16 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
         names: []
       },
       %{
+        count: length(Rosary.meditation_ids_missing_a_voice()),
+        tone: "caution",
+        label: "Meditations missing a voice",
+        description:
+          "Have an audio file but no recording in every narration voice. " <>
+            "Run regenerate_audio --all --only-missing to fill the gaps.",
+        link: ~p"/admin/meditations?audio=with&status=active",
+        names: []
+      },
+      %{
         count: count_sets(live_sets, &(SetFiltering.artwork_state(&1) == :missing)),
         tone: "caution",
         label: "Live sets without artwork",

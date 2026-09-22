@@ -70,52 +70,87 @@ defmodule LumenViae.Release do
 
   @doc """
   Regenerates ElevenLabs audio inside a production release, replacing the
-  existing S3 files so already-imported meditations pick up new pause logic
-  without re-importing. Takes `set: "Set Name"` or `id: 42`, plus optional
-  `dry_run: true`.
+  S3 objects so already-imported meditations pick up new pause logic, a new
+  model, or a new voice without re-importing. Takes one of `set: "Set
+  Name"`, `id: 42` or `all: true`, plus the options of
+  `LumenViae.Curation.AudioRegeneration.run/2`: `voices: ["female"]`,
+  `only_missing: true`, `dry_run: true`.
 
       /app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(set: "Set Name", dry_run: true)'
+      /app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(all: true, voices: ["female"], only_missing: true)'
   """
   def regenerate_audio(opts) do
     load_app()
     start_audio_clients()
 
     target =
-      case {opts[:set], opts[:id]} do
-        {set_name, nil} when is_binary(set_name) ->
+      case {opts[:set], opts[:id], opts[:all]} do
+        {set_name, nil, nil} when is_binary(set_name) ->
           {:set, set_name}
 
-        {nil, id} when is_integer(id) ->
+        {nil, id, nil} when is_integer(id) ->
           {:meditation, id}
 
+        {nil, nil, true} ->
+          :all
+
         _ ->
-          raise ArgumentError, "pass either set: \"Set Name\" or id: 42"
+          raise ArgumentError, "pass one of set: \"Set Name\", id: 42 or all: true"
       end
 
     for repo <- repos() do
       {:ok, _, _} =
         Ecto.Migrator.with_repo(repo, fn _repo ->
           LumenViae.Curation.AudioRegeneration.run(target,
+            voices: Keyword.get(opts, :voices),
+            only_missing: Keyword.get(opts, :only_missing, false),
             dry_run: Keyword.get(opts, :dry_run, false),
-            progress: fn
-              {:started, total} ->
-                IO.puts("Processing #{total} meditation(s)")
-
-              {:item_finished, index, total, {status, message}} ->
-                prefix =
-                  case status do
-                    :ok -> "OK   "
-                    :warning -> "WARN "
-                    :error -> "ERROR"
-                  end
-
-                IO.puts("#{prefix} [#{index}/#{total}] #{message}")
-            end
+            progress: &print_progress/1
           )
         end)
     end
 
     :ok
+  end
+
+  @doc """
+  Copies every original narration - the root-level object each
+  meditation's `audio_url` used to name - to its place under the male voice
+  prefix, `voices/male/<filename>`, where the narrations table now expects
+  it. Server-side copies: nothing is downloaded, and the originals are left
+  in place to be deleted by hand once the new layout has been verified.
+
+  Idempotent: an object already at its destination is skipped, so the task
+  can be re-run after a partial failure. Run it once, around the deploy
+  that introduces voices (see docs/CSV_IMPORT_GUIDE.md):
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.copy_narration_to_voice_prefix()'
+  """
+  def copy_narration_to_voice_prefix do
+    load_app()
+    start_audio_clients()
+
+    for repo <- repos() do
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, fn _repo ->
+          LumenViae.Curation.NarrationRelocation.run(progress: &print_progress/1)
+        end)
+    end
+
+    :ok
+  end
+
+  defp print_progress({:started, total}), do: IO.puts("Processing #{total} item(s)")
+
+  defp print_progress({:item_finished, index, total, {status, message}}) do
+    prefix =
+      case status do
+        :ok -> "OK   "
+        :warning -> "WARN "
+        :error -> "ERROR"
+      end
+
+    IO.puts("#{prefix} [#{index}/#{total}] #{message}")
   end
 
   defp repos do

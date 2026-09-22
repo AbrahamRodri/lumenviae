@@ -20,7 +20,7 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
   from a 403 partway through a Rosary.
   """
   def show(%{set: set} = assigns) do
-    %{data: set_detail(set, assigns[:audio_expires_at])}
+    %{data: set_detail(set, assigns[:audio_expires_at], assigns[:narrations] || %{})}
   end
 
   @doc """
@@ -43,8 +43,12 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
   @doc """
   The canonical set detail: the summary's fields, plus the ordered
   meditations and the moment their signed audio URLs expire.
+
+  `narrations` maps each meditation id to its signed narrations
+  (`[%{voice:, url:}]`, default voice first); a meditation absent from it
+  renders with none.
   """
-  def set_detail(set, audio_expires_at \\ nil) do
+  def set_detail(set, audio_expires_at \\ nil, narrations \\ %{}) do
     %{
       id: set.id,
       name: set.name,
@@ -54,7 +58,11 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
       author: byline(set.author, set.derived_author),
       source: byline(set.source, set.derived_source),
       audio_expires_at: encode_expiry(audio_expires_at),
-      meditations: Enum.map(set.meditations, &LumenViaeWeb.API.MeditationJSON.data/1)
+      meditations:
+        Enum.map(
+          set.meditations,
+          &LumenViaeWeb.API.MeditationJSON.data(&1, Map.get(narrations, &1.id, []))
+        )
     }
     |> Map.merge(ArtworkJSON.data(Rosary.artwork_record(set)))
   end

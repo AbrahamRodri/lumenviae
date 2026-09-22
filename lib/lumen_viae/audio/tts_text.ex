@@ -14,15 +14,28 @@ defmodule LumenViae.Audio.TtsText do
       persisted in `meditations.tts_annotations`.
 
     * `to_speech_text/3` runs at audio-generation time. It converts each
-      paragraph break in the clean content into an SSML break tag using the
+      paragraph break in the clean content into a pause using the
       configured default (`config :lumen_viae, :tts_paragraph_break_seconds`)
       and inserts the annotated pauses at their recorded offsets. An
       annotation adjacent to a paragraph break replaces that break's default
       pause instead of stacking a second pause onto it.
 
-  ElevenLabs honors `<break time="Ns" />` on all current models except
-  Eleven V3 (including eleven_multilingual_v2, which this app uses) and caps
-  pauses at 3 seconds, so every duration is clamped to that maximum.
+  ## Two pause syntaxes
+
+  Which markup a pause becomes depends on the model, so the caller passes
+  `pause_style:` (normally `LumenViae.Audio.ElevenLabs.pause_style/0`):
+
+    * `:break_tags` - `<break time="Ns" />`. Honored by every ElevenLabs
+      model except Eleven v3, capped at 3 seconds, so durations are clamped
+      to that maximum. The default, and what every duration in the
+      annotations means literally.
+    * `:audio_tags` - `[short pause]`, `[pause]` or `[long pause]`, the only
+      pause control Eleven v3 offers. v3 does not take a duration, so the
+      seconds are bucketed: under one second is short, under two and a
+      half is a plain pause (roughly two seconds of silence, where the
+      default paragraph break lands), and anything longer is a long pause
+      (several seconds, for the deliberate reflective stops a curator
+      marks with `{pause:3}`).
 
   ## Whitespace around stripped markers
 
@@ -82,28 +95,32 @@ defmodule LumenViae.Audio.TtsText do
   Builds the text sent to ElevenLabs from stored content and its persisted
   annotations. The result is never stored or displayed.
 
-  Paragraph breaks become `<break time="Ns" />` tags using the configured
-  default duration; annotations insert custom break tags at their offsets,
-  absorbing any adjacent paragraph break so custom pauses replace the
-  default rather than stack with it.
+  Paragraph breaks become pauses of the configured default duration;
+  annotations insert custom pauses at their offsets, absorbing any adjacent
+  paragraph break so custom pauses replace the default rather than stack
+  with it.
 
   Options:
 
     * `:paragraph_break_seconds` - override the configured default
+    * `:pause_style` - `:break_tags` (default) or `:audio_tags`; see the
+      moduledoc
   """
   def to_speech_text(content, annotations \\ [], opts \\ []) when is_binary(content) do
     default_seconds =
       Keyword.get(opts, :paragraph_break_seconds, default_paragraph_break_seconds())
 
+    style = Keyword.get(opts, :pause_style, :break_tags)
+
     content
     |> split_at_annotations(sanitize_annotations(annotations, content))
     |> Enum.flat_map(fn
       {segment, nil} -> [String.trim(segment)]
-      {segment, seconds} -> [String.trim(segment), break_tag(seconds)]
+      {segment, seconds} -> [String.trim(segment), pause(seconds, style)]
     end)
     |> Enum.reject(&(&1 == ""))
     |> Enum.join(" ")
-    |> String.replace(@paragraph_break_regex, " #{break_tag(default_seconds)} ")
+    |> String.replace(@paragraph_break_regex, " #{pause(default_seconds, style)} ")
     |> String.trim()
   end
 
@@ -189,8 +206,22 @@ defmodule LumenViae.Audio.TtsText do
     Enum.reverse([{last, nil} | pieces])
   end
 
+  defp pause(seconds, :break_tags), do: break_tag(seconds)
+  defp pause(seconds, :audio_tags), do: audio_tag(seconds)
+
   defp break_tag(seconds) do
     ~s(<break time="#{seconds |> clamp_seconds() |> format_seconds()}s" />)
+  end
+
+  # Eleven v3's pauses come in three sizes and take no duration; the
+  # thresholds put the 1.2s paragraph default on a plain pause and a
+  # curator's deliberate 2.5-3s stop on a long one.
+  defp audio_tag(seconds) do
+    cond do
+      seconds < 1.0 -> "[short pause]"
+      seconds < 2.5 -> "[pause]"
+      true -> "[long pause]"
+    end
   end
 
   defp clamp_seconds(seconds), do: seconds |> max(0.0) |> min(@max_break_seconds)

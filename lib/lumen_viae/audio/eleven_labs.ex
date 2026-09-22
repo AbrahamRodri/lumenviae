@@ -32,12 +32,38 @@ defmodule LumenViae.Audio.ElevenLabs do
   @receive_timeout_ms 120_000
   @connect_timeout_ms 10_000
 
+  @default_model_id "eleven_v3"
+
+  # Eleven v3 reads audio tags ([pause], [long pause]) and does not honor
+  # SSML break tags; every earlier model is the other way round. The text
+  # pipeline asks here rather than guessing from the model name elsewhere.
+  @audio_tag_models ["eleven_v3"]
+
+  @doc """
+  The ElevenLabs model narration is synthesized with
+  (`config :lumen_viae, :eleven_labs_model_id`).
+  """
+  def model_id do
+    Application.get_env(:lumen_viae, :eleven_labs_model_id, @default_model_id)
+  end
+
+  @doc """
+  How the configured model expects pauses to be written: `:audio_tags`
+  (`[pause]`) for Eleven v3, `:break_tags` (`<break time="1s" />`) for
+  every other model. See `LumenViae.Audio.TtsText`.
+  """
+  def pause_style(model \\ model_id()) do
+    if model in @audio_tag_models, do: :audio_tags, else: :break_tags
+  end
+
   @doc """
   Generates audio from text using ElevenLabs API.
 
   ## Parameters
-    - text: The meditation content to convert to speech
-    - voice_id: The ElevenLabs voice ID (defaults to config value)
+    - text: The meditation content to convert to speech, already prepared
+      by `LumenViae.Audio.TtsText` for this model's pause syntax
+    - voice_id: The ElevenLabs voice ID (defaults to the default narration
+      voice's, see `LumenViae.Rosary.Voices`)
 
   ## Returns
     - {:ok, audio_binary} on success
@@ -70,11 +96,11 @@ defmodule LumenViae.Audio.ElevenLabs do
     body =
       Jason.encode!(%{
         text: text,
-        # The audio pipeline relies on <break time="Ns" /> tags for
-        # narration pauses; eleven_multilingual_v2 honors them (all
-        # ElevenLabs models except Eleven V3 do, capped at 3 seconds).
-        model_id: "eleven_multilingual_v2",
+        model_id: model_id(),
         output_format: "mp3_44100_128",
+        # 0.5 is "Natural" on Eleven v3 and the balanced middle on v2;
+        # lower drifts toward expressive readings that are wrong for a
+        # meditation, higher toward a flat one.
         voice_settings: %{
           stability: 0.5,
           similarity_boost: 0.75
@@ -157,6 +183,9 @@ defmodule LumenViae.Audio.ElevenLabs do
   end
 
   defp get_voice_id do
-    Application.get_env(:lumen_viae, :eleven_labs_voice_id)
+    case LumenViae.Rosary.Voices.list() do
+      [%{eleven_labs_voice_id: id} | _] -> id
+      [] -> nil
+    end
   end
 end

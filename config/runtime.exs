@@ -51,10 +51,10 @@ config :lumen_viae,
        :audio_url_ttl_seconds,
        String.to_integer(System.get_env("AUDIO_URL_TTL_SECONDS") || "86400")
 
-# ElevenLabs Text-to-Speech Configuration
-config :lumen_viae,
-  eleven_labs_api_key: System.get_env("ELEVEN_LABS_API_KEY"),
-  eleven_labs_voice_id: "RTFg9niKcgGLDwa3RFlz"
+# ElevenLabs Text-to-Speech Configuration. The voices themselves are the
+# :narration_voices list in config.exs; only the key is an environment
+# secret.
+config :lumen_viae, eleven_labs_api_key: System.get_env("ELEVEN_LABS_API_KEY")
 
 # Optional override for the narration pause inserted at paragraph breaks
 # (seconds, e.g. "1.5"; ElevenLabs caps break tags at 3s).

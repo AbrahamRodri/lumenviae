@@ -12,11 +12,11 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   @domain_root "lib/lumen_viae/rosary"
   @primary_context "lib/lumen_viae/rosary.ex"
 
-  @secondary_contexts ~w(mysteries meditations meditation_sets set_memberships completions authors)
+  @secondary_contexts ~w(mysteries meditations meditation_sets set_memberships completions authors narrations)
 
   # Value modules hold shared vocabulary, not state or queries, so any layer
   # may call them (see docs/ARCHITECTURE.md, "Value modules").
-  @value_modules ~w(categories labels artwork)
+  @value_modules ~w(categories labels artwork voices)
 
   defp secondary_context_files,
     do: Enum.map(@secondary_contexts, &"#{@domain_root}/#{&1}.ex")

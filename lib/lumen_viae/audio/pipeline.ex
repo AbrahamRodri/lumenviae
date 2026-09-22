@@ -6,7 +6,13 @@ defmodule LumenViae.Audio.Pipeline do
 
   Every ElevenLabs call goes through this module so the pause transforms are
   applied to the text sent to the API and never anywhere else; stored
-  content is never narrated verbatim.
+  content is never narrated verbatim. The pause syntax follows the
+  configured model (`ElevenLabs.pause_style/0`): audio tags for Eleven v3,
+  SSML break tags for the rest.
+
+  A call names the voice it is for (`LumenViae.Rosary.Voices`), and the
+  caller chooses the S3 key - normally `Voices.narration_key/2` - so the
+  same content can be recorded once per voice under its own prefix.
 
   ElevenLabs in particular fails transiently, so both the generation call
   and the S3 upload are retried with increasing backoff before giving up.
@@ -18,6 +24,7 @@ defmodule LumenViae.Audio.Pipeline do
   """
 
   alias LumenViae.Audio.{ElevenLabs, TtsText}
+  alias LumenViae.Rosary.Voices
   alias LumenViae.Storage.S3
 
   require Logger
@@ -34,16 +41,24 @@ defmodule LumenViae.Audio.Pipeline do
 
   Options:
 
+    * `:voice` - the `%LumenViae.Rosary.Voices.Voice{}` to narrate in
+      (default: the default voice)
     * `:on_retry` - a `fn attempt, max -> ... end` called before each retry
 
   Returns `{:ok, s3_key}` or `{:error, reason}`.
   """
   def generate_and_upload(content, tts_annotations, s3_key, opts \\ []) do
     on_retry = Keyword.get(opts, :on_retry, fn _attempt, _max -> :ok end)
-    text = TtsText.to_speech_text(content, tts_annotations || [])
+    voice = Keyword.get(opts, :voice) || Voices.default()
+    text = speech_text(content, tts_annotations)
 
     with {:ok, audio_binary} <-
-           with_retries(fn -> ElevenLabs.generate_audio(text) end, "ElevenLabs", s3_key, on_retry),
+           with_retries(
+             fn -> ElevenLabs.generate_audio(text, voice.eleven_labs_voice_id) end,
+             "ElevenLabs",
+             s3_key,
+             on_retry
+           ),
          {:ok, s3_key} <-
            with_retries(fn -> S3.upload_audio(audio_binary, s3_key) end, "S3", s3_key, on_retry) do
       {:ok, s3_key}
@@ -52,6 +67,14 @@ defmodule LumenViae.Audio.Pipeline do
         Logger.error("Audio generation/upload failed: #{inspect(reason)}")
         error
     end
+  end
+
+  @doc """
+  The text ElevenLabs is sent for this content, in the configured model's
+  pause syntax. Exposed so dry runs can describe what a real run would say.
+  """
+  def speech_text(content, tts_annotations) do
+    TtsText.to_speech_text(content, tts_annotations || [], pause_style: ElevenLabs.pause_style())
   end
 
   defp with_retries(fun, label, filename, on_retry, attempt \\ 1) do

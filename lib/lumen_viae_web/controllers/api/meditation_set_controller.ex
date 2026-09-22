@@ -25,20 +25,18 @@ defmodule LumenViaeWeb.API.MeditationSetController do
     # comes back through the fallback controller in the same envelope as
     # every other error instead of as a rendered exception.
     with {:ok, set} <- Rosary.fetch_visible_meditation_set(id) do
-      # Generate fresh pre-signed S3 URLs for all meditations
-      meditations_with_audio =
-        Enum.map(set.meditations, fn meditation ->
-          audio_url = Rosary.get_meditation_audio_url(meditation)
-          %{meditation | audio_url: audio_url}
+      # Fresh presigned URLs for every voice of every meditation, keyed by
+      # meditation id for the JSON view
+      narrations =
+        Map.new(set.meditations, fn meditation ->
+          {meditation.id, Rosary.sign_meditation_narrations(meditation)}
         end)
-
-      set_with_audio = %{set | meditations: meditations_with_audio}
 
       conn
       # Every audio_url below is presigned and time-limited. Nothing in
       # between may hold a copy to serve to somebody else after it expires.
       |> put_resp_header("cache-control", "private, no-store")
-      |> render(:show, set: set_with_audio, audio_expires_at: audio_expiry())
+      |> render(:show, set: set, narrations: narrations, audio_expires_at: audio_expiry())
     end
   end
 
