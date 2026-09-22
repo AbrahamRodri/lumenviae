@@ -21,7 +21,8 @@ defmodule LumenViae.Curation.NarrationRelocationTest do
 
           if Enum.any?(exists, &String.ends_with?(URI.parse(url).path, &1)),
             do: {:ok, %{status_code: 200, headers: [], body: ""}},
-            else: {:ok, %{status_code: 404, headers: [], body: ""}}
+            # What the scoped IAM user really gets for a missing key
+            else: {:ok, %{status_code: 403, headers: [], body: ""}}
 
         :put ->
           missing = Application.get_env(:lumen_viae, :relocation_missing_sources, [])

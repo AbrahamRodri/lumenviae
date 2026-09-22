@@ -193,6 +193,12 @@ defmodule LumenViae.Storage.S3 do
   Returns `{:ok, true | false}`, or `{:error, reason}` when the question
   itself could not be asked (no credentials, network). A caller deciding
   whether to copy must treat the error as "do not know", never as "no".
+
+  A 403 counts as absent alongside a 404: the scoped IAM user has no
+  `s3:ListBucket`, and without it S3 answers a HEAD on a missing key with
+  403 rather than admit the key does not exist. A credential that is
+  actually bad fails the copy or upload that follows, loudly, so nothing is
+  hidden by reading the 403 this way.
   """
   @spec audio_exists?(String.t(), keyword) :: {:ok, boolean} | {:error, term}
   def audio_exists?(s3_key, opts \\ []) when is_binary(s3_key) do
@@ -201,7 +207,7 @@ defmodule LumenViae.Storage.S3 do
     with :ok <- validate_aws_config() do
       case ExAws.S3.head_object(bucket, s3_key) |> ExAws.request() do
         {:ok, _response} -> {:ok, true}
-        {:error, {:http_error, 404, _body}} -> {:ok, false}
+        {:error, {:http_error, status, _body}} when status in [403, 404] -> {:ok, false}
         {:error, reason} -> {:error, reason}
       end
     end
