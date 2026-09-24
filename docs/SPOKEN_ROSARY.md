@@ -72,6 +72,12 @@ change, then record.
 
 The optional closing prayers are not added to the chaplet.
 
+The app has three styles of the same order: with the set's meditation after
+each announcement, the Scriptural Rosary with a verse before each Hail Mary,
+and the "Rosary Aloud" with neither (80 steps for the four Rosaries without
+extras). `script/3` takes `style: :plain` for the last; the website uses the
+meditation style. None of them needs a recording the others do not.
+
 ---
 
 ## `GET /api/rosary/audio`
@@ -176,5 +182,3 @@ recorded in the chosen voice plays in whichever voice it has.
   listening pass before ElevenLabs output can be trusted.
 - **CarPlay.** It needs Apple to grant the CarPlay audio entitlement to the
   app first.
-- **A plain spoken Rosary** (no meditation, no verses) is planned in the app
-  as a third script style. Mirror it in `PrayerAudio.script/3` when it lands.

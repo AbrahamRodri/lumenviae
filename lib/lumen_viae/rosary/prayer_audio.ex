@@ -331,6 +331,9 @@ defmodule LumenViae.Rosary.PrayerAudio do
   `orders` are the mysteries' `order` values in prayer order, since a set's
   meditations need not start at the first mystery. Options:
 
+    * `:style` - `:meditation` (default) says each set's meditation after
+      its announcement; `:plain` is the app's "Rosary Aloud", the prayers
+      alone with no meditation step.
     * `:closing` - optional prayers after the closing prayer, any of
       `:holy_father`, `:memorare`, `:st_michael`, said in that order.
       Ignored for the Seven Sorrows chaplet.
@@ -345,6 +348,7 @@ defmodule LumenViae.Rosary.PrayerAudio do
   @spec script(String.t(), [pos_integer], keyword) :: [map]
   def script(category, orders, opts \\ []) do
     chaplet? = category == "seven_sorrows"
+    plain? = Keyword.get(opts, :style, :meditation) == :plain
 
     opening =
       if chaplet? do
@@ -372,16 +376,27 @@ defmodule LumenViae.Rosary.PrayerAudio do
       |> Enum.flat_map(fn {order, decade} ->
         key = "#{category}_#{order}"
 
-        ([
-           %{kind: :announcement, name: key, caption: announcement_text(key), pause_ms: 1500},
-           %{kind: :meditation, name: key, caption: "Meditation", pause_ms: 1500},
-           step("our_father", "Our Father")
-         ] ++
-           for(n <- 1..hail_marys, do: step("hail_mary", "Hail Mary #{n} of #{hail_marys}")) ++
-           if(chaplet?,
-             do: [step("glory_be", "Glory Be", 2000)],
-             else: [step("glory_be", "Glory Be"), step("fatima_prayer", "Fatima Prayer", 2000)]
-           ))
+        announcement = %{
+          kind: :announcement,
+          name: key,
+          caption: announcement_text(key),
+          pause_ms: 1500
+        }
+
+        meditation =
+          if plain?,
+            do: [],
+            else: [%{kind: :meditation, name: key, caption: "Meditation", pause_ms: 1500}]
+
+        beads =
+          for n <- 1..hail_marys, do: step("hail_mary", "Hail Mary #{n} of #{hail_marys}")
+
+        ending =
+          if chaplet?,
+            do: [step("glory_be", "Glory Be", 2000)],
+            else: [step("glory_be", "Glory Be"), step("fatima_prayer", "Fatima Prayer", 2000)]
+
+        ([announcement | meditation] ++ [step("our_father", "Our Father")] ++ beads ++ ending)
         |> Enum.map(&Map.put(&1, :decade, decade))
       end)
 

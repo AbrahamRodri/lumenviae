@@ -159,6 +159,28 @@ defmodule LumenViae.Rosary.PrayerAudioTest do
              |> Enum.member?("memorare") == false
     end
 
+    test "the plain style is the same Rosary with no meditation step" do
+      plain = PrayerAudio.script("joyful", [1, 2, 3, 4, 5], style: :plain)
+
+      assert length(plain) == 80
+      refute Enum.any?(plain, &(&1.kind == :meditation))
+
+      assert names(plain) ==
+               "joyful"
+               |> PrayerAudio.script([1, 2, 3, 4, 5])
+               |> Enum.reject(&(&1.kind == :meditation))
+               |> names()
+
+      chaplet =
+        PrayerAudio.script("seven_sorrows", Enum.to_list(1..7),
+          style: :plain,
+          closing: [:memorare]
+        )
+
+      assert length(chaplet) == 2 + 7 * 10 + 5
+      refute "memorare" in names(chaplet)
+    end
+
     test "decades follow the set's own mystery orders" do
       [first | _] = PrayerAudio.script("sorrowful", [3, 4]) |> Enum.filter(&(&1.decade == 0))
       assert first.name == "sorrowful_3"
