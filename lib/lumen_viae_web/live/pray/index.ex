@@ -3,6 +3,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   alias LumenViae.RateLimit
   alias LumenViae.Rosary
+  alias LumenViae.Rosary.{PrayerAudio, Voices}
+  alias LumenViae.Storage.S3
   alias LumenViaeWeb.BotDetection
   alias LumenViaeWeb.ClientIP
 
@@ -20,14 +22,15 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     set = Rosary.get_visible_meditation_set_with_ordered_meditations!(set_id)
 
     case set.meditations do
-      [_ | _] = meditations ->
-        # Pre-generate all audio URLs once on mount instead of on every navigation
-        audio_urls = Enum.map(meditations, &Rosary.get_meditation_audio_url/1)
-
+      [_ | _] ->
         {:ok,
          socket
          |> assign(:set, set)
-         |> assign(:audio_urls, audio_urls)
+         |> assign(:voices, Voices.list())
+         |> assign(:voice, nil)
+         |> assign(:pray_aloud, false)
+         |> assign(:spoken_script, nil)
+         |> assign(:spoken_index, nil)
          |> assign(:current_index, 0)
          |> assign(:completion_tracked, false)
          |> assign(:mobile_mode_enabled, false)
@@ -50,9 +53,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     new_index = (current + 1) |> clamp_index(total)
 
     socket
-    |> push_patch(
-      to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled)
-    )
+    |> push_patch(to: build_url(socket.assigns, new_index, socket.assigns.mobile_mode_enabled))
     |> then(&{:noreply, &1})
   end
 
@@ -62,15 +63,56 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     new_index = (current - 1) |> clamp_index(total)
 
     socket
-    |> push_patch(
-      to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled)
-    )
+    |> push_patch(to: build_url(socket.assigns, new_index, socket.assigns.mobile_mode_enabled))
     |> then(&{:noreply, &1})
   end
 
   def handle_event("audio_ended", _params, socket) do
     {:noreply, socket}
   end
+
+  def handle_event("toggle_pray_aloud", _params, socket) do
+    assigns = %{socket.assigns | pray_aloud: !socket.assigns.pray_aloud}
+
+    {:noreply,
+     push_patch(socket,
+       to: build_url(assigns, socket.assigns.current_index, socket.assigns.mobile_mode_enabled)
+     )}
+  end
+
+  def handle_event("set_voice", %{"voice" => slug}, socket) do
+    voice =
+      case Voices.fetch(slug) do
+        {:ok, voice} -> voice
+        {:error, :unknown_voice} -> socket.assigns.voice
+      end
+
+    assigns = %{socket.assigns | voice: voice}
+
+    {:noreply,
+     push_patch(socket,
+       to: build_url(assigns, socket.assigns.current_index, socket.assigns.mobile_mode_enabled)
+     )}
+  end
+
+  # The spoken Rosary has reached another decade: follow it to that
+  # mystery. Recording `spoken_index` first is what stops handle_params
+  # from reading the patch as the reader jumping ahead and seeking the
+  # player back to where it already is.
+  def handle_event("spoken_at", %{"decade" => decade}, socket) when is_integer(decade) do
+    index = clamp_index(decade, socket.assigns.total_count)
+
+    if index == socket.assigns.current_index do
+      {:noreply, assign(socket, :spoken_index, index)}
+    else
+      {:noreply,
+       socket
+       |> assign(:spoken_index, index)
+       |> push_patch(to: build_url(socket.assigns, index, socket.assigns.mobile_mode_enabled))}
+    end
+  end
+
+  def handle_event("spoken_at", _params, socket), do: {:noreply, socket}
 
   def handle_event("go_to", %{"index" => index}, socket) do
     total = length(socket.assigns.set.meditations)
@@ -81,9 +123,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       |> clamp_index(total)
 
     socket
-    |> push_patch(
-      to: build_url(socket.assigns.set.id, new_index, socket.assigns.mobile_mode_enabled)
-    )
+    |> push_patch(to: build_url(socket.assigns, new_index, socket.assigns.mobile_mode_enabled))
     |> then(&{:noreply, &1})
   end
 
@@ -122,14 +162,14 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
     {:noreply,
      push_patch(socket,
-       to: build_url(socket.assigns.set.id, socket.assigns.current_index, new_mobile_mode)
+       to: build_url(socket.assigns, socket.assigns.current_index, new_mobile_mode)
      )}
   end
 
   def handle_event("init_mobile_mode", %{"enabled" => enabled}, socket) do
     {:noreply,
      push_patch(socket,
-       to: build_url(socket.assigns.set.id, socket.assigns.current_index, enabled)
+       to: build_url(socket.assigns, socket.assigns.current_index, enabled)
      )}
   end
 
@@ -162,7 +202,98 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     {:noreply,
      socket
      |> assign(:total_count, total_count)
-     |> assign_current_meditation(mystery_index)}
+     |> assign_voice(params["voice"])
+     |> assign_pray_aloud(params["aloud"] == "true")
+     |> assign_current_meditation(mystery_index)
+     |> follow_with_spoken_rosary(mystery_index)}
+  end
+
+  # The voice both the meditation narration and the spoken Rosary are heard
+  # in. Changing it re-signs every URL, so it is only done when it changes.
+  defp assign_voice(socket, slug) do
+    voice =
+      case Voices.fetch(slug || "") do
+        {:ok, voice} -> voice
+        {:error, :unknown_voice} -> Voices.default()
+      end
+
+    if socket.assigns.voice == voice do
+      socket
+    else
+      audio_urls = Enum.map(socket.assigns.set.meditations, &narration_url(&1, voice))
+
+      socket
+      |> assign(:voice, voice)
+      |> assign(:audio_urls, audio_urls)
+      |> assign(:spoken_script, nil)
+    end
+  end
+
+  # A meditation not yet recorded in the chosen voice is still heard, in
+  # whichever voice it does have, rather than going silent.
+  defp narration_url(meditation, voice) do
+    case Rosary.fetch_meditation_audio(meditation, voice.slug) do
+      {:ok, %{url: url}} -> url
+      _other -> Rosary.get_meditation_audio_url(meditation)
+    end
+  end
+
+  defp assign_pray_aloud(socket, false) do
+    socket |> assign(:pray_aloud, false) |> assign(:spoken_index, nil)
+  end
+
+  defp assign_pray_aloud(socket, true) do
+    socket
+    |> assign(:pray_aloud, true)
+    |> then(fn socket ->
+      if socket.assigns.spoken_script,
+        do: socket,
+        else: assign(socket, :spoken_script, build_script(socket))
+    end)
+  end
+
+  # The reader moved to another mystery themselves - Next, Previous, a
+  # bead, an arrow key - so the voice goes there too. Turning the spoken
+  # Rosary on counts as arriving at the current mystery.
+  defp follow_with_spoken_rosary(%{assigns: %{pray_aloud: false}} = socket, _index), do: socket
+
+  defp follow_with_spoken_rosary(%{assigns: %{spoken_index: nil}} = socket, index),
+    do: assign(socket, :spoken_index, index)
+
+  defp follow_with_spoken_rosary(%{assigns: %{spoken_index: index}} = socket, index), do: socket
+
+  defp follow_with_spoken_rosary(socket, index) do
+    socket
+    |> assign(:spoken_index, index)
+    |> push_event("spoken_seek", %{decade: index})
+  end
+
+  # Every step of the whole Rosary with its URL, handed to the SpokenRosary
+  # hook as JSON. A step with nothing to play - a meditation with no
+  # narration in any voice - is dropped, and the prayers carry on around it.
+  defp build_script(socket) do
+    %{set: set, voice: voice, audio_urls: audio_urls} = socket.assigns
+    ttl = Rosary.audio_url_ttl()
+    orders = Enum.map(set.meditations, & &1.mystery.order)
+
+    set.category
+    |> PrayerAudio.script(orders)
+    |> Enum.map(fn step ->
+      url =
+        case PrayerAudio.clip_for_step(step) do
+          nil ->
+            Enum.at(audio_urls, step.decade)
+
+          clip ->
+            case S3.generate_presigned_url(PrayerAudio.s3_key(voice, clip), expires_in: ttl) do
+              {:ok, url} -> url
+              {:error, _reason} -> nil
+            end
+        end
+
+      %{url: url, caption: step.caption, pause_ms: step.pause_ms, decade: step.decade}
+    end)
+    |> Enum.reject(&is_nil(&1.url))
   end
 
   defp assign_current_meditation(socket, index) do
@@ -194,8 +325,20 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   defp normalize_index(_), do: 0
 
-  defp build_url(set_id, mystery_index, mobile_mode_enabled) do
-    ~p"/meditation-sets/#{set_id}/pray?mystery=#{mystery_index}&mobile=#{mobile_mode_enabled}"
+  # The voice and the spoken Rosary ride in the URL with the mystery, so a
+  # reload, a shared link or the back button keeps the way someone chose to
+  # pray. The default voice is left out to keep ordinary links short.
+  defp build_url(assigns, mystery_index, mobile_mode_enabled) do
+    query =
+      [mystery: mystery_index, mobile: mobile_mode_enabled]
+      |> then(&if(assigns.pray_aloud, do: &1 ++ [aloud: true], else: &1))
+      |> then(fn query ->
+        if assigns.voice && assigns.voice != Voices.default(),
+          do: query ++ [voice: assigns.voice.slug],
+          else: query
+      end)
+
+    ~p"/meditation-sets/#{assigns.set.id}/pray?#{query}"
   end
 
   # Roman numerals for mystery indices (sets range from 5 to 7 meditations)
@@ -223,6 +366,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   defp completion_context(socket, session) do
     %{
       source: "web",
+      prayed_aloud: false,
       ip: ClientIP.from_session(session),
       bot?: BotDetection.bot?(get_connect_info(socket, :user_agent))
     }
@@ -251,6 +395,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
         :ok
 
       true ->
+        context = %{context | prayed_aloud: socket.assigns.pray_aloud}
         Rosary.record_completion(socket.assigns.set.id, context)
         :ok
     end

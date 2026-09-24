@@ -17,6 +17,7 @@ dialog, no Core Location, and no tracking prompt, on either surface.
 | `city`, `region`, `country`, `country_code` | Looked up from the request's address, in the background | `"Dallas"`, `"Texas"`, `"United States"`, `"US"` |
 | `ip_prefix` | The request's address, truncated | `"203.0.113.0"` |
 | `time_zone`, `locale` | Reported by the client | `"America/Chicago"`, `"en-US"` |
+| `prayed_aloud` | Reported by the client: was the spoken Rosary on | `true`, `false`, or `nil` when not reported |
 
 The full IP address is never stored. It exists in memory long enough to do
 the geolocation lookup and to key the rate limit, and what is written down
@@ -30,8 +31,8 @@ phone cannot be told apart from two prayed by strangers.
 
 ## The iOS app
 
-`POST /api/completions` already works unchanged. Two optional fields have
-been added, and a build that sends neither behaves exactly as it does now.
+`POST /api/completions` already works unchanged. Three optional fields have
+been added, and a build that sends none of them behaves exactly as it does now.
 
 ```jsonc
 POST /api/completions
@@ -40,7 +41,8 @@ Content-Type: application/json
 {
   "meditation_set_id": 42,
   "time_zone": "America/Chicago",   // optional
-  "locale": "en-US"                 // optional
+  "locale": "en-US",                // optional
+  "prayed_aloud": true              // optional, a JSON boolean
 }
 ```
 
@@ -121,7 +123,8 @@ worth an error in front of somebody who has just finished praying.
 Nothing to do. `LumenViaeWeb.Plugs.PutClientIP` reads `Fly-Client-IP` during
 the HTTP request and puts it in the session; the prayer LiveView reads it
 from there, reads the user agent from the socket, and records
-`source: "web"` when Complete is pressed.
+`source: "web"` when Complete is pressed, with `prayed_aloud` set from the
+page's "Pray aloud" switch.
 
 The address cannot be taken from the socket directly - `connect_info` only
 carries headers beginning with `x-`, so `Fly-Client-IP` never reaches it,
@@ -134,7 +137,7 @@ own proxy in Chicago.
 ## Where it shows up
 
 The admin dashboard, under **Where Rosaries are prayed** (countries and
-cities), **Website or app**, and the **From** and **How** columns of
+cities), **Website or app** (with the aloud-or-silently split under it), and the **From** and **How** columns of
 **Recent completions**.
 
 The location panel states how many completions in the period actually have a

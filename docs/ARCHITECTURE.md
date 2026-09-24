@@ -218,8 +218,15 @@ fixed content rather than data - the prayer wording is the app's
 a `mix lumen_viae.generate_rosary_audio` run. The hash in each key covers
 the spoken text and the voice's synthesis settings, so a reworded prayer
 gets a new key and nothing already recorded has to be overwritten.
+Record first, deploy second: the task reads the catalogue from the
+checked-out code and needs no database, so it runs from the branch
+before the deploy. The manifest signs keys without checking the bucket,
+and a device that cannot fetch a new key keeps saying the old copy it
+holds - but one that never had it simply goes without that prayer.
 `GET /api/rosary/audio` serves the whole catalogue for one voice as signed
-URLs.
+URLs. `PrayerAudio.script/3` is the order a whole Rosary is said in - the
+server's copy of the app's `SpokenRosaryScript`, used by the website's "Pray
+aloud" - and is pure, so it belongs here too. See docs/SPOKEN_ROSARY.md.
 
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.
@@ -308,7 +315,7 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/dashboard/` | the prayer dashboard, where a set is chosen |
 | `live/pray/` | the prayer experience itself |
 | `live/meditations/` | admin CRUD for meditations and sets |
-| `live/admin/` | admin dashboard, login, CSV import |
+| `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage |
 | `live/privacy_policy/` | App Store privacy policy |
 
 ### Module names match file paths

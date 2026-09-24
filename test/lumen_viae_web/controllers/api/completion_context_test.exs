@@ -62,6 +62,27 @@ defmodule LumenViaeWeb.API.CompletionContextTest do
     assert completion.locale == nil
   end
 
+  test "whether the Rosary was prayed aloud is kept, either way", %{conn: conn, set: set} do
+    for aloud <- [true, false] do
+      assert conn
+             |> post(~p"/api/completions", %{meditation_set_id: set.id, prayed_aloud: aloud})
+             |> json_response(201)
+
+      assert last_completion().prayed_aloud == aloud
+    end
+  end
+
+  test "an unreported or malformed prayed_aloud is stored as not known, never as silent",
+       %{conn: conn, set: set} do
+    for body <- [%{}, %{prayed_aloud: "yes"}, %{prayed_aloud: 1}] do
+      assert conn
+             |> post(~p"/api/completions", Map.put(body, :meditation_set_id, set.id))
+             |> json_response(201)
+
+      assert last_completion().prayed_aloud == nil
+    end
+  end
+
   test "a field of the wrong type is dropped, not allowed to fail the completion",
        %{conn: conn, set: set} do
     assert conn

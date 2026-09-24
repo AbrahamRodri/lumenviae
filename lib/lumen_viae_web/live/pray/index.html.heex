@@ -123,6 +123,103 @@
       ]}>
         Mystery {roman(@current_index + 1)} of {roman(@total_count)}
       </p>
+      
+<!-- Pray aloud, and the voice it is prayed in -->
+      <div class="flex flex-wrap items-center justify-center gap-2 mt-3">
+        <button
+          type="button"
+          phx-click="toggle_pray_aloud"
+          aria-pressed={to_string(@pray_aloud)}
+          title="Hear every prayer of the Rosary, bead by bead, with the meditations"
+          class={[
+            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-cinzel text-[0.65rem] tracking-[0.2em] uppercase transition-colors",
+            if(@pray_aloud,
+              do: "border-gold bg-gold text-navy",
+              else: "border-gold/40 text-gold-light/70 hover:border-gold hover:text-gold"
+            )
+          ]}
+        >
+          <span class="hero-speaker-wave size-3.5" aria-hidden="true" />
+          {if @pray_aloud, do: "Praying aloud", else: "Pray aloud"}
+        </button>
+
+        <form :if={length(@voices) > 1} phx-change="set_voice" class="inline-flex">
+          <label for="narration-voice" class="sr-only">Narration voice</label>
+          <select
+            id="narration-voice"
+            name="voice"
+            class="rounded-full border border-gold/40 bg-navy py-1 pl-3 pr-8 font-cinzel text-[0.65rem] tracking-[0.2em] uppercase text-gold-light/80 focus:border-gold focus:ring-0"
+          >
+            <option
+              :for={voice <- @voices}
+              value={voice.slug}
+              selected={voice.slug == @voice.slug}
+            >
+              {voice.name} voice
+            </option>
+          </select>
+        </form>
+      </div>
+
+      <div
+        :if={@pray_aloud}
+        id={"spoken-rosary-#{@voice.slug}"}
+        phx-hook="SpokenRosary"
+        phx-update="ignore"
+        data-script={Jason.encode!(@spoken_script)}
+        data-start-decade={if @current_index > 0, do: @current_index}
+        data-set-name={@set.name}
+        class="max-w-sm mx-auto mt-3 rounded-2xl border border-gold/25 bg-navy-light/50 px-4 py-3"
+      >
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            data-back
+            aria-label="Previous prayer"
+            class="text-gold-light/60 hover:text-gold p-1"
+          >
+            <span class="hero-backward size-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            data-play
+            aria-label="Play"
+            class="flex items-center justify-center w-9 h-9 rounded-full bg-gold hover:bg-gold-light text-navy"
+          >
+            <span class="hero-play-solid size-4 ml-0.5" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            data-pause
+            aria-label="Pause"
+            class="hidden flex items-center justify-center w-9 h-9 rounded-full bg-gold hover:bg-gold-light text-navy"
+          >
+            <span class="hero-pause-solid size-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            data-forward
+            aria-label="Next prayer"
+            class="text-gold-light/60 hover:text-gold p-1"
+          >
+            <span class="hero-forward size-4" aria-hidden="true" />
+          </button>
+          <p
+            data-caption
+            aria-live="polite"
+            class="flex-1 min-w-0 font-garamond text-cream/90 text-base leading-snug"
+          >
+          </p>
+        </div>
+        <div class="mt-2.5 h-px bg-gold/20">
+          <div
+            data-progress
+            class="h-px bg-gold transition-[width] duration-500"
+            style="width: 0%"
+          >
+          </div>
+        </div>
+      </div>
     </div>
     
 <!-- Scrollable Content Area -->
@@ -167,10 +264,11 @@
           )
         ]}>
           <.audio_player
+            :if={!@pray_aloud}
             audio_url={@audio_presigned_url}
             size={if @mobile_mode_enabled, do: "large", else: "normal"}
           />
-          <%= if @meditation.audio_url && !@audio_presigned_url do %>
+          <%= if !@pray_aloud && @meditation.audio_url && !@audio_presigned_url do %>
             <p
               class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-light/50 border border-gold/20 rounded-full px-4 py-2"
               title="This meditation has audio, but the audio URL could not be generated. Check that AWS credentials are configured on the server."

@@ -641,7 +641,8 @@ defmodule LumenViae.Rosary do
       ip_prefix: Geolocation.anonymize(ip),
       source: context[:source],
       time_zone: context[:time_zone],
-      locale: context[:locale]
+      locale: context[:locale],
+      prayed_aloud: context[:prayed_aloud]
     }
 
     case Completions.create(attrs) do
@@ -737,7 +738,7 @@ defmodule LumenViae.Rosary do
   @doc """
   Where the last `days` of Rosaries were prayed from, and on what.
 
-  Returns `%{countries:, cities:, sources:, located:, total:}`.
+  Returns `%{countries:, cities:, sources:, prayed_aloud:, located:, total:}`.
 
   `located` and `total` are both here on purpose. A place is attached by a
   best-effort lookup that can be switched off, rate limited, or simply
@@ -764,6 +765,7 @@ defmodule LumenViae.Rosary do
           %{city: city, region: region, country_code: code, count: count}
         end),
       sources: Completions.count_by_source(start_at, end_at),
+      prayed_aloud: Completions.count_by_prayed_aloud(start_at, end_at),
       located: Completions.count_located_in_range(start_at, end_at),
       total: Completions.count_in_range(start_at, end_at)
     }

@@ -4,6 +4,7 @@ import AudioPlayer from "./audio_player"
 import MobileMode from "./mobile_mode"
 import FocalPoint from "./focal_point"
 import Tablist from "./tablist"
+import SpokenRosary from "./spoken_rosary"
 
 export default {
   ScrollToTop,
@@ -11,5 +12,6 @@ export default {
   AudioPlayer,
   MobileMode,
   FocalPoint,
-  Tablist
+  Tablist,
+  SpokenRosary
 }

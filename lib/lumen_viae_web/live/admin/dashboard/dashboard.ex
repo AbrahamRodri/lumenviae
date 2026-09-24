@@ -19,6 +19,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   use LumenViaeWeb, :live_view
 
   alias LumenViae.CentralTime
+  alias LumenViae.Curation.RosaryAudioGeneration
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.Categories
@@ -28,12 +29,31 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   @recent_completions 8
 
   def mount(_params, _session, socket) do
-    {:ok, socket |> assign(:page_title, "Dashboard") |> load()}
+    {:ok,
+     socket
+     |> assign(:page_title, "Dashboard")
+     |> assign(:rosary_audio_missing, 0)
+     |> load()}
   end
 
   def handle_event("refresh", _params, socket) do
     {:noreply, socket |> load() |> put_flash(:info, "Refreshed.")}
   end
+
+  # The spoken Rosary's coverage is one HEAD per clip against S3, far
+  # slower than every query above put together, so it lands after the page
+  # is up and adds its row to the health list when it does. A bucket that
+  # cannot be asked counts nothing: "unknown" is not "missing".
+  def handle_async(:rosary_audio, {:ok, coverage}, socket) do
+    missing =
+      coverage
+      |> Enum.flat_map(fn {_voice, entries} -> entries end)
+      |> Enum.count(&(&1.status == :missing))
+
+    {:noreply, socket |> assign(:rosary_audio_missing, missing) |> assign_health()}
+  end
+
+  def handle_async(:rosary_audio, {:exit, _reason}, socket), do: {:noreply, socket}
 
   defp load(socket) do
     sets = Rosary.list_meditation_sets()
@@ -46,10 +66,13 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     live_sets = Enum.reject(sets, &MapSet.member?(hidden_ids, &1.id))
     hidden_sets = Enum.filter(sets, &MapSet.member?(hidden_ids, &1.id))
 
-    health =
+    content_health =
       build_health(live_sets, hidden_sets, set_stats, mysteries, mystery_counts, authors)
 
     socket
+    |> assign(:content_health, content_health)
+    |> assign_health()
+    |> start_rosary_audio_check()
     |> assign(:library, %{
       live_sets: length(live_sets),
       total_sets: length(sets),
@@ -59,8 +82,6 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
       mysteries: length(mysteries),
       authors: length(authors)
     })
-    |> assign(:health, health)
-    |> assign(:open_issues, Enum.sum(Enum.map(health, & &1.count)))
     |> assign(:coverage, coverage(live_sets, set_stats))
     |> assign(:completions, Rosary.completion_summary())
     |> assign(:completion_days, Rosary.completions_by_day(@chart_days))
@@ -68,6 +89,36 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     |> assign(:recent_completions, Rosary.get_recent_completions(@recent_completions))
     |> assign(:locations, Rosary.completion_locations(@chart_days))
     |> assign(:refreshed_at, DateTime.utc_now())
+  end
+
+  defp start_rosary_audio_check(socket) do
+    if connected?(socket) do
+      start_async(socket, :rosary_audio, fn -> RosaryAudioGeneration.coverage() end)
+    else
+      socket
+    end
+  end
+
+  defp assign_health(socket) do
+    rosary_audio = %{
+      count: socket.assigns.rosary_audio_missing,
+      tone: "danger",
+      label: "Spoken Rosary clips missing",
+      description:
+        "Prayers, announcements or verses not recorded in a narration voice. " <>
+          "The app skips them, and will not pray aloud at all without a Hail Mary.",
+      link: ~p"/admin/rosary-audio?show=missing",
+      names: []
+    }
+
+    health =
+      [rosary_audio | socket.assigns.content_health]
+      |> Enum.reject(&(&1.count == 0))
+      |> Enum.sort_by(&{tone_rank(&1.tone), -&1.count})
+
+    socket
+    |> assign(:health, health)
+    |> assign(:open_issues, Enum.sum(Enum.map(health, & &1.count)))
   end
 
   # Only rows that represent work to do. Purely informational counts (how
@@ -334,6 +385,21 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
       {_unrecorded, count} -> {"Unknown", count}
     end)
     |> Enum.reduce(%{}, fn {label, count}, acc -> Map.update(acc, label, count, &(&1 + count)) end)
+    |> Enum.sort_by(fn {_label, count} -> -count end)
+  end
+
+  @doc """
+  Aloud or silently, as `[{label, count}]`, largest first. Rows from
+  before the question was asked, or from a build that does not answer it,
+  are "Not reported" rather than silently counted as silent.
+  """
+  def prayed_aloud_rows(counts) do
+    counts
+    |> Enum.map(fn
+      {true, count} -> {"Prayed aloud", count}
+      {false, count} -> {"Read silently", count}
+      {nil, count} -> {"Not reported", count}
+    end)
     |> Enum.sort_by(fn {_label, count} -> -count end)
   end
 

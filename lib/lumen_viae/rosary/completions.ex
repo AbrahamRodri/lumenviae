@@ -195,6 +195,20 @@ defmodule LumenViae.Rosary.Completions do
   end
 
   @doc """
+  `%{true | false | nil => count}` for completions in the range: prayed
+  aloud, prayed silently, or not reported either way.
+  """
+  def count_by_prayed_aloud(start_at, end_at) do
+    Repo.all(
+      from rc in Completion,
+        where: rc.completed_at >= ^start_at and rc.completed_at <= ^end_at,
+        group_by: rc.prayed_aloud,
+        select: {rc.prayed_aloud, count(rc.id)}
+    )
+    |> Map.new()
+  end
+
+  @doc """
   How many completions in the range have a place attached.
 
   Read next to the range total, this says how much of the location picture

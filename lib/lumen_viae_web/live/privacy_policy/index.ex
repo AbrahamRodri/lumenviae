@@ -22,7 +22,7 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
       <div class="max-w-[70ch] mx-auto px-6 py-16 text-navy">
         <h1 class="font-cinzel text-4xl mb-3 text-navy">Privacy Policy</h1>
         <p class="font-cinzel text-xs tracking-[0.25em] uppercase text-gold-dark">
-          Last updated: August 22, 2026
+          Last updated: September 24, 2026
         </p>
         <.sacred_divider class="max-w-[210px]" />
 
@@ -60,6 +60,12 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
               app, it may send the time zone and language region your device is set to, so we can
               understand when Rosaries are prayed. These are settings you chose; reading them
               requires no permission and does not involve Location Services.
+            </li>
+            <li>
+              <strong>Whether the Rosary was prayed aloud</strong> - When you complete a Rosary,
+              the app or website may note whether the spoken Rosary (every prayer read aloud) was
+              switched on, so we can tell how many people pray with it. It is a yes or no, and
+              nothing is recorded from your microphone or voice.
             </li>
             <li>
               <strong>Device information</strong> - Standard technical data sent with API requests

@@ -15,6 +15,9 @@ defmodule LumenViae.Rosary.Completions.Completion do
   `LumenViae.Services.Geolocation.anonymize/1`. It is coarse enough that it cannot
   single out a household and specific enough to tell two cities apart.
 
+  `prayed_aloud` says whether the spoken Rosary was on. It is `nil` when
+  the client did not say, which is every row from before it existed.
+
   `time_zone` and `locale` are reported by the client. On iOS both are
   readable without any permission prompt, so nothing here is gated behind a
   dialog the reader has to be talked through.
@@ -39,6 +42,7 @@ defmodule LumenViae.Rosary.Completions.Completion do
     field :source, :string
     field :time_zone, :string
     field :locale, :string
+    field :prayed_aloud, :boolean
 
     belongs_to :meditation_set, MeditationSet
 
@@ -62,7 +66,8 @@ defmodule LumenViae.Rosary.Completions.Completion do
       :country_code,
       :source,
       :time_zone,
-      :locale
+      :locale,
+      :prayed_aloud
     ])
     |> validate_required([:meditation_set_id, :completed_at])
     |> validate_inclusion(:source, @sources)

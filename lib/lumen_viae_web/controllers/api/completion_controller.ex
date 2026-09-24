@@ -15,7 +15,11 @@ defmodule LumenViaeWeb.API.CompletionController do
   worth asking - when do people pray - and the address the request arrives
   from answers roughly where, without anybody being asked anything.
 
-  Both fields are optional in the strong sense: an older build of the app
+  A third, `prayed_aloud`, says whether the spoken Rosary was on. It is
+  a setting inside the app, so it needs no prompt either, and it is dropped
+  unless it is a real JSON boolean.
+
+  All three are optional in the strong sense: an older build of the app
   that sends neither still records a completion, and a build that sends
   nonsense records one with the nonsense dropped by the changeset's length
   validations rather than a rejected request.
@@ -35,7 +39,8 @@ defmodule LumenViaeWeb.API.CompletionController do
       ip: ClientIP.from_conn(conn),
       source: "ios",
       time_zone: string_param(params, "time_zone"),
-      locale: string_param(params, "locale")
+      locale: string_param(params, "locale"),
+      prayed_aloud: boolean_param(params, "prayed_aloud")
     }
 
     case Rosary.record_completion(set_id, context) do
@@ -61,6 +66,13 @@ defmodule LumenViaeWeb.API.CompletionController do
   # supposed to be a string may arrive as a number, a list or a map. Only a
   # string is taken; anything else becomes `nil` rather than reaching a
   # changeset that would fail the whole completion over it.
+  defp boolean_param(params, key) do
+    case Map.get(params, key) do
+      value when is_boolean(value) -> value
+      _other -> nil
+    end
+  end
+
   defp string_param(params, key) do
     case Map.get(params, key) do
       value when is_binary(value) ->

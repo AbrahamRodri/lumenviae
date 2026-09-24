@@ -67,8 +67,15 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   Rosary verse recorded in each narration voice, so the app can pray a
   whole Rosary aloud. The clips are `LumenViae.Rosary.PrayerAudio`, served
   by `GET /api/rosary/audio?voice=`, recorded with
-  `mix lumen_viae.generate_rosary_audio` (dry-run it first). The prayer
-  text and verses are the app's; change both together
+  `mix lumen_viae.generate_rosary_audio` (dry-run it first), checked and
+  listened to at `/admin/rosary-audio`, and prayed on the website with the
+  "Pray aloud" switch. The prayer text and verses are the app's; change
+  both together, and keep `PrayerAudio.script/3` in the app's order. See
+  docs/SPOKEN_ROSARY.md. When the wording
+  changes, run the task from the branch **before** deploying it: the
+  deployed manifest names the new files at once, and until they exist
+  the app says that prayer from its old copy, or skips it on a device
+  that never had one
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
