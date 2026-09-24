@@ -61,6 +61,18 @@ defmodule LumenViaeWeb.API.RosaryAudioControllerTest do
     assert data["version"] == full["version"]
   end
 
+  test "?include=book serves the Prayer Book's prayers, by the book's ids", %{conn: conn} do
+    full = manifest(conn)
+    data = manifest(conn, "?include=prayers,book&voice=male")
+
+    assert map_size(data["book"]) == length(PrayerAudio.book())
+    assert data["book"]["angelus"]["file"] =~ ~r/^angelus-[0-9a-f]{10}\.mp3$/
+    assert data["book"]["angelus"]["audio_url"] =~ "voices/male/rosary/books/"
+    assert Map.has_key?(data, "prayers")
+    refute Map.has_key?(data, "verses")
+    refute Map.has_key?(full, "book")
+  end
+
   test "an unknown voice is a 400 naming it", %{conn: conn} do
     body = conn |> get("/api/rosary/audio?voice=tenor") |> json_response(400)
     assert body["error"]["message"] =~ "tenor"

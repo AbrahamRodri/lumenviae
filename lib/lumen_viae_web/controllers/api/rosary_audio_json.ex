@@ -3,8 +3,9 @@ defmodule LumenViaeWeb.API.RosaryAudioJSON do
   Renders one voice's spoken-Rosary manifest.
 
   Grouped the way the app looks clips up while it prays: prayers by prayer
-  id, announcements by `"<category>_<order>"`, and verses by the same key
-  as a list in bead order. A kind left out by `include` is absent rather
+  id, announcements by `"<category>_<order>"`, verses by the same key as
+  a list in bead order, and the Prayer Book's prayers (`book`) by the
+  book's prayer ids. A kind left out by `include` is absent rather
   than empty, so an empty map always means "nothing recorded", never
   "not asked for".
   """
@@ -33,6 +34,9 @@ defmodule LumenViaeWeb.API.RosaryAudioJSON do
              |> Enum.sort_by(& &1.clip.bead)
              |> Enum.map(&Map.put(file(&1), :reference, &1.clip.reference))}
           end)
+        end)
+        |> put_group(groups, :book, :book, fn items ->
+          Map.new(items, &{&1.clip.name, file(&1)})
         end)
     }
   end

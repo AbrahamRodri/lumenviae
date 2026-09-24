@@ -197,4 +197,47 @@ defmodule LumenViae.Rosary.PrayerAudioTest do
       end
     end
   end
+
+  describe "the Prayer Book" do
+    test "its prayers come from the app's export, keyed by the book's ids" do
+      book = PrayerAudio.book()
+
+      assert length(book) > 60
+      assert Enum.uniq_by(book, & &1.name) == book
+      assert Enum.all?(book, &(&1.kind == :book and &1.title != nil and &1.text != ""))
+
+      angelus = Enum.find(book, &(&1.name == "angelus"))
+      assert angelus.text =~ "The Angel of the Lord declared unto Mary."
+    end
+
+    test "leaves the Rosary's own prayers to the Rosary's recordings" do
+      book_ids = MapSet.new(PrayerAudio.book(), & &1.name)
+
+      for id <- PrayerAudio.prayer_ids() do
+        refute MapSet.member?(book_ids, id), "#{id} is recorded twice"
+      end
+    end
+
+    test "is served only when asked for, so the Rosary's catalogue is unchanged" do
+      refute Enum.any?(PrayerAudio.clips(), &(&1.kind == :book))
+      assert Enum.all?(PrayerAudio.clips([:book]), &(&1.kind == :book))
+      assert PrayerAudio.kinds()["book"] == :book
+    end
+
+    test "speech keeps the stanzas apart and none of the book's marks" do
+      litany = Enum.find(PrayerAudio.book(), &(&1.name == "litany_loreto"))
+      speech = PrayerAudio.speech_text(litany)
+
+      assert speech =~ "Holy Mary, pray for us. Holy Mother of God, pray for us."
+      assert speech =~ "\n\n"
+      refute speech =~ ~r/[\[\]℣℟✠*]/
+    end
+
+    test "is stored under the voice, in its own folder" do
+      clip = Enum.find(PrayerAudio.book(), &(&1.name == "sub_tuum"))
+
+      assert PrayerAudio.s3_key(@voice, clip) =~
+               ~r|^voices/female/rosary/books/sub_tuum-[0-9a-f]{10}\.mp3$|
+    end
+  end
 end

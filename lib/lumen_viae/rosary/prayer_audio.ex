@@ -24,6 +24,15 @@ defmodule LumenViae.Rosary.PrayerAudio do
       mystery, keyed `"<category>_<order>"` as the app keys `MysteryData`.
     * `:verse` - the Scriptural Rosary's verse for each Hail Mary bead, ten
       per mystery and seven per sorrow, in bead order.
+    * `:book` - the app's Prayer Book: Morning and Night Prayers, the
+      Angelus, the prayers before and after Mass and Confession, Our
+      Lady's antiphons and litanies, keyed by the book's prayer ids. The
+      app's `Tools/PrayerBook/export.py` writes `prayer_book.json`, already
+      in the words a narrator says (litany responses after every
+      invocation, the book's marks taken out), copied here verbatim. The
+      Rosary's own prayers are not in it: the book plays the `:prayer`
+      recordings for those. Served only when asked for (`include=book`),
+      so the spoken Rosary's manifest and its `version` are as they were.
 
   ## The text is the app's
 
@@ -48,15 +57,16 @@ defmodule LumenViae.Rosary.PrayerAudio do
   defmodule Clip do
     @moduledoc "One recording of the spoken Rosary. See `LumenViae.Rosary.PrayerAudio`."
     @enforce_keys [:kind, :name, :text]
-    defstruct [:kind, :name, :text, :mystery, :bead, :reference]
+    defstruct [:kind, :name, :text, :mystery, :bead, :reference, :title]
 
     @type t :: %__MODULE__{
-            kind: :prayer | :announcement | :verse,
+            kind: :prayer | :announcement | :verse | :book,
             name: String.t(),
             text: String.t(),
             mystery: String.t() | nil,
             bead: pos_integer | nil,
-            reference: String.t() | nil
+            reference: String.t() | nil,
+            title: String.t() | nil
           }
   end
 
@@ -64,6 +74,11 @@ defmodule LumenViae.Rosary.PrayerAudio do
   @external_resource @verses_path
 
   @verses @verses_path |> File.read!() |> Jason.decode!()
+
+  @book_path Path.join([:code.priv_dir(:lumen_viae), "rosary_audio", "prayer_book.json"])
+  @external_resource @book_path
+
+  @book @book_path |> File.read!() |> Jason.decode!() |> Map.fetch!("prayers")
 
   # The Rosary's own prayers in the order they are said, then the
   # chaplet's and the optional closing prayers. Line breaks are where the app breaks the
@@ -297,9 +312,20 @@ defmodule LumenViae.Rosary.PrayerAudio do
   end
 
   @doc """
-  Every clip, or only the kinds named.
+  The Prayer Book's prayers, one clip each, in the export's order (by id).
   """
-  @spec clips([:prayer | :announcement | :verse] | nil) :: [Clip.t()]
+  @spec book() :: [Clip.t()]
+  def book do
+    for %{"id" => id, "title" => title, "text" => text} <- @book do
+      %Clip{kind: :book, name: id, title: title, text: String.trim(text)}
+    end
+  end
+
+  @doc """
+  The spoken Rosary's clips, or only the kinds named. The Prayer Book's
+  are not the Rosary's and are left out unless named.
+  """
+  @spec clips([:prayer | :announcement | :verse | :book] | nil) :: [Clip.t()]
   def clips(kinds \\ nil)
   def clips(nil), do: prayers() ++ announcements() ++ verses()
 
@@ -308,6 +334,7 @@ defmodule LumenViae.Rosary.PrayerAudio do
       :prayer -> prayers()
       :announcement -> announcements()
       :verse -> verses()
+      :book -> book()
     end)
   end
 
@@ -315,7 +342,13 @@ defmodule LumenViae.Rosary.PrayerAudio do
   The kinds, as the slugs the API and the generation task accept.
   """
   @spec kinds() :: %{String.t() => atom}
-  def kinds, do: %{"prayers" => :prayer, "announcements" => :announcement, "verses" => :verse}
+  def kinds,
+    do: %{
+      "prayers" => :prayer,
+      "announcements" => :announcement,
+      "verses" => :verse,
+      "book" => :book
+    }
 
   @doc """
   The order a whole spoken Rosary is said in, for a set in `category` with
@@ -459,6 +492,17 @@ defmodule LumenViae.Rosary.PrayerAudio do
   rather than say it.
   """
   @spec speech_text(Clip.t()) :: String.t()
+  def speech_text(%Clip{kind: :book, text: text}) do
+    # A book prayer keeps its stanzas apart: each blank line becomes the
+    # voice's own pause when the pipeline prepares it
+    text
+    |> String.replace(~r/\[([^\]]*)\]/, "\\1")
+    |> String.split(~r/\n\s*\n/, trim: true)
+    |> Enum.map_join("\n\n", fn stanza ->
+      stanza |> String.split("\n", trim: true) |> Enum.map_join(" ", &String.trim/1)
+    end)
+  end
+
   def speech_text(%Clip{text: text}) do
     text
     |> String.replace(~r/\[([^\]]*)\]/, "\\1")
