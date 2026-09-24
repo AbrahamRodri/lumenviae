@@ -63,6 +63,12 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   `voices/<voice>/<filename>`. The voices are the `:narration_voices` list
   in `config/config.exs`; see
   `LumenViae.Rosary.Voices` and docs/CSV_IMPORT_GUIDE.md
+- The spoken Rosary: every prayer, mystery announcement and Scriptural
+  Rosary verse recorded in each narration voice, so the app can pray a
+  whole Rosary aloud. The clips are `LumenViae.Rosary.PrayerAudio`, served
+  by `GET /api/rosary/audio?voice=`, recorded with
+  `mix lumen_viae.generate_rosary_audio` (dry-run it first). The prayer
+  text and verses are the app's; change both together
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same

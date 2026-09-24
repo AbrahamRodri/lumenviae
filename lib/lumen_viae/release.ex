@@ -169,6 +169,26 @@ defmodule LumenViae.Release do
     :ok
   end
 
+  @doc """
+  Records the spoken Rosary's prayers, announcements and verses with
+  ElevenLabs, skipping every clip already in the bucket. Takes the options
+  of `LumenViae.Curation.RosaryAudioGeneration.run/1` (`voices:`, `kinds:`,
+  `force:`, `dry_run:`). No database is involved:
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.generate_rosary_audio(dry_run: true)'
+      /app/bin/lumen_viae eval 'LumenViae.Release.generate_rosary_audio()'
+  """
+  def generate_rosary_audio(opts \\ []) do
+    load_app()
+    start_audio_clients()
+
+    opts
+    |> Keyword.put(:progress, &print_progress/1)
+    |> LumenViae.Curation.RosaryAudioGeneration.run()
+
+    :ok
+  end
+
   defp print_progress({:started, total}), do: IO.puts("Processing #{total} item(s)")
 
   defp print_progress({:item_finished, index, total, {status, message}}) do

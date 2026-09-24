@@ -37,6 +37,7 @@ lib/lumen_viae/
 │   ├── categories.ex          value module: mystery category vocabulary
 │   ├── labels.ex              value module: meditation set label vocabulary
 │   ├── voices.ex              value module: narration voices and the S3 key layout
+│   ├── prayer_audio.ex        value module: the spoken Rosary's clips and their S3 keys
 │   ├── mysteries.ex           Secondary Context
 │   ├── mysteries/mystery.ex   schema
 │   ├── meditations.ex
@@ -54,6 +55,7 @@ lib/lumen_viae/
 │   ├── csv_update.ex          edit shipped meditations in place, re-record
 │   ├── audio_regeneration.ex
 │   ├── narration_relocation.ex  one-time move into the voices/ layout
+│   ├── rosary_audio_generation.ex  records the spoken Rosary in every voice
 │   └── artwork_upload.ex
 ├── audio/                     ElevenLabs narration
 │   ├── eleven_labs.ex
@@ -186,7 +188,8 @@ fix is a documented, measured exception - not a quiet join.
 ## Value modules
 
 `LumenViae.Rosary.Categories`, `LumenViae.Rosary.Labels`,
-`LumenViae.Rosary.Artwork` and `LumenViae.Rosary.Voices` hold controlled
+`LumenViae.Rosary.Artwork`, `LumenViae.Rosary.Voices` and
+`LumenViae.Rosary.PrayerAudio` hold controlled
 vocabulary and the pure calculations that go with it: no state, no queries,
 no schema. Any layer may call them directly, including templates. They are
 the single source for their lists, so `Categories.slugs/0` feeds the
@@ -205,6 +208,18 @@ is what keeps the managed fields (`image_key` and the dimensions, written
 only after an upload is proved) out of reach of the admin form's changeset.
 It sits here rather than in the schema because the same split has to hold
 for every future entry point.
+
+`PrayerAudio` is the spoken Rosary: the fixed prayers, one announcement
+per mystery and the Scriptural Rosary's verse for every Hail Mary, recorded
+once per voice at `voices/<slug>/rosary/<kind>s/<name>-<hash>.mp3`. It is
+fixed content rather than data - the prayer wording is the app's
+`RosaryPrayers.swift`, and the verses are the app's own export in
+`priv/rosary_audio/scriptural_rosary.json` - so changing it is a deploy and
+a `mix lumen_viae.generate_rosary_audio` run. The hash in each key covers
+the spoken text and the voice's synthesis settings, so a reworded prayer
+gets a new key and nothing already recorded has to be overwritten.
+`GET /api/rosary/audio` serves the whole catalogue for one voice as signed
+URLs.
 
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.

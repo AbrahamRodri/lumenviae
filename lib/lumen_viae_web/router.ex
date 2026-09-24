@@ -132,6 +132,10 @@ defmodule LumenViaeWeb.Router do
     # Prayers
     get "/prayers/:id/audio", PrayerController, :audio
 
+    # The spoken Rosary: every prayer, announcement and scripture verse
+    # recorded in one voice (?voice=slug), as one manifest of signed URLs
+    get "/rosary/audio", RosaryAudioController, :show
+
     # The Divine Office (pre-Vatican II breviary), assembled by a Divinum
     # Officium instance and served as data. The two fixed segments must
     # stay above "/office/:date", which would otherwise swallow them.
