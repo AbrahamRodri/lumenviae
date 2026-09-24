@@ -41,6 +41,12 @@ defmodule LumenViaeWeb.Components.Admin do
     %{label: "Authors", path: "/admin/authors", key: "authors", icon: "hero-user-circle"},
     %{label: "Mysteries", path: "/admin/mysteries", key: "mysteries", icon: "hero-sparkles"},
     %{
+      label: "Spoken Rosary",
+      path: "/admin/rosary-audio",
+      key: "rosary_audio",
+      icon: "hero-speaker-wave"
+    },
+    %{
       label: "Import CSV",
       path: "/admin/meditations/import",
       key: "import",
@@ -54,7 +60,7 @@ defmodule LumenViaeWeb.Components.Admin do
   console canvas.
 
   `active` marks the current section: one of "dashboard", "meditations",
-  "sets", "authors", "mysteries", "import".
+  "sets", "authors", "mysteries", "rosary_audio", "import".
   """
   attr :active, :string, required: true
   attr :title, :string, required: true

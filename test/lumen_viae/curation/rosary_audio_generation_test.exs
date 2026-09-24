@@ -34,7 +34,7 @@ defmodule LumenViae.Curation.RosaryAudioGenerationTest do
   test "a clip already at its key is skipped without calling ElevenLabs" do
     results = RosaryAudioGeneration.run(voices: ["female"], kinds: [:prayer])
 
-    assert length(results) == 8
+    assert length(results) == length(PrayerAudio.prayers())
     assert Enum.all?(results, &match?({:warning, _}, &1))
     refute_received {:tts_text, _}
     refute_received {:aws_request, :put, _, _}
@@ -49,7 +49,7 @@ defmodule LumenViae.Curation.RosaryAudioGenerationTest do
         force: true
       )
 
-    assert length(results) == 16
+    assert length(results) == 2 * length(PrayerAudio.prayers())
     assert {:ok, message} = hd(results)
     assert message =~ "female prayer sign_of_cross: would record"
     assert message =~ "voices/female/rosary/prayers/sign_of_cross-"

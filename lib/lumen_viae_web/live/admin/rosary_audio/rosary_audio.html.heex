@@ -1,0 +1,144 @@
+<.admin_page
+  active="rosary_audio"
+  title="Spoken Rosary"
+  subtitle="Every prayer, announcement and verse the app plays when a Rosary is prayed aloud, in each narration voice."
+  flash={@flash}
+>
+  <:actions>
+    <button type="button" phx-click="refresh" class="admin-btn admin-btn-ghost">
+      <span class="hero-arrow-path size-4" aria-hidden="true" /> Check again
+    </button>
+  </:actions>
+
+  <% counts = counts(@coverage, @voice) %>
+  <% total = length(LumenViae.Rosary.PrayerAudio.clips()) %>
+
+  <.callout :if={counts && Map.get(counts, :missing, 0) > 0} tone="danger">
+    {Map.get(counts, :missing)} clip(s) are not recorded in the {@voice.name} voice. Run
+    <code>mix lumen_viae.generate_rosary_audio --dry-run</code>
+    and then without <code>--dry-run</code>
+    to record them. The app refuses to start a spoken Rosary without a Hail Mary and skips any other missing clip.
+  </.callout>
+
+  <.callout :if={counts && Map.get(counts, :unknown, 0) > 0} tone="notice">
+    The bucket could not be checked for {Map.get(counts, :unknown)} clip(s). Locally this
+    usually means the server was started without <code>./dev.sh</code>, so there are no AWS credentials.
+  </.callout>
+
+  <div class="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-6">
+    <.metric label="Clips per voice" value={total} hint="Prayers, announcements and verses" />
+    <.metric
+      label="Recorded"
+      value={if counts, do: Map.get(counts, :recorded, 0), else: "..."}
+      hint={if counts, do: "In the #{@voice.name} voice", else: "Checking the bucket"}
+    />
+    <.metric
+      label="Missing"
+      value={if counts, do: Map.get(counts, :missing, 0), else: "..."}
+      tone={if counts, do: "danger", else: "neutral"}
+      hint={
+        case missing_total(@coverage) do
+          nil -> "Checking the bucket"
+          n -> "#{n} across every voice"
+        end
+      }
+      navigate={~p"/admin/rosary-audio?voice=#{@voice.slug}&show=missing"}
+    />
+    <.metric
+      label="Catalogue version"
+      value={@version}
+      hint="What the app compares its offline pack against"
+    />
+  </div>
+
+  <div class="flex flex-wrap items-center gap-2 mb-5">
+    <span class="admin-eyebrow mr-1">Voice</span>
+    <.link
+      :for={voice <- @voices}
+      patch={
+        ~p"/admin/rosary-audio?voice=#{voice.slug}&show=#{if @filter == :missing, do: "missing", else: "all"}"
+      }
+      class={[
+        "admin-btn",
+        if(voice.slug == @voice.slug, do: "admin-btn-primary", else: "admin-btn-secondary")
+      ]}
+    >
+      {voice.name}
+    </.link>
+    <span class="admin-eyebrow ml-4 mr-1">Show</span>
+    <.link
+      patch={~p"/admin/rosary-audio?voice=#{@voice.slug}&show=all"}
+      class={[
+        "admin-btn",
+        if(@filter == :all, do: "admin-btn-primary", else: "admin-btn-secondary")
+      ]}
+    >
+      Every clip
+    </.link>
+    <.link
+      patch={~p"/admin/rosary-audio?voice=#{@voice.slug}&show=missing"}
+      class={[
+        "admin-btn",
+        if(@filter == :missing, do: "admin-btn-primary", else: "admin-btn-secondary")
+      ]}
+    >
+      Missing only
+    </.link>
+  </div>
+
+  <div class="space-y-5">
+    <.panel
+      title="Prayers"
+      description="The fixed prayers, the Seven Sorrows chaplet's own prayers and the optional closing prayers. The Hail Mary is played on every bead."
+      flush
+    >
+      <.clip_table
+        clips={LumenViae.Rosary.PrayerAudio.prayers()}
+        coverage={@coverage}
+        voice={@voice}
+        urls={@urls}
+        filter={@filter}
+      />
+    </.panel>
+
+    <.panel title="Announcements" description="One per mystery, said before its decade." flush>
+      <.clip_table
+        clips={LumenViae.Rosary.PrayerAudio.announcements()}
+        coverage={@coverage}
+        voice={@voice}
+        urls={@urls}
+        filter={@filter}
+      />
+    </.panel>
+
+    <.panel
+      title="Scriptural Rosary verses"
+      description="Read before each Hail Mary in the Scriptural Rosary. Open a mystery to listen to its verses."
+      flush
+    >
+      <div class="divide-y divide-admin-hairline">
+        <details
+          :for={{mystery, heading, verses} <- verse_groups()}
+          open={@filter == :missing}
+          class="group"
+        >
+          <summary class="flex items-center justify-between gap-3 px-4 py-2.5 cursor-pointer hover:bg-admin-sunken">
+            <span class="text-[0.8125rem] font-medium text-admin-ink">{heading}</span>
+            <span class="flex items-center gap-2">
+              <.group_status verses={verses} coverage={@coverage} voice={@voice} />
+              <span class="text-xs text-admin-ink-faint">{length(verses)} verses</span>
+              <span class="text-xs text-admin-ink-faint font-mono">{mystery}</span>
+            </span>
+          </summary>
+          <.clip_table
+            clips={verses}
+            coverage={@coverage}
+            voice={@voice}
+            urls={@urls}
+            filter={@filter}
+          />
+        </details>
+      </div>
+    </.panel>
+  </div>
+</.admin_page>

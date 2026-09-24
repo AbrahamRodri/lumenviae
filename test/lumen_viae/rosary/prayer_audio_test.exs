@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerAudioTest do
 
   test "the fixed prayers carry the app's ids, in the order they are said" do
     assert PrayerAudio.prayer_ids() ==
-             ~w(sign_of_cross apostles_creed our_father hail_mary glory_be fatima_prayer hail_holy_queen rosary_closing_prayer)
+             ~w(sign_of_cross apostles_creed our_father hail_mary glory_be fatima_prayer hail_holy_queen rosary_closing_prayer act_of_contrition sorrows_closing_prayer memorare st_michael_prayer)
   end
 
   test "every mystery has an announcement, keyed as the app keys MysteryData" do
@@ -24,7 +24,7 @@ defmodule LumenViae.Rosary.PrayerAudioTest do
     assert hd(announcements).text == "The First Joyful Mystery: The Annunciation"
 
     sorrow = Enum.find(announcements, &(&1.mystery == "seven_sorrows_7"))
-    assert sorrow.text == "The Seventh Sorrow: The Burial of Jesus"
+    assert sorrow.text == "The Seventh Sorrow of Mary: The Burial of Jesus"
   end
 
   test "a verse for every Hail Mary: ten per mystery, seven per sorrow" do
@@ -50,6 +50,14 @@ defmodule LumenViae.Rosary.PrayerAudioTest do
     assert speech =~ ~r/^Let us pray\. O God, whose only-begotten Son, by His life/
     refute speech =~ "["
     refute speech =~ "\n"
+  end
+
+  test "the chaplet's closing prayer speaks its rubric and keeps the Holy Spirit wording" do
+    closing = Enum.find(PrayerAudio.prayers(), &(&1.name == "sorrows_closing_prayer"))
+    speech = PrayerAudio.speech_text(closing)
+
+    assert speech =~ "promises of Christ. Let us pray. Lord Jesus"
+    assert speech =~ "with the Father and the Holy Spirit"
   end
 
   test "no clip would reach Eleven v3 carrying markup it acts on" do
@@ -87,7 +95,84 @@ defmodule LumenViae.Rosary.PrayerAudioTest do
 
   test "clips/1 narrows to the kinds asked for" do
     assert Enum.all?(PrayerAudio.clips([:prayer]), &(&1.kind == :prayer))
-    assert length(PrayerAudio.clips([:prayer, :announcement])) == 8 + 27
-    assert length(PrayerAudio.clips()) == 8 + 27 + 249
+    assert length(PrayerAudio.clips([:prayer, :announcement])) == 12 + 27
+    assert length(PrayerAudio.clips()) == 12 + 27 + 249
+  end
+
+  describe "script/3" do
+    defp names(steps), do: Enum.map(steps, & &1.name)
+
+    test "a Rosary opens with the Creed and three Hail Marys, and closes with the Hail Holy Queen" do
+      steps = PrayerAudio.script("joyful", [1, 2, 3, 4, 5])
+
+      assert Enum.take(names(steps), 7) ==
+               ~w(sign_of_cross apostles_creed our_father hail_mary hail_mary hail_mary glory_be)
+
+      assert Enum.take(names(steps), -3) ==
+               ~w(hail_holy_queen rosary_closing_prayer sign_of_cross)
+
+      assert Enum.all?(Enum.take(steps, 7), &is_nil(&1.decade))
+    end
+
+    test "each Rosary decade is announced, meditated, and ends with the Glory Be and Fatima Prayer" do
+      decade = PrayerAudio.script("glorious", [1, 2, 3, 4, 5]) |> Enum.filter(&(&1.decade == 2))
+
+      assert names(decade) ==
+               ["glorious_3", "glorious_3", "our_father"] ++
+                 List.duplicate("hail_mary", 10) ++ ["glory_be", "fatima_prayer"]
+
+      assert [
+               %{kind: :announcement, caption: "The Third Glorious Mystery: " <> _},
+               %{kind: :meditation} | _
+             ] =
+               decade
+    end
+
+    test "the Seven Sorrows chaplet is the Servite form" do
+      steps = PrayerAudio.script("seven_sorrows", Enum.to_list(1..7))
+
+      assert Enum.take(names(steps), 2) == ~w(sign_of_cross act_of_contrition)
+      refute "fatima_prayer" in names(steps)
+      refute "apostles_creed" in names(steps)
+
+      sorrow = Enum.filter(steps, &(&1.decade == 0))
+
+      assert names(sorrow) ==
+               ["seven_sorrows_1", "seven_sorrows_1", "our_father"] ++
+                 List.duplicate("hail_mary", 7) ++ ["glory_be"]
+
+      assert Enum.take(names(steps), -5) ==
+               ~w(hail_mary hail_mary hail_mary sorrows_closing_prayer sign_of_cross)
+    end
+
+    test "optional closing prayers come after the closing prayer, in a fixed order" do
+      steps =
+        PrayerAudio.script("luminous", [1, 2, 3, 4, 5],
+          closing: [:st_michael, :holy_father, :memorare]
+        )
+
+      assert Enum.take(names(steps), -7) ==
+               ~w(rosary_closing_prayer our_father hail_mary glory_be memorare st_michael_prayer sign_of_cross)
+
+      assert PrayerAudio.script("seven_sorrows", [1], closing: [:memorare])
+             |> names()
+             |> Enum.member?("memorare") == false
+    end
+
+    test "decades follow the set's own mystery orders" do
+      [first | _] = PrayerAudio.script("sorrowful", [3, 4]) |> Enum.filter(&(&1.decade == 0))
+      assert first.name == "sorrowful_3"
+    end
+
+    test "every prayer and announcement step has a recorded clip" do
+      for category <- ~w(joyful sorrowful glorious luminous seven_sorrows),
+          step <-
+            PrayerAudio.script(category, [1, 2, 3, 4, 5],
+              closing: [:holy_father, :memorare, :st_michael]
+            ),
+          step.kind != :meditation do
+        assert %PrayerAudio.Clip{} = PrayerAudio.clip_for_step(step), "#{category} #{step.name}"
+      end
+    end
   end
 end

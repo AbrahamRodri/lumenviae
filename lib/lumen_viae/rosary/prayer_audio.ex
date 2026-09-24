@@ -15,9 +15,12 @@ defmodule LumenViae.Rosary.PrayerAudio do
     * `:prayer` - the fixed prayers, keyed by the app's prayer ids
       (`RosaryPrayers.swift`): the Sign of the Cross, the Creed, the Our
       Father, the Hail Mary, the Glory Be, the Fatima Prayer, the Hail Holy
-      Queen and the closing prayer. The Hail Mary is recorded once and played
-      on every bead.
-    * `:announcement` - "The First Joyful Mystery: The Annunciation", one per
+      Queen and the closing prayer; the Seven Sorrows chaplet's Act of
+      Contrition and closing prayer; and the optional Memorare and Saint
+      Michael prayer. The Hail Mary is recorded once and played on every
+      bead.
+    * `:announcement` - "The First Joyful Mystery: The Annunciation" (or "The
+      First Sorrow of Mary: The Prophecy of Simeon"), one per
       mystery, keyed `"<category>_<order>"` as the app keys `MysteryData`.
     * `:verse` - the Scriptural Rosary's verse for each Hail Mary bead, ten
       per mystery and seven per sorrow, in bead order.
@@ -62,7 +65,8 @@ defmodule LumenViae.Rosary.PrayerAudio do
 
   @verses @verses_path |> File.read!() |> Jason.decode!()
 
-  # In the order they are said. Line breaks are where the app breaks the
+  # The Rosary's own prayers in the order they are said, then the
+  # chaplet's and the optional closing prayers. Line breaks are where the app breaks the
   # lines on screen; `speech_text/1` joins them.
   @prayers [
     {"sign_of_cross", "In the name of the Father, and of the Son, and of the Holy Spirit. Amen."},
@@ -140,6 +144,51 @@ defmodule LumenViae.Rosary.PrayerAudio do
      we may imitate what they contain
      and obtain what they promise,
      through the same Christ our Lord. Amen.
+     """},
+    # The Seven Sorrows chaplet opens with an Act of Contrition and closes
+    # with its own versicle and prayer, in the Servite form.
+    {"act_of_contrition",
+     """
+     O my God, I am heartily sorry for having offended Thee,
+     and I detest all my sins because I dread the loss of heaven and the pains of hell;
+     but most of all because they offend Thee, my God,
+     Who art all good and deserving of all my love.
+     I firmly resolve, with the help of Thy grace,
+     to confess my sins, to do penance,
+     and to amend my life. Amen.
+     """},
+    {"sorrows_closing_prayer",
+     """
+     Pray for us, O most sorrowful Virgin,
+     that we may be made worthy of the promises of Christ.
+     [Let us pray.]
+     Lord Jesus, we now implore, both for the present and for the hour of our death,
+     the intercession of the most Blessed Virgin Mary, Thy Mother,
+     whose holy soul was pierced at the time of Thy Passion by a sword of grief.
+     Grant us this favor, O Savior of the world,
+     Who livest and reignest with the Father and the Holy Spirit,
+     world without end. Amen.
+     """},
+    # Optional prayers after the Rosary's closing prayer, each a setting in
+    # the app.
+    {"memorare",
+     """
+     Remember, O most gracious Virgin Mary,
+     that never was it known that anyone who fled to thy protection,
+     implored thy help, or sought thine intercession, was left unaided.
+     Inspired by this confidence, I fly unto thee, O Virgin of virgins, my Mother;
+     to thee do I come, before thee I stand, sinful and sorrowful.
+     O Mother of the Word Incarnate, despise not my petitions,
+     but in thy mercy hear and answer me. Amen.
+     """},
+    {"st_michael_prayer",
+     """
+     Saint Michael the Archangel, defend us in battle.
+     Be our safeguard against the wickedness and snares of the devil.
+     May God rebuke him, we humbly pray;
+     and do thou, O Prince of the heavenly hosts,
+     by the power of God, cast into hell Satan and all the evil spirits,
+     who prowl about the world seeking the ruin of souls. Amen.
      """}
   ]
 
@@ -218,7 +267,7 @@ defmodule LumenViae.Rosary.PrayerAudio do
 
       text =
         case label do
-          nil -> "The #{ordinal} Sorrow: #{name}"
+          nil -> "The #{ordinal} Sorrow of Mary: #{name}"
           label -> "The #{ordinal} #{label} Mystery: #{name}"
         end
 
@@ -267,6 +316,126 @@ defmodule LumenViae.Rosary.PrayerAudio do
   """
   @spec kinds() :: %{String.t() => atom}
   def kinds, do: %{"prayers" => :prayer, "announcements" => :announcement, "verses" => :verse}
+
+  @doc """
+  The order a whole spoken Rosary is said in, for a set in `category` with
+  `decades` meditations - the same order as the app's
+  `SpokenRosaryScript`, so the site and the app pray alike.
+
+  Each step is a map with `kind` (`:prayer`, `:announcement` or
+  `:meditation`), `name` (the prayer id, or the announcement's
+  `"<category>_<order>"`), `decade` (0-based, `nil` outside the decades),
+  `caption` and `pause_ms`, the silence after it. A `:meditation` step is
+  the set's own narration for that decade, which the caller resolves.
+
+  `orders` are the mysteries' `order` values in prayer order, since a set's
+  meditations need not start at the first mystery. Options:
+
+    * `:closing` - optional prayers after the closing prayer, any of
+      `:holy_father`, `:memorare`, `:st_michael`, said in that order.
+      Ignored for the Seven Sorrows chaplet.
+
+  The four Rosaries open with the Creed, an Our Father, three Hail Marys
+  and a Glory Be, and give each decade ten Hail Marys, a Glory Be and the
+  Fatima Prayer. The Seven Sorrows chaplet is the Servite form: an Act of
+  Contrition to open, seven Hail Marys and a Glory Be to each sorrow and no
+  Fatima Prayer, then three Hail Marys for Our Lady's tears and its own
+  closing prayer.
+  """
+  @spec script(String.t(), [pos_integer], keyword) :: [map]
+  def script(category, orders, opts \\ []) do
+    chaplet? = category == "seven_sorrows"
+
+    opening =
+      if chaplet? do
+        [
+          step("sign_of_cross", "The Sign of the Cross"),
+          step("act_of_contrition", "Act of Contrition", 1500)
+        ]
+      else
+        [
+          step("sign_of_cross", "The Sign of the Cross"),
+          step("apostles_creed", "The Apostles' Creed"),
+          step("our_father", "Our Father"),
+          step("hail_mary", "Hail Mary for an increase of faith"),
+          step("hail_mary", "Hail Mary for an increase of hope"),
+          step("hail_mary", "Hail Mary for an increase of charity"),
+          step("glory_be", "Glory Be", 1500)
+        ]
+      end
+
+    hail_marys = if chaplet?, do: 7, else: 10
+
+    decades =
+      orders
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {order, decade} ->
+        key = "#{category}_#{order}"
+
+        ([
+           %{kind: :announcement, name: key, caption: announcement_text(key), pause_ms: 1500},
+           %{kind: :meditation, name: key, caption: "Meditation", pause_ms: 1500},
+           step("our_father", "Our Father")
+         ] ++
+           for(n <- 1..hail_marys, do: step("hail_mary", "Hail Mary #{n} of #{hail_marys}")) ++
+           if(chaplet?,
+             do: [step("glory_be", "Glory Be", 2000)],
+             else: [step("glory_be", "Glory Be"), step("fatima_prayer", "Fatima Prayer", 2000)]
+           ))
+        |> Enum.map(&Map.put(&1, :decade, decade))
+      end)
+
+    closing =
+      if chaplet? do
+        for(n <- 1..3, do: step("hail_mary", "Hail Mary for her tears, #{n} of 3")) ++
+          [
+            step("sorrows_closing_prayer", "Closing Prayer", 1500),
+            step("sign_of_cross", "The Sign of the Cross")
+          ]
+      else
+        extras = Keyword.get(opts, :closing, [])
+
+        [
+          step("hail_holy_queen", "Hail, Holy Queen"),
+          step("rosary_closing_prayer", "Closing Prayer", 1500)
+        ] ++
+          if(:holy_father in extras,
+            do: [
+              step("our_father", "For the intentions of the Holy Father"),
+              step("hail_mary", "For the intentions of the Holy Father"),
+              step("glory_be", "For the intentions of the Holy Father", 1500)
+            ],
+            else: []
+          ) ++
+          if(:memorare in extras, do: [step("memorare", "The Memorare", 1500)], else: []) ++
+          if(:st_michael in extras,
+            do: [step("st_michael_prayer", "Prayer to Saint Michael", 1500)],
+            else: []
+          ) ++
+          [step("sign_of_cross", "The Sign of the Cross")]
+      end
+
+    opening ++ decades ++ closing
+  end
+
+  defp step(name, caption, pause_ms \\ 700),
+    do: %{kind: :prayer, name: name, caption: caption, pause_ms: pause_ms, decade: nil}
+
+  defp announcement_text(key) do
+    Enum.find_value(announcements(), key, &(&1.mystery == key && &1.text))
+  end
+
+  @doc """
+  The clip a script step plays, or `nil` for a meditation step, whose
+  audio is the set's own narration rather than part of this catalogue.
+  """
+  @spec clip_for_step(map) :: Clip.t() | nil
+  def clip_for_step(%{kind: :prayer, name: name}), do: Enum.find(prayers(), &(&1.name == name))
+
+  def clip_for_step(%{kind: :announcement, name: name}),
+    do: Enum.find(announcements(), &(&1.mystery == name))
+
+  def clip_for_step(%{kind: :meditation}), do: nil
 
   @doc """
   What the narrator is sent: the lines of a prayer joined into one flowing

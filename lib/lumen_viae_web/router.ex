@@ -95,6 +95,9 @@ defmodule LumenViaeWeb.Router do
     live "/meditations/:id/edit", Live.Meditations.Edit
     live "/meditations/import", Live.Admin.MeditationsImport.Import
 
+    # The spoken Rosary's recordings: coverage and a player for each clip
+    live "/rosary-audio", Live.Admin.RosaryAudio
+
     # Meditation Sets management
     live "/meditation-sets", Live.Meditations.Sets.List
     live "/meditation-sets/new", Live.Meditations.Sets.New

@@ -11,7 +11,8 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
   and a reworded prayer is recorded without re-recording anything else.
 
   Used by `mix lumen_viae.generate_rosary_audio` and
-  `LumenViae.Release.generate_rosary_audio/1`.
+  `LumenViae.Release.generate_rosary_audio/1`; `coverage/1` answers the
+  admin console's "is every clip recorded" from the same keys.
 
   ## Options
 
@@ -69,6 +70,62 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
         progress.({:item_finished, 1, 1, result})
         [result]
     end
+  end
+
+  @doc """
+  Which of every voice's clips are in the bucket, for the admin console.
+
+  One HEAD per clip, because the scoped IAM user cannot list the bucket.
+  Returns `[{voice, [%{clip, key, status}]}]` in voice then catalogue
+  order, where `status` is `:recorded`, `:missing`, or `:unknown` when S3
+  could not be asked - no credentials, or a network failure - so a
+  laptop without `.env` never reports the whole Rosary as missing.
+  """
+  def coverage(opts \\ []) do
+    voices = Voices.list()
+    clips = PrayerAudio.clips()
+    work = for voice <- voices, clip <- clips, do: {voice, clip}
+
+    # One probe first: without credentials every HEAD fails the same way,
+    # and asking 500 times only fills the log with the same warning.
+    {probe_voice, probe_clip} = hd(work)
+
+    case S3.audio_exists?(PrayerAudio.s3_key(probe_voice, probe_clip)) do
+      {:error, _reason} -> all_unknown(voices, clips)
+      {:ok, _exists?} -> check_each(voices, work, opts)
+    end
+  end
+
+  defp all_unknown(voices, clips) do
+    for voice <- voices do
+      {voice, Enum.map(clips, &%{clip: &1, key: PrayerAudio.s3_key(voice, &1), status: :unknown})}
+    end
+  end
+
+  defp check_each(voices, work, opts) do
+    results =
+      work
+      |> Task.async_stream(
+        fn {voice, clip} ->
+          key = PrayerAudio.s3_key(voice, clip)
+
+          status =
+            case S3.audio_exists?(key) do
+              {:ok, true} -> :recorded
+              {:ok, false} -> :missing
+              {:error, _reason} -> :unknown
+            end
+
+          {voice.slug, %{clip: clip, key: key, status: status}}
+        end,
+        max_concurrency: Keyword.get(opts, :concurrency, 16),
+        timeout: :timer.seconds(30),
+        ordered: true
+      )
+      |> Enum.map(fn {:ok, result} -> result end)
+      |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+
+    Enum.map(voices, &{&1, Map.get(results, &1.slug, [])})
   end
 
   defp resolve_voices(slugs) when slugs in [nil, []], do: {:ok, Voices.list()}
