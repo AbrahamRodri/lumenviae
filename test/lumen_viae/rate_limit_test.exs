@@ -51,9 +51,16 @@ defmodule LumenViae.RateLimitTest do
   test "windows of different sizes do not collide" do
     key = "test:sizes:#{System.unique_integer([:positive])}"
 
-    assert RateLimit.check(key, 1, :timer.hours(1)) == :ok
-    # A different window size is a different window start, so this must not
-    # inherit the count above.
-    assert RateLimit.check(key, 1, :timer.minutes(1)) == :ok
+    # The top of an hour, where the one-hour and one-minute windows start
+    # on the same millisecond. Keyed by start alone, the second call would
+    # inherit the first's count and be refused.
+    top_of_hour = :timer.hours(500_000)
+
+    assert RateLimit.check(key, 1, :timer.hours(1), top_of_hour) == :ok
+    assert RateLimit.check(key, 1, :timer.minutes(1), top_of_hour) == :ok
+
+    # And each size still keeps its own count.
+    assert RateLimit.check(key, 1, :timer.hours(1), top_of_hour) == {:error, :rate_limited}
+    assert RateLimit.check(key, 1, :timer.minutes(1), top_of_hour) == {:error, :rate_limited}
   end
 end

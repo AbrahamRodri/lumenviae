@@ -29,8 +29,8 @@ defmodule LumenViae.RateLimit do
 
   @table :lumen_viae_rate_limit
 
-  # Sweeping only has to be faster than memory grows. Every entry is two
-  # integers and a short binary, and the table is swept whole.
+  # Sweeping only has to be faster than memory grows. Every entry is a
+  # short binary and four integers, and the table is swept whole.
   @sweep_interval_ms :timer.minutes(10)
 
   def start_link(opts) do
@@ -41,28 +41,36 @@ defmodule LumenViae.RateLimit do
   Counts one event against `key` and says whether it is still under
   `limit` for the current `window_ms` window.
 
+  `now` is the current time in milliseconds. Callers leave it out; tests
+  pass it so they can put a call at a chosen point in a window rather than
+  wherever the wall clock happens to be.
+
   Returns `:ok`, or `{:error, :rate_limited}` once the limit is passed.
   Counting happens either way, so a caller that keeps hammering stays
   blocked for the rest of the window rather than being let through the
   moment it stops.
   """
-  def check(key, limit, window_ms)
-      when is_binary(key) and is_integer(limit) and is_integer(window_ms) do
-    now = now_ms()
+  def check(key, limit, window_ms, now \\ now_ms())
 
-    # The window is keyed by the millisecond it started, not by an index.
-    # An index is only meaningful next to the window size that produced it,
-    # so two callers using different sizes would write indices that cannot
-    # be compared - and the sweep has to compare them.
+  def check(key, limit, window_ms, now)
+      when is_binary(key) and is_integer(limit) and is_integer(window_ms) and is_integer(now) do
+    # The window is keyed by its size and the millisecond it started, not by
+    # an index. An index is only meaningful next to the window size that
+    # produced it, so two callers using different sizes would write indices
+    # that cannot be compared - and the sweep has to compare them. The start
+    # alone is not enough either: every size that divides the hour starts a
+    # window at the top of it, so a one-minute and a one-hour window would
+    # share a row for that first minute and each inherit the other's count.
     window_start = div(now, window_ms) * window_ms
     expires_at = window_start + window_ms
+    row_key = {key, window_ms, window_start}
 
     count =
       :ets.update_counter(
         @table,
-        {key, window_start},
+        row_key,
         {2, 1},
-        {{key, window_start}, 0, expires_at}
+        {row_key, 0, expires_at}
       )
 
     if count > limit, do: {:error, :rate_limited}, else: :ok
