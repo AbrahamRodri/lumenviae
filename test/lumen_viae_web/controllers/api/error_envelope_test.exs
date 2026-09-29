@@ -7,7 +7,6 @@ defmodule LumenViaeWeb.API.ErrorEnvelopeTest do
   """
   use LumenViaeWeb.ConnCase, async: true
 
-  alias LumenViae.Rosary
   alias LumenViaeWeb.API.ErrorJSON
   alias LumenViaeWeb.API.FallbackController
 
@@ -33,12 +32,6 @@ defmodule LumenViaeWeb.API.ErrorEnvelopeTest do
 
     test "an id past what a bigint can hold, which used to reach the driver", %{conn: conn} do
       body = conn |> get(~p"/api/meditation-sets/99999999999999999999") |> json_response(404)
-
-      assert envelope(body)["code"] == "not_found"
-    end
-
-    test "a prayer that is not one of the four chants", %{conn: conn} do
-      body = conn |> get(~p"/api/prayers/gregorian_chant/audio") |> json_response(404)
 
       assert envelope(body)["code"] == "not_found"
     end
@@ -118,37 +111,26 @@ defmodule LumenViaeWeb.API.ErrorEnvelopeTest do
     end
   end
 
-  describe "prayer audio" do
-    test "carries the moment the URL expires, and is not cacheable", %{conn: conn} do
-      # Signing needs credentials the test environment does not have, so this
-      # exercises the failure path; the success shape is covered by
-      # PrayerJSON below.
-      conn = get(conn, ~p"/api/prayers/magnificat/audio")
+  describe "prayer audio, withdrawn" do
+    # The chant recordings had no licence and were withdrawn. The route stays
+    # for installed builds, and every id - the four that were once signed and
+    # any other - answers 410 with nothing signed. Signing needs credentials
+    # the test environment does not have, so the old code answered these 503
+    # here: a 410 is proof the action never reached S3.
+    for id <- ~w(veni_creator ave_maris_stella magnificat glory_be gregorian_chant) do
+      test "#{id} is gone, and nothing is signed", %{conn: conn} do
+        conn = get(conn, ~p"/api/prayers/#{unquote(id)}/audio")
+        body = json_response(conn, 410)
 
-      assert conn.status in [200, 503]
-
-      if conn.status == 200 do
-        assert Enum.member?(
-                 Plug.Conn.get_resp_header(conn, "cache-control"),
-                 "private, no-store"
-               )
-      end
-    end
-
-    test "renders id, url and an ISO 8601 expiry" do
-      expires_at = ~U[2026-08-20 14:02:12Z]
-
-      assert LumenViaeWeb.API.PrayerJSON.audio(%{
-               id: "magnificat",
-               audio_url: "https://example.com/signed",
-               expires_at: expires_at
-             }) == %{
-               data: %{
-                 id: "magnificat",
-                 audio_url: "https://example.com/signed",
-                 expires_at: "2026-08-20T14:02:12Z"
+        assert envelope(body) == %{
+                 "code" => "gone",
+                 "message" => "This recording has been withdrawn"
                }
-             }
+
+        refute Map.has_key?(body, "data")
+        refute conn.resp_body =~ "http"
+        refute conn.resp_body =~ "prayers/"
+      end
     end
   end
 end

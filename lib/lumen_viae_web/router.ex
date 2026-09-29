@@ -132,7 +132,9 @@ defmodule LumenViaeWeb.Router do
     # Mysteries
     get "/mysteries", MysteryController, :index
 
-    # Prayers
+    # Prayers - the consecration chants, withdrawn for want of a licence.
+    # Kept only so installed builds get a 410 rather than a bare 404; it
+    # signs nothing (see PrayerController)
     get "/prayers/:id/audio", PrayerController, :audio
 
     # The spoken Rosary: every prayer, announcement and scripture verse

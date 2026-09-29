@@ -19,6 +19,13 @@ defmodule LumenViaeWeb.API.FallbackController do
     send_error(conn, :not_found, "not_found", "Not found")
   end
 
+  # Something that was served once and has been taken down for good, as
+  # opposed to something that never existed. Only the withdrawn chant
+  # recordings answer this today (see PrayerController).
+  def call(conn, {:error, :gone}) do
+    send_error(conn, :gone, "gone", "This recording has been withdrawn")
+  end
+
   def call(conn, {:error, {:bad_request, message}}) do
     send_error(conn, :bad_request, "bad_request", message)
   end
