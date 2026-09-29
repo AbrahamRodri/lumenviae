@@ -33,9 +33,14 @@ defmodule LumenViae.Rosary.VoicesConfigTest do
     end
   end
 
-  test "Arabella stays on the model her spoken Rosary was recorded with" do
+  test "Arabella is on the model her spoken Rosary was recorded with" do
     # Her 360 spoken-Rosary file names hash the model; changing it points
-    # every one of them at a file that does not exist.
-    assert %{model_id: "eleven_v3"} = voice("female")
+    # every one of them at a file that does not exist until it is recorded.
+    # Re-recorded on Eleven v4 on 2026-09-29.
+    assert %{model_id: "eleven_v4"} = voice("female")
+  end
+
+  test "Frederick has his own spoken Rosary and borrows only the Prayer Book" do
+    assert %{rosary_audio_from: %{book: "female"}} = voice("frederick")
   end
 end

@@ -35,10 +35,9 @@ config :lumen_viae, :narration_voices, [
   # Frederick Surrey, the male narrator since 2026-09-29. Every public
   # meditation was recorded from a hand-tagged script
   # (priv/narration_scripts/frederick, generate_frederick.py); the app's own
-  # regeneration sends plain text, without those direction tags. He has no
-  # spoken Rosary of his own yet, so the Rosary's prayers, announcements and
-  # verses are Marc Aurele's, and the Prayer Book - which Marc Aurele has
-  # only partly recorded - is Arabella's.
+  # regeneration sends plain text, without those direction tags. His spoken
+  # Rosary (prayers, announcements and verses) was recorded on 2026-09-29;
+  # the Prayer Book, which he has not recorded yet, is Arabella's.
   %{
     slug: "frederick",
     name: "Male",
@@ -46,26 +45,26 @@ config :lumen_viae, :narration_voices, [
     eleven_labs_voice_id: "j9jfwdrw7BRfcR43Qohk",
     model_id: "eleven_v4",
     voice_settings: %{stability: 0.5, similarity_boost: 0.75},
-    rosary_audio_from: %{prayer: "male", announcement: "male", verse: "male", book: "female"},
+    rosary_audio_from: %{book: "female"},
     default: true
   },
   # Arabella. Her meditations whose text changed in the 2026-09-28/29 review
-  # were re-recorded on Eleven v4 by the same script; the rest, and her whole
-  # spoken Rosary, are Eleven v3. The model stays eleven_v3 here because a
+  # were re-recorded on Eleven v4 by the same script; the rest are Eleven v3.
+  # Her whole spoken Rosary and Prayer Book (360 clips) were re-recorded on
+  # v4 on 2026-09-29, which is why the model can be eleven_v4 here: a
   # spoken-Rosary file's name hashes the voice's model and settings
-  # (PrayerAudio.filename/2): moving her to v4 would rename all 360 of her
-  # prayer recordings to files that do not exist until they are re-recorded.
+  # (PrayerAudio.filename/2), so the v3 files stay in the bucket unused.
   %{
     slug: "female",
     name: "Female",
     description: "A gentle, emotive narrator",
     eleven_labs_voice_id: "Z3R5wn05IrDiVCyEkUrK",
-    model_id: "eleven_v3",
+    model_id: "eleven_v4",
     voice_settings: %{stability: 0.5, similarity_boost: 0.75},
     default: false
   },
   # Marc Aurele, the original narrator. Retired from the pickers in favor of
-  # Frederick; his recordings stay, and still serve Frederick's spoken Rosary.
+  # Frederick; his recordings stay.
   %{
     slug: "male",
     name: "Male (original)",
