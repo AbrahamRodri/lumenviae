@@ -51,7 +51,7 @@ defmodule LumenViaeWeb.API.RosaryAudioController do
   defp fetch_voice(slug) when slug in [nil, ""], do: {:ok, Voices.default()}
 
   defp fetch_voice(slug) do
-    case Voices.fetch(slug) do
+    case Voices.resolve(slug) do
       {:ok, voice} -> {:ok, voice}
       {:error, :unknown_voice} -> {:error, {:bad_request, "Unknown voice: #{slug}"}}
     end
@@ -77,11 +77,11 @@ defmodule LumenViaeWeb.API.RosaryAudioController do
 
   defp sign(voice, clips, ttl) do
     Enum.reduce_while(clips, {:ok, []}, fn clip, {:ok, acc} ->
-      key = PrayerAudio.s3_key(voice, clip)
+      key = PrayerAudio.served_key(voice, clip)
 
       case LumenViae.Storage.S3.generate_presigned_url(key, expires_in: ttl) do
         {:ok, url} ->
-          entry = %{clip: clip, file: PrayerAudio.filename(voice, clip), audio_url: url}
+          entry = %{clip: clip, file: PrayerAudio.served_filename(voice, clip), audio_url: url}
           {:cont, {:ok, [entry | acc]}}
 
         {:error, reason} ->

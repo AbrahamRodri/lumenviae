@@ -151,6 +151,8 @@ defmodule LumenViae.Audio.ElevenLabsTest do
 
   test "the pause style follows the model" do
     assert ElevenLabs.pause_style("eleven_v3") == :audio_tags
+    assert ElevenLabs.pause_style("eleven_v4") == :audio_tags
+    assert ElevenLabs.pause_style("eleven_v4_turbo") == :audio_tags
     assert ElevenLabs.pause_style("eleven_multilingual_v2") == :break_tags
   end
 end

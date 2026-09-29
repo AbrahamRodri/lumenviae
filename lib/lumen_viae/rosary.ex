@@ -183,7 +183,9 @@ defmodule LumenViae.Rosary do
 
   `voice_slug` is nil for the default voice, falling back to whichever
   voice has recorded the meditation when the default has not; a named voice
-  is exact, since a client asking for the male voice has made a choice.
+  is exact, since a client asking for the male voice has made a choice. A
+  retired (hidden) voice's slug is served by its successor
+  (`Voices.resolve/1`).
 
   Returns `{:ok, %{voice: %Voice{}, url: url, expires_at: %DateTime{}}}`,
   `{:error, :unknown_voice}` for a slug that is not configured, or `:error`
@@ -199,10 +201,10 @@ defmodule LumenViae.Rosary do
   end
 
   def fetch_meditation_audio(meditation, voice_slug) when is_binary(voice_slug) do
-    with {:ok, _voice} <- Voices.fetch(voice_slug) do
+    with {:ok, voice} <- Voices.resolve(voice_slug) do
       meditation
       |> meditation_narrations()
-      |> Enum.find(&(&1.voice.slug == voice_slug))
+      |> Enum.find(&(&1.voice.slug == voice.slug))
       |> case do
         nil -> :error
         narration -> sign_narration(narration)

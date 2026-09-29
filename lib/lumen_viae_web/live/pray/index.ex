@@ -82,7 +82,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   def handle_event("set_voice", %{"voice" => slug}, socket) do
     voice =
-      case Voices.fetch(slug) do
+      case Voices.resolve(slug) do
         {:ok, voice} -> voice
         {:error, :unknown_voice} -> socket.assigns.voice
       end
@@ -212,7 +212,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   # in. Changing it re-signs every URL, so it is only done when it changes.
   defp assign_voice(socket, slug) do
     voice =
-      case Voices.fetch(slug || "") do
+      case Voices.resolve(slug || "") do
         {:ok, voice} -> voice
         {:error, :unknown_voice} -> Voices.default()
       end
@@ -285,7 +285,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
             Enum.at(audio_urls, step.decade)
 
           clip ->
-            case S3.generate_presigned_url(PrayerAudio.s3_key(voice, clip), expires_in: ttl) do
+            case S3.generate_presigned_url(PrayerAudio.served_key(voice, clip), expires_in: ttl) do
               {:ok, url} -> url
               {:error, _reason} -> nil
             end

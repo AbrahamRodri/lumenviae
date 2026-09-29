@@ -46,3 +46,28 @@ config :lumen_viae, :completions_per_hour, 1_000_000
 # that forgets to stub gets a loud "no stub" error instead of a quiet
 # request to the real Divinum Officium site.
 config :lumen_viae, :office, req_options: [plug: {Req.Test, LumenViae.Office.DivinumOfficium}]
+
+# The suite's own two narration voices, fixed here so the tests of the
+# voice mechanics do not move every time the production line-up in
+# config.exs does. test/lumen_viae/rosary/voices_config_test.exs reads
+# config.exs itself and checks the production line-up.
+config :lumen_viae, :narration_voices, [
+  %{
+    slug: "female",
+    name: "Female",
+    description: "A gentle, emotive narrator",
+    eleven_labs_voice_id: "Z3R5wn05IrDiVCyEkUrK",
+    model_id: "eleven_v3",
+    voice_settings: %{stability: 0.5, similarity_boost: 0.75},
+    default: true
+  },
+  %{
+    slug: "male",
+    name: "Male",
+    description: "A calm, measured narrator",
+    eleven_labs_voice_id: "RTFg9niKcgGLDwa3RFlz",
+    model_id: "eleven_multilingual_v2",
+    voice_settings: %{stability: 0.5, similarity_boost: 0.75, style: 0.5},
+    default: false
+  }
+]

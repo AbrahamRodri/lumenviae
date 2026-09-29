@@ -48,3 +48,7 @@ npm-debug.log
 
 # Production database snapshots pulled by sync_prod_db.sh
 /priv/repo/snapshots/
+
+# Locally generated narration takes (see priv/narration_scripts)
+/narration_out/
+/voice-tests/

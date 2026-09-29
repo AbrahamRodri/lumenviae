@@ -21,6 +21,15 @@ defmodule LumenViae.Rosary.Voices do
       use_speaker_boost sent with every request for this voice
     * `default` - the voice the legacy single `audio_url` plays and the
       website uses; exactly one voice carries it
+    * `hidden` - a retired voice: its files and rows stay and its slug
+      still resolves for tooling (`get/1`, `fetch/1`), but it is left out
+      of `list/0`, so no client is offered it and no import records it
+    * `replaced_by` - for a hidden voice, the voice a client asking for it
+      by slug hears instead (`resolve/1`)
+    * `rosary_audio_from` - clip kinds (`:prayer`, `:announcement`,
+      `:verse`, `:book`) this voice has not recorded for the spoken Rosary,
+      each mapped to the slug of the voice whose recordings stand in. See
+      `LumenViae.Rosary.PrayerAudio.served_voice/2`.
 
   ## S3 layout
 
@@ -40,7 +49,10 @@ defmodule LumenViae.Rosary.Voices do
       description: nil,
       model_id: "eleven_v3",
       voice_settings: %{stability: 0.5, similarity_boost: 0.75},
-      default: false
+      default: false,
+      hidden: false,
+      replaced_by: nil,
+      rosary_audio_from: %{}
     ]
 
     @type t :: %__MODULE__{
@@ -50,19 +62,29 @@ defmodule LumenViae.Rosary.Voices do
             eleven_labs_voice_id: String.t(),
             model_id: String.t(),
             voice_settings: map,
-            default: boolean
+            default: boolean,
+            hidden: boolean,
+            replaced_by: String.t() | nil,
+            rosary_audio_from: %{optional(atom) => String.t()}
           }
   end
 
   @doc """
-  Every configured voice, in display order, the default first.
+  Every voice a client is offered, in display order, the default first.
+  Hidden voices are left out; `all/0` includes them.
   """
   @spec list() :: [Voice.t()]
-  def list do
+  def list, do: Enum.reject(all(), & &1.hidden)
+
+  @doc """
+  Every configured voice, hidden ones included, the default first.
+  """
+  @spec all() :: [Voice.t()]
+  def all do
     voices =
       Application.get_env(:lumen_viae, :narration_voices, []) |> Enum.map(&struct!(Voice, &1))
 
-    case Enum.split_with(voices, & &1.default) do
+    case Enum.split_with(voices, &(&1.default and not &1.hidden)) do
       {[], all} -> all
       {[default | _], others} -> [default | Enum.reject(others, &(&1.slug == default.slug))]
     end
@@ -88,10 +110,10 @@ defmodule LumenViae.Rosary.Voices do
   def slugs, do: Enum.map(list(), & &1.slug)
 
   @doc """
-  The voice with this slug, or nil.
+  The voice with this slug, hidden or not, or nil.
   """
   @spec get(String.t() | nil) :: Voice.t() | nil
-  def get(slug) when is_binary(slug), do: Enum.find(list(), &(&1.slug == slug))
+  def get(slug) when is_binary(slug), do: Enum.find(all(), &(&1.slug == slug))
   def get(_slug), do: nil
 
   @doc """
@@ -102,6 +124,29 @@ defmodule LumenViae.Rosary.Voices do
     case get(slug) do
       nil -> {:error, :unknown_voice}
       voice -> {:ok, voice}
+    end
+  end
+
+  @doc """
+  The voice a client asking for `slug` hears: that voice when it is
+  offered, and for a hidden voice the one it was `replaced_by` (or the
+  default, when it names none). `{:error, :unknown_voice}` for a slug that
+  was never configured.
+
+  Every client-facing lookup goes through here, so a device or a link that
+  still carries a retired slug keeps working and hears its successor.
+  """
+  @spec resolve(String.t() | nil) :: {:ok, Voice.t()} | {:error, :unknown_voice}
+  def resolve(slug) do
+    case get(slug) do
+      nil ->
+        {:error, :unknown_voice}
+
+      %Voice{hidden: false} = voice ->
+        {:ok, voice}
+
+      %Voice{replaced_by: next} ->
+        {:ok, (next && Enum.find(list(), &(&1.slug == next))) || default()}
     end
   end
 

@@ -21,11 +21,40 @@ config :lumen_viae, :tts_paragraph_break_seconds, 1.2
 # default: true is what the legacy `audio_url` fields and the website play.
 #
 # Each voice names the ElevenLabs model it is synthesized with and its
-# voice settings. Eleven v3 takes audio tags ([pause], [long pause]) rather
-# than SSML break tags for its pauses, and LumenViae.Audio.TtsText picks the
-# syntax from the model, so the two voices may sit on different models.
-# See LumenViae.Rosary.Voices.
+# voice settings. Eleven v3 and v4 take audio tags ([pause], [long pause])
+# rather than SSML break tags for their pauses, and LumenViae.Audio.TtsText
+# picks the syntax from the model, so the voices may sit on different models.
+#
+# A voice with `hidden: true` is kept - its files, its rows and its slug
+# still resolve for tooling - but is never offered to a client; a request
+# naming it is served by its `replaced_by` voice instead. A voice with
+# `rosary_audio_from` has not recorded the spoken Rosary itself (yet): each
+# clip kind named there is served from that other voice's recordings.
+# See LumenViae.Rosary.Voices and LumenViae.Rosary.PrayerAudio.
 config :lumen_viae, :narration_voices, [
+  # Frederick Surrey, the male narrator since 2026-09-29. Every public
+  # meditation was recorded from a hand-tagged script
+  # (priv/narration_scripts/frederick, generate_frederick.py); the app's own
+  # regeneration sends plain text, without those direction tags. He has no
+  # spoken Rosary of his own yet, so the Rosary's prayers, announcements and
+  # verses are Marc Aurele's, and the Prayer Book - which Marc Aurele has
+  # only partly recorded - is Arabella's.
+  %{
+    slug: "frederick",
+    name: "Male",
+    description: "A warm, reverent narrator",
+    eleven_labs_voice_id: "j9jfwdrw7BRfcR43Qohk",
+    model_id: "eleven_v4",
+    voice_settings: %{stability: 0.5, similarity_boost: 0.75},
+    rosary_audio_from: %{prayer: "male", announcement: "male", verse: "male", book: "female"},
+    default: true
+  },
+  # Arabella. Her meditations whose text changed in the 2026-09-28/29 review
+  # were re-recorded on Eleven v4 by the same script; the rest, and her whole
+  # spoken Rosary, are Eleven v3. The model stays eleven_v3 here because a
+  # spoken-Rosary file's name hashes the voice's model and settings
+  # (PrayerAudio.filename/2): moving her to v4 would rename all 360 of her
+  # prayer recordings to files that do not exist until they are re-recorded.
   %{
     slug: "female",
     name: "Female",
@@ -33,15 +62,19 @@ config :lumen_viae, :narration_voices, [
     eleven_labs_voice_id: "Z3R5wn05IrDiVCyEkUrK",
     model_id: "eleven_v3",
     voice_settings: %{stability: 0.5, similarity_boost: 0.75},
-    default: true
+    default: false
   },
+  # Marc Aurele, the original narrator. Retired from the pickers in favor of
+  # Frederick; his recordings stay, and still serve Frederick's spoken Rosary.
   %{
     slug: "male",
-    name: "Male",
+    name: "Male (original)",
     description: "A calm, measured narrator",
     eleven_labs_voice_id: "RTFg9niKcgGLDwa3RFlz",
     model_id: "eleven_multilingual_v2",
     voice_settings: %{stability: 0.5, similarity_boost: 0.75, style: 0.5},
+    hidden: true,
+    replaced_by: "frederick",
     default: false
   }
 ]

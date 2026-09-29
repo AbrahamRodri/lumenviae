@@ -35,14 +35,14 @@ defmodule LumenViae.Audio.ElevenLabs do
   @default_model_id "eleven_v3"
   @default_voice_settings %{stability: 0.5, similarity_boost: 0.75}
 
-  # Eleven v3 reads audio tags ([pause], [long pause]) and does not honor
+  # Eleven v3 and v4 read audio tags ([pause], [long pause]) and do not honor
   # SSML break tags; every earlier model is the other way round. The text
   # pipeline asks here rather than guessing from the model name elsewhere.
-  @audio_tag_models ["eleven_v3"]
+  @audio_tag_models ["eleven_v3", "eleven_v4", "eleven_v4_turbo"]
 
   @doc """
   How a model expects pauses to be written: `:audio_tags` (`[pause]`) for
-  Eleven v3, `:break_tags` (`<break time="1s" />`) for every other model.
+  Eleven v3 and v4, `:break_tags` (`<break time="1s" />`) for every other model.
   See `LumenViae.Audio.TtsText`.
   """
   def pause_style(model_id) do

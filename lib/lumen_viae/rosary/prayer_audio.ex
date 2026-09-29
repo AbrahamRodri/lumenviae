@@ -50,6 +50,17 @@ defmodule LumenViae.Rosary.PrayerAudio do
   without `--force`, and a device holding the old file offline sees a new
   filename in the manifest and fetches it, instead of keeping the old
   wording forever. `s3_key/2` is the only place that layout is spelled out.
+
+  ## Borrowed recordings
+
+  A voice may not have recorded every kind of clip: a voice added after the
+  spoken Rosary was recorded names, in its `rosary_audio_from`, the voice
+  whose recordings stand in for each kind it lacks. `s3_key/2` is always a
+  voice's *own* key - what generation writes. What a client is handed is
+  `served_key/2` and `served_filename/2`, which follow the borrow, and
+  `version/2` fingerprints those, so recording a voice's own clips later
+  and dropping the borrow from config changes the version and devices
+  fetch the new files.
   """
 
   alias LumenViae.Rosary.Voices
@@ -520,7 +531,33 @@ defmodule LumenViae.Rosary.PrayerAudio do
   end
 
   @doc """
-  The S3 key of a voice's recording of this clip.
+  The voice whose recording of `clip` is served for `voice`: `voice`
+  itself, or the voice its `rosary_audio_from` names for the clip's kind.
+  """
+  @spec served_voice(Voices.Voice.t(), Clip.t()) :: Voices.Voice.t()
+  def served_voice(%Voices.Voice{rosary_audio_from: from} = voice, %Clip{kind: kind}) do
+    case Map.get(from || %{}, kind) do
+      nil -> voice
+      slug -> Voices.get(slug) || voice
+    end
+  end
+
+  @doc """
+  The S3 key a client is served for `voice`'s recording of `clip`. See
+  "Borrowed recordings" above.
+  """
+  @spec served_key(Voices.Voice.t(), Clip.t()) :: String.t()
+  def served_key(voice, clip), do: s3_key(served_voice(voice, clip), clip)
+
+  @doc """
+  The file name a client is served for `voice`'s recording of `clip`.
+  """
+  @spec served_filename(Voices.Voice.t(), Clip.t()) :: String.t()
+  def served_filename(voice, clip), do: filename(served_voice(voice, clip), clip)
+
+  @doc """
+  The S3 key of a voice's own recording of this clip - what generation
+  writes. Clients are handed `served_key/2`.
   """
   @spec s3_key(Voices.Voice.t(), Clip.t()) :: String.t()
   def s3_key(%Voices.Voice{slug: slug} = voice, %Clip{kind: kind} = clip) do
@@ -535,7 +572,7 @@ defmodule LumenViae.Rosary.PrayerAudio do
   @spec version(Voices.Voice.t(), [Clip.t()]) :: String.t()
   def version(%Voices.Voice{} = voice, clips) do
     clips
-    |> Enum.map_join("\n", &s3_key(voice, &1))
+    |> Enum.map_join("\n", &served_key(voice, &1))
     |> hash()
   end
 
