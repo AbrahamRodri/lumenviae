@@ -45,7 +45,7 @@ defmodule LumenViae.Rosary do
   """
   use Ash.Domain,
     otp_app: :lumen_viae,
-    extensions: [AshGraphql.Domain, AshPhoenix]
+    extensions: [AshGraphql.Domain, AshPhoenix, AshAdmin.Domain]
 
   # The GraphQL API's Rosary queries. See docs/GRAPHQL.md.
   graphql do
@@ -54,6 +54,12 @@ defmodule LumenViae.Rosary do
       list LumenViae.Rosary.NarrationVoice, :retired_voices, :retired, paginate_with: nil
       read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: false
     end
+  end
+
+  # Browsable at /admin/data, behind the console's login: a generic view of
+  # every resource for the cases the console has no screen for.
+  admin do
+    show?(true)
   end
 
   # A read is defined with its raising form only (`list_mysteries!/0`), so

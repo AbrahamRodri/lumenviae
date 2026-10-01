@@ -272,15 +272,18 @@ resource. Every query gets a test.
 
 ### Phase 4 - easy wins (manager, with Sonnet on bounded pieces)
 
-- **AshAdmin** at `/admin/data`, behind `RequireAdmin`: a generic
-  browser over every resource, for the cases the console has no screen
-  for. It brings its own look, which is acceptable for a power tool off
-  the console's navigation.
+- **AshAdmin** at `/admin/data` (done): a generic browser over every
+  Rosary resource, for the cases the console has no screen for. It brings
+  its own look, which is acceptable for a power tool off the console's
+  navigation. It is guarded twice, like the console: `RequireAdmin` on the
+  HTTP request and the `:require_admin` hook on every socket mount, which
+  `console_access_test.exs` checks for every `/admin` route.
 - **AshPaperTrail** on Meditation, MeditationSet, Mystery and Author: a
   version row for every change, so an edit to a saint's verbatim text
   can always be seen and reversed. New tables via `mix ash.codegen`.
-- **UsageRules**: the Ash packages' own guidance for coding agents,
-  synced into `docs/USAGE_RULES.md` and linked from CLAUDE.md.
+- **UsageRules** (done): the Ash packages' own guidance for coding
+  agents, synced into `docs/USAGE_RULES.md` by `mix usage_rules.sync` and
+  linked from CLAUDE.md.
 
 Considered and left out, for now:
 

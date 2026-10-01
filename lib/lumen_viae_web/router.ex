@@ -1,6 +1,8 @@
 defmodule LumenViaeWeb.Router do
   use LumenViaeWeb, :router
 
+  import AshAdmin.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug LumenViaeWeb.Plugs.CanonicalHost
@@ -134,6 +136,20 @@ defmodule LumenViaeWeb.Router do
       live "/mysteries/new", Live.Mysteries.New
       live "/mysteries/:id/edit", Live.Mysteries.Edit
     end
+  end
+
+  # AshAdmin: a generic browser over every Ash resource, for the cases the
+  # console has no screen for. It brings its own look and its own
+  # live_session, so it gets the console's guard twice over: RequireAdmin on
+  # the HTTP request, and the :require_admin hook on every socket mount.
+  # Unaliased scope, because the macro names AshAdmin's own LiveViews.
+  scope "/admin" do
+    pipe_through [:browser, :admin]
+
+    ash_admin("/data",
+      live_session_name: :ash_admin,
+      on_mount: [{LumenViaeWeb.UserAuth, :require_admin}]
+    )
   end
 
   # JSON API for iOS app
