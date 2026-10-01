@@ -187,6 +187,13 @@ config :tailwind,
     cd: Path.expand("..", __DIR__)
   ]
 
+# ExAws talks to S3 over Req, the client the app already uses for
+# ElevenLabs and Divinum Officium. Its default, hackney, crashed against real
+# S3 at hackney 4: ex_aws 2.7's adapter does not match the 3-tuple hackney 4
+# returns for a HEAD, so every object check raised a CaseClauseError. The
+# credentials and region stay in runtime.exs.
+config :ex_aws, http_client: ExAws.Request.Req
+
 # Configures Elixir's Logger
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",

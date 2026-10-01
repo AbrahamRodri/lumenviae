@@ -87,7 +87,6 @@ defmodule LumenViae.MixProject do
       {:nimble_csv, "~> 1.3"},
       {:ex_aws, "~> 2.7"},
       {:ex_aws_s3, "~> 2.5"},
-      {:hackney, "~> 4.0"},
       {:sweet_xml, "~> 0.7"}
     ]
   end

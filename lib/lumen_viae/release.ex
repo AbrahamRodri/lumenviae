@@ -213,11 +213,12 @@ defmodule LumenViae.Release do
   end
 
   # `bin/lumen_viae eval` boots a bare node with no applications started,
-  # but the audio pipeline needs Req (ElevenLabs) and ExAws over hackney
-  # (S3 uploads). Without these, the first audio row would crash the eval
-  # node with a noproc instead of degrading to a warning.
+  # but the audio pipeline needs Req, which carries both ElevenLabs and
+  # ExAws's S3 uploads (config :ex_aws, http_client). Without these, the
+  # first audio row would crash the eval node with a noproc instead of
+  # degrading to a warning.
   defp start_audio_clients do
-    for app <- [:req, :ex_aws, :hackney] do
+    for app <- [:req, :ex_aws] do
       {:ok, _} = Application.ensure_all_started(app)
     end
 

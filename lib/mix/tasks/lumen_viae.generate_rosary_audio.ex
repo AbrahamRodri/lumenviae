@@ -62,7 +62,7 @@ defmodule Mix.Tasks.LumenViae.GenerateRosaryAudio do
     kinds = parse_kinds(Keyword.get_values(opts, :kind))
 
     # The audio clients only; the database is never touched.
-    for app <- [:req, :ex_aws, :hackney], do: {:ok, _} = Application.ensure_all_started(app)
+    for app <- [:req, :ex_aws], do: {:ok, _} = Application.ensure_all_started(app)
     Mix.Task.run("app.config")
 
     progress = fn
