@@ -196,11 +196,13 @@ defmodule LumenViaeWeb.Graphql.RecordingsTest do
       assert pack["voice"] == "frederick"
     end
 
-    test "an unknown voice is an invalid_argument error on voice", %{conn: conn} do
+    test "an unknown voice is answered in the default voice, and says so", %{conn: conn} do
+      # A voice is a preference in the GraphQL API; REST answers 400 here
+      # and the app has to ask again.
       body = graphql(conn, "query { rosaryAudio(voice: \"nobody\") { voice } }")
 
-      assert body["data"] == nil
-      assert [%{"code" => "invalid_argument", "fields" => ["voice"]}] = body["errors"]
+      refute Map.has_key?(body, "errors")
+      assert body["data"]["rosaryAudio"]["voice"] == Voices.default().slug
     end
 
     test "signs only the kinds a query selects", %{conn: conn} do
@@ -215,9 +217,14 @@ defmodule LumenViaeWeb.Graphql.RecordingsTest do
     test "a recording that cannot be signed is an audio_unavailable error", %{conn: conn} do
       put_env([{:ex_aws, :access_key_id, nil}, {:ex_aws, :secret_access_key, nil}])
 
-      body = graphql(conn, "{ rosaryAudio { prayers { id } } }")
+      body = graphql(conn, "{ rosaryAudio { prayers { id } } voices { slug } }")
 
-      assert [%{"code" => "audio_unavailable"}] = body["errors"]
+      assert [%{"code" => "audio_unavailable", "message" => "Audio temporarily unavailable"}] =
+               body["errors"]
+
+      # The failure stays in its own field.
+      assert body["data"]["rosaryAudio"] == nil
+      assert [_ | _] = body["data"]["voices"]
     end
   end
 end

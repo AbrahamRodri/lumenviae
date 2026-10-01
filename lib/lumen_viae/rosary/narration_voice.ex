@@ -20,6 +20,7 @@ defmodule LumenViae.Rosary.NarrationVoice do
 
   graphql do
     type :narration_voice
+    encode_primary_key? false
     derive_filter? false
     derive_sort? false
   end

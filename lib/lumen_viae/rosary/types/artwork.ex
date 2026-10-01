@@ -13,9 +13,9 @@ defmodule LumenViae.Rosary.Types.Artwork do
 
   typed_struct do
     field :url, :string, allow_nil?: false
-    field :alignment, :string
-    field :focal_x, :float
-    field :focal_y, :float
+    field :alignment, :string, allow_nil?: false
+    field :focal_x, :float, allow_nil?: false
+    field :focal_y, :float, allow_nil?: false
     field :width, :integer
     field :height, :integer
     field :alt, :string, allow_nil?: false

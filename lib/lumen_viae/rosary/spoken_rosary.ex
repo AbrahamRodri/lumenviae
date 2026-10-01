@@ -21,6 +21,7 @@ defmodule LumenViae.Rosary.SpokenRosary do
 
   graphql do
     type :spoken_rosary
+    encode_primary_key? false
     derive_filter? false
     derive_sort? false
   end
@@ -38,7 +39,7 @@ defmodule LumenViae.Rosary.SpokenRosary do
       description "One voice's spoken Rosary. Without a voice, the default voice's."
 
       argument :voice, :string do
-        description "A voice slug. A retired voice is answered by its successor."
+        description "The voice preferred, a slug. A retired voice is answered by its successor and an unknown one by the default; `voice` in the answer is the one served."
       end
 
       prepare ForVoice

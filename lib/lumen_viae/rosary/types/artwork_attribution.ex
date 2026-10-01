@@ -10,7 +10,8 @@ defmodule LumenViae.Rosary.Types.ArtworkAttribution do
     field :artist, :string
     field :year, :string
     field :source_url, :string
-    field :license, :string
+    # Never null: artwork without a licence is not published at all.
+    field :license, :string, allow_nil?: false
   end
 
   use AshGraphql.Type

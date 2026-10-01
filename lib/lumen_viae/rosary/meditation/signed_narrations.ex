@@ -3,10 +3,18 @@ defmodule LumenViae.Rosary.Meditation.SignedNarrations do
   Every narration of a meditation as a URL a client can play, default voice
   first: the GraphQL API's `narrations`. The same recordings, in the same
   order, as the REST set detail's `narrations`, from
-  `LumenViae.Rosary.meditation_narrations/1`. A recording that cannot be
-  signed is left out rather than handed over as a link that will fail.
+  `LumenViae.Rosary.meditation_narrations/1`.
+
+  All or nothing. When a recording exists but cannot be signed (the
+  storage credentials are missing or broken), the answer is null, never a
+  shorter list: a list missing one voice reads as "that voice was never
+  recorded", and a player would quietly switch narrator. So `[]` always
+  means nothing is recorded, and null means try again later. The failure
+  is logged.
   """
   use Ash.Resource.Calculation
+
+  require Logger
 
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Types.SignedAudio
@@ -20,15 +28,25 @@ defmodule LumenViae.Rosary.Meditation.SignedNarrations do
 
   @impl true
   def calculate(meditations, _opts, _context) do
-    Enum.map(meditations, fn meditation ->
-      meditation
-      |> Rosary.meditation_narrations()
-      |> Enum.flat_map(fn %{voice: voice, s3_key: s3_key} ->
-        case SignedAudio.sign(s3_key) do
-          {:ok, audio} -> [%SignedNarration{voice: voice.slug, audio: audio}]
-          :error -> []
-        end
-      end)
+    Enum.map(meditations, &sign_all/1)
+  end
+
+  defp sign_all(meditation) do
+    meditation
+    |> Rosary.meditation_narrations()
+    |> Enum.reduce_while([], fn %{voice: voice, s3_key: s3_key}, signed ->
+      case SignedAudio.sign(s3_key) do
+        {:ok, audio} ->
+          {:cont, [%SignedNarration{voice: voice.slug, audio: audio} | signed]}
+
+        :error ->
+          Logger.error("Failed to sign narration #{s3_key} of meditation #{meditation.id}")
+          {:halt, :error}
+      end
     end)
+    |> case do
+      :error -> nil
+      signed -> Enum.reverse(signed)
+    end
   end
 end

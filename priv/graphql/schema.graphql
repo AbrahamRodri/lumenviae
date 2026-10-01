@@ -33,7 +33,7 @@ type ArtworkAttribution {
   year: String
   title: String
   sourceUrl: String
-  license: String
+  license: String!
   artist: String
 }
 
@@ -41,11 +41,11 @@ type Artwork {
   width: Int
   url: String!
   height: Int
-  focalY: Float
-  focalX: Float
+  focalY: Float!
+  focalX: Float!
   attribution: ArtworkAttribution!
   alt: String!
-  alignment: String
+  alignment: String!
 }
 
 type MeditationNarration {
@@ -152,9 +152,6 @@ type MutationError {
 
 type SpokenRosary {
   "The voice actually served, which differs from the one asked for when that one is retired."
-  id: ID!
-
-  "The voice actually served, which differs from the one asked for when that one is retired."
   voice: String!
 
   "Fingerprints every file in the voice's catalogue: a device whose pack has the same version holds every current recording."
@@ -177,9 +174,6 @@ type SpokenRosary {
 }
 
 type NarrationVoice {
-  "What a client stores and sends back, as in ?voice=female."
-  id: ID!
-
   "What a client stores and sends back, as in ?voice=female."
   slug: String!
 
@@ -233,13 +227,7 @@ type MeditationSet {
 
   labels: [String!]!
 
-  setMemberships(
-    "The number of records to return."
-    limit: Int
-
-    "The number of records to skip."
-    offset: Int
-  ): [SetMembership!]!
+  setMemberships: [SetMembership!]!
 
   "The author the set is shown with: its own, or else the one its meditations agree on."
   author: String
@@ -264,10 +252,13 @@ type Meditation {
 
   mystery: Mystery!
 
-  "Every recording of the meditation as a playable URL, the default voice first."
-  narrations: [SignedNarration!]!
+  "Every recording of the meditation as a playable URL, the default voice first. Empty when nothing is recorded; null when recordings exist but cannot be signed just now (see narratedVoices)."
+  narrations: [SignedNarration!]
 
-  "The recording to play for a listener who prefers a voice: that voice if it has recorded the meditation, otherwise the default. `preferring` is a voice slug: a retired voice means its successor, an unknown one is ignored. Null when nothing is recorded."
+  "The voices that have recorded the meditation, default first. Signs nothing."
+  narratedVoices: [String!]!
+
+  "The recording to play for a listener who prefers a voice: that voice if it has recorded the meditation, otherwise the default. `preferring` is a voice slug: a retired voice means its successor, an unknown one is ignored. Null when nothing is recorded, or when it cannot be signed just now; narratedVoices tells the two apart."
   narration(preferring: String): SignedNarration
 }
 
@@ -276,28 +267,27 @@ type Mystery {
   name: String!
   category: String!
   order: Int!
-  daysPrayed: String
   description: String
   scriptureReference: String
 }
 
 type RootQueryType {
-  "Freshly signed narrations for meditations by id, in the order asked. An id with nothing to play is left out."
+  "Freshly signed narrations for meditations by id, in the order asked, each in the preferred voice where it has one. An id with nothing to play is left out."
   meditationAudio(
     meditationIds: [ID!]!
 
-    "A voice slug; without one, the default voice. A retired voice is served by its successor."
+    "The voice preferred, a slug. A meditation it has not recorded, or an unknown slug, is answered in the default voice; each answer names the voice served."
     voice: String
   ): [MeditationNarration!]!
 
   "The sets the public may see: those with no archived meditation. By category and then in creation order, optionally narrowed to one category. Never paginated."
   visibleMeditationSets(category: String): [MeditationSet!]!
 
-  "The sets the public may see: those with no archived meditation. By category and then in creation order, optionally narrowed to one category. Never paginated."
+  "One set the public may see, by id. Null when it does not exist or is hidden by an archived meditation."
   meditationSet(
     "The id of the record"
     id: ID!
-  ): MeditationSet!
+  ): MeditationSet
 
   "The voices a listener may choose, the default first."
   voices: [NarrationVoice!]!
@@ -307,9 +297,9 @@ type RootQueryType {
 
   "One voice's spoken Rosary. Without a voice, the default voice's."
   rosaryAudio(
-    "A voice slug. A retired voice is answered by its successor."
+    "The voice preferred, a slug. A retired voice is answered by its successor and an unknown one by the default; `voice` in the answer is the one served."
     voice: String
-  ): SpokenRosary!
+  ): SpokenRosary
 
   "The full text of one canonical hour on one date."
   officeHour(
@@ -323,7 +313,7 @@ type RootQueryType {
 
     "A language slug; see officeVocabulary."
     language: String
-  ): OfficeHour!
+  ): OfficeHour
 
   "All eight hours of one date, Matins to Compline, in that order."
   officeHours(
@@ -334,7 +324,7 @@ type RootQueryType {
 
     "A language slug; see officeVocabulary."
     language: String
-  ): [OfficeHour!]!
+  ): [OfficeHour!]
 
   "One day's place in the calendar: its celebration, season and rubric note."
   officeDay(
@@ -342,7 +332,7 @@ type RootQueryType {
 
     "A version slug; see officeVocabulary."
     version: String
-  ): OfficeDay!
+  ): OfficeDay
 
   "One month of the liturgical calendar, its days in date order."
   officeCalendar(
@@ -352,7 +342,7 @@ type RootQueryType {
 
     "A version slug; see officeVocabulary."
     version: String
-  ): OfficeCalendar!
+  ): OfficeCalendar
 
   "The version, hour and language slugs the Office accepts, and its defaults."
   officeVocabulary: OfficeVocabulary!

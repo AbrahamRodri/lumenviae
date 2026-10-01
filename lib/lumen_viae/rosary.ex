@@ -49,10 +49,14 @@ defmodule LumenViae.Rosary do
 
   # The GraphQL API's Rosary queries. See docs/GRAPHQL.md.
   graphql do
+    # A mutation's validation errors stay in its own `errors` list, beside a
+    # null `result`, each with a code. AshGraphql's root_level_errors? would
+    # move them to the top level, but it also reports every query error
+    # twice. See docs/GRAPHQL.md, "Recording a completion".
     queries do
       list LumenViae.Rosary.NarrationVoice, :voices, :offered, paginate_with: nil
       list LumenViae.Rosary.NarrationVoice, :retired_voices, :retired, paginate_with: nil
-      read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: false
+      read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: true
       action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
 
       # The sets the public may see. Both read through :visible, so a set
@@ -62,7 +66,9 @@ defmodule LumenViae.Rosary do
 
       get LumenViae.Rosary.MeditationSet, :meditation_set, :visible,
         hide_inputs: [:category],
-        allow_nil?: false
+        allow_nil?: true,
+        description:
+          "One set the public may see, by id. Null when it does not exist or is hidden by an archived meditation."
     end
 
     # The one public write. LumenViaeWeb.GraphqlSchema puts the same guard

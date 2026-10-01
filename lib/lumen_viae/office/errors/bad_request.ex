@@ -14,7 +14,10 @@ defimpl AshGraphql.Error, for: LumenViae.Office.Errors.BadRequest do
     %{
       message: error.message,
       short_message: error.message,
-      code: "bad_request",
+      # One code for "the request was wrong" across the whole GraphQL API,
+      # the same as Ash's own argument errors; the message names the valid
+      # values, as the REST API's 400 does.
+      code: "invalid_argument",
       vars: %{},
       fields: []
     }

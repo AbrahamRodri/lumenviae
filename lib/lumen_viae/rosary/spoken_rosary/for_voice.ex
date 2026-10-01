@@ -1,10 +1,11 @@
 defmodule LumenViae.Rosary.SpokenRosary.ForVoice do
   @moduledoc """
   Answers a `LumenViae.Rosary.SpokenRosary` read with one record for the
-  voice the client will actually hear: the `voice` argument when the read
-  takes one, and the default voice otherwise. A slug that names no voice is
-  an `invalid_argument` error on `voice` - REST's 400, which is what sends
-  the app back to the default voice.
+  voice the client will actually hear: the voice asked for (a retired one
+  meaning its successor), and the default voice when none is asked for or
+  the slug names no voice. A voice is a preference, and the answer's
+  `voice` says which one was served - where REST answers an unknown slug
+  with a 400 and the app has to ask again.
   """
   use Ash.Resource.Preparation
 
@@ -29,19 +30,15 @@ defmodule LumenViae.Rosary.SpokenRosary.ForVoice do
           })
 
         Ash.DataLayer.Simple.set_data(query, [record])
-
-      {:error, :unknown_voice} ->
-        Ash.Query.add_error(
-          query,
-          Ash.Error.Query.InvalidArgument.exception(
-            field: :voice,
-            message: "is not a narration voice: %{value}",
-            value: slug
-          )
-        )
     end
   end
 
   defp resolve(slug) when slug in [nil, ""], do: {:ok, Voices.default()}
-  defp resolve(slug), do: Voices.resolve(slug)
+
+  defp resolve(slug) do
+    case Voices.resolve(slug) do
+      {:ok, voice} -> {:ok, voice}
+      {:error, :unknown_voice} -> {:ok, Voices.default()}
+    end
+  end
 end

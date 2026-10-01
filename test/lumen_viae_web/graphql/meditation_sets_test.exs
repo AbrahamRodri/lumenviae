@@ -35,7 +35,8 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
         order
         meditation {
           id title content author source
-          mystery { id name category order daysPrayed description scriptureReference }
+          mystery { id name category order description scriptureReference }
+          narratedVoices
           narrations { voice audio { url expiresAt } }
           narration(preferring: $voice) { voice audio { url expiresAt } }
         }
@@ -78,6 +79,16 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
 
     meditation
   end
+
+  defp collect_ids(%{} = map) do
+    Enum.flat_map(map, fn
+      {key, value} when key in ["id", "meditationId", "meditationSetId"] -> [value]
+      {_key, value} -> collect_ids(value)
+    end)
+  end
+
+  defp collect_ids(list) when is_list(list), do: Enum.flat_map(list, &collect_ids/1)
+  defp collect_ids(_scalar), do: []
 
   defp rest_list(conn, category) do
     conn
@@ -270,7 +281,6 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
       for %{"meditation" => meditation} <- memberships do
         assert is_binary(meditation["content"])
         assert meditation["mystery"]["id"] == to_string(mystery.id)
-        assert meditation["mystery"]["daysPrayed"] == "Monday, Saturday"
       end
 
       rest =
@@ -301,8 +311,33 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
         assert narration["audio"]["expiresAt"] =~ @expiry
       end
 
+      assert first["narratedVoices"] == Enum.map(first["narrations"], & &1["voice"])
+
+      # Nothing recorded: an empty list, never null.
       assert second["narrations"] == []
+      assert second["narratedVoices"] == []
       assert second["narration"] == nil
+    end
+
+    test "recordings that cannot be signed are null, never a shorter list", %{
+      conn: conn,
+      set: set
+    } do
+      put_env([{:ex_aws, :access_key_id, nil}, {:ex_aws, :secret_access_key, nil}])
+
+      %{"data" => %{"meditationSet" => detail}} =
+        graphql(conn, @detail_query, %{id: to_string(set.id)})
+
+      [_, %{"meditation" => first}, %{"meditation" => second}] = detail["setMemberships"]
+
+      # The text still arrives; the audio is null, and narratedVoices says
+      # it exists, so a client knows to try again rather than that there
+      # is no recording.
+      assert first["content"] == "First"
+      assert first["narrations"] == nil
+      assert first["narration"] == nil
+      assert length(first["narratedVoices"]) == 2
+      assert second["narrations"] == []
     end
 
     test "narration(preferring:) honours a recorded voice and falls back otherwise", %{
@@ -324,7 +359,7 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
       assert first["narration"]["voice"] == Voices.default().slug
     end
 
-    test "a hidden set is not found, as REST answers 404", %{
+    test "a hidden set is null, as REST answers 404", %{
       conn: conn,
       set: set,
       second: second
@@ -333,16 +368,27 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
 
       body = graphql(conn, @detail_query, %{id: to_string(set.id)})
 
-      assert body["data"] == nil
-      assert [%{"code" => "not_found"}] = body["errors"]
+      assert body["data"] == %{"meditationSet" => nil}
+      refute Map.has_key?(body, "errors")
       assert conn |> get("/api/meditation-sets/#{set.id}") |> json_response(404)
     end
 
-    test "a missing set is not found", %{conn: conn} do
+    test "a missing set is null", %{conn: conn} do
       body = graphql(conn, @detail_query, %{id: "999999999"})
 
-      assert body["data"] == nil
-      assert [%{"code" => "not_found"}] = body["errors"]
+      assert body["data"] == %{"meditationSet" => nil}
+    end
+
+    test "every id is digits, so a client can read it as an integer", %{conn: conn, set: set} do
+      body = graphql(conn, @detail_query, %{id: to_string(set.id)})
+
+      ids =
+        body
+        |> collect_ids()
+        |> Enum.reject(&is_nil/1)
+
+      assert ids != []
+      assert Enum.all?(ids, &(is_binary(&1) and &1 =~ ~r/^\d+$/)), inspect(ids)
     end
   end
 end

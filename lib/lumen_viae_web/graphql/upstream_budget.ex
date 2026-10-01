@@ -79,7 +79,8 @@ defmodule LumenViaeWeb.Graphql.UpstreamBudget do
       message:
         "This request asks for #{cost} Divine Office fetches; at most #{@budget} are " <>
           "allowed in one request. Split it into several.",
-      locations: [operation.source_location]
+      locations: [operation.source_location],
+      extra: %{code: "over_budget"}
     }
 
     operation =

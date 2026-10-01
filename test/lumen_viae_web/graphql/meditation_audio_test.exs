@@ -84,18 +84,26 @@ defmodule LumenViaeWeb.Graphql.MeditationAudioTest do
     assert male_audio["expiresAt"] =~ @expiry
   end
 
-  test "a named voice is exact, as on the REST endpoint", %{
+  test "a voice is a preference: each answer names the voice it is in", %{
     conn: conn,
     both: both,
     male_only: male_only
   } do
     %{"data" => %{"meditationAudio" => answers}} =
-      refresh(conn, [both.id, male_only.id], "female")
+      refresh(conn, [both.id, male_only.id], "male")
 
-    # male_only has no female recording, so it is left out rather than
-    # answered in another voice.
-    assert [%{"meditationId" => id, "voice" => "female"}] = answers
-    assert id == to_string(both.id)
+    # Where REST is exact (a 404 for a voice not recorded), GraphQL falls
+    # back to the default and says which voice it served.
+    assert [
+             %{"meditationId" => both_id, "voice" => "male"},
+             %{"meditationId" => male_id, "voice" => "male"}
+           ] = answers
+
+    assert both_id == to_string(both.id)
+    assert male_id == to_string(male_only.id)
+
+    %{"data" => %{"meditationAudio" => [fallback]}} = refresh(conn, [male_only.id], "female")
+    assert fallback["voice"] == "male"
   end
 
   test "leaves out what cannot be played instead of failing the batch", %{
@@ -122,10 +130,11 @@ defmodule LumenViaeWeb.Graphql.MeditationAudioTest do
     assert key_of(answer["audio"]["url"]) == key_of(rest["data"]["audio_url"])
   end
 
-  test "an unknown voice is an invalid_argument error on voice", %{conn: conn, both: both} do
+  test "an unknown voice is no preference", %{conn: conn, both: both} do
     body = refresh(conn, [both.id], "nobody")
 
-    assert body["data"] == nil
-    assert [%{"code" => "invalid_argument", "fields" => ["voice"]}] = body["errors"]
+    refute Map.has_key?(body, "errors")
+    assert [%{"voice" => voice}] = body["data"]["meditationAudio"]
+    assert voice == LumenViae.Rosary.Voices.default().slug
   end
 end

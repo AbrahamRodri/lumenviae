@@ -3,11 +3,13 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
   Fresh narration URLs for many meditations at once: GraphQL's
   `meditationAudio`, the plural of `GET /api/meditations/:id/audio`.
 
-  The same rules, applied to each id: without a voice the default voice is
-  served (or the first that has recorded the meditation); a named voice is
-  exact, a retired one meaning its successor; an archived meditation serves
-  nothing. An unknown voice fails the whole request, as REST's 400 does, so
-  a client with a stale voice list learns it.
+  The voice is a preference, as everywhere in the GraphQL API: each
+  meditation is answered in the preferred voice when it has recorded it (a
+  retired voice meaning its successor), and otherwise in the default voice,
+  or the first that has. An unknown slug is no preference. Every answer
+  names the voice it is in, so a client always knows what it got - where
+  REST answers an unknown voice with a 400 and a missing one with a 404.
+  An archived meditation serves nothing.
 
   Plural because a device resuming an offline download re-signs a whole set
   without refetching its text. An id with nothing to play is left out of
@@ -27,54 +29,42 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
   @impl true
   def run(input, _opts, _context) do
     ids = Enum.uniq(input.arguments.meditation_ids)
-    voice = blank_to_nil(input.arguments[:voice])
+    preferred = preferred_slug(input.arguments[:voice])
 
-    with :ok <- check_voice(voice),
-         {:ok, meditations} <- playable(ids) do
+    with {:ok, meditations} <- playable(ids) do
       by_id = Map.new(meditations, &{&1.id, &1})
 
-      {:ok,
-       Enum.flat_map(ids, fn id ->
-         with %Meditation{} = meditation <- Map.get(by_id, id),
-              {:ok, audio} <- Rosary.fetch_meditation_audio(meditation, voice) do
-           [
-             %MeditationNarration{
-               meditation_id: id,
-               voice: audio.voice.slug,
-               audio: %SignedAudio{url: audio.url, expires_at: audio.expires_at}
-             }
-           ]
-         else
-           _nothing_to_play -> []
-         end
-       end)}
+      {:ok, Enum.flat_map(ids, &answer(Map.get(by_id, &1), &1, preferred))}
     end
   end
 
-  defp check_voice(nil), do: :ok
+  defp answer(nil, _id, _preferred), do: []
 
-  defp check_voice(slug) do
+  defp answer(meditation, id, preferred) do
+    narrations = Rosary.meditation_narrations(meditation)
+
+    with %{voice: voice, s3_key: s3_key} <-
+           Enum.find(narrations, &(&1.voice.slug == preferred)) || List.first(narrations),
+         {:ok, audio} <- SignedAudio.sign(s3_key) do
+      [%MeditationNarration{meditation_id: id, voice: voice.slug, audio: audio}]
+    else
+      _nothing_to_play -> []
+    end
+  end
+
+  defp preferred_slug(slug) when slug in [nil, ""], do: nil
+
+  defp preferred_slug(slug) do
     case Voices.resolve(slug) do
-      {:ok, _voice} ->
-        :ok
-
-      {:error, :unknown_voice} ->
-        {:error,
-         Ash.Error.Action.InvalidArgument.exception(
-           field: :voice,
-           message: "is not a narration voice: %{value}",
-           value: slug
-         )}
+      {:ok, voice} -> voice.slug
+      {:error, :unknown_voice} -> nil
     end
   end
 
   defp playable(ids) do
     Meditation
     |> Ash.Query.filter(id in ^ids and is_nil(archived_at))
-    |> Ash.Query.load(:narrations)
+    |> Ash.Query.load(narrations: [:voice, :s3_key])
     |> Ash.read(authorize?: false)
   end
-
-  defp blank_to_nil(""), do: nil
-  defp blank_to_nil(value), do: value
 end

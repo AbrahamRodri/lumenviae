@@ -48,8 +48,9 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
   end
 
   test "records a completion from the app, and answers as REST does", %{conn: conn, set: set} do
-    %{"data" => %{"recordCompletion" => %{"result" => result, "errors" => []}}} =
-      record(conn, set.id, %{prayedAloud: true})
+    body = record(conn, set.id, %{prayedAloud: true})
+    refute Map.has_key?(body, "errors")
+    %{"data" => %{"recordCompletion" => %{"result" => result, "errors" => []}}} = body
 
     assert result["meditationSetId"] == to_string(set.id)
     assert result["completedAt"] =~ ~r/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
@@ -70,13 +71,17 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
     {:ok, _} = Rosary.add_meditation_to_set(set.id, archived.id, 1)
     {:ok, _} = Rosary.archive_meditation(archived)
 
-    hidden = record(conn, set.id)["data"]["recordCompletion"]
-    missing = record(conn, 999_999_999)["data"]["recordCompletion"]
+    hidden = record(conn, set.id)
+    missing = record(conn, 999_999_999)
 
-    assert hidden["result"] == nil
-    assert [%{"fields" => ["meditationSetId"]} = hidden_error] = hidden["errors"]
-    assert [missing_error] = missing["errors"]
-    assert hidden_error["message"] == missing_error["message"]
+    # A validation failure is answered in the mutation's own errors, beside
+    # a null result, with a code; nothing at the top level.
+    refute Map.has_key?(hidden, "errors")
+    %{"result" => nil, "errors" => [hidden_error]} = hidden["data"]["recordCompletion"]
+    %{"result" => nil, "errors" => [missing_error]} = missing["data"]["recordCompletion"]
+
+    assert %{"code" => "invalid_argument", "fields" => ["meditationSetId"]} = hidden_error
+    assert hidden_error == missing_error
   end
 
   test "a client cannot choose the source or its address", %{conn: conn, set: set} do

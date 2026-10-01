@@ -18,8 +18,11 @@ defmodule LumenViae.Office.Errors.Unavailable do
 end
 
 defimpl AshGraphql.Error, for: LumenViae.Office.Errors.Unavailable do
-  def to_error(error) do
-    message = Exception.message(error)
+  # The fixed text, not Exception.message/1: once the error has passed
+  # through an action, Splode prefixes its message with "Bread Crumbs" that
+  # name the server's modules, which a client has no business seeing.
+  def to_error(_error) do
+    message = "Divine Office temporarily unavailable"
 
     %{
       message: message,

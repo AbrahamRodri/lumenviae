@@ -19,9 +19,12 @@ defmodule LumenViae.Rosary.Mystery do
 
   # Reached in GraphQL only as a meditation's mystery. None of its
   # relationships is shown: its meditations include ones in no public set.
+  # days_prayed is left out too: it carries an older schedule the app no
+  # longer reads, and REST keeps it only for builds that still decode it.
   graphql do
     type :mystery
     relationships []
+    hide_fields [:days_prayed]
     derive_filter? false
     derive_sort? false
   end

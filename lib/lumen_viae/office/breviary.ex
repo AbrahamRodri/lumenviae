@@ -15,6 +15,12 @@ defmodule LumenViae.Office.Breviary do
   A GraphQL enum would have been tidier, but AshGraphql upper-cases enum
   values, and one word spelled two ways across two APIs is worse than an
   untyped argument whose valid values `officeVocabulary` lists.
+
+  The reads that can fail are nullable at the root (`allow_nil? true`).
+  A GraphQL error in a non-null root field nulls the whole response, so a
+  document asking for today's and tomorrow's hours would lose today's to
+  an engine timeout on tomorrow's. Nullable, the failing field is null with
+  its error beside it and its siblings keep their data.
   """
   use Ash.Resource,
     domain: LumenViae.Office,
@@ -29,6 +35,7 @@ defmodule LumenViae.Office.Breviary do
 
   actions do
     action :hour, Types.Hour do
+      allow_nil? true
       description "The full text of one canonical hour on one date."
       argument :date, :date, allow_nil?: false
 
@@ -42,6 +49,7 @@ defmodule LumenViae.Office.Breviary do
     end
 
     action :hours, {:array, Types.Hour} do
+      allow_nil? true
       description "All eight hours of one date, Matins to Compline, in that order."
       constraints nil_items?: false
       argument :date, :date, allow_nil?: false
@@ -51,6 +59,7 @@ defmodule LumenViae.Office.Breviary do
     end
 
     action :day, Types.Day do
+      allow_nil? true
       description "One day's place in the calendar: its celebration, season and rubric note."
       argument :date, :date, allow_nil?: false
       argument :version, :string, description: "A version slug; see officeVocabulary."
@@ -58,6 +67,7 @@ defmodule LumenViae.Office.Breviary do
     end
 
     action :calendar, Types.Calendar do
+      allow_nil? true
       description "One month of the liturgical calendar, its days in date order."
       argument :year, :integer, allow_nil?: false
       argument :month, :integer, allow_nil?: false

@@ -94,11 +94,12 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       assert params["lang2"] == "Latin"
     end
 
-    test "an unknown hour is a bad_request error naming the valid hours", %{conn: conn} do
+    test "an unknown hour is an invalid_argument error naming the valid hours", %{conn: conn} do
       body = graphql(conn, @hour_query, %{date: "1903-03-07", hour: "brunch"})
 
-      assert body["data"] == nil
-      assert [%{"code" => "bad_request", "message" => message}] = body["errors"]
+      # Nullable at the root: the field is null and its error says why.
+      assert body["data"] == %{"officeHour" => nil}
+      assert [%{"code" => "invalid_argument", "message" => message}] = body["errors"]
       assert message =~ "unknown hour"
       assert message =~ "completorium"
     end
@@ -106,7 +107,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
     test "a date outside the engine's window is a bad_request error", %{conn: conn} do
       body = graphql(conn, @hour_query, %{date: "1492-10-12", hour: "laudes"})
 
-      assert [%{"code" => "bad_request", "message" => message}] = body["errors"]
+      assert [%{"code" => "invalid_argument", "message" => message}] = body["errors"]
       assert message =~ "between 1600 and 2200"
     end
 
@@ -194,7 +195,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
     test "an impossible month is a bad_request error", %{conn: conn} do
       body = graphql(conn, @calendar_query, %{year: 1903, month: 13})
 
-      assert [%{"code" => "bad_request"}] = body["errors"]
+      assert [%{"code" => "invalid_argument"}] = body["errors"]
     end
   end
 
@@ -251,7 +252,29 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       body = graphql(conn, "{ #{aliases} }")
 
       assert body["data"] == nil
-      assert Enum.any?(body["errors"], &(&1["message"] =~ "too complex"))
+      assert [%{"code" => "too_complex"} | _] = body["errors"]
+    end
+  end
+
+  describe "error codes" do
+    test "one failing field leaves its siblings their data", %{conn: conn} do
+      body =
+        graphql(conn, """
+        {
+          officeVocabulary { defaultVersion }
+          officeHour(date: "1903-08-01", hour: "brunch") { hour }
+        }
+        """)
+
+      assert body["data"]["officeVocabulary"]["defaultVersion"] == "rubrics-1960"
+      assert body["data"]["officeHour"] == nil
+      assert [%{"code" => "invalid_argument", "path" => ["officeHour"]}] = body["errors"]
+    end
+
+    test "a document that cannot run is invalid_document", %{conn: conn} do
+      body = graphql(conn, "{ officeVocabulary { noSuchField } }")
+
+      assert [%{"code" => "invalid_document"}] = body["errors"]
     end
   end
 
@@ -268,7 +291,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       body = graphql(conn, "{ #{aliases} }")
 
       assert body["data"] == nil
-      assert [%{"message" => message}] = body["errors"]
+      assert [%{"code" => "over_budget", "message" => message}] = body["errors"]
       assert message =~ "32 Divine Office fetches"
     end
 
@@ -288,7 +311,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       body = graphql(conn, query)
 
       assert body["data"] == nil
-      assert [%{"message" => message}] = body["errors"]
+      assert [%{"code" => "over_budget", "message" => message}] = body["errors"]
       assert message =~ "32 Divine Office fetches"
     end
 

@@ -63,6 +63,8 @@ defmodule LumenViae.Rosary.MeditationSet do
   graphql do
     type :meditation_set
     relationships [:set_memberships]
+    # A prayer is the whole set: no limit or offset on its meditations.
+    paginate_relationship_with set_memberships: :none
     hide_fields [:author, :source, :author_id]
     field_names byline_author: :author, byline_source: :source
     derive_filter? false

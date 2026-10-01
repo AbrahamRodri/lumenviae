@@ -139,7 +139,7 @@ defmodule LumenViae.Rosary.Meditation do
     end
 
     action :audio_for, {:array, LumenViae.Rosary.Types.MeditationNarration} do
-      description "Freshly signed narrations for meditations by id, in the order asked. An id with nothing to play is left out."
+      description "Freshly signed narrations for meditations by id, in the order asked, each in the preferred voice where it has one. An id with nothing to play is left out."
       constraints nil_items?: false
 
       argument :meditation_ids, {:array, LumenViae.Rosary.Types.Id} do
@@ -148,7 +148,7 @@ defmodule LumenViae.Rosary.Meditation do
       end
 
       argument :voice, :string do
-        description "A voice slug; without one, the default voice. A retired voice is served by its successor."
+        description "The voice preferred, a slug. A meditation it has not recorded, or an unknown slug, is answered in the default voice; each answer names the voice served."
       end
 
       run LumenViae.Rosary.Meditation.AudioFor
@@ -248,10 +248,20 @@ defmodule LumenViae.Rosary.Meditation do
     calculate :signed_narrations,
               {:array, LumenViae.Rosary.Types.SignedNarration},
               LumenViae.Rosary.Meditation.SignedNarrations do
+      public? true
+      constraints nil_items?: false
+
+      description "Every recording of the meditation as a playable URL, the default voice first. Empty when nothing is recorded; null when recordings exist but cannot be signed just now (see narratedVoices)."
+    end
+
+    calculate :narrated_voices,
+              {:array, :string},
+              LumenViae.Rosary.Meditation.NarratedVoices do
       allow_nil? false
       public? true
       constraints nil_items?: false
-      description "Every recording of the meditation as a playable URL, the default voice first."
+
+      description "The voices that have recorded the meditation, default first. Signs nothing."
     end
 
     calculate :narration,
@@ -259,7 +269,7 @@ defmodule LumenViae.Rosary.Meditation do
               LumenViae.Rosary.Meditation.PreferredNarration do
       public? true
 
-      description "The recording to play for a listener who prefers a voice: that voice if it has recorded the meditation, otherwise the default. `preferring` is a voice slug: a retired voice means its successor, an unknown one is ignored. Null when nothing is recorded."
+      description "The recording to play for a listener who prefers a voice: that voice if it has recorded the meditation, otherwise the default. `preferring` is a voice slug: a retired voice means its successor, an unknown one is ignored. Null when nothing is recorded, or when it cannot be signed just now; narratedVoices tells the two apart."
 
       argument :preferring, :string
     end
