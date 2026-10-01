@@ -208,7 +208,9 @@ defmodule LumenViae.RosaryTest do
       series = Rosary.completions_by_day(7)
 
       assert length(series) == 7
-      assert Enum.map(series, & &1.date) == Enum.sort(Enum.map(series, & &1.date))
+      # Sorted with Date, not structurally: a bare Enum.sort compares the
+      # struct fields one by one and puts Oct 1 before Sep 25.
+      assert Enum.map(series, & &1.date) == Enum.sort(Enum.map(series, & &1.date), Date)
       assert List.last(series).date == LumenViae.CentralTime.today()
       assert Enum.sum(Enum.map(series, & &1.count)) == 1
     end
