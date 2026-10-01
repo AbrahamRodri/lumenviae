@@ -33,7 +33,29 @@ defmodule LumenViae.Rosary do
       URLs a client plays are assembled here, default voice first.
 
   See `docs/ARCHITECTURE.md` for the rules this layout follows.
+
+  ## Moving to Ash
+
+  This module is also the `Ash.Domain` the Rosary resources belong to
+  (`LumenViae.Rosary.Mystery`, `Meditation`, `MeditationSet`,
+  `SetMembership`, `Completion`, `Author`, `Narration`). While the port is
+  under way the resources sit beside the Secondary Contexts above, mapped
+  onto the same tables, and the Secondary Contexts still serve every
+  function below. See `docs/ASH_MIGRATION.md`.
   """
+  use Ash.Domain,
+    otp_app: :lumen_viae,
+    extensions: [AshGraphql.Domain, AshPhoenix]
+
+  resources do
+    resource LumenViae.Rosary.Mystery
+    resource LumenViae.Rosary.Meditation
+    resource LumenViae.Rosary.MeditationSet
+    resource LumenViae.Rosary.SetMembership
+    resource LumenViae.Rosary.Completion
+    resource LumenViae.Rosary.Author
+    resource LumenViae.Rosary.Narration
+  end
 
   alias LumenViae.Rosary.Artwork
   alias LumenViae.CentralTime
