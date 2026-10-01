@@ -151,7 +151,7 @@ type MutationError {
 }
 
 type SpokenRosary {
-  "The voice actually served, which differs from the one asked for when that one is retired."
+  "The voice actually served: the one asked for, or its successor when it is retired, or the default when none was asked for or the slug names no voice."
   voice: String!
 
   "Fingerprints every file in the voice's catalogue: a device whose pack has the same version holds every current recording."
@@ -278,7 +278,7 @@ type RootQueryType {
 
     "The voice preferred, a slug. A meditation it has not recorded, or an unknown slug, is answered in the default voice; each answer names the voice served."
     voice: String
-  ): [MeditationNarration!]!
+  ): [MeditationNarration!]
 
   "The sets the public may see: those with no archived meditation. By category and then in creation order, optionally narrowed to one category. Never paginated."
   visibleMeditationSets(category: String): [MeditationSet!]!

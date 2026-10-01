@@ -12,15 +12,25 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
   An archived meditation serves nothing.
 
   Plural because a device resuming an offline download re-signs a whole set
-  without refetching its text. An id with nothing to play is left out of
-  the answer rather than failing the batch, so one withdrawn meditation
-  does not cost the rest. Answers follow the order of the ids asked for.
+  without refetching its text. An id with nothing to play - missing,
+  archived, or never recorded - is left out of the answer rather than
+  failing the batch, so one withdrawn meditation does not cost the rest.
+  Answers follow the order of the ids asked for.
+
+  A recording that cannot be signed is different: it fails the whole field
+  with `audio_unavailable`. Signing fails for every recording at once (the
+  storage credentials are missing or broken), and leaving those ids out
+  would read as "withdrawn", so a player would skip every meditation and an
+  offline resume would save a set as having no recordings.
   """
   use Ash.Resource.Actions.Implementation
 
   require Ash.Query
 
+  require Logger
+
   alias LumenViae.Rosary
+  alias LumenViae.Rosary.Errors.AudioUnavailable
   alias LumenViae.Rosary.Meditation
   alias LumenViae.Rosary.Types.MeditationNarration
   alias LumenViae.Rosary.Types.SignedAudio
@@ -34,21 +44,38 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
     with {:ok, meditations} <- playable(ids) do
       by_id = Map.new(meditations, &{&1.id, &1})
 
-      {:ok, Enum.flat_map(ids, &answer(Map.get(by_id, &1), &1, preferred))}
+      Enum.reduce_while(ids, {:ok, []}, fn id, {:ok, answers} ->
+        case answer(Map.get(by_id, id), id, preferred) do
+          {:ok, answer} -> {:cont, {:ok, [answer | answers]}}
+          :nothing_to_play -> {:cont, {:ok, answers}}
+          :unsignable -> {:halt, {:error, AudioUnavailable.exception([])}}
+        end
+      end)
+      |> case do
+        {:ok, answers} -> {:ok, Enum.reverse(answers)}
+        error -> error
+      end
     end
   end
 
-  defp answer(nil, _id, _preferred), do: []
+  defp answer(nil, _id, _preferred), do: :nothing_to_play
 
   defp answer(meditation, id, preferred) do
     narrations = Rosary.meditation_narrations(meditation)
 
-    with %{voice: voice, s3_key: s3_key} <-
-           Enum.find(narrations, &(&1.voice.slug == preferred)) || List.first(narrations),
-         {:ok, audio} <- SignedAudio.sign(s3_key) do
-      [%MeditationNarration{meditation_id: id, voice: voice.slug, audio: audio}]
-    else
-      _nothing_to_play -> []
+    case Enum.find(narrations, &(&1.voice.slug == preferred)) || List.first(narrations) do
+      nil ->
+        :nothing_to_play
+
+      %{voice: voice, s3_key: s3_key} ->
+        case SignedAudio.sign(s3_key) do
+          {:ok, audio} ->
+            {:ok, %MeditationNarration{meditation_id: id, voice: voice.slug, audio: audio}}
+
+          :error ->
+            Logger.error("Failed to sign narration #{s3_key} of meditation #{id}")
+            :unsignable
+        end
     end
   end
 

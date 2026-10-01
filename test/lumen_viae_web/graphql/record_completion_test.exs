@@ -53,6 +53,9 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
     %{"data" => %{"recordCompletion" => %{"result" => result, "errors" => []}}} = body
 
     assert result["meditationSetId"] == to_string(set.id)
+    # Both ids are digits, so a client can store them as integers.
+    assert result["id"] =~ ~r/^\d+$/
+    assert result["meditationSetId"] =~ ~r/^\d+$/
     assert result["completedAt"] =~ ~r/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
 
     stored = Repo.get!(Completion, String.to_integer(result["id"]))

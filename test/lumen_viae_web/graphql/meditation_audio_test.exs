@@ -130,6 +130,36 @@ defmodule LumenViaeWeb.Graphql.MeditationAudioTest do
     assert key_of(answer["audio"]["url"]) == key_of(rest["data"]["audio_url"])
   end
 
+  test "a recording that cannot be signed fails the field, not the document", %{
+    conn: conn,
+    both: both
+  } do
+    put_env([{:ex_aws, :access_key_id, nil}, {:ex_aws, :secret_access_key, nil}])
+
+    body =
+      graphql(
+        conn,
+        """
+        query Refresh($ids: [ID!]!) {
+          meditationAudio(meditationIds: $ids) { meditationId }
+          voices { slug }
+        }
+        """,
+        %{ids: [to_string(both.id)]}
+      )
+
+    # Not [], which would read as "withdrawn" and make a player skip it.
+    assert body["data"]["meditationAudio"] == nil
+    assert [%{"code" => "audio_unavailable", "path" => ["meditationAudio"]}] = body["errors"]
+    assert [_ | _] = body["data"]["voices"]
+  end
+
+  test "every id answered is digits", %{conn: conn, both: both, male_only: male_only} do
+    %{"data" => %{"meditationAudio" => answers}} = refresh(conn, [both.id, male_only.id])
+
+    assert Enum.all?(answers, &(&1["meditationId"] =~ ~r/^\d+$/))
+  end
+
   test "an unknown voice is no preference", %{conn: conn, both: both} do
     body = refresh(conn, [both.id], "nobody")
 

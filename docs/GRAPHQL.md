@@ -52,7 +52,8 @@ list the valid values.
 
 **Ids are GraphQL `ID`s**, which travel as strings (`"42"`). Every one is
 the same integer the REST API serves, written in digits, so a client may
-read it as an integer; a test holds every id in a response to `^\d+$`.
+read it as an integer. Tests hold every id in a set detail, a
+`meditationAudio` answer and a `recordCompletion` result to `^\d+$`.
 
 **A voice is a preference.** Wherever a query takes a voice
 (`rosaryAudio`, `meditationAudio`, `narration(preferring:)`), a retired
@@ -176,6 +177,10 @@ an id with nothing to play is left out of the answer rather than failing
 the batch, so one withdrawn meditation does not cost the rest. At most 200
 ids per request.
 
+A recording that cannot be signed is different: `meditationAudio` is then
+null with `audio_unavailable`. Signing fails for every recording at once,
+and leaving those ids out would read as "withdrawn".
+
 ## Narration voices and the spoken Rosary
 
 | Query | Returns |
@@ -231,10 +236,13 @@ not exist, so the write cannot be used to learn that a hidden set exists.
 Errors arrive in two places, by kind:
 
 - **A refusal of the request** - `automated_client` or `rate_limited` from
-  the guard below - is a top-level error, and `recordCompletion` is null.
+  the guard below - is a top-level error, and `data` is null (the
+  mutation's field is non-null, so its error nulls the response; it is
+  never combined with anything).
 - **A refusal of the completion** - the set does not exist or is hidden -
   is in the mutation's own `errors` (`code: "invalid_argument"`,
-  `fields: ["meditationSetId"]`), beside a null `result`.
+  `fields: ["meditationSetId"]`), beside a null `result`. In-band errors
+  carry a `code` too, so a client never matches on a message.
 
 (AshGraphql's `root_level_errors?` would put the second kind at the top
 level too, but it also reports every query error twice, so it is off.)

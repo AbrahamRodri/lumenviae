@@ -52,7 +52,7 @@ defmodule LumenViae.Rosary.SpokenRosary do
       allow_nil? false
       public? true
 
-      description "The voice actually served, which differs from the one asked for when that one is retired."
+      description "The voice actually served: the one asked for, or its successor when it is retired, or the default when none was asked for or the slug names no voice."
     end
 
     attribute :version, :string do

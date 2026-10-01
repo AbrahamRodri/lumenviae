@@ -139,7 +139,12 @@ defmodule LumenViae.Rosary.Meditation do
     end
 
     action :audio_for, {:array, LumenViae.Rosary.Types.MeditationNarration} do
+      # Nullable at the GraphQL root, so a signing outage here leaves the
+      # rest of a combined document its data.
+      allow_nil? true
+
       description "Freshly signed narrations for meditations by id, in the order asked, each in the preferred voice where it has one. An id with nothing to play is left out."
+
       constraints nil_items?: false
 
       argument :meditation_ids, {:array, LumenViae.Rosary.Types.Id} do
