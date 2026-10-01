@@ -53,6 +53,7 @@ defmodule LumenViae.Rosary do
       list LumenViae.Rosary.NarrationVoice, :voices, :offered, paginate_with: nil
       list LumenViae.Rosary.NarrationVoice, :retired_voices, :retired, paginate_with: nil
       read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: false
+      action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
     end
   end
 

@@ -101,6 +101,33 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 `LumenViae.Rosary.SpokenRosary`), answered from config and the
 `PrayerAudio` catalogue, which is all the REST endpoints read too.
 
+## Meditation audio
+
+| Query | Returns |
+| --- | --- |
+| `meditationAudio(meditationIds, voice)` | `[MeditationNarration!]!`, each `meditationId voice audio { url expiresAt }`: fresh URLs for a stored set's meditations, in the order asked |
+
+The plural of `GET /api/meditations/:id/audio`, under the same rules for
+each id: without a `voice` the default voice (or the first that has
+recorded the meditation); a named voice exact, a retired one meaning its
+successor; an archived meditation serves nothing. An id with nothing to
+play is left out of the answer instead of failing the batch, so one
+withdrawn meditation does not cost the rest. An unknown voice is an
+`invalid_argument` error on `voice`. At most 200 ids per request.
+
+On a `Meditation`, wherever one is returned:
+
+- `narrations: [SignedNarration!]!`, each `voice audio`, every recording
+  default voice first, as the REST set detail lists them.
+- `narration(preferring: String): SignedNarration`, the one recording to
+  play for a listener who prefers a voice: that voice if it has recorded
+  the meditation, otherwise the default. An unknown slug is ignored rather
+  than an error, since it is a preference. Null only when nothing is
+  recorded.
+
+Ids are GraphQL `ID`s, which travel as strings (`"42"`); they name the same
+integers as the REST API, and a client may send either form back.
+
 ## The Divine Office
 
 | Query | Returns |

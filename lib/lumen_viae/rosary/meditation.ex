@@ -14,8 +14,15 @@ defmodule LumenViae.Rosary.Meditation do
     data_layer: AshPostgres.DataLayer,
     extensions: [AshGraphql.Resource]
 
+  # GraphQL shows a meditation's text, its mystery and its narrations as
+  # signed URLs. The narrations relationship (S3 keys, not URLs) and the
+  # path to sets stay out of the type; `narrations` in GraphQL is the
+  # signed_narrations calculation. See docs/GRAPHQL.md.
   graphql do
     type :meditation
+    relationships [:mystery]
+    hide_fields [:mystery_id]
+    field_names signed_narrations: :narrations
   end
 
   postgres do
@@ -128,6 +135,22 @@ defmodule LumenViae.Rosary.Meditation do
       accept []
       change set_attribute(:archived_at, nil)
     end
+
+    action :audio_for, {:array, LumenViae.Rosary.Types.MeditationNarration} do
+      description "Freshly signed narrations for meditations by id, in the order asked. An id with nothing to play is left out."
+      constraints nil_items?: false
+
+      argument :meditation_ids, {:array, LumenViae.Rosary.Types.Id} do
+        allow_nil? false
+        constraints max_length: 200, nil_items?: false
+      end
+
+      argument :voice, :string do
+        description "A voice slug; without one, the default voice. A retired voice is served by its successor."
+      end
+
+      run LumenViae.Rosary.Meditation.AudioFor
+    end
   end
 
   attributes do
@@ -218,6 +241,25 @@ defmodule LumenViae.Rosary.Meditation do
     # string where newer ones carry null.
     calculate :has_audio?, :boolean, expr(not is_nil(audio_url) and audio_url != "") do
       description "Whether the meditation has an audio filename, and so is expected to have a recording in every voice."
+    end
+
+    calculate :signed_narrations,
+              {:array, LumenViae.Rosary.Types.SignedNarration},
+              LumenViae.Rosary.Meditation.SignedNarrations do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+      description "Every recording of the meditation as a playable URL, the default voice first."
+    end
+
+    calculate :narration,
+              LumenViae.Rosary.Types.SignedNarration,
+              LumenViae.Rosary.Meditation.PreferredNarration do
+      public? true
+
+      description "The recording to play for a listener who prefers a voice: that voice if it has recorded the meditation, otherwise the default. `preferring` is a voice slug: a retired voice means its successor, an unknown one is ignored. Null when nothing is recorded."
+
+      argument :preferring, :string
     end
   end
 end
