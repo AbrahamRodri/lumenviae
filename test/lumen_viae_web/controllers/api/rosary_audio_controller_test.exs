@@ -44,6 +44,112 @@ defmodule LumenViaeWeb.API.RosaryAudioControllerTest do
     assert hd(data["verses"]["joyful_1"])["reference"] == "Luke 1:26"
   end
 
+  # R1, R2
+  test "voice, version and expiry are typed the way the app parses them", %{conn: conn} do
+    data = manifest(conn)
+
+    assert is_binary(data["voice"])
+    assert is_binary(data["version"])
+    # ISO8601DateFormatter() defaults reject fractional seconds, and a failed
+    # parse marks the manifest stale on every launch. DateTime.from_iso8601
+    # accepts things the app rejects, so the shape is matched instead.
+    assert_utc_second(data["expires_at"], "expires_at")
+  end
+
+  # R3: literal, because PrayerAudio.prayer_ids() would only compare the
+  # server with itself.
+  test "every prayer the app looks up by id is served, with a file and a url", %{conn: conn} do
+    data = manifest(conn)
+
+    for id <-
+          ~w(sign_of_cross apostles_creed our_father hail_mary glory_be fatima_prayer
+             hail_holy_queen rosary_closing_prayer act_of_contrition sorrows_closing_prayer
+             memorare st_michael_prayer) do
+      assert %{"file" => file, "audio_url" => url} = data["prayers"][id], "missing prayer #{id}"
+      assert is_binary(file)
+      assert is_binary(url)
+    end
+  end
+
+  # R4: literal keys again.
+  test "an announcement and a verse list exist for every mystery the app prays", %{conn: conn} do
+    data = manifest(conn)
+
+    keys =
+      for {category, count} <-
+            [joyful: 5, sorrowful: 5, glorious: 5, luminous: 5, seven_sorrows: 7],
+          n <- 1..count,
+          do: "#{category}_#{n}"
+
+    assert length(keys) == 27
+
+    for key <- keys do
+      announcement = data["announcements"][key]
+      assert is_map(announcement), "no announcement for #{key}"
+      assert is_binary(announcement["file"])
+      assert is_binary(announcement["audio_url"])
+      assert_string_or_nil(announcement["text"], "#{key} text")
+
+      verses = data["verses"][key]
+      assert is_list(verses) and verses != [], "no verses for #{key}"
+
+      for verse <- verses do
+        assert is_binary(verse["file"])
+        assert is_binary(verse["audio_url"])
+        assert_string_or_nil(verse["reference"], "#{key} reference")
+      end
+    end
+  end
+
+  # R5: the app reads verses[key][n - 1] as Hail Mary n, so the list order
+  # is the bead order of the app's own export, for every mystery.
+  test "each mystery's verses come in the export's bead order", %{conn: conn} do
+    export =
+      :lumen_viae
+      |> Application.app_dir("priv/rosary_audio/scriptural_rosary.json")
+      |> File.read!()
+      |> Jason.decode!()
+
+    verses = manifest(conn)["verses"]
+
+    for {key, beads} <- export do
+      assert Enum.map(verses[key], & &1["reference"]) == Enum.map(beads, & &1["reference"]),
+             "#{key} is out of bead order"
+    end
+  end
+
+  # R6: the app sorts and comma-joins its kinds. A kind it did not ask for
+  # must be absent, because it treats any non-nil map as "this kind is held".
+  describe "the include strings the app sends" do
+    test "announcements,prayers,verses leaves the book absent", %{conn: conn} do
+      data = manifest(conn, "?include=announcements,prayers,verses")
+
+      for kind <- ~w(announcements prayers verses), do: assert(is_map(data[kind]))
+      refute Map.has_key?(data, "book")
+    end
+
+    test "book alone serves only the book", %{conn: conn} do
+      data = manifest(conn, "?include=book")
+
+      assert is_map(data["book"]) and data["book"] != %{}
+      for kind <- ~w(announcements prayers verses), do: refute(Map.has_key?(data, kind))
+    end
+
+    test "all four kinds serve all four", %{conn: conn} do
+      data = manifest(conn, "?include=announcements,book,prayers,verses")
+
+      for kind <- ~w(announcements book prayers verses), do: assert(is_map(data[kind]))
+    end
+  end
+
+  # G2: URLSession's default Accept.
+  test "answers */* with 200 JSON", %{conn: conn} do
+    assert conn
+           |> Plug.Conn.put_req_header("accept", "*/*")
+           |> get("/api/rosary/audio")
+           |> json_response(200)
+  end
+
   test "?voice picks the voice and keys its files under that voice", %{conn: conn} do
     data = manifest(conn, "?voice=male")
 
@@ -73,6 +179,7 @@ defmodule LumenViaeWeb.API.RosaryAudioControllerTest do
     refute Map.has_key?(full, "book")
   end
 
+  # R7: the app retries with the default voice on 400 and only on 400.
   test "an unknown voice is a 400 naming it", %{conn: conn} do
     body = conn |> get("/api/rosary/audio?voice=tenor") |> json_response(400)
     assert body["error"]["message"] =~ "tenor"
