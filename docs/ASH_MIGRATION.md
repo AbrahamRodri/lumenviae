@@ -39,7 +39,7 @@ Absinthe), with GraphiQL in development.
 | --- | --- | --- |
 | Ash refactor - manager (integration) | Opus 5.5 | this plan, the integration branch, all merges, GraphQL, policies, final cleanup |
 | Ash refactor - Fable (Rosary domain) | Fable 5.1 | the Rosary domain port, its LiveView forms, the curation services |
-| Ash refactor - Sonnet (Office + GraphQL) | Sonnet 5.5 | small, well-bounded tasks the manager hands out one at a time |
+| Ash refactor - Sonnet (small tasks) | Sonnet 5.5 | small, well-bounded tasks the manager hands out one at a time |
 | Ash refactor - iOS API contract | Opus 5.5 | read-only audit of what the iOS app depends on; GraphQL client review |
 
 ## Branches
@@ -65,6 +65,9 @@ Absinthe), with GraphiQL in development.
   branch has moved, `git rebase claude/ash-graphql-refactor-5d58e3` (or
   merge it in) before continuing.
 - Never use bare `git stash`. The stash is shared across worktrees.
+- **Tests run against your own database.** Every worktree shares one
+  Postgres server, so give each session its own test partition:
+  `MIX_TEST_PARTITION=_fable mix test`, `_sonnet`, and so on.
 
 ## House rules (from CLAUDE.md, restated because they bite)
 
@@ -252,6 +255,12 @@ Hand back in milestones, each green: (a) Mystery and Author,
 cleanup.
 
 ### Phase 3 - GraphQL (manager, alongside Phase 2)
+
+The Office domain moves to Ash first: it owns no tables, so its hours,
+days and calendar become generic actions on resources with no data
+layer, which is what AshGraphql needs in order to expose them. It does
+not depend on the Rosary port, so it starts immediately.
+
 
 `/api/graphql` and GraphiQL at `/dev/graphiql` in development. Public
 queries for visible sets, set detail in prayer order with signed
