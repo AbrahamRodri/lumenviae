@@ -27,8 +27,9 @@ tool that is best at each job:
 decodes it with non-optional Swift properties. Every response keeps its
 keys, types, ordering, status codes and headers. The controllers and JSON
 views stay; only what they call underneath changes.
-`test/lumen_viae_web/controllers/api/contract_test.exs` is the guarantee,
-and the iOS session is extending it.
+`test/lumen_viae_web/controllers/api/contract_test.exs` is the guarantee.
+docs/IOS_API_CONTRACT.md records exactly what every shipped build decodes,
+and its gap list is being turned into tests before the port lands.
 
 **GraphQL is added alongside, not instead.** `/api/graphql` (AshGraphql on
 Absinthe), with GraphiQL in development.
