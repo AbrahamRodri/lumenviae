@@ -32,7 +32,9 @@ defmodule LumenViaeWeb.API.CompletionBackCompatTest do
   @agents [
     "LumenViae/1.0 CFNetwork/1494.0.7 Darwin/23.4.0",
     "LumenViae/1.2.3 CFNetwork/1568.100.1 Darwin/24.0.0",
+    # C3: PRODUCT_NAME is the target name, `app`, and no build overrides it.
     "app/5 CFNetwork/3826.500.111 Darwin/25.0.0",
+    "app/4 CFNetwork/1568.100.1 Darwin/24.0.0",
     "lumenviae/1.0 CFNetwork/978.0.7 Darwin/18.7.0",
     "Lumen%20Viae/1 CFNetwork/1410.0.3 Darwin/22.6.0",
     "MyApp/1 CFNetwork/1220.1 Darwin/20.3.0",
