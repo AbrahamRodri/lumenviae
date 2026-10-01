@@ -1,0 +1,133 @@
+defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
+  @moduledoc """
+  `recordCompletion`, the GraphQL twin of `POST /api/completions` and the
+  one write the GraphQL API exposes: what it records, what it refuses, and
+  the guard in front of it.
+
+  Not async, and every test from its own address: the rate limit is a
+  global counter keyed on address, and this file lowers it.
+  """
+  use LumenViaeWeb.ConnCase, async: false
+
+  import LumenViaeWeb.GraphqlHelpers
+
+  alias LumenViae.Repo
+  alias LumenViae.Rosary
+  alias LumenViae.Rosary.Completion
+
+  @limit 2
+
+  @mutation """
+  mutation Record($input: RecordCompletionInput!) {
+    recordCompletion(input: $input) {
+      result { id meditationSetId completedAt }
+      errors { code message fields }
+    }
+  }
+  """
+
+  setup do
+    previous = Application.get_env(:lumen_viae, :completions_per_hour)
+    Application.put_env(:lumen_viae, :completions_per_hour, @limit)
+    on_exit(fn -> Application.put_env(:lumen_viae, :completions_per_hour, previous) end)
+
+    {:ok, set} = Rosary.create_meditation_set(%{name: "Prayed over GraphQL", category: "joyful"})
+
+    %{set: set, conn: from_a_new_address(build_conn())}
+  end
+
+  defp from_a_new_address(conn) do
+    n = System.unique_integer([:positive])
+    put_req_header(conn, "fly-client-ip", "198.51.#{rem(n, 200)}.#{rem(div(n, 200), 200)}")
+  end
+
+  defp as(conn, agent), do: put_req_header(conn, "user-agent", agent)
+
+  defp record(conn, set_id, extra \\ %{}) do
+    graphql(conn, @mutation, %{input: Map.merge(%{meditationSetId: to_string(set_id)}, extra)})
+  end
+
+  test "records a completion from the app, and answers as REST does", %{conn: conn, set: set} do
+    %{"data" => %{"recordCompletion" => %{"result" => result, "errors" => []}}} =
+      record(conn, set.id, %{prayedAloud: true})
+
+    assert result["meditationSetId"] == to_string(set.id)
+    assert result["completedAt"] =~ ~r/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
+
+    stored = Repo.get!(Completion, String.to_integer(result["id"]))
+    assert stored.meditation_set_id == set.id
+    assert stored.source == "ios"
+    assert stored.prayed_aloud == true
+    # The address is truncated before it is stored, never kept whole.
+    assert stored.ip_prefix =~ ~r/^198\.51\.\d+\.0$/
+  end
+
+  test "a hidden set is refused exactly like a missing one", %{conn: conn, set: set} do
+    {:ok, mystery} =
+      Rosary.create_mystery(%{name: "Hidden", category: "joyful", order: 900_001})
+
+    {:ok, archived} = Rosary.create_meditation(%{content: "Withdrawn", mystery_id: mystery.id})
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, archived.id, 1)
+    {:ok, _} = Rosary.archive_meditation(archived)
+
+    hidden = record(conn, set.id)["data"]["recordCompletion"]
+    missing = record(conn, 999_999_999)["data"]["recordCompletion"]
+
+    assert hidden["result"] == nil
+    assert [%{"fields" => ["meditationSetId"]} = hidden_error] = hidden["errors"]
+    assert [missing_error] = missing["errors"]
+    assert hidden_error["message"] == missing_error["message"]
+  end
+
+  test "a client cannot choose the source or its address", %{conn: conn, set: set} do
+    body = record(conn, set.id, %{source: "web", ipPrefix: "10.0.0.0"})
+
+    assert body["data"] == nil
+    assert body["errors"] != []
+  end
+
+  describe "the guard" do
+    test "turns a crawler away, and records nothing", %{conn: conn, set: set} do
+      before = Rosary.count_total_completions()
+
+      body =
+        conn
+        |> as("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
+        |> record(set.id)
+
+      assert [%{"code" => "automated_client"}] = body["errors"]
+      assert Rosary.count_total_completions() == before
+    end
+
+    test "lets the app's own user agent through", %{conn: conn, set: set} do
+      body = conn |> as("app/5 CFNetwork/3826.500.111 Darwin/25.0.0") |> record(set.id)
+
+      assert %{"result" => %{"id" => _}} = body["data"]["recordCompletion"]
+    end
+
+    test "rate limits each address", %{conn: conn, set: set} do
+      for _ <- 1..@limit do
+        assert %{"result" => %{"id" => _}} = record(conn, set.id)["data"]["recordCompletion"]
+      end
+
+      body = record(conn, set.id)
+      assert [%{"code" => "rate_limited"}] = body["errors"]
+    end
+
+    test "shares one budget with POST /api/completions", %{conn: conn, set: set} do
+      for _ <- 1..@limit do
+        conn
+        |> post("/api/completions", %{meditation_set_id: set.id})
+        |> json_response(201)
+      end
+
+      assert [%{"code" => "rate_limited"}] = record(conn, set.id)["errors"]
+    end
+
+    test "is not spent by reads", %{conn: conn, set: set} do
+      for _ <- 1..(@limit + 3), do: graphql(conn, "{ voices { slug } }")
+
+      assert %{"result" => %{"id" => _}} = record(conn, set.id)["data"]["recordCompletion"]
+    end
+  end
+end

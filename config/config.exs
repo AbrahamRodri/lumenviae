@@ -9,6 +9,13 @@ import Config
 
 config :ash_graphql, authorize_update_destroy_with_error?: true
 
+# Errors name their fields as GraphQL spells them. See
+# LumenViaeWeb.Graphql.ErrorHandler.
+for domain <- [LumenViae.Rosary, LumenViae.Office] do
+  config :lumen_viae, domain,
+    graphql: [error_handler: {LumenViaeWeb.Graphql.ErrorHandler, :handle_error, []}]
+end
+
 config :ash,
   allow_forbidden_field_for_relationships_by_default?: true,
   include_embedded_source_by_default?: false,

@@ -60,8 +60,16 @@ defmodule LumenViae.Rosary.Completion do
   """
   def sources, do: @sources
 
+  # GraphQL's recordCompletion answers with id, meditationSetId and
+  # completedAt, exactly the REST response; nothing else is public. The
+  # set's id is a GraphQL ID, as it is on the set itself.
   graphql do
     type :completion
+    relationships []
+    attribute_types meditation_set_id: :id
+    argument_input_types record_from_app: [meditation_set_id: non_null(:id)]
+    derive_filter? false
+    derive_sort? false
   end
 
   postgres do

@@ -158,6 +158,37 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 `LumenViae.Rosary.SpokenRosary`), answered from config and the
 `PrayerAudio` catalogue, which is all the REST endpoints read too.
 
+## Recording a completion
+
+```graphql
+mutation {
+  recordCompletion(input: { meditationSetId: "42", prayedAloud: true }) {
+    result { id meditationSetId completedAt }
+    errors { code message fields }
+  }
+}
+```
+
+The GraphQL twin of `POST /api/completions`, and the API's one write. The
+client says which set and whether it was prayed aloud, and nothing else:
+the source is always the app, the time is the server's, and the address
+comes from the connection (never from the query), truncated before it is
+stored. A set the public cannot see is refused exactly like one that does
+not exist (`fields: ["meditationSetId"]`), so the write cannot be used to
+learn that a hidden set exists. A validation failure arrives in `errors`
+beside a null `result`, with HTTP 200.
+
+The same guard stands in front of it as in front of the REST route, run
+on this field alone so reads never spend it:
+
+| Code | Meaning |
+| --- | --- |
+| `automated_client` | The user agent names a crawler. Nothing is recorded. |
+| `rate_limited` | Too many completions from this address this hour. The budget is shared with `POST /api/completions`, so using both APIs does not double it. |
+
+Error `fields` are spelled as GraphQL spells them (`meditationSetId`), so
+a client can match an error to the input it sent.
+
 ## Meditation audio
 
 | Query | Returns |

@@ -23,15 +23,20 @@ defmodule LumenViaeWeb.Graphql.SchemaTest do
   # Field names (as GraphQL spells them) that would leak something private:
   # S3 keys instead of signed URLs, the analytics' network prefix and place,
   # moderation state, raw artwork columns that bypass the publishable gate,
-  # narration markup, and the meditation's audio filename.
+  # narration markup, and the meditation's audio filename. (A completion's
+  # source is decided by the server; the input test below pins that.)
   @never_exposed ~w(
     s3Key ipPrefix city region country countryCode timeZone locale
     archivedAt imageKey imageAlt imageLicense imageFocalX imageFocalY
-    ttsAnnotations audioUrl authorId mysteryId meditationSetId
+    ttsAnnotations audioUrl authorId mysteryId
   )
 
   # Types a client must never reach.
-  @never_reachable ~w(Completion Narration Author)
+  @never_reachable ~w(Narration Author)
+
+  # A completion is reachable only as recordCompletion's answer, and shows
+  # exactly what POST /api/completions answers.
+  @completion_fields ~w(completedAt id meditationSetId)
 
   defp sdl, do: Absinthe.Schema.to_sdl(LumenViaeWeb.GraphqlSchema)
 
@@ -61,6 +66,25 @@ defmodule LumenViaeWeb.Graphql.SchemaTest do
 
     reachable = Enum.filter(@never_reachable, &(&1 in types))
     assert reachable == [], "private resources reachable over GraphQL: #{inspect(reachable)}"
+  end
+
+  test "a completion shows exactly what the REST response shows" do
+    [_, body] = Regex.run(~r/^type Completion \{(.*?)^\}/ms, sdl())
+
+    fields =
+      Regex.scan(~r/^  ([a-zA-Z0-9]+):/m, body, capture: :all_but_first)
+      |> List.flatten()
+      |> Enum.sort()
+
+    assert fields == @completion_fields
+  end
+
+  test "recordCompletion takes the set and whether it was prayed aloud, nothing else" do
+    [_, body] = Regex.run(~r/^input RecordCompletionInput \{(.*?)^\}/ms, sdl())
+
+    inputs = Regex.scan(~r/^  ([a-zA-Z0-9]+):/m, body, capture: :all_but_first) |> List.flatten()
+
+    assert Enum.sort(inputs) == ["meditationSetId", "prayedAloud"]
   end
 
   test "the only writes are the ones allowed" do

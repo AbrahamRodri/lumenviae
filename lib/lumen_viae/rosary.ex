@@ -64,6 +64,13 @@ defmodule LumenViae.Rosary do
         hide_inputs: [:category],
         allow_nil?: false
     end
+
+    # The one public write. LumenViaeWeb.GraphqlSchema puts the same guard
+    # in front of it as POST /api/completions: a crawler check and a
+    # per-address rate limit, on one budget shared with REST.
+    mutations do
+      create LumenViae.Rosary.Completion, :record_completion, :record_from_app
+    end
   end
 
   # Browsable at /admin/data, behind the console's login: a generic view of
