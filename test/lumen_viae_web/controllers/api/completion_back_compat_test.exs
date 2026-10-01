@@ -47,6 +47,7 @@ defmodule LumenViaeWeb.API.CompletionBackCompatTest do
         |> post(~p"/api/completions", %{meditation_set_id: set.id})
         |> json_response(201)
 
+      assert is_integer(body["data"]["meditation_set_id"])
       assert body["data"]["meditation_set_id"] == set.id, "blocked: #{agent}"
     end
   end
@@ -81,6 +82,7 @@ defmodule LumenViaeWeb.API.CompletionBackCompatTest do
              |> post(~p"/api/completions", %{meditation_set_id: set.id, prayed_aloud: true})
              |> json_response(201)
 
+    assert is_integer(id)
     assert id == set.id
   end
 

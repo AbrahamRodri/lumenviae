@@ -9,6 +9,7 @@ defmodule LumenViaeWeb.API.NarrationTest do
   import LumenViae.Test.EnvStub, only: [put_env: 1]
 
   alias LumenViae.Rosary
+  alias LumenViae.Rosary.Voices
 
   setup do
     put_env([
@@ -76,6 +77,55 @@ defmodule LumenViaeWeb.API.NarrationTest do
     assert silent["audio_url"] == nil
   end
 
+  # D2 (narrations): where present, every element needs both as strings,
+  # on every meditation, or the app fails the whole set.
+  test "every narration of every meditation has a string voice and url", %{
+    conn: conn,
+    set: set
+  } do
+    meditations =
+      conn
+      |> get(~p"/api/meditation-sets/#{set.id}")
+      |> json_response(200)
+      |> get_in(["data", "meditations"])
+
+    assert length(meditations) == 3
+
+    for meditation <- meditations do
+      assert is_list(meditation["narrations"])
+
+      for narration <- meditation["narrations"] do
+        assert is_binary(narration["voice"])
+        assert is_binary(narration["audio_url"])
+      end
+    end
+
+    assert Enum.any?(meditations, &(&1["narrations"] != []))
+  end
+
+  # D4: the app treats narrations.first as the default voice when the voice
+  # it chose is missing, so the default must come first.
+  test "the default voice is the first narration, by config rather than by name", %{
+    conn: conn,
+    set: set
+  } do
+    [both | _] =
+      conn
+      |> get(~p"/api/meditation-sets/#{set.id}")
+      |> json_response(200)
+      |> get_in(["data", "meditations"])
+
+    assert hd(both["narrations"])["voice"] == Voices.default().slug
+  end
+
+  # D5: an expiry the app cannot parse reads as "not expired".
+  test "audio_expires_at is a UTC timestamp to the second", %{conn: conn, set: set} do
+    data =
+      conn |> get(~p"/api/meditation-sets/#{set.id}") |> json_response(200) |> Map.fetch!("data")
+
+    assert_utc_second(data["audio_expires_at"], "audio_expires_at")
+  end
+
   describe "GET /api/meditations/:id/audio" do
     test "serves the default voice, naming it", %{conn: conn, both: both} do
       data =
@@ -84,10 +134,40 @@ defmodule LumenViaeWeb.API.NarrationTest do
         |> json_response(200)
         |> Map.fetch!("data")
 
+      assert is_integer(data["id"])
       assert data["id"] == both.id
       assert data["voice"] == "female"
       assert key_of(data["audio_url"]) == "/lumenviae-audio/voices/female/both.mp3"
       assert {:ok, _, _} = DateTime.from_iso8601(data["expires_at"])
+    end
+
+    # A1
+    test "every field the app decodes is correctly typed", %{conn: conn, both: both} do
+      data =
+        conn
+        |> get(~p"/api/meditations/#{both.id}/audio")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert is_integer(data["id"])
+      assert is_binary(data["audio_url"])
+      assert is_binary(data["voice"])
+      assert_utc_second(data["expires_at"], "expires_at")
+    end
+
+    # A2: a cacheable response would replay a URL after it expires.
+    test "is never cached", %{conn: conn, both: both} do
+      conn = get(conn, ~p"/api/meditations/#{both.id}/audio")
+
+      assert get_resp_header(conn, "cache-control") == ["private, no-store"]
+    end
+
+    # G2: URLSession's default Accept.
+    test "answers */* with 200 JSON", %{conn: conn, both: both} do
+      assert conn
+             |> Plug.Conn.put_req_header("accept", "*/*")
+             |> get(~p"/api/meditations/#{both.id}/audio")
+             |> json_response(200)
     end
 
     test "serves the voice asked for", %{conn: conn, both: both} do
