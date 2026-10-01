@@ -47,7 +47,7 @@ defmodule LumenViae.Rosary.MeditationSet do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
-    extensions: [AshGraphql.Resource],
+    extensions: [AshGraphql.Resource, AshPaperTrail.Resource],
     fragments: [LumenViae.Rosary.Artwork.Fragment]
 
   alias LumenViae.Rosary.Categories
@@ -109,6 +109,22 @@ defmodule LumenViae.Rosary.MeditationSet do
     custom_indexes do
       index [:category]
     end
+  end
+
+  # Every create, update and destroy leaves a version row holding the whole
+  # record as it stood afterwards (or, for a destroy, as it stood last), so
+  # an edit can always be seen and reversed. The action that made it is
+  # stored with it. The two timestamps are left out because they change
+  # with every write and say nothing a version's own timestamp does not;
+  # the primary key is left out by the extension.
+  #
+  # No foreign key from a version to its record: the record can really be
+  # deleted, and its versions are the one place its last state survives.
+  paper_trail do
+    change_tracking_mode :snapshot
+    store_action_name? true
+    ignore_attributes [:inserted_at, :updated_at]
+    reference_source? false
   end
 
   actions do
