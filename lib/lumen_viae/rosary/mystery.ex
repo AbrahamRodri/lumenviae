@@ -111,6 +111,21 @@ defmodule LumenViae.Rosary.Mystery do
     has_many :meditations, LumenViae.Rosary.Meditation do
       public? true
     end
+
+    # The meditations a reader can be shown: archived ones are out of
+    # circulation everywhere but the admin.
+    has_many :active_meditations, LumenViae.Rosary.Meditation do
+      filter expr(is_nil(archived_at))
+      public? true
+    end
+  end
+
+  aggregates do
+    count :meditation_count, :meditations
+
+    # A mystery whose only meditation has been archived has nothing to
+    # pray, so the dashboard's health check asks this one.
+    count :active_meditation_count, :active_meditations
   end
 
   identities do

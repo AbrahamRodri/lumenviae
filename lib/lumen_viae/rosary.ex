@@ -77,9 +77,30 @@ defmodule LumenViae.Rosary do
       define :delete_mystery, action: :destroy, default_options: [return_destroyed?: true]
     end
 
-    resource LumenViae.Rosary.Meditation
+    resource LumenViae.Rosary.Meditation do
+      define :list_meditations, action: :detailed, functions: @read
+
+      define :list_meditations_with_sets,
+        action: :detailed,
+        default_options: [load: [:meditation_sets]],
+        functions: @read
+
+      define :get_meditation, action: :detailed, get_by: [:id]
+      define :create_meditation, action: :create
+      define :update_meditation, action: :update
+      define :delete_meditation, action: :destroy, default_options: [return_destroyed?: true]
+      define :archive_meditation, action: :archive
+      define :unarchive_meditation, action: :unarchive
+    end
+
     resource LumenViae.Rosary.MeditationSet
-    resource LumenViae.Rosary.SetMembership
+
+    resource LumenViae.Rosary.SetMembership do
+      define :add_meditation_to_set,
+        action: :create,
+        args: [:meditation_set_id, :meditation_id, :order]
+    end
+
     resource LumenViae.Rosary.Completion
 
     resource LumenViae.Rosary.Author do
@@ -100,14 +121,16 @@ defmodule LumenViae.Rosary do
     resource LumenViae.Rosary.SpokenRosary
   end
 
+  require Ash.Query
+
   alias LumenViae.Rosary.Artwork
   alias LumenViae.CentralTime
   alias LumenViae.Rosary.Completions
   alias LumenViae.Rosary.MeditationSets
-  alias LumenViae.Rosary.Meditations
+  alias LumenViae.Rosary.Meditation
   alias LumenViae.Rosary.Mystery
-  alias LumenViae.Rosary.Narrations
-  alias LumenViae.Rosary.SetMemberships
+  alias LumenViae.Rosary.Narration
+  alias LumenViae.Rosary.SetMembership
   alias LumenViae.Rosary.Voices
   alias LumenViae.Services.Geolocation
   alias LumenViae.Storage.S3
@@ -121,32 +144,104 @@ defmodule LumenViae.Rosary do
   def count_mysteries, do: Ash.count!(Mystery)
 
   ## Meditations
+  #
+  # list_meditations!/0 and list_meditations_with_sets!/0 (oldest first, each
+  # with its mystery and narrations; the second with its sets too),
+  # get_meditation/1 and get_meditation!/1, create_meditation/1,
+  # update_meditation/2, delete_meditation/1, archive_meditation/1 and
+  # unarchive_meditation/1 are the code interface defined in the resources
+  # block above. To validate attributes without writing them, as the CSV
+  # import's dry run does, ask for the changeset:
+  # changeset_to_create_meditation/1, changeset_to_update_meditation/2.
 
-  defdelegate count_meditations(), to: Meditations, as: :count
-  defdelegate list_meditations(), to: Meditations, as: :list
-  defdelegate list_meditations_with_sets(), to: Meditations, as: :list_with_sets
-  defdelegate get_meditation(id), to: Meditations, as: :get
-  defdelegate get_meditation!(id), to: Meditations, as: :get!
-  defdelegate create_meditation(attrs \\ %{}), to: Meditations, as: :create
-  defdelegate update_meditation(meditation, attrs), to: Meditations, as: :update
-  defdelegate change_meditation(meditation, attrs \\ %{}), to: Meditations, as: :change
-  defdelegate change_new_meditation(attrs \\ %{}), to: Meditations, as: :change_new
-  defdelegate delete_meditation(meditation), to: Meditations, as: :delete
-  defdelegate meditation_archived?(meditation), to: Meditations, as: :archived?
-  defdelegate archive_meditation(meditation), to: Meditations, as: :archive
-  defdelegate unarchive_meditation(meditation), to: Meditations, as: :unarchive
-  defdelegate list_taken_audio_urls(audio_urls), to: Meditations
+  def count_meditations, do: Ash.count!(Meditation)
+
+  def meditation_archived?(%{archived_at: archived_at}), do: not is_nil(archived_at)
+
+  @doc """
+  Returns whichever of the given audio filenames are already claimed by a
+  meditation, so an import can warn before it overwrites their audio.
+  """
+  def list_taken_audio_urls([]), do: []
+
+  def list_taken_audio_urls(audio_urls) do
+    Meditation
+    |> Ash.Query.for_read(:with_audio_filenames, %{audio_urls: audio_urls})
+    |> Ash.Query.select([:audio_url])
+    |> Ash.read!()
+    |> Enum.map(& &1.audio_url)
+  end
+
+  @doc """
+  The lines of an error from one of this domain's writes, as
+  `"field: message; field: message"`, for the reports the import and the
+  mix tasks print. Takes what a write returns in its `{:error, _}`, or a
+  changeset from one of the `changeset_to_*` functions.
+  """
+  def error_summary(%Ecto.Changeset{} = changeset) do
+    changeset
+    |> Ecto.Changeset.traverse_errors(fn {message, _opts} -> message end)
+    |> Enum.map_join("; ", fn {field, messages} -> "#{field}: #{Enum.join(messages, ", ")}" end)
+  end
+
+  def error_summary(%{errors: errors}) when is_list(errors) do
+    errors
+    |> Enum.flat_map(&form_errors/1)
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+    |> Enum.map_join("; ", fn {field, messages} -> "#{field}: #{Enum.join(messages, ", ")}" end)
+  end
+
+  # The same reading of an error that an AshPhoenix form shows beside a
+  # field, so a report and a form never describe one failure two ways. An
+  # error with no field of its own (a record that was not found, say) is
+  # reported under `base`.
+  defp form_errors(error) do
+    case AshPhoenix.FormData.Error.impl_for(error) &&
+           AshPhoenix.FormData.Error.to_form_error(error) do
+      empty when empty in [nil, false, []] ->
+        [{:base, Exception.message(error)}]
+
+      form_errors ->
+        form_errors
+        |> List.wrap()
+        |> Enum.map(fn {field, message, vars} ->
+          {field,
+           Regex.replace(~r"%{(\w+)}", message, fn whole, key ->
+             case Enum.find(vars, fn {name, _value} -> to_string(name) == key end) do
+               {_name, value} -> to_string(value)
+               nil -> whole
+             end
+           end)}
+        end)
+    end
+  end
 
   ## Narration
 
   defdelegate list_voices(), to: Voices, as: :list
   defdelegate default_voice(), to: Voices, as: :default
   defdelegate fetch_voice(slug), to: Voices, as: :fetch
-  defdelegate narration_counts_by_voice(), to: Narrations, as: :count_by_voice
 
-  defdelegate meditation_ids_with_narration(voice_slug),
-    to: Narrations,
-    as: :list_meditation_ids_with_voice
+  @doc """
+  How many meditations each voice has recorded, as `%{voice => count}`.
+  """
+  def narration_counts_by_voice do
+    Narration
+    |> Ash.Query.select([:voice])
+    |> Ash.read!()
+    |> Enum.frequencies_by(& &1.voice)
+  end
+
+  @doc """
+  Meditation ids that have a recording in `voice_slug`.
+  """
+  def meditation_ids_with_narration(voice_slug) do
+    Narration
+    |> Ash.Query.for_read(:in_voice, %{voice: voice_slug})
+    |> Ash.Query.select([:meditation_id])
+    |> Ash.read!()
+    |> Enum.map(& &1.meditation_id)
+  end
 
   @doc """
   Records that `s3_key` now holds `voice`'s recording of the meditation.
@@ -158,9 +253,22 @@ defmodule LumenViae.Rosary do
   def record_narration(%{id: meditation_id} = meditation, voice_slug, s3_key)
       when is_binary(voice_slug) and is_binary(s3_key) do
     with {:ok, _voice} <- Voices.fetch(voice_slug),
-         {:ok, _narration} <- Narrations.upsert(meditation_id, voice_slug, s3_key) do
-      {:ok, Meditations.reload_narrations(meditation)}
+         {:ok, _narration} <-
+           Narration
+           |> Ash.Changeset.for_create(:record, %{
+             meditation_id: meditation_id,
+             voice: voice_slug,
+             s3_key: s3_key
+           })
+           |> Ash.create() do
+      {:ok, %{meditation | narrations: narrations_of(meditation_id)}}
     end
+  end
+
+  defp narrations_of(meditation_id) do
+    Narration
+    |> Ash.Query.for_read(:for_meditation, %{meditation_id: meditation_id})
+    |> Ash.read!()
   end
 
   @doc """
@@ -170,14 +278,14 @@ defmodule LumenViae.Rosary do
   Only configured voices count. A row for a voice that has since been
   removed from config is a file nobody can be offered, so it is left out
   rather than rendered as a voice the app has no name for. Uses the
-  preloaded association when the meditation carries one, and asks the
+  loaded relationship when the meditation carries one, and asks the
   table otherwise.
   """
   def meditation_narrations(%{id: meditation_id} = meditation) do
     rows =
       case Map.get(meditation, :narrations) do
         narrations when is_list(narrations) -> narrations
-        _not_loaded -> Narrations.list_for_meditation(meditation_id)
+        _not_loaded -> narrations_of(meditation_id)
       end
 
     by_voice = Map.new(rows, &{&1.voice, &1.s3_key})
@@ -413,9 +521,11 @@ defmodule LumenViae.Rosary do
   preloaded.
   """
   def list_meditations_in_set(set_id) do
-    set_id
-    |> SetMemberships.list_meditation_ids_in_set()
-    |> Meditations.list_by_ids()
+    SetMembership
+    |> Ash.Query.for_read(:in_set, %{meditation_set_id: set_id})
+    |> Ash.Query.load(meditation: [:mystery, :narrations])
+    |> Ash.read!()
+    |> Enum.map(& &1.meditation)
   end
 
   ## Visible meditation sets (public surfaces)
@@ -459,20 +569,18 @@ defmodule LumenViae.Rosary do
   Two queries, whether it is given one set or all of them.
   """
   def resolve_attribution(sets) when is_list(sets) do
-    ids_by_set = SetMemberships.list_meditation_ids_by_set()
+    set_ids = Enum.map(sets, & &1.id)
 
-    attribution =
-      sets
-      |> Enum.flat_map(&Map.get(ids_by_set, &1.id, []))
-      |> Enum.uniq()
-      |> Meditations.list_attribution_by_ids()
+    rows_by_set =
+      SetMembership
+      |> Ash.Query.for_read(:in_prayer_order)
+      |> Ash.Query.filter(meditation_set_id in ^set_ids)
+      |> Ash.Query.load(meditation: Ash.Query.select(Meditation, [:author, :source]))
+      |> Ash.read!()
+      |> Enum.group_by(& &1.meditation_set_id, & &1.meditation)
 
     Enum.map(sets, fn set ->
-      rows =
-        ids_by_set
-        |> Map.get(set.id, [])
-        |> Enum.map(&Map.get(attribution, &1))
-        |> Enum.reject(&is_nil/1)
+      rows = Map.get(rows_by_set, set.id, [])
 
       %{
         set
@@ -510,7 +618,7 @@ defmodule LumenViae.Rosary do
   def get_visible_meditation_set_with_ordered_meditations!(id) do
     set = get_meditation_set_with_ordered_meditations!(id)
 
-    if Enum.any?(set.meditations, &Meditations.archived?/1) do
+    if Enum.any?(set.meditations, &meditation_archived?/1) do
       MeditationSets.raise_not_found!()
     end
 
@@ -532,7 +640,7 @@ defmodule LumenViae.Rosary do
     with set when not is_nil(set) <- MeditationSets.get(id),
          set = MeditationSets.preload_author_profile(set),
          set = %{set | meditations: list_meditations_in_set(set.id)},
-         false <- Enum.any?(set.meditations, &Meditations.archived?/1) do
+         false <- Enum.any?(set.meditations, &meditation_archived?/1) do
       {:ok, resolve_attribution(set)}
     else
       _missing_or_hidden -> {:error, :not_found}
@@ -544,32 +652,70 @@ defmodule LumenViae.Rosary do
   because they contain at least one archived meditation.
   """
   def hidden_meditation_set_ids do
-    Meditations.list_archived_ids()
-    |> SetMemberships.list_set_ids_containing()
-    |> MapSet.new()
+    SetMembership
+    |> Ash.Query.for_read(:holding_archived)
+    |> Ash.Query.select([:meditation_set_id])
+    |> Ash.read!()
+    |> MapSet.new(& &1.meditation_set_id)
   end
 
   ## Set membership
+  #
+  # add_meditation_to_set/3 (set id, meditation id, order) is the code
+  # interface defined in the resources block above.
 
-  defdelegate add_meditation_to_set(set_id, meditation_id, order), to: SetMemberships, as: :add
-  defdelegate remove_meditation_from_set(set_id, meditation_id), to: SetMemberships, as: :remove
+  @doc """
+  Takes a meditation out of a set. Removing one that is not in the set is
+  not an error.
+  """
+  def remove_meditation_from_set(set_id, meditation_id) do
+    SetMembership
+    |> Ash.Query.for_read(:in_set, %{meditation_set_id: set_id})
+    |> Ash.Query.filter(meditation_id == ^meditation_id)
+    |> Ash.bulk_destroy!(:destroy, %{})
+
+    :ok
+  end
 
   @doc """
   The order an appended meditation should take in a set: one past the
   highest order currently used.
   """
   def next_order_in_set(set_id) do
-    SetMemberships.max_order_in_set(set_id) + 1
+    highest =
+      SetMembership
+      |> Ash.Query.for_read(:in_set, %{meditation_set_id: set_id})
+      |> Ash.max!(:order)
+
+    (highest || 0) + 1
   end
 
   ## Admin content statistics
 
-  defdelegate count_archived_meditations(), to: Meditations, as: :count_archived
-  defdelegate meditation_counts_by_mystery(), to: Meditations, as: :count_by_mystery
+  def count_archived_meditations do
+    Meditation |> Ash.Query.for_read(:archived) |> Ash.count!()
+  end
 
-  defdelegate active_meditation_counts_by_mystery(),
-    to: Meditations,
-    as: :count_active_by_mystery
+  @doc """
+  Returns a map of mystery_id => meditation count for every mystery that has
+  at least one meditation.
+  """
+  def meditation_counts_by_mystery, do: mystery_counts(:meditation_count)
+
+  @doc """
+  The same map as `meditation_counts_by_mystery/0`, counting only active
+  meditations.
+  """
+  def active_meditation_counts_by_mystery, do: mystery_counts(:active_meditation_count)
+
+  defp mystery_counts(aggregate) do
+    Mystery
+    |> Ash.Query.select([:id])
+    |> Ash.Query.load(aggregate)
+    |> Ash.read!()
+    |> Enum.reject(&(Map.fetch!(&1, aggregate) == 0))
+    |> Map.new(&{&1.id, Map.fetch!(&1, aggregate)})
+  end
 
   @doc """
   Counts active meditations that do not belong to any meditation set.
@@ -578,8 +724,7 @@ defmodule LumenViae.Rosary do
   circulation and out of its sets is finished, not unfinished.
   """
   def count_meditations_not_in_any_set do
-    SetMemberships.list_member_meditation_ids()
-    |> Meditations.count_active_excluding_ids()
+    Meditation |> Ash.Query.for_read(:active_in_no_set) |> Ash.count!()
   end
 
   @doc """
@@ -592,16 +737,7 @@ defmodule LumenViae.Rosary do
   heading instead.
   """
   def public_meditation_ids_missing_audio do
-    hidden = hidden_meditation_set_ids()
-
-    reachable =
-      SetMemberships.list_meditation_ids_by_set()
-      |> Enum.reject(fn {set_id, _ids} -> MapSet.member?(hidden, set_id) end)
-      |> Enum.flat_map(fn {_set_id, ids} -> ids end)
-      |> MapSet.new()
-
-    Meditations.list_active_ids_missing_audio()
-    |> Enum.filter(&MapSet.member?(reachable, &1))
+    Meditation |> Ash.Query.for_read(:public_missing_audio) |> meditation_ids()
   end
 
   @doc """
@@ -611,14 +747,15 @@ defmodule LumenViae.Rosary do
   `regenerate_audio --only-missing` away from being whole.
   """
   def meditation_ids_missing_a_voice do
-    expected = Meditations.list_active_ids_with_audio()
+    voices = Enum.map(Voices.list(), & &1.slug)
 
-    complete =
-      Voices.list()
-      |> Enum.map(&MapSet.new(Narrations.list_meditation_ids_with_voice(&1.slug)))
-      |> Enum.reduce(MapSet.new(expected), &MapSet.intersection(&2, &1))
+    Meditation
+    |> Ash.Query.for_read(:missing_a_voice, %{voices: voices})
+    |> meditation_ids()
+  end
 
-    Enum.reject(expected, &MapSet.member?(complete, &1))
+  defp meditation_ids(query) do
+    query |> Ash.Query.select([:id]) |> Ash.read!() |> Enum.map(& &1.id)
   end
 
   @doc """
@@ -627,16 +764,19 @@ defmodule LumenViae.Rosary do
   audio file), archived_count.
   """
   def meditation_set_stats do
-    flags = Meditations.list_audio_and_archive_flags()
-
-    SetMemberships.list_meditation_ids_by_set()
-    |> Map.new(fn {set_id, meditation_ids} ->
-      members = Enum.map(meditation_ids, &Map.get(flags, &1, %{audio?: false, archived?: false}))
-
+    SetMembership
+    |> Ash.Query.for_read(:in_prayer_order)
+    |> Ash.Query.load(
+      meditation:
+        Meditation |> Ash.Query.select([:id]) |> Ash.Query.load([:archived?, :has_audio?])
+    )
+    |> Ash.read!()
+    |> Enum.group_by(& &1.meditation_set_id, & &1.meditation)
+    |> Map.new(fn {set_id, members} ->
       {set_id,
        %{
          meditation_count: length(members),
-         audio_count: Enum.count(members, & &1.audio?),
+         audio_count: Enum.count(members, & &1.has_audio?),
          archived_count: Enum.count(members, & &1.archived?)
        }}
     end)

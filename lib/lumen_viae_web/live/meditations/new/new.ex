@@ -11,16 +11,19 @@ defmodule LumenViaeWeb.Live.Meditations.New do
      |> assign_meditation_form()}
   end
 
-  def handle_event("create_meditation", params, socket) do
-    case Rosary.create_meditation(params) do
+  def handle_event("create_meditation", %{"meditation" => params}, socket) do
+    case AshPhoenix.Form.submit(socket.assigns.meditation_form, params: params) do
       {:ok, meditation} ->
         {:noreply,
          socket
          |> put_flash(:info, "Meditation created successfully")
          |> push_navigate(to: "/admin/meditations/#{meditation.id}/edit")}
 
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to create meditation")}
+      {:error, form} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Failed to create meditation")
+         |> assign(:meditation_form, form)}
     end
   end
 
@@ -33,13 +36,7 @@ defmodule LumenViaeWeb.Live.Meditations.New do
     assign(
       socket,
       :meditation_form,
-      to_form(%{
-        "mystery_id" => "",
-        "title" => "",
-        "content" => "",
-        "author" => "",
-        "source" => ""
-      })
+      to_form(Rosary.form_to_create_meditation(as: "meditation"))
     )
   end
 

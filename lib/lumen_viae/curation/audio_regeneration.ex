@@ -55,16 +55,16 @@ defmodule LumenViae.Curation.AudioRegeneration do
 
   def run({:meditation, id}, opts) do
     case Rosary.get_meditation(id) do
-      nil ->
-        fail_target("Meditation not found: id #{id}", opts)
-
-      meditation ->
+      {:ok, meditation} ->
         meditation |> List.wrap() |> process(opts)
+
+      {:error, _not_found} ->
+        fail_target("Meditation not found: id #{id}", opts)
     end
   end
 
   def run(:all, opts) do
-    Rosary.list_meditations()
+    Rosary.list_meditations!()
     |> Enum.reject(&Rosary.meditation_archived?/1)
     |> Enum.sort_by(& &1.id)
     |> process(opts)

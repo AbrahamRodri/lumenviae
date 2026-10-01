@@ -137,7 +137,7 @@ defmodule LumenViaeWeb.Live.Meditations.List do
   end
 
   defp load_data(socket) do
-    meditations = Rosary.list_meditations_with_sets()
+    meditations = Rosary.list_meditations_with_sets!()
 
     socket
     |> assign(:meditations, meditations)

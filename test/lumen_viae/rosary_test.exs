@@ -45,13 +45,14 @@ defmodule LumenViae.RosaryTest do
       assert restored.archived_at == nil
     end
 
-    test "archived_at cannot be set through the regular changeset" do
+    test "archived_at cannot be set through the regular update" do
       meditation = create_meditation(create_mystery())
 
-      {:ok, updated} =
-        Rosary.update_meditation(meditation, %{"archived_at" => "2026-01-01T00:00:00Z"})
+      # It is not an input of that action, so the attempt is refused whole.
+      assert {:error, %Ash.Error.Invalid{}} =
+               Rosary.update_meditation(meditation, %{"archived_at" => "2026-01-01T00:00:00Z"})
 
-      assert updated.archived_at == nil
+      assert Rosary.get_meditation!(meditation.id).archived_at == nil
     end
   end
 
@@ -145,7 +146,7 @@ defmodule LumenViae.RosaryTest do
       orphan = create_meditation(mystery)
       put_in_set(set, meditation)
 
-      by_id = Map.new(Rosary.list_meditations_with_sets(), &{&1.id, &1})
+      by_id = Map.new(Rosary.list_meditations_with_sets!(), &{&1.id, &1})
 
       assert by_id[meditation.id].mystery.id == mystery.id
       assert Enum.map(by_id[meditation.id].meditation_sets, & &1.id) == [set.id]
