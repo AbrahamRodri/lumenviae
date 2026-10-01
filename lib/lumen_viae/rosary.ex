@@ -54,6 +54,15 @@ defmodule LumenViae.Rosary do
       list LumenViae.Rosary.NarrationVoice, :retired_voices, :retired, paginate_with: nil
       read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: false
       action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
+
+      # The sets the public may see. Both read through :visible, so a set
+      # hidden by an archived meditation is absent from the list and a
+      # not-found error by id.
+      list LumenViae.Rosary.MeditationSet, :visible_meditation_sets, :visible, paginate_with: nil
+
+      get LumenViae.Rosary.MeditationSet, :meditation_set, :visible,
+        hide_inputs: [:category],
+        allow_nil?: false
     end
   end
 

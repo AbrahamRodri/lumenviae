@@ -23,6 +23,8 @@ defmodule LumenViae.Rosary.Meditation do
     relationships [:mystery]
     hide_fields [:mystery_id]
     field_names signed_narrations: :narrations
+    derive_filter? false
+    derive_sort? false
   end
 
   postgres do

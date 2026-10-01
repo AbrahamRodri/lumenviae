@@ -56,8 +56,17 @@ defmodule LumenViae.Rosary.MeditationSet do
   alias LumenViae.Rosary.MeditationSet.ManagedLabels
   alias LumenViae.Rosary.MeditationSet.NormalizeLabels
 
+  # GraphQL shows a set's text, its byline and artwork as the clients
+  # print them, and its meditations in prayer order through
+  # set_memberships. The raw byline columns, the id-ordered meditations,
+  # the author link and the completions stay out. See docs/GRAPHQL.md.
   graphql do
     type :meditation_set
+    relationships [:set_memberships]
+    hide_fields [:author, :source, :author_id]
+    field_names byline_author: :author, byline_source: :source
+    derive_filter? false
+    derive_sort? false
   end
 
   postgres do
@@ -271,6 +280,13 @@ defmodule LumenViae.Rosary.MeditationSet do
 
     calculate :byline_source, :string, {Byline, field: :source} do
       description "The source the set is shown with: its own, or else the one its meditations agree on."
+      public? true
+    end
+
+    calculate :artwork,
+              LumenViae.Rosary.Types.Artwork,
+              LumenViae.Rosary.MeditationSet.PublishedArtwork do
+      description "The painting the set is shown with: its own, or else its author's portrait. Null when neither is publishable."
       public? true
     end
   end

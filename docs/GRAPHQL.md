@@ -69,6 +69,63 @@ and Ash computes only the calculations a query selects. A client that
 selects no audio has nothing signed on its behalf; one that selects
 `rosaryAudio { prayers { ... } }` has the prayers signed and no verse.
 
+**What is exposed is pinned.** The whole schema is committed as
+`priv/graphql/schema.graphql`, and `test/lumen_viae_web/graphql/schema_test.exs`
+fails when the running schema differs from it, so any change to what the
+API exposes arrives as a diff in that file. Regenerate it, deliberately,
+with:
+
+```
+mix absinthe.schema.sdl --schema LumenViaeWeb.GraphqlSchema priv/graphql/schema.graphql
+```
+
+The same test names the columns that must never reach a client (S3 keys,
+the analytics' address prefix and place, archive state, raw artwork
+columns, the audio filename) and the resources that must never be a
+reachable type (Completion, Narration, Author), so a regenerated snapshot
+cannot wave one through. The file is also what a client generates code
+from.
+
+## Authorization
+
+Every query reads through an action that already returns only what the
+public may see (`MeditationSet.:visible`, an archived meditation serving
+no audio), and every type lists the relationships it shows, so there is
+no path from a visible set to a hidden one or to a meditation outside any
+public set. The only write is `recordCompletion`, guarded like
+`POST /api/completions`. There are no Ash policies: the console and
+AshAdmin read everything as they always have, and policies would add a
+second filter to them for no protection the actions and whitelists do not
+already give. Revisit this if GraphQL ever exposes a write beyond the
+completion, or a read the admin should see differently from the public.
+
+## Meditation sets
+
+| Query | Returns |
+| --- | --- |
+| `visibleMeditationSets(category)` | `[MeditationSet!]!`, the sets the public may see, by category then in creation order, never paginated. The same list as `GET /api/meditation-sets?category=`. |
+| `meditationSet(id)` | `MeditationSet!`; a `not_found` error for a set that is missing or hidden, as REST answers 404. |
+
+A `MeditationSet` is `id name category description labels author source
+artwork setMemberships`:
+
+- `author` and `source` are the byline the clients print: the set's own,
+  or else the one every meditation in it agrees on.
+- `artwork` is one object or null, `url alignment focalX focalY width
+  height alt attribution { title artist year sourceUrl license }`: the
+  set's own painting when it is publishable, otherwise its author's
+  portrait. `url` is public and never expires. The same choice, and the
+  same gate (alt text and a licence), as REST's `image_*` fields.
+- `setMemberships { order meditation { ... } }` is the set's meditations in
+  prayer order, `order` running from 1. The player reads it as decades.
+
+A `Meditation` is `id title content author source mystery narrations
+narration(preferring:)` (see below), and its `mystery` is `id name
+category order daysPrayed description scriptureReference`.
+
+Nothing is signed unless a query selects it: a shelf of sets that selects
+no narrations has no URL signed on its behalf.
+
 ## Narration voices and the spoken Rosary
 
 | Query | Returns |

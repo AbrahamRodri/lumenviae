@@ -1,0 +1,331 @@
+schema {
+  query: RootQueryType
+}
+
+type VerseClip {
+  reference: String
+  file: String!
+  bead: Int!
+  audio: SignedAudio!
+}
+
+type VerseGroup {
+  key: String!
+  clips: [VerseClip!]!
+}
+
+type AnnouncementClip {
+  text: String
+  key: String!
+  file: String!
+  audio: SignedAudio!
+}
+
+type RosaryClip {
+  title: String
+  id: String!
+  file: String!
+  audio: SignedAudio!
+}
+
+type ArtworkAttribution {
+  year: String
+  title: String
+  sourceUrl: String
+  license: String
+  artist: String
+}
+
+type Artwork {
+  width: Int
+  url: String!
+  height: Int
+  focalY: Float
+  focalX: Float
+  attribution: ArtworkAttribution!
+  alt: String!
+  alignment: String
+}
+
+type MeditationNarration {
+  voice: String!
+  meditationId: ID!
+  audio: SignedAudio!
+}
+
+type SignedAudio {
+  url: String!
+  expiresAt: DateTime!
+}
+
+type SignedNarration {
+  voice: String!
+  audio: SignedAudio!
+}
+
+type OfficeChoice {
+  slug: String!
+  label: String!
+}
+
+type OfficeVocabulary {
+  versions: [OfficeChoice!]!
+  languages: [OfficeChoice!]!
+  hours: [OfficeChoice!]!
+  defaultVersion: String!
+  defaultLanguage: String!
+}
+
+type OfficeCalendar {
+  year: Int!
+  version: String!
+  month: Int!
+  days: [OfficeDay!]!
+}
+
+type OfficeDayDetail {
+  text: String
+  label: String
+}
+
+type OfficeDay {
+  note: String
+  letter: String
+  detail: OfficeDayDetail
+  date: Date!
+  celebration: OfficeCelebration
+}
+
+type OfficeCelebration {
+  title: String!
+  rank: String
+}
+
+type OfficeCell {
+  title: String
+  note: String
+  lines: [String!]!
+}
+
+type OfficeSection {
+  vernacular: OfficeCell
+  latin: OfficeCell
+}
+
+type OfficeSource {
+  url: String!
+  name: String!
+}
+
+type OfficeHour {
+  version: String!
+  tempora: String
+  source: OfficeSource!
+  sections: [OfficeSection!]!
+  language: String!
+  hour: String!
+  date: Date!
+  celebration: OfficeCelebration
+}
+
+type SpokenRosary {
+  "The voice actually served, which differs from the one asked for when that one is retired."
+  id: ID!
+
+  "The voice actually served, which differs from the one asked for when that one is retired."
+  voice: String!
+
+  "Fingerprints every file in the voice's catalogue: a device whose pack has the same version holds every current recording."
+  version: String!
+
+  "The earliest moment any URL in this response stops working."
+  expiresAt: DateTime!
+
+  "The fixed prayers, in the order they are said."
+  prayers: [RosaryClip!]!
+
+  "One announcement per mystery."
+  announcements: [AnnouncementClip!]!
+
+  "The Scriptural Rosary: each mystery's verses in bead order."
+  verses: [VerseGroup!]!
+
+  "The Prayer Book's prayers."
+  book: [RosaryClip!]!
+}
+
+type NarrationVoice {
+  "What a client stores and sends back, as in ?voice=female."
+  id: ID!
+
+  "What a client stores and sends back, as in ?voice=female."
+  slug: String!
+
+  name: String!
+
+  description: String
+
+  "The voice heard when a client names none. Exactly one offered voice is."
+  default: Boolean!
+
+  retired: Boolean!
+
+  "For a retired voice, the slug of the voice a request for it is served by."
+  replacedBy: String
+}
+
+type SetMembership {
+  id: ID!
+  order: Int!
+  meditation: Meditation!
+}
+
+type MeditationSet {
+  id: ID!
+
+  name: String!
+
+  category: String!
+
+  description: String
+
+  labels: [String!]!
+
+  setMemberships(
+    "The number of records to return."
+    limit: Int
+
+    "The number of records to skip."
+    offset: Int
+  ): [SetMembership!]!
+
+  "The author the set is shown with: its own, or else the one its meditations agree on."
+  author: String
+
+  "The source the set is shown with: its own, or else the one its meditations agree on."
+  source: String
+
+  "The painting the set is shown with: its own, or else its author's portrait. Null when neither is publishable."
+  artwork: Artwork
+}
+
+type Meditation {
+  id: ID!
+
+  title: String
+
+  content: String!
+
+  author: String
+
+  source: String
+
+  mystery: Mystery!
+
+  "Every recording of the meditation as a playable URL, the default voice first."
+  narrations: [SignedNarration!]!
+
+  "The recording to play for a listener who prefers a voice: that voice if it has recorded the meditation, otherwise the default. `preferring` is a voice slug: a retired voice means its successor, an unknown one is ignored. Null when nothing is recorded."
+  narration(preferring: String): SignedNarration
+}
+
+type Mystery {
+  id: ID!
+  name: String!
+  category: String!
+  order: Int!
+  daysPrayed: String
+  description: String
+  scriptureReference: String
+}
+
+type RootQueryType {
+  "Freshly signed narrations for meditations by id, in the order asked. An id with nothing to play is left out."
+  meditationAudio(
+    meditationIds: [ID!]!
+
+    "A voice slug; without one, the default voice. A retired voice is served by its successor."
+    voice: String
+  ): [MeditationNarration!]!
+
+  "The sets the public may see: those with no archived meditation. By category and then in creation order, optionally narrowed to one category. Never paginated."
+  visibleMeditationSets(category: String): [MeditationSet!]!
+
+  "The sets the public may see: those with no archived meditation. By category and then in creation order, optionally narrowed to one category. Never paginated."
+  meditationSet(
+    "The id of the record"
+    id: ID!
+  ): MeditationSet!
+
+  "The voices a listener may choose, the default first."
+  voices: [NarrationVoice!]!
+
+  "Voices no longer offered, each with the voice that now answers for it."
+  retiredVoices: [NarrationVoice!]!
+
+  "One voice's spoken Rosary. Without a voice, the default voice's."
+  rosaryAudio(
+    "A voice slug. A retired voice is answered by its successor."
+    voice: String
+  ): SpokenRosary!
+
+  "The full text of one canonical hour on one date."
+  officeHour(
+    date: Date!
+
+    "An hour slug, such as laudes; see officeVocabulary."
+    hour: String!
+
+    "A version slug; see officeVocabulary."
+    version: String
+
+    "A language slug; see officeVocabulary."
+    language: String
+  ): OfficeHour!
+
+  "All eight hours of one date, Matins to Compline, in that order."
+  officeHours(
+    date: Date!
+
+    "A version slug; see officeVocabulary."
+    version: String
+
+    "A language slug; see officeVocabulary."
+    language: String
+  ): [OfficeHour!]!
+
+  "One day's place in the calendar: its celebration, season and rubric note."
+  officeDay(
+    date: Date!
+
+    "A version slug; see officeVocabulary."
+    version: String
+  ): OfficeDay!
+
+  "One month of the liturgical calendar, its days in date order."
+  officeCalendar(
+    year: Int!
+
+    month: Int!
+
+    "A version slug; see officeVocabulary."
+    version: String
+  ): OfficeCalendar!
+
+  "The version, hour and language slugs the Office accepts, and its defaults."
+  officeVocabulary: OfficeVocabulary!
+}
+
+"""
+The `DateTime` scalar type represents a date and time in the UTC
+timezone. The DateTime appears in a JSON response as an ISO8601 formatted
+string, including UTC timezone ("Z"). The parsed date and time string will
+be converted to UTC if there is an offset.
+"""
+scalar DateTime
+
+"""
+The `Date` scalar type represents a date. The Date appears in a JSON
+response as an ISO8601 formatted string, without a time component.
+"""
+scalar Date

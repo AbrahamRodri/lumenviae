@@ -198,12 +198,14 @@ installed builds, so none of them is up for discussion:
 
 ### Authorization
 
-No policies during the port. The manager adds `Ash.Policy.Authorizer`
-and policies when GraphQL exposes each resource: public reads of visible
-content, the completion create, and admin-only writes. Internal callers
-(LiveViews behind `RequireAdmin`, mix tasks, curation services, release
-tasks) keep working without an actor. The exact mechanism is decided in
-the GraphQL phase and documented here.
+Decided in the GraphQL phase: **no Ash policies.** GraphQL reads only
+through actions that already filter to what the public may see, each type
+whitelists its relationships, and the only write is the guarded
+completion, so policies would protect nothing more while adding a second
+filter to the console and AshAdmin. The exposure is pinned instead: the
+schema is committed and tested, along with a list of fields and types that
+must never be reachable. See docs/GRAPHQL.md, "Authorization". Revisit if
+GraphQL ever exposes another write.
 
 ### Errors
 

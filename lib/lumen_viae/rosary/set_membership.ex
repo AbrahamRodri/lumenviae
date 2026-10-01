@@ -17,8 +17,14 @@ defmodule LumenViae.Rosary.SetMembership do
     data_layer: AshPostgres.DataLayer,
     extensions: [AshGraphql.Resource]
 
+  # A set's place for one meditation: GraphQL's path to a set's
+  # meditations in prayer order, setMemberships { order meditation }.
   graphql do
     type :set_membership
+    relationships [:meditation]
+    hide_fields [:meditation_set_id, :meditation_id]
+    derive_filter? false
+    derive_sort? false
   end
 
   postgres do

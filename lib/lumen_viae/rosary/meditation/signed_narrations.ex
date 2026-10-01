@@ -12,8 +12,11 @@ defmodule LumenViae.Rosary.Meditation.SignedNarrations do
   alias LumenViae.Rosary.Types.SignedAudio
   alias LumenViae.Rosary.Types.SignedNarration
 
+  # The fields by name: a calculation's dependency is loaded with only the
+  # primary key selected unless it asks for more, and a narration without
+  # its voice and key is no recording at all.
   @impl true
-  def load(_query, _opts, _context), do: [:narrations]
+  def load(_query, _opts, _context), do: [narrations: [:voice, :s3_key]]
 
   @impl true
   def calculate(meditations, _opts, _context) do
