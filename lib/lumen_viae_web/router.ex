@@ -18,6 +18,16 @@ defmodule LumenViaeWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # The GraphQL API. Off the browser pipeline like the rest of /api: no
+  # session, no CSRF token, and no canonical-host redirect, which would turn
+  # a client's POST into a GET. Every response is private and uncacheable,
+  # because a query may select presigned audio URLs. See docs/GRAPHQL.md.
+  pipeline :graphql do
+    plug :accepts, ["json"]
+    plug :put_private_cache_control
+    plug AshGraphql.Plug
+  end
+
   # Only the completion write goes through this. The other API routes serve
   # content that is public on the site anyway, so turning a crawler away
   # from them protects nothing and mostly risks turning away a reader.
@@ -150,6 +160,19 @@ defmodule LumenViaeWeb.Router do
     get "/office/:date/:hour", OfficeController, :hour
   end
 
+  scope "/api" do
+    pipe_through :graphql
+
+    # Module.concat keeps the router from depending on the schema at
+    # compile time, so changing a resource does not recompile the router.
+    # See the "Compile Times" guide in the AshGraphql docs.
+    forward "/graphql", Absinthe.Plug,
+      schema: Module.concat(["LumenViaeWeb.GraphqlSchema"]),
+      pipeline: {LumenViaeWeb.Graphql.Pipeline, :pipeline},
+      analyze_complexity: true,
+      max_complexity: 500
+  end
+
   # The one write the public API exposes, and so the one route that gets a
   # crawler check and a rate limit in front of it.
   scope "/api", LumenViaeWeb.API do
@@ -173,5 +196,18 @@ defmodule LumenViaeWeb.Router do
       live_dashboard "/dashboard", metrics: LumenViaeWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+
+    # An in-browser GraphQL explorer against /api/graphql, development only
+    scope "/dev" do
+      pipe_through :graphql
+
+      forward "/graphiql", Absinthe.Plug.GraphiQL,
+        schema: Module.concat(["LumenViaeWeb.GraphqlSchema"]),
+        interface: :simple
+    end
+  end
+
+  defp put_private_cache_control(conn, _opts) do
+    put_resp_header(conn, "cache-control", "private, no-store")
   end
 end

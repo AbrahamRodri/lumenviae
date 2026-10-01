@@ -18,14 +18,42 @@ defmodule LumenViae.Office do
   recognizes - is collapsed to `{:error, :office_unavailable}`: one
   retryable answer for the client, with the distinction preserved in the
   server log.
+
+  ## As an Ash domain
+
+  The module is also an `Ash.Domain`, so the GraphQL API can reach the
+  Office through `LumenViae.Office.Breviary`, a resource with no table
+  whose generic actions call the fetch functions below. The REST
+  controller keeps calling those functions directly. Both APIs therefore
+  share one validation, one engine client and one cache.
   """
+  use Ash.Domain,
+    otp_app: :lumen_viae,
+    extensions: [AshGraphql.Domain]
 
   require Logger
 
+  alias LumenViae.Office.Breviary
   alias LumenViae.Office.Cache
   alias LumenViae.Office.DivinumOfficium
   alias LumenViae.Office.Parser
   alias LumenViae.Office.Versions
+
+  graphql do
+    queries do
+      action Breviary, :office_hour, :hour
+      action Breviary, :office_hours, :hours
+      action Breviary, :office_day, :day
+      action Breviary, :office_calendar, :calendar
+      action Breviary, :office_vocabulary, :vocabulary
+    end
+  end
+
+  resources do
+    resource Breviary
+  end
+
+  @source_name "The Divinum Officium Project"
 
   # The engine covers the Gregorian calendar; outside this window it
   # answers nonsense rather than errors, so the window is enforced here.
@@ -89,6 +117,12 @@ defmodule LumenViae.Office do
       defaults: %{version: Versions.default_version(), language: Versions.default_language()}
     }
   end
+
+  @doc """
+  The attribution every hour carries, because the texts are the Divinum
+  Officium project's work, not ours.
+  """
+  def source(url), do: %{name: @source_name, url: url}
 
   # -- Loading -------------------------------------------------------------
 
