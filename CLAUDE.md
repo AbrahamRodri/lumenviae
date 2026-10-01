@@ -22,6 +22,22 @@ The ARCHITECTURE.md document defines:
 These rules are enforced by `test/lumen_viae/rosary/context_rules_test.exs`,
 so breaking them fails the build rather than drifting quietly.
 
+### Ash
+
+The domain is moving from hand-written Ecto contexts to the Ash framework
+(`docs/ASH_MIGRATION.md` is the plan while that is under way). Ash takes
+the domain, data and API layers; Phoenix LiveView stays the UI, with
+AshPhoenix forms wherever a page creates or updates a record.
+
+**Before writing Ash code** (a resource, an action, a calculation, a
+policy, an AshPhoenix form, a GraphQL query) **read
+[docs/USAGE_RULES.md](docs/USAGE_RULES.md)**: the Ash packages' own
+guidance, generated from the dependencies by `mix usage_rules.sync`. Prefer
+it over memory; Ash changes faster than training data. The GraphQL API's
+conventions are in [docs/GRAPHQL.md](docs/GRAPHQL.md), and what the iOS
+app depends on in the REST API is in
+[docs/IOS_API_CONTRACT.md](docs/IOS_API_CONTRACT.md).
+
 ## Development Guidelines
 
 ### When Creating New Features
