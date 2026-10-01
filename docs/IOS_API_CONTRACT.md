@@ -9,6 +9,12 @@ HEAD (4.0, unreleased) and the shipped builds 1.0.1 (bb72c6d), 2.0
 enforce this. The gap list below records the assertions they were missing
 on that date, each with an id the tests can cite.
 
+**This stays binding when the app moves to GraphQL** (docs/GRAPHQL.md).
+Moving a screen to GraphQL changes what new builds call, not what
+installed ones do: builds 1.0 to 3.0 call the REST API and will go on
+calling it for as long as anyone has one installed. Nothing here may be
+relaxed until no installed build calls it.
+
 ## Two Swift rules decide what breaks
 
 1. For an Optional field, a missing key and a null are the same thing. For
