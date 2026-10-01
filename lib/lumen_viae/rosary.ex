@@ -56,13 +56,42 @@ defmodule LumenViae.Rosary do
     end
   end
 
+  # A read is defined with its raising form only (`list_mysteries!/0`), so
+  # that it hands back the list itself, as these functions always have. The
+  # writes keep both forms and return `{:ok, record}` or
+  # `{:error, %Ash.Error.Invalid{}}`.
+  @read [:subject, :can, :can?, :action!]
+
   resources do
-    resource LumenViae.Rosary.Mystery
+    resource LumenViae.Rosary.Mystery do
+      define :list_mysteries, action: :in_prayer_order, functions: @read
+
+      define :list_mysteries_by_category,
+        action: :by_category,
+        args: [:category],
+        functions: @read
+
+      define :get_mystery, action: :read, get_by: [:id]
+      define :create_mystery, action: :create
+      define :update_mystery, action: :update
+      define :delete_mystery, action: :destroy, default_options: [return_destroyed?: true]
+    end
+
     resource LumenViae.Rosary.Meditation
     resource LumenViae.Rosary.MeditationSet
     resource LumenViae.Rosary.SetMembership
     resource LumenViae.Rosary.Completion
-    resource LumenViae.Rosary.Author
+
+    resource LumenViae.Rosary.Author do
+      define :list_authors, action: :alphabetical, functions: @read
+      define :get_author, action: :read, get_by: [:id]
+      define :create_author, action: :create
+      define :update_author, action: :update
+      define :delete_author, action: :destroy, default_options: [return_destroyed?: true]
+      define :update_author_artwork, action: :record_artwork
+      define :update_author_artwork_metadata, action: :update_artwork_metadata
+    end
+
     resource LumenViae.Rosary.Narration
 
     # No tables: GraphQL's view of the narration voices and the spoken
@@ -73,11 +102,10 @@ defmodule LumenViae.Rosary do
 
   alias LumenViae.Rosary.Artwork
   alias LumenViae.CentralTime
-  alias LumenViae.Rosary.Authors
   alias LumenViae.Rosary.Completions
   alias LumenViae.Rosary.MeditationSets
   alias LumenViae.Rosary.Meditations
-  alias LumenViae.Rosary.Mysteries
+  alias LumenViae.Rosary.Mystery
   alias LumenViae.Rosary.Narrations
   alias LumenViae.Rosary.SetMemberships
   alias LumenViae.Rosary.Voices
@@ -85,15 +113,12 @@ defmodule LumenViae.Rosary do
   alias LumenViae.Storage.S3
 
   ## Mysteries
+  #
+  # list_mysteries!/0, list_mysteries_by_category!/1, get_mystery!/1,
+  # create_mystery/1, update_mystery/2 and delete_mystery/1 are the code
+  # interface defined in the resources block above.
 
-  defdelegate count_mysteries(), to: Mysteries, as: :count
-  defdelegate list_mysteries(), to: Mysteries, as: :list
-  defdelegate list_mysteries_by_category(category), to: Mysteries, as: :list_by_category
-  defdelegate get_mystery!(id), to: Mysteries, as: :get!
-  defdelegate create_mystery(attrs \\ %{}), to: Mysteries, as: :create
-  defdelegate update_mystery(mystery, attrs), to: Mysteries, as: :update
-  defdelegate change_mystery(mystery, attrs \\ %{}), to: Mysteries, as: :change
-  defdelegate delete_mystery(mystery), to: Mysteries, as: :delete
+  def count_mysteries, do: Ash.count!(Mystery)
 
   ## Meditations
 
@@ -275,23 +300,11 @@ defmodule LumenViae.Rosary do
   end
 
   ## Authors
-
-  defdelegate list_authors(), to: Authors, as: :list
-  defdelegate get_author!(id), to: Authors, as: :get!
-  defdelegate create_author(attrs \\ %{}), to: Authors, as: :create
-  defdelegate update_author(author, attrs), to: Authors, as: :update
-  defdelegate change_author(author, attrs \\ %{}), to: Authors, as: :change
-  defdelegate change_new_author(attrs \\ %{}), to: Authors, as: :change_new
-  defdelegate delete_author(author), to: Authors, as: :delete
-  defdelegate update_author_artwork(author, attrs), to: Authors, as: :update_artwork
-
-  defdelegate update_author_artwork_metadata(author, attrs),
-    to: Authors,
-    as: :update_artwork_metadata
-
-  defdelegate change_author_artwork(author, attrs \\ %{}),
-    to: Authors,
-    as: :change_artwork
+  #
+  # list_authors!/0, get_author!/1, create_author/1, update_author/2,
+  # delete_author/1, update_author_artwork/2 (a completed upload) and
+  # update_author_artwork_metadata/2 (what the curator typed) are the code
+  # interface defined in the resources block above.
 
   ## Meditation sets
 

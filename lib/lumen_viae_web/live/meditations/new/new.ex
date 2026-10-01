@@ -6,7 +6,7 @@ defmodule LumenViaeWeb.Live.Meditations.New do
     {:ok,
      socket
      |> assign(:page_title, "Create Meditation")
-     |> assign(:mysteries, Rosary.list_mysteries())
+     |> assign(:mysteries, Rosary.list_mysteries!())
      |> assign(:filter_category, nil)
      |> assign_meditation_form()}
   end

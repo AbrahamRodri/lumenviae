@@ -56,6 +56,17 @@ defmodule LumenViae.Rosary.Artwork do
                      image_source_url image_license)a
 
   @doc """
+  The columns written only by `LumenViae.Curation.ArtworkUpload`, after the
+  object is in S3 and has been measured.
+  """
+  def managed_fields, do: @managed_fields
+
+  @doc """
+  The columns a curator types into the admin form.
+  """
+  def editable_fields, do: @editable_fields
+
+  @doc """
   Returns `{label, slug}` licence pairs in display order, for form selects.
   """
   def license_options, do: @licenses

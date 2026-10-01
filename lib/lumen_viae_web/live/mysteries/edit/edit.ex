@@ -18,7 +18,7 @@ defmodule LumenViaeWeb.Live.Mysteries.Edit do
   end
 
   def handle_event("update_mystery", %{"mystery" => params}, socket) do
-    case Rosary.update_mystery(socket.assigns.mystery, params) do
+    case AshPhoenix.Form.submit(socket.assigns.edit_form, params: params) do
       {:ok, mystery} ->
         {:noreply,
          socket
@@ -26,19 +26,15 @@ defmodule LumenViaeWeb.Live.Mysteries.Edit do
          |> assign(:mystery, mystery)
          |> assign_edit_form(mystery)}
 
-      {:error, changeset} ->
+      {:error, form} ->
         {:noreply,
          socket
          |> put_flash(:error, "Failed to update mystery")
-         |> assign_edit_form(changeset)}
+         |> assign(:edit_form, form)}
     end
   end
 
-  defp assign_edit_form(socket, %Ecto.Changeset{} = changeset) do
-    assign(socket, :edit_form, to_form(changeset, as: :mystery))
-  end
-
   defp assign_edit_form(socket, mystery) do
-    assign_edit_form(socket, Rosary.change_mystery(mystery))
+    assign(socket, :edit_form, to_form(Rosary.form_to_update_mystery(mystery, as: "mystery")))
   end
 end

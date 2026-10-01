@@ -37,13 +37,20 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
          |> load_data()
          |> apply_filters()}
 
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to delete mystery")}
+      # The foreign key from meditations is ON DELETE RESTRICT, so the one
+      # way this fails is a mystery that still has meditations.
+      {:error, _error} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "This mystery still has meditations. Move or delete them first."
+         )}
     end
   end
 
   defp load_data(socket) do
-    mysteries = Rosary.list_mysteries()
+    mysteries = Rosary.list_mysteries!()
     active_counts = Rosary.active_meditation_counts_by_mystery()
 
     socket

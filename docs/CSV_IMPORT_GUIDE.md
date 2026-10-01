@@ -111,7 +111,7 @@ trust the database:
 
 ```
 fly ssh console -C "/app/bin/lumen_viae eval \
-  'LumenViae.Rosary.list_mysteries() |> Enum.each(&IO.puts(&1.name))'"
+  'LumenViae.Rosary.list_mysteries!() |> Enum.each(&IO.puts(&1.name))'"
 ```
 
 ## Sample CSV File

@@ -133,7 +133,7 @@
                       type="button"
                       phx-click="delete_mystery"
                       phx-value-id={mystery.id}
-                      data-confirm={"Delete \"#{mystery.name}\"? Every meditation attached to it is deleted too."}
+                      data-confirm={"Delete \"#{mystery.name}\"? A mystery that still has meditations cannot be deleted."}
                       class="admin-btn admin-btn-danger"
                       aria-label={"Delete #{mystery.name}"}
                     >

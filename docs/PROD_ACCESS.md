@@ -99,7 +99,7 @@ a query:
 ```elixir
 counts = Rosary.meditation_counts_by_mystery()
 
-Rosary.list_mysteries()
+Rosary.list_mysteries!()
 |> Enum.group_by(& &1.category)
 |> Map.new(fn {category, mysteries} ->
   {category, mysteries |> Enum.map(&Map.get(counts, &1.id, 0)) |> Enum.sum()}

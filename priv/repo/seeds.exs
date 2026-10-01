@@ -21,7 +21,7 @@ IO.puts("\nAdding any new mysteries and meditations...")
 
 # Existing mysteries are matched on category + order, not name, so renaming a
 # mystery in this file never duplicates one that is already seeded.
-existing_mysteries = Map.new(Rosary.list_mysteries(), &{{&1.category, &1.order}, &1})
+existing_mysteries = Map.new(Rosary.list_mysteries!(), &{{&1.category, &1.order}, &1})
 
 insert_mystery_if_new = fn attrs ->
   case Map.get(existing_mysteries, {attrs.category, attrs.order}) do
