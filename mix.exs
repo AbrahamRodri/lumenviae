@@ -10,6 +10,7 @@ defmodule LumenViae.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      usage_rules: usage_rules(),
       listeners: [Phoenix.CodeReloader],
       consolidate_protocols: Mix.env() != :dev
     ]
@@ -22,6 +23,16 @@ defmodule LumenViae.MixProject do
     [
       mod: {LumenViae.Application, []},
       extra_applications: [:logger, :runtime_tools]
+    ]
+  end
+
+  # The dependencies' own guidance for coding agents, gathered into one file.
+  # Inlined rather than linked: deps/ is not in git, so links into it would be
+  # dead for anyone reading the repo. Regenerate with `mix usage_rules.sync`.
+  defp usage_rules do
+    [
+      file: "docs/USAGE_RULES.md",
+      usage_rules: [:ash, ~r/^ash_/, :igniter, :usage_rules]
     ]
   end
 
