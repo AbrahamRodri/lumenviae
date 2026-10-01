@@ -1,12 +1,14 @@
 import Config
 config :ash, policies: [show_policy_breakdowns?: true]
 
-# Configure your database
+# Configure your database. DEV_DATABASE points one checkout at its own
+# copy (`createdb -T lumen_viae_dev <name>`), so several worktrees can run
+# or migrate without changing the database the others share.
 config :lumen_viae, LumenViae.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "lumen_viae_dev",
+  database: System.get_env("DEV_DATABASE", "lumen_viae_dev"),
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
