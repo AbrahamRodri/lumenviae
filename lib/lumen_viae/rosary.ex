@@ -181,15 +181,13 @@ defmodule LumenViae.Rosary do
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.Author
   alias LumenViae.CentralTime
-  alias LumenViae.Rosary.Completions
+  alias LumenViae.Rosary.Completion
   alias LumenViae.Rosary.MeditationSet
-  alias LumenViae.Rosary.MeditationSets
   alias LumenViae.Rosary.Meditation
   alias LumenViae.Rosary.Mystery
   alias LumenViae.Rosary.Narration
   alias LumenViae.Rosary.SetMembership
   alias LumenViae.Rosary.Voices
-  alias LumenViae.Services.Geolocation
   alias LumenViae.Storage.S3
 
   ## Mysteries
@@ -836,8 +834,15 @@ defmodule LumenViae.Rosary do
   # something a crawler does for free; pressing the button is not, and the
   # numbers below are only worth reading if they mean a Rosary was prayed.
 
-  defdelegate count_total_completions(), to: Completions, as: :count
-  defdelegate count_completions_in_range(start_at, end_at), to: Completions, as: :count_in_range
+  def count_total_completions, do: Ash.count!(Completion)
+
+  def count_completions_in_range(start_at, end_at) do
+    start_at |> completions_between(end_at) |> Ash.count!()
+  end
+
+  defp completions_between(start_at, end_at) do
+    Ash.Query.for_read(Completion, :in_range, %{since: start_at, until: end_at})
+  end
 
   @doc """
   The zone the admin analytics are reported in. Days start and end here, not
@@ -857,63 +862,46 @@ defmodule LumenViae.Rosary do
     * `:source` - `"web"` or `"ios"`
     * `:time_zone` - an IANA zone name reported by the client
     * `:locale` - a locale reported by the client
+    * `:prayed_aloud` - whether the spoken Rosary was on
 
-  ## Why the place is filled in afterwards
+  The address travels as the action's context rather than as one of its
+  inputs, and the place is filled in afterwards by a background task; see
+  `LumenViae.Rosary.Completion.Stamp` for why, on both counts.
 
-  The row is written first and the geolocation lookup runs in a background
-  task that updates it. Doing the lookup inline would put a third-party
-  HTTP call between somebody pressing Complete and the page moving on, so a
-  slow provider would be felt as a slow Rosary - and a provider that was
-  down would fail the completion entirely. A place is worth having and is
-  not worth that.
-
-  The consequence, which is the honest trade: a row is briefly placeless
-  after it is written, and stays that way for good if the lookup fails.
+  Returns `{:ok, completion}` or `{:error, %Ash.Error.Invalid{}}`.
   """
   def record_completion(meditation_set_id, context \\ %{}) when is_map(context) do
-    ip = context[:ip]
-
-    attrs = %{
-      meditation_set_id: meditation_set_id,
-      completed_at: DateTime.utc_now(),
-      ip_prefix: Geolocation.anonymize(ip),
-      source: context[:source],
-      time_zone: context[:time_zone],
-      locale: context[:locale],
-      prayed_aloud: context[:prayed_aloud]
-    }
-
-    case Completions.create(attrs) do
-      {:ok, completion} ->
-        locate_later(completion.id, ip)
-        {:ok, completion}
-
-      {:error, changeset} ->
-        {:error, changeset}
-    end
+    Completion
+    |> Ash.Changeset.for_create(
+      :record,
+      %{
+        meditation_set_id: meditation_set_id,
+        source: context[:source],
+        time_zone: context[:time_zone],
+        locale: context[:locale],
+        prayed_aloud: context[:prayed_aloud]
+      },
+      context: %{client_ip: context[:ip]}
+    )
+    |> Ash.create()
   end
 
-  # Nothing is scheduled when a lookup could not produce an answer anyway:
-  # geolocation switched off, no address, or an address on a private range.
-  # A task that starts only to return `nil` is noise in the supervisor.
-  defp locate_later(completion_id, ip) do
-    if is_binary(ip) and Geolocation.enabled?() and Geolocation.routable?(ip) do
-      Task.Supervisor.start_child(LumenViae.TaskSupervisor, fn ->
-        case Geolocation.locate(ip) do
-          nil -> :ok
-          location -> Completions.update_location(completion_id, location)
-        end
-      end)
-    end
-
-    :ok
+  @doc """
+  The field-by-field messages of an error from one of this domain's writes,
+  as `%{field => [message]}`: what the API's error envelope carries as
+  `details`.
+  """
+  def error_details(%{errors: errors}) when is_list(errors) do
+    errors
+    |> Enum.flat_map(&form_errors/1)
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
   end
 
   @doc """
   Gets completion statistics grouped by meditation set.
 
   Returns a list of %{set_id, set_name, category, count} maps, most
-  completed first. Completions whose set has since been deleted are omitted.
+  completed first.
 
   ## Options
 
@@ -922,54 +910,44 @@ defmodule LumenViae.Rosary do
       dominated by whichever set has existed longest
   """
   def get_completions_by_set(opts \\ []) do
-    counts =
+    range =
       case opts[:days] do
-        nil -> Completions.count_by_set()
-        days -> Completions.count_by_set_in_range(days_ago(days), DateTime.utc_now())
+        nil -> %{}
+        days -> %{since: days_ago(days), until: DateTime.utc_now()}
       end
 
-    sets = counts |> Enum.map(&elem(&1, 0)) |> sets_by_id()
-
-    Enum.flat_map(counts, fn {set_id, count} ->
-      case Map.fetch(sets, set_id) do
-        {:ok, set} ->
-          [%{set_id: set.id, set_name: set.name, category: set.category, count: count}]
-
-        :error ->
-          []
-      end
-    end)
+    MeditationSet
+    |> Ash.Query.select([:id, :name, :category])
+    |> Ash.Query.load(completion_count: range)
+    |> Ash.read!()
+    |> Enum.reject(&(&1.completion_count == 0))
+    |> Enum.sort_by(&{-&1.completion_count, &1.id})
+    |> Enum.map(
+      &%{set_id: &1.id, set_name: &1.name, category: &1.category, count: &1.completion_count}
+    )
   end
 
   @doc """
   Gets recent completions for the dashboard.
   Returns the last N completions with set information and location data.
-  Completions whose set has since been deleted are omitted.
   """
   def get_recent_completions(limit \\ 10) do
-    completions = Completions.list_recent(limit)
-    sets = completions |> Enum.map(& &1.meditation_set_id) |> sets_by_id()
-
-    Enum.flat_map(completions, fn completion ->
-      case Map.fetch(sets, completion.meditation_set_id) do
-        {:ok, set} ->
-          [
-            %{
-              id: completion.id,
-              set_name: set.name,
-              category: set.category,
-              completed_at: completion.completed_at,
-              city: completion.city,
-              region: completion.region,
-              country: completion.country,
-              country_code: completion.country_code,
-              source: completion.source
-            }
-          ]
-
-        :error ->
-          []
-      end
+    Completion
+    |> Ash.Query.for_read(:recent, %{limit: limit})
+    |> Ash.Query.load(meditation_set: Ash.Query.select(MeditationSet, [:name, :category]))
+    |> Ash.read!()
+    |> Enum.map(fn completion ->
+      %{
+        id: completion.id,
+        set_name: completion.meditation_set.name,
+        category: completion.meditation_set.category,
+        completed_at: completion.completed_at,
+        city: completion.city,
+        region: completion.region,
+        country: completion.country,
+        country_code: completion.country_code,
+        source: completion.source
+      }
     end)
   end
 
@@ -984,36 +962,50 @@ defmodule LumenViae.Rosary do
   rows and the reader needs to know how large that subset is. A ranking
   covering a tenth of the completions and one covering all of them look
   identical otherwise.
+
+  One read of the period's rows, six small columns each, folded here.
   """
   def completion_locations(days) when is_integer(days) and days > 0 do
-    start_at = days_ago(days)
-    end_at = DateTime.utc_now()
+    rows =
+      days_ago(days)
+      |> completions_between(DateTime.utc_now())
+      |> Ash.Query.select([:city, :region, :country, :country_code, :source, :prayed_aloud])
+      |> Ash.read!()
 
     %{
+      # Rows whose lookup never produced a country are left out rather than
+      # grouped under a blank heading.
       countries:
-        start_at
-        |> Completions.count_by_country(end_at)
-        |> Enum.map(fn {country, code, count} ->
+        rows
+        |> Enum.reject(&is_nil(&1.country))
+        |> ranked(&{&1.country, &1.country_code})
+        |> Enum.map(fn {{country, code}, count} ->
           %{country: country, country_code: code, count: count}
         end),
+      # Grouped by city *and* region, because a city name on its own is not
+      # a place: there is a Paris in Texas, and several dozen Springfields.
       cities:
-        start_at
-        |> Completions.count_by_city(end_at)
-        |> Enum.map(fn {city, region, code, count} ->
+        rows
+        |> Enum.reject(&is_nil(&1.city))
+        |> ranked(&{&1.city, &1.region, &1.country_code})
+        |> Enum.map(fn {{city, region, code}, count} ->
           %{city: city, region: region, country_code: code, count: count}
         end),
-      sources: Completions.count_by_source(start_at, end_at),
-      prayed_aloud: Completions.count_by_prayed_aloud(start_at, end_at),
-      located: Completions.count_located_in_range(start_at, end_at),
-      total: Completions.count_in_range(start_at, end_at)
+      # Completions recorded before a source was stored answer to `nil`.
+      sources: Enum.frequencies_by(rows, & &1.source),
+      # true, false, or nil for not reported either way.
+      prayed_aloud: Enum.frequencies_by(rows, & &1.prayed_aloud),
+      located: Enum.count(rows, &(not is_nil(&1.country_code))),
+      total: length(rows)
     }
   end
 
-  defp sets_by_id(set_ids) do
-    set_ids
-    |> Enum.uniq()
-    |> MeditationSets.list_by_ids()
-    |> Map.new(&{&1.id, &1})
+  # Most frequent first, then by name, so two places prayed from equally
+  # often always come out in the same order.
+  defp ranked(rows, key) do
+    rows
+    |> Enum.frequencies_by(key)
+    |> Enum.sort_by(fn {group, count} -> {-count, elem(group, 0)} end)
   end
 
   @doc """
@@ -1050,8 +1042,18 @@ defmodule LumenViae.Rosary do
       previous_7: count_completions_in_range(days_ago(14), days_ago(7)),
       last_30: count_completions_in_range(days_ago(30), now),
       previous_30: count_completions_in_range(days_ago(60), days_ago(30)),
-      active_sets_30: Completions.count_distinct_sets_in_range(days_ago(30), now)
+      active_sets_30: count_sets_completed_in_range(days_ago(30), now)
     }
+  end
+
+  # How many distinct sets have been completed at least once in the range.
+  defp count_sets_completed_in_range(start_at, end_at) do
+    start_at
+    |> completions_between(end_at)
+    |> Ash.Query.select([:meditation_set_id])
+    |> Ash.read!()
+    |> Enum.uniq_by(& &1.meditation_set_id)
+    |> length()
   end
 
   @doc """
@@ -1060,18 +1062,22 @@ defmodule LumenViae.Rosary do
 
   Days with no completions are filled in with zero: a chart that silently
   drops empty days draws a flat line through a week nobody prayed.
+
+  The day each completion belongs to is Completion's `local_day`
+  calculation, worked out by Postgres in the reporting zone.
   """
   def completions_by_day(days) when is_integer(days) and days > 0 do
     today = CentralTime.today()
     first = Date.add(today, -(days - 1))
 
     counted =
-      Completions.count_by_day(
-        CentralTime.day_start(first),
-        DateTime.utc_now(),
-        reporting_time_zone()
-      )
-      |> Map.new()
+      first
+      |> CentralTime.day_start()
+      |> completions_between(DateTime.utc_now())
+      |> Ash.Query.select([:id])
+      |> Ash.Query.load(local_day: %{time_zone: reporting_time_zone()})
+      |> Ash.read!()
+      |> Enum.frequencies_by(& &1.local_day)
 
     Enum.map(0..(days - 1), fn offset ->
       date = Date.add(first, offset)

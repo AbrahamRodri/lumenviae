@@ -13,6 +13,7 @@ defmodule LumenViaeWeb.API.FallbackController do
 
   require Logger
 
+  alias LumenViae.Rosary
   alias LumenViaeWeb.API.ErrorJSON
 
   def call(conn, {:error, :not_found}) do
@@ -43,13 +44,15 @@ defmodule LumenViaeWeb.API.FallbackController do
     )
   end
 
-  def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
+  # A write the domain refused. The details map each field to its
+  # messages, read the same way the admin forms read them.
+  def call(conn, {:error, %Ash.Error.Invalid{} = error}) do
     send_error(
       conn,
       :unprocessable_entity,
       "validation_failed",
       "The request could not be processed",
-      translate_errors(changeset)
+      Rosary.error_details(error)
     )
   end
 
@@ -67,13 +70,5 @@ defmodule LumenViaeWeb.API.FallbackController do
     |> put_status(status)
     |> put_view(json: ErrorJSON)
     |> render(:error, code: code, message: message, details: details)
-  end
-
-  defp translate_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
   end
 end

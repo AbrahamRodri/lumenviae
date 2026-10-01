@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.API.CompletionContextTest do
 
   alias LumenViae.Repo
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.Completions.Completion
+  alias LumenViae.Rosary.Completion
 
   @app_agent "LumenViae/1.2 CFNetwork/1494.0.7 Darwin/23.4.0"
 

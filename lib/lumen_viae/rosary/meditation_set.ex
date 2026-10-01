@@ -269,6 +269,24 @@ defmodule LumenViae.Rosary.MeditationSet do
       public? true
     end
 
+    calculate :completion_count,
+              :integer,
+              expr(
+                count(completions,
+                  query: [
+                    filter:
+                      expr(
+                        (is_nil(^arg(:since)) or completed_at >= ^arg(:since)) and
+                          (is_nil(^arg(:until)) or completed_at <= ^arg(:until))
+                      )
+                  ]
+                )
+              ) do
+      description "How many times the set has been prayed to the end, optionally between two moments."
+      argument :since, :utc_datetime
+      argument :until, :utc_datetime
+    end
+
     calculate :byline_source, :string, {Byline, field: :source} do
       description "The source the set is shown with: its own, or else the one its meditations agree on."
       public? true

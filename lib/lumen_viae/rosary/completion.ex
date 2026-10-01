@@ -22,11 +22,21 @@ defmodule LumenViae.Rosary.Completion do
   readable without any permission prompt, so nothing here is gated behind a
   dialog the reader has to be talked through.
 
-  ## Nothing here is public
+  ## Almost nothing here is public
 
-  Every attribute but the id is private, so no API built on the resource
-  can read a completion back out: the rows are written by the public and
+  A completion can be read back as its id, its set and the moment it was
+  recorded, which is the whole of what the REST API answers a write with.
+  Every other attribute is private, so no API built on the resource can
+  read where a completion came from: the rows are written by the public and
   read only by the admin analytics.
+
+  ## Two ways in
+
+  `:record` is the server-side write, used by the website and the REST
+  controller, which say what surface they are. `:record_from_app` is the
+  public write: the client names the set and whether it prayed aloud, and
+  nothing else. Neither takes the address or the moment as an input; see
+  `LumenViae.Rosary.Completion.Stamp`.
 
   Mapped onto the existing `rosary_completions` table exactly as the Ecto
   migrations left it, which is why there is no `updated_at`.
@@ -39,6 +49,16 @@ defmodule LumenViae.Rosary.Completion do
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
     extensions: [AshGraphql.Resource]
+
+  alias LumenViae.Rosary.Completion.SetIsVisible
+  alias LumenViae.Rosary.Completion.Stamp
+
+  @sources ~w(web ios)
+
+  @doc """
+  The surfaces a completion can be reported from.
+  """
+  def sources, do: @sources
 
   graphql do
     type :completion
@@ -71,23 +91,80 @@ defmodule LumenViae.Rosary.Completion do
   end
 
   actions do
-    defaults [
-      :read,
-      :destroy,
-      create: [
-        :meditation_set_id,
-        :completed_at,
-        :ip_prefix,
-        :city,
-        :region,
-        :country,
-        :country_code,
-        :source,
-        :time_zone,
-        :locale,
-        :prayed_aloud
-      ]
-    ]
+    defaults [:read, :destroy]
+
+    read :in_range do
+      description "The completions between two moments, oldest first."
+
+      argument :since, :utc_datetime do
+        allow_nil? false
+      end
+
+      argument :until, :utc_datetime do
+        allow_nil? false
+      end
+
+      filter expr(completed_at >= ^arg(:since) and completed_at <= ^arg(:until))
+      prepare build(sort: [completed_at: :asc, id: :asc])
+    end
+
+    read :recent do
+      description "The most recent completions, newest first."
+
+      argument :limit, :integer do
+        allow_nil? false
+        constraints min: 1
+      end
+
+      prepare build(sort: [completed_at: :desc, id: :desc])
+      prepare fn query, _context -> Ash.Query.limit(query, query.arguments.limit) end
+    end
+
+    create :record do
+      description "Records that somebody finished praying a set, from the website or the REST API. The surface, the timezone and the locale are whatever the server-side caller reports; the moment and the address are taken by the action itself."
+      primary? true
+
+      argument :meditation_set_id, :integer do
+        allow_nil? false
+      end
+
+      argument :source, :string
+      argument :time_zone, :string
+      argument :locale, :string
+      argument :prayed_aloud, :boolean
+
+      change set_attribute(:meditation_set_id, arg(:meditation_set_id))
+      change set_attribute(:source, arg(:source))
+      change set_attribute(:time_zone, arg(:time_zone))
+      change set_attribute(:locale, arg(:locale))
+      change set_attribute(:prayed_aloud, arg(:prayed_aloud))
+      change Stamp
+    end
+
+    create :record_from_app do
+      description "Records a finished Rosary reported by the app over the public write API. The client says which set and whether it was prayed aloud, and nothing else: the surface is always the app, and the set must be one the public can see."
+
+      argument :meditation_set_id, :integer do
+        allow_nil? false
+      end
+
+      argument :prayed_aloud, :boolean
+
+      change set_attribute(:meditation_set_id, arg(:meditation_set_id))
+      change set_attribute(:prayed_aloud, arg(:prayed_aloud))
+      change set_attribute(:source, "ios")
+      validate SetIsVisible
+      change Stamp
+    end
+
+    update :place do
+      description "Attaches a looked-up place to a completion that has already been written."
+      accept [:city, :region, :country, :country_code]
+    end
+  end
+
+  validations do
+    validate one_of(:source, @sources), where: [changing(:source)], message: "is invalid"
   end
 
   attributes do
@@ -95,6 +172,7 @@ defmodule LumenViae.Rosary.Completion do
 
     attribute :completed_at, :utc_datetime do
       allow_nil? false
+      public? true
     end
 
     attribute :ip_prefix, :string do
@@ -143,7 +221,36 @@ defmodule LumenViae.Rosary.Completion do
     belongs_to :meditation_set, LumenViae.Rosary.MeditationSet do
       attribute_type :integer
       allow_nil? false
-      attribute_writable? true
+      attribute_public? true
+    end
+  end
+
+  calculations do
+    # The double `AT TIME ZONE` is not redundant. `completed_at` is
+    # `timestamp without time zone`, and for a naive timestamp Postgres
+    # reads `AT TIME ZONE zone` as "this value is already in `zone`" and
+    # converts *out* of it - the opposite of what is wanted here, and wrong
+    # by the offset rather than merely imprecise. A single conversion
+    # therefore filed every Rosary prayed between seven in the evening and
+    # midnight Central under the following day, which is a good part of the
+    # praying that happens at all.
+    #
+    # So the value is first stamped as UTC, which is what it is, and only
+    # then converted to the reporting zone.
+    calculate :local_day,
+              :date,
+              expr(
+                fragment(
+                  "date_trunc('day', (? AT TIME ZONE 'UTC') AT TIME ZONE ?)::date",
+                  completed_at,
+                  ^arg(:time_zone)
+                )
+              ) do
+      description "The calendar day the Rosary was finished on, in the given zone rather than in UTC: a Rosary prayed at nine in the evening in Texas belongs to that evening, not to the next morning. Postgres carries the zone database, so the shift is done there."
+
+      argument :time_zone, :string do
+        allow_nil? false
+      end
     end
   end
 end

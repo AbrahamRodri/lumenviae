@@ -21,8 +21,8 @@ defmodule LumenViaeWeb.API.CompletionController do
 
   Everything but `meditation_set_id` is optional in the strong sense: an
   older build that sends nothing else still records a completion, and a
-  client that sends nonsense records one with the nonsense dropped by the
-  changeset's length validations rather than a rejected request.
+  client that sends a value of the wrong type records one with the value
+  dropped here rather than a rejected request.
   """
   use LumenViaeWeb, :controller
 
@@ -49,8 +49,8 @@ defmodule LumenViaeWeb.API.CompletionController do
         |> put_status(:created)
         |> render(:show, completion: completion)
 
-      {:error, changeset} ->
-        {:error, changeset}
+      {:error, error} ->
+        {:error, error}
     end
   end
 
