@@ -128,7 +128,7 @@ defmodule LumenViaeWeb.Live.Mysteries.AdminTest do
 
       html = render_click(view, "delete_mystery", %{"id" => to_string(mystery.id)})
 
-      assert html =~ "Failed to delete mystery"
+      assert html =~ "This mystery still has meditations"
       assert [_still_there] = Rosary.list_mysteries!()
     end
   end
