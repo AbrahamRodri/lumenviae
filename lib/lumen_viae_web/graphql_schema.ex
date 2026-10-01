@@ -11,7 +11,7 @@ defmodule LumenViaeWeb.GraphqlSchema do
   use Absinthe.Schema
 
   use AshGraphql,
-    domains: [LumenViae.Office]
+    domains: [LumenViae.Office, LumenViae.Rosary]
 
   query do
   end

@@ -69,8 +69,16 @@ defmodule LumenViae.Rosary.ResourcesTest do
   end
 
   describe "the domain" do
-    test "registers all seven resources" do
-      assert Enum.sort(Ash.Domain.Info.resources(Rosary)) == Enum.sort(@resources)
+    # Only the table-backed resources: the domain also holds resources with
+    # no data layer (the GraphQL API's narration voices and spoken Rosary),
+    # which map no table.
+    test "registers all seven table-backed resources" do
+      table_backed =
+        Rosary
+        |> Ash.Domain.Info.resources()
+        |> Enum.filter(&(Ash.DataLayer.data_layer(&1) == AshPostgres.DataLayer))
+
+      assert Enum.sort(table_backed) == Enum.sort(@resources)
     end
 
     test "every resource declares its GraphQL type" do

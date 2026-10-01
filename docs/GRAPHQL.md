@@ -23,6 +23,8 @@ when something failed, `errors`; a client checks `errors` before trusting
 | --- | --- |
 | `bad_request` | A value the domain rejected: an unknown hour, version or language, a date outside the engine's window. The message names the valid values, in the same words as the REST API's 400. |
 | `office_unavailable` | The Divinum Officium engine is unreachable or answered something unparseable. Retry later. The REST API's 503. |
+| `invalid_argument` | An argument the domain rejected, named in `fields`; for example an unknown `voice`. The REST API's 400. |
+| `audio_unavailable` | A recording could not be signed: the server's storage credentials are missing or broken. The REST API's 503. |
 | `not_found` | No such record, or one the public cannot see. |
 
 Anything else arrives as "something went wrong" with an id that appears in
@@ -54,6 +56,50 @@ GraphQL ones are not. The Office's own server-side cache is unaffected.
   server, and aliasing would otherwise turn one call to us into hundreds
   to them. 24 is three days of hours; the app's heaviest real request,
   today's and tomorrow's hours, costs 16.
+
+**Signed audio carries its own expiry.** Every presigned URL is a
+`SignedAudio { url expiresAt }`. The same recording can reach a device
+through two operations signed at different moments, so an expiry stated
+once per response would be true of some links and not others.
+`expiresAt` is always whole-second UTC, `2026-10-02T12:00:00Z`: the iOS
+app's `ISO8601DateFormatter` rejects fractional seconds.
+
+**Only what is selected is signed.** Signed fields are Ash calculations,
+and Ash computes only the calculations a query selects. A client that
+selects no audio has nothing signed on its behalf; one that selects
+`rosaryAudio { prayers { ... } }` has the prayers signed and no verse.
+
+## Narration voices and the spoken Rosary
+
+| Query | Returns |
+| --- | --- |
+| `voices` | `[NarrationVoice!]!`, the voices a listener may choose, default first: `slug name description default retired replacedBy`. Exactly one has `default: true`. The same list as `GET /api/voices`. |
+| `retiredVoices` | The voices taken out of the pickers, each with `replacedBy`, the voice a request for it is now served by. A client can move a stored choice on without compiling the mapping in. |
+| `rosaryAudio(voice)` | `SpokenRosary!`: `voice version expiresAt prayers announcements verses book`. The same recordings, keys and files as `GET /api/rosary/audio`. |
+
+`rosaryAudio` without a `voice` serves the default voice, and a retired
+voice is served by its successor, so `voice` in the answer is the voice
+actually heard. An unknown slug is an `invalid_argument` error on `voice`.
+
+The REST manifest's keyed maps become lists that carry their keys, since
+GraphQL has no map type:
+
+- `prayers` and `book`: `[RosaryClip!]!`, each `id title file audio`.
+  `title` is the Prayer Book's heading; the Rosary's prayers have none.
+- `announcements`: `[AnnouncementClip!]!`, each `key text file audio`,
+  keyed `"<category>_<order>"` as the app keys its mysteries.
+- `verses`: `[VerseGroup!]!`, each `key clips`, the clips
+  `bead reference file audio` in bead order, so `clips[n - 1]` is Hail
+  Mary n.
+
+`file` is the recording's name in S3 and changes exactly when the
+recording does, so a device can use it as its cache key. `version`
+fingerprints the voice's whole catalogue, whatever was selected.
+`expiresAt` is the earliest expiry of any URL in the response.
+
+Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
+`LumenViae.Rosary.SpokenRosary`), answered from config and the
+`PrayerAudio` catalogue, which is all the REST endpoints read too.
 
 ## The Divine Office
 

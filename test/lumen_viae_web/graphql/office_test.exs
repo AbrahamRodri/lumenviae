@@ -5,7 +5,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
   the wire to the engine, which Req.Test answers with saved pages.
 
   The office cache is shared across the suite, so these tests keep to
-  dates in 1902, which no other test file uses.
+  dates in 1903, which no other test file uses (the REST Office tests keep to 1901 and 1902).
   """
   use LumenViaeWeb.ConnCase, async: true
 
@@ -44,9 +44,9 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       stub_page("laudes_2026-08-24.html")
 
       assert %{"data" => %{"officeHour" => hour}} =
-               graphql(conn, @hour_query, %{date: "1902-03-04", hour: "laudes"})
+               graphql(conn, @hour_query, %{date: "1903-03-04", hour: "laudes"})
 
-      assert hour["date"] == "1902-03-04"
+      assert hour["date"] == "1903-03-04"
       assert hour["hour"] == "laudes"
       assert hour["version"] == "rubrics-1960"
       assert hour["language"] == "english"
@@ -71,7 +71,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       stub_page("laudes_2026-08-24.html")
 
       %{"data" => %{"officeHour" => hour}} =
-        graphql(conn, @hour_query, %{date: "1902-03-05", hour: "laudes"})
+        graphql(conn, @hour_query, %{date: "1903-03-05", hour: "laudes"})
 
       for section <- hour["sections"], cell <- [section["latin"], section["vernacular"]], cell do
         assert is_list(cell["lines"])
@@ -83,7 +83,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       stub_page("laudes_2026-08-24.html")
 
       graphql(conn, @hour_query, %{
-        date: "1902-03-06",
+        date: "1903-03-06",
         hour: "laudes",
         version: "tridentine-1570",
         language: "latin"
@@ -95,7 +95,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
     end
 
     test "an unknown hour is a bad_request error naming the valid hours", %{conn: conn} do
-      body = graphql(conn, @hour_query, %{date: "1902-03-07", hour: "brunch"})
+      body = graphql(conn, @hour_query, %{date: "1903-03-07", hour: "brunch"})
 
       assert body["data"] == nil
       assert [%{"code" => "bad_request", "message" => message}] = body["errors"]
@@ -113,7 +113,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
     test "engine trouble is an office_unavailable error the client can retry", %{conn: conn} do
       Req.Test.stub(DivinumOfficium, fn conn -> Req.Test.transport_error(conn, :timeout) end)
 
-      body = graphql(conn, @hour_query, %{date: "1902-03-08", hour: "laudes"})
+      body = graphql(conn, @hour_query, %{date: "1903-03-08", hour: "laudes"})
 
       assert [%{"code" => "office_unavailable"}] = body["errors"]
     end
@@ -129,12 +129,12 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       }
       """
 
-      %{"data" => %{"officeHours" => hours}} = graphql(conn, query, %{date: "1902-04-01"})
+      %{"data" => %{"officeHours" => hours}} = graphql(conn, query, %{date: "1903-04-01"})
 
       assert Enum.map(hours, & &1["hour"]) ==
                ~w(matutinum laudes prima tertia sexta nona vesperae completorium)
 
-      assert Enum.all?(hours, &(&1["date"] == "1902-04-01"))
+      assert Enum.all?(hours, &(&1["date"] == "1903-04-01"))
     end
   end
 
@@ -152,9 +152,9 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       }
       """
 
-      %{"data" => %{"officeDay" => day}} = graphql(conn, query, %{date: "1902-05-24"})
+      %{"data" => %{"officeDay" => day}} = graphql(conn, query, %{date: "1903-05-24"})
 
-      assert day["date"] == "1902-05-24"
+      assert day["date"] == "1903-05-24"
 
       assert day["celebration"] == %{
                "title" => "S. Bartholomæi Apostoli",
@@ -179,20 +179,20 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       stub_page("kalendar_2026-08.html")
 
       %{"data" => %{"officeCalendar" => calendar}} =
-        graphql(conn, @calendar_query, %{year: 1902, month: 7})
+        graphql(conn, @calendar_query, %{year: 1903, month: 7})
 
-      assert calendar["year"] == 1902
+      assert calendar["year"] == 1903
       assert calendar["month"] == 7
       assert calendar["version"] == "rubrics-1960"
       assert length(calendar["days"]) == 31
 
       dates = Enum.map(calendar["days"], &Date.from_iso8601!(&1["date"]))
       assert dates == Enum.sort(dates, Date)
-      assert hd(dates) == ~D[1902-07-01]
+      assert hd(dates) == ~D[1903-07-01]
     end
 
     test "an impossible month is a bad_request error", %{conn: conn} do
-      body = graphql(conn, @calendar_query, %{year: 1902, month: 13})
+      body = graphql(conn, @calendar_query, %{year: 1903, month: 13})
 
       assert [%{"code" => "bad_request"}] = body["errors"]
     end
@@ -262,7 +262,7 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
     test "refuses a document that aliases officeHours past the budget", %{conn: conn} do
       aliases =
         Enum.map_join(1..4, "\n", fn n ->
-          "h#{n}: officeHours(date: \"1902-06-0#{n}\") { hour }"
+          "h#{n}: officeHours(date: \"1903-06-0#{n}\") { hour }"
         end)
 
       body = graphql(conn, "{ #{aliases} }")
@@ -276,12 +276,12 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
       query = """
       query {
         ...Days
-        ... on RootQueryType { c: officeHours(date: "1902-06-03") { hour } }
+        ... on RootQueryType { c: officeHours(date: "1903-06-03") { hour } }
       }
       fragment Days on RootQueryType {
-        a: officeHours(date: "1902-06-01") { hour }
-        b: officeHours(date: "1902-06-02") { hour }
-        d: officeHours(date: "1902-06-04") { hour }
+        a: officeHours(date: "1903-06-01") { hour }
+        b: officeHours(date: "1903-06-02") { hour }
+        d: officeHours(date: "1903-06-04") { hour }
       }
       """
 
@@ -297,8 +297,8 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
 
       query = """
       query {
-        today: officeHours(date: "1902-06-10") { hour }
-        tomorrow: officeHours(date: "1902-06-11") { hour }
+        today: officeHours(date: "1903-06-10") { hour }
+        tomorrow: officeHours(date: "1903-06-11") { hour }
       }
       """
 

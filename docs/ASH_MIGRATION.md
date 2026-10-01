@@ -297,7 +297,11 @@ Considered and left out, for now:
 
 Rewrite `context_rules_test.exs` for the Ash rules, update
 docs/ARCHITECTURE.md, CLAUDE.md and the other docs that name the old
-modules, run the full suite and the `verify` skill against the running
+modules. While there, correct the docs that say the iOS app sends a
+timezone and locale with a completion; no build does (see
+docs/IOS_API_CONTRACT.md, section 6): ARCHITECTURE.md around "What a
+completion records", COMPLETION_ANALYTICS.md and API_EXPANSION_PLAN.md.
+The privacy policy page makes no such claim. Then run the full suite and the `verify` skill against the running
 app, check the release build, then ask the user before anything merges
 to `main`.
 
@@ -306,4 +310,15 @@ to `main`.
 - `priv/repo/migrations/20261001112950_initialize_extensions_1.exs`
   installs Ash's SQL helper functions (`ash-functions`). It runs on
   deploy with the other migrations and touches no table.
-- `LumenViae.Repo.min_pg_version/0` is 17, matching production.
+- `priv/repo/migrations/20261001114644_install_ash_required_function.exs`
+  adds one more helper, `ash_required`, which the locked AshPostgres
+  expects (its extensions snapshot is at version 6). It also touches no
+  table. Upstream caveat: the function is declared with
+  `SET search_path = ''` and calls `ash_raise_error` unqualified, so its
+  error branch would fail. AshPostgres does not call it on our path,
+  because it inlines a `CASE` unless the repo sets
+  `immutable_expr_error?`. Do not turn that on without checking.
+- `LumenViae.Repo.min_pg_version/0` is 17, matching production. Confirm
+  the production Postgres major before the first deploy.
+- Phase 1 left an empty scratch database, `lumen_viae_test_fable_ashverify`,
+  on the local Postgres server. It holds nothing and can be dropped.

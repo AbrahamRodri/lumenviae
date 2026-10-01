@@ -47,6 +47,15 @@ defmodule LumenViae.Rosary do
     otp_app: :lumen_viae,
     extensions: [AshGraphql.Domain, AshPhoenix]
 
+  # The GraphQL API's Rosary queries. See docs/GRAPHQL.md.
+  graphql do
+    queries do
+      list LumenViae.Rosary.NarrationVoice, :voices, :offered, paginate_with: nil
+      list LumenViae.Rosary.NarrationVoice, :retired_voices, :retired, paginate_with: nil
+      read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: false
+    end
+  end
+
   resources do
     resource LumenViae.Rosary.Mystery
     resource LumenViae.Rosary.Meditation
@@ -55,6 +64,11 @@ defmodule LumenViae.Rosary do
     resource LumenViae.Rosary.Completion
     resource LumenViae.Rosary.Author
     resource LumenViae.Rosary.Narration
+
+    # No tables: GraphQL's view of the narration voices and the spoken
+    # Rosary, both of which are configuration rather than data.
+    resource LumenViae.Rosary.NarrationVoice
+    resource LumenViae.Rosary.SpokenRosary
   end
 
   alias LumenViae.Rosary.Artwork
