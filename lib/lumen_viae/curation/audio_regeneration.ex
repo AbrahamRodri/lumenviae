@@ -161,11 +161,16 @@ defmodule LumenViae.Curation.AudioRegeneration do
   end
 
   defp describe(meditation) do
-    label =
-      meditation.title || (Ecto.assoc_loaded?(meditation.mystery) && meditation.mystery.name)
+    label = meditation.title || mystery_name(meditation.mystery)
 
     if label, do: "meditation #{meditation.id} (#{label})", else: "meditation #{meditation.id}"
   end
+
+  # Not Ecto.assoc_loaded?/1: it answers true for anything that is not
+  # Ecto's own not-loaded marker, Ash's included, and the label would then
+  # crash reading a name off a relationship that was never loaded.
+  defp mystery_name(%{name: name}), do: name
+  defp mystery_name(_not_loaded_or_nil), do: nil
 
   defp pause_plan(meditation, voice) do
     speech_text = Pipeline.speech_text(meditation.content, meditation.tts_annotations, voice)
