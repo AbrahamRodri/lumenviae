@@ -9,10 +9,11 @@
     <.form for={@meditation_set_form} phx-submit="create_meditation_set">
       <.panel title="Set details">
         <div class="space-y-4">
-          <.field label="Name" required>
+          <.field label="Name" required errors={@meditation_set_form[:name].errors}>
             <input
               type="text"
-              name="name"
+              name={@meditation_set_form[:name].name}
+              value={@meditation_set_form[:name].value || ""}
               required
               class="admin-input"
               placeholder="e.g. St. Louis de Montfort - Joyful Mysteries"
@@ -23,15 +24,30 @@
             label="Category"
             required
             hint="Decides how many meditations the set is expected to hold: five, or seven for the Seven Sorrows."
+            errors={@meditation_set_form[:category].errors}
           >
-            <select name="category" required class="admin-input">
+            <select name={@meditation_set_form[:category].name} required class="admin-input">
               <option value="">Select a category</option>
-              <option :for={{label, value} <- @mystery_categories} value={value}>{label}</option>
+              <option
+                :for={{label, value} <- @mystery_categories}
+                value={value}
+                selected={@meditation_set_form[:category].value == value}
+              >
+                {label}
+              </option>
             </select>
           </.field>
 
-          <.field label="Description" hint="Optional. Shown under the set's name in the app.">
-            <textarea name="description" rows="3" class="admin-textarea"></textarea>
+          <.field
+            label="Description"
+            hint="Optional. Shown under the set's name in the app."
+            errors={@meditation_set_form[:description].errors}
+          >
+            <textarea
+              name={@meditation_set_form[:description].name}
+              rows="3"
+              class="admin-textarea"
+            ><%= @meditation_set_form[:description].value || "" %></textarea>
           </.field>
         </div>
 
@@ -67,10 +83,10 @@
               {meditation.mystery.name}{if meditation.title, do: " - #{meditation.title}"}
             </p>
             <p class="text-xs text-admin-ink-faint mt-0.5">
-              {LumenViae.Rosary.Categories.label(meditation.mystery.category)}<span :if={
-                meditation.author
-              }>
-                · {meditation.author}</span>
+              {LumenViae.Rosary.Categories.label(meditation.mystery.category)}
+              <span :if={meditation.author}>
+                · {meditation.author}
+              </span>
             </p>
             <p :if={meditation.content} class="text-xs text-admin-ink-soft mt-1">
               {content_snippet(meditation.content)}

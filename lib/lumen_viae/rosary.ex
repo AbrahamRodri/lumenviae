@@ -69,6 +69,18 @@ defmodule LumenViae.Rosary do
   # `{:error, %Ash.Error.Invalid{}}`.
   @read [:subject, :can, :can?, :action!]
 
+  # What every listed set carries so that it can be shown as the app will
+  # show it. The linked author, because a set with no painting of its own
+  # still shows one when its author has a portrait (see `artwork_record/1`).
+  # The derived byline, because a set with no `author` of its own still
+  # prints one when its meditations agree.
+  @set_context [:author_profile, :derived_author, :derived_source]
+
+  # A set's meditations in the order it is prayed, each with what a page or
+  # an API response renders beside it.
+  @prayer_order [set_memberships: [meditation: [:mystery, :narrations]]]
+  @visible_set_in_prayer_order @prayer_order ++ @set_context
+
   resources do
     resource LumenViae.Rosary.Mystery do
       define :list_mysteries, action: :in_prayer_order, functions: @read
@@ -100,7 +112,43 @@ defmodule LumenViae.Rosary do
       define :unarchive_meditation, action: :unarchive
     end
 
-    resource LumenViae.Rosary.MeditationSet
+    resource LumenViae.Rosary.MeditationSet do
+      define :list_meditation_sets,
+        action: :catalogue,
+        default_options: [load: @set_context],
+        functions: @read
+
+      define :list_visible_meditation_sets,
+        action: :visible,
+        default_options: [load: @set_context],
+        functions: @read
+
+      define :list_visible_meditation_sets_with_meditations,
+        action: :visible,
+        default_options: [load: [:meditations | @set_context]],
+        functions: @read
+
+      define :list_visible_meditation_sets_by_category,
+        action: :visible,
+        args: [:category],
+        default_options: [load: [:meditations | @set_context]],
+        functions: @read
+
+      define :get_meditation_set,
+        action: :read,
+        get_by: [:id],
+        default_options: [load: [:meditations]]
+
+      define :create_meditation_set, action: :create
+      define :update_meditation_set, action: :update
+
+      define :delete_meditation_set,
+        action: :destroy,
+        default_options: [return_destroyed?: true]
+
+      define :update_meditation_set_artwork, action: :record_artwork
+      define :update_meditation_set_artwork_metadata, action: :update_artwork_metadata
+    end
 
     resource LumenViae.Rosary.SetMembership do
       define :add_meditation_to_set,
@@ -131,8 +179,10 @@ defmodule LumenViae.Rosary do
   require Ash.Query
 
   alias LumenViae.Rosary.Artwork
+  alias LumenViae.Rosary.Author
   alias LumenViae.CentralTime
   alias LumenViae.Rosary.Completions
+  alias LumenViae.Rosary.MeditationSet
   alias LumenViae.Rosary.MeditationSets
   alias LumenViae.Rosary.Meditation
   alias LumenViae.Rosary.Mystery
@@ -422,39 +472,91 @@ defmodule LumenViae.Rosary do
   # interface defined in the resources block above.
 
   ## Meditation sets
+  #
+  # create_meditation_set/1, update_meditation_set/2, delete_meditation_set/1,
+  # update_meditation_set_artwork/2 (a completed upload) and
+  # update_meditation_set_artwork_metadata/2 (what the curator typed) are
+  # the code interface defined in the resources block above, as are the
+  # reads:
+  #
+  #   * list_meditation_sets!/0 - every set, by category and then creation
+  #     order, each with its linked author and its derived byline. The
+  #     admin's list.
+  #   * get_meditation_set!/1 - one set with its meditations, oldest first.
+  #     Prefer get_meditation_set_with_ordered_meditations!/1 when the order
+  #     the set is prayed in matters.
+  #
+  # The visible reads are further down.
 
-  defdelegate count_meditation_sets(), to: MeditationSets, as: :count
-  defdelegate get_meditation_set!(id), to: MeditationSets, as: :get_with_meditations!
+  def count_meditation_sets, do: Ash.count!(MeditationSet)
 
-  defdelegate get_meditation_set_by_name(name, category \\ nil),
-    to: MeditationSets,
-    as: :get_by_name
+  @doc """
+  Number of meditations a set of the given category is expected to hold. The
+  Seven Sorrows are prayed as seven; every other category is a five-decade
+  Rosary.
+  """
+  def expected_meditation_count("seven_sorrows"), do: 7
+  def expected_meditation_count(_category), do: 5
 
-  defdelegate count_meditation_sets_by_name(name), to: MeditationSets, as: :count_by_name
-  defdelegate create_meditation_set(attrs \\ %{}), to: MeditationSets, as: :create
-  defdelegate update_meditation_set(set, attrs), to: MeditationSets, as: :update
-  defdelegate change_meditation_set(set, attrs \\ %{}), to: MeditationSets, as: :change
-  defdelegate change_new_meditation_set(attrs \\ %{}), to: MeditationSets, as: :change_new
-  defdelegate delete_meditation_set(set), to: MeditationSets, as: :delete
-  defdelegate expected_meditation_count(category), to: MeditationSets
+  @doc """
+  The set with this name, or nil.
 
-  defdelegate update_meditation_set_artwork(set, attrs),
-    to: MeditationSets,
-    as: :update_artwork
+  Names repeat across categories - the four Liguori sets are all
+  "St. Alphonsus Liguori" - so a category narrows the search when the
+  caller has one. Without a category the name must be unique: several
+  matches answer nil rather than one of them at random, since anything
+  that then appended to "the" set would land in whichever came first.
+  """
+  def get_meditation_set_by_name(name, category \\ nil)
 
-  defdelegate update_meditation_set_artwork_metadata(set, attrs),
-    to: MeditationSets,
-    as: :update_artwork_metadata
+  def get_meditation_set_by_name(name, nil) do
+    case named_sets(name, nil) |> Ash.Query.limit(2) |> Ash.read!() do
+      [set] -> set
+      _none_or_several -> nil
+    end
+  end
 
-  defdelegate change_meditation_set_artwork(set, attrs \\ %{}),
-    to: MeditationSets,
-    as: :change_artwork
+  def get_meditation_set_by_name(name, category) do
+    name |> named_sets(category) |> Ash.read_one!()
+  end
 
-  defdelegate meditation_set_ids_missing_artwork(),
-    to: MeditationSets,
-    as: :list_ids_missing_artwork
+  @doc """
+  How many sets carry this name, across every category.
+  """
+  def count_meditation_sets_by_name(name) do
+    name |> named_sets(nil) |> Ash.count!()
+  end
 
-  defdelegate meditation_set_counts_by_author(), to: MeditationSets, as: :count_by_author
+  defp named_sets(name, category) do
+    Ash.Query.for_read(MeditationSet, :named, %{name: name, category: category})
+  end
+
+  @doc """
+  Ids of the sets still waiting for a painting, for the admin dashboard.
+
+  Id-shaped rather than a count because the dashboard only reports on sets
+  the public can reach.
+  """
+  def meditation_set_ids_missing_artwork do
+    MeditationSet
+    |> Ash.Query.for_read(:missing_artwork)
+    |> Ash.Query.select([:id])
+    |> Ash.read!()
+    |> Enum.map(& &1.id)
+  end
+
+  @doc """
+  Returns `%{author_id => set count}` for every author with at least one set
+  linked to them, so the authors list can say what each portrait is covering.
+  """
+  def meditation_set_counts_by_author do
+    Author
+    |> Ash.Query.select([:id])
+    |> Ash.Query.load(:meditation_set_count)
+    |> Ash.read!()
+    |> Enum.reject(&(&1.meditation_set_count == 0))
+    |> Map.new(&{&1.id, &1.meditation_set_count})
+  end
 
   @doc """
   Stable public URL for a set's or a meditation's artwork, or nil.
@@ -477,9 +579,9 @@ defmodule LumenViae.Rosary do
   portrait uploaded once cover every set under that author with no API or
   app change.
 
-  The author association must be preloaded for the fallback to apply; the
-  visible-set reads preload it. Where it is not loaded the set behaves as
-  if it had no author.
+  The linked author must be loaded for the fallback to apply; the list and
+  visible-set reads load it. Where it is not loaded the set behaves as if
+  it had no author.
   """
   def artwork_record(set) do
     author = Map.get(set, :author_profile)
@@ -492,40 +594,19 @@ defmodule LumenViae.Rosary do
   end
 
   @doc """
-  Every set, admin order, with the linked author preloaded and the byline
-  resolved.
-
-  Both come along because the admin's job is to show what the app will
-  actually do with each set. Artwork: a set with no painting of its own
-  still shows one when its author has a portrait (see `artwork_record/1`),
-  so the health check needs the author loaded or it reports paintings
-  missing that are not. Byline: a set with no `author` of its own still
-  prints one when its meditations agree, so a column reading it raw would
-  be a column of dashes.
-
-  Three extra queries over a table of a few dozen rows, for a list that is
-  not quietly wrong about either.
-  """
-  def list_meditation_sets do
-    MeditationSets.list()
-    |> MeditationSets.preload_author_profile()
-    |> resolve_attribution()
-  end
-
-  @doc """
   Fetches a set with its meditations in the order the set is prayed, which
-  lives on the join row rather than on the meditations themselves.
+  lives on the join row rather than on the meditations themselves. Hidden
+  sets included: this is the admin's read.
 
-  Raises `Ecto.NoResultsError` when the set does not exist.
+  Raises an error that renders as a 404 when the set does not exist.
   """
   def get_meditation_set_with_ordered_meditations!(id) do
-    set = MeditationSets.get!(id)
-    %{set | meditations: list_meditations_in_set(set.id)}
+    MeditationSet |> Ash.get!(id, load: @prayer_order) |> in_prayer_order()
   end
 
   @doc """
-  A set's meditations in the order the set is prayed, with mysteries
-  preloaded.
+  A set's meditations in the order the set is prayed, with mysteries and
+  narrations loaded.
   """
   def list_meditations_in_set(set_id) do
     SetMembership
@@ -535,135 +616,97 @@ defmodule LumenViae.Rosary do
     |> Enum.map(& &1.meditation)
   end
 
+  # The many-to-many cannot be sorted by its join row, so prayer order is
+  # read from the memberships and written over `meditations`, which is the
+  # field every page and JSON view reads.
+  defp in_prayer_order(%{set_memberships: memberships} = set) when is_list(memberships) do
+    %{set | meditations: Enum.map(memberships, & &1.meditation)}
+  end
+
   ## Visible meditation sets (public surfaces)
   #
   # A set is "visible" when none of its meditations are archived. Archiving a
   # single meditation therefore hides every set that contains it from the
   # public site and the iOS API, while the admin functions above keep
-  # returning everything.
-
-  def list_visible_meditation_sets do
-    MeditationSets.list(exclude_ids: hidden_meditation_set_ids())
-    |> MeditationSets.preload_author_profile()
-    |> resolve_attribution()
-  end
-
-  def list_visible_meditation_sets_with_meditations do
-    list_visible_meditation_sets() |> MeditationSets.preload_meditations()
-  end
-
-  def list_visible_meditation_sets_by_category(category) do
-    MeditationSets.list(category: category, exclude_ids: hidden_meditation_set_ids())
-    |> MeditationSets.preload_meditations()
-    |> MeditationSets.preload_author_profile()
-    |> resolve_attribution()
-  end
+  # returning everything. The rule is MeditationSet's `visible?`
+  # calculation, and these all go through its `:visible` read:
+  #
+  #   * list_visible_meditation_sets!/0
+  #   * list_visible_meditation_sets_with_meditations!/0
+  #   * list_visible_meditation_sets_by_category!/1 (with meditations)
+  #
+  # Each set comes with its linked author and its derived byline.
 
   @doc """
-  Fills in each set's derived byline.
-
-  An explicit `author` or `source` on the set always wins. Otherwise it is
-  derived from the set's meditations, and only when every meditation agrees:
-  a set of four Emmerich passages and one Liguori gets nil rather than a
-  name that is true of most of it.
-
-  Writes only the virtual `derived_author` and `derived_source`. Writing the
-  derivation into the persisted columns would mean any later save of that
-  struct - an admin form prefilled from a public read, a re-save - promoted
-  a guess to an explicit override, which is exactly the staleness having a
-  derivation is meant to avoid.
-
-  Two queries, whether it is given one set or all of them.
-  """
-  def resolve_attribution(sets) when is_list(sets) do
-    set_ids = Enum.map(sets, & &1.id)
-
-    rows_by_set =
-      SetMembership
-      |> Ash.Query.for_read(:in_prayer_order)
-      |> Ash.Query.filter(meditation_set_id in ^set_ids)
-      |> Ash.Query.load(meditation: Ash.Query.select(Meditation, [:author, :source]))
-      |> Ash.read!()
-      |> Enum.group_by(& &1.meditation_set_id, & &1.meditation)
-
-    Enum.map(sets, fn set ->
-      rows = Map.get(rows_by_set, set.id, [])
-
-      %{
-        set
-        | derived_author: unanimous(rows, :author),
-          derived_source: unanimous(rows, :source)
-      }
-    end)
-  end
-
-  def resolve_attribution(set), do: set |> List.wrap() |> resolve_attribution() |> hd()
-
-  defp unanimous([], _key), do: nil
-
-  defp unanimous(rows, key) do
-    case rows |> Enum.map(&blank_to_nil(Map.fetch!(&1, key))) |> Enum.uniq() do
-      [value] when is_binary(value) -> value
-      _disagreement_or_nothing -> nil
-    end
-  end
-
-  defp blank_to_nil(nil), do: nil
-
-  defp blank_to_nil(value) when is_binary(value) do
-    case String.trim(value) do
-      "" -> nil
-      trimmed -> trimmed
-    end
-  end
-
-  @doc """
-  Same as `get_meditation_set_with_ordered_meditations!/1` but raises
-  `Ecto.NoResultsError` (rendered as a 404) when the set contains an
-  archived meditation, so hidden sets cannot be reached by direct URL.
+  Same as `get_meditation_set_with_ordered_meditations!/1` but raises its
+  404 when the set contains an archived meditation too, so hidden sets
+  cannot be reached by direct URL.
   """
   def get_visible_meditation_set_with_ordered_meditations!(id) do
-    set = get_meditation_set_with_ordered_meditations!(id)
-
-    if Enum.any?(set.meditations, &meditation_archived?/1) do
-      MeditationSets.raise_not_found!()
-    end
-
-    resolve_attribution(set)
+    MeditationSet
+    |> Ash.get!(id, action: :visible, load: @visible_set_in_prayer_order)
+    |> in_prayer_order()
   end
+
+  # The id column is a bigint, and a number outside its range is rejected by
+  # the driver as an encoding error rather than as a missing row - which
+  # reached a client as a 500 with a stacktrace for what is only a nonsense
+  # URL.
+  @id_range 1..9_223_372_036_854_775_807
 
   @doc """
   Result-shaped sibling of
   `get_visible_meditation_set_with_ordered_meditations!/1`.
 
   Returns `{:ok, set}`, or `{:error, :not_found}` for a set that does not
-  exist, is not an id at all, or is hidden because one of its meditations is
-  archived. The bang version stays for the admin surfaces, where a 404 by
-  exception is the right answer; the API wants the error in hand so it goes
-  through the fallback controller and comes back in the same envelope as
-  every other error.
+  exist, is not an id at all, is a number no id could ever be, or is hidden
+  because one of its meditations is archived. The bang version stays for
+  the pages, where a 404 by exception is the right answer; the API wants
+  the error in hand so it goes through the fallback controller and comes
+  back in the same envelope as every other error.
   """
   def fetch_visible_meditation_set(id) do
-    with set when not is_nil(set) <- MeditationSets.get(id),
-         set = MeditationSets.preload_author_profile(set),
-         set = %{set | meditations: list_meditations_in_set(set.id)},
-         false <- Enum.any?(set.meditations, &meditation_archived?/1) do
-      {:ok, resolve_attribution(set)}
+    with {:ok, id} <- set_id(id),
+         {:ok, set} <-
+           Ash.get(MeditationSet, id, action: :visible, load: @visible_set_in_prayer_order) do
+      {:ok, in_prayer_order(set)}
     else
-      _missing_or_hidden -> {:error, :not_found}
+      :error ->
+        {:error, :not_found}
+
+      # Only a missing or hidden set is "not found". Anything else is a
+      # fault, and answering 404 for it would hide the fault.
+      {:error, %Ash.Error.Invalid{errors: errors} = error} ->
+        if Enum.any?(errors, &is_struct(&1, Ash.Error.Query.NotFound)),
+          do: {:error, :not_found},
+          else: raise(error)
+
+      {:error, error} ->
+        raise error
     end
   end
+
+  defp set_id(id) when is_integer(id), do: if(id in @id_range, do: {:ok, id}, else: :error)
+
+  defp set_id(id) when is_binary(id) do
+    case Integer.parse(id) do
+      {id, ""} -> set_id(id)
+      _not_an_id -> :error
+    end
+  end
+
+  defp set_id(_id), do: :error
 
   @doc """
   Returns a MapSet of ids of sets that are hidden from public surfaces
   because they contain at least one archived meditation.
   """
   def hidden_meditation_set_ids do
-    SetMembership
-    |> Ash.Query.for_read(:holding_archived)
-    |> Ash.Query.select([:meditation_set_id])
+    MeditationSet
+    |> Ash.Query.filter(not visible?)
+    |> Ash.Query.select([:id])
     |> Ash.read!()
-    |> MapSet.new(& &1.meditation_set_id)
+    |> MapSet.new(& &1.id)
   end
 
   ## Set membership
@@ -771,22 +814,19 @@ defmodule LumenViae.Rosary do
   audio file), archived_count.
   """
   def meditation_set_stats do
-    SetMembership
-    |> Ash.Query.for_read(:in_prayer_order)
-    |> Ash.Query.load(
-      meditation:
-        Meditation |> Ash.Query.select([:id]) |> Ash.Query.load([:archived?, :has_audio?])
-    )
+    MeditationSet
+    |> Ash.Query.select([:id])
+    |> Ash.Query.load([:meditation_count, :audio_count, :archived_count])
     |> Ash.read!()
-    |> Enum.group_by(& &1.meditation_set_id, & &1.meditation)
-    |> Map.new(fn {set_id, members} ->
-      {set_id,
+    |> Enum.reject(&(&1.meditation_count == 0))
+    |> Map.new(
+      &{&1.id,
        %{
-         meditation_count: length(members),
-         audio_count: Enum.count(members, & &1.has_audio?),
-         archived_count: Enum.count(members, & &1.archived?)
+         meditation_count: &1.meditation_count,
+         audio_count: &1.audio_count,
+         archived_count: &1.archived_count
        }}
-    end)
+    )
   end
 
   ## Rosary completions (analytics)

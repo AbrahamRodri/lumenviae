@@ -74,7 +74,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
   end
 
   defp load_data(socket) do
-    sets = Rosary.list_meditation_sets()
+    sets = Rosary.list_meditation_sets!()
     hidden_ids = Rosary.hidden_meditation_set_ids()
     stats = Rosary.meditation_set_stats()
 

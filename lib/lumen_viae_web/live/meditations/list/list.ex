@@ -143,7 +143,7 @@ defmodule LumenViaeWeb.Live.Meditations.List do
     |> assign(:meditations, meditations)
     |> assign(:available_authors, Filtering.available_authors(meditations))
     |> assign(:mysteries, Rosary.list_mysteries!())
-    |> assign(:meditation_sets, Rosary.list_meditation_sets())
+    |> assign(:meditation_sets, Rosary.list_meditation_sets!())
     |> assign(:summary, summarize(meditations))
   end
 
