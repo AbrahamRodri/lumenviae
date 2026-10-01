@@ -19,30 +19,24 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   @impl true
   def mount(%{"set_id" => set_id}, session, socket) do
+    # Raises the 404 for a set that does not exist or is hidden, and a set
+    # with no meditations is hidden, so what comes back always has something
+    # to pray.
     set = Rosary.get_visible_meditation_set_with_ordered_meditations!(set_id)
 
-    case set.meditations do
-      [_ | _] ->
-        {:ok,
-         socket
-         |> assign(:set, set)
-         |> assign(:voices, Voices.list())
-         |> assign(:voice, nil)
-         |> assign(:pray_aloud, false)
-         |> assign(:spoken_script, nil)
-         |> assign(:spoken_index, nil)
-         |> assign(:current_index, 0)
-         |> assign(:completion_tracked, false)
-         |> assign(:mobile_mode_enabled, false)
-         |> assign(:completion_context, completion_context(socket, session))
-         |> assign(:page_title, set.name)}
-
-      [] ->
-        {:ok,
-         socket
-         |> put_flash(:error, "This meditation set has no meditations yet")
-         |> push_navigate(to: "/")}
-    end
+    {:ok,
+     socket
+     |> assign(:set, set)
+     |> assign(:voices, Voices.list())
+     |> assign(:voice, nil)
+     |> assign(:pray_aloud, false)
+     |> assign(:spoken_script, nil)
+     |> assign(:spoken_index, nil)
+     |> assign(:current_index, 0)
+     |> assign(:completion_tracked, false)
+     |> assign(:mobile_mode_enabled, false)
+     |> assign(:completion_context, completion_context(socket, session))
+     |> assign(:page_title, set.name)}
   end
 
   @impl true

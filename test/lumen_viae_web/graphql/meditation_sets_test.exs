@@ -54,7 +54,13 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
     :ok
   end
 
+  # A set the public can see: it has a meditation. An empty set is hidden.
   defp create_set(attrs) do
+    attrs |> create_empty_set() |> LumenViae.Test.Sets.with_meditation()
+  end
+
+  # For a test that fills the set itself.
+  defp create_empty_set(attrs) do
     defaults = %{name: "GraphQL Set #{System.unique_integer([:positive])}", category: "joyful"}
     {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
     set
@@ -120,7 +126,7 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
     test "leaves out a set hidden by an archived meditation", %{conn: conn} do
       mystery = create_mystery()
       shown = create_set(%{name: "Shown", category: "luminous"})
-      hidden = create_set(%{name: "Hidden", category: "luminous"})
+      hidden = create_empty_set(%{name: "Hidden", category: "luminous"})
       archived = create_meditation(mystery, %{content: "Withdrawn"})
       {:ok, _} = Rosary.add_meditation_to_set(hidden.id, archived.id, 1)
       {:ok, _} = Rosary.archive_meditation(archived)
@@ -131,6 +137,25 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
       ids = Enum.map(sets, & &1["id"])
       assert to_string(shown.id) in ids
       refute to_string(hidden.id) in ids
+    end
+
+    # A set between being created and being given its first meditation has
+    # nothing to pray, and is hidden exactly as a withdrawn one is.
+    test "leaves out a set with no meditations, and answers null for it by id", %{conn: conn} do
+      shown = create_set(%{name: "Shown", category: "luminous"})
+      empty = create_empty_set(%{name: "Not filled yet", category: "luminous"})
+
+      %{"data" => %{"visibleMeditationSets" => sets}} =
+        graphql(conn, @list_query, %{category: "luminous"})
+
+      ids = Enum.map(sets, & &1["id"])
+      assert to_string(shown.id) in ids
+      refute to_string(empty.id) in ids
+
+      body = graphql(conn, @detail_query, %{id: to_string(empty.id)})
+
+      assert body["data"] == %{"meditationSet" => nil}
+      refute Map.has_key?(body, "errors")
     end
 
     test "is never paginated", %{conn: conn} do
@@ -146,7 +171,7 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
          %{conn: conn} do
       mystery = create_mystery()
       explicit = create_set(%{name: "Explicit", category: "glorious", author: "St. Alphonsus"})
-      derived = create_set(%{name: "Derived", category: "glorious"})
+      derived = create_empty_set(%{name: "Derived", category: "glorious"})
 
       for order <- 1..2 do
         m =
@@ -244,7 +269,7 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
   describe "meditationSet" do
     setup do
       mystery = create_mystery()
-      set = create_set(%{name: "Prayed", category: "joyful"})
+      set = create_empty_set(%{name: "Prayed", category: "joyful"})
 
       first = create_meditation(mystery, %{content: "First", title: "One"})
       second = create_meditation(mystery, %{content: "Second"})

@@ -124,9 +124,24 @@ defmodule LumenViae.RosaryTest do
       assert Rosary.hidden_meditation_set_ids() == MapSet.new()
     end
 
-    test "sets without meditations stay visible" do
+    test "a set without meditations is hidden until it has one" do
       set = create_set()
+
+      refute set.id in Enum.map(Rosary.list_visible_meditation_sets!(), & &1.id)
+      assert MapSet.member?(Rosary.hidden_meditation_set_ids(), set.id)
+
+      error =
+        assert_raise Ash.Error.Invalid, fn ->
+          Rosary.get_visible_meditation_set_with_ordered_meditations!(set.id)
+        end
+
+      assert Plug.Exception.status(error) == 404
+
+      put_in_set(set, create_meditation(create_mystery()))
+
       assert set.id in Enum.map(Rosary.list_visible_meditation_sets!(), & &1.id)
+      refute MapSet.member?(Rosary.hidden_meditation_set_ids(), set.id)
+      assert Rosary.get_visible_meditation_set_with_ordered_meditations!(set.id).id == set.id
     end
 
     test "admin listing functions still return hidden sets" do

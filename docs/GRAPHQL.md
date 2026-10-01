@@ -113,7 +113,8 @@ pins its fields to exactly the three the REST response has, and the
 mutation's inputs to exactly two.
 
 Every query reads through an action that already returns only what the
-public may see (`MeditationSet.:visible`; an archived meditation serves no
+public may see (`MeditationSet.:visible`, which leaves out a set holding an
+archived meditation or none at all; an archived meditation serves no
 audio), and every type lists the relationships it shows, so there is no
 path from a visible set to a hidden one or to a meditation outside any
 public set. The only write is `recordCompletion`, guarded like
@@ -128,7 +129,7 @@ read the admin should see differently from the public.
 | Query | Returns |
 | --- | --- |
 | `visibleMeditationSets(category)` | `[MeditationSet!]!`, the sets the public may see, by category then in creation order, never paginated. The same list as `GET /api/meditation-sets?category=`. |
-| `meditationSet(id)` | `MeditationSet`, or null when the set does not exist or is hidden by an archived meditation (REST answers 404). |
+| `meditationSet(id)` | `MeditationSet`, or null when the set does not exist or is hidden: it holds an archived meditation, or no meditations yet (REST answers 404). |
 
 A `MeditationSet` is `id name category description labels author source
 artwork setMemberships`:

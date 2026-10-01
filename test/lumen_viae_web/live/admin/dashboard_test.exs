@@ -17,7 +17,13 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
     {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true})}
   end
 
+  # A live set: it has a meditation. An empty set is hidden.
   defp create_set(attrs \\ %{}) do
+    attrs |> create_empty_set() |> LumenViae.Test.Sets.with_meditation(%{audio_url: "set.mp3"})
+  end
+
+  # For a test that fills the set itself.
+  defp create_empty_set(attrs \\ %{}) do
     defaults = %{name: "Dashboard Set #{System.unique_integer([:positive])}", category: "joyful"}
     {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
     set
@@ -100,7 +106,7 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
     # problem, listed once, under its own heading.
     test "a hidden set is not also counted as missing its artwork", %{conn: conn} do
       mystery = create_mystery()
-      hidden = create_set()
+      hidden = create_empty_set()
       meditation = create_meditation(mystery, %{audio_url: "a.mp3"})
       {:ok, _} = Rosary.add_meditation_to_set(hidden.id, meditation.id, 1)
 
@@ -111,14 +117,28 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
 
       {:ok, _view, html} = live(conn, "/admin")
       assert health_count(html, "Live sets without artwork") == nil
-      assert health_count(html, "Sets hidden from the public") == "1"
+      assert health_count(html, "Sets hidden by an archived meditation") == "1"
+    end
+
+    # A set with no meditations yet is hidden for a different reason, and
+    # says so under its own heading rather than being counted as withdrawn.
+    test "an empty set is hidden, and listed under its own reason", %{conn: conn} do
+      create_empty_set(%{name: "Just Created"})
+
+      {:ok, _view, html} = live(conn, "/admin")
+
+      assert health_count(html, "Sets with no meditations yet") == "1"
+      assert health_count(html, "Sets hidden by an archived meditation") == nil
+      assert health_count(html, "Live sets without artwork") == nil
+      assert health_count(html, "Live sets without labels") == nil
+      assert html =~ "/admin/meditation-sets?visibility=empty"
     end
   end
 
   describe "narration" do
     test "counts only meditations a live set can reach", %{conn: conn} do
       mystery = create_mystery()
-      set = create_set() |> add_artwork()
+      set = create_empty_set() |> add_artwork()
       reachable = create_meditation(mystery)
       _orphan = create_meditation(mystery)
       {:ok, _} = Rosary.add_meditation_to_set(set.id, reachable.id, 1)

@@ -12,7 +12,8 @@ defmodule LumenViae.Rosary.AuthorsTest do
   defp create_set(attrs) do
     defaults = %{name: "Author Set #{System.unique_integer([:positive])}", category: "joyful"}
     {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
-    set
+    # With a meditation, so the public reads these tests go through see it.
+    LumenViae.Test.Sets.with_meditation(set)
   end
 
   # The fields a completed upload writes plus the two the publish gate

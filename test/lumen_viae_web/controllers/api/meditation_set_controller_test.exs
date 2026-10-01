@@ -3,7 +3,13 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
 
   alias LumenViae.Rosary
 
+  # A set the public can see: it has a meditation. An empty set is hidden.
   defp create_set(attrs) do
+    attrs |> create_empty_set() |> LumenViae.Test.Sets.with_meditation()
+  end
+
+  # For a test that fills the set itself.
+  defp create_empty_set(attrs) do
     defaults = %{name: "Test Set", category: "joyful"}
     {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
     set
@@ -184,7 +190,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
       assert data["labels"] == ["Scriptural", "Contemplative"]
       assert is_integer(data["id"])
       assert data["id"] == set.id
-      assert data["meditations"] == []
+      assert [%{"content" => "A meditation."}] = data["meditations"]
     end
 
     test "returns an empty labels array for unlabeled sets", %{conn: conn} do
@@ -221,7 +227,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     end
 
     test "the summary derives a byline from meditations that agree", %{conn: conn} do
-      set = create_set(%{name: "Derived"})
+      set = create_empty_set(%{name: "Derived"})
       create_meditation_in_set(set)
 
       summary =
@@ -380,10 +386,42 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     end
   end
 
+  describe "a set with no meditations is hidden from the API" do
+    # Between being created and being given its first meditation a set has
+    # nothing to pray. An installed build only ever sees one set fewer.
+    test "it is absent from the lists and a 404 by id, until it has one", %{conn: conn} do
+      set = create_empty_set(%{name: "Not Filled Yet"})
+
+      for path <- [~p"/api/meditation-sets", ~p"/api/meditation-sets?category=joyful"] do
+        ids =
+          conn |> get(path) |> json_response(200) |> Map.fetch!("data") |> Enum.map(& &1["id"])
+
+        refute set.id in ids
+      end
+
+      body = conn |> get(~p"/api/meditation-sets/#{set.id}") |> json_response(404)
+      assert body["error"]["code"] == "not_found"
+
+      create_meditation_in_set(set)
+
+      ids =
+        conn
+        |> get(~p"/api/meditation-sets?category=joyful")
+        |> json_response(200)
+        |> Map.fetch!("data")
+        |> Enum.map(& &1["id"])
+
+      assert set.id in ids
+
+      detail = conn |> get(~p"/api/meditation-sets/#{set.id}") |> json_response(200)
+      assert [%{"content" => "Test content"}] = detail["data"]["meditations"]
+    end
+  end
+
   describe "archived meditations hide their sets from the API" do
     test "index excludes sets containing an archived meditation", %{conn: conn} do
-      visible_set = create_set(%{name: "Visible Set"})
-      hidden_set = create_set(%{name: "Hidden Set"})
+      visible_set = create_empty_set(%{name: "Visible Set"})
+      hidden_set = create_empty_set(%{name: "Hidden Set"})
 
       create_meditation_in_set(visible_set)
       archived = create_meditation_in_set(hidden_set)
@@ -405,7 +443,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     # A rendered 404, not a raised one: a hidden set now comes back through
     # the fallback controller in the same envelope as every other error.
     test "show returns 404 for a set containing an archived meditation", %{conn: conn} do
-      set = create_set(%{name: "Hidden Set"})
+      set = create_empty_set(%{name: "Hidden Set"})
       archived = create_meditation_in_set(set)
       {:ok, _} = Rosary.archive_meditation(archived)
 
@@ -418,7 +456,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     end
 
     test "unarchiving restores the set in the API", %{conn: conn} do
-      set = create_set(%{name: "Restored Set"})
+      set = create_empty_set(%{name: "Restored Set"})
       meditation = create_meditation_in_set(set)
       {:ok, archived} = Rosary.archive_meditation(meditation)
       {:ok, _} = Rosary.unarchive_meditation(archived)

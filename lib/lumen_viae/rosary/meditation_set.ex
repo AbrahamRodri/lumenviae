@@ -5,8 +5,11 @@ defmodule LumenViae.Rosary.MeditationSet do
   ## Visibility
 
   A set is hidden from the public site and from both APIs when any of its
-  meditations is archived. Archiving a single meditation therefore hides
-  every set that contains it, while the admin keeps seeing everything. That
+  meditations is archived, or when it has no meditations at all. Archiving
+  a single meditation therefore hides every set that contains it, and a set
+  is not public between being created and being given its first
+  meditation: there is nothing in it to pray, and listing it would only
+  offer a page that cannot open. The admin keeps seeing everything. That
   rule is the `visible?` calculation, and the `:visible` read is the only
   door the public surfaces come through, so a hidden set cannot be listed
   and cannot be fetched by id either.
@@ -138,7 +141,7 @@ defmodule LumenViae.Rosary.MeditationSet do
     end
 
     read :visible do
-      description "The sets the public may see: those with no archived meditation. By category and then in creation order, optionally narrowed to one category. Never paginated."
+      description "The sets the public may see: those with at least one meditation and none archived. By category and then in creation order, optionally narrowed to one category. Never paginated."
 
       argument :category, :string
 
@@ -279,8 +282,10 @@ defmodule LumenViae.Rosary.MeditationSet do
   end
 
   calculations do
-    calculate :visible?, :boolean, expr(not exists(meditations, not is_nil(archived_at))) do
-      description "Whether the public may see the set: none of its meditations is archived."
+    calculate :visible?,
+              :boolean,
+              expr(exists(meditations, true) and not exists(meditations, not is_nil(archived_at))) do
+      description "Whether the public may see the set: it has at least one meditation, and none of them is archived."
     end
 
     calculate :derived_author, :string, {DerivedAttribution, field: :author} do
