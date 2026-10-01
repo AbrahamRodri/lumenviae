@@ -88,7 +88,7 @@ Set completeness, for finding sets with the wrong number of meditations:
 stats = Rosary.meditation_set_stats()
 count = fn set -> get_in(stats, [set.id, :meditation_count]) || 0 end
 
-Rosary.list_meditation_sets()
+Rosary.list_meditation_sets!()
 |> Enum.reject(&(count.(&1) == Rosary.expected_meditation_count(&1.category)))
 |> Enum.map(&{&1.name, &1.category, count.(&1)})
 ```

@@ -56,7 +56,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   def handle_async(:rosary_audio, {:exit, _reason}, socket), do: {:noreply, socket}
 
   defp load(socket) do
-    sets = Rosary.list_meditation_sets()
+    sets = Rosary.list_meditation_sets!()
     hidden_ids = Rosary.hidden_meditation_set_ids()
     set_stats = Rosary.meditation_set_stats()
     mysteries = Rosary.list_mysteries!()

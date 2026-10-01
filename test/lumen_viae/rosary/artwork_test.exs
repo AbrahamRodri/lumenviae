@@ -29,7 +29,7 @@ defmodule LumenViae.Rosary.ArtworkTest do
   end
 
   describe "the managed and editable split" do
-    test "cast_upload writes the key and dimensions" do
+    test "recording an upload writes the key and dimensions" do
       set = with_artwork(create_set())
 
       assert set.image_key == "sets/27/8f21c4d9e0b3a7f6.jpg"
@@ -41,34 +41,58 @@ defmodule LumenViae.Rosary.ArtworkTest do
     # Without this split a crafted form post could point a set at any object
     # in the bucket, or leave the stored dimensions describing a different
     # image than the one the hero is about to draw.
-    test "cast_metadata cannot touch the key or the dimensions" do
+    test "the metadata action cannot touch the key or the dimensions" do
       set = with_artwork(create_set())
 
+      # They are not inputs of the action at all, so naming one is refused
+      # whole and nothing is written, the legitimate field included.
+      for managed <- [
+            %{"image_key" => "sets/1/attacker.jpg"},
+            %{"image_width" => 10},
+            %{"image_height" => 10},
+            %{"image_updated_at" => ~U[2020-01-01 00:00:00Z]}
+          ] do
+        assert {:error, %Ash.Error.Invalid{}} =
+                 Rosary.update_meditation_set_artwork_metadata(
+                   set,
+                   Map.put(managed, "image_artist", "El Greco")
+                 )
+      end
+
+      unchanged = Rosary.get_meditation_set!(set.id)
+      assert unchanged.image_key == "sets/27/8f21c4d9e0b3a7f6.jpg"
+      assert unchanged.image_width == 1600
+      assert unchanged.image_height == 2400
+      assert unchanged.image_artist == nil
+
       {:ok, updated} =
-        Rosary.update_meditation_set_artwork_metadata(set, %{
-          "image_key" => "sets/1/attacker.jpg",
-          "image_width" => 10,
-          "image_height" => 10,
-          "image_artist" => "El Greco"
-        })
+        Rosary.update_meditation_set_artwork_metadata(set, %{"image_artist" => "El Greco"})
 
       assert updated.image_key == "sets/27/8f21c4d9e0b3a7f6.jpg"
-      assert updated.image_width == 1600
-      assert updated.image_height == 2400
       assert updated.image_artist == "El Greco"
     end
 
-    test "the ordinary set changeset cannot write artwork at all" do
+    test "the ordinary set update cannot write artwork at all" do
       set = create_set()
 
-      {:ok, updated} =
-        Rosary.update_meditation_set(set, %{
-          "name" => "Renamed",
-          "image_key" => "sets/1/attacker.jpg"
-        })
+      assert {:error, %Ash.Error.Invalid{}} =
+               Rosary.update_meditation_set(set, %{
+                 "name" => "Renamed",
+                 "image_key" => "sets/1/attacker.jpg"
+               })
 
-      assert updated.name == "Renamed"
-      assert updated.image_key == nil
+      unchanged = Rosary.get_meditation_set!(set.id)
+      assert unchanged.name == set.name
+      assert unchanged.image_key == nil
+    end
+
+    test "nor can creating a set" do
+      assert {:error, %Ash.Error.Invalid{}} =
+               Rosary.create_meditation_set(%{
+                 name: "Arrives illustrated",
+                 category: "joyful",
+                 image_key: "sets/1/attacker.jpg"
+               })
     end
   end
 
@@ -87,34 +111,32 @@ defmodule LumenViae.Rosary.ArtworkTest do
     end
 
     test "rejects a focal point outside 0..1" do
-      changeset = Rosary.change_meditation_set_artwork(create_set(), %{"image_focal_y" => 1.4})
+      for focal <- [1.4, -0.1] do
+        assert {:error, error} =
+                 Rosary.update_meditation_set_artwork_metadata(create_set(), %{
+                   "image_focal_y" => focal
+                 })
 
-      refute changeset.valid?
-      assert changeset.errors[:image_focal_y]
+        assert errors_on(error).image_focal_y == ["must be between 0.0 and 1.0"]
+      end
     end
 
-    # Ecto replaces an empty value with the field's default, so a blank focal
-    # input reads as "centred" rather than "leave it alone". That is the only
-    # reading a NOT NULL column allows, and it is the right one - but it does
-    # mean the admin form has to render the stored value into the input, or
-    # saving an otherwise untouched form would quietly recentre the painting.
-    test "a blank focal point falls back to the centre, never to null" do
+    # The column is NOT NULL. A blank or a null focal point is refused
+    # rather than read as "centred": quietly recentring a painting because a
+    # field arrived empty is worse than saying the field is required, and
+    # the stored focal point is left exactly where it was.
+    test "a blank or null focal point is refused and the stored one stays" do
       {:ok, set} =
         Rosary.update_meditation_set_artwork_metadata(create_set(), %{"image_focal_y" => 0.24})
 
-      changeset = Rosary.change_meditation_set_artwork(set, %{"image_focal_y" => ""})
+      for blank <- ["", nil] do
+        assert {:error, error} =
+                 Rosary.update_meditation_set_artwork_metadata(set, %{"image_focal_y" => blank})
 
-      assert changeset.valid?
-      assert get_field(changeset, :image_focal_y) == 0.5
-    end
+        assert errors_on(error).image_focal_y == ["is required"]
+      end
 
-    # The column is NOT NULL, so an explicit null has to fail in the
-    # changeset rather than as a constraint violation at insert time.
-    test "rejects an explicitly null focal point" do
-      changeset = Rosary.change_meditation_set_artwork(create_set(), %{"image_focal_x" => nil})
-
-      refute changeset.valid?
-      assert {"can't be blank", _} = changeset.errors[:image_focal_x]
+      assert Rosary.get_meditation_set!(set.id).image_focal_y == 0.24
     end
 
     test "defaults the focal point to the centre, reproducing today's fill" do
@@ -125,29 +147,46 @@ defmodule LumenViae.Rosary.ArtworkTest do
     end
 
     test "rejects a licence outside the recorded vocabulary" do
-      changeset =
-        Rosary.change_meditation_set_artwork(create_set(), %{"image_license" => "probably_fine"})
+      assert {:error, error} =
+               Rosary.update_meditation_set_artwork_metadata(create_set(), %{
+                 "image_license" => "probably_fine"
+               })
 
-      refute changeset.valid?
-      assert changeset.errors[:image_license]
+      assert errors_on(error).image_license == [
+               "is not one of the licences this project records"
+             ]
     end
 
     test "accepts every licence the project records" do
       set = create_set()
 
       for license <- Artwork.licenses() do
-        assert Rosary.change_meditation_set_artwork(set, %{"image_license" => license}).valid?
+        assert {:ok, updated} =
+                 Rosary.update_meditation_set_artwork_metadata(set, %{"image_license" => license})
+
+        assert updated.image_license == license
       end
     end
 
     test "rejects a source URL that is not a URL" do
-      changeset =
-        Rosary.change_meditation_set_artwork(create_set(), %{
-          "image_source_url" => "metmuseum.org"
-        })
+      assert {:error, error} =
+               Rosary.update_meditation_set_artwork_metadata(create_set(), %{
+                 "image_source_url" => "metmuseum.org"
+               })
 
-      refute changeset.valid?
-      assert changeset.errors[:image_source_url]
+      assert errors_on(error).image_source_url == ["must start with http:// or https://"]
+    end
+
+    # A rule added later must not lock an older row: only a value being
+    # written is checked.
+    test "an untouched field that would fail a rule does not block an edit elsewhere" do
+      set = with_artwork(create_set())
+
+      assert {:ok, updated} =
+               Rosary.update_meditation_set_artwork_metadata(set, %{"image_title" => "The Fall"})
+
+      assert updated.image_title == "The Fall"
+      assert updated.image_license == "public_domain"
     end
 
     test "blanks out whitespace-only metadata so it cannot satisfy the publish gate" do
@@ -184,8 +223,8 @@ defmodule LumenViae.Rosary.ArtworkTest do
     end
 
     # The first upload on a set arrives with nothing but the managed fields,
-    # so requiring alt text in the changeset would make it unsavable and the
-    # curator could never get past it.
+    # so requiring alt text to save would make it unsavable and the curator
+    # could never get past it.
     test "the first upload saves even though it is not yet publishable" do
       {:ok, set} = Rosary.update_meditation_set_artwork(create_set(), @upload)
 

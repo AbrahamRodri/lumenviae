@@ -161,6 +161,6 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
       |> render_click()
 
     refute html =~ "Deletable Set"
-    assert Rosary.list_meditation_sets() |> Enum.map(& &1.id) |> Enum.member?(set.id) == false
+    assert Rosary.list_meditation_sets!() |> Enum.map(& &1.id) |> Enum.member?(set.id) == false
   end
 end

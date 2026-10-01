@@ -88,6 +88,12 @@ defmodule LumenViae.Rosary.Author do
     end
   end
 
+  aggregates do
+    # What the authors list shows beside each portrait: how many sets it
+    # is covering.
+    count :meditation_set_count, :meditation_sets
+  end
+
   identities do
     identity :unique_name, [:name]
   end

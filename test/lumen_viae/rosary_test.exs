@@ -68,11 +68,11 @@ defmodule LumenViae.RosaryTest do
       put_in_set(hidden_set, archived)
       {:ok, _} = Rosary.archive_meditation(archived)
 
-      visible_ids = Enum.map(Rosary.list_visible_meditation_sets(), & &1.id)
+      visible_ids = Enum.map(Rosary.list_visible_meditation_sets!(), & &1.id)
       assert visible_set.id in visible_ids
       refute hidden_set.id in visible_ids
 
-      category_ids = Enum.map(Rosary.list_visible_meditation_sets_by_category("joyful"), & &1.id)
+      category_ids = Enum.map(Rosary.list_visible_meditation_sets_by_category!("joyful"), & &1.id)
       assert visible_set.id in category_ids
       refute hidden_set.id in category_ids
 
@@ -88,7 +88,7 @@ defmodule LumenViae.RosaryTest do
       put_in_set(set, archived, 2)
       {:ok, _} = Rosary.archive_meditation(archived)
 
-      refute set.id in Enum.map(Rosary.list_visible_meditation_sets(), & &1.id)
+      refute set.id in Enum.map(Rosary.list_visible_meditation_sets!(), & &1.id)
     end
 
     test "get_visible_meditation_set_with_ordered_meditations!/1 raises for hidden sets" do
@@ -102,9 +102,12 @@ defmodule LumenViae.RosaryTest do
 
       {:ok, _} = Rosary.archive_meditation(meditation)
 
-      assert_raise Ecto.NoResultsError, fn ->
-        Rosary.get_visible_meditation_set_with_ordered_meditations!(set.id)
-      end
+      error =
+        assert_raise Ash.Error.Invalid, fn ->
+          Rosary.get_visible_meditation_set_with_ordered_meditations!(set.id)
+        end
+
+      assert Plug.Exception.status(error) == 404
     end
 
     test "unarchiving makes the set visible again" do
@@ -114,16 +117,16 @@ defmodule LumenViae.RosaryTest do
       put_in_set(set, meditation)
 
       {:ok, archived} = Rosary.archive_meditation(meditation)
-      refute set.id in Enum.map(Rosary.list_visible_meditation_sets(), & &1.id)
+      refute set.id in Enum.map(Rosary.list_visible_meditation_sets!(), & &1.id)
 
       {:ok, _} = Rosary.unarchive_meditation(archived)
-      assert set.id in Enum.map(Rosary.list_visible_meditation_sets(), & &1.id)
+      assert set.id in Enum.map(Rosary.list_visible_meditation_sets!(), & &1.id)
       assert Rosary.hidden_meditation_set_ids() == MapSet.new()
     end
 
     test "sets without meditations stay visible" do
       set = create_set()
-      assert set.id in Enum.map(Rosary.list_visible_meditation_sets(), & &1.id)
+      assert set.id in Enum.map(Rosary.list_visible_meditation_sets!(), & &1.id)
     end
 
     test "admin listing functions still return hidden sets" do
@@ -133,7 +136,7 @@ defmodule LumenViae.RosaryTest do
       put_in_set(set, meditation)
       {:ok, _} = Rosary.archive_meditation(meditation)
 
-      assert set.id in Enum.map(Rosary.list_meditation_sets(), & &1.id)
+      assert set.id in Enum.map(Rosary.list_meditation_sets!(), & &1.id)
       assert Rosary.get_meditation_set_with_ordered_meditations!(set.id).id == set.id
     end
   end

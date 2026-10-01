@@ -2,6 +2,41 @@ defmodule LumenViae.Rosary.MeditationSet do
   @moduledoc """
   A curated collection of meditations prayed together as one Rosary.
 
+  ## Visibility
+
+  A set is hidden from the public site and from both APIs when any of its
+  meditations is archived. Archiving a single meditation therefore hides
+  every set that contains it, while the admin keeps seeing everything. That
+  rule is the `visible?` calculation, and the `:visible` read is the only
+  door the public surfaces come through, so a hidden set cannot be listed
+  and cannot be fetched by id either.
+
+  ## Order
+
+  Sets are listed by category and then in creation order. The order is part
+  of the iOS API contract - the app builds its filter chips and sections
+  from first appearance across the list response - so every read here
+  declares it.
+
+  A set's meditations are prayed in the order carried by the join row, not
+  by the meditations themselves, which is why `set_memberships` is sorted
+  and is the path to follow for prayer order.
+
+  ## Byline
+
+  `author` and `source` are the set's own byline. When they are blank the
+  byline is derived from the set's meditations (`derived_author`,
+  `derived_source`), and only when every one of them agrees.
+  `byline_author` and `byline_source` are what a client is shown: the
+  explicit value, or else the derivation.
+
+  ## Artwork
+
+  The artwork columns, and the two actions that write them, come from
+  `LumenViae.Rosary.Artwork.Fragment`. A set with no publishable painting
+  of its own shows its linked author's portrait instead; see
+  `LumenViae.Rosary.artwork_record/1`.
+
   Mapped onto the existing `meditation_sets` table exactly as the Ecto
   migrations left it.
 
@@ -12,7 +47,14 @@ defmodule LumenViae.Rosary.MeditationSet do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
-    extensions: [AshGraphql.Resource]
+    extensions: [AshGraphql.Resource],
+    fragments: [LumenViae.Rosary.Artwork.Fragment]
+
+  alias LumenViae.Rosary.Categories
+  alias LumenViae.Rosary.MeditationSet.Byline
+  alias LumenViae.Rosary.MeditationSet.DerivedAttribution
+  alias LumenViae.Rosary.MeditationSet.ManagedLabels
+  alias LumenViae.Rosary.MeditationSet.NormalizeLabels
 
   graphql do
     type :meditation_set
@@ -59,15 +101,72 @@ defmodule LumenViae.Rosary.MeditationSet do
   end
 
   actions do
+    # Deleting a set takes its memberships and its completions with it: both
+    # foreign keys cascade. The meditations themselves stay.
+    defaults [:read, :destroy]
+
+    read :catalogue do
+      description "Every set, hidden ones included, by category and then in creation order. The admin's list."
+      prepare build(sort: [category: :asc, id: :asc])
+    end
+
+    read :visible do
+      description "The sets the public may see: those with no archived meditation. By category and then in creation order, optionally narrowed to one category. Never paginated."
+
+      argument :category, :string
+
+      filter expr(visible? and (is_nil(^arg(:category)) or category == ^arg(:category)))
+      prepare build(sort: [category: :asc, id: :asc])
+    end
+
+    read :named do
+      description "The sets carrying this exact name, optionally within one category. Names repeat across categories."
+
+      argument :name, :string do
+        allow_nil? false
+        constraints trim?: false, allow_empty?: true
+      end
+
+      argument :category, :string
+
+      filter expr(
+               name == ^arg(:name) and (is_nil(^arg(:category)) or category == ^arg(:category))
+             )
+
+      prepare build(sort: [id: :asc])
+    end
+
+    read :missing_artwork do
+      description "The sets with no painting uploaded."
+      filter expr(is_nil(image_key))
+      prepare build(sort: [id: :asc])
+    end
+
     # The artwork columns are in neither accept list. They are written by
-    # their own two actions, for the same reason archived_at is not
+    # the fragment's two actions, for the same reason archived_at is not
     # writable on a meditation.
-    defaults [
-      :read,
-      :destroy,
-      create: [:name, :category, :description, :labels, :author, :source, :author_id],
-      update: [:name, :category, :description, :labels, :author, :source, :author_id]
-    ]
+    create :create do
+      primary? true
+      accept [:name, :category, :description, :labels, :author, :source, :author_id]
+      change NormalizeLabels
+      validate ManagedLabels
+    end
+
+    update :update do
+      primary? true
+      accept [:name, :category, :description, :labels, :author, :source, :author_id]
+
+      # The label rules read the list being written, in Elixir.
+      require_atomic? false
+      change NormalizeLabels
+      validate ManagedLabels
+    end
+  end
+
+  validations do
+    validate one_of(:category, Categories.slugs()),
+      where: [changing(:category)],
+      message: "is invalid"
   end
 
   attributes do
@@ -79,7 +178,8 @@ defmodule LumenViae.Rosary.MeditationSet do
       constraints max_length: 255, trim?: false
     end
 
-    # One of `LumenViae.Rosary.Categories.slugs/0`.
+    # One of `LumenViae.Rosary.Categories.slugs/0`. A plain string, because
+    # the APIs serialise it as one and the iOS app matches it exactly.
     attribute :category, :string do
       allow_nil? false
       public? true
@@ -114,55 +214,6 @@ defmodule LumenViae.Rosary.MeditationSet do
       constraints trim?: false
     end
 
-    # Artwork. The S3 key in the public assets bucket, never a whole URL:
-    # the URL is built at render time, so putting a CDN in front later is
-    # one config variable and no data migration.
-    attribute :image_key, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_width, :integer
-    attribute :image_height, :integer
-
-    # A normalized focal point, not a point offset in screen units. Floats,
-    # not decimals: a decimal is encoded as a JSON string, which the iOS
-    # app's `Double?` cannot decode.
-    attribute :image_focal_x, :float do
-      allow_nil? false
-      default 0.5
-    end
-
-    attribute :image_focal_y, :float do
-      allow_nil? false
-      default 0.5
-    end
-
-    attribute :image_alt, :string
-
-    attribute :image_title, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_artist, :string do
-      constraints max_length: 255
-    end
-
-    # A string, not an integer: attributions are "c. 1505" and "1601-02" at
-    # least as often as they are a single year.
-    attribute :image_year, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_source_url, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_license, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_updated_at, :utc_datetime
-
     create_timestamp :inserted_at, type: :naive_datetime
     update_timestamp :updated_at, type: :naive_datetime
   end
@@ -179,18 +230,70 @@ defmodule LumenViae.Rosary.MeditationSet do
       public? true
     end
 
+    # In the order the set is prayed. To read a set's meditations in prayer
+    # order, follow these to their meditation.
     has_many :set_memberships, LumenViae.Rosary.SetMembership do
+      sort order: :asc
       public? true
     end
 
+    # Oldest meditation first, which is not prayer order: a many-to-many
+    # cannot be sorted by its join row. Use `set_memberships` for that.
     many_to_many :meditations, LumenViae.Rosary.Meditation do
       through LumenViae.Rosary.SetMembership
       join_relationship :set_memberships
       source_attribute_on_join_resource :meditation_set_id
       destination_attribute_on_join_resource :meditation_id
+      sort id: :asc
       public? true
     end
 
     has_many :completions, LumenViae.Rosary.Completion
+  end
+
+  calculations do
+    calculate :visible?, :boolean, expr(not exists(meditations, not is_nil(archived_at))) do
+      description "Whether the public may see the set: none of its meditations is archived."
+    end
+
+    calculate :derived_author, :string, {DerivedAttribution, field: :author} do
+      description "The author every meditation in the set agrees on, or nil."
+    end
+
+    calculate :derived_source, :string, {DerivedAttribution, field: :source} do
+      description "The source every meditation in the set agrees on, or nil."
+    end
+
+    calculate :byline_author, :string, {Byline, field: :author} do
+      description "The author the set is shown with: its own, or else the one its meditations agree on."
+      public? true
+    end
+
+    calculate :byline_source, :string, {Byline, field: :source} do
+      description "The source the set is shown with: its own, or else the one its meditations agree on."
+      public? true
+    end
+  end
+
+  aggregates do
+    count :meditation_count, :meditations
+
+    count :audio_count, :meditations do
+      filter expr(has_audio?)
+    end
+
+    count :archived_count, :meditations do
+      filter expr(archived?)
+    end
+
+    # What the byline derivation reads. Nils are kept: a meditation naming
+    # nobody is a disagreement, not an abstention.
+    list :meditation_authors, :meditations, :author do
+      include_nil? true
+    end
+
+    list :meditation_sources, :meditations, :source do
+      include_nil? true
+    end
   end
 end

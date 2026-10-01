@@ -8,12 +8,12 @@ defmodule LumenViaeWeb.API.MeditationSetController do
   Lists all meditation sets, optionally filtered by category.
   """
   def index(conn, %{"category" => category}) do
-    sets = Rosary.list_visible_meditation_sets_by_category(category)
+    sets = Rosary.list_visible_meditation_sets_by_category!(category)
     render(conn, :index, sets: sets)
   end
 
   def index(conn, _params) do
-    sets = Rosary.list_visible_meditation_sets()
+    sets = Rosary.list_visible_meditation_sets!()
     render(conn, :index, sets: sets)
   end
 
