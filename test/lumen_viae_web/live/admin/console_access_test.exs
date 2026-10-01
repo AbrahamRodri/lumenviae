@@ -1,0 +1,100 @@
+defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
+  @moduledoc """
+  The console cannot be reached without an admin session, by any route.
+
+  `LumenViaeWeb.Plugs.RequireAdmin` guards the HTTP request, but a LiveView
+  can also be reached by live navigation, which mounts the next page over
+  the open websocket and runs no plug. These tests take that route as an
+  attacker would: open a public page, then navigate into the console.
+  Before the console had its own live_session, that mounted it.
+  """
+  use LumenViaeWeb.ConnCase, async: false
+
+  import Phoenix.LiveViewTest
+  import LumenViae.Test.EnvStub, only: [put_env: 3]
+
+  setup do
+    # The suite is never configured to skip the login, but say so: these
+    # tests are about the guard, and dev's skip flag would disarm it.
+    put_env(:lumen_viae, :skip_admin_auth, false)
+    :ok
+  end
+
+  defp console_routes do
+    LumenViaeWeb.Router.__routes__()
+    |> Enum.filter(fn route ->
+      String.starts_with?(route.path, "/admin") and route.path != "/admin/login" and
+        route.plug == Phoenix.LiveView.Plug
+    end)
+  end
+
+  defp live_session_of(path) do
+    sample = String.replace(path, ":id", "1")
+    info = Phoenix.Router.route_info(LumenViaeWeb.Router, "GET", sample, "localhost")
+    {_view, _action, _opts, live_session} = info.phoenix_live_view
+    live_session
+  end
+
+  test "every console page sits in the admin live_session, behind the admin hook" do
+    routes = console_routes()
+    assert length(routes) >= 10, "expected the console's LiveViews, found #{length(routes)}"
+
+    for route <- routes do
+      live_session = live_session_of(route.path)
+
+      assert live_session.name == :admin,
+             "#{route.path} is in live_session #{inspect(live_session.name)}, not :admin"
+
+      assert Enum.any?(
+               live_session.extra.on_mount,
+               &match?(%{id: {LumenViaeWeb.UserAuth, :require_admin}}, &1)
+             ),
+             "#{route.path} does not run UserAuth :require_admin on mount"
+    end
+  end
+
+  test "live navigation from a public page into the console is forced through HTTP",
+       %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert {:error, {:redirect, %{to: to}}} = live_redirect(view, to: "/admin/meditations")
+    assert URI.parse(to).path == "/admin/meditations"
+
+    # And that HTTP request is the one the plug turns away.
+    assert redirected_to(get(conn, "/admin/meditations")) == "/admin/login"
+  end
+
+  test "live navigation from the login page into the console is forced through HTTP",
+       %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/admin/login")
+
+    assert {:error, {:redirect, %{to: to}}} = live_redirect(view, to: "/admin")
+    assert URI.parse(to).path == "/admin"
+  end
+
+  test "a signed-in admin still navigates within the console in place", %{conn: conn} do
+    conn = Plug.Test.init_test_session(conn, %{admin_authenticated: true})
+
+    {:ok, view, _html} = live(conn, "/admin")
+
+    assert {:ok, _view, html} = live_redirect(view, to: "/admin/meditations")
+    assert html =~ "Meditations"
+  end
+
+  test "the admin hook refuses a socket without an admin session" do
+    socket = %Phoenix.LiveView.Socket{assigns: %{__changed__: %{}, flash: %{}}}
+
+    assert {:halt, halted} = LumenViaeWeb.UserAuth.on_mount(:require_admin, %{}, %{}, socket)
+    assert {:redirect, %{to: "/admin/login"}} = halted.redirected
+
+    assert {:cont, allowed} =
+             LumenViaeWeb.UserAuth.on_mount(
+               :require_admin,
+               %{},
+               %{"admin_authenticated" => true},
+               socket
+             )
+
+    assert allowed.assigns.is_admin
+  end
+end
