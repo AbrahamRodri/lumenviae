@@ -27,6 +27,7 @@ defmodule LumenViaeWeb.Router do
   pipeline :graphql do
     plug :accepts, ["json"]
     plug :put_private_cache_control
+    plug LumenViaeWeb.Graphql.PutRequestContext
     plug AshGraphql.Plug
   end
 

@@ -45,28 +45,38 @@ defmodule LumenViaeWeb.Plugs.GuardCompletions do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    cond do
-      BotDetection.bot?(BotDetection.user_agent(conn)) ->
-        refuse(
-          conn,
-          :forbidden,
-          "automated_client",
-          "Automated clients cannot record completions"
-        )
-
-      rate_limited?(conn) ->
-        refuse(conn, :too_many_requests, "rate_limited", "Too many completions from this address")
-
-      true ->
-        conn
+    case check(BotDetection.user_agent(conn), ClientIP.from_conn(conn)) do
+      :ok -> conn
+      {:refuse, status, code, message} -> refuse(conn, status, code, message)
     end
   end
 
-  defp rate_limited?(conn) do
-    case ClientIP.from_conn(conn) do
-      nil -> false
-      ip -> RateLimit.check("completion:" <> ip, completions_per_hour(), :timer.hours(1)) != :ok
+  @doc """
+  Both checks, for a caller with this user agent and address. Shared with
+  the GraphQL `recordCompletion` mutation (`LumenViaeWeb.Graphql.GuardCompletions`),
+  which counts against the same per-address budget, so a client cannot
+  double its allowance by using both APIs.
+
+  Returns `:ok` or `{:refuse, http_status, code, message}`. A successful
+  check spends one completion from the address's budget.
+  """
+  def check(user_agent, ip) do
+    cond do
+      BotDetection.bot?(user_agent) ->
+        {:refuse, :forbidden, "automated_client", "Automated clients cannot record completions"}
+
+      rate_limited?(ip) ->
+        {:refuse, :too_many_requests, "rate_limited", "Too many completions from this address"}
+
+      true ->
+        :ok
     end
+  end
+
+  defp rate_limited?(nil), do: false
+
+  defp rate_limited?(ip) do
+    RateLimit.check("completion:" <> ip, completions_per_hour(), :timer.hours(1)) != :ok
   end
 
   defp completions_per_hour do
