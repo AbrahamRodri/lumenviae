@@ -7,7 +7,7 @@ defmodule LumenViae.Rosary.CompletionContextTest do
 
   alias LumenViae.Repo
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.Completions.Completion
+  alias LumenViae.Rosary.Completion
 
   defp create_set do
     {:ok, set} =
@@ -147,9 +147,10 @@ defmodule LumenViae.Rosary.CompletionContextTest do
     end
   end
 
+  # The place arrives the way the lookup task delivers it.
   defp place(completion, attrs) do
     completion
-    |> Completion.changeset(attrs)
-    |> Repo.update!()
+    |> Ash.Changeset.for_update(:place, attrs)
+    |> Ash.update!()
   end
 end
