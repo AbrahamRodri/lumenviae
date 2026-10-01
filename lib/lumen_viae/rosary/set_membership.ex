@@ -47,8 +47,37 @@ defmodule LumenViae.Rosary.SetMembership do
       :read,
       :destroy,
       create: [:meditation_set_id, :meditation_id, :order],
-      update: [:meditation_set_id, :meditation_id, :order]
+      update: [:order]
     ]
+
+    read :in_set do
+      description "One set's memberships, in the order the set is prayed."
+
+      argument :meditation_set_id, :integer do
+        allow_nil? false
+      end
+
+      filter expr(meditation_set_id == ^arg(:meditation_set_id))
+      prepare build(sort: [order: :asc])
+    end
+
+    read :in_prayer_order do
+      description "Every membership, each set's in the order it is prayed."
+      prepare build(sort: [meditation_set_id: :asc, order: :asc])
+    end
+
+    read :holding_archived do
+      description "The memberships of archived meditations: each one is a reason its set is hidden."
+      filter expr(not is_nil(meditation.archived_at))
+      prepare build(sort: [id: :asc])
+    end
+  end
+
+  # A set is at most seven meditations long (the Seven Sorrows), and prayer
+  # positions count from one.
+  validations do
+    validate numericality(:order, greater_than: 0)
+    validate numericality(:order, less_than_or_equal_to: 7)
   end
 
   attributes do

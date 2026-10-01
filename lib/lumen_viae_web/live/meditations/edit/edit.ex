@@ -19,7 +19,7 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
   end
 
   def handle_event("update_meditation", %{"meditation" => params}, socket) do
-    case Rosary.update_meditation(socket.assigns.meditation, params) do
+    case AshPhoenix.Form.submit(socket.assigns.edit_form, params: params) do
       {:ok, meditation} ->
         {:noreply,
          socket
@@ -27,19 +27,19 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
          |> assign(:meditation, meditation)
          |> assign_edit_form(meditation)}
 
-      {:error, changeset} ->
+      {:error, form} ->
         {:noreply,
          socket
          |> put_flash(:error, "Failed to update meditation")
-         |> assign_edit_form(changeset)}
+         |> assign(:edit_form, form)}
     end
   end
 
-  defp assign_edit_form(socket, %Ecto.Changeset{} = changeset) do
-    assign(socket, :edit_form, to_form(changeset, as: :meditation))
-  end
-
   defp assign_edit_form(socket, meditation) do
-    assign_edit_form(socket, Rosary.change_meditation(meditation))
+    assign(
+      socket,
+      :edit_form,
+      to_form(Rosary.form_to_update_meditation(meditation, as: "meditation"))
+    )
   end
 end

@@ -48,12 +48,46 @@ defmodule LumenViae.Rosary.Narration do
   end
 
   actions do
-    defaults [
-      :read,
-      :destroy,
-      create: [:meditation_id, :voice, :s3_key, :generated_at],
-      update: [:meditation_id, :voice, :s3_key, :generated_at]
-    ]
+    defaults [:read, :destroy]
+
+    read :for_meditation do
+      description "One meditation's narrations, oldest first."
+
+      argument :meditation_id, :integer do
+        allow_nil? false
+      end
+
+      filter expr(meditation_id == ^arg(:meditation_id))
+      prepare build(sort: [id: :asc])
+    end
+
+    read :in_voice do
+      description "Every recording made in one voice."
+
+      argument :voice, :string do
+        allow_nil? false
+      end
+
+      filter expr(voice == ^arg(:voice))
+      prepare build(sort: [id: :asc])
+    end
+
+    create :record do
+      description "Records that an S3 object now holds one voice's recording of a meditation, replacing any earlier record for the same pair. Called after the upload succeeded, never before: a row here promises an object exists."
+      primary? true
+      accept [:meditation_id, :voice, :s3_key]
+
+      upsert? true
+      upsert_identity :unique_voice_per_meditation
+      upsert_fields [:s3_key, :generated_at, :updated_at]
+
+      change set_attribute(:generated_at, &DateTime.utc_now/0)
+    end
+  end
+
+  validations do
+    validate match(:voice, ~r/^[a-z0-9_-]+$/),
+      message: "must be a lowercase slug (letters, digits, - and _)"
   end
 
   attributes do

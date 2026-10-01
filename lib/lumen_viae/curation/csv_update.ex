@@ -147,8 +147,8 @@ defmodule LumenViae.Curation.CsvUpdate do
     case Integer.parse(id) do
       {meditation_id, ""} ->
         case Rosary.get_meditation(meditation_id) do
-          nil -> {:error, "Meditation not found: id #{meditation_id}"}
-          meditation -> {:ok, meditation}
+          {:ok, meditation} -> {:ok, meditation}
+          {:error, _not_found} -> {:error, "Meditation not found: id #{meditation_id}"}
         end
 
       _ ->
@@ -167,7 +167,7 @@ defmodule LumenViae.Curation.CsvUpdate do
   end
 
   defp dry_run_result(meditation, attrs) do
-    changeset = Rosary.change_meditation(meditation, attrs)
+    changeset = Rosary.changeset_to_update_meditation(meditation, attrs)
 
     if changeset.valid? do
       {:ok, "Would update #{describe(meditation)}: #{summarize(meditation, attrs)}"}
@@ -231,11 +231,7 @@ defmodule LumenViae.Curation.CsvUpdate do
     if label, do: "meditation #{meditation.id} (#{label})", else: "meditation #{meditation.id}"
   end
 
-  defp changeset_errors(changeset) do
-    changeset
-    |> Ecto.Changeset.traverse_errors(fn {msg, _opts} -> msg end)
-    |> Enum.map_join("; ", fn {field, messages} -> "#{field}: #{Enum.join(messages, ", ")}" end)
-  end
+  defp changeset_errors(error), do: Rosary.error_summary(error)
 
   defp notify(opts, event) do
     case opts[:progress] do

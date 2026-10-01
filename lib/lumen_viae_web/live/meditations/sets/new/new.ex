@@ -6,7 +6,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
   alias LumenViae.Rosary
 
   def mount(_params, _session, socket) do
-    meditations = Rosary.list_meditations()
+    meditations = Rosary.list_meditations!()
 
     {:ok,
      socket

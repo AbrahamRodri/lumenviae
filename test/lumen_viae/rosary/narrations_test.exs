@@ -82,8 +82,8 @@ defmodule LumenViae.Rosary.NarrationsTest do
     assert [%{voice: %{slug: "female"}}] =
              Rosary.meditation_narrations(Rosary.get_meditation!(meditation.id))
 
-    assert [%{voice: %{slug: "female"}}] =
-             Rosary.meditation_narrations(Rosary.get_meditation(meditation.id))
+    {:ok, fetched} = Rosary.get_meditation(meditation.id)
+    assert [%{voice: %{slug: "female"}}] = Rosary.meditation_narrations(fetched)
   end
 
   test "a meditation lacking any configured voice is reported as missing one", %{

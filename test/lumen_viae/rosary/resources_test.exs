@@ -323,14 +323,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
         {Mystery, %{name: "Again", category: "joyful", order: 1}},
         {Author, %{name: "Blessed Anne Catherine Emmerich"}},
         {SetMembership, %{meditation_set_id: set.id, meditation_id: meditation.id, order: 2}},
-        {SetMembership, %{meditation_set_id: set.id, meditation_id: other.id, order: 1}},
-        {Narration,
-         %{
-           meditation_id: meditation.id,
-           voice: "female",
-           s3_key: "voices/female/b.mp3",
-           generated_at: DateTime.utc_now()
-         }}
+        {SetMembership, %{meditation_set_id: set.id, meditation_id: other.id, order: 1}}
       ]
 
       for {resource, attrs} <- duplicates do
@@ -340,6 +333,16 @@ defmodule LumenViae.Rosary.ResourcesTest do
         assert error.message == "has already been taken",
                "#{inspect(resource)} #{inspect(attrs)} gave #{inspect(error)}"
       end
+    end
+
+    # A second recording in the same voice is not a duplicate: it replaces
+    # the first, on the unique index.
+    test "back the narration upsert" do
+      meditation = mystery_fixture() |> meditation_fixture()
+      {:ok, _} = Rosary.record_narration(meditation, "female", "voices/female/a.mp3")
+      {:ok, _} = Rosary.record_narration(meditation, "female", "voices/female/b.mp3")
+
+      assert [%Narration{voice: "female", s3_key: "voices/female/b.mp3"}] = Ash.read!(Narration)
     end
 
     test "a missing parent is a validation error too" do

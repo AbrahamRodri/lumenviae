@@ -644,7 +644,7 @@ defmodule LumenViae.Curation.CsvImport do
   end
 
   defp dry_run_result(attrs, row_map, mystery, set, opts) do
-    changeset = Rosary.change_new_meditation(attrs)
+    changeset = Rosary.changeset_to_create_meditation(attrs)
 
     if changeset.valid? do
       set_info = if set, do: " -> set '#{set.name}'#{order_info(row_map)}", else: ""
@@ -819,10 +819,5 @@ defmodule LumenViae.Curation.CsvImport do
     end
   end
 
-  defp changeset_errors(changeset) do
-    changeset
-    |> Ecto.Changeset.traverse_errors(fn {msg, _opts} -> msg end)
-    |> Enum.map(fn {field, messages} -> "#{field}: #{Enum.join(messages, ", ")}" end)
-    |> Enum.join("; ")
-  end
+  defp changeset_errors(error), do: Rosary.error_summary(error)
 end

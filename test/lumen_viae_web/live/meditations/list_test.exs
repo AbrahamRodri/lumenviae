@@ -194,7 +194,7 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     html = view |> element("button[phx-click=bulk_delete]") |> render_click()
 
     assert html =~ "2 meditations permanently deleted."
-    assert Rosary.list_meditations() == []
+    assert Rosary.list_meditations!() == []
     assert Rosary.get_meditation_set!(set.id).meditations == []
     assert orphan.id
   end
@@ -216,6 +216,6 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     refute html =~ "Title Doomed"
     assert html =~ "Title Survivor"
     assert Rosary.get_meditation!(survivor.id)
-    assert_raise Ecto.NoResultsError, fn -> Rosary.get_meditation!(doomed.id) end
+    assert {:error, %Ash.Error.Invalid{}} = Rosary.get_meditation(doomed.id)
   end
 end

@@ -10,7 +10,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
 
   def mount(%{"id" => id}, _session, socket) do
     set = Rosary.get_meditation_set_with_ordered_meditations!(id)
-    meditations = Rosary.list_meditations()
+    meditations = Rosary.list_meditations!()
 
     {:ok,
      socket
