@@ -35,82 +35,95 @@ defmodule LumenViaeWeb.Router do
     plug LumenViaeWeb.Plugs.RequireAdmin
   end
 
+  # The site, the console's login and the console are three live sessions.
+  # LiveView only navigates in place between routes of the same session, so
+  # crossing from the site into the console always takes a full HTTP
+  # request through RequireAdmin, and the console's own on_mount hook
+  # refuses any socket that reaches it without an admin session. Without
+  # the split, live navigation from a public page mounted the console over
+  # the open socket and no plug ran at all. See LumenViaeWeb.UserAuth.
   scope "/", LumenViaeWeb do
     pipe_through :browser
-
-    # Home page - welcome and mystery categories
-    live "/", Live.Home.Index
-
-    # iOS app landing page
-    live "/app", Live.Home.App.Index
-
-    # Prayer dashboard - focused mystery selection
-    live "/dashboard", Live.Dashboard.Index
-
-    # All 20 mysteries of the Rosary
-    live "/mysteries", Live.Mysteries.Scripture
-
-    # How to pray the Rosary, with the methods of St. Louis de Montfort
-    live "/rosary-methods", Live.Home.Methods.Index
-
-    # True Devotion to Mary (St. Louis de Montfort)
-    live "/true-devotion", Live.Home.TrueDevotion.Index
-
-    # St. Carlo Acutis - patron of Lumen Viae
-    live "/saint-carlo", Live.Home.SaintCarlo.Index
-
-    # Feedback and feature requests
-    live "/feedback", Live.Home.Feedback.Index
-
-    # Privacy policy (for iOS App Store listing)
-    live "/privacy-policy", Live.PrivacyPolicy.Index
 
     post "/admin/session", AdminSessionController, :create
     delete "/admin/session", AdminSessionController, :delete
 
-    # Browse meditation sets by mystery category (public)
-    live "/mysteries/:category", Live.Mysteries.CategoryList
+    live_session :public do
+      # Home page - welcome and mystery categories
+      live "/", Live.Home.Index
 
-    # Prayer experience for a specific meditation set
-    live "/meditation-sets/:set_id/pray", Live.Pray.Index
+      # iOS app landing page
+      live "/app", Live.Home.App.Index
+
+      # Prayer dashboard - focused mystery selection
+      live "/dashboard", Live.Dashboard.Index
+
+      # All 20 mysteries of the Rosary
+      live "/mysteries", Live.Mysteries.Scripture
+
+      # How to pray the Rosary, with the methods of St. Louis de Montfort
+      live "/rosary-methods", Live.Home.Methods.Index
+
+      # True Devotion to Mary (St. Louis de Montfort)
+      live "/true-devotion", Live.Home.TrueDevotion.Index
+
+      # St. Carlo Acutis - patron of Lumen Viae
+      live "/saint-carlo", Live.Home.SaintCarlo.Index
+
+      # Feedback and feature requests
+      live "/feedback", Live.Home.Feedback.Index
+
+      # Privacy policy (for iOS App Store listing)
+      live "/privacy-policy", Live.PrivacyPolicy.Index
+
+      # Browse meditation sets by mystery category (public)
+      live "/mysteries/:category", Live.Mysteries.CategoryList
+
+      # Prayer experience for a specific meditation set
+      live "/meditation-sets/:set_id/pray", Live.Pray.Index
+    end
   end
 
   # Admin login: the console's layout, but no admin session required yet.
   scope "/", LumenViaeWeb do
     pipe_through [:browser, :admin_layout]
 
-    live "/admin/login", Live.Admin.Login
+    live_session :admin_login do
+      live "/admin/login", Live.Admin.Login
+    end
   end
 
   # Admin routes - protected by password authentication
   scope "/admin", LumenViaeWeb do
     pipe_through [:browser, :admin_layout, :admin]
 
-    # Admin dashboard - landing page with navigation
-    live "/", Live.Admin.Dashboard
+    live_session :admin, on_mount: [{LumenViaeWeb.UserAuth, :require_admin}] do
+      # Admin dashboard - landing page with navigation
+      live "/", Live.Admin.Dashboard
 
-    # Meditations management
-    live "/meditations", Live.Meditations.List
-    live "/meditations/new", Live.Meditations.New
-    live "/meditations/:id/edit", Live.Meditations.Edit
-    live "/meditations/import", Live.Admin.MeditationsImport.Import
+      # Meditations management
+      live "/meditations", Live.Meditations.List
+      live "/meditations/new", Live.Meditations.New
+      live "/meditations/:id/edit", Live.Meditations.Edit
+      live "/meditations/import", Live.Admin.MeditationsImport.Import
 
-    # The spoken Rosary's recordings: coverage and a player for each clip
-    live "/rosary-audio", Live.Admin.RosaryAudio
+      # The spoken Rosary's recordings: coverage and a player for each clip
+      live "/rosary-audio", Live.Admin.RosaryAudio
 
-    # Meditation Sets management
-    live "/meditation-sets", Live.Meditations.Sets.List
-    live "/meditation-sets/new", Live.Meditations.Sets.New
-    live "/meditation-sets/:id/edit", Live.Meditations.Sets.Edit
+      # Meditation Sets management
+      live "/meditation-sets", Live.Meditations.Sets.List
+      live "/meditation-sets/new", Live.Meditations.Sets.New
+      live "/meditation-sets/:id/edit", Live.Meditations.Sets.Edit
 
-    live "/authors", Live.Meditations.Authors.List
-    live "/authors/new", Live.Meditations.Authors.New
-    live "/authors/:id/edit", Live.Meditations.Authors.Edit
+      live "/authors", Live.Meditations.Authors.List
+      live "/authors/new", Live.Meditations.Authors.New
+      live "/authors/:id/edit", Live.Meditations.Authors.Edit
 
-    # Mysteries management
-    live "/mysteries", Live.Mysteries.List
-    live "/mysteries/new", Live.Mysteries.New
-    live "/mysteries/:id/edit", Live.Mysteries.Edit
+      # Mysteries management
+      live "/mysteries", Live.Mysteries.List
+      live "/mysteries/new", Live.Mysteries.New
+      live "/mysteries/:id/edit", Live.Mysteries.Edit
+    end
   end
 
   # JSON API for iOS app
