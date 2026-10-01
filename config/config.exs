@@ -161,7 +161,7 @@ config :lumen_viae, LumenViae.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.17.11",
+  version: "0.28.2",
   lumen_viae: [
     args:
       ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/*),
@@ -171,7 +171,7 @@ config :esbuild,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "4.0.9",
+  version: "4.3.3",
   lumen_viae: [
     args: ~w(
       --input=assets/css/app.css

@@ -34,7 +34,7 @@ defmodule LumenViaeWeb.Components.Nav do
             Dashboard
           </.nav_link>
 
-          <div class="relative">
+          <div class="relative flex items-center">
             <button
               type="button"
               id="learn-menu-button"
