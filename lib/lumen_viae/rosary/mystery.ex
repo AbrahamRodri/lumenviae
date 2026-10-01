@@ -15,6 +15,8 @@ defmodule LumenViae.Rosary.Mystery do
     data_layer: AshPostgres.DataLayer,
     extensions: [AshGraphql.Resource]
 
+  alias LumenViae.Rosary.Categories
+
   graphql do
     type :mystery
   end
@@ -40,6 +42,26 @@ defmodule LumenViae.Rosary.Mystery do
       create: [:name, :category, :order, :days_prayed, :description, :scripture_reference],
       update: [:name, :category, :order, :days_prayed, :description, :scripture_reference]
     ]
+
+    read :in_prayer_order do
+      description "Every mystery in the order they are prayed: by category, then by position within the category."
+      prepare build(sort: [category: :asc, order: :asc])
+    end
+
+    read :by_category do
+      description "One category's mysteries, in the order they are prayed."
+
+      argument :category, :string do
+        allow_nil? false
+      end
+
+      filter expr(category == ^arg(:category))
+      prepare build(sort: [order: :asc])
+    end
+  end
+
+  validations do
+    validate one_of(:category, Categories.slugs()), message: "is invalid"
   end
 
   attributes do

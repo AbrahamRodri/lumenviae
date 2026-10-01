@@ -152,7 +152,7 @@ defmodule LumenViae.Curation.CsvImport do
         {:error, message}
 
       {:ok, headers, rows} ->
-        mysteries = Rosary.list_mysteries() |> Enum.group_by(& &1.name)
+        mysteries = Rosary.list_mysteries!() |> Enum.group_by(& &1.name)
 
         indexed_rows =
           rows
@@ -430,7 +430,7 @@ defmodule LumenViae.Curation.CsvImport do
   ## Row processing
 
   defp process_rows(headers, rows, opts) do
-    mysteries = Rosary.list_mysteries() |> Enum.group_by(& &1.name)
+    mysteries = Rosary.list_mysteries!() |> Enum.group_by(& &1.name)
     total = length(rows)
     notify(opts, {:started, total})
 

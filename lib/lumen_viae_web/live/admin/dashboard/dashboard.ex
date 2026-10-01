@@ -59,9 +59,9 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     sets = Rosary.list_meditation_sets()
     hidden_ids = Rosary.hidden_meditation_set_ids()
     set_stats = Rosary.meditation_set_stats()
-    mysteries = Rosary.list_mysteries()
+    mysteries = Rosary.list_mysteries!()
     mystery_counts = Rosary.active_meditation_counts_by_mystery()
-    authors = Rosary.list_authors()
+    authors = Rosary.list_authors!()
 
     live_sets = Enum.reject(sets, &MapSet.member?(hidden_ids, &1.id))
     hidden_sets = Enum.filter(sets, &MapSet.member?(hidden_ids, &1.id))

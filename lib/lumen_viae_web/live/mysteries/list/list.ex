@@ -43,7 +43,7 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
   end
 
   defp load_data(socket) do
-    mysteries = Rosary.list_mysteries()
+    mysteries = Rosary.list_mysteries!()
     active_counts = Rosary.active_meditation_counts_by_mystery()
 
     socket

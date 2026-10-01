@@ -4,8 +4,13 @@ defmodule LumenViae.Rosary.Author do
 
   Carries the one image that stands in for every set by this author that
   has no artwork of its own, so a portrait is uploaded once rather than
-  once per set. The artwork columns are the ones `meditation_sets` carries,
-  name for name.
+  once per set. The artwork columns, and the two actions that write them,
+  come from `LumenViae.Rosary.Artwork.Fragment`: they are the ones a
+  meditation set carries, name for name, so the portrait goes through
+  `LumenViae.Curation.ArtworkUpload` unchanged.
+
+  Deleting an author does not delete or hide their sets. The foreign key
+  clears the link, and each set falls back to its own artwork and byline.
 
   Mapped onto the existing `authors` table exactly as the Ecto migrations
   left it.
@@ -17,7 +22,8 @@ defmodule LumenViae.Rosary.Author do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
-    extensions: [AshGraphql.Resource]
+    extensions: [AshGraphql.Resource],
+    fragments: [LumenViae.Rosary.Artwork.Fragment]
 
   graphql do
     type :author
@@ -53,8 +59,13 @@ defmodule LumenViae.Rosary.Author do
 
   actions do
     # The artwork columns are in neither accept list; they are written by
-    # their own two actions, as on a meditation set.
+    # the fragment's two actions.
     defaults [:read, :destroy, create: [:name], update: [:name]]
+
+    read :alphabetical do
+      description "Every author, by name."
+      prepare build(sort: [name: :asc])
+    end
   end
 
   attributes do
@@ -65,47 +76,6 @@ defmodule LumenViae.Rosary.Author do
       public? true
       constraints max_length: 255, trim?: false
     end
-
-    attribute :image_key, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_width, :integer
-    attribute :image_height, :integer
-
-    attribute :image_focal_x, :float do
-      allow_nil? false
-      default 0.5
-    end
-
-    attribute :image_focal_y, :float do
-      allow_nil? false
-      default 0.5
-    end
-
-    attribute :image_alt, :string
-
-    attribute :image_title, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_artist, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_year, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_source_url, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_license, :string do
-      constraints max_length: 255
-    end
-
-    attribute :image_updated_at, :utc_datetime
 
     create_timestamp :inserted_at, type: :naive_datetime
     update_timestamp :updated_at, type: :naive_datetime

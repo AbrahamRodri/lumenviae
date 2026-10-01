@@ -8,10 +8,11 @@
   <.form for={@mystery_form} phx-submit="create_mystery">
     <.panel>
       <div class="space-y-4">
-        <.field label="Name" required>
+        <.field label="Name" required errors={@mystery_form[:name].errors}>
           <input
             type="text"
-            name="name"
+            name={@mystery_form[:name].name}
+            value={@mystery_form[:name].value || ""}
             required
             class="admin-input"
             placeholder="e.g. The Annunciation"
@@ -19,10 +20,14 @@
         </.field>
 
         <div class="grid md:grid-cols-2 gap-4">
-          <.field label="Category" required>
-            <select name="category" required class="admin-input">
+          <.field label="Category" required errors={@mystery_form[:category].errors}>
+            <select name={@mystery_form[:category].name} required class="admin-input">
               <option value="">Select a category</option>
-              <option :for={{label, slug} <- LumenViae.Rosary.Categories.options()} value={slug}>
+              <option
+                :for={{label, slug} <- LumenViae.Rosary.Categories.options()}
+                value={slug}
+                selected={@mystery_form[:category].value == slug}
+              >
                 {label}
               </option>
             </select>
@@ -32,34 +37,52 @@
             label="Order"
             required
             hint="Position within the category. Rosary 1-5, Seven Sorrows 1-7."
+            errors={@mystery_form[:order].errors}
           >
-            <input type="number" name="order" required min="1" max="7" class="admin-input" />
+            <input
+              type="number"
+              name={@mystery_form[:order].name}
+              value={@mystery_form[:order].value || ""}
+              required
+              min="1"
+              max="7"
+              class="admin-input"
+            />
           </.field>
         </div>
 
-        <.field label="Description">
+        <.field label="Description" errors={@mystery_form[:description].errors}>
           <textarea
-            name="description"
+            name={@mystery_form[:description].name}
             rows="3"
             class="admin-textarea"
             placeholder="e.g. The angel Gabriel announces to Mary that she is to be the Mother of God."
-          ></textarea>
+          ><%= @mystery_form[:description].value || "" %></textarea>
         </.field>
 
         <div class="grid md:grid-cols-2 gap-4">
-          <.field label="Scripture reference">
+          <.field
+            label="Scripture reference"
+            errors={@mystery_form[:scripture_reference].errors}
+          >
             <input
               type="text"
-              name="scripture_reference"
+              name={@mystery_form[:scripture_reference].name}
+              value={@mystery_form[:scripture_reference].value || ""}
               class="admin-input"
               placeholder="e.g. Luke 1:26-38"
             />
           </.field>
 
-          <.field label="Days prayed" hint="The traditional days for this mystery.">
+          <.field
+            label="Days prayed"
+            hint="The traditional days for this mystery."
+            errors={@mystery_form[:days_prayed].errors}
+          >
             <input
               type="text"
-              name="days_prayed"
+              name={@mystery_form[:days_prayed].name}
+              value={@mystery_form[:days_prayed].value || ""}
               class="admin-input"
               placeholder="e.g. Mondays, Thursdays, and Saturdays"
             />

@@ -24,19 +24,20 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
   end
 
   def handle_event("update_author", %{"author" => params}, socket) do
-    case Rosary.update_author(socket.assigns.author, params) do
+    case AshPhoenix.Form.submit(socket.assigns.edit_form, params: params) do
       {:ok, author} ->
         {:noreply,
          socket
          |> put_flash(:info, "Author updated")
          |> assign(:author, author)
-         |> assign_edit_form(author)}
+         |> assign_edit_form(author)
+         |> assign_artwork(author)}
 
-      {:error, changeset} ->
+      {:error, form} ->
         {:noreply,
          socket
          |> put_flash(:error, "Failed to update author")
-         |> assign_edit_form(changeset)}
+         |> assign(:edit_form, form)}
     end
   end
 
@@ -57,9 +58,10 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
              socket
              |> put_flash(:info, artwork_saved_message(author))
              |> assign(:author, author)
+             |> assign_edit_form(author)
              |> assign_artwork(author)}
 
-          {:error, _changeset} ->
+          {:error, _error} ->
             {:noreply, put_flash(socket, :error, "The portrait uploaded but could not be saved")}
         end
 
@@ -72,19 +74,20 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
   end
 
   def handle_event("update_artwork_meta", %{"artwork" => params}, socket) do
-    case Rosary.update_author_artwork_metadata(socket.assigns.author, params) do
+    case AshPhoenix.Form.submit(socket.assigns.artwork_form, params: params) do
       {:ok, author} ->
         {:noreply,
          socket
          |> put_flash(:info, artwork_saved_message(author))
          |> assign(:author, author)
+         |> assign_edit_form(author)
          |> assign_artwork(author)}
 
-      {:error, changeset} ->
+      {:error, form} ->
         {:noreply,
          socket
          |> put_flash(:error, "Failed to save the artwork details")
-         |> assign(:artwork_form, to_form(changeset, as: :artwork))}
+         |> assign(:artwork_form, form)}
     end
   end
 
@@ -114,9 +117,10 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
   defp save_focal_point(socket, attrs) do
     case Rosary.update_author_artwork_metadata(socket.assigns.author, attrs) do
       {:ok, author} ->
-        {:noreply, socket |> assign(:author, author) |> assign_artwork(author)}
+        {:noreply,
+         socket |> assign(:author, author) |> assign_edit_form(author) |> assign_artwork(author)}
 
-      {:error, _changeset} ->
+      {:error, _error} ->
         {:noreply, put_flash(socket, :error, "Failed to move the focal point")}
     end
   end
@@ -152,14 +156,16 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
   defp assign_artwork(socket, author) do
     socket
     |> assign(:artwork_url, Rosary.artwork_url(author))
-    |> assign(:artwork_form, to_form(Rosary.change_author_artwork(author), as: :artwork))
+    |> assign(
+      :artwork_form,
+      to_form(Rosary.form_to_update_author_artwork_metadata(author, as: "artwork"))
+    )
   end
 
-  defp assign_edit_form(socket, %Ecto.Changeset{} = changeset) do
-    assign(socket, :edit_form, to_form(changeset, as: :author))
-  end
-
+  # Both forms are rebuilt from the saved record after every write, whichever
+  # form made it: each one holds the author it was built from, and submitting
+  # a form built from an older copy would write that copy's view of the row.
   defp assign_edit_form(socket, author) do
-    assign_edit_form(socket, Rosary.change_author(author))
+    assign(socket, :edit_form, to_form(Rosary.form_to_update_author(author, as: "author")))
   end
 end

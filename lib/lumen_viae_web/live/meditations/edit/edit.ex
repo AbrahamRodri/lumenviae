@@ -9,7 +9,7 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
      socket
      |> assign(:page_title, "Edit Meditation")
      |> assign(:meditation, meditation)
-     |> assign(:mysteries, Rosary.list_mysteries())
+     |> assign(:mysteries, Rosary.list_mysteries!())
      |> assign_edit_form(meditation), temporary_assigns: [return_to: nil]}
   end
 

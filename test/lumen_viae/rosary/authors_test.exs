@@ -34,25 +34,25 @@ defmodule LumenViae.Rosary.AuthorsTest do
 
   describe "create_author/1" do
     test "requires a name" do
-      assert {:error, changeset} = Rosary.create_author(%{})
-      assert {"can't be blank", _} = changeset.errors[:name]
+      assert {:error, error} = Rosary.create_author(%{})
+      assert errors_on(error).name == ["is required"]
     end
 
     test "refuses a duplicate name" do
       create_author(%{name: "Venerable Fulton J. Sheen"})
 
-      assert {:error, changeset} = Rosary.create_author(%{name: "Venerable Fulton J. Sheen"})
-      assert {"has already been taken", _} = changeset.errors[:name]
+      assert {:error, error} = Rosary.create_author(%{name: "Venerable Fulton J. Sheen"})
+      assert errors_on(error).name == ["has already been taken"]
     end
   end
 
-  describe "list_authors/0" do
+  describe "list_authors!/0" do
     test "orders by name" do
       create_author(%{name: "St. Louis de Montfort"})
       create_author(%{name: "Bl. Anne Catherine Emmerich"})
 
       assert ["Bl. Anne Catherine Emmerich", "St. Louis de Montfort"] =
-               Rosary.list_authors() |> Enum.map(& &1.name)
+               Rosary.list_authors!() |> Enum.map(& &1.name)
     end
   end
 
@@ -68,16 +68,77 @@ defmodule LumenViae.Rosary.AuthorsTest do
     test "update_author_artwork_metadata cannot reach the key or the dimensions" do
       author = create_author() |> give_portrait()
 
+      # The key and the dimensions are not inputs of this action at all, so
+      # naming them is refused outright and nothing is written.
+      for managed <- [%{"image_key" => "authors/999/stolen.jpg"}, %{"image_width" => 1}] do
+        assert {:error, %Ash.Error.Invalid{}} =
+                 Rosary.update_author_artwork_metadata(
+                   author,
+                   Map.put(managed, "image_alt", "A better description.")
+                 )
+      end
+
+      unchanged = Rosary.get_author!(author.id)
+      assert unchanged.image_key == author.image_key
+      assert unchanged.image_width == author.image_width
+      assert unchanged.image_alt == author.image_alt
+
       {:ok, updated} =
-        Rosary.update_author_artwork_metadata(author, %{
-          "image_key" => "authors/999/stolen.jpg",
-          "image_width" => 1,
-          "image_alt" => "A better description."
-        })
+        Rosary.update_author_artwork_metadata(author, %{"image_alt" => "A better description."})
 
       assert updated.image_key == author.image_key
-      assert updated.image_width == author.image_width
       assert updated.image_alt == "A better description."
+    end
+
+    test "the ordinary update cannot reach any artwork column" do
+      author = create_author() |> give_portrait()
+
+      assert {:error, %Ash.Error.Invalid{}} =
+               Rosary.update_author(author, %{name: "Renamed", image_alt: "Slipped in."})
+
+      assert Rosary.get_author!(author.id).image_alt == author.image_alt
+    end
+
+    test "trims the text fields and stores a blank one as nothing" do
+      author = create_author() |> give_portrait()
+
+      {:ok, updated} =
+        Rosary.update_author_artwork_metadata(author, %{
+          "image_alt" => "   ",
+          "image_title" => "  The Portrait  "
+        })
+
+      assert updated.image_alt == nil
+      assert updated.image_title == "The Portrait"
+    end
+
+    test "validates the licence, the source URL and the focal point" do
+      author = create_author() |> give_portrait()
+
+      assert {:error, error} =
+               Rosary.update_author_artwork_metadata(author, %{
+                 "image_license" => "all_rights_reserved",
+                 "image_source_url" => "ftp://example.com/portrait.jpg",
+                 "image_focal_x" => 1.5
+               })
+
+      errors = errors_on(error)
+      assert errors.image_license == ["is not one of the licences this project records"]
+      assert errors.image_source_url == ["must start with http:// or https://"]
+      assert errors.image_focal_x == ["must be between 0.0 and 1.0"]
+    end
+
+    test "an upload with impossible dimensions is refused" do
+      author = create_author()
+
+      assert {:error, error} =
+               Rosary.update_author_artwork(author, %{
+                 "image_key" => "authors/#{author.id}/aaaa.jpg",
+                 "image_width" => 0,
+                 "image_height" => 2000
+               })
+
+      assert errors_on(error).image_width == ["must be greater than 0"]
     end
   end
 

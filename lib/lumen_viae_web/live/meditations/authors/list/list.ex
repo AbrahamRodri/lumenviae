@@ -27,7 +27,7 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.List do
   end
 
   defp load_authors(socket) do
-    authors = Rosary.list_authors()
+    authors = Rosary.list_authors!()
     set_counts = Rosary.meditation_set_counts_by_author()
 
     socket
