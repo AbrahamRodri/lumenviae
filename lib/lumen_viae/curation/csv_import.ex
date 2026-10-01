@@ -152,7 +152,7 @@ defmodule LumenViae.Curation.CsvImport do
         {:error, message}
 
       {:ok, headers, rows} ->
-        mysteries = Rosary.list_mysteries() |> Enum.group_by(& &1.name)
+        mysteries = Rosary.list_mysteries!() |> Enum.group_by(& &1.name)
 
         indexed_rows =
           rows
@@ -209,7 +209,7 @@ defmodule LumenViae.Curation.CsvImport do
   end
 
   defp new_set_errors(row_map) do
-    changeset = Rosary.change_new_meditation_set(set_attrs(row_map))
+    changeset = Rosary.changeset_to_create_meditation_set(set_attrs(row_map))
 
     if changeset.valid?, do: [], else: ["set: #{changeset_errors(changeset)}"]
   end
@@ -430,7 +430,7 @@ defmodule LumenViae.Curation.CsvImport do
   ## Row processing
 
   defp process_rows(headers, rows, opts) do
-    mysteries = Rosary.list_mysteries() |> Enum.group_by(& &1.name)
+    mysteries = Rosary.list_mysteries!() |> Enum.group_by(& &1.name)
     total = length(rows)
     notify(opts, {:started, total})
 
@@ -621,7 +621,7 @@ defmodule LumenViae.Curation.CsvImport do
   # A dry run never writes, so the "set" carried through the rest of the row
   # is just its name - there is no record and no id to attach to.
   defp validate_set_attrs(set_name, attrs) do
-    changeset = Rosary.change_new_meditation_set(attrs)
+    changeset = Rosary.changeset_to_create_meditation_set(attrs)
 
     if changeset.valid? do
       {:ok, %{id: nil, name: set_name}}
@@ -644,7 +644,7 @@ defmodule LumenViae.Curation.CsvImport do
   end
 
   defp dry_run_result(attrs, row_map, mystery, set, opts) do
-    changeset = Rosary.change_new_meditation(attrs)
+    changeset = Rosary.changeset_to_create_meditation(attrs)
 
     if changeset.valid? do
       set_info = if set, do: " -> set '#{set.name}'#{order_info(row_map)}", else: ""
@@ -819,10 +819,5 @@ defmodule LumenViae.Curation.CsvImport do
     end
   end
 
-  defp changeset_errors(changeset) do
-    changeset
-    |> Ecto.Changeset.traverse_errors(fn {msg, _opts} -> msg end)
-    |> Enum.map(fn {field, messages} -> "#{field}: #{Enum.join(messages, ", ")}" end)
-    |> Enum.join("; ")
-  end
+  defp changeset_errors(error), do: Rosary.error_summary(error)
 end

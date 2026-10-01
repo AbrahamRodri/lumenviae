@@ -1,7 +1,7 @@
 # Completion analytics
 
 What is recorded when somebody finishes a Rosary, where it comes from, and
-what the iOS app has to send.
+what the iOS app sends.
 
 Nothing here prompts anyone for anything. There is no location permission
 dialog, no Core Location, and no tracking prompt, on either surface.
@@ -16,7 +16,7 @@ dialog, no Core Location, and no tracking prompt, on either surface.
 | `source` | The surface it was prayed on | `"web"`, `"ios"` |
 | `city`, `region`, `country`, `country_code` | Looked up from the request's address, in the background | `"Dallas"`, `"Texas"`, `"United States"`, `"US"` |
 | `ip_prefix` | The request's address, truncated | `"203.0.113.0"` |
-| `time_zone`, `locale` | Reported by the client | `"America/Chicago"`, `"en-US"` |
+| `time_zone`, `locale` | Reported by a client that sends them; no build of the app does | `"America/Chicago"`, `"en-US"` |
 | `prayed_aloud` | Reported by the client: was the spoken Rosary on | `true`, `false`, or `nil` when not reported |
 
 The full IP address is never stored. It exists in memory long enough to do
@@ -31,8 +31,9 @@ phone cannot be told apart from two prayed by strangers.
 
 ## The iOS app
 
-`POST /api/completions` already works unchanged. Three optional fields have
-been added, and a build that sends none of them behaves exactly as it does now.
+`POST /api/completions` takes the set and, since 4.0, whether the spoken
+Rosary was on. That is the whole of what any build sends (see
+docs/IOS_API_CONTRACT.md, section 6):
 
 ```jsonc
 POST /api/completions
@@ -40,55 +41,38 @@ Content-Type: application/json
 
 {
   "meditation_set_id": 42,
-  "time_zone": "America/Chicago",   // optional
-  "locale": "en-US",                // optional
-  "prayed_aloud": true              // optional, a JSON boolean
+  "prayed_aloud": true              // 4.0 and later; a JSON boolean
 }
 ```
 
-### Reading the two values
+Builds 1.0 to 3.0 send `meditation_set_id` alone and behave exactly as they
+always did.
 
-Both come from settings the person chose. Neither requires a usage
-description in `Info.plist`, neither triggers a prompt, and neither is Core
-Location.
+### Two fields the server accepts and no build sends
 
-```swift
-// iOS 16+
-let timeZone = TimeZone.current.identifier                 // "America/Chicago"
-let locale = Locale.current.identifier                     // "en_US"
+`time_zone` and `locale` are optional fields of the same body. No build of
+the app has ever sent them, so every row the app has written has both as
+null, and a timezone is still the better signal of habit (praying at six
+in the morning) than a datacentre geolocation is of place. If a build ever
+does send them, nothing on the server has to change:
 
-// If you would rather send the region on its own:
-let region = Locale.current.region?.identifier             // "US"
-```
-
-Send `TimeZone.current.identifier` verbatim — it is already an IANA name,
-which is what the server stores and what the dashboard groups by. For
-`locale`, either the full identifier or the bare region is fine; the server
-stores the string as given.
-
-### Adding it to the request
-
-Wherever the app currently builds the completion body, add the two keys:
-
-```swift
-struct CompletionRequest: Encodable {
-    let meditationSetId: Int
-    let timeZone: String
-    let locale: String
-
-    enum CodingKeys: String, CodingKey {
-        case meditationSetId = "meditation_set_id"
-        case timeZone = "time_zone"
-        case locale = "locale"
-    }
+```jsonc
+{
+  "meditation_set_id": 42,
+  "prayed_aloud": true,
+  "time_zone": "America/Chicago",   // optional; an IANA name, stored as given
+  "locale": "en-US"                 // optional; stored as given, at most 32 characters
 }
-
-let body = CompletionRequest(
-    meditationSetId: set.id,
-    timeZone: TimeZone.current.identifier,
-    locale: Locale.current.identifier
-)
 ```
+
+On iOS both would come from settings the person chose
+(`TimeZone.current.identifier`, `Locale.current.identifier`): no usage
+description in `Info.plist`, no prompt, not Core Location. The server
+stores each string as given, bounds its length, and drops a value of the
+wrong type rather than failing the completion over it.
+
+The GraphQL mutation `recordCompletion` is the same write with the same
+two inputs the app sends, and nothing more; see docs/GRAPHQL.md.
 
 ### What the response looks like
 

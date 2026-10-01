@@ -7,8 +7,62 @@
 # General application configuration
 import Config
 
+config :ash_graphql, authorize_update_destroy_with_error?: true
+
+# Errors name their fields as GraphQL spells them. See
+# LumenViaeWeb.Graphql.ErrorHandler.
+for domain <- [LumenViae.Rosary, LumenViae.Office] do
+  config :lumen_viae, domain,
+    graphql: [error_handler: {LumenViaeWeb.Graphql.ErrorHandler, :handle_error, []}]
+end
+
+config :ash,
+  allow_forbidden_field_for_relationships_by_default?: true,
+  include_embedded_source_by_default?: false,
+  show_keysets_for_all_actions?: false,
+  default_page_type: :keyset,
+  policies: [no_filter_static_forbidden_reads?: false],
+  keep_read_action_loads_when_loading?: false,
+  default_actions_require_atomic?: true,
+  read_action_after_action_hooks_in_order?: true,
+  bulk_actions_default_to_errors?: true,
+  transaction_rollback_on_error?: true,
+  redact_sensitive_values_in_errors?: true,
+  # Count string length in codepoints, as Postgres does, so an attribute's
+  # max_length: 255 means exactly what the varchar(255) column means.
+  default_string_length_count: :codepoints
+
+config :spark,
+  formatter: [
+    remove_parens?: true,
+    "Ash.Resource": [
+      section_order: [
+        :graphql,
+        :postgres,
+        :resource,
+        :code_interface,
+        :actions,
+        :policies,
+        :pub_sub,
+        :preparations,
+        :changes,
+        :validations,
+        :multitenancy,
+        :attributes,
+        :relationships,
+        :calculations,
+        :aggregates,
+        :identities
+      ]
+    ],
+    "Ash.Domain": [
+      section_order: [:graphql, :resources, :policies, :authorization, :domain, :execution]
+    ]
+  ]
+
 config :lumen_viae,
   ecto_repos: [LumenViae.Repo],
+  ash_domains: [LumenViae.Office, LumenViae.Rosary],
   generators: [timestamp_type: :utc_datetime]
 
 # Default narration pause inserted at each paragraph break when generating
@@ -114,7 +168,7 @@ config :lumen_viae, LumenViae.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.17.11",
+  version: "0.28.2",
   lumen_viae: [
     args:
       ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/*),
@@ -124,7 +178,7 @@ config :esbuild,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "4.0.9",
+  version: "4.3.3",
   lumen_viae: [
     args: ~w(
       --input=assets/css/app.css
@@ -132,6 +186,13 @@ config :tailwind,
     ),
     cd: Path.expand("..", __DIR__)
   ]
+
+# ExAws talks to S3 over Req, the client the app already uses for
+# ElevenLabs and Divinum Officium. Its default, hackney, crashed against real
+# S3 at hackney 4: ex_aws 2.7's adapter does not match the 3-tuple hackney 4
+# returns for a HEAD, so every object check raised a CaseClauseError. The
+# credentials and region stay in runtime.exs.
+config :ex_aws, http_client: ExAws.Request.Req
 
 # Configures Elixir's Logger
 config :logger, :default_formatter,

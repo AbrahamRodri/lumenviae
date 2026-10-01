@@ -137,13 +137,13 @@ defmodule LumenViaeWeb.Live.Meditations.List do
   end
 
   defp load_data(socket) do
-    meditations = Rosary.list_meditations_with_sets()
+    meditations = Rosary.list_meditations_with_sets!()
 
     socket
     |> assign(:meditations, meditations)
     |> assign(:available_authors, Filtering.available_authors(meditations))
-    |> assign(:mysteries, Rosary.list_mysteries())
-    |> assign(:meditation_sets, Rosary.list_meditation_sets())
+    |> assign(:mysteries, Rosary.list_mysteries!())
+    |> assign(:meditation_sets, Rosary.list_meditation_sets!())
     |> assign(:summary, summarize(meditations))
   end
 

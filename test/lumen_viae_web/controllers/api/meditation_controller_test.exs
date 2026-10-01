@@ -44,6 +44,7 @@ defmodule LumenViaeWeb.API.MeditationControllerTest do
             |> json_response(200)
             |> Map.fetch!("data")
 
+          assert is_integer(data["id"])
           assert data["id"] == meditation.id
           assert is_binary(data["audio_url"])
           assert {:ok, _, _} = DateTime.from_iso8601(data["expires_at"])

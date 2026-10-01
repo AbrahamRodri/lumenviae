@@ -12,7 +12,7 @@ defmodule LumenViae.Rosary.CompletionEnrichmentTest do
 
   alias LumenViae.Repo
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.Completions.Completion
+  alias LumenViae.Rosary.Completion
   alias LumenViae.Services.Geolocation
 
   setup do

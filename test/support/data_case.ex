@@ -48,11 +48,35 @@ defmodule LumenViae.DataCase do
       assert %{password: ["password is too short"]} = errors_on(changeset)
 
   """
-  def errors_on(changeset) do
+  def errors_on(%Ecto.Changeset{} = changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {message, opts} ->
-      Regex.replace(~r"%{(\w+)}", message, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
+      interpolate(message, opts)
+    end)
+  end
+
+  # The same map of messages for an error from an Ash action, read the way
+  # an AshPhoenix form reads it, so a test asserts on what the admin would
+  # actually be shown.
+  #
+  #     assert {:error, error} = Rosary.create_author(%{})
+  #     assert %{name: ["is required"]} = errors_on(error)
+  def errors_on(%{errors: errors}) when is_list(errors) do
+    errors
+    |> Enum.flat_map(fn error ->
+      if AshPhoenix.FormData.Error.impl_for(error) do
+        error |> AshPhoenix.FormData.Error.to_form_error() |> List.wrap()
+      else
+        []
+      end
+    end)
+    |> Enum.reduce(%{}, fn {field, message, vars}, acc ->
+      Map.update(acc, field, [interpolate(message, vars)], &(&1 ++ [interpolate(message, vars)]))
+    end)
+  end
+
+  defp interpolate(message, vars) do
+    Regex.replace(~r"%{(\w+)}", message, fn _, key ->
+      vars |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
     end)
   end
 end

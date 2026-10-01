@@ -3,7 +3,13 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
 
   alias LumenViae.Rosary
 
+  # A set the public can see: it has a meditation. An empty set is hidden.
   defp create_set(attrs) do
+    attrs |> create_empty_set() |> LumenViae.Test.Sets.with_meditation()
+  end
+
+  # For a test that fills the set itself.
+  defp create_empty_set(attrs) do
     defaults = %{name: "Test Set", category: "joyful"}
     {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
     set
@@ -67,11 +73,107 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
       # Asserted field by field rather than with map equality: an added key
       # is a compatible change and must not fail here. Whether a *shipped*
       # key can disappear is the contract test's job, not this one's.
+      assert is_integer(summary["id"])
       assert summary["id"] == set.id
       assert summary["name"] == "Shape Check"
       assert summary["category"] == "joyful"
       assert summary["description"] == "A description"
       assert summary["labels"] == []
+    end
+
+    # S1: the app always sends one of these five raw values and expects the
+    # category echoed back exactly.
+    test "every category the app asks for returns its own sets, with the raw value", %{
+      conn: conn
+    } do
+      for category <- ~w(joyful sorrowful glorious luminous seven_sorrows) do
+        set = create_set(%{name: "Raw #{category}", category: category})
+
+        data =
+          conn
+          |> get(~p"/api/meditation-sets?category=#{category}")
+          |> json_response(200)
+          |> Map.fetch!("data")
+
+        assert set.id in Enum.map(data, & &1["id"])
+        assert Enum.all?(data, &(&1["category"] == category))
+      end
+    end
+
+    # S2: a wrong type on any element fails the whole list for the app.
+    test "every summary is correctly typed, with and without artwork", %{conn: conn} do
+      create_set(%{name: "Bare"})
+
+      with_artwork(create_set(%{name: "Painted", author: "An author", source: "A source"}), %{
+        "image_focal_x" => 0.5,
+        "image_title" => "Christ Carrying the Cross",
+        "image_artist" => "El Greco",
+        "image_year" => "c. 1580",
+        "image_source_url" => "https://www.metmuseum.org/art/collection/search/436574"
+      })
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets?category=joyful")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert length(data) == 2
+
+      for summary <- data do
+        for key <- ~w(description author source image_url image_alignment image_alt) do
+          assert_string_or_nil(summary[key], key)
+        end
+
+        assert_number_or_nil(summary["image_focal_x"], "image_focal_x")
+        assert_number_or_nil(summary["image_focal_y"], "image_focal_y")
+        assert_integer_or_nil(summary["image_width"], "image_width")
+        assert_integer_or_nil(summary["image_height"], "image_height")
+
+        case summary["image_attribution"] do
+          nil ->
+            :ok
+
+          attribution when is_map(attribution) ->
+            for key <- ~w(title artist year source_url license) do
+              assert_string_or_nil(attribution[key], "image_attribution.#{key}")
+            end
+        end
+      end
+
+      assert Enum.any?(data, &is_map(&1["image_attribution"]))
+      assert Enum.any?(data, &is_nil(&1["image_attribution"]))
+    end
+
+    # S3: the app builds its label chips from the first appearance of each
+    # label, so the order must be ascending id whatever the heap says.
+    test "order is ascending id even after an earlier set is updated", %{conn: conn} do
+      a = create_set(%{name: "A", labels: ["Saints"]})
+      b = create_set(%{name: "B", labels: ["Intentions"]})
+      c = create_set(%{name: "C"})
+
+      {:ok, _} = Rosary.update_meditation_set(a, %{description: "touched after the others"})
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets?category=joyful")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert Enum.map(data, & &1["id"]) == [a.id, b.id, c.id]
+    end
+
+    # S4: the app never pages, so everything must come back at once.
+    test "returns every set in a category with no pagination", %{conn: conn} do
+      ids = for n <- 1..30, do: create_set(%{name: "Many #{n}", category: "luminous"}).id
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets?category=luminous")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert Enum.map(data, & &1["id"]) == ids
     end
   end
 
@@ -86,8 +188,9 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
         |> Map.fetch!("data")
 
       assert data["labels"] == ["Scriptural", "Contemplative"]
+      assert is_integer(data["id"])
       assert data["id"] == set.id
-      assert data["meditations"] == []
+      assert [%{"content" => "A meditation."}] = data["meditations"]
     end
 
     test "returns an empty labels array for unlabeled sets", %{conn: conn} do
@@ -124,7 +227,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     end
 
     test "the summary derives a byline from meditations that agree", %{conn: conn} do
-      set = create_set(%{name: "Derived"})
+      set = create_empty_set(%{name: "Derived"})
       create_meditation_in_set(set)
 
       summary =
@@ -283,10 +386,42 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     end
   end
 
+  describe "a set with no meditations is hidden from the API" do
+    # Between being created and being given its first meditation a set has
+    # nothing to pray. An installed build only ever sees one set fewer.
+    test "it is absent from the lists and a 404 by id, until it has one", %{conn: conn} do
+      set = create_empty_set(%{name: "Not Filled Yet"})
+
+      for path <- [~p"/api/meditation-sets", ~p"/api/meditation-sets?category=joyful"] do
+        ids =
+          conn |> get(path) |> json_response(200) |> Map.fetch!("data") |> Enum.map(& &1["id"])
+
+        refute set.id in ids
+      end
+
+      body = conn |> get(~p"/api/meditation-sets/#{set.id}") |> json_response(404)
+      assert body["error"]["code"] == "not_found"
+
+      create_meditation_in_set(set)
+
+      ids =
+        conn
+        |> get(~p"/api/meditation-sets?category=joyful")
+        |> json_response(200)
+        |> Map.fetch!("data")
+        |> Enum.map(& &1["id"])
+
+      assert set.id in ids
+
+      detail = conn |> get(~p"/api/meditation-sets/#{set.id}") |> json_response(200)
+      assert [%{"content" => "Test content"}] = detail["data"]["meditations"]
+    end
+  end
+
   describe "archived meditations hide their sets from the API" do
     test "index excludes sets containing an archived meditation", %{conn: conn} do
-      visible_set = create_set(%{name: "Visible Set"})
-      hidden_set = create_set(%{name: "Hidden Set"})
+      visible_set = create_empty_set(%{name: "Visible Set"})
+      hidden_set = create_empty_set(%{name: "Hidden Set"})
 
       create_meditation_in_set(visible_set)
       archived = create_meditation_in_set(hidden_set)
@@ -308,7 +443,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     # A rendered 404, not a raised one: a hidden set now comes back through
     # the fallback controller in the same envelope as every other error.
     test "show returns 404 for a set containing an archived meditation", %{conn: conn} do
-      set = create_set(%{name: "Hidden Set"})
+      set = create_empty_set(%{name: "Hidden Set"})
       archived = create_meditation_in_set(set)
       {:ok, _} = Rosary.archive_meditation(archived)
 
@@ -321,7 +456,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     end
 
     test "unarchiving restores the set in the API", %{conn: conn} do
-      set = create_set(%{name: "Restored Set"})
+      set = create_empty_set(%{name: "Restored Set"})
       meditation = create_meditation_in_set(set)
       {:ok, archived} = Rosary.archive_meditation(meditation)
       {:ok, _} = Rosary.unarchive_meditation(archived)
@@ -341,6 +476,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
         |> json_response(200)
         |> Map.fetch!("data")
 
+      assert is_integer(data["id"])
       assert data["id"] == set.id
     end
   end

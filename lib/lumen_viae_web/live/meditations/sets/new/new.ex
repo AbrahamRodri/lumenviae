@@ -6,7 +6,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
   alias LumenViae.Rosary
 
   def mount(_params, _session, socket) do
-    meditations = Rosary.list_meditations()
+    meditations = Rosary.list_meditations!()
 
     {:ok,
      socket
@@ -20,16 +20,19 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
      |> assign_meditation_set_form()}
   end
 
-  def handle_event("create_meditation_set", params, socket) do
-    case Rosary.create_meditation_set(params) do
+  def handle_event("create_meditation_set", %{"meditation_set" => params}, socket) do
+    case AshPhoenix.Form.submit(socket.assigns.meditation_set_form, params: params) do
       {:ok, set} ->
         {:noreply,
          socket
          |> put_flash(:info, "Meditation set created successfully")
          |> push_navigate(to: "/admin/meditation-sets/#{set.id}/edit")}
 
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to create meditation set")}
+      {:error, form} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Failed to create meditation set")
+         |> assign(:meditation_set_form, form)}
     end
   end
 
@@ -45,7 +48,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
     assign(
       socket,
       :meditation_set_form,
-      to_form(%{"name" => "", "category" => "", "description" => ""})
+      to_form(Rosary.form_to_create_meditation_set(as: "meditation_set"))
     )
   end
 

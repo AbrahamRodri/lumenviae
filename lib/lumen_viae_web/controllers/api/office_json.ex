@@ -42,7 +42,7 @@ defmodule LumenViaeWeb.API.OfficeJSON do
         celebration: hour.celebration,
         tempora: hour.tempora,
         sections: Enum.map(hour.sections, &section_data/1),
-        source: source(hour.source_url)
+        source: LumenViae.Office.source(hour.source_url)
       }
     }
   end
@@ -73,9 +73,5 @@ defmodule LumenViaeWeb.API.OfficeJSON do
 
   defp slug_and_label(entry) do
     %{slug: entry.slug, label: entry.label}
-  end
-
-  defp source(url) do
-    %{name: "The Divinum Officium Project", url: url}
   end
 end

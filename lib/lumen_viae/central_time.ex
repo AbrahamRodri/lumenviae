@@ -17,7 +17,7 @@ defmodule LumenViae.CentralTime do
 
   The zone *name* is also here, because Postgres does have the zone database
   and groups completions by local day with it (see
-  `LumenViae.Rosary.Completions.count_by_day/3`). Both halves must agree on
+  the `local_day` calculation behind `LumenViae.Rosary.completions_by_day/1`). Both halves must agree on
   which zone is being reported, so both read it from this module.
   """
 

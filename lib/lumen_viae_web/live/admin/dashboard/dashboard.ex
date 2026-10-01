@@ -6,11 +6,12 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
 
   Two rules shape what appears here.
 
-  **Health reports on live content only.** A set hidden from the public
-  because one of its meditations is archived is not a set with a missing
-  painting - it is a set nobody can reach, which is one problem, listed
-  once, under its own heading. Counting it again under every other heading
-  turned the checklist into a list of things that did not need doing.
+  **Health reports on live content only.** A set hidden from the public,
+  because one of its meditations is archived or because it has none yet, is
+  not a set with a missing painting - it is a set nobody can reach, which
+  is one problem, listed once, under the heading for its reason. Counting
+  it again under every other heading turned the checklist into a list of
+  things that did not need doing.
 
   **Every number is a link.** A count with no way through to the rows it
   counts is trivia. Each metric and each health row lands on the admin list
@@ -56,12 +57,12 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   def handle_async(:rosary_audio, {:exit, _reason}, socket), do: {:noreply, socket}
 
   defp load(socket) do
-    sets = Rosary.list_meditation_sets()
+    sets = Rosary.list_meditation_sets!()
     hidden_ids = Rosary.hidden_meditation_set_ids()
     set_stats = Rosary.meditation_set_stats()
-    mysteries = Rosary.list_mysteries()
+    mysteries = Rosary.list_mysteries!()
     mystery_counts = Rosary.active_meditation_counts_by_mystery()
-    authors = Rosary.list_authors()
+    authors = Rosary.list_authors!()
 
     live_sets = Enum.reject(sets, &MapSet.member?(hidden_ids, &1.id))
     hidden_sets = Enum.filter(sets, &MapSet.member?(hidden_ids, &1.id))
@@ -163,12 +164,12 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
         names: names(live_sets, &(SetFiltering.artwork_state(&1) == :unpublishable))
       },
       %{
-        count: count_sets(live_sets, &(meditation_count(&1, set_stats) == 0)),
-        tone: "danger",
-        label: "Empty sets",
-        description: "Live sets with no meditations at all.",
-        link: ~p"/admin/meditation-sets?completeness=empty",
-        names: names(live_sets, &(meditation_count(&1, set_stats) == 0))
+        count: count_sets(hidden_sets, &(meditation_count(&1, set_stats) == 0)),
+        tone: "caution",
+        label: "Sets with no meditations yet",
+        description: "Kept off the site and the app until they are given their first meditation.",
+        link: ~p"/admin/meditation-sets?visibility=empty",
+        names: names(hidden_sets, &(meditation_count(&1, set_stats) == 0))
       },
       %{
         count: count_sets(live_sets, &partial?(&1, set_stats)),
@@ -187,13 +188,13 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
         names: names(live_sets, &(&1.labels == []))
       },
       %{
-        count: length(hidden_sets),
+        count: count_sets(hidden_sets, &(meditation_count(&1, set_stats) > 0)),
         tone: "caution",
-        label: "Sets hidden from the public",
+        label: "Sets hidden by an archived meditation",
         description:
           "Withdrawn from the site and the app because they contain an archived meditation.",
-        link: ~p"/admin/meditation-sets?visibility=hidden",
-        names: Enum.map(hidden_sets, & &1.name)
+        link: ~p"/admin/meditation-sets?visibility=archived",
+        names: names(hidden_sets, &(meditation_count(&1, set_stats) > 0))
       },
       %{
         count: Rosary.count_meditations_not_in_any_set(),

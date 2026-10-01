@@ -1,20 +1,25 @@
 defmodule LumenViae.Rosary.Artwork do
   @moduledoc """
-  Artwork on a meditation set: the licence vocabulary, the two changesets
-  that write it, and the framing arithmetic every crop is derived from.
+  Artwork on a meditation set or an author: the licence vocabulary, which
+  columns are managed and which are editable, and the framing arithmetic
+  every crop is derived from.
 
   A value module in the sense of `LumenViae.Rosary.Categories` and
-  `LumenViae.Rosary.Labels` - no state, no queries, no schema - so the
-  schema validations, the admin form and the JSON view read the same list
+  `LumenViae.Rosary.Labels` - no state, no queries, no resource - so the
+  resource validations, the admin form and the JSON view read the same list
   and compute the same crop. Any layer may call it directly.
 
-  ## Why there are two changesets
+  The columns themselves, and the two actions that write them, are
+  `LumenViae.Rosary.Artwork.Fragment`, which every resource that carries
+  artwork takes.
+
+  ## Why there are two field lists
 
   Four of the columns are *managed*: `image_key`, `image_width`,
   `image_height` and `image_updated_at` are written only by
   `LumenViae.Curation.ArtworkUpload`, which has just proved the object
   exists in S3 and measured it. The rest are *editable*: a curator types
-  them into the admin form. If one changeset cast both, a crafted form post
+  them into the admin form. If one action accepted both, a crafted form post
   could point a set at an arbitrary S3 key, or desync the dimensions the
   iOS hero uses to reserve its crop from the image actually stored.
 
@@ -28,8 +33,6 @@ defmodule LumenViae.Rosary.Artwork do
   centred fill exactly and `{0.5, 0.0}` reproduces top alignment, so nothing
   is lost by moving to it.
   """
-
-  import Ecto.Changeset
 
   @licenses [
     {"Public domain", "public_domain"},
@@ -49,11 +52,16 @@ defmodule LumenViae.Rosary.Artwork do
   @editable_fields ~w(image_focal_x image_focal_y image_alt image_title
                       image_artist image_year image_source_url image_license)a
 
-  # Blank in a form means "not filled in", not "the empty string". The
-  # publish gate in the API asks whether alt text and a licence are present,
-  # and a stray space must not be able to satisfy it.
-  @trimmed_fields ~w(image_alt image_title image_artist image_year
-                     image_source_url image_license)a
+  @doc """
+  The columns written only by `LumenViae.Curation.ArtworkUpload`, after the
+  object is in S3 and has been measured.
+  """
+  def managed_fields, do: @managed_fields
+
+  @doc """
+  The columns a curator types into the admin form.
+  """
+  def editable_fields, do: @editable_fields
 
   @doc """
   Returns `{label, slug}` licence pairs in display order, for form selects.
@@ -77,30 +85,10 @@ defmodule LumenViae.Rosary.Artwork do
   end
 
   @doc """
-  Changeset for a completed upload: the four managed fields, plus any
-  metadata supplied in the same breath.
-  """
-  def cast_upload(struct, attrs) do
-    struct
-    |> cast(attrs, @managed_fields ++ @editable_fields)
-    |> validate()
-  end
-
-  @doc """
-  Changeset for the admin form: metadata only. `image_key` and the
-  dimensions are not castable here at any price.
-  """
-  def cast_metadata(struct, attrs) do
-    struct
-    |> cast(attrs, @editable_fields)
-    |> validate()
-  end
-
-  @doc """
   Whether artwork is complete enough to be served.
 
   Alt text and a licence are a publish gate rather than a save gate: the
-  changesets above require neither, because `ArtworkUpload.upload/3` returns
+  artwork actions require neither, because `ArtworkUpload.upload/3` returns
   only the managed fields and the first upload on a set would otherwise be
   invalid before the curator could describe it. Artwork with no description
   and no provenance simply is not served, which protects any future entry
@@ -163,52 +151,5 @@ defmodule LumenViae.Rosary.Artwork do
       offset_x: (0.5 - focal_x) * (drawn_w - frame_w),
       offset_y: (0.5 - focal_y) * (drawn_h - frame_h)
     }
-  end
-
-  defp validate(changeset) do
-    changeset
-    |> trim_blank_strings()
-    # A backstop for an explicit null only: Ecto replaces a blank form value
-    # with the field's default, so an empty focal input arrives here as 0.5.
-    |> validate_required([:image_focal_x, :image_focal_y])
-    |> validate_number(:image_focal_x,
-      greater_than_or_equal_to: 0.0,
-      less_than_or_equal_to: 1.0
-    )
-    |> validate_number(:image_focal_y,
-      greater_than_or_equal_to: 0.0,
-      less_than_or_equal_to: 1.0
-    )
-    |> validate_number(:image_width, greater_than: 0)
-    |> validate_number(:image_height, greater_than: 0)
-    |> validate_inclusion(:image_license, @license_slugs,
-      message: "is not one of the licences this project records"
-    )
-    |> validate_format(:image_source_url, ~r{^https?://},
-      message: "must start with http:// or https://"
-    )
-    |> check_constraint(:image_focal_x,
-      name: :image_focal_x_in_range,
-      message: "must be between 0.0 and 1.0"
-    )
-    |> check_constraint(:image_focal_y,
-      name: :image_focal_y_in_range,
-      message: "must be between 0.0 and 1.0"
-    )
-  end
-
-  defp trim_blank_strings(changeset) do
-    Enum.reduce(@trimmed_fields, changeset, fn field, acc ->
-      update_change(acc, field, fn
-        value when is_binary(value) ->
-          case String.trim(value) do
-            "" -> nil
-            trimmed -> trimmed
-          end
-
-        value ->
-          value
-      end)
-    end)
   end
 end

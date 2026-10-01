@@ -2,27 +2,27 @@ defmodule LumenViaeWeb.API.CompletionController do
   @moduledoc """
   Records a finished Rosary reported by the iOS app.
 
-  ## What the app sends, and why none of it needs a prompt
+  ## What the app sends
 
-  Two optional fields, `time_zone` and `locale`. On iOS both are readable
-  from `TimeZone.current` and `Locale.current` with no permission dialog
-  and no entry in the app's privacy usage descriptions, because neither is
-  a protected resource - they are settings the person chose themselves.
+  `{"meditation_set_id": <JSON integer>, "prayed_aloud": <JSON boolean>}`.
+  Builds 1.0 to 3.0 send only `meditation_set_id`. `prayed_aloud` says
+  whether the spoken Rosary was on; it is a setting inside the app, so it
+  needs no prompt, and it is dropped unless it is a real JSON boolean.
+
+  No build of the app, shipped or in development, sends `time_zone` or
+  `locale`. The server still accepts both if a client ever does. On iOS
+  they are readable from `TimeZone.current` and `Locale.current` with no
+  permission dialog, because neither is a protected resource.
 
   Deliberately not asked for: Core Location. It would put a system prompt
   between somebody and the end of their Rosary, in exchange for a precision
-  the dashboard has no use for. A timezone already answers the question
-  worth asking - when do people pray - and the address the request arrives
-  from answers roughly where, without anybody being asked anything.
+  the dashboard has no use for. The address the request arrives from
+  answers roughly where, without anybody being asked anything.
 
-  A third, `prayed_aloud`, says whether the spoken Rosary was on. It is
-  a setting inside the app, so it needs no prompt either, and it is dropped
-  unless it is a real JSON boolean.
-
-  All three are optional in the strong sense: an older build of the app
-  that sends neither still records a completion, and a build that sends
-  nonsense records one with the nonsense dropped by the changeset's length
-  validations rather than a rejected request.
+  Everything but `meditation_set_id` is optional in the strong sense: an
+  older build that sends nothing else still records a completion, and a
+  client that sends a value of the wrong type records one with the value
+  dropped here rather than a rejected request.
   """
   use LumenViaeWeb, :controller
 
@@ -49,8 +49,8 @@ defmodule LumenViaeWeb.API.CompletionController do
         |> put_status(:created)
         |> render(:show, completion: completion)
 
-      {:error, changeset} ->
-        {:error, changeset}
+      {:error, error} ->
+        {:error, error}
     end
   end
 

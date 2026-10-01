@@ -1,6 +1,8 @@
 defmodule LumenViaeWeb.Router do
   use LumenViaeWeb, :router
 
+  import AshAdmin.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug LumenViaeWeb.Plugs.CanonicalHost
@@ -16,6 +18,17 @@ defmodule LumenViaeWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  # The GraphQL API. Off the browser pipeline like the rest of /api: no
+  # session, no CSRF token, and no canonical-host redirect, which would turn
+  # a client's POST into a GET. Every response is private and uncacheable,
+  # because a query may select presigned audio URLs. See docs/GRAPHQL.md.
+  pipeline :graphql do
+    plug :accepts, ["json"]
+    plug :put_private_cache_control
+    plug LumenViaeWeb.Graphql.PutRequestContext
+    plug AshGraphql.Plug
   end
 
   # Only the completion write goes through this. The other API routes serve
@@ -126,6 +139,20 @@ defmodule LumenViaeWeb.Router do
     end
   end
 
+  # AshAdmin: a generic browser over every Ash resource, for the cases the
+  # console has no screen for. It brings its own look and its own
+  # live_session, so it gets the console's guard twice over: RequireAdmin on
+  # the HTTP request, and the :require_admin hook on every socket mount.
+  # Unaliased scope, because the macro names AshAdmin's own LiveViews.
+  scope "/admin" do
+    pipe_through [:browser, :admin]
+
+    ash_admin("/data",
+      live_session_name: :ash_admin,
+      on_mount: [{LumenViaeWeb.UserAuth, :require_admin}]
+    )
+  end
+
   # JSON API for iOS app
   scope "/api", LumenViaeWeb.API do
     pipe_through :api
@@ -163,6 +190,19 @@ defmodule LumenViaeWeb.Router do
     get "/office/:date/:hour", OfficeController, :hour
   end
 
+  scope "/api" do
+    pipe_through :graphql
+
+    # Module.concat keeps the router from depending on the schema at
+    # compile time, so changing a resource does not recompile the router.
+    # See the "Compile Times" guide in the AshGraphql docs.
+    forward "/graphql", Absinthe.Plug,
+      schema: Module.concat(["LumenViaeWeb.GraphqlSchema"]),
+      pipeline: {LumenViaeWeb.Graphql.Pipeline, :pipeline},
+      analyze_complexity: true,
+      max_complexity: 500
+  end
+
   # The one write the public API exposes, and so the one route that gets a
   # crawler check and a rate limit in front of it.
   scope "/api", LumenViaeWeb.API do
@@ -186,5 +226,18 @@ defmodule LumenViaeWeb.Router do
       live_dashboard "/dashboard", metrics: LumenViaeWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+
+    # An in-browser GraphQL explorer against /api/graphql, development only
+    scope "/dev" do
+      pipe_through :graphql
+
+      forward "/graphiql", Absinthe.Plug.GraphiQL,
+        schema: Module.concat(["LumenViaeWeb.GraphqlSchema"]),
+        interface: :simple
+    end
+  end
+
+  defp put_private_cache_control(conn, _opts) do
+    put_resp_header(conn, "cache-control", "private, no-store")
   end
 end

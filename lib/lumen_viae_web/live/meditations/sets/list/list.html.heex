@@ -41,13 +41,13 @@
     <.metric
       label="Hidden"
       value={@summary.hidden}
-      hint="Contain archived meditations"
+      hint={hidden_hint(@summary)}
       navigate="/admin/meditation-sets?visibility=hidden"
     />
   </div>
 
   <.panel class="mb-5">
-    <.form for={%{}} phx-change="update_filters">
+    <.form for={%{}} id="sets-filters" phx-change="update_filters">
       <div class="grid gap-3 grid-cols-2 md:grid-cols-4 xl:grid-cols-7">
         <.filter_search
           name="q"
@@ -76,6 +76,8 @@
           options={[
             {"Live only", "visible"},
             {"Hidden only", "hidden"},
+            {"Hidden: archived meditation", "archived"},
+            {"Hidden: no meditations yet", "empty"},
             {"Live and hidden", "all"}
           ]}
         />
@@ -86,8 +88,7 @@
           prompt="Any"
           options={[
             {"Complete", "complete"},
-            {"Incomplete", "incomplete"},
-            {"Empty", "empty"}
+            {"Incomplete", "incomplete"}
           ]}
         />
         <.filter_select
@@ -151,7 +152,7 @@
               <.set_row
                 set={set}
                 stats={@set_stats}
-                hidden={MapSet.member?(@hidden_set_ids, set.id)}
+                hidden_reason={SetFiltering.hidden_reason(set, @hidden_set_ids, @set_stats)}
                 expanded={@expanded_set_id == set.id}
                 expanded_meditations={
                   if @expanded_set_id == set.id, do: @expanded_meditations, else: []

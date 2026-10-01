@@ -6,43 +6,22 @@ defmodule LumenViaeWeb.Live.Mysteries.New do
     {:ok,
      socket
      |> assign(:page_title, "Create Mystery")
-     |> assign_mystery_form()}
+     |> assign(:mystery_form, to_form(Rosary.form_to_create_mystery(as: "mystery")))}
   end
 
-  def handle_event("create_mystery", params, socket) do
-    case Rosary.create_mystery(params) do
+  def handle_event("create_mystery", %{"mystery" => params}, socket) do
+    case AshPhoenix.Form.submit(socket.assigns.mystery_form, params: params) do
       {:ok, mystery} ->
         {:noreply,
          socket
          |> put_flash(:info, "Mystery created successfully")
          |> push_navigate(to: "/admin/mysteries/#{mystery.id}/edit")}
 
-      {:error, changeset} ->
+      {:error, form} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Failed to create mystery: #{format_errors(changeset)}")
-         |> assign(:mystery_form, to_form(changeset))}
+         |> put_flash(:error, "Failed to create mystery")
+         |> assign(:mystery_form, form)}
     end
-  end
-
-  defp assign_mystery_form(socket) do
-    assign(
-      socket,
-      :mystery_form,
-      to_form(%{
-        "name" => "",
-        "category" => "",
-        "order" => "",
-        "days_prayed" => "",
-        "description" => "",
-        "scripture_reference" => ""
-      })
-    )
-  end
-
-  defp format_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
-    |> Enum.map(fn {field, errors} -> "#{field}: #{Enum.join(errors, ", ")}" end)
-    |> Enum.join("; ")
   end
 end

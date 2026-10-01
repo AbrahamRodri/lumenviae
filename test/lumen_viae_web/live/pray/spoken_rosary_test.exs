@@ -11,7 +11,7 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
 
   alias LumenViae.Repo
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.Completions.Completion
+  alias LumenViae.Rosary.Completion
 
   @browser "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Version/17.2 Safari/605.1.15"
 

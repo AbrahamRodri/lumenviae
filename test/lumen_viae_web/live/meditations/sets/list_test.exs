@@ -26,7 +26,13 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
     meditation
   end
 
+  # A live set: it has a meditation. An empty set is hidden.
   defp create_set(attrs) do
+    attrs |> create_empty_set() |> LumenViae.Test.Sets.with_meditation()
+  end
+
+  # For a test that fills the set itself, or wants it empty.
+  defp create_empty_set(attrs) do
     defaults = %{name: "Test Set #{System.unique_integer([:positive])}", category: "joyful"}
     {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
     set
@@ -34,15 +40,17 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
 
   test "lists sets with their meditation and narration counts", %{conn: conn} do
     mystery = create_mystery()
-    filled = create_set(%{name: "Filled Set"})
-    create_set(%{name: "Empty Set"})
+    filled = create_empty_set(%{name: "Filled Set"})
+    create_empty_set(%{name: "Empty Set"})
 
     for order <- 1..5 do
       meditation = create_meditation(mystery, %{audio_url: "clip#{order}.mp3"})
       {:ok, _} = Rosary.add_meditation_to_set(filled.id, meditation.id, order)
     end
 
-    {:ok, _view, html} = live(conn, "/admin/meditation-sets")
+    # The empty set is hidden, so it is only on the list when hidden sets
+    # are asked for.
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets?visibility=all")
 
     assert html =~ "Filled Set"
     assert html =~ "Empty Set"
@@ -51,9 +59,46 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
     assert html =~ "/ 5"
   end
 
+  test "a set with no meditations is hidden, and the list says why", %{conn: conn} do
+    mystery = create_mystery()
+    create_empty_set(%{name: "Just Created Set"})
+    withdrawn = create_empty_set(%{name: "Withdrawn Set"})
+    create_set(%{name: "Serving Set"})
+
+    meditation = create_meditation(mystery)
+    {:ok, _} = Rosary.add_meditation_to_set(withdrawn.id, meditation.id, 1)
+    {:ok, _} = Rosary.archive_meditation(meditation)
+
+    # Not on the default list, which is what the public is being served.
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets")
+    assert html =~ "Serving Set"
+    refute html =~ "Just Created Set"
+    refute html =~ "Withdrawn Set"
+    # The Hidden tile counts both, and says how many of each.
+    assert html =~ "1 with an archived meditation, 1 with none yet"
+
+    # Each reason has its own filter, which is where the dashboard links.
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets?visibility=empty")
+    assert html =~ "Just Created Set"
+    assert html =~ "This set has no meditations yet"
+    refute html =~ "Withdrawn Set"
+    refute html =~ "Serving Set"
+
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets?visibility=archived")
+    assert html =~ "Withdrawn Set"
+    assert html =~ "This set contains an archived meditation"
+    refute html =~ "Just Created Set"
+    refute html =~ "Serving Set"
+
+    {:ok, _view, html} = live(conn, "/admin/meditation-sets?visibility=hidden")
+    assert html =~ "Just Created Set"
+    assert html =~ "Withdrawn Set"
+    refute html =~ "Serving Set"
+  end
+
   test "visibility filter separates hidden sets", %{conn: conn} do
     mystery = create_mystery()
-    hidden_set = create_set(%{name: "Hidden Set"})
+    hidden_set = create_empty_set(%{name: "Hidden Set"})
     create_set(%{name: "Visible Set"})
 
     meditation = create_meditation(mystery)
@@ -73,7 +118,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
   # being served?" until told otherwise.
   test "the list shows live sets by default, and \"all\" opts back in", %{conn: conn} do
     mystery = create_mystery()
-    hidden_set = create_set(%{name: "Withdrawn Set"})
+    hidden_set = create_empty_set(%{name: "Withdrawn Set"})
     create_set(%{name: "Serving Set"})
 
     meditation = create_meditation(mystery)
@@ -135,7 +180,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
 
   test "expanding a set shows its ordered meditations inline", %{conn: conn} do
     mystery = create_mystery()
-    set = create_set(%{name: "Expandable Set"})
+    set = create_empty_set(%{name: "Expandable Set"})
     meditation = create_meditation(mystery, %{title: "Unique Expanded Title"})
     {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
 
@@ -161,6 +206,6 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
       |> render_click()
 
     refute html =~ "Deletable Set"
-    assert Rosary.list_meditation_sets() |> Enum.map(& &1.id) |> Enum.member?(set.id) == false
+    assert Rosary.list_meditation_sets!() |> Enum.map(& &1.id) |> Enum.member?(set.id) == false
   end
 end

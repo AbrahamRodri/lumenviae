@@ -55,16 +55,16 @@ defmodule LumenViae.Curation.AudioRegeneration do
 
   def run({:meditation, id}, opts) do
     case Rosary.get_meditation(id) do
-      nil ->
-        fail_target("Meditation not found: id #{id}", opts)
-
-      meditation ->
+      {:ok, meditation} ->
         meditation |> List.wrap() |> process(opts)
+
+      {:error, _not_found} ->
+        fail_target("Meditation not found: id #{id}", opts)
     end
   end
 
   def run(:all, opts) do
-    Rosary.list_meditations()
+    Rosary.list_meditations!()
     |> Enum.reject(&Rosary.meditation_archived?/1)
     |> Enum.sort_by(& &1.id)
     |> process(opts)
@@ -161,11 +161,16 @@ defmodule LumenViae.Curation.AudioRegeneration do
   end
 
   defp describe(meditation) do
-    label =
-      meditation.title || (Ecto.assoc_loaded?(meditation.mystery) && meditation.mystery.name)
+    label = meditation.title || mystery_name(meditation.mystery)
 
     if label, do: "meditation #{meditation.id} (#{label})", else: "meditation #{meditation.id}"
   end
+
+  # Not Ecto.assoc_loaded?/1: it answers true for anything that is not
+  # Ecto's own not-loaded marker, Ash's included, and the label would then
+  # crash reading a name off a relationship that was never loaded.
+  defp mystery_name(%{name: name}), do: name
+  defp mystery_name(_not_loaded_or_nil), do: nil
 
   defp pause_plan(meditation, voice) do
     speech_text = Pipeline.speech_text(meditation.content, meditation.tts_annotations, voice)
@@ -174,11 +179,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
     "#{pause_count} pause(s), #{custom_count} custom"
   end
 
-  defp format_error(%Ecto.Changeset{} = changeset) do
-    changeset
-    |> Ecto.Changeset.traverse_errors(fn {msg, _opts} -> msg end)
-    |> Enum.map_join("; ", fn {field, messages} -> "#{field}: #{Enum.join(messages, ", ")}" end)
-  end
+  defp format_error(%Ash.Error.Invalid{} = error), do: Rosary.error_summary(error)
 
   defp format_error(reason) when is_binary(reason), do: reason
   defp format_error(reason), do: reason |> inspect() |> String.slice(0, 200)

@@ -301,7 +301,7 @@ defmodule LumenViae.Curation.CsvImportTest do
       assert message =~ "female: "
       assert message =~ "server error"
 
-      [meditation] = Rosary.list_meditations()
+      [meditation] = Rosary.list_meditations!()
       assert meditation.audio_url == nil
       assert Rosary.meditation_narrations(meditation) == []
 
@@ -365,7 +365,7 @@ defmodule LumenViae.Curation.CsvImportTest do
 
       assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true)
 
-      [meditation] = Rosary.list_meditations()
+      [meditation] = Rosary.list_meditations!()
 
       # Stored content is the imported content minus the marker; the pause
       # survives only as an annotation.
@@ -510,7 +510,7 @@ defmodule LumenViae.Curation.CsvImportTest do
                  "/lumenviae-audio/voices/male/clip.mp3"
                ]
 
-      [meditation] = Rosary.list_meditations()
+      [meditation] = Rosary.list_meditations!()
       assert meditation.audio_url == "clip.mp3"
       assert meditation.content == @content
       refute meditation.content =~ "pause"
@@ -574,7 +574,7 @@ defmodule LumenViae.Curation.CsvImportTest do
       assert message =~ "(with audio)"
       assert message =~ "male: ElevenLabs rejected the API key"
 
-      [meditation] = Rosary.list_meditations()
+      [meditation] = Rosary.list_meditations!()
       assert meditation.audio_url == "clip.mp3"
       assert [%{voice: %{slug: "female"}}] = Rosary.meditation_narrations(meditation)
     end

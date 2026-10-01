@@ -10,13 +10,12 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
 
   def mount(%{"id" => id}, _session, socket) do
     set = Rosary.get_meditation_set_with_ordered_meditations!(id)
-    meditations = Rosary.list_meditations()
+    meditations = Rosary.list_meditations!()
 
     {:ok,
      socket
      |> assign(:page_title, "Edit Meditation Set")
-     |> assign(:meditation_set, set)
-     |> assign(:authors, Rosary.list_authors())
+     |> assign(:authors, Rosary.list_authors!())
      |> assign(:meditations, meditations)
      |> assign(:available_authors, Filtering.available_authors(meditations))
      |> assign(:filter_category, nil)
@@ -33,24 +32,22 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
        max_entries: 1,
        max_file_size: ArtworkUpload.max_bytes()
      )
-     |> assign_edit_form(set)
-     |> assign_artwork(set)}
+     |> assign_set(set)}
   end
 
   def handle_event("update_meditation_set", %{"meditation_set" => params}, socket) do
-    case Rosary.update_meditation_set(socket.assigns.meditation_set, params) do
+    case AshPhoenix.Form.submit(socket.assigns.edit_form, params: params) do
       {:ok, set} ->
         {:noreply,
          socket
          |> put_flash(:info, "Meditation set updated successfully")
-         |> assign(:meditation_set, set)
-         |> assign_edit_form(set)}
+         |> assign_set(set)}
 
-      {:error, changeset} ->
+      {:error, form} ->
         {:noreply,
          socket
          |> put_flash(:error, "Failed to update meditation set")
-         |> assign_edit_form(changeset)}
+         |> assign(:edit_form, form)}
     end
   end
 
@@ -70,10 +67,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
             {:noreply,
              socket
              |> put_flash(:info, artwork_saved_message(set))
-             |> assign(:meditation_set, set)
-             |> assign_artwork(set)}
+             |> assign_set(set)}
 
-          {:error, _changeset} ->
+          {:error, _error} ->
             {:noreply, put_flash(socket, :error, "The painting uploaded but could not be saved")}
         end
 
@@ -86,19 +82,18 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   end
 
   def handle_event("update_artwork_meta", %{"artwork" => params}, socket) do
-    case Rosary.update_meditation_set_artwork_metadata(socket.assigns.meditation_set, params) do
+    case AshPhoenix.Form.submit(socket.assigns.artwork_form, params: params) do
       {:ok, set} ->
         {:noreply,
          socket
          |> put_flash(:info, artwork_saved_message(set))
-         |> assign(:meditation_set, set)
-         |> assign_artwork(set)}
+         |> assign_set(set)}
 
-      {:error, changeset} ->
+      {:error, form} ->
         {:noreply,
          socket
          |> put_flash(:error, "Failed to save the artwork details")
-         |> assign(:artwork_form, to_form(changeset, as: :artwork))}
+         |> assign(:artwork_form, form)}
     end
   end
 
@@ -150,7 +145,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
           {:noreply,
            socket
            |> put_flash(:info, "Meditation added to set")
-           |> assign(:meditation_set, set)
+           |> assign_set(set)
            |> assign(:selected_set_meditations, set.meditations)}
 
         {:error, _} ->
@@ -181,7 +176,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
         {:noreply,
          socket
          |> put_flash(:info, "Meditation removed from set")
-         |> assign(:meditation_set, set)
+         |> assign_set(set)
          |> assign(:selected_set_meditations, set.meditations)}
 
       _ ->
@@ -189,14 +184,15 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
     end
   end
 
-  # Persists a label change immediately. The edit form assign is left alone so
-  # any unsaved edits in the Set Details inputs are not clobbered.
+  # Persists a label change immediately. Unsaved edits in the Set Details
+  # inputs survive it: the forms are rebuilt from the saved set, whose
+  # details have not changed, so nothing about those inputs is re-rendered.
   defp update_labels(socket, labels) do
     case Rosary.update_meditation_set(socket.assigns.meditation_set, %{labels: labels}) do
       {:ok, set} ->
-        {:noreply, assign(socket, :meditation_set, set)}
+        {:noreply, assign_set(socket, set)}
 
-      {:error, _changeset} ->
+      {:error, _error} ->
         {:noreply, put_flash(socket, :error, "Failed to update labels")}
     end
   end
@@ -223,9 +219,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   defp save_focal_point(socket, attrs) do
     case Rosary.update_meditation_set_artwork_metadata(socket.assigns.meditation_set, attrs) do
       {:ok, set} ->
-        {:noreply, socket |> assign(:meditation_set, set) |> assign_artwork(set)}
+        {:noreply, assign_set(socket, set)}
 
-      {:error, _changeset} ->
+      {:error, _error} ->
         {:noreply, put_flash(socket, :error, "Failed to move the focal point")}
     end
   end
@@ -258,17 +254,21 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
     end
   end
 
-  defp assign_artwork(socket, set) do
+  # The set and both of its forms, together. Each form holds the set it was
+  # built from, so after any write on this page both are rebuilt from the
+  # saved one: a form left holding an older copy would hand that copy back
+  # as the result of its next save.
+  defp assign_set(socket, set) do
     socket
+    |> assign(:meditation_set, set)
+    |> assign(
+      :edit_form,
+      to_form(Rosary.form_to_update_meditation_set(set, as: "meditation_set"))
+    )
     |> assign(:artwork_url, Rosary.artwork_url(set))
-    |> assign(:artwork_form, to_form(Rosary.change_meditation_set_artwork(set), as: :artwork))
-  end
-
-  defp assign_edit_form(socket, %Ecto.Changeset{} = changeset) do
-    assign(socket, :edit_form, to_form(changeset, as: :meditation_set))
-  end
-
-  defp assign_edit_form(socket, set) do
-    assign_edit_form(socket, Rosary.change_meditation_set(set))
+    |> assign(
+      :artwork_form,
+      to_form(Rosary.form_to_update_meditation_set_artwork_metadata(set, as: "artwork"))
+    )
   end
 end

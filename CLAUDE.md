@@ -13,14 +13,36 @@ NEVER when making PR descriptions on git commits add CO-Author by Claude
 **IMPORTANT:** Before making any architectural decisions or creating new LiveViews, components, or modules, **always reference [ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the project's architectural standards and patterns.
 
 The ARCHITECTURE.md document defines:
-- The context rules the domain follows (Primary Context, Secondary
-  Contexts, schemas) and where a new query or resource goes
+- How the Ash domain is organised (resources, the `LumenViae.Rosary` code
+  interface, the rules that span resources) and where a new query, field
+  or resource goes
 - LiveView organization and naming
 - Component and template conventions, including the `_partials` pattern
 - Design tokens (colors and fonts)
 
 These rules are enforced by `test/lumen_viae/rosary/context_rules_test.exs`,
-so breaking them fails the build rather than drifting quietly.
+and what the GraphQL API exposes by
+`test/lumen_viae_web/graphql/schema_test.exs`, so breaking them fails the
+build rather than drifting quietly.
+
+### Ash
+
+The domain is built on the Ash framework. Ash takes the domain, data and
+API layers: resources, actions, validations, the Postgres data layer, the
+GraphQL API, the version history (AshPaperTrail) and the generic data
+browser at `/admin/data` (AshAdmin). Phoenix LiveView stays the UI, with
+AshPhoenix forms (`Rosary.form_to_*`) wherever a page creates or updates
+a record. New tables and columns come from `mix ash.codegen <name>`, never
+a hand-written migration; read the generated migration before committing.
+
+**Before writing Ash code** (a resource, an action, a calculation, a
+policy, an AshPhoenix form, a GraphQL query) **read
+[docs/USAGE_RULES.md](docs/USAGE_RULES.md)**: the Ash packages' own
+guidance, generated from the dependencies by `mix usage_rules.sync`. Prefer
+it over memory; Ash changes faster than training data. The GraphQL API's
+conventions are in [docs/GRAPHQL.md](docs/GRAPHQL.md), and what the iOS
+app depends on in the REST API is in
+[docs/IOS_API_CONTRACT.md](docs/IOS_API_CONTRACT.md).
 
 ## Development Guidelines
 
@@ -28,9 +50,9 @@ so breaking them fails the build rather than drifting quietly.
 
 1. **Read docs/ARCHITECTURE.md first** - Understand the established patterns before writing code
 2. **Follow the directory structure** - Match module names to file paths as defined in docs/ARCHITECTURE.md
-3. **Go through `LumenViae.Rosary`** - It is the domain's only public entry point. Never call a Secondary Context, a schema, or the Repo from outside `lib/lumen_viae/rosary/`. The Divine Office domain works the same way: everything goes through `LumenViae.Office`, and its internals stay inside `lib/lumen_viae/office/`
+3. **Go through `LumenViae.Rosary`** - It is the domain's only public entry point. Never name a resource, call `Ash` on one, build an `AshPhoenix.Form` for one, or touch the Repo from outside `lib/lumen_viae/rosary/`: add a code interface (`define`) to the domain instead. Reads are bang-only (`list_meditations!/0`); writes return `{:ok, record}` or `{:error, %Ash.Error.Invalid{}}`. The Divine Office domain works the same way: everything goes through `LumenViae.Office`, and its internals stay inside `lib/lumen_viae/office/`
 4. **Break up complexity** - Never create monolithic views (see docs/ARCHITECTURE.md for patterns)
-5. **Separate concerns** - Queries belong in the Secondary Context that owns the table; presentation-only filtering belongs next to the LiveView
+5. **Separate concerns** - Queries are read actions, filters, calculations and aggregates on the resource that owns the table; a rule spanning resources is an expression on the resource it belongs to; presentation-only filtering belongs next to the LiveView
 
 ### When Refactoring
 
@@ -81,7 +103,12 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
   change as any code that widens what is collected
 - Admin interface for managing meditations and sets
-- JSON API consumed by the iOS app
+- JSON API consumed by the iOS app. Its shape is a contract with every
+  installed build: see docs/IOS_API_CONTRACT.md before changing any
+  response under `/api`
+- A GraphQL API at `/api/graphql` (AshGraphql), alongside the REST API,
+  not instead of it. Its whole schema is committed as
+  `priv/graphql/schema.graphql`; see docs/GRAPHQL.md
 - The pre-Vatican II Divine Office under `/api/office`, assembled by the
   open-source Divinum Officium engine and cached - see docs/OFFICE_API.md
   and the Office domain section of docs/ARCHITECTURE.md
@@ -97,6 +124,9 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - `rosary_completions` - Completion analytics, including approximate
   location, surface (web or iOS) and a truncated IP prefix. The full
   address is never stored
+- `meditations_versions`, `meditation_sets_versions`, `mysteries_versions`,
+  `authors_versions` - AshPaperTrail's snapshot of every change to those
+  four resources, named by the action that made it
 
 Every table is reached through `LumenViae.Rosary`. The category vocabulary
 lives in `LumenViae.Rosary.Categories` and the set label vocabulary in
@@ -133,7 +163,11 @@ from the browser.
 ### Local Development
 Start the server with `./dev.sh`, not `mix phx.server` - it loads `.env`
 first, and without the AWS credentials the audio players silently vanish.
-The dev server listens on port 8080.
+The dev server listens on port 8080. Every worktree shares the
+`lumen_viae_dev` database; to run or migrate a branch without touching it,
+copy it (`createdb -h localhost -U postgres -T lumen_viae_dev <name>`) and
+set `DEV_DATABASE=<name>`. In tests, give each worktree its own
+`MIX_TEST_PARTITION`.
 
 ## Meditation CSV Imports
 

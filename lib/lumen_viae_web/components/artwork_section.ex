@@ -137,6 +137,7 @@ defmodule LumenViaeWeb.Components.ArtworkSection do
         </p>
         <.form
           for={%{}}
+          id="artwork-form"
           phx-change="validate_artwork"
           phx-submit="upload_artwork"
           phx-drop-target={@upload.ref}

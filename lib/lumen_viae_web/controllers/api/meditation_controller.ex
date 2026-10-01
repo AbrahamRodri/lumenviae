@@ -56,13 +56,13 @@ defmodule LumenViaeWeb.API.MeditationController do
     case Integer.parse(to_string(id)) do
       {meditation_id, ""} ->
         case Rosary.get_meditation(meditation_id) do
-          nil ->
-            {:error, :not_found}
-
-          meditation ->
+          {:ok, meditation} ->
             if Rosary.meditation_archived?(meditation),
               do: {:error, :not_found},
               else: {:ok, meditation}
+
+          {:error, _not_found} ->
+            {:error, :not_found}
         end
 
       _ ->

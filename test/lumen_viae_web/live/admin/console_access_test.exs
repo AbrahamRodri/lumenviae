@@ -29,21 +29,24 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
   end
 
   defp live_session_of(path) do
-    sample = String.replace(path, ":id", "1")
+    sample = path |> String.replace(":id", "1") |> String.replace("/*route", "")
     info = Phoenix.Router.route_info(LumenViaeWeb.Router, "GET", sample, "localhost")
     {_view, _action, _opts, live_session} = info.phoenix_live_view
     live_session
   end
 
-  test "every console page sits in the admin live_session, behind the admin hook" do
+  # AshAdmin's pages live in a live_session of their own (:ash_admin), which
+  # still keeps them apart from the site; what matters is the hook.
+  test "every console page sits in a console live_session, behind the admin hook" do
     routes = console_routes()
     assert length(routes) >= 10, "expected the console's LiveViews, found #{length(routes)}"
+    assert Enum.any?(routes, &String.starts_with?(&1.path, "/admin/data"))
 
     for route <- routes do
       live_session = live_session_of(route.path)
 
-      assert live_session.name == :admin,
-             "#{route.path} is in live_session #{inspect(live_session.name)}, not :admin"
+      assert live_session.name in [:admin, :ash_admin],
+             "#{route.path} is in live_session #{inspect(live_session.name)}, not a console one"
 
       assert Enum.any?(
                live_session.extra.on_mount,
@@ -62,6 +65,18 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
 
     # And that HTTP request is the one the plug turns away.
     assert redirected_to(get(conn, "/admin/meditations")) == "/admin/login"
+  end
+
+  test "AshAdmin is behind the same guard", %{conn: conn} do
+    assert redirected_to(get(conn, "/admin/data")) == "/admin/login"
+
+    {:ok, view, _html} = live(conn, "/")
+    assert {:error, {:redirect, %{to: to}}} = live_redirect(view, to: "/admin/data")
+    assert URI.parse(to).path == "/admin/data"
+
+    signed_in = Plug.Test.init_test_session(conn, %{admin_authenticated: true})
+    assert {:ok, _view, html} = live(signed_in, "/admin/data")
+    assert html =~ "Rosary"
   end
 
   test "live navigation from the login page into the console is forced through HTTP",

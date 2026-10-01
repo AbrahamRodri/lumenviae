@@ -25,7 +25,7 @@ defmodule LumenViaeWeb.Components.MeditationFilters do
     <div>
       <p :if={@description} class="text-[0.8125rem] text-admin-ink-soft mb-3">{@description}</p>
 
-      <.form for={%{}} phx-change="update_filters">
+      <.form for={%{}} id="meditation-filters" phx-change="update_filters">
         <div class="grid gap-3 md:grid-cols-3">
           <.filter_select
             name="category"
