@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
   # The list answers "what is the public being served?" unless asked
   # otherwise, so visibility starts at "visible" rather than at "everything".
   @default_visibility "visible"
-  @visibility_options ~w(visible hidden all)
+  @visibility_options ~w(visible hidden archived empty all)
 
   def mount(_params, _session, socket) do
     {:ok,
@@ -95,7 +95,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
       total: length(sets),
       live: length(live),
       hidden: length(hidden),
-      empty: Enum.count(live, &(SetFiltering.meditation_count(&1, stats) == 0)),
+      hidden_empty: Enum.count(hidden, &(SetFiltering.meditation_count(&1, stats) == 0)),
       incomplete:
         Enum.count(live, fn set ->
           SetFiltering.meditation_count(set, stats) !=
@@ -134,7 +134,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
       category: allowed(params["category"], Categories.slugs()),
       label: allowed(params["label"], ["none" | Labels.vocabulary()]),
       visibility: allowed(params["visibility"], @visibility_options) || @default_visibility,
-      completeness: allowed(params["completeness"], ~w(complete incomplete empty)),
+      completeness: allowed(params["completeness"], ~w(complete incomplete)),
       artwork: allowed(params["artwork"], ~w(missing unpublishable served)),
       sort: allowed(params["sort"], @sort_options) || @default_sort
     }
@@ -158,6 +158,16 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
 
   defp allowed(value, options) do
     if value in options, do: value
+  end
+
+  @doc """
+  What the Hidden tile says under its number: the two reasons a set is
+  hidden, and how many of each.
+  """
+  def hidden_hint(%{hidden: 0}), do: "None withdrawn or empty"
+
+  def hidden_hint(%{hidden: hidden, hidden_empty: empty}) do
+    "#{hidden - empty} with an archived meditation, #{empty} with none yet"
   end
 
   def filters_applied?(filters) do

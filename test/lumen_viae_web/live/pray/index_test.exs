@@ -34,4 +34,16 @@ defmodule LumenViaeWeb.Live.Pray.IndexTest do
     refute html =~ "<break"
     refute html =~ "&lt;break"
   end
+
+  # An empty set is a hidden set. The page used to redirect home with a
+  # flash the public layout never showed; it now answers as it does for any
+  # set the public cannot see.
+  test "a set with no meditations is a 404, like any hidden set", %{conn: conn} do
+    {:ok, set} = Rosary.create_meditation_set(%{name: "Not filled yet", category: "joyful"})
+
+    error =
+      assert_raise Ash.Error.Invalid, fn -> live(conn, "/meditation-sets/#{set.id}/pray") end
+
+    assert Plug.Exception.status(error) == 404
+  end
 end

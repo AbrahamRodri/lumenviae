@@ -139,7 +139,8 @@ defmodule LumenViaeWeb.API.ContractTest do
     end
 
     test "labels is an empty array rather than null when a set has none", %{conn: conn} do
-      {:ok, _} = Rosary.create_meditation_set(%{name: "Bare", category: "joyful"})
+      {:ok, bare} = Rosary.create_meditation_set(%{name: "Bare", category: "joyful"})
+      LumenViae.Test.Sets.with_meditation(bare)
 
       [summary] =
         conn

@@ -44,8 +44,8 @@ defmodule LumenViae.Rosary do
   than code here:
 
     * **Visibility.** A set is hidden from public surfaces when any of its
-      meditations is archived. That is `MeditationSet`'s `visible?`
-      calculation and its `:visible` read.
+      meditations is archived, or when it has none. That is
+      `MeditationSet`'s `visible?` calculation and its `:visible` read.
     * **Prayer order.** A set's meditations are ordered by the join row, so
       `set_memberships` is sorted and `meditations` is read through it.
     * **Byline.** A set's byline is its own or the one its meditations agree
@@ -78,15 +78,15 @@ defmodule LumenViae.Rosary do
       action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
 
       # The sets the public may see. Both read through :visible, so a set
-      # hidden by an archived meditation is absent from the list and a
-      # not-found error by id.
+      # hidden by an archived meditation, or holding none yet, is absent
+      # from the list and a not-found error by id.
       list LumenViae.Rosary.MeditationSet, :visible_meditation_sets, :visible, paginate_with: nil
 
       get LumenViae.Rosary.MeditationSet, :meditation_set, :visible,
         hide_inputs: [:category],
         allow_nil?: true,
         description:
-          "One set the public may see, by id. Null when it does not exist or is hidden by an archived meditation."
+          "One set the public may see, by id. Null when it does not exist or is hidden: it holds an archived meditation, or no meditations yet."
     end
 
     # The one public write. LumenViaeWeb.GraphqlSchema puts the same guard
@@ -667,10 +667,11 @@ defmodule LumenViae.Rosary do
 
   ## Visible meditation sets (public surfaces)
   #
-  # A set is "visible" when none of its meditations are archived. Archiving a
-  # single meditation therefore hides every set that contains it from the
-  # public site and the iOS API, while the admin functions above keep
-  # returning everything. The rule is MeditationSet's `visible?`
+  # A set is "visible" when it has at least one meditation and none of them
+  # is archived. Archiving a single meditation therefore hides every set
+  # that contains it from the public site and both APIs, and a set stays
+  # hidden until it is given its first meditation, while the admin functions
+  # above keep returning everything. The rule is MeditationSet's `visible?`
   # calculation, and these all go through its `:visible` read:
   #
   #   * list_visible_meditation_sets!/0
@@ -681,8 +682,9 @@ defmodule LumenViae.Rosary do
 
   @doc """
   Same as `get_meditation_set_with_ordered_meditations!/1` but raises its
-  404 when the set contains an archived meditation too, so hidden sets
-  cannot be reached by direct URL.
+  404 for a hidden set too - one holding an archived meditation, or none at
+  all - so hidden sets cannot be reached by direct URL. A set it returns
+  always has at least one meditation.
   """
   def get_visible_meditation_set_with_ordered_meditations!(id) do
     MeditationSet
@@ -702,7 +704,7 @@ defmodule LumenViae.Rosary do
 
   Returns `{:ok, set}`, or `{:error, :not_found}` for a set that does not
   exist, is not an id at all, is a number no id could ever be, or is hidden
-  because one of its meditations is archived. The bang version stays for
+  because one of its meditations is archived or it has none. The bang version stays for
   the pages, where a 404 by exception is the right answer; the API wants
   the error in hand so it goes through the fallback controller and comes
   back in the same envelope as every other error.
@@ -740,8 +742,10 @@ defmodule LumenViae.Rosary do
   defp set_id(_id), do: :error
 
   @doc """
-  Returns a MapSet of ids of sets that are hidden from public surfaces
-  because they contain at least one archived meditation.
+  Returns a MapSet of ids of sets that are hidden from public surfaces:
+  those containing at least one archived meditation, and those with no
+  meditations yet. `meditation_set_stats/0` says which of the two a set is,
+  since an empty set is the one with no entry there.
   """
   def hidden_meditation_set_ids do
     MeditationSet

@@ -280,10 +280,10 @@ type RootQueryType {
     voice: String
   ): [MeditationNarration!]
 
-  "The sets the public may see: those with no archived meditation. By category and then in creation order, optionally narrowed to one category. Never paginated."
+  "The sets the public may see: those with at least one meditation and none archived. By category and then in creation order, optionally narrowed to one category. Never paginated."
   visibleMeditationSets(category: String): [MeditationSet!]!
 
-  "One set the public may see, by id. Null when it does not exist or is hidden by an archived meditation."
+  "One set the public may see, by id. Null when it does not exist or is hidden: it holds an archived meditation, or no meditations yet."
   meditationSet(
     "The id of the record"
     id: ID!

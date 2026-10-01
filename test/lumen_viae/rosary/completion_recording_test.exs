@@ -71,10 +71,10 @@ defmodule LumenViae.Rosary.CompletionRecordingTest do
     # no longer see: a set downloaded for offline prayer and hidden since
     # was still prayed. That stays.
     test "still records a completion for a hidden set" do
-      set = create_set() |> hide()
-
-      assert {:ok, completion} = Rosary.record_completion(set.id, %{source: "ios"})
-      assert completion.meditation_set_id == set.id
+      for set <- [create_set() |> hide(), create_set()] do
+        assert {:ok, completion} = Rosary.record_completion(set.id, %{source: "ios"})
+        assert completion.meditation_set_id == set.id
+      end
     end
 
     # The row is written with no place, and the lookup that fills one in
@@ -91,7 +91,7 @@ defmodule LumenViae.Rosary.CompletionRecordingTest do
 
   describe "the app's own action" do
     test "records the set and whether it was prayed aloud, and nothing else is the client's to say" do
-      set = create_set()
+      set = create_set() |> LumenViae.Test.Sets.with_meditation()
 
       {:ok, completion} =
         from_app(%{meditation_set_id: set.id, prayed_aloud: true},
@@ -108,7 +108,7 @@ defmodule LumenViae.Rosary.CompletionRecordingTest do
     end
 
     test "has no input for the surface, the address or the moment" do
-      set = create_set()
+      set = create_set() |> LumenViae.Test.Sets.with_meditation()
 
       for extra <- [
             %{source: "web"},
@@ -125,11 +125,14 @@ defmodule LumenViae.Rosary.CompletionRecordingTest do
 
     test "refuses a hidden set exactly as it refuses a missing one" do
       hidden = create_set() |> hide()
+      empty = create_set()
 
       assert {:error, hidden_error} = from_app(%{meditation_set_id: hidden.id})
+      assert {:error, empty_error} = from_app(%{meditation_set_id: empty.id})
       assert {:error, missing_error} = from_app(%{meditation_set_id: 999_999})
 
       assert Rosary.error_details(hidden_error) == %{meditation_set_id: ["does not exist"]}
+      assert Rosary.error_details(empty_error) == %{meditation_set_id: ["does not exist"]}
       assert Rosary.error_details(missing_error) == %{meditation_set_id: ["does not exist"]}
       assert Rosary.count_total_completions() == 0
     end

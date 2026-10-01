@@ -43,7 +43,8 @@ relaxed until no installed build calls it.
 
 ### GET /api/meditation-sets?category=
 
-- **S1.** `?category=seven_sorrows` returns a set created in that category,
+- **S1.** `?category=seven_sorrows` returns a set created in that category
+  (with a meditation in it: an empty set is hidden),
   with `data[].category == "seven_sorrows"` exactly. The app sends the raw
   values `joyful`, `sorrowful`, `glorious`, `luminous`, `seven_sorrows`, and
   always sends `category`; no build calls the list unfiltered.
@@ -187,6 +188,12 @@ adds the Office. 4.0 (HEAD) adds `/voices`, `/rosary/audio`, `narrations`,
 
 Callers: MeditationSelectionViewModel, Explore search,
 MeditationCacheService, OfflineContentService (every category).
+
+Which sets are listed: those the public may see, which is every set with
+at least one meditation and none archived. A set a curator has created
+but not yet filled is not listed, and answers 404 by id, exactly as a set
+withdrawn by an archived meditation does. A build only ever sees fewer
+sets for this; the shape of each is unchanged.
 
 `data: [MeditationSetSummary]`. Required: `id` Int, `name` String,
 `category` String. Optional: `description`, `labels` ([String]),

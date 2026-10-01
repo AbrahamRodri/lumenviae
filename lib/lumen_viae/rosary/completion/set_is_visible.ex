@@ -2,9 +2,9 @@ defmodule LumenViae.Rosary.Completion.SetIsVisible do
   @moduledoc """
   Requires the set being completed to be one the public can see.
 
-  A set hidden by an archived meditation answers exactly as a set that was
-  never there, so a client cannot use the write to learn that a hidden set
-  exists.
+  A hidden set - one holding an archived meditation, or none yet - answers
+  exactly as a set that was never there, so a client cannot use the write
+  to learn that a hidden set exists.
   """
   use Ash.Resource.Validation
 

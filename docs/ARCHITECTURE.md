@@ -192,13 +192,17 @@ hand-written joins out of the contexts; a relationship path in an
 expression cannot drift the way a join can.
 
 **Visibility.** A meditation set is hidden from the public site and both
-APIs when any of its meditations is archived. Archiving one meditation
-therefore hides every set containing it, while the admin keeps seeing
-everything.
+APIs when any of its meditations is archived, or when it has no
+meditations at all. Archiving one meditation therefore hides every set
+containing it, and a set is not public between being created and being
+given its first meditation: there is nothing in it to pray, and listing it
+would offer a page that cannot open. The admin keeps seeing everything.
 
 ```elixir
 # LumenViae.Rosary.MeditationSet
-calculate :visible?, :boolean, expr(not exists(meditations, not is_nil(archived_at)))
+calculate :visible?,
+          :boolean,
+          expr(exists(meditations, true) and not exists(meditations, not is_nil(archived_at)))
 
 read :visible do
   argument :category, :string
@@ -208,8 +212,12 @@ end
 ```
 
 `:visible` is the only read the public surfaces come through, so a hidden
-set cannot be listed and answers not-found by id. The same expression,
-inverted, gives the admin its list of hidden sets.
+set cannot be listed and answers not-found by id, on the pray page as much
+as in either API. The same expression, inverted, gives the admin its list
+of hidden sets, and the console says which of the two reasons applies: the
+dashboard and the sets list count "hidden by an archived meditation" and
+"no meditations yet" separately, each with a filter that lists exactly
+those rows.
 
 **Prayer order.** A set's order lives on the join row, not on the
 meditations, and a many-to-many cannot be sorted by its join row. So
@@ -665,7 +673,8 @@ a list filter have to be added together, or the link goes nowhere useful.
 ### Health reports on live content only
 
 The dashboard's checklist counts problems with content the public can reach.
-A set hidden because one of its meditations is archived is **one** problem,
+A set hidden because one of its meditations is archived, or because it has
+none yet, is **one** problem,
 listed once under its own heading - not counted again under "no artwork",
 "incomplete" and "no labels". Rows that read zero are dropped entirely, so
 "nothing outstanding" means the list is genuinely empty.

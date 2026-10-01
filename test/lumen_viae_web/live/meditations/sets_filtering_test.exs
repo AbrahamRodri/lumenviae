@@ -112,7 +112,25 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FilteringTest do
 
       assert ids(SetFiltering.filter_sets(sets, %{completeness: "complete"}, context)) == [1, 4]
       assert ids(SetFiltering.filter_sets(sets, %{completeness: "incomplete"}, context)) == [2, 3]
-      assert ids(SetFiltering.filter_sets(sets, %{completeness: "empty"}, context)) == [3]
+    end
+
+    # A set is hidden for one of two reasons, and each has its own filter so
+    # a count on the dashboard can link to exactly the rows it counted.
+    test "separates the two reasons a set is hidden" do
+      live = set(%{id: 1})
+      withdrawn = set(%{id: 2})
+      empty = set(%{id: 3})
+      sets = [live, withdrawn, empty]
+      context = %{hidden_ids: MapSet.new([2, 3]), stats: stats(%{1 => 5, 2 => 5})}
+
+      assert ids(SetFiltering.filter_sets(sets, %{visibility: "hidden"}, context)) == [2, 3]
+      assert ids(SetFiltering.filter_sets(sets, %{visibility: "archived"}, context)) == [2]
+      assert ids(SetFiltering.filter_sets(sets, %{visibility: "empty"}, context)) == [3]
+      assert ids(SetFiltering.filter_sets(sets, %{visibility: "visible"}, context)) == [1]
+
+      assert SetFiltering.hidden_reason(live, context.hidden_ids, context.stats) == nil
+      assert SetFiltering.hidden_reason(withdrawn, context.hidden_ids, context.stats) == :archived
+      assert SetFiltering.hidden_reason(empty, context.hidden_ids, context.stats) == :empty
     end
 
     test "query matches name, description, and labels" do

@@ -44,6 +44,7 @@ defmodule LumenViae.Rosary.VisibleSetTest do
 
     test "accepts the id as the string a URL segment gives it" do
       set = create_set()
+      add_meditation(set, 1)
 
       assert {:ok, fetched} = Rosary.fetch_visible_meditation_set(to_string(set.id))
       assert fetched.id == set.id
@@ -57,11 +58,24 @@ defmodule LumenViae.Rosary.VisibleSetTest do
       assert fetched.derived_author == "St. Alphonsus Liguori"
     end
 
-    test "returns a set with no meditations at all" do
+    # A set between being created and being given its first meditation has
+    # nothing to pray. It is hidden, and so indistinguishable from absent.
+    test "declines a set with no meditations, exactly as if it were missing" do
       set = create_set()
 
+      assert Rosary.fetch_visible_meditation_set(set.id) == {:error, :not_found}
+    end
+
+    test "returns the set once it has its first meditation, and not after it loses it" do
+      set = create_set()
+      meditation = add_meditation(set, 1)
+
       assert {:ok, fetched} = Rosary.fetch_visible_meditation_set(set.id)
-      assert fetched.meditations == []
+      assert Enum.map(fetched.meditations, & &1.id) == [meditation.id]
+
+      :ok = Rosary.remove_meditation_from_set(set.id, meditation.id)
+
+      assert Rosary.fetch_visible_meditation_set(set.id) == {:error, :not_found}
     end
 
     test "declines a set that does not exist" do

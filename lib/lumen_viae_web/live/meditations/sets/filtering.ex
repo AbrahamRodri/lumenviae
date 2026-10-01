@@ -15,14 +15,19 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Filtering do
     * `:category` - set category string ("joyful", "sorrowful", ...)
     * `:label` - sets carrying this exact label, or "none" for sets carrying
       no label at all (which the app files under "More" in its picker)
-    * `:visibility` - "visible", "hidden", or "all" (requires the MapSet of
-      hidden set ids from `LumenViae.Rosary.hidden_meditation_set_ids/0`).
-      The list defaults to "visible": the admin's normal question is about
-      what the public is being served, and a set pulled out of circulation
-      by an archived meditation is noise in the answer.
-    * `:completeness` - "complete", "incomplete" (wrong meditation count for
-      the category), or "empty" (requires the stats map from
-      `LumenViae.Rosary.meditation_set_stats/0`)
+    * `:visibility` - "visible", "hidden", "archived", "empty" or "all"
+      (requires the MapSet of hidden set ids from
+      `LumenViae.Rosary.hidden_meditation_set_ids/0`, and the stats map to
+      tell the two kinds of hidden apart). "hidden" is every hidden set;
+      "archived" is the ones holding an archived meditation and "empty" the
+      ones with no meditations yet, which are the two reasons a set is
+      hidden. The list defaults to "visible": the admin's normal question
+      is about what the public is being served, and a set out of
+      circulation is noise in the answer.
+    * `:completeness` - "complete" or "incomplete" (wrong meditation count
+      for the category; requires the stats map from
+      `LumenViae.Rosary.meditation_set_stats/0`). A set with no meditations
+      at all is hidden, so it is found under `:visibility`.
     * `:artwork` - "missing" (no painting and no author portrait to fall
       back on), "unpublishable" (a painting that is not being served for
       want of a description or a licence), or "served"
@@ -39,7 +44,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Filtering do
     sets
     |> filter_by_category(filters[:category])
     |> filter_by_label(filters[:label])
-    |> filter_by_visibility(filters[:visibility], hidden_ids)
+    |> filter_by_visibility(filters[:visibility], hidden_ids, stats)
     |> filter_by_completeness(filters[:completeness], stats)
     |> filter_by_artwork(filters[:artwork])
     |> filter_by_query(filters[:query])
@@ -74,6 +79,19 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Filtering do
   end
 
   @doc """
+  Why the public cannot see this set, or nil when it can: `:empty` when it
+  has no meditations yet, `:archived` when it holds an archived one. An
+  empty set holds nothing, so the two never overlap.
+  """
+  def hidden_reason(set, hidden_ids, stats) do
+    cond do
+      not MapSet.member?(hidden_ids, set.id) -> nil
+      meditation_count(set, stats) == 0 -> :empty
+      true -> :archived
+    end
+  end
+
+  @doc """
   What the app will draw for this set: `:served` when a publishable painting
   or portrait exists, `:unpublishable` when a painting is uploaded but still
   needs a description or a licence, `:missing` when there is nothing at all.
@@ -102,14 +120,19 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Filtering do
     Enum.filter(sets, &(label in &1.labels))
   end
 
-  defp filter_by_visibility(sets, "hidden", hidden_ids) do
+  defp filter_by_visibility(sets, "hidden", hidden_ids, _stats) do
     Enum.filter(sets, &MapSet.member?(hidden_ids, &1.id))
   end
 
-  defp filter_by_visibility(sets, "all", _hidden_ids), do: sets
+  defp filter_by_visibility(sets, reason, hidden_ids, stats) when reason in ~w(archived empty) do
+    wanted = String.to_existing_atom(reason)
+    Enum.filter(sets, &(hidden_reason(&1, hidden_ids, stats) == wanted))
+  end
+
+  defp filter_by_visibility(sets, "all", _hidden_ids, _stats), do: sets
 
   # "visible" and anything unrecognised, including nil: the default.
-  defp filter_by_visibility(sets, _visible, hidden_ids) do
+  defp filter_by_visibility(sets, _visible, hidden_ids, _stats) do
     Enum.reject(sets, &MapSet.member?(hidden_ids, &1.id))
   end
 
@@ -125,10 +148,6 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Filtering do
       sets,
       &(meditation_count(&1, stats) != Rosary.expected_meditation_count(&1.category))
     )
-  end
-
-  defp filter_by_completeness(sets, "empty", stats) do
-    Enum.filter(sets, &(meditation_count(&1, stats) == 0))
   end
 
   defp filter_by_completeness(sets, _, _stats), do: sets

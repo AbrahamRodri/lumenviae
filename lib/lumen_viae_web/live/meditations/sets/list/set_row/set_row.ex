@@ -15,7 +15,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetRow do
 
   attr :set, :map, required: true
   attr :stats, :map, required: true
-  attr :hidden, :boolean, default: false
+  attr :hidden_reason, :atom, default: nil, values: [nil, :archived, :empty]
   attr :expanded, :boolean, default: false
   attr :expanded_meditations, :list, default: []
 
@@ -112,13 +112,20 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List.SetRow do
 
       <td>
         <.admin_badge
-          :if={@hidden}
+          :if={@hidden_reason == :archived}
           tone="red"
           title="This set contains an archived meditation, so neither the site nor the app will show it."
         >
           Hidden
         </.admin_badge>
-        <.admin_badge :if={!@hidden} tone="green">Live</.admin_badge>
+        <.admin_badge
+          :if={@hidden_reason == :empty}
+          tone="red"
+          title="This set has no meditations yet, so neither the site nor the app will show it."
+        >
+          Hidden
+        </.admin_badge>
+        <.admin_badge :if={is_nil(@hidden_reason)} tone="green">Live</.admin_badge>
       </td>
 
       <td>

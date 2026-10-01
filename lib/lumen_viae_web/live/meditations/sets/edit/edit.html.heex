@@ -17,6 +17,11 @@
     </.link>
   </:actions>
 
+  <.callout :if={@selected_set_meditations == []} tone="caution">
+    This set has no meditations yet, so neither the public site nor the app will show it. Add
+    its first meditation below and it goes live.
+  </.callout>
+
   <.callout :if={Enum.any?(@selected_set_meditations, & &1.archived_at)} tone="danger">
     This set contains an archived meditation, so neither the public site nor the app will show
     it. Restore the meditation or remove it from the set to bring the set back.

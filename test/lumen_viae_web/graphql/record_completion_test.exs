@@ -32,6 +32,7 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
     on_exit(fn -> Application.put_env(:lumen_viae, :completions_per_hour, previous) end)
 
     {:ok, set} = Rosary.create_meditation_set(%{name: "Prayed over GraphQL", category: "joyful"})
+    LumenViae.Test.Sets.with_meditation(set)
 
     %{set: set, conn: from_a_new_address(build_conn())}
   end
@@ -71,20 +72,27 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
       Rosary.create_mystery(%{name: "Hidden", category: "joyful", order: 900_001})
 
     {:ok, archived} = Rosary.create_meditation(%{content: "Withdrawn", mystery_id: mystery.id})
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, archived.id, 1)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, archived.id, 2)
     {:ok, _} = Rosary.archive_meditation(archived)
+
+    # A set with no meditations yet is hidden too.
+    {:ok, empty} = Rosary.create_meditation_set(%{name: "Not filled yet", category: "joyful"})
 
     hidden = record(conn, set.id)
     missing = record(conn, 999_999_999)
+    # From another address: this test's budget per address is two.
+    unfilled = record(from_a_new_address(build_conn()), empty.id)
 
     # A validation failure is answered in the mutation's own errors, beside
     # a null result, with a code; nothing at the top level.
     refute Map.has_key?(hidden, "errors")
     %{"result" => nil, "errors" => [hidden_error]} = hidden["data"]["recordCompletion"]
+    %{"result" => nil, "errors" => [unfilled_error]} = unfilled["data"]["recordCompletion"]
     %{"result" => nil, "errors" => [missing_error]} = missing["data"]["recordCompletion"]
 
     assert %{"code" => "invalid_argument", "fields" => ["meditationSetId"]} = hidden_error
     assert hidden_error == missing_error
+    assert unfilled_error == missing_error
   end
 
   test "a client cannot choose the source or its address", %{conn: conn, set: set} do
