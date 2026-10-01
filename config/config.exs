@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :ash_graphql, authorize_update_destroy_with_error?: true
+
 config :ash,
   allow_forbidden_field_for_relationships_by_default?: true,
   include_embedded_source_by_default?: false,
@@ -18,13 +20,17 @@ config :ash,
   read_action_after_action_hooks_in_order?: true,
   bulk_actions_default_to_errors?: true,
   transaction_rollback_on_error?: true,
-  redact_sensitive_values_in_errors?: true
+  redact_sensitive_values_in_errors?: true,
+  # Count string length in codepoints, as Postgres does, so an attribute's
+  # max_length: 255 means exactly what the varchar(255) column means.
+  default_string_length_count: :codepoints
 
 config :spark,
   formatter: [
     remove_parens?: true,
     "Ash.Resource": [
       section_order: [
+        :graphql,
         :postgres,
         :resource,
         :code_interface,
@@ -42,7 +48,9 @@ config :spark,
         :identities
       ]
     ],
-    "Ash.Domain": [section_order: [:resources, :policies, :authorization, :domain, :execution]]
+    "Ash.Domain": [
+      section_order: [:graphql, :resources, :policies, :authorization, :domain, :execution]
+    ]
   ]
 
 config :lumen_viae,
