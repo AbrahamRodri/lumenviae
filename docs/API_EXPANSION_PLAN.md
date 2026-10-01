@@ -1006,9 +1006,11 @@ Explicitly rejected: any device or install identifier however rotated, and aband
 >
 > * the address is truncated to a network prefix before it is written and the
 >   full value is never stored, so a household cannot be singled out;
-> * the timezone and locale are read from `TimeZone.current` and
->   `Locale.current`, neither of which needs a permission prompt and neither of
->   which is Core Location;
+> * the timezone and locale are accepted from a client that sends them and
+>   stored as given. No build of the app has sent them (see
+>   docs/IOS_API_CONTRACT.md, section 6); on iOS they would come from
+>   `TimeZone.current` and `Locale.current`, neither of which needs a
+>   permission prompt and neither of which is Core Location;
 > * nothing links two completions to each other, so there is still no way to
 >   assemble a history of one person's praying.
 >

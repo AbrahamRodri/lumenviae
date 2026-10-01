@@ -73,10 +73,13 @@ defmodule LumenViae.Rosary.ResourcesTest do
     # no data layer (the GraphQL API's narration voices and spoken Rosary),
     # which map no table.
     test "registers all seven table-backed resources" do
+      # The paper trail's version resources have tables too; they are the
+      # content resources' shadows, not resources of their own.
       table_backed =
         Rosary
         |> Ash.Domain.Info.resources()
         |> Enum.filter(&(Ash.DataLayer.data_layer(&1) == AshPostgres.DataLayer))
+        |> Enum.reject(&String.ends_with?(inspect(&1), ".Version"))
 
       assert Enum.sort(table_backed) == Enum.sort(@resources)
     end

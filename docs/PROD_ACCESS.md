@@ -3,12 +3,13 @@
 How to inspect and edit production data for the `lumenviae` Fly app.
 
 The standing default for both reports and edits is a **remote IEx shell
-against the running release**, using the app's own context modules. There is
+against the running release**, using the app's own domain module. There is
 no separate database user and no direct `psql` access by default.
 
-Rationale: `LumenViae.Rosary` and friends already expose the queries reports
-need, and writes go through Ecto changesets, so app invariants (label
-vocabulary, category inclusion, meditation set ordering) are enforced. Raw
+Rationale: `LumenViae.Rosary` already exposes the reads reports need, and writes go
+through the resources' actions, so app invariants (label vocabulary,
+category inclusion, meditation set ordering) are enforced and every change
+leaves a version row. Raw
 SQL bypasses all of it - an `UPDATE` on `meditation_set_meditations` can
 silently corrupt set ordering in a way nothing notices until someone prays
 that set.
@@ -47,7 +48,7 @@ fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'IO.inspect(LumenVia
 ```
 
 `eval` is different: it boots a separate node WITHOUT starting the
-application, so context functions crash there with "could not lookup Ecto
+application, so domain functions crash there with "could not lookup Ecto
 repo LumenViae.Repo because it was not started". Use `eval` only for the
 `LumenViae.Release.*` tasks, which start the repo themselves via
 `Ecto.Migrator.with_repo`. For everything else: `rpc` for one-off reads,
@@ -59,7 +60,7 @@ are per-machine.
 
 ## Reports (read-only)
 
-Use the context functions rather than writing queries where one exists:
+Use the domain functions rather than writing queries where one exists:
 
 ```elixir
 alias LumenViae.Rosary
@@ -93,7 +94,7 @@ Rosary.list_meditation_sets!()
 |> Enum.map(&{&1.name, &1.category, count.(&1)})
 ```
 
-Meditation counts per category, composed from context functions rather than
+Meditation counts per category, composed from domain functions rather than
 a query:
 
 ```elixir
@@ -106,8 +107,8 @@ Rosary.list_mysteries!()
 end)
 ```
 
-If no context function fits, add one rather than writing a query in the
-shell. `LumenViae.Rosary` is the only way into the domain (see
+If no domain function fits, add a read action and a `define` rather than
+writing a query in the shell. `LumenViae.Rosary` is the only way into the domain (see
 docs/ARCHITECTURE.md), and a one-off `Repo.all` here is both unreviewed and
 unrepeatable.
 
@@ -128,7 +129,8 @@ Use the shell only when the admin UI cannot express the change. When you do:
    ```
 2. Read the current value first, so the change can be reversed by hand.
 3. Go through `LumenViae.Rosary`, never `Repo.update_all/2` or raw SQL. The
-   context functions run the same validations the admin UI does.
+   domain functions run the same validations the admin UI does, and leave
+   the same version row.
 
 ```elixir
 set = Rosary.get_meditation_set!(42)

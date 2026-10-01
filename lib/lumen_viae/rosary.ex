@@ -63,7 +63,7 @@ defmodule LumenViae.Rosary do
   """
   use Ash.Domain,
     otp_app: :lumen_viae,
-    extensions: [AshGraphql.Domain, AshPhoenix, AshAdmin.Domain]
+    extensions: [AshGraphql.Domain, AshPhoenix, AshAdmin.Domain, AshPaperTrail.Domain]
 
   # The GraphQL API's Rosary queries. See docs/GRAPHQL.md.
   graphql do
@@ -120,6 +120,14 @@ defmodule LumenViae.Rosary do
   # an API response renders beside it.
   @prayer_order [set_memberships: [meditation: [:mystery, :narrations]]]
   @visible_set_in_prayer_order @prayer_order ++ @set_context
+
+  # The version resources of Mystery, Meditation, MeditationSet and Author
+  # belong to the domain too, so AshAdmin can browse them. They have no
+  # GraphQL type and no code interface: a version is read by an admin
+  # looking for what changed, not by a client.
+  paper_trail do
+    include_versions? true
+  end
 
   resources do
     resource LumenViae.Rosary.Mystery do

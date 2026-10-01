@@ -1,6 +1,7 @@
 [
   import_deps: [
     :ash_graphql,
+    :ash_paper_trail,
     :absinthe,
     :ash_phoenix,
     :ash_postgres,
