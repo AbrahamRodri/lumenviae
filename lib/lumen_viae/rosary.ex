@@ -1,47 +1,65 @@
 defmodule LumenViae.Rosary do
   @moduledoc """
-  The Rosary Primary Context: the single public entry point to the domain.
+  The Rosary domain: the single public entry point to everything about
+  mysteries, meditations, meditation sets, narrations, authors and
+  completions.
 
   Everything outside the domain - LiveViews, controllers, mix tasks, the
-  release module, the curation services - talks to this module and only this
-  module. Behind it sit one Secondary Context per resource, each owning all
-  database access for its own table:
+  release module, the curation services, the GraphQL schema - talks to
+  this module and only this module. It is an `Ash.Domain`, and its public
+  functions are mostly the code interface defined in the `resources` block:
+  one function per action, named for what it does rather than for the
+  resource it runs on (`create_meditation/1`, `list_visible_meditation_sets!/0`).
 
-    * `LumenViae.Rosary.Mysteries`
-    * `LumenViae.Rosary.Meditations`
-    * `LumenViae.Rosary.MeditationSets`
-    * `LumenViae.Rosary.SetMemberships`
-    * `LumenViae.Rosary.Completions`
-    * `LumenViae.Rosary.Authors`
-    * `LumenViae.Rosary.Narrations`
+  ## The resources
 
-  Simple, single-resource operations pass straight through. The work this
-  module does itself is composition across resources, because a Secondary
-  Context never queries another resource's table:
+    * `LumenViae.Rosary.Mystery`
+    * `LumenViae.Rosary.Meditation`
+    * `LumenViae.Rosary.MeditationSet`
+    * `LumenViae.Rosary.SetMembership`
+    * `LumenViae.Rosary.Narration`
+    * `LumenViae.Rosary.Author`
+    * `LumenViae.Rosary.Completion`
+
+  plus two with no table, `LumenViae.Rosary.NarrationVoice` and
+  `LumenViae.Rosary.SpokenRosary`, which give the APIs the configured
+  voices and the spoken Rosary.
+
+  Nothing outside `lib/lumen_viae/rosary/` names a resource, calls `Ash`
+  on one, or touches the Repo for Rosary data; `test/lumen_viae/rosary/context_rules_test.exs`
+  fails the build if something does. The value modules (`Categories`,
+  `Labels`, `Artwork`, `Voices`, `PrayerAudio`) hold vocabulary and pure
+  calculation and may be called from any layer.
+
+  ## What is a function here, and what is an action
+
+  Reads are defined with their raising form only (`list_mysteries!/0`), so
+  that they hand back the list itself; `get_*!/1` raises an error that
+  renders as a 404. Writes keep both forms and return `{:ok, record}` or
+  `{:error, %Ash.Error.Invalid{}}`. A page builds its form with
+  `form_to_<function>`; a dry run asks for the changeset with
+  `changeset_to_<function>`.
+
+  The rules that span resources are expressions on the resources rather
+  than code here:
 
     * **Visibility.** A set is hidden from public surfaces when any of its
-      meditations is archived. `Meditations` reports which meditations are
-      archived, `SetMemberships` maps those to set ids, and `MeditationSets`
-      excludes them.
+      meditations is archived. That is `MeditationSet`'s `visible?`
+      calculation and its `:visible` read.
     * **Prayer order.** A set's meditations are ordered by the join row, so
-      `SetMemberships` supplies the ordered ids and `Meditations` fetches
-      the records.
-    * **Reporting.** Completion and set statistics come back keyed by id
-      from each context and are folded together here.
-    * **Narration.** A meditation's recordings come from `Narrations`, the
-      voices they are in from the `Voices` value module, and the presigned
-      URLs a client plays are assembled here, default voice first.
+      `set_memberships` is sorted and `meditations` is read through it.
+    * **Byline.** A set's byline is its own or the one its meditations agree
+      on: the `derived_*` and `byline_*` calculations.
+    * **Reporting.** Counts are aggregates and calculations on the sets and
+      the completions; the dashboard's folds are the functions below.
 
-  See `docs/ARCHITECTURE.md` for the rules this layout follows.
+  What stays as plain functions is the composition no action can express:
+  signing narration URLs (`sign_meditation_narrations/1`, `fetch_meditation_audio/2`),
+  the artwork a set actually shows (`artwork_record/1`), and the figures
+  the admin dashboard draws.
 
-  ## Moving to Ash
-
-  This module is also the `Ash.Domain` the Rosary resources belong to
-  (`LumenViae.Rosary.Mystery`, `Meditation`, `MeditationSet`,
-  `SetMembership`, `Completion`, `Author`, `Narration`). While the port is
-  under way the resources sit beside the Secondary Contexts above, mapped
-  onto the same tables, and the Secondary Contexts still serve every
-  function below. See `docs/ASH_MIGRATION.md`.
+  See `docs/ARCHITECTURE.md` for the rules this layout follows and
+  `docs/ASH_MIGRATION.md` for how it got here.
   """
   use Ash.Domain,
     otp_app: :lumen_viae,
@@ -248,13 +266,9 @@ defmodule LumenViae.Rosary do
   `"field: message; field: message"`, for the reports the import and the
   mix tasks print. Takes what a write returns in its `{:error, _}`, or a
   changeset from one of the `changeset_to_*` functions.
-  """
-  def error_summary(%Ecto.Changeset{} = changeset) do
-    changeset
-    |> Ecto.Changeset.traverse_errors(fn {message, _opts} -> message end)
-    |> Enum.map_join("; ", fn {field, messages} -> "#{field}: #{Enum.join(messages, ", ")}" end)
-  end
 
+  `error_details/1` is the same reading as a map, for the API's envelope.
+  """
   def error_summary(%{errors: errors}) when is_list(errors) do
     errors
     |> Enum.flat_map(&form_errors/1)

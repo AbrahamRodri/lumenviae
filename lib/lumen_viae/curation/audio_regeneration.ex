@@ -174,11 +174,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
     "#{pause_count} pause(s), #{custom_count} custom"
   end
 
-  defp format_error(%Ecto.Changeset{} = changeset) do
-    changeset
-    |> Ecto.Changeset.traverse_errors(fn {msg, _opts} -> msg end)
-    |> Enum.map_join("; ", fn {field, messages} -> "#{field}: #{Enum.join(messages, ", ")}" end)
-  end
+  defp format_error(%Ash.Error.Invalid{} = error), do: Rosary.error_summary(error)
 
   defp format_error(reason) when is_binary(reason), do: reason
   defp format_error(reason), do: reason |> inspect() |> String.slice(0, 200)

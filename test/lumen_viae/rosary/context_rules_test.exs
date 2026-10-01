@@ -1,27 +1,41 @@
 defmodule LumenViae.Rosary.ContextRulesTest do
   @moduledoc """
-  Enforces the context rules described in `docs/ARCHITECTURE.md`.
+  Enforces the rules the Rosary domain follows, as described in
+  `docs/ARCHITECTURE.md` and restated for Ash in `docs/ASH_MIGRATION.md`.
 
   These are structural rules, so they are checked by reading source files
-  rather than by calling code. Without a test, a rule like "only Secondary
-  Contexts touch the Repo" survives exactly as long as everyone remembers
-  it.
+  rather than by calling code. Without a test, a rule like "nothing outside
+  the domain names a resource" survives exactly as long as everyone
+  remembers it; this one fails the build.
+
+  The four rules:
+
+    1. Nothing outside `lib/lumen_viae/rosary/` names a Rosary resource.
+       Outside code calls `LumenViae.Rosary` and the value modules.
+    2. Nothing outside the domain calls `Ash` on a Rosary resource, or
+       builds an `AshPhoenix.Form` for one directly. Add a code interface.
+    3. Nothing touches the Repo or `Ecto.Query` for Rosary data. Queries
+       are read actions, filters, preparations, aggregates and calculations
+       on the resource. `release.ex` keeps `Ecto.Migrator`.
+    4. Cross-resource composition uses relationships, not joins written by
+       hand.
   """
   use ExUnit.Case, async: true
 
   @domain_root "lib/lumen_viae/rosary"
-  @primary_context "lib/lumen_viae/rosary.ex"
+  @domain "lib/lumen_viae/rosary.ex"
 
-  @secondary_contexts ~w(mysteries meditations meditation_sets set_memberships completions authors narrations)
+  @resources ~w(mystery meditation meditation_set set_membership completion author narration)
 
-  # Value modules hold shared vocabulary, not state or queries, so any layer
-  # may call them (see docs/ARCHITECTURE.md, "Value modules").
+  # Value modules hold shared vocabulary and pure calculation, not state or
+  # queries, so any layer may call them (see docs/ARCHITECTURE.md, "Value
+  # modules").
   @value_modules ~w(categories labels artwork voices prayer_audio)
 
-  defp secondary_context_files,
-    do: Enum.map(@secondary_contexts, &"#{@domain_root}/#{&1}.ex")
+  defp module_name(name), do: "LumenViae.Rosary." <> Macro.camelize(name)
 
-  defp schema_files, do: Path.wildcard("#{@domain_root}/*/*.ex")
+  # The modules the web layer may name besides the domain itself.
+  defp web_allowed, do: ["LumenViae.Rosary" | Enum.map(@value_modules, &module_name/1)]
 
   # priv/repo/seeds.exs is checked alongside lib/ because it is real
   # application code that `mix setup` and `LumenViae.Release.seed/0` run;
@@ -35,125 +49,98 @@ defmodule LumenViae.Rosary.ContextRulesTest do
       ["priv/repo/seeds.exs"]
   end
 
-  defp read(path), do: {path, File.read!(path)}
-
-  defp offenders(files, predicate) do
-    files
-    |> Enum.map(&read/1)
-    |> Enum.filter(fn {path, source} -> predicate.(path, source) end)
-    |> Enum.map(&elem(&1, 0))
+  defp outside_domain do
+    Enum.reject(lib_files(), &(String.starts_with?(&1, @domain_root) or &1 == @domain))
   end
 
-  # Matches a fully qualified reference, so `LumenViae.Rosary.Meditations`
-  # does not also match `LumenViae.Rosary.Meditations.Meditation`.
+  defp read(path), do: {path, File.read!(path)}
+
+  # Matches a fully qualified reference, so `LumenViae.Rosary.Meditation`
+  # does not also match `LumenViae.Rosary.MeditationSet`.
   defp references?(source, module) do
     Regex.match?(~r/#{Regex.escape(module)}(?![A-Za-z0-9_.])/, source)
   end
 
-  defp module_name(segments), do: Enum.join(["LumenViae", "Rosary" | segments], ".")
-
-  defp camelize(name), do: name |> Macro.camelize()
-
-  test "the expected Secondary Contexts and schemas exist" do
-    for file <- secondary_context_files() do
-      assert File.exists?(file), "missing Secondary Context: #{file}"
+  test "the seven table-backed resources exist, one file each" do
+    for name <- @resources do
+      assert File.exists?("#{@domain_root}/#{name}.ex"), "missing resource: #{name}.ex"
     end
 
-    # Every Secondary Context has exactly one schema, in its own directory.
-    for name <- @secondary_contexts do
-      schemas = Path.wildcard("#{@domain_root}/#{name}/*.ex")
-
-      assert length(schemas) == 1,
-             "#{name} should own exactly one schema, found: #{inspect(schemas)}"
-    end
-
-    assert File.exists?(@primary_context)
+    assert File.exists?(@domain)
   end
 
-  test "rule 3: only Secondary Contexts talk to the Repo" do
-    allowed = ["lib/lumen_viae/repo.ex" | secondary_context_files()]
+  test "rule 1: nothing outside the domain names a Rosary resource" do
+    resources = Enum.map(@resources, &module_name/1)
 
     offenders =
-      offenders(lib_files(), fn path, source ->
-        path not in allowed and Regex.match?(~r/\bRepo\.\w/, source)
-      end)
+      for {path, source} <- Enum.map(outside_domain(), &read/1),
+          resource <- resources,
+          references?(source, resource),
+          do: "#{path} -> #{resource}"
 
     assert offenders == [],
            """
-           These modules reach the Repo directly. Move the query into the \
-           Secondary Context that owns the table:
+           Resources are private to LumenViae.Rosary. Call the domain's code \
+           interface instead:
 
            #{Enum.map_join(offenders, "\n", &"  - #{&1}")}
            """
   end
 
-  test "rule 1: schema modules hold no queries of their own" do
+  test "rule 2: nothing outside the domain calls Ash or builds an Ash form itself" do
     offenders =
-      offenders(schema_files(), fn _path, source -> Regex.match?(~r/\bRepo\.\w/, source) end)
-
-    assert offenders == [],
-           "schemas must stay changeset-only, but these query: #{inspect(offenders)}"
-  end
-
-  test "rule 4: nothing outside the domain calls a Secondary Context" do
-    outside = Enum.reject(lib_files(), &String.starts_with?(&1, @domain_root))
-    contexts = Enum.map(@secondary_contexts, &module_name([camelize(&1)]))
-
-    offenders =
-      for {path, source} <- Enum.map(outside, &read/1),
-          context <- contexts,
-          references?(source, context),
-          do: "#{path} -> #{context}"
+      for {path, source} <- Enum.map(outside_domain(), &read/1),
+          not String.starts_with?(path, "lib/lumen_viae/office"),
+          Regex.match?(
+            ~r/\bAsh\.(read|get|create|update|destroy|load|count|exists\?|bulk_\w+|Query|Changeset)\b/,
+            source
+          ) or
+            Regex.match?(~r/AshPhoenix\.Form\.for_(create|update|action|destroy)\b/, source),
+          do: path
 
     assert offenders == [],
            """
-           Secondary Contexts are private to LumenViae.Rosary. Add a function \
-           to the Primary Context instead:
+           Only the domain calls Ash on a Rosary resource. Add a code interface \
+           to LumenViae.Rosary, or use its form_to_* functions:
 
            #{Enum.map_join(offenders, "\n", &"  - #{&1}")}
            """
   end
 
-  test "rule 1: schemas are private to their own Secondary Context" do
-    schemas =
-      for name <- @secondary_contexts,
-          schema <- Path.wildcard("#{@domain_root}/#{name}/*.ex") do
-        schema_module =
-          schema |> Path.basename(".ex") |> camelize() |> then(&module_name([camelize(name), &1]))
+  test "rule 3: nothing touches the Repo or Ecto.Query for Rosary data" do
+    allowed = ["lib/lumen_viae/repo.ex", "lib/lumen_viae/release.ex"]
 
-        {name, schema_module}
-      end
-
-    # A schema may be named by its own Secondary Context, by its own
-    # directory (the schema itself), and by another schema declaring an Ecto
-    # association - an association has to name the other module by design.
-    # Nothing else may name it, not even another Secondary Context.
     offenders =
       for {path, source} <- Enum.map(lib_files(), &read/1),
-          {owner, schema_module} <- schemas,
-          references?(source, schema_module),
-          path != "#{@domain_root}/#{owner}.ex",
-          not String.starts_with?(path, "#{@domain_root}/#{owner}/"),
-          not schema_file?(path),
-          do: "#{path} -> #{schema_module}"
+          path not in allowed,
+          not String.starts_with?(path, "lib/lumen_viae/office"),
+          Regex.match?(~r/\bRepo\.\w|\bEcto\.Query\b|import Ecto\b/, source),
+          do: path
 
     assert offenders == [],
            """
-           Schemas are private to their Secondary Context. Go through \
-           LumenViae.Rosary instead:
+           Rosary data is read and written through the resources' actions, \
+           never through the Repo:
 
            #{Enum.map_join(offenders, "\n", &"  - #{&1}")}
            """
   end
 
-  defp schema_file?(path), do: path in schema_files()
+  test "rule 4: the resources compose through relationships, not joins written by hand" do
+    offenders =
+      for {path, source} <-
+            Enum.map(Path.wildcard("#{@domain_root}/**/*.ex") ++ [@domain], &read/1),
+          Regex.match?(~r/\bEcto\.Query\b|\bjoin:|\bfrom\s*\(?\s*\w+\s+in\s/, source),
+          do: path
 
-  test "value modules are the only domain modules the web layer may call directly" do
+    assert offenders == [],
+           "write the cross-resource rule as an expression on the resource: #{inspect(offenders)}"
+  end
+
+  test "value modules are the only domain modules the web layer may name directly" do
     web_files =
       Path.wildcard("lib/lumen_viae_web/**/*.ex") ++
         Path.wildcard("lib/lumen_viae_web/**/*.heex")
-
-    allowed = ["LumenViae.Rosary" | Enum.map(@value_modules, &module_name([camelize(&1)]))]
 
     offenders =
       for {path, source} <- Enum.map(web_files, &read/1),
@@ -161,7 +148,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
             Regex.scan(~r/LumenViae\.Rosary(?:\.[A-Z][A-Za-z0-9_]*)*/, source)
             |> Enum.map(&hd/1)
             |> Enum.uniq(),
-          module not in allowed,
+          module not in web_allowed(),
           do: "#{path} -> #{module}"
 
     assert offenders == [],
