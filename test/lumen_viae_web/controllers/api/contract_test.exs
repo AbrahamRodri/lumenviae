@@ -71,6 +71,50 @@ defmodule LumenViaeWeb.API.ContractTest do
     set
   end
 
+  describe "every /api route" do
+    # G1: production 301s lumenviae.fly.dev to www.lumenviae.org through
+    # CanonicalHost in the :browser pipeline. URLSession follows a 301 on a
+    # POST as a GET, so a completion would vanish with no error anywhere.
+    # The test host is localhost, so nothing but this can see it.
+    test "none passes through the :browser pipeline" do
+      api_routes =
+        Enum.filter(LumenViaeWeb.Router.__routes__(), &String.starts_with?(&1.path, "/api"))
+
+      assert api_routes != []
+
+      for route <- api_routes do
+        # __routes__/0 leaves the pipelines out; route_info/4 has them.
+        concrete = String.replace(route.path, ~r/:\w+/, "x")
+        verb = route.verb |> to_string() |> String.upcase()
+
+        assert %{route: route_path, pipe_through: pipes} =
+                 Phoenix.Router.route_info(LumenViaeWeb.Router, verb, concrete, "localhost")
+
+        assert route_path == route.path
+
+        refute :browser in pipes,
+               "#{verb} #{route.path} is behind :browser, which redirects the app's host"
+      end
+    end
+
+    # G2: URLSession's default Accept, which the app leaves on every GET.
+    test "the credential-free GET routes answer */* with 200 JSON", %{conn: conn} do
+      set = create_populated_set()
+      conn = Plug.Conn.put_req_header(conn, "accept", "*/*")
+
+      for path <- [
+            "/api/meditation-sets",
+            "/api/meditation-sets?category=joyful",
+            "/api/meditation-sets/#{set.id}",
+            "/api/voices",
+            "/api/mysteries",
+            "/api/office/versions"
+          ] do
+        assert conn |> get(path) |> json_response(200), "#{path} did not answer */* with JSON"
+      end
+    end
+  end
+
   describe "GET /api/meditation-sets" do
     test "every shipped summary key is present and correctly typed", %{conn: conn} do
       set = create_populated_set()
@@ -148,6 +192,103 @@ defmodule LumenViaeWeb.API.ContractTest do
                "the shipped app decodes #{key} on a nested mystery; removing it breaks installed builds"
       end
     end
+
+    # D1: only the summary asserted these before.
+    test "the set itself is correctly typed", %{conn: conn} do
+      set = create_populated_set()
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets/#{set.id}")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert is_integer(data["id"])
+      assert data["id"] == set.id
+      assert is_binary(data["name"])
+      assert is_binary(data["category"])
+    end
+
+    # D2: one bad element fails the whole set for the app, so every
+    # meditation is checked, including ones with every optional field null.
+    test "every meditation and its mystery are correctly typed", %{conn: conn} do
+      set = create_populated_set()
+
+      bare_mystery =
+        create_mystery(%{days_prayed: nil, description: nil, scripture_reference: nil})
+
+      {:ok, bare} = Rosary.create_meditation(%{content: "Bare", mystery_id: bare_mystery.id})
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, bare.id, 2)
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets/#{set.id}")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert length(data["meditations"]) == 2
+
+      for meditation <- data["meditations"] do
+        assert is_integer(meditation["id"])
+        assert is_binary(meditation["content"])
+
+        for key <- ~w(title author source audio_url) do
+          assert_string_or_nil(meditation[key], key)
+        end
+
+        assert is_list(meditation["narrations"])
+
+        for narration <- meditation["narrations"] do
+          assert is_binary(narration["voice"])
+          assert is_binary(narration["audio_url"])
+        end
+
+        mystery = meditation["mystery"]
+        assert is_map(mystery), "mystery must be a map, never null or an unloaded relation"
+        assert is_integer(mystery["id"])
+        assert is_binary(mystery["name"])
+        assert is_binary(mystery["category"])
+        assert is_integer(mystery["order"])
+
+        for key <- ~w(description scripture_reference days_prayed) do
+          assert_string_or_nil(mystery[key], "mystery.#{key}")
+        end
+      end
+    end
+
+    # D3: the player reads meditations[i] as decade i. Added in an order
+    # that is neither id order nor heap order.
+    test "meditations come back in prayer order, not id order", %{conn: conn} do
+      {:ok, set} = Rosary.create_meditation_set(%{name: "Ordered", category: "joyful"})
+      mystery = create_mystery()
+
+      [m1, m2, m3] =
+        for n <- 1..3 do
+          {:ok, m} = Rosary.create_meditation(%{content: "M#{n}", mystery_id: mystery.id})
+          m
+        end
+
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, m3.id, 1)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, m1.id, 2)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, m2.id, 3)
+
+      data =
+        conn
+        |> get(~p"/api/meditation-sets/#{set.id}")
+        |> json_response(200)
+        |> Map.fetch!("data")
+
+      assert Enum.map(data["meditations"], & &1["id"]) == [m3.id, m1.id, m2.id]
+    end
+
+    # D6: the app's URLCache honours this, and a cached response would
+    # replay presigned URLs after they expire.
+    test "the detail is never cached", %{conn: conn} do
+      set = create_populated_set()
+      conn = get(conn, ~p"/api/meditation-sets/#{set.id}")
+
+      assert get_resp_header(conn, "cache-control") == ["private, no-store"]
+    end
   end
 
   describe "GET /api/mysteries" do
@@ -191,6 +332,8 @@ defmodule LumenViaeWeb.API.ContractTest do
       end
 
       assert is_integer(data["id"])
+      # C2: equality alone would stay green if ids became UUIDs.
+      assert is_integer(data["meditation_set_id"])
       assert data["meditation_set_id"] == set.id
       # iOS decodes completed_at as a String, not a Date - it must stay a
       # string in the JSON even though the column is a timestamp.

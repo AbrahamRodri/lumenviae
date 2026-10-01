@@ -83,8 +83,8 @@
           </button>
         </div>
       </div>
-      
-<!-- Rosary bead progress (clickable) -->
+
+      <!-- Rosary bead progress (clickable) -->
       <div class="relative max-w-xs mx-auto mb-2">
         <div class="absolute top-1/2 inset-x-2 h-px bg-gold/20" aria-hidden="true"></div>
         <div class="relative flex justify-center items-center gap-3">
@@ -108,8 +108,7 @@
                     "w-2.5 h-2.5 bg-navy border-gold/40 hover:bg-gold/30"
                 end
               ]}
-            >
-            </button>
+            ></button>
           <% end %>
         </div>
       </div>
@@ -123,8 +122,8 @@
       ]}>
         Mystery {roman(@current_index + 1)} of {roman(@total_count)}
       </p>
-      
-<!-- Pray aloud, and the voice it is prayed in -->
+
+      <!-- Pray aloud, and the voice it is prayed in -->
       <div class="flex flex-wrap items-center justify-center gap-2 mt-3">
         <button
           type="button"
@@ -143,7 +142,7 @@
           {if @pray_aloud, do: "Praying aloud", else: "Pray aloud"}
         </button>
 
-        <form :if={length(@voices) > 1} phx-change="set_voice" class="inline-flex">
+        <form :if={length(@voices) > 1} id="voice-form" phx-change="set_voice" class="inline-flex">
           <label for="narration-voice" class="sr-only">Narration voice</label>
           <select
             id="narration-voice"
@@ -221,8 +220,8 @@
         </div>
       </div>
     </div>
-    
-<!-- Scrollable Content Area -->
+
+    <!-- Scrollable Content Area -->
     <div class="flex-1 overflow-y-auto mb-2 px-1 pb-6 md:pb-8">
       <div class={[
         if(@mobile_mode_enabled,
@@ -254,8 +253,8 @@
             <div class="h-px w-12 bg-gold/25"></div>
           </div>
         <% end %>
-        
-<!-- Audio Player -->
+
+        <!-- Audio Player -->
         <div class={[
           "flex justify-center",
           if(@mobile_mode_enabled,
@@ -277,8 +276,8 @@
             </p>
           <% end %>
         </div>
-        
-<!-- Mystery Description -->
+
+        <!-- Mystery Description -->
         <%= if !@mobile_mode_enabled do %>
           <%= if @meditation.mystery.description do %>
             <p class="font-garamond text-base md:text-lg text-cream/70 italic text-center max-w-xl mx-auto mb-5 pb-5 border-b border-gold/20">
@@ -286,8 +285,8 @@
             </p>
           <% end %>
         <% end %>
-        
-<!-- Meditation Content -->
+
+        <!-- Meditation Content -->
         <%= if !@mobile_mode_enabled do %>
           <%= if @meditation.title do %>
             <h3 class="font-cinzel text-base md:text-lg text-gold mb-3 mt-4 text-center">
@@ -299,8 +298,8 @@
             {@meditation.content}
           </div>
         <% end %>
-        
-<!-- Attribution -->
+
+        <!-- Attribution -->
         <%= if @meditation.author || @meditation.source do %>
           <div class={[
             if(@mobile_mode_enabled,
@@ -328,8 +327,8 @@
         <% end %>
       </div>
     </div>
-    
-<!-- Bottom Controls: Previous | Next -->
+
+    <!-- Bottom Controls: Previous | Next -->
     <%= if !@mobile_mode_enabled do %>
       <div class="flex-shrink-0 flex items-center justify-between gap-3 pb-3 text-cream">
         <button
@@ -363,8 +362,8 @@
       </div>
     <% end %>
   </div>
-  
-<!-- Mobile Mode: Large Tap Zones (Bottom Half of Screen) -->
+
+  <!-- Mobile Mode: Large Tap Zones (Bottom Half of Screen) -->
   <%= if @mobile_mode_enabled do %>
     <!-- Left Half: Previous -->
     <button
@@ -390,8 +389,8 @@
         <span class="font-cinzel tracking-[0.2em] uppercase text-gold text-sm">Previous</span>
       </div>
     </button>
-    
-<!-- Right Half: Next or Complete -->
+
+    <!-- Right Half: Next or Complete -->
     <%= if @current_index == @total_count - 1 do %>
       <button
         phx-click="complete"

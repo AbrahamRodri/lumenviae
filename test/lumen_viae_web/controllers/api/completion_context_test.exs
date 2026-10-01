@@ -51,6 +51,35 @@ defmodule LumenViaeWeb.API.CompletionContextTest do
     assert completion.locale == "en-US"
   end
 
+  # C1: every other test here posts an Elixir map, which never reaches the
+  # JSON parser. This is what URLSession actually puts on the wire.
+  describe "a raw JSON body, as the app sends it" do
+    defp post_json(conn, body) do
+      conn
+      |> Plug.Conn.put_req_header("content-type", "application/json")
+      |> Plug.Conn.put_req_header("accept", "application/json")
+      |> post(~p"/api/completions", body)
+    end
+
+    test "the current body, with prayed_aloud", %{conn: conn, set: set} do
+      body = Jason.encode!(%{meditation_set_id: set.id, prayed_aloud: true})
+
+      data = conn |> post_json(body) |> json_response(201) |> Map.fetch!("data")
+
+      assert data["meditation_set_id"] == set.id
+      assert last_completion().prayed_aloud == true
+    end
+
+    test "the 1.0 to 3.0 body, meditation_set_id alone", %{conn: conn, set: set} do
+      body = ~s({"meditation_set_id": #{set.id}})
+
+      data = conn |> post_json(body) |> json_response(201) |> Map.fetch!("data")
+
+      assert data["meditation_set_id"] == set.id
+      assert last_completion().prayed_aloud == nil
+    end
+  end
+
   test "an older build that sends neither still records a completion", %{conn: conn, set: set} do
     assert conn
            |> post(~p"/api/completions", %{meditation_set_id: set.id})

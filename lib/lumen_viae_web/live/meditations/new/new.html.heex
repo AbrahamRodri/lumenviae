@@ -6,7 +6,7 @@
   max_width="max-w-3xl"
 >
   <.panel title="Mystery" description="Narrow the list below to one category first, if it helps.">
-    <.form for={%{}} phx-change="filter_category">
+    <.form for={%{}} id="mystery-category-filter" phx-change="filter_category">
       <.filter_select
         name="category"
         label="Filter by category"

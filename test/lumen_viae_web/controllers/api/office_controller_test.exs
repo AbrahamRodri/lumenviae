@@ -23,6 +23,41 @@ defmodule LumenViaeWeb.API.OfficeControllerTest do
     end)
   end
 
+  # The app decodes these as Optional<String>.
+  defp assert_cell(nil, _where), do: :ok
+
+  defp assert_cell(cell, where) when is_map(cell) do
+    assert is_list(cell["lines"]), "#{where} lines must be a list, never null"
+    assert Enum.all?(cell["lines"], &is_binary/1), "#{where} lines must all be strings"
+    assert_string_or_nil(cell["title"], "#{where} title")
+    assert_string_or_nil(cell["note"], "#{where} note")
+  end
+
+  defp assert_day_entry(day) do
+    assert is_binary(day["date"]) and day["date"] =~ ~r/^\d{4}-\d{2}-\d{2}$/
+
+    case day["celebration"] do
+      nil ->
+        :ok
+
+      celebration when is_map(celebration) ->
+        assert is_binary(celebration["title"])
+        assert_string_or_nil(celebration["rank"], "celebration rank")
+    end
+
+    case day["detail"] do
+      nil ->
+        :ok
+
+      detail when is_map(detail) ->
+        assert_string_or_nil(detail["label"], "detail label")
+        assert_string_or_nil(detail["text"], "detail text")
+    end
+
+    assert_string_or_nil(day["note"], "note")
+    assert_string_or_nil(day["letter"], "letter")
+  end
+
   describe "GET /api/office/:date/:hour" do
     test "answers the hour as data", %{conn: conn} do
       stub_page("laudes_2026-08-24.html")
@@ -49,6 +84,35 @@ defmodule LumenViaeWeb.API.OfficeControllerTest do
 
       assert data["source"]["name"] == "The Divinum Officium Project"
       assert data["source"]["url"] =~ "divinumofficium.com"
+    end
+
+    # O1: one null `lines` or one non-string line fails the whole hour for
+    # the app, so every section is checked, both sides.
+    test "every section is typed the way the app decodes it", %{conn: conn} do
+      stub_page("laudes_2026-08-24.html")
+
+      sections =
+        conn
+        |> get(~p"/api/office/1902-03-04/laudes")
+        |> json_response(200)
+        |> get_in(["data", "sections"])
+
+      assert sections != []
+
+      for {section, index} <- Enum.with_index(sections) do
+        assert_cell(section["latin"], "section #{index} latin")
+        assert_cell(section["vernacular"], "section #{index} vernacular")
+      end
+    end
+
+    # G2: URLSession's default Accept.
+    test "answers */* with 200 JSON", %{conn: conn} do
+      stub_page("laudes_2026-08-24.html")
+
+      assert conn
+             |> Plug.Conn.put_req_header("accept", "*/*")
+             |> get(~p"/api/office/1902-03-05/laudes")
+             |> json_response(200)
     end
 
     test "passes version and language through to the engine", %{conn: conn} do
@@ -122,6 +186,35 @@ defmodule LumenViaeWeb.API.OfficeControllerTest do
       assert data["detail"]["label"] == "Tempora"
       assert data["version"] == "rubrics-1960"
     end
+
+    # O2
+    test "the day entry is typed the way the app decodes it", %{conn: conn} do
+      stub_page("kalendar_2026-08.html")
+
+      data = conn |> get(~p"/api/office/1902-05-24") |> json_response(200) |> Map.fetch!("data")
+
+      assert_day_entry(data)
+    end
+
+    # O3: as on the hour route, so the app's URLCache may keep it.
+    test "a success may be cached publicly", %{conn: conn} do
+      stub_page("kalendar_2026-08.html")
+
+      conn = get(conn, ~p"/api/office/1902-05-25")
+
+      assert response(conn, 200)
+      assert get_resp_header(conn, "cache-control") == ["public, max-age=86400"]
+    end
+
+    # G2
+    test "answers */* with 200 JSON", %{conn: conn} do
+      stub_page("kalendar_2026-08.html")
+
+      assert conn
+             |> Plug.Conn.put_req_header("accept", "*/*")
+             |> get(~p"/api/office/1902-05-26")
+             |> json_response(200)
+    end
   end
 
   describe "GET /api/office/calendar/:year/:month" do
@@ -135,6 +228,41 @@ defmodule LumenViaeWeb.API.OfficeControllerTest do
       assert data["month"] == 7
       assert length(data["days"]) == 31
       assert hd(data["days"])["date"] == "1901-07-01"
+    end
+
+    # O2
+    test "every day of the month is typed and in ascending date order", %{conn: conn} do
+      stub_page("kalendar_2026-08.html")
+
+      days =
+        conn
+        |> get(~p"/api/office/calendar/1902/7")
+        |> json_response(200)
+        |> get_in(["data", "days"])
+
+      assert days != []
+      Enum.each(days, &assert_day_entry/1)
+      assert Enum.map(days, & &1["date"]) == days |> Enum.map(& &1["date"]) |> Enum.sort()
+    end
+
+    # O3
+    test "a success may be cached publicly", %{conn: conn} do
+      stub_page("kalendar_2026-08.html")
+
+      conn = get(conn, ~p"/api/office/calendar/1902/8")
+
+      assert response(conn, 200)
+      assert get_resp_header(conn, "cache-control") == ["public, max-age=86400"]
+    end
+
+    # G2
+    test "answers */* with 200 JSON", %{conn: conn} do
+      stub_page("kalendar_2026-08.html")
+
+      assert conn
+             |> Plug.Conn.put_req_header("accept", "*/*")
+             |> get(~p"/api/office/calendar/1902/9")
+             |> json_response(200)
     end
 
     test "an impossible month is a 400", %{conn: conn} do
@@ -158,6 +286,14 @@ defmodule LumenViaeWeb.API.OfficeControllerTest do
                ~w(matutinum laudes prima tertia sexta nona vesperae completorium)
 
       assert Enum.any?(data["languages"], &(&1["slug"] == "english"))
+    end
+
+    # G2
+    test "answers */* with 200 JSON", %{conn: conn} do
+      assert conn
+             |> Plug.Conn.put_req_header("accept", "*/*")
+             |> get(~p"/api/office/versions")
+             |> json_response(200)
     end
   end
 end
