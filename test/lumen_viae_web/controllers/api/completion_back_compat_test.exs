@@ -32,6 +32,7 @@ defmodule LumenViaeWeb.API.CompletionBackCompatTest do
   @agents [
     "LumenViae/1.0 CFNetwork/1494.0.7 Darwin/23.4.0",
     "LumenViae/1.2.3 CFNetwork/1568.100.1 Darwin/24.0.0",
+    "app/5 CFNetwork/3826.500.111 Darwin/25.0.0",
     "lumenviae/1.0 CFNetwork/978.0.7 Darwin/18.7.0",
     "Lumen%20Viae/1 CFNetwork/1410.0.3 Darwin/22.6.0",
     "MyApp/1 CFNetwork/1220.1 Darwin/20.3.0",
@@ -70,7 +71,20 @@ defmodule LumenViaeWeb.API.CompletionBackCompatTest do
     assert is_binary(body["data"]["completed_at"])
   end
 
-  test "a string id, which is what the app actually sends, still works", %{conn: conn, set: set} do
+  test "a JSON integer id, which is what the app actually sends, works", %{conn: conn, set: set} do
+    assert %{"data" => %{"meditation_set_id" => id}} =
+             conn
+             |> Plug.Conn.put_req_header(
+               "user-agent",
+               "app/5 CFNetwork/3826.500.111 Darwin/25.0.0"
+             )
+             |> post(~p"/api/completions", %{meditation_set_id: set.id, prayed_aloud: true})
+             |> json_response(201)
+
+    assert id == set.id
+  end
+
+  test "a string id, which no build of the app sends, still works", %{conn: conn, set: set} do
     assert conn
            |> Plug.Conn.put_req_header(
              "user-agent",
