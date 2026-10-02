@@ -137,6 +137,29 @@ defmodule LumenViae.Rosary.ContextRulesTest do
            "write the cross-resource rule as an expression on the resource: #{inspect(offenders)}"
   end
 
+  # The Accounts domain follows rule 1 too. The router is the one exception:
+  # AshAuthentication's `auth_routes` macro must name the admin resource.
+  # `LumenViae.Accounts.Checks.ActorIsAdmin` is not a resource, and every
+  # resource's policies name it.
+  test "nothing outside the Accounts domain names an Accounts resource" do
+    offenders =
+      for path <- lib_files(),
+          not String.starts_with?(path, "lib/lumen_viae/accounts"),
+          path != "lib/lumen_viae_web/router.ex",
+          {_path, source} = read(path),
+          resource <- ["LumenViae.Accounts.Admin", "LumenViae.Accounts.Token"],
+          references?(source, resource),
+          do: "#{path} -> #{resource}"
+
+    assert offenders == [],
+           """
+           Accounts resources are private to LumenViae.Accounts. Call its \
+           code interface instead:
+
+           #{Enum.map_join(offenders, "\n", &"  - #{&1}")}
+           """
+  end
+
   test "value modules are the only domain modules the web layer may name directly" do
     web_files =
       Path.wildcard("lib/lumen_viae_web/**/*.ex") ++

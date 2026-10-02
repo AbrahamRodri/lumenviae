@@ -114,6 +114,46 @@ save fails; a blank focal point is refused rather than silently recentred.
 additive, so the old release runs against the new functions and tables
 without noticing them. Nothing needs to be rolled back in the database.
 
+### Admin accounts and policies
+
+The branch that put AshAuthentication and Ash policies in (`claude/ash-auth-policies`)
+replaces the shared `ADMIN_PASSWORD` with admin accounts. Deploy it in this
+order:
+
+1. **Check the app's Postgres role can create `citext`.** The first
+   migration runs `CREATE EXTENSION IF NOT EXISTS "citext"`, which needs a
+   superuser or the database owner. Through the IEx remote:
+   `LumenViae.Repo.query!("select rolsuper from pg_roles where rolname = current_user")`
+   and `LumenViae.Repo.query!("select * from pg_extension where extname = 'citext'")`.
+   If the role cannot and the extension is not there, create it once as the
+   `postgres` user (see docs/PROD_ACCESS.md, "If you need psql anyway")
+   before deploying; the migration then does nothing.
+2. **Merge to `main`, which deploys.** Two migrations, both additive:
+   - `20261002023417_add_admin_accounts_extensions_1` installs `citext`.
+   - `20261002023418_add_admin_accounts` creates `admins` and
+     `admin_tokens`. No existing table is altered.
+   No new secret is needed: the token signing key is derived from
+   `SECRET_KEY_BASE` unless `TOKEN_SIGNING_SECRET` is set.
+3. **Create the first admin straight away.** Until you do, nobody can sign
+   in to the console; the public site and both APIs are unaffected.
+   `LumenViae.Release.create_admin("you@example.com")`, as in
+   docs/PROD_ACCESS.md, "Console admins". Copy the printed password.
+4. **Smoke test**:
+   - The iOS endpoints answer as before: `GET /api/meditation-sets?category=joyful`,
+     one set's detail, `/api/voices`, `/api/rosary/audio`, and
+     `POST /api/completions`.
+   - `POST /api/graphql` with `{ voices { slug default } }` answers, and
+     `recordCompletion` still records.
+   - In a fresh browser, `/admin` and `/admin/data` send you to
+     `/admin/login`; signing in opens the dashboard; editing a set saves;
+     signing out and pressing Back does not reopen the console.
+5. **Remove `ADMIN_PASSWORD`** once signing in works:
+   `fly secrets unset ADMIN_PASSWORD --app lumenviae`.
+
+Rolling back is redeploying the previous `main`, which signs in with
+`ADMIN_PASSWORD` again, so do step 5 only once you are sure. The new
+tables are ignored by the old release.
+
 ## The repository after this
 
 - New tables and columns come from `mix ash.codegen <name>`, never a

@@ -104,10 +104,9 @@ Four things are deliberately not on the resources. The category, label,
 licence and voice vocabularies are value modules, because templates and
 forms need them too. Signing a narration's URL is a function on the
 domain, because it talks to S3. The figures the admin dashboard draws are
-functions on the domain, because they fold what the resources answer. And
-authorization is nowhere: the console is behind one shared login, and the
-public APIs read through actions that already return only what the public
-may see (see docs/GRAPHQL.md for why there are no policies).
+functions on the domain, because they fold what the resources answer.
+Authorization, on the other hand, *is* on the resources, as Ash policies:
+see "Who may do what" below.
 
 ### The domain is the only way in
 
@@ -160,13 +159,91 @@ can express: signing narration URLs, the artwork a set actually shows
 ### These rules are tested
 
 `test/lumen_viae/rosary/context_rules_test.exs` reads the source tree and
-fails the build when something outside the domain names a resource, calls
+fails the build when something outside the domain names a resource (Rosary
+or Accounts), calls
 `Ash` on one or builds an Ash form for one directly; when anything but the
 Repo module and `release.ex` uses `Repo.`, `Ecto.Query` or imports Ecto;
 when a resource composes with a hand-written join instead of a
 relationship; and when the web layer names any domain module other than
 `LumenViae.Rosary` and the value modules. A rule that is only written down
 survives as long as everyone remembers it; this one fails the build.
+
+### Who may do what
+
+Every resource runs `Ash.Policy.Authorizer`, so every call is authorized
+against an actor, and a call with no actor is the public. There are two
+kinds of actor: nobody (`nil`, a visitor, the iOS app, GraphQL) and an
+admin (`LumenViae.Accounts.Admin`, signed in to the console). Every
+resource's policies begin with `bypass LumenViae.Accounts.Checks.ActorIsAdmin`,
+so an admin may do anything. Everyone else gets this, and nothing more:
+
+| Resource | Without an admin |
+| --- | --- |
+| MeditationSet | read the sets that are `visible?` |
+| SetMembership | read the memberships of a visible set |
+| Meditation | read one that is not archived; `:audio_for` |
+| Narration | read one whose meditation is not archived |
+| Mystery, Author, NarrationVoice, SpokenRosary | read |
+| Completion | `:record` and `:record_from_app` only, never read |
+| Office.Breviary | its generic actions |
+| Admin, Token | nothing; AshAuthentication's own sign-in reads bypass |
+| the PaperTrail version resources | nothing |
+
+Every write other than recording a completion is admin only. The public
+actions (`MeditationSet.:visible` and the rest) still filter as they did,
+so the policy and the action agree, and a policy is the second filter, not
+the only one.
+
+`visible?` is built on two `exists` aggregates with `authorize? false`.
+That is load-bearing: an *authorized* "has an archived meditation" check
+runs as the anonymous actor, who cannot read archived meditations, so it
+would always be false and hidden sets would appear. Any new rule that
+asks about rows the public cannot read must do the same.
+
+**Passing the actor.** Every `LumenViae.Rosary` function that calls Ash
+takes a trailing `opts` and passes `actor:` or `authorize?:` through.
+
+- Admin LiveViews pass `actor: @current_admin` on every read, write and
+  `form_to_*`.
+- Public LiveViews pass `@current_admin`, which is `nil` for a visitor, so
+  an admin browsing the site sees it as an admin would.
+- REST controllers and GraphQL have no session (the `:api` pipeline), so
+  they always run as nobody. GraphQL stays sessionless on purpose: reading
+  the cookie on a CSRF-free JSON endpoint would make any future admin
+  mutation forgeable.
+- AshAdmin at `/admin/data` runs as the signed-in admin, through
+  `LumenViaeWeb.AshAdminActor`, with its actor picker hidden.
+
+**`authorize?: false` is allowed in exactly these places,** each with a
+comment giving the reason: mix tasks, `LumenViae.Release` and
+`priv/repo/seeds.exs` (whoever holds that shell already holds the
+database); `Completion.Stamp`, which stamps the place on a completion after
+it is committed, as the system; the `visible?` aggregates above; and the dev
+sign-in in `Plugs.RequireAdmin`, which has no actor yet because signing one
+in is the point. Anywhere else, pass the actor. Curation services take
+`actor:` or `authorize?:` from their caller and thread it; they never decide
+for themselves.
+
+`test/lumen_viae/policies_test.exs` checks every row of the table above,
+for nobody and for an admin, and `test/lumen_viae_web/graphql/authorization_test.exs`
+checks the same from GraphQL.
+
+### The Accounts domain
+
+`LumenViae.Accounts` holds the console's admins and their session tokens.
+They are not Rosary content, so they are their own domain, and the same
+entry-point rule holds: nothing outside `lib/lumen_viae/accounts/` names
+`Admin` or `Token`. The router is the one exception, because
+AshAuthentication's `auth_routes` macro has to name the resource. The
+context rules test checks this too.
+
+Sign-in is AshAuthentication's password strategy (email and bcrypt). There
+is no registration, no reset email and no magic link, because production
+has no mailer: admins are made and their passwords replaced from a
+production shell (docs/PROD_ACCESS.md). Tokens are stored, so signing out
+revokes the token, and resetting a password signs that admin out
+everywhere. The signing secret is `TOKEN_SIGNING_SECRET` if set, and
+otherwise derived from `SECRET_KEY_BASE` (`LumenViae.Accounts.Secrets`).
 
 ### The two APIs
 
@@ -804,10 +881,28 @@ the following day. `Completion`'s `local_day` calculation stamps the value
 as UTC first and only then converts - `(? AT TIME ZONE 'UTC') AT TIME ZONE ?`
 - and the doubled clause is load-bearing.
 
+### Signing in
+
+`/admin/login` is the console's own LiveView, in the console's design. It
+posts a plain form to AshAuthentication's password route
+(`/admin/auth/admin/password/sign_in`), and `LumenViaeWeb.AuthController`
+puts the admin in the session or sends the form back with a flash. Signing
+out is `DELETE /admin/session`, which revokes the token.
+
+`:load_from_session` in the browser pipeline puts the signed-in admin in
+`current_admin`, having checked the token is genuine, unexpired and not
+revoked. `Plugs.RequireAdmin` refuses an `/admin` request without one, and
+the `{LumenViaeWeb.UserAuth, :require_admin}` hook refuses an admin socket
+without one, so live navigation into the console is checked too. The site,
+the login and the console are three live sessions for that reason.
+
 ### Signing in locally
 
-`config/dev.exs` sets `:skip_admin_auth`, and
-`LumenViaeWeb.Plugs.RequireAdmin` marks the session authenticated instead of
-skipping the check - so the LiveView mount hook, the logout form and
-`@is_admin` all behave exactly as they do in production. No other config file
-sets the flag and `runtime.exs` never reads it.
+`config/dev.exs` sets `:skip_admin_auth`, and `Plugs.RequireAdmin` signs in
+the dev admin (`dev-admin@lumenviae.local`, which `priv/repo/seeds.exs`
+creates in development only, with a random password) instead of turning
+the check off. So the console runs its policies with a real actor, and the
+LiveView hook, the sign-out form and `@is_admin` all behave exactly as in
+production. The branch is compiled only in dev and test, so it does not
+exist in a release, and no other config file sets the flag. If `/admin`
+sends you to the login page locally, run `mix run priv/repo/seeds.exs`.

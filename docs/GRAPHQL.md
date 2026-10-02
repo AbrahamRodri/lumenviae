@@ -118,11 +118,17 @@ archived meditation or none at all; an archived meditation serves no
 audio), and every type lists the relationships it shows, so there is no
 path from a visible set to a hidden one or to a meditation outside any
 public set. The only write is `recordCompletion`, guarded like
-`POST /api/completions`. There are no Ash policies: the console and
-AshAdmin read everything as they always have, and policies would add a
-second filter to them for no protection the actions and whitelists do not
-already give. Revisit this if GraphQL ever exposes another write, or a
-read the admin should see differently from the public.
+`POST /api/completions`.
+
+The resources' Ash policies are the second line (docs/ARCHITECTURE.md,
+"Who may do what"). GraphQL has no session, so every operation runs with
+no actor, as the public: a hidden set or an archived meditation is refused
+by the policy even if a future query reached it, and every write but
+`recordCompletion` is refused outright. This is deliberate. Reading the
+console's cookie here, on a JSON endpoint with no CSRF token, would make
+any admin mutation forgeable by another site, and nothing in this API
+needs an admin. `test/lumen_viae_web/graphql/authorization_test.exs` pins
+this behaviour.
 
 ## Meditation sets
 

@@ -146,6 +146,31 @@ Rules for anyone (including Claude) operating this shell:
 - Never `Repo.delete_all/1` or `TRUNCATE`.
 - Do not print secrets. Check presence only, e.g. `System.get_env("X") != nil`.
 
+## Console admins
+
+Nobody can sign up to the console, and production has no mailer, so admins
+are made and their passwords replaced from this shell. Both commands print
+a generated password once; nothing stores it in the clear, so copy it
+before closing the terminal.
+
+```
+fly ssh console --app lumenviae -C "/app/bin/lumen_viae eval 'LumenViae.Release.create_admin(\"you@example.com\")'"
+fly ssh console --app lumenviae -C "/app/bin/lumen_viae eval 'LumenViae.Release.reset_admin_password(\"you@example.com\")'"
+```
+
+A reset signs that admin out everywhere. Both run with `authorize?: false`,
+because before the first admin exists there is nobody to act as, and
+whoever holds this shell already holds the database. The session tokens
+are signed with `TOKEN_SIGNING_SECRET` if it is set, and otherwise with a
+key derived from `SECRET_KEY_BASE`, so rotating `SECRET_KEY_BASE` signs
+every admin out.
+
+`ADMIN_PASSWORD` is no longer read. Remove it once an admin account works:
+
+```
+fly secrets unset ADMIN_PASSWORD --app lumenviae
+```
+
 ## Seeding and imports
 
 Seeding is idempotent (matched on category + order, existing rows skipped):

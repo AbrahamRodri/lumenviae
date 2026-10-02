@@ -141,9 +141,26 @@ tokens, Work Sans only, and the `LumenViaeWeb.Components.Admin` vocabulary
 console token outside it. See the admin console section in
 docs/ARCHITECTURE.md before touching an admin screen.
 
-Local development skips the admin login (`config :lumen_viae,
-:skip_admin_auth, true` in `config/dev.exs`), so `/admin` opens straight
-from the browser.
+Admins sign in at `/admin/login` with an email and password
+(AshAuthentication's password strategy, `LumenViae.Accounts`). There is no
+sign-up and no reset email: make an admin with
+`LumenViae.Release.create_admin(email)` and replace a password with
+`LumenViae.Release.reset_admin_password(email)`, from a production shell
+(docs/PROD_ACCESS.md).
+
+Local development skips the login (`config :lumen_viae, :skip_admin_auth,
+true` in `config/dev.exs`) by signing in the seeded dev admin, so `/admin`
+opens straight from the browser and the policies still run with a real
+actor.
+
+### Authorization
+Every resource has Ash policies: an admin may do anything, the public may
+read only what is visible and record a completion. Pass the actor on every
+domain call (`actor: @current_admin` in the console and the public
+LiveViews); REST and GraphQL run with no actor. `authorize?: false` belongs
+only in mix tasks, `LumenViae.Release`, seeds and the few system writes
+docs/ARCHITECTURE.md lists, each with a comment saying why. Read "Who may
+do what" in docs/ARCHITECTURE.md before adding an action or a policy.
 
 ### Styling
 - Tailwind CSS v4 with a custom theme in `assets/css/app.css`
