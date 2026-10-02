@@ -30,6 +30,7 @@ defmodule LumenViaeWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import LumenViaeWeb.ConnCase
+      import LumenViae.Test.Admins
     end
   end
 

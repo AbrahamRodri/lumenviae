@@ -12,25 +12,33 @@ defmodule LumenViae.Rosary.CompletionRecordingTest do
 
   defp create_set do
     {:ok, set} =
-      Rosary.create_meditation_set(%{
-        name: "Recorded #{System.unique_integer([:positive])}",
-        category: "joyful"
-      })
+      Rosary.create_meditation_set(
+        %{
+          name: "Recorded #{System.unique_integer([:positive])}",
+          category: "joyful"
+        },
+        actor: admin()
+      )
 
     set
   end
 
   defp hide(set) do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
-    {:ok, meditation} = Rosary.create_meditation(%{content: "Text.", mystery_id: mystery.id})
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
-    {:ok, _} = Rosary.archive_meditation(meditation)
+    {:ok, meditation} =
+      Rosary.create_meditation(%{content: "Text.", mystery_id: mystery.id}, actor: admin())
+
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
+    {:ok, _} = Rosary.archive_meditation(meditation, actor: admin())
     set
   end
 
@@ -48,7 +56,7 @@ defmodule LumenViae.Rosary.CompletionRecordingTest do
 
       assert %DateTime{time_zone: "Etc/UTC", microsecond: {0, 0}} = completion.completed_at
       assert DateTime.compare(completion.completed_at, before) in [:gt, :eq]
-      assert Rosary.count_total_completions() == 1
+      assert Rosary.count_total_completions(actor: admin()) == 1
     end
 
     test "takes a string id, as a form or an older client might send one" do
@@ -120,7 +128,7 @@ defmodule LumenViae.Rosary.CompletionRecordingTest do
                  from_app(Map.merge(%{meditation_set_id: set.id}, extra))
       end
 
-      assert Rosary.count_total_completions() == 0
+      assert Rosary.count_total_completions(actor: admin()) == 0
     end
 
     test "refuses a hidden set exactly as it refuses a missing one" do
@@ -134,7 +142,7 @@ defmodule LumenViae.Rosary.CompletionRecordingTest do
       assert Rosary.error_details(hidden_error) == %{meditation_set_id: ["does not exist"]}
       assert Rosary.error_details(empty_error) == %{meditation_set_id: ["does not exist"]}
       assert Rosary.error_details(missing_error) == %{meditation_set_id: ["does not exist"]}
-      assert Rosary.count_total_completions() == 0
+      assert Rosary.count_total_completions(actor: admin()) == 0
     end
 
     test "requires the set" do

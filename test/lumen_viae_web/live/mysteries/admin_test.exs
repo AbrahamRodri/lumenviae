@@ -6,12 +6,12 @@ defmodule LumenViaeWeb.Live.Mysteries.AdminTest do
   alias LumenViae.Rosary
 
   setup %{conn: conn} do
-    {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true})}
+    {:ok, conn: log_in_admin(conn)}
   end
 
   defp create_mystery(attrs \\ %{}) do
     defaults = %{name: "The Annunciation", category: "joyful", order: 1}
-    {:ok, mystery} = Rosary.create_mystery(Map.merge(defaults, attrs))
+    {:ok, mystery} = Rosary.create_mystery(Map.merge(defaults, attrs), actor: admin())
     mystery
   end
 
@@ -72,7 +72,7 @@ defmodule LumenViaeWeb.Live.Mysteries.AdminTest do
         |> render_submit()
 
       assert html =~ "Mystery updated successfully"
-      assert Rosary.get_mystery!(mystery.id).days_prayed == "Monday, Saturday"
+      assert Rosary.get_mystery!(mystery.id, actor: admin()).days_prayed == "Monday, Saturday"
     end
 
     test "a second save after the first still works on the current row", %{conn: conn} do
@@ -85,7 +85,7 @@ defmodule LumenViaeWeb.Live.Mysteries.AdminTest do
         |> render_submit()
       end
 
-      assert Rosary.get_mystery!(mystery.id).name == "Second rename"
+      assert Rosary.get_mystery!(mystery.id, actor: admin()).name == "Second rename"
     end
 
     test "reports a clash with another mystery's position", %{conn: conn} do
@@ -100,7 +100,7 @@ defmodule LumenViaeWeb.Live.Mysteries.AdminTest do
 
       assert html =~ "Failed to update mystery"
       assert html =~ "has already been taken"
-      assert Rosary.get_mystery!(second.id).order == 2
+      assert Rosary.get_mystery!(second.id, actor: admin()).order == 2
     end
 
     test "a mystery that does not exist is a 404", %{conn: conn} do
@@ -123,7 +123,10 @@ defmodule LumenViaeWeb.Live.Mysteries.AdminTest do
 
     test "says so, rather than crashing, when the mystery still has meditations", %{conn: conn} do
       mystery = create_mystery()
-      {:ok, _} = Rosary.create_meditation(%{content: "Text.", mystery_id: mystery.id})
+
+      {:ok, _} =
+        Rosary.create_meditation(%{content: "Text.", mystery_id: mystery.id}, actor: admin())
+
       {:ok, view, _html} = live(conn, "/admin/mysteries")
 
       html = render_click(view, "delete_mystery", %{"id" => to_string(mystery.id)})

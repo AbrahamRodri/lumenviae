@@ -16,24 +16,32 @@ defmodule LumenViaeWeb.Live.Pray.CompletionContextTest do
 
   defp create_set do
     {:ok, set} =
-      Rosary.create_meditation_set(%{
-        name: "Web ctx #{System.unique_integer([:positive])}",
-        category: "joyful"
-      })
+      Rosary.create_meditation_set(
+        %{
+          name: "Web ctx #{System.unique_integer([:positive])}",
+          category: "joyful"
+        },
+        actor: admin()
+      )
 
     for order <- 1..5 do
       {:ok, mystery} =
-        Rosary.create_mystery(%{
-          name: "M #{System.unique_integer([:positive])}",
-          category: "joyful",
-          order: System.unique_integer([:positive]),
-          description: "d"
-        })
+        Rosary.create_mystery(
+          %{
+            name: "M #{System.unique_integer([:positive])}",
+            category: "joyful",
+            order: System.unique_integer([:positive]),
+            description: "d"
+          },
+          actor: admin()
+        )
 
       {:ok, meditation} =
-        Rosary.create_meditation(%{content: "c", title: "t", mystery_id: mystery.id})
+        Rosary.create_meditation(%{content: "c", title: "t", mystery_id: mystery.id},
+          actor: admin()
+        )
 
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order, actor: admin())
     end
 
     set
@@ -84,7 +92,7 @@ defmodule LumenViaeWeb.Live.Pray.CompletionContextTest do
 
   test "a crawler that walks the page and trips the button records nothing", %{conn: conn} do
     set = create_set()
-    before = Rosary.count_total_completions()
+    before = Rosary.count_total_completions(actor: admin())
 
     conn
     |> Plug.Conn.put_req_header(
@@ -93,6 +101,6 @@ defmodule LumenViaeWeb.Live.Pray.CompletionContextTest do
     )
     |> press_complete(set)
 
-    assert Rosary.count_total_completions() == before
+    assert Rosary.count_total_completions(actor: admin()) == before
   end
 end

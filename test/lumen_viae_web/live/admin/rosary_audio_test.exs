@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudioTest do
   alias LumenViae.Rosary.PrayerAudio
 
   setup %{conn: conn} do
-    {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true})}
+    {:ok, conn: log_in_admin(conn)}
   end
 
   defp with_bucket do

@@ -18,10 +18,13 @@ defmodule LumenViaeWeb.API.CompletionContextTest do
 
   setup %{conn: conn} do
     {:ok, set} =
-      Rosary.create_meditation_set(%{
-        name: "API ctx #{System.unique_integer([:positive])}",
-        category: "joyful"
-      })
+      Rosary.create_meditation_set(
+        %{
+          name: "API ctx #{System.unique_integer([:positive])}",
+          category: "joyful"
+        },
+        actor: admin()
+      )
 
     %{set: set, conn: Plug.Conn.put_req_header(conn, "user-agent", @app_agent)}
   end

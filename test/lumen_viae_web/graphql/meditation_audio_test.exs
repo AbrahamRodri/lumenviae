@@ -29,29 +29,37 @@ defmodule LumenViaeWeb.Graphql.MeditationAudioTest do
     ])
 
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Refresh Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Refresh Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     meditation = fn content ->
-      {:ok, m} = Rosary.create_meditation(%{content: content, mystery_id: mystery.id})
+      {:ok, m} =
+        Rosary.create_meditation(%{content: content, mystery_id: mystery.id}, actor: admin())
+
       m
     end
 
     both = meditation.("Both")
-    {:ok, _} = Rosary.record_narration(both, "male", "voices/male/both.mp3")
-    {:ok, _} = Rosary.record_narration(both, "female", "voices/female/both.mp3")
+    {:ok, _} = Rosary.record_narration(both, "male", "voices/male/both.mp3", actor: admin())
+    {:ok, _} = Rosary.record_narration(both, "female", "voices/female/both.mp3", actor: admin())
 
     male_only = meditation.("Male")
-    {:ok, _} = Rosary.record_narration(male_only, "male", "voices/male/male.mp3")
+    {:ok, _} = Rosary.record_narration(male_only, "male", "voices/male/male.mp3", actor: admin())
 
     silent = meditation.("Silent")
 
     archived = meditation.("Archived")
-    {:ok, _} = Rosary.record_narration(archived, "female", "voices/female/archived.mp3")
-    {:ok, _} = Rosary.archive_meditation(archived)
+
+    {:ok, _} =
+      Rosary.record_narration(archived, "female", "voices/female/archived.mp3", actor: admin())
+
+    {:ok, _} = Rosary.archive_meditation(archived, actor: admin())
 
     %{both: both, male_only: male_only, silent: silent, archived: archived}
   end

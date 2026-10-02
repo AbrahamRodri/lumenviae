@@ -20,10 +20,13 @@ defmodule LumenViaeWeb.API.CompletionBackCompatTest do
 
   setup do
     {:ok, set} =
-      Rosary.create_meditation_set(%{
-        name: "BC #{System.unique_integer([:positive])}",
-        category: "joyful"
-      })
+      Rosary.create_meditation_set(
+        %{
+          name: "BC #{System.unique_integer([:positive])}",
+          category: "joyful"
+        },
+        actor: admin()
+      )
 
     %{set: set}
   end

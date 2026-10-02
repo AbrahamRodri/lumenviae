@@ -9,10 +9,14 @@ defmodule LumenViae.Curation.CsvImportTest do
 
   setup do
     {:ok, annunciation} =
-      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1},
+        actor: admin()
+      )
 
     {:ok, visitation} =
-      Rosary.create_mystery(%{name: "The Visitation", category: "joyful", order: 2})
+      Rosary.create_mystery(%{name: "The Visitation", category: "joyful", order: 2},
+        actor: admin()
+      )
 
     %{annunciation: annunciation, visitation: visitation}
   end
@@ -37,30 +41,34 @@ defmodule LumenViae.Curation.CsvImportTest do
           ]
         )
 
-      results = CsvImport.import_string(content, skip_audio: true)
+      results = CsvImport.import_string(content, skip_audio: true, actor: admin())
 
       assert [{:ok, first}, {:ok, second}] = results
       assert first =~ "The Annunciation"
       assert second =~ "The Visitation"
 
-      assert Rosary.count_meditations() == 2
+      assert Rosary.count_meditations(actor: admin()) == 2
 
-      set = Rosary.get_meditation_set_by_name("Test Set")
+      set = Rosary.get_meditation_set_by_name("Test Set", nil, actor: admin())
       assert set.category == "joyful"
       assert set.labels == ["Intentions", "Saints"]
 
-      assert Rosary.get_meditation_set_with_ordered_meditations!(set.id).meditations
+      assert Rosary.get_meditation_set_with_ordered_meditations!(set.id, actor: admin()).meditations
              |> Enum.map(& &1.mystery.name) == ["The Annunciation", "The Visitation"]
     end
 
     test "appends after the existing highest order in a set", %{annunciation: mystery} do
       {:ok, set} =
-        Rosary.create_meditation_set(%{"name" => "Existing Set", "category" => "joyful"})
+        Rosary.create_meditation_set(%{"name" => "Existing Set", "category" => "joyful"},
+          actor: admin()
+        )
 
       {:ok, meditation} =
-        Rosary.create_meditation(%{"content" => @content, "mystery_id" => mystery.id})
+        Rosary.create_meditation(%{"content" => @content, "mystery_id" => mystery.id},
+          actor: admin()
+        )
 
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 5)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 5, actor: admin())
 
       content =
         csv(
@@ -68,9 +76,9 @@ defmodule LumenViae.Curation.CsvImportTest do
           ["The Visitation,#{quoted(@content)},Existing Set"]
         )
 
-      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true)
+      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true, actor: admin())
 
-      assert Rosary.next_order_in_set(set.id) == 7
+      assert Rosary.next_order_in_set(set.id, actor: admin()) == 7
     end
 
     test "dry run validates rows without writing anything" do
@@ -80,11 +88,11 @@ defmodule LumenViae.Curation.CsvImportTest do
           ["The Annunciation,#{quoted(@content)},Dry Run Set,joyful"]
         )
 
-      assert [{:ok, message}] = CsvImport.import_string(content, dry_run: true)
+      assert [{:ok, message}] = CsvImport.import_string(content, dry_run: true, actor: admin())
       assert message =~ "Would create meditation"
 
-      assert Rosary.count_meditations() == 0
-      assert Rosary.count_meditation_sets() == 0
+      assert Rosary.count_meditations(actor: admin()) == 0
+      assert Rosary.count_meditation_sets(actor: admin()) == 0
     end
 
     test "dry run reports when audio would be skipped" do
@@ -93,11 +101,11 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted(@content)},clip.mp3"
         ])
 
-      assert [{:ok, with_audio}] = CsvImport.import_string(content, dry_run: true)
+      assert [{:ok, with_audio}] = CsvImport.import_string(content, dry_run: true, actor: admin())
       assert with_audio =~ "(audio)"
 
       assert [{:ok, skipped}] =
-               CsvImport.import_string(content, dry_run: true, skip_audio: true)
+               CsvImport.import_string(content, dry_run: true, skip_audio: true, actor: admin())
 
       assert skipped =~ "(audio skipped)"
     end
@@ -105,7 +113,7 @@ defmodule LumenViae.Curation.CsvImportTest do
     test "strips a UTF-8 BOM before reading headers" do
       content = "\uFEFF" <> csv(~w(mystery_name content), ["The Annunciation,text"])
 
-      assert [{:ok, _}] = CsvImport.import_string(content, dry_run: true)
+      assert [{:ok, _}] = CsvImport.import_string(content, dry_run: true, actor: admin())
     end
 
     test "skips fully blank rows" do
@@ -117,7 +125,7 @@ defmodule LumenViae.Curation.CsvImportTest do
           ""
         ])
 
-      results = CsvImport.import_string(content, dry_run: true)
+      results = CsvImport.import_string(content, dry_run: true, actor: admin())
       assert length(results) == 1
     end
 
@@ -131,9 +139,12 @@ defmodule LumenViae.Curation.CsvImportTest do
           ]
         )
 
-      assert Enum.all?(CsvImport.import_string(content, skip_audio: true), &match?({:ok, _}, &1))
+      assert Enum.all?(
+               CsvImport.import_string(content, skip_audio: true, actor: admin()),
+               &match?({:ok, _}, &1)
+             )
 
-      set = Rosary.get_meditation_set_by_name("Emmerich Set")
+      set = Rosary.get_meditation_set_by_name("Emmerich Set", nil, actor: admin())
 
       assert set.author == "Bl. Anne Catherine Emmerich"
       assert set.source == "The Dolorous Passion"
@@ -143,11 +154,14 @@ defmodule LumenViae.Curation.CsvImportTest do
     # rewrite what a curator has since edited in the admin.
     test "leaves an existing set's byline alone" do
       {:ok, set} =
-        Rosary.create_meditation_set(%{
-          name: "Existing Set",
-          category: "joyful",
-          author: "Curated By Hand"
-        })
+        Rosary.create_meditation_set(
+          %{
+            name: "Existing Set",
+            category: "joyful",
+            author: "Curated By Hand"
+          },
+          actor: admin()
+        )
 
       content =
         csv(
@@ -155,16 +169,18 @@ defmodule LumenViae.Curation.CsvImportTest do
           ["The Annunciation,#{quoted(@content)},Existing Set,joyful,From The CSV"]
         )
 
-      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true)
+      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true, actor: admin())
 
-      assert Rosary.get_meditation_set_by_name("Existing Set").author == "Curated By Hand"
-      assert Rosary.get_meditation_set!(set.id).author == "Curated By Hand"
+      assert Rosary.get_meditation_set_by_name("Existing Set", nil, actor: admin()).author ==
+               "Curated By Hand"
+
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).author == "Curated By Hand"
     end
 
     test "rejects unknown columns instead of silently ignoring them" do
       content = csv(~w(mystery_name content set_lables), ["The Annunciation,text,Saints"])
 
-      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true)
+      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true, actor: admin())
       assert message =~ "unknown column"
       assert message =~ "set_lables"
       assert message =~ "Allowed columns"
@@ -173,7 +189,7 @@ defmodule LumenViae.Curation.CsvImportTest do
     test "rejects a file without the required columns" do
       content = csv(~w(title content), ["Fiat,text"])
 
-      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true)
+      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true, actor: admin())
       assert message =~ "missing required column"
       assert message =~ "mystery_name"
     end
@@ -181,14 +197,14 @@ defmodule LumenViae.Curation.CsvImportTest do
     test "rejects duplicate header columns" do
       content = csv(~w(mystery_name content content), ["The Annunciation,text,text"])
 
-      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true)
+      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true, actor: admin())
       assert message =~ "duplicate column"
     end
 
     test "errors on rows whose field count does not match the header" do
       content = csv(~w(mystery_name content), ["The Annunciation,text,unexpected extra"])
 
-      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true)
+      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true, actor: admin())
       assert message =~ "3 fields but the header has 2"
     end
 
@@ -199,7 +215,7 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Visitation,text,clip.mp3"
         ])
 
-      results = CsvImport.import_string(content, dry_run: true)
+      results = CsvImport.import_string(content, dry_run: true, actor: admin())
 
       assert [{:error, first}, {:error, second}] = results
       assert first =~ "duplicate audio_filename 'clip.mp3'"
@@ -210,13 +226,18 @@ defmodule LumenViae.Curation.CsvImportTest do
   describe "sets that share a name across categories" do
     setup do
       {:ok, mystery} =
-        Rosary.create_mystery(%{
-          name: "The Prophecy of Simeon",
-          category: "seven_sorrows",
-          order: 1
-        })
+        Rosary.create_mystery(
+          %{
+            name: "The Prophecy of Simeon",
+            category: "seven_sorrows",
+            order: 1
+          },
+          actor: admin()
+        )
 
-      {:ok, joyful} = Rosary.create_meditation_set(%{"name" => "Faber", "category" => "joyful"})
+      {:ok, joyful} =
+        Rosary.create_meditation_set(%{"name" => "Faber", "category" => "joyful"}, actor: admin())
+
       %{joyful: joyful, mystery: mystery}
     end
 
@@ -228,26 +249,31 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Prophecy of Simeon,#{quoted(@content)},Faber,seven_sorrows"
         ])
 
-      assert [{:ok, message}] = CsvImport.import_string(content, skip_audio: true)
+      assert [{:ok, message}] = CsvImport.import_string(content, skip_audio: true, actor: admin())
       assert message =~ "[set: Faber]"
 
-      sorrows = Rosary.get_meditation_set_by_name("Faber", "seven_sorrows")
+      sorrows = Rosary.get_meditation_set_by_name("Faber", "seven_sorrows", actor: admin())
       assert sorrows.id != joyful.id
-      assert Rosary.list_meditations_in_set(joyful.id) == []
-      assert length(Rosary.list_meditations_in_set(sorrows.id)) == 1
+      assert Rosary.list_meditations_in_set(joyful.id, actor: admin()) == []
+      assert length(Rosary.list_meditations_in_set(sorrows.id, actor: admin())) == 1
     end
 
     test "a row naming an ambiguous set without a category is refused" do
-      {:ok, _} = Rosary.create_meditation_set(%{"name" => "Faber", "category" => "sorrowful"})
+      {:ok, _} =
+        Rosary.create_meditation_set(%{"name" => "Faber", "category" => "sorrowful"},
+          actor: admin()
+        )
 
       content =
         csv(~w(mystery_name content set_name), [
           "The Prophecy of Simeon,#{quoted(@content)},Faber"
         ])
 
-      assert [{:error, message}] = CsvImport.import_string(content, skip_audio: true)
+      assert [{:error, message}] =
+               CsvImport.import_string(content, skip_audio: true, actor: admin())
+
       assert message =~ "exists in more than one category"
-      assert Rosary.count_meditations() == 0
+      assert Rosary.count_meditations(actor: admin()) == 0
     end
   end
 
@@ -292,7 +318,8 @@ defmodule LumenViae.Curation.CsvImportTest do
       results =
         CsvImport.import_string(content,
           voices: ["female"],
-          progress: fn event -> send(test_pid, {:progress, event}) end
+          progress: fn event -> send(test_pid, {:progress, event}) end,
+          actor: admin()
         )
 
       assert [{:warning, message}] = results
@@ -301,7 +328,7 @@ defmodule LumenViae.Curation.CsvImportTest do
       assert message =~ "female: "
       assert message =~ "server error"
 
-      [meditation] = Rosary.list_meditations!()
+      [meditation] = Rosary.list_meditations!(actor: admin())
       assert meditation.audio_url == nil
       assert Rosary.meditation_narrations(meditation) == []
 
@@ -333,7 +360,8 @@ defmodule LumenViae.Curation.CsvImportTest do
       results =
         CsvImport.import_string(content,
           voices: ["female"],
-          progress: fn event -> send(test_pid, {:progress, event}) end
+          progress: fn event -> send(test_pid, {:progress, event}) end,
+          actor: admin()
         )
 
       assert [{:warning, message}] = results
@@ -351,7 +379,7 @@ defmodule LumenViae.Curation.CsvImportTest do
         ])
 
       assert_raise ArgumentError, ~r/unknown voice: tenor/, fn ->
-        CsvImport.import_string(content, voices: ["tenor"])
+        CsvImport.import_string(content, voices: ["tenor"], actor: admin())
       end
     end
   end
@@ -363,9 +391,9 @@ defmodule LumenViae.Curation.CsvImportTest do
       content =
         csv(~w(mystery_name content), ["The Annunciation,#{quoted(@marked_content)}"])
 
-      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true)
+      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true, actor: admin())
 
-      [meditation] = Rosary.list_meditations!()
+      [meditation] = Rosary.list_meditations!(actor: admin())
 
       # Stored content is the imported content minus the marker; the pause
       # survives only as an annotation.
@@ -382,11 +410,11 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted(@marked_content)},clip.mp3"
         ])
 
-      assert [{:ok, message}] = CsvImport.import_string(content, dry_run: true)
+      assert [{:ok, message}] = CsvImport.import_string(content, dry_run: true, actor: admin())
       assert message =~ "Would create meditation"
       assert message =~ "(audio)"
 
-      assert Rosary.count_meditations() == 0
+      assert Rosary.count_meditations(actor: admin()) == 0
     end
 
     test "rejects malformed pause markers" do
@@ -395,12 +423,12 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted("Pause {pause:soon} here.")}"
         ])
 
-      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true)
+      assert [{:error, message}] = CsvImport.import_string(content, dry_run: true, actor: admin())
       assert message =~ "Invalid content for 'The Annunciation'"
       assert message =~ "invalid pause marker"
 
-      assert [{:error, _}] = CsvImport.import_string(content, skip_audio: true)
-      assert Rosary.count_meditations() == 0
+      assert [{:error, _}] = CsvImport.import_string(content, skip_audio: true, actor: admin())
+      assert Rosary.count_meditations(actor: admin()) == 0
     end
 
     test "rejects literal <break tags in content" do
@@ -409,10 +437,12 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted(~s(Pause <break time="1s" /> here.))}"
         ])
 
-      assert [{:error, message}] = CsvImport.import_string(content, skip_audio: true)
+      assert [{:error, message}] =
+               CsvImport.import_string(content, skip_audio: true, actor: admin())
+
       assert message =~ "<break"
 
-      assert Rosary.count_meditations() == 0
+      assert Rosary.count_meditations(actor: admin()) == 0
     end
 
     test "preview counts pauses against the cleaned content" do
@@ -422,7 +452,7 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Visitation,#{quoted("Broken {pause:oops} marker.")}"
         ])
 
-      assert {:ok, preview} = CsvImport.preview_string(content)
+      assert {:ok, preview} = CsvImport.preview_string(content, actor: admin())
       assert [clean_row, broken_row] = preview.rows
 
       assert clean_row.errors == []
@@ -479,7 +509,7 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted(@marked_content)},clip.mp3"
         ])
 
-      assert [{:ok, message}] = CsvImport.import_string(content)
+      assert [{:ok, message}] = CsvImport.import_string(content, actor: admin())
       assert message =~ "(with audio)"
 
       # One request per voice, each to that voice's ElevenLabs id on that
@@ -510,7 +540,7 @@ defmodule LumenViae.Curation.CsvImportTest do
                  "/lumenviae-audio/voices/male/clip.mp3"
                ]
 
-      [meditation] = Rosary.list_meditations!()
+      [meditation] = Rosary.list_meditations!(actor: admin())
       assert meditation.audio_url == "clip.mp3"
       assert meditation.content == @content
       refute meditation.content =~ "pause"
@@ -545,7 +575,7 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted(@marked_content)},clip.mp3"
         ])
 
-      assert [{:ok, _}] = CsvImport.import_string(content, voices: ["female"])
+      assert [{:ok, _}] = CsvImport.import_string(content, voices: ["female"], actor: admin())
 
       assert_received {:tts_request, "/v1/text-to-speech/f", "eleven_v3", speech_text, _}
       assert speech_text =~ "[long pause]"
@@ -570,11 +600,11 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted(@content)},clip.mp3"
         ])
 
-      assert [{:warning, message}] = CsvImport.import_string(content)
+      assert [{:warning, message}] = CsvImport.import_string(content, actor: admin())
       assert message =~ "(with audio)"
       assert message =~ "male: ElevenLabs rejected the API key"
 
-      [meditation] = Rosary.list_meditations!()
+      [meditation] = Rosary.list_meditations!(actor: admin())
       assert meditation.audio_url == "clip.mp3"
       assert [%{voice: %{slug: "female"}}] = Rosary.meditation_narrations(meditation)
     end
@@ -591,7 +621,7 @@ defmodule LumenViae.Curation.CsvImportTest do
           ]
         )
 
-      assert {:ok, preview} = CsvImport.preview_string(content)
+      assert {:ok, preview} = CsvImport.preview_string(content, actor: admin())
       assert preview.total == 2
       assert preview.valid_count == 2
       assert preview.error_count == 0
@@ -612,7 +642,7 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Visitation,text,clip.mp3"
         ])
 
-      assert {:ok, preview} = CsvImport.preview_string(content)
+      assert {:ok, preview} = CsvImport.preview_string(content, actor: admin())
       assert preview.error_count == 2
 
       [first, second] = preview.rows
@@ -624,28 +654,31 @@ defmodule LumenViae.Curation.CsvImportTest do
     test "warns when an audio_filename would overwrite an existing meditation's audio",
          %{annunciation: mystery} do
       {:ok, _} =
-        Rosary.create_meditation(%{
-          "content" => @content,
-          "mystery_id" => mystery.id,
-          "audio_url" => "existing.mp3"
-        })
+        Rosary.create_meditation(
+          %{
+            "content" => @content,
+            "mystery_id" => mystery.id,
+            "audio_url" => "existing.mp3"
+          },
+          actor: admin()
+        )
 
       content =
         csv(~w(mystery_name content audio_filename), [
           "The Visitation,text,existing.mp3"
         ])
 
-      assert {:ok, preview} = CsvImport.preview_string(content)
+      assert {:ok, preview} = CsvImport.preview_string(content, actor: admin())
       [row] = preview.rows
       assert row.errors == []
       assert Enum.any?(row.warnings, &(&1 =~ "overwrite its audio"))
     end
 
     test "returns a file-level error for unusable files" do
-      assert {:error, message} = CsvImport.preview_string("")
+      assert {:error, message} = CsvImport.preview_string("", actor: admin())
       assert message =~ "empty"
 
-      assert {:error, message} = CsvImport.preview_string("mystery_name,content")
+      assert {:error, message} = CsvImport.preview_string("mystery_name,content", actor: admin())
       assert message =~ "no data rows"
     end
   end

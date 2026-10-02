@@ -15,23 +15,31 @@ defmodule LumenViaeWeb.Live.Pray.CompletionTest do
 
   defp create_set do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Completion Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Completion Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     {:ok, set} =
-      Rosary.create_meditation_set(%{
-        name: "Completion Set #{System.unique_integer([:positive])}",
-        category: "joyful"
-      })
+      Rosary.create_meditation_set(
+        %{
+          name: "Completion Set #{System.unique_integer([:positive])}",
+          category: "joyful"
+        },
+        actor: admin()
+      )
 
     for order <- 1..5 do
       {:ok, meditation} =
-        Rosary.create_meditation(%{content: "Passage #{order}", mystery_id: mystery.id})
+        Rosary.create_meditation(%{content: "Passage #{order}", mystery_id: mystery.id},
+          actor: admin()
+        )
 
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order, actor: admin())
     end
 
     set
@@ -39,48 +47,48 @@ defmodule LumenViaeWeb.Live.Pray.CompletionTest do
 
   test "walking to the last mystery records nothing", %{conn: conn} do
     set = create_set()
-    before = Rosary.count_total_completions()
+    before = Rosary.count_total_completions(actor: admin())
 
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
     for _ <- 1..4, do: view |> element("button[phx-click=next]") |> render_click()
 
-    assert Rosary.count_total_completions() == before
+    assert Rosary.count_total_completions(actor: admin()) == before
   end
 
   test "jumping straight to the last mystery by URL records nothing", %{conn: conn} do
     set = create_set()
-    before = Rosary.count_total_completions()
+    before = Rosary.count_total_completions(actor: admin())
 
     {:ok, _view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=4")
 
-    assert Rosary.count_total_completions() == before
+    assert Rosary.count_total_completions(actor: admin()) == before
   end
 
   test "jumping to the last mystery by bead records nothing", %{conn: conn} do
     set = create_set()
-    before = Rosary.count_total_completions()
+    before = Rosary.count_total_completions(actor: admin())
 
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
     view |> element("button[phx-click=go_to][phx-value-index='4']") |> render_click()
 
-    assert Rosary.count_total_completions() == before
+    assert Rosary.count_total_completions(actor: admin()) == before
   end
 
   test "pressing Complete records one, and sends the reader back to the category", %{conn: conn} do
     set = create_set()
-    before = Rosary.count_total_completions()
+    before = Rosary.count_total_completions(actor: admin())
 
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=4")
 
     assert {:error, {:live_redirect, %{to: "/mysteries/joyful"}}} =
              view |> element("button[phx-click=complete]") |> render_click()
 
-    assert Rosary.count_total_completions() == before + 1
+    assert Rosary.count_total_completions(actor: admin()) == before + 1
 
     assert [%{set_id: id}] =
-             Rosary.get_completions_by_set() |> Enum.filter(&(&1.set_id == set.id))
+             Rosary.get_completions_by_set(actor: admin()) |> Enum.filter(&(&1.set_id == set.id))
 
     assert id == set.id
   end

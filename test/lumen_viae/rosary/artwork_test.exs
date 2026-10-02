@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.ArtworkTest do
 
   defp create_set(attrs \\ %{}) do
     defaults = %{name: "Artwork Set #{System.unique_integer([:positive])}", category: "sorrowful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
@@ -24,7 +24,9 @@ defmodule LumenViae.Rosary.ArtworkTest do
         "image_license" => "public_domain"
       })
 
-    {:ok, set} = Rosary.update_meditation_set_artwork(set, Map.merge(attrs, metadata))
+    {:ok, set} =
+      Rosary.update_meditation_set_artwork(set, Map.merge(attrs, metadata), actor: admin())
+
     set
   end
 
@@ -55,18 +57,21 @@ defmodule LumenViae.Rosary.ArtworkTest do
         assert {:error, %Ash.Error.Invalid{}} =
                  Rosary.update_meditation_set_artwork_metadata(
                    set,
-                   Map.put(managed, "image_artist", "El Greco")
+                   Map.put(managed, "image_artist", "El Greco"),
+                   actor: admin()
                  )
       end
 
-      unchanged = Rosary.get_meditation_set!(set.id)
+      unchanged = Rosary.get_meditation_set!(set.id, actor: admin())
       assert unchanged.image_key == "sets/27/8f21c4d9e0b3a7f6.jpg"
       assert unchanged.image_width == 1600
       assert unchanged.image_height == 2400
       assert unchanged.image_artist == nil
 
       {:ok, updated} =
-        Rosary.update_meditation_set_artwork_metadata(set, %{"image_artist" => "El Greco"})
+        Rosary.update_meditation_set_artwork_metadata(set, %{"image_artist" => "El Greco"},
+          actor: admin()
+        )
 
       assert updated.image_key == "sets/27/8f21c4d9e0b3a7f6.jpg"
       assert updated.image_artist == "El Greco"
@@ -76,23 +81,30 @@ defmodule LumenViae.Rosary.ArtworkTest do
       set = create_set()
 
       assert {:error, %Ash.Error.Invalid{}} =
-               Rosary.update_meditation_set(set, %{
-                 "name" => "Renamed",
-                 "image_key" => "sets/1/attacker.jpg"
-               })
+               Rosary.update_meditation_set(
+                 set,
+                 %{
+                   "name" => "Renamed",
+                   "image_key" => "sets/1/attacker.jpg"
+                 },
+                 actor: admin()
+               )
 
-      unchanged = Rosary.get_meditation_set!(set.id)
+      unchanged = Rosary.get_meditation_set!(set.id, actor: admin())
       assert unchanged.name == set.name
       assert unchanged.image_key == nil
     end
 
     test "nor can creating a set" do
       assert {:error, %Ash.Error.Invalid{}} =
-               Rosary.create_meditation_set(%{
-                 name: "Arrives illustrated",
-                 category: "joyful",
-                 image_key: "sets/1/attacker.jpg"
-               })
+               Rosary.create_meditation_set(
+                 %{
+                   name: "Arrives illustrated",
+                   category: "joyful",
+                   image_key: "sets/1/attacker.jpg"
+                 },
+                 actor: admin()
+               )
     end
   end
 
@@ -102,9 +114,13 @@ defmodule LumenViae.Rosary.ArtworkTest do
 
       for focal <- [0.0, 0.24, 0.5, 1.0] do
         assert {:ok, updated} =
-                 Rosary.update_meditation_set_artwork_metadata(set, %{
-                   "image_focal_y" => focal
-                 })
+                 Rosary.update_meditation_set_artwork_metadata(
+                   set,
+                   %{
+                     "image_focal_y" => focal
+                   },
+                   actor: admin()
+                 )
 
         assert updated.image_focal_y == focal
       end
@@ -113,9 +129,13 @@ defmodule LumenViae.Rosary.ArtworkTest do
     test "rejects a focal point outside 0..1" do
       for focal <- [1.4, -0.1] do
         assert {:error, error} =
-                 Rosary.update_meditation_set_artwork_metadata(create_set(), %{
-                   "image_focal_y" => focal
-                 })
+                 Rosary.update_meditation_set_artwork_metadata(
+                   create_set(),
+                   %{
+                     "image_focal_y" => focal
+                   },
+                   actor: admin()
+                 )
 
         assert errors_on(error).image_focal_y == ["must be between 0.0 and 1.0"]
       end
@@ -127,16 +147,20 @@ defmodule LumenViae.Rosary.ArtworkTest do
     # the stored focal point is left exactly where it was.
     test "a blank or null focal point is refused and the stored one stays" do
       {:ok, set} =
-        Rosary.update_meditation_set_artwork_metadata(create_set(), %{"image_focal_y" => 0.24})
+        Rosary.update_meditation_set_artwork_metadata(create_set(), %{"image_focal_y" => 0.24},
+          actor: admin()
+        )
 
       for blank <- ["", nil] do
         assert {:error, error} =
-                 Rosary.update_meditation_set_artwork_metadata(set, %{"image_focal_y" => blank})
+                 Rosary.update_meditation_set_artwork_metadata(set, %{"image_focal_y" => blank},
+                   actor: admin()
+                 )
 
         assert errors_on(error).image_focal_y == ["is required"]
       end
 
-      assert Rosary.get_meditation_set!(set.id).image_focal_y == 0.24
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).image_focal_y == 0.24
     end
 
     test "defaults the focal point to the centre, reproducing today's fill" do
@@ -148,9 +172,13 @@ defmodule LumenViae.Rosary.ArtworkTest do
 
     test "rejects a licence outside the recorded vocabulary" do
       assert {:error, error} =
-               Rosary.update_meditation_set_artwork_metadata(create_set(), %{
-                 "image_license" => "probably_fine"
-               })
+               Rosary.update_meditation_set_artwork_metadata(
+                 create_set(),
+                 %{
+                   "image_license" => "probably_fine"
+                 },
+                 actor: admin()
+               )
 
       assert errors_on(error).image_license == [
                "is not one of the licences this project records"
@@ -162,7 +190,9 @@ defmodule LumenViae.Rosary.ArtworkTest do
 
       for license <- Artwork.licenses() do
         assert {:ok, updated} =
-                 Rosary.update_meditation_set_artwork_metadata(set, %{"image_license" => license})
+                 Rosary.update_meditation_set_artwork_metadata(set, %{"image_license" => license},
+                   actor: admin()
+                 )
 
         assert updated.image_license == license
       end
@@ -170,9 +200,13 @@ defmodule LumenViae.Rosary.ArtworkTest do
 
     test "rejects a source URL that is not a URL" do
       assert {:error, error} =
-               Rosary.update_meditation_set_artwork_metadata(create_set(), %{
-                 "image_source_url" => "metmuseum.org"
-               })
+               Rosary.update_meditation_set_artwork_metadata(
+                 create_set(),
+                 %{
+                   "image_source_url" => "metmuseum.org"
+                 },
+                 actor: admin()
+               )
 
       assert errors_on(error).image_source_url == ["must start with http:// or https://"]
     end
@@ -183,7 +217,9 @@ defmodule LumenViae.Rosary.ArtworkTest do
       set = with_artwork(create_set())
 
       assert {:ok, updated} =
-               Rosary.update_meditation_set_artwork_metadata(set, %{"image_title" => "The Fall"})
+               Rosary.update_meditation_set_artwork_metadata(set, %{"image_title" => "The Fall"},
+                 actor: admin()
+               )
 
       assert updated.image_title == "The Fall"
       assert updated.image_license == "public_domain"
@@ -191,10 +227,14 @@ defmodule LumenViae.Rosary.ArtworkTest do
 
     test "blanks out whitespace-only metadata so it cannot satisfy the publish gate" do
       {:ok, set} =
-        Rosary.update_meditation_set_artwork_metadata(create_set(), %{
-          "image_alt" => "   ",
-          "image_artist" => "  El Greco  "
-        })
+        Rosary.update_meditation_set_artwork_metadata(
+          create_set(),
+          %{
+            "image_alt" => "   ",
+            "image_artist" => "  El Greco  "
+          },
+          actor: admin()
+        )
 
       assert set.image_alt == nil
       assert set.image_artist == "El Greco"
@@ -226,7 +266,7 @@ defmodule LumenViae.Rosary.ArtworkTest do
     # so requiring alt text to save would make it unsavable and the curator
     # could never get past it.
     test "the first upload saves even though it is not yet publishable" do
-      {:ok, set} = Rosary.update_meditation_set_artwork(create_set(), @upload)
+      {:ok, set} = Rosary.update_meditation_set_artwork(create_set(), @upload, actor: admin())
 
       assert set.image_key == "sets/27/8f21c4d9e0b3a7f6.jpg"
       refute Artwork.publishable?(set)
@@ -235,13 +275,13 @@ defmodule LumenViae.Rosary.ArtworkTest do
 
   describe "meditation_set_ids_missing_artwork/0" do
     test "returns only the sets with no key" do
-      before = length(Rosary.meditation_set_ids_missing_artwork())
+      before = length(Rosary.meditation_set_ids_missing_artwork(actor: admin()))
 
       first = create_set()
       second = create_set()
       illustrated = with_artwork(create_set())
 
-      ids = Rosary.meditation_set_ids_missing_artwork()
+      ids = Rosary.meditation_set_ids_missing_artwork(actor: admin())
 
       assert length(ids) == before + 2
       assert first.id in ids

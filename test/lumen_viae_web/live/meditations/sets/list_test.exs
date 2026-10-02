@@ -6,23 +6,26 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
   alias LumenViae.Rosary
 
   setup %{conn: conn} do
-    {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true})}
+    {:ok, conn: log_in_admin(conn)}
   end
 
   defp create_mystery do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Test Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Test Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     mystery
   end
 
   defp create_meditation(mystery, attrs \\ %{}) do
     defaults = %{content: "Test meditation content", mystery_id: mystery.id}
-    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs))
+    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs), actor: admin())
     meditation
   end
 
@@ -34,7 +37,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
   # For a test that fills the set itself, or wants it empty.
   defp create_empty_set(attrs) do
     defaults = %{name: "Test Set #{System.unique_integer([:positive])}", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
@@ -45,7 +48,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
 
     for order <- 1..5 do
       meditation = create_meditation(mystery, %{audio_url: "clip#{order}.mp3"})
-      {:ok, _} = Rosary.add_meditation_to_set(filled.id, meditation.id, order)
+      {:ok, _} = Rosary.add_meditation_to_set(filled.id, meditation.id, order, actor: admin())
     end
 
     # The empty set is hidden, so it is only on the list when hidden sets
@@ -66,8 +69,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
     create_set(%{name: "Serving Set"})
 
     meditation = create_meditation(mystery)
-    {:ok, _} = Rosary.add_meditation_to_set(withdrawn.id, meditation.id, 1)
-    {:ok, _} = Rosary.archive_meditation(meditation)
+    {:ok, _} = Rosary.add_meditation_to_set(withdrawn.id, meditation.id, 1, actor: admin())
+    {:ok, _} = Rosary.archive_meditation(meditation, actor: admin())
 
     # Not on the default list, which is what the public is being served.
     {:ok, _view, html} = live(conn, "/admin/meditation-sets")
@@ -102,8 +105,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
     create_set(%{name: "Visible Set"})
 
     meditation = create_meditation(mystery)
-    {:ok, _} = Rosary.add_meditation_to_set(hidden_set.id, meditation.id, 1)
-    {:ok, _} = Rosary.archive_meditation(meditation)
+    {:ok, _} = Rosary.add_meditation_to_set(hidden_set.id, meditation.id, 1, actor: admin())
+    {:ok, _} = Rosary.archive_meditation(meditation, actor: admin())
 
     {:ok, _view, html} = live(conn, "/admin/meditation-sets?visibility=hidden")
     assert html =~ "Hidden Set"
@@ -122,8 +125,8 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
     create_set(%{name: "Serving Set"})
 
     meditation = create_meditation(mystery)
-    {:ok, _} = Rosary.add_meditation_to_set(hidden_set.id, meditation.id, 1)
-    {:ok, _} = Rosary.archive_meditation(meditation)
+    {:ok, _} = Rosary.add_meditation_to_set(hidden_set.id, meditation.id, 1, actor: admin())
+    {:ok, _} = Rosary.archive_meditation(meditation, actor: admin())
 
     {:ok, _view, html} = live(conn, "/admin/meditation-sets")
     assert html =~ "Serving Set"
@@ -141,13 +144,17 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
     illustrated = create_set(%{name: "Painted Set"})
 
     {:ok, _} =
-      Rosary.update_meditation_set_artwork(illustrated, %{
-        "image_key" => "sets/#{illustrated.id}/painting.jpg",
-        "image_width" => 1600,
-        "image_height" => 2400,
-        "image_alt" => "A painting",
-        "image_license" => "public_domain"
-      })
+      Rosary.update_meditation_set_artwork(
+        illustrated,
+        %{
+          "image_key" => "sets/#{illustrated.id}/painting.jpg",
+          "image_width" => 1600,
+          "image_height" => 2400,
+          "image_alt" => "A painting",
+          "image_license" => "public_domain"
+        },
+        actor: admin()
+      )
 
     {:ok, _view, html} = live(conn, "/admin/meditation-sets?artwork=missing")
     assert html =~ "Bare Set"
@@ -182,7 +189,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
     mystery = create_mystery()
     set = create_empty_set(%{name: "Expandable Set"})
     meditation = create_meditation(mystery, %{title: "Unique Expanded Title"})
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
 
     {:ok, view, html} = live(conn, "/admin/meditation-sets")
     refute html =~ "Unique Expanded Title"
@@ -206,6 +213,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.ListTest do
       |> render_click()
 
     refute html =~ "Deletable Set"
-    assert Rosary.list_meditation_sets!() |> Enum.map(& &1.id) |> Enum.member?(set.id) == false
+
+    assert Rosary.list_meditation_sets!(actor: admin())
+           |> Enum.map(& &1.id)
+           |> Enum.member?(set.id) == false
   end
 end

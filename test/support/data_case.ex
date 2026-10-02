@@ -24,6 +24,7 @@ defmodule LumenViae.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import LumenViae.DataCase
+      import LumenViae.Test.Admins
     end
   end
 

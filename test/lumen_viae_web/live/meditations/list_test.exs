@@ -6,7 +6,7 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
   alias LumenViae.Rosary
 
   setup %{conn: conn} do
-    {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true})}
+    {:ok, conn: log_in_admin(conn)}
   end
 
   defp create_mystery(attrs \\ %{}) do
@@ -16,19 +16,19 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
       order: System.unique_integer([:positive])
     }
 
-    {:ok, mystery} = Rosary.create_mystery(Map.merge(defaults, attrs))
+    {:ok, mystery} = Rosary.create_mystery(Map.merge(defaults, attrs), actor: admin())
     mystery
   end
 
   defp create_meditation(mystery, attrs \\ %{}) do
     defaults = %{content: "Test meditation content", mystery_id: mystery.id}
-    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs))
+    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs), actor: admin())
     meditation
   end
 
   defp create_set(attrs \\ %{}) do
     defaults = %{name: "Test Set #{System.unique_integer([:positive])}", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
@@ -55,7 +55,7 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     mystery = create_mystery()
     create_meditation(mystery, %{title: "Title Active"})
     archived = create_meditation(mystery, %{title: "Title Archived"})
-    {:ok, _} = Rosary.archive_meditation(archived)
+    {:ok, _} = Rosary.archive_meditation(archived, actor: admin())
 
     {:ok, _view, html} = live(conn, "/admin/meditations?status=archived")
 
@@ -79,7 +79,7 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     in_set = create_meditation(mystery, %{title: "Title Grouped"})
     create_meditation(mystery, %{title: "Title Orphan"})
     set = create_set()
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, in_set.id, 1)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, in_set.id, 1, actor: admin())
 
     {:ok, _view, html} = live(conn, "/admin/meditations?set=none")
     assert html =~ "Title Orphan"
@@ -116,7 +116,7 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     mystery = create_mystery()
     create_meditation(mystery, %{title: "Title Active"})
     archived = create_meditation(mystery, %{title: "Title Archived"})
-    {:ok, _} = Rosary.archive_meditation(archived)
+    {:ok, _} = Rosary.archive_meditation(archived, actor: admin())
 
     {:ok, _view, html} = live(conn, "/admin/meditations")
     assert html =~ "Title Active"
@@ -151,7 +151,7 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
       |> element("button[phx-click=archive_meditation][phx-value-id='#{meditation.id}']")
       |> render_click()
 
-    assert Rosary.get_meditation!(meditation.id).archived_at
+    assert Rosary.get_meditation!(meditation.id, actor: admin()).archived_at
     refute html =~ "Title Archivable"
 
     {:ok, archived_view, html} = live(conn, "/admin/meditations?status=archived")
@@ -161,7 +161,7 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     |> element("button[phx-click=unarchive_meditation][phx-value-id='#{meditation.id}']")
     |> render_click()
 
-    refute Rosary.get_meditation!(meditation.id).archived_at
+    refute Rosary.get_meditation!(meditation.id, actor: admin()).archived_at
   end
 
   test "bulk archive applies to all shown meditations", %{conn: conn} do
@@ -175,8 +175,8 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     html = view |> element("button[phx-click=bulk_archive]") |> render_click()
 
     assert html =~ "2 meditations archived."
-    assert Rosary.get_meditation!(first.id).archived_at
-    assert Rosary.get_meditation!(second.id).archived_at
+    assert Rosary.get_meditation!(first.id, actor: admin()).archived_at
+    assert Rosary.get_meditation!(second.id, actor: admin()).archived_at
   end
 
   test "bulk delete permanently removes selected meditations, including set members", %{
@@ -186,7 +186,7 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     in_set = create_meditation(mystery)
     orphan = create_meditation(mystery)
     set = create_set()
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, in_set.id, 1)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, in_set.id, 1, actor: admin())
 
     {:ok, view, _html} = live(conn, "/admin/meditations")
 
@@ -194,8 +194,8 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     html = view |> element("button[phx-click=bulk_delete]") |> render_click()
 
     assert html =~ "2 meditations permanently deleted."
-    assert Rosary.list_meditations!() == []
-    assert Rosary.get_meditation_set!(set.id).meditations == []
+    assert Rosary.list_meditations!(actor: admin()) == []
+    assert Rosary.get_meditation_set!(set.id, actor: admin()).meditations == []
     assert orphan.id
   end
 
@@ -215,7 +215,7 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     assert html =~ "1 meditation permanently deleted."
     refute html =~ "Title Doomed"
     assert html =~ "Title Survivor"
-    assert Rosary.get_meditation!(survivor.id)
-    assert {:error, %Ash.Error.Invalid{}} = Rosary.get_meditation(doomed.id)
+    assert Rosary.get_meditation!(survivor.id, actor: admin())
+    assert {:error, %Ash.Error.Invalid{}} = Rosary.get_meditation(doomed.id, actor: admin())
   end
 end

@@ -25,10 +25,13 @@ defmodule LumenViae.Rosary.CompletionEnrichmentTest do
     on_exit(fn -> Req.Test.set_req_test_to_private(self()) end)
 
     {:ok, set} =
-      Rosary.create_meditation_set(%{
-        name: "Enrich #{System.unique_integer([:positive])}",
-        category: "joyful"
-      })
+      Rosary.create_meditation_set(
+        %{
+          name: "Enrich #{System.unique_integer([:positive])}",
+          category: "joyful"
+        },
+        actor: admin()
+      )
 
     %{set: set}
   end

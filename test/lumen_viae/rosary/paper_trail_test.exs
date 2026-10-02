@@ -12,18 +12,21 @@ defmodule LumenViae.Rosary.PaperTrailTest do
 
   defp versions_of(record) do
     record
-    |> Ash.load!(:paper_trail_versions)
+    |> Ash.load!(:paper_trail_versions, actor: admin())
     |> Map.fetch!(:paper_trail_versions)
     |> Enum.sort_by(& &1.version_inserted_at, NaiveDateTime)
   end
 
   defp create_mystery do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     mystery
   end
@@ -32,10 +35,14 @@ defmodule LumenViae.Rosary.PaperTrailTest do
     mystery = create_mystery()
 
     {:ok, meditation} =
-      Rosary.create_meditation(%{content: "First wording.", mystery_id: mystery.id})
+      Rosary.create_meditation(%{content: "First wording.", mystery_id: mystery.id},
+        actor: admin()
+      )
 
-    {:ok, meditation} = Rosary.update_meditation(meditation, %{content: "Second wording."})
-    {:ok, meditation} = Rosary.archive_meditation(meditation)
+    {:ok, meditation} =
+      Rosary.update_meditation(meditation, %{content: "Second wording."}, actor: admin())
+
+    {:ok, meditation} = Rosary.archive_meditation(meditation, actor: admin())
 
     assert [created, edited, archived] = versions_of(meditation)
 
@@ -56,7 +63,7 @@ defmodule LumenViae.Rosary.PaperTrailTest do
 
   test "nothing is written for an update that changes nothing" do
     mystery = create_mystery()
-    {:ok, _} = Rosary.update_mystery(mystery, %{name: mystery.name})
+    {:ok, _} = Rosary.update_mystery(mystery, %{name: mystery.name}, actor: admin())
 
     assert [%{version_action_type: :create}] = versions_of(mystery)
   end
@@ -71,15 +78,18 @@ defmodule LumenViae.Rosary.PaperTrailTest do
   end
 
   test "a destroyed record's last state survives in its versions" do
-    {:ok, author} = Rosary.create_author(%{name: "St. Louis de Montfort"})
-    {:ok, author} = Rosary.update_author(author, %{name: "St. Louis-Marie de Montfort"})
-    {:ok, _} = Rosary.delete_author(author)
+    {:ok, author} = Rosary.create_author(%{name: "St. Louis de Montfort"}, actor: admin())
+
+    {:ok, author} =
+      Rosary.update_author(author, %{name: "St. Louis-Marie de Montfort"}, actor: admin())
+
+    {:ok, _} = Rosary.delete_author(author, actor: admin())
 
     versions =
       LumenViae.Rosary.Author.Version
       |> Ash.Query.filter(version_source_id == ^author.id)
       |> Ash.Query.sort(version_inserted_at: :asc)
-      |> Ash.read!()
+      |> Ash.read!(actor: admin())
 
     assert [%{version_action_type: :create}, %{version_action_type: :update}, destroyed] =
              versions
@@ -89,18 +99,24 @@ defmodule LumenViae.Rosary.PaperTrailTest do
   end
 
   test "a set's artwork and labels are versioned through their own actions" do
-    {:ok, set} = Rosary.create_meditation_set(%{name: "Set", category: "joyful"})
-    {:ok, set} = Rosary.update_meditation_set(set, %{labels: ["Saints"]})
+    {:ok, set} = Rosary.create_meditation_set(%{name: "Set", category: "joyful"}, actor: admin())
+    {:ok, set} = Rosary.update_meditation_set(set, %{labels: ["Saints"]}, actor: admin())
 
     {:ok, set} =
-      Rosary.update_meditation_set_artwork(set, %{
-        "image_key" => "sets/#{set.id}/a.jpg",
-        "image_width" => 1600,
-        "image_height" => 2400
-      })
+      Rosary.update_meditation_set_artwork(
+        set,
+        %{
+          "image_key" => "sets/#{set.id}/a.jpg",
+          "image_width" => 1600,
+          "image_height" => 2400
+        },
+        actor: admin()
+      )
 
     {:ok, set} =
-      Rosary.update_meditation_set_artwork_metadata(set, %{"image_focal_y" => 0.24})
+      Rosary.update_meditation_set_artwork_metadata(set, %{"image_focal_y" => 0.24},
+        actor: admin()
+      )
 
     names = set |> versions_of() |> Enum.map(& &1.version_action_name)
     assert names == [:create, :update, :record_artwork, :update_artwork_metadata]

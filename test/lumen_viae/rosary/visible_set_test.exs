@@ -10,24 +10,28 @@ defmodule LumenViae.Rosary.VisibleSetTest do
 
   defp create_set(attrs \\ %{}) do
     defaults = %{name: "Visible Set #{System.unique_integer([:positive])}", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
   defp add_meditation(set, order, attrs \\ %{}) do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     {:ok, meditation} =
       Rosary.create_meditation(
-        Map.merge(%{content: "Some content", mystery_id: mystery.id}, attrs)
+        Map.merge(%{content: "Some content", mystery_id: mystery.id}, attrs),
+        actor: admin()
       )
 
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order, actor: admin())
     meditation
   end
 
@@ -73,7 +77,7 @@ defmodule LumenViae.Rosary.VisibleSetTest do
       assert {:ok, fetched} = Rosary.fetch_visible_meditation_set(set.id)
       assert Enum.map(fetched.meditations, & &1.id) == [meditation.id]
 
-      :ok = Rosary.remove_meditation_from_set(set.id, meditation.id)
+      :ok = Rosary.remove_meditation_from_set(set.id, meditation.id, actor: admin())
 
       assert Rosary.fetch_visible_meditation_set(set.id) == {:error, :not_found}
     end
@@ -108,7 +112,7 @@ defmodule LumenViae.Rosary.VisibleSetTest do
     test "declines a set holding an archived meditation, exactly as if it were missing" do
       set = create_set()
       meditation = add_meditation(set, 1)
-      {:ok, _} = Rosary.archive_meditation(meditation)
+      {:ok, _} = Rosary.archive_meditation(meditation, actor: admin())
 
       assert Rosary.fetch_visible_meditation_set(set.id) == {:error, :not_found}
     end
@@ -116,8 +120,8 @@ defmodule LumenViae.Rosary.VisibleSetTest do
     test "returns the set again once the meditation is unarchived" do
       set = create_set()
       meditation = add_meditation(set, 1)
-      {:ok, archived} = Rosary.archive_meditation(meditation)
-      {:ok, _} = Rosary.unarchive_meditation(archived)
+      {:ok, archived} = Rosary.archive_meditation(meditation, actor: admin())
+      {:ok, _} = Rosary.unarchive_meditation(archived, actor: admin())
 
       assert {:ok, _} = Rosary.fetch_visible_meditation_set(set.id)
     end
@@ -137,11 +141,15 @@ defmodule LumenViae.Rosary.VisibleSetTest do
 
     test "is a stable unsigned URL for a set with one" do
       {:ok, set} =
-        Rosary.update_meditation_set_artwork(create_set(), %{
-          "image_key" => "sets/27/8f21c4d9e0b3a7f6.jpg",
-          "image_width" => 1600,
-          "image_height" => 2400
-        })
+        Rosary.update_meditation_set_artwork(
+          create_set(),
+          %{
+            "image_key" => "sets/27/8f21c4d9e0b3a7f6.jpg",
+            "image_width" => 1600,
+            "image_height" => 2400
+          },
+          actor: admin()
+        )
 
       url = Rosary.artwork_url(set)
 

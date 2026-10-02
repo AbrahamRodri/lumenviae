@@ -15,19 +15,25 @@ defmodule LumenViae.Test.Sets do
     unique = System.unique_integer([:positive])
 
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Fixture Mystery #{unique}",
-        category: set.category,
-        order: 1_000 + unique
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Fixture Mystery #{unique}",
+          category: set.category,
+          order: 1_000 + unique
+        },
+        actor: LumenViae.Test.Admins.admin()
+      )
 
     {:ok, meditation} =
       Rosary.create_meditation(
-        Map.merge(%{content: "A meditation.", mystery_id: mystery.id}, attrs)
+        Map.merge(%{content: "A meditation.", mystery_id: mystery.id}, attrs),
+        actor: LumenViae.Test.Admins.admin()
       )
 
     {:ok, _} =
-      Rosary.add_meditation_to_set(set.id, meditation.id, Rosary.next_order_in_set(set.id))
+      Rosary.add_meditation_to_set(set.id, meditation.id, Rosary.next_order_in_set(set.id),
+        actor: LumenViae.Test.Admins.admin()
+      )
 
     set
   end

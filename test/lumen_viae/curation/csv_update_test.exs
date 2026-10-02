@@ -11,23 +11,31 @@ defmodule LumenViae.Curation.CsvUpdateTest do
 
   setup do
     {:ok, mystery} =
-      Rosary.create_mystery(%{name: "The Crowning with Thorns", category: "sorrowful", order: 3})
+      Rosary.create_mystery(%{name: "The Crowning with Thorns", category: "sorrowful", order: 3},
+        actor: admin()
+      )
 
-    {:ok, set} = Rosary.create_meditation_set(%{"name" => "Set", "category" => "sorrowful"})
+    {:ok, set} =
+      Rosary.create_meditation_set(%{"name" => "Set", "category" => "sorrowful"}, actor: admin())
 
     {:ok, meditation} =
-      Rosary.create_meditation(%{
-        "content" => @old,
-        "mystery_id" => mystery.id,
-        "title" => "Not One Member Spared",
-        "source" => "Old source",
-        "audio_url" => "sorrowful_chrysostom_3.mp3"
-      })
+      Rosary.create_meditation(
+        %{
+          "content" => @old,
+          "mystery_id" => mystery.id,
+          "title" => "Not One Member Spared",
+          "source" => "Old source",
+          "audio_url" => "sorrowful_chrysostom_3.mp3"
+        },
+        actor: admin()
+      )
 
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
 
     {:ok, _} =
-      Rosary.record_narration(meditation, "male", "voices/male/sorrowful_chrysostom_3.mp3")
+      Rosary.record_narration(meditation, "male", "voices/male/sorrowful_chrysostom_3.mp3",
+        actor: admin()
+      )
 
     %{meditation: meditation, set: set}
   end
@@ -63,7 +71,8 @@ defmodule LumenViae.Curation.CsvUpdateTest do
     results =
       CsvUpdate.update_string(
         csv([[to_string(meditation.id), "Bear Them in Our Mind", @new, "New source"]]),
-        dry_run: true
+        dry_run: true,
+        actor: admin()
       )
 
     assert [{:ok, message}] = results
@@ -73,7 +82,7 @@ defmodule LumenViae.Curation.CsvUpdateTest do
     assert message =~ "1 custom pause(s)"
     assert message =~ "new source"
 
-    reloaded = Rosary.get_meditation!(meditation.id)
+    reloaded = Rosary.get_meditation!(meditation.id, actor: admin())
     assert reloaded.content == @old
     assert reloaded.title == "Not One Member Spared"
   end
@@ -86,14 +95,15 @@ defmodule LumenViae.Curation.CsvUpdateTest do
 
     results =
       CsvUpdate.update_string(
-        csv([[to_string(meditation.id), "Bear Them in Our Mind", @new, "New source"]])
+        csv([[to_string(meditation.id), "Bear Them in Our Mind", @new, "New source"]]),
+        actor: admin()
       )
 
     assert [{:ok, message}] = results
     assert message =~ "Updated meditation #{meditation.id}"
     assert message =~ "regenerated its narration"
 
-    reloaded = Rosary.get_meditation!(meditation.id)
+    reloaded = Rosary.get_meditation!(meditation.id, actor: admin())
     assert reloaded.title == "Bear Them in Our Mind"
     assert reloaded.source == "New source"
 
@@ -105,7 +115,7 @@ defmodule LumenViae.Curation.CsvUpdateTest do
 
     # Same id, still in its set, now recorded in both voices from the new
     # words - the custom pause replacing the paragraph break's default.
-    assert [%{id: id}] = Rosary.list_meditations_in_set(set.id)
+    assert [%{id: id}] = Rosary.list_meditations_in_set(set.id, actor: admin())
     assert id == meditation.id
 
     assert Enum.map(Rosary.meditation_narrations(reloaded), & &1.voice.slug) == ["female", "male"]
@@ -119,11 +129,14 @@ defmodule LumenViae.Curation.CsvUpdateTest do
 
   test "an empty optional cell leaves that column alone", %{meditation: meditation} do
     results =
-      CsvUpdate.update_string(csv([[to_string(meditation.id), "", @new, ""]]), skip_audio: true)
+      CsvUpdate.update_string(csv([[to_string(meditation.id), "", @new, ""]]),
+        skip_audio: true,
+        actor: admin()
+      )
 
     assert [{:ok, message}] = results
     assert message =~ "audio not regenerated"
-    reloaded = Rosary.get_meditation!(meditation.id)
+    reloaded = Rosary.get_meditation!(meditation.id, actor: admin())
     assert reloaded.title == "Not One Member Spared"
     assert reloaded.source == "Old source"
     assert reloaded.content =~ "The new text"
@@ -139,18 +152,22 @@ defmodule LumenViae.Curation.CsvUpdateTest do
     end)
 
     assert [{:warning, message}] =
-             CsvUpdate.update_string(csv([[to_string(meditation.id), "", @new, ""]]))
+             CsvUpdate.update_string(csv([[to_string(meditation.id), "", @new, ""]]),
+               actor: admin()
+             )
 
     assert message =~ "narration failed"
-    assert Rosary.get_meditation!(meditation.id).content =~ "The new text"
+    assert Rosary.get_meditation!(meditation.id, actor: admin()).content =~ "The new text"
   end
 
   test "rejects unknown ids, bad markup and unknown columns" do
-    assert [{:error, missing}] = CsvUpdate.update_string(csv([["999999", "", @new, ""]]))
+    assert [{:error, missing}] =
+             CsvUpdate.update_string(csv([["999999", "", @new, ""]]), actor: admin())
+
     assert missing =~ "Meditation not found: id 999999"
 
     assert [{:error, columns}] =
-             CsvUpdate.update_string("meditation_id,content,mystery_name\n1,x,y")
+             CsvUpdate.update_string("meditation_id,content,mystery_name\n1,x,y", actor: admin())
 
     assert columns =~ "unknown column(s): mystery_name"
   end
@@ -160,7 +177,8 @@ defmodule LumenViae.Curation.CsvUpdateTest do
              CsvUpdate.update_string(
                csv([
                  [to_string(meditation.id), "", "Text <break time=\"1s\" /> more.\n\nMore.", ""]
-               ])
+               ]),
+               actor: admin()
              )
 
     assert message =~ "literal <break tag"

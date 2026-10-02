@@ -14,14 +14,17 @@ defmodule LumenViaeWeb.API.MeditationControllerTest do
 
   defp create_meditation(attrs) do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Audio Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Audio Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     defaults = %{content: "Some content", mystery_id: mystery.id}
-    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs))
+    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs), actor: admin())
     meditation
   end
 
@@ -73,7 +76,7 @@ defmodule LumenViaeWeb.API.MeditationControllerTest do
 
     test "404s for an archived meditation so withdrawn audio stops playing", %{conn: conn} do
       meditation = create_meditation(%{audio_url: "archived_key.mp3"})
-      {:ok, _} = Rosary.archive_meditation(meditation)
+      {:ok, _} = Rosary.archive_meditation(meditation, actor: admin())
 
       assert conn
              |> get(~p"/api/meditations/#{meditation.id}/audio")

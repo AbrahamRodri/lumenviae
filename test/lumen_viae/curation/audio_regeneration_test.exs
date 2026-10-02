@@ -11,24 +11,34 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
 
   setup do
     {:ok, mystery} =
-      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1},
+        actor: admin()
+      )
 
-    {:ok, set} = Rosary.create_meditation_set(%{"name" => "Regen Set", "category" => "joyful"})
+    {:ok, set} =
+      Rosary.create_meditation_set(%{"name" => "Regen Set", "category" => "joyful"},
+        actor: admin()
+      )
 
     {:ok, with_audio} =
-      Rosary.create_meditation(%{
-        "content" => @content,
-        "mystery_id" => mystery.id,
-        "title" => "Fiat",
-        "audio_url" => "regen_clip.mp3",
-        "tts_annotations" => @annotations
-      })
+      Rosary.create_meditation(
+        %{
+          "content" => @content,
+          "mystery_id" => mystery.id,
+          "title" => "Fiat",
+          "audio_url" => "regen_clip.mp3",
+          "tts_annotations" => @annotations
+        },
+        actor: admin()
+      )
 
     {:ok, without_audio} =
-      Rosary.create_meditation(%{"content" => @content, "mystery_id" => mystery.id})
+      Rosary.create_meditation(%{"content" => @content, "mystery_id" => mystery.id},
+        actor: admin()
+      )
 
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, with_audio.id, 1)
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, without_audio.id, 2)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, with_audio.id, 1, actor: admin())
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, without_audio.id, 2, actor: admin())
 
     %{set: set, with_audio: with_audio, without_audio: without_audio, mystery: mystery}
   end
@@ -63,7 +73,7 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
   test "dry run lists the pause plan per voice without calling ElevenLabs or S3", %{set: set} do
     stub_apis()
 
-    results = AudioRegeneration.run({:set, set.name}, dry_run: true)
+    results = AudioRegeneration.run({:set, set.name}, dry_run: true, actor: admin())
 
     assert [{:ok, female}, {:ok, male}, {:warning, skipped}] = results
     assert female =~ "Would regenerate voices/female/regen_clip.mp3"
@@ -84,9 +94,9 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     with_audio: with_audio
   } do
     stub_apis()
-    meditations_before = Rosary.count_meditations()
+    meditations_before = Rosary.count_meditations(actor: admin())
 
-    results = AudioRegeneration.run({:set, set.name})
+    results = AudioRegeneration.run({:set, set.name}, actor: admin())
 
     assert [{:ok, female}, {:ok, male}, {:warning, _skipped}] = results
     assert female =~ "Regenerated voices/female/regen_clip.mp3"
@@ -106,8 +116,8 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
                "/lumenviae-audio/voices/male/regen_clip.mp3"
              ]
 
-    assert Rosary.count_meditations() == meditations_before
-    reloaded = Rosary.get_meditation!(with_audio.id)
+    assert Rosary.count_meditations(actor: admin()) == meditations_before
+    reloaded = Rosary.get_meditation!(with_audio.id, actor: admin())
     assert reloaded.content == @content
     assert reloaded.audio_url == "regen_clip.mp3"
     assert reloaded.tts_annotations == @annotations
@@ -120,7 +130,10 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     stub_apis()
 
     assert [{:ok, message}] =
-             AudioRegeneration.run({:meditation, with_audio.id}, voices: ["female"])
+             AudioRegeneration.run({:meditation, with_audio.id},
+               voices: ["female"],
+               actor: admin()
+             )
 
     assert message =~ "Regenerated voices/female/regen_clip.mp3"
     assert_received {:tts_text, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", _}
@@ -134,7 +147,10 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     stub_apis()
 
     assert [{:error, message}] =
-             AudioRegeneration.run({:meditation, with_audio.id}, voices: ["female", "tenor"])
+             AudioRegeneration.run({:meditation, with_audio.id},
+               voices: ["female", "tenor"],
+               actor: admin()
+             )
 
     assert message =~ "Unknown voice(s): tenor"
     refute_received {:tts_text, _, _}
@@ -142,9 +158,12 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
 
   test "only_missing keeps recordings already on record", %{with_audio: with_audio} do
     stub_apis()
-    {:ok, _} = Rosary.record_narration(with_audio, "male", "voices/male/regen_clip.mp3")
 
-    results = AudioRegeneration.run({:meditation, with_audio.id}, only_missing: true)
+    {:ok, _} =
+      Rosary.record_narration(with_audio, "male", "voices/male/regen_clip.mp3", actor: admin())
+
+    results =
+      AudioRegeneration.run({:meditation, with_audio.id}, only_missing: true, actor: admin())
 
     assert [{:ok, female}, {:ok, male}] = results
     assert female =~ "Regenerated voices/female/regen_clip.mp3"
@@ -161,22 +180,28 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     stub_apis()
 
     {:ok, later} =
-      Rosary.create_meditation(%{
-        "content" => @content,
-        "mystery_id" => mystery.id,
-        "audio_url" => "later_clip.mp3"
-      })
+      Rosary.create_meditation(
+        %{
+          "content" => @content,
+          "mystery_id" => mystery.id,
+          "audio_url" => "later_clip.mp3"
+        },
+        actor: admin()
+      )
 
     {:ok, archived} =
-      Rosary.create_meditation(%{
-        "content" => @content,
-        "mystery_id" => mystery.id,
-        "audio_url" => "archived_clip.mp3"
-      })
+      Rosary.create_meditation(
+        %{
+          "content" => @content,
+          "mystery_id" => mystery.id,
+          "audio_url" => "archived_clip.mp3"
+        },
+        actor: admin()
+      )
 
-    {:ok, _} = Rosary.archive_meditation(archived)
+    {:ok, _} = Rosary.archive_meditation(archived, actor: admin())
 
-    results = AudioRegeneration.run(:all, voices: ["female"], dry_run: true)
+    results = AudioRegeneration.run(:all, voices: ["female"], dry_run: true, actor: admin())
 
     assert [{:ok, first}, {:warning, _no_file}, {:ok, second}] = results
     assert first =~ "meditation #{with_audio.id}"
@@ -189,14 +214,15 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
 
     results =
       AudioRegeneration.run({:set, "No Such Set"},
-        progress: fn event -> send(test_pid, {:progress, event}) end
+        progress: fn event -> send(test_pid, {:progress, event}) end,
+        actor: admin()
       )
 
     assert [{:error, message}] = results
     assert message =~ "Meditation set not found: No Such Set"
     assert_received {:progress, {:item_finished, 1, 1, {:error, _}}}
 
-    assert [{:error, not_found}] = AudioRegeneration.run({:meditation, 999_999})
+    assert [{:error, not_found}] = AudioRegeneration.run({:meditation, 999_999}, actor: admin())
     assert not_found =~ "Meditation not found"
   end
 end

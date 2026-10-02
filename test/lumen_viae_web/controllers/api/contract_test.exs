@@ -43,31 +43,37 @@ defmodule LumenViaeWeb.API.ContractTest do
       scripture_reference: "Luke 1:26-38"
     }
 
-    {:ok, mystery} = Rosary.create_mystery(Map.merge(defaults, attrs))
+    {:ok, mystery} = Rosary.create_mystery(Map.merge(defaults, attrs), actor: admin())
     mystery
   end
 
   defp create_populated_set do
     {:ok, set} =
-      Rosary.create_meditation_set(%{
-        name: "Contract Set",
-        category: "joyful",
-        description: "A description",
-        labels: ["Saints"]
-      })
+      Rosary.create_meditation_set(
+        %{
+          name: "Contract Set",
+          category: "joyful",
+          description: "A description",
+          labels: ["Saints"]
+        },
+        actor: admin()
+      )
 
     mystery = create_mystery()
 
     {:ok, meditation} =
-      Rosary.create_meditation(%{
-        content: "Contract content",
-        title: "A title",
-        author: "An author",
-        source: "A source",
-        mystery_id: mystery.id
-      })
+      Rosary.create_meditation(
+        %{
+          content: "Contract content",
+          title: "A title",
+          author: "An author",
+          source: "A source",
+          mystery_id: mystery.id
+        },
+        actor: admin()
+      )
 
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
     set
   end
 
@@ -139,7 +145,9 @@ defmodule LumenViaeWeb.API.ContractTest do
     end
 
     test "labels is an empty array rather than null when a set has none", %{conn: conn} do
-      {:ok, bare} = Rosary.create_meditation_set(%{name: "Bare", category: "joyful"})
+      {:ok, bare} =
+        Rosary.create_meditation_set(%{name: "Bare", category: "joyful"}, actor: admin())
+
       LumenViae.Test.Sets.with_meditation(bare)
 
       [summary] =
@@ -218,8 +226,10 @@ defmodule LumenViaeWeb.API.ContractTest do
       bare_mystery =
         create_mystery(%{days_prayed: nil, description: nil, scripture_reference: nil})
 
-      {:ok, bare} = Rosary.create_meditation(%{content: "Bare", mystery_id: bare_mystery.id})
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, bare.id, 2)
+      {:ok, bare} =
+        Rosary.create_meditation(%{content: "Bare", mystery_id: bare_mystery.id}, actor: admin())
+
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, bare.id, 2, actor: admin())
 
       data =
         conn
@@ -260,18 +270,22 @@ defmodule LumenViaeWeb.API.ContractTest do
     # D3: the player reads meditations[i] as decade i. Added in an order
     # that is neither id order nor heap order.
     test "meditations come back in prayer order, not id order", %{conn: conn} do
-      {:ok, set} = Rosary.create_meditation_set(%{name: "Ordered", category: "joyful"})
+      {:ok, set} =
+        Rosary.create_meditation_set(%{name: "Ordered", category: "joyful"}, actor: admin())
+
       mystery = create_mystery()
 
       [m1, m2, m3] =
         for n <- 1..3 do
-          {:ok, m} = Rosary.create_meditation(%{content: "M#{n}", mystery_id: mystery.id})
+          {:ok, m} =
+            Rosary.create_meditation(%{content: "M#{n}", mystery_id: mystery.id}, actor: admin())
+
           m
         end
 
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, m3.id, 1)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, m1.id, 2)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, m2.id, 3)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, m3.id, 1, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, m1.id, 2, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, m2.id, 3, actor: admin())
 
       data =
         conn
@@ -319,7 +333,10 @@ defmodule LumenViaeWeb.API.ContractTest do
 
   describe "POST /api/completions" do
     test "every shipped completion key is present and correctly typed", %{conn: conn} do
-      {:ok, set} = Rosary.create_meditation_set(%{name: "Completion Set", category: "joyful"})
+      {:ok, set} =
+        Rosary.create_meditation_set(%{name: "Completion Set", category: "joyful"},
+          actor: admin()
+        )
 
       data =
         conn

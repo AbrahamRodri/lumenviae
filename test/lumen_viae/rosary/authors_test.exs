@@ -5,13 +5,13 @@ defmodule LumenViae.Rosary.AuthorsTest do
 
   defp create_author(attrs \\ %{}) do
     defaults = %{name: "Author #{System.unique_integer([:positive])}"}
-    {:ok, author} = Rosary.create_author(Map.merge(defaults, attrs))
+    {:ok, author} = Rosary.create_author(Map.merge(defaults, attrs), actor: admin())
     author
   end
 
   defp create_set(attrs) do
     defaults = %{name: "Author Set #{System.unique_integer([:positive])}", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     # With a meditation, so the public reads these tests go through see it.
     LumenViae.Test.Sets.with_meditation(set)
   end
@@ -29,20 +29,24 @@ defmodule LumenViae.Rosary.AuthorsTest do
   end
 
   defp give_portrait(author) do
-    {:ok, author} = Rosary.update_author_artwork(author, portrait_attrs(author.id))
+    {:ok, author} =
+      Rosary.update_author_artwork(author, portrait_attrs(author.id), actor: admin())
+
     author
   end
 
   describe "create_author/1" do
     test "requires a name" do
-      assert {:error, error} = Rosary.create_author(%{})
+      assert {:error, error} = Rosary.create_author(%{}, actor: admin())
       assert errors_on(error).name == ["is required"]
     end
 
     test "refuses a duplicate name" do
       create_author(%{name: "Venerable Fulton J. Sheen"})
 
-      assert {:error, error} = Rosary.create_author(%{name: "Venerable Fulton J. Sheen"})
+      assert {:error, error} =
+               Rosary.create_author(%{name: "Venerable Fulton J. Sheen"}, actor: admin())
+
       assert errors_on(error).name == ["has already been taken"]
     end
   end
@@ -53,7 +57,7 @@ defmodule LumenViae.Rosary.AuthorsTest do
       create_author(%{name: "Bl. Anne Catherine Emmerich"})
 
       assert ["Bl. Anne Catherine Emmerich", "St. Louis de Montfort"] =
-               Rosary.list_authors!() |> Enum.map(& &1.name)
+               Rosary.list_authors!(actor: admin()) |> Enum.map(& &1.name)
     end
   end
 
@@ -75,17 +79,20 @@ defmodule LumenViae.Rosary.AuthorsTest do
         assert {:error, %Ash.Error.Invalid{}} =
                  Rosary.update_author_artwork_metadata(
                    author,
-                   Map.put(managed, "image_alt", "A better description.")
+                   Map.put(managed, "image_alt", "A better description."),
+                   actor: admin()
                  )
       end
 
-      unchanged = Rosary.get_author!(author.id)
+      unchanged = Rosary.get_author!(author.id, actor: admin())
       assert unchanged.image_key == author.image_key
       assert unchanged.image_width == author.image_width
       assert unchanged.image_alt == author.image_alt
 
       {:ok, updated} =
-        Rosary.update_author_artwork_metadata(author, %{"image_alt" => "A better description."})
+        Rosary.update_author_artwork_metadata(author, %{"image_alt" => "A better description."},
+          actor: admin()
+        )
 
       assert updated.image_key == author.image_key
       assert updated.image_alt == "A better description."
@@ -95,19 +102,25 @@ defmodule LumenViae.Rosary.AuthorsTest do
       author = create_author() |> give_portrait()
 
       assert {:error, %Ash.Error.Invalid{}} =
-               Rosary.update_author(author, %{name: "Renamed", image_alt: "Slipped in."})
+               Rosary.update_author(author, %{name: "Renamed", image_alt: "Slipped in."},
+                 actor: admin()
+               )
 
-      assert Rosary.get_author!(author.id).image_alt == author.image_alt
+      assert Rosary.get_author!(author.id, actor: admin()).image_alt == author.image_alt
     end
 
     test "trims the text fields and stores a blank one as nothing" do
       author = create_author() |> give_portrait()
 
       {:ok, updated} =
-        Rosary.update_author_artwork_metadata(author, %{
-          "image_alt" => "   ",
-          "image_title" => "  The Portrait  "
-        })
+        Rosary.update_author_artwork_metadata(
+          author,
+          %{
+            "image_alt" => "   ",
+            "image_title" => "  The Portrait  "
+          },
+          actor: admin()
+        )
 
       assert updated.image_alt == nil
       assert updated.image_title == "The Portrait"
@@ -117,11 +130,15 @@ defmodule LumenViae.Rosary.AuthorsTest do
       author = create_author() |> give_portrait()
 
       assert {:error, error} =
-               Rosary.update_author_artwork_metadata(author, %{
-                 "image_license" => "all_rights_reserved",
-                 "image_source_url" => "ftp://example.com/portrait.jpg",
-                 "image_focal_x" => 1.5
-               })
+               Rosary.update_author_artwork_metadata(
+                 author,
+                 %{
+                   "image_license" => "all_rights_reserved",
+                   "image_source_url" => "ftp://example.com/portrait.jpg",
+                   "image_focal_x" => 1.5
+                 },
+                 actor: admin()
+               )
 
       errors = errors_on(error)
       assert errors.image_license == ["is not one of the licences this project records"]
@@ -133,11 +150,15 @@ defmodule LumenViae.Rosary.AuthorsTest do
       author = create_author()
 
       assert {:error, error} =
-               Rosary.update_author_artwork(author, %{
-                 "image_key" => "authors/#{author.id}/aaaa.jpg",
-                 "image_width" => 0,
-                 "image_height" => 2000
-               })
+               Rosary.update_author_artwork(
+                 author,
+                 %{
+                   "image_key" => "authors/#{author.id}/aaaa.jpg",
+                   "image_width" => 0,
+                   "image_height" => 2000
+                 },
+                 actor: admin()
+               )
 
       assert errors_on(error).image_width == ["must be greater than 0"]
     end
@@ -148,9 +169,9 @@ defmodule LumenViae.Rosary.AuthorsTest do
       author = create_author()
       set = create_set(%{author_id: author.id})
 
-      assert {:ok, _author} = Rosary.delete_author(author)
+      assert {:ok, _author} = Rosary.delete_author(author, actor: admin())
 
-      reloaded = Rosary.get_meditation_set!(set.id)
+      reloaded = Rosary.get_meditation_set!(set.id, actor: admin())
       assert reloaded.author_id == nil
     end
   end
@@ -161,13 +182,17 @@ defmodule LumenViae.Rosary.AuthorsTest do
       set = create_set(%{author_id: author.id})
 
       {:ok, set} =
-        Rosary.update_meditation_set_artwork(set, %{
-          "image_key" => "sets/#{set.id}/aaaa1111bbbb2222.jpg",
-          "image_width" => 1600,
-          "image_height" => 2400,
-          "image_alt" => "The set's own painting.",
-          "image_license" => "public_domain"
-        })
+        Rosary.update_meditation_set_artwork(
+          set,
+          %{
+            "image_key" => "sets/#{set.id}/aaaa1111bbbb2222.jpg",
+            "image_width" => 1600,
+            "image_height" => 2400,
+            "image_alt" => "The set's own painting.",
+            "image_license" => "public_domain"
+          },
+          actor: admin()
+        )
 
       {:ok, set} = Rosary.fetch_visible_meditation_set(set.id)
 
@@ -188,11 +213,15 @@ defmodule LumenViae.Rosary.AuthorsTest do
       author = create_author()
 
       {:ok, author} =
-        Rosary.update_author_artwork(author, %{
-          "image_key" => "authors/#{author.id}/cccc3333dddd4444.jpg",
-          "image_width" => 1600,
-          "image_height" => 2000
-        })
+        Rosary.update_author_artwork(
+          author,
+          %{
+            "image_key" => "authors/#{author.id}/cccc3333dddd4444.jpg",
+            "image_width" => 1600,
+            "image_height" => 2000
+          },
+          actor: admin()
+        )
 
       set = create_set(%{author_id: author.id})
       {:ok, set} = Rosary.fetch_visible_meditation_set(set.id)

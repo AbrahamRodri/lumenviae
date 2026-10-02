@@ -6,21 +6,25 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
   alias LumenViae.Rosary
 
   setup %{conn: conn} do
-    {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true})}
+    {:ok, conn: log_in_admin(conn)}
   end
 
   defp create_author(name \\ "Venerable Fulton J. Sheen") do
-    {:ok, author} = Rosary.create_author(%{name: name})
+    {:ok, author} = Rosary.create_author(%{name: name}, actor: admin())
     author
   end
 
   defp give_portrait(author) do
     {:ok, author} =
-      Rosary.update_author_artwork(author, %{
-        "image_key" => "authors/#{author.id}/8f21c4d9e0b3a7f6.jpg",
-        "image_width" => 1600,
-        "image_height" => 2000
-      })
+      Rosary.update_author_artwork(
+        author,
+        %{
+          "image_key" => "authors/#{author.id}/8f21c4d9e0b3a7f6.jpg",
+          "image_width" => 1600,
+          "image_height" => 2000
+        },
+        actor: admin()
+      )
 
     author
   end
@@ -33,7 +37,7 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
       |> form("form[phx-submit=create_author]", %{author: %{name: "St. Louis de Montfort"}})
       |> render_submit()
 
-      assert [author] = Rosary.list_authors!()
+      assert [author] = Rosary.list_authors!(actor: admin())
       assert author.name == "St. Louis de Montfort"
       assert_redirect(view, "/admin/authors/#{author.id}/edit")
     end
@@ -50,7 +54,7 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
         |> render_submit()
 
       assert html =~ "has already been taken"
-      assert length(Rosary.list_authors!()) == 1
+      assert length(Rosary.list_authors!(actor: admin())) == 1
     end
   end
 
@@ -67,7 +71,7 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
         |> render_submit()
 
       assert html =~ "Author updated"
-      assert Rosary.get_author!(author.id).name == "Blessed Fulton J. Sheen"
+      assert Rosary.get_author!(author.id, actor: admin()).name == "Blessed Fulton J. Sheen"
     end
 
     test "saves the artwork details and says when the portrait is not served yet", %{conn: conn} do
@@ -93,7 +97,7 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
       assert html =~ "Portrait saved"
       refute html =~ "not served yet"
 
-      saved = Rosary.get_author!(author.id)
+      saved = Rosary.get_author!(author.id, actor: admin())
       assert saved.image_alt == "A portrait of the archbishop at his desk."
       assert saved.image_license == "public_domain"
       assert saved.image_key == author.image_key
@@ -112,7 +116,7 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
 
       assert html =~ "Failed to save the artwork details"
       assert html =~ "must start with http:// or https://"
-      assert Rosary.get_author!(author.id).image_alt == nil
+      assert Rosary.get_author!(author.id, actor: admin()).image_alt == nil
     end
 
     # A crafted post naming a managed column is the case the two artwork
@@ -125,7 +129,7 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
         "artwork" => %{"image_key" => "authors/999/stolen.jpg", "image_alt" => "A portrait."}
       })
 
-      saved = Rosary.get_author!(author.id)
+      saved = Rosary.get_author!(author.id, actor: admin())
       assert saved.image_key == author.image_key
       assert saved.image_alt == "A portrait."
     end
@@ -137,7 +141,7 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
       render_hook(view, "set_focal_point", %{"x" => 0.25, "y" => 0.75})
       render_click(view, "nudge_focal", %{"axis" => "y", "delta" => "0.05"})
 
-      saved = Rosary.get_author!(author.id)
+      saved = Rosary.get_author!(author.id, actor: admin())
       assert saved.image_focal_x == 0.25
       assert saved.image_focal_y == 0.8
 
@@ -146,7 +150,7 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
       |> form("form[phx-submit=update_author]", %{author: %{name: "Renamed"}})
       |> render_submit()
 
-      saved = Rosary.get_author!(author.id)
+      saved = Rosary.get_author!(author.id, actor: admin())
       assert saved.name == "Renamed"
       assert saved.image_focal_x == 0.25
       assert saved.image_focal_y == 0.8
@@ -156,15 +160,18 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
   describe "list" do
     test "deleting an author leaves their sets in place, unlinked", %{conn: conn} do
       author = create_author()
-      {:ok, set} = Rosary.create_meditation_set(%{name: "Sheen", category: "joyful"})
-      {:ok, set} = Rosary.update_meditation_set(set, %{author_id: author.id})
+
+      {:ok, set} =
+        Rosary.create_meditation_set(%{name: "Sheen", category: "joyful"}, actor: admin())
+
+      {:ok, set} = Rosary.update_meditation_set(set, %{author_id: author.id}, actor: admin())
       {:ok, view, _html} = live(conn, "/admin/authors")
 
       html = render_click(view, "delete_author", %{"id" => to_string(author.id)})
 
       assert html =~ "Author deleted"
-      assert Rosary.list_authors!() == []
-      assert Rosary.get_meditation_set!(set.id).author_id == nil
+      assert Rosary.list_authors!(actor: admin()) == []
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).author_id == nil
     end
   end
 end

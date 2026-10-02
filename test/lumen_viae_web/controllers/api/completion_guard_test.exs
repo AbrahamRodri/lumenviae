@@ -19,7 +19,8 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
     Application.put_env(:lumen_viae, :completions_per_hour, @limit)
     on_exit(fn -> Application.put_env(:lumen_viae, :completions_per_hour, previous) end)
 
-    {:ok, set} = Rosary.create_meditation_set(%{name: "Guarded", category: "joyful"})
+    {:ok, set} =
+      Rosary.create_meditation_set(%{name: "Guarded", category: "joyful"}, actor: admin())
 
     %{set: set}
   end
@@ -42,7 +43,7 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
 
   describe "a crawler" do
     test "is refused, and records nothing", %{conn: conn, set: set} do
-      before = Rosary.count_total_completions()
+      before = Rosary.count_total_completions(actor: admin())
 
       body =
         conn
@@ -52,7 +53,7 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
         |> json_response(403)
 
       assert body["error"]["code"] == "automated_client"
-      assert Rosary.count_total_completions() == before
+      assert Rosary.count_total_completions(actor: admin()) == before
     end
 
     test "so is a scripted client that names itself", %{conn: conn, set: set} do
@@ -66,7 +67,7 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
 
   describe "a person" do
     test "is let through", %{conn: conn, set: set} do
-      before = Rosary.count_total_completions()
+      before = Rosary.count_total_completions(actor: admin())
 
       assert conn
              |> from_a_new_address()
@@ -74,7 +75,7 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
              |> complete(set)
              |> json_response(201)
 
-      assert Rosary.count_total_completions() == before + 1
+      assert Rosary.count_total_completions(actor: admin()) == before + 1
     end
   end
 

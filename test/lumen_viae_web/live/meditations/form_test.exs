@@ -7,14 +7,16 @@ defmodule LumenViaeWeb.Live.Meditations.FormTest do
 
   setup %{conn: conn} do
     {:ok, mystery} =
-      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1},
+        actor: admin()
+      )
 
-    {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true}), mystery: mystery}
+    {:ok, conn: log_in_admin(conn), mystery: mystery}
   end
 
   defp create_meditation(mystery, attrs \\ %{}) do
     defaults = %{content: "The angel came in unto her.", mystery_id: mystery.id}
-    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs))
+    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs), actor: admin())
     meditation
   end
 
@@ -35,7 +37,7 @@ defmodule LumenViaeWeb.Live.Meditations.FormTest do
       })
       |> render_submit()
 
-      assert [meditation] = Rosary.list_meditations!()
+      assert [meditation] = Rosary.list_meditations!(actor: admin())
       assert meditation.content == content
       assert meditation.title == "On the Annunciation"
       assert meditation.audio_url == "Joyful-Liguori-1.mp3"
@@ -62,7 +64,7 @@ defmodule LumenViaeWeb.Live.Meditations.FormTest do
       assert html =~ "contains an unprocessed {pause:N} marker"
       assert html =~ ~s(value="A careful curator")
       assert html =~ "A pause {pause:2} left in by mistake."
-      assert Rosary.list_meditations!() == []
+      assert Rosary.list_meditations!(actor: admin()) == []
     end
   end
 
@@ -82,7 +84,9 @@ defmodule LumenViaeWeb.Live.Meditations.FormTest do
         |> render_submit()
 
       assert html =~ "Meditation updated successfully"
-      assert Rosary.get_meditation!(meditation.id).author == "Venerable Fulton J. Sheen"
+
+      assert Rosary.get_meditation!(meditation.id, actor: admin()).author ==
+               "Venerable Fulton J. Sheen"
     end
 
     test "an edit to the words clears the narration pauses that indexed them", %{
@@ -100,7 +104,7 @@ defmodule LumenViaeWeb.Live.Meditations.FormTest do
       })
       |> render_submit()
 
-      saved = Rosary.get_meditation!(meditation.id)
+      saved = Rosary.get_meditation!(meditation.id, actor: admin())
       assert saved.content == "The angel Gabriel came in unto her."
       assert saved.tts_annotations == []
     end
@@ -121,7 +125,9 @@ defmodule LumenViaeWeb.Live.Meditations.FormTest do
 
       assert html =~ "Failed to update meditation"
       assert html =~ "must not contain &lt;break&gt; tags"
-      assert Rosary.get_meditation!(meditation.id).content == "The angel came in unto her."
+
+      assert Rosary.get_meditation!(meditation.id, actor: admin()).content ==
+               "The angel came in unto her."
     end
 
     test "two saves in a row both land", %{conn: conn, mystery: mystery} do
@@ -134,7 +140,7 @@ defmodule LumenViaeWeb.Live.Meditations.FormTest do
         |> render_submit()
       end
 
-      assert Rosary.get_meditation!(meditation.id).title == "Second title"
+      assert Rosary.get_meditation!(meditation.id, actor: admin()).title == "Second title"
     end
 
     test "a meditation that does not exist is a 404", %{conn: conn} do

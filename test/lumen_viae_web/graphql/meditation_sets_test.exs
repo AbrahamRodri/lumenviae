@@ -62,26 +62,31 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
   # For a test that fills the set itself.
   defp create_empty_set(attrs) do
     defaults = %{name: "GraphQL Set #{System.unique_integer([:positive])}", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
   defp create_mystery do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "GraphQL Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: 100 + rem(System.unique_integer([:positive]), 100_000),
-        days_prayed: "Monday, Saturday",
-        scripture_reference: "Luke 1:26-38"
-      })
+      Rosary.create_mystery(
+        %{
+          name: "GraphQL Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: 100 + rem(System.unique_integer([:positive]), 100_000),
+          days_prayed: "Monday, Saturday",
+          scripture_reference: "Luke 1:26-38"
+        },
+        actor: admin()
+      )
 
     mystery
   end
 
   defp create_meditation(mystery, attrs) do
     {:ok, meditation} =
-      Rosary.create_meditation(Map.merge(%{content: "Text", mystery_id: mystery.id}, attrs))
+      Rosary.create_meditation(Map.merge(%{content: "Text", mystery_id: mystery.id}, attrs),
+        actor: admin()
+      )
 
     meditation
   end
@@ -109,7 +114,7 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
       _b = create_set(%{name: "B", category: "seven_sorrows"})
       c = create_set(%{name: "C", category: "seven_sorrows"})
       # Updated after the others, so heap order would put it last.
-      {:ok, _} = Rosary.update_meditation_set(a, %{description: "Edited"})
+      {:ok, _} = Rosary.update_meditation_set(a, %{description: "Edited"}, actor: admin())
       _other = create_set(%{name: "Elsewhere", category: "glorious"})
 
       %{"data" => %{"visibleMeditationSets" => sets}} =
@@ -128,8 +133,8 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
       shown = create_set(%{name: "Shown", category: "luminous"})
       hidden = create_empty_set(%{name: "Hidden", category: "luminous"})
       archived = create_meditation(mystery, %{content: "Withdrawn"})
-      {:ok, _} = Rosary.add_meditation_to_set(hidden.id, archived.id, 1)
-      {:ok, _} = Rosary.archive_meditation(archived)
+      {:ok, _} = Rosary.add_meditation_to_set(hidden.id, archived.id, 1, actor: admin())
+      {:ok, _} = Rosary.archive_meditation(archived, actor: admin())
 
       %{"data" => %{"visibleMeditationSets" => sets}} =
         graphql(conn, @list_query, %{category: "luminous"})
@@ -177,7 +182,7 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
         m =
           create_meditation(mystery, %{author: "Bl. Anne Catherine Emmerich", source: "Visions"})
 
-        {:ok, _} = Rosary.add_meditation_to_set(derived.id, m.id, order)
+        {:ok, _} = Rosary.add_meditation_to_set(derived.id, m.id, order, actor: admin())
       end
 
       %{"data" => %{"visibleMeditationSets" => sets}} =
@@ -200,15 +205,19 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
       painted = create_set(%{name: "Painted", category: "joyful"})
 
       {:ok, _} =
-        Rosary.update_meditation_set_artwork(painted, %{
-          "image_key" => "sets/1/abc.jpg",
-          "image_width" => 1600,
-          "image_height" => 2400,
-          "image_focal_y" => 0.2,
-          "image_alt" => "The Annunciation.",
-          "image_license" => "public_domain",
-          "image_year" => "c. 1440"
-        })
+        Rosary.update_meditation_set_artwork(
+          painted,
+          %{
+            "image_key" => "sets/1/abc.jpg",
+            "image_width" => 1600,
+            "image_height" => 2400,
+            "image_focal_y" => 0.2,
+            "image_alt" => "The Annunciation.",
+            "image_license" => "public_domain",
+            "image_year" => "c. 1440"
+          },
+          actor: admin()
+        )
 
       bare = create_set(%{name: "Bare", category: "joyful"})
 
@@ -235,16 +244,21 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
     end
 
     test "falls back to the author's portrait, as REST does", %{conn: conn} do
-      {:ok, author} = Rosary.create_author(%{name: "Portrait #{System.unique_integer()}"})
+      {:ok, author} =
+        Rosary.create_author(%{name: "Portrait #{System.unique_integer()}"}, actor: admin())
 
       {:ok, _} =
-        Rosary.update_author_artwork(author, %{
-          "image_key" => "authors/1/portrait.jpg",
-          "image_width" => 800,
-          "image_height" => 1000,
-          "image_alt" => "A portrait.",
-          "image_license" => "public_domain"
-        })
+        Rosary.update_author_artwork(
+          author,
+          %{
+            "image_key" => "authors/1/portrait.jpg",
+            "image_width" => 800,
+            "image_height" => 1000,
+            "image_alt" => "A portrait.",
+            "image_license" => "public_domain"
+          },
+          actor: admin()
+        )
 
       linked = create_set(%{name: "Linked", category: "joyful", author_id: author.id})
 
@@ -276,12 +290,14 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
       third = create_meditation(mystery, %{content: "Third"})
 
       # Prayer order differs from id order, so only an explicit sort passes.
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, third.id, 1)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, first.id, 2)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, second.id, 3)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, third.id, 1, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, first.id, 2, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, second.id, 3, actor: admin())
 
-      {:ok, _} = Rosary.record_narration(first, "male", "voices/male/first.mp3")
-      {:ok, _} = Rosary.record_narration(first, "female", "voices/female/first.mp3")
+      {:ok, _} = Rosary.record_narration(first, "male", "voices/male/first.mp3", actor: admin())
+
+      {:ok, _} =
+        Rosary.record_narration(first, "female", "voices/female/first.mp3", actor: admin())
 
       %{set: set, mystery: mystery, first: first, second: second, third: third}
     end
@@ -389,7 +405,7 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
       set: set,
       second: second
     } do
-      {:ok, _} = Rosary.archive_meditation(second)
+      {:ok, _} = Rosary.archive_meditation(second, actor: admin())
 
       body = graphql(conn, @detail_query, %{id: to_string(set.id)})
 

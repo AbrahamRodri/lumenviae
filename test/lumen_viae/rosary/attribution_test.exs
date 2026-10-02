@@ -5,31 +5,35 @@ defmodule LumenViae.Rosary.AttributionTest do
 
   defp create_set(attrs \\ %{}) do
     defaults = %{name: "Byline Set #{System.unique_integer([:positive])}", category: "sorrowful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
   defp add_meditation(set, attrs) do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Mystery #{System.unique_integer([:positive])}",
-        category: "sorrowful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Mystery #{System.unique_integer([:positive])}",
+          category: "sorrowful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     {:ok, meditation} =
       Rosary.create_meditation(
-        Map.merge(%{content: "Some content", mystery_id: mystery.id}, attrs)
+        Map.merge(%{content: "Some content", mystery_id: mystery.id}, attrs),
+        actor: admin()
       )
 
-    order = length(Rosary.list_meditations_in_set(set.id)) + 1
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order)
+    order = length(Rosary.list_meditations_in_set(set.id, actor: admin())) + 1
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order, actor: admin())
     meditation
   end
 
   # The set as the admin's list reads it, derivation included.
   defp listed(set) do
-    Enum.find(Rosary.list_meditation_sets!(), &(&1.id == set.id))
+    Enum.find(Rosary.list_meditation_sets!(actor: admin()), &(&1.id == set.id))
   end
 
   describe "the derived byline" do
@@ -111,7 +115,8 @@ defmodule LumenViae.Rosary.AttributionTest do
       assert resolved.author == nil
       assert resolved.source == nil
 
-      {:ok, saved} = Rosary.update_meditation_set(resolved, %{"name" => "Renamed"})
+      {:ok, saved} =
+        Rosary.update_meditation_set(resolved, %{"name" => "Renamed"}, actor: admin())
 
       assert saved.author == nil
       assert saved.source == nil

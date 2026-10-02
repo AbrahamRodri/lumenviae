@@ -31,7 +31,11 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
     Application.put_env(:lumen_viae, :completions_per_hour, @limit)
     on_exit(fn -> Application.put_env(:lumen_viae, :completions_per_hour, previous) end)
 
-    {:ok, set} = Rosary.create_meditation_set(%{name: "Prayed over GraphQL", category: "joyful"})
+    {:ok, set} =
+      Rosary.create_meditation_set(%{name: "Prayed over GraphQL", category: "joyful"},
+        actor: admin()
+      )
+
     LumenViae.Test.Sets.with_meditation(set)
 
     %{set: set, conn: from_a_new_address(build_conn())}
@@ -69,14 +73,17 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
 
   test "a hidden set is refused exactly like a missing one", %{conn: conn, set: set} do
     {:ok, mystery} =
-      Rosary.create_mystery(%{name: "Hidden", category: "joyful", order: 900_001})
+      Rosary.create_mystery(%{name: "Hidden", category: "joyful", order: 900_001}, actor: admin())
 
-    {:ok, archived} = Rosary.create_meditation(%{content: "Withdrawn", mystery_id: mystery.id})
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, archived.id, 2)
-    {:ok, _} = Rosary.archive_meditation(archived)
+    {:ok, archived} =
+      Rosary.create_meditation(%{content: "Withdrawn", mystery_id: mystery.id}, actor: admin())
+
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, archived.id, 2, actor: admin())
+    {:ok, _} = Rosary.archive_meditation(archived, actor: admin())
 
     # A set with no meditations yet is hidden too.
-    {:ok, empty} = Rosary.create_meditation_set(%{name: "Not filled yet", category: "joyful"})
+    {:ok, empty} =
+      Rosary.create_meditation_set(%{name: "Not filled yet", category: "joyful"}, actor: admin())
 
     hidden = record(conn, set.id)
     missing = record(conn, 999_999_999)
@@ -104,7 +111,7 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
 
   describe "the guard" do
     test "turns a crawler away, and records nothing", %{conn: conn, set: set} do
-      before = Rosary.count_total_completions()
+      before = Rosary.count_total_completions(actor: admin())
 
       body =
         conn
@@ -112,7 +119,7 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
         |> record(set.id)
 
       assert [%{"code" => "automated_client"}] = body["errors"]
-      assert Rosary.count_total_completions() == before
+      assert Rosary.count_total_completions(actor: admin()) == before
     end
 
     test "lets the app's own user agent through", %{conn: conn, set: set} do

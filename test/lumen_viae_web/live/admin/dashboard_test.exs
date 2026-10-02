@@ -14,7 +14,7 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
   alias LumenViae.Rosary
 
   setup %{conn: conn} do
-    {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true})}
+    {:ok, conn: log_in_admin(conn)}
   end
 
   # A live set: it has a meditation. An empty set is hidden.
@@ -25,34 +25,41 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
   # For a test that fills the set itself.
   defp create_empty_set(attrs \\ %{}) do
     defaults = %{name: "Dashboard Set #{System.unique_integer([:positive])}", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
   defp create_mystery do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Dashboard Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Dashboard Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     mystery
   end
 
   defp create_meditation(mystery, attrs \\ %{}) do
     defaults = %{content: "Meditation content", mystery_id: mystery.id}
-    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs))
+    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs), actor: admin())
     meditation
   end
 
   defp add_artwork(set) do
     {:ok, set} =
-      Rosary.update_meditation_set_artwork(set, %{
-        "image_key" => "sets/#{set.id}/painting.jpg",
-        "image_width" => 1600,
-        "image_height" => 2400
-      })
+      Rosary.update_meditation_set_artwork(
+        set,
+        %{
+          "image_key" => "sets/#{set.id}/painting.jpg",
+          "image_width" => 1600,
+          "image_height" => 2400
+        },
+        actor: admin()
+      )
 
     set
   end
@@ -108,12 +115,12 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
       mystery = create_mystery()
       hidden = create_empty_set()
       meditation = create_meditation(mystery, %{audio_url: "a.mp3"})
-      {:ok, _} = Rosary.add_meditation_to_set(hidden.id, meditation.id, 1)
+      {:ok, _} = Rosary.add_meditation_to_set(hidden.id, meditation.id, 1, actor: admin())
 
       {:ok, _view, html} = live(conn, "/admin")
       assert health_count(html, "Live sets without artwork") == "1"
 
-      {:ok, _} = Rosary.archive_meditation(meditation)
+      {:ok, _} = Rosary.archive_meditation(meditation, actor: admin())
 
       {:ok, _view, html} = live(conn, "/admin")
       assert health_count(html, "Live sets without artwork") == nil
@@ -141,7 +148,7 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
       set = create_empty_set() |> add_artwork()
       reachable = create_meditation(mystery)
       _orphan = create_meditation(mystery)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, reachable.id, 1)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, reachable.id, 1, actor: admin())
 
       {:ok, _view, html} = live(conn, "/admin")
 
@@ -168,7 +175,7 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
 
       assert html =~ "Much Prayed Set"
       assert html =~ "Rosaries completed"
-      assert Rosary.completion_summary().last_7 == 2
+      assert Rosary.completion_summary(actor: admin()).last_7 == 2
     end
   end
 end

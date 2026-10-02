@@ -15,12 +15,12 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
   alias LumenViae.Rosary
 
   setup %{conn: conn} do
-    {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true})}
+    {:ok, conn: log_in_admin(conn)}
   end
 
   defp create_set(attrs \\ %{}) do
     defaults = %{name: "Artwork Set #{System.unique_integer([:positive])}", category: "sorrowful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
@@ -35,7 +35,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
         metadata
       )
 
-    {:ok, set} = Rosary.update_meditation_set_artwork(set, attrs)
+    {:ok, set} = Rosary.update_meditation_set_artwork(set, attrs, actor: admin())
     set
   end
 
@@ -105,9 +105,13 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
 
     test "frames every crop from the stored focal point", %{conn: conn} do
       {:ok, set} =
-        Rosary.update_meditation_set_artwork_metadata(described(create_set()), %{
-          "image_focal_y" => 0.24
-        })
+        Rosary.update_meditation_set_artwork_metadata(
+          described(create_set()),
+          %{
+            "image_focal_y" => 0.24
+          },
+          actor: admin()
+        )
 
       {:ok, _view, html} = edit(conn, set)
 
@@ -137,7 +141,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
 
       render_hook(view, "set_focal_point", %{"x" => 0.5, "y" => 0.24})
 
-      reloaded = Rosary.get_meditation_set!(set.id)
+      reloaded = Rosary.get_meditation_set!(set.id, actor: admin())
       assert reloaded.image_focal_x == 0.5
       assert reloaded.image_focal_y == 0.24
     end
@@ -156,7 +160,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
 
       view |> element("button[phx-value-axis=y][phx-value-delta='-0.01']") |> render_click()
 
-      assert Rosary.get_meditation_set!(set.id).image_focal_y == 0.49
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).image_focal_y == 0.49
     end
 
     test "stops nudging at the edge of the canvas", %{conn: conn} do
@@ -166,7 +170,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
       render_hook(view, "set_focal_point", %{"x" => 0.5, "y" => 0.0})
       view |> element("button[phx-value-axis=y][phx-value-delta='-0.01']") |> render_click()
 
-      assert Rosary.get_meditation_set!(set.id).image_focal_y == 0.0
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).image_focal_y == 0.0
     end
 
     # Float.parse rather than String.to_float: the latter raises on any
@@ -176,7 +180,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
       {:ok, view, _html} = edit(conn, set)
 
       assert render_hook(view, "nudge_focal", %{"axis" => "y", "delta" => "1"})
-      assert Rosary.get_meditation_set!(set.id).image_focal_y == 1.0
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).image_focal_y == 1.0
     end
 
     test "ignores a delta that is not a number at all", %{conn: conn} do
@@ -184,7 +188,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
       {:ok, view, _html} = edit(conn, set)
 
       assert render_hook(view, "nudge_focal", %{"axis" => "y", "delta" => "down"})
-      assert Rosary.get_meditation_set!(set.id).image_focal_y == 0.5
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).image_focal_y == 0.5
     end
   end
 
@@ -206,7 +210,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
       )
       |> render_submit()
 
-      reloaded = Rosary.get_meditation_set!(set.id)
+      reloaded = Rosary.get_meditation_set!(set.id, actor: admin())
 
       assert reloaded.image_alt =~ "Christ falls"
       assert reloaded.image_title == "Christ Carrying the Cross"
@@ -229,7 +233,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
         }
       })
 
-      reloaded = Rosary.get_meditation_set!(set.id)
+      reloaded = Rosary.get_meditation_set!(set.id, actor: admin())
 
       assert reloaded.image_key == "sets/#{set.id}/8f21c4d9e0b3a7f6.jpg"
       assert reloaded.image_width == 1600
@@ -246,7 +250,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
         })
 
       assert html =~ "Failed to save the artwork details"
-      assert Rosary.get_meditation_set!(set.id).image_license == nil
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).image_license == nil
     end
 
     test "says so when the details still leave the artwork unserved", %{conn: conn} do
@@ -278,7 +282,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.ArtworkSectionTest do
       )
       |> render_submit()
 
-      reloaded = Rosary.get_meditation_set!(set.id)
+      reloaded = Rosary.get_meditation_set!(set.id, actor: admin())
 
       assert reloaded.author == "Bl. Anne Catherine Emmerich"
       assert reloaded.source == "The Dolorous Passion of Our Lord Jesus Christ"

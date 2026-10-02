@@ -7,7 +7,7 @@ defmodule LumenViaeWeb.API.ArtworkJSONTest do
 
   defp create_set(attrs \\ %{}) do
     defaults = %{name: "Artwork JSON #{System.unique_integer([:positive])}", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
@@ -24,7 +24,7 @@ defmodule LumenViaeWeb.API.ArtworkJSONTest do
         overrides
       )
 
-    {:ok, set} = Rosary.update_meditation_set_artwork(create_set(), attrs)
+    {:ok, set} = Rosary.update_meditation_set_artwork(create_set(), attrs, actor: admin())
     set
   end
 

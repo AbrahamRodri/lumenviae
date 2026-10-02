@@ -45,15 +45,21 @@ defmodule LumenViae.Curation.NarrationRelocationTest do
     put_env(:lumen_viae, :relocation_missing_sources, [])
 
     {:ok, mystery} =
-      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1},
+        actor: admin()
+      )
 
     {:ok, a} =
-      Rosary.create_meditation(%{content: "A", mystery_id: mystery.id, audio_url: "a.mp3"})
+      Rosary.create_meditation(%{content: "A", mystery_id: mystery.id, audio_url: "a.mp3"},
+        actor: admin()
+      )
 
     {:ok, b} =
-      Rosary.create_meditation(%{content: "B", mystery_id: mystery.id, audio_url: "b.mp3"})
+      Rosary.create_meditation(%{content: "B", mystery_id: mystery.id, audio_url: "b.mp3"},
+        actor: admin()
+      )
 
-    {:ok, _} = Rosary.create_meditation(%{content: "C", mystery_id: mystery.id})
+    {:ok, _} = Rosary.create_meditation(%{content: "C", mystery_id: mystery.id}, actor: admin())
 
     %{a: a, b: b}
   end
@@ -61,7 +67,7 @@ defmodule LumenViae.Curation.NarrationRelocationTest do
   test "copies each original to voices/male/ and skips what is already there", %{a: a, b: b} do
     put_env(:lumen_viae, :relocation_existing, ["voices/male/b.mp3"])
 
-    results = NarrationRelocation.run()
+    results = NarrationRelocation.run(actor: admin())
 
     assert [{:ok, copied}, {:ok, kept}] = results
     assert copied =~ "Copied a.mp3 to voices/male/a.mp3 for meditation #{a.id}"
@@ -75,7 +81,7 @@ defmodule LumenViae.Curation.NarrationRelocationTest do
   test "a missing original is a warning, not a failure", %{a: a} do
     put_env(:lumen_viae, :relocation_missing_sources, ["a.mp3"])
 
-    assert [{:warning, warning}, {:ok, _}] = NarrationRelocation.run()
+    assert [{:warning, warning}, {:ok, _}] = NarrationRelocation.run(actor: admin())
     assert warning =~ "No object at a.mp3 for meditation #{a.id}"
   end
 end

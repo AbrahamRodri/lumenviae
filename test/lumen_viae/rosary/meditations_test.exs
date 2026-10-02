@@ -7,20 +7,22 @@ defmodule LumenViae.Rosary.MeditationsTest do
 
   setup do
     {:ok, mystery} =
-      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1},
+        actor: admin()
+      )
 
     %{mystery: mystery}
   end
 
   defp create_meditation(mystery, attrs \\ %{}) do
     defaults = %{"content" => "Old content", "mystery_id" => mystery.id}
-    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs))
+    {:ok, meditation} = Rosary.create_meditation(Map.merge(defaults, attrs), actor: admin())
     meditation
   end
 
   defp create_set(attrs \\ %{}) do
     defaults = %{name: "Set #{System.unique_integer([:positive])}", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
@@ -32,9 +34,9 @@ defmodule LumenViae.Rosary.MeditationsTest do
       }
 
       # The dry run and the write must agree, so both are asked.
-      refute Rosary.changeset_to_create_meditation(attrs).valid?
+      refute Rosary.changeset_to_create_meditation(attrs, actor: admin()).valid?
 
-      assert {:error, error} = Rosary.create_meditation(attrs)
+      assert {:error, error} = Rosary.create_meditation(attrs, actor: admin())
       assert %{content: [message]} = errors_on(error)
       assert message =~ "<break>"
     end
@@ -42,9 +44,9 @@ defmodule LumenViae.Rosary.MeditationsTest do
     test "rejects unprocessed {pause:N} markers", ctx do
       attrs = %{"content" => "Pause here {pause:2} please", "mystery_id" => ctx.mystery.id}
 
-      refute Rosary.changeset_to_create_meditation(attrs).valid?
+      refute Rosary.changeset_to_create_meditation(attrs, actor: admin()).valid?
 
-      assert {:error, error} = Rosary.create_meditation(attrs)
+      assert {:error, error} = Rosary.create_meditation(attrs, actor: admin())
       assert %{content: [message]} = errors_on(error)
       assert message =~ "{pause:N}"
     end
@@ -53,32 +55,38 @@ defmodule LumenViae.Rosary.MeditationsTest do
       meditation = create_meditation(ctx.mystery)
 
       assert {:error, error} =
-               Rosary.update_meditation(meditation, %{"content" => "Now with {pause:1}"})
+               Rosary.update_meditation(meditation, %{"content" => "Now with {pause:1}"},
+                 actor: admin()
+               )
 
       assert %{content: [_message]} = errors_on(error)
-      assert Rosary.get_meditation!(meditation.id).content == "Old content"
+      assert Rosary.get_meditation!(meditation.id, actor: admin()).content == "Old content"
     end
 
     test "accepts clean content and stores it exactly as given", ctx do
       content = "\nA meditation.  \n\nSecond paragraph.\n"
 
-      assert Rosary.changeset_to_create_meditation(%{
-               "content" => content,
-               "mystery_id" => ctx.mystery.id
-             }).valid?
+      assert Rosary.changeset_to_create_meditation(
+               %{
+                 "content" => content,
+                 "mystery_id" => ctx.mystery.id
+               },
+               actor: admin()
+             ).valid?
 
       meditation = create_meditation(ctx.mystery, %{"content" => content})
-      assert Rosary.get_meditation!(meditation.id).content == content
+      assert Rosary.get_meditation!(meditation.id, actor: admin()).content == content
     end
 
     test "requires content and a mystery" do
-      assert {:error, error} = Rosary.create_meditation(%{})
+      assert {:error, error} = Rosary.create_meditation(%{}, actor: admin())
 
       assert errors_on(error) == %{content: ["is required"], mystery_id: ["is required"]}
     end
 
     test "names the mystery when it does not exist" do
-      assert {:error, error} = Rosary.create_meditation(%{content: "Text.", mystery_id: -1})
+      assert {:error, error} =
+               Rosary.create_meditation(%{content: "Text.", mystery_id: -1}, actor: admin())
 
       assert %{mystery_id: [_message]} = errors_on(error)
     end
@@ -98,20 +106,25 @@ defmodule LumenViae.Rosary.MeditationsTest do
     test "clears stale annotations when content changes without fresh ones", ctx do
       meditation = create_meditation(ctx.mystery, %{"tts_annotations" => @annotations})
 
-      {:ok, updated} = Rosary.update_meditation(meditation, %{"content" => "Edited content"})
+      {:ok, updated} =
+        Rosary.update_meditation(meditation, %{"content" => "Edited content"}, actor: admin())
 
       assert updated.tts_annotations == []
-      assert Rosary.get_meditation!(meditation.id).tts_annotations == []
+      assert Rosary.get_meditation!(meditation.id, actor: admin()).tts_annotations == []
     end
 
     test "keeps annotations when content is untouched", ctx do
       meditation = create_meditation(ctx.mystery, %{"tts_annotations" => @annotations})
 
       {:ok, updated} =
-        Rosary.update_meditation(meditation, %{
-          "author" => "New Author",
-          "content" => "Old content"
-        })
+        Rosary.update_meditation(
+          meditation,
+          %{
+            "author" => "New Author",
+            "content" => "Old content"
+          },
+          actor: admin()
+        )
 
       assert updated.author == "New Author"
       assert updated.tts_annotations == @annotations
@@ -124,10 +137,14 @@ defmodule LumenViae.Rosary.MeditationsTest do
       meditation = create_meditation(ctx.mystery, %{"tts_annotations" => @annotations})
 
       {:ok, updated} =
-        Rosary.update_meditation(meditation, %{
-          "content" => "Old content, with a later correction",
-          "tts_annotations" => @annotations
-        })
+        Rosary.update_meditation(
+          meditation,
+          %{
+            "content" => "Old content, with a later correction",
+            "tts_annotations" => @annotations
+          },
+          actor: admin()
+        )
 
       assert updated.tts_annotations == @annotations
     end
@@ -135,7 +152,10 @@ defmodule LumenViae.Rosary.MeditationsTest do
     test "the dry run reports the same outcome as the write", ctx do
       meditation = create_meditation(ctx.mystery, %{"tts_annotations" => @annotations})
 
-      changeset = Rosary.changeset_to_update_meditation(meditation, %{"content" => "Edited"})
+      changeset =
+        Rosary.changeset_to_update_meditation(meditation, %{"content" => "Edited"},
+          actor: admin()
+        )
 
       assert changeset.valid?
       assert Ash.Changeset.get_attribute(changeset, :tts_annotations) == []
@@ -146,9 +166,9 @@ defmodule LumenViae.Rosary.MeditationsTest do
     test "list_meditations!/0 is oldest first, each with its mystery and narrations", ctx do
       first = create_meditation(ctx.mystery, %{"audio_url" => "a.mp3"})
       second = create_meditation(ctx.mystery)
-      {:ok, _} = Rosary.record_narration(first, "female", "voices/female/a.mp3")
+      {:ok, _} = Rosary.record_narration(first, "female", "voices/female/a.mp3", actor: admin())
 
-      assert [listed_first, listed_second] = Rosary.list_meditations!()
+      assert [listed_first, listed_second] = Rosary.list_meditations!(actor: admin())
       assert listed_first.id == first.id
       assert listed_second.id == second.id
       assert listed_first.mystery.id == ctx.mystery.id
@@ -161,10 +181,10 @@ defmodule LumenViae.Rosary.MeditationsTest do
       later = create_set()
       earlier_id_set = create_set()
       # Attached in the opposite order to their ids.
-      {:ok, _} = Rosary.add_meditation_to_set(earlier_id_set.id, meditation.id, 1)
-      {:ok, _} = Rosary.add_meditation_to_set(later.id, meditation.id, 1)
+      {:ok, _} = Rosary.add_meditation_to_set(earlier_id_set.id, meditation.id, 1, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(later.id, meditation.id, 1, actor: admin())
 
-      assert [listed] = Rosary.list_meditations_with_sets!()
+      assert [listed] = Rosary.list_meditations_with_sets!(actor: admin())
       assert Enum.map(listed.meditation_sets, & &1.id) == Enum.sort([later.id, earlier_id_set.id])
       assert listed.mystery.id == ctx.mystery.id
     end
@@ -172,21 +192,24 @@ defmodule LumenViae.Rosary.MeditationsTest do
     test "get_meditation/1 answers with a tuple, get_meditation!/1 raises a 404", ctx do
       meditation = create_meditation(ctx.mystery)
 
-      assert {:ok, found} = Rosary.get_meditation(meditation.id)
+      assert {:ok, found} = Rosary.get_meditation(meditation.id, actor: admin())
       assert found.mystery.id == ctx.mystery.id
       assert found.narrations == []
 
-      assert {:error, %Ash.Error.Invalid{}} = Rosary.get_meditation(-1)
+      assert {:error, %Ash.Error.Invalid{}} = Rosary.get_meditation(-1, actor: admin())
 
-      error = assert_raise Ash.Error.Invalid, fn -> Rosary.get_meditation!(-1) end
+      error = assert_raise Ash.Error.Invalid, fn -> Rosary.get_meditation!(-1, actor: admin()) end
       assert Plug.Exception.status(error) == 404
     end
 
     test "list_taken_audio_urls/1 returns only the filenames already claimed", ctx do
       create_meditation(ctx.mystery, %{"audio_url" => "taken.mp3"})
 
-      assert Rosary.list_taken_audio_urls(["taken.mp3", "free.mp3"]) == ["taken.mp3"]
-      assert Rosary.list_taken_audio_urls([]) == []
+      assert Rosary.list_taken_audio_urls(["taken.mp3", "free.mp3"], actor: admin()) == [
+               "taken.mp3"
+             ]
+
+      assert Rosary.list_taken_audio_urls([], actor: admin()) == []
     end
   end
 
@@ -194,14 +217,16 @@ defmodule LumenViae.Rosary.MeditationsTest do
     test "takes the meditation's narrations and memberships with it", ctx do
       meditation = create_meditation(ctx.mystery, %{"audio_url" => "a.mp3"})
       set = create_set()
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
-      {:ok, _} = Rosary.record_narration(meditation, "female", "voices/female/a.mp3")
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
 
-      assert {:ok, deleted} = Rosary.delete_meditation(meditation)
+      {:ok, _} =
+        Rosary.record_narration(meditation, "female", "voices/female/a.mp3", actor: admin())
+
+      assert {:ok, deleted} = Rosary.delete_meditation(meditation, actor: admin())
       assert deleted.id == meditation.id
 
-      assert Rosary.list_meditations_in_set(set.id) == []
-      assert Rosary.narration_counts_by_voice() == %{}
+      assert Rosary.list_meditations_in_set(set.id, actor: admin()) == []
+      assert Rosary.narration_counts_by_voice(actor: admin()) == %{}
     end
   end
 
@@ -210,10 +235,12 @@ defmodule LumenViae.Rosary.MeditationsTest do
       first_made = create_meditation(ctx.mystery, %{"title" => "Prayed second"})
       second_made = create_meditation(ctx.mystery, %{"title" => "Prayed first"})
       set = create_set()
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, first_made.id, 2)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, second_made.id, 1)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, first_made.id, 2, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, second_made.id, 1, actor: admin())
 
-      assert [prayed_first, prayed_second] = Rosary.list_meditations_in_set(set.id)
+      assert [prayed_first, prayed_second] =
+               Rosary.list_meditations_in_set(set.id, actor: admin())
+
       assert prayed_first.title == "Prayed first"
       assert prayed_second.title == "Prayed second"
       assert prayed_first.mystery.id == ctx.mystery.id
@@ -222,20 +249,26 @@ defmodule LumenViae.Rosary.MeditationsTest do
 
     test "next_order_in_set/1 is one past the highest order in use", ctx do
       set = create_set()
-      assert Rosary.next_order_in_set(set.id) == 1
+      assert Rosary.next_order_in_set(set.id, actor: admin()) == 1
 
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, create_meditation(ctx.mystery).id, 4)
-      assert Rosary.next_order_in_set(set.id) == 5
+      {:ok, _} =
+        Rosary.add_meditation_to_set(set.id, create_meditation(ctx.mystery).id, 4, actor: admin())
+
+      assert Rosary.next_order_in_set(set.id, actor: admin()) == 5
     end
 
     test "an order must be between one and seven", ctx do
       set = create_set()
       meditation = create_meditation(ctx.mystery)
 
-      assert {:error, low} = Rosary.add_meditation_to_set(set.id, meditation.id, 0)
+      assert {:error, low} =
+               Rosary.add_meditation_to_set(set.id, meditation.id, 0, actor: admin())
+
       assert errors_on(low).order == ["must be greater than 0"]
 
-      assert {:error, high} = Rosary.add_meditation_to_set(set.id, meditation.id, 8)
+      assert {:error, high} =
+               Rosary.add_meditation_to_set(set.id, meditation.id, 8, actor: admin())
+
       assert errors_on(high).order == ["must be less than or equal to 7"]
     end
 
@@ -243,12 +276,14 @@ defmodule LumenViae.Rosary.MeditationsTest do
       set = create_set()
       meditation = create_meditation(ctx.mystery)
       other = create_meditation(ctx.mystery)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
 
-      assert {:error, twice} = Rosary.add_meditation_to_set(set.id, meditation.id, 2)
+      assert {:error, twice} =
+               Rosary.add_meditation_to_set(set.id, meditation.id, 2, actor: admin())
+
       assert "has already been taken" in List.flatten(Map.values(errors_on(twice)))
 
-      assert {:error, clash} = Rosary.add_meditation_to_set(set.id, other.id, 1)
+      assert {:error, clash} = Rosary.add_meditation_to_set(set.id, other.id, 1, actor: admin())
       assert "has already been taken" in List.flatten(Map.values(errors_on(clash)))
     end
 
@@ -257,33 +292,40 @@ defmodule LumenViae.Rosary.MeditationsTest do
       other_set = create_set()
       meditation = create_meditation(ctx.mystery)
       staying = create_meditation(ctx.mystery)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, staying.id, 2)
-      {:ok, _} = Rosary.add_meditation_to_set(other_set.id, meditation.id, 1)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, staying.id, 2, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(other_set.id, meditation.id, 1, actor: admin())
 
-      assert :ok = Rosary.remove_meditation_from_set(set.id, meditation.id)
+      assert :ok = Rosary.remove_meditation_from_set(set.id, meditation.id, actor: admin())
 
-      assert set.id |> Rosary.list_meditations_in_set() |> Enum.map(& &1.id) == [staying.id]
-
-      assert other_set.id |> Rosary.list_meditations_in_set() |> Enum.map(& &1.id) == [
-               meditation.id
+      assert set.id |> Rosary.list_meditations_in_set(actor: admin()) |> Enum.map(& &1.id) == [
+               staying.id
              ]
 
+      assert other_set.id |> Rosary.list_meditations_in_set(actor: admin()) |> Enum.map(& &1.id) ==
+               [
+                 meditation.id
+               ]
+
       # Removing what is not there is not an error.
-      assert :ok = Rosary.remove_meditation_from_set(set.id, meditation.id)
+      assert :ok = Rosary.remove_meditation_from_set(set.id, meditation.id, actor: admin())
     end
   end
 
   describe "error_summary/1" do
     test "reads an error the way a report prints it", ctx do
       assert {:error, error} =
-               Rosary.create_meditation(%{"content" => "{pause:1}", "mystery_id" => nil})
+               Rosary.create_meditation(%{"content" => "{pause:1}", "mystery_id" => nil},
+                 actor: admin()
+               )
 
       summary = Rosary.error_summary(error)
       assert summary =~ "mystery_id: is required"
       assert summary =~ "content: contains an unprocessed {pause:N} marker"
 
-      changeset = Rosary.changeset_to_create_meditation(%{"mystery_id" => ctx.mystery.id})
+      changeset =
+        Rosary.changeset_to_create_meditation(%{"mystery_id" => ctx.mystery.id}, actor: admin())
+
       assert Rosary.error_summary(changeset) == "content: is required"
     end
   end

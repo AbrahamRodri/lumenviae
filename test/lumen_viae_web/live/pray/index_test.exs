@@ -10,7 +10,9 @@ defmodule LumenViaeWeb.Live.Pray.IndexTest do
   # leaks pause markers or break tags into what the user sees.
   test "imported pause markers never reach the rendered meditation", %{conn: conn} do
     {:ok, _mystery} =
-      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1},
+        actor: admin()
+      )
 
     marked_content =
       "First paragraph of the meditation. {pause:1.5} Same paragraph continues.\n\n" <>
@@ -20,9 +22,9 @@ defmodule LumenViaeWeb.Live.Pray.IndexTest do
       "mystery_name,content,set_name,set_category\n" <>
         "The Annunciation,\"#{marked_content}\",Round Trip Set,joyful"
 
-    assert [{:ok, _}] = CsvImport.import_string(csv, skip_audio: true)
+    assert [{:ok, _}] = CsvImport.import_string(csv, skip_audio: true, actor: admin())
 
-    set = Rosary.get_meditation_set_by_name("Round Trip Set")
+    set = Rosary.get_meditation_set_by_name("Round Trip Set", nil, actor: admin())
 
     {:ok, _view, html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
@@ -39,7 +41,8 @@ defmodule LumenViaeWeb.Live.Pray.IndexTest do
   # flash the public layout never showed; it now answers as it does for any
   # set the public cannot see.
   test "a set with no meditations is a 404, like any hidden set", %{conn: conn} do
-    {:ok, set} = Rosary.create_meditation_set(%{name: "Not filled yet", category: "joyful"})
+    {:ok, set} =
+      Rosary.create_meditation_set(%{name: "Not filled yet", category: "joyful"}, actor: admin())
 
     error =
       assert_raise Ash.Error.Invalid, fn -> live(conn, "/meditation-sets/#{set.id}/pray") end

@@ -1,6 +1,6 @@
 defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
   @moduledoc """
-  The console cannot be reached without an admin session, by any route.
+  The console cannot be reached without a signed-in admin, by any route.
 
   `LumenViaeWeb.Plugs.RequireAdmin` guards the HTTP request, but a LiveView
   can also be reached by live navigation, which mounts the next page over
@@ -74,7 +74,7 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
     assert {:error, {:redirect, %{to: to}}} = live_redirect(view, to: "/admin/data")
     assert URI.parse(to).path == "/admin/data"
 
-    signed_in = Plug.Test.init_test_session(conn, %{admin_authenticated: true})
+    signed_in = log_in_admin(conn)
     assert {:ok, _view, html} = live(signed_in, "/admin/data")
     assert html =~ "Rosary"
   end
@@ -88,7 +88,7 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
   end
 
   test "a signed-in admin still navigates within the console in place", %{conn: conn} do
-    conn = Plug.Test.init_test_session(conn, %{admin_authenticated: true})
+    conn = log_in_admin(conn)
 
     {:ok, view, _html} = live(conn, "/admin")
 
@@ -96,20 +96,44 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
     assert html =~ "Meditations"
   end
 
-  test "the admin hook refuses a socket without an admin session" do
-    socket = %Phoenix.LiveView.Socket{assigns: %{__changed__: %{}, flash: %{}}}
+  defp socket do
+    %Phoenix.LiveView.Socket{
+      endpoint: LumenViaeWeb.Endpoint,
+      assigns: %{__changed__: %{}, flash: %{}}
+    }
+  end
 
-    assert {:halt, halted} = LumenViaeWeb.UserAuth.on_mount(:require_admin, %{}, %{}, socket)
+  test "the admin hook refuses a socket without a signed-in admin" do
+    assert {:halt, halted} = LumenViaeWeb.UserAuth.on_mount(:require_admin, %{}, %{}, socket())
     assert {:redirect, %{to: "/admin/login"}} = halted.redirected
+  end
+
+  test "the old shared-password session flag no longer opens the console" do
+    session = %{"admin_authenticated" => true}
+
+    assert {:halt, _halted} =
+             LumenViaeWeb.UserAuth.on_mount(:require_admin, %{}, session, socket())
+  end
+
+  test "the admin hook admits a signed-in admin and makes them the actor", %{conn: conn} do
+    admin = admin_fixture()
+    session = conn |> log_in_admin(admin) |> get_session()
 
     assert {:cont, allowed} =
-             LumenViaeWeb.UserAuth.on_mount(
-               :require_admin,
-               %{},
-               %{"admin_authenticated" => true},
-               socket
-             )
+             LumenViaeWeb.UserAuth.on_mount(:require_admin, %{}, session, socket())
 
     assert allowed.assigns.is_admin
+    assert allowed.assigns.current_admin.id == admin.id
+  end
+
+  test "a session whose token was revoked by signing out is refused", %{conn: conn} do
+    signed_in = log_in_admin(conn)
+    session = get_session(signed_in)
+
+    signed_out = delete(signed_in, "/admin/session")
+    assert redirected_to(signed_out) == "/"
+
+    assert {:halt, _halted} =
+             LumenViaeWeb.UserAuth.on_mount(:require_admin, %{}, session, socket())
   end
 end

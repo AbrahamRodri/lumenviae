@@ -25,24 +25,32 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
 
   defp create_set(category, count) do
     {:ok, set} =
-      Rosary.create_meditation_set(%{
-        name: "Aloud #{System.unique_integer([:positive])}",
-        category: category
-      })
+      Rosary.create_meditation_set(
+        %{
+          name: "Aloud #{System.unique_integer([:positive])}",
+          category: category
+        },
+        actor: admin()
+      )
 
     for order <- 1..count do
       {:ok, mystery} =
-        Rosary.create_mystery(%{
-          name: "M #{System.unique_integer([:positive])}",
-          category: category,
-          order: System.unique_integer([:positive]),
-          description: "d"
-        })
+        Rosary.create_mystery(
+          %{
+            name: "M #{System.unique_integer([:positive])}",
+            category: category,
+            order: System.unique_integer([:positive]),
+            description: "d"
+          },
+          actor: admin()
+        )
 
       {:ok, meditation} =
-        Rosary.create_meditation(%{content: "c", title: "t", mystery_id: mystery.id})
+        Rosary.create_meditation(%{content: "c", title: "t", mystery_id: mystery.id},
+          actor: admin()
+        )
 
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, order, actor: admin())
     end
 
     set

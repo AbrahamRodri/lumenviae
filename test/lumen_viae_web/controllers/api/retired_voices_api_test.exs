@@ -41,17 +41,22 @@ defmodule LumenViaeWeb.API.RetiredVoicesAPITest do
     ])
 
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Retired Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Retired Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     {:ok, meditation} =
-      Rosary.create_meditation(%{content: "M", mystery_id: mystery.id, audio_url: "m.mp3"})
+      Rosary.create_meditation(%{content: "M", mystery_id: mystery.id, audio_url: "m.mp3"},
+        actor: admin()
+      )
 
     for slug <- ["male", "female", "frederick"] do
-      {:ok, _} = Rosary.record_narration(meditation, slug, "voices/#{slug}/m.mp3")
+      {:ok, _} = Rosary.record_narration(meditation, slug, "voices/#{slug}/m.mp3", actor: admin())
     end
 
     %{meditation: meditation}

@@ -40,14 +40,19 @@ defmodule LumenViae.Rosary.RetiredVoicesTest do
     ])
 
     {:ok, mystery} =
-      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1})
+      Rosary.create_mystery(%{name: "The Annunciation", category: "joyful", order: 1},
+        actor: admin()
+      )
 
     {:ok, meditation} =
-      Rosary.create_meditation(%{
-        "content" => "Content",
-        "mystery_id" => mystery.id,
-        "audio_url" => "clip.mp3"
-      })
+      Rosary.create_meditation(
+        %{
+          "content" => "Content",
+          "mystery_id" => mystery.id,
+          "audio_url" => "clip.mp3"
+        },
+        actor: admin()
+      )
 
     %{meditation: meditation}
   end
@@ -97,21 +102,27 @@ defmodule LumenViae.Rosary.RetiredVoicesTest do
 
   describe "meditation narration" do
     test "the retired voice's recording is kept but not offered", %{meditation: meditation} do
-      {:ok, meditation} = Rosary.record_narration(meditation, "male", "voices/male/clip.mp3")
+      {:ok, meditation} =
+        Rosary.record_narration(meditation, "male", "voices/male/clip.mp3", actor: admin())
 
       assert Rosary.meditation_narrations(meditation) == []
 
       {:ok, meditation} =
-        Rosary.record_narration(meditation, "frederick", "voices/frederick/clip.mp3")
+        Rosary.record_narration(meditation, "frederick", "voices/frederick/clip.mp3",
+          actor: admin()
+        )
 
       assert [%{voice: %{slug: "frederick"}}] = Rosary.meditation_narrations(meditation)
     end
 
     test "asking for the retired voice plays its successor", %{meditation: meditation} do
-      {:ok, meditation} = Rosary.record_narration(meditation, "male", "voices/male/clip.mp3")
+      {:ok, meditation} =
+        Rosary.record_narration(meditation, "male", "voices/male/clip.mp3", actor: admin())
 
       {:ok, meditation} =
-        Rosary.record_narration(meditation, "frederick", "voices/frederick/clip.mp3")
+        Rosary.record_narration(meditation, "frederick", "voices/frederick/clip.mp3",
+          actor: admin()
+        )
 
       assert {:ok, %{voice: %{slug: "frederick"}, url: url}} =
                Rosary.fetch_meditation_audio(meditation, "male")
@@ -122,12 +133,16 @@ defmodule LumenViae.Rosary.RetiredVoicesTest do
 
     test "the missing-voice check asks only for the offered voices", %{meditation: meditation} do
       {:ok, meditation} =
-        Rosary.record_narration(meditation, "frederick", "voices/frederick/clip.mp3")
+        Rosary.record_narration(meditation, "frederick", "voices/frederick/clip.mp3",
+          actor: admin()
+        )
 
-      assert Rosary.meditation_ids_missing_a_voice() == [meditation.id]
+      assert Rosary.meditation_ids_missing_a_voice(actor: admin()) == [meditation.id]
 
-      {:ok, _} = Rosary.record_narration(meditation, "female", "voices/female/clip.mp3")
-      assert Rosary.meditation_ids_missing_a_voice() == []
+      {:ok, _} =
+        Rosary.record_narration(meditation, "female", "voices/female/clip.mp3", actor: admin())
+
+      assert Rosary.meditation_ids_missing_a_voice(actor: admin()) == []
     end
   end
 

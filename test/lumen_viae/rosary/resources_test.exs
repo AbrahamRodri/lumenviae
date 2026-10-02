@@ -33,7 +33,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
         description: "The angel Gabriel is sent to Mary.",
         scripture_reference: "Luke 1:26-38"
       })
-      |> Rosary.create_mystery()
+      |> Rosary.create_mystery(actor: admin())
 
     mystery
   end
@@ -50,7 +50,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
         audio_url: "Joyful-Liguori-1.mp3",
         tts_annotations: [%{"offset" => 12, "seconds" => 1.5}]
       })
-      |> Rosary.create_meditation()
+      |> Rosary.create_meditation(actor: admin())
 
     meditation
   end
@@ -59,13 +59,13 @@ defmodule LumenViae.Rosary.ResourcesTest do
     {:ok, set} =
       attrs
       |> Enum.into(%{name: "Liguori", category: "joyful", labels: ["Saints", "Scriptural"]})
-      |> Rosary.create_meditation_set()
+      |> Rosary.create_meditation_set(actor: admin())
 
     set
   end
 
   defp create!(resource, attrs) do
-    resource |> Ash.Changeset.for_create(:create, attrs) |> Ash.create!()
+    resource |> Ash.Changeset.for_create(:create, attrs) |> Ash.create!(actor: admin())
   end
 
   describe "the domain" do
@@ -122,14 +122,14 @@ defmodule LumenViae.Rosary.ResourcesTest do
       mystery = mystery_fixture()
       for n <- 1..3, do: meditation_fixture(mystery, %{audio_url: "m#{n}.mp3"})
 
-      assert [_, _, _] = Ash.read!(Meditation)
+      assert [_, _, _] = Ash.read!(Meditation, actor: admin())
     end
   end
 
   describe "rows written by the Ecto contexts" do
     test "a mystery reads back the same through Ash" do
       mystery = mystery_fixture()
-      read = Ash.get!(Mystery, mystery.id)
+      read = Ash.get!(Mystery, mystery.id, actor: admin())
 
       for field <- ~w(id name category order days_prayed description scripture_reference)a do
         assert Map.fetch!(read, field) == Map.fetch!(mystery, field), "#{field} differs"
@@ -142,9 +142,9 @@ defmodule LumenViae.Rosary.ResourcesTest do
 
     test "a meditation keeps its untrimmed content, its annotations and its archive stamp" do
       meditation = mystery_fixture() |> meditation_fixture()
-      {:ok, archived} = Rosary.archive_meditation(meditation)
+      {:ok, archived} = Rosary.archive_meditation(meditation, actor: admin())
 
-      read = Ash.get!(Meditation, meditation.id)
+      read = Ash.get!(Meditation, meditation.id, actor: admin())
 
       assert read.content == meditation.content
       assert read.tts_annotations == [%{"offset" => 12, "seconds" => 1.5}]
@@ -156,7 +156,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
 
     test "a set keeps its labels in order and its focal point as floats" do
       set = set_fixture()
-      read = Ash.get!(MeditationSet, set.id)
+      read = Ash.get!(MeditationSet, set.id, actor: admin())
 
       assert read.labels == ["Saints", "Scriptural"]
       assert read.image_focal_x === 0.5
@@ -177,16 +177,17 @@ defmodule LumenViae.Rosary.ResourcesTest do
           prayed_aloud: true
         })
 
-      {:ok, _meditation} = Rosary.record_narration(meditation, "female", "voices/female/a.mp3")
+      {:ok, _meditation} =
+        Rosary.record_narration(meditation, "female", "voices/female/a.mp3", actor: admin())
 
-      read = Ash.get!(Completion, completion.id)
+      read = Ash.get!(Completion, completion.id, actor: admin())
       assert read.meditation_set_id == set.id
       assert read.completed_at == completion.completed_at
       assert read.source == "ios"
       assert read.time_zone == "America/Chicago"
       assert read.prayed_aloud == true
 
-      assert [narration] = Ash.read!(Narration)
+      assert [narration] = Ash.read!(Narration, actor: admin())
       assert narration.meditation_id == meditation.id
       assert narration.voice == "female"
       assert narration.s3_key == "voices/female/a.mp3"
@@ -207,7 +208,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
       assert is_integer(mystery.id)
       assert mystery.inserted_at == mystery.updated_at
 
-      fetched = Rosary.get_mystery!(mystery.id)
+      fetched = Rosary.get_mystery!(mystery.id, actor: admin())
       assert fetched.name == "The Visitation"
       assert fetched.order == 2
       assert fetched.inserted_at == mystery.inserted_at
@@ -220,7 +221,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
 
       meditation = create!(Meditation, %{content: content, mystery_id: mystery.id})
 
-      fetched = Rosary.get_meditation!(meditation.id)
+      fetched = Rosary.get_meditation!(meditation.id, actor: admin())
       assert fetched.content == content
       assert fetched.tts_annotations == []
       assert fetched.archived_at == nil
@@ -229,7 +230,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
     test "a set gets the column defaults" do
       set = create!(MeditationSet, %{name: "Emmerich", category: "sorrowful"})
 
-      fetched = Rosary.get_meditation_set!(set.id)
+      fetched = Rosary.get_meditation_set!(set.id, actor: admin())
       assert fetched.labels == []
       assert fetched.image_focal_x === 0.5
       assert fetched.image_focal_y === 0.5
@@ -245,7 +246,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
                  mystery_id: mystery.id,
                  archived_at: DateTime.utc_now()
                })
-               |> Ash.create()
+               |> Ash.create(actor: admin())
 
       assert {:error, %Ash.Error.Invalid{}} =
                MeditationSet
@@ -254,7 +255,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
                  category: "joyful",
                  image_key: "sets/1/anything.jpg"
                })
-               |> Ash.create()
+               |> Ash.create(actor: admin())
     end
   end
 
@@ -263,12 +264,12 @@ defmodule LumenViae.Rosary.ResourcesTest do
       mystery = mystery_fixture()
       first = meditation_fixture(mystery, %{title: "First", audio_url: "a.mp3"})
       second = meditation_fixture(mystery, %{title: "Second", audio_url: "b.mp3"})
-      {:ok, author} = Rosary.create_author(%{name: "St. Alphonsus Liguori"})
+      {:ok, author} = Rosary.create_author(%{name: "St. Alphonsus Liguori"}, actor: admin())
       set = set_fixture(%{author_id: author.id})
 
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, first.id, 2)
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, second.id, 1)
-      {:ok, _} = Rosary.record_narration(first, "female", "voices/female/a.mp3")
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, first.id, 2, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, second.id, 1, actor: admin())
+      {:ok, _} = Rosary.record_narration(first, "female", "voices/female/a.mp3", actor: admin())
       {:ok, _} = Rosary.record_completion(set.id)
 
       %{mystery: mystery, first: first, second: second, author: author, set: set}
@@ -277,8 +278,10 @@ defmodule LumenViae.Rosary.ResourcesTest do
     test "a set reaches its meditations, memberships, author and completions", ctx do
       set =
         MeditationSet
-        |> Ash.get!(ctx.set.id)
-        |> Ash.load!([:meditations, :set_memberships, :author_profile, :completions])
+        |> Ash.get!(ctx.set.id, actor: admin())
+        |> Ash.load!([:meditations, :set_memberships, :author_profile, :completions],
+          actor: admin()
+        )
 
       assert set.meditations |> Enum.map(& &1.id) |> Enum.sort() ==
                Enum.sort([ctx.first.id, ctx.second.id])
@@ -293,8 +296,8 @@ defmodule LumenViae.Rosary.ResourcesTest do
     test "a meditation reaches its mystery, narrations and sets", ctx do
       meditation =
         Meditation
-        |> Ash.get!(ctx.first.id)
-        |> Ash.load!([:mystery, :narrations, :meditation_sets])
+        |> Ash.get!(ctx.first.id, actor: admin())
+        |> Ash.load!([:mystery, :narrations, :meditation_sets], actor: admin())
 
       assert meditation.mystery.id == ctx.mystery.id
       assert [%Narration{voice: "female"}] = meditation.narrations
@@ -303,10 +306,18 @@ defmodule LumenViae.Rosary.ResourcesTest do
     end
 
     test "a mystery reaches its meditations and an author their sets", ctx do
-      mystery = Mystery |> Ash.get!(ctx.mystery.id) |> Ash.load!(:meditations)
+      mystery =
+        Mystery
+        |> Ash.get!(ctx.mystery.id, actor: admin())
+        |> Ash.load!(:meditations, actor: admin())
+
       assert length(mystery.meditations) == 2
 
-      author = Author |> Ash.get!(ctx.author.id) |> Ash.load!(:meditation_sets)
+      author =
+        Author
+        |> Ash.get!(ctx.author.id, actor: admin())
+        |> Ash.load!(:meditation_sets, actor: admin())
+
       assert [%MeditationSet{id: set_id}] = author.meditation_sets
       assert set_id == ctx.set.id
     end
@@ -317,9 +328,12 @@ defmodule LumenViae.Rosary.ResourcesTest do
       mystery = mystery_fixture()
       meditation = meditation_fixture(mystery)
       set = set_fixture()
-      {:ok, _} = Rosary.create_author(%{name: "Blessed Anne Catherine Emmerich"})
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
-      {:ok, _} = Rosary.record_narration(meditation, "female", "voices/female/a.mp3")
+      {:ok, _} = Rosary.create_author(%{name: "Blessed Anne Catherine Emmerich"}, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
+
+      {:ok, _} =
+        Rosary.record_narration(meditation, "female", "voices/female/a.mp3", actor: admin())
+
       other = meditation_fixture(mystery, %{audio_url: "other.mp3"})
 
       duplicates = [
@@ -331,7 +345,9 @@ defmodule LumenViae.Rosary.ResourcesTest do
 
       for {resource, attrs} <- duplicates do
         assert {:error, %Ash.Error.Invalid{errors: [error | _]}} =
-                 resource |> Ash.Changeset.for_create(:create, attrs) |> Ash.create()
+                 resource
+                 |> Ash.Changeset.for_create(:create, attrs)
+                 |> Ash.create(actor: admin())
 
         assert error.message == "has already been taken",
                "#{inspect(resource)} #{inspect(attrs)} gave #{inspect(error)}"
@@ -342,17 +358,22 @@ defmodule LumenViae.Rosary.ResourcesTest do
     # the first, on the unique index.
     test "back the narration upsert" do
       meditation = mystery_fixture() |> meditation_fixture()
-      {:ok, _} = Rosary.record_narration(meditation, "female", "voices/female/a.mp3")
-      {:ok, _} = Rosary.record_narration(meditation, "female", "voices/female/b.mp3")
 
-      assert [%Narration{voice: "female", s3_key: "voices/female/b.mp3"}] = Ash.read!(Narration)
+      {:ok, _} =
+        Rosary.record_narration(meditation, "female", "voices/female/a.mp3", actor: admin())
+
+      {:ok, _} =
+        Rosary.record_narration(meditation, "female", "voices/female/b.mp3", actor: admin())
+
+      assert [%Narration{voice: "female", s3_key: "voices/female/b.mp3"}] =
+               Ash.read!(Narration, actor: admin())
     end
 
     test "a missing parent is a validation error too" do
       assert {:error, %Ash.Error.Invalid{}} =
                Meditation
                |> Ash.Changeset.for_create(:create, %{content: "Text.", mystery_id: -1})
-               |> Ash.create()
+               |> Ash.create(actor: admin())
     end
   end
 end

@@ -11,10 +11,13 @@ defmodule LumenViae.Rosary.CompletionContextTest do
 
   defp create_set do
     {:ok, set} =
-      Rosary.create_meditation_set(%{
-        name: "Ctx #{System.unique_integer([:positive])}",
-        category: "joyful"
-      })
+      Rosary.create_meditation_set(
+        %{
+          name: "Ctx #{System.unique_integer([:positive])}",
+          category: "joyful"
+        },
+        actor: admin()
+      )
 
     set
   end
@@ -106,7 +109,7 @@ defmodule LumenViae.Rosary.CompletionContextTest do
       {:ok, _} = Rosary.record_completion(set.id, %{source: "web"})
       {:ok, _} = Rosary.record_completion(set.id, %{source: "ios"})
 
-      locations = Rosary.completion_locations(30)
+      locations = Rosary.completion_locations(30, actor: admin())
 
       # Nothing is placed: geolocation is off in test, so every row is
       # counted in the total and none in `located`. That gap is the number
@@ -136,7 +139,7 @@ defmodule LumenViae.Rosary.CompletionContextTest do
         country_code: "PH"
       })
 
-      locations = Rosary.completion_locations(30)
+      locations = Rosary.completion_locations(30, actor: admin())
 
       assert locations.located == 3
 
@@ -151,6 +154,6 @@ defmodule LumenViae.Rosary.CompletionContextTest do
   defp place(completion, attrs) do
     completion
     |> Ash.Changeset.for_update(:place, attrs)
-    |> Ash.update!()
+    |> Ash.update!(actor: admin())
   end
 end

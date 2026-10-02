@@ -18,30 +18,39 @@ defmodule LumenViaeWeb.API.NarrationTest do
     ])
 
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Narration Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Narration Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
-    {:ok, set} = Rosary.create_meditation_set(%{name: "Narrated Set", category: "joyful"})
+    {:ok, set} =
+      Rosary.create_meditation_set(%{name: "Narrated Set", category: "joyful"}, actor: admin())
 
     {:ok, both} =
-      Rosary.create_meditation(%{content: "Both", mystery_id: mystery.id, audio_url: "both.mp3"})
+      Rosary.create_meditation(%{content: "Both", mystery_id: mystery.id, audio_url: "both.mp3"},
+        actor: admin()
+      )
 
-    {:ok, _} = Rosary.record_narration(both, "male", "voices/male/both.mp3")
-    {:ok, _} = Rosary.record_narration(both, "female", "voices/female/both.mp3")
+    {:ok, _} = Rosary.record_narration(both, "male", "voices/male/both.mp3", actor: admin())
+    {:ok, _} = Rosary.record_narration(both, "female", "voices/female/both.mp3", actor: admin())
 
     {:ok, male_only} =
-      Rosary.create_meditation(%{content: "Male", mystery_id: mystery.id, audio_url: "male.mp3"})
+      Rosary.create_meditation(%{content: "Male", mystery_id: mystery.id, audio_url: "male.mp3"},
+        actor: admin()
+      )
 
-    {:ok, _} = Rosary.record_narration(male_only, "male", "voices/male/male.mp3")
+    {:ok, _} = Rosary.record_narration(male_only, "male", "voices/male/male.mp3", actor: admin())
 
-    {:ok, silent} = Rosary.create_meditation(%{content: "Silent", mystery_id: mystery.id})
+    {:ok, silent} =
+      Rosary.create_meditation(%{content: "Silent", mystery_id: mystery.id}, actor: admin())
 
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, both.id, 1)
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, male_only.id, 2)
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, silent.id, 3)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, both.id, 1, actor: admin())
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, male_only.id, 2, actor: admin())
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, silent.id, 3, actor: admin())
 
     %{set: set, both: both, male_only: male_only, silent: silent}
   end

@@ -6,36 +6,45 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
   alias LumenViae.Rosary
 
   setup %{conn: conn} do
-    {:ok, conn: Plug.Test.init_test_session(conn, %{admin_authenticated: true})}
+    {:ok, conn: log_in_admin(conn)}
   end
 
   defp create_set(attrs \\ %{}) do
     defaults = %{name: "Set #{System.unique_integer([:positive])}", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
   defp create_meditation(attrs \\ %{}) do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     {:ok, meditation} =
-      Rosary.create_meditation(Map.merge(%{content: "Text.", mystery_id: mystery.id}, attrs))
+      Rosary.create_meditation(Map.merge(%{content: "Text.", mystery_id: mystery.id}, attrs),
+        actor: admin()
+      )
 
     meditation
   end
 
   defp give_painting(set) do
     {:ok, set} =
-      Rosary.update_meditation_set_artwork(set, %{
-        "image_key" => "sets/#{set.id}/8f21c4d9e0b3a7f6.jpg",
-        "image_width" => 1600,
-        "image_height" => 2400
-      })
+      Rosary.update_meditation_set_artwork(
+        set,
+        %{
+          "image_key" => "sets/#{set.id}/8f21c4d9e0b3a7f6.jpg",
+          "image_width" => 1600,
+          "image_height" => 2400
+        },
+        actor: admin()
+      )
 
     set
   end
@@ -54,7 +63,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
       })
       |> render_submit()
 
-      assert [set] = Rosary.list_meditation_sets!()
+      assert [set] = Rosary.list_meditation_sets!(actor: admin())
       assert set.name == "St. Louis de Montfort"
       assert set.category == "seven_sorrows"
       assert set.description == "From The Secret of the Rosary."
@@ -74,13 +83,13 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
       assert html =~ "Failed to create meditation set"
       assert html =~ "is required"
       assert html =~ ~s(value="A set with no category")
-      assert Rosary.list_meditation_sets!() == []
+      assert Rosary.list_meditation_sets!(actor: admin()) == []
     end
   end
 
   describe "edit: set details" do
     test "saves the details, the linked author and the byline", %{conn: conn} do
-      {:ok, author} = Rosary.create_author(%{name: "St. Alphonsus Liguori"})
+      {:ok, author} = Rosary.create_author(%{name: "St. Alphonsus Liguori"}, actor: admin())
       set = create_set()
       {:ok, view, _html} = live(conn, "/admin/meditation-sets/#{set.id}/edit")
 
@@ -99,7 +108,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
 
       assert html =~ "Meditation set updated successfully"
 
-      saved = Rosary.get_meditation_set!(set.id)
+      saved = Rosary.get_meditation_set!(set.id, actor: admin())
       assert saved.name == "Liguori"
       assert saved.category == "sorrowful"
       assert saved.author_id == author.id
@@ -108,7 +117,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
     end
 
     test "unlinks the author when None is chosen", %{conn: conn} do
-      {:ok, author} = Rosary.create_author(%{name: "St. Alphonsus Liguori"})
+      {:ok, author} = Rosary.create_author(%{name: "St. Alphonsus Liguori"}, actor: admin())
       set = create_set(%{author_id: author.id})
       {:ok, view, _html} = live(conn, "/admin/meditation-sets/#{set.id}/edit")
 
@@ -116,7 +125,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
       |> form("form[phx-submit=update_meditation_set]", %{meditation_set: %{author_id: ""}})
       |> render_submit()
 
-      assert Rosary.get_meditation_set!(set.id).author_id == nil
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).author_id == nil
     end
 
     test "a set that does not exist is a 404", %{conn: conn} do
@@ -134,13 +143,21 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
 
       render_click(view, "add_label", %{"label" => "Saints"})
       render_click(view, "add_label", %{"label" => "Contemplative"})
-      assert Rosary.get_meditation_set!(set.id).labels == ["Saints", "Contemplative"]
+
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).labels == [
+               "Saints",
+               "Contemplative"
+             ]
 
       render_click(view, "move_label", %{"label" => "Contemplative", "direction" => "up"})
-      assert Rosary.get_meditation_set!(set.id).labels == ["Contemplative", "Saints"]
+
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).labels == [
+               "Contemplative",
+               "Saints"
+             ]
 
       render_click(view, "remove_label", %{"label" => "Contemplative"})
-      assert Rosary.get_meditation_set!(set.id).labels == ["Saints"]
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).labels == ["Saints"]
     end
 
     test "refuses a label outside the vocabulary", %{conn: conn} do
@@ -150,7 +167,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
       html = render_click(view, "add_label", %{"label" => "Invented"})
 
       assert html =~ "Failed to update labels"
-      assert Rosary.get_meditation_set!(set.id).labels == []
+      assert Rosary.get_meditation_set!(set.id, actor: admin()).labels == []
     end
 
     # Each form holds the set it was built from. If the details form were
@@ -168,7 +185,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
         |> form("form[phx-submit=update_meditation_set]", %{meditation_set: %{name: "Renamed"}})
         |> render_submit()
 
-      saved = Rosary.get_meditation_set!(set.id)
+      saved = Rosary.get_meditation_set!(set.id, actor: admin())
       assert saved.name == "Renamed"
       assert saved.labels == ["Saints"]
 
@@ -188,21 +205,21 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
 
       render_submit(view, "add_to_set", %{"meditation_id" => to_string(first.id), "order" => "1"})
 
-      assert set.id |> Rosary.list_meditations_in_set() |> Enum.map(& &1.title) ==
+      assert set.id |> Rosary.list_meditations_in_set(actor: admin()) |> Enum.map(& &1.title) ==
                ["Prayed first", "Prayed second"]
 
       html = render_click(view, "remove_from_set", %{"meditation_id" => to_string(first.id)})
 
       assert html =~ "Meditation removed from set"
 
-      assert set.id |> Rosary.list_meditations_in_set() |> Enum.map(& &1.title) == [
+      assert set.id |> Rosary.list_meditations_in_set(actor: admin()) |> Enum.map(& &1.title) == [
                "Prayed second"
              ]
     end
 
     test "refuses a position that is already taken", %{conn: conn} do
       set = create_set()
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, create_meditation().id, 1)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, create_meditation().id, 1, actor: admin())
       other = create_meditation()
       {:ok, view, _html} = live(conn, "/admin/meditation-sets/#{set.id}/edit")
 
@@ -213,14 +230,14 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
         })
 
       assert html =~ "Failed to add meditation to set"
-      assert length(Rosary.list_meditations_in_set(set.id)) == 1
+      assert length(Rosary.list_meditations_in_set(set.id, actor: admin())) == 1
     end
 
     test "warns that an archived meditation is hiding the set", %{conn: conn} do
       set = create_set()
       meditation = create_meditation()
-      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
-      {:ok, _} = Rosary.archive_meditation(meditation)
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
+      {:ok, _} = Rosary.archive_meditation(meditation, actor: admin())
 
       {:ok, _view, html} = live(conn, "/admin/meditation-sets/#{set.id}/edit")
 
@@ -252,7 +269,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
       assert html =~ "Artwork saved"
       refute html =~ "not served yet"
 
-      saved = Rosary.get_meditation_set!(set.id)
+      saved = Rosary.get_meditation_set!(set.id, actor: admin())
       assert saved.image_alt == "The angel kneels before the Virgin."
       assert saved.image_license == "public_domain"
       assert saved.image_artist == "Fra Angelico"
@@ -282,7 +299,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
         "artwork" => %{"image_key" => "sets/999/stolen.jpg", "image_alt" => "A painting."}
       })
 
-      saved = Rosary.get_meditation_set!(set.id)
+      saved = Rosary.get_meditation_set!(set.id, actor: admin())
       assert saved.image_key == set.image_key
       assert saved.image_alt == "A painting."
     end
@@ -302,7 +319,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.FormTest do
       |> form("form[phx-submit=update_artwork_meta]", %{artwork: %{image_title: "The Fall"}})
       |> render_submit()
 
-      saved = Rosary.get_meditation_set!(set.id)
+      saved = Rosary.get_meditation_set!(set.id, actor: admin())
       assert saved.name == "Renamed"
       assert saved.image_title == "The Fall"
       assert saved.image_focal_x == 0.4

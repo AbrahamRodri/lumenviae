@@ -11,22 +11,25 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
   # For a test that fills the set itself.
   defp create_empty_set(attrs) do
     defaults = %{name: "Test Set", category: "joyful"}
-    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs))
+    {:ok, set} = Rosary.create_meditation_set(Map.merge(defaults, attrs), actor: admin())
     set
   end
 
   defp create_meditation_in_set(set) do
     {:ok, mystery} =
-      Rosary.create_mystery(%{
-        name: "Test Mystery #{System.unique_integer([:positive])}",
-        category: "joyful",
-        order: System.unique_integer([:positive])
-      })
+      Rosary.create_mystery(
+        %{
+          name: "Test Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: admin()
+      )
 
     {:ok, meditation} =
-      Rosary.create_meditation(%{content: "Test content", mystery_id: mystery.id})
+      Rosary.create_meditation(%{content: "Test content", mystery_id: mystery.id}, actor: admin())
 
-    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1)
+    {:ok, _} = Rosary.add_meditation_to_set(set.id, meditation.id, 1, actor: admin())
     meditation
   end
 
@@ -152,7 +155,10 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
       b = create_set(%{name: "B", labels: ["Intentions"]})
       c = create_set(%{name: "C"})
 
-      {:ok, _} = Rosary.update_meditation_set(a, %{description: "touched after the others"})
+      {:ok, _} =
+        Rosary.update_meditation_set(a, %{description: "touched after the others"},
+          actor: admin()
+        )
 
       data =
         conn
@@ -271,7 +277,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
           metadata
         )
 
-      {:ok, set} = Rosary.update_meditation_set_artwork(set, attrs)
+      {:ok, set} = Rosary.update_meditation_set_artwork(set, attrs, actor: admin())
       set
     end
 
@@ -363,24 +369,32 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
 
     test "artwork with no alt text is not served", %{conn: conn} do
       {:ok, set} =
-        Rosary.update_meditation_set_artwork(create_set(%{name: "Undescribed"}), %{
-          "image_key" => "sets/1/a.jpg",
-          "image_width" => 1600,
-          "image_height" => 2400,
-          "image_license" => "public_domain"
-        })
+        Rosary.update_meditation_set_artwork(
+          create_set(%{name: "Undescribed"}),
+          %{
+            "image_key" => "sets/1/a.jpg",
+            "image_width" => 1600,
+            "image_height" => 2400,
+            "image_license" => "public_domain"
+          },
+          actor: admin()
+        )
 
       assert summary_for(conn, set)["image_url"] == nil
     end
 
     test "artwork with no licence is not served", %{conn: conn} do
       {:ok, set} =
-        Rosary.update_meditation_set_artwork(create_set(%{name: "Unprovenanced"}), %{
-          "image_key" => "sets/1/a.jpg",
-          "image_width" => 1600,
-          "image_height" => 2400,
-          "image_alt" => "A description."
-        })
+        Rosary.update_meditation_set_artwork(
+          create_set(%{name: "Unprovenanced"}),
+          %{
+            "image_key" => "sets/1/a.jpg",
+            "image_width" => 1600,
+            "image_height" => 2400,
+            "image_alt" => "A description."
+          },
+          actor: admin()
+        )
 
       assert summary_for(conn, set)["image_url"] == nil
     end
@@ -425,7 +439,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
 
       create_meditation_in_set(visible_set)
       archived = create_meditation_in_set(hidden_set)
-      {:ok, _} = Rosary.archive_meditation(archived)
+      {:ok, _} = Rosary.archive_meditation(archived, actor: admin())
 
       for path <- [~p"/api/meditation-sets", ~p"/api/meditation-sets?category=joyful"] do
         ids =
@@ -445,7 +459,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     test "show returns 404 for a set containing an archived meditation", %{conn: conn} do
       set = create_empty_set(%{name: "Hidden Set"})
       archived = create_meditation_in_set(set)
-      {:ok, _} = Rosary.archive_meditation(archived)
+      {:ok, _} = Rosary.archive_meditation(archived, actor: admin())
 
       body =
         conn
@@ -458,8 +472,8 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
     test "unarchiving restores the set in the API", %{conn: conn} do
       set = create_empty_set(%{name: "Restored Set"})
       meditation = create_meditation_in_set(set)
-      {:ok, archived} = Rosary.archive_meditation(meditation)
-      {:ok, _} = Rosary.unarchive_meditation(archived)
+      {:ok, archived} = Rosary.archive_meditation(meditation, actor: admin())
+      {:ok, _} = Rosary.unarchive_meditation(archived, actor: admin())
 
       ids =
         conn
@@ -484,16 +498,22 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
   describe "author portrait fallback" do
     defp create_author_with_portrait do
       {:ok, author} =
-        Rosary.create_author(%{name: "Author #{System.unique_integer([:positive])}"})
+        Rosary.create_author(%{name: "Author #{System.unique_integer([:positive])}"},
+          actor: admin()
+        )
 
       {:ok, author} =
-        Rosary.update_author_artwork(author, %{
-          "image_key" => "authors/#{author.id}/8f21c4d9e0b3a7f6.jpg",
-          "image_width" => 1600,
-          "image_height" => 2000,
-          "image_alt" => "A portrait of the author.",
-          "image_license" => "public_domain"
-        })
+        Rosary.update_author_artwork(
+          author,
+          %{
+            "image_key" => "authors/#{author.id}/8f21c4d9e0b3a7f6.jpg",
+            "image_width" => 1600,
+            "image_height" => 2000,
+            "image_alt" => "A portrait of the author.",
+            "image_license" => "public_domain"
+          },
+          actor: admin()
+        )
 
       author
     end
@@ -522,13 +542,17 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
       set = create_set(%{name: "Has Both", author_id: author.id})
 
       {:ok, set} =
-        Rosary.update_meditation_set_artwork(set, %{
-          "image_key" => "sets/#{set.id}/aaaa1111bbbb2222.jpg",
-          "image_width" => 1600,
-          "image_height" => 2400,
-          "image_alt" => "The set's own painting.",
-          "image_license" => "public_domain"
-        })
+        Rosary.update_meditation_set_artwork(
+          set,
+          %{
+            "image_key" => "sets/#{set.id}/aaaa1111bbbb2222.jpg",
+            "image_width" => 1600,
+            "image_height" => 2400,
+            "image_alt" => "The set's own painting.",
+            "image_license" => "public_domain"
+          },
+          actor: admin()
+        )
 
       data =
         conn
