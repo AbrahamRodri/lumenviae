@@ -89,10 +89,12 @@ config :phoenix_live_view,
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
-# Admin password for development (use a strong password in production via env var)
-config :lumen_viae, :admin_password, System.get_env("ADMIN_PASSWORD") || "admin123"
+# Signs the admin session tokens. Development only; production derives its
+# own (see runtime.exs).
+config :lumen_viae, :token_signing_secret, "dev-only-token-signing-secret-for-lumen-viae-admin"
 
-# Skip the admin login locally: /admin is reachable straight from the browser
-# with no password. Development only - no other config file sets this, and
-# runtime.exs never reads it.
+# Skip the admin login locally: /admin signs you in as the dev admin that
+# priv/repo/seeds.exs creates, with no password asked. Development only - no
+# other config file sets this, runtime.exs never reads it, and the code that
+# honours it is not compiled into a release (see LumenViaeWeb.Plugs.RequireAdmin).
 config :lumen_viae, :skip_admin_auth, true

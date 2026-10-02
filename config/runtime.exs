@@ -63,9 +63,6 @@ case Float.parse(System.get_env("TTS_PARAGRAPH_BREAK_SECONDS") || "") do
   :error -> :ok
 end
 
-# Admin password configuration
-config :lumen_viae, :admin_password, System.get_env("ADMIN_PASSWORD") || "changeme"
-
 # Which Divinum Officium instance assembles the Divine Office texts.
 # Unset means the public site; set it to a self-hosted copy's URL to take
 # the public site out of the request path entirely.
@@ -116,6 +113,17 @@ if config_env() == :prod do
       environment variable SECRET_KEY_BASE is missing.
       You can generate one by calling: mix phx.gen.secret
       """
+
+  # Signs the admin session tokens. TOKEN_SIGNING_SECRET when it is set;
+  # otherwise derived from SECRET_KEY_BASE, so a deploy needs no new secret.
+  # Derived rather than reused, so a token is never valid as anything the
+  # secret key base signs. Rotating either one signs every admin out.
+  config :lumen_viae,
+         :token_signing_secret,
+         System.get_env("TOKEN_SIGNING_SECRET") ||
+           Base.encode64(
+             :crypto.mac(:hmac, :sha256, secret_key_base, "lumen_viae admin token signing")
+           )
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")

@@ -21,6 +21,13 @@ config :lumen_viae, LumenViaeWeb.Endpoint,
   secret_key_base: "vxLRHzmYy9gzBM+pjpcs/W7PGLpWi/dVATjUqoieR+Xo5zJFYl9VaS7tYI6qKRGp",
   server: false
 
+# Signs the admin session tokens in the suite.
+config :lumen_viae, :token_signing_secret, "test-only-token-signing-secret-for-lumen-viae-admin"
+
+# Hashing an admin's password at production cost would make every signed-in
+# test slow. Never set this anywhere but test.
+config :bcrypt_elixir, log_rounds: 1
+
 # In test we don't send emails
 config :lumen_viae, LumenViae.Mailer, adapter: Swoosh.Adapters.Test
 

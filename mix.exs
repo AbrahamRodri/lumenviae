@@ -54,6 +54,13 @@ defmodule LumenViae.MixProject do
       {:absinthe_plug, "~> 1.5"},
       {:ash_admin, "~> 1.3"},
       {:ash_paper_trail, "~> 0.7"},
+      # Admin accounts: email and password sign-in for the console. See
+      # docs/ARCHITECTURE.md, "Who may do what".
+      {:ash_authentication, "~> 4.15"},
+      {:ash_authentication_phoenix, "~> 2.17"},
+      {:bcrypt_elixir, "~> 3.3"},
+      # The SAT solver Ash's policy authorizer needs.
+      {:picosat_elixir, "~> 0.2"},
       {:igniter, "~> 0.8", only: [:dev, :test]},
       {:sourceror, "~> 1.12", only: [:dev, :test]},
       {:usage_rules, "~> 1.2", only: :dev, runtime: false},

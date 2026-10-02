@@ -189,6 +189,78 @@ defmodule LumenViae.Release do
     :ok
   end
 
+  @doc """
+  Creates a console admin and prints a generated password, once. Nothing
+  stores the password in the clear, so copy it before closing the shell.
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.create_admin("you@example.com")'
+
+  Returns `{:ok, password}` or `{:error, summary}` (an address that is
+  already an admin, say). Runs with `authorize?: false`: there is no admin
+  to act as before the first one exists, and whoever holds this shell
+  already holds the database.
+  """
+  def create_admin(email) when is_binary(email) do
+    password = LumenViae.Accounts.generate_password()
+
+    with_repo(fn ->
+      case LumenViae.Accounts.create_admin(email, password, authorize?: false) do
+        {:ok, admin} ->
+          print_password("Created admin #{admin.email}", password)
+          {:ok, password}
+
+        {:error, error} ->
+          IO.puts("ERROR could not create admin #{email}: #{Exception.message(error)}")
+          {:error, Exception.message(error)}
+      end
+    end)
+  end
+
+  @doc """
+  Replaces an admin's password with a generated one, prints it once, and
+  signs that admin out everywhere.
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.reset_admin_password("you@example.com")'
+
+  Returns `{:ok, password}`, or `{:error, :not_found}` for an address that
+  is not an admin. `authorize?: false` for the reason `create_admin/1`
+  gives.
+  """
+  def reset_admin_password(email) when is_binary(email) do
+    password = LumenViae.Accounts.generate_password()
+
+    with_repo(fn ->
+      with {:ok, admin} <- LumenViae.Accounts.get_admin_by_email(email, authorize?: false),
+           {:ok, admin} <-
+             LumenViae.Accounts.set_admin_password(admin, password, authorize?: false) do
+        print_password("New password for #{admin.email}", password)
+        {:ok, password}
+      else
+        {:error, _error} ->
+          IO.puts("ERROR no admin with the email #{email}")
+          {:error, :not_found}
+      end
+    end)
+  end
+
+  defp print_password(heading, password) do
+    IO.puts("""
+    #{heading}.
+    Password (shown once, not stored anywhere in the clear):
+
+        #{password}
+    """)
+  end
+
+  # Runs `fun` with the repo started, as every task here must in a bare
+  # `eval` node, and returns its result.
+  defp with_repo(fun) do
+    load_app()
+    [repo | _] = repos()
+    {:ok, result, _apps} = Ecto.Migrator.with_repo(repo, fn _repo -> fun.() end)
+    result
+  end
+
   defp print_progress({:started, total}), do: IO.puts("Processing #{total} item(s)")
 
   defp print_progress({:item_finished, index, total, {status, message}}) do

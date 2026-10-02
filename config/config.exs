@@ -62,7 +62,7 @@ config :spark,
 
 config :lumen_viae,
   ecto_repos: [LumenViae.Repo],
-  ash_domains: [LumenViae.Office, LumenViae.Rosary],
+  ash_domains: [LumenViae.Accounts, LumenViae.Office, LumenViae.Rosary],
   generators: [timestamp_type: :utc_datetime]
 
 # Default narration pause inserted at each paragraph break when generating
