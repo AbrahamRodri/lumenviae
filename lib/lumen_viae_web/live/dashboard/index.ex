@@ -85,7 +85,9 @@ defmodule LumenViaeWeb.Live.Dashboard.Index do
   def mount(_params, _session, socket) do
     today = Date.utc_today()
     mystery_sets = build_mystery_sets()
-    meditation_sets = Rosary.list_visible_meditation_sets_with_meditations!()
+
+    meditation_sets =
+      Rosary.list_visible_meditation_sets_with_meditations!(actor: socket.assigns.current_admin)
 
     {:ok,
      socket

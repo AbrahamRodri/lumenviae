@@ -6,7 +6,7 @@ defmodule LumenViaeWeb.Live.Meditations.New do
     {:ok,
      socket
      |> assign(:page_title, "Create Meditation")
-     |> assign(:mysteries, Rosary.list_mysteries!())
+     |> assign(:mysteries, Rosary.list_mysteries!(actor: socket.assigns.current_admin))
      |> assign(:filter_category, nil)
      |> assign_meditation_form()}
   end
@@ -36,7 +36,9 @@ defmodule LumenViaeWeb.Live.Meditations.New do
     assign(
       socket,
       :meditation_form,
-      to_form(Rosary.form_to_create_meditation(as: "meditation"))
+      to_form(
+        Rosary.form_to_create_meditation(as: "meditation", actor: socket.assigns.current_admin)
+      )
     )
   end
 

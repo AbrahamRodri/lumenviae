@@ -6,7 +6,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
   alias LumenViae.Rosary
 
   def mount(_params, _session, socket) do
-    meditations = Rosary.list_meditations!()
+    meditations = Rosary.list_meditations!(actor: socket.assigns.current_admin)
 
     {:ok,
      socket
@@ -48,7 +48,12 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.New do
     assign(
       socket,
       :meditation_set_form,
-      to_form(Rosary.form_to_create_meditation_set(as: "meditation_set"))
+      to_form(
+        Rosary.form_to_create_meditation_set(
+          as: "meditation_set",
+          actor: socket.assigns.current_admin
+        )
+      )
     )
   end
 

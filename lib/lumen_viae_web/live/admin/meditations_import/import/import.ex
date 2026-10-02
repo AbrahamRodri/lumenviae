@@ -50,7 +50,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   def handle_event("preview", _params, socket) do
     case consume_csv_upload(socket) do
       {:ok, filename, content} ->
-        case CsvImport.preview_string(content) do
+        case CsvImport.preview_string(content, actor: socket.assigns.current_admin) do
           {:ok, preview} ->
             {:noreply,
              socket
@@ -78,6 +78,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
     content = socket.assigns.csv_content
 
     opts = [
+      actor: socket.assigns.current_admin,
       skip_audio: socket.assigns.skip_audio,
       progress: fn event -> send(live_view, {:import_progress, event}) end
     ]

@@ -6,7 +6,10 @@ defmodule LumenViaeWeb.Live.Mysteries.New do
     {:ok,
      socket
      |> assign(:page_title, "Create Mystery")
-     |> assign(:mystery_form, to_form(Rosary.form_to_create_mystery(as: "mystery")))}
+     |> assign(
+       :mystery_form,
+       to_form(Rosary.form_to_create_mystery(as: "mystery", actor: socket.assigns.current_admin))
+     )}
   end
 
   def handle_event("create_mystery", %{"mystery" => params}, socket) do

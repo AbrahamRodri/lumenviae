@@ -55,7 +55,10 @@ defmodule Mix.Tasks.LumenViae.Import do
     import_opts = [
       dry_run: opts[:dry_run],
       skip_audio: opts[:skip_audio],
-      voices: Keyword.get_values(opts, :voice)
+      voices: Keyword.get_values(opts, :voice),
+      # An operator's shell already holds the database credentials, and
+      # there is no signed-in admin to act as.
+      authorize?: false
     ]
 
     results = LumenViae.Curation.CsvImport.import_file(path, import_opts)

@@ -4,7 +4,10 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
 
   def mount(%{"category" => category}, _session, socket) do
     if category in ["joyful", "sorrowful", "glorious", "luminous", "seven_sorrows"] do
-      meditation_sets = Rosary.list_visible_meditation_sets_by_category!(category)
+      meditation_sets =
+        Rosary.list_visible_meditation_sets_by_category!(category,
+          actor: socket.assigns.current_admin
+        )
 
       {:ok,
        socket

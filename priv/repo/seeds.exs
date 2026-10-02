@@ -8,7 +8,13 @@
 # - Load meditation files and let them handle their own logic
 # - Create/update meditation sets as needed
 
+alias LumenViae.Accounts
 alias LumenViae.Rosary
+
+# Seeding is an operator's job, run from a shell that already holds the
+# database (`mix run`, or LumenViae.Release.seed/0 in production), so it
+# writes without an actor rather than pretending to be an admin.
+seed_opts = [authorize?: false]
 
 IO.puts("\n" <> String.duplicate("=", 70))
 IO.puts("  LUMEN VIAE - Database Seeding")
@@ -21,12 +27,12 @@ IO.puts("\nAdding any new mysteries and meditations...")
 
 # Existing mysteries are matched on category + order, not name, so renaming a
 # mystery in this file never duplicates one that is already seeded.
-existing_mysteries = Map.new(Rosary.list_mysteries!(), &{{&1.category, &1.order}, &1})
+existing_mysteries = Map.new(Rosary.list_mysteries!(seed_opts), &{{&1.category, &1.order}, &1})
 
 insert_mystery_if_new = fn attrs ->
   case Map.get(existing_mysteries, {attrs.category, attrs.order}) do
     nil ->
-      {:ok, mystery} = Rosary.create_mystery(attrs)
+      {:ok, mystery} = Rosary.create_mystery(attrs, seed_opts)
       IO.puts("  ✓ Created: #{attrs.name} (#{attrs.category} ##{attrs.order})")
       mystery
 
@@ -276,11 +282,34 @@ mysteries_data = [
 Enum.each(mysteries_data, insert_mystery_if_new)
 
 # ============================================================================
+# Development admin
+# ============================================================================
+#
+# The admin `config :lumen_viae, :skip_admin_auth` signs in as, so the console
+# runs its policies with a real actor locally. Development only: Mix is not
+# even loaded in a release, and the password is random and never printed -
+# nobody signs in with it, the skip does. To try the real sign-in form, turn
+# the skip off and create an admin with LumenViae.Release.create_admin/1.
+
+if Code.ensure_loaded?(Mix) and Mix.env() == :dev do
+  case Accounts.get_admin_by_email(Accounts.dev_admin_email(), seed_opts) do
+    {:ok, _admin} ->
+      IO.puts("\n  - Exists: dev admin #{Accounts.dev_admin_email()}")
+
+    {:error, _not_found} ->
+      {:ok, _admin} =
+        Accounts.create_admin(Accounts.dev_admin_email(), Accounts.generate_password(), seed_opts)
+
+      IO.puts("\n  ✓ Created: dev admin #{Accounts.dev_admin_email()}")
+  end
+end
+
+# ============================================================================
 # Summary
 # ============================================================================
 
 IO.puts("\n" <> String.duplicate("=", 70))
 IO.puts("  Database Seeding Completed")
 IO.puts(String.duplicate("=", 70))
-IO.puts("\nTotal mysteries: #{Rosary.count_mysteries()}")
+IO.puts("\nTotal mysteries: #{Rosary.count_mysteries(seed_opts)}")
 IO.puts(String.duplicate("=", 70) <> "\n")

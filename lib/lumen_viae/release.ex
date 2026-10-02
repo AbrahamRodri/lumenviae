@@ -5,6 +5,11 @@ defmodule LumenViae.Release do
   """
   @app :lumen_viae
 
+  # The tasks here run from an operator's shell, which already holds the
+  # database credentials, and there is no signed-in admin to act as, so
+  # every domain call they make skips the policies.
+  @operator [authorize?: false]
+
   def migrate do
     load_app()
 
@@ -53,7 +58,7 @@ defmodule LumenViae.Release do
     for repo <- repos() do
       {:ok, _, _} =
         Ecto.Migrator.with_repo(repo, fn _repo ->
-          results = LumenViae.Curation.CsvImport.import_file(path, opts)
+          results = LumenViae.Curation.CsvImport.import_file(path, Keyword.merge(opts, @operator))
 
           Enum.each(results, fn
             {:ok, message} -> IO.puts("OK    " <> message)
@@ -82,7 +87,7 @@ defmodule LumenViae.Release do
     for repo <- repos() do
       {:ok, _, _} =
         Ecto.Migrator.with_repo(repo, fn _repo ->
-          results = LumenViae.Curation.CsvUpdate.update_file(path, opts)
+          results = LumenViae.Curation.CsvUpdate.update_file(path, Keyword.merge(opts, @operator))
 
           Enum.each(results, fn
             {:ok, message} -> IO.puts("OK    " <> message)
@@ -130,11 +135,14 @@ defmodule LumenViae.Release do
     for repo <- repos() do
       {:ok, _, _} =
         Ecto.Migrator.with_repo(repo, fn _repo ->
-          LumenViae.Curation.AudioRegeneration.run(target,
-            voices: Keyword.get(opts, :voices),
-            only_missing: Keyword.get(opts, :only_missing, false),
-            dry_run: Keyword.get(opts, :dry_run, false),
-            progress: &print_progress/1
+          LumenViae.Curation.AudioRegeneration.run(
+            target,
+            [
+              voices: Keyword.get(opts, :voices),
+              only_missing: Keyword.get(opts, :only_missing, false),
+              dry_run: Keyword.get(opts, :dry_run, false),
+              progress: &print_progress/1
+            ] ++ @operator
           )
         end)
     end
@@ -162,7 +170,7 @@ defmodule LumenViae.Release do
     for repo <- repos() do
       {:ok, _, _} =
         Ecto.Migrator.with_repo(repo, fn _repo ->
-          LumenViae.Curation.NarrationRelocation.run(progress: &print_progress/1)
+          LumenViae.Curation.NarrationRelocation.run([progress: &print_progress/1] ++ @operator)
         end)
     end
 

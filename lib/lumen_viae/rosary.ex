@@ -244,7 +244,7 @@ defmodule LumenViae.Rosary do
   # create_mystery/1, update_mystery/2 and delete_mystery/1 are the code
   # interface defined in the resources block above.
 
-  def count_mysteries, do: Ash.count!(Mystery)
+  def count_mysteries(opts \\ []), do: Ash.count!(Mystery, ash_opts(opts))
 
   ## Meditations
   #
@@ -257,7 +257,7 @@ defmodule LumenViae.Rosary do
   # import's dry run does, ask for the changeset:
   # changeset_to_create_meditation/1, changeset_to_update_meditation/2.
 
-  def count_meditations, do: Ash.count!(Meditation)
+  def count_meditations(opts \\ []), do: Ash.count!(Meditation, ash_opts(opts))
 
   def meditation_archived?(%{archived_at: archived_at}), do: not is_nil(archived_at)
 
@@ -265,13 +265,14 @@ defmodule LumenViae.Rosary do
   Returns whichever of the given audio filenames are already claimed by a
   meditation, so an import can warn before it overwrites their audio.
   """
-  def list_taken_audio_urls([]), do: []
+  def list_taken_audio_urls(audio_urls, opts \\ [])
+  def list_taken_audio_urls([], _opts), do: []
 
-  def list_taken_audio_urls(audio_urls) do
+  def list_taken_audio_urls(audio_urls, opts) do
     Meditation
     |> Ash.Query.for_read(:with_audio_filenames, %{audio_urls: audio_urls})
     |> Ash.Query.select([:audio_url])
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.map(& &1.audio_url)
   end
 
@@ -324,21 +325,21 @@ defmodule LumenViae.Rosary do
   @doc """
   How many meditations each voice has recorded, as `%{voice => count}`.
   """
-  def narration_counts_by_voice do
+  def narration_counts_by_voice(opts \\ []) do
     Narration
     |> Ash.Query.select([:voice])
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.frequencies_by(& &1.voice)
   end
 
   @doc """
   Meditation ids that have a recording in `voice_slug`.
   """
-  def meditation_ids_with_narration(voice_slug) do
+  def meditation_ids_with_narration(voice_slug, opts \\ []) do
     Narration
     |> Ash.Query.for_read(:in_voice, %{voice: voice_slug})
     |> Ash.Query.select([:meditation_id])
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.map(& &1.meditation_id)
   end
 
@@ -349,7 +350,7 @@ defmodule LumenViae.Rosary do
   row here is a promise that the object exists. Returns the meditation with
   its narrations reloaded so the caller can go on rendering it.
   """
-  def record_narration(%{id: meditation_id} = meditation, voice_slug, s3_key)
+  def record_narration(%{id: meditation_id} = meditation, voice_slug, s3_key, opts \\ [])
       when is_binary(voice_slug) and is_binary(s3_key) do
     with {:ok, _voice} <- Voices.fetch(voice_slug),
          {:ok, _narration} <-
@@ -359,15 +360,15 @@ defmodule LumenViae.Rosary do
              voice: voice_slug,
              s3_key: s3_key
            })
-           |> Ash.create() do
-      {:ok, %{meditation | narrations: narrations_of(meditation_id)}}
+           |> Ash.create(ash_opts(opts)) do
+      {:ok, %{meditation | narrations: narrations_of(meditation_id, opts)}}
     end
   end
 
-  defp narrations_of(meditation_id) do
+  defp narrations_of(meditation_id, opts) do
     Narration
     |> Ash.Query.for_read(:for_meditation, %{meditation_id: meditation_id})
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
   end
 
   @doc """
@@ -380,11 +381,11 @@ defmodule LumenViae.Rosary do
   loaded relationship when the meditation carries one, and asks the
   table otherwise.
   """
-  def meditation_narrations(%{id: meditation_id} = meditation) do
+  def meditation_narrations(%{id: meditation_id} = meditation, opts \\ []) do
     rows =
       case Map.get(meditation, :narrations) do
         narrations when is_list(narrations) -> narrations
-        _not_loaded -> narrations_of(meditation_id)
+        _not_loaded -> narrations_of(meditation_id, opts)
       end
 
     by_voice = Map.new(rows, &{&1.voice, &1.s3_key})
@@ -530,7 +531,7 @@ defmodule LumenViae.Rosary do
   #
   # The visible reads are further down.
 
-  def count_meditation_sets, do: Ash.count!(MeditationSet)
+  def count_meditation_sets(opts \\ []), do: Ash.count!(MeditationSet, ash_opts(opts))
 
   @doc """
   Number of meditations a set of the given category is expected to hold. The
@@ -549,24 +550,24 @@ defmodule LumenViae.Rosary do
   matches answer nil rather than one of them at random, since anything
   that then appended to "the" set would land in whichever came first.
   """
-  def get_meditation_set_by_name(name, category \\ nil)
+  def get_meditation_set_by_name(name, category \\ nil, opts \\ [])
 
-  def get_meditation_set_by_name(name, nil) do
-    case named_sets(name, nil) |> Ash.Query.limit(2) |> Ash.read!() do
+  def get_meditation_set_by_name(name, nil, opts) do
+    case named_sets(name, nil) |> Ash.Query.limit(2) |> Ash.read!(ash_opts(opts)) do
       [set] -> set
       _none_or_several -> nil
     end
   end
 
-  def get_meditation_set_by_name(name, category) do
-    name |> named_sets(category) |> Ash.read_one!()
+  def get_meditation_set_by_name(name, category, opts) do
+    name |> named_sets(category) |> Ash.read_one!(ash_opts(opts))
   end
 
   @doc """
   How many sets carry this name, across every category.
   """
-  def count_meditation_sets_by_name(name) do
-    name |> named_sets(nil) |> Ash.count!()
+  def count_meditation_sets_by_name(name, opts \\ []) do
+    name |> named_sets(nil) |> Ash.count!(ash_opts(opts))
   end
 
   defp named_sets(name, category) do
@@ -579,11 +580,11 @@ defmodule LumenViae.Rosary do
   Id-shaped rather than a count because the dashboard only reports on sets
   the public can reach.
   """
-  def meditation_set_ids_missing_artwork do
+  def meditation_set_ids_missing_artwork(opts \\ []) do
     MeditationSet
     |> Ash.Query.for_read(:missing_artwork)
     |> Ash.Query.select([:id])
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.map(& &1.id)
   end
 
@@ -591,11 +592,11 @@ defmodule LumenViae.Rosary do
   Returns `%{author_id => set count}` for every author with at least one set
   linked to them, so the authors list can say what each portrait is covering.
   """
-  def meditation_set_counts_by_author do
+  def meditation_set_counts_by_author(opts \\ []) do
     Author
     |> Ash.Query.select([:id])
     |> Ash.Query.load(:meditation_set_count)
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.reject(&(&1.meditation_set_count == 0))
     |> Map.new(&{&1.id, &1.meditation_set_count})
   end
@@ -642,19 +643,21 @@ defmodule LumenViae.Rosary do
 
   Raises an error that renders as a 404 when the set does not exist.
   """
-  def get_meditation_set_with_ordered_meditations!(id) do
-    MeditationSet |> Ash.get!(id, load: @prayer_order) |> in_prayer_order()
+  def get_meditation_set_with_ordered_meditations!(id, opts \\ []) do
+    MeditationSet
+    |> Ash.get!(id, [load: @prayer_order] ++ ash_opts(opts))
+    |> in_prayer_order()
   end
 
   @doc """
   A set's meditations in the order the set is prayed, with mysteries and
   narrations loaded.
   """
-  def list_meditations_in_set(set_id) do
+  def list_meditations_in_set(set_id, opts \\ []) do
     SetMembership
     |> Ash.Query.for_read(:in_set, %{meditation_set_id: set_id})
     |> Ash.Query.load(meditation: [:mystery, :narrations])
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.map(& &1.meditation)
   end
 
@@ -686,9 +689,9 @@ defmodule LumenViae.Rosary do
   all - so hidden sets cannot be reached by direct URL. A set it returns
   always has at least one meditation.
   """
-  def get_visible_meditation_set_with_ordered_meditations!(id) do
+  def get_visible_meditation_set_with_ordered_meditations!(id, opts \\ []) do
     MeditationSet
-    |> Ash.get!(id, action: :visible, load: @visible_set_in_prayer_order)
+    |> Ash.get!(id, [action: :visible, load: @visible_set_in_prayer_order] ++ ash_opts(opts))
     |> in_prayer_order()
   end
 
@@ -709,10 +712,14 @@ defmodule LumenViae.Rosary do
   the error in hand so it goes through the fallback controller and comes
   back in the same envelope as every other error.
   """
-  def fetch_visible_meditation_set(id) do
+  def fetch_visible_meditation_set(id, opts \\ []) do
     with {:ok, id} <- set_id(id),
          {:ok, set} <-
-           Ash.get(MeditationSet, id, action: :visible, load: @visible_set_in_prayer_order) do
+           Ash.get(
+             MeditationSet,
+             id,
+             [action: :visible, load: @visible_set_in_prayer_order] ++ ash_opts(opts)
+           ) do
       {:ok, in_prayer_order(set)}
     else
       :error ->
@@ -747,11 +754,11 @@ defmodule LumenViae.Rosary do
   meditations yet. `meditation_set_stats/0` says which of the two a set is,
   since an empty set is the one with no entry there.
   """
-  def hidden_meditation_set_ids do
+  def hidden_meditation_set_ids(opts \\ []) do
     MeditationSet
     |> Ash.Query.filter(not visible?)
     |> Ash.Query.select([:id])
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> MapSet.new(& &1.id)
   end
 
@@ -764,11 +771,11 @@ defmodule LumenViae.Rosary do
   Takes a meditation out of a set. Removing one that is not in the set is
   not an error.
   """
-  def remove_meditation_from_set(set_id, meditation_id) do
+  def remove_meditation_from_set(set_id, meditation_id, opts \\ []) do
     SetMembership
-    |> Ash.Query.for_read(:in_set, %{meditation_set_id: set_id})
+    |> Ash.Query.for_read(:in_set, %{meditation_set_id: set_id}, ash_opts(opts))
     |> Ash.Query.filter(meditation_id == ^meditation_id)
-    |> Ash.bulk_destroy!(:destroy, %{})
+    |> Ash.bulk_destroy!(:destroy, %{}, ash_opts(opts))
 
     :ok
   end
@@ -777,38 +784,39 @@ defmodule LumenViae.Rosary do
   The order an appended meditation should take in a set: one past the
   highest order currently used.
   """
-  def next_order_in_set(set_id) do
+  def next_order_in_set(set_id, opts \\ []) do
     highest =
       SetMembership
       |> Ash.Query.for_read(:in_set, %{meditation_set_id: set_id})
-      |> Ash.max!(:order)
+      |> Ash.max!(:order, ash_opts(opts))
 
     (highest || 0) + 1
   end
 
   ## Admin content statistics
 
-  def count_archived_meditations do
-    Meditation |> Ash.Query.for_read(:archived) |> Ash.count!()
+  def count_archived_meditations(opts \\ []) do
+    Meditation |> Ash.Query.for_read(:archived) |> Ash.count!(ash_opts(opts))
   end
 
   @doc """
   Returns a map of mystery_id => meditation count for every mystery that has
   at least one meditation.
   """
-  def meditation_counts_by_mystery, do: mystery_counts(:meditation_count)
+  def meditation_counts_by_mystery(opts \\ []), do: mystery_counts(:meditation_count, opts)
 
   @doc """
   The same map as `meditation_counts_by_mystery/0`, counting only active
   meditations.
   """
-  def active_meditation_counts_by_mystery, do: mystery_counts(:active_meditation_count)
+  def active_meditation_counts_by_mystery(opts \\ []),
+    do: mystery_counts(:active_meditation_count, opts)
 
-  defp mystery_counts(aggregate) do
+  defp mystery_counts(aggregate, opts) do
     Mystery
     |> Ash.Query.select([:id])
     |> Ash.Query.load(aggregate)
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.reject(&(Map.fetch!(&1, aggregate) == 0))
     |> Map.new(&{&1.id, Map.fetch!(&1, aggregate)})
   end
@@ -819,8 +827,8 @@ defmodule LumenViae.Rosary do
   Archived ones are left out: a meditation deliberately taken out of
   circulation and out of its sets is finished, not unfinished.
   """
-  def count_meditations_not_in_any_set do
-    Meditation |> Ash.Query.for_read(:active_in_no_set) |> Ash.count!()
+  def count_meditations_not_in_any_set(opts \\ []) do
+    Meditation |> Ash.Query.for_read(:active_in_no_set) |> Ash.count!(ash_opts(opts))
   end
 
   @doc """
@@ -832,8 +840,8 @@ defmodule LumenViae.Rosary do
   sibling, is not counted as missing audio. It shows up under its own
   heading instead.
   """
-  def public_meditation_ids_missing_audio do
-    Meditation |> Ash.Query.for_read(:public_missing_audio) |> meditation_ids()
+  def public_meditation_ids_missing_audio(opts \\ []) do
+    Meditation |> Ash.Query.for_read(:public_missing_audio) |> meditation_ids(opts)
   end
 
   @doc """
@@ -842,16 +850,16 @@ defmodule LumenViae.Rosary do
   partway, or a set imported before a voice was added. Each is one
   `regenerate_audio --only-missing` away from being whole.
   """
-  def meditation_ids_missing_a_voice do
+  def meditation_ids_missing_a_voice(opts \\ []) do
     voices = Enum.map(Voices.list(), & &1.slug)
 
     Meditation
     |> Ash.Query.for_read(:missing_a_voice, %{voices: voices})
-    |> meditation_ids()
+    |> meditation_ids(opts)
   end
 
-  defp meditation_ids(query) do
-    query |> Ash.Query.select([:id]) |> Ash.read!() |> Enum.map(& &1.id)
+  defp meditation_ids(query, opts) do
+    query |> Ash.Query.select([:id]) |> Ash.read!(ash_opts(opts)) |> Enum.map(& &1.id)
   end
 
   @doc """
@@ -859,11 +867,11 @@ defmodule LumenViae.Rosary do
   one meditation. Stats: meditation_count, audio_count (meditations with an
   audio file), archived_count.
   """
-  def meditation_set_stats do
+  def meditation_set_stats(opts \\ []) do
     MeditationSet
     |> Ash.Query.select([:id])
     |> Ash.Query.load([:meditation_count, :audio_count, :archived_count])
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.reject(&(&1.meditation_count == 0))
     |> Map.new(
       &{&1.id,
@@ -882,10 +890,10 @@ defmodule LumenViae.Rosary do
   # something a crawler does for free; pressing the button is not, and the
   # numbers below are only worth reading if they mean a Rosary was prayed.
 
-  def count_total_completions, do: Ash.count!(Completion)
+  def count_total_completions(opts \\ []), do: Ash.count!(Completion, ash_opts(opts))
 
-  def count_completions_in_range(start_at, end_at) do
-    start_at |> completions_between(end_at) |> Ash.count!()
+  def count_completions_in_range(start_at, end_at, opts \\ []) do
+    start_at |> completions_between(end_at) |> Ash.count!(ash_opts(opts))
   end
 
   defp completions_between(start_at, end_at) do
@@ -918,7 +926,7 @@ defmodule LumenViae.Rosary do
 
   Returns `{:ok, completion}` or `{:error, %Ash.Error.Invalid{}}`.
   """
-  def record_completion(meditation_set_id, context \\ %{}) when is_map(context) do
+  def record_completion(meditation_set_id, context \\ %{}, opts \\ []) when is_map(context) do
     Completion
     |> Ash.Changeset.for_create(
       :record,
@@ -929,7 +937,7 @@ defmodule LumenViae.Rosary do
         locale: context[:locale],
         prayed_aloud: context[:prayed_aloud]
       },
-      context: %{client_ip: context[:ip]}
+      [context: %{client_ip: context[:ip]}] ++ ash_opts(opts)
     )
     |> Ash.create()
   end
@@ -956,6 +964,7 @@ defmodule LumenViae.Rosary do
     * `:days` - only count completions from the trailing N days, so the
       dashboard can show what is being prayed *now* rather than a ranking
       dominated by whichever set has existed longest
+    * `:actor` / `:authorize?` - as everywhere in this module
   """
   def get_completions_by_set(opts \\ []) do
     range =
@@ -967,7 +976,7 @@ defmodule LumenViae.Rosary do
     MeditationSet
     |> Ash.Query.select([:id, :name, :category])
     |> Ash.Query.load(completion_count: range)
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.reject(&(&1.completion_count == 0))
     |> Enum.sort_by(&{-&1.completion_count, &1.id})
     |> Enum.map(
@@ -979,11 +988,11 @@ defmodule LumenViae.Rosary do
   Gets recent completions for the dashboard.
   Returns the last N completions with set information and location data.
   """
-  def get_recent_completions(limit \\ 10) do
+  def get_recent_completions(limit \\ 10, opts \\ []) do
     Completion
     |> Ash.Query.for_read(:recent, %{limit: limit})
     |> Ash.Query.load(meditation_set: Ash.Query.select(MeditationSet, [:name, :category]))
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.map(fn completion ->
       %{
         id: completion.id,
@@ -1013,12 +1022,12 @@ defmodule LumenViae.Rosary do
 
   One read of the period's rows, six small columns each, folded here.
   """
-  def completion_locations(days) when is_integer(days) and days > 0 do
+  def completion_locations(days, opts \\ []) when is_integer(days) and days > 0 do
     rows =
       days_ago(days)
       |> completions_between(DateTime.utc_now())
       |> Ash.Query.select([:city, :region, :country, :country_code, :source, :prayed_aloud])
-      |> Ash.read!()
+      |> Ash.read!(ash_opts(opts))
 
     %{
       # Rows whose lookup never produced a country are left out rather than
@@ -1059,8 +1068,8 @@ defmodule LumenViae.Rosary do
   @doc """
   Gets completion count for the trailing N days (including today).
   """
-  def count_completions_last_days(days) when is_integer(days) and days > 0 do
-    count_completions_in_range(days_ago(days), DateTime.utc_now())
+  def count_completions_last_days(days, opts \\ []) when is_integer(days) and days > 0 do
+    count_completions_in_range(days_ago(days), DateTime.utc_now(), opts)
   end
 
   @doc """
@@ -1068,8 +1077,12 @@ defmodule LumenViae.Rosary do
   reporting zone rather than at midnight UTC - which, for a Central-time
   reader, used to roll the day over at six in the evening.
   """
-  def count_completions_today do
-    count_completions_in_range(CentralTime.day_start(CentralTime.today()), DateTime.utc_now())
+  def count_completions_today(opts \\ []) do
+    count_completions_in_range(
+      CentralTime.day_start(CentralTime.today()),
+      DateTime.utc_now(),
+      opts
+    )
   end
 
   @doc """
@@ -1080,26 +1093,26 @@ defmodule LumenViae.Rosary do
   Returns `%{total:, today:, last_7:, previous_7:, last_30:, previous_30:,
   active_sets_30:}`.
   """
-  def completion_summary do
+  def completion_summary(opts \\ []) do
     now = DateTime.utc_now()
 
     %{
-      total: count_total_completions(),
-      today: count_completions_today(),
-      last_7: count_completions_in_range(days_ago(7), now),
-      previous_7: count_completions_in_range(days_ago(14), days_ago(7)),
-      last_30: count_completions_in_range(days_ago(30), now),
-      previous_30: count_completions_in_range(days_ago(60), days_ago(30)),
-      active_sets_30: count_sets_completed_in_range(days_ago(30), now)
+      total: count_total_completions(opts),
+      today: count_completions_today(opts),
+      last_7: count_completions_in_range(days_ago(7), now, opts),
+      previous_7: count_completions_in_range(days_ago(14), days_ago(7), opts),
+      last_30: count_completions_in_range(days_ago(30), now, opts),
+      previous_30: count_completions_in_range(days_ago(60), days_ago(30), opts),
+      active_sets_30: count_sets_completed_in_range(days_ago(30), now, opts)
     }
   end
 
   # How many distinct sets have been completed at least once in the range.
-  defp count_sets_completed_in_range(start_at, end_at) do
+  defp count_sets_completed_in_range(start_at, end_at, opts) do
     start_at
     |> completions_between(end_at)
     |> Ash.Query.select([:meditation_set_id])
-    |> Ash.read!()
+    |> Ash.read!(ash_opts(opts))
     |> Enum.uniq_by(& &1.meditation_set_id)
     |> length()
   end
@@ -1114,7 +1127,7 @@ defmodule LumenViae.Rosary do
   The day each completion belongs to is Completion's `local_day`
   calculation, worked out by Postgres in the reporting zone.
   """
-  def completions_by_day(days) when is_integer(days) and days > 0 do
+  def completions_by_day(days, opts \\ []) when is_integer(days) and days > 0 do
     today = CentralTime.today()
     first = Date.add(today, -(days - 1))
 
@@ -1124,7 +1137,7 @@ defmodule LumenViae.Rosary do
       |> completions_between(DateTime.utc_now())
       |> Ash.Query.select([:id])
       |> Ash.Query.load(local_day: %{time_zone: reporting_time_zone()})
-      |> Ash.read!()
+      |> Ash.read!(ash_opts(opts))
       |> Enum.frequencies_by(& &1.local_day)
 
     Enum.map(0..(days - 1), fn offset ->
@@ -1132,6 +1145,11 @@ defmodule LumenViae.Rosary do
       %{date: date, count: Map.get(counted, date, 0)}
     end)
   end
+
+  # The options every function here passes on to Ash: who is asking
+  # (`actor:`), or, for an operator's shell, `authorize?: false`. Anything
+  # else in `opts` belongs to the function itself.
+  defp ash_opts(opts), do: Keyword.take(opts, [:actor, :authorize?])
 
   defp days_ago(days), do: DateTime.add(DateTime.utc_now(), -days * 24 * 3600, :second)
 end

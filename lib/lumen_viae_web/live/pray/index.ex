@@ -22,7 +22,10 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     # Raises the 404 for a set that does not exist or is hidden, and a set
     # with no meditations is hidden, so what comes back always has something
     # to pray.
-    set = Rosary.get_visible_meditation_set_with_ordered_meditations!(set_id)
+    set =
+      Rosary.get_visible_meditation_set_with_ordered_meditations!(set_id,
+        actor: socket.assigns.current_admin
+      )
 
     {:ok,
      socket
@@ -390,7 +393,11 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
       true ->
         context = %{context | prayed_aloud: socket.assigns.pray_aloud}
-        Rosary.record_completion(socket.assigns.set.id, context)
+
+        Rosary.record_completion(socket.assigns.set.id, context,
+          actor: socket.assigns.current_admin
+        )
+
         :ok
     end
   end

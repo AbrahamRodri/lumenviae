@@ -17,7 +17,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Filtering do
       no label at all (which the app files under "More" in its picker)
     * `:visibility` - "visible", "hidden", "archived", "empty" or "all"
       (requires the MapSet of hidden set ids from
-      `LumenViae.Rosary.hidden_meditation_set_ids/0`, and the stats map to
+      `LumenViae.Rosary.hidden_meditation_set_ids/1`, and the stats map to
       tell the two kinds of hidden apart). "hidden" is every hidden set;
       "archived" is the ones holding an archived meditation and "empty" the
       ones with no meditations yet, which are the two reasons a set is
@@ -26,7 +26,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Filtering do
       circulation is noise in the answer.
     * `:completeness` - "complete" or "incomplete" (wrong meditation count
       for the category; requires the stats map from
-      `LumenViae.Rosary.meditation_set_stats/0`). A set with no meditations
+      `LumenViae.Rosary.meditation_set_stats/1`). A set with no meditations
       at all is hidden, so it is found under `:visibility`.
     * `:artwork` - "missing" (no painting and no author portrait to fall
       back on), "unpublishable" (a painting that is not being served for

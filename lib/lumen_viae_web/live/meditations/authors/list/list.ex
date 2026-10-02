@@ -12,9 +12,9 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.List do
   end
 
   def handle_event("delete_author", %{"id" => id}, socket) do
-    author = Rosary.get_author!(id)
+    author = Rosary.get_author!(id, actor: socket.assigns.current_admin)
 
-    case Rosary.delete_author(author) do
+    case Rosary.delete_author(author, actor: socket.assigns.current_admin) do
       {:ok, _author} ->
         {:noreply,
          socket
@@ -27,8 +27,8 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.List do
   end
 
   defp load_authors(socket) do
-    authors = Rosary.list_authors!()
-    set_counts = Rosary.meditation_set_counts_by_author()
+    authors = Rosary.list_authors!(actor: socket.assigns.current_admin)
+    set_counts = Rosary.meditation_set_counts_by_author(actor: socket.assigns.current_admin)
 
     socket
     |> assign(:authors, authors)

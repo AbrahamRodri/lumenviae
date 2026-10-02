@@ -30,6 +30,10 @@ defmodule LumenViae.Curation.AudioRegeneration do
     * `:progress` - a 1-arity function receiving `{:started, total}` and
       `{:item_finished, index, total, result}` events, one item per
       (meditation, voice) pair
+    * `:actor` - the admin the regeneration runs as, when the console
+      starts it
+    * `:authorize?` - `false` only from an operator's shell (mix tasks,
+      `LumenViae.Release`), which already holds the database
 
   Results are returned as a list of `{:ok | :warning | :error, message}`
   tuples, matching `LumenViae.Curation.CsvImport`. Meditations without
@@ -44,17 +48,17 @@ defmodule LumenViae.Curation.AudioRegeneration do
   def run(target, opts \\ [])
 
   def run({:set, set_name}, opts) do
-    case Rosary.get_meditation_set_by_name(set_name) do
+    case Rosary.get_meditation_set_by_name(set_name, nil, ash_opts(opts)) do
       nil ->
         fail_target("Meditation set not found: #{set_name}", opts)
 
       set ->
-        set.id |> Rosary.list_meditations_in_set() |> process(opts)
+        set.id |> Rosary.list_meditations_in_set(ash_opts(opts)) |> process(opts)
     end
   end
 
   def run({:meditation, id}, opts) do
-    case Rosary.get_meditation(id) do
+    case Rosary.get_meditation(id, ash_opts(opts)) do
       {:ok, meditation} ->
         meditation |> List.wrap() |> process(opts)
 
@@ -64,7 +68,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
   end
 
   def run(:all, opts) do
-    Rosary.list_meditations!()
+    Rosary.list_meditations!(ash_opts(opts))
     |> Enum.reject(&Rosary.meditation_archived?/1)
     |> Enum.sort_by(& &1.id)
     |> process(opts)
@@ -126,7 +130,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
     s3_key = Voices.narration_key(voice, meditation.audio_url)
 
     cond do
-      opts[:only_missing] && recorded?(meditation, voice) ->
+      opts[:only_missing] && recorded?(meditation, voice, opts) ->
         {:ok, "Kept #{s3_key} for #{describe(meditation)} (already recorded)"}
 
       opts[:dry_run] ->
@@ -135,11 +139,11 @@ defmodule LumenViae.Curation.AudioRegeneration do
            "(#{voice.slug} voice on #{voice.model_id}, #{pause_plan(meditation, voice)})"}
 
       true ->
-        regenerate(meditation, voice, s3_key)
+        regenerate(meditation, voice, s3_key, opts)
     end
   end
 
-  defp regenerate(meditation, voice, s3_key) do
+  defp regenerate(meditation, voice, s3_key, opts) do
     with {:ok, s3_key} <-
            Pipeline.generate_and_upload(
              meditation.content,
@@ -147,7 +151,8 @@ defmodule LumenViae.Curation.AudioRegeneration do
              s3_key,
              voice: voice
            ),
-         {:ok, _meditation} <- Rosary.record_narration(meditation, voice.slug, s3_key) do
+         {:ok, _meditation} <-
+           Rosary.record_narration(meditation, voice.slug, s3_key, ash_opts(opts)) do
       {:ok, "Regenerated #{s3_key} for #{describe(meditation)} (#{voice.slug} voice)"}
     else
       {:error, reason} ->
@@ -156,8 +161,10 @@ defmodule LumenViae.Curation.AudioRegeneration do
     end
   end
 
-  defp recorded?(meditation, voice) do
-    Enum.any?(Rosary.meditation_narrations(meditation), &(&1.voice.slug == voice.slug))
+  defp recorded?(meditation, voice, opts) do
+    meditation
+    |> Rosary.meditation_narrations(ash_opts(opts))
+    |> Enum.any?(&(&1.voice.slug == voice.slug))
   end
 
   defp describe(meditation) do
@@ -183,6 +190,10 @@ defmodule LumenViae.Curation.AudioRegeneration do
 
   defp format_error(reason) when is_binary(reason), do: reason
   defp format_error(reason), do: reason |> inspect() |> String.slice(0, 200)
+
+  # Only who the run acts as reaches the domain; the rest of `opts` is this
+  # module's own.
+  defp ash_opts(opts), do: Keyword.take(opts, [:actor, :authorize?])
 
   defp notify(opts, event) do
     case opts[:progress] do

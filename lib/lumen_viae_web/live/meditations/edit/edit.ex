@@ -3,13 +3,13 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
   alias LumenViae.Rosary
 
   def mount(%{"id" => id}, _session, socket) do
-    meditation = Rosary.get_meditation!(id)
+    meditation = Rosary.get_meditation!(id, actor: socket.assigns.current_admin)
 
     {:ok,
      socket
      |> assign(:page_title, "Edit Meditation")
      |> assign(:meditation, meditation)
-     |> assign(:mysteries, Rosary.list_mysteries!())
+     |> assign(:mysteries, Rosary.list_mysteries!(actor: socket.assigns.current_admin))
      |> assign_edit_form(meditation), temporary_assigns: [return_to: nil]}
   end
 
@@ -39,7 +39,12 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
     assign(
       socket,
       :edit_form,
-      to_form(Rosary.form_to_update_meditation(meditation, as: "meditation"))
+      to_form(
+        Rosary.form_to_update_meditation(meditation,
+          as: "meditation",
+          actor: socket.assigns.current_admin
+        )
+      )
     )
   end
 end

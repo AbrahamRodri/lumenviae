@@ -21,6 +21,9 @@ defmodule LumenViae.Curation.NarrationRelocation do
 
     * `:progress` - a 1-arity function receiving `{:started, total}` and
       `{:item_finished, index, total, result}` events
+    * `:actor` - who the run reads the meditations as
+    * `:authorize?` - `false` only from an operator's shell
+      (`LumenViae.Release`), which already holds the database
   """
 
   alias LumenViae.Rosary
@@ -31,7 +34,7 @@ defmodule LumenViae.Curation.NarrationRelocation do
 
   def run(opts \\ []) do
     meditations =
-      Rosary.list_meditations!()
+      Rosary.list_meditations!(Keyword.take(opts, [:actor, :authorize?]))
       |> Enum.reject(&(&1.audio_url in [nil, ""]))
       |> Enum.sort_by(& &1.id)
 

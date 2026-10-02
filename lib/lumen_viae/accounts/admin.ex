@@ -50,7 +50,8 @@ defmodule LumenViae.Accounts.Admin do
       end
     end
 
-    # A new password revokes every session the admin has open.
+    # A new password revokes every session the admin has open (see the
+    # :set_password action for why it is also named there).
     add_ons do
       log_out_everywhere do
         apply_on_password_change?(true)
@@ -123,6 +124,11 @@ defmodule LumenViae.Accounts.Admin do
       end
 
       change {AshAuthentication.Strategy.Password.HashPasswordChange, strategy_name: :password}
+
+      # Named here as well as by the add-on: the add-on attaches it only
+      # `where: changing(:hashed_password)`, which is decided before the
+      # hash above is set, so on its own it never revokes anything.
+      change AshAuthentication.AddOn.LogOutEverywhere.OnPasswordChange
     end
   end
 

@@ -6,7 +6,7 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
   alias LumenViae.Rosary.Artwork
 
   def mount(%{"id" => id}, _session, socket) do
-    author = Rosary.get_author!(id)
+    author = Rosary.get_author!(id, actor: socket.assigns.current_admin)
 
     {:ok,
      socket
@@ -52,7 +52,7 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
 
     case consume_artwork_upload(socket, author) do
       {:ok, fields} ->
-        case Rosary.update_author_artwork(author, fields) do
+        case Rosary.update_author_artwork(author, fields, actor: socket.assigns.current_admin) do
           {:ok, author} ->
             {:noreply,
              socket
@@ -115,7 +115,9 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
   end
 
   defp save_focal_point(socket, attrs) do
-    case Rosary.update_author_artwork_metadata(socket.assigns.author, attrs) do
+    case Rosary.update_author_artwork_metadata(socket.assigns.author, attrs,
+           actor: socket.assigns.current_admin
+         ) do
       {:ok, author} ->
         {:noreply,
          socket |> assign(:author, author) |> assign_edit_form(author) |> assign_artwork(author)}
@@ -158,7 +160,12 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
     |> assign(:artwork_url, Rosary.artwork_url(author))
     |> assign(
       :artwork_form,
-      to_form(Rosary.form_to_update_author_artwork_metadata(author, as: "artwork"))
+      to_form(
+        Rosary.form_to_update_author_artwork_metadata(author,
+          as: "artwork",
+          actor: socket.assigns.current_admin
+        )
+      )
     )
   end
 
@@ -166,6 +173,12 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
   # form made it: each one holds the author it was built from, and submitting
   # a form built from an older copy would write that copy's view of the row.
   defp assign_edit_form(socket, author) do
-    assign(socket, :edit_form, to_form(Rosary.form_to_update_author(author, as: "author")))
+    assign(
+      socket,
+      :edit_form,
+      to_form(
+        Rosary.form_to_update_author(author, as: "author", actor: socket.assigns.current_admin)
+      )
+    )
   end
 end

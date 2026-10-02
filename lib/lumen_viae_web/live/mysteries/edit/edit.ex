@@ -3,7 +3,7 @@ defmodule LumenViaeWeb.Live.Mysteries.Edit do
   alias LumenViae.Rosary
 
   def mount(%{"id" => id}, _session, socket) do
-    mystery = Rosary.get_mystery!(id)
+    mystery = Rosary.get_mystery!(id, actor: socket.assigns.current_admin)
 
     {:ok,
      socket
@@ -35,6 +35,12 @@ defmodule LumenViaeWeb.Live.Mysteries.Edit do
   end
 
   defp assign_edit_form(socket, mystery) do
-    assign(socket, :edit_form, to_form(Rosary.form_to_update_mystery(mystery, as: "mystery")))
+    assign(
+      socket,
+      :edit_form,
+      to_form(
+        Rosary.form_to_update_mystery(mystery, as: "mystery", actor: socket.assigns.current_admin)
+      )
+    )
   end
 end

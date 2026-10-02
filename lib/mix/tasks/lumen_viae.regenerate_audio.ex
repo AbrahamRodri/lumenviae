@@ -107,7 +107,10 @@ defmodule Mix.Tasks.LumenViae.RegenerateAudio do
         voices: Keyword.get_values(opts, :voice),
         only_missing: opts[:only_missing],
         dry_run: opts[:dry_run],
-        progress: progress
+        progress: progress,
+        # An operator's shell already holds the database credentials, and
+        # there is no signed-in admin to act as.
+        authorize?: false
       )
 
     grouped = Enum.group_by(results, fn {status, _} -> status end)

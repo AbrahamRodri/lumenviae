@@ -46,7 +46,10 @@ defmodule Mix.Tasks.LumenViae.Update do
           LumenViae.Curation.CsvUpdate.update_file(path,
             dry_run: opts[:dry_run],
             skip_audio: opts[:skip_audio],
-            voices: Keyword.get_values(opts, :voice)
+            voices: Keyword.get_values(opts, :voice),
+            # An operator's shell already holds the database credentials,
+            # and there is no signed-in admin to act as.
+            authorize?: false
           )
 
         grouped = Enum.group_by(results, fn {status, _} -> status end)

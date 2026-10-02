@@ -35,6 +35,10 @@ defmodule LumenViae.Curation.CsvUpdate do
       configured voice)
     * `:progress` - a 1-arity function receiving `{:started, total}` and
       `{:row_finished, index, total, result}`
+    * `:actor` - the admin the update runs as; the console passes the
+      signed-in admin
+    * `:authorize?` - `false` only from an operator's shell (mix tasks,
+      `LumenViae.Release`), which already holds the database
 
   Results are `{:ok | :warning | :error, message}` tuples in row order. A
   `:warning` means the text was written but a recording failed; the
@@ -122,7 +126,7 @@ defmodule LumenViae.Curation.CsvUpdate do
   defp process_row(headers, row, opts) do
     row_map = row_to_map(headers, row)
 
-    with {:ok, meditation} <- fetch_meditation(row_map["meditation_id"]),
+    with {:ok, meditation} <- fetch_meditation(row_map["meditation_id"], opts),
          {:ok, clean_content, annotations} <- extract_content(row_map["content"], meditation) do
       attrs =
         %{"content" => clean_content, "tts_annotations" => annotations}
@@ -131,7 +135,7 @@ defmodule LumenViae.Curation.CsvUpdate do
         |> put_optional("source", row_map["source"])
 
       if opts[:dry_run] do
-        dry_run_result(meditation, attrs)
+        dry_run_result(meditation, attrs, opts)
       else
         apply_update(meditation, attrs, opts)
       end
@@ -141,12 +145,12 @@ defmodule LumenViae.Curation.CsvUpdate do
   defp put_optional(attrs, _key, nil), do: attrs
   defp put_optional(attrs, key, value), do: Map.put(attrs, key, value)
 
-  defp fetch_meditation(nil), do: {:error, "Row is missing meditation_id"}
+  defp fetch_meditation(nil, _opts), do: {:error, "Row is missing meditation_id"}
 
-  defp fetch_meditation(id) do
+  defp fetch_meditation(id, opts) do
     case Integer.parse(id) do
       {meditation_id, ""} ->
-        case Rosary.get_meditation(meditation_id) do
+        case Rosary.get_meditation(meditation_id, ash_opts(opts)) do
           {:ok, meditation} -> {:ok, meditation}
           {:error, _not_found} -> {:error, "Meditation not found: id #{meditation_id}"}
         end
@@ -166,8 +170,8 @@ defmodule LumenViae.Curation.CsvUpdate do
     end
   end
 
-  defp dry_run_result(meditation, attrs) do
-    changeset = Rosary.changeset_to_update_meditation(meditation, attrs)
+  defp dry_run_result(meditation, attrs, opts) do
+    changeset = Rosary.changeset_to_update_meditation(meditation, attrs, ash_opts(opts))
 
     if changeset.valid? do
       {:ok, "Would update #{describe(meditation)}: #{summarize(meditation, attrs)}"}
@@ -177,7 +181,7 @@ defmodule LumenViae.Curation.CsvUpdate do
   end
 
   defp apply_update(meditation, attrs, opts) do
-    case Rosary.update_meditation(meditation, attrs) do
+    case Rosary.update_meditation(meditation, attrs, ash_opts(opts)) do
       {:ok, updated} ->
         base = "Updated #{describe(meditation)}: #{summarize(meditation, attrs)}"
 
@@ -199,7 +203,11 @@ defmodule LumenViae.Curation.CsvUpdate do
   # recordings and the narration rows stay in step with the new words. A
   # meditation with no audio filename is reported as a warning by it.
   defp narrate(meditation, opts) do
-    results = AudioRegeneration.run({:meditation, meditation.id}, voices: opts[:voices])
+    results =
+      AudioRegeneration.run(
+        {:meditation, meditation.id},
+        [voices: opts[:voices]] ++ ash_opts(opts)
+      )
 
     case Enum.reject(results, &match?({:ok, _}, &1)) do
       [] -> :ok
@@ -237,6 +245,10 @@ defmodule LumenViae.Curation.CsvUpdate do
   defp mystery_name(_not_loaded_or_nil), do: nil
 
   defp changeset_errors(error), do: Rosary.error_summary(error)
+
+  # Only who the update runs as reaches the domain; Rosary's code interface
+  # functions reject options they do not know.
+  defp ash_opts(opts), do: Keyword.take(opts, [:actor, :authorize?])
 
   defp notify(opts, event) do
     case opts[:progress] do

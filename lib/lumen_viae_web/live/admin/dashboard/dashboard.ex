@@ -57,18 +57,29 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   def handle_async(:rosary_audio, {:exit, _reason}, socket), do: {:noreply, socket}
 
   defp load(socket) do
-    sets = Rosary.list_meditation_sets!()
-    hidden_ids = Rosary.hidden_meditation_set_ids()
-    set_stats = Rosary.meditation_set_stats()
-    mysteries = Rosary.list_mysteries!()
-    mystery_counts = Rosary.active_meditation_counts_by_mystery()
-    authors = Rosary.list_authors!()
+    sets = Rosary.list_meditation_sets!(actor: socket.assigns.current_admin)
+    hidden_ids = Rosary.hidden_meditation_set_ids(actor: socket.assigns.current_admin)
+    set_stats = Rosary.meditation_set_stats(actor: socket.assigns.current_admin)
+    mysteries = Rosary.list_mysteries!(actor: socket.assigns.current_admin)
+
+    mystery_counts =
+      Rosary.active_meditation_counts_by_mystery(actor: socket.assigns.current_admin)
+
+    authors = Rosary.list_authors!(actor: socket.assigns.current_admin)
 
     live_sets = Enum.reject(sets, &MapSet.member?(hidden_ids, &1.id))
     hidden_sets = Enum.filter(sets, &MapSet.member?(hidden_ids, &1.id))
 
     content_health =
-      build_health(live_sets, hidden_sets, set_stats, mysteries, mystery_counts, authors)
+      build_health(
+        live_sets,
+        hidden_sets,
+        set_stats,
+        mysteries,
+        mystery_counts,
+        authors,
+        socket.assigns.current_admin
+      )
 
     socket
     |> assign(:content_health, content_health)
@@ -78,17 +89,30 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
       live_sets: length(live_sets),
       total_sets: length(sets),
       hidden_sets: length(hidden_sets),
-      meditations: Rosary.count_meditations(),
-      archived: Rosary.count_archived_meditations(),
+      meditations: Rosary.count_meditations(actor: socket.assigns.current_admin),
+      archived: Rosary.count_archived_meditations(actor: socket.assigns.current_admin),
       mysteries: length(mysteries),
       authors: length(authors)
     })
     |> assign(:coverage, coverage(live_sets, set_stats))
-    |> assign(:completions, Rosary.completion_summary())
-    |> assign(:completion_days, Rosary.completions_by_day(@chart_days))
-    |> assign(:top_sets, Rosary.get_completions_by_set(days: @chart_days) |> Enum.take(6))
-    |> assign(:recent_completions, Rosary.get_recent_completions(@recent_completions))
-    |> assign(:locations, Rosary.completion_locations(@chart_days))
+    |> assign(:completions, Rosary.completion_summary(actor: socket.assigns.current_admin))
+    |> assign(
+      :completion_days,
+      Rosary.completions_by_day(@chart_days, actor: socket.assigns.current_admin)
+    )
+    |> assign(
+      :top_sets,
+      Rosary.get_completions_by_set(days: @chart_days, actor: socket.assigns.current_admin)
+      |> Enum.take(6)
+    )
+    |> assign(
+      :recent_completions,
+      Rosary.get_recent_completions(@recent_completions, actor: socket.assigns.current_admin)
+    )
+    |> assign(
+      :locations,
+      Rosary.completion_locations(@chart_days, actor: socket.assigns.current_admin)
+    )
     |> assign(:refreshed_at, DateTime.utc_now())
   end
 
@@ -126,10 +150,10 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   # many sets are hidden, how many meditations are archived) live in the
   # metric row instead, so that "0 issues" means the checklist is genuinely
   # empty rather than permanently showing a number nobody can drive to zero.
-  defp build_health(live_sets, hidden_sets, set_stats, mysteries, mystery_counts, authors) do
+  defp build_health(live_sets, hidden_sets, set_stats, mysteries, mystery_counts, authors, actor) do
     [
       %{
-        count: length(Rosary.public_meditation_ids_missing_audio()),
+        count: length(Rosary.public_meditation_ids_missing_audio(actor: actor)),
         tone: "danger",
         label: "Meditations without narration",
         description:
@@ -138,7 +162,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
         names: []
       },
       %{
-        count: length(Rosary.meditation_ids_missing_a_voice()),
+        count: length(Rosary.meditation_ids_missing_a_voice(actor: actor)),
         tone: "caution",
         label: "Meditations missing a voice",
         description:
@@ -197,7 +221,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
         names: names(hidden_sets, &(meditation_count(&1, set_stats) > 0))
       },
       %{
-        count: Rosary.count_meditations_not_in_any_set(),
+        count: Rosary.count_meditations_not_in_any_set(actor: actor),
         tone: "caution",
         label: "Meditations in no set",
         description: "Active meditations that never appear in the app or on the site.",

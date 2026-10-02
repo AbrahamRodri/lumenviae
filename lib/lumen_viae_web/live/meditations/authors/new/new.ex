@@ -7,7 +7,10 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.New do
     {:ok,
      socket
      |> assign(:page_title, "New Author")
-     |> assign(:author_form, to_form(Rosary.form_to_create_author(as: "author")))}
+     |> assign(
+       :author_form,
+       to_form(Rosary.form_to_create_author(as: "author", actor: socket.assigns.current_admin))
+     )}
   end
 
   def handle_event("create_author", %{"author" => params}, socket) do

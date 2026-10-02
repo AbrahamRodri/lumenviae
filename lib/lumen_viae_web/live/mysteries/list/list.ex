@@ -27,9 +27,9 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
   end
 
   def handle_event("delete_mystery", %{"id" => id}, socket) do
-    mystery = Rosary.get_mystery!(String.to_integer(id))
+    mystery = Rosary.get_mystery!(String.to_integer(id), actor: socket.assigns.current_admin)
 
-    case Rosary.delete_mystery(mystery) do
+    case Rosary.delete_mystery(mystery, actor: socket.assigns.current_admin) do
       {:ok, _mystery} ->
         {:noreply,
          socket
@@ -50,12 +50,17 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
   end
 
   defp load_data(socket) do
-    mysteries = Rosary.list_mysteries!()
-    active_counts = Rosary.active_meditation_counts_by_mystery()
+    mysteries = Rosary.list_mysteries!(actor: socket.assigns.current_admin)
+
+    active_counts =
+      Rosary.active_meditation_counts_by_mystery(actor: socket.assigns.current_admin)
 
     socket
     |> assign(:mysteries, mysteries)
-    |> assign(:meditation_counts, Rosary.meditation_counts_by_mystery())
+    |> assign(
+      :meditation_counts,
+      Rosary.meditation_counts_by_mystery(actor: socket.assigns.current_admin)
+    )
     |> assign(:active_counts, active_counts)
     |> assign(:bare_count, Enum.count(mysteries, &(Map.get(active_counts, &1.id, 0) == 0)))
   end

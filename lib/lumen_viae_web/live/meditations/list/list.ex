@@ -90,7 +90,10 @@ defmodule LumenViaeWeb.Live.Meditations.List do
       socket.assigns.meditations
       |> Enum.filter(&MapSet.member?(selected, &1.id))
       |> Enum.count(fn meditation ->
-        match?({:ok, _}, Rosary.delete_meditation(meditation))
+        match?(
+          {:ok, _},
+          Rosary.delete_meditation(meditation, actor: socket.assigns.current_admin)
+        )
       end)
 
     {:noreply,
@@ -105,7 +108,7 @@ defmodule LumenViaeWeb.Live.Meditations.List do
     set_archived(
       socket,
       id,
-      &Rosary.archive_meditation/1,
+      &Rosary.archive_meditation/2,
       "Meditation archived. It is hidden from the public site, along with any set containing it, " <>
         "and has left this list - switch Status to Archived to see it."
     )
@@ -115,15 +118,16 @@ defmodule LumenViaeWeb.Live.Meditations.List do
     set_archived(
       socket,
       id,
-      &Rosary.unarchive_meditation/1,
+      &Rosary.unarchive_meditation/2,
       "Meditation restored and visible to the public again."
     )
   end
 
   def handle_event("delete_meditation", %{"id" => id}, socket) do
-    meditation = Rosary.get_meditation!(String.to_integer(id))
+    meditation =
+      Rosary.get_meditation!(String.to_integer(id), actor: socket.assigns.current_admin)
 
-    case Rosary.delete_meditation(meditation) do
+    case Rosary.delete_meditation(meditation, actor: socket.assigns.current_admin) do
       {:ok, _meditation} ->
         {:noreply,
          socket
@@ -137,13 +141,13 @@ defmodule LumenViaeWeb.Live.Meditations.List do
   end
 
   defp load_data(socket) do
-    meditations = Rosary.list_meditations_with_sets!()
+    meditations = Rosary.list_meditations_with_sets!(actor: socket.assigns.current_admin)
 
     socket
     |> assign(:meditations, meditations)
     |> assign(:available_authors, Filtering.available_authors(meditations))
-    |> assign(:mysteries, Rosary.list_mysteries!())
-    |> assign(:meditation_sets, Rosary.list_meditation_sets!())
+    |> assign(:mysteries, Rosary.list_mysteries!(actor: socket.assigns.current_admin))
+    |> assign(:meditation_sets, Rosary.list_meditation_sets!(actor: socket.assigns.current_admin))
     |> assign(:summary, summarize(meditations))
   end
 
@@ -230,9 +234,10 @@ defmodule LumenViaeWeb.Live.Meditations.List do
   defp parse_set(value), do: parse_int(value)
 
   defp set_archived(socket, id, archive_fun, success_message) do
-    meditation = Rosary.get_meditation!(String.to_integer(id))
+    meditation =
+      Rosary.get_meditation!(String.to_integer(id), actor: socket.assigns.current_admin)
 
-    case archive_fun.(meditation) do
+    case archive_fun.(meditation, actor: socket.assigns.current_admin) do
       {:ok, _meditation} ->
         {:noreply,
          socket
@@ -249,8 +254,8 @@ defmodule LumenViaeWeb.Live.Meditations.List do
 
     {fun, wanted?} =
       case mode do
-        :archive -> {&Rosary.archive_meditation/1, &is_nil(&1.archived_at)}
-        :unarchive -> {&Rosary.unarchive_meditation/1, &(not is_nil(&1.archived_at))}
+        :archive -> {&Rosary.archive_meditation/2, &is_nil(&1.archived_at)}
+        :unarchive -> {&Rosary.unarchive_meditation/2, &(not is_nil(&1.archived_at))}
       end
 
     count =
@@ -258,7 +263,7 @@ defmodule LumenViaeWeb.Live.Meditations.List do
       |> Enum.filter(&MapSet.member?(selected, &1.id))
       |> Enum.filter(wanted?)
       |> Enum.count(fn meditation ->
-        match?({:ok, _}, fun.(meditation))
+        match?({:ok, _}, fun.(meditation, actor: socket.assigns.current_admin))
       end)
 
     verb = if mode == :archive, do: "archived", else: "restored"

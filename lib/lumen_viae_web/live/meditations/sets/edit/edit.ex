@@ -9,13 +9,15 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   alias LumenViae.Rosary.Labels
 
   def mount(%{"id" => id}, _session, socket) do
-    set = Rosary.get_meditation_set_with_ordered_meditations!(id)
-    meditations = Rosary.list_meditations!()
+    set =
+      Rosary.get_meditation_set_with_ordered_meditations!(id, actor: socket.assigns.current_admin)
+
+    meditations = Rosary.list_meditations!(actor: socket.assigns.current_admin)
 
     {:ok,
      socket
      |> assign(:page_title, "Edit Meditation Set")
-     |> assign(:authors, Rosary.list_authors!())
+     |> assign(:authors, Rosary.list_authors!(actor: socket.assigns.current_admin))
      |> assign(:meditations, meditations)
      |> assign(:available_authors, Filtering.available_authors(meditations))
      |> assign(:filter_category, nil)
@@ -62,7 +64,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
 
     case consume_artwork_upload(socket, set) do
       {:ok, fields} ->
-        case Rosary.update_meditation_set_artwork(set, fields) do
+        case Rosary.update_meditation_set_artwork(set, fields,
+               actor: socket.assigns.current_admin
+             ) do
           {:ok, set} ->
             {:noreply,
              socket
@@ -138,9 +142,14 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
     with {meditation_id_int, ""} <- Integer.parse(meditation_id),
          {order_int, ""} <- Integer.parse(order),
          true <- order_int >= 1 and order_int <= 7 do
-      case Rosary.add_meditation_to_set(set_id, meditation_id_int, order_int) do
+      case Rosary.add_meditation_to_set(set_id, meditation_id_int, order_int,
+             actor: socket.assigns.current_admin
+           ) do
         {:ok, _} ->
-          set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
+          set =
+            Rosary.get_meditation_set_with_ordered_meditations!(set_id,
+              actor: socket.assigns.current_admin
+            )
 
           {:noreply,
            socket
@@ -170,8 +179,14 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
 
     case Integer.parse(meditation_id) do
       {meditation_id_int, ""} ->
-        Rosary.remove_meditation_from_set(set_id, meditation_id_int)
-        set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
+        Rosary.remove_meditation_from_set(set_id, meditation_id_int,
+          actor: socket.assigns.current_admin
+        )
+
+        set =
+          Rosary.get_meditation_set_with_ordered_meditations!(set_id,
+            actor: socket.assigns.current_admin
+          )
 
         {:noreply,
          socket
@@ -188,7 +203,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   # inputs survive it: the forms are rebuilt from the saved set, whose
   # details have not changed, so nothing about those inputs is re-rendered.
   defp update_labels(socket, labels) do
-    case Rosary.update_meditation_set(socket.assigns.meditation_set, %{labels: labels}) do
+    case Rosary.update_meditation_set(socket.assigns.meditation_set, %{labels: labels},
+           actor: socket.assigns.current_admin
+         ) do
       {:ok, set} ->
         {:noreply, assign_set(socket, set)}
 
@@ -217,7 +234,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   end
 
   defp save_focal_point(socket, attrs) do
-    case Rosary.update_meditation_set_artwork_metadata(socket.assigns.meditation_set, attrs) do
+    case Rosary.update_meditation_set_artwork_metadata(socket.assigns.meditation_set, attrs,
+           actor: socket.assigns.current_admin
+         ) do
       {:ok, set} ->
         {:noreply, assign_set(socket, set)}
 
@@ -263,12 +282,22 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
     |> assign(:meditation_set, set)
     |> assign(
       :edit_form,
-      to_form(Rosary.form_to_update_meditation_set(set, as: "meditation_set"))
+      to_form(
+        Rosary.form_to_update_meditation_set(set,
+          as: "meditation_set",
+          actor: socket.assigns.current_admin
+        )
+      )
     )
     |> assign(:artwork_url, Rosary.artwork_url(set))
     |> assign(
       :artwork_form,
-      to_form(Rosary.form_to_update_meditation_set_artwork_metadata(set, as: "artwork"))
+      to_form(
+        Rosary.form_to_update_meditation_set_artwork_metadata(set,
+          as: "artwork",
+          actor: socket.assigns.current_admin
+        )
+      )
     )
   end
 end

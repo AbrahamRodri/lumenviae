@@ -46,7 +46,10 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
     if socket.assigns.expanded_set_id == set_id do
       {:noreply, socket |> assign(:expanded_set_id, nil) |> assign(:expanded_meditations, [])}
     else
-      set = Rosary.get_meditation_set_with_ordered_meditations!(set_id)
+      set =
+        Rosary.get_meditation_set_with_ordered_meditations!(set_id,
+          actor: socket.assigns.current_admin
+        )
 
       {:noreply,
        socket
@@ -56,9 +59,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
   end
 
   def handle_event("delete_set", %{"id" => id}, socket) do
-    set = Rosary.get_meditation_set!(id)
+    set = Rosary.get_meditation_set!(id, actor: socket.assigns.current_admin)
 
-    case Rosary.delete_meditation_set(set) do
+    case Rosary.delete_meditation_set(set, actor: socket.assigns.current_admin) do
       {:ok, _set} ->
         {:noreply,
          socket
@@ -74,9 +77,9 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.List do
   end
 
   defp load_data(socket) do
-    sets = Rosary.list_meditation_sets!()
-    hidden_ids = Rosary.hidden_meditation_set_ids()
-    stats = Rosary.meditation_set_stats()
+    sets = Rosary.list_meditation_sets!(actor: socket.assigns.current_admin)
+    hidden_ids = Rosary.hidden_meditation_set_ids(actor: socket.assigns.current_admin)
+    stats = Rosary.meditation_set_stats(actor: socket.assigns.current_admin)
 
     socket
     |> assign(:meditation_sets, sets)
