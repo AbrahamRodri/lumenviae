@@ -12,6 +12,7 @@ defmodule LumenViae.Rosary.Meditation do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshPaperTrail.Resource]
 
   # GraphQL shows a meditation's text, its mystery and its narrations as
@@ -58,6 +59,10 @@ defmodule LumenViae.Rosary.Meditation do
     store_action_name? true
     ignore_attributes [:inserted_at, :updated_at]
     reference_source? false
+
+    # Admin-only, read-only history. See LumenViae.Rosary.VersionPolicies.
+    version_extensions authorizers: [Ash.Policy.Authorizer]
+    mixin LumenViae.Rosary.VersionPolicies
   end
 
   actions do
@@ -173,6 +178,26 @@ defmodule LumenViae.Rosary.Meditation do
       end
 
       run LumenViae.Rosary.Meditation.AudioFor
+    end
+  end
+
+  # The public may read a meditation that is in circulation, by any read:
+  # an archived one is invisible to it, which is what every public surface
+  # already serves (a set holding one is hidden, and its audio answers
+  # not-found). `audio_for` is GraphQL's meditationAudio; it reads the
+  # meditations as its caller, so the same rule applies inside it.
+  # Everything else is the console's.
+  policies do
+    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
+      authorize_if always()
+    end
+
+    policy action(:audio_for) do
+      authorize_if always()
+    end
+
+    policy action_type(:read) do
+      authorize_if expr(is_nil(archived_at))
     end
   end
 

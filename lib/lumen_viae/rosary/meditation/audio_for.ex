@@ -37,11 +37,11 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
   alias LumenViae.Rosary.Voices
 
   @impl true
-  def run(input, _opts, _context) do
+  def run(input, _opts, context) do
     ids = Enum.uniq(input.arguments.meditation_ids)
     preferred = preferred_slug(input.arguments[:voice])
 
-    with {:ok, meditations} <- playable(ids) do
+    with {:ok, meditations} <- playable(ids, context) do
       by_id = Map.new(meditations, &{&1.id, &1})
 
       Enum.reduce_while(ids, {:ok, []}, fn id, {:ok, answers} ->
@@ -88,10 +88,12 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
     end
   end
 
-  defp playable(ids) do
+  # As the caller: the public may not read an archived meditation, and the
+  # filter says so again for an admin, who may.
+  defp playable(ids, context) do
     Meditation
     |> Ash.Query.filter(id in ^ids and is_nil(archived_at))
     |> Ash.Query.load(narrations: [:voice, :s3_key])
-    |> Ash.read(authorize?: false)
+    |> Ash.read(Ash.Context.to_opts(context))
   end
 end

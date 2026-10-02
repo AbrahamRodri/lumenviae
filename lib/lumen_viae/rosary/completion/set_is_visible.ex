@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.Completion.SetIsVisible do
   alias LumenViae.Rosary.MeditationSet
 
   @impl true
-  def validate(changeset, _opts, _context) do
+  def validate(changeset, _opts, context) do
     set_id = Ash.Changeset.get_attribute(changeset, :meditation_set_id)
 
     visible? =
@@ -21,7 +21,7 @@ defmodule LumenViae.Rosary.Completion.SetIsVisible do
         MeditationSet
         |> Ash.Query.for_read(:visible)
         |> Ash.Query.filter(id == ^set_id)
-        |> Ash.exists?()
+        |> Ash.exists?(Ash.Context.to_opts(context))
 
     if visible? do
       :ok

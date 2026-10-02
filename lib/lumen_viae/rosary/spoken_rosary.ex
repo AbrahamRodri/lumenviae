@@ -13,6 +13,7 @@ defmodule LumenViae.Rosary.SpokenRosary do
   """
   use Ash.Resource,
     domain: LumenViae.Rosary,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource]
 
   alias LumenViae.Rosary.SpokenRosary.Clips
@@ -43,6 +44,17 @@ defmodule LumenViae.Rosary.SpokenRosary do
       end
 
       prepare ForVoice
+    end
+  end
+
+  # GraphQL's rosaryAudio. The primary read is only AshAdmin's.
+  policies do
+    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
+      authorize_if always()
+    end
+
+    policy action(:for_voice) do
+      authorize_if always()
     end
   end
 

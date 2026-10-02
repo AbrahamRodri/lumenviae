@@ -50,6 +50,7 @@ defmodule LumenViae.Rosary.MeditationSet do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshPaperTrail.Resource],
     fragments: [LumenViae.Rosary.Artwork.Fragment]
 
@@ -128,6 +129,10 @@ defmodule LumenViae.Rosary.MeditationSet do
     store_action_name? true
     ignore_attributes [:inserted_at, :updated_at]
     reference_source? false
+
+    # Admin-only, read-only history. See LumenViae.Rosary.VersionPolicies.
+    version_extensions authorizers: [Ash.Policy.Authorizer]
+    mixin LumenViae.Rosary.VersionPolicies
   end
 
   actions do
@@ -190,6 +195,20 @@ defmodule LumenViae.Rosary.MeditationSet do
       require_atomic? false
       change NormalizeLabels
       validate ManagedLabels
+    end
+  end
+
+  # The public may read the sets it may see, by any read: `visible?` is the
+  # same rule the :visible read filters on, so a hidden set is invisible to
+  # an anonymous caller whichever read it tries, and not-found by id.
+  # Everything else is the console's.
+  policies do
+    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
+      authorize_if always()
+    end
+
+    policy action_type(:read) do
+      authorize_if expr(visible?)
     end
   end
 
@@ -282,9 +301,14 @@ defmodule LumenViae.Rosary.MeditationSet do
   end
 
   calculations do
+    # Built on the two unauthorized aggregates below rather than on
+    # `exists(meditations, ...)`, which would be authorized against
+    # Meditation's policies: an anonymous caller cannot see archived
+    # meditations, so for it "holds an archived meditation" would always be
+    # false and every hidden set would turn visible.
     calculate :visible?,
               :boolean,
-              expr(exists(meditations, true) and not exists(meditations, not is_nil(archived_at))) do
+              expr(holds_meditations? and not holds_archived_meditation?) do
       description "Whether the public may see the set: it has at least one meditation, and none of them is archived."
     end
 
@@ -333,6 +357,18 @@ defmodule LumenViae.Rosary.MeditationSet do
   end
 
   aggregates do
+    # What `visible?` is made of. Unauthorized on purpose: the rule must
+    # read every meditation in the set whoever is asking, and it answers
+    # only a boolean about the set, never a meditation.
+    exists :holds_meditations?, :meditations do
+      authorize? false
+    end
+
+    exists :holds_archived_meditation?, :meditations do
+      filter expr(not is_nil(archived_at))
+      authorize? false
+    end
+
     count :meditation_count, :meditations
 
     count :audio_count, :meditations do

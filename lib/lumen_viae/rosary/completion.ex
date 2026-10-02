@@ -48,6 +48,7 @@ defmodule LumenViae.Rosary.Completion do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource]
 
   alias LumenViae.Rosary.Completion.SetIsVisible
@@ -168,6 +169,20 @@ defmodule LumenViae.Rosary.Completion do
     update :place do
       description "Attaches a looked-up place to a completion that has already been written."
       accept [:city, :region, :country, :country_code]
+    end
+  end
+
+  # Anybody may record that they finished a Rosary - the website and REST
+  # through :record, GraphQL through :record_from_app - behind the crawler
+  # check and rate limit the web layer puts in front of both. Reading the
+  # rows back is the admin analytics' alone; so is everything else.
+  policies do
+    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
+      authorize_if always()
+    end
+
+    policy action([:record, :record_from_app]) do
+      authorize_if always()
     end
   end
 

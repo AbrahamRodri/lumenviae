@@ -13,6 +13,7 @@ defmodule LumenViae.Rosary.Mystery do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshPaperTrail.Resource]
 
   alias LumenViae.Rosary.Categories
@@ -57,6 +58,10 @@ defmodule LumenViae.Rosary.Mystery do
     store_action_name? true
     ignore_attributes [:inserted_at, :updated_at]
     reference_source? false
+
+    # Admin-only, read-only history. See LumenViae.Rosary.VersionPolicies.
+    version_extensions authorizers: [Ash.Policy.Authorizer]
+    mixin LumenViae.Rosary.VersionPolicies
   end
 
   actions do
@@ -90,6 +95,18 @@ defmodule LumenViae.Rosary.Mystery do
 
       filter expr(category == ^arg(:category))
       prepare build(sort: [order: :asc])
+    end
+  end
+
+  # The mysteries are the Rosary's fixed text, all of it public: the site
+  # and both APIs list every one. Writing is the console's.
+  policies do
+    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
+      authorize_if always()
+    end
+
+    policy action_type(:read) do
+      authorize_if always()
     end
   end
 

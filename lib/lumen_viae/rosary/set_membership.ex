@@ -15,6 +15,7 @@ defmodule LumenViae.Rosary.SetMembership do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource]
 
   # A set's place for one meditation: GraphQL's path to a set's
@@ -81,6 +82,18 @@ defmodule LumenViae.Rosary.SetMembership do
 
   # A set is at most seven meditations long (the Seven Sorrows), and prayer
   # positions count from one.
+  # A membership is part of a set's prayer order, so the public may read
+  # those of the sets it may see. Writing is the console's.
+  policies do
+    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
+      authorize_if always()
+    end
+
+    policy action_type(:read) do
+      authorize_if expr(meditation_set.visible?)
+    end
+  end
+
   validations do
     validate numericality(:order, greater_than: 0)
     validate numericality(:order, less_than_or_equal_to: 7)

@@ -14,6 +14,7 @@ defmodule LumenViae.Rosary.NarrationVoice do
   """
   use Ash.Resource,
     domain: LumenViae.Rosary,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource]
 
   alias LumenViae.Rosary.NarrationVoice.FromConfig
@@ -45,6 +46,18 @@ defmodule LumenViae.Rosary.NarrationVoice do
       prepare FromConfig
       filter expr(retired == true)
       prepare build(sort: [position: :asc])
+    end
+  end
+
+  # GraphQL's voices and retiredVoices. The primary read, every voice in
+  # one list, is only AshAdmin's.
+  policies do
+    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
+      authorize_if always()
+    end
+
+    policy action([:offered, :retired]) do
+      authorize_if always()
     end
   end
 

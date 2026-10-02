@@ -24,6 +24,7 @@ defmodule LumenViae.Office.Breviary do
   """
   use Ash.Resource,
     domain: LumenViae.Office,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource]
 
   alias LumenViae.Office.Breviary.Read
@@ -78,6 +79,14 @@ defmodule LumenViae.Office.Breviary do
     action :vocabulary, Types.Vocabulary do
       description "The version, hour and language slugs the Office accepts, and its defaults."
       run {Read, kind: :vocabulary}
+    end
+  end
+
+  # The Office is public text: every action is open to anyone, as the REST
+  # endpoints that call the same functions are.
+  policies do
+    policy action_type(:action) do
+      authorize_if always()
     end
   end
 end

@@ -70,6 +70,10 @@ defmodule LumenViae.Rosary.Completion.Stamp do
     :ok
   end
 
+  # Unauthorized on purpose: this is the server writing down what it looked
+  # up, after the response has gone, with nobody left to act as. :place is
+  # the console's to call otherwise.
+  #
   # Returns `:ok` whatever happens. This runs well after the completion was
   # reported, and by then there is nobody left to tell: the row may have
   # been deleted with its set, or the lookup may disagree with the
@@ -77,7 +81,9 @@ defmodule LumenViae.Rosary.Completion.Stamp do
   defp place(completion_id, location) do
     LumenViae.Rosary.Completion
     |> Ash.Query.filter(id == ^completion_id)
-    |> Ash.bulk_update(:place, Map.take(location, [:city, :region, :country, :country_code]))
+    |> Ash.bulk_update(:place, Map.take(location, [:city, :region, :country, :country_code]),
+      authorize?: false
+    )
 
     :ok
   end

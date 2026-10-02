@@ -20,6 +20,7 @@ defmodule LumenViae.Rosary.Narration do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource]
 
   graphql do
@@ -82,6 +83,19 @@ defmodule LumenViae.Rosary.Narration do
       upsert_fields [:s3_key, :generated_at, :updated_at]
 
       change set_attribute(:generated_at, &DateTime.utc_now/0)
+    end
+  end
+
+  # The public may read the recordings of a meditation in circulation: the
+  # pages and both APIs sign them into URLs. Recording one is the
+  # console's, and the import's and regeneration's on its behalf.
+  policies do
+    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
+      authorize_if always()
+    end
+
+    policy action_type(:read) do
+      authorize_if expr(is_nil(meditation.archived_at))
     end
   end
 

@@ -22,6 +22,7 @@ defmodule LumenViae.Rosary.Author do
     otp_app: :lumen_viae,
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
+    authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshPaperTrail.Resource],
     fragments: [LumenViae.Rosary.Artwork.Fragment]
 
@@ -71,6 +72,10 @@ defmodule LumenViae.Rosary.Author do
     store_action_name? true
     ignore_attributes [:inserted_at, :updated_at]
     reference_source? false
+
+    # Admin-only, read-only history. See LumenViae.Rosary.VersionPolicies.
+    version_extensions authorizers: [Ash.Policy.Authorizer]
+    mixin LumenViae.Rosary.VersionPolicies
   end
 
   actions do
@@ -90,6 +95,18 @@ defmodule LumenViae.Rosary.Author do
     read :alphabetical do
       description "Every author, by name."
       prepare build(sort: [name: :asc])
+    end
+  end
+
+  # An author is a byline and a portrait a public set may show in place of
+  # its own painting, so the public may read them. Writing is the console's.
+  policies do
+    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
+      authorize_if always()
+    end
+
+    policy action_type(:read) do
+      authorize_if always()
     end
   end
 
