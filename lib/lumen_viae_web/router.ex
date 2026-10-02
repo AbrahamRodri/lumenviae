@@ -1,12 +1,17 @@
 defmodule LumenViaeWeb.Router do
   use LumenViaeWeb, :router
 
+  use AshAuthentication.Phoenix.Router
+
   import AshAdmin.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
     plug LumenViaeWeb.Plugs.CanonicalHost
     plug :fetch_session
+    # Puts the signed-in admin, if any, in `current_admin`: the session's
+    # token is verified and must still be stored and unrevoked.
+    plug :load_from_session
     # Must follow :fetch_session, and must come before any LiveView that
     # reads the address out of the session. See Plugs.PutClientIP.
     plug LumenViaeWeb.Plugs.PutClientIP
@@ -52,14 +57,17 @@ defmodule LumenViaeWeb.Router do
   # LiveView only navigates in place between routes of the same session, so
   # crossing from the site into the console always takes a full HTTP
   # request through RequireAdmin, and the console's own on_mount hook
-  # refuses any socket that reaches it without an admin session. Without
+  # refuses any socket that reaches it without a signed-in admin. Without
   # the split, live navigation from a public page mounted the console over
   # the open socket and no plug ran at all. See LumenViaeWeb.UserAuth.
   scope "/", LumenViaeWeb do
     pipe_through :browser
 
-    post "/admin/session", AdminSessionController, :create
-    delete "/admin/session", AdminSessionController, :delete
+    # The sign-in form posts to the password strategy's route under here,
+    # /admin/auth/admin/password/sign_in; AshAuthentication checks it and
+    # hands the outcome to AuthController. CSRF-checked like any form.
+    auth_routes(AuthController, LumenViae.Accounts.Admin, path: "/admin/auth")
+    delete "/admin/session", AuthController, :sign_out
 
     live_session :public do
       # Home page - welcome and mystery categories
@@ -106,7 +114,7 @@ defmodule LumenViaeWeb.Router do
     end
   end
 
-  # Admin routes - protected by password authentication
+  # Admin routes - a signed-in admin only
   scope "/admin", LumenViaeWeb do
     pipe_through [:browser, :admin_layout, :admin]
 

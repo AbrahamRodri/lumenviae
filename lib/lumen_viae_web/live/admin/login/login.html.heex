@@ -10,21 +10,31 @@
 
       <h1 class="text-[0.9375rem] font-semibold text-admin-ink mb-1">Sign in</h1>
       <p class="text-xs text-admin-ink-soft mb-5">
-        The console is password protected. Ask the site owner if you need it.
+        Console accounts are created by the site owner. Ask them if you need one.
       </p>
 
-      <form action="/admin/session" method="post" class="space-y-4">
+      <form action="/admin/auth/admin/password/sign_in" method="post" class="space-y-4">
         <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+
+        <.field label="Email" required>
+          <input
+            type="email"
+            name="admin[email]"
+            id="admin_email"
+            class="admin-input"
+            autocomplete="username"
+            autofocus
+            required
+          />
+        </.field>
 
         <.field label="Password" required>
           <input
             type="password"
-            name="password"
-            id="password"
+            name="admin[password]"
+            id="admin_password"
             class="admin-input"
-            placeholder="Admin password"
             autocomplete="current-password"
-            autofocus
             required
           />
         </.field>

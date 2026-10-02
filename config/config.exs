@@ -9,6 +9,11 @@ import Config
 
 config :ash_graphql, authorize_update_destroy_with_error?: true
 
+# AshAdmin at /admin/data acts as the signed-in admin, always authorized.
+# Read at compile time by ash_admin: run `mix deps.compile ash_admin` after
+# changing it.
+config :ash_admin, :actor_plug, LumenViaeWeb.AshAdminActor
+
 # Errors name their fields as GraphQL spells them. See
 # LumenViaeWeb.Graphql.ErrorHandler.
 for domain <- [LumenViae.Rosary, LumenViae.Office] do
