@@ -32,11 +32,14 @@ defmodule LumenViaeWeb.Plugs.RequireAdminTest do
     assert conn |> get("/admin") |> redirected_to() == "/admin/login"
   end
 
-  test "no config file but dev.exs sets the skip, and runtime.exs never reads it" do
-    for file <- ["config/config.exs", "config/prod.exs", "config/runtime.exs", "config/test.exs"] do
-      refute File.read!(file) =~ "skip_admin_auth", "#{file} mentions :skip_admin_auth"
-    end
+  # The dev admin existing is not what opens the console: the flag is. In a
+  # release the skip is not compiled at all (see Plugs.RequireAdmin).
+  test "a seeded dev admin without the skip still has to sign in", %{conn: conn} do
+    put_env(:lumen_viae, :skip_admin_auth, false)
+    admin_fixture(Accounts.dev_admin_email())
 
-    assert File.read!("config/dev.exs") =~ "config :lumen_viae, :skip_admin_auth, true"
+    conn = get(conn, "/admin")
+    assert redirected_to(conn) == "/admin/login"
+    refute get_session(conn, "admin_token")
   end
 end

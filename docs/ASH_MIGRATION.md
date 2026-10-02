@@ -120,14 +120,22 @@ The branch that put AshAuthentication and Ash policies in (`claude/ash-auth-poli
 replaces the shared `ADMIN_PASSWORD` with admin accounts. Deploy it in this
 order:
 
-1. **Check the app's Postgres role can create `citext`.** The first
-   migration runs `CREATE EXTENSION IF NOT EXISTS "citext"`, which needs a
-   superuser or the database owner. Through the IEx remote:
-   `LumenViae.Repo.query!("select rolsuper from pg_roles where rolname = current_user")`
-   and `LumenViae.Repo.query!("select * from pg_extension where extname = 'citext'")`.
-   If the role cannot and the extension is not there, create it once as the
-   `postgres` user (see docs/PROD_ACCESS.md, "If you need psql anyway")
-   before deploying; the migration then does nothing.
+1. **Before merging (merging deploys), check `citext` can be created.**
+   The first migration runs `CREATE EXTENSION IF NOT EXISTS "citext"`.
+   `citext` is a trusted extension on Postgres 13 and later, and this app
+   requires 17, so any role with `CREATE` on the database can install it -
+   the database owner, which the app's role normally is. Superuser is not
+   needed. Through the IEx remote:
+   - `LumenViae.Repo.query!("select * from pg_extension where extname = 'citext'")` -
+     a row means it is already installed, and the migration does nothing.
+   - Otherwise `LumenViae.Repo.query!("select has_database_privilege(current_user, current_database(), 'CREATE')")` -
+     `true` means the migration can install it.
+
+   If both are no, install it once as the `postgres` user:
+   `fly postgres connect --app <postgres-app-name> --database <database>`,
+   then `CREATE EXTENSION IF NOT EXISTS citext;`. If the migration fails
+   anyway, the release command aborts and the old release keeps serving,
+   so nothing is half-deployed.
 2. **Merge to `main`, which deploys.** Two migrations, both additive:
    - `20261002023417_add_admin_accounts_extensions_1` installs `citext`.
    - `20261002023418_add_admin_accounts` creates `admins` and

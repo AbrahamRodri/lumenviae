@@ -79,6 +79,25 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
     assert html =~ "Rosary"
   end
 
+  # AshAdmin runs every action with authorize?: false once its sidebar says
+  # "Auth bypassed", which would let a signed-in admin make admins from the
+  # browser. The sidebar hides the button here (no actor resources), but a
+  # client can still send the event over the socket, so both ways of
+  # reaching that state are dropped. Read from the LiveView's own state,
+  # since nothing on the page shows it.
+  test "AshAdmin's authorization cannot be switched off", %{conn: conn} do
+    admin = admin_fixture()
+    {:ok, view, _html} = live(log_in_admin(conn, admin), "/admin/data")
+
+    for event <- ["toggle_authorizing", "clear_actor"] do
+      render_click(view, event, %{})
+      assigns = :sys.get_state(view.pid).socket.assigns
+
+      assert assigns.authorizing, "#{event} switched authorization off"
+      assert assigns.actor.id == admin.id, "#{event} changed the actor"
+    end
+  end
+
   test "live navigation from the login page into the console is forced through HTTP",
        %{conn: conn} do
     {:ok, view, _html} = live(conn, "/admin/login")

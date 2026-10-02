@@ -169,7 +169,10 @@ defmodule LumenViaeWeb.Router do
 
     ash_admin("/data",
       live_session_name: :ash_admin,
-      on_mount: [{LumenViaeWeb.UserAuth, :require_admin}]
+      on_mount: [
+        {LumenViaeWeb.UserAuth, :require_admin},
+        {LumenViaeWeb.AshAdminActor, :lock_authorization}
+      ]
     )
   end
 

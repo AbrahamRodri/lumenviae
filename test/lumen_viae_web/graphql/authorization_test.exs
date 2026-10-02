@@ -40,13 +40,18 @@ defmodule LumenViaeWeb.Graphql.AuthorizationTest do
         actor: admin()
       )
 
-    conn = log_in_admin(conn)
+    query = "query($id: ID!) { meditationSet(id: $id) { id } }"
+    variables = %{"id" => to_string(set.id)}
 
-    body =
-      graphql(conn, "query($id: ID!) { meditationSet(id: $id) { id } }", %{
-        "id" => to_string(set.id)
-      })
+    # The set exists, and an admin outside GraphQL does see it.
+    assert {:ok, _} = Rosary.get_meditation_set(set.id, actor: admin())
 
-    assert %{"data" => %{"meditationSet" => nil}} = body
+    as_admin = graphql(log_in_admin(conn), query, variables)
+    as_public = graphql(build_conn(), query, variables)
+
+    # Exactly the anonymous answer, with no data and no error that would
+    # tell the two apart.
+    assert as_admin == %{"data" => %{"meditationSet" => nil}}
+    assert as_admin == as_public
   end
 end

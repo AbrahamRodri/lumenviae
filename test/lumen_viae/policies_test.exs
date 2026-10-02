@@ -114,12 +114,16 @@ defmodule LumenViae.PoliciesTest do
     test "visibility does not change with who is asking (the exists trap)" do
       s = sets()
 
+      # Each pass reads as that actor. The anonymous pass is the one that
+      # matters: were the exists aggregates authorized, "has an archived
+      # meditation" would be false for it, the hidden set would pass the
+      # read policy, and it would come back here with visible? true.
       for actor <- [nil, admin()] do
         visible =
           MeditationSet
           |> Ash.Query.select([:id])
           |> Ash.Query.load(:visible?)
-          |> Ash.read!(actor: admin())
+          |> Ash.read!(actor: actor)
           |> Map.new(&{&1.id, &1.visible?})
 
         anonymous_ids = Rosary.list_visible_meditation_sets!(actor: actor) |> ids()
@@ -137,7 +141,10 @@ defmodule LumenViae.PoliciesTest do
       s = sets()
 
       assert {:error, :not_found} = Rosary.fetch_visible_meditation_set(s.hidden_by_archive.id)
-      assert {:error, _} = Ash.get(MeditationSet, s.hidden_by_archive.id)
+
+      assert {:error, %Ash.Error.Invalid{errors: [%Ash.Error.Query.NotFound{}]}} =
+               Ash.get(MeditationSet, s.hidden_by_archive.id)
+
       assert {:ok, _} = Ash.get(MeditationSet, s.hidden_by_archive.id, actor: admin())
 
       assert Rosary.get_meditation_set_with_ordered_meditations!(s.hidden_by_archive.id,
@@ -169,7 +176,10 @@ defmodule LumenViae.PoliciesTest do
       s = sets()
 
       assert {:ok, _} = Rosary.get_meditation(s.live_meditation.id)
-      assert {:error, _} = Rosary.get_meditation(s.archived_meditation.id)
+
+      assert {:error, %Ash.Error.Invalid{errors: [%Ash.Error.Query.NotFound{}]}} =
+               Rosary.get_meditation(s.archived_meditation.id)
+
       assert {:ok, _} = Rosary.get_meditation(s.archived_meditation.id, actor: admin())
 
       public = Rosary.list_meditations!() |> ids()
@@ -256,8 +266,11 @@ defmodule LumenViae.PoliciesTest do
       %{visible: set} = sets()
       {:ok, _} = Rosary.record_completion(set.id, %{source: "web"})
 
-      # Refused outright rather than answered with an empty list, so an
-      # admin screen that forgot its actor fails loudly.
+      # Refused outright rather than answered with an empty list, because
+      # Completion has no read policy for the public at all. That is not
+      # true everywhere: a resource with a filter-style read policy (sets,
+      # meditations) answers a forgotten actor with only what the public
+      # may see, quietly. Admin screens must pass their actor.
       assert_raise Ash.Error.Forbidden, fn -> Rosary.count_total_completions() end
       assert {:error, %Ash.Error.Forbidden{}} = Ash.read(Completion)
       assert Rosary.count_total_completions(actor: admin()) >= 1
@@ -346,11 +359,15 @@ defmodule LumenViae.PoliciesTest do
     test "a hashed password is never readable" do
       admin = admin_fixture()
 
-      assert Accounts.Admin
-             |> Ash.Resource.Info.attribute(:hashed_password)
-             |> Map.get(:sensitive?)
+      attribute = Ash.Resource.Info.attribute(Accounts.Admin, :hashed_password)
+      assert attribute.sensitive?
+      refute attribute.public?
 
-      refute admin.hashed_password == password()
+      # What is stored is a bcrypt hash of the password, never the password.
+      stored = Ash.get!(Accounts.Admin, admin.id, actor: admin())
+
+      assert "$2b$" <> _ = stored.hashed_password
+      assert Bcrypt.verify_pass(password(), stored.hashed_password)
     end
   end
 end

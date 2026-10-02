@@ -235,26 +235,46 @@ defmodule LumenViae.Release do
   close the console tabs they already have open (`LumenViaeWeb.AdminSockets`);
   under `eval` those tabs keep working until they next mount a page.
 
-  Returns `{:ok, password}`, or `{:error, :not_found}` for an address that
-  is not an admin. `authorize?: false` for the reason `create_admin/1`
+  Returns `{:ok, password}`, `{:error, :not_found}` for an address that is
+  not an admin, or `{:error, message}` when the lookup or the update itself
+  fails. `authorize?: false` for the reason `create_admin/1`
   gives.
   """
   def reset_admin_password(email) when is_binary(email) do
     password = LumenViae.Accounts.generate_password()
 
     with_repo(fn ->
-      with {:ok, admin} <- LumenViae.Accounts.get_admin_by_email(email, authorize?: false),
-           {:ok, admin} <-
-             LumenViae.Accounts.set_admin_password(admin, password, authorize?: false) do
+      case LumenViae.Accounts.get_admin_by_email(email, authorize?: false) do
+        {:ok, admin} ->
+          replace_password(admin, password)
+
+        {:error, %Ash.Error.Invalid{errors: [%Ash.Error.Query.NotFound{}]}} ->
+          IO.puts("ERROR no admin with the email #{email}")
+          {:error, :not_found}
+
+        {:error, error} ->
+          IO.puts("ERROR could not look up #{email}: #{Exception.message(error)}")
+          {:error, Exception.message(error)}
+      end
+    end)
+  end
+
+  # The admin exists, so a failure here is not "no such admin": say what it
+  # was, so the operator fixes it rather than retrying another address.
+  defp replace_password(admin, password) do
+    case LumenViae.Accounts.set_admin_password(admin, password, authorize?: false) do
+      {:ok, admin} ->
         disconnect_sockets(admin)
         print_password("New password for #{admin.email}", password)
         {:ok, password}
-      else
-        {:error, _error} ->
-          IO.puts("ERROR no admin with the email #{email}")
-          {:error, :not_found}
-      end
-    end)
+
+      {:error, error} ->
+        IO.puts(
+          "ERROR could not reset the password for #{admin.email}: #{Exception.message(error)}"
+        )
+
+        {:error, Exception.message(error)}
+    end
   end
 
   # Only a running app has an endpoint to broadcast through; a bare `eval`
