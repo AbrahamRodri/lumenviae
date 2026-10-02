@@ -48,6 +48,7 @@ defmodule LumenViae.Test.Admins do
     conn
     |> Phoenix.ConnTest.init_test_session(%{})
     |> AshAuthentication.Plug.Helpers.store_in_session(signed_in)
+    |> Plug.Conn.put_session(:live_socket_id, LumenViaeWeb.AdminSockets.id(signed_in))
   end
 
   @doc "`setup :sign_in_admin` - a conn with an admin signed in, and the admin."

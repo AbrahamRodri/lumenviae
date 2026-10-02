@@ -140,8 +140,17 @@ defmodule LumenViae.Accounts.Admin do
       authorize_if always()
     end
 
-    bypass LumenViae.Accounts.Checks.ActorIsAdmin do
-      authorize_if always()
+    # An admin may see who the admins are, in AshAdmin. Nothing else is
+    # authorized for any actor: admins are made and their passwords replaced
+    # only from a production shell (LumenViae.Release), with
+    # `authorize?: false`. A signed-in admin cannot plant another admin or
+    # lock one out from the web, so a hijacked console session cannot
+    # outlive a password reset. This resource has no admin bypass on purpose.
+    # Strict, so a read without an admin is Forbidden rather than quietly
+    # empty.
+    policy action_type(:read) do
+      access_type :strict
+      authorize_if LumenViae.Accounts.Checks.ActorIsAdmin
     end
   end
 

@@ -147,12 +147,17 @@ order:
    - In a fresh browser, `/admin` and `/admin/data` send you to
      `/admin/login`; signing in opens the dashboard; editing a set saves;
      signing out and pressing Back does not reopen the console.
-5. **Remove `ADMIN_PASSWORD`** once signing in works:
-   `fly secrets unset ADMIN_PASSWORD --app lumenviae`.
+5. **Remove `ADMIN_PASSWORD` only once rolling back is off the table.**
+   Leave it in place for the first days.
+   `fly secrets unset ADMIN_PASSWORD --app lumenviae` when you are sure.
 
-Rolling back is redeploying the previous `main`, which signs in with
-`ADMIN_PASSWORD` again, so do step 5 only once you are sure. The new
-tables are ignored by the old release.
+Rolling back is redeploying the previous `main`. The new tables are
+ignored by the old release, but the old release signs in with
+`ADMIN_PASSWORD`, and when that secret is missing it falls back to the
+password `changeme` (`config/runtime.exs` on that release). So if you
+roll back after step 5, set a strong one first, in the same breath:
+`fly secrets set ADMIN_PASSWORD=<long random value> --app lumenviae`,
+then redeploy. Never roll back with the secret unset.
 
 ## The repository after this
 

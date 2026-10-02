@@ -52,6 +52,7 @@ defmodule LumenViaeWeb.Plugs.RequireAdmin do
         {:ok,
          conn
          |> AshAuthentication.Plug.Helpers.store_in_session(admin)
+         |> put_session(:live_socket_id, LumenViaeWeb.AdminSockets.id(admin))
          |> assign(:current_admin, admin)}
       else
         _not_skipped -> :error

@@ -328,6 +328,21 @@ defmodule LumenViae.PoliciesTest do
       refute Ash.can?({Accounts.Token, :read}, admin())
     end
 
+    test "not even an admin can make an admin or set a password from the web" do
+      admin = admin_fixture()
+      email = "planted-#{System.unique_integer([:positive])}@lumenviae.test"
+
+      assert {:error, %Ash.Error.Forbidden{}} =
+               Accounts.create_admin(email, Accounts.generate_password(), actor: admin())
+
+      assert {:error, %Ash.Error.Forbidden{}} =
+               Accounts.set_admin_password(admin, Accounts.generate_password(), actor: admin())
+
+      # The shell's way still works.
+      assert {:ok, _} =
+               Accounts.create_admin(email, Accounts.generate_password(), authorize?: false)
+    end
+
     test "a hashed password is never readable" do
       admin = admin_fixture()
 

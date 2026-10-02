@@ -37,9 +37,24 @@ defmodule LumenViaeWeb.AuthControllerTest do
     conn = sign_in(conn, to_string(admin.email), password())
     assert redirected_to(conn) == "/admin"
     assert is_binary(get_session(conn, "admin_token"))
+    assert get_session(conn, :live_socket_id) == LumenViaeWeb.AdminSockets.id(admin)
 
     conn = conn |> recycle() |> get("/admin")
     assert html_response(conn, 200) =~ "Dashboard"
+  end
+
+  test "a throttled attempt is refused before the password is checked", %{conn: conn} do
+    put_env(:lumen_viae, :sign_in_per_email, 2)
+    admin = admin_fixture()
+
+    for _ <- 1..2, do: sign_in(build_conn(), to_string(admin.email), "wrong password")
+
+    # The right password now: refused anyway, with the throttle's message
+    # rather than the strategy's, and no session.
+    conn = sign_in(conn, to_string(admin.email), password())
+    assert redirected_to(conn) == "/admin/login"
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Too many sign-in attempts"
+    refute get_session(conn, "admin_token")
   end
 
   test "the email is matched without regard to case", %{conn: conn} do
@@ -73,12 +88,16 @@ defmodule LumenViaeWeb.AuthControllerTest do
     end
   end
 
-  test "signing out ends the session and revokes its token", %{conn: conn} do
-    conn = log_in_admin(conn)
+  test "signing out ends the session, revokes its token and closes open tabs", %{conn: conn} do
+    admin = admin_fixture()
+    conn = log_in_admin(conn, admin)
     assert conn |> get("/admin") |> html_response(200)
+
+    LumenViaeWeb.Endpoint.subscribe(LumenViaeWeb.AdminSockets.id(admin))
 
     signed_out = delete(conn, "/admin/session")
     assert redirected_to(signed_out) == "/"
+    assert_receive %Phoenix.Socket.Broadcast{event: "disconnect"}
 
     # The old cookie, replayed after sign-out, opens nothing.
     assert conn |> get("/admin") |> redirected_to() == "/admin/login"

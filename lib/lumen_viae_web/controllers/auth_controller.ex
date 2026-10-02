@@ -9,15 +9,19 @@ defmodule LumenViaeWeb.AuthController do
   this is a controller and the login page holds no state of its own.
 
   Signing out revokes the session's token as well as clearing the cookie,
-  so a copy of the old cookie is worthless afterwards.
+  so a copy of the old cookie is worthless afterwards, and closes the
+  admin's open console sockets (see `LumenViaeWeb.AdminSockets`).
   """
   use LumenViaeWeb, :controller
   use AshAuthentication.Phoenix.Controller
+
+  alias LumenViaeWeb.AdminSockets
 
   @impl AshAuthentication.Phoenix.Controller
   def success(conn, _activity, admin, _token) do
     conn
     |> store_in_session(admin)
+    |> put_session(:live_socket_id, AdminSockets.id(admin))
     |> put_flash(:info, "Signed in")
     |> redirect(to: "/admin")
   end
@@ -33,6 +37,8 @@ defmodule LumenViaeWeb.AuthController do
 
   @impl AshAuthentication.Phoenix.Controller
   def sign_out(conn, _params) do
+    if admin = conn.assigns[:current_admin], do: AdminSockets.disconnect(admin)
+
     conn
     |> clear_session(:lumen_viae)
     |> put_flash(:info, "Signed out")

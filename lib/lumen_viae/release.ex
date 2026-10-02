@@ -228,7 +228,12 @@ defmodule LumenViae.Release do
   Replaces an admin's password with a generated one, prints it once, and
   signs that admin out everywhere.
 
-      /app/bin/lumen_viae eval 'LumenViae.Release.reset_admin_password("you@example.com")'
+      /app/bin/lumen_viae rpc 'LumenViae.Release.reset_admin_password("you@example.com")'
+
+  Run it with `rpc`, inside the running app, not `eval`. Either way every
+  token the admin holds is revoked. Only inside the running app can it also
+  close the console tabs they already have open (`LumenViaeWeb.AdminSockets`);
+  under `eval` those tabs keep working until they next mount a page.
 
   Returns `{:ok, password}`, or `{:error, :not_found}` for an address that
   is not an admin. `authorize?: false` for the reason `create_admin/1`
@@ -241,6 +246,7 @@ defmodule LumenViae.Release do
       with {:ok, admin} <- LumenViae.Accounts.get_admin_by_email(email, authorize?: false),
            {:ok, admin} <-
              LumenViae.Accounts.set_admin_password(admin, password, authorize?: false) do
+        disconnect_sockets(admin)
         print_password("New password for #{admin.email}", password)
         {:ok, password}
       else
@@ -249,6 +255,16 @@ defmodule LumenViae.Release do
           {:error, :not_found}
       end
     end)
+  end
+
+  # Only a running app has an endpoint to broadcast through; a bare `eval`
+  # node does not, and is not in the cluster either.
+  defp disconnect_sockets(admin) do
+    if Process.whereis(LumenViaeWeb.Endpoint) do
+      LumenViaeWeb.AdminSockets.disconnect(admin)
+    else
+      IO.puts("WARN  not inside the running app: open console tabs stay open until they reload")
+    end
   end
 
   defp print_password(heading, password) do

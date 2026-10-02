@@ -155,21 +155,31 @@ before closing the terminal.
 
 ```
 fly ssh console --app lumenviae -C "/app/bin/lumen_viae eval 'LumenViae.Release.create_admin(\"you@example.com\")'"
-fly ssh console --app lumenviae -C "/app/bin/lumen_viae eval 'LumenViae.Release.reset_admin_password(\"you@example.com\")'"
+fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.reset_admin_password(\"you@example.com\")'"
 ```
 
-A reset signs that admin out everywhere. Both run with `authorize?: false`,
+A reset signs that admin out everywhere: it revokes every token they hold
+and, because it runs with `rpc` inside the running app, closes the console
+tabs they already have open, on both machines. Under `eval` the tokens are
+still revoked, but open tabs keep working until they next load a page, so
+use `rpc`. Both run with `authorize?: false`,
 because before the first admin exists there is nobody to act as, and
 whoever holds this shell already holds the database. The session tokens
 are signed with `TOKEN_SIGNING_SECRET` if it is set, and otherwise with a
 key derived from `SECRET_KEY_BASE`, so rotating `SECRET_KEY_BASE` signs
 every admin out.
 
-`ADMIN_PASSWORD` is no longer read. Remove it once an admin account works:
+`ADMIN_PASSWORD` is no longer read, but keep it until rolling back to a
+release from before admin accounts is off the table. Those releases sign
+in with it, and fall back to the password `changeme` when it is missing.
+When you are sure:
 
 ```
 fly secrets unset ADMIN_PASSWORD --app lumenviae
 ```
+
+If you ever roll back after that, set a strong `ADMIN_PASSWORD` first
+(docs/ASH_MIGRATION.md, "Admin accounts and policies").
 
 ## Seeding and imports
 

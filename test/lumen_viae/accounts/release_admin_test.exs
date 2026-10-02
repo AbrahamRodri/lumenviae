@@ -50,6 +50,16 @@ defmodule LumenViae.Accounts.ReleaseAdminTest do
     email = to_string(admin.email)
     session = build_conn_session(admin)
 
+    socket = %Phoenix.LiveView.Socket{
+      endpoint: LumenViaeWeb.Endpoint,
+      assigns: %{__changed__: %{}, flash: %{}}
+    }
+
+    # The control: this session opens the console before the reset.
+    assert {:cont, _} = LumenViaeWeb.UserAuth.on_mount(:require_admin, %{}, session, socket)
+
+    LumenViaeWeb.Endpoint.subscribe(LumenViaeWeb.AdminSockets.id(admin))
+
     output =
       capture_io(fn ->
         assert {:ok, password} = Release.reset_admin_password(email)
@@ -61,11 +71,8 @@ defmodule LumenViae.Accounts.ReleaseAdminTest do
     assert signs_in?(email, new_password)
     refute signs_in?(email, password())
 
-    socket = %Phoenix.LiveView.Socket{
-      endpoint: LumenViaeWeb.Endpoint,
-      assigns: %{__changed__: %{}, flash: %{}}
-    }
-
+    # Open console tabs are closed, and the same session no longer mounts.
+    assert_receive %Phoenix.Socket.Broadcast{event: "disconnect"}
     assert {:halt, _} = LumenViaeWeb.UserAuth.on_mount(:require_admin, %{}, session, socket)
   end
 

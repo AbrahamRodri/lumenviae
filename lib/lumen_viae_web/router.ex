@@ -53,6 +53,12 @@ defmodule LumenViaeWeb.Router do
     plug LumenViaeWeb.Plugs.RequireAdmin
   end
 
+  # In front of the password strategy, so a throttled attempt never reaches
+  # bcrypt. See Plugs.ThrottleSignIn.
+  pipeline :sign_in do
+    plug LumenViaeWeb.Plugs.ThrottleSignIn
+  end
+
   # The site, the console's login and the console are three live sessions.
   # LiveView only navigates in place between routes of the same session, so
   # crossing from the site into the console always takes a full HTTP
@@ -60,13 +66,19 @@ defmodule LumenViaeWeb.Router do
   # refuses any socket that reaches it without a signed-in admin. Without
   # the split, live navigation from a public page mounted the console over
   # the open socket and no plug ran at all. See LumenViaeWeb.UserAuth.
+  # The sign-in form posts to the password strategy's route under here,
+  # /admin/auth/admin/password/sign_in; AshAuthentication checks it and
+  # hands the outcome to AuthController. CSRF-checked like any form, and
+  # throttled before the password is checked.
+  scope "/", LumenViaeWeb do
+    pipe_through [:browser, :sign_in]
+
+    auth_routes(AuthController, LumenViae.Accounts.Admin, path: "/admin/auth")
+  end
+
   scope "/", LumenViaeWeb do
     pipe_through :browser
 
-    # The sign-in form posts to the password strategy's route under here,
-    # /admin/auth/admin/password/sign_in; AshAuthentication checks it and
-    # hands the outcome to AuthController. CSRF-checked like any form.
-    auth_routes(AuthController, LumenViae.Accounts.Admin, path: "/admin/auth")
     delete "/admin/session", AuthController, :sign_out
 
     live_session :public do
