@@ -34,7 +34,7 @@ defmodule LumenViae.Curation.NarrationRelocation do
 
   def run(opts \\ []) do
     meditations =
-      Rosary.list_meditations!(Keyword.take(opts, [:actor, :authorize?]))
+      Rosary.list_meditations!(LumenViae.AshOpts.take(opts))
       |> Enum.reject(&(&1.audio_url in [nil, ""]))
       |> Enum.sort_by(& &1.id)
 

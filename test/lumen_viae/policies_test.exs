@@ -276,6 +276,15 @@ defmodule LumenViae.PoliciesTest do
       assert Rosary.count_total_completions(actor: admin()) >= 1
     end
 
+    test "the app's completion is recorded for a visible set" do
+      %{visible: set} = sets()
+
+      assert {:ok, %Completion{}} =
+               Completion
+               |> Ash.Changeset.for_create(:record_from_app, %{meditation_set_id: set.id})
+               |> Ash.create()
+    end
+
     test "the app's completion still refuses a hidden set for the public" do
       %{hidden_by_archive: set} = sets()
 
@@ -303,6 +312,10 @@ defmodule LumenViae.PoliciesTest do
 
       assert Ash.can?({SpokenRosary, :for_voice}, nil)
       refute Ash.can?({SpokenRosary, :read}, nil)
+
+      # And the reads themselves answer, not only the checks.
+      assert [_ | _] = Ash.read!(NarrationVoice, action: :offered)
+      assert %SpokenRosary{} = Ash.read_one!(SpokenRosary, action: :for_voice)
     end
 
     test "the Office is open to anyone" do
@@ -313,19 +326,43 @@ defmodule LumenViae.PoliciesTest do
   end
 
   describe "version history" do
-    test "only an admin reads versions, and nobody edits them" do
-      m = mystery()
-      version = Module.concat(Mystery, Version)
+    test "only an admin reads versions, and nobody edits them, for every versioned resource" do
+      # One write to each versioned resource, so each has history to hide.
+      _ = set_holding([meditation()])
+      {:ok, _} = Rosary.create_author(%{name: "Author #{unique()}"}, actor: admin())
 
-      assert Ash.read!(version) == []
-      assert [_ | _] = Ash.read!(version, actor: admin())
+      for parent <- [Mystery, Meditation, MeditationSet, Author] do
+        version = Module.concat(parent, Version)
 
-      for action <- [:create, :update, :destroy],
-          Ash.Resource.Info.action(version, action) do
-        refute Ash.can?({version, action}, admin()), "an admin may #{action} a version"
+        assert Ash.read!(version) == [], "the public reads #{inspect(version)}"
+        assert [_ | _] = Ash.read!(version, actor: admin())
+
+        for action <- [:create, :update, :destroy],
+            Ash.Resource.Info.action(version, action) do
+          refute Ash.can?({version, action}, admin()),
+                 "an admin may #{action} #{inspect(version)}"
+        end
+      end
+    end
+  end
+
+  describe "who counts as an admin" do
+    test "only an admin account passes, not anything shaped like one" do
+      admin = admin_fixture()
+      {:ok, token} = Ash.read(Accounts.Token, authorize?: false)
+
+      lookalikes = [
+        %{id: admin.id, email: admin.email},
+        Map.from_struct(admin),
+        List.first(token) || %Accounts.Token{}
+      ]
+
+      for actor <- lookalikes do
+        refute Ash.can?({MeditationSet, :create}, actor), "#{inspect(actor)} passed as an admin"
+        refute Ash.can?({Completion, :read}, actor)
       end
 
-      assert m
+      assert Ash.can?({MeditationSet, :create}, admin)
     end
   end
 
@@ -339,6 +376,8 @@ defmodule LumenViae.PoliciesTest do
       refute Ash.can?({Accounts.Admin, :set_password}, nil)
 
       refute Ash.can?({Accounts.Token, :read}, admin())
+      refute Ash.can?({Accounts.Token, :read}, nil)
+      assert {:error, %Ash.Error.Forbidden{}} = Ash.read(Accounts.Token)
     end
 
     test "not even an admin can make an admin or set a password from the web" do

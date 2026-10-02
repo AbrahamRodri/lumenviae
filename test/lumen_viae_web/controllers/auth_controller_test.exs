@@ -7,6 +7,7 @@ defmodule LumenViaeWeb.AuthControllerTest do
   """
   use LumenViaeWeb.ConnCase, async: false
 
+  import ExUnit.CaptureLog
   import Phoenix.LiveViewTest
   import LumenViae.Test.EnvStub, only: [put_env: 3]
 
@@ -55,6 +56,44 @@ defmodule LumenViaeWeb.AuthControllerTest do
     assert redirected_to(conn) == "/admin/login"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Too many sign-in attempts"
     refute get_session(conn, "admin_token")
+  end
+
+  test "a wrong password or an unknown email is not logged as a fault", %{conn: conn} do
+    admin = admin_fixture()
+
+    log =
+      capture_log(fn ->
+        sign_in(conn, to_string(admin.email), "not the password at all")
+        sign_in(build_conn(), "nobody-#{System.unique_integer([:positive])}@lumenviae.test", "x")
+      end)
+
+    refute log =~ "other than the credentials"
+  end
+
+  # A real fault (the database going away mid sign-in) cannot be staged
+  # here, so the controller is handed one shaped as the strategy wraps it.
+  test "a failure that is not about the credentials is logged, and looks the same", %{
+    conn: conn
+  } do
+    reason =
+      AshAuthentication.Errors.AuthenticationFailed.exception(
+        caused_by:
+          Ash.Error.Unknown.exception(
+            errors: [Ash.Error.Unknown.UnknownError.exception(error: "connection refused")]
+          )
+      )
+
+    conn = conn |> init_test_session(%{}) |> fetch_flash()
+
+    log =
+      capture_log(fn ->
+        conn = LumenViaeWeb.AuthController.failure(conn, {:password, :sign_in}, reason)
+        assert redirected_to(conn) == "/admin/login"
+        assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Incorrect email or password"
+      end)
+
+    assert log =~ "other than the credentials"
+    assert log =~ "connection refused"
   end
 
   test "the email is matched without regard to case", %{conn: conn} do

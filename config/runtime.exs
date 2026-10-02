@@ -117,13 +117,24 @@ if config_env() == :prod do
   # Signs the admin session tokens. TOKEN_SIGNING_SECRET when it is set;
   # otherwise derived from SECRET_KEY_BASE, so a deploy needs no new secret.
   # Derived rather than reused, so a token is never valid as anything the
-  # secret key base signs. Rotating either one signs every admin out.
-  config :lumen_viae,
-         :token_signing_secret,
-         System.get_env("TOKEN_SIGNING_SECRET") ||
-           Base.encode64(
-             :crypto.mac(:hmac, :sha256, secret_key_base, "lumen_viae admin token signing")
-           )
+  # secret key base signs. Rotating either one signs every admin out. An
+  # empty value counts as unset, and a short one refuses to boot rather than
+  # sign sessions with a guessable key.
+  token_signing_secret =
+    case System.get_env("TOKEN_SIGNING_SECRET") do
+      blank when blank in [nil, ""] ->
+        Base.encode64(
+          :crypto.mac(:hmac, :sha256, secret_key_base, "lumen_viae admin token signing")
+        )
+
+      secret when byte_size(secret) < 32 ->
+        raise "TOKEN_SIGNING_SECRET must be at least 32 bytes; generate one with mix phx.gen.secret"
+
+      secret ->
+        secret
+    end
+
+  config :lumen_viae, :token_signing_secret, token_signing_secret
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")

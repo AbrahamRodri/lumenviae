@@ -242,8 +242,9 @@ is no registration, no reset email and no magic link, because production
 has no mailer: admins are made and their passwords replaced from a
 production shell (docs/PROD_ACCESS.md). Tokens are stored, so signing out
 revokes the token, and resetting a password signs that admin out
-everywhere. The signing secret is `TOKEN_SIGNING_SECRET` if set, and
-otherwise derived from `SECRET_KEY_BASE` (`LumenViae.Accounts.Secrets`).
+everywhere. A token lasts 7 days. The signing secret is
+`TOKEN_SIGNING_SECRET` if set (at least 32 bytes), and otherwise derived
+from `SECRET_KEY_BASE` (`LumenViae.Accounts.Secrets`).
 
 ### The two APIs
 
@@ -906,3 +907,7 @@ LiveView hook, the sign-out form and `@is_admin` all behave exactly as in
 production. The branch is compiled only in dev and test, so it does not
 exist in a release, and no other config file sets the flag. If `/admin`
 sends you to the login page locally, run `mix run priv/repo/seeds.exs`.
+Because the skip signs in again whenever there is no session, signing out
+locally lasts only until the next page, and each sign-in adds a row to
+`admin_tokens`; set the flag to false in `config/dev.exs` to try the real
+login.

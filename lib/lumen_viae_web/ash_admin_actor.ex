@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.AshAdminActor do
   AshAdmin's sidebar also offers "Auth bypassed" and "clear actor", and
   both make it run every action with `authorize?: false`. That would undo
   the one rule an admin does not pass: making admins and setting passwords
-  are refused to every actor (`LumenViae.Accounts.Admin`), so that a
+  are refused to every actor (the Accounts domain's admin resource), so that a
   hijacked session cannot plant an admin. So `on_mount(:lock_authorization,
   ...)`, attached in the router, drops those two events before AshAdmin
   sees them, and authorization stays on for the life of the page.

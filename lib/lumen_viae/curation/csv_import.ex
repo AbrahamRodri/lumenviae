@@ -91,6 +91,7 @@ defmodule LumenViae.Curation.CsvImport do
   generation failed, or the meditation could not be attached to its set).
   """
 
+  alias LumenViae.AshOpts
   alias LumenViae.Audio.Pipeline
   alias LumenViae.Audio.TtsText
   alias LumenViae.Rosary
@@ -158,7 +159,7 @@ defmodule LumenViae.Curation.CsvImport do
         {:error, message}
 
       {:ok, headers, rows} ->
-        mysteries = Rosary.list_mysteries!(ash_opts(opts)) |> Enum.group_by(& &1.name)
+        mysteries = Rosary.list_mysteries!(AshOpts.take(opts)) |> Enum.group_by(& &1.name)
 
         indexed_rows =
           rows
@@ -215,7 +216,7 @@ defmodule LumenViae.Curation.CsvImport do
   end
 
   defp new_set_errors(row_map, opts) do
-    changeset = Rosary.changeset_to_create_meditation_set(set_attrs(row_map), ash_opts(opts))
+    changeset = Rosary.changeset_to_create_meditation_set(set_attrs(row_map), AshOpts.take(opts))
 
     if changeset.valid?, do: [], else: ["set: #{changeset_errors(changeset)}"]
   end
@@ -430,13 +431,13 @@ defmodule LumenViae.Curation.CsvImport do
       |> Enum.reject(&is_nil/1)
       |> Enum.uniq()
 
-    filenames |> Rosary.list_taken_audio_urls(ash_opts(opts)) |> MapSet.new()
+    filenames |> Rosary.list_taken_audio_urls(AshOpts.take(opts)) |> MapSet.new()
   end
 
   ## Row processing
 
   defp process_rows(headers, rows, opts) do
-    mysteries = Rosary.list_mysteries!(ash_opts(opts)) |> Enum.group_by(& &1.name)
+    mysteries = Rosary.list_mysteries!(AshOpts.take(opts)) |> Enum.group_by(& &1.name)
     total = length(rows)
     notify(opts, {:started, total})
 
@@ -572,7 +573,7 @@ defmodule LumenViae.Curation.CsvImport do
         if opts[:dry_run] do
           validate_set_attrs(set_name, attrs, opts)
         else
-          case Rosary.create_meditation_set(attrs, ash_opts(opts)) do
+          case Rosary.create_meditation_set(attrs, AshOpts.take(opts)) do
             {:ok, set} -> {:ok, set}
             {:error, changeset} -> {:error, set_error(set_name, changeset)}
           end
@@ -595,9 +596,9 @@ defmodule LumenViae.Curation.CsvImport do
 
     case Map.get(row_map, "set_category") do
       nil ->
-        case Rosary.get_meditation_set_by_name(set_name, nil, ash_opts(opts)) do
+        case Rosary.get_meditation_set_by_name(set_name, nil, AshOpts.take(opts)) do
           nil ->
-            if Rosary.count_meditation_sets_by_name(set_name, ash_opts(opts)) > 1 do
+            if Rosary.count_meditation_sets_by_name(set_name, AshOpts.take(opts)) > 1 do
               {:error,
                "set '#{set_name}' exists in more than one category; add a set_category column " <>
                  "to say which one"}
@@ -610,7 +611,7 @@ defmodule LumenViae.Curation.CsvImport do
         end
 
       category ->
-        {:ok, Rosary.get_meditation_set_by_name(set_name, category, ash_opts(opts))}
+        {:ok, Rosary.get_meditation_set_by_name(set_name, category, AshOpts.take(opts))}
     end
   end
 
@@ -628,7 +629,7 @@ defmodule LumenViae.Curation.CsvImport do
   # A dry run never writes, so the "set" carried through the rest of the row
   # is just its name - there is no record and no id to attach to.
   defp validate_set_attrs(set_name, attrs, opts) do
-    changeset = Rosary.changeset_to_create_meditation_set(attrs, ash_opts(opts))
+    changeset = Rosary.changeset_to_create_meditation_set(attrs, AshOpts.take(opts))
 
     if changeset.valid? do
       {:ok, %{id: nil, name: set_name}}
@@ -651,7 +652,7 @@ defmodule LumenViae.Curation.CsvImport do
   end
 
   defp dry_run_result(attrs, row_map, mystery, set, opts) do
-    changeset = Rosary.changeset_to_create_meditation(attrs, ash_opts(opts))
+    changeset = Rosary.changeset_to_create_meditation(attrs, AshOpts.take(opts))
 
     if changeset.valid? do
       set_info = if set, do: " -> set '#{set.name}'#{order_info(row_map)}", else: ""
@@ -678,7 +679,7 @@ defmodule LumenViae.Curation.CsvImport do
   end
 
   defp create_and_attach(attrs, row_map, mystery, set, {recordings, audio_error}, opts) do
-    case Rosary.create_meditation(attrs, ash_opts(opts)) do
+    case Rosary.create_meditation(attrs, AshOpts.take(opts)) do
       {:ok, meditation} ->
         record_narrations(meditation, recordings, opts)
 
@@ -702,7 +703,7 @@ defmodule LumenViae.Curation.CsvImport do
   # meditation exists, and `regenerate_audio --only-missing` repairs it.
   defp record_narrations(meditation, recordings, opts) do
     Enum.each(recordings, fn {voice_slug, s3_key} ->
-      case Rosary.record_narration(meditation, voice_slug, s3_key, ash_opts(opts)) do
+      case Rosary.record_narration(meditation, voice_slug, s3_key, AshOpts.take(opts)) do
         {:ok, _meditation} ->
           :ok
 
@@ -730,9 +731,9 @@ defmodule LumenViae.Curation.CsvImport do
   defp attach_to_set(nil, _meditation, _row_map, _opts), do: :ok
 
   defp attach_to_set(set, meditation, row_map, opts) do
-    order = explicit_order(row_map) || Rosary.next_order_in_set(set.id, ash_opts(opts))
+    order = explicit_order(row_map) || Rosary.next_order_in_set(set.id, AshOpts.take(opts))
 
-    case Rosary.add_meditation_to_set(set.id, meditation.id, order, ash_opts(opts)) do
+    case Rosary.add_meditation_to_set(set.id, meditation.id, order, AshOpts.take(opts)) do
       {:ok, _} -> :ok
       {:error, changeset} -> {:error, changeset_errors(changeset)}
     end
@@ -827,9 +828,4 @@ defmodule LumenViae.Curation.CsvImport do
   end
 
   defp changeset_errors(error), do: Rosary.error_summary(error)
-
-  # Only who the import runs as reaches the domain; the rest of `opts`
-  # (dry_run, voices, progress...) is this module's own, and Rosary's code
-  # interface functions reject options they do not know.
-  defp ash_opts(opts), do: Keyword.take(opts, [:actor, :authorize?])
 end

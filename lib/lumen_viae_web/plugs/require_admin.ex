@@ -15,6 +15,11 @@ defmodule LumenViaeWeb.Plugs.RequireAdmin do
   as in production. The skip is compiled only in dev and test (a release
   is built in prod, where the clause below does not exist), and only dev.exs
   sets the flag.
+
+  The skip signs the dev admin in again on any request without a session,
+  so signing out locally only clears the cookie until the next page, and
+  each of those sign-ins stores a new row in `admin_tokens`. That is fine
+  for a development database; set the flag to false to try the real login.
   """
   import Plug.Conn
   import Phoenix.Controller

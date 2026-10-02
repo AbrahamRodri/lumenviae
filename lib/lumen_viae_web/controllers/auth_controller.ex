@@ -15,6 +15,9 @@ defmodule LumenViaeWeb.AuthController do
   use LumenViaeWeb, :controller
   use AshAuthentication.Phoenix.Controller
 
+  require Logger
+
+  alias AshAuthentication.Errors.AuthenticationFailed
   alias LumenViaeWeb.AdminSockets
 
   @impl AshAuthentication.Phoenix.Controller
@@ -27,13 +30,40 @@ defmodule LumenViaeWeb.AuthController do
   end
 
   # Says nothing about which half was wrong, so the form cannot be used to
-  # find out who has an account.
+  # find out who has an account. A failure that was not about the
+  # credentials at all - a missing signing secret, the database - shows the
+  # same message, but is logged, so it is not mistaken for a typo.
   @impl AshAuthentication.Phoenix.Controller
-  def failure(conn, _activity, _reason) do
+  def failure(conn, _activity, reason) do
+    case faults(reason) do
+      [] ->
+        :ok
+
+      faults ->
+        Logger.error(
+          "Console sign-in failed for a reason other than the credentials: " <>
+            Enum.map_join(faults, "; ", &Exception.message/1)
+        )
+    end
+
     conn
     |> put_flash(:error, "Incorrect email or password")
     |> redirect(to: "/admin/login")
   end
+
+  # What lies under a sign-in failure other than AuthenticationFailed
+  # itself. A wrong email or password is AuthenticationFailed all the way
+  # down, with a plain map as its innermost cause, so it yields nothing.
+  # The messages never include the password: the strategy's argument is
+  # sensitive, and Ash redacts it.
+  defp faults(%AuthenticationFailed{caused_by: %{__exception__: true} = cause}), do: faults(cause)
+  defp faults(%AuthenticationFailed{}), do: []
+
+  defp faults(%{__exception__: true, errors: errors}) when is_list(errors),
+    do: Enum.flat_map(errors, &faults/1)
+
+  defp faults(%{__exception__: true} = error), do: [error]
+  defp faults(_reason), do: []
 
   @impl AshAuthentication.Phoenix.Controller
   def sign_out(conn, _params) do

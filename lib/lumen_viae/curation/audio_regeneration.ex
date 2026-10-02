@@ -41,6 +41,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
   invents audio filenames, it only records what the import already named.
   """
 
+  alias LumenViae.AshOpts
   alias LumenViae.Audio.Pipeline
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Voices
@@ -48,17 +49,17 @@ defmodule LumenViae.Curation.AudioRegeneration do
   def run(target, opts \\ [])
 
   def run({:set, set_name}, opts) do
-    case Rosary.get_meditation_set_by_name(set_name, nil, ash_opts(opts)) do
+    case Rosary.get_meditation_set_by_name(set_name, nil, AshOpts.take(opts)) do
       nil ->
         fail_target("Meditation set not found: #{set_name}", opts)
 
       set ->
-        set.id |> Rosary.list_meditations_in_set(ash_opts(opts)) |> process(opts)
+        set.id |> Rosary.list_meditations_in_set(AshOpts.take(opts)) |> process(opts)
     end
   end
 
   def run({:meditation, id}, opts) do
-    case Rosary.get_meditation(id, ash_opts(opts)) do
+    case Rosary.get_meditation(id, AshOpts.take(opts)) do
       {:ok, meditation} ->
         meditation |> List.wrap() |> process(opts)
 
@@ -68,7 +69,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
   end
 
   def run(:all, opts) do
-    Rosary.list_meditations!(ash_opts(opts))
+    Rosary.list_meditations!(AshOpts.take(opts))
     |> Enum.reject(&Rosary.meditation_archived?/1)
     |> Enum.sort_by(& &1.id)
     |> process(opts)
@@ -152,7 +153,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
              voice: voice
            ),
          {:ok, _meditation} <-
-           Rosary.record_narration(meditation, voice.slug, s3_key, ash_opts(opts)) do
+           Rosary.record_narration(meditation, voice.slug, s3_key, AshOpts.take(opts)) do
       {:ok, "Regenerated #{s3_key} for #{describe(meditation)} (#{voice.slug} voice)"}
     else
       {:error, reason} ->
@@ -163,7 +164,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
 
   defp recorded?(meditation, voice, opts) do
     meditation
-    |> Rosary.meditation_narrations(ash_opts(opts))
+    |> Rosary.meditation_narrations(AshOpts.take(opts))
     |> Enum.any?(&(&1.voice.slug == voice.slug))
   end
 
@@ -190,10 +191,6 @@ defmodule LumenViae.Curation.AudioRegeneration do
 
   defp format_error(reason) when is_binary(reason), do: reason
   defp format_error(reason), do: reason |> inspect() |> String.slice(0, 200)
-
-  # Only who the run acts as reaches the domain; the rest of `opts` is this
-  # module's own.
-  defp ash_opts(opts), do: Keyword.take(opts, [:actor, :authorize?])
 
   defp notify(opts, event) do
     case opts[:progress] do

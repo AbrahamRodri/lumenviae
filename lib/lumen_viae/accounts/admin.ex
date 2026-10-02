@@ -39,6 +39,9 @@ defmodule LumenViae.Accounts.Admin do
       signing_secret(LumenViae.Accounts.Secrets)
       store_all_tokens?(true)
       require_token_presence_for_authentication?(true)
+      # A week, not the 14-day default: a stolen cookie stops working sooner,
+      # at the cost of signing in once a week.
+      token_lifetime({7, :days})
     end
 
     strategies do

@@ -46,6 +46,7 @@ defmodule LumenViae.Curation.CsvUpdate do
   check until `regenerate_audio --only-missing` repairs it.
   """
 
+  alias LumenViae.AshOpts
   alias LumenViae.Audio.TtsText
   alias LumenViae.Curation.AudioRegeneration
   alias LumenViae.Rosary
@@ -150,7 +151,7 @@ defmodule LumenViae.Curation.CsvUpdate do
   defp fetch_meditation(id, opts) do
     case Integer.parse(id) do
       {meditation_id, ""} ->
-        case Rosary.get_meditation(meditation_id, ash_opts(opts)) do
+        case Rosary.get_meditation(meditation_id, AshOpts.take(opts)) do
           {:ok, meditation} -> {:ok, meditation}
           {:error, _not_found} -> {:error, "Meditation not found: id #{meditation_id}"}
         end
@@ -171,7 +172,7 @@ defmodule LumenViae.Curation.CsvUpdate do
   end
 
   defp dry_run_result(meditation, attrs, opts) do
-    changeset = Rosary.changeset_to_update_meditation(meditation, attrs, ash_opts(opts))
+    changeset = Rosary.changeset_to_update_meditation(meditation, attrs, AshOpts.take(opts))
 
     if changeset.valid? do
       {:ok, "Would update #{describe(meditation)}: #{summarize(meditation, attrs)}"}
@@ -181,7 +182,7 @@ defmodule LumenViae.Curation.CsvUpdate do
   end
 
   defp apply_update(meditation, attrs, opts) do
-    case Rosary.update_meditation(meditation, attrs, ash_opts(opts)) do
+    case Rosary.update_meditation(meditation, attrs, AshOpts.take(opts)) do
       {:ok, updated} ->
         base = "Updated #{describe(meditation)}: #{summarize(meditation, attrs)}"
 
@@ -206,7 +207,7 @@ defmodule LumenViae.Curation.CsvUpdate do
     results =
       AudioRegeneration.run(
         {:meditation, meditation.id},
-        [voices: opts[:voices]] ++ ash_opts(opts)
+        [voices: opts[:voices]] ++ AshOpts.take(opts)
       )
 
     case Enum.reject(results, &match?({:ok, _}, &1)) do
@@ -245,10 +246,6 @@ defmodule LumenViae.Curation.CsvUpdate do
   defp mystery_name(_not_loaded_or_nil), do: nil
 
   defp changeset_errors(error), do: Rosary.error_summary(error)
-
-  # Only who the update runs as reaches the domain; Rosary's code interface
-  # functions reject options they do not know.
-  defp ash_opts(opts), do: Keyword.take(opts, [:actor, :authorize?])
 
   defp notify(opts, event) do
     case opts[:progress] do

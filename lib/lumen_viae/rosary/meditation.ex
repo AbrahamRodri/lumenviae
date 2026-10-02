@@ -94,20 +94,14 @@ defmodule LumenViae.Rosary.Meditation do
 
     read :active_in_no_set do
       description "Active meditations that belong to no meditation set."
-      filter expr(not archived? and not exists(set_memberships, true))
+      filter expr(not archived? and not in_any_set?)
       prepare build(sort: [id: :asc])
     end
 
     read :public_missing_audio do
       description "Active meditations with no audio filename that someone can reach: they are in at least one set that is not hidden."
 
-      filter expr(
-               not archived? and not has_audio? and
-                 exists(
-                   meditation_sets,
-                   not exists(meditations, not is_nil(archived_at))
-                 )
-             )
+      filter expr(not archived? and not has_audio? and in_a_visible_set?)
 
       prepare build(sort: [id: :asc])
     end
@@ -318,6 +312,21 @@ defmodule LumenViae.Rosary.Meditation do
       description "The recording to play for a listener who prefers a voice: that voice if it has recorded the meditation, otherwise the default. `preferring` is a voice slug: a retired voice means its successor, an unknown one is ignored. Null when nothing is recorded, or when it cannot be signed just now; narratedVoices tells the two apart."
 
       argument :preferring, :string
+    end
+  end
+
+  # What the admin reports above ask about sets. Unauthorized for the
+  # reason `MeditationSet.visible?` is: the answer must not change with
+  # who asks, and an authorized exists over rows the actor cannot read
+  # would quietly be false.
+  aggregates do
+    exists :in_any_set?, :set_memberships do
+      authorize? false
+    end
+
+    exists :in_a_visible_set?, :meditation_sets do
+      filter expr(visible?)
+      authorize? false
     end
   end
 end
