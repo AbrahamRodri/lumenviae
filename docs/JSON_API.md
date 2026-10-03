@@ -105,6 +105,7 @@ title, detail, source}]}`, with the HTTP status of the first:
 | 400 | `invalid_argument`, `invalid_body`, `required`, `invalid_field`, `invalid_includes` | A value or a request the API rejected. `source.pointer` names the input when there is one (`/data/attributes/meditation_set_id`). |
 | 403 | `automated_client` | `POST /completions` only: the user agent names a crawler. Drop it; do not retry. |
 | 404 | `not_found` | No such set, or one the public may not see. |
+| 429 | `rate_limited` | `POST /completions` only: too many completions from this address this hour, counted with REST and GraphQL. Drop it; do not retry. |
 | 503 | `audio_unavailable` | Recordings exist but could not be signed: the server's storage credentials are missing or broken. Retry later. |
 
 A recording that cannot be signed fails the whole request for the spoken
@@ -150,8 +151,10 @@ refused by `Completion.NotAutomated`, the action's first step, on the
 user agent the server read off the request: `403 automated_client`,
 "Automated clients cannot record completions", the same as
 `POST /api/completions`, and nothing is written. The per-address rate
-limit belongs on the action too, on one budget shared by every API that
-records a completion.
+limit is on the action too (`Completion.RateLimit`), on one budget shared
+with REST and GraphQL: over it, `429 rate_limited`, "Too many completions
+from this address", and nothing is written. A crawler's refusal and a read
+spend none of it.
 
 ## What is exposed, and authorization
 

@@ -162,4 +162,74 @@ defmodule LumenViaeWeb.JsonApi.RecordCompletionTest do
       |> v2_response(400)
     end
   end
+
+  describe "the rate limit" do
+    @limit 2
+
+    setup do
+      previous = Application.get_env(:lumen_viae, :completions_per_hour)
+      Application.put_env(:lumen_viae, :completions_per_hour, @limit)
+      on_exit(fn -> Application.put_env(:lumen_viae, :completions_per_hour, previous) end)
+      :ok
+    end
+
+    defp rest(conn, set), do: post(conn, "/api/completions", %{meditation_set_id: set.id})
+
+    defp graphql_record(conn, set) do
+      LumenViaeWeb.GraphqlHelpers.graphql(
+        conn,
+        "mutation($id: ID!) { recordCompletion(input: {meditationSetId: $id}) { result { id } } }",
+        %{id: to_string(set.id)}
+      )
+    end
+
+    test "refuses an address over its budget with REST's 429", %{conn: conn, set: set} do
+      for _ <- 1..@limit do
+        conn |> record(%{meditation_set_id: set.id}) |> v2_response(201)
+      end
+
+      before = Rosary.count_total_completions(actor: admin())
+      body = conn |> record(%{meditation_set_id: set.id}) |> v2_response(429)
+
+      assert [
+               %{
+                 "status" => "429",
+                 "code" => "rate_limited",
+                 "detail" => "Too many completions from this address"
+               }
+             ] = body["errors"]
+
+      assert Rosary.count_total_completions(actor: admin()) == before
+    end
+
+    test "spends one budget with REST and GraphQL", %{conn: conn, set: set} do
+      conn |> rest(set) |> json_response(201)
+
+      assert %{"data" => %{"recordCompletion" => %{"result" => %{"id" => _}}}} =
+               graphql_record(conn, set)
+
+      conn |> record(%{meditation_set_id: set.id}) |> v2_response(429)
+
+      # And the other way round, from an address of its own.
+      other = from_a_new_address(build_conn())
+
+      for _ <- 1..@limit do
+        other |> record(%{meditation_set_id: set.id}) |> v2_response(201)
+      end
+
+      assert %{"error" => %{"code" => "rate_limited"}} = other |> rest(set) |> json_response(429)
+      assert [%{"code" => "rate_limited"}] = graphql_record(other, set)["errors"]
+    end
+
+    test "is not spent by a crawler, or by reads", %{conn: conn, set: set} do
+      crawler = put_req_header(conn, "user-agent", "Googlebot/2.1")
+
+      for _ <- 1..(@limit + 2) do
+        crawler |> record(%{meditation_set_id: set.id}) |> v2_response(403)
+        conn |> get_v2("/meditation-sets/#{set.id}") |> v2_response(200)
+      end
+
+      conn |> record(%{meditation_set_id: set.id}) |> v2_response(201)
+    end
+  end
 end
