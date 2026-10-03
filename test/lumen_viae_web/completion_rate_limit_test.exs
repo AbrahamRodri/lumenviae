@@ -13,7 +13,9 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
   here is that the three agree.
 
   Not async: the limit is read from the application environment, which this
-  file lowers, and the counters are global. Every test spends its own address.
+  file lowers, and the counters are global. Every test spends an address of its
+  own, from `LumenViae.Test.Addresses`: the counters outlive the test, so an
+  address that anything else has used is already partly spent.
   """
   use LumenViaeWeb.ConnCase, async: false
 
@@ -23,6 +25,7 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
 
   alias LumenViae.Limits
   alias LumenViae.Rosary
+  alias LumenViae.Test.Addresses
   alias LumenViae.Test.Sets
 
   @limit 2
@@ -46,8 +49,7 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
 
     Sets.with_meditation(set)
 
-    n = System.unique_integer([:positive])
-    ip = "198.51.#{rem(n, 200)}.#{rem(div(n, 200), 200)}"
+    ip = Addresses.unique_ip()
 
     conn =
       build_conn()
@@ -120,9 +122,7 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
 
   test "all three surfaces allow exactly the limit and then refuse", %{conn: conn, set: set} do
     for surface <- @surfaces do
-      conn =
-        conn
-        |> Plug.Conn.put_req_header("fly-client-ip", "203.0.113.#{:erlang.phash2(surface, 200)}")
+      conn = Plug.Conn.put_req_header(conn, "fly-client-ip", Addresses.unique_ip())
 
       for _ <- 1..@limit, do: assert(complete(surface, conn, set) == :recorded)
       assert {:refused, _} = complete(surface, conn, set)
@@ -220,7 +220,7 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
       for _ <- 1..@limit, do: assert({:ok, _} = Rosary.record_completion(set.id, %{ip: ip}))
 
       assert {:error, _} = Rosary.record_completion(set.id, %{ip: ip})
-      assert {:ok, _} = Rosary.record_completion(set.id, %{ip: ip <> "1"})
+      assert {:ok, _} = Rosary.record_completion(set.id, %{ip: Addresses.unique_ip()})
     end
 
     test "keys on the full address, not the prefix that is stored", %{set: set} do

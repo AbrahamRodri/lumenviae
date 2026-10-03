@@ -14,6 +14,7 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
   alias LumenViae.Repo
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Completion
+  alias LumenViae.Test.Addresses
 
   @limit 2
 
@@ -42,8 +43,7 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
   end
 
   defp from_a_new_address(conn) do
-    n = System.unique_integer([:positive])
-    put_req_header(conn, "fly-client-ip", "198.51.#{rem(n, 200)}.#{rem(div(n, 200), 200)}")
+    put_req_header(conn, "fly-client-ip", Addresses.unique_ip())
   end
 
   defp as(conn, agent), do: put_req_header(conn, "user-agent", agent)
@@ -68,7 +68,7 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
     assert stored.source == "ios"
     assert stored.prayed_aloud == true
     # The address is truncated before it is stored, never kept whole.
-    assert stored.ip_prefix =~ ~r/^198\.51\.\d+\.0$/
+    assert stored.ip_prefix =~ ~r/^100\.\d+\.\d+\.0$/
   end
 
   test "a hidden set is refused exactly like a missing one", %{conn: conn, set: set} do

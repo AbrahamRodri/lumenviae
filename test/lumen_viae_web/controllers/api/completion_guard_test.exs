@@ -6,11 +6,13 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
 
   Not async, and not sharing a bucket with anything: the rate limit is a
   global counter keyed on address, so this file lowers the limit for its own
-  duration and gives every test its own address to spend.
+  duration and gives every test its own address to spend
+  (`LumenViae.Test.Addresses`).
   """
   use LumenViaeWeb.ConnCase, async: false
 
   alias LumenViae.Rosary
+  alias LumenViae.Test.Addresses
 
   @limit 3
 
@@ -28,13 +30,7 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
   # A fresh address per test, so one test's spending is never another's
   # failure.
   defp from_a_new_address(conn) do
-    n = System.unique_integer([:positive])
-
-    Plug.Conn.put_req_header(
-      conn,
-      "fly-client-ip",
-      "203.0.#{rem(n, 200)}.#{rem(div(n, 200), 200)}"
-    )
+    Plug.Conn.put_req_header(conn, "fly-client-ip", Addresses.unique_ip())
   end
 
   defp as(conn, agent), do: Plug.Conn.put_req_header(conn, "user-agent", agent)
@@ -85,7 +81,7 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
       # The agent here is a plausible browser, which is the point: this is
       # the layer that still holds when the agent string is a lie.
       agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Version/17.2 Safari/605.1.15"
-      ip = "198.51.100.#{rem(System.unique_integer([:positive]), 250)}"
+      ip = Addresses.unique_ip()
 
       request = fn ->
         conn
@@ -104,7 +100,7 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
 
     test "one address running out does not affect another", %{conn: conn, set: set} do
       agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Version/17.2 Safari/605.1.15"
-      spent = "198.51.101.#{rem(System.unique_integer([:positive]), 250)}"
+      spent = Addresses.unique_ip()
 
       for _ <- 1..(@limit + 1) do
         conn |> Plug.Conn.put_req_header("fly-client-ip", spent) |> as(agent) |> complete(set)
@@ -115,7 +111,7 @@ defmodule LumenViaeWeb.API.CompletionGuardTest do
 
     test "a forged forwarded header cannot buy a fresh budget", %{conn: conn, set: set} do
       agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Version/17.2 Safari/605.1.15"
-      real = "198.51.102.#{rem(System.unique_integer([:positive]), 250)}"
+      real = Addresses.unique_ip()
 
       # The caller claims a different address each time. Only Fly's header
       # counts, and Fly overwrites it on the way in.
