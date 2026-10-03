@@ -8,7 +8,7 @@ defmodule LumenViaeWeb.JsonApi.OpenApiTest do
   in that file, in review, rather than a quiet side effect of editing a
   resource. Regenerate it with:
 
-      mix openapi.spec.json --spec LumenViaeWeb.JsonApiRouter --pretty=true --vendor-extensions=false priv/openapi/v2.json
+      mix openapi.spec.json --spec LumenViaeWeb.JsonApiRouter --pretty=true --vendor-extensions=false --start-app=false priv/openapi/v2.json
 
   And the columns that must never reach a client are named outright, so a
   regenerated document cannot wave one through.
@@ -76,26 +76,37 @@ defmodule LumenViaeWeb.JsonApi.OpenApiTest do
     The OpenAPI document changed. If that is intended, regenerate the
     snapshot and review the diff as a change to the public API:
 
-        mix openapi.spec.json --spec LumenViaeWeb.JsonApiRouter --pretty=true --vendor-extensions=false #{@snapshot}
+        mix openapi.spec.json --spec LumenViaeWeb.JsonApiRouter --pretty=true --vendor-extensions=false --start-app=false #{@snapshot}
     """
   end
 
-  test "the document served is the one committed", %{conn: conn} do
+  test "the document served is the committed file, byte for byte", %{conn: conn} do
     conn = get(conn, "/api/v2/open_api")
 
+    assert conn.status == 200
     assert [content_type] = get_resp_header(conn, "content-type")
     assert content_type =~ "application/json"
-    assert Jason.decode!(conn.resp_body) == Jason.decode!(File.read!(@snapshot))
+    assert get_resp_header(conn, "cache-control") == ["public, max-age=3600"]
+    assert conn.resp_body == File.read!(@snapshot)
   end
 
-  test "the docs page reads the served document", %{conn: conn} do
-    body =
-      conn
-      |> put_req_header("accept", "text/html,application/xhtml+xml")
-      |> get("/api/v2/docs")
-      |> html_response(200)
+  # Swagger UI loads its script from a CDN, so it is served in development
+  # only, like GraphiQL; the test environment has no dev routes.
+  test "no page runs Swagger UI outside development", %{conn: conn} do
+    for path <- ["/api/v2/docs", "/dev/api-docs"] do
+      assert conn |> recycle() |> get(path) |> Map.fetch!(:status) == 404
+    end
+  end
 
-    assert body =~ "/api/v2/open_api"
+  test "the list of sets offers no include, and nothing it could include" do
+    operation = document()["paths"]["/api/v2/meditation-sets"]["get"]
+
+    refute "include" in Enum.map(operation["parameters"], & &1["name"])
+
+    body =
+      operation["responses"]["200"]["content"]["application/vnd.api+json"]["schema"]
+
+    refute Map.has_key?(body["properties"], "included")
   end
 
   test "offers exactly the operations it should" do
