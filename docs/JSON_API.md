@@ -10,7 +10,7 @@ Codable models.
 | --- | --- |
 | The API | `https://www.lumenviae.org/api/v2/...` |
 | The OpenAPI document | `GET /api/v2/open_api`, committed as `priv/openapi/v2.json` |
-| A page to read it | `GET /api/v2/docs` (Swagger UI) |
+| A page to read it | `/dev/api-docs` (Swagger UI), in development only |
 
 ## How it relates to the other two APIs
 
@@ -67,6 +67,16 @@ order, each membership has an `order` running from 1 and a `meditation`,
 and the meditations and mysteries arrive once each in `included`. That is
 the only path that can be included; anything else is a 400.
 
+Includes are for one set: `GET /meditation-sets/:id`. **The list takes no
+`include`**, and naming one there is a 400 (`invalid_includes`, with
+`source.parameter` `include`). Otherwise one request would return the
+whole catalogue, every meditation's text, with every recording signed if
+`fields[meditation]` asked for it. A client reads the list for the shelf
+and the set it opens by id, as with v1. AshJsonApi has no per-route
+includes, so `LumenViaeWeb.JsonApi.QueryParams` refuses it in the
+`:json_api` pipeline, matched on the path's segments so a trailing or
+doubled slash does not get round it.
+
 **Only what is asked for is signed.** Signed fields are calculations, and
 a calculation is computed only when a client names it in `fields`:
 
@@ -91,7 +101,11 @@ voice it is actually in.
 **There is no filtering, sorting or paging.** Every read's filter and order
 are the action's own and part of the contract (docs/ARCHITECTURE.md,
 "Order is explicit"). A `filter`, `sort` or `page` parameter is ignored,
-and the OpenAPI document does not offer one.
+and the OpenAPI document does not offer one. So are `sort_included`,
+`filter_included` and `included_page`: the pipeline drops them before
+AshJsonApi sees them, because AshJsonApi 1.7 would honour `sort_included`
+(it reads `derive_sort?` under the wrong key) and so let
+`sort_included[set_memberships]=-order` reverse a set's prayer order.
 
 **Responses are never cached.** Every response carries `cache-control:
 private, no-store`, as GraphQL's do, because a request may select presigned
@@ -182,14 +196,16 @@ Not served, deliberately:
 
 ## The OpenAPI document
 
-The document is generated from the routes and resources on every request
-to `/api/v2/open_api` (CPU only: it reads no table), and committed as
+The document is generated from the routes and resources
+(`LumenViaeWeb.JsonApiRouter.spec/0`) and committed as
 `priv/openapi/v2.json`. `test/lumen_viae_web/json_api/open_api_test.exs`
 fails when the two differ, so any change to what v2 exposes arrives as a
-diff in that file, in review. Regenerate it, deliberately, with:
+diff in that file, in review. `/api/v2/open_api` serves the committed file
+as it is (`LumenViaeWeb.JsonApi.Document` reads it when it compiles), so a
+request for the document costs nothing. Regenerate it, deliberately, with:
 
 ```
-mix openapi.spec.json --spec LumenViaeWeb.JsonApiRouter --pretty=true --vendor-extensions=false priv/openapi/v2.json
+mix openapi.spec.json --spec LumenViaeWeb.JsonApiRouter --pretty=true --vendor-extensions=false --start-app=false priv/openapi/v2.json
 ```
 
 AshJsonApi 1.7's document describes the API in places differently from
@@ -199,8 +215,9 @@ a 3.0 document, a path parameter in the wrong style, a `fields` parameter
 a generator skips, an `included` list a decoder cannot tell apart, an
 error body described as a bare list, and a bearer token the API does not
 take. `LumenViaeWeb.JsonApi.OpenApi` corrects each one before the document
-is served or written; its moduledoc lists them. It changes the
-description only, never what the API does. (AshJsonApi 1.7 also reads a
+is written; its moduledoc lists them. It changes the description only,
+never what the API does, and it also leaves `include` off the list of
+sets, which refuses one. (AshJsonApi 1.7 also reads a
 resource's `derive_sort?` under the wrong key, so each route says
 `derive_sort? false` itself.)
 
@@ -243,7 +260,7 @@ Before this document was committed, it was generated into a client with
 swift-openapi-generator (main as of 2 October 2026) and
 swift-openapi-runtime 1.12.2, with no warnings, and every operation was
 called through that client against responses captured from the server:
-both set routes with their includes and signed fields, the mysteries, both
+both set routes, one set with its includes and signed fields, the mysteries, both
 voice lists, the whole spoken Rosary, a completion, fresh audio, a 404 and
 a 400. All of them decoded.
 

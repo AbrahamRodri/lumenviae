@@ -45,6 +45,7 @@ defmodule LumenViaeWeb.Router do
   # cover every API at once. See docs/JSON_API.md.
   pipeline :json_api do
     plug :put_private_cache_control
+    plug LumenViaeWeb.JsonApi.QueryParams
     plug LumenViaeWeb.Graphql.PutRequestContext
   end
 
@@ -244,11 +245,10 @@ defmodule LumenViaeWeb.Router do
       max_complexity: 500
   end
 
-  # The OpenAPI document, read by a person: an HTML page, so not through
-  # the JSON-only :api pipeline. The document itself is /api/v2/open_api,
-  # served by the router below.
+  # The OpenAPI document: the committed file, served as it is. See
+  # LumenViaeWeb.JsonApi.Document.
   scope "/api/v2" do
-    get "/docs", OpenApiSpex.Plug.SwaggerUI, path: "/api/v2/open_api"
+    get "/open_api", LumenViaeWeb.JsonApi.Document, []
   end
 
   # Last of the /api/v2 routes: the forward takes everything under it.
@@ -290,6 +290,13 @@ defmodule LumenViaeWeb.Router do
       forward "/graphiql", Absinthe.Plug.GraphiQL,
         schema: Module.concat(["LumenViaeWeb.GraphqlSchema"]),
         interface: :simple
+    end
+
+    # Swagger UI over /api/v2's OpenAPI document, development only: it loads
+    # its script from a CDN, which has no business running on the console's
+    # origin in production. The document itself is /api/v2/open_api.
+    scope "/dev" do
+      get "/api-docs", OpenApiSpex.Plug.SwaggerUI, path: "/api/v2/open_api"
     end
   end
 

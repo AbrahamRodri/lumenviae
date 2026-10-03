@@ -188,21 +188,51 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetsTest do
     end
 
     test "signs nothing a request does not ask for", %{conn: conn} do
-      create_set(%{name: "Unsigned", category: "joyful"})
+      set = create_set(%{name: "Unsigned", category: "joyful"})
       # Without credentials nothing can be signed; a shelf must not try.
       put_env([{:ex_aws, :access_key_id, nil}, {:ex_aws, :secret_access_key, nil}])
 
+      assert [_ | _] = list(conn, "category=joyful")
+
       body =
         conn
-        |> get_v2("/meditation-sets?category=joyful&" <> @in_prayer_order)
+        |> get_v2("/meditation-sets/#{set.id}?" <> @in_prayer_order)
         |> v2_response(200)
-
-      assert [_ | _] = body["data"]
 
       for {_id, meditation} <- included(body, "meditation") do
         refute Map.has_key?(meditation["attributes"], "narrations")
         assert is_list(meditation["attributes"]["narrated_voices"])
       end
+    end
+
+    # One GET must not return the whole catalogue with every recording
+    # signed: the list is the shelf, and a set's meditations come with the
+    # set. See LumenViaeWeb.JsonApi.QueryParams.
+    test "refuses an include, however the path is spelled", %{conn: conn} do
+      set = create_set(%{name: "Shelf", category: "joyful"})
+
+      for path <- ["/meditation-sets", "/meditation-sets/", "//meditation-sets"],
+          query <- [
+            "include=set_memberships",
+            "include=set_memberships.meditation.mystery&fields[meditation]=title,narrations",
+            "category=joyful&include=",
+            "include[]=set_memberships"
+          ] do
+        body = conn |> get_v2(path <> "?" <> query) |> v2_response(400)
+
+        assert [
+                 %{
+                   "status" => "400",
+                   "code" => "invalid_includes",
+                   "source" => %{"parameter" => "include"}
+                 }
+               ] = body["errors"]
+      end
+
+      # The same include on one set is how a client reads it.
+      conn
+      |> get_v2("/meditation-sets/#{set.id}?" <> @in_prayer_order)
+      |> v2_response(200)
     end
   end
 
@@ -322,6 +352,25 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetsTest do
 
       assert Map.keys(first["attributes"]) |> Enum.sort() == ["content", "narrations", "title"]
       assert length(first["attributes"]["narrations"]) == 2
+    end
+
+    test "keeps prayer order whatever a client asks of what is included", %{
+      conn: conn,
+      set: set
+    } do
+      plain = detail(conn, set)
+
+      for query <- [
+            "sort_included[set_memberships]=-order",
+            "sort_included[set_memberships.meditation]=-title",
+            "filter_included[set_memberships]=order:1",
+            "included_page[set_memberships][limit]=1"
+          ] do
+        body = detail(conn, set, @in_prayer_order <> "&" <> query)
+
+        assert Enum.map(in_prayer_order(body), &elem(&1, 0)) == [1, 2, 3], query
+        assert Map.delete(body, "links") == Map.delete(plain, "links"), query
+      end
     end
 
     test "recordings that cannot be signed are null, never a shorter list", %{

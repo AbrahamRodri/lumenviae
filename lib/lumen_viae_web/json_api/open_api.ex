@@ -45,6 +45,11 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
       an included meditation's signed narrations without going around its
       own types.
 
+  One change follows the API rather than correcting AshJsonApi: the list
+  of sets takes no `include` (`LumenViaeWeb.JsonApi.QueryParams` refuses
+  one), so its operation has no `include` parameter and its response no
+  `included` list.
+
   Applied by `LumenViaeWeb.JsonApiRouter` through AshJsonApi's
   `modify_open_api` option, so the served document and the committed
   `priv/openapi/v2.json` are both the corrected one. See docs/JSON_API.md.
@@ -58,6 +63,8 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
   alias OpenApiSpex.Reference
   alias OpenApiSpex.Schema
 
+  alias LumenViaeWeb.JsonApi.QueryParams
+
   @doc """
   The `modify_open_api` callback: `spec` corrected as described above.
   """
@@ -66,11 +73,47 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
     %{components: %{schemas: schemas} = components} = spec = normalize(spec)
     schemas = Map.new(schemas, &pin_type/1)
     responses = Map.new(components.responses, &wrap_errors/1)
+    no_includes = Enum.map(QueryParams.lists_without_includes(), &("/api/v2" <> &1))
+
+    paths =
+      Map.new(spec.paths, fn {path, item} ->
+        item = if path in no_includes, do: without_includes(item), else: item
+        {path, describe_types(item, schemas)}
+      end)
+
+    %{spec | components: %{components | schemas: schemas, responses: responses}, paths: paths}
+  end
+
+  # A list that takes no `include`: no parameter for it, and no `included`
+  # in what it answers.
+  defp without_includes(%PathItem{get: %Operation{} = operation} = item) do
+    responses =
+      Map.new(operation.responses, fn {status, response} ->
+        case response do
+          %{content: %{"application/vnd.api+json" => %{schema: %Schema{} = schema} = content}} ->
+            schema = %{schema | properties: Map.delete(schema.properties, :included)}
+
+            {status,
+             %{
+               response
+               | content: %{
+                   response.content
+                   | "application/vnd.api+json" => %{content | schema: schema}
+                 }
+             }}
+
+          _other ->
+            {status, response}
+        end
+      end)
 
     %{
-      spec
-      | components: %{components | schemas: schemas, responses: responses},
-        paths: Map.new(spec.paths, fn {path, item} -> {path, describe_types(item, schemas)} end)
+      item
+      | get: %{
+          operation
+          | parameters: Enum.reject(operation.parameters, &(to_string(&1.name) == "include")),
+            responses: responses
+        }
     }
   end
 
