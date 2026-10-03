@@ -49,8 +49,9 @@ defmodule LumenViae.Rosary.Completion do
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource]
+    extensions: [AshGraphql.Resource, AshRateLimiter]
 
+  alias LumenViae.Rosary.Completion.RateLimit
   alias LumenViae.Rosary.Completion.SetIsVisible
   alias LumenViae.Rosary.Completion.Stamp
 
@@ -97,6 +98,13 @@ defmodule LumenViae.Rosary.Completion do
       index [:country_code]
       index [:source]
     end
+  end
+
+  # Where the counters live. The limit itself is `RateLimit`, on both
+  # actions that record a completion, rather than a `rate_limit` entry here:
+  # see its moduledoc.
+  rate_limit do
+    backend LumenViae.Limits.Backend
   end
 
   actions do
@@ -147,6 +155,7 @@ defmodule LumenViae.Rosary.Completion do
       change set_attribute(:time_zone, arg(:time_zone))
       change set_attribute(:locale, arg(:locale))
       change set_attribute(:prayed_aloud, arg(:prayed_aloud))
+      change RateLimit
       change Stamp
     end
 
@@ -162,7 +171,13 @@ defmodule LumenViae.Rosary.Completion do
       change set_attribute(:meditation_set_id, arg(:meditation_set_id))
       change set_attribute(:prayed_aloud, arg(:prayed_aloud))
       change set_attribute(:source, "ios")
-      validate SetIsVisible
+      change RateLimit
+
+      # After the limit, in a `before_action`, so that a refused request has
+      # not already cost a query to find out whether its set exists, and a
+      # request for a set that does not exist spends the budget like any
+      # other.
+      validate SetIsVisible, before_action?: true
       change Stamp
     end
 
@@ -174,8 +189,9 @@ defmodule LumenViae.Rosary.Completion do
 
   # Anybody may record that they finished a Rosary - the website and REST
   # through :record, GraphQL through :record_from_app - behind the crawler
-  # check and rate limit the web layer puts in front of both. Reading the
-  # rows back is the admin analytics' alone; so is everything else.
+  # check the web layer puts in front of both, and the rate limit both
+  # carry. Reading the rows back is the admin analytics' alone; so is
+  # everything else.
   policies do
     bypass LumenViae.Accounts.Checks.ActorIsAdmin do
       authorize_if always()

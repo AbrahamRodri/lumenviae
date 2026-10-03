@@ -1,21 +1,11 @@
 defmodule LumenViaeWeb.Live.Pray.Index do
   use LumenViaeWeb, :live_view
 
-  alias LumenViae.RateLimit
   alias LumenViae.Rosary
   alias LumenViae.Rosary.{PrayerAudio, Voices}
   alias LumenViae.Storage.S3
   alias LumenViaeWeb.BotDetection
   alias LumenViaeWeb.ClientIP
-
-  # A generous ceiling on Rosaries from one address in an hour. A family
-  # sharing a connection, or a parish behind one router, stays well under
-  # it; a script does not. Praying twenty Rosaries in an hour is not a
-  # thing a person does, and this is the cheapest place to say so.
-  #
-  # Configurable because the whole test suite connects from 127.0.0.1 and
-  # would otherwise share a single budget between unrelated tests.
-  @default_completions_per_hour 20
 
   @impl true
   def mount(%{"set_id" => set_id}, session, socket) do
@@ -375,40 +365,27 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   # The bot check is about the figures: a crawler that runs the LiveView
   # and trips the button leaves a Rosary nobody prayed.
   #
-  # The rate limit is about abuse, and is keyed on the full address rather
-  # than the truncated prefix that gets stored - the whole job here is
-  # telling neighbours apart, which is exactly what truncating destroys.
-  # With no address to key on the limit cannot apply, and the completion is
-  # allowed; that is the disconnected-mount case and a handful of proxies,
-  # not an open door.
+  # The rate limit is about abuse, and is not here: it is on the action
+  # (see `LumenViae.Limits`), keyed on the full address
+  # passed in the context rather than the truncated prefix that gets stored,
+  # on the budget the REST route and GraphQL spend too. A refused completion
+  # comes back as an error that is dropped, as it always was: nothing on the
+  # page says a Rosary was not counted. With no address to key on the limit
+  # cannot apply, and the completion is allowed; that is the
+  # disconnected-mount case and a handful of proxies, not an open door.
   defp maybe_record_completion(socket) do
     context = socket.assigns.completion_context
 
-    cond do
-      context.bot? ->
-        :ok
+    if context.bot? do
+      :ok
+    else
+      context = %{context | prayed_aloud: socket.assigns.pray_aloud}
 
-      rate_limited?(context.ip) ->
-        :ok
+      Rosary.record_completion(socket.assigns.set.id, context,
+        actor: socket.assigns.current_admin
+      )
 
-      true ->
-        context = %{context | prayed_aloud: socket.assigns.pray_aloud}
-
-        Rosary.record_completion(socket.assigns.set.id, context,
-          actor: socket.assigns.current_admin
-        )
-
-        :ok
+      :ok
     end
-  end
-
-  defp rate_limited?(nil), do: false
-
-  defp rate_limited?(ip) do
-    RateLimit.check("completion:" <> ip, completions_per_hour(), :timer.hours(1)) != :ok
-  end
-
-  defp completions_per_hour do
-    Application.get_env(:lumen_viae, :completions_per_hour, @default_completions_per_hour)
   end
 end

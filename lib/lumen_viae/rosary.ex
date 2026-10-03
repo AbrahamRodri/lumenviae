@@ -925,7 +925,13 @@ defmodule LumenViae.Rosary do
   inputs, and the place is filled in afterwards by a background task; see
   `LumenViae.Rosary.Completion.Stamp` for why, on both counts.
 
-  Returns `{:ok, completion}` or `{:error, %Ash.Error.Invalid{}}`.
+  Returns `{:ok, completion}` or `{:error, error}`: an `Ash.Error.Invalid`
+  for a set that does not exist or a value that does not fit, and an
+  `Ash.Error.Forbidden` holding an `AshRateLimiter.LimitExceeded` when the
+  address in `context[:ip]` has recorded too many completions this hour
+  (`LumenViae.Limits.exceeded/1` finds it). The limit is on the action, so
+  every surface shares one budget per address; a context with no address is
+  not limited.
   """
   def record_completion(meditation_set_id, context \\ %{}, opts \\ []) when is_map(context) do
     Completion

@@ -4,8 +4,8 @@ defmodule LumenViaeWeb.BotDetection do
 
   Used to keep crawlers out of the completion figures. It is one layer of
   two and the softer one: an agent string is whatever the caller says it
-  is, so this catches the honest majority and the rate limit in
-  `LumenViae.RateLimit` catches the rest. Nothing here should be read as a
+  is, so this catches the honest majority and the rate limit on the completion actions
+  (see `LumenViae.Limits`) catches the rest. Nothing here should be read as a
   security boundary.
 
   The two costs are

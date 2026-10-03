@@ -246,6 +246,65 @@ everywhere. A token lasts 7 days. The signing secret is
 `TOKEN_SIGNING_SECRET` if set (at least 32 bytes), and otherwise derived
 from `SECRET_KEY_BASE` (`LumenViae.Accounts.Secrets`).
 
+### Rate limits
+
+A limit on how often something may be done belongs to the action that does
+it, so it holds on every surface that reaches the action and a surface added
+later cannot forget it. `ash_rate_limiter` puts it there.
+
+The completion limit is the one that lives that way:
+`LumenViae.Rosary.Completion.RateLimit` is a change on both of the
+resource's create actions (`:record` for the website and REST,
+`:record_from_app` for GraphQL), so a Rosary recorded over any of them
+spends one budget per address. It keys on the full address in the action
+context (`:client_ip`, which only the server sets, from `ClientIP`), at 20 an
+hour (`:completions_per_hour`, read from the environment when the action
+runs; `LumenViae.Limits` holds the number and the key). With no address in
+the context there is nothing to key on, and the completion is allowed.
+
+What the domain returns and each surface says about it:
+
+- The action returns `{:error, %Ash.Error.Forbidden{}}` holding an
+  `AshRateLimiter.LimitExceeded` (`LumenViae.Limits.exceeded/1` finds it).
+  It is counted before anything else the action does - before the
+  transaction, ahead of the set check - so a refused request costs no query
+  and a request for a set that does not exist spends the budget like any
+  other. A refused request is itself counted.
+- REST (`API.FallbackController`) answers `429` with `rate_limited`, in the
+  envelope `docs/IOS_API_CONTRACT.md` records. Nothing a shipped build reads
+  changed.
+- GraphQL answers a top-level `rate_limited` error with `data` null, as it
+  always has (`Graphql.GuardCompletions`, run after the mutation). AshGraphql
+  would have put it in the mutation's own `errors`.
+- The prayer page ignores the result, as it ignores any other, and still
+  sends the reader on.
+
+A crawler is not a rate-limit matter and stays where it was: refused on its
+user agent in `Plugs.GuardCompletions` and the GraphQL middleware, and in
+the prayer page, before the action is called, so it never spends a budget.
+
+The counters are Hammer's ETS backend, fixed window, **per machine**.
+Production runs two, so each holds its own counters and the real ceiling is
+twice the number configured. That is fine for what the limits are for -
+stopping a script, not metering - and it is not a precise quota; an exact one
+needs a shared store, which AshRateLimiter takes as another backend, not a
+smaller number. Hammer keys a window by key and window size, so every limit
+has its own key prefix.
+
+**Sign-in is the exception.** `Plugs.ThrottleSignIn` is still a plug in front
+of AshAuthentication's route. The per-email budget would move to the
+`:sign_in_with_password` action, but the per-address one cannot: AshAuthentication's
+dispatcher replaces the Ash context on the way to the strategy, so the action
+never sees a trustworthy address, only the socket peer, which behind Fly is
+Fly's proxy. Splitting one throttle across a plug and an action would be worse
+than either, so both budgets stay in the plug (the reasoning is in its
+moduledoc). It counts on the same `LumenViae.Hammer` table. If AshAuthentication
+ever lets a caller put context after its dispatcher, move it.
+
+**A new limit** is a change (create, update, destroy) or a preparation (read)
+on the action, built from `AshRateLimiter.BuiltinChanges.rate_limit/1`, with
+a key prefix of its own. Do not add a counter next to a surface.
+
 ### The two APIs
 
 The JSON API under `/api` is what the iOS app in the wild decodes, with
@@ -413,8 +472,9 @@ wrap an external API or a file format and know nothing about the domain.
 city and country through a third-party provider, owns its own cache, and is
 switched off by default so no address leaves a development machine.
 
-`LumenViae.RateLimit` sits alongside them. It is a supervised ETS counter
-with no domain knowledge, used by the web layer to cap completion writes.
+`LumenViae.Hammer` sits alongside them. It is a supervised ETS counter
+(Hammer's) with no domain knowledge, which AshRateLimiter spends through
+`LumenViae.Limits.Backend`; see "Rate limits" under the domain.
 
 ---
 
@@ -827,13 +887,14 @@ crawler that runs a word into `bot` has to be named in `@named_agents`. A
 app's agent is set outside this repo and refusing a blank one would take the
 app's analytics silently to zero.
 
-`LumenViae.RateLimit` caps completions per address per hour, and is the part
-that still holds when the agent string is a lie. It is keyed on the full
-address, not the stored prefix, because telling neighbours apart is the
-whole job. It is per-machine ETS, and production runs two machines,
-so the real ceiling is twice the configured number. That is fine for what
-the limit is for - stopping a script, not metering - but it is not a precise
-quota. Making it exact needs a shared store, not a smaller number.
+The rate limit on the completion actions caps completions per address per
+hour, and is the part that still holds when the agent string is a lie. It
+is keyed on the full address, not the stored prefix, because telling
+neighbours apart is the whole job. It is per-machine ETS, and production
+runs two machines, so the real ceiling is twice the configured number. That
+is fine for what the limit is for - stopping a script, not metering - but it
+is not a precise quota. Making it exact needs a shared store, not a smaller
+number. See "Rate limits" under the domain.
 
 `LumenViaeWeb.ClientIP` finds the address, and reads only `Fly-Client-IP`
 and the socket peer. `X-Forwarded-For` is deliberately not read from either
@@ -888,7 +949,9 @@ as UTC first and only then converts - `(? AT TIME ZONE 'UTC') AT TIME ZONE ?`
 posts a plain form to AshAuthentication's password route
 (`/admin/auth/admin/password/sign_in`), and `LumenViaeWeb.AuthController`
 puts the admin in the session or sends the form back with a flash. Signing
-out is `DELETE /admin/session`, which revokes the token.
+out is `DELETE /admin/session`, which revokes the token. Attempts are
+throttled per address and per email in front of the route, by
+`Plugs.ThrottleSignIn`; see "Rate limits" for why that is a plug.
 
 `:load_from_session` in the browser pipeline puts the signed-in admin in
 `current_admin`, having checked the token is genuine, unexpired and not

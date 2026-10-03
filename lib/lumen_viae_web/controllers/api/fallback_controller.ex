@@ -13,6 +13,7 @@ defmodule LumenViaeWeb.API.FallbackController do
 
   require Logger
 
+  alias LumenViae.Limits
   alias LumenViae.Rosary
   alias LumenViaeWeb.API.ErrorJSON
 
@@ -44,6 +45,17 @@ defmodule LumenViaeWeb.API.FallbackController do
     )
   end
 
+  # A write the domain refused because the caller has spent its budget
+  # (AshRateLimiter's error, which is `forbidden` underneath). Only the
+  # completion write limits anything today, and its answer has always been
+  # this one.
+  def call(conn, {:error, %Ash.Error.Forbidden{} = error} = result) do
+    case Limits.exceeded(error) do
+      nil -> call_unhandled(conn, result)
+      limit -> send_error(conn, :too_many_requests, "rate_limited", Limits.message(limit))
+    end
+  end
+
   # A write the domain refused. The details map each field to its
   # messages, read the same way the admin forms read them.
   def call(conn, {:error, %Ash.Error.Invalid{} = error}) do
@@ -59,7 +71,9 @@ defmodule LumenViaeWeb.API.FallbackController do
   # Anything an action returns that nothing above anticipated. It answers
   # rather than raising, and it says in the log what it could not name in
   # the response.
-  def call(conn, {:error, reason}) do
+  def call(conn, {:error, _reason} = result), do: call_unhandled(conn, result)
+
+  defp call_unhandled(conn, {:error, reason}) do
     Logger.error("Unhandled API error: #{inspect(reason)}")
 
     send_error(conn, :internal_server_error, "internal_error", "Something went wrong")

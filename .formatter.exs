@@ -5,6 +5,7 @@
     :absinthe,
     :ash_phoenix,
     :ash_postgres,
+    :ash_rate_limiter,
     :ash,
     :reactor,
     :ecto,
