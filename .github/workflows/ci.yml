@@ -1,0 +1,195 @@
+# CI, and the deploy that waits for it. See docs/CI.md.
+#
+# Pull requests run every check. A push to main runs the same checks and then,
+# only if the blocking ones pass, deploys to Fly. Deploy lives in this file, as
+# a job with `needs`, so one run holds the whole story and a failing check
+# leaves the deploy job skipped rather than merely racing it.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+# A new push to a PR supersedes the old run. Never cancel on main: the run
+# being cancelled could be the one in the middle of a deploy.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  MIX_ENV: test
+
+jobs:
+  # Blocking. Compiles clean, matches its migrations, and passes the suite
+  # (which includes the GraphQL schema pin and the architecture rules).
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-elixir
+
+      - name: No unused entries in mix.lock
+        run: mix deps.unlock --check-unused
+
+      # --force, because a restored _build would otherwise skip the compile
+      # and with it every warning.
+      - name: Compile with warnings as errors
+        run: mix compile --force --warnings-as-errors
+
+      # Fails if a resource changed without its migration and snapshot, or the
+      # other way round.
+      - name: Resources, migrations and snapshots agree
+        run: mix ash.codegen --check
+
+      # The test alias runs ash.setup first, so this also applies every
+      # migration to an empty database. --warnings-as-errors covers the tests.
+      # priv/graphql/schema.graphql is pinned by
+      # test/lumen_viae_web/graphql/schema_test.exs, which runs here.
+      - name: Test
+        run: mix test --warnings-as-errors
+
+  # Blocking. A broken Tailwind or esbuild build fails the PR instead of the
+  # deploy.
+  assets:
+    name: Assets build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-elixir
+      - run: mix assets.setup
+      - run: mix assets.deploy
+      - name: The bundles exist and are not empty
+        run: |
+          test -s priv/static/assets/css/app.css
+          test -s priv/static/assets/js/app.js
+
+  # Blocking on PRs, but deliberately not a condition of the deploy. The
+  # advisory databases change daily, so a check that reads them can start
+  # failing with no change on our side, and it must not hold back an
+  # unrelated hotfix. Dependabot's PRs are how a finding gets fixed.
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-elixir
+      - name: Retired Hex packages
+        run: mix hex.audit
+      - name: Known vulnerabilities (mix_audit)
+        run: mix deps.audit
+
+  # Blocking on PRs, and only for the files the PR changed. The repo is not
+  # format-clean, so a repo-wide check would fail every PR; this one asks each
+  # PR to leave the files it touches formatted. Retire it for a plain
+  # `mix format --check-formatted` once the one-time format commit has landed.
+  format:
+    name: Format (changed files)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # The checkout is the PR merged into its base. Depth 2 includes the
+      # base tip as the merge commit's first parent.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - uses: ./.github/actions/setup-elixir
+      - name: Check the files this PR changed
+        run: |
+          git diff --name-only --diff-filter=ACMR HEAD^1 HEAD \
+            | grep -E '\.(ex|exs|heex)$' > changed.txt || true
+          if [ ! -s changed.txt ]; then
+            echo "No Elixir or HEEx files changed."
+            exit 0
+          fi
+          echo "Checking:"
+          cat changed.txt
+          if ! xargs mix format --check-formatted < changed.txt; then
+            echo >&2
+            echo "Format the files above and push:" >&2
+            echo "  mix format $(tr '\n' ' ' < changed.txt)" >&2
+            exit 1
+          fi
+
+  # Report only. These never fail the run and are not conditions of the
+  # deploy; the counts land in each job's summary.
+  credo:
+    name: Credo (report only)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-elixir
+      - name: Credo
+        run: |
+          mix credo --format json > credo.json || true
+          mix credo || true
+          {
+            echo "### Credo"
+            echo
+            echo "$(jq '.issues | length' credo.json) issues (default checks)"
+            echo
+            jq -r '.issues | group_by(.category) | map("- \(.[0].category): \(length)") | .[]' credo.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  sobelow:
+    name: Sobelow (report only)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-elixir
+      - name: Sobelow
+        run: |
+          mix sobelow --format json > sobelow.json
+          mix sobelow || true
+          {
+            echo "### Sobelow"
+            echo
+            echo "- high confidence: $(jq '.findings.high_confidence | length' sobelow.json)"
+            echo "- medium confidence: $(jq '.findings.medium_confidence | length' sobelow.json)"
+            echo "- low confidence: $(jq '.findings.low_confidence | length' sobelow.json)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Only a push to main deploys, and only after test and assets pass. If either
+  # fails this job is skipped, so a red build cannot be deployed by this
+  # workflow. Re-running a failed check from the Actions UI re-evaluates this
+  # job too, so a flaky failure that passes on retry deploys without a new
+  # commit. The secret is read here and nowhere else.
+  deploy:
+    name: Deploy to Fly
+    needs: [test, assets]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    concurrency: deploy-group # one deploy at a time; a queued one waits
+    steps:
+      - uses: actions/checkout@v7
+      # Unchanged from the old fly-deploy.yml. The newest tag (1.5) is from
+      # January 2024 and still runs on node20; master runs on node24.
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

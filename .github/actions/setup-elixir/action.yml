@@ -1,0 +1,53 @@
+name: Set up Elixir
+description: >
+  Installs the Erlang/OTP and Elixir the Dockerfile builds production with,
+  restores the deps and _build cache, and fetches and compiles the deps.
+  Run actions/checkout first.
+
+runs:
+  using: composite
+  steps:
+    # The Dockerfile is the one place the versions live, so CI cannot drift
+    # from what ships. Bump them there and CI follows.
+    - name: Read versions from the Dockerfile
+      id: versions
+      shell: bash
+      run: |
+        elixir="$(sed -n 's/^ARG ELIXIR_VERSION=//p' Dockerfile)"
+        otp="$(sed -n 's/^ARG OTP_VERSION=//p' Dockerfile)"
+        if [ -z "$elixir" ] || [ -z "$otp" ]; then
+          echo "Could not read ELIXIR_VERSION and OTP_VERSION from the Dockerfile" >&2
+          exit 1
+        fi
+        echo "elixir=$elixir" >> "$GITHUB_OUTPUT"
+        echo "otp=$otp" >> "$GITHUB_OUTPUT"
+
+    - name: Install Erlang/OTP and Elixir
+      id: beam
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: ${{ steps.versions.outputs.elixir }}
+        otp-version: ${{ steps.versions.outputs.otp }}
+
+    # The key carries the toolchain and the lock file, so a version bump or a
+    # dependency change starts a fresh cache. A partial hit (same toolchain,
+    # older lock) still saves compiling every dependency from scratch.
+    - name: Cache deps and _build
+      uses: actions/cache@v6
+      with:
+        path: |
+          deps
+          _build
+        key: mix-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
+        restore-keys: |
+          mix-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-
+
+    # --check-locked fails if mix.exs and mix.lock disagree, so a dependency
+    # added without committing the lock cannot reach main.
+    - name: Fetch dependencies
+      shell: bash
+      run: mix deps.get --check-locked
+
+    - name: Compile dependencies
+      shell: bash
+      run: mix deps.compile
