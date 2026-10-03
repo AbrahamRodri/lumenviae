@@ -64,6 +64,12 @@ defmodule LumenViae.Curation.Jobs.NarrateMeditationTest do
 
   defp run, do: Oban.drain_queue(queue: :elevenlabs)
 
+  defp fingerprint(meditation, voice) do
+    meditation.content
+    |> LumenViae.Audio.Pipeline.speech_text(meditation.tts_annotations, voice)
+    |> LumenViae.Audio.Recording.fingerprint(voice)
+  end
+
   defp paid_count(count \\ 0) do
     receive do
       :paid -> paid_count(count + 1)
@@ -119,11 +125,68 @@ defmodule LumenViae.Curation.Jobs.NarrateMeditationTest do
 
     # As if an earlier attempt of this very job uploaded the clip and then
     # failed to write the narration row.
-    FakeAwsHttpClient.put_object!(@key, %{"job" => to_string(job.id), "fingerprint" => "old"})
+    FakeAwsHttpClient.put_object!(@key, %{
+      "job" => to_string(job.id),
+      "fingerprint" => fingerprint(meditation, voice)
+    })
 
     assert %{success: 1} = run()
     assert paid_count() == 0
     assert [_narration] = Rosary.meditation_narrations(meditation)
+  end
+
+  # Job ids are only unique within one database: a production snapshot
+  # restored into dev once carried production's ids along.
+  test "an upload with this job's id but other words is not this job's", %{
+    meditation: meditation,
+    voice: voice
+  } do
+    enqueue(meditation, voice)
+    [job] = all_enqueued(worker: NarrateMeditation)
+    FakeAwsHttpClient.put_object!(@key, %{"job" => to_string(job.id), "fingerprint" => "other"})
+
+    assert %{success: 1} = run()
+    assert paid_count() == 1
+  end
+
+  # The lifeline frees a job killed by a deploy without recording an error,
+  # so its next attempt has run ahead of its errors.
+  test "an attempt killed mid-request is cancelled, not paid for again", %{
+    meditation: meditation,
+    voice: voice
+  } do
+    enqueue(meditation, voice)
+    [job] = all_enqueued(worker: NarrateMeditation)
+    orphaned = %{LumenViae.Repo.get!(Oban.Job, job.id) | attempt: 2, errors: []}
+
+    assert {:cancel, reason} = NarrateMeditation.perform(orphaned)
+    assert reason =~ "killed mid-request and may be billed"
+    assert paid_count() == 0
+  end
+
+  test "a killed attempt whose own upload landed just finishes the bookkeeping", %{
+    meditation: meditation,
+    voice: voice
+  } do
+    enqueue(meditation, voice)
+    [job] = all_enqueued(worker: NarrateMeditation)
+
+    FakeAwsHttpClient.put_object!(@key, %{
+      "job" => to_string(job.id),
+      "fingerprint" => fingerprint(meditation, voice)
+    })
+
+    orphaned = %{LumenViae.Repo.get!(Oban.Job, job.id) | attempt: 2, errors: []}
+
+    assert :ok = NarrateMeditation.perform(orphaned)
+    assert paid_count() == 0
+    assert [_narration] = Rosary.meditation_narrations(meditation)
+  end
+
+  test "an attempt after an ordinary failure is not taken for a killed one" do
+    job = %Oban.Job{attempt: 2, errors: [%{"attempt" => 1, "error" => "429"}]}
+    refute LumenViae.Audio.Recording.orphaned?(job)
+    assert LumenViae.Audio.Recording.orphaned?(%{job | errors: []})
   end
 
   # Recordings made before fingerprints existed have no metadata at all.

@@ -109,6 +109,10 @@ fi
 
 mkdir -p "$SNAPSHOT_DIR"
 
+# Oban's tables come across empty. Production's waiting jobs restored into
+# dev would be run by ./dev.sh as well as by production, and a narration
+# job run twice is paid for twice; the id sequence is left behind too, so
+# dev's job ids never repeat production's.
 echo "Dumping $REMOTE_DB (read only)..."
 PGPASSWORD="$REMOTE_PASSWORD" "$PG_DUMP" \
   --host=127.0.0.1 \
@@ -118,6 +122,9 @@ PGPASSWORD="$REMOTE_PASSWORD" "$PG_DUMP" \
   --format=plain \
   --no-owner \
   --no-privileges \
+  --exclude-table-data=oban_jobs \
+  --exclude-table-data=oban_jobs_id_seq \
+  --exclude-table-data=oban_peers \
   --file="$SNAPSHOT"
 
 echo "Snapshot written: $SNAPSHOT ($(du -h "$SNAPSHOT" | cut -f1))"

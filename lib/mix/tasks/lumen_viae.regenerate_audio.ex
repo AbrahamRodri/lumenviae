@@ -42,8 +42,9 @@ defmodule Mix.Tasks.LumenViae.RegenerateAudio do
   ## Environment
 
   Real runs require ELEVEN_LABS_API_KEY plus AWS credentials, as configured
-  in runtime.exs. Run against the production database by exporting
-  DATABASE_URL first, or regenerate on Fly with:
+  in runtime.exs. The task runs against the local database
+  (`DEV_DATABASE` picks a copy; `config/dev.exs` does not read
+  `DATABASE_URL`). For production, regenerate on Fly with:
 
       fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(all: true, voices: [\\"female\\"])'"
   """

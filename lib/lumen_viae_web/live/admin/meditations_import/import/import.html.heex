@@ -295,7 +295,7 @@
         <%= if @stage == :importing do %>
           <button
             phx-click="cancel-import"
-            data-confirm="Stop the import? Rows already created will remain in the database."
+            data-confirm="Stop the import? Rows already created will remain in the database, and their narration jobs already queued will keep running and spending ElevenLabs credits (cancel them at /admin/jobs)."
             class="admin-btn admin-btn-danger"
           >
             Stop import

@@ -293,7 +293,10 @@ is skipped without calling ElevenLabs: every upload carries that
 fingerprint in its S3 metadata. So a pause-logic, model or voice change is
 recorded, a recording made before fingerprints existed is recorded once
 more, and running the same regeneration twice pays for nothing the second
-time. `--force` records it anyway, for a deliberate second take.
+time. `--force` records it anyway, for a deliberate second take. A job
+already waiting for the same key absorbs a forced one (one job per key
+while one waits), so if a regeneration is still queued, let it finish
+before forcing a second take.
 
 `--only-missing` is for filling gaps, so it never pays to replace anything:
 it skips a (meditation, voice) that has a narration row, and for one that

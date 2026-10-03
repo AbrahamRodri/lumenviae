@@ -31,15 +31,27 @@ defmodule LumenViae.Audio.Recording do
       and if it still fails the job stops rather than pay for the clip
       again on a fresh attempt.
 
+    * **An attempt that was killed mid-request is not repeated.** A
+      deploy or an out-of-memory restart can kill a job while its
+      ElevenLabs request is in flight, which is the whole 10 to 120
+      seconds of the request, not a moment. The lifeline later frees the
+      job without recording an error, so the next attempt can tell: its
+      attempt count has run ahead of its errors. If nothing of ours is at
+      the key by then, the killed request may still have been billed, so
+      the job is cancelled with that reason instead of paying again.
+      Deploys avoid the kill in the first place: Fly waits 150 seconds
+      after SIGTERM (`kill_timeout` in `fly.toml`) and Oban gives running
+      jobs 140 of them to finish (`shutdown_grace_period`).
+
   `:force` re-records an object that is already right - a deliberate
-  second take - but still stops on its own job id, so even a forced job
+  second take - but still stops on its own upload, so even a forced job
   pays once.
 
-  What remains is a hard kill (a deploy, an out-of-memory restart) in the
-  moment between ElevenLabs answering and the upload finishing. The
-  lifeline then retries the job and it pays again. No design avoids that
-  window without somewhere durable to put the audio first; it is a second
-  or two per clip.
+  An upload counts as the job's own only when both its job id and its
+  fingerprint match. Job ids are only unique within one database, and a
+  copy of production's data (`sync_prod_db.sh`) once carried its job ids
+  into development; a job id alone could then adopt a clip recorded from
+  other words.
 
   ## Results
 
@@ -69,6 +81,9 @@ defmodule LumenViae.Audio.Recording do
       file and not its words) or `:exists` (for keys that carry a hash of
       their text, as the spoken Rosary's do)
     * `:force` - record even if the object is already right
+    * `:orphaned` - an earlier attempt of this job was killed without an
+      error (see `orphaned?/1`): cancel rather than call ElevenLabs,
+      unless the job's own upload is already at the key
   """
   def record(text, voice, key, opts) do
     job_id = opts |> Keyword.fetch!(:job_id) |> to_string()
@@ -76,18 +91,33 @@ defmodule LumenViae.Audio.Recording do
 
     case S3.audio_metadata(key) do
       {:ok, meta} ->
-        if already_right?(meta, job_id, fingerprint, opts) do
-          {:ok, :already_recorded}
-        else
-          # The names already_right?/4 reads back.
-          meta = [{"job", job_id}, {"fingerprint", fingerprint}]
-          synthesize_and_upload(text, voice, key, meta)
+        cond do
+          already_right?(meta, job_id, fingerprint, opts) ->
+            {:ok, :already_recorded}
+
+          opts[:orphaned] ->
+            {:cancel,
+             "previous attempt was killed mid-request and may be billed; " <>
+               "check #{key} and run it again if it is missing"}
+
+          true ->
+            # The names already_right?/4 reads back.
+            meta = [{"job", job_id}, {"fingerprint", fingerprint}]
+            synthesize_and_upload(text, voice, key, meta)
         end
 
       {:error, reason} ->
         {:retry, "could not check #{key}: #{inspect(reason)}"}
     end
   end
+
+  @doc """
+  Whether an earlier attempt of `job` ended without an error: killed by a
+  deploy or a crash and freed by the lifeline, which records none. Every
+  other way an attempt ends - an error, a timeout, an exception - records
+  one, and a snooze gives its attempt back.
+  """
+  def orphaned?(%Oban.Job{attempt: attempt, errors: errors}), do: attempt - 1 > length(errors)
 
   @doc """
   A short, stable digest of what a clip says and how: the text exactly as
@@ -107,8 +137,16 @@ defmodule LumenViae.Audio.Recording do
     |> binary_part(0, 32)
   end
 
-  # A job's own earlier upload is always right, forced or not.
-  defp already_right?(%{"job" => job_id}, job_id, _fingerprint, _opts), do: true
+  # A job's own earlier upload, of these same words, is always right,
+  # forced or not.
+  defp already_right?(
+         %{"job" => job_id, "fingerprint" => fingerprint},
+         job_id,
+         fingerprint,
+         _opts
+       ),
+       do: true
+
   defp already_right?(nil, _job_id, _fingerprint, _opts), do: false
 
   defp already_right?(meta, _job_id, fingerprint, opts) do

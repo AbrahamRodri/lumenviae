@@ -110,20 +110,31 @@ defmodule LumenViae.Rosary.CompletionEnrichmentTest do
     refute path =~ ip
   end
 
-  test "a completion survives a provider that fails", %{set: set} do
+  test "a provider that fails is asked again later, and the completion stands", %{set: set} do
     Req.Test.stub(Geolocation, fn conn ->
       Req.Test.transport_error(conn, :econnrefused)
     end)
 
     assert {:ok, completion} = Rosary.record_completion(set.id, %{ip: an_address()})
 
-    # The lookup comes back empty rather than failing the job: there is
-    # nothing a retry would learn that the cache has not already noted.
-    assert %{success: 1, failure: 0} = run_lookups()
+    # A failure to ask is not an answer: the job fails and Oban retries it.
+    assert %{failure: 1, success: 0} = run_lookups()
+    assert Repo.get(Completion, completion.id).country == nil
 
-    reloaded = Repo.get(Completion, completion.id)
-    assert reloaded.id == completion.id
-    assert reloaded.country == nil
+    # The provider is back by the retry, and nothing cached the failure.
+    Req.Test.stub(Geolocation, &dallas/1)
+    assert %{success: 1} = Oban.drain_queue(queue: :geolocation, with_scheduled: true)
+    assert Repo.get(Completion, completion.id).country == "United States"
+  end
+
+  test "a provider that answers it cannot place the address is believed", %{set: set} do
+    Req.Test.stub(Geolocation, fn conn ->
+      Req.Test.json(conn, %{"error" => true, "reason" => "Reserved IP Address"})
+    end)
+
+    assert {:ok, completion} = Rosary.record_completion(set.id, %{ip: an_address()})
+    assert %{success: 1, failure: 0} = run_lookups()
+    assert Repo.get(Completion, completion.id).country == nil
   end
 
   test "a completion that already has a place is not looked up again", %{set: set} do

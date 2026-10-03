@@ -53,6 +53,7 @@ defmodule LumenViae.Curation.Jobs.RecordRosaryClip do
       |> PrayerAudio.speech_text()
       |> Recording.record(voice, args["key"],
         job_id: job.id,
+        orphaned: Recording.orphaned?(job),
         already_right: :exists,
         force: args["force"] == true
       )
