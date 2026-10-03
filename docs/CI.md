@@ -11,6 +11,7 @@ second workflow to race it.
 | --- | --- | --- | --- | --- |
 | Test | yes | yes | yes | Compile warnings, `mix.lock` drift or unused entries, resources out of step with migrations and snapshots, any failing test (including the GraphQL schema pin and the architecture rules) |
 | Assets build | yes | yes | yes | A broken Tailwind or esbuild build |
+| Release build (docker) | yes | yes | yes | A break only the production build shows: `docker build .` runs the Dockerfile, which compiles with `MIX_ENV=prod`, builds the assets and assembles the release |
 | Dependency audit | yes | yes | no | Retired Hex packages and known-vulnerable dependencies |
 | Format (changed files) | yes | no | no | Files the PR touched that are not formatted |
 | Credo, Sobelow | yes | yes | no | Report only: counts in the run summary, never a failure |
@@ -22,25 +23,38 @@ and `mix.lock`.
 
 ### Why the deploy is a job in the same workflow
 
-`deploy` is a job with `needs: [test, assets]`, in `ci.yml`. The alternative,
+`deploy` is a job with `needs: [test, assets, docker]`, in `ci.yml`. The alternative,
 a separate workflow started by `workflow_run`, would work too but is worse
 here: the two runs are separate objects in the Actions tab, the deploy has to
 check out the right commit by hand, and two quick merges can finish their CI
 out of order and deploy the older commit last. In one workflow the graph shows
-the gate, a failing check leaves `deploy` skipped, and re-running a failed
-check re-evaluates the deploy.
+the gate and a failing check leaves `deploy` skipped.
 
 The audit is left out of `needs` on purpose. Advisory databases change daily,
 so that check can turn red with no change of ours, and an unrelated hotfix
 should not wait on it. To make it a condition, add `audit` to `needs` on the
 `deploy` job.
 
+### The deploy only ever moves forward
+
+Every deploy runs `/app/bin/migrate` first (`release_command` in `fly.toml`).
+Re-running an older run of `main` would therefore deploy its commit over a
+newer one, after the newer one's migrations had already run. So the deploy job
+starts with `.github/scripts/is-main-tip.sh`, which compares the run's commit
+with the tip of `main` on GitHub. If they differ it logs a notice, "Not
+deploying <sha>: main is now at <tip>", skips the Fly steps and the job still
+shows green. If the tip cannot be read it fails and nothing deploys. The
+newer run owns the deploy.
+
+The job has a 20 minute timeout, and every action, including
+`setup-flyctl`, is pinned to a full commit SHA with its version in a comment.
+
 ### Repository settings the workflow cannot set
 
 The gate stops a red `main` from deploying. To stop a red PR from reaching
 `main` at all, protect the branch: Settings, Branches, a rule for `main`,
 "Require status checks to pass", and select `Test`, `Assets build`,
-`Dependency audit` and `Format (changed files)`.
+`Release build (docker)`, `Dependency audit` and `Format (changed files)`.
 
 ## Reading a failure
 
@@ -55,6 +69,8 @@ says which gate failed.
 | Resources, migrations and snapshots agree | A resource changed without `mix ash.codegen <name>`, or generated files were edited by hand | Run `mix ash.codegen <name>`, read the generated migration, commit it |
 | Test | A test failed; the failing test and its diff are in the log | Reproduce with the commands below |
 | Assets build | Tailwind or esbuild failed; its error is in the log | Run `mix assets.deploy` locally |
+| Build the image from the Dockerfile | The production build failed; the failing Dockerfile step is the last one in the log | Run `docker build .` locally, then `docker rmi` the image. `MIX_ENV=prod` is blocked in this repo's tooling, so build through Docker rather than `mix` |
+| Is this commit still the tip of main? | Not a failure: a notice that the run was skipped because `main` moved on. A real failure means GitHub could not be reached | Re-run the job, or see Re-running |
 | Dependency audit | A dependency is retired or has a published advisory; the log names it | Upgrade it; Dependabot usually has the PR open |
 | Format (changed files) | The log lists the files and prints the `mix format` command | Run that command and push |
 
@@ -77,11 +93,18 @@ log, `mix test --seed <n>`.
 
 ## Re-running
 
-- A flaky or infrastructure failure: open the run and choose "Re-run failed
-  jobs". On a run for `main` this also re-evaluates `deploy`, so a retry that
-  passes deploys without a new commit.
-- A deploy that failed after the checks passed (a Fly outage, say): "Re-run
-  failed jobs" re-runs only `deploy`.
+- A flaky or infrastructure failure on a pull request: open the run and
+  choose "Re-run failed jobs".
+- A flaky failure on a run for `main`: re-run it only while that run's commit
+  is still the tip of `main`. Then "Re-run failed jobs" re-evaluates `deploy`,
+  and a retry that passes deploys without a new commit. If `main` has moved
+  on, the re-run still passes its checks but `deploy` logs "Not deploying" and
+  does nothing, by design: the newer commit's run owns the deploy.
+- A deploy that failed after the checks passed (a Fly outage, say): the same
+  rule. While the commit is the tip, "Re-run failed jobs" re-runs only
+  `deploy`. Once `main` has moved, merge or re-run the newer commit instead.
+- To redeploy an older commit on purpose, revert on `main`: the revert is the
+  new tip and deploys like any other commit.
 - Stale cache suspected: Actions, Caches, delete the entry beginning `mix-`,
   then re-run. The next run rebuilds it.
 
@@ -119,5 +142,33 @@ are fixed.
 
 `.github/dependabot.yml` opens weekly pull requests, on Mondays, for Hex
 dependencies (the Ash and Phoenix families grouped, minor and patch only) and
-for GitHub Actions, including the local `setup-elixir` action. They run the
+for GitHub Actions, including the local `setup-elixir` action. Actions are
+pinned to a commit SHA with a `# vX.Y.Z` comment, and Dependabot updates both
+together, so review its action PRs like any dependency change. They run the
 same CI as any PR. Merging one to `main` deploys it, like any other merge.
+
+## Not done yet
+
+- **A Fly HTTP health check.** Today `fly.toml` has none, so Fly keeps a
+  machine in rotation as long as it accepts connections. A wrong check can
+  take production down, so it needs its own PR and a deploy watched by a
+  person. Proposal: a plug before the router in the endpoint that answers
+  `GET /healthz` with 200 and touches nothing else (no database, since the
+  database is one small machine and a blip there would otherwise pull the
+  app out of rotation), then in `fly.toml`:
+
+  ```
+  [[http_service.checks]]
+    grace_period = "30s"
+    interval = "15s"
+    method = "GET"
+    path = "/healthz"
+    timeout = "5s"
+  ```
+
+  `force_https` is set on the service, and how it interacts with a check is
+  not verified here: try it on a copy of the app before production.
+- **The deploy token in a protected environment.** The `FLY_API_TOKEN`
+  secret is readable by any workflow in the repository. Moving it to a
+  `production` environment limited to `main` needs the owner to create a
+  narrower token; the steps are in the pull request that added this section.

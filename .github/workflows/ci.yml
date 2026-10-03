@@ -44,7 +44,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-elixir
 
       - name: No unused entries in mix.lock
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-elixir
       - run: mix assets.setup
       - run: mix assets.deploy
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-elixir
       - name: Retired Hex packages
         run: mix hex.audit
@@ -111,7 +111,7 @@ jobs:
     steps:
       # The checkout is the PR merged into its base. Depth 2 includes the
       # base tip as the merge commit's first parent.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 2
       - uses: ./.github/actions/setup-elixir
@@ -132,6 +132,18 @@ jobs:
             exit 1
           fi
 
+  # Blocking. The Dockerfile is what Fly builds (MIX_ENV=prod: production
+  # compile, assets and release), and nothing above builds it. This fails the
+  # PR for a prod-only break instead of the deploy.
+  docker:
+    name: Release build (docker)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build the image from the Dockerfile
+        run: docker build --progress=plain --tag lumen-viae-ci .
+
   # Report only. These never fail the run and are not conditions of the
   # deploy; the counts land in each job's summary.
   credo:
@@ -140,7 +152,7 @@ jobs:
     timeout-minutes: 10
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-elixir
       - name: Credo
         run: |
@@ -160,7 +172,7 @@ jobs:
     timeout-minutes: 10
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-elixir
       - name: Sobelow
         run: |
@@ -174,22 +186,28 @@ jobs:
             echo "- low confidence: $(jq '.findings.low_confidence | length' sobelow.json)"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  # Only a push to main deploys, and only after test and assets pass. If either
-  # fails this job is skipped, so a red build cannot be deployed by this
-  # workflow. Re-running a failed check from the Actions UI re-evaluates this
-  # job too, so a flaky failure that passes on retry deploys without a new
-  # commit. The secret is read here and nowhere else.
+  # Only a push to main deploys, and only after test, assets and the release
+  # build pass. If any fails this job is skipped, so a red build cannot be
+  # deployed by this workflow. The secret is read here and nowhere else.
+  #
+  # Re-running an older run of main must not put its commit over a newer one,
+  # so the job deploys only if its commit is still the tip of main; otherwise
+  # it logs why and does nothing (see .github/scripts/is-main-tip.sh).
   deploy:
     name: Deploy to Fly
-    needs: [test, assets]
+    needs: [test, assets, docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     concurrency: deploy-group # one deploy at a time; a queued one waits
     steps:
-      - uses: actions/checkout@v7
-      # Unchanged from the old fly-deploy.yml. The newest tag (1.5) is from
-      # January 2024 and still runs on node20; master runs on node24.
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --remote-only
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Is this commit still the tip of main?
+        id: tip
+        run: .github/scripts/is-main-tip.sh "$GITHUB_SHA"
+      - if: steps.tip.outputs.is_tip == 'true'
+        uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # 1.6
+      - if: steps.tip.outputs.is_tip == 'true'
+        run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
