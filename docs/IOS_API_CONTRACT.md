@@ -284,7 +284,9 @@ build sends `time_zone` or `locale`.**
 
 `data`, all required: `id` Int, `meditation_set_id` Int, `completed_at`
 String (never parsed, so any format works). 403, 429 and 422 are
-swallowed silently.
+swallowed silently. A 429 also carries a `Retry-After` header, in whole
+seconds: an added header that no build reads (the status is all it reads),
+so nothing a build decodes changed.
 
 ### 7. /api/office (3.0 and later; OfficeAPIService)
 

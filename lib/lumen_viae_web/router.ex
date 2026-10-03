@@ -53,6 +53,7 @@ defmodule LumenViaeWeb.Router do
   # content that is public on the site anyway, so turning a crawler away
   # from them protects nothing and mostly risks turning away a reader.
   pipeline :api_completions do
+    plug LumenViaeWeb.Plugs.RetryAfter, window: :completion
     plug LumenViaeWeb.Plugs.GuardCompletions
   end
 

@@ -21,6 +21,7 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
 
   import LumenViae.Test.EnvStub, only: [put_env: 3]
   import LumenViaeWeb.GraphqlHelpers
+  import LumenViaeWeb.JsonApiHelpers, only: [post_v2: 3]
   import Phoenix.LiveViewTest
 
   alias LumenViae.Limits
@@ -162,6 +163,105 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
     end
   end
 
+  describe "an IPv6 caller" do
+    test "spends one budget across the addresses of its /64, over every surface",
+         %{conn: conn, set: set} do
+      network = Addresses.unique_ipv6_network()
+
+      from = fn host ->
+        Plug.Conn.put_req_header(conn, "fly-client-ip", network <> "::" <> host)
+      end
+
+      # One address each time, as a phone with privacy extensions presents.
+      assert complete(:rest, from.("1"), set) == :recorded
+      assert complete(:graphql, from.("2"), set) == :recorded
+
+      assert {:refused, _} = complete(:rest, from.("3"), set)
+      assert {:refused, _} = complete(:graphql, from.("4"), set)
+      assert {:refused, _} = complete(:page, from.("5"), set)
+    end
+
+    test "does not hold up another network", %{conn: conn, set: set} do
+      one = Addresses.unique_ipv6_network()
+      other = Addresses.unique_ipv6_network()
+      from = fn network -> Plug.Conn.put_req_header(conn, "fly-client-ip", network <> "::1") end
+
+      for _ <- 1..@limit, do: assert(complete(:rest, from.(one), set) == :recorded)
+
+      assert {:refused, _} = complete(:rest, from.(one), set)
+      assert complete(:rest, from.(other), set) == :recorded
+    end
+  end
+
+  describe "Retry-After" do
+    defp retry_after(conn) do
+      assert [value] = Plug.Conn.get_resp_header(conn, "retry-after")
+      assert {seconds, ""} = Integer.parse(value)
+      seconds
+    end
+
+    defp rest_conn(conn, set), do: post(conn, ~p"/api/completions", %{meditation_set_id: set.id})
+
+    defp v2_conn(conn, set) do
+      post_v2(conn, "/completions", %{
+        data: %{type: "completion", attributes: %{meditation_set_id: set.id}}
+      })
+    end
+
+    test "says, on REST's 429, how long is left in the hour", %{conn: conn, set: set} do
+      for _ <- 1..@limit, do: assert(rest_conn(conn, set).status == 201)
+
+      refused = rest_conn(conn, set)
+
+      assert refused.status == 429
+      assert retry_after(refused) in 1..3_600
+    end
+
+    test "says it on /api/v2's 429 too", %{conn: conn, set: set} do
+      for _ <- 1..@limit, do: assert(v2_conn(conn, set).status == 201)
+
+      refused = v2_conn(conn, set)
+
+      assert refused.status == 429
+      assert retry_after(refused) in 1..3_600
+    end
+
+    test "is the same time on both, and no more than the window", %{conn: conn, set: set} do
+      for _ <- 1..@limit, do: assert(rest_conn(conn, set).status == 201)
+
+      rest = retry_after(rest_conn(conn, set))
+      v2 = retry_after(v2_conn(conn, set))
+
+      # They are read a moment apart, from one clock, so they agree to the
+      # second, or are one second apart across a boundary.
+      assert abs(rest - v2) <= 1
+    end
+
+    test "is not sent with a success", %{conn: conn, set: set} do
+      assert Plug.Conn.get_resp_header(rest_conn(conn, set), "retry-after") == []
+
+      assert Plug.Conn.get_resp_header(
+               v2_conn(
+                 Plug.Conn.put_req_header(conn, "fly-client-ip", Addresses.unique_ip()),
+                 set
+               ),
+               "retry-after"
+             ) ==
+               []
+    end
+
+    test "keeps REST's 429 body exactly as it was", %{conn: conn, set: set} do
+      for _ <- 1..@limit, do: assert(rest_conn(conn, set).status == 201)
+
+      assert json_response(rest_conn(conn, set), 429) == %{
+               "error" => %{
+                 "code" => "rate_limited",
+                 "message" => "Too many completions from this address"
+               }
+             }
+    end
+  end
+
   describe "what spends the budget" do
     test "a refused request is still counted, so hammering stays blocked", %{conn: conn, set: set} do
       for _ <- 1..@limit, do: assert(complete(:rest, conn, set) == :recorded)
@@ -223,15 +323,56 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
       assert {:ok, _} = Rosary.record_completion(set.id, %{ip: Addresses.unique_ip()})
     end
 
-    test "keys on the full address, not the prefix that is stored", %{set: set} do
-      n = System.unique_integer([:positive])
-      neighbour = fn host -> "2001:db8:#{n}::#{host}" end
+    test "two addresses in one IPv6 /64 share a budget", %{set: set} do
+      network = Addresses.unique_ipv6_network()
+
+      # A subscriber with privacy extensions uses a new address in its /64
+      # for each connection. Each one used to get a fresh budget.
+      for host <- 1..@limit do
+        assert {:ok, _} =
+                 Rosary.record_completion(set.id, %{ip: network <> "::" <> to_string(host)})
+      end
+
+      assert {:error, %Ash.Error.Forbidden{} = error} =
+               Rosary.record_completion(set.id, %{ip: network <> ":abcd:1234:5678:9abc"})
+
+      assert %AshRateLimiter.LimitExceeded{} = Limits.exceeded(error)
+    end
+
+    test "two different IPv6 /64s do not", %{set: set} do
+      one = Addresses.unique_ipv6_network()
+      other = Addresses.unique_ipv6_network()
 
       for _ <- 1..@limit,
-          do: assert({:ok, _} = Rosary.record_completion(set.id, %{ip: neighbour.(1)}))
+          do: assert({:ok, _} = Rosary.record_completion(set.id, %{ip: one <> "::1"}))
 
-      assert {:error, _} = Rosary.record_completion(set.id, %{ip: neighbour.(1)})
-      assert {:ok, _} = Rosary.record_completion(set.id, %{ip: neighbour.(2)})
+      assert {:error, _} = Rosary.record_completion(set.id, %{ip: one <> "::1"})
+      assert {:ok, _} = Rosary.record_completion(set.id, %{ip: other <> "::1"})
+    end
+
+    test "spells an IPv6 address any way and counts one network", %{set: set} do
+      network = Addresses.unique_ipv6_network()
+      [a, b, c, d] = String.split(network, ":")
+
+      short = "#{a}:#{b}:#{c}:#{d}::1"
+      long = "#{a}:#{b}:#{c}:#{d}:0:0:0:1"
+      upper = String.upcase("#{a}:#{b}:#{c}:#{d}:0000:0000:0000:0001")
+
+      assert {:ok, _} = Rosary.record_completion(set.id, %{ip: short})
+      assert {:ok, _} = Rosary.record_completion(set.id, %{ip: long})
+      assert {:error, _} = Rosary.record_completion(set.id, %{ip: upper})
+    end
+
+    test "counts an IPv4-mapped IPv6 address as the IPv4 address it carries", %{set: set} do
+      [a, b, c, d] = Addresses.unique_ip() |> String.split(".")
+
+      for _ <- 1..@limit,
+          do:
+            assert(
+              {:ok, _} = Rosary.record_completion(set.id, %{ip: "::ffff:#{a}.#{b}.#{c}.#{d}"})
+            )
+
+      assert {:error, _} = Rosary.record_completion(set.id, %{ip: "#{a}.#{b}.#{c}.#{d}"})
     end
 
     test "reads the limit from the environment when it runs", %{set: set, ip: ip} do

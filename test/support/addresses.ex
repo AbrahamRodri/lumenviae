@@ -31,4 +31,17 @@ defmodule LumenViae.Test.Addresses do
 
     "100.#{64 + (i >>> 16)}.#{i >>> 8 &&& 255}.#{i &&& 255}"
   end
+
+  @doc """
+  A fresh IPv6 /64, as its first four groups (`"2001:db8:1a:2f"`), from the
+  range reserved for documentation, which nothing else uses. Build the
+  addresses in it with `network <> "::" <> host`; two hosts in one network
+  are one subscriber's to a rate limit, and two networks are two.
+  """
+  def unique_ipv6_network do
+    n = System.unique_integer([:positive, :monotonic])
+    group = fn value -> value |> rem(65_536) |> Integer.to_string(16) end
+
+    "2001:db8:#{group.(n)}:#{group.(div(n, 65_536))}"
+  end
 end

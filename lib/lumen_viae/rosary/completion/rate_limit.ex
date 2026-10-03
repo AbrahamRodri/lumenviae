@@ -17,8 +17,10 @@ defmodule LumenViae.Rosary.Completion.RateLimit do
 
   The address in the action context (`:client_ip`), which only the server
   can set and the same one `LumenViae.Rosary.Completion.Stamp` truncates for
-  storage. It is the full address here and the prefix there: telling
-  neighbours apart is the whole job of a limit.
+  storage. It is the caller's own address here (`LumenViae.Limits.address/1`:
+  the whole address for IPv4, the /64 for IPv6, which a caller can vary at
+  will within) and the prefix there: telling neighbours apart is the whole job
+  of a limit.
 
   With no address the limit cannot apply, and the completion is allowed. That
   is the disconnected prayer page, a handful of proxies and the console, not
