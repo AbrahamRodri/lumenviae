@@ -21,18 +21,19 @@ The ARCHITECTURE.md document defines:
 - Design tokens (colors and fonts)
 
 These rules are enforced by `test/lumen_viae/rosary/context_rules_test.exs`,
-and what the GraphQL API exposes by
-`test/lumen_viae_web/graphql/schema_test.exs`, so breaking them fails the
-build rather than drifting quietly.
+what the GraphQL API exposes by
+`test/lumen_viae_web/graphql/schema_test.exs`, and what the v2 JSON:API
+exposes by `test/lumen_viae_web/json_api/open_api_test.exs`, so breaking
+them fails the build rather than drifting quietly.
 
 ### Ash
 
 The domain is built on the Ash framework. Ash takes the domain, data and
 API layers: resources, actions, validations, the Postgres data layer, the
-GraphQL API, the version history (AshPaperTrail) and the generic data
-browser at `/admin/data` (AshAdmin). Phoenix LiveView stays the UI, with
-AshPhoenix forms (`Rosary.form_to_*`) wherever a page creates or updates
-a record. New tables and columns come from `mix ash.codegen <name>`, never
+GraphQL API, the v2 JSON:API (AshJsonApi), the version history
+(AshPaperTrail) and the generic data browser at `/admin/data` (AshAdmin).
+Phoenix LiveView stays the UI, with AshPhoenix forms (`Rosary.form_to_*`)
+wherever a page creates or updates a record. New tables and columns come from `mix ash.codegen <name>`, never
 a hand-written migration; read the generated migration before committing.
 
 **Before writing Ash code** (a resource, an action, a calculation, a
@@ -40,7 +41,8 @@ policy, an AshPhoenix form, a GraphQL query) **read
 [docs/USAGE_RULES.md](docs/USAGE_RULES.md)**: the Ash packages' own
 guidance, generated from the dependencies by `mix usage_rules.sync`. Prefer
 it over memory; Ash changes faster than training data. The GraphQL API's
-conventions are in [docs/GRAPHQL.md](docs/GRAPHQL.md), and what the iOS
+conventions are in [docs/GRAPHQL.md](docs/GRAPHQL.md), the v2 JSON:API's
+in [docs/JSON_API.md](docs/JSON_API.md), and what the iOS
 app depends on in the REST API is in
 [docs/IOS_API_CONTRACT.md](docs/IOS_API_CONTRACT.md).
 
@@ -109,6 +111,10 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - A GraphQL API at `/api/graphql` (AshGraphql), alongside the REST API,
   not instead of it. Its whole schema is committed as
   `priv/graphql/schema.graphql`; see docs/GRAPHQL.md
+- A versioned JSON:API at `/api/v2` (AshJsonApi), serving what GraphQL
+  serves, with an OpenAPI document committed as `priv/openapi/v2.json`
+  for generating the app's Swift client; see docs/JSON_API.md. Any change
+  to what it exposes is a diff in that file
 - The pre-Vatican II Divine Office under `/api/office`, assembled by the
   open-source Divinum Officium engine and cached - see docs/OFFICE_API.md
   and the Office domain section of docs/ARCHITECTURE.md
@@ -157,9 +163,9 @@ actor.
 Every resource has Ash policies: an admin may do anything, the public may
 read only what is visible and record a completion. Pass the actor on every
 domain call (`actor: @current_admin` in the console and the public
-LiveViews); REST and GraphQL run with no actor. `authorize?: false` belongs
-only in mix tasks, `LumenViae.Release`, seeds and the few system writes
-docs/ARCHITECTURE.md lists, each with a comment saying why. Read "Who may
+LiveViews); REST, GraphQL and `/api/v2` run with no actor.
+`authorize?: false` belongs only in mix tasks, `LumenViae.Release`, seeds
+and the few system writes docs/ARCHITECTURE.md lists, each with a comment saying why. Read "Who may
 do what" in docs/ARCHITECTURE.md before adding an action or a policy.
 
 ### Styling
