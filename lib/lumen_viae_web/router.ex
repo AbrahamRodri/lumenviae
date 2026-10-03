@@ -37,6 +37,17 @@ defmodule LumenViaeWeb.Router do
     plug AshGraphql.Plug
   end
 
+  # The versioned JSON:API at /api/v2. Sessionless like the rest of /api,
+  # and private and uncacheable like GraphQL, because a request may select
+  # presigned audio URLs. PutRequestContext hands the actions the caller's
+  # address from the connection, which the completion write stamps. No
+  # guard plug: the completion's checks belong on its action, where they
+  # cover every API at once. See docs/JSON_API.md.
+  pipeline :json_api do
+    plug :put_private_cache_control
+    plug LumenViaeWeb.Graphql.PutRequestContext
+  end
+
   # Only the completion write goes through this. The other API routes serve
   # content that is public on the site anyway, so turning a crawler away
   # from them protects nothing and mostly risks turning away a reader.
@@ -231,6 +242,21 @@ defmodule LumenViaeWeb.Router do
       pipeline: {LumenViaeWeb.Graphql.Pipeline, :pipeline},
       analyze_complexity: true,
       max_complexity: 500
+  end
+
+  # The OpenAPI document, read by a person: an HTML page, so not through
+  # the JSON-only :api pipeline. The document itself is /api/v2/open_api,
+  # served by the router below.
+  scope "/api/v2" do
+    get "/docs", OpenApiSpex.Plug.SwaggerUI, path: "/api/v2/open_api"
+  end
+
+  # Last of the /api/v2 routes: the forward takes everything under it.
+  # Module.concat for the reason given at /api/graphql above.
+  scope "/api/v2" do
+    pipe_through :json_api
+
+    forward "/", Module.concat(["LumenViaeWeb.JsonApiRouter"])
   end
 
   # The one write the public API exposes, and so the one route that gets a

@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.Meditation do
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource, AshPaperTrail.Resource]
+    extensions: [AshGraphql.Resource, AshJsonApi.Resource, AshPaperTrail.Resource]
 
   # GraphQL shows a meditation's text, its mystery and its narrations as
   # signed URLs. The narrations relationship (S3 keys, not URLs) and the
@@ -23,6 +23,33 @@ defmodule LumenViae.Rosary.Meditation do
     type :meditation
     relationships [:mystery]
     hide_fields [:mystery_id]
+    field_names signed_narrations: :narrations
+    derive_filter? false
+    derive_sort? false
+  end
+
+  # The JSON:API shows what GraphQL shows, but for narration(preferring:).
+  # A calculation's argument travels in a field_inputs query parameter that
+  # the OpenAPI document cannot describe, so a generated client could never
+  # say which voice it prefers; it reads `narrations`, or asks
+  # POST /api/v2/meditations/audio with its voice. The signed field is not
+  # a default: a client names it in fields[meditation]=, so a shelf that
+  # does not ask has nothing signed on its behalf. narrated_voices signs
+  # nothing and is a default.
+  json_api do
+    type "meditation"
+
+    show_fields [
+      :title,
+      :content,
+      :author,
+      :source,
+      :mystery,
+      :narrated_voices,
+      :signed_narrations
+    ]
+
+    default_fields [:title, :content, :author, :source, :narrated_voices]
     field_names signed_narrations: :narrations
     derive_filter? false
     derive_sort? false

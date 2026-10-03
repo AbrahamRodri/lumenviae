@@ -63,7 +63,13 @@ defmodule LumenViae.Rosary do
   """
   use Ash.Domain,
     otp_app: :lumen_viae,
-    extensions: [AshGraphql.Domain, AshPhoenix, AshAdmin.Domain, AshPaperTrail.Domain]
+    extensions: [
+      AshGraphql.Domain,
+      AshJsonApi.Domain,
+      AshPhoenix,
+      AshAdmin.Domain,
+      AshPaperTrail.Domain
+    ]
 
   # The GraphQL API's Rosary queries. See docs/GRAPHQL.md.
   graphql do
@@ -94,6 +100,94 @@ defmodule LumenViae.Rosary do
     # per-address rate limit, on one budget shared with REST.
     mutations do
       create LumenViae.Rosary.Completion, :record_completion, :record_from_app
+    end
+  end
+
+  # The versioned REST API at /api/v2, and the OpenAPI document generated
+  # from it. The same capabilities as the GraphQL queries above, through
+  # the same actions and policies: every read is one the public may make,
+  # and the one write is the app's completion. See docs/JSON_API.md.
+  json_api do
+    prefix "/api/v2"
+
+    open_api do
+      group_by :resource
+    end
+
+    # Every read route says derive_sort? false itself. The resources say it
+    # too, but AshJsonApi 1.7 reads the resource-level option under the
+    # wrong key and offers a sort parameter regardless. The actions' own
+    # order is part of the contract (see docs/ARCHITECTURE.md, "Order is
+    # explicit"), so a client may not choose another.
+    routes do
+      # The sets the public may see. Both read through :visible, so a set
+      # hidden by an archived meditation, or holding none yet, is absent
+      # from the list and a 404 by id.
+      base_route "/meditation-sets", LumenViae.Rosary.MeditationSet do
+        index :visible do
+          paginate? false
+          name "listMeditationSets"
+          derive_sort? false
+
+          description "The sets the public may see, by category and then in creation order, optionally narrowed to one category. Never paginated. The same list as GET /api/meditation-sets?category=."
+        end
+
+        get :visible do
+          name "getMeditationSet"
+          derive_sort? false
+
+          description "One set the public may see, by id. 404 when it does not exist or is hidden: it holds an archived meditation, or no meditations yet."
+        end
+      end
+
+      base_route "/mysteries", LumenViae.Rosary.Mystery do
+        index :in_prayer_order do
+          paginate? false
+          name "listMysteries"
+          derive_sort? false
+        end
+      end
+
+      base_route "/meditations", LumenViae.Rosary.Meditation do
+        # A POST, though it writes nothing: the ids are a list, and a list
+        # in a query string is spelled differently by Plug (ids[]=1&ids[]=2)
+        # and by OpenAPI clients (ids=1&ids=2). In the body it is one JSON
+        # array. GraphQL's meditationAudio is a POST for the same reason.
+        route :post, "/audio", :audio_for do
+          name "getMeditationAudio"
+        end
+      end
+
+      base_route "/voices", LumenViae.Rosary.NarrationVoice do
+        index :offered do
+          paginate? false
+          name "listVoices"
+          derive_sort? false
+        end
+
+        index :retired do
+          route "/retired"
+          paginate? false
+          name "listRetiredVoices"
+          derive_sort? false
+        end
+      end
+
+      base_route "/rosary-audio", LumenViae.Rosary.SpokenRosary do
+        get :for_voice do
+          route "/"
+          name "getRosaryAudio"
+          derive_sort? false
+        end
+      end
+
+      # The one write, through the same action as GraphQL's
+      # recordCompletion, so the same stamp and checks apply.
+      base_route "/completions", LumenViae.Rosary.Completion do
+        post :record_from_app do
+          name "recordCompletion"
+        end
+      end
     end
   end
 

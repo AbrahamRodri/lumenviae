@@ -12,7 +12,8 @@ the domain, not in the schema module. The whole schema is committed as
 
 The REST API under `/api` is unaffected and remains the contract the iOS
 app is built on (docs/IOS_API_CONTRACT.md). GraphQL is added alongside it,
-not instead of it.
+not instead of it. The versioned JSON:API at `/api/v2` (docs/JSON_API.md)
+serves the same queries through the same actions.
 
 ## Conventions
 

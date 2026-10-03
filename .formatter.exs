@@ -1,6 +1,7 @@
 [
   import_deps: [
     :ash_graphql,
+    :ash_json_api,
     :ash_paper_trail,
     :ash_oban,
     :oban_web,

@@ -52,6 +52,10 @@ defmodule LumenViae.MixProject do
       {:ash_phoenix, "~> 2.3"},
       {:ash_graphql, "~> 1.12"},
       {:absinthe_plug, "~> 1.5"},
+      # The versioned REST API at /api/v2 and its OpenAPI document. See
+      # docs/JSON_API.md.
+      {:ash_json_api, "~> 1.7"},
+      {:open_api_spex, "~> 3.22"},
       {:ash_admin, "~> 1.3"},
       {:ash_paper_trail, "~> 0.7"},
       # Rate limits live on the actions they protect. See docs/ARCHITECTURE.md,

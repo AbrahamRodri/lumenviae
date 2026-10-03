@@ -51,7 +51,7 @@ defmodule LumenViae.Rosary.MeditationSet do
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource, AshPaperTrail.Resource],
+    extensions: [AshGraphql.Resource, AshJsonApi.Resource, AshPaperTrail.Resource],
     fragments: [LumenViae.Rosary.Artwork.Fragment]
 
   alias LumenViae.Rosary.Categories
@@ -71,6 +71,41 @@ defmodule LumenViae.Rosary.MeditationSet do
     paginate_relationship_with set_memberships: :none
     hide_fields [:author, :source, :author_id]
     field_names byline_author: :author, byline_source: :source
+    derive_filter? false
+    derive_sort? false
+  end
+
+  # The JSON:API at /api/v2 shows what GraphQL shows, under the same names:
+  # the byline and artwork as the clients print them, and the meditations
+  # in prayer order through set_memberships, included on request
+  # (?include=set_memberships.meditation.mystery). No filter or sort beyond
+  # the action's own. See docs/JSON_API.md.
+  json_api do
+    type "meditation_set"
+
+    show_fields [
+      :name,
+      :category,
+      :description,
+      :labels,
+      :byline_author,
+      :byline_source,
+      :artwork,
+      :set_memberships
+    ]
+
+    default_fields [
+      :name,
+      :category,
+      :description,
+      :labels,
+      :byline_author,
+      :byline_source,
+      :artwork
+    ]
+
+    field_names byline_author: :author, byline_source: :source
+    includes set_memberships: [meditation: [:mystery]]
     derive_filter? false
     derive_sort? false
   end

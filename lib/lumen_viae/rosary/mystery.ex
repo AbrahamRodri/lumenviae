@@ -14,7 +14,7 @@ defmodule LumenViae.Rosary.Mystery do
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource, AshPaperTrail.Resource]
+    extensions: [AshGraphql.Resource, AshJsonApi.Resource, AshPaperTrail.Resource]
 
   alias LumenViae.Rosary.Categories
 
@@ -26,6 +26,14 @@ defmodule LumenViae.Rosary.Mystery do
     type :mystery
     relationships []
     hide_fields [:days_prayed]
+    derive_filter? false
+    derive_sort? false
+  end
+
+  # As in GraphQL: no relationships, and not days_prayed.
+  json_api do
+    type "mystery"
+    show_fields [:name, :category, :order, :description, :scripture_reference]
     derive_filter? false
     derive_sort? false
   end

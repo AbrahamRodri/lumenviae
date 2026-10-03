@@ -5,7 +5,7 @@ defmodule LumenViae.Limits do
 
   The limit is enforced by the actions it protects, through AshRateLimiter
   (`LumenViae.Rosary.Completion.RateLimit`), so every way into them - REST,
-  the prayer page, GraphQL - shares one budget by construction. This module
+  the prayer page, GraphQL, `/api/v2` - shares one budget by construction. This module
   only says what the budget is.
 
   `:completions_per_hour` (20) is Rosaries recorded per address per hour. A
@@ -81,6 +81,22 @@ defimpl AshGraphql.Error, for: AshRateLimiter.LimitExceeded do
       code: "rate_limited",
       vars: %{},
       fields: []
+    }
+  end
+end
+
+defimpl AshJsonApi.ToJsonApiError, for: AshRateLimiter.LimitExceeded do
+  # /api/v2's answer: REST's 429 and code, as a JSON:API error, with the
+  # same fixed text. Without this AshJsonApi would answer a generic 403,
+  # since the error's class is :forbidden.
+  def to_json_api_error(error) do
+    %AshJsonApi.Error{
+      id: Ash.UUID.generate(),
+      status_code: 429,
+      code: "rate_limited",
+      title: "RateLimited",
+      detail: LumenViae.Limits.message(error),
+      meta: %{}
     }
   end
 end

@@ -26,7 +26,7 @@ this before adding a module, a query, or a page.
 Three layers, and dependencies only ever point downward:
 
 ```
-lib/lumen_viae_web/     LiveViews, controllers, JSON views, the GraphQL schema, components
+lib/lumen_viae_web/     LiveViews, controllers, JSON views, the GraphQL schema, the v2 JSON:API router, components
 lib/lumen_viae/         domains (Rosary, Office), services, infrastructure
 lib/mix/tasks/          command-line entry points
 ```
@@ -85,7 +85,7 @@ saint's verbatim text can always be seen and reversed.
 ## The domain
 
 The Rosary domain is an [Ash](https://hexdocs.pm/ash) domain. The data,
-the rules about it and the two APIs over it are described on the
+the rules about it and the three APIs over it are described on the
 resources; `LumenViae.Rosary` is the one way in.
 
 ### Resources, and what they are allowed to know
@@ -114,7 +114,8 @@ see "Who may do what" below.
 Nothing outside `lib/lumen_viae/rosary/` names a resource, calls `Ash` on
 one, builds an `AshPhoenix.Form` for one directly, or touches the Repo or
 `Ecto.Query` for Rosary data. LiveViews, controllers, mix tasks, the
-release module, the curation services and the GraphQL schema all talk to
+release module, the curation services, the GraphQL schema and the v2
+JSON:API router all talk to
 `LumenViae.Rosary` and nothing deeper.
 
 Most of what `LumenViae.Rosary` offers is a *code interface*: one function
@@ -208,8 +209,9 @@ takes a trailing `opts` and passes `actor:` or `authorize?:` through.
   `form_to_*`.
 - Public LiveViews pass `@current_admin`, which is `nil` for a visitor, so
   an admin browsing the site sees it as an admin would.
-- REST controllers and GraphQL have no session (the `:api` pipeline), so
-  they always run as nobody. GraphQL stays sessionless on purpose: reading
+- REST controllers, GraphQL and the v2 JSON:API have no session (the
+  `:api`, `:graphql` and `:json_api` pipelines), so they always run as
+  nobody. GraphQL stays sessionless on purpose: reading
   the cookie on a CSRF-free JSON endpoint would make any future admin
   mutation forgeable.
 - AshAdmin at `/admin/data` runs as the signed-in admin, through
@@ -237,7 +239,8 @@ nobody else.
 
 `test/lumen_viae/policies_test.exs` checks every row of the table above,
 for nobody and for an admin, and `test/lumen_viae_web/graphql/authorization_test.exs`
-checks the same from GraphQL.
+and `test/lumen_viae_web/json_api/authorization_test.exs` check the same
+from GraphQL and from `/api/v2`.
 
 ### The Accounts domain
 
@@ -266,7 +269,7 @@ later cannot forget it. `ash_rate_limiter` puts it there.
 The completion limit is the one that lives that way:
 `LumenViae.Rosary.Completion.RateLimit` is a change on both of the
 resource's create actions (`:record` for the website and REST,
-`:record_from_app` for GraphQL), so a Rosary recorded over any of them
+`:record_from_app` for GraphQL and `/api/v2`), so a Rosary recorded over any of them
 spends one budget per address. It keys on the full address in the action
 context (`:client_ip`, which only the server sets, from `ClientIP`), at 20 an
 hour (`:completions_per_hour`, read from the environment when the action
@@ -287,12 +290,18 @@ What the domain returns and each surface says about it:
 - GraphQL answers a top-level `rate_limited` error with `data` null, as it
   always has (`Graphql.GuardCompletions`, run after the mutation). AshGraphql
   would have put it in the mutation's own `errors`.
+- `/api/v2` answers `429` with `rate_limited`, a JSON:API error (the
+  `AshJsonApi.ToJsonApiError` impl in `LumenViae.Limits`).
 - The prayer page ignores the result, as it ignores any other, and still
   sends the reader on.
 
-A crawler is not a rate-limit matter and stays where it was: refused on its
-user agent in `Plugs.GuardCompletions` and the GraphQL middleware, and in
-the prayer page, before the action is called, so it never spends a budget.
+A crawler is not a rate-limit matter: it is refused on its user agent in
+`Plugs.GuardCompletions` and the GraphQL middleware, and in the prayer page,
+before the action is called. `/api/v2` has no guard of its own, so
+`:record_from_app` also refuses one itself, in `Completion.NotAutomated`,
+its first step. Either way a crawler never spends a budget: the limit
+counts in a `before_transaction` hook, which an invalid changeset never
+reaches.
 
 The counters are Hammer's ETS backend, fixed window, **per machine**.
 Production runs two, so each holds its own counters and the real ceiling is
@@ -316,7 +325,7 @@ ever lets a caller put context after its dispatcher, move it.
 on the action, built from `AshRateLimiter.BuiltinChanges.rate_limit/1`, with
 a key prefix of its own. Do not add a counter next to a surface.
 
-### The two APIs
+### The three APIs
 
 The JSON API under `/api` is what the iOS app in the wild decodes, with
 non-optional Swift properties, so it changes by nothing a shipped build
@@ -328,6 +337,13 @@ GraphQL at `/api/graphql` is generated by AshGraphql from the actions and
 calculations the resources declare, with the schema pinned to a committed
 snapshot. See docs/GRAPHQL.md for what is exposed and how; this document
 does not repeat it.
+
+The versioned JSON:API at `/api/v2` is generated by AshJsonApi from the
+same actions: the routes are declared in `LumenViae.Rosary`'s `json_api`
+block, each resource lists the fields it shows, and
+`LumenViaeWeb.JsonApiRouter` serves them with an OpenAPI document pinned
+to `priv/openapi/v2.json`, from which the app can generate a Swift client.
+It serves what GraphQL serves. See docs/JSON_API.md.
 
 ---
 
@@ -381,7 +397,7 @@ nil rather than a name that is true of most of it. `derived_author` and
 `derived_source` are calculations that read two list aggregates
 (`meditation_authors`, `meditation_sources`), so they cost no query of
 their own; `byline_author` and `byline_source` are the explicit value or
-else the derivation, which is what both APIs print. The derivation is
+else the derivation, which is what every API prints. The derivation is
 never written back: a stored guess would be promoted to an explicit
 override by the next save and go stale the moment a meditation's
 attribution was fixed.
@@ -843,7 +859,8 @@ have its other fields edited.
 **A new resource.** A file directly under `lib/lumen_viae/rosary/`, mapped
 onto its table with `migration_types` for any varchar or int4 column (Ash
 would make them text and bigint), its relationships, its identities named
-after the unique indexes that exist, a `graphql do type ... end` block, and
+after the unique indexes that exist, a `graphql do type ... end` block
+(and a `json_api do type ... end` block if `/api/v2` should reach it), and
 its code interface on the domain. Snapshots, then a migration, with
 `mix ash.codegen`.
 
@@ -994,7 +1011,8 @@ list, which is presentation filtering in the sense described above.
 `Rosary.record_completion/2` is called from exactly two places: the
 `"complete"` event in `live/pray/index.ex`, fired by the button at the end of
 the last mystery, and the iOS app's `POST /api/completions`; GraphQL's
-`recordCompletion` is the same write through the resource's own action. It
+`recordCompletion` and `POST /api/v2/completions` are the same write
+through the resource's own action. It
 used to fire when the last mystery came into view, which anything crawling
 the site got for free - so the analytics counted crawlers as people who had
 prayed a Rosary. Do not reattach it to navigation.
@@ -1048,7 +1066,11 @@ dropped by the controller rather than allowed to fail the completion.
 
 Two layers, guarding different things, and only the second is load-bearing.
 
-`LumenViaeWeb.BotDetection` matches user agents. It is hygiene, not
+`LumenViae.BotDetection` matches user agents (`LumenViaeWeb.BotDetection`
+delegates to it and reads the agent off a request). REST and GraphQL ask it
+in front of the write; `Completion.:record_from_app` also asks it itself,
+on the agent the server put in the action context, which is the only check
+`/api/v2` has. It is hygiene, not
 security - an agent string is whatever the caller says it is - and it
 catches the crawlers that announce themselves honestly. Its generic match is
 bounded on the left so `Cubot` and its relatives are not read as bots; a new

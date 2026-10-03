@@ -43,6 +43,7 @@ config :spark,
     "Ash.Resource": [
       section_order: [
         :graphql,
+        :json_api,
         :postgres,
         :resource,
         :code_interface,
@@ -61,7 +62,15 @@ config :spark,
       ]
     ],
     "Ash.Domain": [
-      section_order: [:graphql, :resources, :policies, :authorization, :domain, :execution]
+      section_order: [
+        :graphql,
+        :json_api,
+        :resources,
+        :policies,
+        :authorization,
+        :domain,
+        :execution
+      ]
     ]
   ]
 
