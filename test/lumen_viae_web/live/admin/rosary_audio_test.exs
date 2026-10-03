@@ -47,6 +47,38 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudioTest do
     refute html =~ "not recorded in the"
   end
 
+  test "follows a recording run live: Recording while queued, Recorded when it lands", %{
+    conn: conn
+  } do
+    with_bucket()
+    LumenViae.Test.FakeAwsHttpClient.store!()
+
+    clip = Enum.find(PrayerAudio.prayers(), &(&1.name == "sign_of_cross"))
+    voice = LumenViae.Rosary.Voices.default()
+
+    {:ok, :queued} =
+      clip
+      |> LumenViae.Curation.Jobs.RecordRosaryClip.new_for(voice)
+      |> LumenViae.Curation.AudioJobs.enqueue("live-run")
+
+    {:ok, view, _html} = live(conn, "/admin/rosary-audio")
+    html = render_async(view)
+
+    # The job was waiting when the page connected.
+    assert html =~ "1 clip(s) are being recorded now"
+    assert html =~ ~r/>\s*Recording\s*<\/span>/
+
+    put_env(:lumen_viae, :eleven_labs_api_key, "test-api-key")
+    put_env(:lumen_viae, :eleven_labs_req_options, plug: {Req.Test, LumenViae.Audio.ElevenLabs})
+    Req.Test.stub(LumenViae.Audio.ElevenLabs, &Plug.Conn.send_resp(&1, 200, "audio-bytes"))
+
+    assert %{success: 1} = Oban.drain_queue(queue: :elevenlabs)
+
+    html = render(view)
+    refute html =~ "being recorded now"
+    refute html =~ ~r/>\s*Recording\s*<\/span>/
+  end
+
   test "an unknown voice falls back to the default", %{conn: conn} do
     {:ok, _view, html} = live(conn, "/admin/rosary-audio?voice=nobody")
     assert html =~ "In the Female voice" or html =~ "Checking the bucket"

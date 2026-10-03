@@ -47,9 +47,15 @@ defmodule LumenViae.Release do
   @doc """
   Imports meditations from a CSV file inside a production release, where Mix
   tasks are unavailable. Accepts the same options as
-  `LumenViae.Curation.CsvImport.import_string/2`.
+  `LumenViae.Curation.CsvImport.import_string/2`, plus `wait: false`.
 
       /app/bin/lumen_viae eval 'LumenViae.Release.import_csv("/tmp/file.csv")'
+
+  The rows are written here; each narration is enqueued as a job, which the
+  running app records on its `elevenlabs` queue. This task then waits for
+  the recordings and prints them as they finish, unless `wait: false`
+  (the jobs carry on either way; follow them at `/admin/jobs`). See
+  "Recording jobs from a release task" below.
   """
   def import_csv(path, opts \\ []) do
     load_app()
@@ -58,15 +64,12 @@ defmodule LumenViae.Release do
     for repo <- repos() do
       {:ok, _, _} =
         Ecto.Migrator.with_repo(repo, fn _repo ->
-          results = LumenViae.Curation.CsvImport.import_file(path, Keyword.merge(opts, @operator))
+          with_audio_jobs(opts, fn opts ->
+            results =
+              LumenViae.Curation.CsvImport.import_file(path, Keyword.merge(opts, @operator))
 
-          Enum.each(results, fn
-            {:ok, message} -> IO.puts("OK    " <> message)
-            {:warning, message} -> IO.puts("WARN  " <> message)
-            {:error, message} -> IO.puts("ERROR " <> message)
+            print_results(results)
           end)
-
-          results
         end)
     end
 
@@ -87,15 +90,12 @@ defmodule LumenViae.Release do
     for repo <- repos() do
       {:ok, _, _} =
         Ecto.Migrator.with_repo(repo, fn _repo ->
-          results = LumenViae.Curation.CsvUpdate.update_file(path, Keyword.merge(opts, @operator))
+          with_audio_jobs(opts, fn opts ->
+            results =
+              LumenViae.Curation.CsvUpdate.update_file(path, Keyword.merge(opts, @operator))
 
-          Enum.each(results, fn
-            {:ok, message} -> IO.puts("OK    " <> message)
-            {:warning, message} -> IO.puts("WARN  " <> message)
-            {:error, message} -> IO.puts("ERROR " <> message)
+            print_results(results)
           end)
-
-          results
         end)
     end
 
@@ -108,7 +108,9 @@ defmodule LumenViae.Release do
   model, or a new voice without re-importing. Takes one of `set: "Set
   Name"`, `id: 42` or `all: true`, plus the options of
   `LumenViae.Curation.AudioRegeneration.run/2`: `voices: ["female"]`,
-  `only_missing: true`, `dry_run: true`.
+  `only_missing: true`, `force: true`, `dry_run: true`, and `wait: false`.
+  The recordings are jobs the running app does; see "Recording jobs from
+  a release task" below.
 
       /app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(set: "Set Name", dry_run: true)'
       /app/bin/lumen_viae eval 'LumenViae.Release.regenerate_audio(all: true, voices: ["female"], only_missing: true)'
@@ -135,15 +137,19 @@ defmodule LumenViae.Release do
     for repo <- repos() do
       {:ok, _, _} =
         Ecto.Migrator.with_repo(repo, fn _repo ->
-          LumenViae.Curation.AudioRegeneration.run(
-            target,
-            [
-              voices: Keyword.get(opts, :voices),
-              only_missing: Keyword.get(opts, :only_missing, false),
-              dry_run: Keyword.get(opts, :dry_run, false),
-              progress: &print_progress/1
-            ] ++ @operator
-          )
+          with_audio_jobs(opts, fn opts ->
+            LumenViae.Curation.AudioRegeneration.run(
+              target,
+              [
+                voices: Keyword.get(opts, :voices),
+                only_missing: Keyword.get(opts, :only_missing, false),
+                force: Keyword.get(opts, :force, false),
+                dry_run: Keyword.get(opts, :dry_run, false),
+                batch: opts[:batch],
+                progress: &print_progress/1
+              ] ++ @operator
+            )
+          end)
         end)
     end
 
@@ -181,7 +187,10 @@ defmodule LumenViae.Release do
   Records the spoken Rosary's prayers, announcements and verses with
   ElevenLabs, skipping every clip already in the bucket. Takes the options
   of `LumenViae.Curation.RosaryAudioGeneration.run/1` (`voices:`, `kinds:`,
-  `force:`, `dry_run:`). No database is involved:
+  `force:`, `dry_run:`), plus `wait: false`. The clips go to S3, not to a
+  table; the database holds only the jobs, which the running app records
+  (see "Recording jobs from a release task" below). A dry run touches no
+  database:
 
       /app/bin/lumen_viae eval 'LumenViae.Release.generate_rosary_audio(dry_run: true)'
       /app/bin/lumen_viae eval 'LumenViae.Release.generate_rosary_audio()'
@@ -190,11 +199,55 @@ defmodule LumenViae.Release do
     load_app()
     start_audio_clients()
 
-    opts
-    |> Keyword.put(:progress, &print_progress/1)
-    |> LumenViae.Curation.RosaryAudioGeneration.run()
+    run = fn opts ->
+      opts
+      |> Keyword.put(:progress, &print_progress/1)
+      |> LumenViae.Curation.RosaryAudioGeneration.run()
+    end
+
+    if opts[:dry_run] do
+      run.(opts)
+    else
+      for repo <- repos() do
+        {:ok, _, _} = Ecto.Migrator.with_repo(repo, fn _repo -> with_audio_jobs(opts, run) end)
+      end
+    end
 
     :ok
+  end
+
+  # Recording jobs from a release task.
+  #
+  # `eval` starts the release without the application, so there is no Oban
+  # here to run jobs, and no queue on this node to run them on. The task
+  # starts an Oban that only inserts (AudioJobs.start_inserter/0), enqueues
+  # under one batch, and the running app records them on its elevenlabs
+  # queue. Then, unless wait: false, it reads the batch from the jobs table
+  # every five seconds until every job has finished, and prints the
+  # failures. That keeps working when the task is run detached (setsid -f,
+  # output to a log file): nothing it waits on is in this process.
+  defp with_audio_jobs(opts, fun) do
+    LumenViae.Curation.AudioJobs.start_inserter()
+    batch = LumenViae.Curation.AudioJobs.new_batch()
+    {wait?, opts} = Keyword.pop(opts, :wait, true)
+    result = fun.(Keyword.put(opts, :batch, batch))
+
+    if wait? and not Keyword.get(opts, :dry_run, false) do
+      IO.puts("Waiting for the recordings (batch #{batch}); they run on the app's queue")
+      LumenViae.Curation.AudioJobs.follow(batch, &IO.puts/1)
+    end
+
+    result
+  end
+
+  defp print_results(results) do
+    Enum.each(results, fn
+      {:ok, message} -> IO.puts("OK    " <> message)
+      {:warning, message} -> IO.puts("WARN  " <> message)
+      {:error, message} -> IO.puts("ERROR " <> message)
+    end)
+
+    results
   end
 
   @doc """

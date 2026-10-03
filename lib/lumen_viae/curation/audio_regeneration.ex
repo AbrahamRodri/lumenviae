@@ -1,12 +1,21 @@
 defmodule LumenViae.Curation.AudioRegeneration do
   @moduledoc """
   Regenerates ElevenLabs narration for meditations that already have an
-  audio filename, one recording per voice, uploading each to its voice's
-  key (`voices/<slug>/<filename>`) and recording the result as a narration.
-  No meditation rows are written: only S3 objects are replaced and
-  narration rows upserted, so a set imported before a pause-logic, model or
-  voice change can be brought up to date without re-importing and without
-  duplicating anything.
+  audio filename, one recording per voice, by enqueueing one
+  `LumenViae.Curation.Jobs.NarrateMeditation` job per (meditation, voice).
+  Each job uploads to its voice's key (`voices/<slug>/<filename>`) and
+  records the result as a narration. No meditation rows are written: only
+  S3 objects are replaced and narration rows upserted, so a set imported
+  before a pause-logic, model or voice change can be brought up to date
+  without re-importing and without duplicating anything.
+
+  A job records only when the object at the key is not already what it
+  would record: every upload carries a fingerprint of the text, voice,
+  model and settings it was made from (`LumenViae.Audio.Recording`). So a
+  pause-logic, model or voice change is recorded, a recording made before
+  fingerprints existed is recorded once more, and running the same
+  regeneration twice pays for nothing the second time. `:force` records
+  anyway, for a deliberate second take.
 
   Used by `mix lumen_viae.regenerate_audio` and
   `LumenViae.Release.regenerate_audio/1`.
@@ -26,7 +35,11 @@ defmodule LumenViae.Curation.AudioRegeneration do
     * `:only_missing` - skip a (meditation, voice) pair that already has a
       narration on record, so an interrupted run can be resumed without
       paying ElevenLabs twice for the same recording
-    * `:dry_run` - list what would be regenerated; no ElevenLabs or S3 calls
+    * `:force` - record even when the object already matches
+    * `:dry_run` - list what would be regenerated; nothing is enqueued and
+      no ElevenLabs or S3 calls are made
+    * `:batch` - the batch the jobs are enqueued under
+      (`AudioJobs.new_batch/0` by default); pass one to wait on it
     * `:progress` - a 1-arity function receiving `{:started, total}` and
       `{:item_finished, index, total, result}` events, one item per
       (meditation, voice) pair
@@ -36,13 +49,17 @@ defmodule LumenViae.Curation.AudioRegeneration do
       `LumenViae.Release`), which already holds the database
 
   Results are returned as a list of `{:ok | :warning | :error, message}`
-  tuples, matching `LumenViae.Curation.CsvImport`. Meditations without
+  tuples, matching `LumenViae.Curation.CsvImport`. An `:ok` is a recording
+  queued (or, in a dry run, one that would be); what the job then did is
+  in its batch (`AudioJobs.progress/1`). Meditations without
   an `audio_url` are reported as warnings and skipped: regeneration never
   invents audio filenames, it only records what the import already named.
   """
 
   alias LumenViae.AshOpts
   alias LumenViae.Audio.Pipeline
+  alias LumenViae.Curation.AudioJobs
+  alias LumenViae.Curation.Jobs.NarrateMeditation
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Voices
 
@@ -82,6 +99,8 @@ defmodule LumenViae.Curation.AudioRegeneration do
   end
 
   defp process(meditations, opts) do
+    opts = AudioJobs.with_batch(opts)
+
     case resolve_voices(opts[:voices]) do
       {:ok, voices} ->
         items = Enum.flat_map(meditations, &items_for(&1, voices))
@@ -140,25 +159,26 @@ defmodule LumenViae.Curation.AudioRegeneration do
            "(#{voice.slug} voice on #{voice.model_id}, #{pause_plan(meditation, voice)})"}
 
       true ->
-        regenerate(meditation, voice, s3_key, opts)
+        enqueue(meditation, voice, s3_key, opts)
     end
   end
 
-  defp regenerate(meditation, voice, s3_key, opts) do
-    with {:ok, s3_key} <-
-           Pipeline.generate_and_upload(
-             meditation.content,
-             meditation.tts_annotations,
-             s3_key,
-             voice: voice
-           ),
-         {:ok, _meditation} <-
-           Rosary.record_narration(meditation, voice.slug, s3_key, AshOpts.take(opts)) do
-      {:ok, "Regenerated #{s3_key} for #{describe(meditation)} (#{voice.slug} voice)"}
-    else
+  defp enqueue(meditation, voice, s3_key, opts) do
+    case meditation
+         |> NarrateMeditation.new_for(voice, meditation.audio_url,
+           force: opts[:force] == true,
+           keep_existing: opts[:only_missing] == true
+         )
+         |> AudioJobs.enqueue(opts[:batch]) do
+      {:ok, :queued} ->
+        {:ok, "Queued #{s3_key} for #{describe(meditation)} (#{voice.slug} voice)"}
+
+      {:ok, :already_queued} ->
+        {:ok, "Already queued #{s3_key} for #{describe(meditation)} (#{voice.slug} voice)"}
+
       {:error, reason} ->
         {:error,
-         "Failed to regenerate #{s3_key} for #{describe(meditation)}: " <> format_error(reason)}
+         "Could not queue #{s3_key} for #{describe(meditation)}: " <> format_error(reason)}
     end
   end
 

@@ -101,7 +101,8 @@ defmodule LumenViae.Curation.CsvUpdateTest do
 
     assert [{:ok, message}] = results
     assert message =~ "Updated meditation #{meditation.id}"
-    assert message =~ "regenerated its narration"
+    assert message =~ "queued its narration"
+    assert %{success: 2, failure: 0} = Oban.drain_queue(queue: :elevenlabs)
 
     reloaded = Rosary.get_meditation!(meditation.id, actor: admin())
     assert reloaded.title == "Bear Them in Our Mind"
@@ -142,7 +143,7 @@ defmodule LumenViae.Curation.CsvUpdateTest do
     assert reloaded.content =~ "The new text"
   end
 
-  test "reports a narration failure as a warning after writing the text", %{
+  test "a narration that fails afterwards leaves the new text written", %{
     meditation: meditation
   } do
     stub_apis()
@@ -151,12 +152,15 @@ defmodule LumenViae.Curation.CsvUpdateTest do
       conn |> Plug.Conn.put_status(401) |> Req.Test.json(%{"detail" => %{"message" => "bad key"}})
     end)
 
-    assert [{:warning, message}] =
+    assert [{:ok, message}] =
              CsvUpdate.update_string(csv([[to_string(meditation.id), "", @new, ""]]),
                actor: admin()
              )
 
-    assert message =~ "narration failed"
+    assert message =~ "queued its narration"
+
+    # A rejected key cannot succeed on a retry, so both jobs are cancelled.
+    assert %{cancelled: 2} = Oban.drain_queue(queue: :elevenlabs)
     assert Rosary.get_meditation!(meditation.id, actor: admin()).content =~ "The new text"
   end
 

@@ -27,9 +27,6 @@ defmodule LumenViae.Curation.CsvImportTest do
 
   defp quoted(value), do: "\"" <> String.replace(value, "\"", "\"\"") <> "\""
 
-  defp restore_env(key, nil), do: Application.delete_env(:lumen_viae, key)
-  defp restore_env(key, value), do: Application.put_env(:lumen_viae, key, value)
-
   describe "import_string/2" do
     test "creates meditations and attaches them to a new set in order" do
       content =
@@ -279,27 +276,23 @@ defmodule LumenViae.Curation.CsvImportTest do
 
   describe "audio generation failures" do
     setup do
-      original_key = Application.get_env(:lumen_viae, :eleven_labs_api_key)
-      original_req = Application.get_env(:lumen_viae, :eleven_labs_req_options)
-      original_delay = Application.get_env(:lumen_viae, :audio_retry_base_delay_ms)
+      test_pid = self()
 
-      Application.put_env(:lumen_viae, :eleven_labs_api_key, "test-api-key")
-      Application.put_env(:lumen_viae, :audio_retry_base_delay_ms, 1)
+      EnvStub.put_env([
+        {:lumen_viae, :eleven_labs_api_key, "test-api-key"},
+        {:lumen_viae, :audio_retry_base_delay_ms, 1},
+        {:lumen_viae, :eleven_labs_req_options, plug: {Req.Test, LumenViae.Audio.ElevenLabs}},
+        {:lumen_viae, :fake_aws_test_pid, test_pid},
+        {:ex_aws, :http_client, LumenViae.Test.FakeAwsHttpClient},
+        {:ex_aws, :access_key_id, "test-key"},
+        {:ex_aws, :secret_access_key, "test-secret"}
+      ])
 
-      Application.put_env(:lumen_viae, :eleven_labs_req_options,
-        plug: {Req.Test, LumenViae.Audio.ElevenLabs}
-      )
-
-      on_exit(fn ->
-        restore_env(:eleven_labs_api_key, original_key)
-        restore_env(:eleven_labs_req_options, original_req)
-        restore_env(:audio_retry_base_delay_ms, original_delay)
-      end)
-
+      LumenViae.Test.FakeAwsHttpClient.store!()
       :ok
     end
 
-    test "still creates the meditation and reports a warning after retries run out" do
+    test "a failure ElevenLabs did not charge for is retried later, and the meditation stands" do
       test_pid = self()
 
       Req.Test.stub(LumenViae.Audio.ElevenLabs, fn conn ->
@@ -315,33 +308,23 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted(@content)},clip.mp3"
         ])
 
-      results =
-        CsvImport.import_string(content,
-          voices: ["female"],
-          progress: fn event -> send(test_pid, {:progress, event}) end,
-          actor: admin()
-        )
+      assert [{:ok, message}] =
+               CsvImport.import_string(content, voices: ["female"], actor: admin())
 
-      assert [{:warning, message}] = results
       assert message =~ "Created meditation for The Annunciation"
-      assert message =~ "audio generation failed"
-      assert message =~ "female: "
-      assert message =~ "server error"
+      assert message =~ "narration queued: female"
+
+      # One attempt, which fails and is left to Oban to retry with backoff.
+      assert %{failure: 1} = Oban.drain_queue(queue: :elevenlabs)
+      assert_received :api_called
+      refute_received :api_called
 
       [meditation] = Rosary.list_meditations!(actor: admin())
       assert meditation.audio_url == nil
       assert Rosary.meditation_narrations(meditation) == []
-
-      # All three attempts hit the API, with two retry notifications.
-      assert_received :api_called
-      assert_received :api_called
-      assert_received :api_called
-      refute_received :api_called
-      assert_received {:progress, {:row_audio_retry, 1, 1, "voices/female/clip.mp3", 2, 3}}
-      assert_received {:progress, {:row_audio_retry, 1, 1, "voices/female/clip.mp3", 3, 3}}
     end
 
-    test "does not retry when ElevenLabs rejects the API key" do
+    test "a rejected API key cancels the job: a retry could not succeed" do
       test_pid = self()
 
       Req.Test.stub(LumenViae.Audio.ElevenLabs, fn conn ->
@@ -357,19 +340,45 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted(@content)},clip.mp3"
         ])
 
-      results =
-        CsvImport.import_string(content,
-          voices: ["female"],
-          progress: fn event -> send(test_pid, {:progress, event}) end,
-          actor: admin()
-        )
-
-      assert [{:warning, message}] = results
-      assert message =~ "rejected the API key"
+      assert [{:ok, _}] = CsvImport.import_string(content, voices: ["female"], actor: admin())
+      assert %{cancelled: 1} = Oban.drain_queue(queue: :elevenlabs)
 
       assert_received :api_called
       refute_received :api_called
-      refute_received {:progress, {:row_audio_retry, _, _, _, _, _}}
+    end
+
+    test "a timeout may have been charged for, so it is cancelled, never retried" do
+      test_pid = self()
+
+      Req.Test.stub(LumenViae.Audio.ElevenLabs, fn conn ->
+        send(test_pid, :api_called)
+        Req.Test.transport_error(conn, :timeout)
+      end)
+
+      content =
+        csv(~w(mystery_name content audio_filename), [
+          "The Annunciation,#{quoted(@content)},clip.mp3"
+        ])
+
+      assert [{:ok, _}] = CsvImport.import_string(content, voices: ["female"], actor: admin())
+      assert %{cancelled: 1} = Oban.drain_queue(queue: :elevenlabs)
+
+      assert_received :api_called
+      refute_received :api_called
+
+      [job] = Oban.Job |> LumenViae.Repo.all()
+      assert job.state == "cancelled"
+      assert hd(job.errors)["error"] =~ "may have charged"
+    end
+
+    test "a dry run enqueues nothing" do
+      content =
+        csv(~w(mystery_name content audio_filename), [
+          "The Annunciation,#{quoted(@content)},clip.mp3"
+        ])
+
+      assert [{:ok, _}] = CsvImport.import_string(content, dry_run: true, actor: admin())
+      assert LumenViae.Repo.aggregate(Oban.Job, :count) == 0
     end
 
     test "raises on an unknown voice rather than importing without it" do
@@ -510,7 +519,12 @@ defmodule LumenViae.Curation.CsvImportTest do
         ])
 
       assert [{:ok, message}] = CsvImport.import_string(content, actor: admin())
-      assert message =~ "(with audio)"
+      assert message =~ "(narration queued: female, male)"
+
+      # Written straight away, with no audio_url until a recording lands.
+      [meditation] = Rosary.list_meditations!(actor: admin())
+      assert meditation.audio_url == nil
+      assert %{success: 2} = Oban.drain_queue(queue: :elevenlabs)
 
       # One request per voice, each to that voice's ElevenLabs id on that
       # voice's model, with the custom 2.5s pause (which replaces the
@@ -576,6 +590,7 @@ defmodule LumenViae.Curation.CsvImportTest do
         ])
 
       assert [{:ok, _}] = CsvImport.import_string(content, voices: ["female"], actor: admin())
+      Oban.drain_queue(queue: :elevenlabs)
 
       assert_received {:tts_request, "/v1/text-to-speech/f", "eleven_v3", speech_text, _}
       assert speech_text =~ "[long pause]"
@@ -600,9 +615,8 @@ defmodule LumenViae.Curation.CsvImportTest do
           "The Annunciation,#{quoted(@content)},clip.mp3"
         ])
 
-      assert [{:warning, message}] = CsvImport.import_string(content, actor: admin())
-      assert message =~ "(with audio)"
-      assert message =~ "male: ElevenLabs rejected the API key"
+      assert [{:ok, _}] = CsvImport.import_string(content, actor: admin())
+      assert %{success: 1, cancelled: 1} = Oban.drain_queue(queue: :elevenlabs)
 
       [meditation] = Rosary.list_meditations!(actor: admin())
       assert meditation.audio_url == "clip.mp3"

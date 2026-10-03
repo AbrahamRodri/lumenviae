@@ -34,14 +34,16 @@ defmodule LumenViae.Audio.ElevenLabsTest do
     assert {:ok, <<1, 2, 3, 4>>} = ElevenLabs.generate_audio("Hail Mary, full of grace")
   end
 
-  test "an empty 200 response is a retryable error" do
+  # A 200 means a synthesis finished, which may have been billed even though
+  # no bytes arrived.
+  test "an empty 200 response is uncertain, not retryable" do
     Req.Test.stub(ElevenLabs, fn conn ->
       conn
       |> Plug.Conn.put_resp_content_type("audio/mpeg")
       |> Plug.Conn.send_resp(200, "")
     end)
 
-    assert {:error, message} = ElevenLabs.generate_audio("text")
+    assert {:error, {:uncertain, message}} = ElevenLabs.generate_audio("text")
     assert message =~ "empty audio response"
   end
 
@@ -93,13 +95,22 @@ defmodule LumenViae.Audio.ElevenLabsTest do
     assert message =~ "server error (status 500)"
   end
 
-  test "a timeout reports the configured receive timeout instead of a connect failure" do
+  test "a timeout is uncertain, and reports the configured receive timeout" do
     Req.Test.stub(ElevenLabs, fn conn ->
       Req.Test.transport_error(conn, :timeout)
     end)
 
-    assert {:error, message} = ElevenLabs.generate_audio("text")
+    assert {:error, {:uncertain, message}} = ElevenLabs.generate_audio("text")
     assert message =~ "did not respond within 120s"
+  end
+
+  test "a refused connection never reached ElevenLabs, so it is plainly retryable" do
+    Req.Test.stub(ElevenLabs, fn conn ->
+      Req.Test.transport_error(conn, :econnrefused)
+    end)
+
+    assert {:error, message} = ElevenLabs.generate_audio("text")
+    assert is_binary(message)
   end
 
   test "a missing API key is fatal and makes no request" do

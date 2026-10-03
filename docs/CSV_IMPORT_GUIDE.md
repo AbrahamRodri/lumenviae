@@ -26,11 +26,12 @@ Your CSV file must include the following columns:
 - **author** - The author of the meditation (e.g., "Bishop Fulton J. Sheen")
 - **source** - The source of the meditation (e.g., "The Fifteen Mysteries of the Rosary")
 - **audio_filename** - The filename for the audio file (e.g., "joyful_1_annunciation.mp3")
-  - When provided, the system will automatically generate audio using ElevenLabs API,
-    once per narration voice (see "Narration Voices" below)
+  - When provided, each narration voice is recorded with ElevenLabs (see
+    "Narration Voices" below), as a background job enqueued once the row is
+    written (see "Audio Processing During Import")
   - Each voice's recording is uploaded to S3 at `voices/<voice>/<audio_filename>`
-  - If audio generation fails for a voice, the meditation is still created and
-    the missing voice can be filled in later with `regenerate_audio --only-missing`
+  - If a voice's recording fails, the meditation still exists and the
+    missing voice can be filled in later with `regenerate_audio --only-missing`
 
 ### Meditation Set Columns
 
@@ -138,6 +139,10 @@ Note: The audio_filename column is optional. You can omit it entirely or leave i
 6. The system will display:
    - Success messages for meditations that were created
    - Error messages for any meditations that failed validation
+   - A Narration panel listing every recording the import queued, each
+     turning Recorded (or Failed, with the reason) as its job finishes.
+     The recordings carry on if you leave the page; all of them are also
+     at `/admin/jobs`
 
 ## Validation Rules
 
@@ -164,8 +169,13 @@ Each row finishes in one of three states:
 
 - **OK** - the meditation was created exactly as requested
 - **Warning** - the meditation was created, but something non-fatal went
-  wrong: audio generation failed after retries, or the meditation could not
-  be attached to its set. Check these meditations afterwards
+  wrong: a narration could not be queued, or the meditation could not be
+  attached to its set. Check these meditations afterwards
+
+The recordings finish after the rows do, so a recording that fails is not
+a row's warning: it is shown in the Narration panel and at `/admin/jobs`,
+and printed by the mix and release tasks, which wait for every recording
+before they exit.
 - **Error** - the row failed validation and nothing was written for it
 
 If a meditation fails validation, the error message will include:
@@ -188,15 +198,18 @@ Successfully imported meditations will not be affected by validation errors in o
 
 ## Audio Generation
 
-When the `audio_filename` column is provided, the system will, for every
-configured narration voice:
+When the `audio_filename` column is provided, the import enqueues one
+recording job per configured narration voice
+(`LumenViae.Curation.Jobs.NarrateMeditation`), and each job will:
 
 1. Use the meditation content to generate audio via the ElevenLabs text-to-speech API,
    on the model and with the voice settings that voice is configured with
    (the female voice on `eleven_v3`; the male voice on `eleven_multilingual_v2`
    with style exaggeration 0.5)
 2. Upload the generated audio to Amazon S3 at `voices/<voice>/<audio_filename>`
-3. Record the narration against the meditation, so the API can offer that voice
+3. Record the narration against the meditation, so the API can offer that voice,
+   and set the meditation's `audio_url` if this is its first recording. A
+   meditation never claims audio before a recording exists
 
 ### Narration Voices
 
@@ -260,7 +273,8 @@ and displayed meditation content never contains pause markup.
 To apply new pause logic, a new model, or a new voice to already-imported
 meditations without re-importing, regenerate their audio in place. The S3
 objects are replaced under their voice keys, the narration records are
-updated, and no meditation rows are created or modified:
+updated, and no meditation rows are created or modified. Each recording is
+a job, like an import's:
 
 ```
 mix lumen_viae.regenerate_audio --set "Set Name" --dry-run
@@ -271,7 +285,20 @@ mix lumen_viae.regenerate_audio --all --voice female --only-missing
 
 `--voice` limits the run to one voice (repeatable; every configured voice
 otherwise), and `--only-missing` skips recordings that already exist, so an
-interrupted run can be resumed without paying ElevenLabs twice. The admin
+interrupted run can be resumed without paying ElevenLabs twice.
+
+A recording whose object already matches what would be recorded - the same
+text, after the pause transforms, in the same voice, model and settings -
+is skipped without calling ElevenLabs: every upload carries that
+fingerprint in its S3 metadata. So a pause-logic, model or voice change is
+recorded, a recording made before fingerprints existed is recorded once
+more, and running the same regeneration twice pays for nothing the second
+time. `--force` records it anyway, for a deliberate second take.
+
+`--only-missing` is for filling gaps, so it never pays to replace anything:
+it skips a (meditation, voice) that has a narration row, and for one that
+has none it counts any object already at the key as recorded, fingerprint
+or not, and only writes the missing row. The admin
 dashboard's "Meditations missing a voice" check counts what `--all
 --only-missing` would fill in.
 
@@ -302,8 +329,9 @@ mix lumen_viae.update priv/repo/imports/fixes.csv --dry-run
 mix lumen_viae.update priv/repo/imports/fixes.csv
 ```
 
-Every voice's narration is regenerated from the new words (`--skip-audio`
-to leave the recordings, `--voice` to limit them). On Fly:
+Every voice's narration is regenerated from the new words, as recording
+jobs the task waits for (`--skip-audio` to leave the recordings, `--voice`
+to limit them). On Fly:
 
 ```
 fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.update_csv(\"/tmp/fixes.csv\", dry_run: true)'"
@@ -348,19 +376,39 @@ To enable audio generation, ensure the following environment variables are confi
 
 ### Audio Processing During Import
 
-- Audio generation happens during the CSV import process
-- Each meditation with an audio_filename will trigger one API call to
-  ElevenLabs per configured voice
+- The import writes the rows first, then enqueues one job per meditation
+  and voice on the `elevenlabs` queue; success messages say "(narration
+  queued: female, male)". A dry run enqueues nothing
+- The jobs survive restarts and deploys. `mix lumen_viae.import` runs them
+  on its own node and waits for the last one, printing each recording;
+  `LumenViae.Release.import_csv/2` enqueues on production's queue, where the
+  web app records them, and waits unless given `wait: false`; the admin
+  screen follows them live
 - Synthesis takes roughly 10-60 seconds per meditation; the client waits up
   to 2 minutes per attempt before treating the request as timed out
-- Transient failures (timeouts, rate limits, ElevenLabs 5xx, S3 hiccups) are
-  retried up to 3 times with increasing backoff; permanent failures (bad API
-  key, missing AWS credentials, rejected request) fail immediately
-- If audio generation or upload still fails for a voice, the meditation is
-  still created and the row is reported as a warning naming the voice and
-  the reason; when every voice fails it is created without audio
-- Success messages will indicate "(with audio)" for meditations that have
-  at least one voice recorded
+
+> **Before recording from a laptop, stop every other dev server on the
+> same database, or give the task its own.** Every worktree shares
+> `lumen_viae_dev`, and any `./dev.sh` running this branch's code runs the
+> `elevenlabs` queue too, so it can pick up the task's jobs and record them
+> with its own code and its own `.env`. A server on a branch without these
+> workers runs no `elevenlabs` queue and leaves them alone, but a server on
+> an older revision of this one would not. Either stop the other servers,
+> or run the task against a copy:
+> `createdb -h localhost -U postgres -T lumen_viae_dev <name>` and
+> `DEV_DATABASE=<name> mix lumen_viae.<task> ...`.
+
+- **A clip is paid for once.** A failure that produced no audio (a refused
+  connection, a 429 rate limit, an ElevenLabs 5xx, an S3 check that could
+  not be made) is retried by the job, up to five attempts, waiting 30
+  seconds and doubling. A failure ElevenLabs may already have charged for
+  (a timeout, a dropped connection, audio that came back but could not be
+  uploaded) is not retried: the job is cancelled with the reason, and a
+  second run records it if it really is missing. Permanent failures (bad
+  API key, rejected request) cancel at once. A retry or a duplicate job
+  finds its own upload, or a matching one, in S3 and spends nothing
+- If a voice's recording fails, the meditation is still there without it;
+  when every voice fails it has no `audio_url`
 - A failed voice is filled in later with
   `mix lumen_viae.regenerate_audio --all --only-missing`; nothing needs
   re-importing

@@ -70,6 +70,8 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
 
   defp key_of(url), do: URI.parse(url).path
 
+  defp record_queued, do: Oban.drain_queue(queue: :elevenlabs)
+
   test "dry run lists the pause plan per voice without calling ElevenLabs or S3", %{set: set} do
     stub_apis()
 
@@ -99,8 +101,12 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
     results = AudioRegeneration.run({:set, set.name}, actor: admin())
 
     assert [{:ok, female}, {:ok, male}, {:warning, _skipped}] = results
-    assert female =~ "Regenerated voices/female/regen_clip.mp3"
-    assert male =~ "Regenerated voices/male/regen_clip.mp3"
+    assert female =~ "Queued voices/female/regen_clip.mp3"
+    assert male =~ "Queued voices/male/regen_clip.mp3"
+
+    # Queued, not yet recorded: the jobs do the recording.
+    refute_received {:tts_text, _, _}
+    assert %{success: 2, failure: 0} = record_queued()
 
     v3_text = "First paragraph. [long pause] Second paragraph."
     v2_text = ~s(First paragraph. <break time="2.5s" /> Second paragraph.)
@@ -135,7 +141,8 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
                actor: admin()
              )
 
-    assert message =~ "Regenerated voices/female/regen_clip.mp3"
+    assert message =~ "Queued voices/female/regen_clip.mp3"
+    record_queued()
     assert_received {:tts_text, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", _}
     refute_received {:tts_text, _, _}
 
@@ -158,6 +165,8 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
 
   test "only_missing keeps recordings already on record", %{with_audio: with_audio} do
     stub_apis()
+    # A bucket that remembers, so the female key really is missing.
+    LumenViae.Test.FakeAwsHttpClient.store!()
 
     {:ok, _} =
       Rosary.record_narration(with_audio, "male", "voices/male/regen_clip.mp3", actor: admin())
@@ -166,9 +175,10 @@ defmodule LumenViae.Curation.AudioRegenerationTest do
       AudioRegeneration.run({:meditation, with_audio.id}, only_missing: true, actor: admin())
 
     assert [{:ok, female}, {:ok, male}] = results
-    assert female =~ "Regenerated voices/female/regen_clip.mp3"
+    assert female =~ "Queued voices/female/regen_clip.mp3"
     assert male =~ "Kept voices/male/regen_clip.mp3"
 
+    record_queued()
     assert_received {:tts_text, "/v1/text-to-speech/Z3R5wn05IrDiVCyEkUrK", _}
     refute_received {:tts_text, _, _}
   end

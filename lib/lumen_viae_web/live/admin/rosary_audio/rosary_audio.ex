@@ -13,10 +13,18 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
   Checking coverage is one HEAD per clip in every voice (the scoped IAM
   user cannot list the bucket), so it runs after the page is up rather than
   holding the mount.
+
+  Recording happens elsewhere - `mix lumen_viae.generate_rosary_audio` or
+  its release task enqueue one job per missing clip - and this screen
+  follows it live: it reads the clips still waiting once when it connects,
+  then listens for every audio job on PubSub, marking a clip "Recording"
+  while its job waits and "Recorded" when it lands, without another trip
+  to the bucket. See `LumenViae.Curation.AudioJobs`.
   """
   use LumenViaeWeb, :live_view
 
-  alias LumenViae.Curation.RosaryAudioGeneration
+  alias LumenViae.Curation.{AudioJobs, RosaryAudioGeneration}
+  alias LumenViae.Curation.Jobs.RecordRosaryClip
   alias LumenViae.Rosary
   alias LumenViae.Rosary.{PrayerAudio, Voices}
   alias LumenViae.Storage.S3
@@ -27,7 +35,32 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
      |> assign(:page_title, "Spoken Rosary")
      |> assign(:voices, Voices.list())
      |> assign(:coverage, nil)
-     |> start_coverage()}
+     |> assign(:recording, %{})
+     |> assign(:clips_by_key, clips_by_key())
+     |> start_coverage()
+     |> follow_recordings()}
+  end
+
+  # Every clip's key in every voice, so a job's key leads back to the row
+  # it belongs to.
+  defp clips_by_key do
+    for voice <- Voices.list(), clip <- PrayerAudio.clips(), into: %{} do
+      {PrayerAudio.s3_key(voice, clip), {voice.slug, clip_id(clip)}}
+    end
+  end
+
+  defp follow_recordings(socket) do
+    if connected?(socket) do
+      AudioJobs.subscribe_all()
+      worker = inspect(RecordRosaryClip)
+
+      waiting =
+        for %{worker: ^worker, key: key} <- AudioJobs.in_flight(), into: %{}, do: {key, :queued}
+
+      assign(socket, :recording, waiting)
+    else
+      socket
+    end
   end
 
   def handle_params(params, _uri, socket) do
@@ -48,6 +81,28 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
   def handle_event("refresh", _params, socket) do
     {:noreply, socket |> assign(:coverage, nil) |> start_coverage()}
   end
+
+  def handle_info({:audio_job, %{worker: worker, key: key, status: status}}, socket) do
+    if worker == inspect(RecordRosaryClip) do
+      {:noreply,
+       socket |> update(:recording, &Map.put(&1, key, status)) |> mark_recorded(key, status)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  defp mark_recorded(socket, key, status)
+       when status in [:recorded, :already_recorded] and is_map(socket.assigns.coverage) do
+    case socket.assigns.clips_by_key do
+      %{^key => {slug, id}} ->
+        update(socket, :coverage, &put_in(&1, [Access.key(slug, %{}), id], :recorded))
+
+      _unknown ->
+        socket
+    end
+  end
+
+  defp mark_recorded(socket, _key, _status), do: socket
 
   def handle_async(:coverage, {:ok, coverage}, socket) do
     by_voice = Map.new(coverage, fn {voice, entries} -> {voice.slug, statuses(entries)} end)
@@ -95,6 +150,18 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
   def status(nil, _voice, _clip), do: :checking
   def status(coverage, voice, clip), do: get_in(coverage, [voice.slug, clip_id(clip)]) || :unknown
 
+  @doc "A clip's status, or :recording while a job for it waits or retries."
+  def status(coverage, voice, clip, recording) do
+    case Map.get(recording, PrayerAudio.s3_key(voice, clip)) do
+      waiting when waiting in [:queued, :retrying] -> :recording
+      _done_or_none -> status(coverage, voice, clip)
+    end
+  end
+
+  @doc "How many clips, across every voice, have a job waiting or retrying."
+  def recording_count(recording),
+    do: Enum.count(recording, fn {_key, s} -> s in [:queued, :retrying] end)
+
   def counts(nil, _voice), do: nil
 
   def counts(coverage, voice) do
@@ -108,7 +175,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
   end
 
   def visible?(:all, _status), do: true
-  def visible?(:missing, status), do: status in [:missing, :unknown]
+  def visible?(:missing, status), do: status in [:missing, :unknown, :recording]
 
   @doc "The verses, grouped by mystery in catalogue order, with a heading for each."
   def verse_groups do
@@ -125,6 +192,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
 
   attr :clips, :list, required: true
   attr :coverage, :map, default: nil
+  attr :recording, :map, default: %{}
   attr :voice, :any, required: true
   attr :urls, :map, required: true
   attr :filter, :atom, required: true
@@ -136,7 +204,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
         :rows,
         for(
           clip <- assigns.clips,
-          status = status(assigns.coverage, assigns.voice, clip),
+          status = status(assigns.coverage, assigns.voice, clip, assigns.recording),
           visible?(assigns.filter, status),
           do: {clip, status}
         )
@@ -163,7 +231,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
           </td>
           <td class="w-72 align-top">
             <audio
-              :if={@urls[clip_id(clip)] && status != :missing}
+              :if={@urls[clip_id(clip)] && status not in [:missing, :recording]}
               controls
               preload="none"
               src={@urls[clip_id(clip)]}
@@ -183,6 +251,9 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
 
   defp status_badge(%{status: :missing} = assigns),
     do: ~H[<.admin_badge tone="red">Missing</.admin_badge>]
+
+  defp status_badge(%{status: :recording} = assigns),
+    do: ~H[<.admin_badge tone="gold">Recording</.admin_badge>]
 
   defp status_badge(%{status: :checking} = assigns),
     do: ~H[<.admin_badge>Checking</.admin_badge>]

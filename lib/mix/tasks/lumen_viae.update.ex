@@ -23,6 +23,8 @@ defmodule Mix.Tasks.LumenViae.Update do
 
   use Mix.Task
 
+  alias LumenViae.Curation.AudioJobs
+
   @requirements ["app.start"]
 
   @impl Mix.Task
@@ -41,9 +43,12 @@ defmodule Mix.Tasks.LumenViae.Update do
 
       true ->
         [path | _] = argv
+        batch = AudioJobs.new_batch()
+        AudioJobs.subscribe(batch)
 
         results =
           LumenViae.Curation.CsvUpdate.update_file(path,
+            batch: batch,
             dry_run: opts[:dry_run],
             skip_audio: opts[:skip_audio],
             voices: Keyword.get_values(opts, :voice),
@@ -65,7 +70,10 @@ defmodule Mix.Tasks.LumenViae.Update do
           "\n#{length(successes)} succeeded, #{length(warnings)} with warnings, #{length(errors)} failed"
         )
 
-        if errors != [], do: exit({:shutdown, 1})
+        recordings =
+          if opts[:dry_run], do: %{failed: 0}, else: AudioJobs.wait_here(batch)
+
+        if errors != [] or recordings.failed > 0, do: exit({:shutdown, 1})
     end
   end
 end

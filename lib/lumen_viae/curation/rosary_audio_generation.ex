@@ -1,14 +1,17 @@
 defmodule LumenViae.Curation.RosaryAudioGeneration do
   @moduledoc """
   Records the spoken Rosary (`LumenViae.Rosary.PrayerAudio`) with
-  ElevenLabs, once per narration voice, and uploads each clip to its key
-  in the audio bucket.
+  ElevenLabs, once per narration voice, by enqueueing one
+  `LumenViae.Curation.Jobs.RecordRosaryClip` job per clip that is not in
+  the bucket yet. The jobs do the recording, on the rate-limited
+  `elevenlabs` queue; see `LumenViae.Curation.AudioJobs`.
 
-  Nothing touches the database: the catalogue is fixed content, and which
-  clips exist is answered by S3 itself. Because every key carries a hash
-  of what was spoken and how, a clip already at its key is already right,
-  so a run skips it by default. An interrupted run is simply run again,
-  and a reworded prayer is recorded without re-recording anything else.
+  Nothing touches the meditation tables: the catalogue is fixed content,
+  and which clips exist is answered by S3 itself. Because every key
+  carries a hash of what was spoken and how, a clip already at its key is
+  already right, so a run skips it by default. An interrupted run is
+  simply run again, and a reworded prayer is recorded without re-recording
+  anything else.
 
   Used by `mix lumen_viae.generate_rosary_audio` and
   `LumenViae.Release.generate_rosary_audio/1`; `coverage/1` answers the
@@ -21,28 +24,37 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
     * `:kinds` - any of `:prayer`, `:announcement`, `:verse` (default: all)
     * `:force` - record and replace clips that already exist
     * `:dry_run` - say what would be recorded and how many characters it
-      would cost, without calling ElevenLabs or writing to S3. Existence is
-      still checked with a read-only HEAD when AWS credentials are present,
-      so the count is what a real run would spend.
-    * `:concurrency` - clips recorded at once (default 3, within every
-      ElevenLabs plan's concurrent request limit)
+      would cost, without enqueueing anything, calling ElevenLabs or
+      writing to S3. Existence is still checked with a read-only HEAD when
+      AWS credentials are present, so the count is what a real run would
+      spend.
+    * `:batch` - the batch the jobs are enqueued under
+      (`AudioJobs.new_batch/0` by default); pass one to wait on it or
+      follow its progress
     * `:progress` - a 1-arity function receiving `{:started, total}` and
-      `{:item_finished, index, total, result}` events
+      `{:item_finished, index, total, result}` events, one per clip, as
+      each is checked and enqueued
 
-  Returns `{:ok | :warning | :error, message}` tuples, like
-  `LumenViae.Curation.AudioRegeneration`. A clip skipped because it exists
-  is a warning, so the summary counts it as skipped rather than recorded.
-  An unknown voice fails the whole run before anything is spent.
+  Returns `{:ok | :warning | :error, message}` tuples, one per clip, like
+  `LumenViae.Curation.AudioRegeneration`. `:ok` is a clip queued for
+  recording (or, in a dry run, one that would be), and its message gives
+  the characters it will cost. A clip skipped because it exists is a
+  warning, so the summary counts it as skipped. An unknown voice fails the
+  whole run before anything is queued.
   """
 
-  alias LumenViae.Audio.Pipeline
+  alias LumenViae.Curation.AudioJobs
+  alias LumenViae.Curation.Jobs.RecordRosaryClip
   alias LumenViae.Rosary.{PrayerAudio, Voices}
   alias LumenViae.Storage.S3
 
-  @default_concurrency 3
+  # S3 HEADs at once while checking which clips exist. Reads only; nothing
+  # here calls ElevenLabs.
+  @check_concurrency 16
 
   def run(opts \\ []) do
     progress = Keyword.get(opts, :progress, fn _event -> :ok end)
+    opts = AudioJobs.with_batch(opts)
 
     case resolve_voices(Keyword.get(opts, :voices)) do
       {:ok, voices} ->
@@ -55,8 +67,8 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
         |> Enum.with_index(1)
         |> Task.async_stream(
           fn {{voice, clip}, index} -> {index, process(voice, clip, opts)} end,
-          max_concurrency: Keyword.get(opts, :concurrency, @default_concurrency),
-          timeout: :infinity,
+          max_concurrency: @check_concurrency,
+          timeout: :timer.seconds(60),
           ordered: true
         )
         |> Enum.map(fn {:ok, {index, result}} ->
@@ -139,7 +151,7 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
 
   defp process(voice, clip, opts) do
     key = PrayerAudio.s3_key(voice, clip)
-    text = PrayerAudio.speech_text(clip)
+    characters = clip |> PrayerAudio.speech_text() |> String.length()
     label = "#{voice.slug} #{clip.kind} #{clip.name}"
 
     case existing(key, opts) do
@@ -148,9 +160,9 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
 
       false ->
         if opts[:dry_run] do
-          {:ok, "#{label}: would record #{String.length(text)} characters to #{key}"}
+          {:ok, "#{label}: would record #{characters} characters to #{key}"}
         else
-          record(voice, text, key, label)
+          enqueue(clip, voice, label, key, characters, opts)
         end
 
       {:error, reason} ->
@@ -173,13 +185,18 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
     end
   end
 
-  # Spoken prayer text has no paragraph breaks and no pause annotations,
-  # so the pipeline sends it as it is, apart from the model's own
-  # escaping.
-  defp record(voice, text, key, label) do
-    case Pipeline.generate_and_upload(text, [], key, voice: voice) do
-      {:ok, ^key} -> {:ok, "#{label}: recorded #{String.length(text)} characters to #{key}"}
-      {:error, reason} -> {:error, "#{label}: #{format_reason(reason)}"}
+  defp enqueue(clip, voice, label, key, characters, opts) do
+    case clip
+         |> RecordRosaryClip.new_for(voice, force: opts[:force] == true)
+         |> AudioJobs.enqueue(opts[:batch]) do
+      {:ok, :queued} ->
+        {:ok, "#{label}: queued to record #{characters} characters to #{key}"}
+
+      {:ok, :already_queued} ->
+        {:warning, "#{label}: already queued for #{key}, skipped"}
+
+      {:error, reason} ->
+        {:error, "#{label}: could not queue #{key}: #{format_reason(reason)}"}
     end
   end
 

@@ -151,7 +151,12 @@ config :lumen_viae, :geolocation,
 # AshOban adds each resource trigger to this in LumenViae.Application.
 #
 #   * One queue per third party the jobs call, sized to what that party
-#     allows: geolocation is one lookup at a time.
+#     allows: geolocation is one lookup at a time, and elevenlabs one
+#     recording at a time per machine. A queue's limit is per machine and
+#     production runs two, so that is two at once against an account that
+#     has run three without complaint; ELEVENLABS_CONCURRENCY changes it in
+#     production (config/runtime.exs), and the mix tasks raise it for their
+#     own node (--concurrency).
 #   * The PG notifier: notifications travel between BEAM processes instead
 #     of through LISTEN/NOTIFY, so Oban holds no extra connection open and
 #     Oban Web's once-a-second gossip never touches the database.
@@ -167,7 +172,7 @@ config :lumen_viae, Oban,
   engine: Oban.Engines.Basic,
   repo: LumenViae.Repo,
   notifier: Oban.Notifiers.PG,
-  queues: [geolocation: 1],
+  queues: [geolocation: 1, elevenlabs: 1],
   stager: [interval: :timer.seconds(5)],
   pruner: [max_age: {7, :days}, interval: {5, :minutes}],
   lifeline: [rescue_after: {30, :minutes}, interval: {5, :minutes}]
