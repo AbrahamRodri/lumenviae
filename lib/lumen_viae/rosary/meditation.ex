@@ -103,13 +103,13 @@ defmodule LumenViae.Rosary.Meditation do
     end
 
     read :with_audio_filenames do
-      description "The meditations that already claim any of the given audio filenames."
+      description "The meditations that already claim any of the given audio filenames: recorded under it (audio_url), or meant to be (narration_filename)."
 
       argument :audio_urls, {:array, :string} do
         allow_nil? false
       end
 
-      filter expr(audio_url in ^arg(:audio_urls))
+      filter expr(audio_url in ^arg(:audio_urls) or narration_filename in ^arg(:audio_urls))
       prepare build(sort: [id: :asc])
     end
 
@@ -153,13 +153,34 @@ defmodule LumenViae.Rosary.Meditation do
     # so imports and forms cannot flip it.
     create :create do
       primary? true
-      accept [:title, :content, :author, :source, :mystery_id, :audio_url, :tts_annotations]
+
+      accept [
+        :title,
+        :content,
+        :author,
+        :source,
+        :mystery_id,
+        :audio_url,
+        :narration_filename,
+        :tts_annotations
+      ]
+
       validate LumenViae.Rosary.Meditation.NoNarrationMarkup
     end
 
     update :update do
       primary? true
-      accept [:title, :content, :author, :source, :mystery_id, :audio_url, :tts_annotations]
+
+      accept [
+        :title,
+        :content,
+        :author,
+        :source,
+        :mystery_id,
+        :audio_url,
+        :narration_filename,
+        :tts_annotations
+      ]
 
       # ResetStaleAnnotations compares the new content with the stored one,
       # so this update needs the record rather than a bare UPDATE.
@@ -254,6 +275,19 @@ defmodule LumenViae.Rosary.Meditation do
     # LumenViae.Rosary.Voices.narration_key/2), and the narrations
     # relationship says which voices actually have one.
     attribute :audio_url, :string do
+      constraints trim?: false
+    end
+
+    # The filename this meditation's narrations are recorded under
+    # (voices/<slug>/<narration_filename>), set by the import when the row
+    # is written. `audio_url` says a recording exists and is set only when
+    # the first one lands; this says which file was meant, so a meditation
+    # whose every voice failed can still be recorded later
+    # (`regenerate_audio --only-missing`), and an import can see a filename
+    # another meditation has claimed but not yet recorded. Internal: no
+    # API shows it.
+    attribute :narration_filename, :string do
+      public? false
       constraints trim?: false
     end
 

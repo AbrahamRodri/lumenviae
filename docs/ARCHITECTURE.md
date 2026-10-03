@@ -568,8 +568,17 @@ anything:
   uploaded, after the upload itself has been retried in place.
 - `force` records a second take of a clip that is already right, and still
   stops on its own upload, so even a forced job pays once. A forced job
-  enqueued while one for the same key waits is folded into that one, so
-  no second take happens until the first has finished.
+  enqueued while one for the same meditation and key waits is folded into
+  that one, so no second take happens until the first has finished.
+- One key belongs to one meditation. An enqueue that meets a job already
+  holding the key for a *different* meditation is refused
+  (`{:error, {:queued_for_another, job}}`) rather than folded into it,
+  which would record the other meditation's words and leave this one
+  silent. A meditation keeps the filename it was imported with in
+  `narration_filename` (private; no API shows it) until a recording sets
+  `audio_url`, so a meditation whose every voice failed can still be
+  recorded, and the import's preview counts both, and any filename a
+  queued narration job holds, as taken.
 - Recordings made before this have no metadata. A meditation narration's
   key names a file, not its words, so without a fingerprint nothing says
   the object matches. A plain regeneration re-records such an object once

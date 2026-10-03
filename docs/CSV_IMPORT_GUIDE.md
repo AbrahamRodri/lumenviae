@@ -162,6 +162,14 @@ Each row is then validated against the following rules:
   usually means an unescaped comma)
 - The same `audio_filename` cannot appear on more than one row (the second
   upload would overwrite the first meditation's audio in S3)
+- A filename another meditation already has is a preview warning. If that
+  meditation is recorded under it, or was imported to be
+  (`narration_filename`), importing overwrites its audio. If a narration
+  job for it is still queued (an import that was stopped and is being run
+  again, say), the new row will get **no** narration: the key is held by
+  the other meditation's job, and the import refuses to fold this row into
+  it, because that job would record the other meditation's words. Use
+  another filename, or cancel the queued job at `/admin/jobs` first
 
 ## Error Handling
 
@@ -303,7 +311,9 @@ it skips a (meditation, voice) that has a narration row, and for one that
 has none it counts any object already at the key as recorded, fingerprint
 or not, and only writes the missing row. The admin
 dashboard's "Meditations missing a voice" check counts what `--all
---only-missing` would fill in.
+--only-missing` would fill in. A meditation whose every voice failed at
+import has no `audio_url` yet; regeneration records it under the
+`narration_filename` the import gave it.
 
 Always dry-run first: it lists each recording with its pause plan and
 spends no ElevenLabs credits. On Fly:
@@ -411,7 +421,9 @@ To enable audio generation, ensure the following environment variables are confi
   API key, rejected request) cancel at once. A retry or a duplicate job
   finds its own upload, or a matching one, in S3 and spends nothing
 - If a voice's recording fails, the meditation is still there without it;
-  when every voice fails it has no `audio_url`
+  when every voice fails it has no `audio_url`, but it keeps the filename
+  it was imported with (`narration_filename`), so the repair below can
+  still record it
 - A failed voice is filled in later with
   `mix lumen_viae.regenerate_audio --all --only-missing`; nothing needs
   re-importing
