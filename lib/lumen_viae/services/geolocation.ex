@@ -29,6 +29,12 @@ defmodule LumenViae.Services.Geolocation do
   tier viable and, more to the point, means their network is asked about
   once instead of nine times.
 
+  Only answers are cached: a place, or the provider saying it cannot place
+  the address. A failure to get an answer at all - a timeout, a refused
+  connection, a 429 or a 5xx, ipapi.co's "RateLimited" - is
+  `{:error, :transient}` and is not cached, so the place lookup job is
+  retried with backoff instead of the address staying placeless for a day.
+
   Lookups are never made on the request path, and never with a full
   address: a completion is written first, and a background job looks up
   its stored, truncated prefix afterwards (see
@@ -50,11 +56,13 @@ defmodule LumenViae.Services.Geolocation do
   def start_link(opts), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
 
   @doc """
-  The place an address is in, or `nil` when that cannot be established.
+  The place an address is in; `nil` when there is none to be had; or
+  `{:error, :transient}` when the provider could not be asked just now.
 
   `nil` is an ordinary answer, not an error: the lookup is disabled, the
-  address is private, the provider is down, or it simply does not know.
-  Every caller has to be able to carry on without a place.
+  address is private, or the provider does not know it. `{:error,
+  :transient}` says to try again later, and is not cached. Every caller
+  has to be able to carry on without a place.
   """
   def locate(nil), do: nil
   def locate(""), do: nil
@@ -75,9 +83,14 @@ defmodule LumenViae.Services.Geolocation do
         location
 
       :miss ->
-        location = fetch(ip)
-        put_cached(ip, location)
-        location
+        case fetch(ip) do
+          {:error, :transient} = error ->
+            error
+
+          location ->
+            put_cached(ip, location)
+            location
+        end
     end
   end
 
@@ -93,9 +106,10 @@ defmodule LumenViae.Services.Geolocation do
     ArgumentError -> :miss
   end
 
-  # A failed lookup is cached too. Without that, an address the provider
-  # cannot place is re-asked on every completion from it, which is exactly
-  # the traffic the cache exists to prevent.
+  # An address the provider cannot place is cached too, as nil. Without
+  # that it is re-asked on every completion from it, which is exactly the
+  # traffic the cache exists to prevent. A transient failure is not an
+  # answer and never gets here.
   defp put_cached(ip, location) do
     expires_at = System.monotonic_time(:millisecond) + @ttl_ms
     :ets.insert(@table, {ip, location, expires_at})
@@ -119,19 +133,24 @@ defmodule LumenViae.Services.Geolocation do
       {:ok, %Req.Response{status: 200, body: body}} ->
         parser.(body)
 
+      # Throttled or failing: no answer, so worth asking again later.
+      {:ok, %Req.Response{status: status}} when status == 429 or status >= 500 ->
+        Logger.warning("Geolocation provider answered #{status}")
+        {:error, :transient}
+
       {:ok, %Req.Response{status: status}} ->
         Logger.warning("Geolocation provider answered #{status}")
         nil
 
       {:error, exception} ->
         Logger.warning("Geolocation lookup failed: #{Exception.message(exception)}")
-        nil
+        {:error, :transient}
     end
   rescue
     # A place on an analytics row is never worth raising over.
     exception ->
       Logger.warning("Geolocation lookup raised: #{Exception.message(exception)}")
-      nil
+      {:error, :transient}
   end
 
   defp provider(ip) do
@@ -141,6 +160,9 @@ defmodule LumenViae.Services.Geolocation do
     end
   end
 
+  # ipapi.co answers its daily quota running out with a 200 and an error
+  # body; that is "ask later", not "this address has no place".
+  defp parse_ipapi_co(%{"error" => true, "reason" => "RateLimited"}), do: {:error, :transient}
   defp parse_ipapi_co(%{"error" => true}), do: nil
 
   defp parse_ipapi_co(%{"country_code" => code} = body) when is_binary(code) do

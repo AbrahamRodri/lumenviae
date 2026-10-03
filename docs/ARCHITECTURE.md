@@ -554,8 +554,9 @@ anything:
 
 - Each upload stores, in the object's metadata, the job that made it and a
   fingerprint of exactly what was sent (text, voice, model, settings).
-- A retry of the same job finds its own job id and goes straight to the
-  bookkeeping. A duplicate enqueue is refused while a job for the same key
+- A retry of the same job finds its own upload (its job id *and* the
+  same fingerprint; job ids are unique only within one database) and goes
+  straight to the bookkeeping. A duplicate enqueue is refused while a job for the same key
   waits or runs (Oban uniqueness on the key), and one enqueued later finds
   a matching fingerprint and stops. A spoken Rosary key carries a hash of
   its words, so any object there counts.
@@ -566,7 +567,9 @@ anything:
   never retried on its own. So is audio that came back and could not be
   uploaded, after the upload itself has been retried in place.
 - `force` records a second take of a clip that is already right, and still
-  stops on its own job id, so even a forced job pays once.
+  stops on its own upload, so even a forced job pays once. A forced job
+  enqueued while one for the same key waits is folded into that one, so
+  no second take happens until the first has finished.
 - Recordings made before this have no metadata. A meditation narration's
   key names a file, not its words, so without a fingerprint nothing says
   the object matches. A plain regeneration re-records such an object once
@@ -575,9 +578,15 @@ anything:
   object at the key as recorded (`keep_existing`). Spoken Rosary keys hash
   their words, so their old objects always count.
 
-The one window left is a hard kill between ElevenLabs answering and the
-upload finishing: the lifeline retries that job, and it pays again. Closing
-it would need somewhere durable to put the audio first.
+A recording killed mid-request - a deploy, an out-of-memory restart - is
+the whole 10 to 120 seconds of the request, and ElevenLabs may bill it.
+Two things cover it. A deploy lets running jobs finish (140 seconds of
+`shutdown_grace_period` inside Fly's 150-second `kill_timeout`). And a job
+the lifeline frees after a kill has no error for that attempt, so its next
+attempt can tell (`Audio.Recording.orphaned?/1`); unless its own upload is
+already at the key, it is cancelled with "previous attempt was killed
+mid-request and may be billed" instead of paying again. A person then
+checks the key and runs it again if it is missing.
 
 ### Release tasks and mix tasks
 
@@ -612,11 +621,12 @@ Production's database is one 256MB Fly machine, and the app's pool is five
 connections. Oban's defaults assume a database with room to spare, so each
 standing cost is set deliberately (`config/config.exs`):
 
-- **One queue per third party, sized to what it allows.** `geolocation`
-  runs one lookup at a time. `elevenlabs` runs one recording at a time per
-  machine: a queue's limit is per node, production runs two clustered
-  machines, and ElevenLabs counts concurrent requests across the account,
-  so that is two at once against an account that has run three.
+- **One queue per third party, sized to what it allows.** Both queues run
+  one job at a time per machine. A queue's limit is per node and
+  production runs two clustered machines, so each is two at once in
+  production. For `geolocation` that is well inside ipapi.co's rate. For
+  `elevenlabs`, ElevenLabs counts concurrent requests across the account,
+  so it is two at once against an account that has run three.
   `ELEVENLABS_CONCURRENCY` raises it in production without a code change,
   and a 429 from going over is retried, not paid for. A queue's concurrency
   is also the most connections its jobs can hold at once, and no job holds
@@ -641,6 +651,14 @@ standing cost is set deliberately (`config/config.exs`):
 - **Pruner: a week, every five minutes.** Completed, cancelled and
   discarded jobs are deleted after seven days, which is the history Oban
   Web can show. The table stays at a few thousand rows.
+- **Shutdown: 140 seconds of grace, inside Fly's 150.** At SIGTERM Oban
+  stops taking jobs and gives the running ones 140 seconds
+  (`shutdown_grace_period`), inside the 150 Fly waits before killing the
+  machine (`kill_timeout` in `fly.toml`). An ElevenLabs request takes 10
+  to 120 seconds and may be billed even if the machine dies before the
+  answer arrives, so a deploy has to let it finish. One that is killed
+  anyway (an out-of-memory restart) is recognised on its next attempt and
+  cancelled rather than paid for again; see "Paying ElevenLabs once".
 - **Lifeline: 30 minutes, every five.** A job left `executing` by a crash
   or a deploy is rescued after half an hour, far longer than any job runs
   (a recording times out after five minutes), so a slow job is never

@@ -78,12 +78,14 @@ defmodule LumenViae.Curation.Jobs.NarrateMeditation do
       text
       |> Recording.record(voice, args["key"],
         job_id: job.id,
+        orphaned: Recording.orphaned?(job),
         force: args["force"] == true,
         already_right: if(args["keep_existing"] == true, do: :exists, else: :same_fingerprint)
       )
       |> finish(job, meditation, args)
     else
       {:cancel, reason} -> report(job, :failed, reason, {:cancel, reason})
+      {:retry, reason} -> finish({:retry, reason}, job, nil, args)
     end
   end
 
@@ -94,12 +96,25 @@ defmodule LumenViae.Curation.Jobs.NarrateMeditation do
     end
   end
 
+  # Only a meditation that is really gone cancels the job. Anything else
+  # - the database dropping a connection, say - is retried: nothing has
+  # been spent yet, and a cancelled job for a fresh import is a voice that
+  # quietly never gets recorded.
   defp fetch_meditation(id) do
     case Rosary.get_meditation(id, @system) do
-      {:ok, meditation} -> {:ok, meditation}
-      {:error, _not_found} -> {:cancel, "meditation #{id} no longer exists"}
+      {:ok, meditation} ->
+        {:ok, meditation}
+
+      {:error, error} ->
+        if not_found?(error),
+          do: {:cancel, "meditation #{id} no longer exists"},
+          else: {:retry, "could not read meditation #{id}: #{describe(error)}"}
     end
   end
+
+  defp not_found?(%Ash.Error.Query.NotFound{}), do: true
+  defp not_found?(%{errors: errors}) when is_list(errors), do: Enum.any?(errors, &not_found?/1)
+  defp not_found?(_error), do: false
 
   defp finish({:ok, outcome}, job, meditation, args),
     do: put_on_record(outcome, job, meditation, args)

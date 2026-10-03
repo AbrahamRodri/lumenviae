@@ -6,6 +6,12 @@
 app = 'lumenviae'
 primary_region = 'dfw'
 kill_signal = 'SIGTERM'
+# How long Fly waits after SIGTERM before killing the machine. A narration
+# job's ElevenLabs request takes 10 to 120 seconds and is paid for whether
+# or not the answer arrives, so a deploy has to let it finish: Oban stops
+# taking jobs at SIGTERM and gives running ones 140 seconds
+# (shutdown_grace_period in config/config.exs), inside this.
+kill_timeout = 150
 
 [build]
 

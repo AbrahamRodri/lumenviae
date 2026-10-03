@@ -26,8 +26,10 @@ defmodule LumenViae.Rosary.Completion.Stamp do
   felt as a slow Rosary - and a provider that was down would fail the
   completion entirely. A place is worth having and is not worth that.
 
-  The job is Oban's, so it survives a restart or a deploy and retries a
-  failure. Its arguments are the completion's id and nothing else: the
+  The job is Oban's, so it survives a restart or a deploy. A provider that
+  could not be asked (a timeout, a 429, a 5xx) fails the job, which is
+  retried with backoff, three attempts in all; a provider that answers
+  that it cannot place the address is believed. Its arguments are the completion's id and nothing else: the
   lookup reads the stored prefix off the row (see
   `LumenViae.Rosary.Completion.LookUpPlace`), which is how the full
   address stays out of the jobs table.

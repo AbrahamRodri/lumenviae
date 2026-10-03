@@ -63,15 +63,28 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
         total = length(work)
         progress.({:started, total})
 
+        # The HEADs run concurrently and touch no database. A slow one is
+        # killed and reported as unchecked rather than taking the run down.
+        # The enqueues then run one at a time, here, so a release task's
+        # two-connection pool is never asked for sixteen at once.
         work
-        |> Enum.with_index(1)
         |> Task.async_stream(
-          fn {{voice, clip}, index} -> {index, process(voice, clip, opts)} end,
+          fn {voice, clip} -> existing(PrayerAudio.s3_key(voice, clip), opts) end,
           max_concurrency: @check_concurrency,
           timeout: :timer.seconds(60),
+          on_timeout: :kill_task,
           ordered: true
         )
-        |> Enum.map(fn {:ok, {index, result}} ->
+        |> Enum.zip(work)
+        |> Enum.with_index(1)
+        |> Enum.map(fn {{outcome, {voice, clip}}, index} ->
+          existing =
+            case outcome do
+              {:ok, existing} -> existing
+              {:exit, reason} -> {:error, {:check_failed, reason}}
+            end
+
+          result = process(voice, clip, existing, opts)
           progress.({:item_finished, index, total, result})
           result
         end)
@@ -149,12 +162,12 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
     end
   end
 
-  defp process(voice, clip, opts) do
+  defp process(voice, clip, existing, opts) do
     key = PrayerAudio.s3_key(voice, clip)
     characters = clip |> PrayerAudio.speech_text() |> String.length()
     label = "#{voice.slug} #{clip.kind} #{clip.name}"
 
-    case existing(key, opts) do
+    case existing do
       true ->
         {:warning, "#{label}: already recorded at #{key}, skipped"}
 

@@ -32,8 +32,9 @@ defmodule Mix.Tasks.LumenViae.Import do
   ## Environment
 
   Recording requires ELEVEN_LABS_API_KEY plus AWS credentials for the S3 upload, as configured in runtime.exs.
-  Run against the production database by exporting DATABASE_URL first, or
-  import on Fly with:
+  The task imports into the local database (`DEV_DATABASE` picks a copy;
+  `config/dev.exs` does not read `DATABASE_URL`). For production, import on
+  Fly with:
 
       fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.import_csv(\"/tmp/file.csv\")'"
 

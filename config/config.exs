@@ -160,10 +160,11 @@ config :lumen_viae, :geolocation,
 # AshOban adds each resource trigger to this in LumenViae.Application.
 #
 #   * One queue per third party the jobs call, sized to what that party
-#     allows: geolocation is one lookup at a time, and elevenlabs one
-#     recording at a time per machine. A queue's limit is per machine and
-#     production runs two, so that is two at once against an account that
-#     has run three without complaint; ELEVENLABS_CONCURRENCY changes it in
+#     allows: one geolocation lookup and one elevenlabs recording at a
+#     time per machine. A queue's limit is per machine and production runs
+#     two, so each is two at once in production: well inside ipapi.co's
+#     rate, and against an ElevenLabs account that has run three without
+#     complaint; ELEVENLABS_CONCURRENCY changes it in
 #     production (config/runtime.exs), and the mix tasks raise it for their
 #     own node (--concurrency).
 #   * The PG notifier: notifications travel between BEAM processes instead
@@ -177,6 +178,9 @@ config :lumen_viae, :geolocation,
 #   * The lifeline rescues a job orphaned by a crash or a deploy after 30
 #     minutes, well past the longest job's own timeout, so it never
 #     rescues one that is still running.
+#   * On shutdown, running jobs get 140 seconds to finish, inside the 150
+#     Fly waits after SIGTERM (kill_timeout in fly.toml), because an
+#     ElevenLabs request killed mid-flight may still be billed.
 config :lumen_viae, Oban,
   engine: Oban.Engines.Basic,
   repo: LumenViae.Repo,
@@ -184,7 +188,8 @@ config :lumen_viae, Oban,
   queues: [geolocation: 1, elevenlabs: 1],
   stager: [interval: :timer.seconds(5)],
   pruner: [max_age: {7, :days}, interval: {5, :minutes}],
-  lifeline: [rescue_after: {30, :minutes}, interval: {5, :minutes}]
+  lifeline: [rescue_after: {30, :minutes}, interval: {5, :minutes}],
+  shutdown_grace_period: :timer.seconds(140)
 
 # Oban Web's metrics process. Its reporter counts jobs by state on the
 # leader, by default every second whether or not anybody has the dashboard

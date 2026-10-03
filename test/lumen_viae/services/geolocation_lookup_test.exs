@@ -49,28 +49,60 @@ defmodule LumenViae.Services.GeolocationLookupTest do
              }
     end
 
-    test "answers nil when the provider reports an error" do
+    test "answers nil when the provider says it cannot place the address" do
+      Req.Test.stub(Geolocation, fn conn ->
+        Req.Test.json(conn, %{"error" => true, "reason" => "Reserved IP Address"})
+      end)
+
+      assert Geolocation.locate(an_address()) == nil
+    end
+
+    # Its daily quota running out comes back as a 200 with an error body.
+    test "a rate limit is transient, not an answer" do
       Req.Test.stub(Geolocation, fn conn ->
         Req.Test.json(conn, %{"error" => true, "reason" => "RateLimited"})
       end)
 
-      assert Geolocation.locate(an_address()) == nil
+      assert Geolocation.locate(an_address()) == {:error, :transient}
     end
 
-    test "answers nil rather than raising when the provider refuses" do
-      Req.Test.stub(Geolocation, fn conn ->
-        conn |> Plug.Conn.put_status(429) |> Req.Test.json(%{})
-      end)
+    test "a 429 or a 5xx is transient rather than raising" do
+      for status <- [429, 503] do
+        Req.Test.stub(Geolocation, fn conn ->
+          conn |> Plug.Conn.put_status(status) |> Req.Test.json(%{})
+        end)
 
-      assert Geolocation.locate(an_address()) == nil
+        assert Geolocation.locate(an_address()) == {:error, :transient}
+      end
     end
 
-    test "answers nil rather than raising when the connection fails" do
+    test "a failed connection is transient rather than raising" do
       Req.Test.stub(Geolocation, fn conn ->
         Req.Test.transport_error(conn, :econnrefused)
       end)
 
-      assert Geolocation.locate(an_address()) == nil
+      assert Geolocation.locate(an_address()) == {:error, :transient}
+    end
+
+    test "a transient failure is not cached: the next lookup asks again" do
+      test_pid = self()
+      ip = an_address()
+
+      Req.Test.stub(Geolocation, fn conn ->
+        send(test_pid, :asked)
+        conn |> Plug.Conn.put_status(503) |> Req.Test.json(%{})
+      end)
+
+      assert Geolocation.locate(ip) == {:error, :transient}
+
+      Req.Test.stub(Geolocation, fn conn ->
+        send(test_pid, :asked)
+        Req.Test.json(conn, %{"country_name" => "Ireland", "country_code" => "IE"})
+      end)
+
+      assert %{country_code: "IE"} = Geolocation.locate(ip)
+      assert_received :asked
+      assert_received :asked
     end
 
     test "a place with no city still yields its country" do

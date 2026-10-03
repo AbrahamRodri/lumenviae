@@ -15,10 +15,17 @@ defmodule LumenViaeWeb.ObanResolver do
   """
   @behaviour Oban.Web.Resolver
 
-  # The signed-in admin, put there by RequireAdmin, so the dashboard knows
-  # who acted.
+  # Who is looking, so the dashboard knows who acted: the signed-in
+  # admin's id and email, and nothing else. Oban Web keeps this in its
+  # LiveView session, which is signed into the page but not encrypted, so
+  # the whole Admin record (hashed_password and all) must not go there.
   @impl true
-  def resolve_user(conn), do: conn.assigns[:current_admin]
+  def resolve_user(conn) do
+    case conn.assigns[:current_admin] do
+      %{id: id, email: email} -> %{id: id, email: to_string(email)}
+      _nobody -> nil
+    end
+  end
 
   @impl true
   def resolve_access(_admin), do: :all

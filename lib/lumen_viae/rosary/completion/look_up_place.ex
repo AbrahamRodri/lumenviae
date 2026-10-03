@@ -15,7 +15,8 @@ defmodule LumenViae.Rosary.Completion.LookUpPlace do
 
   The provider is called before the update's transaction opens, so no
   database connection waits on a third party. A lookup that comes back
-  empty leaves the row as it is.
+  empty leaves the row as it is; one that could not be made fails the
+  action, so the job is retried.
   """
   use Ash.Resource.Change
 
@@ -27,8 +28,19 @@ defmodule LumenViae.Rosary.Completion.LookUpPlace do
   def change(changeset, _opts, _context) do
     Ash.Changeset.before_transaction(changeset, fn changeset ->
       case Geolocation.locate(changeset.data.ip_prefix) do
-        nil -> changeset
-        location -> Ash.Changeset.force_change_attributes(changeset, Map.take(location, @place))
+        nil ->
+          changeset
+
+        # Fails the action, so the job is retried with backoff (the
+        # trigger's max_attempts) rather than finishing placeless.
+        {:error, :transient} ->
+          Ash.Changeset.add_error(
+            changeset,
+            "the geolocation provider could not be asked just now; the lookup will be retried"
+          )
+
+        location ->
+          Ash.Changeset.force_change_attributes(changeset, Map.take(location, @place))
       end
     end)
   end
