@@ -76,8 +76,8 @@ ready.
 - **No other first-pass finding was fixed by the merges.** D2 and D3 now
   matter more, because narration is queued rather than generated inline.
 - **A1 was a recorded decision**, which the first pass missed: a test
-  keeps REST accepting hidden sets on purpose. It stays a decision for the
-  owner, now with the iOS app's behaviour as evidence.
+  keeps REST accepting hidden sets on purpose. The owner confirmed it on
+  3 October 2026: keep accepting, no change.
 
 ### What needs work, in order
 
@@ -99,8 +99,8 @@ ready.
    docs/ASH_MIGRATION.md is due for removal.
 
 Decisions needed from the owner, in Part C's
-[decisions list](#decisions-and-owner-steps): A1, A6 (V4 waits on it), and
-four production steps no worker can take.
+[decisions list](#decisions-and-owner-steps): A6 (V4 waits on it), and
+four production steps no worker can take. A1 is decided.
 
 ## Part A: audit findings
 
@@ -110,8 +110,8 @@ availability today; **Medium** is one that will, or that leaks a little;
 
 ### Authorization and accounts
 
-**A1. Low (owner decision): REST completions are recorded against hidden
-sets.** `create :record` (`lib/lumen_viae/rosary/completion.ex:175`),
+**A1. Decided 3 Oct 2026: keep accepting; no change. REST completions
+are recorded against hidden sets.** `create :record` (`lib/lumen_viae/rosary/completion.ex:175`),
 used by `POST /api/completions`
 (`lib/lumen_viae_web/controllers/api/completion_controller.ex:46`) and the
 website's prayer page (`lib/lumen_viae_web/live/pray/index.ex:384`), has
@@ -137,20 +137,13 @@ Only GETs retry, and only on connection errors. So a 422 neither breaks the
 app nor loops: the completion is simply not counted. Older shipped builds
 were not checked here.
 
-Recommendation: refuse. Add `validate SetIsVisible` to `:record`, turn the
-test round to expect the 422, add a REST test beside
-`error_envelope_test.exs`, and record the refusal in
-docs/IOS_API_CONTRACT.md. The cost is that a prayer of a since-hidden set,
-downloaded for offline use, no longer counts. The leak it closes is small
-too: set ids are sequential, and a hidden set reveals only that it exists.
-Both sides are small, so the owner decides.
-
-```elixir
-create :record do
-  # ...
-  validate SetIsVisible, before_action?: true
-end
-```
+This audit recommended refusing. The owner decided otherwise on
+3 October 2026: REST keeps accepting a hidden set, so a prayer of a set
+downloaded for offline use and hidden since still counts, as
+`completion_recording_test.exs:78-86` pins. No change. What remains is
+accepted: an anonymous caller can tell a hidden set's id from a missing
+one (ids are sequential, and a hidden set reveals only that it exists) and
+add rows to its analytics, within the completion rate limit (R1).
 
 **A2. High (confirmed; fixed in #47): the sign-in throttle matched the
 literal request path.** `lib/lumen_viae_web/plugs/throttle_sign_in.ex:64`
@@ -1313,11 +1306,13 @@ The candidate "nightly self-healing narration", turned into a button.
 
 Decisions needed from the owner:
 
-- **A1:** should REST refuse completions for hidden sets? Recommended:
-  yes, given the iOS app's fire-and-forget call; the cost is not counting
-  offline prayers of since-hidden sets.
 - **A6:** do meditations in no visible set stay publicly readable, with
   their audio? V4 follows this answer.
+
+Decided:
+
+- **A1** (3 October 2026): REST keeps accepting completions for hidden
+  sets, so offline prayers of a since-hidden set still count. No change.
 
 Production steps no worker can take:
 
