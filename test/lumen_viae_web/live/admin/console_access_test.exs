@@ -35,8 +35,9 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
     live_session
   end
 
-  # AshAdmin's pages live in a live_session of their own (:ash_admin), which
-  # still keeps them apart from the site; what matters is the hook.
+  # AshAdmin's pages and Oban Web's live in live_sessions of their own
+  # (:ash_admin, :oban_jobs), which still keeps them apart from the site;
+  # what matters is the hook.
   test "every console page sits in a console live_session, behind the admin hook" do
     routes = console_routes()
     assert length(routes) >= 10, "expected the console's LiveViews, found #{length(routes)}"
@@ -45,7 +46,7 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
     for route <- routes do
       live_session = live_session_of(route.path)
 
-      assert live_session.name in [:admin, :ash_admin],
+      assert live_session.name in [:admin, :ash_admin, :oban_jobs],
              "#{route.path} is in live_session #{inspect(live_session.name)}, not a console one"
 
       assert Enum.any?(
@@ -96,6 +97,16 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
       assert assigns.authorizing, "#{event} switched authorization off"
       assert assigns.actor.id == admin.id, "#{event} changed the actor"
     end
+  end
+
+  # Only the refusal: the dashboard itself cannot render under Oban's
+  # manual test mode, which starts none of the processes it reports on.
+  test "Oban Web is behind the same guard", %{conn: conn} do
+    assert redirected_to(get(conn, "/admin/jobs")) == "/admin/login"
+
+    {:ok, view, _html} = live(conn, "/")
+    assert {:error, {:redirect, %{to: to}}} = live_redirect(view, to: "/admin/jobs")
+    assert URI.parse(to).path == "/admin/jobs"
   end
 
   test "live navigation from the login page into the console is forced through HTTP",

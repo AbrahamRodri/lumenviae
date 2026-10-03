@@ -25,7 +25,7 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
       <div class="max-w-[70ch] mx-auto px-6 py-16 text-navy">
         <h1 class="font-cinzel text-4xl mb-3 text-navy">Privacy Policy</h1>
         <p class="font-cinzel text-xs tracking-[0.25em] uppercase text-gold-dark">
-          Last updated: September 30, 2026
+          Last updated: October 3, 2026
         </p>
         <.sacred_divider class="max-w-[210px]" />
 
@@ -93,10 +93,10 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
             </li>
             <li>
               We do not save your full network address. Our server holds it in memory for about a
-              day at most - to look up an approximate place, to avoid looking the same address up
-              twice, and to limit abuse - and saves only a truncated version of it: the first three
+              day at most, to limit abuse, and saves only a truncated version of it: the first three
               parts of an IPv4 address, or the first three groups of an IPv6 one. That is enough to
-              tell one city from another, not enough to identify a household. On the website, the
+              tell one city from another, not enough to identify a household, and it is the
+              truncated version, never the full address, that we look an approximate place up from. On the website, the
               address is also carried in the site's session cookie, in your own browser, so that
               the prayer page can place a completed Rosary.
             </li>
@@ -158,9 +158,10 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
             this metadata.
           </p>
           <p class="font-garamond text-lg leading-relaxed mt-4">
-            To turn a network address into an approximate city and country, that address is sent to
-            a third-party geolocation service (currently ipapi.co), which returns the place and
-            nothing else. Only the address is sent. Nothing about which Rosary was prayed, or when,
+            To work out an approximate city and country, the truncated network address described
+            above is sent to a third-party geolocation service (currently ipapi.co), which returns
+            the place and nothing else. Only the truncated address is sent; your full address never
+            is. Nothing about which Rosary was prayed, or when,
             or anything else from this app or website, is sent with it.
           </p>
           <p class="font-garamond text-lg leading-relaxed mt-4">

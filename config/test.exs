@@ -28,6 +28,11 @@ config :lumen_viae, :token_signing_secret, "test-only-token-signing-secret-for-l
 # test slow. Never set this anywhere but test.
 config :bcrypt_elixir, log_rounds: 1
 
+# Jobs are inserted but never run on their own: a test that wants one to
+# run drains its queue (Oban.drain_queue/1), so nothing happens behind a
+# test's back and every job runs inside the test's sandbox.
+config :lumen_viae, Oban, testing: :manual
+
 # In test we don't send emails
 config :lumen_viae, LumenViae.Mailer, adapter: Swoosh.Adapters.Test
 

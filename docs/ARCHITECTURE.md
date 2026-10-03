@@ -10,13 +10,14 @@ this before adding a module, a query, or a page.
 3. [Rules that span resources](#rules-that-span-resources)
 4. [Value modules](#value-modules)
 5. [Services above the domain](#services-above-the-domain)
-6. [The Office domain](#the-office-domain)
-7. [The web layer](#the-web-layer)
-8. [Components](#components)
-9. [Templates and partials](#templates-and-partials)
-10. [Where does this go?](#where-does-this-go)
-11. [Design tokens](#design-tokens)
-12. [The admin console](#the-admin-console)
+6. [Background jobs](#background-jobs)
+7. [The Office domain](#the-office-domain)
+8. [The web layer](#the-web-layer)
+9. [Components](#components)
+10. [Templates and partials](#templates-and-partials)
+11. [Where does this go?](#where-does-this-go)
+12. [Design tokens](#design-tokens)
+13. [The admin console](#the-admin-console)
 
 ---
 
@@ -184,7 +185,7 @@ so an admin may do anything. Everyone else gets this, and nothing more:
 | Meditation | read one that is not archived; `:audio_for` |
 | Narration | read one whose meditation is not archived |
 | Mystery, Author, NarrationVoice, SpokenRosary | read |
-| Completion | `:record` and `:record_from_app` only, never read |
+| Completion | `:record` and `:record_from_app` only, never read; the place lookup job may `:read` and `:add_place` (see below) |
 | Office.Breviary | its generic actions |
 | Admin, Token | nothing; AshAuthentication's own sign-in reads bypass |
 | the PaperTrail version resources | nothing |
@@ -217,12 +218,19 @@ takes a trailing `opts` and passes `actor:` or `authorize?:` through.
 **`authorize?: false` is allowed in exactly these places,** each with a
 comment giving the reason: mix tasks, `LumenViae.Release` and
 `priv/repo/seeds.exs` (whoever holds that shell already holds the
-database); `Completion.Stamp`, which stamps the place on a completion after
-it is committed, as the system; the `visible?` aggregates above; and the dev
+database); the `visible?` aggregates above; and the dev
 sign-in in `Plugs.RequireAdmin`, which has no actor yet because signing one
 in is the point. Anywhere else, pass the actor. Curation services take
 `actor:` or `authorize?:` from their caller and thread it; they never decide
 for themselves.
+
+Background jobs are not on that list. An AshOban job runs its action with
+no actor and with authorization on, and is let through by a policy on
+`AshOban.Checks.AshObanInteraction`, scoped to the actions the job calls
+(`Completion`'s `:read` and `:add_place` for the place lookup). The check
+matches only the private context AshOban's own worker sets, which no
+request can set, so a policy on it opens the action to the job and to
+nobody else.
 
 `test/lumen_viae/policies_test.exs` checks every row of the table above,
 for nobody and for an admin, and `test/lumen_viae_web/graphql/authorization_test.exs`
@@ -475,6 +483,98 @@ switched off by default so no address leaves a development machine.
 `LumenViae.Hammer` sits alongside them. It is a supervised ETS counter
 (Hammer's) with no domain knowledge, which AshRateLimiter spends through
 `LumenViae.Limits.Backend`; see "Rate limits" under the domain.
+
+---
+
+## Background jobs
+
+Work that should not happen on a request, or that must survive a restart,
+is an Oban job, stored in the same Postgres database (`oban_jobs`). A job
+is defined through AshOban wherever it is an action on a resource: a
+`trigger` in the resource's `oban` section names the action, the queue and
+the worker module, and the job runs that action like any other caller
+would, through the resource's validations and policies. A plain
+`Oban.Worker` is for work that is not an action on one record.
+
+Oban Web shows every job at `/admin/jobs`, behind the console's own guard
+(`RequireAdmin` and the `:require_admin` hook), like `/admin/data`.
+
+### The jobs there are
+
+| Job | Queue | What enqueues it |
+| --- | --- | --- |
+| `Completion` `:locate` trigger (`Completion.LocateWorker`), running `:add_place` | `geolocation` | `Completion.Stamp`, once a completion has committed |
+
+Name every worker module explicitly (`worker_module_name`). The module
+name is what Oban stores in each job row, so renaming it strands every job
+already queued under the old name.
+
+### What goes in a job's arguments
+
+Job arguments are written to the database and shown in Oban Web, so they
+obey the same rules as any column: nothing goes in them that could not be
+stored on a row. The place lookup is the case that decides the design. The
+full address may never be written down, so it cannot travel in the job;
+the job carries the completion's id and nothing else, and the lookup is
+keyed by the truncated `ip_prefix` already on the row. Geolocation data is
+kept by network block, and a /24 or a /48 is the finest block a provider
+places, so nothing is lost by it, and the provider now sees no more of an
+address than the database does.
+
+### Sized for a 256MB database
+
+Production's database is one 256MB Fly machine, and the app's pool is five
+connections. Oban's defaults assume a database with room to spare, so each
+standing cost is set deliberately (`config/config.exs`):
+
+- **One queue per third party, sized to what it allows.** `geolocation`
+  runs one lookup at a time. A queue's concurrency is also the most
+  connections its jobs can hold at once, and neither job holds one across
+  its HTTP call.
+- **The PG notifier, not the Postgres one.** `Oban.Notifiers.Postgres`
+  holds a dedicated connection open outside the pool for LISTEN/NOTIFY,
+  and every notification - including Oban Web's gossip, several a second -
+  becomes a `pg_notify`. `Oban.Notifiers.PG` passes them between BEAM
+  processes instead. It reaches other machines only if they are clustered
+  (`DNS_CLUSTER_QUERY`); unclustered, each machine still wakes its own
+  queues and the stager covers the rest.
+- **Staging every five seconds.** The leader's stager makes due retries
+  and scheduled jobs available, and tells queues what is waiting: two small
+  indexed queries a tick. Oban's default is every second; a new job does
+  not wait for staging, because inserting it wakes its queue, so only
+  retries and jobs inserted inside a transaction wait the up-to-five
+  seconds.
+- **The database peer.** Leadership is one upsert on the unlogged
+  `oban_peers` table every 15 to 30 seconds. `Oban.Peers.Global` would save
+  it, but unclustered machines would each elect themselves, and two
+  lifelines could rescue each other's running jobs.
+- **Pruner: a week, every five minutes.** Completed, cancelled and
+  discarded jobs are deleted after seven days, which is the history Oban
+  Web can show. The table stays at a few thousand rows.
+- **Lifeline: 30 minutes, every five.** A job left `executing` by a crash
+  or a deploy is rescued after half an hour, far longer than any job runs,
+  so a slow job is never rescued while it is still running and run twice.
+- **Oban Web's metrics.** Its reporter counts jobs by state on the leader,
+  by default every second whether or not anybody is looking, and creates
+  an estimating SQL function the first time it runs. It counts every 15
+  seconds here, and exactly (the pruned table is small enough), so the
+  function is never created. The dashboard itself refreshes every five
+  seconds rather than every second (`LumenViaeWeb.ObanResolver`).
+
+The tables come from `Oban.Migration`, pinned to version 14, in a
+hand-written migration: they are not Ash resources, so `mix ash.codegen`
+cannot generate them. Version 14 is the current one in Oban 2.24, so
+nothing is migrated twice. Its index set is Oban's own and is left as it
+is: one compound btree on `(state, queue, priority, scheduled_at, id)`,
+which every fetch, stage and count reads; `(state, cancelled_at)` and
+`(state, discarded_at)`, which the pruner deletes by; and GIN indexes on
+`args` and `meta`, which uniqueness checks and Oban Web's search use. The
+GIN indexes are the only ones that cost anything on a write, and on a
+table the pruner keeps to a few thousand rows that cost is negligible.
+
+Tests run Oban in `testing: :manual`: jobs are inserted and nothing runs
+until a test drains the queue (`Oban.drain_queue/1`), which runs the job in
+the test's own process, inside its sandbox.
 
 ---
 
@@ -850,18 +950,21 @@ published privacy policy promises:
 1. **The address is truncated before it is stored.**
    `Geolocation.anonymize/1` keeps the IPv4 `/24` or the IPv6 `/48` and
    `ip_prefix` holds only that. The full address exists in memory long
-   enough to do the lookup and to key the rate limit, and is never written
-   down.
+   enough to key the rate limit and decide whether a lookup is worth
+   scheduling, and is never written down - not on the row, and not in a
+   job's arguments. The lookup itself is keyed by the stored prefix, and
+   the prefix is all the provider is sent.
 2. **Nothing links two completions.** No account, device or install
    identifier, however rotated. Two Rosaries from the same phone are
    indistinguishable from two prayed by strangers.
 3. **The lookup never runs on the request path.**
-   The completion's create actions write the row and fill the place in
-   from a background task under `LumenViae.TaskSupervisor`, started once
-   the write has committed (`LumenViae.Rosary.Completion.Stamp`). A third
+   The completion's create actions write the row, and
+   `LumenViae.Rosary.Completion.Stamp` enqueues the `:locate` job once the
+   write has committed; the job fills the place in (see "Background
+   jobs"). It survives a restart and is retried if it fails. A third
    party being slow must not be felt as a slow Rosary, and a third party
    being down must not fail a completion. The cost is that a row is
-   briefly placeless, and stays so for good if the lookup fails - which is
+   briefly placeless, and stays so for good if every attempt fails - which is
    why the dashboard shows how many rows in the period actually have a
    place. The address reaches the action as its context, never as an
    input, so no client can name one.

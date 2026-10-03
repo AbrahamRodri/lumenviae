@@ -18,10 +18,10 @@ defmodule LumenViae.Application do
       LumenViae.Services.Geolocation,
       # Owns the parsed Divine Office cache.
       LumenViae.Office.Cache,
-      # Where a completion's geolocation lookup runs. Off the request path
-      # on purpose: filling in a place is worth a background task and never
-      # worth making somebody wait at the end of a Rosary.
-      {Task.Supervisor, name: LumenViae.TaskSupervisor},
+      # Background jobs, with every resource's AshOban triggers added to
+      # the configured queues. After the Repo, which it needs, and before
+      # the endpoint, so a request can enqueue as soon as it can be served.
+      {Oban, oban_config()},
       # Start to serve requests, typically the last entry
       LumenViaeWeb.Endpoint
     ]
@@ -30,6 +30,13 @@ defmodule LumenViae.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: LumenViae.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp oban_config do
+    AshOban.config(
+      Application.fetch_env!(:lumen_viae, :ash_domains),
+      Application.fetch_env!(:lumen_viae, Oban)
+    )
   end
 
   # Tell Phoenix to update the endpoint configuration
