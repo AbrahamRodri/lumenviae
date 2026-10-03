@@ -64,6 +64,11 @@ defmodule LumenViae.MixProject do
       {:igniter, "~> 0.8", only: [:dev, :test]},
       {:sourceror, "~> 1.12", only: [:dev, :test]},
       {:usage_rules, "~> 1.2", only: :dev, runtime: false},
+      # Static analysis and dependency audit, run by CI (docs/CI.md). Never
+      # in the release: `mix deps.get --only prod` skips them.
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:sobelow, "~> 0.16", only: [:dev, :test], runtime: false},
+      {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:phoenix, "~> 1.8"},
       {:phoenix_ecto, "~> 4.7"},
       {:ecto_sql, "~> 3.13"},

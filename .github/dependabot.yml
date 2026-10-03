@@ -1,0 +1,39 @@
+# Weekly dependency updates. Each PR runs the full CI before anyone merges it.
+# See docs/CI.md.
+version: 2
+
+updates:
+  - package-ecosystem: mix
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    # Related packages move together, so one PR covers a family's minor and
+    # patch releases. Major releases always get their own PR.
+    groups:
+      ash:
+        patterns:
+          - "ash"
+          - "ash_*"
+          - "spark"
+          - "igniter"
+          - "reactor"
+        update-types:
+          - minor
+          - patch
+      phoenix:
+        patterns:
+          - "phoenix"
+          - "phoenix_*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directories:
+      - "/"
+      - "/.github/actions/setup-elixir"
+    schedule:
+      interval: weekly
+      day: monday
