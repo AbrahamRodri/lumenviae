@@ -4,6 +4,7 @@ defmodule LumenViaeWeb.Router do
   use AshAuthentication.Phoenix.Router
 
   import AshAdmin.Router
+  import Oban.Web.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -160,10 +161,11 @@ defmodule LumenViaeWeb.Router do
   end
 
   # AshAdmin: a generic browser over every Ash resource, for the cases the
-  # console has no screen for. It brings its own look and its own
-  # live_session, so it gets the console's guard twice over: RequireAdmin on
-  # the HTTP request, and the :require_admin hook on every socket mount.
-  # Unaliased scope, because the macro names AshAdmin's own LiveViews.
+  # console has no screen for, and Oban Web, the background jobs. Each
+  # brings its own look and its own live_session, so each gets the
+  # console's guard twice over: RequireAdmin on the HTTP request, and the
+  # :require_admin hook on every socket mount. Unaliased scope, because the
+  # macros name the libraries' own LiveViews.
   scope "/admin" do
     pipe_through [:browser, :admin]
 
@@ -174,6 +176,11 @@ defmodule LumenViaeWeb.Router do
         {LumenViaeWeb.AshAdminActor, :lock_authorization}
       ]
     )
+
+    oban_dashboard "/jobs",
+      as: :oban_jobs,
+      on_mount: [{LumenViaeWeb.UserAuth, :require_admin}],
+      resolver: LumenViaeWeb.ObanResolver
   end
 
   # JSON API for iOS app

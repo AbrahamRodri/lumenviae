@@ -922,7 +922,7 @@ defmodule LumenViae.Rosary do
     * `:prayed_aloud` - whether the spoken Rosary was on
 
   The address travels as the action's context rather than as one of its
-  inputs, and the place is filled in afterwards by a background task; see
+  inputs, and the place is filled in afterwards by a background job; see
   `LumenViae.Rosary.Completion.Stamp` for why, on both counts.
 
   Returns `{:ok, completion}` or `{:error, error}`: an `Ash.Error.Invalid`

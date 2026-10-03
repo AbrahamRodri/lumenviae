@@ -49,8 +49,9 @@ defmodule LumenViae.Rosary.Completion do
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource, AshRateLimiter]
+    extensions: [AshGraphql.Resource, AshRateLimiter, AshOban]
 
+  alias LumenViae.Rosary.Completion.LookUpPlace
   alias LumenViae.Rosary.Completion.RateLimit
   alias LumenViae.Rosary.Completion.SetIsVisible
   alias LumenViae.Rosary.Completion.Stamp
@@ -105,6 +106,31 @@ defmodule LumenViae.Rosary.Completion do
   # see its moduledoc.
   rate_limit do
     backend LumenViae.Limits.Backend
+  end
+
+  # The place lookup, as a background job. `Stamp` enqueues one for each
+  # completion that can be placed, once the row has committed; nothing
+  # polls for unplaced rows, so there is no scheduler. The job's arguments
+  # are the completion's id and nothing else: the lookup reads the stored
+  # prefix, so the full address is never written into a job. A completion
+  # that already has a place no longer matches `where`, and its job is
+  # cancelled rather than run twice. See docs/ARCHITECTURE.md, "Background
+  # jobs".
+  oban do
+    triggers do
+      trigger :locate do
+        action :add_place
+        queue :geolocation
+        where expr(not is_nil(ip_prefix) and is_nil(country_code))
+        scheduler_cron false
+        max_attempts 3
+        # The lookup is an HTTP call, made before the update's own
+        # transaction opens; locking the row first would hold a connection
+        # open across it.
+        lock_for_update? false
+        worker_module_name LumenViae.Rosary.Completion.LocateWorker
+      end
+    end
   end
 
   actions do
@@ -185,6 +211,12 @@ defmodule LumenViae.Rosary.Completion do
       description "Attaches a looked-up place to a completion that has already been written."
       accept [:city, :region, :country, :country_code]
     end
+
+    update :add_place do
+      description "Looks up a rough place for a completion from its stored network prefix and attaches it. Run by the :locate trigger in the background, never on the request path."
+      require_atomic? false
+      change LookUpPlace
+    end
   end
 
   # Anybody may record that they finished a Rosary - the website and REST
@@ -198,6 +230,15 @@ defmodule LumenViae.Rosary.Completion do
     end
 
     policy action([:record, :record_from_app]) do
+      authorize_if always()
+    end
+
+    # The place lookup job (the :locate trigger) reads the row and writes
+    # the place with no actor, after the response has gone. It is let
+    # through by AshOban's own check, which matches only the private context
+    # AshOban's worker sets: nothing a client sends can set it, so the
+    # public cannot reach :add_place, and the job needs no authorize?: false.
+    policy [action([:read, :add_place]), AshOban.Checks.AshObanInteraction] do
       authorize_if always()
     end
   end

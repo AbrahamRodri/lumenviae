@@ -2,6 +2,8 @@
   import_deps: [
     :ash_graphql,
     :ash_paper_trail,
+    :ash_oban,
+    :oban_web,
     :absinthe,
     :ash_phoenix,
     :ash_postgres,

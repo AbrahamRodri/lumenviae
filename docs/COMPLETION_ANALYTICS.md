@@ -14,14 +14,21 @@ dialog, no Core Location, and no tracking prompt, on either surface.
 | --- | --- | --- |
 | `meditation_set_id`, `completed_at` | The completion itself | `42`, `2026-08-22T19:11:00Z` |
 | `source` | The surface it was prayed on | `"web"`, `"ios"` |
-| `city`, `region`, `country`, `country_code` | Looked up from the request's address, in the background | `"Dallas"`, `"Texas"`, `"United States"`, `"US"` |
+| `city`, `region`, `country`, `country_code` | Looked up from `ip_prefix` by a background job | `"Dallas"`, `"Texas"`, `"United States"`, `"US"` |
 | `ip_prefix` | The request's address, truncated | `"203.0.113.0"` |
 | `time_zone`, `locale` | Reported by a client that sends them; no build of the app does | `"America/Chicago"`, `"en-US"` |
 | `prayed_aloud` | Reported by the client: was the spoken Rosary on | `true`, `false`, or `nil` when not reported |
 
-The full IP address is never stored. It exists in memory long enough to do
-the geolocation lookup and to key the rate limit, and what is written down
-is the IPv4 `/24` or the IPv6 `/48`.
+The full IP address is never stored, and never sent to the geolocation
+provider. It exists in memory long enough to key the rate limit, and what
+is written down is the IPv4 `/24` or the IPv6 `/48`. The place is looked up
+afterwards by an Oban job (the completion's `:locate` trigger), whose only
+argument is the completion's id; the job reads the stored prefix and asks
+the provider about that. Providers keep their data by network block, and
+`ipapi.co` reports a /24 as its own record (`"network": "8.8.8.0/24"` for
+both `8.8.8.0` and `8.8.8.8`), so the prefix places a completion exactly as
+well as the full address would. The job survives a restart, and its
+history is at `/admin/jobs`.
 
 Nothing on the row links it to any other row. There is no account, device or
 install identifier, rotated or otherwise, so two Rosaries prayed on the same
@@ -159,10 +166,10 @@ fly secrets set GEOLOCATION_ENABLED=false
 ### About the provider
 
 `ipapi.co` is the default because it answers over **HTTPS** without an API
-key, on a free tier of 1,000 lookups a day. Answers are cached by address
+key, on a free tier of 1,000 lookups a day. Answers are cached by prefix
 for 24 hours, so somebody praying a novena from the same sofa costs one
-lookup rather than nine. The cache is per-machine, so with two machines an
-address can be looked up twice - still far inside the daily allowance at
+lookup rather than nine. The cache is per-machine, so with two machines a
+prefix can be looked up twice - still far inside the daily allowance at
 this volume.
 
 `ip_api_com` is more generous — 45 requests a minute — but its free tier is

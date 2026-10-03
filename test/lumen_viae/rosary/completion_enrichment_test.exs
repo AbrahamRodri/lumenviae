@@ -1,18 +1,24 @@
 defmodule LumenViae.Rosary.CompletionEnrichmentTest do
   @moduledoc """
   The completion is written first and the place arrives afterwards, from a
-  background task. This is the seam between the two.
+  background job (the completion's `:locate` trigger). This is the seam
+  between the two.
 
-  Not async: it needs the shared sandbox so the task can reach the database,
-  and a shared Req stub so it can reach the stubbed provider.
+  Oban runs in manual mode under test, so a job only runs when its queue is
+  drained, and draining runs it in the test's own process: the Req stub and
+  the sandbox both reach it without being shared.
+
+  Not async: the geolocation switch is application config.
   """
   use LumenViae.DataCase, async: false
+  use Oban.Testing, repo: LumenViae.Repo
 
   import LumenViae.Test.EnvStub, only: [put_env: 1]
 
   alias LumenViae.Repo
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Completion
+  alias LumenViae.Rosary.Completion.LocateWorker
   alias LumenViae.Services.Geolocation
 
   setup do
@@ -20,9 +26,6 @@ defmodule LumenViae.Rosary.CompletionEnrichmentTest do
       {:lumen_viae, :geolocation,
        enabled: true, provider: :ipapi_co, req_options: [plug: {Req.Test, Geolocation}]}
     ])
-
-    Req.Test.set_req_test_to_shared()
-    on_exit(fn -> Req.Test.set_req_test_to_private(self()) end)
 
     {:ok, set} =
       Rosary.create_meditation_set(
@@ -36,33 +39,26 @@ defmodule LumenViae.Rosary.CompletionEnrichmentTest do
     %{set: set}
   end
 
+  # Unique per test, so one test's answer cannot sit in the geolocation
+  # cache waiting for another.
   defp an_address do
     n = System.unique_integer([:positive])
-    "203.0.#{rem(n, 250)}.#{rem(div(n, 250), 250)}"
+    "203.0.#{rem(n, 250)}.#{rem(div(n, 250), 250) + 1}"
   end
 
-  # The place arrives out of band, so the assertion has to wait for it
-  # rather than read the row once and conclude it never came.
-  defp eventually(fun, attempts \\ 100) do
-    case fun.() do
-      nil when attempts > 0 ->
-        Process.sleep(10)
-        eventually(fun, attempts - 1)
-
-      result ->
-        result
-    end
+  defp dallas(conn) do
+    Req.Test.json(conn, %{
+      "city" => "Dallas",
+      "region" => "Texas",
+      "country_name" => "United States",
+      "country_code" => "US"
+    })
   end
+
+  defp run_lookups, do: Oban.drain_queue(queue: :geolocation)
 
   test "the place is filled in after the completion is written", %{set: set} do
-    Req.Test.stub(Geolocation, fn conn ->
-      Req.Test.json(conn, %{
-        "city" => "Dallas",
-        "region" => "Texas",
-        "country_name" => "United States",
-        "country_code" => "US"
-      })
-    end)
+    Req.Test.stub(Geolocation, &dallas/1)
 
     {:ok, completion} =
       Rosary.record_completion(set.id, %{source: "web", ip: an_address()})
@@ -71,18 +67,47 @@ defmodule LumenViae.Rosary.CompletionEnrichmentTest do
     # lookup, which is the whole point of doing it afterwards.
     assert completion.country == nil
     assert completion.ip_prefix =~ ~r/\.0$/
+    assert_enqueued(worker: LocateWorker, queue: :geolocation)
 
-    placed = eventually(fn -> Repo.get(Completion, completion.id).country end)
-
-    assert placed == "United States"
+    assert %{success: 1, failure: 0} = run_lookups()
 
     reloaded = Repo.get(Completion, completion.id)
+    assert reloaded.country == "United States"
     assert reloaded.city == "Dallas"
     assert reloaded.region == "Texas"
     assert reloaded.country_code == "US"
     # Enriching must not disturb what was already recorded.
     assert reloaded.source == "web"
     assert reloaded.ip_prefix == completion.ip_prefix
+  end
+
+  test "the job carries the completion's id and no part of the address", %{set: set} do
+    ip = an_address()
+    {:ok, completion} = Rosary.record_completion(set.id, %{ip: ip})
+
+    assert [job] = all_enqueued(worker: LocateWorker)
+    assert job.args["primary_key"] == %{"id" => completion.id}
+
+    stored = Jason.encode!(job.args)
+    refute stored =~ ip
+    refute stored =~ completion.ip_prefix
+  end
+
+  test "the provider is asked about the stored prefix, never the full address", %{set: set} do
+    test_pid = self()
+
+    Req.Test.stub(Geolocation, fn conn ->
+      send(test_pid, {:asked, conn.request_path})
+      dallas(conn)
+    end)
+
+    ip = an_address()
+    {:ok, completion} = Rosary.record_completion(set.id, %{ip: ip})
+    run_lookups()
+
+    assert_received {:asked, path}
+    assert path == "/#{completion.ip_prefix}/json/"
+    refute path =~ ip
   end
 
   test "a completion survives a provider that fails", %{set: set} do
@@ -92,25 +117,45 @@ defmodule LumenViae.Rosary.CompletionEnrichmentTest do
 
     assert {:ok, completion} = Rosary.record_completion(set.id, %{ip: an_address()})
 
-    Process.sleep(50)
+    # The lookup comes back empty rather than failing the job: there is
+    # nothing a retry would learn that the cache has not already noted.
+    assert %{success: 1, failure: 0} = run_lookups()
 
     reloaded = Repo.get(Completion, completion.id)
     assert reloaded.id == completion.id
     assert reloaded.country == nil
   end
 
-  test "a private address is never sent to the provider", %{set: set} do
+  test "a completion that already has a place is not looked up again", %{set: set} do
     test_pid = self()
 
     Req.Test.stub(Geolocation, fn conn ->
       send(test_pid, :asked)
-      Req.Test.json(conn, %{"country_code" => "US", "country_name" => "United States"})
+      dallas(conn)
     end)
 
+    {:ok, completion} = Rosary.record_completion(set.id, %{ip: an_address()})
+
+    completion
+    |> Ash.Changeset.for_update(:place, %{country: "Philippines", country_code: "PH"})
+    |> Ash.update!(actor: LumenViae.Test.Admins.admin())
+
+    assert %{cancelled: 1} = run_lookups()
+    refute_received :asked
+    assert Repo.get(Completion, completion.id).country_code == "PH"
+  end
+
+  test "a private address schedules nothing, so it is never sent anywhere", %{set: set} do
     {:ok, _} = Rosary.record_completion(set.id, %{ip: "192.168.1.50"})
 
-    Process.sleep(50)
+    refute_enqueued(worker: LocateWorker)
+  end
 
-    refute_received :asked
+  test "with geolocation switched off nothing is scheduled", %{set: set} do
+    put_env([{:lumen_viae, :geolocation, enabled: false}])
+
+    {:ok, _} = Rosary.record_completion(set.id, %{ip: an_address()})
+
+    refute_enqueued(worker: LocateWorker)
   end
 end

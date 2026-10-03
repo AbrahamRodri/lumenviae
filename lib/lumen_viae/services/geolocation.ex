@@ -26,13 +26,14 @@ defmodule LumenViae.Services.Geolocation do
 
   Answers are cached by address for a day. Somebody praying a novena from
   the same sofa is one lookup rather than nine, which is what keeps a free
-  tier viable and, more to the point, means their address is sent away
+  tier viable and, more to the point, means their network is asked about
   once instead of nine times.
 
-  Lookups are never made on the request path - see
-  `LumenViae.Rosary.record_completion/2`, which writes the completion
-  first and fills the place in afterwards. A slow third party must not be
-  able to hold up the end of somebody's Rosary.
+  Lookups are never made on the request path, and never with a full
+  address: a completion is written first, and a background job looks up
+  its stored, truncated prefix afterwards (see
+  `LumenViae.Rosary.Completion.LookUpPlace`). A slow third party must not
+  be able to hold up the end of somebody's Rosary.
   """
 
   use GenServer
@@ -214,8 +215,9 @@ defmodule LumenViae.Services.Geolocation do
   This is what gets stored. It survives the only two questions the stored
   value is ever asked - are these two completions from roughly the same
   place, and what did the lookup say - while dropping the part that
-  identifies a household. The full address is used in memory, for the
-  lookup and for rate limiting, and is never written down.
+  identifies a household. It is also what the place lookup is keyed by,
+  so the provider is told no more than is stored. The full address is
+  used in memory, for rate limiting, and is never written down.
   """
   def anonymize(nil), do: nil
 

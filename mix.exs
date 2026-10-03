@@ -66,6 +66,12 @@ defmodule LumenViae.MixProject do
       {:bcrypt_elixir, "~> 3.3"},
       # The SAT solver Ash's policy authorizer needs.
       {:picosat_elixir, "~> 0.2"},
+      # Background jobs: Oban, wired into the resources through AshOban, and
+      # its dashboard inside the console. See docs/ARCHITECTURE.md,
+      # "Background jobs".
+      {:oban, "~> 2.24"},
+      {:ash_oban, "~> 0.9"},
+      {:oban_web, "~> 2.13"},
       {:igniter, "~> 0.8", only: [:dev, :test]},
       {:sourceror, "~> 1.12", only: [:dev, :test]},
       {:usage_rules, "~> 1.2", only: :dev, runtime: false},

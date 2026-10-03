@@ -145,6 +145,46 @@ config :lumen_viae, :geolocation,
   enabled: false,
   provider: :ipapi_co
 
+# Background jobs. Production's database is one 256MB machine, so every
+# setting here is chosen to cost it as little as possible; the reasoning,
+# setting by setting, is in docs/ARCHITECTURE.md, "Background jobs".
+# AshOban adds each resource trigger to this in LumenViae.Application.
+#
+#   * One queue per third party the jobs call, sized to what that party
+#     allows: geolocation is one lookup at a time.
+#   * The PG notifier: notifications travel between BEAM processes instead
+#     of through LISTEN/NOTIFY, so Oban holds no extra connection open and
+#     Oban Web's once-a-second gossip never touches the database.
+#   * Staging every five seconds rather than every second. A new job does
+#     not wait for it (an insert wakes its queue at once); only a retry, or
+#     a job inserted inside a transaction, waits up to five seconds.
+#   * The pruner keeps a week of finished jobs, which is what Oban Web can
+#     show, and sweeps every five minutes.
+#   * The lifeline rescues a job orphaned by a crash or a deploy after 30
+#     minutes, well past the longest job's own timeout, so it never
+#     rescues one that is still running.
+config :lumen_viae, Oban,
+  engine: Oban.Engines.Basic,
+  repo: LumenViae.Repo,
+  notifier: Oban.Notifiers.PG,
+  queues: [geolocation: 1],
+  stager: [interval: :timer.seconds(5)],
+  pruner: [max_age: {7, :days}, interval: {5, :minutes}],
+  lifeline: [rescue_after: {30, :minutes}, interval: {5, :minutes}]
+
+# Oban Web's metrics process. Its reporter counts jobs by state on the
+# leader, by default every second whether or not anybody has the dashboard
+# open, and on first run creates a SQL function in the database for
+# estimating large counts. Every 15 seconds is plenty for a page an admin
+# opens now and then; the pruner keeps the table small enough to count
+# exactly, so the estimating function is never needed or created.
+config :oban_met,
+  reporter: [
+    check_interval: :timer.seconds(15),
+    auto_migrate: false,
+    estimate_limit: :infinity
+  ]
+
 # Where the Divine Office texts come from: a Divinum Officium instance.
 # The public site by default; production can point at a self-hosted copy
 # of the engine through DIVINUM_OFFICIUM_BASE_URL without a code change.
