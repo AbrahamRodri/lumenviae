@@ -29,13 +29,16 @@ defmodule LumenViae.Curation.CsvImport do
     * `title` - meditation title
     * `author` - meditation author
     * `source` - meditation source
-    * `audio_filename` - when present, narration is generated with
+    * `audio_filename` - when present, narration is recorded with
       ElevenLabs once per configured voice (see `LumenViae.Rosary.Voices`)
-      and uploaded to S3 at `voices/<slug>/<audio_filename>`; the meditation
-      is still created if generation fails for some or all voices (reported
-      as a `:warning` result, and `mix lumen_viae.regenerate_audio
-      --only-missing` fills the gap later). The same filename may not appear
-      on more than one row.
+      and uploaded to S3 at `voices/<slug>/<audio_filename>`. The import
+      writes the row and enqueues one `LumenViae.Curation.Jobs.NarrateMeditation`
+      job per voice; the jobs record in the background, set the
+      meditation's `audio_url` with the first recording that lands, and
+      can be followed in the batch (see `:batch`). A voice whose job fails
+      leaves the meditation without that narration, and `mix
+      lumen_viae.regenerate_audio --only-missing` fills the gap later. The
+      same filename may not appear on more than one row.
 
   Optional meditation set columns:
 
@@ -63,7 +66,10 @@ defmodule LumenViae.Curation.CsvImport do
     * `:voices` - slugs of the voices to record (default: every configured
       voice)
     * `:dry_run` - validate rows without writing to the database or
-      generating audio
+      enqueueing anything
+    * `:batch` - the batch the narration jobs are enqueued under
+      (`LumenViae.Curation.AudioJobs.new_batch/0` by default); pass one to
+      follow the recordings or wait for them
     * `:progress` - a 1-arity function receiving progress events (see below)
     * `:actor` - the admin the import runs as; the console passes the
       signed-in admin
@@ -78,22 +84,23 @@ defmodule LumenViae.Curation.CsvImport do
 
     * `{:started, total}` - once, before the first row
     * `{:row_started, index, total, description}` - a row began processing
-    * `{:row_audio, index, total, filename}` - audio generation began for
-      one voice; `filename` is that voice's S3 key
-    * `{:row_audio_retry, index, total, filename, attempt, max}` - a
-      transient ElevenLabs/S3 failure is being retried
+    * `{:row_audio, index, total, key}` - a narration job was enqueued for
+      one voice; `key` is that voice's S3 key
     * `{:row_finished, index, total, {:ok | :warning | :error, message}}` -
       row result
 
   Results are returned as a list of `{:ok, message}` / `{:warning, message}`
   / `{:error, message}` tuples, in row order. A `:warning` means the
-  meditation row was written but something non-fatal went wrong (audio
-  generation failed, or the meditation could not be attached to its set).
+  meditation row was written but something non-fatal went wrong (a
+  narration could not be enqueued, or the meditation could not be attached
+  to its set). The recordings themselves finish after the import returns;
+  their outcomes are the batch's, not the rows'.
   """
 
   alias LumenViae.AshOpts
-  alias LumenViae.Audio.Pipeline
   alias LumenViae.Audio.TtsText
+  alias LumenViae.Curation.AudioJobs
+  alias LumenViae.Curation.Jobs.NarrateMeditation
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Voices
 
@@ -129,7 +136,7 @@ defmodule LumenViae.Curation.CsvImport do
         [{:error, message}]
 
       {:ok, headers, rows} ->
-        process_rows(headers, rows, opts)
+        process_rows(headers, rows, AudioJobs.with_batch(opts))
     end
   end
 
@@ -437,6 +444,10 @@ defmodule LumenViae.Curation.CsvImport do
   ## Row processing
 
   defp process_rows(headers, rows, opts) do
+    # An unknown voice is a typo on a command line: refuse it before any
+    # row is written, not after the first.
+    unless opts[:dry_run] || opts[:skip_audio], do: import_voices(opts)
+
     mysteries = Rosary.list_mysteries!(AshOpts.take(opts)) |> Enum.group_by(& &1.name)
     total = length(rows)
     notify(opts, {:started, total})
@@ -500,11 +511,7 @@ defmodule LumenViae.Curation.CsvImport do
       if opts[:dry_run] do
         {dry_run_result(attrs, row_map, mystery, set, opts), sets_cache}
       else
-        {attrs, recordings, audio_error} =
-          maybe_generate_audio(attrs, row_map, {index, total}, opts)
-
-        {create_and_attach(attrs, row_map, mystery, set, {recordings, audio_error}, opts),
-         sets_cache}
+        {create_and_attach(attrs, row_map, mystery, set, {index, total}, opts), sets_cache}
       end
     else
       {:error, message} -> {{:error, message}, sets_cache}
@@ -678,14 +685,14 @@ defmodule LumenViae.Curation.CsvImport do
     end
   end
 
-  defp create_and_attach(attrs, row_map, mystery, set, {recordings, audio_error}, opts) do
+  defp create_and_attach(attrs, row_map, mystery, set, position, opts) do
     case Rosary.create_meditation(attrs, AshOpts.take(opts)) do
       {:ok, meditation} ->
-        record_narrations(meditation, recordings, opts)
+        narration = queue_narration(meditation, row_map, position, opts)
 
         case attach_to_set(set, meditation, row_map, opts) do
           :ok ->
-            created_result(attrs, mystery, set, audio_error)
+            created_result(attrs, mystery, set, narration)
 
           {:error, message} ->
             {:warning,
@@ -698,33 +705,50 @@ defmodule LumenViae.Curation.CsvImport do
     end
   end
 
-  # The objects are in S3 by now; this is the bookkeeping that lets the API
-  # offer them. A failure here is logged rather than failing the row: the
-  # meditation exists, and `regenerate_audio --only-missing` repairs it.
-  defp record_narrations(meditation, recordings, opts) do
-    Enum.each(recordings, fn {voice_slug, s3_key} ->
-      case Rosary.record_narration(meditation, voice_slug, s3_key, AshOpts.take(opts)) do
-        {:ok, _meditation} ->
-          :ok
+  # One job per voice. The meditation is written without an audio_url; the
+  # first recording to land sets it, so it never claims audio that is not
+  # there yet. Returns {queued voice slugs, failure messages}.
+  defp queue_narration(meditation, row_map, {index, total}, opts) do
+    audio_filename = Map.get(row_map, "audio_filename")
 
-        {:error, reason} ->
-          Logger.error(
-            "Failed to record #{voice_slug} narration #{s3_key} for meditation " <>
-              "#{meditation.id}: #{inspect(reason)}"
-          )
-      end
-    end)
+    if opts[:skip_audio] || is_nil(audio_filename) || is_nil(meditation.content) do
+      {[], []}
+    else
+      opts
+      |> import_voices()
+      |> Enum.reduce({[], []}, fn voice, {queued, failures} ->
+        notify(opts, {:row_audio, index, total, Voices.narration_key(voice, audio_filename)})
+
+        case meditation
+             |> NarrateMeditation.new_for(voice, audio_filename)
+             |> AudioJobs.enqueue(opts[:batch]) do
+          {:ok, _queued_or_already} ->
+            {queued ++ [voice.slug], failures}
+
+          {:error, reason} ->
+            Logger.error(
+              "Could not queue #{voice.slug} narration of meditation #{meditation.id}: #{inspect(reason)}"
+            )
+
+            {queued,
+             failures ++ ["#{voice.slug}: could not queue (#{format_audio_error(reason)})"]}
+        end
+      end)
+    end
   end
 
-  defp created_result(attrs, mystery, set, audio_error) do
+  defp created_result(attrs, mystery, set, {queued, failures}) do
     title_info = if attrs["title"], do: " - #{attrs["title"]}", else: ""
-    audio_info = if attrs["audio_url"], do: " (with audio)", else: ""
+    audio_info = if queued == [], do: "", else: " (narration queued: #{Enum.join(queued, ", ")})"
     set_info = if set, do: " [set: #{set.name}]", else: ""
     base = "Created meditation for #{mystery.name}#{title_info}#{audio_info}#{set_info}"
 
-    case audio_error do
-      nil -> {:ok, base}
-      reason -> {:warning, "#{base} but audio generation failed: #{reason}"}
+    case failures do
+      [] ->
+        {:ok, base}
+
+      failures ->
+        {:warning, "#{base} but narration could not be queued for #{Enum.join(failures, "; ")}"}
     end
   end
 
@@ -749,61 +773,6 @@ defmodule LumenViae.Curation.CsvImport do
           {order, ""} -> order
           _ -> nil
         end
-    end
-  end
-
-  # Returns {attrs, recordings, audio_error}: the attrs with "audio_url" set
-  # to the filename when at least one voice was recorded, the
-  # [{voice_slug, s3_key}] pairs that succeeded, and nil or a message naming
-  # the voices that failed. When every voice fails the meditation is still
-  # created (audio_error carries the reason so the row result can surface
-  # it as a warning instead of hiding the failure).
-  defp maybe_generate_audio(attrs, row_map, {index, total}, opts) do
-    audio_filename = Map.get(row_map, "audio_filename")
-    content = Map.get(attrs, "content")
-
-    cond do
-      opts[:skip_audio] ->
-        {attrs, [], nil}
-
-      is_nil(audio_filename) or is_nil(content) ->
-        {attrs, [], nil}
-
-      true ->
-        voices = import_voices(opts)
-
-        {recordings, failures} =
-          Enum.reduce(voices, {[], []}, fn voice, {recordings, failures} ->
-            s3_key = Voices.narration_key(voice, audio_filename)
-            notify(opts, {:row_audio, index, total, s3_key})
-            Logger.info("Generating #{voice.slug} audio for: #{s3_key}")
-
-            on_retry = fn attempt, max ->
-              notify(opts, {:row_audio_retry, index, total, s3_key, attempt, max})
-            end
-
-            case Pipeline.generate_and_upload(
-                   content,
-                   Map.get(attrs, "tts_annotations", []),
-                   s3_key,
-                   voice: voice,
-                   on_retry: on_retry
-                 ) do
-              {:ok, s3_key} ->
-                Logger.info("Successfully generated and uploaded audio: #{s3_key}")
-                {[{voice.slug, s3_key} | recordings], failures}
-
-              {:error, reason} ->
-                Logger.error("Failed to generate audio for #{s3_key}: #{inspect(reason)}")
-                {recordings, ["#{voice.slug}: #{format_audio_error(reason)}" | failures]}
-            end
-          end)
-
-        recordings = Enum.reverse(recordings)
-        attrs = if recordings == [], do: attrs, else: Map.put(attrs, "audio_url", audio_filename)
-        audio_error = if failures == [], do: nil, else: Enum.join(Enum.reverse(failures), "; ")
-
-        {attrs, recordings, audio_error}
     end
   end
 

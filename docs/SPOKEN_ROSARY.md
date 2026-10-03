@@ -7,7 +7,7 @@ iOS app and the website can pray a whole Rosary aloud, bead by bead.
 | Piece | Where |
 | --- | --- |
 | The clips, their text and S3 keys, and the order a Rosary is said in | `LumenViae.Rosary.PrayerAudio` |
-| Recording them | `mix lumen_viae.generate_rosary_audio`, `LumenViae.Release.generate_rosary_audio/1` |
+| Recording them | `mix lumen_viae.generate_rosary_audio`, `LumenViae.Release.generate_rosary_audio/1`, which enqueue `LumenViae.Curation.Jobs.RecordRosaryClip` jobs |
 | Coverage (is every clip in the bucket) | `LumenViae.Curation.RosaryAudioGeneration.coverage/1` |
 | The app's manifest | `GET /api/rosary/audio` |
 | Listening to and checking every clip | `/admin/rosary-audio`, and a row on the dashboard when anything is missing |
@@ -126,15 +126,65 @@ mix lumen_viae.generate_rosary_audio --dry-run
 mix lumen_viae.generate_rosary_audio
 ```
 
-Options: `--voices female,male`, `--kinds prayers,announcements,verses`,
-`--force`. A run skips every clip already at its key, so an interrupted run
-is simply run again. It needs `ELEVEN_LABS_API_KEY` and AWS credentials
-(`./dev.sh` loads both locally). No database is involved, so it can run from
-a laptop against the production bucket; in production:
+Options: `--voice SLUG` and `--kind KIND` (each repeatable; `prayers`,
+`announcements`, `verses` or `book`), `--force`, and `--concurrency N`
+(recordings at once, default 3). A run skips every clip already at its
+key, so an interrupted run is simply run again. It needs
+`ELEVEN_LABS_API_KEY` and AWS credentials (`./dev.sh` loads both locally).
+
+A real run checks which clips are missing (one HEAD each) and enqueues one
+job per missing clip on the `elevenlabs` queue. The task's own node runs the
+jobs and waits for the last of them, printing each clip as it lands (`REC`,
+`SKIP`, `RETRY`, `FAIL`) and the failures at the end; it exits non-zero if
+any clip failed. The clips go to S3 and never to a table, but the jobs live
+in the database of wherever the task runs - a laptop's dev database
+(`DEV_DATABASE` if set) - so an interrupted run's jobs wait there and the
+next run, or the next `./dev.sh`, records them. The dry run enqueues
+nothing and needs no database.
+
+Each job pays ElevenLabs once for its clip. A retry finds the job's own
+upload at the key and stops; a 429 or a 5xx produced no audio and is
+retried with backoff; a timeout or a dropped connection may have been
+charged for and is cancelled with the reason rather than retried, and the
+next run records the clip if it is really missing. A clip whose wording
+changed after it was queued has a new key, and its old job is cancelled
+rather than recording the old words. See `LumenViae.Audio.Recording`.
+
+> **Before recording from a laptop, stop every other dev server on the
+> same database, or give the task its own.** Every worktree shares
+> `lumen_viae_dev`, and any `./dev.sh` running this branch's code runs the
+> `elevenlabs` queue too, so it can pick up the task's jobs and record them
+> with its own code and its own `.env`. A server on a branch without these
+> workers runs no `elevenlabs` queue and leaves them alone, but a server on
+> an older revision of this one would not. Either stop the other servers,
+> or run the task against a copy:
+> `createdb -h localhost -U postgres -T lumen_viae_dev <name>` and
+> `DEV_DATABASE=<name> mix lumen_viae.<task> ...`.
+
+### Record before you deploy
+
+A reworded prayer has a new key, and the deployed manifest names the new
+file at once. So run the task **from the branch, before deploying it**:
+the branch's catalogue is what computes the keys and the text, the laptop
+records into the production bucket with the production credentials in
+`.env`, and by the time the deploy names the new files they exist. Until
+then the app says that prayer from its old copy, or skips it on a device
+that never had one.
+
+In production the same task enqueues on production's queue, and the web
+app records:
 
 ```
 /app/bin/lumen_viae eval 'LumenViae.Release.generate_rosary_audio(dry_run: true)'
+/app/bin/lumen_viae eval 'LumenViae.Release.generate_rosary_audio()'
 ```
+
+`eval` starts no queues, so the release task only enqueues, then reads the
+batch from the jobs table every five seconds until it is done and prints
+the failures (`wait: false` returns at once). That keeps working when it is
+run detached, with its output in a log file. But production's catalogue is
+the deployed one, so this records what is already live; it is for filling a
+gap, not for getting ahead of a deploy.
 
 Adding a narration voice to `:narration_voices` means recording its whole
 catalogue (about 67,000 characters) before the app offers it for praying
@@ -150,6 +200,12 @@ it is in the bucket, and a player. Coverage is one HEAD per clip (the scoped
 IAM user cannot list the bucket), run after the page is up. A bucket that
 cannot be reached - usually a server started without `./dev.sh` - shows as
 "Unknown", never as "Missing".
+
+While a recording run is under way the screen follows it live: it reads
+the clips still waiting when it opens, then marks a clip "Recording" while
+its job waits and "Recorded" when it lands, from the jobs' PubSub
+broadcasts (`LumenViae.Curation.AudioJobs`), with no further trip to the
+bucket. The jobs themselves are at `/admin/jobs`.
 
 Use it for the listening pass after any recording: a run proves a file
 exists, not that the narrator said "Pontius Pilate" properly. A bad clip is

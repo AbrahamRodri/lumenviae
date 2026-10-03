@@ -8,8 +8,15 @@ defmodule LumenViae.Audio.ElevenLabs do
   Failures are returned as tagged tuples so callers can decide what is worth
   retrying:
 
-    * `{:error, message}` - transient failure (timeout, connection reset,
-      rate limit, ElevenLabs 5xx); retrying may succeed
+    * `{:error, message}` - transient failure that produced no audio
+      (connection refused, rate limit, ElevenLabs 5xx); retrying may
+      succeed and costs nothing for the attempt that failed
+    * `{:error, {:uncertain, message}}` - the request reached ElevenLabs
+      and the answer was lost (a receive timeout, a connection closed
+      mid-response, an empty 200). Synthesis may have finished, and been
+      charged for, on their side, so retrying could pay for the same clip
+      twice. The narration jobs never retry these on their own; see
+      `LumenViae.Audio.Recording`
     * `{:error, {:fatal, message}}` - permanent failure (missing
       configuration, rejected API key, invalid request); retrying cannot
       succeed
@@ -123,7 +130,7 @@ defmodule LumenViae.Audio.ElevenLabs do
         {:ok, audio_binary}
 
       {:ok, %Req.Response{status: 200}} ->
-        {:error, "ElevenLabs returned an empty audio response"}
+        {:error, {:uncertain, "ElevenLabs returned an empty audio response"}}
 
       {:ok, %Req.Response{status: status, body: error_body}} ->
         classify_error(status, error_body)
@@ -131,7 +138,10 @@ defmodule LumenViae.Audio.ElevenLabs do
       {:error, exception} ->
         message = transport_error_message(exception, request_options)
         Logger.error(message)
-        {:error, message}
+
+        if answer_lost?(exception),
+          do: {:error, {:uncertain, message}},
+          else: {:error, message}
     end
   end
 
@@ -158,6 +168,13 @@ defmodule LumenViae.Audio.ElevenLabs do
   defp error_detail(%{"detail" => detail}) when is_binary(detail), do: detail
   defp error_detail(body) when is_binary(body), do: String.slice(body, 0, 200)
   defp error_detail(body), do: body |> inspect() |> String.slice(0, 200)
+
+  # A timeout or a closed connection may come after ElevenLabs has the
+  # whole request and is synthesizing it. A connect timeout is a timeout
+  # too and cannot be told apart, so it is treated the same, on the side
+  # of not paying twice.
+  defp answer_lost?(%{reason: reason}) when reason in [:timeout, :closed], do: true
+  defp answer_lost?(_exception), do: false
 
   defp transport_error_message(%Req.TransportError{reason: :timeout}, request_options) do
     timeout_s = div(Keyword.fetch!(request_options, :receive_timeout), 1000)

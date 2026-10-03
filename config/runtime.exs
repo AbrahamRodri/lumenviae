@@ -141,6 +141,13 @@ if config_env() == :prod do
 
   config :lumen_viae, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
+  # Recordings at once on each machine (see the Oban config in config.exs).
+  # ElevenLabs counts concurrent requests across the whole account, so this
+  # times the number of machines is what the plan has to allow.
+  if concurrency = System.get_env("ELEVENLABS_CONCURRENCY") do
+    config :lumen_viae, Oban, queues: [geolocation: 1, elevenlabs: String.to_integer(concurrency)]
+  end
+
   # Completion analytics look up a rough place for the address a Rosary was
   # prayed from. Set GEOLOCATION_ENABLED=false to turn every lookup off
   # without a deploy - completions carry on being recorded, they just have

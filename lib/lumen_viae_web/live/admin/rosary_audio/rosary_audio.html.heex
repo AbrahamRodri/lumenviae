@@ -20,6 +20,11 @@
     to record them. The app refuses to start a spoken Rosary without a Hail Mary and skips any other missing clip.
   </.callout>
 
+  <.callout :if={recording_count(@recording) > 0} tone="notice">
+    {recording_count(@recording)} clip(s) are being recorded now, across every voice. Each turns
+    Recorded here as it lands; the jobs are at <a href="/admin/jobs" class="underline">/admin/jobs</a>.
+  </.callout>
+
   <.callout :if={counts && Map.get(counts, :unknown, 0) > 0} tone="notice">
     The bucket could not be checked for {Map.get(counts, :unknown)} clip(s). Locally this
     usually means the server was started without <code>./dev.sh</code>, so there are no AWS credentials.
@@ -95,6 +100,7 @@
       <.clip_table
         clips={LumenViae.Rosary.PrayerAudio.prayers()}
         coverage={@coverage}
+        recording={@recording}
         voice={@voice}
         urls={@urls}
         filter={@filter}
@@ -105,6 +111,7 @@
       <.clip_table
         clips={LumenViae.Rosary.PrayerAudio.announcements()}
         coverage={@coverage}
+        recording={@recording}
         voice={@voice}
         urls={@urls}
         filter={@filter}
@@ -133,6 +140,7 @@
           <.clip_table
             clips={verses}
             coverage={@coverage}
+            recording={@recording}
             voice={@voice}
             urls={@urls}
             filter={@filter}

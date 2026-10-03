@@ -218,7 +218,10 @@ takes a trailing `opts` and passes `actor:` or `authorize?:` through.
 **`authorize?: false` is allowed in exactly these places,** each with a
 comment giving the reason: mix tasks, `LumenViae.Release` and
 `priv/repo/seeds.exs` (whoever holds that shell already holds the
-database); the `visible?` aggregates above; and the dev
+database); the narration jobs (`Curation.Jobs.NarrateMeditation`), which
+finish a recording that an admin or an operator was authorized to ask for
+when they enqueued it, and run after that person has gone; the
+`visible?` aggregates above; and the dev
 sign-in in `Plugs.RequireAdmin`, which has no actor yet because signing one
 in is the point. Anywhere else, pass the actor. Curation services take
 `actor:` or `authorize?:` from their caller and thread it; they never decide
@@ -470,6 +473,8 @@ is refused in the dry run for the same reason, in the same words.
 
 They are shared entry points, so the admin upload UI, `mix lumen_viae.*`,
 and `LumenViae.Release` all drive the same code and behave identically.
+None of them calls ElevenLabs itself: each enqueues recording jobs (see
+"Background jobs"), and a dry run enqueues nothing.
 `CsvImport` and `AudioRegeneration` return `{:ok | :warning | :error,
 message}` lists and accept a `:progress` function; `ArtworkUpload` handles
 one file at a time and returns `{:ok, fields} | {:error, message}`.
@@ -504,6 +509,62 @@ Oban Web shows every job at `/admin/jobs`, behind the console's own guard
 | Job | Queue | What enqueues it |
 | --- | --- | --- |
 | `Completion` `:locate` trigger (`Completion.LocateWorker`), running `:add_place` | `geolocation` | `Completion.Stamp`, once a completion has committed |
+| `Curation.Jobs.NarrateMeditation`: one meditation in one voice | `elevenlabs` | `CsvImport` (each new row with an `audio_filename`), `AudioRegeneration` (and `CsvUpdate` through it) |
+| `Curation.Jobs.RecordRosaryClip`: one spoken Rosary clip in one voice | `elevenlabs` | `RosaryAudioGeneration`, for each clip not in the bucket |
+
+The two recording jobs are plain `Oban.Worker`s, not triggers: a
+recording is not an action on one row (a spoken Rosary clip has no row at
+all), and the work - ElevenLabs, S3, then the domain - is curation, which
+sits above the domain and calls `LumenViae.Rosary` like any other caller.
+`LumenViae.Curation.AudioJobs` groups them: it enqueues them in batches
+(the batch id is in each job's `meta`), broadcasts each finished job on
+PubSub for the admin screens, and lets the mix and release tasks wait on a
+batch.
+
+### Paying ElevenLabs once
+
+A recording costs money, and a job can be retried, enqueued twice, or
+rescued after a crash, so every recording goes through
+`LumenViae.Audio.Recording`, which checks the S3 key before it spends
+anything:
+
+- Each upload stores, in the object's metadata, the job that made it and a
+  fingerprint of exactly what was sent (text, voice, model, settings).
+- A retry of the same job finds its own job id and goes straight to the
+  bookkeeping. A duplicate enqueue is refused while a job for the same key
+  waits or runs (Oban uniqueness on the key), and one enqueued later finds
+  a matching fingerprint and stops. A spoken Rosary key carries a hash of
+  its words, so any object there counts.
+- `LumenViae.Audio.ElevenLabs` sorts its failures. A refused connection,
+  a 429 or a 5xx produced no audio and is retried, five attempts, with
+  backoff from 30 seconds. A timeout, a dropped connection or an empty 200
+  may have been charged for, so the job is cancelled with the reason and
+  never retried on its own. So is audio that came back and could not be
+  uploaded, after the upload itself has been retried in place.
+- `force` records a second take of a clip that is already right, and still
+  stops on its own job id, so even a forced job pays once.
+- Recordings made before this have no metadata. A meditation narration's
+  key names a file, not its words, so without a fingerprint nothing says
+  the object matches. A plain regeneration re-records such an object once
+  (as regeneration always did) and the new upload carries a fingerprint;
+  `regenerate_audio --only-missing`, which exists to fill gaps, counts any
+  object at the key as recorded (`keep_existing`). Spoken Rosary keys hash
+  their words, so their old objects always count.
+
+The one window left is a hard kill between ElevenLabs answering and the
+upload finishing: the lifeline retries that job, and it pays again. Closing
+it would need somewhere durable to put the audio first.
+
+### Release tasks and mix tasks
+
+`bin/lumen_viae eval` starts the release without the application, so a
+release task has no Oban to run jobs. It starts one that only inserts
+(`AudioJobs.start_inserter/0`: no queues, no plugins, never leader),
+enqueues, and lets the running app record; then it reads the batch from the
+jobs table every five seconds until it is done (`wait: false` skips that).
+Nothing it waits on is in its own process, so it works the same run
+detached. A mix task starts the app, so its own node runs the queue, with
+the limit raised to `--concurrency` for that node, and waits.
 
 Name every worker module explicitly (`worker_module_name`). The module
 name is what Oban stores in each job row, so renaming it strands every job
@@ -528,9 +589,14 @@ connections. Oban's defaults assume a database with room to spare, so each
 standing cost is set deliberately (`config/config.exs`):
 
 - **One queue per third party, sized to what it allows.** `geolocation`
-  runs one lookup at a time. A queue's concurrency is also the most
-  connections its jobs can hold at once, and neither job holds one across
-  its HTTP call.
+  runs one lookup at a time. `elevenlabs` runs one recording at a time per
+  machine: a queue's limit is per node, production runs two clustered
+  machines, and ElevenLabs counts concurrent requests across the account,
+  so that is two at once against an account that has run three.
+  `ELEVENLABS_CONCURRENCY` raises it in production without a code change,
+  and a 429 from going over is retried, not paid for. A queue's concurrency
+  is also the most connections its jobs can hold at once, and no job holds
+  one across its HTTP call.
 - **The PG notifier, not the Postgres one.** `Oban.Notifiers.Postgres`
   holds a dedicated connection open outside the pool for LISTEN/NOTIFY,
   and every notification - including Oban Web's gossip, several a second -
@@ -552,8 +618,9 @@ standing cost is set deliberately (`config/config.exs`):
   discarded jobs are deleted after seven days, which is the history Oban
   Web can show. The table stays at a few thousand rows.
 - **Lifeline: 30 minutes, every five.** A job left `executing` by a crash
-  or a deploy is rescued after half an hour, far longer than any job runs,
-  so a slow job is never rescued while it is still running and run twice.
+  or a deploy is rescued after half an hour, far longer than any job runs
+  (a recording times out after five minutes), so a slow job is never
+  rescued while it is still running and run twice.
 - **Oban Web's metrics.** Its reporter counts jobs by state on the leader,
   by default every second whether or not anybody is looking, and creates
   an estimating SQL function the first time it runs. It counts every 15

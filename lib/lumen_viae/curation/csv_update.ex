@@ -9,7 +9,9 @@ defmodule LumenViae.Curation.CsvUpdate do
   importing a one-row fix CSV, which changed the meditation's id and
   dropped it from its set. Here the row keeps its id, its set membership,
   its order and its audio filename; only the words change, and every
-  voice's recording is regenerated from them.
+  voice's recording is regenerated from them, as narration jobs
+  (`LumenViae.Curation.AudioRegeneration`) that finish after the update
+  returns.
 
   ## CSV format
 
@@ -33,6 +35,8 @@ defmodule LumenViae.Curation.CsvUpdate do
     * `:skip_audio` - write the text but leave the recordings as they are
     * `:voices` - slugs of the voices to re-record (default: every
       configured voice)
+    * `:batch` - the batch the narration jobs are enqueued under; pass one
+      to follow them
     * `:progress` - a 1-arity function receiving `{:started, total}` and
       `{:row_finished, index, total, result}`
     * `:actor` - the admin the update runs as; the console passes the
@@ -41,9 +45,10 @@ defmodule LumenViae.Curation.CsvUpdate do
       `LumenViae.Release`), which already holds the database
 
   Results are `{:ok | :warning | :error, message}` tuples in row order. A
-  `:warning` means the text was written but a recording failed; the
-  meditation then shows under the admin dashboard's "missing a voice"
-  check until `regenerate_audio --only-missing` repairs it.
+  `:warning` means the text was written but a recording could not be
+  queued. A recording that is queued and then fails is the batch's to
+  report; either way the meditation keeps its old recording in that voice
+  until `regenerate_audio` replaces it.
   """
 
   alias LumenViae.AshOpts
@@ -190,8 +195,11 @@ defmodule LumenViae.Curation.CsvUpdate do
           {:ok, base <> " (audio not regenerated)"}
         else
           case narrate(updated, opts) do
-            :ok -> {:ok, base <> " and regenerated its narration"}
-            {:error, failures} -> {:warning, base <> " but narration failed: " <> failures}
+            :ok ->
+              {:ok, base <> " and queued its narration"}
+
+            {:error, failures} ->
+              {:warning, base <> " but narration was not queued: " <> failures}
           end
         end
 
@@ -207,7 +215,7 @@ defmodule LumenViae.Curation.CsvUpdate do
     results =
       AudioRegeneration.run(
         {:meditation, meditation.id},
-        [voices: opts[:voices]] ++ AshOpts.take(opts)
+        [voices: opts[:voices], batch: opts[:batch]] ++ AshOpts.take(opts)
       )
 
     case Enum.reject(results, &match?({:ok, _}, &1)) do

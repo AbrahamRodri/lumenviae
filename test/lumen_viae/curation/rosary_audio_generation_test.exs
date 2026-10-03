@@ -1,7 +1,9 @@
 defmodule LumenViae.Curation.RosaryAudioGenerationTest do
-  use ExUnit.Case, async: false
+  use LumenViae.DataCase, async: false
 
   import LumenViae.Test.EnvStub, only: [put_env: 3]
+
+  use Oban.Testing, repo: LumenViae.Repo
 
   alias LumenViae.Curation.RosaryAudioGeneration
   alias LumenViae.Rosary.{PrayerAudio, Voices}
@@ -57,12 +59,24 @@ defmodule LumenViae.Curation.RosaryAudioGenerationTest do
     refute_received {:aws_request, _, _, _}
   end
 
+  test "a real run enqueues the missing clips and records nothing itself" do
+    LumenViae.Test.FakeAwsHttpClient.store!()
+
+    results = RosaryAudioGeneration.run(voices: ["female"], kinds: [:prayer])
+
+    assert Enum.all?(results, &match?({:ok, _}, &1))
+    assert hd(results) |> elem(1) =~ "queued to record"
+    refute_received {:tts_text, _}
+    assert length(all_enqueued(queue: :elevenlabs)) == length(PrayerAudio.prayers())
+  end
+
   test "--force records the speech text and uploads it to the clip's key" do
     [result] =
       RosaryAudioGeneration.run(voices: ["female"], kinds: [:prayer], force: true)
       |> Enum.filter(fn {_, message} -> message =~ "rosary_closing_prayer" end)
 
     assert {:ok, _} = result
+    assert %{failure: 0, cancelled: 0} = Oban.drain_queue(queue: :elevenlabs)
 
     closing = Enum.find(PrayerAudio.prayers(), &(&1.name == "rosary_closing_prayer"))
     key = PrayerAudio.s3_key(Voices.get("female"), closing)

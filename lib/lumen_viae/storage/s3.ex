@@ -109,6 +109,8 @@ defmodule LumenViae.Storage.S3 do
     * `opts` - Optional keyword list of options:
       * `:bucket` - S3 bucket name (default: from config)
       * `:content_type` - Content type (default: "audio/mpeg")
+      * `:meta` - user metadata stored with the object, as
+        `[{name, value}]` strings; read back by `audio_metadata/2`
 
   ## Returns
 
@@ -132,7 +134,10 @@ defmodule LumenViae.Storage.S3 do
           Logger.info("Uploading audio to S3: #{s3_key} (#{byte_size(audio_binary)} bytes)")
 
           result =
-            ExAws.S3.put_object(bucket, s3_key, audio_binary, content_type: content_type)
+            ExAws.S3.put_object(bucket, s3_key, audio_binary,
+              content_type: content_type,
+              meta: opts[:meta] || []
+            )
             |> ExAws.request()
 
           case result do
@@ -210,6 +215,38 @@ defmodule LumenViae.Storage.S3 do
         {:error, {:http_error, status, _body}} when status in [403, 404] -> {:ok, false}
         {:error, reason} -> {:error, reason}
       end
+    end
+  end
+
+  @doc """
+  The user metadata stored with an audio object (`upload_audio/3`'s
+  `:meta`), as a map of lowercase names to values, or `nil` when there is
+  no object at the key. An object uploaded without metadata answers `%{}`.
+
+  One HEAD, read the way `audio_exists?/2` reads it: a 403 or 404 is
+  absent, and anything else is `{:error, reason}`, which a caller deciding
+  whether to pay for a recording must treat as "do not know".
+  """
+  @spec audio_metadata(String.t(), keyword) :: {:ok, map | nil} | {:error, term}
+  def audio_metadata(s3_key, opts \\ []) when is_binary(s3_key) do
+    bucket = opts[:bucket] || Application.get_env(:lumen_viae, :aws_s3_bucket)
+
+    with :ok <- validate_aws_config() do
+      case ExAws.S3.head_object(bucket, s3_key) |> ExAws.request() do
+        {:ok, %{headers: headers}} -> {:ok, user_metadata(headers)}
+        {:ok, _response} -> {:ok, %{}}
+        {:error, {:http_error, status, _body}} when status in [403, 404] -> {:ok, nil}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+  end
+
+  defp user_metadata(headers) do
+    for {name, value} <- headers,
+        name = String.downcase(to_string(name)),
+        String.starts_with?(name, "x-amz-meta-"),
+        into: %{} do
+      {String.replace_prefix(name, "x-amz-meta-", ""), to_string(value)}
     end
   end
 

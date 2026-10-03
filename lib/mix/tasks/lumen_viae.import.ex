@@ -11,14 +11,27 @@ defmodule Mix.Tasks.LumenViae.Import do
   ## Options
 
     * `--dry-run` - validate the file (mystery names, changesets, label
-      vocabulary) without writing to the database or generating audio
+      vocabulary) without writing to the database or enqueueing any
+      recording
     * `--skip-audio` - import rows but ignore audio_filename columns
     * `--voice SLUG` - record only this voice (repeatable); every configured
       voice by default, see `LumenViae.Rosary.Voices`
+    * `--concurrency N` - recordings at once on this machine while the task
+      waits (default 3)
+
+  ## Recording
+
+  The rows are written first, and each row's narration is enqueued as one
+  job per voice (`LumenViae.Curation.Jobs.NarrateMeditation`). This task's
+  own node runs those jobs, so it stays until the last one has finished,
+  printing each recording as it lands. Interrupt it and the jobs wait in
+  the database's queue; the next run of anything that starts the app (this
+  task, or `./dev.sh`) picks them up, and none of them pays ElevenLabs
+  twice.
 
   ## Environment
 
-  Audio generation requires ELEVEN_LABS_API_KEY plus AWS credentials for the S3 upload, as configured in runtime.exs.
+  Recording requires ELEVEN_LABS_API_KEY plus AWS credentials for the S3 upload, as configured in runtime.exs.
   Run against the production database by exporting DATABASE_URL first, or
   import on Fly with:
 
@@ -29,12 +42,16 @@ defmodule Mix.Tasks.LumenViae.Import do
 
   use Mix.Task
 
+  alias LumenViae.Curation.AudioJobs
+
   @requirements ["app.start"]
 
   @impl Mix.Task
   def run(args) do
     {opts, argv, invalid} =
-      OptionParser.parse(args, strict: [dry_run: :boolean, skip_audio: :boolean, voice: :keep])
+      OptionParser.parse(args,
+        strict: [dry_run: :boolean, skip_audio: :boolean, voice: :keep, concurrency: :integer]
+      )
 
     cond do
       invalid != [] ->
@@ -52,7 +69,11 @@ defmodule Mix.Tasks.LumenViae.Import do
   end
 
   defp run_import(path, opts) do
+    batch = AudioJobs.new_batch()
+    AudioJobs.subscribe(batch)
+
     import_opts = [
+      batch: batch,
       dry_run: opts[:dry_run],
       skip_audio: opts[:skip_audio],
       voices: Keyword.get_values(opts, :voice),
@@ -76,6 +97,9 @@ defmodule Mix.Tasks.LumenViae.Import do
       "\n#{length(successes)} succeeded, #{length(warnings)} with warnings, #{length(errors)} failed"
     )
 
-    if errors != [], do: exit({:shutdown, 1})
+    recordings =
+      if opts[:dry_run], do: %{failed: 0}, else: AudioJobs.wait_here(batch, opts[:concurrency])
+
+    if errors != [] or recordings.failed > 0, do: exit({:shutdown, 1})
   end
 end

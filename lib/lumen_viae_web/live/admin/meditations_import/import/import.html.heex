@@ -25,7 +25,7 @@
           <li><strong>source</strong> (optional) - the public domain edition quoted</li>
           <li>
             <strong>audio_filename</strong>
-            (optional) - S3 key; audio is generated with ElevenLabs when present
+            (optional) - S3 key; when present, each voice is recorded with ElevenLabs in the background after the row is written
           </li>
           <li>
             <strong>set_name</strong>
@@ -259,8 +259,9 @@
         :if={@preview.audio_count > 0 and not @skip_audio}
         class="text-xs text-caution-strong mt-3 pt-3 border-t border-admin-hairline"
       >
-        {@preview.audio_count} audio clip(s) will be generated with ElevenLabs and uploaded to S3.
-        This spends credits and takes roughly 10-60 seconds per clip.
+        {@preview.audio_count} row(s) will be queued for recording with ElevenLabs, once per voice,
+        and uploaded to S3. This spends credits; the recordings run in the background, roughly
+        10-60 seconds each, and are followed below and at /admin/jobs.
       </p>
     </.panel>
   <% end %>
@@ -340,8 +341,8 @@
                       <p class="text-xs text-caution-strong">{message}</p>
                     <% {:error, message} -> %>
                       <p class="text-xs text-danger-strong">{message}</p>
-                    <% {:audio, filename} -> %>
-                      <p class="text-xs text-notice">Generating audio: {filename}</p>
+                    <% {:audio, key} -> %>
+                      <p class="text-xs text-notice">Queueing narration: {key}</p>
                     <% _ -> %>
                   <% end %>
                 </div>
@@ -354,6 +355,42 @@
           <% end %>
         </ul>
       <% end %>
+    </.panel>
+
+    <.panel
+      :if={@recording_keys != []}
+      class="mb-5"
+      title="Narration"
+      description="Recorded in the background, one job per voice. They carry on if you leave this page; every job is also at /admin/jobs."
+    >
+      <% counts = recording_counts(@recordings) %>
+      <div class="w-full bg-admin-sunken rounded-full h-2 overflow-hidden mb-2">
+        <div
+          class={"h-2 rounded-full transition-all duration-500 " <> if(counts.waiting == 0, do: "bg-positive", else: "bg-navy")}
+          style={"width: #{if counts.total == 0, do: 0, else: trunc((counts.recorded + counts.failed) / counts.total * 100)}%"}
+        >
+        </div>
+      </div>
+      <p class="text-xs text-admin-ink-soft mb-3">
+        {counts.recorded} recorded, {counts.failed} failed, {counts.waiting} waiting, of {counts.total}
+      </p>
+      <ul class="divide-y divide-admin-hairline max-h-80 overflow-y-auto">
+        <li :for={key <- @recording_keys} class="py-1.5 flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-mono text-xs text-admin-ink truncate">{key}</p>
+            <p
+              :if={@recordings[key].message && @recordings[key].status in [:failed, :retrying]}
+              class="text-xs text-danger-strong"
+            >
+              {@recordings[key].message}
+            </p>
+          </div>
+          <% {badge_class, badge_text} = recording_badge(@recordings[key].status) %>
+          <span class={"shrink-0 text-[0.6875rem] px-1.5 py-0.5 rounded font-medium " <> badge_class}>
+            {badge_text}
+          </span>
+        </li>
+      </ul>
     </.panel>
 
     <%= if @stage == :done do %>

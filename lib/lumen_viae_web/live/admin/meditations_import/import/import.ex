@@ -1,7 +1,7 @@
 defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   use LumenViaeWeb, :live_view
 
-  alias LumenViae.Curation.CsvImport
+  alias LumenViae.Curation.{AudioJobs, CsvImport}
   alias LumenViae.Rosary.Labels
 
   # Import flow stages:
@@ -9,6 +9,11 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   #   :ready     - file parsed, preview shown, awaiting confirmation
   #   :importing - async import running, progress streaming in
   #   :done      - finished (successfully, with errors, or cancelled)
+  #
+  # The rows are written during :importing; each narration is a job that
+  # finishes afterwards, often after :done. The page subscribes to the
+  # import's batch and follows the recordings as they land, whatever the
+  # stage (see LumenViae.Curation.AudioJobs).
 
   def mount(_params, _session, socket) do
     {:ok,
@@ -35,6 +40,9 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
     |> assign(:successes, [])
     |> assign(:warnings, [])
     |> assign(:errors, [])
+    |> assign(:batch, nil)
+    |> assign(:recordings, %{})
+    |> assign(:recording_keys, [])
   end
 
   ## Events
@@ -76,9 +84,12 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   def handle_event("start-import", _params, %{assigns: %{stage: :ready}} = socket) do
     live_view = self()
     content = socket.assigns.csv_content
+    batch = AudioJobs.new_batch()
+    if connected?(socket), do: AudioJobs.subscribe(batch)
 
     opts = [
       actor: socket.assigns.current_admin,
+      batch: batch,
       skip_audio: socket.assigns.skip_audio,
       progress: fn event -> send(live_view, {:import_progress, event}) end
     ]
@@ -92,6 +103,9 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
      |> assign(:progress, %{done: 0, total: socket.assigns.preview.total})
      |> assign(:current_activity, "Starting import...")
      |> assign(:elapsed, 0)
+     |> assign(:batch, batch)
+     |> assign(:recordings, %{})
+     |> assign(:recording_keys, [])
      |> start_async(:import, fn -> CsvImport.import_string(content, opts) end)}
   end
 
@@ -110,6 +124,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   def handle_event("cancel-import", _params, socket), do: {:noreply, socket}
 
   def handle_event("reset", _params, socket) do
+    if socket.assigns.batch, do: AudioJobs.unsubscribe(socket.assigns.batch)
     {:noreply, assign_initial_state(socket)}
   end
 
@@ -145,27 +160,21 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
      |> assign(:current_activity, "Row #{index} of #{total}: creating #{description}")}
   end
 
-  def handle_info({:import_progress, {:row_audio, index, total, filename}}, socket) do
+  def handle_info({:import_progress, {:row_audio, index, total, key}}, socket) do
     {:noreply,
      socket
-     |> update(:rows_status, &Map.put(&1, index, {:audio, filename}))
-     |> assign(
-       :current_activity,
-       "Row #{index} of #{total}: generating audio #{filename} (this is the slow part)"
-     )}
+     |> update(:rows_status, &Map.put(&1, index, {:audio, key}))
+     |> update(:recordings, &Map.put_new(&1, key, %{status: :queued, message: nil}))
+     |> update(:recording_keys, &if(key in &1, do: &1, else: &1 ++ [key]))
+     |> assign(:current_activity, "Row #{index} of #{total}: queueing narration #{key}")}
   end
 
-  def handle_info(
-        {:import_progress, {:row_audio_retry, index, total, filename, attempt, max}},
-        socket
-      ) do
+  # A narration job of this import's batch finished, or is retrying.
+  def handle_info({:audio_job, %{key: key} = event}, socket) do
     {:noreply,
      socket
-     |> update(:rows_status, &Map.put(&1, index, {:audio, filename}))
-     |> assign(
-       :current_activity,
-       "Row #{index} of #{total}: audio for #{filename} failed, retrying (attempt #{attempt} of #{max})"
-     )}
+     |> update(:recordings, &Map.put(&1, key, Map.take(event, [:status, :message])))
+     |> update(:recording_keys, &if(key in &1, do: &1, else: &1 ++ [key]))}
   end
 
   def handle_info({:import_progress, {:row_finished, index, _total, result}}, socket) do
@@ -237,9 +246,30 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
 
   def row_status(rows_status, index), do: Map.get(rows_status, index, :pending)
 
+  @doc "The batch's recordings counted by where they are."
+  def recording_counts(recordings) do
+    statuses = Map.values(recordings) |> Enum.map(& &1.status)
+
+    %{
+      total: length(statuses),
+      recorded: Enum.count(statuses, &(&1 in [:recorded, :already_recorded])),
+      failed: Enum.count(statuses, &(&1 == :failed)),
+      waiting: Enum.count(statuses, &(&1 in [:queued, :retrying]))
+    }
+  end
+
+  def recording_badge(:queued), do: {"bg-admin-sunken text-admin-ink-faint", "Queued"}
+  def recording_badge(:retrying), do: {"bg-caution-surface text-caution-strong", "Retrying"}
+  def recording_badge(:recorded), do: {"bg-positive-surface text-positive-strong", "Recorded"}
+
+  def recording_badge(:already_recorded),
+    do: {"bg-positive-surface text-positive-strong", "Already recorded"}
+
+  def recording_badge(:failed), do: {"bg-danger-surface text-danger-strong", "Failed"}
+
   def status_badge(:pending), do: {"bg-admin-sunken text-admin-ink-faint", "Waiting"}
   def status_badge({:working, _}), do: {"bg-navy/10 text-navy animate-pulse", "Creating"}
-  def status_badge({:audio, _}), do: {"bg-notice-surface text-notice animate-pulse", "Audio"}
+  def status_badge({:audio, _}), do: {"bg-notice-surface text-notice animate-pulse", "Queueing"}
   def status_badge({:ok, _}), do: {"bg-positive-surface text-positive-strong", "Done"}
   def status_badge({:warning, _}), do: {"bg-caution-surface text-caution-strong", "Partial"}
   def status_badge({:error, _}), do: {"bg-danger-surface text-danger-strong", "Failed"}
