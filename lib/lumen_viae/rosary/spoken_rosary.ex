@@ -14,7 +14,7 @@ defmodule LumenViae.Rosary.SpokenRosary do
   use Ash.Resource,
     domain: LumenViae.Rosary,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource]
+    extensions: [AshGraphql.Resource, AshJsonApi.Resource]
 
   alias LumenViae.Rosary.SpokenRosary.Clips
   alias LumenViae.Rosary.SpokenRosary.ForVoice
@@ -23,6 +23,17 @@ defmodule LumenViae.Rosary.SpokenRosary do
   graphql do
     type :spoken_rosary
     encode_primary_key? false
+    derive_filter? false
+    derive_sort? false
+  end
+
+  # The JSON:API id is the voice served. The clips are not defaults: a
+  # client names the kinds it wants in fields[spoken_rosary]=, which does
+  # the job REST's ?include= does, so asking for voice and version alone
+  # signs nothing.
+  json_api do
+    type "spoken_rosary"
+    default_fields [:version, :expires_at]
     derive_filter? false
     derive_sort? false
   end

@@ -49,9 +49,10 @@ defmodule LumenViae.Rosary.Completion do
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource, AshRateLimiter, AshOban]
+    extensions: [AshGraphql.Resource, AshRateLimiter, AshOban, AshJsonApi.Resource]
 
   alias LumenViae.Rosary.Completion.LookUpPlace
+  alias LumenViae.Rosary.Completion.NotAutomated
   alias LumenViae.Rosary.Completion.RateLimit
   alias LumenViae.Rosary.Completion.SetIsVisible
   alias LumenViae.Rosary.Completion.Stamp
@@ -71,6 +72,14 @@ defmodule LumenViae.Rosary.Completion do
     relationships []
     attribute_types meditation_set_id: :id
     argument_input_types record_from_app: [meditation_set_id: non_null(:id)]
+    derive_filter? false
+    derive_sort? false
+  end
+
+  # The JSON:API answers a recorded completion with the same three fields.
+  json_api do
+    type "completion"
+    show_fields [:completed_at, :meditation_set_id]
     derive_filter? false
     derive_sort? false
   end
@@ -194,6 +203,9 @@ defmodule LumenViae.Rosary.Completion do
 
       argument :prayed_aloud, :boolean
 
+      # Before anything else, so a crawler is refused before it costs a
+      # query or counts against anything.
+      validate NotAutomated
       change set_attribute(:meditation_set_id, arg(:meditation_set_id))
       change set_attribute(:prayed_aloud, arg(:prayed_aloud))
       change set_attribute(:source, "ios")

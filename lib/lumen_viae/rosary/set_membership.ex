@@ -16,7 +16,7 @@ defmodule LumenViae.Rosary.SetMembership do
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource]
+    extensions: [AshGraphql.Resource, AshJsonApi.Resource]
 
   # A set's place for one meditation: GraphQL's path to a set's
   # meditations in prayer order, setMemberships { order meditation }.
@@ -24,6 +24,15 @@ defmodule LumenViae.Rosary.SetMembership do
     type :set_membership
     relationships [:meditation]
     hide_fields [:meditation_set_id, :meditation_id]
+    derive_filter? false
+    derive_sort? false
+  end
+
+  # The JSON:API's path to a set's meditations in prayer order: each
+  # membership's order and its meditation.
+  json_api do
+    type "set_membership"
+    show_fields [:order, :meditation]
     derive_filter? false
     derive_sort? false
   end

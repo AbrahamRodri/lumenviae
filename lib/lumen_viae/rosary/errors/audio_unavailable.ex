@@ -29,3 +29,18 @@ defimpl AshGraphql.Error, for: LumenViae.Rosary.Errors.AudioUnavailable do
     }
   end
 end
+
+defimpl AshJsonApi.ToJsonApiError, for: LumenViae.Rosary.Errors.AudioUnavailable do
+  # The REST API's 503, with the same code. The fixed text, for the reason
+  # given above.
+  def to_json_api_error(_error) do
+    %AshJsonApi.Error{
+      id: Ash.UUID.generate(),
+      status_code: 503,
+      code: "audio_unavailable",
+      title: "AudioUnavailable",
+      detail: "Audio temporarily unavailable",
+      meta: %{}
+    }
+  end
+end

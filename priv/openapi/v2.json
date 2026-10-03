@@ -1,0 +1,1566 @@
+{
+  "components": {
+    "responses": {
+      "errors": {
+        "content": {
+          "application/vnd.api+json": {
+            "schema": {
+              "properties": {
+                "errors": {
+                  "$ref": "#/components/schemas/errors"
+                }
+              },
+              "required": [
+                "errors"
+              ],
+              "type": "object"
+            }
+          }
+        },
+        "description": "General Error"
+      }
+    },
+    "schemas": {
+      "completion": {
+        "description": "A \"Resource object\" representing a completion",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a completion",
+            "properties": {
+              "completed_at": {
+                "description": "Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "meditation_set_id": {
+                "description": "Field included by default.",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "completed_at",
+              "meditation_set_id"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a completion",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "completion"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "error": {
+        "properties": {
+          "code": {
+            "description": "An application-specific error code, expressed as a string value.",
+            "type": "string"
+          },
+          "detail": {
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "type": "string"
+          },
+          "id": {
+            "description": "A unique identifier for this particular occurrence of the problem.",
+            "type": "string"
+          },
+          "links": {
+            "$ref": "#/components/schemas/links"
+          },
+          "source": {
+            "properties": {
+              "parameter": {
+                "description": "A string indicating which query parameter caused the error.",
+                "type": "string"
+              },
+              "pointer": {
+                "description": "A JSON Pointer [RFC6901] to the associated entity in the request document [e.g. \"/data\" for a primary data object, or \"/data/attributes/title\" for a specific attribute].",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "status": {
+            "description": "The HTTP status code applicable to this problem, expressed as a string value.",
+            "type": "string"
+          },
+          "title": {
+            "description": "A short, human-readable summary of the problem. It SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "errors": {
+        "items": {
+          "$ref": "#/components/schemas/error"
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "link": {
+        "description": "A link MUST be represented as either: a string containing the link's URL or a link object.",
+        "type": "string"
+      },
+      "links": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/link"
+        },
+        "type": "object"
+      },
+      "meditation": {
+        "description": "A \"Resource object\" representing a meditation",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a meditation",
+            "properties": {
+              "author": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "content": {
+                "description": "Field included by default.",
+                "type": "string"
+              },
+              "narrated_voices": {
+                "description": "The voices that have recorded the meditation, default first. Signs nothing. Field included by default.",
+                "items": {
+                  "type": "string"
+                },
+                "nullable": true,
+                "type": "array"
+              },
+              "narrations": {
+                "description": "Every recording of the meditation as a playable URL, the default voice first. Empty when nothing is recorded; null when recordings exist but cannot be signed just now (see narratedVoices).",
+                "items": {
+                  "properties": {
+                    "audio": {
+                      "properties": {
+                        "expires_at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "expires_at"
+                      ],
+                      "type": "object"
+                    },
+                    "voice": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "voice",
+                    "audio"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
+              },
+              "source": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "title": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              }
+            },
+            "required": [
+              "content"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a meditation",
+            "properties": {
+              "mystery": {
+                "properties": {
+                  "data": {
+                    "description": "An identifier for mystery",
+                    "nullable": true,
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "meta": {
+                        "additionalProperties": true,
+                        "type": "object"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "meditation"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "meditation_set": {
+        "description": "A \"Resource object\" representing a meditation_set",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a meditation_set",
+            "properties": {
+              "artwork": {
+                "description": "The painting the set is shown with: its own, or else its author's portrait. Null when neither is publishable. Field included by default.",
+                "nullable": true,
+                "properties": {
+                  "alignment": {
+                    "type": "string"
+                  },
+                  "alt": {
+                    "type": "string"
+                  },
+                  "attribution": {
+                    "properties": {
+                      "artist": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "license": {
+                        "type": "string"
+                      },
+                      "source_url": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "title": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "year": {
+                        "nullable": true,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "license"
+                    ],
+                    "type": "object"
+                  },
+                  "focal_x": {
+                    "format": "float",
+                    "type": "number"
+                  },
+                  "focal_y": {
+                    "format": "float",
+                    "type": "number"
+                  },
+                  "height": {
+                    "nullable": true,
+                    "type": "integer"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "nullable": true,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "url",
+                  "alignment",
+                  "focal_x",
+                  "focal_y",
+                  "alt",
+                  "attribution"
+                ],
+                "type": "object"
+              },
+              "author": {
+                "description": "The author the set is shown with: its own, or else the one its meditations agree on. Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "category": {
+                "description": "Field included by default.",
+                "type": "string"
+              },
+              "description": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "labels": {
+                "description": "Field included by default.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "name": {
+                "description": "Field included by default.",
+                "type": "string"
+              },
+              "source": {
+                "description": "The source the set is shown with: its own, or else the one its meditations agree on. Field included by default.",
+                "nullable": true,
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "category",
+              "labels"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a meditation_set",
+            "properties": {
+              "set_memberships": {
+                "properties": {
+                  "data": {
+                    "description": "Relationship data for set_memberships",
+                    "items": {
+                      "description": "Resource identifiers for set_memberships",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "meta": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "id"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "uniqueItems": true
+                  }
+                }
+              }
+            },
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "meditation_set"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "mystery": {
+        "description": "A \"Resource object\" representing a mystery",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a mystery",
+            "properties": {
+              "category": {
+                "description": "Field included by default.",
+                "type": "string"
+              },
+              "description": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "name": {
+                "description": "Field included by default.",
+                "type": "string"
+              },
+              "order": {
+                "description": "Field included by default.",
+                "type": "integer"
+              },
+              "scripture_reference": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "category",
+              "order"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a mystery",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "mystery"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "narration_voice": {
+        "description": "A \"Resource object\" representing a narration_voice",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a narration_voice",
+            "properties": {
+              "default": {
+                "description": "The voice heard when a client names none. Exactly one offered voice is. Field included by default.",
+                "type": "boolean"
+              },
+              "description": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "name": {
+                "description": "Field included by default.",
+                "type": "string"
+              },
+              "replaced_by": {
+                "description": "For a retired voice, the slug of the voice a request for it is served by. Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "retired": {
+                "description": "Field included by default.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name",
+              "default",
+              "retired"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a narration_voice",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "narration_voice"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "set_membership": {
+        "description": "A \"Resource object\" representing a set_membership",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a set_membership",
+            "properties": {
+              "order": {
+                "description": "Field included by default.",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "order"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a set_membership",
+            "properties": {
+              "meditation": {
+                "properties": {
+                  "data": {
+                    "description": "An identifier for meditation",
+                    "nullable": true,
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "meta": {
+                        "additionalProperties": true,
+                        "type": "object"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "set_membership"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "spoken_rosary": {
+        "description": "A \"Resource object\" representing a spoken_rosary",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a spoken_rosary",
+            "properties": {
+              "announcements": {
+                "description": "One announcement per mystery.",
+                "items": {
+                  "properties": {
+                    "audio": {
+                      "properties": {
+                        "expires_at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "expires_at"
+                      ],
+                      "type": "object"
+                    },
+                    "file": {
+                      "type": "string"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "file",
+                    "audio"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
+              },
+              "book": {
+                "description": "The Prayer Book's prayers.",
+                "items": {
+                  "properties": {
+                    "audio": {
+                      "properties": {
+                        "expires_at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "expires_at"
+                      ],
+                      "type": "object"
+                    },
+                    "file": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "file",
+                    "audio"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
+              },
+              "expires_at": {
+                "description": "The earliest moment any URL in this response stops working. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "prayers": {
+                "description": "The fixed prayers, in the order they are said.",
+                "items": {
+                  "properties": {
+                    "audio": {
+                      "properties": {
+                        "expires_at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "expires_at"
+                      ],
+                      "type": "object"
+                    },
+                    "file": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "file",
+                    "audio"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
+              },
+              "verses": {
+                "description": "The Scriptural Rosary: each mystery's verses in bead order.",
+                "items": {
+                  "properties": {
+                    "clips": {
+                      "items": {
+                        "properties": {
+                          "audio": {
+                            "properties": {
+                              "expires_at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "url": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "url",
+                              "expires_at"
+                            ],
+                            "type": "object"
+                          },
+                          "bead": {
+                            "type": "integer"
+                          },
+                          "file": {
+                            "type": "string"
+                          },
+                          "reference": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "bead",
+                          "file",
+                          "audio"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "key": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "clips"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
+              },
+              "version": {
+                "description": "Fingerprints every file in the voice's catalogue: a device whose pack has the same version holds every current recording. Field included by default.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "version",
+              "expires_at"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a spoken_rosary",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "spoken_rosary"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Lumen Viae API",
+    "version": "2.0.0"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v2/completions": {
+      "post": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Records a finished Rosary reported by the app over the public write API. The client says which set and whether it was prayed aloud, and nothing else: the surface is always the app, and the set must be one the public can see.",
+        "operationId": "recordCompletion",
+        "parameters": [
+          {
+            "description": "Relationship paths to include in the response",
+            "explode": false,
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "pattern": "^()(,())*$",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Limits the response fields to only those listed for each type",
+            "explode": true,
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "additionalProperties": true,
+              "properties": {
+                "completion": {
+                  "description": "Comma separated fields of completion: completed_at, meditation_set_id",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "style": "deepObject"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "data": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "attributes": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "meditation_set_id": {
+                            "type": "integer"
+                          },
+                          "prayed_aloud": {
+                            "nullable": true,
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "meditation_set_id"
+                        ],
+                        "type": "object"
+                      },
+                      "relationships": {
+                        "additionalProperties": false,
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "type": {
+                        "enum": [
+                          "completion"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "data"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "description": "Request body for the recordCompletion operation on completion resource",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/completion"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "completion"
+        ]
+      }
+    },
+    "/api/v2/meditation-sets": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The sets the public may see, by category and then in creation order, optionally narrowed to one category. Never paginated. The same list as GET /api/meditation-sets?category=.",
+        "operationId": "listMeditationSets",
+        "parameters": [
+          {
+            "description": "Relationship paths to include in the response",
+            "explode": false,
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "pattern": "^(set_memberships|set_memberships.meditation|set_memberships.meditation.mystery)(,(set_memberships|set_memberships.meditation|set_memberships.meditation.mystery))*$",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Limits the response fields to only those listed for each type",
+            "explode": true,
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "additionalProperties": true,
+              "properties": {
+                "meditation": {
+                  "description": "Comma separated fields of meditation: author, content, narrated_voices, narrations, source, title, mystery",
+                  "type": "string"
+                },
+                "meditation_set": {
+                  "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, set_memberships",
+                  "type": "string"
+                },
+                "mystery": {
+                  "description": "Comma separated fields of mystery: category, description, name, order, scripture_reference",
+                  "type": "string"
+                },
+                "set_membership": {
+                  "description": "Comma separated fields of set_membership: order, meditation",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "style": "deepObject"
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "description": "An array of resource objects representing a meditation_set",
+                      "items": {
+                        "$ref": "#/components/schemas/meditation_set"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "included": {
+                      "items": {
+                        "discriminator": {
+                          "mapping": {
+                            "meditation": "#/components/schemas/meditation",
+                            "mystery": "#/components/schemas/mystery",
+                            "set_membership": "#/components/schemas/set_membership"
+                          },
+                          "propertyName": "type"
+                        },
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/set_membership"
+                          },
+                          {
+                            "$ref": "#/components/schemas/meditation"
+                          },
+                          {
+                            "$ref": "#/components/schemas/mystery"
+                          }
+                        ]
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "meditation_set"
+        ]
+      }
+    },
+    "/api/v2/meditation-sets/{id}": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "One set the public may see, by id. 404 when it does not exist or is hidden: it holds an archived meditation, or no meditations yet.",
+        "operationId": "getMeditationSet",
+        "parameters": [
+          {
+            "explode": false,
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Relationship paths to include in the response",
+            "explode": false,
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "pattern": "^(set_memberships|set_memberships.meditation|set_memberships.meditation.mystery)(,(set_memberships|set_memberships.meditation|set_memberships.meditation.mystery))*$",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Limits the response fields to only those listed for each type",
+            "explode": true,
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "additionalProperties": true,
+              "properties": {
+                "meditation": {
+                  "description": "Comma separated fields of meditation: author, content, narrated_voices, narrations, source, title, mystery",
+                  "type": "string"
+                },
+                "meditation_set": {
+                  "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, set_memberships",
+                  "type": "string"
+                },
+                "mystery": {
+                  "description": "Comma separated fields of mystery: category, description, name, order, scripture_reference",
+                  "type": "string"
+                },
+                "set_membership": {
+                  "description": "Comma separated fields of set_membership: order, meditation",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "style": "deepObject"
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/meditation_set"
+                    },
+                    "included": {
+                      "items": {
+                        "discriminator": {
+                          "mapping": {
+                            "meditation": "#/components/schemas/meditation",
+                            "mystery": "#/components/schemas/mystery",
+                            "set_membership": "#/components/schemas/set_membership"
+                          },
+                          "propertyName": "type"
+                        },
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/set_membership"
+                          },
+                          {
+                            "$ref": "#/components/schemas/meditation"
+                          },
+                          {
+                            "$ref": "#/components/schemas/mystery"
+                          }
+                        ]
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "meditation_set"
+        ]
+      }
+    },
+    "/api/v2/meditations/audio": {
+      "post": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Freshly signed narrations for meditations by id, in the order asked, each in the preferred voice where it has one. An id with nothing to play is left out.",
+        "operationId": "getMeditationAudio",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "data": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "meditation_ids": {
+                        "items": {
+                          "type": "integer"
+                        },
+                        "type": "array"
+                      },
+                      "voice": {
+                        "description": "The voice preferred, a slug. A meditation it has not recorded, or an unknown slug, is answered in the default voice; each answer names the voice served.",
+                        "nullable": true,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "meditation_ids"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "data"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "description": "Request body for the getMeditationAudio operation on meditation resource",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "items": {
+                    "properties": {
+                      "audio": {
+                        "properties": {
+                          "expires_at": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url",
+                          "expires_at"
+                        ],
+                        "type": "object"
+                      },
+                      "meditation_id": {
+                        "type": "integer"
+                      },
+                      "voice": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "meditation_id",
+                      "voice",
+                      "audio"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "meditation"
+        ]
+      }
+    },
+    "/api/v2/mysteries": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Every mystery in the order they are prayed: by category, then by position within the category.",
+        "operationId": "listMysteries",
+        "parameters": [
+          {
+            "description": "Relationship paths to include in the response",
+            "explode": false,
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "pattern": "^()(,())*$",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Limits the response fields to only those listed for each type",
+            "explode": true,
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "additionalProperties": true,
+              "properties": {
+                "mystery": {
+                  "description": "Comma separated fields of mystery: category, description, name, order, scripture_reference",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "style": "deepObject"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "description": "An array of resource objects representing a mystery",
+                      "items": {
+                        "$ref": "#/components/schemas/mystery"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "mystery"
+        ]
+      }
+    },
+    "/api/v2/rosary-audio": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "One voice's spoken Rosary. Without a voice, the default voice's.",
+        "operationId": "getRosaryAudio",
+        "parameters": [
+          {
+            "description": "Relationship paths to include in the response",
+            "explode": false,
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "pattern": "^()(,())*$",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Limits the response fields to only those listed for each type",
+            "explode": true,
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "additionalProperties": true,
+              "properties": {
+                "spoken_rosary": {
+                  "description": "Comma separated fields of spoken_rosary: announcements, book, expires_at, prayers, verses, version",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "style": "deepObject"
+          },
+          {
+            "description": "The voice preferred, a slug. A retired voice is answered by its successor and an unknown one by the default; `voice` in the answer is the one served.",
+            "in": "query",
+            "name": "voice",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/spoken_rosary"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "spoken_rosary"
+        ]
+      }
+    },
+    "/api/v2/voices": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The voices a listener may choose, the default first.",
+        "operationId": "listVoices",
+        "parameters": [
+          {
+            "description": "Relationship paths to include in the response",
+            "explode": false,
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "pattern": "^()(,())*$",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Limits the response fields to only those listed for each type",
+            "explode": true,
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "additionalProperties": true,
+              "properties": {
+                "narration_voice": {
+                  "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "style": "deepObject"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "description": "An array of resource objects representing a narration_voice",
+                      "items": {
+                        "$ref": "#/components/schemas/narration_voice"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "narration_voice"
+        ]
+      }
+    },
+    "/api/v2/voices/retired": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Voices no longer offered, each with the voice that now answers for it.",
+        "operationId": "listRetiredVoices",
+        "parameters": [
+          {
+            "description": "Relationship paths to include in the response",
+            "explode": false,
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "pattern": "^()(,())*$",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Limits the response fields to only those listed for each type",
+            "explode": true,
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "additionalProperties": true,
+              "properties": {
+                "narration_voice": {
+                  "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "style": "deepObject"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "description": "An array of resource objects representing a narration_voice",
+                      "items": {
+                        "$ref": "#/components/schemas/narration_voice"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "narration_voice"
+        ]
+      }
+    }
+  },
+  "security": [],
+  "servers": [
+    {
+      "url": "https://www.lumenviae.org",
+      "variables": {}
+    }
+  ],
+  "tags": []
+}

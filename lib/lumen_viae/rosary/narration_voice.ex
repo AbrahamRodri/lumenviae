@@ -15,13 +15,20 @@ defmodule LumenViae.Rosary.NarrationVoice do
   use Ash.Resource,
     domain: LumenViae.Rosary,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource]
+    extensions: [AshGraphql.Resource, AshJsonApi.Resource]
 
   alias LumenViae.Rosary.NarrationVoice.FromConfig
 
   graphql do
     type :narration_voice
     encode_primary_key? false
+    derive_filter? false
+    derive_sort? false
+  end
+
+  # The JSON:API id is the slug.
+  json_api do
+    type "narration_voice"
     derive_filter? false
     derive_sort? false
   end
