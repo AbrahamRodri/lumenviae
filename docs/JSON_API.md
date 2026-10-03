@@ -119,7 +119,7 @@ title, detail, source}]}`, with the HTTP status of the first:
 | 400 | `invalid_argument`, `invalid_body`, `required`, `invalid_field`, `invalid_includes` | A value or a request the API rejected. `source.pointer` names the input when there is one (`/data/attributes/meditation_set_id`). |
 | 403 | `automated_client` | `POST /completions` only: the user agent names a crawler. Drop it; do not retry. |
 | 404 | `not_found` | No such set, or one the public may not see. |
-| 429 | `rate_limited` | `POST /completions` only: too many completions from this address this hour, counted with REST and GraphQL. Drop it; do not retry. |
+| 429 | `rate_limited` | `POST /completions` only: too many completions from this address this hour (an IPv6 caller counts by its /64), counted with REST and GraphQL. Carries `Retry-After`, in whole seconds, until the hour ends. Drop it, or retry after that. |
 | 503 | `audio_unavailable` | Recordings exist but could not be signed: the server's storage credentials are missing or broken. Retry later. |
 
 A recording that cannot be signed fails the whole request for the spoken
@@ -167,7 +167,7 @@ user agent the server read off the request: `403 automated_client`,
 `POST /api/completions`, and nothing is written. The per-address rate
 limit is on the action too (`Completion.RateLimit`), on one budget shared
 with REST and GraphQL: over it, `429 rate_limited`, "Too many completions
-from this address", and nothing is written. A crawler's refusal and a read
+from this address", with a `Retry-After` header, and nothing is written. A crawler's refusal and a read
 spend none of it.
 
 ## What is exposed, and authorization

@@ -18,5 +18,15 @@ defmodule LumenViaeWeb.JsonApiRouter do
     open_api_title: "Lumen Viae API",
     open_api_version: "2.0.0",
     open_api_servers: ["https://www.lumenviae.org"],
-    modify_open_api: {LumenViaeWeb.JsonApi.OpenApi, :modify, []}
+    modify_open_api: {LumenViaeWeb.JsonApi.OpenApi, :modify, []},
+    before_dispatch: {__MODULE__, :before_dispatch, []}
+
+  @doc false
+  # The completion write is the one route with a rate limit, and a refusal
+  # says how long to wait, as REST's does.
+  def before_dispatch(conn, %{route: %{action: :record_from_app}}) do
+    LumenViaeWeb.Plugs.RetryAfter.call(conn, :completion)
+  end
+
+  def before_dispatch(conn, _route_info), do: conn
 end

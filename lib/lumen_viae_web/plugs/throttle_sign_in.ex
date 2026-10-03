@@ -9,7 +9,9 @@ defmodule LumenViaeWeb.Plugs.ThrottleSignIn do
   refuses an attempt once either budget is spent:
 
     * 10 attempts per address in 15 minutes (`:sign_in_per_ip`), which
-      leaves an office or a VPN room for honest typos;
+      leaves an office or a VPN room for honest typos. An IPv6 caller is
+      counted by its /64, not by the address, which it can change at will
+      (`LumenViae.Limits.address/1`);
     * 5 attempts per email in 15 minutes (`:sign_in_per_email`), so a
       guesser rotating addresses still gets five tries at an account.
 
@@ -54,6 +56,7 @@ defmodule LumenViaeWeb.Plugs.ThrottleSignIn do
 
   require Logger
 
+  alias LumenViae.Limits
   alias LumenViae.Limits.Backend
   alias LumenViae.Services.Geolocation
   alias LumenViaeWeb.ClientIP
@@ -69,7 +72,7 @@ defmodule LumenViaeWeb.Plugs.ThrottleSignIn do
     ip = ClientIP.from_conn(conn)
     email = email(conn.params)
 
-    ip_over? = over?("sign_in_ip:", ip, limit(opts, :per_ip))
+    ip_over? = over?("sign_in_ip:", ip && Limits.address(ip), limit(opts, :per_ip))
     email_over? = over?("sign_in_email:", email, limit(opts, :per_email))
 
     if ip_over? or email_over? do

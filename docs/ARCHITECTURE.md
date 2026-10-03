@@ -270,9 +270,11 @@ The completion limit is the one that lives that way:
 `LumenViae.Rosary.Completion.RateLimit` is a change on both of the
 resource's create actions (`:record` for the website and REST,
 `:record_from_app` for GraphQL and `/api/v2`), so a Rosary recorded over any of them
-spends one budget per address. It keys on the full address in the action
-context (`:client_ip`, which only the server sets, from `ClientIP`), at 20 an
-hour (`:completions_per_hour`, read from the environment when the action
+spends one budget per address. It keys on the caller's address in the action
+context (`:client_ip`, which only the server sets, from `ClientIP`) - the whole
+address for IPv4, and the **/64** for IPv6, which one subscriber can vary
+at will, so keying on the full address gave it a fresh budget on every
+request (`LumenViae.Limits.address/1`) - at 20 an hour (`:completions_per_hour`, read from the environment when the action
 runs; `LumenViae.Limits` holds the number and the key). With no address in
 the context there is nothing to key on, and the completion is allowed.
 
@@ -286,12 +288,18 @@ What the domain returns and each surface says about it:
   other. A refused request is itself counted.
 - REST (`API.FallbackController`) answers `429` with `rate_limited`, in the
   envelope `docs/IOS_API_CONTRACT.md` records. Nothing a shipped build reads
-  changed.
+  changed. The response also carries `Retry-After`, in whole seconds, which
+  `Plugs.RetryAfter` works out from the clock: the counters are fixed windows
+  aligned to it, so the time left is a function of it
+  (`LumenViae.Limits.retry_after/1`). An added header, which no build reads.
 - GraphQL answers a top-level `rate_limited` error with `data` null, as it
   always has (`Graphql.GuardCompletions`, run after the mutation). AshGraphql
   would have put it in the mutation's own `errors`.
 - `/api/v2` answers `429` with `rate_limited`, a JSON:API error (the
-  `AshJsonApi.ToJsonApiError` impl in `LumenViae.Limits`).
+  `AshJsonApi.ToJsonApiError` impl in `LumenViae.Limits`), and the same
+  `Retry-After` (the router's `before_dispatch` puts `Plugs.RetryAfter` on
+  the completion route alone, because the time left is the completion
+  window's and a route with another window would be told the wrong time).
 - The prayer page ignores the result, as it ignores any other, and still
   sends the reader on.
 
@@ -1081,8 +1089,9 @@ app's analytics silently to zero.
 
 The rate limit on the completion actions caps completions per address per
 hour, and is the part that still holds when the agent string is a lie. It
-is keyed on the full address, not the stored prefix, because telling
-neighbours apart is the whole job. It is per-machine ETS, and production
+is keyed on the caller's address, not the stored prefix, because telling
+neighbours apart is the whole job; for IPv6 that address is the /64 (see
+"Rate limits"). It is per-machine ETS, and production
 runs two machines, so the real ceiling is twice the configured number. That
 is fine for what the limit is for - stopping a script, not metering - but it
 is not a precise quota. Making it exact needs a shared store, not a smaller
@@ -1142,7 +1151,8 @@ posts a plain form to AshAuthentication's password route
 (`/admin/auth/admin/password/sign_in`), and `LumenViaeWeb.AuthController`
 puts the admin in the session or sends the form back with a flash. Signing
 out is `DELETE /admin/session`, which revokes the token. Attempts are
-throttled per address and per email in front of the route, by
+throttled per address (an IPv6 caller by its /64) and per email in front of
+the route, by
 `Plugs.ThrottleSignIn`; see "Rate limits" for why that is a plug.
 
 `:load_from_session` in the browser pipeline puts the signed-in admin in

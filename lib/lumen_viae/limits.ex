@@ -23,15 +23,37 @@ defmodule LumenViae.Limits do
   ## Keys
 
   Each limit has its own prefix, because the counters are shared and a key
-  is the only thing keeping two limits apart (see `LumenViae.Hammer`). The
-  completion key is the full address, not the truncated prefix that is
-  stored: telling neighbours apart is the whole job, and truncating
-  destroys exactly that.
+  is the only thing keeping two limits apart (see `LumenViae.Hammer`).
+
+  The completion key is the caller's address, not the truncated prefix that
+  is stored: telling neighbours apart is the whole job, and truncating to a
+  /24 destroys exactly that. `address/1` says which address.
+
+  ## Which address
+
+  An IPv4 address is one subscriber's, so it is the key whole. An IPv6
+  address is not: a subscriber is handed a whole /64 (a home connection, a
+  phone), can use any address in it, and with privacy extensions does,
+  changing the last 64 bits as often as it likes. Keyed on the full
+  address, such a caller gets a fresh budget on every request. So an IPv6
+  address is keyed on its /64, which is the smallest network that is one
+  caller's. Two callers in one /64 - a campus, say - share a budget, which is
+  the price and is small against 20 an hour. An IPv4-mapped IPv6 address
+  (`::ffff:203.0.113.9`) is the IPv4 address it carries.
+
+  ## How long is left
+
+  The counters are fixed windows aligned to the clock, so how long is left in
+  one is a function of the clock and the window alone (`retry_after/1`),
+  which is what a refusal's `Retry-After` header says.
   """
+
+  import Bitwise
 
   alias AshRateLimiter.LimitExceeded
 
   @completions_per_hour 20
+  @completion_window :timer.hours(1)
 
   @doc """
   The completion limit as AshRateLimiter options, for a caller at `ip`.
@@ -39,9 +61,53 @@ defmodule LumenViae.Limits do
   def completion(ip) when is_binary(ip) do
     [
       limit: Application.get_env(:lumen_viae, :completions_per_hour, @completions_per_hour),
-      per: :timer.hours(1),
-      key: "completion:" <> ip
+      per: @completion_window,
+      key: "completion:" <> address(ip)
     ]
+  end
+
+  @doc """
+  The window, in milliseconds, of the limit called `name`. Only the
+  completion limit has one that a response needs to say.
+  """
+  def window(:completion), do: @completion_window
+
+  @doc """
+  The address a limit counts a caller by: the whole address for IPv4, and the
+  /64 for IPv6, written as the network (`2001:db8:1:2::/64`) so it can never
+  be mistaken for an address. See "Which address" above.
+
+  Written however the caller's proxy wrote it - upper case, `::` or not -
+  an IPv6 address means the same network, so every spelling of it is one
+  key. A string that is not an address is its own key, unchanged: nothing
+  here may fail a request over what a header said.
+  """
+  def address(ip) when is_binary(ip) do
+    case ip |> String.to_charlist() |> :inet.parse_address() do
+      {:ok, {_, _, _, _} = v4} ->
+        v4 |> :inet.ntoa() |> to_string()
+
+      # IPv4-mapped (::ffff:a.b.c.d): the IPv4 address it carries.
+      {:ok, {0, 0, 0, 0, 0, 0xFFFF, hi, lo}} ->
+        {hi >>> 8, hi &&& 0xFF, lo >>> 8, lo &&& 0xFF} |> :inet.ntoa() |> to_string()
+
+      {:ok, {a, b, c, d, _, _, _, _}} ->
+        to_string(:inet.ntoa({a, b, c, d, 0, 0, 0, 0})) <> "/64"
+
+      {:error, _} ->
+        ip
+    end
+  end
+
+  @doc """
+  Whole seconds left in the current window of `window_ms`, and at least one:
+  the `Retry-After` of a refusal. Hammer's fixed window ends at the next
+  multiple of its size on the system clock, so this is that clock and
+  nothing else.
+  """
+  def retry_after(window_ms) when is_integer(window_ms) and window_ms > 0 do
+    left_ms = window_ms - rem(System.system_time(:millisecond), window_ms)
+    max(div(left_ms + 999, 1000), 1)
   end
 
   @doc """

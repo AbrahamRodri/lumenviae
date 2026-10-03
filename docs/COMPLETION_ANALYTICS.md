@@ -95,13 +95,17 @@ Unchanged. Still `201` with the three keys the app already decodes, so no
 | Status | `error.code` | Meaning |
 | --- | --- | --- |
 | `403` | `automated_client` | The request's user agent looks like a crawler |
-| `429` | `rate_limited` | Too many completions from this address this hour (20, counted per machine, and production runs two) |
+| `429` | `rate_limited` | Too many completions from this address this hour (20, counted per machine, and production runs two). Carries a `Retry-After` header, in whole seconds, until the hour ends |
 
 Neither should happen to a real person using the app. If either starts
 appearing, something is wrong with the request rather than with the person:
 a `403` means the app's `User-Agent` has been set to something that reads as
 a bot, and a `429` means many devices are sharing one address — a parish on
-one connection, or a carrier-grade NAT.
+one connection, or a carrier-grade NAT. "One address" is the whole address
+for IPv4 and the **/64** for IPv6: a phone or a home connection is handed a
+whole /64 and, with privacy extensions, changes its address inside it as it
+likes, so counting the full address gave such a caller a fresh budget on
+every request. Two devices in one /64, a campus say, share a budget.
 
 Failing quietly is the right behaviour for both. A completion that was not
 recorded is a missing analytics row, not a missing Rosary, and it is not
@@ -112,7 +116,8 @@ adds: the website, this route and GraphQL's `recordCompletion` all record a
 completion through the same `Completion` actions, so all three spend one
 budget per address and a client does not double its allowance by using more
 than one. The status, the code and the body are unchanged from when the
-limit stood in front of the route. See "Rate limits" in
+limit stood in front of the route; the `Retry-After` header is added and is
+not read by any build. See "Rate limits" in
 [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
