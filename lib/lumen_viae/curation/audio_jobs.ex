@@ -64,18 +64,71 @@ defmodule LumenViae.Curation.AudioJobs do
   end
 
   @doc """
-  Inserts a job built by a worker's `new/2`, tagged with `batch`. Returns
-  `{:ok, :queued}`, `{:ok, :already_queued}` when a job for the same key is
-  already waiting or running, or `{:error, reason}`.
+  Inserts a job built by a worker's `new/2`, tagged with `batch`. Returns:
+
+    * `{:ok, :queued}`
+    * `{:ok, :already_queued}` - a job for the same key, for the same
+      meditation, is already waiting or running, and will do this work
+    * `{:error, {:queued_for_another, job}}` - a job for the same key is
+      waiting or running for a *different* meditation. Folding into it
+      would record the other meditation's words and leave this one with
+      nothing, so it is refused; `job` is the one holding the key
+    * `{:error, reason}` - the insert failed
+
+  `error_message/1` turns either error into a sentence.
   """
   def enqueue(%Ecto.Changeset{} = changeset, batch) do
     meta = Map.merge(Ecto.Changeset.get_field(changeset, :meta) || %{}, %{"batch" => batch})
 
     case changeset |> Ecto.Changeset.put_change(:meta, meta) |> Oban.insert() do
-      {:ok, %Oban.Job{conflict?: true}} -> {:ok, :already_queued}
-      {:ok, _job} -> {:ok, :queued}
-      {:error, reason} -> {:error, reason}
+      {:ok, %Oban.Job{conflict?: true} = queued} ->
+        if same_owner?(queued, changeset),
+          do: {:ok, :already_queued},
+          else: {:error, {:queued_for_another, queued}}
+
+      {:ok, _job} ->
+        {:ok, :queued}
+
+      {:error, reason} ->
+        {:error, reason}
     end
+  end
+
+  # Oban answers a unique conflict with the job already holding the key. A
+  # narration names its meditation; a spoken Rosary clip names none, and
+  # its key alone says which clip it is.
+  defp same_owner?(%Oban.Job{args: queued}, changeset) do
+    args = Ecto.Changeset.get_field(changeset, :args) || %{}
+    wanted = args[:meditation_id] || args["meditation_id"]
+    queued["meditation_id"] == wanted
+  end
+
+  @doc "A sentence for an `enqueue/2` error."
+  def error_message({:queued_for_another, %Oban.Job{args: args, id: id}}) do
+    "#{args["key"]} is already queued for meditation #{args["meditation_id"]} (job #{id}); " <>
+      "use another audio_filename, or cancel that job at /admin/jobs and import again"
+  end
+
+  def error_message(reason) when is_binary(reason), do: reason
+  def error_message(reason), do: reason |> inspect() |> String.slice(0, 200)
+
+  @doc """
+  Which of `filenames` have a narration job waiting or running for them,
+  from the jobs table. The import's preview treats these as taken: a
+  meditation imported under one would find its key held by another
+  meditation's job.
+  """
+  def queued_narration_filenames([]), do: MapSet.new()
+
+  def queued_narration_filenames(filenames) do
+    from(j in Oban.Job,
+      where: j.worker == "LumenViae.Curation.Jobs.NarrateMeditation",
+      where: j.state in ^@incomplete,
+      where: fragment("?->>'filename'", j.args) in ^filenames,
+      select: fragment("?->>'filename'", j.args)
+    )
+    |> Repo.all()
+    |> MapSet.new()
   end
 
   @doc "Subscribes the caller to one batch's events."

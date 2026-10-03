@@ -156,12 +156,23 @@ defmodule LumenViae.Curation.Jobs.NarrateMeditation do
   # The import creates a meditation without an audio_url and leaves the
   # first finished recording to set it, so a meditation never claims audio
   # that is not there yet.
-  defp ensure_audio_url(%{audio_url: filename} = meditation, filename), do: {:ok, meditation}
+  defp ensure_audio_url(meditation, filename) do
+    changes =
+      %{}
+      |> put_if_blank(meditation.audio_url, :audio_url, filename)
+      |> put_if_blank(meditation.narration_filename, :narration_filename, filename)
 
-  defp ensure_audio_url(%{audio_url: current} = meditation, filename) when current in [nil, ""],
-    do: Rosary.update_meditation(meditation, %{audio_url: filename}, @system)
+    if changes == %{},
+      do: {:ok, meditation},
+      else: Rosary.update_meditation(meditation, changes, @system)
+  end
 
-  defp ensure_audio_url(meditation, _filename), do: {:ok, meditation}
+  # Only a blank field is filled: a meditation already recorded under
+  # another filename keeps it.
+  defp put_if_blank(changes, current, field, filename) when current in [nil, ""],
+    do: Map.put(changes, field, filename)
+
+  defp put_if_blank(changes, _current, _field, _filename), do: changes
 
   defp describe(%Ash.Error.Invalid{} = error), do: Rosary.error_summary(error)
   defp describe(error) when is_exception(error), do: Exception.message(error)

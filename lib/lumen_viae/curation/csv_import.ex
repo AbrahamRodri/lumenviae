@@ -328,13 +328,25 @@ defmodule LumenViae.Curation.CsvImport do
 
   defp audio_overwrite_warnings(nil, _existing_audio), do: []
 
-  defp audio_overwrite_warnings(audio_filename, existing_audio) do
-    if MapSet.member?(existing_audio, audio_filename) do
-      [
-        "audio_filename already belongs to an existing meditation; importing will overwrite its audio in S3"
-      ]
-    else
-      []
+  # A filename still being recorded for another meditation is the sharper
+  # case: this row's job would find the key held and refuse to queue, so
+  # the row would get no narration at all (as after a stopped import that
+  # is fixed and run again).
+  defp audio_overwrite_warnings(audio_filename, {claimed, queued}) do
+    cond do
+      MapSet.member?(queued, audio_filename) ->
+        [
+          "audio_filename is already queued for recording for another meditation; this row " <>
+            "would get no narration - use another filename, or cancel that job at /admin/jobs first"
+        ]
+
+      MapSet.member?(claimed, audio_filename) ->
+        [
+          "audio_filename already belongs to an existing meditation; importing will overwrite its audio in S3"
+        ]
+
+      true ->
+        []
     end
   end
 
@@ -438,7 +450,11 @@ defmodule LumenViae.Curation.CsvImport do
       |> Enum.reject(&is_nil/1)
       |> Enum.uniq()
 
-    filenames |> Rosary.list_taken_audio_urls(AshOpts.take(opts)) |> MapSet.new()
+    # Claimed by a meditation (recorded, or imported to be), and held by a
+    # narration job still waiting or running. The second covers jobs
+    # enqueued before meditations kept their narration_filename.
+    {filenames |> Rosary.list_taken_audio_urls(AshOpts.take(opts)) |> MapSet.new(),
+     AudioJobs.queued_narration_filenames(filenames)}
   end
 
   ## Row processing
@@ -505,7 +521,12 @@ defmodule LumenViae.Curation.CsvImport do
         "content" => content,
         "tts_annotations" => tts_annotations,
         "author" => Map.get(row_map, "author"),
-        "source" => Map.get(row_map, "source")
+        "source" => Map.get(row_map, "source"),
+        # Kept on the row whatever the recordings do, so a meditation whose
+        # every voice fails can still be recorded later, and so the next
+        # import sees the filename as taken.
+        "narration_filename" =>
+          if(opts[:skip_audio], do: nil, else: Map.get(row_map, "audio_filename"))
       }
 
       if opts[:dry_run] do
@@ -731,7 +752,7 @@ defmodule LumenViae.Curation.CsvImport do
             )
 
             {queued,
-             failures ++ ["#{voice.slug}: could not queue (#{format_audio_error(reason)})"]}
+             failures ++ ["#{voice.slug}: could not queue (#{AudioJobs.error_message(reason)})"]}
         end
       end)
     end
@@ -785,9 +806,6 @@ defmodule LumenViae.Curation.CsvImport do
       slugs -> Enum.map(slugs, &(Voices.get(&1) || raise(ArgumentError, "unknown voice: #{&1}")))
     end
   end
-
-  defp format_audio_error(reason) when is_binary(reason), do: reason
-  defp format_audio_error(reason), do: reason |> inspect() |> String.slice(0, 200)
 
   defp notify(opts, event) do
     case opts[:progress] do

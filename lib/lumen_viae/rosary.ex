@@ -358,7 +358,10 @@ defmodule LumenViae.Rosary do
 
   @doc """
   Returns whichever of the given audio filenames are already claimed by a
-  meditation, so an import can warn before it overwrites their audio.
+  meditation, so an import can warn before it overwrites their audio. A
+  meditation claims the filename it is recorded under (`audio_url`) and
+  the one it was imported to be recorded under (`narration_filename`),
+  which it holds even while no recording has landed.
   """
   def list_taken_audio_urls(audio_urls, opts \\ [])
   def list_taken_audio_urls([], _opts), do: []
@@ -366,9 +369,11 @@ defmodule LumenViae.Rosary do
   def list_taken_audio_urls(audio_urls, opts) do
     Meditation
     |> Ash.Query.for_read(:with_audio_filenames, %{audio_urls: audio_urls})
-    |> Ash.Query.select([:audio_url])
+    |> Ash.Query.select([:audio_url, :narration_filename])
     |> Ash.read!(AshOpts.take(opts))
-    |> Enum.map(& &1.audio_url)
+    |> Enum.flat_map(&[&1.audio_url, &1.narration_filename])
+    |> Enum.filter(&(&1 in audio_urls))
+    |> Enum.uniq()
   end
 
   @doc """
