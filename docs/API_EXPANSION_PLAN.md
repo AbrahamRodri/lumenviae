@@ -1193,8 +1193,10 @@ Considered and rejected, so they do not come back.
 > correctly named that route as the one where a limit might eventually matter.
 > It does now: the completion row carries a place and the dashboard reads it as
 > fact, so an afternoon of scripted posts is an afternoon of figures that mean
-> nothing. `LumenViaeWeb.Plugs.GuardCompletions` caps it per address, and turns
-> away crawlers that announce themselves. The other API routes are still
+> nothing. `LumenViaeWeb.Plugs.GuardCompletions` turns away crawlers that
+> announce themselves, and the cap per address is on the `Completion` action
+> (`LumenViae.Rosary.Completion.RateLimit`, so REST, GraphQL and the website
+> share it). The other API routes are still
 > unlimited, for exactly the reason given above.
 
 **`Marian` and `Vocation` labels.** Labels answer "what kind of meditation is this" along two sub-axes — provenance (Saints, Scriptural) and style (Contemplative vs Considerations, mutually exclusive by the module's own doc). Marian and Vocation answer "what is it *about*", which is subject matter, which is the axis intentions exist to carry. Vocation is redundant with `discernment`/`children`/`family` on arrival; Marian applies to most of the catalogue, so it filters nothing. And `max_per_set` is 3 against a vocabulary of 5, so two subject labels would start pushing `Saints` off sets by actual saints. See decision 3 — this is your call, not mine, but the recommendation is no.

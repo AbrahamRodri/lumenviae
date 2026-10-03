@@ -12,9 +12,8 @@ defmodule LumenViae.Application do
       LumenViae.Repo,
       {DNSCluster, query: Application.get_env(:lumen_viae, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: LumenViae.PubSub},
-      # Owns the counters that cap how often one caller can write a
-      # completion.
-      LumenViae.RateLimit,
+      # Owns the counters behind every rate limit (AshRateLimiter's backend).
+      {LumenViae.Hammer, clean_period: :timer.minutes(10)},
       # Owns the IP-to-place cache.
       LumenViae.Services.Geolocation,
       # Owns the parsed Divine Office cache.

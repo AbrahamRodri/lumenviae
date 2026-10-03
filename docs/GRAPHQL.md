@@ -254,10 +254,13 @@ Errors arrive in two places, by kind:
 (AshGraphql's `root_level_errors?` would put the second kind at the top
 level too, but it also reports every query error twice, so it is off.)
 
-The guard is the same one that stands in front of the REST route, run on
-this field alone so reads never spend it: a crawler is turned away on its
-user agent, and every address gets a rate limit, on one budget shared with
-`POST /api/completions`, so using both APIs does not double it.
+A crawler is turned away on its user agent, by the same check that stands in
+front of the REST route, run on this field alone. Every address also gets a
+rate limit, which is on the `Completion` action and not on this field, so it
+is one budget shared with `POST /api/completions` and the website, and using
+more than one does not double it; reads never spend it. AshGraphql would put
+that refusal in the mutation's own `errors`, so the guard moves it to the top
+level, where it has always been (`rate_limited`, `data` null).
 
 ## The Divine Office
 

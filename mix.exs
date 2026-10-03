@@ -54,6 +54,11 @@ defmodule LumenViae.MixProject do
       {:absinthe_plug, "~> 1.5"},
       {:ash_admin, "~> 1.3"},
       {:ash_paper_trail, "~> 0.7"},
+      # Rate limits live on the actions they protect. See docs/ARCHITECTURE.md,
+      # "Rate limits".
+      {:ash_rate_limiter, "~> 2.0"},
+      # The counters behind it: per-node, in ETS, fixed windows.
+      {:hammer, "~> 7.5"},
       # Admin accounts: email and password sign-in for the console. See
       # docs/ARCHITECTURE.md, "Who may do what".
       {:ash_authentication, "~> 4.15"},

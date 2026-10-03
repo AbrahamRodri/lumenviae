@@ -88,7 +88,7 @@ Unchanged. Still `201` with the three keys the app already decodes, so no
 | Status | `error.code` | Meaning |
 | --- | --- | --- |
 | `403` | `automated_client` | The request's user agent looks like a crawler |
-| `429` | `rate_limited` | Too many completions from this address this hour (20 per machine, and production runs two) |
+| `429` | `rate_limited` | Too many completions from this address this hour (20, counted per machine, and production runs two) |
 
 Neither should happen to a real person using the app. If either starts
 appearing, something is wrong with the request rather than with the person:
@@ -100,6 +100,14 @@ Failing quietly is the right behaviour for both. A completion that was not
 recorded is a missing analytics row, not a missing Rosary, and it is not
 worth an error in front of somebody who has just finished praying.
 
+The `429` is the completion action's own rate limit, not something this route
+adds: the website, this route and GraphQL's `recordCompletion` all record a
+completion through the same `Completion` actions, so all three spend one
+budget per address and a client does not double its allowance by using more
+than one. The status, the code and the body are unchanged from when the
+limit stood in front of the route. See "Rate limits" in
+[ARCHITECTURE.md](ARCHITECTURE.md).
+
 ---
 
 ## The website
@@ -108,7 +116,9 @@ Nothing to do. `LumenViaeWeb.Plugs.PutClientIP` reads `Fly-Client-IP` during
 the HTTP request and puts it in the session; the prayer LiveView reads it
 from there, reads the user agent from the socket, and records
 `source: "web"` when Complete is pressed, with `prayed_aloud` set from the
-page's "Pray aloud" switch.
+page's "Pray aloud" switch. The page is rate limited like every other way in,
+by the action; a refused completion is simply not written, and the reader is
+sent on as usual.
 
 The address cannot be taken from the socket directly - `connect_info` only
 carries headers beginning with `x-`, so `Fly-Client-IP` never reaches it,
@@ -183,6 +193,8 @@ flow, the console and the API, and asks AI-training and SEO crawlers away
 entirely.
 
 That file is a request, not a fence, so the completion route is guarded in
-the application as well — see `LumenViaeWeb.Plugs.GuardCompletions` and the
-"Crawlers are kept out of the figures" section of
+the application as well — a crawler is refused on its user agent
+(`LumenViaeWeb.Plugs.GuardCompletions`), and every address is rate limited by
+the completion action (`LumenViae.Rosary.Completion.RateLimit`). See the
+"Crawlers are kept out of the figures" and "Rate limits" sections of
 [ARCHITECTURE.md](ARCHITECTURE.md).

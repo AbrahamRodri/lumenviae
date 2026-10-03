@@ -20,9 +20,11 @@ defmodule LumenViaeWeb.GraphqlSchema do
   end
 
   # The one public write is guarded like its REST twin: a crawler check
-  # and a per-address rate limit, before the mutation resolves.
+  # before the mutation resolves, and the action's own per-address rate limit
+  # reported as a refusal of the request after it.
   def middleware(middleware, %{identifier: :record_completion}, %{identifier: :mutation}) do
-    [LumenViaeWeb.Graphql.GuardCompletions | middleware]
+    [{LumenViaeWeb.Graphql.GuardCompletions, :before} | middleware] ++
+      [{LumenViaeWeb.Graphql.GuardCompletions, :after}]
   end
 
   def middleware(middleware, _field, _object), do: middleware
