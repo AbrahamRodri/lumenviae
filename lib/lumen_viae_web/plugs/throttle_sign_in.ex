@@ -43,7 +43,11 @@ defmodule LumenViaeWeb.Plugs.ThrottleSignIn do
   throttle can move to the action as a preparation and this plug can go.
 
   Only `POST` to the strategy's sign-in route is counted; anything else
-  under the auth routes passes straight through.
+  under the auth routes passes straight through. The route is matched on
+  `path_info`, as the router matches it, not on `request_path`: the router
+  drops empty segments, so `/sign_in/` and `/admin//auth/...` reach the
+  strategy too, and a match on the literal path let every attempt sent
+  that way past the throttle.
   """
   import Plug.Conn
   import Phoenix.Controller
@@ -54,14 +58,14 @@ defmodule LumenViaeWeb.Plugs.ThrottleSignIn do
   alias LumenViae.Services.Geolocation
   alias LumenViaeWeb.ClientIP
 
-  @sign_in_path "/admin/auth/admin/password/sign_in"
+  @sign_in_path_info ~w(admin auth admin password sign_in)
   @window_ms :timer.minutes(15)
   @default_per_ip 10
   @default_per_email 5
 
   def init(opts), do: opts
 
-  def call(%Plug.Conn{method: "POST", request_path: @sign_in_path} = conn, opts) do
+  def call(%Plug.Conn{method: "POST", path_info: @sign_in_path_info} = conn, opts) do
     ip = ClientIP.from_conn(conn)
     email = email(conn.params)
 
