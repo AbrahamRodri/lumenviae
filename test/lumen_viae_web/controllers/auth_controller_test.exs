@@ -22,6 +22,10 @@ defmodule LumenViaeWeb.AuthControllerTest do
     post(conn, @sign_in, %{"admin" => %{"email" => email, "password" => password}})
   end
 
+  defp credentials(admin, password) do
+    %{"admin" => %{"email" => to_string(admin.email), "password" => password}}
+  end
+
   test "the login page asks for an email and a password and posts to the strategy", %{conn: conn} do
     {:ok, _view, html} = live(conn, "/admin/login")
 
@@ -56,6 +60,29 @@ defmodule LumenViaeWeb.AuthControllerTest do
     assert redirected_to(conn) == "/admin/login"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Too many sign-in attempts"
     refute get_session(conn, "admin_token")
+  end
+
+  # The router matches on path_info, which drops empty segments, so each of
+  # these reaches the strategy exactly as the form's own path does, and each
+  # must spend the same budget.
+  for path <- [
+        "/admin/auth/admin/password/sign_in/",
+        "/admin//auth/admin/password/sign_in",
+        "/admin/auth/admin/password//sign_in/"
+      ] do
+    test "an attempt at #{path} is throttled like one at the form's path", %{conn: conn} do
+      put_env(:lumen_viae, :sign_in_per_email, 2)
+      admin = admin_fixture()
+
+      for _ <- 1..2 do
+        post(build_conn(), unquote(path), credentials(admin, "wrong password"))
+      end
+
+      conn = post(conn, unquote(path), credentials(admin, password()))
+      assert redirected_to(conn) == "/admin/login"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Too many sign-in attempts"
+      refute get_session(conn, "admin_token")
+    end
   end
 
   test "a wrong password or an unknown email is not logged as a fault", %{conn: conn} do
