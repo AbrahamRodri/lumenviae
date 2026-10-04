@@ -35,7 +35,8 @@ defmodule LumenViae.Rosary.Completion do
   `:record` is the server-side write, used by the website and the REST
   controller, which say what surface they are. `:record_from_app` is the
   public write: the client names the set and whether it prayed aloud, and
-  nothing else. Neither takes the address or the moment as an input; see
+  nothing else. Which app it is, iOS or Android, is read from the request's
+  user agent; see `LumenViae.Rosary.Completion.AppSource`. Neither takes the address or the moment as an input; see
   `LumenViae.Rosary.Completion.Stamp`.
 
   Mapped onto the existing `rosary_completions` table exactly as the Ecto
@@ -51,13 +52,14 @@ defmodule LumenViae.Rosary.Completion do
     authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshRateLimiter, AshOban, AshJsonApi.Resource]
 
+  alias LumenViae.Rosary.Completion.AppSource
   alias LumenViae.Rosary.Completion.LookUpPlace
   alias LumenViae.Rosary.Completion.NotAutomated
   alias LumenViae.Rosary.Completion.RateLimit
   alias LumenViae.Rosary.Completion.SetIsVisible
   alias LumenViae.Rosary.Completion.Stamp
 
-  @sources ~w(web ios)
+  @sources ~w(web ios android)
 
   @doc """
   The surfaces a completion can be reported from.
@@ -208,7 +210,9 @@ defmodule LumenViae.Rosary.Completion do
       validate NotAutomated
       change set_attribute(:meditation_set_id, arg(:meditation_set_id))
       change set_attribute(:prayed_aloud, arg(:prayed_aloud))
-      change set_attribute(:source, "ios")
+      # Which app, iOS or Android, from the user agent. The description above
+      # is left as it was so the API snapshots do not change.
+      change AppSource
       change RateLimit
 
       # After the limit, in a `before_action`, so that a refused request has
@@ -287,8 +291,9 @@ defmodule LumenViae.Rosary.Completion do
       constraints max_length: 255, trim?: false
     end
 
-    # "web" or "ios": which surface the Rosary was prayed on, so the two can
-    # be read apart instead of summing into one uninterpretable number.
+    # "web", "ios" or "android": which surface the Rosary was prayed on, so
+    # they can be read apart instead of summing into one uninterpretable
+    # number.
     attribute :source, :string do
       constraints max_length: 255, trim?: false
     end

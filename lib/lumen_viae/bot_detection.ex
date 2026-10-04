@@ -25,6 +25,24 @@ defmodule LumenViae.BotDetection do
   word straight into it, `Googlebot` and its many relatives, has to be
   named outright in `@named_agents`. That list is the part worth extending
   when a new crawler shows up in the logs.
+
+  ## The apps' agents
+
+  Both apps get through, and the reason each does is different.
+
+  The iOS app never sets its agent, so `URLSession` sends CFNetwork's:
+  `app/5 CFNetwork/3826.500.111 Darwin/25.0.0`, which names no HTTP
+  library on the list.
+
+  An Android HTTP client's default agent would be refused: OkHttp sends
+  `okhttp/4.12.0`, and `okhttp` stays on the list because scripts use it.
+  So the Android app sends its own,
+  `LumenViae-Android/<versionName> (Android <release>; <model>)`, and must
+  never fall back to its library's default; Android's stock
+  `Dalvik/2.1.0 (Linux; U; Android 14; ...)` would also pass, and is not
+  what it sends. `LumenViae.Rosary.Completion.AppSource` reads the same
+  agent to tell an Android completion from an iOS one. The tests pin all
+  of this.
   """
 
   # Crawlers whose name ends in a token this would otherwise miss, plus the
@@ -54,10 +72,10 @@ defmodule LumenViae.BotDetection do
   ## A missing agent is not an accusation
 
   It would be tempting to read one as a bot - no browser omits it, so what
-  else could it be? The iOS app could. Its agent is set by `URLSession`,
-  which lives in the app's codebase and not in this one, and a build that
-  stopped sending one would have every completion refused with a 403 that
-  nothing in the app is watching for. The whole of the app's analytics
+  else could it be? An app could. Its agent is set in the app's codebase
+  (by `URLSession` on iOS, by the Android app's HTTP client) and not in
+  this one, and a build that stopped sending one would have every
+  completion refused with a 403 that nothing in the app is watching for. The whole of the app's analytics
   would go quiet and the first symptom would be a dashboard that gradually
   looked wrong.
 

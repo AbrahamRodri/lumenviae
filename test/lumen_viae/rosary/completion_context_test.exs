@@ -57,7 +57,7 @@ defmodule LumenViae.Rosary.CompletionContextTest do
     test "a source that is not a surface we have is refused" do
       set = create_set()
 
-      assert {:error, changeset} = Rosary.record_completion(set.id, %{source: "android"})
+      assert {:error, changeset} = Rosary.record_completion(set.id, %{source: "windows"})
       assert "is invalid" in errors_on(changeset).source
     end
   end
