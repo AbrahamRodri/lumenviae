@@ -5,6 +5,7 @@ defmodule LumenViaeWeb.Router do
 
   import AshAdmin.Router
   import Oban.Web.Router
+  import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -157,6 +158,9 @@ defmodule LumenViaeWeb.Router do
       # The spoken Rosary's recordings: coverage and a player for each clip
       live "/rosary-audio", Live.Admin.RosaryAudio
 
+      # The running app: release, database, queues, schedule, third parties
+      live "/system", Live.Admin.System
+
       # Meditation Sets management
       live "/meditation-sets", Live.Meditations.Sets.List
       live "/meditation-sets/new", Live.Meditations.Sets.New
@@ -194,6 +198,25 @@ defmodule LumenViaeWeb.Router do
       as: :oban_jobs,
       on_mount: [{LumenViaeWeb.UserAuth, :require_admin}],
       resolver: LumenViaeWeb.ObanResolver
+
+    # Phoenix LiveDashboard: the VM's processes, ETS tables, ports and the
+    # metrics in LumenViaeWeb.Telemetry, behind the console's guard like
+    # Oban Web. It can kill a process, so it is an admin's tool only. No
+    # env_keys: the environment holds every secret the app has.
+    live_dashboard "/live",
+      live_session_name: :live_dashboard,
+      on_mount: [{LumenViaeWeb.UserAuth, :require_admin}],
+      metrics: LumenViaeWeb.Telemetry
+  end
+
+  # Liveness and the database, for whatever watches the app. Off the
+  # browser pipeline (no session, no canonical-host redirect, which a check
+  # against a machine's own address would trip) and out of the request log,
+  # which a check every few seconds would fill. See HealthController.
+  scope "/", LumenViaeWeb do
+    pipe_through :api
+
+    get "/healthz", HealthController, :show, log: false
   end
 
   # JSON API for iOS app
@@ -268,19 +291,12 @@ defmodule LumenViaeWeb.Router do
     post "/completions", CompletionController, :create
   end
 
-  # Enable LiveDashboard and Swoosh mailbox preview in development
+  # The Swoosh mailbox preview in development. LiveDashboard, which used to
+  # live here too, is at /admin/live in every environment.
   if Application.compile_env(:lumen_viae, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
-    import Phoenix.LiveDashboard.Router
-
     scope "/dev" do
       pipe_through :browser
 
-      live_dashboard "/dashboard", metrics: LumenViaeWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
 

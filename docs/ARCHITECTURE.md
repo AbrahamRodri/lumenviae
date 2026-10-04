@@ -12,12 +12,13 @@ this before adding a module, a query, or a page.
 5. [Services above the domain](#services-above-the-domain)
 6. [Background jobs](#background-jobs)
 7. [The Office domain](#the-office-domain)
-8. [The web layer](#the-web-layer)
-9. [Components](#components)
-10. [Templates and partials](#templates-and-partials)
-11. [Where does this go?](#where-does-this-go)
-12. [Design tokens](#design-tokens)
-13. [The admin console](#the-admin-console)
+8. [The Ops domain](#the-ops-domain)
+9. [The web layer](#the-web-layer)
+10. [Components](#components)
+11. [Templates and partials](#templates-and-partials)
+12. [Where does this go?](#where-does-this-go)
+13. [Design tokens](#design-tokens)
+14. [The admin console](#the-admin-console)
 
 ---
 
@@ -57,6 +58,8 @@ lib/lumen_viae/
 │   └── content.ex             value module: the Rosary's words, from priv/rosary_content/
 ├── office.ex                  the Office domain (see below)
 ├── office/
+├── ops.ex                     the Ops domain: the app looking at itself (see below)
+├── ops/
 ├── curation/                  batch services over the domain's public API
 │   ├── csv_import.ex
 │   ├── csv_update.ex          edit shipped meditations in place, re-record
@@ -800,6 +803,54 @@ for the endpoint reference and docs/GRAPHQL.md for the queries.
 
 ---
 
+## The Ops domain
+
+`LumenViae.Ops` is the app looking at itself, for whoever looks after it:
+the console's System screen (`/admin/system`), `GET /healthz`,
+`mix lumen_viae.doctor`, `mix lumen_viae.jobs` and the job functions in
+`LumenViae.Release`. Like the Office, it owns no tables, and what it reads
+is not Rosary data: Postgres's catalogs and statistics views
+(`Ops.Database`), Oban's jobs table (`Ops.Jobs`), the VM (`Ops.Runtime`)
+and the third parties (`Ops.Probes`). So `lib/lumen_viae/ops/` may use the
+Repo and `Ecto.Query`, and the architecture test exempts it as it exempts
+the Office.
+
+**Reads are functions, acts are actions.** Looking changes nothing, so the
+reads are plain functions on the domain. The two things the console can
+do - run one of the crontab's workers now, and empty every machine's Office
+cache - are generic actions on `Ops.Maintenance`, a resource with no table,
+called through the domain's code interface with the admin as actor. Its
+policy lets an admin and nobody else; it has no GraphQL or JSON:API door.
+"Run now" accepts only a worker the crontab names, so it can bring the
+schedule forward and never invent a job. The release and mix tasks call the
+same actions as the operator (`authorize?: false`).
+
+**The crontab is written once and stored twice** in `config/config.exs`:
+as Oban's `:crontab`, which Oban runs, and as `:scheduled_jobs`, which
+`Ops.Jobs.schedule/1` reads. Development empties the first and keeps the
+second, so the System screen still lists the schedule on a laptop and says
+it is not running there. "Running here" is read from the running Oban's
+Cron plugin, not the config.
+
+**The probes never block a page.** Each runs in a task with a five-second
+timeout, and the System screen starts them after mount. The S3 probe HEADs
+a key that does not exist: production's credentials have no
+`s3:ListBucket`, so S3 answers 403 rather than 404, and either answer means
+the bucket was reached with credentials it accepted. The Office probe
+(`Office.ping/0`) fetches this month's calendar past the cache, and wakes a
+suspended engine. Geolocation and ElevenLabs are reported from their
+configuration, because the only questions they answer cost a lookup or a
+character.
+
+**`GET /healthz`** answers `{"status", "version", "db"}`, 200 when a
+`SELECT 1` comes back within a second and 503 when it does not. It is
+public, so it says nothing else: no node, no environment, no counts. It sits
+at the root, not under `/api`, whose v1 is a contract with installed iOS
+builds, and out of the request log (`LumenViaeWeb.Endpoint.log_level/1`),
+which a monitor asking every few seconds would fill.
+
+---
+
 ## The web layer
 
 ```
@@ -1074,6 +1125,21 @@ CSS classes for the pieces that are not components: `.admin-btn` with
 `-primary`, `-secondary`, `-ghost`, `-danger`; `.admin-input` and
 `.admin-textarea` for forms, `.admin-field` for the shorter filter controls;
 `.admin-table`; `.admin-eyebrow` for tracked-caps labels; `.admin-figure`.
+
+**The System screen** (`/admin/system`) is the machinery's dashboard, as
+the Dashboard is the library's: the release and the VM, the database's size,
+connections, cache hit ratio and largest tables, each queue's jobs by state
+(every count a link into Oban Web, filtered), the recent failures with
+their last error, the crontab with its next and last runs and a Run now,
+the Office cache on every machine with its last warm and an Empty, and the
+third-party probes, which fill in after the page is up. See "The Ops
+domain".
+
+**Phoenix LiveDashboard** is at `/admin/live`, behind the console's guard
+like Oban Web, in every environment: processes, ETS, ports, and the metrics
+in `LumenViaeWeb.Telemetry`, Oban's job durations, waits and failures
+among them. It can kill a process, so it is an admin's tool. It is mounted
+without `env_keys`, because the environment holds every secret the app has.
 
 ### Two rules the console screens follow
 

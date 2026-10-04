@@ -109,7 +109,9 @@ defmodule LumenViae.Rosary.ContextRulesTest do
 
   test "rule 3: nothing touches the Repo or Ecto.Query for Rosary data" do
     # audio_jobs.ex counts Oban's own jobs table (oban_jobs), which is not
-    # Rosary data and has no resource to give it a read action.
+    # Rosary data and has no resource to give it a read action. The Ops
+    # domain (lib/lumen_viae/ops/) reads the same table, Postgres's
+    # catalogs and statistics views, and nothing of the Rosary's.
     allowed = [
       "lib/lumen_viae/repo.ex",
       "lib/lumen_viae/release.ex",
@@ -120,6 +122,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
       for {path, source} <- Enum.map(lib_files(), &read/1),
           path not in allowed,
           not String.starts_with?(path, "lib/lumen_viae/office"),
+          not String.starts_with?(path, "lib/lumen_viae/ops/"),
           Regex.match?(~r/\bRepo\.\w|\bEcto\.Query\b|import Ecto\b/, source),
           do: path
 

@@ -22,7 +22,8 @@ config :lumen_viae, LumenViae.Repo,
 config :lumen_viae, LumenViaeWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: 8080],
+  # PORT moves it, so two worktrees can each run a server: PORT=8081 ./dev.sh
+  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT", "8080"))],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,

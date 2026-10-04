@@ -52,6 +52,7 @@ defmodule LumenViaeWeb.Components.Admin do
       key: "import",
       icon: "hero-arrow-up-tray"
     },
+    %{label: "System", path: "/admin/system", key: "system", icon: "hero-server-stack"},
     # Oban Web, which draws its own page, so this item is never the active
     # one.
     %{label: "Jobs", path: "/admin/jobs", key: "jobs", icon: "hero-queue-list"}

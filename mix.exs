@@ -16,6 +16,12 @@ defmodule LumenViae.MixProject do
     ]
   end
 
+  # `mix check` compiles and tests, so it runs in the test environment, as
+  # CI does.
+  def cli do
+    [preferred_envs: [check: :test]]
+  end
+
   # Configuration for the OTP application.
   #
   # Type `mix help compile.app` for more information.
@@ -130,6 +136,16 @@ defmodule LumenViae.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ash.setup --quiet", "test"],
+      # CI's blocking checks, in the order that fails fastest (docs/CI.md):
+      # a forced compile with warnings as errors, resources against their
+      # migrations, formatting of the files this branch changed, then the
+      # whole suite. Set MIX_TEST_PARTITION in a worktree.
+      check: [
+        "compile --force --warnings-as-errors",
+        "ash.codegen --check",
+        &format_changed/1,
+        "test --warnings-as-errors"
+      ],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind lumen_viae", "esbuild lumen_viae"],
       "assets.deploy": [
@@ -138,5 +154,28 @@ defmodule LumenViae.MixProject do
         "phx.digest"
       ]
     ]
+  end
+
+  # The Elixir and HEEx files this branch changed against origin/main,
+  # committed or not, checked the way CI's "Format (changed files)" checks
+  # a pull request's.
+  defp format_changed(_args) do
+    {base, 0} = System.cmd("git", ["merge-base", "HEAD", "origin/main"])
+
+    {committed, 0} =
+      System.cmd("git", ["diff", "--name-only", "--diff-filter=ACMR", String.trim(base)])
+
+    {untracked, 0} = System.cmd("git", ["ls-files", "--others", "--exclude-standard"])
+
+    files =
+      (String.split(committed, "\n") ++ String.split(untracked, "\n"))
+      |> Enum.filter(&(&1 =~ ~r/\.(ex|exs|heex)$/ and File.exists?(&1)))
+      |> Enum.uniq()
+
+    if files == [] do
+      Mix.shell().info("No Elixir or HEEx files changed.")
+    else
+      Mix.Task.run("format", ["--check-formatted" | files])
+    end
   end
 end

@@ -112,6 +112,28 @@ writing a query in the shell. `LumenViae.Rosary` is the only way into the domain
 docs/ARCHITECTURE.md), and a one-off `Repo.all` here is both unreviewed and
 unrepeatable.
 
+## Jobs
+
+The console's `/admin/system` shows the queues, recent failures and the
+crontab, and Oban Web at `/admin/jobs` every job. From a shell, the same
+through `LumenViae.Release`, with `rpc` so they run inside the app:
+
+```
+fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.jobs_summary()'"
+fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.job_failures(20)'"
+fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.retry_jobs(queue: \"geolocation\")'"
+fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.cancel_job(42)'"
+fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.run_scheduled_job(\"LumenViae.Office.Jobs.WarmCache\")'"
+```
+
+`retry_jobs/1` takes one of `id:`, `queue:` or `worker:`. Read
+`job_failures/1` before retrying the `elevenlabs` queue: a recording
+cancelled as "may be billed" needs its S3 key checked by a person first
+(docs/ARCHITECTURE.md, "Paying ElevenLabs once").
+
+`GET https://www.lumenviae.org/healthz` answers `{"status", "version", "db"}`,
+200 or 503, for an uptime monitor.
+
 ## Edits
 
 Prefer the admin UI at https://www.lumenviae.org/admin for routine content
