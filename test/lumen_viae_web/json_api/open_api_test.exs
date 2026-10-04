@@ -110,6 +110,94 @@ defmodule LumenViaeWeb.JsonApi.OpenApiTest do
     refute Map.has_key?(body["properties"], "included")
   end
 
+  # What a Kotlin generator needs and a Swift one does not mind: the places
+  # AshJsonApi's document was corrected for it (see
+  # `LumenViaeWeb.JsonApi.OpenApi`), pinned so a regeneration cannot quietly
+  # undo them. The wire is the same either way.
+  describe "the shape generated clients are built from" do
+    defp operations, do: for({_path, item} <- document()["paths"], {_verb, op} <- item, do: op)
+
+    defp parameters(operation_id) do
+      operations()
+      |> Enum.find(&(&1["operationId"] == operation_id))
+      |> Map.fetch!("parameters")
+    end
+
+    test "fields is one flat parameter per type, never a deepObject" do
+      all = Enum.flat_map(operations(), &Map.get(&1, "parameters", []))
+
+      refute Enum.any?(all, &(&1["name"] == "fields"))
+      refute Enum.any?(all, &(&1["style"] == "deepObject"))
+
+      fields = Enum.filter(all, &String.starts_with?(&1["name"], "fields["))
+      assert fields != []
+
+      for parameter <- fields do
+        assert parameter["in"] == "query"
+        assert parameter["style"] == "form"
+        assert parameter["explode"] == false
+        assert parameter["required"] == false
+        assert parameter["schema"] == %{"type" => "string"}
+        assert parameter["description"] =~ "Comma separated fields of"
+      end
+    end
+
+    test "a set names the fields of every type it can carry" do
+      names = for %{"name" => "fields[" <> type} <- parameters("getMeditationSet"), do: type
+
+      assert names == ["meditation]", "meditation_set]", "mystery]", "set_membership]"]
+
+      narrations =
+        Enum.find(parameters("getMeditationSet"), &(&1["name"] == "fields[meditation]"))
+
+      assert narrations["description"] =~ "narrations"
+    end
+
+    test "included is a named schema, discriminated on type, that its members extend" do
+      body =
+        document()["paths"]["/api/v2/meditation-sets/{id}"]["get"]["responses"]["200"]["content"][
+          "application/vnd.api+json"
+        ]["schema"]
+
+      assert body["properties"]["included"]["items"] == %{
+               "$ref" => "#/components/schemas/included_resource"
+             }
+
+      types = ~w(meditation mystery set_membership)
+      mapping = Map.new(types, &{&1, "#/components/schemas/included_#{&1}"})
+
+      assert %{"discriminator" => %{"propertyName" => "type", "mapping" => ^mapping}} =
+               schemas()["included_resource"]
+
+      assert Enum.sort(Enum.map(schemas()["included_resource"]["oneOf"], & &1["$ref"])) ==
+               Enum.sort(Map.values(mapping))
+
+      assert %{"discriminator" => %{"propertyName" => "type", "mapping" => ^mapping}} =
+               schemas()["included_base"]
+
+      assert schemas()["included_base"]["required"] == ["type"]
+
+      for type <- types do
+        assert schemas()["included_#{type}"] == %{
+                 "allOf" => [
+                   %{"$ref" => "#/components/schemas/included_base"},
+                   %{"$ref" => "#/components/schemas/#{type}"}
+                 ]
+               }
+      end
+    end
+
+    test "no attribute is required, because fields may leave any out" do
+      for {type, %{"properties" => %{"attributes" => attributes}}} <- schemas() do
+        refute Map.has_key?(attributes, "required"), "#{type} requires attributes"
+      end
+    end
+
+    test "no list claims to be a set" do
+      refute encoded() =~ "uniqueItems"
+    end
+  end
+
   test "offers exactly the operations it should" do
     operations =
       for {path, item} <- document()["paths"],

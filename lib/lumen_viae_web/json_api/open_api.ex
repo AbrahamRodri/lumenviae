@@ -1,8 +1,9 @@
 defmodule LumenViaeWeb.JsonApi.OpenApi do
   @moduledoc """
   Corrects the OpenAPI document AshJsonApi generates for `/api/v2`, so that
-  a client generated from it (Apple's swift-openapi-generator) can call
-  every route and decode every response the server actually sends.
+  a client generated from it (Apple's swift-openapi-generator, or
+  openapi-generator's Kotlin generator) can call every route and decode
+  every response the server actually sends.
 
   Every change is to the description of the API, never to what it does: the
   routes, the actions and the responses are AshJsonApi's. Each one is a
@@ -24,7 +25,8 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
       no way to name the set.
     * **`deepObject` parameters explode**, as OpenAPI requires. Generated
       with `explode: false`, which the generator skips, leaving a client no
-      way to send `fields[...]`, and so no way to ask for signed audio.
+      way to send `fields[...]`, and so no way to ask for signed audio. (No
+      parameter is left as a `deepObject` now: see `fields` below.)
     * **No `included` where nothing can be included.** Generated as a list
       of `oneOf: []`, a schema that matches nothing.
     * **An error response is an object.** Generated as a bare list of
@@ -44,6 +46,29 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
       them rather than as the response does, so a client could not ask for
       an included meditation's signed narrations without going around its
       own types.
+    * **`fields` is one parameter per type.** Generated as a single
+      `deepObject` parameter, an object with a key per type. A request is
+      `fields[meditation]=title,narrations` either way, but a Kotlin
+      generator cannot send a `deepObject` (Retrofit has no such encoding,
+      and the object class it writes does not compile), where it sends a
+      parameter named `fields[meditation]` as it is told. The wire is the
+      same.
+    * **`included` is a named, inherited schema.** Generated as a list of
+      an inline `oneOf` over the resources that can be included. Kotlin
+      reads a `oneOf` as a sealed class whose members do not extend it, and
+      cannot be compiled or decoded. So `included_resource` is the `oneOf`
+      (discriminated on `type`, which is what Swift reads), each member is
+      `included_<type>`, `allOf` the resource and `included_base`, and the
+      base carries the `type` discriminator and its mapping, which is what
+      makes a Kotlin generator write a sealed class the members extend.
+    * **No attribute is required.** Generated with the attributes Ash will
+      not leave empty marked `required`, which is true of a response that
+      names no `fields` and false of one that does: `fields[mystery]=name`
+      answers a mystery with no `category`, and a generated client refuses
+      it. Left to the resource's own `type` and `id`.
+    * **A list is a list.** Generated with `uniqueItems: true` on every
+      array of resources, which a Kotlin generator reads as a `Set`. A set's
+      meditations are in prayer order and a set has no order.
 
   One change follows the API rather than correcting AshJsonApi: the list
   of sets takes no `include` (`LumenViaeWeb.JsonApi.QueryParams` refuses
@@ -74,6 +99,7 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
     schemas = Map.new(schemas, &pin_type/1)
     responses = Map.new(components.responses, &wrap_errors/1)
     no_includes = Enum.map(QueryParams.lists_without_includes(), &("/api/v2" <> &1))
+    included = included_variants(spec.paths)
 
     paths =
       Map.new(spec.paths, fn {path, item} ->
@@ -81,6 +107,7 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
         {path, describe_types(item, schemas)}
       end)
 
+    schemas = Map.merge(schemas, included_schemas(included))
     %{spec | components: %{components | schemas: schemas, responses: responses}, paths: paths}
   end
 
@@ -132,12 +159,22 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
 
   defp wrap_errors(entry), do: entry
 
-  # A resource object's schema: its `type` can only be its own name.
+  # A resource object's schema: its `type` can only be its own name, and
+  # none of its attributes is certain to be there, because a client may ask
+  # for fewer (`fields[mystery]=name` carries no `category`).
   defp pin_type(
          {name,
-          %Schema{properties: %{type: %Schema{} = type, attributes: _} = properties} = schema}
+          %Schema{
+            properties: %{type: %Schema{} = type, attributes: %Schema{} = attributes} = properties
+          } = schema}
        ) do
-    {name, %{schema | properties: %{properties | type: %{type | enum: [name]}}}}
+    properties = %{
+      properties
+      | type: %{type | enum: [name]},
+        attributes: %{attributes | required: nil}
+    }
+
+    {name, %{schema | properties: properties}}
   end
 
   defp pin_type(entry), do: entry
@@ -156,8 +193,8 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
 
     %{
       operation
-      | parameters: Enum.map(operation.parameters, &describe_fields(&1, included, schemas)),
-        responses: Map.new(operation.responses, &discriminate_included/1)
+      | parameters: Enum.flat_map(operation.parameters, &describe_fields(&1, included, schemas)),
+        responses: Map.new(operation.responses, &reference_included/1)
     }
   end
 
@@ -184,13 +221,70 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
 
   defp referenced_name(%Reference{"$ref": "#/components/schemas/" <> name}), do: name
 
-  defp discriminate_included({status, response}) do
+  # Every operation that includes anything includes the same resources (the
+  # one set route), so one `included_resource` serves them all. A second
+  # route that includes something else needs its own, and must say so here
+  # rather than be given the wrong list.
+  defp included_variants(paths) do
+    variants =
+      for {_path, item} <- paths,
+          verb <- [:get, :post, :patch, :delete],
+          %Operation{} = operation <- [Map.fetch!(item, verb)],
+          variants = included_types(operation),
+          variants != [],
+          uniq: true,
+          do: Enum.sort(variants)
+
+    case variants do
+      [] ->
+        []
+
+      [only] ->
+        only
+
+      _several ->
+        raise "operations include different resources (#{inspect(variants)}): " <>
+                "name an included schema for each in LumenViaeWeb.JsonApi.OpenApi"
+    end
+  end
+
+  defp included_schemas([]), do: %{}
+
+  defp included_schemas(types) do
+    mapping = Map.new(types, &{&1, "#/components/schemas/included_#{&1}"})
+    discriminator = %Discriminator{propertyName: "type", mapping: mapping}
+
+    members =
+      Map.new(types, fn type ->
+        {"included_#{type}",
+         %Schema{
+           allOf: [
+             %Reference{"$ref": "#/components/schemas/included_base"},
+             %Reference{"$ref": "#/components/schemas/#{type}"}
+           ]
+         }}
+      end)
+
+    Map.merge(members, %{
+      "included_base" => %Schema{
+        type: :object,
+        required: [:type],
+        properties: %{type: %Schema{type: :string}},
+        discriminator: discriminator
+      },
+      "included_resource" => %Schema{
+        oneOf: Enum.map(mapping, fn {_type, ref} -> %Reference{"$ref": ref} end),
+        discriminator: discriminator
+      }
+    })
+  end
+
+  defp reference_included({status, response}) do
     case included_schema(response) do
-      %Schema{items: %Schema{oneOf: variants} = items} = included ->
-        mapping = Map.new(variants, fn ref -> {referenced_name(ref), ref."$ref"} end)
-        items = %{items | discriminator: %Discriminator{propertyName: "type", mapping: mapping}}
+      %Schema{items: %Schema{oneOf: [_ | _]}} = included ->
         content = response.content["application/vnd.api+json"]
         schema = content.schema
+        items = %Reference{"$ref": "#/components/schemas/included_resource"}
 
         schema = %{
           schema
@@ -211,27 +305,32 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
     end
   end
 
+  # One `fields[<type>]` parameter for each type the response can carry.
   defp describe_fields(
-         %Parameter{name: "fields", schema: %Schema{} = schema} = parameter,
+         %Parameter{name: "fields", schema: %Schema{} = schema},
          included,
          schemas
        ) do
-    types = Enum.uniq(Map.keys(schema.properties) ++ included)
-
-    properties =
-      Map.new(types, fn type ->
-        {type,
-         %Schema{
-           type: :string,
-           description:
-             "Comma separated fields of #{type}: #{Enum.join(field_names(schemas[type]), ", ")}"
-         }}
-      end)
-
-    %{parameter | schema: %{schema | properties: properties, example: nil}}
+    schema.properties
+    |> Map.keys()
+    |> Enum.concat(included)
+    |> Enum.uniq()
+    |> Enum.sort()
+    |> Enum.map(fn type ->
+      %Parameter{
+        name: "fields[#{type}]",
+        in: :query,
+        required: false,
+        style: :form,
+        explode: false,
+        description:
+          "Comma separated fields of #{type}: #{Enum.join(field_names(schemas[type]), ", ")}",
+        schema: %Schema{type: :string}
+      }
+    end)
   end
 
-  defp describe_fields(parameter, _included, _schemas), do: parameter
+  defp describe_fields(parameter, _included, _schemas), do: [parameter]
 
   defp field_names(%Schema{properties: properties}) do
     for section <- [:attributes, :relationships],
@@ -295,6 +394,7 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
   defp fix_schema(schema, open?) do
     schema
     |> type_string_enum()
+    |> drop_unique_items()
     |> then(&if(open?, do: allow_unknown_keys(&1), else: &1))
     |> drop_empty_included()
     |> collapse_null()
@@ -305,6 +405,12 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
   end
 
   defp type_string_enum(schema), do: schema
+
+  defp drop_unique_items(%Schema{uniqueItems: true} = schema), do: %{schema | uniqueItems: nil}
+
+  defp drop_unique_items(%{"uniqueItems" => true} = map), do: Map.delete(map, "uniqueItems")
+  defp drop_unique_items(%{uniqueItems: true} = map), do: Map.delete(map, :uniqueItems)
+  defp drop_unique_items(schema), do: schema
 
   defp allow_unknown_keys(%Schema{additionalProperties: false} = schema),
     do: %{schema | additionalProperties: nil}
