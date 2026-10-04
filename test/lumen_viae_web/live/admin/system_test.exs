@@ -21,7 +21,8 @@ defmodule LumenViaeWeb.Live.Admin.SystemTest do
     assert html =~ "maintenance"
     assert html =~ "Office.Jobs.WarmCache"
     assert html =~ "7 0,12 * * *"
-    assert html =~ "The crontab is not running on this machine"
+    assert html =~ "not run here"
+    assert html =~ "Rosary.Completion.LocateScheduler"
     assert html =~ "Office cache"
     assert html =~ "Largest tables"
 

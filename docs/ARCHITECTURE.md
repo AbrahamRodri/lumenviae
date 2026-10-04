@@ -553,7 +553,7 @@ Oban Web shows every job at `/admin/jobs`, behind the console's own guard
 
 | Job | Queue | What enqueues it |
 | --- | --- | --- |
-| `Completion` `:locate` trigger (`Completion.LocateWorker`), running `:add_place` | `geolocation` | `Completion.Stamp`, once a completion has committed |
+| `Completion` `:locate` trigger (`Completion.LocateWorker`), running `:add_place` | `geolocation` | `Completion.Stamp`, once a completion has committed; and the trigger's hourly sweep (`Completion.LocateScheduler`, at :23), for up to 25 placeless completions from the last two days |
 | `Curation.Jobs.NarrateMeditation`: one meditation in one voice | `elevenlabs` | `CsvImport` (each new row with an `audio_filename`), `AudioRegeneration` (and `CsvUpdate` through it) |
 | `Curation.Jobs.RecordRosaryClip`: one spoken Rosary clip in one voice | `elevenlabs` | `RosaryAudioGeneration`, for each clip not in the bucket |
 | `Office.Jobs.WarmCache`: every machine's Office cache, yesterday through two days ahead | `maintenance` | The crontab: at boot, and at 00:07 and 12:07 UTC |
@@ -570,10 +570,14 @@ batch.
 ### The crontab, and the Office cache
 
 Oban's cron runs on the leader alone, in UTC (there is no timezone
-database), and only in production: `config/dev.exs` empties the crontab,
-so a laptop never wakes a third party on its own. Entries sit off the
-hour. Run a scheduled job by hand from iex with
-`Oban.insert(Worker.new(%{}))`.
+database). The crontab is Oban's `cron: [crontab: ...]` key, not its
+`crontab:` shorthand: AshOban adds each trigger's scheduler to the former
+at boot and refuses to start without it. `config/dev.exs` empties the
+configured entries, so a laptop never wakes a third party on its own;
+AshOban's schedulers still run there, and the only one, the completion
+place sweep, finds nothing with geolocation off. Entries sit off the hour.
+Run a scheduled job by hand with `mix lumen_viae.jobs run`, or the System
+screen's Run now.
 
 `Office.Jobs.WarmCache` exists because the Office cache is an ETS table on
 each machine and a deploy empties it. It asks every node in the cluster,
@@ -826,11 +830,13 @@ schedule forward and never invent a job. The release and mix tasks call the
 same actions as the operator (`authorize?: false`).
 
 **The crontab is written once and stored twice** in `config/config.exs`:
-as Oban's `:crontab`, which Oban runs, and as `:scheduled_jobs`, which
-`Ops.Jobs.schedule/1` reads. Development empties the first and keeps the
-second, so the System screen still lists the schedule on a laptop and says
-it is not running there. "Running here" is read from the running Oban's
-Cron plugin, not the config.
+as Oban's `cron: [crontab: ...]`, which Oban runs, and as `:scheduled_jobs`,
+which `Ops.Jobs.schedule/1` reads, together with the AshOban trigger
+schedulers it finds on the resources (`Ops.Jobs.trigger_schedulers/0`).
+Development empties the first and keeps the second, so the System screen
+still lists the whole schedule on a laptop and marks what is not run
+there. "Run here" is read from the running Oban's Cron plugin, not the
+config.
 
 **The probes never block a page.** Each runs in a task with a five-second
 timeout, and the System screen starts them after mount. The S3 probe HEADs
@@ -1163,6 +1169,12 @@ none yet, is **one** problem,
 listed once under its own heading - not counted again under "no artwork",
 "incomplete" and "no labels". Rows that read zero are dropped entirely, so
 "nothing outstanding" means the list is genuinely empty.
+
+Background jobs are the one exception to "content only": a job that was
+discarded (it used every attempt and will not run again) is a danger row,
+one waiting to retry a caution, each linking to Oban Web filtered to those
+jobs, with the queues they are in as the row's names. They are counted by
+`LumenViae.Ops.queues/0`, the same figures the System screen shows.
 
 The cross-resource part of that is a read action on `Meditation`
 (`:public_missing_audio`, behind `Rosary.public_meditation_ids_missing_audio/0`),

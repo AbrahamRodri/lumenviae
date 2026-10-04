@@ -132,8 +132,35 @@ defmodule LumenViae.Rosary.Completion do
       trigger :locate do
         action :add_place
         queue :geolocation
-        where expr(not is_nil(ip_prefix) and is_nil(country_code))
-        scheduler_cron false
+        # Recent rows only. A completion the provider could not place keeps
+        # a nil country for good, so without a limit every sweep would ask
+        # about every one of them again, forever. Two days is long enough
+        # to outlast an outage of the provider and short enough that the
+        # sweep stays a handful of rows.
+        where expr(
+                not is_nil(ip_prefix) and is_nil(country_code) and
+                  completed_at > ago(2, :day)
+              )
+
+        # Each completion is enqueued once it commits (Completion.Stamp).
+        # This hourly sweep picks up the ones whose lookup ran out of
+        # attempts during an outage, or was never enqueued because the
+        # insert failed. Unique by record while a job waits, so a lookup
+        # already queued is not queued twice.
+        #
+        # At most 25 a run, newest first, so the
+        # sweep can never ask the provider more than 600 times a day
+        # however many rows are placeless: ipapi.co's free tier allows
+        # 1,000, and the completions themselves need the rest.
+        scheduler_cron "23 * * * *"
+        scheduler_module_name LumenViae.Rosary.Completion.LocateScheduler
+        record_limit 25
+        sort completed_at: :desc, id: :desc
+        # The where clause depends on the time, so a keyset stream could
+        # skip a row between batches.
+        stream_with :full_read
+        read_action :awaiting_place
+        worker_read_action :read
         max_attempts 3
         # The lookup is an HTTP call, made before the update's own
         # transaction opens; locking the row first would hold a connection
@@ -160,6 +187,14 @@ defmodule LumenViae.Rosary.Completion do
 
       filter expr(completed_at >= ^arg(:since) and completed_at <= ^arg(:until))
       prepare build(sort: [completed_at: :asc, id: :asc])
+    end
+
+    read :awaiting_place do
+      description "Completions the place lookup sweep should ask about: none at all while lookups are switched off."
+      # AshOban requires a trigger's read action to support keyset
+      # pagination, though the sweep itself reads in full (stream_with).
+      pagination keyset?: true, required?: false
+      prepare LumenViae.Rosary.Completion.OnlyWhenLocating
     end
 
     read :recent do
@@ -250,11 +285,12 @@ defmodule LumenViae.Rosary.Completion do
     end
 
     # The place lookup job (the :locate trigger) reads the row and writes
-    # the place with no actor, after the response has gone. It is let
+    # the place with no actor, after the response has gone, and its hourly
+    # sweep reads :awaiting_place the same way. It is let
     # through by AshOban's own check, which matches only the private context
     # AshOban's worker sets: nothing a client sends can set it, so the
     # public cannot reach :add_place, and the job needs no authorize?: false.
-    policy [action([:read, :add_place]), AshOban.Checks.AshObanInteraction] do
+    policy [action([:read, :awaiting_place, :add_place]), AshOban.Checks.AshObanInteraction] do
       authorize_if always()
     end
   end

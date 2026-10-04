@@ -146,13 +146,10 @@
         description="The crontab, in UTC on the leader. Run now enqueues the job as the schedule would, earlier."
         flush
       >
-        <div
-          :if={@schedule != [] and not Enum.any?(@schedule, & &1.running_here?)}
-          class="px-4 pt-3"
-        >
+        <div :if={Enum.any?(@schedule, &(not &1.running_here?))} class="px-4 pt-3">
           <.callout tone="notice">
-            The crontab is not running on this machine (development empties it). Run now still
-            enqueues the job here.
+            Rows marked "not run here" are not in this machine's crontab (development keeps only
+            the trigger schedulers). Run now still enqueues the job here.
           </.callout>
         </div>
         <%= if @schedule == [] do %>
@@ -173,7 +170,15 @@
               </thead>
               <tbody>
                 <tr :for={{entry, index} <- Enum.with_index(@schedule)}>
-                  <td class="font-mono text-xs text-admin-ink">{entry.expression}</td>
+                  <td class="font-mono text-xs text-admin-ink whitespace-nowrap">
+                    {entry.expression}
+                    <span
+                      :if={not entry.running_here?}
+                      class="block font-sans text-admin-ink-faint"
+                    >
+                      not run here
+                    </span>
+                  </td>
                   <td class="font-medium text-admin-ink">{short(entry.worker)}</td>
                   <td class="text-admin-ink-soft whitespace-nowrap">
                     {if entry.next_at, do: format_time(entry.next_at), else: "At boot"}

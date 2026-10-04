@@ -11,11 +11,13 @@ defmodule LumenViae.Ops.Jobs do
   ## The schedule
 
   The production crontab is defined once in `config/config.exs` and stored
-  twice: as Oban's `:crontab`, which Oban runs, and as
+  twice: as Oban's `cron: [crontab: ...]`, which Oban runs, and as
   `:lumen_viae, :scheduled_jobs`, which this module reads. Development
   empties the first and not the second, so the System screen and
   `mix lumen_viae.jobs run` still know the schedule on a laptop, and say
-  that it is not running there.
+  that it is not running there. AshOban adds each trigger's scheduler to
+  Oban's crontab at boot; those are read from the resources themselves
+  (`trigger_schedulers/0`), so they are listed wherever the app is.
   """
 
   import Ecto.Query, only: [from: 2]
@@ -85,8 +87,9 @@ defmodule LumenViae.Ops.Jobs do
   @doc """
   The production crontab, each entry with when it runs next and how its
   last run went: `%{expression:, worker:, next_at:, last_run:, running_here?:}`.
-  `next_at` is nil for `@reboot`. `running_here?` is false where Oban's own
-  crontab is empty (development, and the suite).
+  `next_at` is nil for `@reboot`. `running_here?` is false where Oban's
+  running crontab lacks the entry (the configured ones in development, and
+  everything in the suite).
   """
   def schedule(now \\ DateTime.utc_now()) do
     running = running_crontab()
@@ -209,20 +212,39 @@ defmodule LumenViae.Ops.Jobs do
     expression |> Expression.parse!() |> Expression.next_at(now)
   end
 
-  defp scheduled_jobs, do: Application.get_env(:lumen_viae, :scheduled_jobs, [])
+  defp scheduled_jobs,
+    do: Application.get_env(:lumen_viae, :scheduled_jobs, []) ++ trigger_schedulers()
+
+  @doc """
+  The AshOban trigger schedulers in every domain, as `{cron, scheduler}`
+  crontab entries, the way AshOban adds them to Oban's crontab.
+  """
+  def trigger_schedulers do
+    for domain <- Application.get_env(:lumen_viae, :ash_domains, []),
+        resource <- Ash.Domain.Info.resources(domain),
+        AshOban in Spark.extensions(resource),
+        trigger <- AshOban.Info.oban_triggers(resource),
+        is_binary(trigger.scheduler_cron) and not is_nil(trigger.scheduler),
+        do: {trigger.scheduler_cron, trigger.scheduler}
+  end
 
   # What this machine's Oban is actually running: the Cron plugin's
-  # crontab, which is absent in development (crontab: []), in the suite
-  # (testing: :manual drops every plugin) and in a release shell's inserter.
+  # crontab, which holds only AshOban's schedulers in development, and is
+  # absent in the suite (testing: :manual drops every plugin) and in a
+  # release shell's inserter.
   defp running_crontab do
     Oban.config().plugins
     |> Enum.find_value([], fn
-      {Oban.Cron, opts} -> Keyword.get(opts, :crontab, [])
+      {Oban.Cron, opts} -> opts |> Keyword.get(:crontab, []) |> Enum.map(&entry/1)
       _other -> nil
     end)
   rescue
     _not_running -> []
   end
+
+  # A crontab entry without its options: AshOban adds `{cron, worker, opts}`.
+  defp entry({expression, worker, _opts}), do: {expression, worker}
+  defp entry({expression, worker}), do: {expression, worker}
 
   # The queues and their limits, from the running Oban where it runs any
   # (a mix task may have raised a limit), else from the config (the suite's

@@ -30,6 +30,18 @@ both `8.8.8.0` and `8.8.8.8`), so the prefix places a completion exactly as
 well as the full address would. The job survives a restart, and its
 history is at `/admin/jobs`.
 
+A lookup that cannot be made (a timeout, a 429, a 5xx) is retried, three
+attempts in all, and then discarded. So the trigger also sweeps, at 23
+minutes past every hour (`Completion.LocateScheduler`): it reads the
+completions from the **last two days** that have a prefix and no country,
+newest first, **at most 25** of them, and queues the lookup for each one
+that has none waiting. A completion placed in the meantime drops out of
+the read, and one older than two days is never asked about again, so a
+provider that answers it cannot place an address is not asked about it
+forever. With geolocation off the read is empty and nothing is queued
+(`Completion.OnlyWhenLocating`). What is sent is unchanged: the stored
+prefix, to the same provider; only the moment can be later.
+
 Nothing on the row links it to any other row. There is no account, device or
 install identifier, rotated or otherwise, so two Rosaries prayed on the same
 phone cannot be told apart from two prayed by strangers.
@@ -218,7 +230,11 @@ key, on a free tier of 1,000 lookups a day. Answers are cached by prefix
 for 24 hours, so somebody praying a novena from the same sofa costs one
 lookup rather than nine. The cache is per-machine, so with two machines a
 prefix can be looked up twice - still far inside the daily allowance at
-this volume.
+this volume. The hourly sweep adds at most 25 lookups an hour, 600 a day,
+and usually close to none: it finds only rows whose lookup failed or that
+the provider could not place, and a prefix the provider could not place is
+answered from that machine's cache for a day, so it costs at most one
+lookup per machine per day for the two days it is swept.
 
 `ip_api_com` is more generous — 45 requests a minute — but its free tier is
 **plaintext HTTP only**, which means every visitor's address crosses the

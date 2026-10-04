@@ -90,7 +90,14 @@ defmodule LumenViae.OpsTest do
 
       assert %{next_at: next_at} = Enum.find(entries, &(&1.expression == "7 0,12 * * *"))
       assert next_at == ~U[2026-10-04 00:07:00Z]
-      assert Ops.scheduled_workers() == [inspect(WarmCache)]
+
+      assert Ops.scheduled_workers() == [
+               inspect(WarmCache),
+               "LumenViae.Rosary.Completion.LocateScheduler"
+             ]
+
+      assert %{expression: "23 * * * *"} =
+               Enum.find(entries, &(&1.worker == "LumenViae.Rosary.Completion.LocateScheduler"))
     end
 
     test "names a worker's last run" do
