@@ -1,0 +1,3444 @@
+{
+  "updated_at": "2026-10-04T02:00:00Z",
+  "guided_rosary": {
+    "devotion_name": "A Guided Rosary",
+    "first_kept_step": 2,
+    "parts": [
+      "crucifix",
+      "pendantLarge.0",
+      "pendantSmall.0",
+      "pendantSmall.1",
+      "pendantSmall.2",
+      "pendantLarge.1",
+      "loopSmall.0.0",
+      "loopSmall.0.1",
+      "loopSmall.0.2",
+      "loopSmall.0.3",
+      "loopSmall.0.4",
+      "loopSmall.0.5",
+      "loopSmall.0.6",
+      "loopSmall.0.7",
+      "loopSmall.0.8",
+      "loopSmall.0.9",
+      "loopLarge.0",
+      "loopSmall.1.0",
+      "loopSmall.1.1",
+      "loopSmall.1.2",
+      "loopSmall.1.3",
+      "loopSmall.1.4",
+      "loopSmall.1.5",
+      "loopSmall.1.6",
+      "loopSmall.1.7",
+      "loopSmall.1.8",
+      "loopSmall.1.9",
+      "loopLarge.1",
+      "loopSmall.2.0",
+      "loopSmall.2.1",
+      "loopSmall.2.2",
+      "loopSmall.2.3",
+      "loopSmall.2.4",
+      "loopSmall.2.5",
+      "loopSmall.2.6",
+      "loopSmall.2.7",
+      "loopSmall.2.8",
+      "loopSmall.2.9",
+      "loopLarge.2",
+      "loopSmall.3.0",
+      "loopSmall.3.1",
+      "loopSmall.3.2",
+      "loopSmall.3.3",
+      "loopSmall.3.4",
+      "loopSmall.3.5",
+      "loopSmall.3.6",
+      "loopSmall.3.7",
+      "loopSmall.3.8",
+      "loopSmall.3.9",
+      "loopLarge.3",
+      "loopSmall.4.0",
+      "loopSmall.4.1",
+      "loopSmall.4.2",
+      "loopSmall.4.3",
+      "loopSmall.4.4",
+      "loopSmall.4.5",
+      "loopSmall.4.6",
+      "loopSmall.4.7",
+      "loopSmall.4.8",
+      "loopSmall.4.9",
+      "medal"
+    ],
+    "anatomy": [
+      {
+        "id": "crucifix",
+        "name": "The crucifix",
+        "parts": [
+          "crucifix"
+        ],
+        "prayed": "Where the Rosary begins and ends. Hold it for the Sign of the Cross and the Apostles' Creed."
+      },
+      {
+        "id": "first_large",
+        "name": "The first large bead",
+        "parts": [
+          "pendantLarge.0"
+        ],
+        "prayed": "An Our Father, the prayer Jesus taught."
+      },
+      {
+        "id": "three_small",
+        "name": "The three small beads",
+        "parts": [
+          "pendantSmall.0",
+          "pendantSmall.1",
+          "pendantSmall.2"
+        ],
+        "prayed": "Three Hail Marys, asking for an increase of faith, hope and charity."
+      },
+      {
+        "id": "second_large",
+        "name": "The next large bead",
+        "parts": [
+          "pendantLarge.1"
+        ],
+        "prayed": "The Glory Be first, on reaching it. Then the first mystery is announced, and its Our Father said on this bead."
+      },
+      {
+        "id": "medal",
+        "name": "The medal",
+        "parts": [
+          "medal"
+        ],
+        "prayed": "Where the loop begins, and where the Rosary is closed with the Hail, Holy Queen."
+      },
+      {
+        "id": "decade",
+        "name": "A decade",
+        "parts": [
+          "loopSmall.0.0",
+          "loopSmall.0.1",
+          "loopSmall.0.2",
+          "loopSmall.0.3",
+          "loopSmall.0.4",
+          "loopSmall.0.5",
+          "loopSmall.0.6",
+          "loopSmall.0.7",
+          "loopSmall.0.8",
+          "loopSmall.0.9"
+        ],
+        "prayed": "Ten small beads: ten Hail Marys while you think about one mystery. There are five decades, one for each mystery."
+      },
+      {
+        "id": "between",
+        "name": "The large beads between",
+        "parts": [
+          "loopLarge.0",
+          "loopLarge.1",
+          "loopLarge.2",
+          "loopLarge.3"
+        ],
+        "prayed": "On each, the Glory Be and the Fatima Prayer close one decade; then the next mystery is announced, and its Our Father said on the same bead."
+      }
+    ],
+    "rosaries": [
+      {
+        "category": "joyful",
+        "steps": [
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "Take the crucifix in your hand. Touch your forehead, your breast, your left shoulder and your right as you say:",
+            "prayer_ids": [
+              "sign_of_cross"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "Still holding the crucifix, profess the faith of the Church. Everything the Rosary is about is in this prayer.",
+            "prayer_ids": [
+              "apostles_creed"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.0",
+            "place": "The first large bead",
+            "instruction": "Move your fingers up to the first large bead, and pray the prayer Jesus taught His disciples.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.0",
+            "place": "Small bead · 1 of 3",
+            "instruction": "On each of the next three small beads, a Hail Mary. This first one asks God for an increase of faith.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.1",
+            "place": "Small bead · 2 of 3",
+            "instruction": "The next small bead: a Hail Mary for an increase of hope.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.2",
+            "place": "Small bead · 3 of 3",
+            "instruction": "The next small bead: a Hail Mary for an increase of charity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The next large bead",
+            "instruction": "Move up to the next large bead. Before anything else is said on it, give glory to the Holy Trinity.",
+            "prayer_ids": [
+              "glory_be"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The First Joyful Mystery",
+            "instruction": "Now the heart of the Rosary. Each decade is spent with one scene from the life of Jesus and Mary. Say its name, aloud or silently, and picture it.",
+            "prayer_ids": [],
+            "decade": 0,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The Annunciation · the large bead",
+            "instruction": "On the large bead, the Our Father. Keep the scene before you as you pray.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.0",
+            "place": "The Annunciation · 1 of 10",
+            "instruction": "Ten Hail Marys, one on each small bead. The words are the same each time; let them carry you while your mind stays with the Annunciation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.1",
+            "place": "The Annunciation · 2 of 10",
+            "instruction": "The next bead. If your mind wanders, simply come back to the scene.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.2",
+            "place": "The Annunciation · 3 of 10",
+            "instruction": "Stay with the Annunciation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.3",
+            "place": "The Annunciation · 4 of 10",
+            "instruction": "Stay with the Annunciation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.4",
+            "place": "The Annunciation · 5 of 10",
+            "instruction": "Stay with the Annunciation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.5",
+            "place": "The Annunciation · 6 of 10",
+            "instruction": "Stay with the Annunciation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.6",
+            "place": "The Annunciation · 7 of 10",
+            "instruction": "Stay with the Annunciation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.7",
+            "place": "The Annunciation · 8 of 10",
+            "instruction": "Stay with the Annunciation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.8",
+            "place": "The Annunciation · 9 of 10",
+            "instruction": "Stay with the Annunciation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.9",
+            "place": "The Annunciation · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The decade closes",
+            "instruction": "Move on to the next large bead. Before its Our Father, close the decade: the Glory Be, and the prayer Our Lady asked for at Fatima. You have prayed one decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The Second Joyful Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 1,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The Visitation · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.0",
+            "place": "The Visitation · 1 of 10",
+            "instruction": "Ten Hail Marys on the Visitation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.1",
+            "place": "The Visitation · 2 of 10",
+            "instruction": "Stay with the Visitation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.2",
+            "place": "The Visitation · 3 of 10",
+            "instruction": "Stay with the Visitation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.3",
+            "place": "The Visitation · 4 of 10",
+            "instruction": "Stay with the Visitation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.4",
+            "place": "The Visitation · 5 of 10",
+            "instruction": "Stay with the Visitation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.5",
+            "place": "The Visitation · 6 of 10",
+            "instruction": "Stay with the Visitation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.6",
+            "place": "The Visitation · 7 of 10",
+            "instruction": "Stay with the Visitation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.7",
+            "place": "The Visitation · 8 of 10",
+            "instruction": "Stay with the Visitation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.8",
+            "place": "The Visitation · 9 of 10",
+            "instruction": "Stay with the Visitation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.9",
+            "place": "The Visitation · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The Third Joyful Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 2,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The Nativity · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.0",
+            "place": "The Nativity · 1 of 10",
+            "instruction": "Ten Hail Marys on the Nativity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.1",
+            "place": "The Nativity · 2 of 10",
+            "instruction": "Stay with the Nativity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.2",
+            "place": "The Nativity · 3 of 10",
+            "instruction": "Stay with the Nativity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.3",
+            "place": "The Nativity · 4 of 10",
+            "instruction": "Stay with the Nativity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.4",
+            "place": "The Nativity · 5 of 10",
+            "instruction": "Stay with the Nativity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.5",
+            "place": "The Nativity · 6 of 10",
+            "instruction": "Stay with the Nativity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.6",
+            "place": "The Nativity · 7 of 10",
+            "instruction": "Stay with the Nativity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.7",
+            "place": "The Nativity · 8 of 10",
+            "instruction": "Stay with the Nativity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.8",
+            "place": "The Nativity · 9 of 10",
+            "instruction": "Stay with the Nativity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.9",
+            "place": "The Nativity · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The Fourth Joyful Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 3,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The Presentation · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.0",
+            "place": "The Presentation · 1 of 10",
+            "instruction": "Ten Hail Marys on the Presentation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.1",
+            "place": "The Presentation · 2 of 10",
+            "instruction": "Stay with the Presentation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.2",
+            "place": "The Presentation · 3 of 10",
+            "instruction": "Stay with the Presentation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.3",
+            "place": "The Presentation · 4 of 10",
+            "instruction": "Stay with the Presentation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.4",
+            "place": "The Presentation · 5 of 10",
+            "instruction": "Stay with the Presentation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.5",
+            "place": "The Presentation · 6 of 10",
+            "instruction": "Stay with the Presentation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.6",
+            "place": "The Presentation · 7 of 10",
+            "instruction": "Stay with the Presentation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.7",
+            "place": "The Presentation · 8 of 10",
+            "instruction": "Stay with the Presentation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.8",
+            "place": "The Presentation · 9 of 10",
+            "instruction": "Stay with the Presentation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.9",
+            "place": "The Presentation · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The Fifth Joyful Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 4,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The Finding in the Temple · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.0",
+            "place": "The Finding in the Temple · 1 of 10",
+            "instruction": "Ten Hail Marys on the Finding in the Temple.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.1",
+            "place": "The Finding in the Temple · 2 of 10",
+            "instruction": "Stay with the Finding in the Temple.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.2",
+            "place": "The Finding in the Temple · 3 of 10",
+            "instruction": "Stay with the Finding in the Temple.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.3",
+            "place": "The Finding in the Temple · 4 of 10",
+            "instruction": "Stay with the Finding in the Temple.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.4",
+            "place": "The Finding in the Temple · 5 of 10",
+            "instruction": "Stay with the Finding in the Temple.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.5",
+            "place": "The Finding in the Temple · 6 of 10",
+            "instruction": "Stay with the Finding in the Temple.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.6",
+            "place": "The Finding in the Temple · 7 of 10",
+            "instruction": "Stay with the Finding in the Temple.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.7",
+            "place": "The Finding in the Temple · 8 of 10",
+            "instruction": "Stay with the Finding in the Temple.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.8",
+            "place": "The Finding in the Temple · 9 of 10",
+            "instruction": "Stay with the Finding in the Temple.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.9",
+            "place": "The Finding in the Temple · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "medal",
+            "place": "The decade closes",
+            "instruction": "Move on to the medal, and close the last decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "medal",
+            "place": "The medal",
+            "instruction": "You have come round to the medal. Hold it, and greet Our Lady as Queen and Mother.",
+            "prayer_ids": [
+              "hail_holy_queen"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          },
+          {
+            "part": "medal",
+            "place": "The medal",
+            "instruction": "The closing prayer asks that what the mysteries hold may become ours.",
+            "prayer_ids": [
+              "rosary_closing_prayer"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          },
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "End as you began, with the Sign of the Cross.",
+            "prayer_ids": [
+              "sign_of_cross"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          }
+        ]
+      },
+      {
+        "category": "sorrowful",
+        "steps": [
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "Take the crucifix in your hand. Touch your forehead, your breast, your left shoulder and your right as you say:",
+            "prayer_ids": [
+              "sign_of_cross"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "Still holding the crucifix, profess the faith of the Church. Everything the Rosary is about is in this prayer.",
+            "prayer_ids": [
+              "apostles_creed"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.0",
+            "place": "The first large bead",
+            "instruction": "Move your fingers up to the first large bead, and pray the prayer Jesus taught His disciples.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.0",
+            "place": "Small bead · 1 of 3",
+            "instruction": "On each of the next three small beads, a Hail Mary. This first one asks God for an increase of faith.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.1",
+            "place": "Small bead · 2 of 3",
+            "instruction": "The next small bead: a Hail Mary for an increase of hope.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.2",
+            "place": "Small bead · 3 of 3",
+            "instruction": "The next small bead: a Hail Mary for an increase of charity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The next large bead",
+            "instruction": "Move up to the next large bead. Before anything else is said on it, give glory to the Holy Trinity.",
+            "prayer_ids": [
+              "glory_be"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The First Sorrowful Mystery",
+            "instruction": "Now the heart of the Rosary. Each decade is spent with one scene from the life of Jesus and Mary. Say its name, aloud or silently, and picture it.",
+            "prayer_ids": [],
+            "decade": 0,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The Agony in the Garden · the large bead",
+            "instruction": "On the large bead, the Our Father. Keep the scene before you as you pray.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.0",
+            "place": "The Agony in the Garden · 1 of 10",
+            "instruction": "Ten Hail Marys, one on each small bead. The words are the same each time; let them carry you while your mind stays with the Agony in the Garden.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.1",
+            "place": "The Agony in the Garden · 2 of 10",
+            "instruction": "The next bead. If your mind wanders, simply come back to the scene.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.2",
+            "place": "The Agony in the Garden · 3 of 10",
+            "instruction": "Stay with the Agony in the Garden.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.3",
+            "place": "The Agony in the Garden · 4 of 10",
+            "instruction": "Stay with the Agony in the Garden.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.4",
+            "place": "The Agony in the Garden · 5 of 10",
+            "instruction": "Stay with the Agony in the Garden.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.5",
+            "place": "The Agony in the Garden · 6 of 10",
+            "instruction": "Stay with the Agony in the Garden.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.6",
+            "place": "The Agony in the Garden · 7 of 10",
+            "instruction": "Stay with the Agony in the Garden.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.7",
+            "place": "The Agony in the Garden · 8 of 10",
+            "instruction": "Stay with the Agony in the Garden.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.8",
+            "place": "The Agony in the Garden · 9 of 10",
+            "instruction": "Stay with the Agony in the Garden.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.9",
+            "place": "The Agony in the Garden · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The decade closes",
+            "instruction": "Move on to the next large bead. Before its Our Father, close the decade: the Glory Be, and the prayer Our Lady asked for at Fatima. You have prayed one decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The Second Sorrowful Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 1,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The Scourging at the Pillar · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.0",
+            "place": "The Scourging at the Pillar · 1 of 10",
+            "instruction": "Ten Hail Marys on the Scourging at the Pillar.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.1",
+            "place": "The Scourging at the Pillar · 2 of 10",
+            "instruction": "Stay with the Scourging at the Pillar.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.2",
+            "place": "The Scourging at the Pillar · 3 of 10",
+            "instruction": "Stay with the Scourging at the Pillar.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.3",
+            "place": "The Scourging at the Pillar · 4 of 10",
+            "instruction": "Stay with the Scourging at the Pillar.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.4",
+            "place": "The Scourging at the Pillar · 5 of 10",
+            "instruction": "Stay with the Scourging at the Pillar.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.5",
+            "place": "The Scourging at the Pillar · 6 of 10",
+            "instruction": "Stay with the Scourging at the Pillar.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.6",
+            "place": "The Scourging at the Pillar · 7 of 10",
+            "instruction": "Stay with the Scourging at the Pillar.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.7",
+            "place": "The Scourging at the Pillar · 8 of 10",
+            "instruction": "Stay with the Scourging at the Pillar.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.8",
+            "place": "The Scourging at the Pillar · 9 of 10",
+            "instruction": "Stay with the Scourging at the Pillar.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.9",
+            "place": "The Scourging at the Pillar · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The Third Sorrowful Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 2,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The Crowning with Thorns · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.0",
+            "place": "The Crowning with Thorns · 1 of 10",
+            "instruction": "Ten Hail Marys on the Crowning with Thorns.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.1",
+            "place": "The Crowning with Thorns · 2 of 10",
+            "instruction": "Stay with the Crowning with Thorns.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.2",
+            "place": "The Crowning with Thorns · 3 of 10",
+            "instruction": "Stay with the Crowning with Thorns.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.3",
+            "place": "The Crowning with Thorns · 4 of 10",
+            "instruction": "Stay with the Crowning with Thorns.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.4",
+            "place": "The Crowning with Thorns · 5 of 10",
+            "instruction": "Stay with the Crowning with Thorns.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.5",
+            "place": "The Crowning with Thorns · 6 of 10",
+            "instruction": "Stay with the Crowning with Thorns.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.6",
+            "place": "The Crowning with Thorns · 7 of 10",
+            "instruction": "Stay with the Crowning with Thorns.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.7",
+            "place": "The Crowning with Thorns · 8 of 10",
+            "instruction": "Stay with the Crowning with Thorns.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.8",
+            "place": "The Crowning with Thorns · 9 of 10",
+            "instruction": "Stay with the Crowning with Thorns.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.9",
+            "place": "The Crowning with Thorns · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The Fourth Sorrowful Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 3,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The Carrying of the Cross · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.0",
+            "place": "The Carrying of the Cross · 1 of 10",
+            "instruction": "Ten Hail Marys on the Carrying of the Cross.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.1",
+            "place": "The Carrying of the Cross · 2 of 10",
+            "instruction": "Stay with the Carrying of the Cross.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.2",
+            "place": "The Carrying of the Cross · 3 of 10",
+            "instruction": "Stay with the Carrying of the Cross.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.3",
+            "place": "The Carrying of the Cross · 4 of 10",
+            "instruction": "Stay with the Carrying of the Cross.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.4",
+            "place": "The Carrying of the Cross · 5 of 10",
+            "instruction": "Stay with the Carrying of the Cross.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.5",
+            "place": "The Carrying of the Cross · 6 of 10",
+            "instruction": "Stay with the Carrying of the Cross.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.6",
+            "place": "The Carrying of the Cross · 7 of 10",
+            "instruction": "Stay with the Carrying of the Cross.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.7",
+            "place": "The Carrying of the Cross · 8 of 10",
+            "instruction": "Stay with the Carrying of the Cross.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.8",
+            "place": "The Carrying of the Cross · 9 of 10",
+            "instruction": "Stay with the Carrying of the Cross.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.9",
+            "place": "The Carrying of the Cross · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The Fifth Sorrowful Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 4,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The Crucifixion · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.0",
+            "place": "The Crucifixion · 1 of 10",
+            "instruction": "Ten Hail Marys on the Crucifixion.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.1",
+            "place": "The Crucifixion · 2 of 10",
+            "instruction": "Stay with the Crucifixion.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.2",
+            "place": "The Crucifixion · 3 of 10",
+            "instruction": "Stay with the Crucifixion.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.3",
+            "place": "The Crucifixion · 4 of 10",
+            "instruction": "Stay with the Crucifixion.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.4",
+            "place": "The Crucifixion · 5 of 10",
+            "instruction": "Stay with the Crucifixion.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.5",
+            "place": "The Crucifixion · 6 of 10",
+            "instruction": "Stay with the Crucifixion.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.6",
+            "place": "The Crucifixion · 7 of 10",
+            "instruction": "Stay with the Crucifixion.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.7",
+            "place": "The Crucifixion · 8 of 10",
+            "instruction": "Stay with the Crucifixion.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.8",
+            "place": "The Crucifixion · 9 of 10",
+            "instruction": "Stay with the Crucifixion.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.9",
+            "place": "The Crucifixion · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "medal",
+            "place": "The decade closes",
+            "instruction": "Move on to the medal, and close the last decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "medal",
+            "place": "The medal",
+            "instruction": "You have come round to the medal. Hold it, and greet Our Lady as Queen and Mother.",
+            "prayer_ids": [
+              "hail_holy_queen"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          },
+          {
+            "part": "medal",
+            "place": "The medal",
+            "instruction": "The closing prayer asks that what the mysteries hold may become ours.",
+            "prayer_ids": [
+              "rosary_closing_prayer"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          },
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "End as you began, with the Sign of the Cross.",
+            "prayer_ids": [
+              "sign_of_cross"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          }
+        ]
+      },
+      {
+        "category": "glorious",
+        "steps": [
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "Take the crucifix in your hand. Touch your forehead, your breast, your left shoulder and your right as you say:",
+            "prayer_ids": [
+              "sign_of_cross"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "Still holding the crucifix, profess the faith of the Church. Everything the Rosary is about is in this prayer.",
+            "prayer_ids": [
+              "apostles_creed"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.0",
+            "place": "The first large bead",
+            "instruction": "Move your fingers up to the first large bead, and pray the prayer Jesus taught His disciples.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.0",
+            "place": "Small bead · 1 of 3",
+            "instruction": "On each of the next three small beads, a Hail Mary. This first one asks God for an increase of faith.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.1",
+            "place": "Small bead · 2 of 3",
+            "instruction": "The next small bead: a Hail Mary for an increase of hope.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.2",
+            "place": "Small bead · 3 of 3",
+            "instruction": "The next small bead: a Hail Mary for an increase of charity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The next large bead",
+            "instruction": "Move up to the next large bead. Before anything else is said on it, give glory to the Holy Trinity.",
+            "prayer_ids": [
+              "glory_be"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The First Glorious Mystery",
+            "instruction": "Now the heart of the Rosary. Each decade is spent with one scene from the life of Jesus and Mary. Say its name, aloud or silently, and picture it.",
+            "prayer_ids": [],
+            "decade": 0,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The Resurrection · the large bead",
+            "instruction": "On the large bead, the Our Father. Keep the scene before you as you pray.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.0",
+            "place": "The Resurrection · 1 of 10",
+            "instruction": "Ten Hail Marys, one on each small bead. The words are the same each time; let them carry you while your mind stays with the Resurrection.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.1",
+            "place": "The Resurrection · 2 of 10",
+            "instruction": "The next bead. If your mind wanders, simply come back to the scene.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.2",
+            "place": "The Resurrection · 3 of 10",
+            "instruction": "Stay with the Resurrection.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.3",
+            "place": "The Resurrection · 4 of 10",
+            "instruction": "Stay with the Resurrection.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.4",
+            "place": "The Resurrection · 5 of 10",
+            "instruction": "Stay with the Resurrection.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.5",
+            "place": "The Resurrection · 6 of 10",
+            "instruction": "Stay with the Resurrection.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.6",
+            "place": "The Resurrection · 7 of 10",
+            "instruction": "Stay with the Resurrection.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.7",
+            "place": "The Resurrection · 8 of 10",
+            "instruction": "Stay with the Resurrection.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.8",
+            "place": "The Resurrection · 9 of 10",
+            "instruction": "Stay with the Resurrection.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.9",
+            "place": "The Resurrection · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The decade closes",
+            "instruction": "Move on to the next large bead. Before its Our Father, close the decade: the Glory Be, and the prayer Our Lady asked for at Fatima. You have prayed one decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The Second Glorious Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 1,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The Ascension · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.0",
+            "place": "The Ascension · 1 of 10",
+            "instruction": "Ten Hail Marys on the Ascension.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.1",
+            "place": "The Ascension · 2 of 10",
+            "instruction": "Stay with the Ascension.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.2",
+            "place": "The Ascension · 3 of 10",
+            "instruction": "Stay with the Ascension.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.3",
+            "place": "The Ascension · 4 of 10",
+            "instruction": "Stay with the Ascension.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.4",
+            "place": "The Ascension · 5 of 10",
+            "instruction": "Stay with the Ascension.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.5",
+            "place": "The Ascension · 6 of 10",
+            "instruction": "Stay with the Ascension.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.6",
+            "place": "The Ascension · 7 of 10",
+            "instruction": "Stay with the Ascension.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.7",
+            "place": "The Ascension · 8 of 10",
+            "instruction": "Stay with the Ascension.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.8",
+            "place": "The Ascension · 9 of 10",
+            "instruction": "Stay with the Ascension.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.9",
+            "place": "The Ascension · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The Third Glorious Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 2,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The Descent of the Holy Spirit · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.0",
+            "place": "The Descent of the Holy Spirit · 1 of 10",
+            "instruction": "Ten Hail Marys on the Descent of the Holy Spirit.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.1",
+            "place": "The Descent of the Holy Spirit · 2 of 10",
+            "instruction": "Stay with the Descent of the Holy Spirit.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.2",
+            "place": "The Descent of the Holy Spirit · 3 of 10",
+            "instruction": "Stay with the Descent of the Holy Spirit.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.3",
+            "place": "The Descent of the Holy Spirit · 4 of 10",
+            "instruction": "Stay with the Descent of the Holy Spirit.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.4",
+            "place": "The Descent of the Holy Spirit · 5 of 10",
+            "instruction": "Stay with the Descent of the Holy Spirit.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.5",
+            "place": "The Descent of the Holy Spirit · 6 of 10",
+            "instruction": "Stay with the Descent of the Holy Spirit.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.6",
+            "place": "The Descent of the Holy Spirit · 7 of 10",
+            "instruction": "Stay with the Descent of the Holy Spirit.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.7",
+            "place": "The Descent of the Holy Spirit · 8 of 10",
+            "instruction": "Stay with the Descent of the Holy Spirit.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.8",
+            "place": "The Descent of the Holy Spirit · 9 of 10",
+            "instruction": "Stay with the Descent of the Holy Spirit.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.9",
+            "place": "The Descent of the Holy Spirit · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The Fourth Glorious Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 3,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The Assumption · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.0",
+            "place": "The Assumption · 1 of 10",
+            "instruction": "Ten Hail Marys on the Assumption.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.1",
+            "place": "The Assumption · 2 of 10",
+            "instruction": "Stay with the Assumption.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.2",
+            "place": "The Assumption · 3 of 10",
+            "instruction": "Stay with the Assumption.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.3",
+            "place": "The Assumption · 4 of 10",
+            "instruction": "Stay with the Assumption.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.4",
+            "place": "The Assumption · 5 of 10",
+            "instruction": "Stay with the Assumption.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.5",
+            "place": "The Assumption · 6 of 10",
+            "instruction": "Stay with the Assumption.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.6",
+            "place": "The Assumption · 7 of 10",
+            "instruction": "Stay with the Assumption.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.7",
+            "place": "The Assumption · 8 of 10",
+            "instruction": "Stay with the Assumption.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.8",
+            "place": "The Assumption · 9 of 10",
+            "instruction": "Stay with the Assumption.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.9",
+            "place": "The Assumption · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The Fifth Glorious Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 4,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The Coronation · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.0",
+            "place": "The Coronation · 1 of 10",
+            "instruction": "Ten Hail Marys on the Coronation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.1",
+            "place": "The Coronation · 2 of 10",
+            "instruction": "Stay with the Coronation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.2",
+            "place": "The Coronation · 3 of 10",
+            "instruction": "Stay with the Coronation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.3",
+            "place": "The Coronation · 4 of 10",
+            "instruction": "Stay with the Coronation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.4",
+            "place": "The Coronation · 5 of 10",
+            "instruction": "Stay with the Coronation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.5",
+            "place": "The Coronation · 6 of 10",
+            "instruction": "Stay with the Coronation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.6",
+            "place": "The Coronation · 7 of 10",
+            "instruction": "Stay with the Coronation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.7",
+            "place": "The Coronation · 8 of 10",
+            "instruction": "Stay with the Coronation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.8",
+            "place": "The Coronation · 9 of 10",
+            "instruction": "Stay with the Coronation.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.9",
+            "place": "The Coronation · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "medal",
+            "place": "The decade closes",
+            "instruction": "Move on to the medal, and close the last decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "medal",
+            "place": "The medal",
+            "instruction": "You have come round to the medal. Hold it, and greet Our Lady as Queen and Mother.",
+            "prayer_ids": [
+              "hail_holy_queen"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          },
+          {
+            "part": "medal",
+            "place": "The medal",
+            "instruction": "The closing prayer asks that what the mysteries hold may become ours.",
+            "prayer_ids": [
+              "rosary_closing_prayer"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          },
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "End as you began, with the Sign of the Cross.",
+            "prayer_ids": [
+              "sign_of_cross"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          }
+        ]
+      },
+      {
+        "category": "luminous",
+        "steps": [
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "Take the crucifix in your hand. Touch your forehead, your breast, your left shoulder and your right as you say:",
+            "prayer_ids": [
+              "sign_of_cross"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "Still holding the crucifix, profess the faith of the Church. Everything the Rosary is about is in this prayer.",
+            "prayer_ids": [
+              "apostles_creed"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.0",
+            "place": "The first large bead",
+            "instruction": "Move your fingers up to the first large bead, and pray the prayer Jesus taught His disciples.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.0",
+            "place": "Small bead · 1 of 3",
+            "instruction": "On each of the next three small beads, a Hail Mary. This first one asks God for an increase of faith.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.1",
+            "place": "Small bead · 2 of 3",
+            "instruction": "The next small bead: a Hail Mary for an increase of hope.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantSmall.2",
+            "place": "Small bead · 3 of 3",
+            "instruction": "The next small bead: a Hail Mary for an increase of charity.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The next large bead",
+            "instruction": "Move up to the next large bead. Before anything else is said on it, give glory to the Holy Trinity.",
+            "prayer_ids": [
+              "glory_be"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The First Luminous Mystery",
+            "instruction": "Now the heart of the Rosary. Each decade is spent with one scene from the life of Jesus and Mary. Say its name, aloud or silently, and picture it.",
+            "prayer_ids": [],
+            "decade": 0,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "pendantLarge.1",
+            "place": "The Baptism in the Jordan · the large bead",
+            "instruction": "On the large bead, the Our Father. Keep the scene before you as you pray.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.0",
+            "place": "The Baptism in the Jordan · 1 of 10",
+            "instruction": "Ten Hail Marys, one on each small bead. The words are the same each time; let them carry you while your mind stays with the Baptism in the Jordan.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.1",
+            "place": "The Baptism in the Jordan · 2 of 10",
+            "instruction": "The next bead. If your mind wanders, simply come back to the scene.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.2",
+            "place": "The Baptism in the Jordan · 3 of 10",
+            "instruction": "Stay with the Baptism in the Jordan.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.3",
+            "place": "The Baptism in the Jordan · 4 of 10",
+            "instruction": "Stay with the Baptism in the Jordan.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.4",
+            "place": "The Baptism in the Jordan · 5 of 10",
+            "instruction": "Stay with the Baptism in the Jordan.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.5",
+            "place": "The Baptism in the Jordan · 6 of 10",
+            "instruction": "Stay with the Baptism in the Jordan.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.6",
+            "place": "The Baptism in the Jordan · 7 of 10",
+            "instruction": "Stay with the Baptism in the Jordan.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.7",
+            "place": "The Baptism in the Jordan · 8 of 10",
+            "instruction": "Stay with the Baptism in the Jordan.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.8",
+            "place": "The Baptism in the Jordan · 9 of 10",
+            "instruction": "Stay with the Baptism in the Jordan.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.0.9",
+            "place": "The Baptism in the Jordan · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The decade closes",
+            "instruction": "Move on to the next large bead. Before its Our Father, close the decade: the Glory Be, and the prayer Our Lady asked for at Fatima. You have prayed one decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 0,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The Second Luminous Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 1,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.0",
+            "place": "The Wedding at Cana · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.0",
+            "place": "The Wedding at Cana · 1 of 10",
+            "instruction": "Ten Hail Marys on the Wedding at Cana.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.1",
+            "place": "The Wedding at Cana · 2 of 10",
+            "instruction": "Stay with the Wedding at Cana.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.2",
+            "place": "The Wedding at Cana · 3 of 10",
+            "instruction": "Stay with the Wedding at Cana.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.3",
+            "place": "The Wedding at Cana · 4 of 10",
+            "instruction": "Stay with the Wedding at Cana.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.4",
+            "place": "The Wedding at Cana · 5 of 10",
+            "instruction": "Stay with the Wedding at Cana.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.5",
+            "place": "The Wedding at Cana · 6 of 10",
+            "instruction": "Stay with the Wedding at Cana.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.6",
+            "place": "The Wedding at Cana · 7 of 10",
+            "instruction": "Stay with the Wedding at Cana.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.7",
+            "place": "The Wedding at Cana · 8 of 10",
+            "instruction": "Stay with the Wedding at Cana.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.8",
+            "place": "The Wedding at Cana · 9 of 10",
+            "instruction": "Stay with the Wedding at Cana.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.1.9",
+            "place": "The Wedding at Cana · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 1,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The Third Luminous Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 2,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.1",
+            "place": "The Proclamation of the Kingdom · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.0",
+            "place": "The Proclamation of the Kingdom · 1 of 10",
+            "instruction": "Ten Hail Marys on the Proclamation of the Kingdom.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.1",
+            "place": "The Proclamation of the Kingdom · 2 of 10",
+            "instruction": "Stay with the Proclamation of the Kingdom.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.2",
+            "place": "The Proclamation of the Kingdom · 3 of 10",
+            "instruction": "Stay with the Proclamation of the Kingdom.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.3",
+            "place": "The Proclamation of the Kingdom · 4 of 10",
+            "instruction": "Stay with the Proclamation of the Kingdom.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.4",
+            "place": "The Proclamation of the Kingdom · 5 of 10",
+            "instruction": "Stay with the Proclamation of the Kingdom.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.5",
+            "place": "The Proclamation of the Kingdom · 6 of 10",
+            "instruction": "Stay with the Proclamation of the Kingdom.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.6",
+            "place": "The Proclamation of the Kingdom · 7 of 10",
+            "instruction": "Stay with the Proclamation of the Kingdom.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.7",
+            "place": "The Proclamation of the Kingdom · 8 of 10",
+            "instruction": "Stay with the Proclamation of the Kingdom.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.8",
+            "place": "The Proclamation of the Kingdom · 9 of 10",
+            "instruction": "Stay with the Proclamation of the Kingdom.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.2.9",
+            "place": "The Proclamation of the Kingdom · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 2,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The Fourth Luminous Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 3,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.2",
+            "place": "The Transfiguration · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.0",
+            "place": "The Transfiguration · 1 of 10",
+            "instruction": "Ten Hail Marys on the Transfiguration.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.1",
+            "place": "The Transfiguration · 2 of 10",
+            "instruction": "Stay with the Transfiguration.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.2",
+            "place": "The Transfiguration · 3 of 10",
+            "instruction": "Stay with the Transfiguration.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.3",
+            "place": "The Transfiguration · 4 of 10",
+            "instruction": "Stay with the Transfiguration.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.4",
+            "place": "The Transfiguration · 5 of 10",
+            "instruction": "Stay with the Transfiguration.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.5",
+            "place": "The Transfiguration · 6 of 10",
+            "instruction": "Stay with the Transfiguration.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.6",
+            "place": "The Transfiguration · 7 of 10",
+            "instruction": "Stay with the Transfiguration.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.7",
+            "place": "The Transfiguration · 8 of 10",
+            "instruction": "Stay with the Transfiguration.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.8",
+            "place": "The Transfiguration · 9 of 10",
+            "instruction": "Stay with the Transfiguration.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.3.9",
+            "place": "The Transfiguration · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The decade closes",
+            "instruction": "On the next large bead, before its Our Father, close the decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 3,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The Fifth Luminous Mystery",
+            "instruction": "Say the name of the next mystery, and picture the scene.",
+            "prayer_ids": [],
+            "decade": 4,
+            "announcement": true,
+            "closing": false
+          },
+          {
+            "part": "loopLarge.3",
+            "place": "The Institution of the Eucharist · the large bead",
+            "instruction": "On the large bead, the Our Father.",
+            "prayer_ids": [
+              "our_father"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.0",
+            "place": "The Institution of the Eucharist · 1 of 10",
+            "instruction": "Ten Hail Marys on the Institution of the Eucharist.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.1",
+            "place": "The Institution of the Eucharist · 2 of 10",
+            "instruction": "Stay with the Institution of the Eucharist.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.2",
+            "place": "The Institution of the Eucharist · 3 of 10",
+            "instruction": "Stay with the Institution of the Eucharist.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.3",
+            "place": "The Institution of the Eucharist · 4 of 10",
+            "instruction": "Stay with the Institution of the Eucharist.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.4",
+            "place": "The Institution of the Eucharist · 5 of 10",
+            "instruction": "Stay with the Institution of the Eucharist.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.5",
+            "place": "The Institution of the Eucharist · 6 of 10",
+            "instruction": "Stay with the Institution of the Eucharist.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.6",
+            "place": "The Institution of the Eucharist · 7 of 10",
+            "instruction": "Stay with the Institution of the Eucharist.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.7",
+            "place": "The Institution of the Eucharist · 8 of 10",
+            "instruction": "Stay with the Institution of the Eucharist.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.8",
+            "place": "The Institution of the Eucharist · 9 of 10",
+            "instruction": "Stay with the Institution of the Eucharist.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "loopSmall.4.9",
+            "place": "The Institution of the Eucharist · 10 of 10",
+            "instruction": "The last of the ten.",
+            "prayer_ids": [
+              "hail_mary"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "medal",
+            "place": "The decade closes",
+            "instruction": "Move on to the medal, and close the last decade.",
+            "prayer_ids": [
+              "glory_be",
+              "fatima_prayer"
+            ],
+            "decade": 4,
+            "announcement": false,
+            "closing": false
+          },
+          {
+            "part": "medal",
+            "place": "The medal",
+            "instruction": "You have come round to the medal. Hold it, and greet Our Lady as Queen and Mother.",
+            "prayer_ids": [
+              "hail_holy_queen"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          },
+          {
+            "part": "medal",
+            "place": "The medal",
+            "instruction": "The closing prayer asks that what the mysteries hold may become ours.",
+            "prayer_ids": [
+              "rosary_closing_prayer"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          },
+          {
+            "part": "crucifix",
+            "place": "The crucifix",
+            "instruction": "End as you began, with the Sign of the Cross.",
+            "prayer_ids": [
+              "sign_of_cross"
+            ],
+            "decade": null,
+            "announcement": false,
+            "closing": true
+          }
+        ]
+      }
+    ]
+  }
+}

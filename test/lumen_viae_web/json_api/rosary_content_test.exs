@@ -170,4 +170,38 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
       if season["starts_on"] <= iso and iso <= season["ends_on"], do: season["season"]
     end)
   end
+
+  describe "the How to Pray course" do
+    test "learn and guided_rosary come when asked for, as the files hold them", %{conn: conn} do
+      attributes =
+        conn
+        |> get_v2("/rosary-content?fields[rosary_content]=learn,guided_rosary")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      assert Map.keys(attributes) |> Enum.sort() == ["guided_rosary", "learn"]
+      assert attributes["learn"] == Content.learn()
+      assert attributes["guided_rosary"] == Content.guided_rosary()
+    end
+
+    test "a guided step, as a client reads it", %{conn: conn} do
+      rosaries =
+        conn
+        |> get_v2("/rosary-content?fields[rosary_content]=guided_rosary")
+        |> v2_response(200)
+        |> get_in(["data", "attributes", "guided_rosary", "rosaries"])
+
+      %{"steps" => steps} = Enum.find(rosaries, &(&1["category"] == "sorrowful"))
+
+      assert Enum.at(steps, 11) == %{
+               "part" => "loopSmall.0.2",
+               "place" => "The Agony in the Garden · 3 of 10",
+               "instruction" => "Stay with the Agony in the Garden.",
+               "prayer_ids" => ["hail_mary"],
+               "decade" => 0,
+               "announcement" => false,
+               "closing" => false
+             }
+    end
+  end
 end

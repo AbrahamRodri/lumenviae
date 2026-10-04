@@ -90,4 +90,38 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
                }
              end)
   end
+
+  test "the How to Pray course and the guided Rosary", %{conn: conn} do
+    body =
+      graphql(conn, """
+      { rosaryContent {
+          learn {
+            intro
+            lessons { id number title sections { shows prayerIds items { numeral title text } } }
+            shelves { id readings { id doors { kind target title note } tables { title rows { label value } } } }
+            prayerCounts { prayerId count }
+          }
+          guidedRosary { firstKeptStep parts rosaries { category steps { part place prayerIds decade } } }
+      } }
+      """)
+
+    refute body["errors"]
+
+    content = get_in(body, ["data", "rosaryContent"])
+    learn = Content.learn()
+
+    assert content["learn"]["intro"] == learn["intro"]
+
+    assert Enum.map(content["learn"]["lessons"], & &1["title"]) ==
+             Enum.map(learn["lessons"], & &1["title"])
+
+    assert content["learn"]["prayerCounts"] ==
+             Enum.map(
+               learn["prayer_counts"],
+               &%{"prayerId" => &1["prayer_id"], "count" => &1["count"]}
+             )
+
+    assert content["guidedRosary"]["parts"] == Content.guided_rosary()["parts"]
+    assert Enum.map(content["guidedRosary"]["rosaries"], &length(&1["steps"])) == [75, 75, 75, 75]
+  end
 end

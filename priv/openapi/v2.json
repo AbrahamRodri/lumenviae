@@ -569,6 +569,504 @@
           "attributes": {
             "description": "An attributes object for a rosary_content",
             "properties": {
+              "guided_rosary": {
+                "description": "\"Your First Rosary\": the Rosary a step at a time for each of the four sets, every step tied to the bead under the fingers, with the parts of a rosary as a beginner learns them.",
+                "nullable": true,
+                "properties": {
+                  "anatomy": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "parts": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "prayed": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "prayed",
+                        "parts"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "devotion_name": {
+                    "type": "string"
+                  },
+                  "first_kept_step": {
+                    "type": "integer"
+                  },
+                  "parts": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "rosaries": {
+                    "items": {
+                      "properties": {
+                        "category": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "items": {
+                            "properties": {
+                              "announcement": {
+                                "type": "boolean"
+                              },
+                              "closing": {
+                                "type": "boolean"
+                              },
+                              "decade": {
+                                "nullable": true,
+                                "type": "integer"
+                              },
+                              "instruction": {
+                                "type": "string"
+                              },
+                              "part": {
+                                "type": "string"
+                              },
+                              "place": {
+                                "type": "string"
+                              },
+                              "prayer_ids": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "part",
+                              "place",
+                              "instruction",
+                              "prayer_ids",
+                              "announcement",
+                              "closing"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "category",
+                        "steps"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "devotion_name",
+                  "first_kept_step",
+                  "parts",
+                  "anatomy",
+                  "rosaries"
+                ],
+                "type": "object"
+              },
+              "learn": {
+                "description": "The How to Pray course: three lessons, then \"Your First Rosary\", with the steps of the Rosary and the prayers said at each, how often each prayer comes round, Montfort's counsel and the questions beginners ask.",
+                "nullable": true,
+                "properties": {
+                  "first_rosary": {
+                    "properties": {
+                      "before_you_begin": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "mysteries_heading": {
+                        "type": "string"
+                      },
+                      "mysteries_note": {
+                        "type": "string"
+                      },
+                      "summary": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "welcome": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "summary",
+                      "welcome",
+                      "mysteries_heading",
+                      "mysteries_note",
+                      "before_you_begin"
+                    ],
+                    "type": "object"
+                  },
+                  "intro": {
+                    "type": "string"
+                  },
+                  "lessons": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "integer"
+                        },
+                        "paragraphs": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "sections": {
+                          "items": {
+                            "properties": {
+                              "categories": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true,
+                                "type": "array"
+                              },
+                              "items": {
+                                "items": {
+                                  "properties": {
+                                    "numeral": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "numeral",
+                                    "title",
+                                    "text"
+                                  ],
+                                  "type": "object"
+                                },
+                                "nullable": true,
+                                "type": "array"
+                              },
+                              "prayer_ids": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true,
+                                "type": "array"
+                              },
+                              "shows": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "shows"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "number",
+                        "title",
+                        "summary",
+                        "paragraphs",
+                        "sections"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "prayer_counts": {
+                    "items": {
+                      "properties": {
+                        "count": {
+                          "type": "string"
+                        },
+                        "prayer_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "prayer_id",
+                        "count"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "scripture": {
+                    "properties": {
+                      "before_each_decade": {
+                        "properties": {
+                          "heading": {
+                            "type": "string"
+                          },
+                          "items": {
+                            "items": {
+                              "properties": {
+                                "numeral": {
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "numeral",
+                                "title",
+                                "text"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "heading",
+                          "items"
+                        ],
+                        "type": "object"
+                      },
+                      "fruit_note": {
+                        "type": "string"
+                      },
+                      "intro": {
+                        "type": "string"
+                      },
+                      "sorrows_graces_note": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "intro",
+                      "before_each_decade",
+                      "fruit_note",
+                      "sorrows_graces_note"
+                    ],
+                    "type": "object"
+                  },
+                  "shelves": {
+                    "items": {
+                      "properties": {
+                        "icon": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "margin_label": {
+                          "type": "string"
+                        },
+                        "readings": {
+                          "items": {
+                            "properties": {
+                              "detail": {
+                                "type": "string"
+                              },
+                              "doors": {
+                                "items": {
+                                  "properties": {
+                                    "icon": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    },
+                                    "kind": {
+                                      "type": "string"
+                                    },
+                                    "note": {
+                                      "type": "string"
+                                    },
+                                    "target": {
+                                      "type": "string"
+                                    },
+                                    "title": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "kind",
+                                    "target",
+                                    "note"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "paragraphs": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "quote": {
+                                "nullable": true,
+                                "properties": {
+                                  "citation": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "citation"
+                                ],
+                                "type": "object"
+                              },
+                              "tables": {
+                                "items": {
+                                  "properties": {
+                                    "rows": {
+                                      "items": {
+                                        "properties": {
+                                          "label": {
+                                            "type": "string"
+                                          },
+                                          "value": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "label",
+                                          "value"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "title",
+                                    "rows"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "title": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "detail",
+                              "paragraphs",
+                              "tables",
+                              "doors"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "subtitle": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "subtitle",
+                        "margin_label",
+                        "icon",
+                        "readings"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "steps": {
+                    "items": {
+                      "properties": {
+                        "detail": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "integer"
+                        },
+                        "prayer_ids": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "number",
+                        "title",
+                        "detail",
+                        "prayer_ids"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "intro",
+                  "lessons",
+                  "first_rosary",
+                  "steps",
+                  "prayer_counts",
+                  "shelves",
+                  "scripture"
+                ],
+                "type": "object"
+              },
               "prayers": {
                 "description": "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin.",
                 "items": {
@@ -2423,7 +2921,7 @@
             "style": "form"
           },
           {
-            "description": "Comma separated fields of rosary_content: prayers, schedule, script, updated_at, version",
+            "description": "Comma separated fields of rosary_content: guided_rosary, learn, prayers, schedule, script, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[rosary_content]",
