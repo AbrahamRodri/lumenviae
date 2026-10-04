@@ -84,8 +84,15 @@ config :phoenix_live_view,
   # Include HEEx debug annotations as HTML comments in rendered markup.
   # Changing this configuration will require mix clean and a full recompile.
   debug_heex_annotations: true,
+  # The data-phx-loc attributes Tidewave reads to find a template's source.
+  debug_attributes: true,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
+
+# LiveDebugger's own server. Every worktree runs a dev server, so take the
+# next free port from 4007 rather than failing to start on the second one.
+# See docs/DEV_TOOLS.md.
+config :live_debugger, auto_port: true
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false

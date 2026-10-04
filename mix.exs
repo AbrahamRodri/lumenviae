@@ -90,6 +90,15 @@ defmodule LumenViae.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.16", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
+      # Development only, never in the release (docs/DEV_TOOLS.md): Tidewave
+      # puts an MCP server for coding agents inside the running app, and
+      # LiveDebugger shows a LiveView's components, assigns and events.
+      {:tidewave, "~> 0.9", only: :dev},
+      {:live_debugger, "~> 1.0", only: :dev},
+      # The Ecto Stats page in LiveDashboard at /admin/live: bloat, index
+      # use, locks and long-running queries. In every environment, since
+      # production's database is the one worth looking at.
+      {:ecto_psql_extras, "~> 0.8"},
       {:phoenix, "~> 1.8"},
       {:phoenix_ecto, "~> 4.7"},
       {:ecto_sql, "~> 3.13"},

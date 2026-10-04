@@ -196,6 +196,11 @@ copy it (`createdb -h localhost -U postgres -T lumen_viae_dev <name>`) and
 set `DEV_DATABASE=<name>`. In tests, give each worktree its own
 `MIX_TEST_PARTITION`.
 
+The dev server carries Tidewave (an MCP server for coding agents, registered
+in `.mcp.json` through `mix tidewave.proxy`; pass your server's port) and
+LiveDebugger (port 4007 or the next free one), and `/admin/live` has an
+Ecto Stats page. See docs/DEV_TOOLS.md.
+
 ## Meditation CSV Imports
 
 Batch imports run through `LumenViae.Curation.CsvImport` (shared by the

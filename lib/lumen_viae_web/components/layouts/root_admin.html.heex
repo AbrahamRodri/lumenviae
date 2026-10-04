@@ -17,6 +17,9 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
+    <%!-- LiveDebugger's browser hooks. Set only in development; nil, and so
+          nothing, everywhere else. See docs/DEV_TOOLS.md. --%>
+    {Application.get_env(:live_debugger, :live_debugger_tags)}
   </head>
   <%!-- No site header, no footer, no social meta: the console is a tool, not
         a page of the site, and the public navigation above it only ever cost
