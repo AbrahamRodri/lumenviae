@@ -345,14 +345,19 @@ AshJsonApi 1.7's document describes the API in places differently from
 how it behaves, or in a form a generator rejects: `additionalProperties:
 false` on objects that carry `links` and `meta`, OpenAPI 3.1's null type in
 a 3.0 document, a path parameter in the wrong style, a `fields` parameter
-a generator skips, an `included` list a decoder cannot tell apart, an
-error body described as a bare list, and a bearer token the API does not
-take. `LumenViaeWeb.JsonApi.OpenApi` corrects each one before the document
-is written; its moduledoc lists them. It changes the description only,
-never what the API does, and it also leaves `include` off the list of
-sets, which refuses one. (AshJsonApi 1.7 also reads a
-resource's `derive_sort?` under the wrong key, so each route says
-`derive_sort? false` itself.)
+that is one `deepObject` (which a Kotlin generator cannot send), an
+`included` list a decoder cannot tell apart (and a Kotlin generator cannot
+compile), attributes marked required that a sparse `fields` leaves out,
+lists marked `uniqueItems` that are in prayer order, an error body described
+as a bare list, and a bearer token the API does not take.
+`LumenViaeWeb.JsonApi.OpenApi` corrects each one before the document is
+written; its moduledoc lists them, and
+`test/lumen_viae_web/json_api/open_api_test.exs` pins the shape the
+corrections give. It changes the description only, never what the API does
+(a request and a response are byte for byte what they were), and it also
+leaves `include` off the list of sets, which refuses one. (AshJsonApi 1.7
+also reads a resource's `derive_sort?` under the wrong key, so each route
+says `derive_sort? false` itself.)
 
 ## Generating the Swift client
 
@@ -375,29 +380,131 @@ let set = try await client.getMeditationSet(.init(
     path: .init(id: "42"),
     query: .init(
         include: "set_memberships.meditation.mystery",
-        fields: .init(meditation: "title,content,author,source,narrated_voices,narrations")
+        fields_lbrack_meditation_rbrack_: "title,content,author,source,narrated_voices,narrations"
     )
 )).ok.body.applicationVnd_apiJson
 
 for item in set.included ?? [] {
     switch item {
-    case .setMembership(let membership): ...
-    case .meditation(let meditation): ...
-    case .mystery(let mystery): ...
+    case .setMembership(let membership): ... // membership.value2.attributes?.order
+    case .meditation(let meditation): ...    // meditation.value2.attributes?.narrations
+    case .mystery(let mystery): ...          // mystery.value2.attributes?.name
     }
 }
 ```
 
-`included` decodes as an enum, discriminated on each resource's `type`.
-Before this document was committed, it was generated into a client with
-swift-openapi-generator (main as of 2 October 2026) and
-swift-openapi-runtime 1.12.2, with no warnings, and every operation was
-called through that client against responses captured from the server:
-both set routes, one set with its includes and signed fields, the mysteries, both
-voice lists, the whole spoken Rosary, a completion, fresh audio, a 404 and
-a 400. All of them decoded.
+`included` decodes as an enum, discriminated on each resource's `type`; the
+resource is the enum's payload's `value2` (`value1` is the base, which
+holds the `type`). There is a `fields` parameter for each type, named as
+the request names it (`fields[meditation]` is `fields_lbrack_meditation_rbrack_`),
+and every attribute is optional, because a request that names `fields`
+leaves the others out.
+
+This document was generated into a client with swift-openapi-generator
+(main as of 2 October 2026, 813aa54) and swift-openapi-runtime 1.12.2, with
+no warnings, and every operation was called through that client against
+responses captured from the server (`./dev.sh`, a copy of the development
+database): both set routes, one set with its includes and signed fields,
+the mysteries (and with a sparse `fields`), both voice lists, the whole
+spoken Rosary, the content document (bare and with `fields`), a completion, fresh audio, and the errors: a 404, the 400s,
+a 403 and a 429. All of them decoded, and each request carried
+`fields[<type>]` as the server reads it.
 
 Regenerate the client whenever `priv/openapi/v2.json` changes. Like v1,
 the document may gain fields without notice; a generated client tolerates
 that, because the document allows keys it does not list. Removing or
 renaming anything is a v3.
+
+## Generating the Kotlin client
+
+With [openapi-generator](https://openapi-generator.tech)'s `kotlin` generator,
+through Docker, so nothing is installed (versions as they were when the
+document was checked on 3 October 2026): `openapitools/openapi-generator-cli:v7.16.0`
+to generate, `gradle:8.14-jdk21` to build. The library is `jvm-retrofit2` with
+kotlinx.serialization, which needs no Android SDK. Save this as
+`openapi-generator-config.json` beside a copy of `priv/openapi/v2.json`:
+
+```json
+{
+  "library": "jvm-retrofit2",
+  "packageName": "org.lumenviae.api",
+  "serializationLibrary": "kotlinx_serialization",
+  "useCoroutines": true,
+  "typeMappings": {"AnyType": "JsonElement", "object": "JsonObject"},
+  "importMappings": {
+    "JsonElement": "kotlinx.serialization.json.JsonElement",
+    "JsonObject": "kotlinx.serialization.json.JsonObject"
+  },
+  "schemaMappings": {"included_resource": "org.lumenviae.api.models.IncludedBase"}
+}
+```
+
+```
+docker run --rm -v "$PWD":/work openapitools/openapi-generator-cli:v7.16.0 generate \
+  -i /work/v2.json -g kotlin -o /work/lumenviae-api -c /work/openapi-generator-config.json
+docker run --rm -v "$PWD/lumenviae-api":/home/gradle/project -w /home/gradle/project \
+  gradle:8.14-jdk21 gradle build --no-daemon
+```
+
+The generated build uses Kotlin 2.2.20, Retrofit 3.0.0, kotlinx-serialization-json
+1.9.0 and OkHttp 5.1.0. Three settings are what the document needs and the
+generator cannot read from it:
+
+- **`typeMappings`** turn a schema that says "any JSON" into a kotlinx value
+  (`JsonElement`, `JsonObject`). Without them a free-form object is Kotlin's
+  `Any`, which kotlinx has no serializer for, and the compiler stops. Three
+  places are open in the document, because JSON:API leaves them open: a
+  response's `meta`, a resource identifier's `meta`, and the `relationships`
+  of a resource that has none (`{}`). Everything else is typed.
+- **`schemaMappings`** points the one place a Kotlin generator cannot follow the
+  document at the class it can. `included_resource` is a `oneOf` over the
+  resources a set includes, which Swift reads as an enum; Kotlin reads a
+  `oneOf` as a sealed class its members do not extend, which does not compile.
+  The members are also `allOf` `included_base`, which is a discriminated base,
+  so Kotlin writes `IncludedBase` as a sealed class with `IncludedMeditation`,
+  `IncludedMystery` and `IncludedSetMembership` extending it, and the mapping
+  says an `included` list is a list of that.
+- **The `application/vnd.api+json` converter.** The generated client sends
+  `application/json`, and the API answers a request with a body in any other
+  media type with `415 unsupported_media_type`. Give the client the media
+  type the document declares:
+
+```kotlin
+val client = ApiClient(
+    baseUrl = "https://www.lumenviae.org/",
+    converterFactories = listOf(
+        ScalarsConverterFactory.create(),
+        Serializer.kotlinxSerializationJson.asConverterFactory("application/vnd.api+json".toMediaType()),
+    ),
+)
+val sets = client.createService(MeditationSetApi::class.java)
+
+val set = sets.getMeditationSet(
+    "42",
+    include = "set_memberships.meditation.mystery",
+    fieldsMeditation = "title,content,narrations",
+).body()!!
+for (item in set.included.orEmpty()) {
+    when (item) {
+        is IncludedSetMembership -> item.attributes?.order
+        is IncludedMeditation -> item.attributes?.narrations
+        is IncludedMystery -> item.attributes?.name
+    }
+}
+```
+
+`fields[<type>]` is a parameter per type (`fieldsMeditation`,
+`fieldsSpokenRosary`...), as in the Swift client. Every operation returns a
+Retrofit `Response`; a status the API refuses with is in `errorBody()`, an
+`{"errors": [...]}` document the generator names after the first operation
+that has one (`RecordCompletionDefaultResponse`), and a 429's wait is its
+`Retry-After` header.
+
+The document was generated into a client this way and built with no errors.
+A JUnit test (kotlin-test and OkHttp's MockWebServer) replayed the responses
+captured for the Swift check, through the generated services: every
+operation, the signed narrations and the whole spoken Rosary included, the
+errors (404, the 400s, 403, 429 and its `Retry-After`), a sparse `fields`,
+and the request each call sent (the `fields[<type>]` names, the media type).
+All 28 decoded and passed. Run it again whenever `priv/openapi/v2.json`
+changes.

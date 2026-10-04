@@ -37,10 +37,6 @@
                 "type": "integer"
               }
             },
-            "required": [
-              "completed_at",
-              "meditation_set_id"
-            ],
             "type": "object"
           },
           "id": {
@@ -109,8 +105,77 @@
         "items": {
           "$ref": "#/components/schemas/error"
         },
-        "type": "array",
-        "uniqueItems": true
+        "type": "array"
+      },
+      "included_base": {
+        "discriminator": {
+          "mapping": {
+            "meditation": "#/components/schemas/included_meditation",
+            "mystery": "#/components/schemas/included_mystery",
+            "set_membership": "#/components/schemas/included_set_membership"
+          },
+          "propertyName": "type"
+        },
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "included_meditation": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/included_base"
+          },
+          {
+            "$ref": "#/components/schemas/meditation"
+          }
+        ]
+      },
+      "included_mystery": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/included_base"
+          },
+          {
+            "$ref": "#/components/schemas/mystery"
+          }
+        ]
+      },
+      "included_resource": {
+        "discriminator": {
+          "mapping": {
+            "meditation": "#/components/schemas/included_meditation",
+            "mystery": "#/components/schemas/included_mystery",
+            "set_membership": "#/components/schemas/included_set_membership"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/included_meditation"
+          },
+          {
+            "$ref": "#/components/schemas/included_mystery"
+          },
+          {
+            "$ref": "#/components/schemas/included_set_membership"
+          }
+        ]
+      },
+      "included_set_membership": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/included_base"
+          },
+          {
+            "$ref": "#/components/schemas/set_membership"
+          }
+        ]
       },
       "link": {
         "description": "A link MUST be represented as either: a string containing the link's URL or a link object.",
@@ -189,9 +254,6 @@
                 "type": "string"
               }
             },
-            "required": [
-              "content"
-            ],
             "type": "object"
           },
           "id": {
@@ -345,11 +407,6 @@
                 "type": "string"
               }
             },
-            "required": [
-              "name",
-              "category",
-              "labels"
-            ],
             "type": "object"
           },
           "id": {
@@ -382,8 +439,7 @@
                       ],
                       "type": "object"
                     },
-                    "type": "array",
-                    "uniqueItems": true
+                    "type": "array"
                   }
                 }
               }
@@ -432,11 +488,6 @@
                 "type": "string"
               }
             },
-            "required": [
-              "name",
-              "category",
-              "order"
-            ],
             "type": "object"
           },
           "id": {
@@ -489,11 +540,6 @@
                 "type": "boolean"
               }
             },
-            "required": [
-              "name",
-              "default",
-              "retired"
-            ],
             "type": "object"
           },
           "id": {
@@ -736,10 +782,6 @@
                 "type": "string"
               }
             },
-            "required": [
-              "version",
-              "updated_at"
-            ],
             "type": "object"
           },
           "id": {
@@ -774,9 +816,6 @@
                 "type": "integer"
               }
             },
-            "required": [
-              "order"
-            ],
             "type": "object"
           },
           "id": {
@@ -1021,10 +1060,6 @@
                 "type": "string"
               }
             },
-            "required": [
-              "version",
-              "expires_at"
-            ],
             "type": "object"
           },
           "id": {
@@ -1076,22 +1111,15 @@
             "style": "form"
           },
           {
-            "description": "Limits the response fields to only those listed for each type",
-            "explode": true,
+            "description": "Comma separated fields of completion: completed_at, meditation_set_id",
+            "explode": false,
             "in": "query",
-            "name": "fields",
+            "name": "fields[completion]",
             "required": false,
             "schema": {
-              "additionalProperties": true,
-              "properties": {
-                "completion": {
-                  "description": "Comma separated fields of completion: completed_at, meditation_set_id",
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "type": "string"
             },
-            "style": "deepObject"
+            "style": "form"
           }
         ],
         "requestBody": {
@@ -1180,22 +1208,15 @@
         "operationId": "listMeditationSets",
         "parameters": [
           {
-            "description": "Limits the response fields to only those listed for each type",
-            "explode": true,
+            "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, set_memberships",
+            "explode": false,
             "in": "query",
-            "name": "fields",
+            "name": "fields[meditation_set]",
             "required": false,
             "schema": {
-              "additionalProperties": true,
-              "properties": {
-                "meditation_set": {
-                  "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, set_memberships",
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "type": "string"
             },
-            "style": "deepObject"
+            "style": "form"
           },
           {
             "in": "query",
@@ -1218,8 +1239,7 @@
                       "items": {
                         "$ref": "#/components/schemas/meditation_set"
                       },
-                      "type": "array",
-                      "uniqueItems": true
+                      "type": "array"
                     },
                     "meta": {
                       "additionalProperties": true,
@@ -1271,34 +1291,48 @@
             "style": "form"
           },
           {
-            "description": "Limits the response fields to only those listed for each type",
-            "explode": true,
+            "description": "Comma separated fields of meditation: author, content, narrated_voices, narrations, source, title, mystery",
+            "explode": false,
             "in": "query",
-            "name": "fields",
+            "name": "fields[meditation]",
             "required": false,
             "schema": {
-              "additionalProperties": true,
-              "properties": {
-                "meditation": {
-                  "description": "Comma separated fields of meditation: author, content, narrated_voices, narrations, source, title, mystery",
-                  "type": "string"
-                },
-                "meditation_set": {
-                  "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, set_memberships",
-                  "type": "string"
-                },
-                "mystery": {
-                  "description": "Comma separated fields of mystery: category, description, name, order, scripture_reference",
-                  "type": "string"
-                },
-                "set_membership": {
-                  "description": "Comma separated fields of set_membership: order, meditation",
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "type": "string"
             },
-            "style": "deepObject"
+            "style": "form"
+          },
+          {
+            "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, set_memberships",
+            "explode": false,
+            "in": "query",
+            "name": "fields[meditation_set]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Comma separated fields of mystery: category, description, name, order, scripture_reference",
+            "explode": false,
+            "in": "query",
+            "name": "fields[mystery]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Comma separated fields of set_membership: order, meditation",
+            "explode": false,
+            "in": "query",
+            "name": "fields[set_membership]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
           },
           {
             "in": "query",
@@ -1321,28 +1355,9 @@
                     },
                     "included": {
                       "items": {
-                        "discriminator": {
-                          "mapping": {
-                            "meditation": "#/components/schemas/meditation",
-                            "mystery": "#/components/schemas/mystery",
-                            "set_membership": "#/components/schemas/set_membership"
-                          },
-                          "propertyName": "type"
-                        },
-                        "oneOf": [
-                          {
-                            "$ref": "#/components/schemas/set_membership"
-                          },
-                          {
-                            "$ref": "#/components/schemas/meditation"
-                          },
-                          {
-                            "$ref": "#/components/schemas/mystery"
-                          }
-                        ]
+                        "$ref": "#/components/schemas/included_resource"
                       },
-                      "type": "array",
-                      "uniqueItems": true
+                      "type": "array"
                     },
                     "meta": {
                       "additionalProperties": true,
@@ -1479,22 +1494,15 @@
             "style": "form"
           },
           {
-            "description": "Limits the response fields to only those listed for each type",
-            "explode": true,
+            "description": "Comma separated fields of mystery: category, description, name, order, scripture_reference",
+            "explode": false,
             "in": "query",
-            "name": "fields",
+            "name": "fields[mystery]",
             "required": false,
             "schema": {
-              "additionalProperties": true,
-              "properties": {
-                "mystery": {
-                  "description": "Comma separated fields of mystery: category, description, name, order, scripture_reference",
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "type": "string"
             },
-            "style": "deepObject"
+            "style": "form"
           }
         ],
         "responses": {
@@ -1508,8 +1516,7 @@
                       "items": {
                         "$ref": "#/components/schemas/mystery"
                       },
-                      "type": "array",
-                      "uniqueItems": true
+                      "type": "array"
                     },
                     "meta": {
                       "additionalProperties": true,
@@ -1551,22 +1558,15 @@
             "style": "form"
           },
           {
-            "description": "Limits the response fields to only those listed for each type",
-            "explode": true,
+            "description": "Comma separated fields of spoken_rosary: announcements, book, expires_at, prayers, verses, version",
+            "explode": false,
             "in": "query",
-            "name": "fields",
+            "name": "fields[spoken_rosary]",
             "required": false,
             "schema": {
-              "additionalProperties": true,
-              "properties": {
-                "spoken_rosary": {
-                  "description": "Comma separated fields of spoken_rosary: announcements, book, expires_at, prayers, verses, version",
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "type": "string"
             },
-            "style": "deepObject"
+            "style": "form"
           },
           {
             "description": "The voice preferred, a slug. A retired voice is answered by its successor and an unknown one by the default; `voice` in the answer is the one served.",
@@ -1627,22 +1627,15 @@
             "style": "form"
           },
           {
-            "description": "Limits the response fields to only those listed for each type",
-            "explode": true,
+            "description": "Comma separated fields of rosary_content: prayers, schedule, updated_at, version",
+            "explode": false,
             "in": "query",
-            "name": "fields",
+            "name": "fields[rosary_content]",
             "required": false,
             "schema": {
-              "additionalProperties": true,
-              "properties": {
-                "rosary_content": {
-                  "description": "Comma separated fields of rosary_content: prayers, schedule, updated_at, version",
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "type": "string"
             },
-            "style": "deepObject"
+            "style": "form"
           }
         ],
         "responses": {
@@ -1693,22 +1686,15 @@
             "style": "form"
           },
           {
-            "description": "Limits the response fields to only those listed for each type",
-            "explode": true,
+            "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
+            "explode": false,
             "in": "query",
-            "name": "fields",
+            "name": "fields[narration_voice]",
             "required": false,
             "schema": {
-              "additionalProperties": true,
-              "properties": {
-                "narration_voice": {
-                  "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "type": "string"
             },
-            "style": "deepObject"
+            "style": "form"
           }
         ],
         "responses": {
@@ -1722,8 +1708,7 @@
                       "items": {
                         "$ref": "#/components/schemas/narration_voice"
                       },
-                      "type": "array",
-                      "uniqueItems": true
+                      "type": "array"
                     },
                     "meta": {
                       "additionalProperties": true,
@@ -1765,22 +1750,15 @@
             "style": "form"
           },
           {
-            "description": "Limits the response fields to only those listed for each type",
-            "explode": true,
+            "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
+            "explode": false,
             "in": "query",
-            "name": "fields",
+            "name": "fields[narration_voice]",
             "required": false,
             "schema": {
-              "additionalProperties": true,
-              "properties": {
-                "narration_voice": {
-                  "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "type": "string"
             },
-            "style": "deepObject"
+            "style": "form"
           }
         ],
         "responses": {
@@ -1794,8 +1772,7 @@
                       "items": {
                         "$ref": "#/components/schemas/narration_voice"
                       },
-                      "type": "array",
-                      "uniqueItems": true
+                      "type": "array"
                     },
                     "meta": {
                       "additionalProperties": true,
