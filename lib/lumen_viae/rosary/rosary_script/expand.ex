@@ -58,10 +58,11 @@ defmodule LumenViae.Rosary.RosaryScript.Expand do
       else: {:error, :style, "style must be one of: #{Enum.join(styles, ", ")}"}
   end
 
-  # The chosen ones in the order they are said, whatever order they came in.
+  # The chosen ones in the order they are said, whatever order they came
+  # in. One named twice is chosen once.
   defp extras(extras, %{"closing_extras" => known}) do
     ids = Enum.map(known, & &1["id"])
-    chosen = split(extras)
+    chosen = extras |> split() |> Enum.uniq()
 
     case chosen -- ids do
       [] ->
@@ -72,20 +73,32 @@ defmodule LumenViae.Rosary.RosaryScript.Expand do
     end
   end
 
+  # Each of the category's mysteries at most once, so no request expands to
+  # more decades than a Rosary has.
   defp orders(orders, category, script) do
     decades = form(category, script)["strand"]["decades"]
+
+    refused =
+      {:error, :orders,
+       "orders must be numbers from 1 to #{decades}, each at most once, separated by commas"}
 
     case split(orders) do
       [] ->
         {:ok, Enum.to_list(1..decades)}
 
+      given when length(given) > decades ->
+        refused
+
       given ->
         parsed = Enum.map(given, &Integer.parse/1)
 
-        if Enum.all?(parsed, &match?({n, ""} when n in 1..decades//1, &1)),
-          do: {:ok, Enum.map(parsed, &elem(&1, 0))},
-          else:
-            {:error, :orders, "orders must be numbers from 1 to #{decades}, separated by commas"}
+        with true <- Enum.all?(parsed, &match?({n, ""} when n in 1..decades//1, &1)),
+             numbers = Enum.map(parsed, &elem(&1, 0)),
+             true <- Enum.uniq(numbers) == numbers do
+          {:ok, numbers}
+        else
+          false -> refused
+        end
     end
   end
 

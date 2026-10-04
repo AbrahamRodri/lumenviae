@@ -313,9 +313,9 @@ defmodule LumenViae.Rosary.PrayerAudio do
 
     extras =
       if form["takes_extras"] do
-        for %{"id" => id, "steps" => steps} <- templates["closing_extras"],
-            id in chosen,
-            step <- steps,
+        for extra <- templates["closing_extras"],
+            extra["id"] in chosen,
+            step <- extra["steps"],
             do: step
       else
         []

@@ -285,13 +285,15 @@ every category, style and set of optional prayers.
 | `category` | required: `joyful`, `sorrowful`, `glorious`, `luminous`, or `seven_sorrows` (the chaplet) |
 | `style` | `meditation` (the default), `scriptural` or `plain` (the Rosary Said Aloud) |
 | `extras` | the optional prayers after the Rosary, comma-separated: any of `holy_father`, `memorare`, `st_michael`. Said in that order whatever order they are given in; the chaplet takes none, and its `extras` comes back empty. |
-| `orders` | the mysteries' orders in prayer order, comma-separated, for a set whose meditations do not start at the first mystery. Every mystery of the category when absent. |
+| `orders` | the mysteries' orders in prayer order, comma-separated, for a set whose meditations do not start at the first mystery: each from 1 to the category's count (5, or 7 for the chaplet) and each at most once. Every mystery of the category when absent. |
 
 The lists are comma-separated strings because every client spells one the
 same way in a query string. An unknown value, or an order outside the
 category, is a 400 `invalid_argument` whose detail names the parameter and
 the values it takes (`style must be one of: meditation, scriptural,
-plain`); a request without a category is a 400 `required`.
+plain`; `orders must be numbers from 1 to 5, each at most once, separated
+by commas`); a request without a category is a 400 `required`. An
+optional prayer named twice is said once.
 
 The answer's `id` names the Rosary (`joyful:meditation::1,2,3,4,5`), and
 its attributes are the `category`, `style`, `extras` and `orders` it was
@@ -299,7 +301,9 @@ expanded for and the `steps`, each `kind`, `name` (the clip it plays: a
 prayer id, a mystery key, or `<key>_<n>` for a verse), `mystery`,
 `caption`, `phase` (`opening`, `decade`, `closing`), `decade` (from 0,
 null on the pendant), `bead`, `place` (on the pendant, null in a decade)
-and `pause_ms`. A meditation step is the set's own narration, which a
+and `pause_ms`. `mystery` and `decade` are null on the pendant, where the
+iOS app's own script gives the opening the first decade and its key and
+the close the last's. A meditation step is the set's own narration, which a
 client finds in the set by its decade.
 
 ## Fresh meditation audio

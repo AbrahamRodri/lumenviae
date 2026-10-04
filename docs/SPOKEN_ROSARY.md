@@ -146,10 +146,20 @@ A template step is `kind` (`prayer`, `announcement`, `meditation`,
 it. Expanded, a step names what it plays: the prayer id; the mystery key
 `<category>_<order>` for an announcement or a meditation (the set's own
 narration); `<key>_<n>` for the verse before Hail Mary n, which is the
-verse clip's name. The pendant's steps have no decade and no mystery;
-they are said on the first decade's bead 0 (the opening) and the last
-decade's Glory Be bead (the close), which is where the app's strand
-stands while they are said.
+verse clip's name. The pendant's steps have no decade and no mystery
+(the app's own script gives the opening the first decade's index and key
+and the close the last's); they are said on the first decade's bead 0
+(the opening) and the last decade's Glory Be bead (the close), which is
+where the app's strand stands while they are said.
+
+`Content.ScriptCheck` refuses to compile a file that would break a
+Rosary or the document: a step that names a prayer, place or style that
+does not exist, a pendant step that is not a prayer, a bead that
+disagrees with the strand's Glory Be bead, a decade without exactly one
+run said on each Hail Mary, an optional prayer missing its id, title,
+short title, detail or steps, missing labels, headings or pendant names,
+strand numbers that do not add up, `styles` without `meditation`, or a
+category in no form or in two.
 
 `strand` holds the bead rules (`RosaryStrand`): `decades`, `hail_marys`,
 `decade_length` (its Our Father and its Hail Marys), `beads` (56 for the

@@ -15,13 +15,17 @@ defmodule LumenViae.Rosary.Types.ScriptStep do
       description:
         "The clip it plays: the prayer id; the mystery's key, `<category>_<order>`, for an announcement or a meditation (the set's own narration); `<key>_<n>` for the verse before Hail Mary n."
 
-    field :mystery, :string, description: "The decade's mystery key; null on the pendant."
+    field :mystery, :string,
+      description:
+        "The decade's mystery key; null on the pendant. (The iOS app's own script gives the opening prayers the first decade's key and the closing prayers the last's.)"
 
     field :caption, :string, allow_nil?: false, description: "What the screen calls it."
 
     field :phase, :string, allow_nil?: false, description: "`opening`, `decade` or `closing`."
 
-    field :decade, :integer, description: "The decade, counted from 0; null on the pendant."
+    field :decade, :integer,
+      description:
+        "The decade, counted from 0; null on the pendant. (The iOS app's own script counts the opening prayers in decade 0 and the closing prayers in the last.)"
 
     field :bead, :integer,
       allow_nil?: false,

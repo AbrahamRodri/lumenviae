@@ -270,6 +270,40 @@ defmodule LumenViaeWeb.JsonApi.RosaryScriptTest do
       end
     end
 
+    test "an optional prayer named twice is said once", %{conn: conn} do
+      attributes =
+        conn
+        |> get_v2("/rosary-script?category=joyful&extras=memorare,memorare")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      assert attributes["extras"] == ["memorare"]
+      assert Enum.count(attributes["steps"], &(&1["name"] == "memorare")) == 1
+    end
+
+    test "each mystery is prayed at most once, so no Rosary has more decades than its category",
+         %{conn: conn} do
+      for query <- [
+            "category=joyful&orders=1,1",
+            "category=joyful&orders=1,2,3,4,5,1",
+            "category=seven_sorrows&orders=" <> Enum.join(List.duplicate("1", 4000), ",")
+          ] do
+        body = conn |> get_v2("/rosary-script?" <> query) |> v2_response(400)
+
+        assert [
+                 %{
+                   "code" => "invalid_argument",
+                   "detail" => "orders must be numbers from 1 to " <> rule
+                 }
+               ] =
+                 body["errors"]
+
+        assert rule =~ "each at most once"
+      end
+
+      assert length(steps(conn, "category=seven_sorrows&orders=7,6,5,4,3,2,1")) == 84
+    end
+
     test "a category is required", %{conn: conn} do
       body = conn |> get_v2("/rosary-script") |> v2_response(400)
       assert [%{"code" => "required"} | _] = body["errors"]

@@ -47,6 +47,7 @@ defmodule LumenViae.Rosary.Content do
   """
 
   alias LumenViae.Rosary.Categories
+  alias LumenViae.Rosary.Content.ScriptCheck
 
   @dir Path.join(:code.priv_dir(:lumen_viae), "rosary_content")
 
@@ -115,64 +116,16 @@ defmodule LumenViae.Rosary.Content do
 
   {script_file, script_updated_at} = read.(@script_path)
 
-  @script Map.fetch!(script_file, "script")
+  @script Map.get(script_file, "script")
 
-  @step_kinds ~w(prayer announcement meditation verse)
+  # Every part of the file a Rosary or the document needs: see ScriptCheck.
+  case ScriptCheck.errors(@script, @prayer_ids, Categories.slugs()) do
+    [] ->
+      :ok
 
-  # The templates may name only the prayers above, the places on the
-  # pendant and the styles the file declares, and only a decade repeats a
-  # run of steps for each Hail Mary.
-  script_steps =
-    for form <- ["rosary", "chaplet"],
-        part <- ["opening", "decade", "closing", "final"],
-        step <- @script[form][part],
-        do: {"#{form}.#{part}", step}
-
-  extra_steps =
-    for %{"id" => id, "steps" => steps} <- @script["closing_extras"],
-        step <- steps,
-        do: {"closing_extras.#{id}", step}
-
-  places = Enum.map(@script["pendant"], & &1["place"])
-
-  for {where, step} <- script_steps ++ extra_steps do
-    %{"kind" => kind, "prayer_id" => prayer_id, "caption" => caption, "bead" => bead} = step
-
-    valid? =
-      kind in @step_kinds and is_binary(caption) and
-        kind == "prayer" == prayer_id in @prayer_ids and
-        step["place"] in [nil | places] and
-        step["style"] in [nil | @script["styles"]] and
-        is_integer(step["pause_ms"]) and step["pause_ms"] >= 0 and
-        if(step["per_bead"],
-          do: bead == nil and String.ends_with?(where, ".decade"),
-          else: is_integer(bead)
-        )
-
-    if not valid? do
+    errors ->
       raise CompileError,
-        description:
-          "priv/rosary_content/script.json: #{where} has a step it cannot say: #{inspect(step)}"
-    end
-  end
-
-  for form <- ["rosary", "chaplet"] do
-    runs =
-      @script[form]["decade"]
-      |> Enum.chunk_by(& &1["per_bead"])
-      |> Enum.count(&hd(&1)["per_bead"])
-
-    if runs != 1 do
-      raise CompileError,
-        description:
-          "priv/rosary_content/script.json: #{form}'s decade needs one run of steps said on each Hail Mary, not #{runs}"
-    end
-  end
-
-  if Enum.sort(@script["rosary"]["categories"] ++ @script["chaplet"]["categories"]) !=
-       Enum.sort(Categories.slugs()) do
-    raise CompileError,
-      description: "priv/rosary_content/script.json: every category belongs to exactly one form"
+        description: "priv/rosary_content/script.json:\n  " <> Enum.join(errors, "\n  ")
   end
 
   # One entry per file. A new file is read and checked as prayers.json is

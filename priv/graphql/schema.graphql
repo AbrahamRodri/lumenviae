@@ -16,13 +16,13 @@ type ScriptStep {
   "The clip it plays: the prayer id; the mystery's key, `<category>_<order>`, for an announcement or a meditation (the set's own narration); `<key>_<n>` for the verse before Hail Mary n."
   name: String!
 
-  "The decade's mystery key; null on the pendant."
+  "The decade's mystery key; null on the pendant. (The iOS app's own script gives the opening prayers the first decade's key and the closing prayers the last's.)"
   mystery: String
 
   "`prayer`, `announcement`, `meditation` or `verse`."
   kind: String!
 
-  "The decade, counted from 0; null on the pendant."
+  "The decade, counted from 0; null on the pendant. (The iOS app's own script counts the opening prayers in decade 0 and the closing prayers in the last.)"
   decade: Int
 
   "What the screen calls it."
