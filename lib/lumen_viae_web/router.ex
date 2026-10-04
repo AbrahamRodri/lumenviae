@@ -161,6 +161,9 @@ defmodule LumenViaeWeb.Router do
       # The running app: release, database, queues, schedule, third parties
       live "/system", Live.Admin.System
 
+      # Who may sign in, and their passwords
+      live "/admins", Live.Admin.Admins
+
       # Meditation Sets management
       live "/meditation-sets", Live.Meditations.Sets.List
       live "/meditation-sets/new", Live.Meditations.Sets.New

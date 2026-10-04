@@ -399,7 +399,10 @@ defmodule LumenViae.PoliciesTest do
       assert {:error, %Ash.Error.Forbidden{}} = Ash.read(Accounts.Token)
     end
 
-    test "not even an admin can make an admin or set a password from the web" do
+    # The console's own account actions (:add, :reset_password,
+    # :change_password) want the acting admin's password; they are tested in
+    # LumenViae.Accounts.ConsoleAdminTest.
+    test "the shell's :create and :set_password are refused to every actor, admin included" do
       admin = admin_fixture()
       email = "planted-#{System.unique_integer([:positive])}@lumenviae.test"
 

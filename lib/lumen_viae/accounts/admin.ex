@@ -6,7 +6,9 @@ defmodule LumenViae.Accounts.Admin do
   strategy), and nothing else: there is no public registration, no magic
   link and no reset email, because production has no mailer and the
   console has a handful of users. An admin is created, and a forgotten
-  password replaced, from a production shell with
+  password replaced, by another admin on the console's Admins screen (the
+  `:add`, `:reset_password` and `:change_password` actions, each asking for
+  the acting admin's own password), or from a production shell with
   `LumenViae.Release.create_admin/1` and
   `LumenViae.Release.reset_admin_password/1`; see docs/PROD_ACCESS.md.
 
@@ -23,7 +25,7 @@ defmodule LumenViae.Accounts.Admin do
     domain: LumenViae.Accounts,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshAuthentication]
+    extensions: [AshAuthentication, AshRateLimiter]
 
   @password_constraints [min_length: 12, max_length: 72]
 
@@ -60,6 +62,11 @@ defmodule LumenViae.Accounts.Admin do
         apply_on_password_change?(true)
       end
     end
+  end
+
+  # The counters behind ConfirmActorPassword's attempt limit.
+  rate_limit do
+    backend LumenViae.Limits.Backend
   end
 
   actions do
@@ -115,6 +122,85 @@ defmodule LumenViae.Accounts.Admin do
       change {AshAuthentication.Strategy.Password.HashPasswordChange, strategy_name: :password}
     end
 
+    read :alphabetical do
+      description "Every admin, by email: the console's Admins screen."
+      prepare build(sort: [email: :asc])
+    end
+
+    # The console's three account actions. Each asks for the acting admin's
+    # own password (ConfirmActorPassword), so a stolen session cookie
+    # cannot add an admin or replace a password. See docs/ARCHITECTURE.md,
+    # "The Accounts domain".
+
+    create :add do
+      description "Adds an admin from the console, with a generated password shown once. Needs the acting admin's own password."
+      accept [:email]
+
+      argument :password, :string do
+        allow_nil? false
+        sensitive? true
+        constraints @password_constraints
+      end
+
+      argument :current_password, :string do
+        allow_nil? false
+        sensitive? true
+      end
+
+      change LumenViae.Accounts.Admin.ConfirmActorPassword
+      change {AshAuthentication.Strategy.Password.HashPasswordChange, strategy_name: :password}
+    end
+
+    update :reset_password do
+      description "Replaces another admin's password with a generated one, shown once, which signs them out everywhere. Needs the acting admin's own password."
+      require_atomic? false
+      accept []
+
+      argument :password, :string do
+        allow_nil? false
+        sensitive? true
+        constraints @password_constraints
+      end
+
+      argument :current_password, :string do
+        allow_nil? false
+        sensitive? true
+      end
+
+      validate {LumenViae.Accounts.Admin.ActorIs, self?: false}
+      change LumenViae.Accounts.Admin.ConfirmActorPassword
+      change {AshAuthentication.Strategy.Password.HashPasswordChange, strategy_name: :password}
+      change AshAuthentication.AddOn.LogOutEverywhere.OnPasswordChange
+    end
+
+    update :change_password do
+      description "Replaces the acting admin's own password with one they choose, which signs them out everywhere, here included. Needs their current password."
+      require_atomic? false
+      accept []
+
+      argument :password, :string do
+        allow_nil? false
+        sensitive? true
+        constraints @password_constraints
+      end
+
+      argument :password_confirmation, :string do
+        allow_nil? false
+        sensitive? true
+      end
+
+      argument :current_password, :string do
+        allow_nil? false
+        sensitive? true
+      end
+
+      validate confirm(:password, :password_confirmation)
+      validate {LumenViae.Accounts.Admin.ActorIs, self?: true}
+      change LumenViae.Accounts.Admin.ConfirmActorPassword
+      change {AshAuthentication.Strategy.Password.HashPasswordChange, strategy_name: :password}
+      change AshAuthentication.AddOn.LogOutEverywhere.OnPasswordChange
+    end
+
     update :set_password do
       description "Replaces an admin's password, which signs them out everywhere."
       require_atomic? false
@@ -143,16 +229,21 @@ defmodule LumenViae.Accounts.Admin do
       authorize_if always()
     end
 
-    # An admin may see who the admins are, in AshAdmin. Nothing else is
-    # authorized for any actor: admins are made and their passwords replaced
-    # only from a production shell (LumenViae.Release), with
-    # `authorize?: false`. A signed-in admin cannot plant another admin or
-    # lock one out from the web, so a hijacked console session cannot
-    # outlive a password reset. This resource has no admin bypass on purpose.
-    # Strict, so a read without an admin is Forbidden rather than quietly
-    # empty.
+    # An admin may see who the admins are. Strict, so a read without an
+    # admin is Forbidden rather than quietly empty.
     policy action_type(:read) do
       access_type :strict
+      authorize_if LumenViae.Accounts.Checks.ActorIsAdmin
+    end
+
+    # From the console, an admin may add an admin, replace another admin's
+    # password, and change their own - each only with their own password
+    # typed again (ConfirmActorPassword), so a hijacked session cookie alone
+    # cannot plant an admin or lock one out. Nothing else is authorized for
+    # any actor: :create and :set_password run only from a production shell
+    # (LumenViae.Release), with `authorize?: false`, and there is no destroy.
+    # This resource has no admin bypass on purpose.
+    policy action([:add, :reset_password, :change_password]) do
       authorize_if LumenViae.Accounts.Checks.ActorIsAdmin
     end
   end
