@@ -171,7 +171,7 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
             or anything else from this app or website, is sent with it.
           </p>
           <p class="font-garamond text-lg leading-relaxed mt-4">
-            Some of what the apps show is fetched directly from other sites, not through us: the
+            Some of what the iPhone app shows is fetched directly from other sites, not through us: the
             Daily Missal from Missale Meum, and the Spiritual Reading shelf's books and recordings
             from Project Gutenberg and LibriVox, whose recordings are kept by the Internet Archive.
             Each receives the request itself - which day of the Missal, which book or recording -
