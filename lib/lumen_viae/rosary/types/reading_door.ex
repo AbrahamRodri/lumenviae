@@ -1,11 +1,13 @@
 defmodule LumenViae.Rosary.Types.ReadingDoor do
   @moduledoc """
-  Where a reading leads, as a neutral target a client maps to its own screen. `kind` and `target`: `act` (`todays_rosary`: begin today's Rosary), `reading` (a reading id: one on this document's shelves, or a reading of the app's libraries this document does not hold yet, `montfort` and `cana`), `prayer` (an id in the `prayers` section) or `page` (`mysteries_in_scripture`). A client should pass over a door it cannot open.
+  Where a reading leads, as a neutral target a client maps to its own screen. `kind` and `target`: `act` (`todays_rosary`: begin today's Rosary), `reading` (a reading on this document's shelves), `library` (`montfort`, `cana`: a reading the iOS app holds that this document does not serve; a client that has no such reading leaves the door out), `prayer` (an id in the `prayers` section) or `page` (`mysteries_in_scripture`). A client should pass over a door it cannot open.
   """
   use Ash.TypedStruct
 
   typed_struct do
-    field :kind, :string, allow_nil?: false, description: "`act`, `reading`, `prayer` or `page`."
+    field :kind, :string,
+      allow_nil?: false,
+      description: "`act`, `reading`, `library`, `prayer` or `page`."
 
     field :target, :string,
       allow_nil?: false,

@@ -265,11 +265,13 @@ checked when the file compiles):
 | `kind` | `target` |
 | --- | --- |
 | `act` | `todays_rosary`: begin today's Rosary. `title` and `icon` are null; the client names it. |
-| `reading` | A reading id: one on these shelves, or a reading of the app's libraries the document does not hold yet (`montfort`, `cana`). |
+| `reading` | A reading on these shelves, by its id. |
+| `library` | `montfort`, `cana`: a reading the iOS app holds (the Marian Library's) that this document does not serve. A client that has no such reading leaves the door out. |
 | `prayer` | An id in the `prayers` section. |
 | `page` | `mysteries_in_scripture`: the mysteries with their Gospel passages. |
 
-Pass over a door you cannot open. A new kind or target is added to the
+Every target resolves inside the document but a `library` door's. Pass
+over a door you cannot open. A new kind or target is added to the
 vocabulary, never a renamed one.
 
 `guided_rosary` (`priv/rosary_content/guided_rosary.json`) is "Your First

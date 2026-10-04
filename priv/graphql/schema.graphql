@@ -450,7 +450,7 @@ type ReadingDoor {
   "The line under it."
   note: String!
 
-  "`act`, `reading`, `prayer` or `page`."
+  "`act`, `reading`, `library`, `prayer` or `page`."
   kind: String!
 
   "The iOS app's glyph name for it, for reference; null for an `act`."

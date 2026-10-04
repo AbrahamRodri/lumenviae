@@ -177,11 +177,14 @@ defmodule LumenViae.Rosary.Content do
     raise CompileError, description: "priv/rosary_content/learn.json repeats a reading id"
   end
 
-  # Where a reading's door may lead. A `reading` door may also name a
-  # reading of the app's libraries that the document does not hold yet.
+  # Where a reading's door may lead. Every target resolves inside the
+  # document but a `library` door's: a reading the iOS app holds that this
+  # document does not serve (the Marian Library's), listed so a typo still
+  # fails the compile.
   @door_targets %{
     "act" => ~w(todays_rosary),
-    "reading" => @reading_ids ++ ~w(montfort cana),
+    "reading" => @reading_ids,
+    "library" => ~w(montfort cana),
     "prayer" => @prayer_ids,
     "page" => ~w(mysteries_in_scripture)
   }

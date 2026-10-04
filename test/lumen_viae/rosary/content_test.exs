@@ -15,7 +15,7 @@ defmodule LumenViae.Rosary.ContentTest do
       {~U[2026-10-04 02:04:00Z], "7346f03c03ccaa1c"}
     ],
     "learn.json" => [
-      {~U[2026-10-04 02:00:00Z], "ea31551072a242a6"}
+      {~U[2026-10-04 02:00:00Z], "b9f196b7c33f956f"}
     ],
     "guided_rosary.json" => [
       {~U[2026-10-04 02:00:00Z], "6dfea61161cb95e7"}

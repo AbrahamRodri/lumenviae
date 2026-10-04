@@ -464,7 +464,7 @@
             "tables": [],
             "doors": [
               {
-                "kind": "reading",
+                "kind": "library",
                 "target": "montfort",
                 "title": "St. Louis de Montfort",
                 "note": "The Marian Saints",
@@ -577,7 +577,7 @@
             "tables": [],
             "doors": [
               {
-                "kind": "reading",
+                "kind": "library",
                 "target": "cana",
                 "title": "The Wedding at Cana",
                 "note": "“Whatsoever he shall say to you, do ye”",

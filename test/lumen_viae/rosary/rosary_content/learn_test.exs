@@ -159,6 +159,18 @@ defmodule LumenViae.Rosary.RosaryContent.LearnTest do
       for %{"kind" => kind, "target" => target} <- doors do
         assert target in Map.fetch!(targets, kind), "#{kind}:#{target}"
       end
+
+      reading_ids =
+        for shelf <- Content.learn()["shelves"], reading <- shelf["readings"], do: reading["id"]
+
+      assert targets["reading"] == reading_ids
+      assert targets["prayer"] == Content.prayer_ids()
+
+      # The one kind whose targets the document does not hold
+      assert targets["library"] == ~w(montfort cana)
+
+      assert Enum.frequencies_by(doors, & &1["kind"]) ==
+               %{"act" => 2, "library" => 2, "prayer" => 1, "page" => 1}
     end
 
     test "every section a lesson shows is one a client is told of" do
