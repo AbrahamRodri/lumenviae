@@ -28,7 +28,7 @@ defmodule LumenViae.Curation.ArtworkUpload do
   @min_short_side 1200
   @max_long_side 4000
 
-  @type scope :: :set | :meditation | :author
+  @type scope :: :set | :meditation | :author | :mystery | :category_card
 
   @doc """
   Validates and uploads a painting, returning the fields the schema's
@@ -61,7 +61,7 @@ defmodule LumenViae.Curation.ArtworkUpload do
   @spec prepare(binary, scope, pos_integer) ::
           {:ok, %{key: String.t(), info: Inspector.info()}} | {:error, String.t()}
   def prepare(binary, scope, id)
-      when is_binary(binary) and scope in [:set, :meditation, :author] do
+      when is_binary(binary) and scope in [:set, :meditation, :author, :mystery, :category_card] do
     with :ok <- check_size(binary),
          {:ok, info} <- read_header(binary),
          :ok <- check_format(info),
@@ -161,6 +161,8 @@ defmodule LumenViae.Curation.ArtworkUpload do
   defp prefix(:set), do: "sets"
   defp prefix(:meditation), do: "meditations"
   defp prefix(:author), do: "authors"
+  defp prefix(:mystery), do: "mysteries"
+  defp prefix(:category_card), do: "category_cards"
 
   defp managed_fields(key, info) do
     %{

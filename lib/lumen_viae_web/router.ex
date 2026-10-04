@@ -174,6 +174,7 @@ defmodule LumenViaeWeb.Router do
       live "/mysteries", Live.Mysteries.List
       live "/mysteries/new", Live.Mysteries.New
       live "/mysteries/:id/edit", Live.Mysteries.Edit
+      live "/mysteries/cards/:slug", Live.Mysteries.Card
     end
   end
 

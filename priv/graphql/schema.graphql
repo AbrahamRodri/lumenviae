@@ -283,6 +283,18 @@ type RosaryCategory {
 
   "Its full title: `Joyful Mysteries`, `Seven Sorrows of Mary`."
   devotionTitle: String!
+
+  "The mystery whose painting the category's card shows (`joyful_1`). Null when the card has a painting of its own, in `card_artwork` (the Seven Sorrows' Pieta)."
+  cardMysteryKey: String
+
+  "Where the card's crop is centred down the painting, from 0 to 1."
+  cardFocalY: Float!
+
+  "Where the card's crop is centred across the painting, from 0 to 1: the point the app's card keeps in view."
+  cardFocalX: Float!
+
+  "The card's own painting, for a category whose card is not one of its mysteries'. Null until it is uploaded and published, and for a category whose card is `card_mystery_key`'s painting."
+  cardArtwork: Artwork
 }
 
 type RosaryMystery {
@@ -312,6 +324,9 @@ type RosaryMystery {
 
   "The category's slug."
   category: String!
+
+  "The mystery's painting, with its attribution. Null until one is uploaded and published with alt text and a licence: keep a bundled painting until then."
+  artwork: Artwork
 
   "What the spoken Rosary says before the decade, exactly as recorded: `The First Joyful Mystery: The Annunciation`."
   announcement: String!
@@ -902,6 +917,22 @@ type RosaryClip {
   audio: SignedAudio!
 }
 
+type MeditationNarration {
+  voice: String!
+  meditationId: ID!
+  audio: SignedAudio!
+}
+
+type SignedAudio {
+  url: String!
+  expiresAt: DateTime!
+}
+
+type SignedNarration {
+  voice: String!
+  audio: SignedAudio!
+}
+
 type ArtworkAttribution {
   year: String
   title: String
@@ -919,22 +950,6 @@ type Artwork {
   attribution: ArtworkAttribution!
   alt: String!
   alignment: String!
-}
-
-type MeditationNarration {
-  voice: String!
-  meditationId: ID!
-  audio: SignedAudio!
-}
-
-type SignedAudio {
-  url: String!
-  expiresAt: DateTime!
-}
-
-type SignedNarration {
-  voice: String!
-  audio: SignedAudio!
 }
 
 type OfficeChoice {
@@ -1221,6 +1236,9 @@ type Mystery {
   keyVerse: String
 
   keyVerseReference: String
+
+  "The mystery's painting, with its attribution. Null until one is uploaded and published with alt text and a licence."
+  artwork: Artwork
 
   "The app's key for the mystery, `<category>_<order>`: `joyful_1`. Every section of the Rosary's content that is keyed by a mystery uses it; the id is the server's and differs between databases."
   key: String!

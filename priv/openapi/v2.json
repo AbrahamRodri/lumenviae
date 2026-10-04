@@ -465,6 +465,73 @@
           "attributes": {
             "description": "An attributes object for a mystery",
             "properties": {
+              "artwork": {
+                "description": "The mystery's painting, with its attribution. Null until one is uploaded and published with alt text and a licence. Field included by default.",
+                "nullable": true,
+                "properties": {
+                  "alignment": {
+                    "type": "string"
+                  },
+                  "alt": {
+                    "type": "string"
+                  },
+                  "attribution": {
+                    "properties": {
+                      "artist": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "license": {
+                        "type": "string"
+                      },
+                      "source_url": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "title": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "year": {
+                        "nullable": true,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "license"
+                    ],
+                    "type": "object"
+                  },
+                  "focal_x": {
+                    "format": "float",
+                    "type": "number"
+                  },
+                  "focal_y": {
+                    "format": "float",
+                    "type": "number"
+                  },
+                  "height": {
+                    "nullable": true,
+                    "type": "integer"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "nullable": true,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "url",
+                  "alignment",
+                  "focal_x",
+                  "focal_y",
+                  "alt",
+                  "attribution"
+                ],
+                "type": "object"
+              },
               "category": {
                 "description": "Field included by default.",
                 "type": "string"
@@ -593,6 +660,84 @@
                 "description": "The five categories of mysteries, in the order the app presents them: names, the label of each mystery by position, Hail Marys per decade, whether the Fatima Prayer is said, and the Seven Sorrows' graces.",
                 "items": {
                   "properties": {
+                    "card_artwork": {
+                      "nullable": true,
+                      "properties": {
+                        "alignment": {
+                          "type": "string"
+                        },
+                        "alt": {
+                          "type": "string"
+                        },
+                        "attribution": {
+                          "properties": {
+                            "artist": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "license": {
+                              "type": "string"
+                            },
+                            "source_url": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "title": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "year": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "license"
+                          ],
+                          "type": "object"
+                        },
+                        "focal_x": {
+                          "format": "float",
+                          "type": "number"
+                        },
+                        "focal_y": {
+                          "format": "float",
+                          "type": "number"
+                        },
+                        "height": {
+                          "nullable": true,
+                          "type": "integer"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "nullable": true,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "alignment",
+                        "focal_x",
+                        "focal_y",
+                        "alt",
+                        "attribution"
+                      ],
+                      "type": "object"
+                    },
+                    "card_focal_x": {
+                      "format": "float",
+                      "type": "number"
+                    },
+                    "card_focal_y": {
+                      "format": "float",
+                      "type": "number"
+                    },
+                    "card_mystery_key": {
+                      "nullable": true,
+                      "type": "string"
+                    },
                     "devotion_title": {
                       "type": "string"
                     },
@@ -632,6 +777,8 @@
                     "mystery_labels",
                     "hail_marys",
                     "fatima_prayer",
+                    "card_focal_x",
+                    "card_focal_y",
                     "graces"
                   ],
                   "type": "object"
@@ -1405,6 +1552,72 @@
                   "properties": {
                     "announcement": {
                       "type": "string"
+                    },
+                    "artwork": {
+                      "nullable": true,
+                      "properties": {
+                        "alignment": {
+                          "type": "string"
+                        },
+                        "alt": {
+                          "type": "string"
+                        },
+                        "attribution": {
+                          "properties": {
+                            "artist": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "license": {
+                              "type": "string"
+                            },
+                            "source_url": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "title": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "year": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "license"
+                          ],
+                          "type": "object"
+                        },
+                        "focal_x": {
+                          "format": "float",
+                          "type": "number"
+                        },
+                        "focal_y": {
+                          "format": "float",
+                          "type": "number"
+                        },
+                        "height": {
+                          "nullable": true,
+                          "type": "integer"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "nullable": true,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "alignment",
+                        "focal_x",
+                        "focal_y",
+                        "alt",
+                        "attribution"
+                      ],
+                      "type": "object"
                     },
                     "category": {
                       "type": "string"
@@ -3163,7 +3376,7 @@
             "style": "form"
           },
           {
-            "description": "Comma separated fields of mystery: category, description, fruit, key, key_verse, key_verse_reference, name, order, scripture_reference",
+            "description": "Comma separated fields of mystery: artwork, category, description, fruit, key, key_verse, key_verse_reference, name, order, scripture_reference",
             "explode": false,
             "in": "query",
             "name": "fields[mystery]",
@@ -3344,7 +3557,7 @@
             "style": "form"
           },
           {
-            "description": "Comma separated fields of mystery: category, description, fruit, key, key_verse, key_verse_reference, name, order, scripture_reference",
+            "description": "Comma separated fields of mystery: artwork, category, description, fruit, key, key_verse, key_verse_reference, name, order, scripture_reference",
             "explode": false,
             "in": "query",
             "name": "fields[mystery]",

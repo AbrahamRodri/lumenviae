@@ -169,6 +169,24 @@ defmodule LumenViae.Rosary.Categories do
   def mystery_labels(slug), do: Enum.map(1..mystery_count(slug), &mystery_label(slug, &1))
 
   @doc """
+  The mystery whose painting a category's card shows in the app
+  (MysteryCategory.cardImageName): the first mystery of each of the four
+  Rosaries. The Seven Sorrows' card is the Pieta, which is no sorrow's own
+  painting, so it has none: its card is a `LumenViae.Rosary.CategoryCard`.
+  """
+  def card_mystery_key("seven_sorrows"), do: nil
+  def card_mystery_key(slug), do: "#{slug}_1"
+
+  @doc """
+  The point of the card's painting the app's card keeps in view, `{x, y}`
+  from 0 to 1 (MysteryCategory.cardFocalPoint). The Resurrection and the
+  Pieta carry their subject high; the others are centred.
+  """
+  def card_focal_point("glorious"), do: {0.5, 0.22}
+  def card_focal_point("seven_sorrows"), do: {0.5, 0.30}
+  def card_focal_point(_slug), do: {0.5, 0.5}
+
+  @doc """
   The graces promised to those who pray the category: the seven of the
   Seven Sorrows, and none for the others.
   """

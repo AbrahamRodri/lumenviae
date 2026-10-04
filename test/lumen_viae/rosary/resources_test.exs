@@ -12,6 +12,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
 
   alias LumenViae.Rosary.{
     Author,
+    CategoryCard,
     Completion,
     Meditation,
     MeditationSet,
@@ -21,6 +22,10 @@ defmodule LumenViae.Rosary.ResourcesTest do
   }
 
   @resources [Mystery, Meditation, MeditationSet, SetMembership, Completion, Author, Narration]
+
+  # A category card is served only inside the content document's
+  # `categories` section, so it has no GraphQL type or route of its own.
+  @table_backed @resources ++ [CategoryCard]
 
   defp mystery_fixture(attrs \\ %{}) do
     {:ok, mystery} =
@@ -72,7 +77,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
     # Only the table-backed resources: the domain also holds resources with
     # no data layer (the GraphQL API's narration voices and spoken Rosary),
     # which map no table.
-    test "registers all seven table-backed resources" do
+    test "registers all eight table-backed resources" do
       # The paper trail's version resources have tables too; they are the
       # content resources' shadows, not resources of their own.
       table_backed =
@@ -81,7 +86,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
         |> Enum.filter(&(Ash.DataLayer.data_layer(&1) == AshPostgres.DataLayer))
         |> Enum.reject(&String.ends_with?(inspect(&1), ".Version"))
 
-      assert Enum.sort(table_backed) == Enum.sort(@resources)
+      assert Enum.sort(table_backed) == Enum.sort(@table_backed)
     end
 
     test "every resource declares its GraphQL type" do
@@ -99,7 +104,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
     end
 
     test "ids are integers" do
-      for resource <- @resources do
+      for resource <- @table_backed do
         assert Ash.Resource.Info.attribute(resource, :id).type == Ash.Type.Integer
       end
     end
@@ -108,7 +113,7 @@ defmodule LumenViae.Rosary.ResourcesTest do
     # would quietly drop the rest of a list. The default read can paginate
     # when a caller asks it to; it must never do so on its own.
     test "no read paginates unless it is asked to" do
-      for resource <- @resources do
+      for resource <- @table_backed do
         case Ash.Resource.Info.primary_action!(resource, :read).pagination do
           false ->
             :ok

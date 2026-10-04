@@ -40,7 +40,7 @@ involved.
 | --- | --- | --- |
 | `GET /meditation-sets?category=` | `MeditationSet.:visible` | The sets the public may see, by category then in creation order, never paginated. The same list as `GET /api/meditation-sets?category=`. |
 | `GET /meditation-sets/:id` | `MeditationSet.:visible` | One set the public may see; 404 when it does not exist or is hidden (it holds an archived meditation, or none yet). |
-| `GET /mysteries` | `Mystery.:in_prayer_order` | Every mystery, by category then position. The same list as `GET /api/mysteries`, with `key` (`<category>_<order>`, the app's key), `fruit`, `key_verse` and `key_verse_reference`, which v1 does not carry. |
+| `GET /mysteries` | `Mystery.:in_prayer_order` | Every mystery, by category then position. The same list as `GET /api/mysteries`, with `key` (`<category>_<order>`, the app's key), `fruit`, `key_verse`, `key_verse_reference` and `artwork`, which v1 does not carry. |
 | `GET /voices` | `NarrationVoice.:offered` | The voices a listener may choose, default first. The same list as `GET /api/voices`. |
 | `GET /voices/retired` | `NarrationVoice.:retired` | The voices taken out of the pickers, each with `replaced_by`. |
 | `GET /rosary-audio?voice=` | `SpokenRosary.:for_voice` | One voice's spoken Rosary; the same recordings, keys and files as `GET /api/rosary/audio`. |
@@ -184,8 +184,9 @@ serves the same document, its sections chosen by the selection set.
   each by place): `key` (`<category>_<order>`, `joyful_1`, the key every
   section keyed by a mystery uses; never the server's id), `category`,
   `order`, `name`, `description`, `scripture_reference`, `fruit`,
-  `key_verse` and `key_verse_reference`, and `announcement`, exactly what
-  the spoken Rosary says before the decade. Read from the `mysteries`
+  `key_verse` and `key_verse_reference`, `artwork` (the mystery's
+  painting, below), and `announcement`, exactly what the spoken Rosary
+  says before the decade. Read from the `mysteries`
   table, so a curator's edit is served at once and moves the version; a
   row whose key the app does not know is not served. The key verse is
   another rendering of the Douay than the Scriptural Rosary's verses, and
@@ -196,7 +197,11 @@ serves the same document, its sections chosen by the selection set.
   position, `The First Joyful Mystery`, `The First Sorrow of Mary`),
   `hail_marys` (10, or 7 in a sorrow of the chaplet), `fatima_prayer`
   (false for the Seven Sorrows, whose sorrows close on the Glory Be
-  alone) and `graces` (the Seven Sorrows' seven, empty for the others).
+  alone), `graces` (the Seven Sorrows' seven, empty for the others), and
+  the card: `card_mystery_key` (the mystery whose painting the card shows,
+  the first of each Rosary; null for the Seven Sorrows), `card_focal_x`
+  and `card_focal_y` (the point the app's card keeps in view, 0 to 1), and
+  `card_artwork` (the card's own painting, the Seven Sorrows' Pieta).
 - **`verses`**: the Scriptural Rosary's 249 verses as text, one group per
   mystery (`key`, `verses`), each verse `bead` (the Hail Mary it is said
   before, from 1), `reference` and `text`: ten to a mystery, seven to a
@@ -204,6 +209,19 @@ serves the same document, its sections chosen by the selection set.
 - **`quotes`**, **`milestones`**, **`reminders`**, **`labels`** and
   **`forms`**: what the app keeps around the Rosary, and the rules it
   chooses by (see "The companion sections", below).
+
+**A painting is null until it is published.** A mystery's `artwork` and a
+category's `card_artwork` are the object a set's `artwork` is (`url`,
+`alignment`, `focal_x`, `focal_y`, `width`, `height`, `alt`, and
+`attribution` with `title`, `artist`, `year`, `source_url` and `license`),
+and are null until a painting is uploaded with alt text and a licence. As
+of 4 October 2026 none is (docs/MYSTERY_PAINTINGS.md), so every one is
+null: a client keeps its bundled painting while the field is null and
+shows the served one once it is not. Both are optional in the OpenAPI
+document (`nullable`, never `required`), so a generated client decodes
+them as optional. A card shows `card_artwork` when it has one, else the
+painting of `card_mystery_key`'s mystery, cropped about the card's focal
+point. Publishing a painting moves the document's `version`.
 
 ### The day's mysteries
 

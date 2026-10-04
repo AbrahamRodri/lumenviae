@@ -268,10 +268,14 @@ the v2 route takes them.
 
 - `mysteries`: `[RosaryMystery!]!`, the 27 mysteries in the order they
   are prayed: `key category order name description scriptureReference
-  fruit keyVerse keyVerseReference announcement`. `key` is the app's
-  `<category>_<order>`; `announcement` is what the spoken Rosary says.
+  fruit keyVerse keyVerseReference artwork announcement`. `key` is the
+  app's `<category>_<order>`; `announcement` is what the spoken Rosary
+  says; `artwork` is an `Artwork`, null until published.
 - `categories`: `[RosaryCategory!]!`, the five: `slug name devotionTitle
-  subtitle mysteryLabels hailMarys fatimaPrayer graces`.
+  subtitle mysteryLabels hailMarys fatimaPrayer graces cardMysteryKey
+  cardFocalX cardFocalY cardArtwork`; `cardArtwork` is null until
+  published, and `cardMysteryKey` null for the Seven Sorrows, whose card
+  is a painting of its own.
 - `verses`: `[RosaryVerses!]!`, the Scriptural Rosary's verses, one group
   per mystery: `key verses { bead reference text }`.
 - `quotes`, `milestones`, `reminders`, `labels` and `forms`: what the app
@@ -287,7 +291,7 @@ files compiled into the server (`LumenViae.Rosary.Content`), from code
 (`LumenViae.LiturgicalCalendar`) and from the `mysteries` table, with
 nothing to sign or fetch, so there is no failure for it to keep to its own
 field. A meditation's `mystery` also carries `key fruit keyVerse
-keyVerseReference`.
+keyVerseReference artwork`.
 It is served by `LumenViae.Rosary.RosaryContent`, a resource with no
 table. See docs/JSON_API.md, "The content document", for where the words
 live and what a change to them takes.

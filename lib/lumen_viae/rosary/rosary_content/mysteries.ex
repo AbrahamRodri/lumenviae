@@ -11,6 +11,8 @@ defmodule LumenViae.Rosary.RosaryContent.Mysteries do
   """
   use Ash.Resource.Calculation
 
+  alias LumenViae.Rosary.Artwork
+  alias LumenViae.Rosary.Artwork.Published
   alias LumenViae.Rosary.Categories
   alias LumenViae.Rosary.Mystery
   alias LumenViae.Rosary.PrayerAudio
@@ -50,6 +52,7 @@ defmodule LumenViae.Rosary.RosaryContent.Mysteries do
          fruit: mystery.fruit,
          key_verse: mystery.key_verse,
          key_verse_reference: mystery.key_verse_reference,
+         artwork: if(Artwork.publishable?(mystery), do: Published.shape(mystery)),
          announcement: Map.fetch!(announcements, mystery.key)
        }, DateTime.from_naive!(mystery.updated_at, "Etc/UTC")}
     end)

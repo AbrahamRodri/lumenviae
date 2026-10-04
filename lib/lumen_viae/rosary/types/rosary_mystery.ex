@@ -30,6 +30,10 @@ defmodule LumenViae.Rosary.Types.RosaryMystery do
 
     field :key_verse_reference, :string, description: "The key verse's citation."
 
+    field :artwork, LumenViae.Rosary.Types.Artwork,
+      description:
+        "The mystery's painting, with its attribution. Null until one is uploaded and published with alt text and a licence: keep a bundled painting until then."
+
     field :announcement, :string,
       allow_nil?: false,
       description:

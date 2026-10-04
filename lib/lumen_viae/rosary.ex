@@ -260,6 +260,16 @@ defmodule LumenViae.Rosary do
       define :create_mystery, action: :create
       define :update_mystery, action: :update
       define :delete_mystery, action: :destroy, default_options: [return_destroyed?: true]
+      define :update_mystery_artwork, action: :record_artwork
+      define :update_mystery_artwork_metadata, action: :update_artwork_metadata
+    end
+
+    resource LumenViae.Rosary.CategoryCard do
+      define :list_category_cards, action: :read, functions: @read
+      define :get_category_card, action: :by_slug, args: [:slug], not_found_error?: false
+      define :create_category_card, action: :create, args: [:slug]
+      define :update_category_card_artwork, action: :record_artwork
+      define :update_category_card_artwork_metadata, action: :update_artwork_metadata
     end
 
     resource LumenViae.Rosary.Meditation do
@@ -738,6 +748,19 @@ defmodule LumenViae.Rosary do
   """
   def artwork_url(%{image_key: key}), do: S3.public_url(key)
   def artwork_url(_record), do: nil
+
+  @doc """
+  A category's card, created the first time it is needed: the console
+  calls this when a curator first saves a card's painting, so no row
+  exists until one is wanted.
+  """
+  def ensure_category_card(slug, opts \\ []) do
+    case get_category_card(slug, opts) do
+      {:ok, nil} -> create_category_card(slug, opts)
+      {:ok, card} -> {:ok, card}
+      {:error, error} -> {:error, error}
+    end
+  end
 
   @doc """
   The record whose artwork a set displays: the set itself when its own
