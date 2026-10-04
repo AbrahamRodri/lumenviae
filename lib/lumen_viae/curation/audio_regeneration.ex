@@ -51,9 +51,11 @@ defmodule LumenViae.Curation.AudioRegeneration do
   Results are returned as a list of `{:ok | :warning | :error, message}`
   tuples, matching `LumenViae.Curation.CsvImport`. An `:ok` is a recording
   queued (or, in a dry run, one that would be); what the job then did is
-  in its batch (`AudioJobs.progress/1`). Meditations without
-  an `audio_url` are reported as warnings and skipped: regeneration never
-  invents audio filenames, it only records what the import already named.
+  in its batch (`AudioJobs.progress/1`). A meditation is recorded under
+  its `audio_url`, or, when no recording has landed yet (every voice
+  failed at import), under the `narration_filename` the import gave it.
+  One with neither is reported as a warning and skipped: regeneration
+  never invents audio filenames, it only records what the import named.
   """
 
   alias LumenViae.AshOpts
@@ -125,10 +127,22 @@ defmodule LumenViae.Curation.AudioRegeneration do
 
   # A meditation with no filename is one item, so it is reported once
   # rather than once per voice.
-  defp items_for(%{audio_url: audio_url} = meditation, _voices) when audio_url in [nil, ""],
-    do: [{:no_filename, meditation}]
+  defp items_for(meditation, voices) do
+    case filename(meditation) do
+      nil -> [{:no_filename, meditation}]
+      _filename -> Enum.map(voices, &{:narrate, meditation, &1})
+    end
+  end
 
-  defp items_for(meditation, voices), do: Enum.map(voices, &{:narrate, meditation, &1})
+  # The file the meditation is recorded under, or, when no recording has
+  # landed yet (every voice failed at import), the one it was imported to
+  # be recorded under.
+  defp filename(%{audio_url: audio_url}) when audio_url not in [nil, ""], do: audio_url
+
+  defp filename(%{narration_filename: filename}) when filename not in [nil, ""],
+    do: filename
+
+  defp filename(_meditation), do: nil
 
   defp resolve_voices(nil), do: {:ok, Voices.list()}
   defp resolve_voices([]), do: {:ok, Voices.list()}
@@ -142,12 +156,12 @@ defmodule LumenViae.Curation.AudioRegeneration do
 
   defp process_item({:no_filename, meditation}, _opts) do
     {:warning,
-     "Skipped #{describe(meditation)}: it has no audio file (audio_url is not set; " <>
-       "audio filenames are assigned at import)"}
+     "Skipped #{describe(meditation)}: it has no audio file (neither audio_url nor " <>
+       "narration_filename is set; audio filenames are assigned at import)"}
   end
 
   defp process_item({:narrate, meditation, voice}, opts) do
-    s3_key = Voices.narration_key(voice, meditation.audio_url)
+    s3_key = Voices.narration_key(voice, filename(meditation))
 
     cond do
       opts[:only_missing] && recorded?(meditation, voice, opts) ->
@@ -165,7 +179,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
 
   defp enqueue(meditation, voice, s3_key, opts) do
     case meditation
-         |> NarrateMeditation.new_for(voice, meditation.audio_url,
+         |> NarrateMeditation.new_for(voice, filename(meditation),
            force: opts[:force] == true,
            keep_existing: opts[:only_missing] == true
          )
@@ -209,8 +223,7 @@ defmodule LumenViae.Curation.AudioRegeneration do
 
   defp format_error(%Ash.Error.Invalid{} = error), do: Rosary.error_summary(error)
 
-  defp format_error(reason) when is_binary(reason), do: reason
-  defp format_error(reason), do: reason |> inspect() |> String.slice(0, 200)
+  defp format_error(reason), do: AudioJobs.error_message(reason)
 
   defp notify(opts, event) do
     case opts[:progress] do
