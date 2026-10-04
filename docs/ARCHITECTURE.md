@@ -183,7 +183,7 @@ so an admin may do anything. Everyone else gets this, and nothing more:
 | --- | --- |
 | MeditationSet | read the sets that are `visible?` |
 | SetMembership | read the memberships of a visible set |
-| Meditation | read one that is not archived; `:audio_for` |
+| Meditation | read one that is not archived and is in at least one set (a draft in no set is private, audio included; one in a hidden set stays readable so a set saved on a device keeps its narration); `:audio_for`, which signs the same ones |
 | Narration | read one whose meditation is not archived |
 | Mystery, Author, NarrationVoice, SpokenRosary | read |
 | Completion | `:record` and `:record_from_app` only, never read; the place lookup job may `:read` and `:add_place` (see below) |

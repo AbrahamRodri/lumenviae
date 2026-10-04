@@ -99,8 +99,8 @@ ready.
    docs/ASH_MIGRATION.md is due for removal.
 
 Decisions needed from the owner, in Part C's
-[decisions list](#decisions-and-owner-steps): A6 (V4 waits on it), and
-four production steps no worker can take. A1 is decided.
+[decisions list](#decisions-and-owner-steps): four production steps no
+worker can take. A1 and A6 are decided, and A6 and V4 are done.
 
 ## Part A: audit findings
 
@@ -181,8 +181,19 @@ action on `Token` would also work now that Oban runs.
 seven-day expiry does not. Schedule a disconnect for the token's `exp` on
 mount, alongside the existing `AdminSockets` broadcast.
 
-**A6. Low (owner decision): any non-archived meditation is publicly
-readable**, including one in no visible set, and so is its audio
+**A6. Decided 4 Oct 2026 and done: drafts (in no set) private;
+meditations in a hidden set stay readable so offline sets keep their
+narration.** The public read is now
+`authorize_if expr(is_nil(archived_at) and in_any_set?)`, so a meditation
+in no set answers each surface's not-found, audio included, exactly as a
+missing id does; one in a hidden set is still read and signed by id,
+because the app refreshes the narration of a set saved on the device
+through `GET /api/meditations/:id/audio`, and a hidden set's saved copy
+would otherwise fall silent (making those private too was weighed and
+rejected for that reason). Tested per surface in
+`test/lumen_viae_web/unpublished_meditations_test.exs`. As found:
+**any non-archived meditation was publicly readable**, including one in no
+visible set, and so was its audio
 (`meditation.ex:220-222`, `GET /api/meditations/:id/audio`). #44 added a
 batch form: `POST /api/v2/meditations/audio` signs up to 200 ids per call
 (V4). This matches the policy table and is tested. If unpublished
@@ -529,7 +540,11 @@ can trigger. Serve the committed file
 (`open_api_file: Application.app_dir(:lumen_viae, "priv/openapi/v2.json")`);
 `open_api_test.exs` still compares the generated document with it.
 
-**V4. Low: batch audio signing reaches unpublished meditations.**
+**V4. Done with A6 (4 Oct 2026): batch signing follows the same rule.**
+`:audio_for` reads as its caller, so it signs no draft and leaves one out
+of its answer as it leaves out a missing id; a meditation in a hidden set
+is still signed, as on the other surfaces. As found:
+**batch audio signing reaches unpublished meditations.**
 `POST /api/v2/meditations/audio` (`:audio_for`, `meditation.ex:216-221`,
 route at `rosary.ex:151-158`) signs any non-archived meditation by id,
 200 per call. Ids are sequential, so a few calls sweep paid recordings
@@ -1003,7 +1018,7 @@ they describe or tidy; 15 runs alone, between rounds.
   household or one phone on most networks, but a few carriers share one
   /64 among many devices; the limit is 20 an hour, far above real use.
   V1's refusal is a behaviour change for v2 callers; none exists yet.
-  V4 waits on the owner's A6 decision.
+  V4 is done, with A6.
 - **Depends on:** nothing. Do it before 5.
 
 ### 3. Completion analytics in the database
@@ -1304,12 +1319,11 @@ The candidate "nightly self-healing narration", turned into a button.
 
 ### Decisions and owner steps
 
-Decisions needed from the owner:
-
-- **A6:** do meditations in no visible set stay publicly readable, with
-  their audio? V4 follows this answer.
-
 Decided:
+
+- **A6** (4 October 2026): drafts (in no set) private; meditations in a
+  hidden set stay readable so offline sets keep their narration. Done,
+  with V4.
 
 - **A1** (3 October 2026): REST keeps accepting completions for hidden
   sets, so offline prayers of a since-hidden set still count. No change.

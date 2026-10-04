@@ -55,6 +55,8 @@ defmodule LumenViaeWeb.API.RetiredVoicesAPITest do
         actor: admin()
       )
 
+    LumenViae.Test.Sets.put_in_a_set(meditation)
+
     for slug <- ["male", "female", "frederick"] do
       {:ok, _} = Rosary.record_narration(meditation, slug, "voices/#{slug}/m.mp3", actor: admin())
     end
