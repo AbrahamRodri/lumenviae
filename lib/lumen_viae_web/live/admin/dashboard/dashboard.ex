@@ -21,6 +21,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
 
   alias LumenViae.CentralTime
   alias LumenViae.Curation.RosaryAudioGeneration
+  alias LumenViae.Ops
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.Categories
@@ -83,6 +84,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
 
     socket
     |> assign(:content_health, content_health)
+    |> assign(:job_health, job_health(Ops.queues()))
     |> assign_health()
     |> start_rosary_audio_check()
     |> assign(:library, %{
@@ -137,13 +139,45 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     }
 
     health =
-      [rosary_audio | socket.assigns.content_health]
+      [rosary_audio | socket.assigns.job_health ++ socket.assigns.content_health]
       |> Enum.reject(&(&1.count == 0))
       |> Enum.sort_by(&{tone_rank(&1.tone), -&1.count})
 
     socket
     |> assign(:health, health)
     |> assign(:open_issues, Enum.sum(Enum.map(health, & &1.count)))
+  end
+
+  # The background jobs that need a person: one discarded has used every
+  # attempt and will not run again on its own, so it is a danger row; one
+  # retrying will, so it is a caution. Each lands on Oban Web filtered to
+  # exactly those jobs, and /admin/system says why each failed. Completed
+  # and cancelled jobs are nobody's work and are not counted.
+  defp job_health(queues) do
+    count = fn state -> queues |> Enum.map(&Map.get(&1.counts, state, 0)) |> Enum.sum() end
+    queues_with = fn state -> for q <- queues, Map.get(q.counts, state, 0) > 0, do: q.queue end
+
+    [
+      %{
+        count: count.("discarded"),
+        tone: "danger",
+        label: "Background jobs discarded",
+        description:
+          "Used every attempt in the last seven days and will not run again on their own. " <>
+            "System shows each one's error; retry them once the cause is fixed.",
+        link: "/admin/jobs/jobs?state=discarded",
+        names: queues_with.("discarded")
+      },
+      %{
+        count: count.("retryable"),
+        tone: "caution",
+        label: "Background jobs retrying",
+        description:
+          "Failed an attempt and are waiting to try again. Worth a look if the number grows.",
+        link: "/admin/jobs/jobs?state=retryable",
+        names: queues_with.("retryable")
+      }
+    ]
   end
 
   # Only rows that represent work to do. Purely informational counts (how

@@ -8,6 +8,9 @@
     <button type="button" phx-click="refresh" class="admin-btn admin-btn-ghost">
       <span class="hero-arrow-path size-4" aria-hidden="true" /> Refresh
     </button>
+    <.link navigate="/admin/system" class="admin-btn admin-btn-ghost">
+      <span class="hero-server-stack size-4" aria-hidden="true" /> System
+    </.link>
     <.link navigate="/admin/meditations/import" class="admin-btn admin-btn-secondary">
       Import CSV
     </.link>
@@ -18,8 +21,8 @@
       New meditation
     </.link>
   </:actions>
-  
-<!-- The pulse: what is live, and whether anyone is praying it -->
+
+  <!-- The pulse: what is live, and whether anyone is praying it -->
   <div class="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-6">
     <.metric
       label="Live sets"
@@ -66,14 +69,14 @@
     <div class="xl:col-span-2">
       <.panel
         title="Needs attention"
-        description="Live content only. Hidden sets are one issue, listed once, not counted again under every heading."
+        description="Live content, and background jobs that failed. Hidden sets are one issue, listed once, not counted again under every heading."
         flush
       >
         <%= if @health == [] do %>
           <div class="p-4">
             <.empty_state>
               Nothing outstanding. Every live set is complete, illustrated, labelled and
-              narrated, and every mystery has a meditation.
+              narrated, every mystery has a meditation, and no background job has failed.
             </.empty_state>
           </div>
         <% else %>
@@ -107,8 +110,8 @@
         <% end %>
       </.panel>
     </div>
-    
-<!-- Prayer activity -->
+
+    <!-- Prayer activity -->
     <.panel
       title="Rosaries completed"
       description={"Last #{length(@completion_days)} days. Recorded when someone presses Complete on the final mystery."}
@@ -193,8 +196,8 @@
           </table>
         </div>
       </.panel>
-      
-<!-- The log of what has actually been prayed -->
+
+      <!-- The log of what has actually been prayed -->
       <.panel
         title="Recent completions"
         description="The last few Rosaries someone finished, newest first."
@@ -237,8 +240,8 @@
         <% end %>
       </.panel>
     </div>
-    
-<!-- What is actually being prayed -->
+
+    <!-- What is actually being prayed -->
     <.panel title="Most prayed sets" description={"Last #{length(@completion_days)} days."}>
       <%= if @top_sets == [] do %>
         <.empty_state>No Rosaries completed in this period yet.</.empty_state>
@@ -256,8 +259,8 @@
       <% end %>
     </.panel>
   </div>
-  
-<!-- Where the praying happens, and on what -->
+
+  <!-- Where the praying happens, and on what -->
   <div class="grid gap-5 xl:grid-cols-3 mt-5 items-start">
     <div class="xl:col-span-2">
       <.panel

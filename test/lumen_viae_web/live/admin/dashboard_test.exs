@@ -205,4 +205,45 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
       assert {"Website", "1"} in rows
     end
   end
+
+  describe "background jobs" do
+    defp failed_job(state, queue) do
+      LumenViae.Repo.insert!(%Oban.Job{
+        worker: "LumenViae.Test.Worker",
+        queue: queue,
+        args: %{},
+        state: state,
+        attempt: 1,
+        max_attempts: 3,
+        errors: []
+      })
+    end
+
+    test "a discarded job is a danger row, a retrying one a caution, each linked", %{conn: conn} do
+      failed_job("discarded", "elevenlabs")
+      failed_job("retryable", "geolocation")
+      failed_job("retryable", "geolocation")
+
+      {:ok, _view, html} = live(conn, "/admin")
+
+      assert html =~ "Background jobs discarded"
+      assert html =~ ~s(href="/admin/jobs/jobs?state=discarded")
+      assert html =~ "Background jobs retrying"
+      assert html =~ ~s(href="/admin/jobs/jobs?state=retryable")
+    end
+
+    test "completed and cancelled jobs are nobody's work", %{conn: conn} do
+      failed_job("completed", "maintenance")
+      failed_job("cancelled", "maintenance")
+
+      {:ok, _view, html} = live(conn, "/admin")
+
+      refute html =~ "Background jobs"
+    end
+
+    test "the dashboard links to the System screen", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/admin")
+      assert html =~ ~s(href="/admin/system")
+    end
+  end
 end

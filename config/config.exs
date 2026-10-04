@@ -191,9 +191,11 @@ config :lumen_viae, :geolocation,
 #     week, where the default is nightly: on a table the pruner keeps to a
 #     few thousand rows they bloat slowly.
 # The production crontab, written once and stored twice: as Oban's
-# :crontab, which Oban runs, and as :scheduled_jobs, which the console's
-# System screen and `mix lumen_viae.jobs` read (LumenViae.Ops.Jobs).
-# config/dev.exs empties the first and keeps the second.
+# cron: [crontab: ...], which Oban runs, and as :scheduled_jobs, which the
+# console's System screen and `mix lumen_viae.jobs` read (LumenViae.Ops.Jobs).
+# config/dev.exs empties the first and keeps the second. It is the `cron`
+# key and not Oban's `crontab` shorthand because AshOban adds its trigger
+# schedulers to the former and refuses to start without it.
 crontab = [
   {"@reboot", LumenViae.Office.Jobs.WarmCache},
   {"7 0,12 * * *", LumenViae.Office.Jobs.WarmCache}
@@ -210,7 +212,7 @@ config :lumen_viae, Oban,
   pruner: [max_age: {7, :days}, interval: {5, :minutes}],
   lifeline: [rescue_after: {30, :minutes}, interval: {5, :minutes}],
   reindexer: [schedule: "17 4 * * 0"],
-  crontab: crontab,
+  cron: [crontab: crontab],
   shutdown_grace_period: :timer.seconds(140)
 
 # Oban Web's metrics process. Its reporter counts jobs by state on the

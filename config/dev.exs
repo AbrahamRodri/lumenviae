@@ -105,4 +105,7 @@ config :lumen_viae, :skip_admin_auth, true
 # from iex when you want it:
 #
 #     Oban.insert(LumenViae.Office.Jobs.WarmCache.new(%{}))
-config :lumen_viae, Oban, crontab: []
+# AshOban's trigger schedulers are still added to this empty crontab, so the
+# completion place sweep runs here too, and finds nothing with geolocation
+# off.
+config :lumen_viae, Oban, cron: [crontab: []]

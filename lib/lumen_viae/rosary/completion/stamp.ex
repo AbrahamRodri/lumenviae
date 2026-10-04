@@ -35,8 +35,9 @@ defmodule LumenViae.Rosary.Completion.Stamp do
   address stays out of the jobs table.
 
   The consequence, which is the honest trade: a row is briefly placeless
-  after it is written, and stays that way for good if every attempt at
-  the lookup fails.
+  after it is written. If every attempt fails - the provider down for
+  longer than the backoff - the trigger's hourly sweep asks again for two
+  days, and after that the row stays placeless for good.
 
   The job is enqueued once the write has committed, so it never looks for
   a row that is not there yet, and a job that cannot be enqueued costs the
