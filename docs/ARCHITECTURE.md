@@ -535,6 +535,7 @@ Oban Web shows every job at `/admin/jobs`, behind the console's own guard
 | `Completion` `:locate` trigger (`Completion.LocateWorker`), running `:add_place` | `geolocation` | `Completion.Stamp`, once a completion has committed |
 | `Curation.Jobs.NarrateMeditation`: one meditation in one voice | `elevenlabs` | `CsvImport` (each new row with an `audio_filename`), `AudioRegeneration` (and `CsvUpdate` through it) |
 | `Curation.Jobs.RecordRosaryClip`: one spoken Rosary clip in one voice | `elevenlabs` | `RosaryAudioGeneration`, for each clip not in the bucket |
+| `Office.Jobs.WarmCache`: every machine's Office cache, yesterday through two days ahead | `maintenance` | The crontab: at boot, and at 00:07 and 12:07 UTC |
 
 The two recording jobs are plain `Oban.Worker`s, not triggers: a
 recording is not an action on one row (a spoken Rosary clip has no row at
@@ -544,6 +545,33 @@ sits above the domain and calls `LumenViae.Rosary` like any other caller.
 (the batch id is in each job's `meta`), broadcasts each finished job on
 PubSub for the admin screens, and lets the mix and release tasks wait on a
 batch.
+
+### The crontab, and the Office cache
+
+Oban's cron runs on the leader alone, in UTC (there is no timezone
+database), and only in production: `config/dev.exs` empties the crontab,
+so a laptop never wakes a third party on its own. Entries sit off the
+hour. Run a scheduled job by hand from iex with
+`Oban.insert(Worker.new(%{}))`.
+
+`Office.Jobs.WarmCache` exists because the Office cache is an ETS table on
+each machine and a deploy empties it. It asks every node in the cluster,
+itself included (`:erpc.multicall/5`, four minutes each), to fetch the
+hours and months it lacks for yesterday through two days ahead in UTC,
+which covers "today" for every time zone an iPhone can be set to: 32 hours
+and a month or two, about 800 KB of ETS per machine on a cold cache. The
+cache keeps an entry for 30 days and sweeps every 12 hours; it has no
+size cap, so warming alone holds it near 6 MB per machine. A node that
+does not answer in time is reported, not waited on.
+
+The engine is its own Fly app and suspends when idle, so each run also
+wakes it, two or three times a day. A machine stops at its first failed
+fetch (`Office.warm/1` counts the rest as skipped), so a dead engine is
+asked once per machine, not thirty-odd times; the job then logs one line
+naming every machine's result and fails, for Oban to try again 15 and 30
+minutes later, three attempts in all. Failures are never cached, so the
+requests in between fetch on demand exactly as they did before the job
+existed.
 
 ### Paying ElevenLabs once
 
@@ -668,6 +696,22 @@ standing cost is set deliberately (`config/config.exs`):
   answer arrives, so a deploy has to let it finish. One that is killed
   anyway (an out-of-memory restart) is recognised on its next attempt and
   cancelled rather than paid for again; see "Paying ElevenLabs once".
+- **`maintenance`, one at a time.** The queue for the app's own upkeep:
+  nothing on it calls a paid service and none of it is urgent, so it never
+  holds more than one connection per machine.
+- **Reindexing weekly, not nightly.** Oban's reindexer rebuilds
+  `oban_jobs_args_index` and `oban_jobs_meta_index`, the two GIN indexes,
+  with `REINDEX ... CONCURRENTLY` at 04:17 UTC on Sundays
+  (`reindexer: [schedule: ...]`). Concurrently means no lock that blocks an
+  insert or a fetch; on a table the pruner keeps to a few thousand rows the
+  rebuild is a fraction of a second and a few megabytes of temporary
+  space. The default is nightly, which is more than a table this small
+  bloats.
+- **One log line per job event.** `Oban.Telemetry.attach_default_logger/1`
+  (in `LumenViae.Application`) logs each job's start, finish, failure or
+  cancellation, with its worker, queue, attempt, timings and arguments, so
+  `fly logs` says what the queues did. Job events only: the plugins'
+  (the pruner every five minutes, the cron every minute) would bury them.
 - **Lifeline: 30 minutes, every five.** A job left `executing` by a crash
   or a deploy is rescued after half an hour, far longer than any job runs
   (a recording times out after five minutes), so a slow job is never

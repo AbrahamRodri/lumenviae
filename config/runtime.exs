@@ -145,7 +145,8 @@ if config_env() == :prod do
   # ElevenLabs counts concurrent requests across the whole account, so this
   # times the number of machines is what the plan has to allow.
   if concurrency = System.get_env("ELEVENLABS_CONCURRENCY") do
-    config :lumen_viae, Oban, queues: [geolocation: 1, elevenlabs: String.to_integer(concurrency)]
+    config :lumen_viae, Oban,
+      queues: [geolocation: 1, elevenlabs: String.to_integer(concurrency), maintenance: 1]
   end
 
   # Completion analytics look up a rough place for the address a Rosary was

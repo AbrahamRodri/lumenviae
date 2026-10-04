@@ -98,3 +98,10 @@ config :lumen_viae, :token_signing_secret, "dev-only-token-signing-secret-for-lu
 # other config file sets this, runtime.exs never reads it, and the code that
 # honours it is not compiled into a release (see LumenViaeWeb.Plugs.RequireAdmin).
 config :lumen_viae, :skip_admin_auth, true
+
+# No cache warming on a laptop: it would ask the public Divinum Officium
+# site for 32 hours at every restart of the dev server. Run the job by hand
+# from iex when you want it:
+#
+#     Oban.insert(LumenViae.Office.Jobs.WarmCache.new(%{}))
+config :lumen_viae, Oban, crontab: []

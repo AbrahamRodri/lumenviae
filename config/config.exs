@@ -181,14 +181,28 @@ config :lumen_viae, :geolocation,
 #   * On shutdown, running jobs get 140 seconds to finish, inside the 150
 #     Fly waits after SIGTERM (kill_timeout in fly.toml), because an
 #     ElevenLabs request killed mid-flight may still be billed.
+#   * `maintenance` is the queue for the app's own upkeep, one job at a
+#     time: nothing on it calls a paid service, and none of it is urgent.
+#   * The crontab is evaluated on the leader alone, in UTC (there is no
+#     timezone database). Schedules sit off the hour so they do not land on
+#     the same tick as every other cron in the world. AshOban adds its own
+#     trigger schedulers to it (the completion place sweep).
+#   * The reindexer rebuilds Oban's two GIN indexes, CONCURRENTLY, once a
+#     week, where the default is nightly: on a table the pruner keeps to a
+#     few thousand rows they bloat slowly.
 config :lumen_viae, Oban,
   engine: Oban.Engines.Basic,
   repo: LumenViae.Repo,
   notifier: Oban.Notifiers.PG,
-  queues: [geolocation: 1, elevenlabs: 1],
+  queues: [geolocation: 1, elevenlabs: 1, maintenance: 1],
   stager: [interval: :timer.seconds(5)],
   pruner: [max_age: {7, :days}, interval: {5, :minutes}],
   lifeline: [rescue_after: {30, :minutes}, interval: {5, :minutes}],
+  reindexer: [schedule: "17 4 * * 0"],
+  crontab: [
+    {"@reboot", LumenViae.Office.Jobs.WarmCache},
+    {"7 0,12 * * *", LumenViae.Office.Jobs.WarmCache}
+  ],
   shutdown_grace_period: :timer.seconds(140)
 
 # Oban Web's metrics process. Its reporter counts jobs by state on the

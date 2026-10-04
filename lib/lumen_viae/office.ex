@@ -124,6 +124,68 @@ defmodule LumenViae.Office do
   """
   def source(url), do: %{name: @source_name, url: url}
 
+  @doc """
+  Fetches every hour of each date, in the default version and language, and
+  the months they fall in, so the first request for them is served from the
+  cache instead of waiting on the engine.
+
+  Warms this machine's cache only; the cache is per machine, so
+  `LumenViae.Office.Jobs.WarmCache` calls this on every node. What is
+  already cached costs nothing. Answers `%{warmed:, cached:, failed:,
+  skipped:}`, counting hours and months together.
+
+  The first fetch that fails ends the run: the rest are counted as
+  `skipped` and left to be fetched on demand. An engine that is down
+  answers every request the same way, and asking it thirty more times
+  would only log thirty more warnings.
+  """
+  def warm(dates) when is_list(dates) do
+    params = %{"version" => Versions.default_version(), "language" => Versions.default_language()}
+
+    calendar =
+      dates
+      |> Enum.map(&{&1.year, &1.month})
+      |> Enum.uniq()
+      |> Enum.map(fn {year, month} ->
+        {{:kalendar, params["version"], year, month},
+         fn -> fetch_calendar(year, month, params) end}
+      end)
+
+    hours =
+      for date <- dates, hour <- Versions.hours() do
+        {{:hour, params["version"], params["language"], hour.slug, date},
+         fn -> fetch_hour(Date.to_iso8601(date), hour.slug, params) end}
+      end
+
+    entries = calendar ++ hours
+    counts = %{warmed: 0, cached: 0, failed: 0, skipped: 0}
+
+    entries
+    |> Enum.with_index(1)
+    |> Enum.reduce_while(counts, fn {{key, fetch}, done}, acc ->
+      case warm_entry(key, fetch) do
+        :failed -> {:halt, %{acc | failed: 1, skipped: length(entries) - done}}
+        outcome -> {:cont, Map.update!(acc, outcome, &(&1 + 1))}
+      end
+    end)
+  end
+
+  defp warm_entry(key, fetch) do
+    with :miss <- Cache.fetch(key),
+         {:ok, _value} <- fetch.() do
+      :warmed
+    else
+      {:ok, _cached} -> :cached
+      {:error, _reason} -> :failed
+    end
+  end
+
+  @doc "How much this machine's cache holds: `%{entries:, bytes:}`."
+  def cache_stats, do: Cache.stats()
+
+  @doc "Empties this machine's cache, so the next request for anything refetches it."
+  def clear_cache, do: Cache.reset()
+
   # -- Loading -------------------------------------------------------------
 
   defp load_hour(date, hour, version, language) do
