@@ -215,7 +215,7 @@ defmodule LumenViaeWeb.Components.History do
     action |> to_string() |> String.replace("_", " ") |> String.capitalize()
   end
 
-  @doc "A field name as the panel shows it: `\"mystery_id\"` is \"Mystery\"."
+  @doc ~S(A field name as the panel shows it: `"mystery_id"` is "Mystery".)
   def field_label(field) do
     field |> String.replace_suffix("_id", "") |> String.replace("_", " ") |> String.capitalize()
   end

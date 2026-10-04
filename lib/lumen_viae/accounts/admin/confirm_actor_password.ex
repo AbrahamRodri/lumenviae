@@ -51,7 +51,7 @@ defmodule LumenViae.Accounts.Admin.ConfirmActorPassword do
 
     # The actor reads itself, as any admin may read the admins.
     hash =
-      case Ash.get(Admin, actor_id, actor: %Admin{id: actor_id}) do
+      case LumenViae.Accounts.get_admin(actor_id, actor: %Admin{id: actor_id}) do
         {:ok, admin} -> admin.hashed_password
         {:error, _} -> nil
       end

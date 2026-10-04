@@ -17,6 +17,7 @@ defmodule LumenViae.Test.Admins do
 
   alias LumenViae.Accounts
   alias LumenViae.Accounts.Admin
+  alias LumenViae.Repo
 
   @password "correct horse battery staple"
 
@@ -40,7 +41,7 @@ defmodule LumenViae.Test.Admins do
   def store_admin! do
     now = NaiveDateTime.utc_now()
 
-    LumenViae.Repo.insert_all(
+    Repo.insert_all(
       "admins",
       [
         %{

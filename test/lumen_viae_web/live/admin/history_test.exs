@@ -48,7 +48,7 @@ defmodule LumenViaeWeb.Live.Admin.HistoryTest do
 
     html =
       view
-      |> element("button[phx-click=restore_version][phx-value-id=#{created.id}]")
+      |> element(~s(button[phx-click=restore_version][phx-value-id="#{created.id}"]))
       |> render_click()
 
     assert html =~ "Version restored"

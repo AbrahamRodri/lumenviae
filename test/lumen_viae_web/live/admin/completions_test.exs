@@ -9,6 +9,7 @@ defmodule LumenViaeWeb.Live.Admin.CompletionsTest do
   import Phoenix.LiveViewTest
 
   alias LumenViae.Rosary
+  alias LumenViae.Test.Sets
   alias LumenViaeWeb.Live.Admin.Completions
 
   setup %{conn: conn} do
@@ -19,7 +20,7 @@ defmodule LumenViaeWeb.Live.Admin.CompletionsTest do
     {:ok, set} =
       Rosary.create_meditation_set(%{name: name, category: "joyful"}, actor: admin())
 
-    LumenViae.Test.Sets.with_meditation(set, %{audio_url: "set.mp3"})
+    Sets.with_meditation(set, %{audio_url: "set.mp3"})
   end
 
   defp complete(set, context) do

@@ -87,10 +87,13 @@ defmodule LumenViae.Rosary.ContextRulesTest do
            """
   end
 
+  # The Office and Accounts domains are Ash domains of their own, whose
+  # resources' changes and checks build changesets as any resource's do.
   test "rule 2: nothing outside the domain calls Ash or builds an Ash form itself" do
     offenders =
       for {path, source} <- Enum.map(outside_domain(), &read/1),
           not String.starts_with?(path, "lib/lumen_viae/office"),
+          not String.starts_with?(path, "lib/lumen_viae/accounts/"),
           Regex.match?(
             ~r/\bAsh\.(read|get|create|update|destroy|load|count|exists\?|bulk_\w+|Query|Changeset)\b/,
             source

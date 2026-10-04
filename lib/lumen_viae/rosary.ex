@@ -358,6 +358,8 @@ defmodule LumenViae.Rosary do
   require Ash.Query
   require Ash.Expr
 
+  alias Ash.Error.Query.NotFound
+  alias Ash.Resource.Info
   alias LumenViae.AshOpts
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.Author
@@ -1297,8 +1299,8 @@ defmodule LumenViae.Rosary do
     * `recent` - the newest 25 rows, each with its set's name and
       category
 
-  A period of `days` is today and the `days - 1` days before it, from
-  midnight in the reporting zone, so the figures and the daily series
+  A period of `days` is today and the `days - 1` days before it, starting
+  at midnight in the reporting zone, so the figures and the daily series
   cover the same days.
 
   One read of the matching rows, folded here, like the dashboard's figures.
@@ -1428,7 +1430,7 @@ defmodule LumenViae.Rosary do
   """
   def restorable_fields(%resource{}) when resource in @versioned do
     resource
-    |> Ash.Resource.Info.primary_action!(:update)
+    |> Info.primary_action!(:update)
     |> Map.fetch!(:accept)
     |> Enum.map(&to_string/1)
   end
@@ -1460,8 +1462,7 @@ defmodule LumenViae.Rosary do
   defp same_record(%{version_source_id: id}, id), do: :ok
 
   defp same_record(version, _id) do
-    {:error,
-     Ash.Error.Query.NotFound.exception(resource: version.__struct__, primary_key: version.id)}
+    {:error, NotFound.exception(resource: version.__struct__, primary_key: version.id)}
   end
 
   defp version_resource(resource), do: Module.concat(resource, Version)
