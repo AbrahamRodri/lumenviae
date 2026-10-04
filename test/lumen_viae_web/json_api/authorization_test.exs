@@ -157,6 +157,29 @@ defmodule LumenViaeWeb.JsonApi.AuthorizationTest do
     end
   end
 
+  # The content document is the same for everyone: nothing in the query
+  # string can change what it serves, and it has nothing to include.
+  test "the content document takes no include, and no filter or sort changes it", %{conn: conn} do
+    plain = conn |> get_v2("/rosary-content?fields[rosary_content]=prayers") |> v2_response(200)
+
+    for query <- ["filter[id]=other", "sort=-version", "page[limit]=1"] do
+      body =
+        build_conn()
+        |> get_v2("/rosary-content?fields[rosary_content]=prayers&" <> query)
+        |> v2_response(200)
+
+      assert body["data"] == plain["data"], "#{query} changed the answer"
+    end
+
+    body = build_conn() |> get_v2("/rosary-content?include=prayers") |> v2_response(400)
+    assert [%{"code" => "invalid_includes"} | _] = body["errors"]
+
+    body =
+      build_conn() |> get_v2("/rosary-content?fields[rosary_content]=secret") |> v2_response(400)
+
+    assert [%{"code" => "invalid_field"} | _] = body["errors"]
+  end
+
   test "an archived meditation never arrives through an included path", %{conn: conn} do
     set = visible_set()
     [meditation] = Rosary.get_meditation_set!(set.id, actor: admin()).meditations

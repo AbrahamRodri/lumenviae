@@ -3,6 +3,36 @@ schema {
   query: RootQueryType
 }
 
+type PrayerText {
+  "In Latin, line by line."
+  la: [String!]!
+
+  "In English, line by line."
+  en: [String!]!
+}
+
+type PrayerTitle {
+  "In Latin."
+  la: String!
+
+  "In English."
+  en: String!
+}
+
+type RosaryPrayer {
+  "The prayer's name."
+  title: PrayerTitle!
+
+  "The words, as lines broken where they are shown. Both languages have the same number of lines, so they pair line for line. A line in square brackets is a rubric (`[Let us pray.]`)."
+  text: PrayerText!
+
+  "The app's prayer id (`hail_mary`), the key the spoken Rosary's recordings and steps use."
+  id: String!
+
+  "`rosary`: one of the Rosary's eight prayers. `chaplet`: the Seven Sorrows chaplet's own. `after`: an optional prayer after the Rosary. A client should keep a prayer whose group it does not know."
+  group: String!
+}
+
 type VerseClip {
   reference: String
   file: String!
@@ -148,6 +178,20 @@ type MutationError {
 
   "The path to the field that produced the error"
   path: [String!]
+}
+
+type RosaryContent {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin."
+  prayers: [RosaryPrayer!]!
 }
 
 type SpokenRosary {
@@ -300,6 +344,9 @@ type RootQueryType {
     "The voice preferred, a slug. A retired voice is answered by its successor and an unknown one by the default; `voice` in the answer is the one served."
     voice: String
   ): SpokenRosary
+
+  "The Rosary's words as one document. There is only ever one."
+  rosaryContent: RosaryContent!
 
   "The full text of one canonical hour on one date."
   officeHour(

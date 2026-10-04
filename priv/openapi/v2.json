@@ -517,6 +517,107 @@
         ],
         "type": "object"
       },
+      "rosary_content": {
+        "description": "A \"Resource object\" representing a rosary_content",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a rosary_content",
+            "properties": {
+              "prayers": {
+                "description": "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin.",
+                "items": {
+                  "properties": {
+                    "group": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "properties": {
+                        "en": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "la": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "la"
+                      ],
+                      "type": "object"
+                    },
+                    "title": {
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        },
+                        "la": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "la"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "group",
+                    "title",
+                    "text"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "version",
+              "updated_at"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a rosary_content",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "rosary_content"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
       "set_membership": {
         "description": "A \"Resource object\" representing a set_membership",
         "properties": {
@@ -1358,6 +1459,72 @@
         },
         "tags": [
           "spoken_rosary"
+        ]
+      }
+    },
+    "/api/v2/rosary-content": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The Rosary's words as one document. There is only ever one.",
+        "operationId": "getRosaryContent",
+        "parameters": [
+          {
+            "description": "Relationship paths to include in the response",
+            "explode": false,
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "pattern": "^()(,())*$",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Limits the response fields to only those listed for each type",
+            "explode": true,
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "additionalProperties": true,
+              "properties": {
+                "rosary_content": {
+                  "description": "Comma separated fields of rosary_content: prayers, updated_at, version",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "style": "deepObject"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/rosary_content"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "rosary_content"
         ]
       }
     },

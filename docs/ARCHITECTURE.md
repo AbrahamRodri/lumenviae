@@ -47,12 +47,14 @@ lib/lumen_viae/
 │   ├── completion/            how a completion is stamped, and the visible-set check
 │   ├── narration_voice.ex     resource with no table: the configured voices, for GraphQL
 │   ├── spoken_rosary.ex       resource with no table: the spoken Rosary manifest, for GraphQL
+│   ├── rosary_content.ex      resource with no table: the Rosary's words as one document, for the APIs
 │   ├── artwork.ex             value module: licences, field lists and framing arithmetic
 │   ├── artwork/fragment.ex    the artwork columns and their two actions, shared by set and author
 │   ├── categories.ex          value module: mystery category vocabulary
 │   ├── labels.ex              value module: meditation set label vocabulary
 │   ├── voices.ex              value module: narration voices and the S3 key layout
-│   └── prayer_audio.ex        value module: the spoken Rosary's clips and their S3 keys
+│   ├── prayer_audio.ex        value module: the spoken Rosary's clips and their S3 keys
+│   └── content.ex             value module: the Rosary's words, from priv/rosary_content/
 ├── office.ex                  the Office domain (see below)
 ├── office/
 ├── curation/                  batch services over the domain's public API
@@ -185,7 +187,7 @@ so an admin may do anything. Everyone else gets this, and nothing more:
 | SetMembership | read the memberships of a visible set |
 | Meditation | read one that is not archived and is in at least one set (a draft in no set is private, audio included; one in a hidden set stays readable so a set saved on a device keeps its narration); `:audio_for`, which signs the same ones |
 | Narration | read one whose meditation is not archived |
-| Mystery, Author, NarrationVoice, SpokenRosary | read |
+| Mystery, Author, NarrationVoice, SpokenRosary, RosaryContent | read |
 | Completion | `:record` and `:record_from_app` only, never read; the place lookup job may `:read` and `:add_place` (see below) |
 | Office.Breviary | its generic actions |
 | Admin, Token | nothing; AshAuthentication's own sign-in reads bypass |
@@ -430,8 +432,9 @@ order, which matches insertion order in a test and drifts in production.
 ## Value modules
 
 `LumenViae.Rosary.Categories`, `LumenViae.Rosary.Labels`,
-`LumenViae.Rosary.Artwork`, `LumenViae.Rosary.Voices` and
-`LumenViae.Rosary.PrayerAudio` hold controlled vocabulary and the pure
+`LumenViae.Rosary.Artwork`, `LumenViae.Rosary.Voices`,
+`LumenViae.Rosary.PrayerAudio` and `LumenViae.Rosary.Content` hold
+controlled vocabulary, fixed content and the pure
 calculations that go with it: no state, no queries, no resource. Any layer
 may call them directly, including templates. They are the single source
 for their lists, so `Categories.slugs/0` feeds the resources' `one_of`
@@ -462,8 +465,8 @@ arbitrary S3 key.
 `PrayerAudio` is the spoken Rosary: the fixed prayers, one announcement
 per mystery and the Scriptural Rosary's verse for every Hail Mary, recorded
 once per voice at `voices/<slug>/rosary/<kind>s/<name>-<hash>.mp3`. It is
-fixed content rather than data - the prayer wording is the app's
-`RosaryPrayers.swift`, and the verses are the app's own export in
+fixed content rather than data - the prayer wording is `Content`'s (below),
+and the verses are the app's own export in
 `priv/rosary_audio/scriptural_rosary.json` - so changing it is a deploy and
 a `mix lumen_viae.generate_rosary_audio` run. The hash in each key covers
 the spoken text and the voice's synthesis settings, so a reworded prayer
@@ -477,6 +480,20 @@ holds - but one that never had it simply goes without that prayer.
 URLs. `PrayerAudio.script/3` is the order a whole Rosary is said in - the
 server's copy of the app's `SpokenRosaryScript`, used by the website's "Pray
 aloud" - and is pure, so it belongs here too. See docs/SPOKEN_ROSARY.md.
+`test/lumen_viae/rosary/spoken_rosary_clips_test.exs` pins every key and
+version the production voices are served, so a change that would reword a
+clip fails the build.
+
+`Content` holds the Rosary's words, which the server owns and the iOS app
+keeps an offline copy of: the files in `priv/rosary_content/`, read when
+the module compiles (`@external_resource`), each dated with a top-level
+`updated_at`. It checks them as it compiles (a prayer whose English and
+Latin have different numbers of lines, an unknown group or a missing date
+fails the build, not a request), and fingerprints them (`version/1`).
+`PrayerAudio` takes its prayers' English from it, and
+`LumenViae.Rosary.RosaryContent`, a resource with no table, serves it as
+`GET /api/v2/rosary-content` and GraphQL's `rosaryContent`. See
+docs/JSON_API.md, "The content document".
 
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.

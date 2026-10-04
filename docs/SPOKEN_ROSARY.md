@@ -6,7 +6,9 @@ iOS app and the website can pray a whole Rosary aloud, bead by bead.
 
 | Piece | Where |
 | --- | --- |
+| The prayers' words, English and Latin | `priv/rosary_content/prayers.json`, read by `LumenViae.Rosary.Content`, served as text by `GET /api/v2/rosary-content` |
 | The clips, their text and S3 keys, and the order a Rosary is said in | `LumenViae.Rosary.PrayerAudio` |
+| Proof that no change rewords a clip by accident | `test/lumen_viae/rosary/spoken_rosary_clips_test.exs` |
 | Recording them | `mix lumen_viae.generate_rosary_audio`, `LumenViae.Release.generate_rosary_audio/1`, which enqueue `LumenViae.Curation.Jobs.RecordRosaryClip` jobs |
 | Coverage (is every clip in the bucket) | `LumenViae.Curation.RosaryAudioGeneration.coverage/1` |
 | The app's manifest | `GET /api/rosary/audio` |
@@ -23,7 +25,8 @@ Three kinds, each recorded once per voice at
 spoken text and the voice's synthesis settings, so a reworded prayer gets a
 new key and nothing already recorded is overwritten.
 
-**Prayers** (12), keyed by the app's prayer ids in `RosaryPrayers.swift`:
+**Prayers** (12), keyed by the app's prayer ids, their words in
+`priv/rosary_content/prayers.json`:
 
 | Id | Used in |
 | --- | --- |
@@ -39,10 +42,34 @@ Simeon".
 **Verses** (249), ten per mystery and seven per sorrow, from
 `priv/rosary_audio/scriptural_rosary.json` (the app's own export).
 
-The wording is the app's. The prayers say "Holy Spirit" (a deliberate choice,
-24 Sept 2026); the verses are Douay-Rheims verbatim and so say "Holy Ghost".
-Change a prayer in `PrayerAudio` and `RosaryPrayers.swift` in the same
-change, then record.
+### The words are the server's
+
+Since 3 October 2026 the server holds the Rosary's words, and the iOS app's
+bundle (`RosaryPrayers.swift`) is its offline copy. The prayers live in
+`priv/rosary_content/prayers.json`, English and Latin line for line, and
+one file feeds both what is heard and what is shown:
+`LumenViae.Rosary.Content` reads it, `PrayerAudio` sends its English to the
+narrator, and `GET /api/v2/rosary-content` serves it as text. The verses
+are still the app's own export (`priv/rosary_audio/scriptural_rosary.json`).
+The prayers say "Holy Spirit" (a deliberate choice, 24 Sept 2026); the
+verses are Douay-Rheims verbatim and so say "Holy Ghost".
+
+Every clip's key and every catalogue `version` the production voices are
+served is pinned in `test/support/fixtures/spoken_rosary/clips.json`, the
+retired voices included, since installed builds can still ask for them.
+The clip test fails, naming each clip, on any change that would reword
+one. A failure there is never fixed by regenerating the fixture: put the
+words back, or, when the change is meant, follow these steps:
+
+1. Change the prayer in `prayers.json`, both languages, keeping them line
+   for line.
+2. Bump the file's `updated_at` and add its new version to the history in
+   `test/lumen_viae/rosary/content_test.exs` (docs/JSON_API.md, "The
+   content document").
+3. Record from the branch before deploying (below), and update the clip
+   fixture in the same commit, saying which clips changed and why.
+4. Change the app's `RosaryPrayers.swift` to match, so its offline copy
+   says what the server says.
 
 ---
 

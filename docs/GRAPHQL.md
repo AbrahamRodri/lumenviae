@@ -223,6 +223,31 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 `LumenViae.Rosary.SpokenRosary`), answered from config and the
 `PrayerAudio` catalogue, which is all the REST endpoints read too.
 
+## The Rosary's words
+
+| Query | Returns |
+| --- | --- |
+| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers`. The same document as `GET /api/v2/rosary-content`. |
+
+Everything a client needs to show and say the Rosary offline, as one
+document: selecting only `version updatedAt` is how a device asks whether
+its saved copy is current, and the sections come when selected.
+`version` fingerprints every section, selected or not; `updatedAt` is
+when the content last changed. `id` is always `"current"`.
+
+- `prayers`: `[RosaryPrayer!]!`, the twelve prayers of the Rosary and the
+  Seven Sorrows chaplet in the order they are said, each
+  `id group title { en la } text { en la }`. `group` is `rosary`,
+  `chaplet` or `after` (a string, as everywhere in this API); `text` is
+  two lists of lines of the same length, paired line for line.
+
+`rosaryContent` is non-null and takes no argument: it is answered from
+files compiled into the server (`LumenViae.Rosary.Content`), with nothing
+to sign or fetch, so there is no failure for it to keep to its own field.
+It is served by `LumenViae.Rosary.RosaryContent`, a resource with no
+table. See docs/JSON_API.md, "The content document", for where the words
+live and what a change to them takes.
+
 ## Recording a completion
 
 ```graphql
