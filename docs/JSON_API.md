@@ -40,7 +40,7 @@ involved.
 | --- | --- | --- |
 | `GET /meditation-sets?category=` | `MeditationSet.:visible` | The sets the public may see, by category then in creation order, never paginated. The same list as `GET /api/meditation-sets?category=`. |
 | `GET /meditation-sets/:id` | `MeditationSet.:visible` | One set the public may see; 404 when it does not exist or is hidden (it holds an archived meditation, or none yet). |
-| `GET /mysteries` | `Mystery.:in_prayer_order` | Every mystery, by category then position. The same list as `GET /api/mysteries`. |
+| `GET /mysteries` | `Mystery.:in_prayer_order` | Every mystery, by category then position. The same list as `GET /api/mysteries`, with `key` (`<category>_<order>`, the app's key), `fruit`, `key_verse` and `key_verse_reference`, which v1 does not carry. |
 | `GET /voices` | `NarrationVoice.:offered` | The voices a listener may choose, default first. The same list as `GET /api/voices`. |
 | `GET /voices/retired` | `NarrationVoice.:retired` | The voices taken out of the pickers, each with `replaced_by`. |
 | `GET /rosary-audio?voice=` | `SpokenRosary.:for_voice` | One voice's spoken Rosary; the same recordings, keys and files as `GET /api/rosary/audio`. |
@@ -138,6 +138,7 @@ Rosary and for `POST /meditations/audio`, and nulls a meditation's
 GET /api/v2/rosary-content
 GET /api/v2/rosary-content?fields[rosary_content]=version,updated_at,prayers
 GET /api/v2/rosary-content?fields[rosary_content]=version,schedule
+GET /api/v2/rosary-content?fields[rosary_content]=mysteries,categories,verses
 ```
 
 Everything a client needs to show and say the Rosary without a connection
@@ -177,6 +178,28 @@ serves the same document, its sections chosen by the selection set.
 - **`learn`**: the How to Pray course (below).
 - **`guided_rosary`**: "Your First Rosary", the Rosary a step at a time
   (below).
+- **`mysteries`**: the 27 mysteries the app knows, in the order they are
+  prayed (Joyful, Sorrowful, Glorious, Luminous, then the Seven Sorrows,
+  each by place): `key` (`<category>_<order>`, `joyful_1`, the key every
+  section keyed by a mystery uses; never the server's id), `category`,
+  `order`, `name`, `description`, `scripture_reference`, `fruit`,
+  `key_verse` and `key_verse_reference`, and `announcement`, exactly what
+  the spoken Rosary says before the decade. Read from the `mysteries`
+  table, so a curator's edit is served at once and moves the version; a
+  row whose key the app does not know is not served. The key verse is
+  another rendering of the Douay than the Scriptural Rosary's verses, and
+  each is served as written.
+- **`categories`**: the five, in the order the app presents them: `slug`,
+  `name` (`Joyful`), `devotion_title` (`Joyful Mysteries`, `Seven Sorrows
+  of Mary`), `subtitle`, `mystery_labels` (each mystery's label by
+  position, `The First Joyful Mystery`, `The First Sorrow of Mary`),
+  `hail_marys` (10, or 7 in a sorrow of the chaplet), `fatima_prayer`
+  (false for the Seven Sorrows, whose sorrows close on the Glory Be
+  alone) and `graces` (the Seven Sorrows' seven, empty for the others).
+- **`verses`**: the Scriptural Rosary's 249 verses as text, one group per
+  mystery (`key`, `verses`), each verse `bead` (the Hail Mary it is said
+  before, from 1), `reference` and `text`: ten to a mystery, seven to a
+  sorrow, the words the spoken Rosary says.
 
 ### The day's mysteries
 
@@ -319,9 +342,12 @@ so the OpenAPI document and the GraphQL schema describe it
 (`Types.RosaryPrayer`, `Types.PrayerTitle`, `Types.PrayerText`;
 `Types.RosarySchedule`, `Types.MysterySchedule`, `Types.ScheduleWeekdays`,
 `Types.ScheduleSunday`, `Types.ScheduleDays`, `Types.RosarySeason`;
-`Types.RosaryLearn` and `Types.GuidedRosary` and the types they hold).
-Content computed from code or read from the database is folded into the
-version and the date in one place, `RosaryContent.Current.stamp/1`.
+`Types.RosaryLearn` and `Types.GuidedRosary` and the types they hold;
+`Types.RosaryMystery`, `Types.RosaryCategory`, `Types.RosaryVerses`,
+`Types.RosaryVerse`). Every section is folded into the version and the
+date in one place, `RosaryContent.Current.stamp/2`: the files, the
+sections computed from code, and the mysteries rows (their served values,
+and their newest `updated_at`).
 
 **The `schedule` section is code, not a file**
 (`RosaryContent.Schedule`), so it is dated in the module:
@@ -331,6 +357,12 @@ version against it. Change a rule or a word in `LiturgicalCalendar`: bump
 `@rules_updated_at` and add the entry the test prints. The iOS app
 computes the same rule on the device (`ScheduleService`); change the two
 together.
+
+**So are `categories` and `verses`**, dated by `@updated_at` in
+`RosaryContent.Categories` and `RosaryContent.Verses`. Change what one of
+them serves: move its date and the pinned version in
+`test/lumen_viae/rosary/rosary_content_sections_test.exs`, which prints
+the pair to add.
 
 ## One Rosary's script
 

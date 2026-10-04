@@ -227,7 +227,7 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 
 | Query | Returns |
 | --- | --- |
-| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers schedule script learn guidedRosary`. The same document as `GET /api/v2/rosary-content`. |
+| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers schedule script learn guidedRosary mysteries categories verses`. The same document as `GET /api/v2/rosary-content`. |
 | `rosaryScript(category, style, extras, orders)` | `RosaryScript`: `id category style extras orders steps`, one Rosary expanded. The same as `GET /api/v2/rosary-script`, and null with `invalid_argument` (its `fields` naming the argument) for a value it does not know. |
 
 Everything a client needs to show and say the Rosary offline, as one
@@ -266,10 +266,21 @@ the v2 route takes them.
   See docs/JSON_API.md, "The How to Pray course", for both and for the
   doors' vocabulary.
 
+- `mysteries`: `[RosaryMystery!]!`, the 27 mysteries in the order they
+  are prayed: `key category order name description scriptureReference
+  fruit keyVerse keyVerseReference announcement`. `key` is the app's
+  `<category>_<order>`; `announcement` is what the spoken Rosary says.
+- `categories`: `[RosaryCategory!]!`, the five: `slug name devotionTitle
+  subtitle mysteryLabels hailMarys fatimaPrayer graces`.
+- `verses`: `[RosaryVerses!]!`, the Scriptural Rosary's verses, one group
+  per mystery: `key verses { bead reference text }`.
+
 `rosaryContent` is non-null and takes no argument: it is answered from
-files compiled into the server (`LumenViae.Rosary.Content`) and from code
-(`LumenViae.LiturgicalCalendar`), with nothing
-to sign or fetch, so there is no failure for it to keep to its own field.
+files compiled into the server (`LumenViae.Rosary.Content`), from code
+(`LumenViae.LiturgicalCalendar`) and from the `mysteries` table, with
+nothing to sign or fetch, so there is no failure for it to keep to its own
+field. A meditation's `mystery` also carries `key fruit keyVerse
+keyVerseReference`.
 It is served by `LumenViae.Rosary.RosaryContent`, a resource with no
 table. See docs/JSON_API.md, "The content document", for where the words
 live and what a change to them takes.

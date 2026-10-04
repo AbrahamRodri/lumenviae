@@ -1,0 +1,203 @@
+{
+  "source": "Copied from the iOS app (app/Data/MysteryData.swift: names and traditionalFruits; app/Data/MysteriesInScriptureData.swift: keyVerses, split on ' — ', and sevenGraces) on 4 October 2026. Never edited by hand: it is what the app shows.",
+  "mysteries": [
+    {
+      "key": "joyful_1",
+      "name": "The Annunciation",
+      "fruit": "Humility",
+      "key_verse": "Behold thou shalt conceive in thy womb, and shalt bring forth a son; and thou shalt call his name Jesus.",
+      "key_verse_reference": "Luke 1:31"
+    },
+    {
+      "key": "joyful_2",
+      "name": "The Visitation",
+      "fruit": "Love of Neighbor",
+      "key_verse": "Blessed art thou among women, and blessed is the fruit of thy womb.",
+      "key_verse_reference": "Luke 1:42"
+    },
+    {
+      "key": "joyful_3",
+      "name": "The Nativity",
+      "fruit": "Poverty of Spirit",
+      "key_verse": "And she brought forth her firstborn son, and wrapped him up in swaddling clothes, and laid him in a manger.",
+      "key_verse_reference": "Luke 2:7"
+    },
+    {
+      "key": "joyful_4",
+      "name": "The Presentation",
+      "fruit": "Obedience",
+      "key_verse": "Now thou dost dismiss thy servant, O Lord, according to thy word in peace; because my eyes have seen thy salvation.",
+      "key_verse_reference": "Luke 2:29-30"
+    },
+    {
+      "key": "joyful_5",
+      "name": "The Finding in the Temple",
+      "fruit": "Joy in Finding Jesus",
+      "key_verse": "Did you not know, that I must be about my father's business?",
+      "key_verse_reference": "Luke 2:49"
+    },
+    {
+      "key": "sorrowful_1",
+      "name": "The Agony in the Garden",
+      "fruit": "Sorrow for Sin",
+      "key_verse": "My Father, if it be possible, let this chalice pass from me. Nevertheless not as I will, but as thou wilt.",
+      "key_verse_reference": "Matthew 26:39"
+    },
+    {
+      "key": "sorrowful_2",
+      "name": "The Scourging at the Pillar",
+      "fruit": "Purity",
+      "key_verse": "Then therefore, Pilate took Jesus, and scourged him.",
+      "key_verse_reference": "John 19:1"
+    },
+    {
+      "key": "sorrowful_3",
+      "name": "The Crowning with Thorns",
+      "fruit": "Moral Courage",
+      "key_verse": "And platting a crown of thorns, they put it upon his head.",
+      "key_verse_reference": "Matthew 27:29"
+    },
+    {
+      "key": "sorrowful_4",
+      "name": "The Carrying of the Cross",
+      "fruit": "Patience",
+      "key_verse": "And bearing his own cross, he went forth to that place which is called Calvary.",
+      "key_verse_reference": "John 19:17"
+    },
+    {
+      "key": "sorrowful_5",
+      "name": "The Crucifixion",
+      "fruit": "Perseverance",
+      "key_verse": "Father, into thy hands I commend my spirit.",
+      "key_verse_reference": "Luke 23:46"
+    },
+    {
+      "key": "glorious_1",
+      "name": "The Resurrection",
+      "fruit": "Faith",
+      "key_verse": "He is not here, for he is risen, as he said.",
+      "key_verse_reference": "Matthew 28:6"
+    },
+    {
+      "key": "glorious_2",
+      "name": "The Ascension",
+      "fruit": "Hope",
+      "key_verse": "And the Lord Jesus, after he had spoken to them, was taken up into heaven, and sitteth on the right hand of God.",
+      "key_verse_reference": "Mark 16:19"
+    },
+    {
+      "key": "glorious_3",
+      "name": "The Descent of the Holy Spirit",
+      "fruit": "Love of God",
+      "key_verse": "And they were all filled with the Holy Ghost, and they began to speak with divers tongues.",
+      "key_verse_reference": "Acts 2:4"
+    },
+    {
+      "key": "glorious_4",
+      "name": "The Assumption",
+      "fruit": "Grace of a Happy Death",
+      "key_verse": "He that is mighty hath done great things to me; and holy is his name.",
+      "key_verse_reference": "Luke 1:49"
+    },
+    {
+      "key": "glorious_5",
+      "name": "The Coronation",
+      "fruit": "Trust in Mary's Intercession",
+      "key_verse": "And a great sign appeared in heaven: A woman clothed with the sun, and the moon under her feet, and on her head a crown of twelve stars.",
+      "key_verse_reference": "Apocalypse 12:1"
+    },
+    {
+      "key": "luminous_1",
+      "name": "The Baptism in the Jordan",
+      "fruit": "Openness to the Holy Spirit",
+      "key_verse": "This is my beloved Son, in whom I am well pleased.",
+      "key_verse_reference": "Matthew 3:17"
+    },
+    {
+      "key": "luminous_2",
+      "name": "The Wedding at Cana",
+      "fruit": "To Jesus through Mary",
+      "key_verse": "Whatsoever he shall say to you, do ye.",
+      "key_verse_reference": "John 2:5"
+    },
+    {
+      "key": "luminous_3",
+      "name": "The Proclamation of the Kingdom",
+      "fruit": "Repentance and Trust in God",
+      "key_verse": "The time is accomplished, and the kingdom of God is at hand: repent, and believe the gospel.",
+      "key_verse_reference": "Mark 1:15"
+    },
+    {
+      "key": "luminous_4",
+      "name": "The Transfiguration",
+      "fruit": "Desire for Holiness",
+      "key_verse": "And he was transfigured before them. And his face did shine as the sun.",
+      "key_verse_reference": "Matthew 17:2"
+    },
+    {
+      "key": "luminous_5",
+      "name": "The Institution of the Eucharist",
+      "fruit": "Eucharistic Adoration",
+      "key_verse": "Take ye, and eat. This is my body.",
+      "key_verse_reference": "Matthew 26:26"
+    },
+    {
+      "key": "seven_sorrows_1",
+      "name": "The Prophecy of Simeon",
+      "fruit": "Surrender to God's Will",
+      "key_verse": "And thy own soul a sword shall pierce, that, out of many hearts, thoughts may be revealed.",
+      "key_verse_reference": "Luke 2:35"
+    },
+    {
+      "key": "seven_sorrows_2",
+      "name": "The Flight into Egypt",
+      "fruit": "Trust in God's Providence",
+      "key_verse": "Arise, and take the child and his mother, and fly into Egypt.",
+      "key_verse_reference": "Matthew 2:13"
+    },
+    {
+      "key": "seven_sorrows_3",
+      "name": "The Loss of Jesus in the Temple",
+      "fruit": "Seeking Jesus Above All",
+      "key_verse": "Son, why hast thou done so to us? behold thy father and I have sought thee sorrowing.",
+      "key_verse_reference": "Luke 2:48"
+    },
+    {
+      "key": "seven_sorrows_4",
+      "name": "Mary Meets Jesus Carrying the Cross",
+      "fruit": "Compassion for Christ",
+      "key_verse": "And there followed him a great multitude of people, and of women, who bewailed and lamented him.",
+      "key_verse_reference": "Luke 23:27"
+    },
+    {
+      "key": "seven_sorrows_5",
+      "name": "The Crucifixion",
+      "fruit": "Standing Faithful at the Cross",
+      "key_verse": "Now there stood by the cross of Jesus, his mother.",
+      "key_verse_reference": "John 19:25"
+    },
+    {
+      "key": "seven_sorrows_6",
+      "name": "Jesus Taken Down from the Cross",
+      "fruit": "Receiving Christ into Our Hearts",
+      "key_verse": "Joseph of Arimathea... came and took away the body of Jesus.",
+      "key_verse_reference": "John 19:38"
+    },
+    {
+      "key": "seven_sorrows_7",
+      "name": "The Burial of Jesus",
+      "fruit": "Hope in the Resurrection",
+      "key_verse": "Now there was in the place where he was crucified, a garden; and in the garden a new sepulchre... There, therefore, they laid Jesus.",
+      "key_verse_reference": "John 19:41-42"
+    }
+  ],
+  "seven_graces": [
+    "Peace in their families.",
+    "Enlightenment about the divine mysteries.",
+    "Consolation in their pains, and her companionship in their work.",
+    "Whatever they ask, so long as it accords with God's will and the good of their souls.",
+    "Defence in their spiritual battles, and protection at every instant of their lives.",
+    "Visible help at the moment of death — they will see the face of their Mother.",
+    "Her Son's mercy for those who spread this devotion, that they may be brought from this life to eternal happiness."
+  ]
+}

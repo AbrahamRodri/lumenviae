@@ -88,6 +88,48 @@
             />
           </.field>
         </div>
+
+        <.field
+          label="Fruit"
+          hint="The grace the mystery is prayed for, as the app names it."
+          errors={@mystery_form[:fruit].errors}
+        >
+          <input
+            type="text"
+            name={@mystery_form[:fruit].name}
+            value={@mystery_form[:fruit].value || ""}
+            class="admin-input"
+            placeholder="e.g. Humility"
+          />
+        </.field>
+
+        <div class="grid md:grid-cols-[2fr_1fr] gap-4">
+          <.field
+            label="Key verse"
+            hint="The one verse to carry into the decade, Douay-Rheims, without its citation."
+            errors={@mystery_form[:key_verse].errors}
+          >
+            <textarea
+              name={@mystery_form[:key_verse].name}
+              rows="2"
+              class="admin-textarea"
+              placeholder="e.g. Blessed art thou among women, and blessed is the fruit of thy womb."
+            ><%= @mystery_form[:key_verse].value || "" %></textarea>
+          </.field>
+
+          <.field
+            label="Key verse reference"
+            errors={@mystery_form[:key_verse_reference].errors}
+          >
+            <input
+              type="text"
+              name={@mystery_form[:key_verse_reference].name}
+              value={@mystery_form[:key_verse_reference].value || ""}
+              class="admin-input"
+              placeholder="e.g. Luke 1:42"
+            />
+          </.field>
+        </div>
       </div>
 
       <.form_actions cancel_to="/admin/mysteries">

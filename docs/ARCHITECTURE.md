@@ -443,7 +443,12 @@ calculations that go with it: no state, no queries, no resource. Any layer
 may call them directly, including templates. They are the single source
 for their lists, so `Categories.slugs/0` feeds the resources' `one_of`
 validations and `Categories.options/0` feeds the form selects from the
-same place.
+same place. `Categories` also holds what the app says about each
+category (its names, subtitle, each mystery's label by position, Hail
+Marys per decade, whether the Fatima Prayer is said, the Seven Sorrows'
+graces) and `mystery_keys/0`, the 27 keys `<category>_<order>` the app
+knows, in prayer order. A mystery's own `key` is a calculation on
+`Mystery` with the same rule.
 
 `Voices` reads the narration voices from application config rather than a
 table (a voice is a deploy, not an edit) and is the one place the audio
@@ -499,8 +504,12 @@ fails the build, not a request), and fingerprints them (`version/1`).
 `PrayerAudio` takes its prayers' English from it, and
 `LumenViae.Rosary.RosaryContent`, a resource with no table, serves it as
 `GET /api/v2/rosary-content` and GraphQL's `rosaryContent`, beside the
-`schedule` section it computes from `LumenViae.LiturgicalCalendar`. See
-docs/JSON_API.md, "The content document".
+sections that are not files: `schedule`, which it computes from
+`LumenViae.LiturgicalCalendar`, `mysteries` (read from the `mysteries`
+table, so it is a calculation that queries, under the caller's opts),
+`categories` (from `Categories`) and `verses` (from `PrayerAudio.verses/0`).
+`RosaryContent.Current.stamp/2` folds every section into the version and
+the date. See docs/JSON_API.md, "The content document".
 
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.

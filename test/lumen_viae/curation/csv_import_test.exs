@@ -274,6 +274,85 @@ defmodule LumenViae.Curation.CsvImportTest do
     end
   end
 
+  describe "a mystery name that stands in two categories" do
+    # The Crucifixion is the fifth Sorrowful Mystery and the fifth sorrow of
+    # the Seven Sorrows, which sort first.
+    setup do
+      {:ok, sorrowful} =
+        Rosary.create_mystery(%{name: "The Crucifixion", category: "sorrowful", order: 5},
+          actor: admin()
+        )
+
+      {:ok, sorrow} =
+        Rosary.create_mystery(%{name: "The Crucifixion", category: "seven_sorrows", order: 5},
+          actor: admin()
+        )
+
+      %{sorrowful: sorrowful, sorrow: sorrow}
+    end
+
+    defp mystery_of_only_meditation do
+      [meditation] = Rosary.list_meditations!(actor: admin())
+      meditation.mystery_id
+    end
+
+    test "goes to the mystery of the row's set_category", %{sorrowful: sorrowful} do
+      content =
+        csv(~w(mystery_name content set_name set_category), [
+          "The Crucifixion,#{quoted(@content)},Liguori,sorrowful"
+        ])
+
+      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true, actor: admin())
+      assert mystery_of_only_meditation() == sorrowful.id
+    end
+
+    test "or else to the mystery of the existing set's category", %{sorrow: sorrow} do
+      {:ok, _} =
+        Rosary.create_meditation_set(%{"name" => "Agreda", "category" => "seven_sorrows"},
+          actor: admin()
+        )
+
+      content =
+        csv(~w(mystery_name content set_name), [
+          "The Crucifixion,#{quoted(@content)},Agreda"
+        ])
+
+      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true, actor: admin())
+      assert mystery_of_only_meditation() == sorrow.id
+    end
+
+    test "is refused when nothing on the row says which" do
+      content = csv(~w(mystery_name content), ["The Crucifixion,#{quoted(@content)}"])
+
+      assert [{:error, message}] =
+               CsvImport.import_string(content, skip_audio: true, actor: admin())
+
+      assert message =~
+               "mystery name 'The Crucifixion' is in more than one category; add set_category"
+
+      assert Rosary.count_meditations(actor: admin()) == 0
+    end
+
+    test "the preview says the same" do
+      content =
+        csv(~w(mystery_name content set_name set_category), [
+          "The Crucifixion,#{quoted(@content)},Liguori,sorrowful",
+          "The Crucifixion,#{quoted(@content)},,"
+        ])
+
+      assert {:ok, %{rows: [chosen, ambiguous]}} =
+               CsvImport.preview_string(content, actor: admin())
+
+      assert chosen.mystery_ok
+      assert chosen.errors == []
+      refute ambiguous.mystery_ok
+
+      assert ambiguous.errors == [
+               "mystery name 'The Crucifixion' is in more than one category; add set_category"
+             ]
+    end
+  end
+
   describe "audio generation failures" do
     setup do
       test_pid = self()

@@ -75,6 +75,31 @@ defmodule LumenViaeWeb.Live.Mysteries.AdminTest do
       assert Rosary.get_mystery!(mystery.id, actor: admin()).days_prayed == "Monday, Saturday"
     end
 
+    test "saves the fruit and the key verse", %{conn: conn} do
+      # A position of its own: (category, order) is unique, and async tests
+      # that insert the same pair deadlock.
+      mystery = create_mystery(%{order: 301})
+      {:ok, view, _html} = live(conn, "/admin/mysteries/#{mystery.id}/edit")
+
+      view
+      |> form("form[phx-submit=update_mystery]", %{
+        mystery: %{
+          fruit: "Humility",
+          key_verse: "Behold the handmaid of the Lord.",
+          key_verse_reference: "Luke 1:38"
+        }
+      })
+      |> render_submit()
+
+      {:ok, saved} = Rosary.get_mystery(mystery.id, actor: admin())
+
+      assert {saved.fruit, saved.key_verse, saved.key_verse_reference} ==
+               {"Humility", "Behold the handmaid of the Lord.", "Luke 1:38"}
+
+      {:ok, _view, html} = live(conn, "/admin/mysteries/#{mystery.id}/edit")
+      assert html =~ "Behold the handmaid of the Lord."
+    end
+
     test "a second save after the first still works on the current row", %{conn: conn} do
       mystery = create_mystery()
       {:ok, view, _html} = live(conn, "/admin/mysteries/#{mystery.id}/edit")
