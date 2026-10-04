@@ -351,6 +351,94 @@ defmodule LumenViae.Release do
 
   # Runs `fun` with the repo started, as every task here must in a bare
   # `eval` node, and returns its result.
+  @doc """
+  The job queues, by state, as the console's System screen counts them.
+
+      fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.jobs_summary()'"
+
+  `rpc` runs it inside the app; `eval` works too, starting the repo itself.
+  The other job functions below take the same two routes. Prints, and
+  answers `:ok`.
+  """
+  def jobs_summary do
+    with_jobs(fn ->
+      IO.puts(LumenViae.Ops.Report.queues())
+      IO.puts("")
+      IO.puts(LumenViae.Ops.Report.schedule(LumenViae.Ops.schedule()))
+    end)
+  end
+
+  @doc "The most recent failed jobs, each with the first line of its last error."
+  def job_failures(limit \\ 10) do
+    with_jobs(fn ->
+      IO.puts(LumenViae.Ops.Report.failures(LumenViae.Ops.recent_failures(limit)))
+    end)
+  end
+
+  @doc """
+  Makes failed jobs available again: one of `id: 42`, `queue: "elevenlabs"`
+  or `worker: "LumenViae.Office.Jobs.WarmCache"`. The last two take every
+  retryable or discarded job of theirs; a cancelled one is left alone.
+
+  A retried recording job pays ElevenLabs only if its upload is not
+  already at the key (docs/ARCHITECTURE.md, "Paying ElevenLabs once"), but
+  read `job_failures/1` first: a job cancelled as possibly billed needs
+  its key checked by a person, not a retry.
+
+      /app/bin/lumen_viae rpc 'LumenViae.Release.retry_jobs(queue: "geolocation")'
+  """
+  def retry_jobs([{field, _value}] = filter) when field in [:id, :queue, :worker] do
+    with_jobs(fn ->
+      case LumenViae.Ops.retry_jobs(filter) do
+        {:ok, count} -> IO.puts("#{count} job(s) made available again")
+        {:error, :not_found} -> IO.puts("ERROR no job with that id")
+      end
+    end)
+  end
+
+  @doc """
+  Cancels one job. Under `rpc` an executing job is told to stop; under
+  `eval`, which is not part of the cluster, it is marked cancelled and the
+  attempt already running finishes.
+  """
+  def cancel_job(id) when is_integer(id) do
+    with_jobs(fn ->
+      case LumenViae.Ops.cancel_job(id) do
+        :ok -> IO.puts("Job #{id} cancelled")
+        {:error, :not_found} -> IO.puts("ERROR no job with that id")
+      end
+    end)
+  end
+
+  @doc """
+  Enqueues one of the crontab's workers now, as the console's Run now does.
+
+      /app/bin/lumen_viae rpc 'LumenViae.Release.run_scheduled_job("LumenViae.Office.Jobs.WarmCache")'
+  """
+  def run_scheduled_job(worker) when is_binary(worker) do
+    with_jobs(fn ->
+      case LumenViae.Ops.run_scheduled_job(worker, @operator) do
+        {:ok, id} ->
+          IO.puts("Queued #{worker} as job #{id}; the app's queue runs it")
+
+        {:error, %{errors: errors}} ->
+          IO.puts("ERROR #{Enum.map_join(errors, "; ", & &1.message)}")
+      end
+    end)
+  end
+
+  # Inside the running app (rpc) the repo and Oban are already up; under
+  # eval, the repo is started here and Oban as an inserter that runs no
+  # queues (AudioJobs.start_inserter/0), so a job made available is run by
+  # the app, not by this shell.
+  defp with_jobs(fun) do
+    with_repo(fn ->
+      LumenViae.Curation.AudioJobs.start_inserter()
+      fun.()
+      :ok
+    end)
+  end
+
   defp with_repo(fun) do
     load_app()
     [repo | _] = repos()

@@ -76,7 +76,7 @@ config :spark,
 
 config :lumen_viae,
   ecto_repos: [LumenViae.Repo],
-  ash_domains: [LumenViae.Accounts, LumenViae.Office, LumenViae.Rosary],
+  ash_domains: [LumenViae.Accounts, LumenViae.Office, LumenViae.Ops, LumenViae.Rosary],
   generators: [timestamp_type: :utc_datetime]
 
 # Default narration pause inserted at each paragraph break when generating
@@ -190,6 +190,17 @@ config :lumen_viae, :geolocation,
 #   * The reindexer rebuilds Oban's two GIN indexes, CONCURRENTLY, once a
 #     week, where the default is nightly: on a table the pruner keeps to a
 #     few thousand rows they bloat slowly.
+# The production crontab, written once and stored twice: as Oban's
+# :crontab, which Oban runs, and as :scheduled_jobs, which the console's
+# System screen and `mix lumen_viae.jobs` read (LumenViae.Ops.Jobs).
+# config/dev.exs empties the first and keeps the second.
+crontab = [
+  {"@reboot", LumenViae.Office.Jobs.WarmCache},
+  {"7 0,12 * * *", LumenViae.Office.Jobs.WarmCache}
+]
+
+config :lumen_viae, :scheduled_jobs, crontab
+
 config :lumen_viae, Oban,
   engine: Oban.Engines.Basic,
   repo: LumenViae.Repo,
@@ -199,10 +210,7 @@ config :lumen_viae, Oban,
   pruner: [max_age: {7, :days}, interval: {5, :minutes}],
   lifeline: [rescue_after: {30, :minutes}, interval: {5, :minutes}],
   reindexer: [schedule: "17 4 * * 0"],
-  crontab: [
-    {"@reboot", LumenViae.Office.Jobs.WarmCache},
-    {"7 0,12 * * *", LumenViae.Office.Jobs.WarmCache}
-  ],
+  crontab: crontab,
   shutdown_grace_period: :timer.seconds(140)
 
 # Oban Web's metrics process. Its reporter counts jobs by state on the

@@ -75,7 +75,9 @@ says which gate failed.
 | Format (changed files) | The log lists the files and prints the `mix format` command | Run that command and push |
 
 To reproduce the blocking checks locally, with your own test partition so you
-do not touch another worktree's database:
+do not touch another worktree's database, `mix check` runs the compile, the
+codegen check, the format check on the files the branch changed and the
+suite, in that order. By hand:
 
 ```
 export MIX_TEST_PARTITION=<yours> MIX_ENV=test

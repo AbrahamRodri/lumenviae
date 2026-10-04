@@ -92,15 +92,46 @@ Tailwind and esbuild are fetched by Mix, so Node.js is not needed.
    ./dev.sh
    ```
 
+   `./dev.sh iex` starts it inside IEx, `./dev.sh doctor` checks the
+   checkout (below), and `./dev.sh mix ...` runs any mix command with
+   `.env` loaded. `PORT=8081 ./dev.sh` moves the server, so two worktrees
+   can each run one.
+
 5. Visit [`localhost:8080`](http://localhost:8080) and begin your Rosary. In
    development, [`/admin`](http://localhost:8080/admin) opens without a
    password, signed in as the seeded development admin.
+
+### Checking a checkout
+
+```bash
+./dev.sh doctor
+```
+
+`mix lumen_viae.doctor` checks the toolchain against the Dockerfile's,
+`.env` and the credentials in it, the database and its pending
+migrations, the dev server's port, the test partition in a worktree, and
+the audio bucket, the Office engine, geolocation and ElevenLabs. Each line
+says `ok`, `warn` or `FAIL` and what to do; it never writes anything.
 
 ### Tests
 
 ```bash
 mix test
 ```
+
+`mix check` runs CI's blocking checks in the order that fails fastest: a
+forced compile with warnings as errors, `ash.codegen --check`, formatting
+of the files this branch changed against `origin/main`, and the whole
+suite with warnings as errors. It runs in the test environment, so set
+`MIX_TEST_PARTITION` in a worktree.
+
+### Jobs
+
+`mix lumen_viae.jobs` shows the queues by state; `failures`, `schedule`,
+`retry --id/--queue/--worker`, `cancel --id` and `run WORKER` (a crontab
+worker, now) act on them locally. The console's `/admin/system` shows the
+same, and `LumenViae.Release` has the same acts for production
+(docs/PROD_ACCESS.md).
 
 Every checkout shares the `lumen_viae_dev` database. To run a branch
 against its own copy, create one with

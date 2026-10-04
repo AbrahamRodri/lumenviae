@@ -36,6 +36,23 @@ defmodule LumenViae.OfficeTest do
     end)
   end
 
+  describe "ping/0" do
+    test "asks the engine for this month's calendar, past the cache" do
+      stub_kalendar_page()
+
+      # The fixture is August's; any month's page parses the same way.
+      assert :ok = Office.ping()
+      assert_received {:asked, %{"kmonth" => _month}}
+      assert :ok = Office.ping()
+      assert_received {:asked, %{"kmonth" => _month}}
+    end
+
+    test "answers an error when the engine does not" do
+      Req.Test.stub(DivinumOfficium, &Plug.Conn.send_resp(&1, 503, "down"))
+      assert {:error, _reason} = Office.ping()
+    end
+  end
+
   describe "fetch_hour/3" do
     test "assembles one hour from the engine's page" do
       stub_hour_page()

@@ -75,6 +75,21 @@ defmodule LumenViaeWeb.Telemetry do
           "The time the connection spent waiting before being checked out for the query"
       ),
 
+      # Oban: how long each worker takes, how long jobs wait to start, and
+      # how often they fail, by queue and worker.
+      summary("oban.job.stop.duration",
+        tags: [:queue, :worker],
+        unit: {:native, :millisecond}
+      ),
+      summary("oban.job.stop.queue_time",
+        tags: [:queue],
+        unit: {:native, :millisecond}
+      ),
+      counter("oban.job.exception.duration",
+        tags: [:queue, :worker],
+        description: "Failed attempts"
+      ),
+
       # VM Metrics
       summary("vm.memory.total", unit: {:byte, :kilobyte}),
       summary("vm.total_run_queue_lengths.total"),

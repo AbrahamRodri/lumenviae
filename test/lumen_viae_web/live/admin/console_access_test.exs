@@ -35,18 +35,20 @@ defmodule LumenViaeWeb.Live.Admin.ConsoleAccessTest do
     live_session
   end
 
-  # AshAdmin's pages and Oban Web's live in live_sessions of their own
-  # (:ash_admin, :oban_jobs), which still keeps them apart from the site;
-  # what matters is the hook.
+  # AshAdmin's pages, Oban Web's and LiveDashboard's live in live_sessions
+  # of their own (:ash_admin, :oban_jobs, :live_dashboard), which still
+  # keeps them apart from the site; what matters is the hook.
   test "every console page sits in a console live_session, behind the admin hook" do
     routes = console_routes()
     assert length(routes) >= 10, "expected the console's LiveViews, found #{length(routes)}"
     assert Enum.any?(routes, &String.starts_with?(&1.path, "/admin/data"))
+    assert Enum.any?(routes, &String.starts_with?(&1.path, "/admin/live"))
+    assert Enum.any?(routes, &(&1.path == "/admin/system"))
 
     for route <- routes do
       live_session = live_session_of(route.path)
 
-      assert live_session.name in [:admin, :ash_admin, :oban_jobs],
+      assert live_session.name in [:admin, :ash_admin, :oban_jobs, :live_dashboard],
              "#{route.path} is in live_session #{inspect(live_session.name)}, not a console one"
 
       assert Enum.any?(

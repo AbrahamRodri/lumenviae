@@ -180,6 +180,23 @@ defmodule LumenViae.Office do
     end
   end
 
+  @doc """
+  Whether the engine answers right now: the current month's calendar,
+  fetched past the cache and parsed. `:ok`, or `{:error, reason}`. For
+  the console's System screen and `mix lumen_viae.doctor`; it wakes a
+  suspended engine, as any request does.
+  """
+  def ping do
+    today = Date.utc_today()
+    version = Versions.default_version()
+    {:ok, %{do_version: do_version}} = Versions.fetch_version(version)
+
+    with {:ok, html} <- DivinumOfficium.fetch_kalendar(today.year, today.month, do_version),
+         {:ok, _days} <- Parser.parse_kalendar(html, today.year, today.month) do
+      :ok
+    end
+  end
+
   @doc "How much this machine's cache holds: `%{entries:, bytes:}`."
   def cache_stats, do: Cache.stats()
 

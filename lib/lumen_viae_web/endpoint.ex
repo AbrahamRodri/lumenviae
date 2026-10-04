@@ -50,7 +50,10 @@ defmodule LumenViaeWeb.Endpoint do
     cookie_key: "request_logger"
 
   plug Plug.RequestId
-  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+
+  plug Plug.Telemetry,
+    event_prefix: [:phoenix, :endpoint],
+    log: {__MODULE__, :log_level, []}
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json, Absinthe.Plug.Parser],
@@ -61,4 +64,12 @@ defmodule LumenViaeWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug LumenViaeWeb.Router
+
+  @doc """
+  The request log's level for `conn`: none for `GET /healthz`, which a
+  monitor asks every few seconds and would bury every other line; the
+  default for everything else.
+  """
+  def log_level(%{path_info: ["healthz"]}), do: false
+  def log_level(_conn), do: :info
 end
