@@ -13,6 +13,25 @@ defmodule LumenViae.Office.Cache do
 
   Only successful parses are stored. An upstream failure must stay a
   miss, or a five-minute outage would answer 503 for a month.
+
+  ## One engine request per cold key
+
+  `fetch_or_load/2` loads a missing key once however many callers ask for
+  it at the same moment (at midnight, every app opening today's hours).
+  The first caller to miss loads it, in its own process; the others wait
+  for that load's answer, success or failure, instead of each asking the
+  engine. This process only keeps the list of who is waiting for what. If
+  the loader dies, the first waiter becomes the loader. A waiter gives up
+  after `@wait_ms`, longer than the engine client's own timeouts allow a
+  request to take, and loads for itself, so a stuck load can delay a
+  request but never hang it.
+
+  ## Tests
+
+  The table is shared by every test. A test that wants a cache of its own
+  calls `isolate/0` in its setup: its keys, and those of the processes it
+  starts, are then namespaced apart from every other test's. Only
+  config/test.exs turns this on (`:isolate_office_cache`).
   """
 
   use GenServer
@@ -20,10 +39,87 @@ defmodule LumenViae.Office.Cache do
   @table :lumen_viae_office_cache
   @ttl_ms :timer.hours(24 * 30)
   @sweep_interval_ms :timer.hours(12)
+  # The engine client allows 5s to connect and 15s to answer, and does not
+  # retry, so a load finishes or fails well inside this.
+  @wait_ms 25_000
+  @namespace_key :lumen_viae_office_cache_namespace
 
   def start_link(opts), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
 
+  @doc """
+  The value under `key`, or what `load` returns, storing it on `{:ok, _}`.
+  Concurrent callers for the same missing key share one `load`; see the
+  module.
+  """
+  def fetch_or_load(key, load) when is_function(load, 0) do
+    case fetch(key) do
+      {:ok, value} -> {:ok, value}
+      :miss -> claim(key, load)
+    end
+  end
+
+  defp claim(key, load) do
+    case wait_for_claim(key) do
+      :load -> load_and_release(key, load)
+      {:loaded, result} -> result
+      :gave_up -> load_and_store(key, load)
+    end
+  end
+
+  defp wait_for_claim(key) do
+    GenServer.call(__MODULE__, {:claim, namespaced(key)}, @wait_ms)
+  catch
+    # No coordinator (it is restarting), or the load waited on has run
+    # past every timeout: load for ourselves rather than fail the request.
+    :exit, _reason -> :gave_up
+  end
+
+  defp load_and_release(key, load) do
+    result = load_and_store(key, load)
+    GenServer.cast(__MODULE__, {:release, namespaced(key), self(), result})
+    result
+  end
+
+  defp load_and_store(key, load) do
+    with {:ok, value} <- load.() do
+      put(key, value)
+      {:ok, value}
+    end
+  end
+
+  @doc """
+  Gives the calling test, and the processes it starts, cache keys of its
+  own, so it neither sees nor leaves entries other tests share.
+  """
+  def isolate, do: Process.put(@namespace_key, make_ref())
+
+  # Only the test configuration turns the namespaces on, so production
+  # never looks anything up for them.
+  if Application.compile_env(:lumen_viae, :isolate_office_cache, false) do
+    # The namespace of the calling process, or of the test that started it.
+    defp namespaced(key) do
+      namespace =
+        Enum.find_value([self() | Process.get(:"$callers", [])], fn
+          pid when pid == self() -> Process.get(@namespace_key)
+          pid -> namespace_of(pid)
+        end)
+
+      {namespace, key}
+    end
+
+    defp namespace_of(pid) do
+      case Process.info(pid, :dictionary) do
+        {:dictionary, dictionary} -> Keyword.get(dictionary, @namespace_key)
+        nil -> nil
+      end
+    end
+  else
+    defp namespaced(key), do: {nil, key}
+  end
+
   def fetch(key) do
+    key = namespaced(key)
+
     case :ets.lookup(@table, key) do
       [{^key, value, expires_at}] ->
         if System.monotonic_time(:millisecond) < expires_at, do: {:ok, value}, else: :miss
@@ -37,7 +133,7 @@ defmodule LumenViae.Office.Cache do
 
   def put(key, value) do
     expires_at = System.monotonic_time(:millisecond) + @ttl_ms
-    :ets.insert(@table, {key, value, expires_at})
+    :ets.insert(@table, {namespaced(key), value, expires_at})
     :ok
   rescue
     ArgumentError -> :ok
@@ -66,7 +162,51 @@ defmodule LumenViae.Office.Cache do
   def init(_opts) do
     :ets.new(@table, [:set, :public, :named_table, read_concurrency: true])
     schedule_sweep()
-    {:ok, %{}}
+    # key => %{loader: pid, monitor: ref, waiters: [from]}
+    {:ok, %{loading: %{}}}
+  end
+
+  @impl true
+  def handle_call({:claim, key}, {pid, _tag} = from, state) do
+    case state.loading do
+      %{^key => entry} ->
+        entry = %{entry | waiters: entry.waiters ++ [from]}
+        {:noreply, put_in(state.loading[key], entry)}
+
+      %{} ->
+        entry = %{loader: pid, monitor: Process.monitor(pid), waiters: []}
+        {:reply, :load, put_in(state.loading[key], entry)}
+    end
+  end
+
+  @impl true
+  def handle_cast({:release, key, pid, result}, state) do
+    case state.loading do
+      %{^key => %{loader: ^pid} = entry} ->
+        Process.demonitor(entry.monitor, [:flush])
+        Enum.each(entry.waiters, &GenServer.reply(&1, {:loaded, result}))
+        {:noreply, %{state | loading: Map.delete(state.loading, key)}}
+
+      %{} ->
+        {:noreply, state}
+    end
+  end
+
+  @impl true
+  def handle_info({:DOWN, ref, :process, _pid, _reason}, state) do
+    case Enum.find(state.loading, fn {_key, entry} -> entry.monitor == ref end) do
+      {key, %{waiters: [{next, _tag} = from | rest]}} ->
+        # The loader died: the first waiter loads instead.
+        GenServer.reply(from, :load)
+        entry = %{loader: next, monitor: Process.monitor(next), waiters: rest}
+        {:noreply, put_in(state.loading[key], entry)}
+
+      {key, %{waiters: []}} ->
+        {:noreply, %{state | loading: Map.delete(state.loading, key)}}
+
+      nil ->
+        {:noreply, state}
+    end
   end
 
   @impl true

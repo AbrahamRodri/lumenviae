@@ -98,3 +98,8 @@ config :lumen_viae, :ops_probe_answers, %{
   s3: %{status: :ok, detail: "answered by config/test.exs"},
   office_engine: %{status: :ok, detail: "answered by config/test.exs"}
 }
+
+# Lets an Office test give itself cache keys of its own
+# (LumenViae.Office.Cache.isolate/0), so async tests cannot see each
+# other's entries.
+config :lumen_viae, :isolate_office_cache, true

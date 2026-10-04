@@ -9,6 +9,12 @@ defmodule LumenViaeWeb.Graphql.OfficeTest do
   """
   use LumenViaeWeb.ConnCase, async: true
 
+  # A cache of this test's own, so no other test's entries answer for it.
+  setup do
+    LumenViae.Office.Cache.isolate()
+    :ok
+  end
+
   import LumenViaeWeb.GraphqlHelpers
 
   alias LumenViae.Office.DivinumOfficium

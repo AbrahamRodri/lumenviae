@@ -3,11 +3,17 @@ defmodule LumenViae.OfficeTest do
   The Office context against a stubbed engine.
 
   Async, because the Req.Test stub is owned per test process and nothing
-  here touches global config. The cache is a shared named table that
-  outlives a test, so every test that cares about fetch counts uses a
-  date no other test uses.
+  here touches global config. Each test isolates its own cache keys
+  (`LumenViae.Office.Cache.isolate/0`), so fetch counts never depend on
+  another test's dates.
   """
   use ExUnit.Case, async: true
+
+  # A cache of this test's own, so no other test's entries answer for it.
+  setup do
+    LumenViae.Office.Cache.isolate()
+    :ok
+  end
 
   alias LumenViae.Office
   alias LumenViae.Office.DivinumOfficium

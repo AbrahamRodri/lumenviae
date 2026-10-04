@@ -246,18 +246,7 @@ defmodule LumenViae.Office do
     end)
   end
 
-  defp cached(key, load) do
-    case Cache.fetch(key) do
-      {:ok, value} ->
-        {:ok, value}
-
-      :miss ->
-        with {:ok, value} <- load.() do
-          Cache.put(key, value)
-          {:ok, value}
-        end
-    end
-  end
+  defp cached(key, load), do: Cache.fetch_or_load(key, load)
 
   defp upstream({:ok, html}), do: {:ok, html}
   defp upstream({:error, _reason}), do: {:error, :office_unavailable}
