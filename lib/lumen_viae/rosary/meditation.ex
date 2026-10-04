@@ -224,11 +224,17 @@ defmodule LumenViae.Rosary.Meditation do
   end
 
   # The public may read a meditation that is in circulation, by any read:
-  # an archived one is invisible to it, which is what every public surface
-  # already serves (a set holding one is hidden, and its audio answers
-  # not-found). `audio_for` is GraphQL's meditationAudio; it reads the
-  # meditations as its caller, so the same rule applies inside it.
-  # Everything else is the console's.
+  # not archived, and in at least one set. An archived one is invisible to
+  # it, which is what every public surface already serves (a set holding
+  # one is hidden, and its audio answers not-found), and so is a draft in
+  # no set at all, text and audio alike (A6, decided 4 Oct 2026). A
+  # meditation in a set that is hidden stays readable by id on purpose:
+  # the app keeps praying a set saved on the device after it is hidden,
+  # and refreshes its narration links through GET /api/meditations/:id/audio
+  # (docs/IOS_API_CONTRACT.md, section 3), so making it private would
+  # silence those Rosaries. `audio_for` is GraphQL's meditationAudio and
+  # v2's POST /meditations/audio; it reads the meditations as its caller,
+  # so the same rule applies inside it. Everything else is the console's.
   policies do
     bypass LumenViae.Accounts.Checks.ActorIsAdmin do
       authorize_if always()
@@ -239,7 +245,7 @@ defmodule LumenViae.Rosary.Meditation do
     end
 
     policy action_type(:read) do
-      authorize_if expr(is_nil(archived_at))
+      authorize_if expr(is_nil(archived_at) and in_any_set?)
     end
   end
 

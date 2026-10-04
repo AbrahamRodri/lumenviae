@@ -42,7 +42,8 @@ defmodule LumenViaeWeb.Graphql.MeditationAudioTest do
       {:ok, m} =
         Rosary.create_meditation(%{content: content, mystery_id: mystery.id}, actor: admin())
 
-      m
+      # In a set, as every meditation the public can reach is.
+      LumenViae.Test.Sets.put_in_a_set(m)
     end
 
     both = meditation.("Both")
