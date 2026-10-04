@@ -56,7 +56,7 @@ mysteries_data = [
     name: "The Annunciation",
     category: "joyful",
     order: 1,
-    days_prayed: "Mondays, Thursdays, and Saturdays",
+    days_prayed: "Mondays and Thursdays, and Sundays of Advent",
     description: "The angel Gabriel announces to Mary that she is to be the Mother of God.",
     scripture_reference: "Luke 1:26-38"
   },
@@ -64,7 +64,7 @@ mysteries_data = [
     name: "The Visitation",
     category: "joyful",
     order: 2,
-    days_prayed: "Mondays, Thursdays, and Saturdays",
+    days_prayed: "Mondays and Thursdays, and Sundays of Advent",
     description: "Mary visits her cousin Elizabeth, who proclaims her blessed among women.",
     scripture_reference: "Luke 1:39-56"
   },
@@ -72,7 +72,7 @@ mysteries_data = [
     name: "The Nativity",
     category: "joyful",
     order: 3,
-    days_prayed: "Mondays, Thursdays, and Saturdays",
+    days_prayed: "Mondays and Thursdays, and Sundays of Advent",
     description: "Jesus is born in Bethlehem and laid in a manger.",
     scripture_reference: "Luke 2:1-20"
   },
@@ -80,7 +80,7 @@ mysteries_data = [
     name: "The Presentation",
     category: "joyful",
     order: 4,
-    days_prayed: "Mondays, Thursdays, and Saturdays",
+    days_prayed: "Mondays and Thursdays, and Sundays of Advent",
     description: "Mary and Joseph present the infant Jesus in the Temple.",
     scripture_reference: "Luke 2:22-38"
   },
@@ -88,7 +88,7 @@ mysteries_data = [
     name: "The Finding in the Temple",
     category: "joyful",
     order: 5,
-    days_prayed: "Mondays, Thursdays, and Saturdays",
+    days_prayed: "Mondays and Thursdays, and Sundays of Advent",
     description: "Jesus is found in the Temple, discussing with the doctors of the Law.",
     scripture_reference: "Luke 2:41-52"
   },
@@ -98,7 +98,7 @@ mysteries_data = [
     name: "The Agony in the Garden",
     category: "sorrowful",
     order: 1,
-    days_prayed: "Tuesdays and Fridays",
+    days_prayed: "Tuesdays and Fridays, and Sundays of Lent",
     description: "Jesus suffers greatly and sweats blood in the Garden of Gethsemane.",
     scripture_reference: "Matthew 26:36-46"
   },
@@ -106,7 +106,7 @@ mysteries_data = [
     name: "The Scourging at the Pillar",
     category: "sorrowful",
     order: 2,
-    days_prayed: "Tuesdays and Fridays",
+    days_prayed: "Tuesdays and Fridays, and Sundays of Lent",
     description: "Jesus is bound and cruelly scourged by the Roman soldiers.",
     scripture_reference: "Matthew 27:26"
   },
@@ -114,7 +114,7 @@ mysteries_data = [
     name: "The Crowning with Thorns",
     category: "sorrowful",
     order: 3,
-    days_prayed: "Tuesdays and Fridays",
+    days_prayed: "Tuesdays and Fridays, and Sundays of Lent",
     description: "A crown of thorns is pressed upon Jesus' sacred head.",
     scripture_reference: "Matthew 27:27-31"
   },
@@ -122,7 +122,7 @@ mysteries_data = [
     name: "The Carrying of the Cross",
     category: "sorrowful",
     order: 4,
-    days_prayed: "Tuesdays and Fridays",
+    days_prayed: "Tuesdays and Fridays, and Sundays of Lent",
     description: "Jesus carries His cross to Calvary, falling three times under its weight.",
     scripture_reference: "John 19:17"
   },
@@ -130,7 +130,7 @@ mysteries_data = [
     name: "The Crucifixion",
     category: "sorrowful",
     order: 5,
-    days_prayed: "Tuesdays and Fridays",
+    days_prayed: "Tuesdays and Fridays, and Sundays of Lent",
     description: "Jesus is nailed to the cross and dies for our salvation.",
     scripture_reference: "John 19:18-30"
   },
@@ -140,7 +140,7 @@ mysteries_data = [
     name: "The Resurrection",
     category: "glorious",
     order: 1,
-    days_prayed: "Wednesdays, Thursdays, and Sundays",
+    days_prayed: "Wednesdays and Saturdays, and Sundays outside Advent and Lent",
     description: "Jesus rises from the dead on the third day, glorious and immortal.",
     scripture_reference: "Matthew 28:1-10"
   },
@@ -148,7 +148,7 @@ mysteries_data = [
     name: "The Ascension",
     category: "glorious",
     order: 2,
-    days_prayed: "Wednesdays, Thursdays, and Sundays",
+    days_prayed: "Wednesdays and Saturdays, and Sundays outside Advent and Lent",
     description: "Jesus ascends into Heaven forty days after His Resurrection.",
     scripture_reference: "Acts 1:6-11"
   },
@@ -156,7 +156,7 @@ mysteries_data = [
     name: "The Descent of the Holy Spirit",
     category: "glorious",
     order: 3,
-    days_prayed: "Wednesdays, Thursdays, and Sundays",
+    days_prayed: "Wednesdays and Saturdays, and Sundays outside Advent and Lent",
     description: "The Holy Spirit descends upon Mary and the Apostles at Pentecost.",
     scripture_reference: "Acts 2:1-4"
   },
@@ -164,7 +164,7 @@ mysteries_data = [
     name: "The Assumption",
     category: "glorious",
     order: 4,
-    days_prayed: "Wednesdays, Thursdays, and Sundays",
+    days_prayed: "Wednesdays and Saturdays, and Sundays outside Advent and Lent",
     description: "Mary is taken up body and soul into Heaven.",
     scripture_reference: "Revelation 12:1"
   },
@@ -172,7 +172,7 @@ mysteries_data = [
     name: "The Coronation of Mary",
     category: "glorious",
     order: 5,
-    days_prayed: "Wednesdays, Thursdays, and Sundays",
+    days_prayed: "Wednesdays and Saturdays, and Sundays outside Advent and Lent",
     description: "Mary is crowned Queen of Heaven and Earth.",
     scripture_reference: "Revelation 12:1-6"
   },
@@ -187,7 +187,7 @@ mysteries_data = [
     name: "The Baptism of Jesus",
     category: "luminous",
     order: 1,
-    days_prayed: "Thursdays (modern schedule)",
+    days_prayed: "Thursdays in the modern schedule",
     description: "Jesus is baptized in the Jordan and the voice of the Father is heard.",
     scripture_reference: "Matthew 3:13-17"
   },
@@ -195,7 +195,7 @@ mysteries_data = [
     name: "The Wedding at Cana",
     category: "luminous",
     order: 2,
-    days_prayed: "Thursdays (modern schedule)",
+    days_prayed: "Thursdays in the modern schedule",
     description: "At Mary's request, Jesus works His first sign and changes water into wine.",
     scripture_reference: "John 2:1-11"
   },
@@ -203,7 +203,7 @@ mysteries_data = [
     name: "The Proclamation of the Kingdom",
     category: "luminous",
     order: 3,
-    days_prayed: "Thursdays (modern schedule)",
+    days_prayed: "Thursdays in the modern schedule",
     description: "Jesus proclaims the Kingdom of God and calls all men to conversion.",
     scripture_reference: "Mark 1:14-15"
   },
@@ -211,7 +211,7 @@ mysteries_data = [
     name: "The Transfiguration",
     category: "luminous",
     order: 4,
-    days_prayed: "Thursdays (modern schedule)",
+    days_prayed: "Thursdays in the modern schedule",
     description:
       "Jesus is transfigured in glory upon the mountain before Peter, James, and John.",
     scripture_reference: "Luke 9:28-36"
@@ -220,7 +220,7 @@ mysteries_data = [
     name: "The Institution of the Eucharist",
     category: "luminous",
     order: 5,
-    days_prayed: "Thursdays (modern schedule)",
+    days_prayed: "Thursdays in the modern schedule",
     description: "Jesus gives His Body and Blood under the appearances of bread and wine.",
     scripture_reference: "Matthew 26:26-28"
   },
@@ -230,6 +230,7 @@ mysteries_data = [
     name: "The Prophecy of Simeon",
     category: "seven_sorrows",
     order: 1,
+    days_prayed: "Fridays in Lent and September 15th",
     description: "Simeon prophesies that a sword of sorrow will pierce Mary's heart.",
     scripture_reference: "Luke 2:34-35"
   },
@@ -237,6 +238,7 @@ mysteries_data = [
     name: "The Flight into Egypt",
     category: "seven_sorrows",
     order: 2,
+    days_prayed: "Fridays in Lent and September 15th",
     description:
       "Mary and Joseph flee with the infant Jesus to Egypt to escape Herod's persecution.",
     scripture_reference: "Matthew 2:13-21"
@@ -245,6 +247,7 @@ mysteries_data = [
     name: "The Loss of Jesus in the Temple",
     category: "seven_sorrows",
     order: 3,
+    days_prayed: "Fridays in Lent and September 15th",
     description:
       "Mary and Joseph search for three days before finding the child Jesus in the Temple.",
     scripture_reference: "Luke 2:41-50"
@@ -253,6 +256,7 @@ mysteries_data = [
     name: "Mary Meets Jesus on the Way to Calvary",
     category: "seven_sorrows",
     order: 4,
+    days_prayed: "Fridays in Lent and September 15th",
     description: "Mary encounters her Son carrying His cross to Calvary.",
     scripture_reference: "Luke 23:27-31"
   },
@@ -260,6 +264,7 @@ mysteries_data = [
     name: "The Crucifixion and Death of Jesus",
     category: "seven_sorrows",
     order: 5,
+    days_prayed: "Fridays in Lent and September 15th",
     description: "Mary stands at the foot of the cross as Jesus dies.",
     scripture_reference: "John 19:25-27"
   },
@@ -267,6 +272,7 @@ mysteries_data = [
     name: "Mary Receives the Body of Jesus",
     category: "seven_sorrows",
     order: 6,
+    days_prayed: "Fridays in Lent and September 15th",
     description: "Mary receives her Son's lifeless body taken down from the cross.",
     scripture_reference: "John 19:38-40"
   },
@@ -274,6 +280,7 @@ mysteries_data = [
     name: "The Burial of Jesus",
     category: "seven_sorrows",
     order: 7,
+    days_prayed: "Fridays in Lent and September 15th",
     description: "Mary witnesses the burial of Jesus in the tomb.",
     scripture_reference: "John 19:41-42"
   }

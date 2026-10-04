@@ -21,6 +21,11 @@ defmodule Mix.Tasks.LumenViae.GenerateRosaryAudio do
   **Always dry-run first.** The dry run lists every clip a real run would
   record and totals the characters it would send to ElevenLabs.
 
+  **Record before you deploy.** After a change to the prayer wording,
+  the verses or a voice's settings, run this from the branch before it
+  ships. The deployed API names the new files straight away, and until
+  they exist devices fall back to their old copies, or go without.
+
   ## Options
 
     * `--voice SLUG` - only this voice (repeatable); default every voice
