@@ -21,10 +21,10 @@ defmodule LumenViae.Rosary do
     * `LumenViae.Rosary.Author`
     * `LumenViae.Rosary.Completion`
 
-  plus three with no table, `LumenViae.Rosary.NarrationVoice`,
-  `LumenViae.Rosary.SpokenRosary` and `LumenViae.Rosary.RosaryContent`,
-  which give the APIs the configured voices, the spoken Rosary and the
-  Rosary's words.
+  plus four with no table, `LumenViae.Rosary.NarrationVoice`,
+  `LumenViae.Rosary.SpokenRosary`, `LumenViae.Rosary.RosaryContent` and
+  `LumenViae.Rosary.RosaryScript`, which give the APIs the configured
+  voices, the spoken Rosary, the Rosary's words and one Rosary's script.
 
   Nothing outside `lib/lumen_viae/rosary/` names a resource, calls `Ash`
   on one, or touches the Repo for Rosary data; `test/lumen_viae/rosary/context_rules_test.exs`
@@ -83,6 +83,7 @@ defmodule LumenViae.Rosary do
       list LumenViae.Rosary.NarrationVoice, :retired_voices, :retired, paginate_with: nil
       read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: true
       read_one LumenViae.Rosary.RosaryContent, :rosary_content, :current, allow_nil?: false
+      read_one LumenViae.Rosary.RosaryScript, :rosary_script, :expand, allow_nil?: true
       action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
 
       # The sets the public may see. Both read through :visible, so a set
@@ -190,6 +191,16 @@ defmodule LumenViae.Rosary do
         get :current do
           route "/"
           name "getRosaryContent"
+          derive_sort? false
+        end
+      end
+
+      # One Rosary's script, expanded: the reference for a client's own
+      # expansion of the content document's script templates.
+      base_route "/rosary-script", LumenViae.Rosary.RosaryScript do
+        get :expand do
+          route "/"
+          name "getRosaryScript"
           derive_sort? false
         end
       end
@@ -331,6 +342,7 @@ defmodule LumenViae.Rosary do
     resource LumenViae.Rosary.NarrationVoice
     resource LumenViae.Rosary.SpokenRosary
     resource LumenViae.Rosary.RosaryContent
+    resource LumenViae.Rosary.RosaryScript
   end
 
   require Ash.Query

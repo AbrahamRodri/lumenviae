@@ -7,7 +7,8 @@ iOS app and the website can pray a whole Rosary aloud, bead by bead.
 | Piece | Where |
 | --- | --- |
 | The prayers' words, English and Latin | `priv/rosary_content/prayers.json`, read by `LumenViae.Rosary.Content`, served as text by `GET /api/v2/rosary-content` |
-| The clips, their text and S3 keys, and the order a Rosary is said in | `LumenViae.Rosary.PrayerAudio` |
+| The order a Rosary is said in, as templates | `priv/rosary_content/script.json`, served as the content document's `script` section |
+| The clips, their text and S3 keys, and the order expanded | `LumenViae.Rosary.PrayerAudio` (`script/3`), served by `GET /api/v2/rosary-script` |
 | Proof that no change rewords a clip by accident | `test/lumen_viae/rosary/spoken_rosary_clips_test.exs` |
 | Recording them | `mix lumen_viae.generate_rosary_audio`, `LumenViae.Release.generate_rosary_audio/1`, which enqueue `LumenViae.Curation.Jobs.RecordRosaryClip` jobs |
 | Coverage (is every clip in the bucket) | `LumenViae.Curation.RosaryAudioGeneration.coverage/1` |
@@ -75,10 +76,20 @@ words back, or, when the change is meant, follow these steps:
 
 ## The order a Rosary is said in
 
-`PrayerAudio.script/3` is the server's copy of the app's
-`SpokenRosaryScript`, and the two must agree.
+The order is the server's, as data: `priv/rosary_content/script.json`,
+served as the `script` section of `GET /api/v2/rosary-content` (and
+GraphQL's `rosaryContent { script }`), so a client builds any Rosary
+offline. `PrayerAudio.script/3` expands the same templates for the
+website's "Pray aloud", and `GET /api/v2/rosary-script` serves that
+expansion as the reference a client's own is held to. The order, the
+captions, the pauses, the beads and the pendant's places are the app's
+`SpokenRosaryScript` (`SpokenRosary.swift`) and `RosaryStrand`; the app
+keeps its copy as the offline one. A caption, a pause or a bead is shown
+or timed and never spoken, so changing one records nothing (the clip
+fixture holds that); the dating rule applies to the file as to any other
+(docs/JSON_API.md, "The content document").
 
-**Joyful, Sorrowful, Glorious, Luminous**
+**Joyful, Sorrowful, Glorious, Luminous** (the template `rosary`)
 
 1. Sign of the Cross, Apostles' Creed, Our Father, three Hail Marys (faith,
    hope, charity), Glory Be
@@ -86,10 +97,10 @@ words back, or, when the change is meant, follow these steps:
    Marys (in the Scriptural Rosary each preceded by its verse), Glory Be,
    Fatima Prayer
 3. Hail, Holy Queen, the closing prayer, then any optional prayers - for the
-   Holy Father's intentions (Our Father, Hail Mary, Glory Be), the Memorare,
+   Pope's intentions (Our Father, Hail Mary, Glory Be), the Memorare,
    the Prayer to Saint Michael, in that order - and the Sign of the Cross
 
-**The Seven Sorrows chaplet** (the Servite form)
+**The Seven Sorrows chaplet** (the template `chaplet`, the Servite form)
 
 1. Sign of the Cross, Act of Contrition
 2. Each sorrow: announcement, meditation, Our Father, seven Hail Marys, Glory
@@ -99,11 +110,57 @@ words back, or, when the change is meant, follow these steps:
 
 The optional closing prayers are not added to the chaplet.
 
-The app has three styles of the same order: with the set's meditation after
-each announcement, the Scriptural Rosary with a verse before each Hail Mary,
-and the "Rosary Aloud" with neither (80 steps for the four Rosaries without
-extras). `script/3` takes `style: :plain` for the last; the website uses the
-meditation style. None of them needs a recording the others do not.
+There are three styles of the same order: `meditation`, with the set's
+meditation after each announcement (the website's); `scriptural`, the
+Scriptural Rosary, with a verse before each Hail Mary and no meditation;
+and `plain`, the Rosary Said Aloud, with neither. None of them needs a
+recording the others do not. The app's counts hold on the server
+(`spoken_rosary_script_test.exs`, ported from its
+`SpokenRosaryScriptTests`): 85 steps with meditations, 80 said aloud, 130
+scriptural, 84 for the chaplet with meditations, five more with every
+optional prayer and none more for the chaplet; and in one Rosary, the 53
+Hail Marys, 6 Our Fathers, 6 Glory Bes and 5 Fatima Prayers How to Pray
+teaches.
+
+### The templates
+
+Each form (`rosary`, `chaplet`) is `categories`, `takes_extras`, four
+lists of steps and its `strand`. A Rosary is:
+
+1. `opening`, each step said on the pendant;
+2. `decade`, once for each mystery prayed, in order. Leave out a step whose
+   `style` is not the style chosen (`null` means every style). The steps
+   marked `per_bead` are one run, said for each Hail Mary n from 1 to the
+   strand's `hail_marys`, the whole run in order each time (verse 1, Hail
+   Mary 1, verse 2, Hail Mary 2...), with `{n}` in the caption replaced and
+   the step said on bead n;
+3. `closing`;
+4. if the form `takes_extras`, the steps of each chosen entry of
+   `closing_extras`, in the order the list gives them;
+5. `final`.
+
+A template step is `kind` (`prayer`, `announcement`, `meditation`,
+`verse`), `prayer_id` (a prayer step's id in the `prayers` section),
+`caption`, `bead`, `place` (where on the pendant, one of `pendant`'s places;
+`null` in a decade), `per_bead`, `style` and `pause_ms`, the silence after
+it. Expanded, a step names what it plays: the prayer id; the mystery key
+`<category>_<order>` for an announcement or a meditation (the set's own
+narration); `<key>_<n>` for the verse before Hail Mary n, which is the
+verse clip's name. The pendant's steps have no decade and no mystery;
+they are said on the first decade's bead 0 (the opening) and the last
+decade's Glory Be bead (the close), which is where the app's strand
+stands while they are said.
+
+`strand` holds the bead rules (`RosaryStrand`): `decades`, `hail_marys`,
+`decade_length` (its Our Father and its Hail Marys), `beads` (56 for the
+Rosary, 57 for the chaplet, the final bead included), `glory_be_bead` (one
+past the last Hail Mary: the Glory Be has no bead of its own and is said
+on the next decade's Our Father bead), `fatima_prayer`, and what the beads
+are called (`labels`, `label_lines` for a narrow margin, `strand_labels`
+beside the strand, with `{n}` a Hail Mary's number and `{decade}` a
+decade's, counted from 1). `pendant` lists the pendant's places from the
+crucifix to the medal with their names, and `headings` what the screen
+calls the opening and closing prayers.
 
 ---
 

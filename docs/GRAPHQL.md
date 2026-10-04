@@ -227,7 +227,8 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 
 | Query | Returns |
 | --- | --- |
-| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers schedule`. The same document as `GET /api/v2/rosary-content`. |
+| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers schedule script`. The same document as `GET /api/v2/rosary-content`. |
+| `rosaryScript(category, style, extras, orders)` | `RosaryScript`: `id category style extras orders steps`, one Rosary expanded. The same as `GET /api/v2/rosary-script`, and null with `invalid_argument` (its `fields` naming the argument) for a value it does not know. |
 
 Everything a client needs to show and say the Rosary offline, as one
 document: selecting only `version updatedAt` is how a device asks whether
@@ -246,6 +247,15 @@ when the content last changed. `id` is always `"current"`.
   weekdays { monday ... saturday } sunday { advent lent ordinary }
   days { category daysPrayed words } }`. See docs/JSON_API.md, "The day's
   mysteries", for how a client applies it.
+- `script`: `RosaryScriptTemplates!`, the order a Rosary is said in as
+  templates: `styles`, `rosary` and `chaplet` (each `categories
+  takesExtras opening decade closing final strand`), `closingExtras`,
+  `pendant` and `headings`. docs/SPOKEN_ROSARY.md, "The templates", says
+  how to expand them; `rosaryScript` is the expansion to check against.
+
+`rosaryScript`'s arguments are strings, the lists among them
+comma-separated (`extras: "memorare,st_michael"`, `orders: "3,4,5"`), as
+the v2 route takes them.
 
 `rosaryContent` is non-null and takes no argument: it is answered from
 files compiled into the server (`LumenViae.Rosary.Content`) and from code

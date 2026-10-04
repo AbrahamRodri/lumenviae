@@ -1,0 +1,510 @@
+{
+  "updated_at": "2026-10-04T02:04:00Z",
+  "script": {
+    "styles": [
+      "meditation",
+      "scriptural",
+      "plain"
+    ],
+    "rosary": {
+      "categories": [
+        "joyful",
+        "sorrowful",
+        "glorious",
+        "luminous"
+      ],
+      "takes_extras": true,
+      "opening": [
+        {
+          "kind": "prayer",
+          "prayer_id": "sign_of_cross",
+          "caption": "The Sign of the Cross",
+          "bead": 0,
+          "place": "cross",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "apostles_creed",
+          "caption": "The Apostles' Creed",
+          "bead": 0,
+          "place": "cross",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "our_father",
+          "caption": "The Our Father",
+          "bead": 0,
+          "place": "large_bead",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "hail_mary",
+          "caption": "A Hail Mary for faith",
+          "bead": 0,
+          "place": "small_bead_1",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "hail_mary",
+          "caption": "A Hail Mary for hope",
+          "bead": 0,
+          "place": "small_bead_2",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "hail_mary",
+          "caption": "A Hail Mary for charity",
+          "bead": 0,
+          "place": "small_bead_3",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "glory_be",
+          "caption": "The Glory Be",
+          "bead": 0,
+          "place": "chain",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        }
+      ],
+      "decade": [
+        {
+          "kind": "announcement",
+          "prayer_id": null,
+          "caption": "The mystery",
+          "bead": 0,
+          "place": null,
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 1200
+        },
+        {
+          "kind": "meditation",
+          "prayer_id": null,
+          "caption": "The meditation",
+          "bead": 0,
+          "place": null,
+          "per_bead": false,
+          "style": "meditation",
+          "pause_ms": 2000
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "our_father",
+          "caption": "The Our Father",
+          "bead": 0,
+          "place": null,
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "verse",
+          "prayer_id": null,
+          "caption": "Scripture · {n} of 10",
+          "bead": null,
+          "place": null,
+          "per_bead": true,
+          "style": "scriptural",
+          "pause_ms": 800
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "hail_mary",
+          "caption": "Hail Mary · {n} of 10",
+          "bead": null,
+          "place": null,
+          "per_bead": true,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "glory_be",
+          "caption": "The Glory Be",
+          "bead": 11,
+          "place": null,
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "fatima_prayer",
+          "caption": "The Fatima Prayer",
+          "bead": 11,
+          "place": null,
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        }
+      ],
+      "closing": [
+        {
+          "kind": "prayer",
+          "prayer_id": "hail_holy_queen",
+          "caption": "Hail, Holy Queen",
+          "bead": 11,
+          "place": "medal",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "rosary_closing_prayer",
+          "caption": "The Closing Prayer",
+          "bead": 11,
+          "place": "medal",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        }
+      ],
+      "final": [
+        {
+          "kind": "prayer",
+          "prayer_id": "sign_of_cross",
+          "caption": "The Sign of the Cross",
+          "bead": 11,
+          "place": "cross",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        }
+      ],
+      "strand": {
+        "decades": 5,
+        "hail_marys": 10,
+        "decade_length": 11,
+        "beads": 56,
+        "glory_be_bead": 11,
+        "fatima_prayer": true,
+        "labels": {
+          "our_father": "Our Father",
+          "hail_mary": "Hail Mary · {n} of 10",
+          "glory_be": "Glory Be & Fatima Prayer"
+        },
+        "label_lines": {
+          "our_father": [
+            "Our Father"
+          ],
+          "hail_mary": [
+            "Hail Mary",
+            "{n} of 10"
+          ],
+          "glory_be": [
+            "Glory Be &",
+            "Fatima Prayer"
+          ]
+        },
+        "strand_labels": {
+          "our_father": "{decade}",
+          "amen": "Amen"
+        }
+      }
+    },
+    "chaplet": {
+      "categories": [
+        "seven_sorrows"
+      ],
+      "takes_extras": false,
+      "opening": [
+        {
+          "kind": "prayer",
+          "prayer_id": "sign_of_cross",
+          "caption": "The Sign of the Cross",
+          "bead": 0,
+          "place": "cross",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "act_of_contrition",
+          "caption": "The Act of Contrition",
+          "bead": 0,
+          "place": "cross",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        }
+      ],
+      "decade": [
+        {
+          "kind": "announcement",
+          "prayer_id": null,
+          "caption": "The sorrow",
+          "bead": 0,
+          "place": null,
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 1200
+        },
+        {
+          "kind": "meditation",
+          "prayer_id": null,
+          "caption": "The meditation",
+          "bead": 0,
+          "place": null,
+          "per_bead": false,
+          "style": "meditation",
+          "pause_ms": 2000
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "our_father",
+          "caption": "The Our Father",
+          "bead": 0,
+          "place": null,
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "verse",
+          "prayer_id": null,
+          "caption": "Scripture · {n} of 7",
+          "bead": null,
+          "place": null,
+          "per_bead": true,
+          "style": "scriptural",
+          "pause_ms": 800
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "hail_mary",
+          "caption": "Hail Mary · {n} of 7",
+          "bead": null,
+          "place": null,
+          "per_bead": true,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "glory_be",
+          "caption": "The Glory Be",
+          "bead": 8,
+          "place": null,
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        }
+      ],
+      "closing": [
+        {
+          "kind": "prayer",
+          "prayer_id": "hail_mary",
+          "caption": "In honor of her tears · 1 of 3",
+          "bead": 8,
+          "place": "small_bead_1",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "hail_mary",
+          "caption": "In honor of her tears · 2 of 3",
+          "bead": 8,
+          "place": "small_bead_2",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "hail_mary",
+          "caption": "In honor of her tears · 3 of 3",
+          "bead": 8,
+          "place": "small_bead_3",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        },
+        {
+          "kind": "prayer",
+          "prayer_id": "sorrows_closing_prayer",
+          "caption": "The Closing Prayer",
+          "bead": 8,
+          "place": "medal",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        }
+      ],
+      "final": [
+        {
+          "kind": "prayer",
+          "prayer_id": "sign_of_cross",
+          "caption": "The Sign of the Cross",
+          "bead": 8,
+          "place": "cross",
+          "per_bead": false,
+          "style": null,
+          "pause_ms": 900
+        }
+      ],
+      "strand": {
+        "decades": 7,
+        "hail_marys": 7,
+        "decade_length": 8,
+        "beads": 57,
+        "glory_be_bead": 8,
+        "fatima_prayer": false,
+        "labels": {
+          "our_father": "Our Father",
+          "hail_mary": "Hail Mary · {n} of 7",
+          "glory_be": "Glory Be"
+        },
+        "label_lines": {
+          "our_father": [
+            "Our Father"
+          ],
+          "hail_mary": [
+            "Hail Mary",
+            "{n} of 7"
+          ],
+          "glory_be": [
+            "Glory Be"
+          ]
+        },
+        "strand_labels": {
+          "our_father": "{decade}",
+          "amen": "Amen"
+        }
+      }
+    },
+    "closing_extras": [
+      {
+        "id": "holy_father",
+        "title": "For the Pope's intentions",
+        "short_title": "The Pope",
+        "detail": "An Our Father, Hail Mary and Glory Be after the Rosary, for what the Pope asks the Church to pray for.",
+        "steps": [
+          {
+            "kind": "prayer",
+            "prayer_id": "our_father",
+            "caption": "For the Pope's intentions",
+            "bead": 11,
+            "place": "medal",
+            "per_bead": false,
+            "style": null,
+            "pause_ms": 900
+          },
+          {
+            "kind": "prayer",
+            "prayer_id": "hail_mary",
+            "caption": "For the Pope's intentions",
+            "bead": 11,
+            "place": "medal",
+            "per_bead": false,
+            "style": null,
+            "pause_ms": 900
+          },
+          {
+            "kind": "prayer",
+            "prayer_id": "glory_be",
+            "caption": "For the Pope's intentions",
+            "bead": 11,
+            "place": "medal",
+            "per_bead": false,
+            "style": null,
+            "pause_ms": 900
+          }
+        ]
+      },
+      {
+        "id": "memorare",
+        "title": "Memorare",
+        "short_title": "Memorare",
+        "detail": "The prayer “Remember, O most gracious Virgin Mary” after the Rosary.",
+        "steps": [
+          {
+            "kind": "prayer",
+            "prayer_id": "memorare",
+            "caption": "The Memorare",
+            "bead": 11,
+            "place": "medal",
+            "per_bead": false,
+            "style": null,
+            "pause_ms": 900
+          }
+        ]
+      },
+      {
+        "id": "st_michael",
+        "title": "Saint Michael Prayer",
+        "short_title": "St. Michael",
+        "detail": "The Prayer to Saint Michael after the Rosary.",
+        "steps": [
+          {
+            "kind": "prayer",
+            "prayer_id": "st_michael_prayer",
+            "caption": "Prayer to Saint Michael",
+            "bead": 11,
+            "place": "medal",
+            "per_bead": false,
+            "style": null,
+            "pause_ms": 900
+          }
+        ]
+      }
+    ],
+    "pendant": [
+      {
+        "place": "cross",
+        "name": "The crucifix"
+      },
+      {
+        "place": "large_bead",
+        "name": "The large bead"
+      },
+      {
+        "place": "small_bead_1",
+        "name": "Small bead 1 of 3"
+      },
+      {
+        "place": "small_bead_2",
+        "name": "Small bead 2 of 3"
+      },
+      {
+        "place": "small_bead_3",
+        "name": "Small bead 3 of 3"
+      },
+      {
+        "place": "chain",
+        "name": "The chain"
+      },
+      {
+        "place": "medal",
+        "name": "The medal"
+      }
+    ],
+    "headings": {
+      "opening": "The Opening Prayers",
+      "closing": "The Closing Prayers"
+    }
+  }
+}

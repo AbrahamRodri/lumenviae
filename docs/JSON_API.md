@@ -44,6 +44,7 @@ involved.
 | `GET /voices` | `NarrationVoice.:offered` | The voices a listener may choose, default first. The same list as `GET /api/voices`. |
 | `GET /voices/retired` | `NarrationVoice.:retired` | The voices taken out of the pickers, each with `replaced_by`. |
 | `GET /rosary-audio?voice=` | `SpokenRosary.:for_voice` | One voice's spoken Rosary; the same recordings, keys and files as `GET /api/rosary/audio`. |
+| `GET /rosary-script?category=&style=&extras=&orders=` | `RosaryScript.:expand` | One Rosary's script, every step in order: the reference expansion of the content document's `script` templates. See "One Rosary's script". |
 | `GET /rosary-content` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
@@ -166,6 +167,13 @@ serves the same document, its sections chosen by the selection set.
   (`[Let us pray.]`), shown and not said as written.
 - **`schedule`**: which mysteries a day calls for, as rules a client
   applies offline, from `LumenViae.LiturgicalCalendar` (below).
+- **`script`**: the order a Rosary is said in, as templates a client
+  expands offline: for the Rosary and the chaplet, the steps of the
+  opening, of a decade, of the close and of the last words, and the bead
+  rules of the strand; the optional prayers after the Rosary; the
+  pendant's places; the styles. docs/SPOKEN_ROSARY.md, "The templates",
+  says how to expand them, and `GET /rosary-script` is the expansion to
+  check against.
 
 ### The day's mysteries
 
@@ -256,6 +264,43 @@ version against it. Change a rule or a word in `LiturgicalCalendar`: bump
 `@rules_updated_at` and add the entry the test prints. The iOS app
 computes the same rule on the device (`ScheduleService`); change the two
 together.
+
+## One Rosary's script
+
+```
+GET /api/v2/rosary-script?category=joyful
+GET /api/v2/rosary-script?category=seven_sorrows&style=scriptural&orders=3,4,5
+GET /api/v2/rosary-script?category=luminous&style=plain&extras=holy_father,st_michael
+```
+
+Every step of one Rosary, from the Sign of the Cross to the last Amen:
+the content document's `script` templates expanded by the server
+(`PrayerAudio.script/3`, which the website's "Pray aloud" also prays
+from). A client that expands the templates itself checks its expansion
+against this; `rosary_script_test.exs` holds the two to be the same for
+every category, style and set of optional prayers.
+
+| Param | |
+| --- | --- |
+| `category` | required: `joyful`, `sorrowful`, `glorious`, `luminous`, or `seven_sorrows` (the chaplet) |
+| `style` | `meditation` (the default), `scriptural` or `plain` (the Rosary Said Aloud) |
+| `extras` | the optional prayers after the Rosary, comma-separated: any of `holy_father`, `memorare`, `st_michael`. Said in that order whatever order they are given in; the chaplet takes none, and its `extras` comes back empty. |
+| `orders` | the mysteries' orders in prayer order, comma-separated, for a set whose meditations do not start at the first mystery. Every mystery of the category when absent. |
+
+The lists are comma-separated strings because every client spells one the
+same way in a query string. An unknown value, or an order outside the
+category, is a 400 `invalid_argument` whose detail names the parameter and
+the values it takes (`style must be one of: meditation, scriptural,
+plain`); a request without a category is a 400 `required`.
+
+The answer's `id` names the Rosary (`joyful:meditation::1,2,3,4,5`), and
+its attributes are the `category`, `style`, `extras` and `orders` it was
+expanded for and the `steps`, each `kind`, `name` (the clip it plays: a
+prayer id, a mystery key, or `<key>_<n>` for a verse), `mystery`,
+`caption`, `phase` (`opening`, `decade`, `closing`), `decade` (from 0,
+null on the pendant), `bead`, `place` (on the pendant, null in a decade)
+and `pause_ms`. A meditation step is the set's own narration, which a
+client finds in the set by its decade.
 
 ## Fresh meditation audio
 

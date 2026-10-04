@@ -243,127 +243,144 @@ defmodule LumenViae.Rosary.PrayerAudio do
     }
 
   @doc """
-  The order a whole spoken Rosary is said in, for a set in `category` with
-  `decades` meditations - the same order as the app's
-  `SpokenRosaryScript`, so the site and the app pray alike.
+  The order a whole spoken Rosary is said in, for a set in `category` whose
+  decades are the mysteries `orders` (their `order` values, in prayer
+  order, since a set's meditations need not start at the first mystery).
 
-  Each step is a map with `kind` (`:prayer`, `:announcement` or
-  `:meditation`), `name` (the prayer id, or the announcement's
-  `"<category>_<order>"`), `decade` (0-based, `nil` outside the decades),
-  `caption` and `pause_ms`, the silence after it. A `:meditation` step is
-  the set's own narration for that decade, which the caller resolves.
+  Expanded from `LumenViae.Rosary.Content.script/0`'s templates, the same
+  ones `GET /api/v2/rosary-content` serves, so the website, the app and any
+  other client pray in one order: the app's `SpokenRosaryScript`, with its
+  captions, pauses, beads and pendant places. `GET /api/v2/rosary-script`
+  serves this expansion.
 
-  `orders` are the mysteries' `order` values in prayer order, since a set's
-  meditations need not start at the first mystery. Options:
+  Each step is a map:
+
+    * `kind` - `:prayer`, `:announcement`, `:meditation` or `:verse`
+    * `name` - the clip it plays: the prayer id; the mystery's key,
+      `"<category>_<order>"`, for an announcement or a meditation (the
+      set's own narration, which the caller resolves); `"<key>_<n>"` for
+      the verse before Hail Mary n
+    * `mystery` - the decade's mystery key, `nil` on the pendant
+    * `phase` - `:opening`, `:decade` or `:closing`
+    * `decade` - 0-based, `nil` on the pendant
+    * `bead` - the bead of the decade's strand it is said on: 0 the Our
+      Father, n Hail Mary n, one past the last the Glory Be. The opening
+      is said on the first decade's bead 0, the close on the last
+      decade's Glory Be bead
+    * `place` - where on the pendant (`"cross"`, `"large_bead"`,
+      `"small_bead_1"` to `"small_bead_3"`, `"chain"`, `"medal"`), `nil` in
+      the decades
+    * `caption` - what the screen calls it
+    * `pause_ms` - the silence after it
+
+  Options:
 
     * `:style` - `:meditation` (default) says each set's meditation after
-      its announcement; `:plain` is the app's "Rosary Aloud", the prayers
-      alone with no meditation step.
+      its announcement; `:scriptural` says a verse before every Hail Mary
+      and no meditation; `:plain` is the Rosary Said Aloud, the prayers
+      alone.
     * `:closing` - optional prayers after the closing prayer, any of
-      `:holy_father`, `:memorare`, `:st_michael`, said in that order.
-      Ignored for the Seven Sorrows chaplet.
+      `:holy_father`, `:memorare`, `:st_michael`, said in that order
+      whatever order they are given in. The Seven Sorrows chaplet takes
+      none.
 
   The four Rosaries open with the Creed, an Our Father, three Hail Marys
   and a Glory Be, and give each decade ten Hail Marys, a Glory Be and the
   Fatima Prayer. The Seven Sorrows chaplet is the Servite form: an Act of
   Contrition to open, seven Hail Marys and a Glory Be to each sorrow and no
   Fatima Prayer, then three Hail Marys for Our Lady's tears and its own
-  closing prayer.
+  closing prayer. No orders, no Rosary: the script is empty.
   """
   @spec script(String.t(), [pos_integer], keyword) :: [map]
-  def script(category, orders, opts \\ []) do
-    chaplet? = category == "seven_sorrows"
-    plain? = Keyword.get(opts, :style, :meditation) == :plain
+  def script(category, orders, opts \\ [])
 
-    opening =
-      if chaplet? do
-        [
-          step("sign_of_cross", "The Sign of the Cross"),
-          step("act_of_contrition", "Act of Contrition", 1500)
-        ]
-      else
-        [
-          step("sign_of_cross", "The Sign of the Cross"),
-          step("apostles_creed", "The Apostles' Creed"),
-          step("our_father", "Our Father"),
-          step("hail_mary", "Hail Mary for an increase of faith"),
-          step("hail_mary", "Hail Mary for an increase of hope"),
-          step("hail_mary", "Hail Mary for an increase of charity"),
-          step("glory_be", "Glory Be", 1500)
-        ]
+  def script(_category, [], _opts), do: []
+
+  def script(category, orders, opts) do
+    templates = Content.script()
+    style = opts |> Keyword.get(:style, :meditation) |> to_string()
+    chosen = opts |> Keyword.get(:closing, []) |> Enum.map(&to_string/1)
+
+    form =
+      case Enum.find(["rosary", "chaplet"], &(category in templates[&1]["categories"])) do
+        nil -> raise ArgumentError, "no Rosary is said for the category #{inspect(category)}"
+        name -> templates[name]
       end
 
-    hail_marys = if chaplet?, do: 7, else: 10
+    if style not in templates["styles"] do
+      raise ArgumentError, "unknown style #{inspect(style)}"
+    end
+
+    extras =
+      if form["takes_extras"] do
+        for %{"id" => id, "steps" => steps} <- templates["closing_extras"],
+            id in chosen,
+            step <- steps,
+            do: step
+      else
+        []
+      end
+
+    hail_marys = form["strand"]["hail_marys"]
 
     decades =
       orders
       |> Enum.with_index()
       |> Enum.flat_map(fn {order, decade} ->
-        key = "#{category}_#{order}"
-
-        announcement = %{
-          kind: :announcement,
-          name: key,
-          caption: announcement_text(key),
-          pause_ms: 1500
-        }
-
-        meditation =
-          if plain?,
-            do: [],
-            else: [%{kind: :meditation, name: key, caption: "Meditation", pause_ms: 1500}]
-
-        beads =
-          for n <- 1..hail_marys, do: step("hail_mary", "Hail Mary #{n} of #{hail_marys}")
-
-        ending =
-          if chaplet?,
-            do: [step("glory_be", "Glory Be", 2000)],
-            else: [step("glory_be", "Glory Be"), step("fatima_prayer", "Fatima Prayer", 2000)]
-
-        ([announcement | meditation] ++ [step("our_father", "Our Father")] ++ beads ++ ending)
-        |> Enum.map(&Map.put(&1, :decade, decade))
+        decade_steps(form["decade"], "#{category}_#{order}", decade, style, hail_marys)
       end)
 
-    closing =
-      if chaplet? do
-        for(n <- 1..3, do: step("hail_mary", "Hail Mary for her tears, #{n} of 3")) ++
-          [
-            step("sorrows_closing_prayer", "Closing Prayer", 1500),
-            step("sign_of_cross", "The Sign of the Cross")
-          ]
-      else
-        extras = Keyword.get(opts, :closing, [])
-
-        [
-          step("hail_holy_queen", "Hail, Holy Queen"),
-          step("rosary_closing_prayer", "Closing Prayer", 1500)
-        ] ++
-          if(:holy_father in extras,
-            do: [
-              step("our_father", "For the intentions of the Holy Father"),
-              step("hail_mary", "For the intentions of the Holy Father"),
-              step("glory_be", "For the intentions of the Holy Father", 1500)
-            ],
-            else: []
-          ) ++
-          if(:memorare in extras, do: [step("memorare", "The Memorare", 1500)], else: []) ++
-          if(:st_michael in extras,
-            do: [step("st_michael_prayer", "Prayer to Saint Michael", 1500)],
-            else: []
-          ) ++
-          [step("sign_of_cross", "The Sign of the Cross")]
-      end
-
-    opening ++ decades ++ closing
+    Enum.map(form["opening"], &pendant_step(&1, :opening)) ++
+      decades ++ Enum.map(form["closing"] ++ extras ++ form["final"], &pendant_step(&1, :closing))
   end
 
-  defp step(name, caption, pause_ms \\ 700),
-    do: %{kind: :prayer, name: name, caption: caption, pause_ms: pause_ms, decade: nil}
+  @step_kinds %{
+    "prayer" => :prayer,
+    "announcement" => :announcement,
+    "meditation" => :meditation,
+    "verse" => :verse
+  }
 
-  defp announcement_text(key) do
-    Enum.find_value(announcements(), key, &(&1.mystery == key && &1.text))
+  # A decade's steps in the style chosen, the run marked per_bead said once
+  # for each Hail Mary, in order: verse 1, Hail Mary 1, verse 2...
+  defp decade_steps(template, key, decade, style, hail_marys) do
+    template
+    |> Enum.filter(&(&1["style"] in [nil, style]))
+    |> Enum.chunk_by(& &1["per_bead"])
+    |> Enum.flat_map(fn
+      [%{"per_bead" => true} | _] = run ->
+        for n <- 1..hail_marys, step <- run, do: expand(step, :decade, key, decade, n)
+
+      steps ->
+        Enum.map(steps, &expand(&1, :decade, key, decade, nil))
+    end)
   end
+
+  defp pendant_step(step, phase), do: expand(step, phase, nil, nil, nil)
+
+  defp expand(step, phase, key, decade, n) do
+    kind = Map.fetch!(@step_kinds, step["kind"])
+
+    %{
+      kind: kind,
+      name: clip_name(kind, step["prayer_id"], key, n),
+      mystery: key,
+      phase: phase,
+      decade: decade,
+      bead: n || step["bead"],
+      place: step["place"],
+      caption:
+        if(n,
+          do: String.replace(step["caption"], "{n}", Integer.to_string(n)),
+          else: step["caption"]
+        ),
+      pause_ms: step["pause_ms"]
+    }
+  end
+
+  defp clip_name(:prayer, prayer_id, _key, _n), do: prayer_id
+  defp clip_name(:verse, _prayer_id, key, n), do: "#{key}_#{n}"
+  defp clip_name(_kind, _prayer_id, key, _n), do: key
 
   @doc """
   The clip a script step plays, or `nil` for a meditation step, whose
@@ -374,6 +391,8 @@ defmodule LumenViae.Rosary.PrayerAudio do
 
   def clip_for_step(%{kind: :announcement, name: name}),
     do: Enum.find(announcements(), &(&1.mystery == name))
+
+  def clip_for_step(%{kind: :verse, name: name}), do: Enum.find(verses(), &(&1.name == name))
 
   def clip_for_step(%{kind: :meditation}), do: nil
 

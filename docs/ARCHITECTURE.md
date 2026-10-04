@@ -49,6 +49,7 @@ lib/lumen_viae/
 │   ├── narration_voice.ex     resource with no table: the configured voices, for GraphQL
 │   ├── spoken_rosary.ex       resource with no table: the spoken Rosary manifest, for GraphQL
 │   ├── rosary_content.ex      resource with no table: the Rosary's words as one document, for the APIs
+│   ├── rosary_script.ex       resource with no table: one Rosary's script, expanded, for the APIs
 │   ├── artwork.ex             value module: licences, field lists and framing arithmetic
 │   ├── artwork/fragment.ex    the artwork columns and their two actions, shared by set and author
 │   ├── categories.ex          value module: mystery category vocabulary
@@ -190,7 +191,7 @@ so an admin may do anything. Everyone else gets this, and nothing more:
 | SetMembership | read the memberships of a visible set |
 | Meditation | read one that is not archived and is in at least one set (a draft in no set is private, audio included; one in a hidden set stays readable so a set saved on a device keeps its narration); `:audio_for`, which signs the same ones |
 | Narration | read one whose meditation is not archived |
-| Mystery, Author, NarrationVoice, SpokenRosary, RosaryContent | read |
+| Mystery, Author, NarrationVoice, SpokenRosary, RosaryContent, RosaryScript | read |
 | Completion | `:record` and `:record_from_app` only, never read; the place lookup job may `:read` and `:add_place` (see below) |
 | Office.Breviary | its generic actions |
 | Admin, Token | nothing; AshAuthentication's own sign-in reads bypass |
@@ -480,9 +481,11 @@ before the deploy. The manifest signs keys without checking the bucket,
 and a device that cannot fetch a new key keeps saying the old copy it
 holds - but one that never had it simply goes without that prayer.
 `GET /api/rosary/audio` serves the whole catalogue for one voice as signed
-URLs. `PrayerAudio.script/3` is the order a whole Rosary is said in - the
-server's copy of the app's `SpokenRosaryScript`, used by the website's "Pray
-aloud" - and is pure, so it belongs here too. See docs/SPOKEN_ROSARY.md.
+URLs. `PrayerAudio.script/3` is the order a whole Rosary is said in,
+expanded from `Content`'s templates (`priv/rosary_content/script.json`,
+the app's `SpokenRosaryScript` as data), used by the website's "Pray
+aloud" and served by `LumenViae.Rosary.RosaryScript` as
+`GET /api/v2/rosary-script`; it is pure, so it belongs here too. See docs/SPOKEN_ROSARY.md.
 `test/lumen_viae/rosary/spoken_rosary_clips_test.exs` pins every key and
 version the production voices are served, so a change that would reword a
 clip fails the build.

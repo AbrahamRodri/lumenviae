@@ -24,6 +24,7 @@ defmodule LumenViae.PoliciesTest do
     Narration,
     NarrationVoice,
     RosaryContent,
+    RosaryScript,
     SetMembership,
     SpokenRosary
   }
@@ -324,6 +325,16 @@ defmodule LumenViae.PoliciesTest do
       assert Ash.can?({RosaryContent, :current}, admin())
 
       assert %RosaryContent{id: "current"} = Ash.read_one!(RosaryContent, action: :current)
+    end
+
+    test "a Rosary's script is a public read" do
+      assert Ash.can?({RosaryScript, :expand}, nil)
+      refute Ash.can?({RosaryScript, :read}, nil)
+
+      assert %RosaryScript{category: "joyful"} =
+               RosaryScript
+               |> Ash.Query.for_read(:expand, %{category: "joyful"})
+               |> Ash.read_one!()
     end
 
     test "the Office is open to anyone" do

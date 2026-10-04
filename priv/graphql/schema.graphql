@@ -3,6 +3,196 @@ schema {
   query: RootQueryType
 }
 
+type ScriptStep {
+  "Where on the pendant it is said; null in a decade."
+  place: String
+
+  "`opening`, `decade` or `closing`."
+  phase: String!
+
+  "The silence after it, in milliseconds."
+  pauseMs: Int!
+
+  "The clip it plays: the prayer id; the mystery's key, `<category>_<order>`, for an announcement or a meditation (the set's own narration); `<key>_<n>` for the verse before Hail Mary n."
+  name: String!
+
+  "The decade's mystery key; null on the pendant."
+  mystery: String
+
+  "`prayer`, `announcement`, `meditation` or `verse`."
+  kind: String!
+
+  "The decade, counted from 0; null on the pendant."
+  decade: Int
+
+  "What the screen calls it."
+  caption: String!
+
+  "The bead of the decade's strand it is said on: 0 the Our Father, n Hail Mary n, one past the last the Glory Be. The opening is said on the first decade's bead 0, the close on the last decade's Glory Be bead."
+  bead: Int!
+}
+
+type BeadLabelLines {
+  "An Our Father bead."
+  ourFather: [String!]!
+
+  "Hail Mary n's bead."
+  hailMary: [String!]!
+
+  "The Glory Be's bead."
+  gloryBe: [String!]!
+}
+
+type BeadLabels {
+  "An Our Father bead."
+  ourFather: String!
+
+  "Hail Mary n's bead."
+  hailMary: String!
+
+  "The Glory Be's bead."
+  gloryBe: String!
+}
+
+type StrandLabels {
+  "Beside an Our Father bead; `{decade}` is the decade's number, counted from 1."
+  ourFather: String!
+
+  "Beside the final bead."
+  amen: String!
+}
+
+type RosaryStrand {
+  "The labels drawn beside the strand."
+  strandLabels: StrandLabels!
+
+  "What the bead under the hand is called."
+  labels: BeadLabels!
+
+  "The same names broken for a narrow margin."
+  labelLines: BeadLabelLines!
+
+  "Hail Marys in each decade."
+  hailMarys: Int!
+
+  "The bead of a decade the Glory Be is said on: one past its last Hail Mary, which is the next decade's Our Father bead."
+  gloryBeBead: Int!
+
+  "Whether a decade closes with the Fatima Prayer after its Glory Be."
+  fatimaPrayer: Boolean!
+
+  "Decades on the strand: five, or the seven sorrows."
+  decades: Int!
+
+  "Beads in a decade: its Our Father and its Hail Marys."
+  decadeLength: Int!
+
+  "Every bead on the strand, the final bead included."
+  beads: Int!
+}
+
+type ScriptForm {
+  "Whether the optional prayers after the Rosary are said in this form."
+  takesExtras: Boolean!
+
+  "The strand of beads the decades are prayed on."
+  strand: RosaryStrand!
+
+  "The prayers on the pendant before the first decade."
+  opening: [ScriptTemplateStep!]!
+
+  "The last words, after any optional prayers."
+  final: [ScriptTemplateStep!]!
+
+  "One decade. The run of steps marked `per_bead` is said once for each Hail Mary, in order; a step with a `style` is said only in that style."
+  decade: [ScriptTemplateStep!]!
+
+  "The prayers after the last decade, before any optional prayers."
+  closing: [ScriptTemplateStep!]!
+
+  "The mystery categories prayed in this form."
+  categories: [String!]!
+}
+
+type ScriptTemplateStep {
+  "The only style the step is said in (`meditation`, `scriptural`); null in every style."
+  style: String
+
+  "The prayer said, for a `prayer` step: an id in the `prayers` section."
+  prayerId: String
+
+  "Where on the pendant it is said, one of `pendant`'s places; null in a decade."
+  place: String
+
+  "Said once for each Hail Mary of the decade, with the other `per_bead` steps beside it, in order."
+  perBead: Boolean!
+
+  "The silence after the step, in milliseconds."
+  pauseMs: Int!
+
+  "`prayer`, `announcement` (the mystery named), `meditation` (the set's own narration) or `verse` (the Scriptural Rosary's verse for one Hail Mary)."
+  kind: String!
+
+  "What the screen calls the step. In a `per_bead` step, `{n}` stands for the Hail Mary's number."
+  caption: String!
+
+  "The bead of the decade's strand it is said on: 0 the Our Father, the strand's `glory_be_bead` the Glory Be. Null in a `per_bead` step, which is said on Hail Mary n's bead, n."
+  bead: Int
+}
+
+type ClosingExtra {
+  "What the setting is called."
+  title: String!
+
+  "The prayers said."
+  steps: [ScriptTemplateStep!]!
+
+  "The name where three share a row."
+  shortTitle: String!
+
+  "`holy_father`, `memorare` or `st_michael`: what `extras` names in `GET \/api\/v2\/rosary-script`."
+  id: String!
+
+  "What the setting adds, said as what is prayed."
+  detail: String!
+}
+
+type ScriptHeadings {
+  "Before the first decade."
+  opening: String!
+
+  "After the last."
+  closing: String!
+}
+
+type PendantPlace {
+  "`cross`, `large_bead`, `small_bead_1` to `small_bead_3`, `chain` or `medal`."
+  place: String!
+
+  "What it is called, for a screen reader."
+  name: String!
+}
+
+type RosaryScriptTemplates {
+  "The styles a Rosary is said in: `meditation`, `scriptural`, `plain` (the Rosary Said Aloud)."
+  styles: [String!]!
+
+  "The four Rosaries: Joyful, Sorrowful, Glorious and Luminous."
+  rosary: ScriptForm!
+
+  "The places on the pendant, climbing from the crucifix to the medal."
+  pendant: [PendantPlace!]!
+
+  "What the screen calls the prayers said on the pendant."
+  headings: ScriptHeadings!
+
+  "The optional prayers after a Rosary's closing prayer, in the order they are said whatever order they are chosen in."
+  closingExtras: [ClosingExtra!]!
+
+  "The Seven Sorrows chaplet, in its Servite form."
+  chaplet: ScriptForm!
+}
+
 type ScheduleDays {
   "What the app shows under the set's name: `days_prayed`, or for a set the schedule never reaches, when it is kept (`Fridays, and on her feast, September 15`; `Any day you choose`)."
   words: String!
@@ -267,6 +457,24 @@ type MutationError {
   path: [String!]
 }
 
+type RosaryScript {
+  "The Rosary described: its category, style, extras and orders, separated by colons."
+  id: String!
+
+  category: String!
+
+  style: String!
+
+  "The optional prayers said, in the order they are said."
+  extras: [String!]!
+
+  "The mysteries' orders, one per decade, in prayer order."
+  orders: [Int!]!
+
+  "Every step, in the order it is said."
+  steps: [ScriptStep!]!
+}
+
 type RosaryContent {
   "Always `current`: there is one document."
   id: String!
@@ -282,6 +490,9 @@ type RosaryContent {
 
   "Which mysteries a day calls for, on both weekly schedules, as rules to apply offline: each weekday's set, Sunday's by season, every Lent and Advent from last year to three years ahead, the home grid's order and the days each set is prayed in words. The day is the device's calendar day, turning at midnight, not the prayer day that turns at four in the morning."
   schedule: RosarySchedule!
+
+  "The order a Rosary is said in, as templates a client expands offline: the Rosary's and the chaplet's steps, the optional prayers after the Rosary and the strand's beads. GET \/api\/v2\/rosary-script expands them."
+  script: RosaryScriptTemplates!
 }
 
 type SpokenRosary {
@@ -437,6 +648,21 @@ type RootQueryType {
 
   "The Rosary's words as one document. There is only ever one."
   rosaryContent: RosaryContent!
+
+  "One Rosary's script, every step in order: a category's mysteries in a style, with any optional prayers after it."
+  rosaryScript(
+    "The mysteries prayed: joyful, sorrowful, glorious, luminous or seven_sorrows (the chaplet)."
+    category: String!
+
+    "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Rosary Said Aloud, the prayers alone."
+    style: String
+
+    "The optional prayers after the Rosary, comma-separated, any of holy_father, memorare, st_michael. Said in that order whatever order they are given in; the chaplet takes none."
+    extras: String
+
+    "The mysteries' orders in prayer order, comma-separated (3,4,5), for a set whose meditations do not run from the first. Every mystery of the category when absent."
+    orders: String
+  ): RosaryScript
 
   "The full text of one canonical hour on one date."
   officeHour(
