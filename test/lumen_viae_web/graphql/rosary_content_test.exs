@@ -9,6 +9,7 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
 
   alias LumenViae.Rosary.Content
   alias LumenViae.Rosary.RosaryContent.Current
+  alias LumenViae.Rosary.RosaryContent.Labels, as: LabelsSection
   alias LumenViae.Rosary.RosaryContent.Schedule
 
   test "the version and the date alone", %{conn: conn} do
@@ -123,5 +124,75 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
 
     assert content["guidedRosary"]["parts"] == Content.guided_rosary()["parts"]
     assert Enum.map(content["guidedRosary"]["rosaries"], &length(&1["steps"])) == [75, 75, 75, 75]
+  end
+
+  test "the quotes, the milestones and the labels, as the JSON:API serves them", %{conn: conn} do
+    body =
+      graphql(conn, """
+      { rosaryContent {
+          quotes { rotation { homeOffset afterPrayerOffsetDivisor } items { text author source } }
+          milestones { days meaning icon blessing }
+          labels { labels { id name } kinds { label icon title description } }
+      } }
+      """)
+
+    refute body["errors"]
+
+    content = get_in(body, ["data", "rosaryContent"])
+    quotes = Content.quotes()
+
+    assert content["quotes"]["rotation"] == %{
+             "homeOffset" => quotes["rotation"]["home_offset"],
+             "afterPrayerOffsetDivisor" => quotes["rotation"]["after_prayer_offset_divisor"]
+           }
+
+    assert content["quotes"]["items"] == quotes["items"]
+    assert content["milestones"] == Content.milestones()
+    assert content["labels"] == LabelsSection.section()
+  end
+
+  test "the reminders and the forms", %{conn: conn} do
+    body =
+      graphql(conn, """
+      { rosaryContent {
+          reminders {
+            fallbackGroup weekLength
+            groups { id messages { title body } }
+            intentions { id rawValue name detail groups }
+          }
+          forms {
+            holyAudioValue
+            forms { id name recordedAs kicker subtitle detail about }
+            choices { id title icon options { form value name note } }
+            offered { form whenAloud whenSilent }
+            rows { form whenAloud whenSilent }
+            rowTitles { id title }
+          }
+      } }
+      """)
+
+    refute body["errors"]
+
+    content = get_in(body, ["data", "rosaryContent"])
+    reminders = Content.reminders()
+    forms = Content.forms()
+
+    assert content["reminders"]["fallbackGroup"] == reminders["fallback_group"]
+    assert content["reminders"]["weekLength"] == reminders["week_length"]
+    assert content["reminders"]["groups"] == reminders["groups"]
+
+    assert Enum.map(content["reminders"]["intentions"], & &1["groups"]) ==
+             Enum.map(reminders["intentions"], & &1["groups"])
+
+    assert content["forms"]["holyAudioValue"] == forms["holy_audio_value"]
+
+    assert Enum.map(content["forms"]["forms"], & &1["recordedAs"]) ==
+             Enum.map(forms["forms"], & &1["recorded_as"])
+
+    assert content["forms"]["choices"] == forms["choices"]
+    assert content["forms"]["rowTitles"] == forms["row_titles"]
+
+    assert Enum.map(content["forms"]["offered"], &{&1["form"], &1["whenAloud"], &1["whenSilent"]}) ==
+             Enum.map(forms["offered"], &{&1["form"], &1["when_aloud"], &1["when_silent"]})
   end
 end

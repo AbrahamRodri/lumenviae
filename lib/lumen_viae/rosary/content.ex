@@ -48,6 +48,20 @@ defmodule LumenViae.Rosary.Content do
   dates and versions, so changing a file without dating it fails the build:
   bump the file's `updated_at` and add its new version to that history.
 
+  ## The companion sections
+
+  Beside the prayers, four files hold what the app keeps around the
+  Rosary, each a section of the document: `quotes.json` (`quotes`: the
+  daily quotation and how one is chosen), `milestones.json` (`milestones`:
+  the streak's named devotional milestones), `reminders.json`
+  (`reminders`: the daily reminders' messages in their groups, what each
+  intention draws from, and the selection rule) and `forms.json` (`forms`:
+  the Rosary's forms, the Audio and Counting choices and what each form's
+  page offers). The words are the app's, copied verbatim; the rules they
+  go with are in docs/JSON_API.md, "The content document". A fifth
+  section, `labels`, is code (`LumenViae.Rosary.RosaryContent.Labels`),
+  dated and pinned there.
+
   A file that is missing a field, holds an unknown group, repeats an id,
   pairs languages of different lengths, names a prayer, place or style
   that does not exist, or carries no valid date fails the compile, never
@@ -67,6 +81,15 @@ defmodule LumenViae.Rosary.Content do
 
   @guided_rosary_path Path.join(@dir, "guided_rosary.json")
   @external_resource @guided_rosary_path
+
+  @quotes_path Path.join(@dir, "quotes.json")
+  @external_resource @quotes_path
+  @milestones_path Path.join(@dir, "milestones.json")
+  @external_resource @milestones_path
+  @reminders_path Path.join(@dir, "reminders.json")
+  @external_resource @reminders_path
+  @forms_path Path.join(@dir, "forms.json")
+  @external_resource @forms_path
 
   @groups ~w(rosary chaplet after)
 
@@ -221,6 +244,168 @@ defmodule LumenViae.Rosary.Content do
         "priv/rosary_content/guided_rosary.json: the anatomy's #{anatomy["id"]} names #{inspect(part)}, which is not one of its parts"
   end
 
+  # The companion files are read as prayers.json is, and each is checked
+  # for the shape its section is served in.
+  invalid = fn file, message ->
+    raise CompileError, description: "priv/rosary_content/#{file}: #{message}"
+  end
+
+  text? = fn value -> is_binary(value) and String.trim(value) != "" end
+  text_or_nil? = fn value -> is_nil(value) or (is_binary(value) and String.trim(value) != "") end
+
+  {quotes_file, quotes_updated_at} = read.(@quotes_path)
+  @quotes Map.fetch!(quotes_file, "quotes")
+
+  with %{"rotation" => %{"home_offset" => home, "after_prayer_offset_divisor" => divisor}} <-
+         @quotes,
+       true <- is_integer(home) and is_integer(divisor) and divisor > 0 do
+    :ok
+  else
+    _ ->
+      invalid.(
+        "quotes.json",
+        "quotes needs a rotation with a home_offset and a positive after_prayer_offset_divisor"
+      )
+  end
+
+  if @quotes["items"] == [] or not is_list(@quotes["items"]) or
+       not Enum.all?(@quotes["items"], fn
+         %{"text" => text, "author" => author, "source" => source} ->
+           text?.(text) and text?.(author) and text_or_nil?.(source)
+
+         _other ->
+           false
+       end) do
+    invalid.("quotes.json", "every quote needs a text and an author, and a source or null")
+  end
+
+  {milestones_file, milestones_updated_at} = read.(@milestones_path)
+  @milestones Map.fetch!(milestones_file, "milestones")
+
+  if @milestones == [] or not is_list(@milestones) or
+       not Enum.all?(@milestones, fn
+         %{"days" => days, "meaning" => meaning, "icon" => icon, "blessing" => blessing} ->
+           is_integer(days) and days > 0 and text_or_nil?.(meaning) and text?.(icon) and
+             text?.(blessing)
+
+         _other ->
+           false
+       end) do
+    invalid.(
+      "milestones.json",
+      "every milestone needs days, a meaning or null, an icon and a blessing"
+    )
+  end
+
+  milestone_days = Enum.map(@milestones, & &1["days"])
+
+  if milestone_days != Enum.sort(Enum.uniq(milestone_days)) do
+    invalid.("milestones.json", "the milestones are in ascending order of days, each once")
+  end
+
+  {reminders_file, reminders_updated_at} = read.(@reminders_path)
+  @reminders Map.fetch!(reminders_file, "reminders")
+
+  %{
+    "groups" => reminder_groups,
+    "intentions" => reminder_intentions,
+    "fallback_group" => reminder_fallback,
+    "week_length" => reminder_week
+  } = @reminders
+
+  reminder_group_ids = Enum.map(reminder_groups, & &1["id"])
+
+  if Enum.uniq(reminder_group_ids) != reminder_group_ids or reminder_group_ids == [] do
+    invalid.("reminders.json", "every group needs its own id")
+  end
+
+  if not Enum.all?(reminder_groups, fn %{"messages" => messages} ->
+       messages != [] and
+         Enum.all?(messages, fn
+           %{"title" => title, "body" => body} -> text?.(title) and text?.(body)
+           _other -> false
+         end)
+     end) do
+    invalid.("reminders.json", "every group needs messages, each with a title and a body")
+  end
+
+  # A message is shown as it is written: nothing in it is filled in.
+  if Enum.any?(reminder_groups, fn %{"messages" => messages} ->
+       Enum.any?(messages, &(&1["title"] =~ ~r/[{}%]/ or &1["body"] =~ ~r/[{}%]/))
+     end) do
+    invalid.("reminders.json", "a message holds a placeholder; none does, and the docs say so")
+  end
+
+  intention_ids = Enum.map(reminder_intentions, & &1["id"])
+
+  if Enum.uniq(intention_ids) != intention_ids or
+       not Enum.all?(reminder_intentions, fn intention ->
+         text?.(intention["raw_value"]) and text?.(intention["name"]) and
+           text?.(intention["detail"]) and intention["groups"] != [] and
+           Enum.all?(intention["groups"], &(&1 in reminder_group_ids))
+       end) do
+    invalid.(
+      "reminders.json",
+      "every intention needs its own id, its words and groups that exist"
+    )
+  end
+
+  if reminder_fallback not in reminder_group_ids or not is_integer(reminder_week) or
+       reminder_week < 1 do
+    invalid.(
+      "reminders.json",
+      "the fallback group must exist and the week must be a number of days"
+    )
+  end
+
+  {forms_file, forms_updated_at} = read.(@forms_path)
+  @forms Map.fetch!(forms_file, "forms")
+
+  form_ids = Enum.map(@forms["forms"], & &1["id"])
+  choice_ids = Enum.map(@forms["choices"], & &1["id"])
+  row_ids = Enum.map(@forms["row_titles"], & &1["id"])
+
+  if Enum.uniq(form_ids) != form_ids or
+       not Enum.all?(@forms["forms"], fn form ->
+         Enum.all?(~w(name recorded_as kicker subtitle detail about), &text?.(form[&1]))
+       end) do
+    invalid.(
+      "forms.json",
+      "every form needs its own id, a name, recorded_as, kicker, subtitle, detail and about"
+    )
+  end
+
+  all_form_ids = Enum.uniq(["meditation" | form_ids])
+
+  if not Enum.all?(@forms["choices"], fn choice ->
+       text?.(choice["title"]) and text?.(choice["icon"]) and
+         choice["options"] != [] and
+         Enum.all?(choice["options"], fn option ->
+           option["form"] in ["any" | all_form_ids] and is_boolean(option["value"]) and
+             text?.(option["name"]) and text?.(option["note"])
+         end)
+     end) do
+    invalid.(
+      "forms.json",
+      "every choice needs a title, an icon and options with a form, a value, a name and a note"
+    )
+  end
+
+  for {key, ids} <- [{"offered", choice_ids}, {"rows", row_ids}],
+      rule <- @forms[key] do
+    if rule["form"] not in all_form_ids or
+         not Enum.all?(rule["when_aloud"] ++ rule["when_silent"], &(&1 in ids)) do
+      invalid.("forms.json", "#{key} names a form or an id that does not exist: #{inspect(rule)}")
+    end
+  end
+
+  if not text?.(@forms["holy_audio_value"]) do
+    invalid.(
+      "forms.json",
+      "holy_audio_value is the words under the Rosary Said Aloud's audio row"
+    )
+  end
+
   # One entry per file. A new file is read and checked as prayers.json is
   # above, and listed here; its sections join the document.
   @files [
@@ -231,7 +416,11 @@ defmodule LumenViae.Rosary.Content do
       name: "guided_rosary.json",
       content: guided_rosary_file,
       updated_at: guided_rosary_updated_at
-    }
+    },
+    %{name: "quotes.json", content: quotes_file, updated_at: quotes_updated_at},
+    %{name: "milestones.json", content: milestones_file, updated_at: milestones_updated_at},
+    %{name: "reminders.json", content: reminders_file, updated_at: reminders_updated_at},
+    %{name: "forms.json", content: forms_file, updated_at: forms_updated_at}
   ]
 
   @document Enum.reduce(@files, %{}, &Map.merge(&2, &1.content))
@@ -265,6 +454,30 @@ defmodule LumenViae.Rosary.Content do
   @doc "The prayer ids, in the order they are said."
   @spec prayer_ids() :: [String.t()]
   def prayer_ids, do: @prayer_ids
+
+  @doc """
+  The daily quotations and how one is chosen: `%{"rotation" => ..., "items"
+  => [...]}`.
+  """
+  @spec quotes() :: map
+  def quotes, do: @quotes
+
+  @doc "The streak milestones, by days ascending."
+  @spec milestones() :: [map]
+  def milestones, do: @milestones
+
+  @doc """
+  The reminders: `%{"groups" => ..., "intentions" => ..., "fallback_group"
+  => ..., "week_length" => ...}`.
+  """
+  @spec reminders() :: map
+  def reminders, do: @reminders
+
+  @doc """
+  The Rosary's forms, its two choices and what each form's page offers.
+  """
+  @spec forms() :: map
+  def forms, do: @forms
 
   @doc "One prayer by its id, or `nil`."
   @spec prayer(String.t()) :: map | nil

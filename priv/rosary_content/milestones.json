@@ -1,0 +1,47 @@
+{
+  "updated_at": "2026-10-04T02:40:00Z",
+  "milestones": [
+    {
+      "days": 3,
+      "meaning": "a triduum",
+      "icon": "ph-number-circle-three",
+      "blessing": "Three days in a row: a triduum, the Church's ancient three days of prayer."
+    },
+    {
+      "days": 7,
+      "meaning": "a faithful week",
+      "icon": "ph-number-circle-seven",
+      "blessing": "Seven days — every mystery of the week visited in prayer."
+    },
+    {
+      "days": 9,
+      "meaning": "a novena",
+      "icon": "ph-number-circle-nine",
+      "blessing": "Nine days in a row: a novena, as the Apostles prayed for nine days before Pentecost."
+    },
+    {
+      "days": 33,
+      "meaning": null,
+      "icon": "ch-consecration",
+      "blessing": "Thirty-three days, as long as St. Louis de Montfort's Consecration to Mary."
+    },
+    {
+      "days": 54,
+      "meaning": "a Rosary novena",
+      "icon": "lv-rosary",
+      "blessing": "The great Rosary novena complete: 27 days asking, and 27 giving thanks."
+    },
+    {
+      "days": 100,
+      "meaning": null,
+      "icon": "lv-wheat",
+      "blessing": "Some seed fell on good soil and brought forth fruit a hundredfold."
+    },
+    {
+      "days": 365,
+      "meaning": "a year of grace",
+      "icon": "ch-chi-rho",
+      "blessing": "A full year of daily prayer, for the greater glory of God."
+    }
+  ]
+}

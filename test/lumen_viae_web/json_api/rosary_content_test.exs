@@ -12,6 +12,7 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
   alias LumenViae.LiturgicalCalendar
   alias LumenViae.Rosary.Content
   alias LumenViae.Rosary.RosaryContent.Current
+  alias LumenViae.Rosary.RosaryContent.Labels, as: LabelsSection
   alias LumenViae.Rosary.RosaryContent.Schedule
 
   # The strict form the app's ISO8601DateFormatter accepts: whole seconds, Z.
@@ -150,6 +151,71 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
                  Atom.to_string(LiturgicalCalendar.recommended_mysteries(date, schedule_id)),
                "#{date} on #{rules["id"]}"
       end
+    end
+  end
+
+  describe "the companion sections" do
+    @sections ~w(quotes milestones reminders labels forms)
+
+    test "come when asked for, and not before", %{conn: conn} do
+      bare =
+        conn |> get_v2("/rosary-content") |> v2_response(200) |> get_in(["data", "attributes"])
+
+      assert Map.keys(bare) |> Enum.sort() == ["updated_at", "version"]
+
+      attributes =
+        conn
+        |> get_v2("/rosary-content?fields[rosary_content]=#{Enum.join(@sections, ",")}")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      assert Map.keys(attributes) |> Enum.sort() == Enum.sort(@sections)
+    end
+
+    test "are the files' and the vocabulary's, as they are held", %{conn: conn} do
+      attributes =
+        conn
+        |> get_v2("/rosary-content?fields[rosary_content]=#{Enum.join(@sections, ",")}")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      assert attributes["quotes"] == Content.quotes()
+      assert attributes["milestones"] == Content.milestones()
+      assert attributes["reminders"] == Content.reminders()
+      assert attributes["forms"] == Content.forms()
+      assert attributes["labels"] == LabelsSection.section()
+    end
+
+    test "count what the app has", %{conn: conn} do
+      attributes =
+        conn
+        |> get_v2("/rosary-content?fields[rosary_content]=#{Enum.join(@sections, ",")}")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      assert length(attributes["quotes"]["items"]) == 21
+      assert length(attributes["milestones"]) == 7
+
+      assert Enum.map(attributes["reminders"]["groups"], &length(&1["messages"])) == [
+               7,
+               7,
+               7,
+               2,
+               7
+             ]
+
+      assert length(attributes["labels"]["labels"]) == 5
+      assert length(attributes["labels"]["kinds"]) == 4
+      assert Enum.map(attributes["forms"]["choices"], & &1["id"]) == ~w(audio counting)
+    end
+
+    test "are folded into the version, so a word changed moves it" do
+      for section <- @sections, do: assert(section in Current.folded_sections())
+
+      changed =
+        update_in(Content.document(), ["quotes", "items", Access.at(0), "text"], &(&1 <> "!"))
+
+      refute Content.version(changed) == Content.version(Content.document())
     end
   end
 

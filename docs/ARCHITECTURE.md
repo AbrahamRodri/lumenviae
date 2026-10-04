@@ -509,7 +509,12 @@ sections that are not files: `schedule`, which it computes from
 table, so it is a calculation that queries, under the caller's opts),
 `categories` (from `Categories`) and `verses` (from `PrayerAudio.verses/0`).
 `RosaryContent.Current.stamp/2` folds every section into the version and
-the date. See docs/JSON_API.md, "The content document".
+the date. The files beyond the prayers (`quotes.json`, `milestones.json`,
+`reminders.json`, `forms.json`) are the companion sections, checked as
+they compile; the `labels` section is code, `LumenViae.Rosary.Labels`'s
+vocabulary, display names and kinds, dated in
+`LumenViae.Rosary.RosaryContent.Labels` and pinned in its test as the
+schedule's rules are. See docs/JSON_API.md, "The content document".
 
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.

@@ -9,6 +9,7 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
   alias LumenViae.Rosary.Content
   alias LumenViae.Rosary.RosaryContent
   alias LumenViae.Rosary.RosaryContent.Categories
+  alias LumenViae.Rosary.RosaryContent.Labels
   alias LumenViae.Rosary.RosaryContent.Mysteries
   alias LumenViae.Rosary.RosaryContent.Schedule
   alias LumenViae.Rosary.RosaryContent.Verses
@@ -36,6 +37,9 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
   (`Schedule.updated_at/1`) the dates, so the version moves when the year
   turns and its seasons move on.
 
+  The `labels` section is code too (`Labels.section/0`, dated in its
+  module and pinned in its test).
+
   The `mysteries` section is the one read from the database (`opts` are
   the caller's, for that read); `categories` and `verses` are code, dated
   in their own modules.
@@ -48,6 +52,7 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
       {"content", Content.document(), Content.updated_at()},
       {"schedule", Schedule.section(year), Schedule.updated_at(year)},
       {"categories", Categories.all(), Categories.updated_at()},
+      {"labels", Labels.section(), Labels.updated_at()},
       {"verses", Verses.groups(), Verses.updated_at()},
       {"mysteries", Enum.map(mysteries, &elem(&1, 0)),
        mysteries |> Enum.map(&elem(&1, 1)) |> Enum.max(DateTime, fn -> Content.updated_at() end)}
@@ -66,13 +71,13 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
 
   @doc """
   Every section `stamp/2` folds in: each content file's sections
-  (`Content.document/0`) and the four computed beside them. A section the
+  (`Content.document/0`) and the five computed beside them. A section the
   resource serves must be one of these, or a change to it would not move
   the version; `rosary_content_sections_test.exs` holds the two together.
   """
   @spec folded_sections() :: [String.t()]
   def folded_sections do
-    Map.keys(Content.document()) ++ ~w(schedule categories verses mysteries)
+    Map.keys(Content.document()) ++ ~w(schedule categories labels verses mysteries)
   end
 
   # Typed structs as plain maps, so Content.version/1 can order their keys.

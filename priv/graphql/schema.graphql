@@ -32,6 +32,214 @@ type ScriptStep {
   bead: Int!
 }
 
+type RosaryChoiceOption {
+  "The setting's value: Audio's is true for the Whole Rosary, Counting's true for the beads on the screen."
+  value: Boolean!
+
+  "What the chosen option does, as what is heard or seen."
+  note: String!
+
+  "What the option is called."
+  name: String!
+
+  "`meditation`, `scriptural` or `any`. Audio is named and explained differently for a meditation set and for the Scriptural Rosary; Counting is the same for both (`any`)."
+  form: String!
+}
+
+type RosaryChoice {
+  "What the choice is called."
+  title: String!
+
+  "The options, the quieter way (value false) first. For a form, use those whose `form` is the form's id, or else `any`."
+  options: [RosaryChoiceOption!]!
+
+  "`audio` or `counting`."
+  id: String!
+
+  "The glyph, by the iOS app's icon name."
+  icon: String!
+}
+
+type RosaryFormInfo {
+  "The line under the name on the form's own page."
+  subtitle: String!
+
+  "What the Prayer Record keeps a prayer of this form under. It is the old name for the Rosary Said Aloud, because the record already holds days under it; a client that wants its history readable beside the iOS app's keeps the same."
+  recordedAs: String!
+
+  "The form's name wherever it is shown."
+  name: String!
+
+  "The line over the name on the form's own page."
+  kicker: String!
+
+  "`scriptural` or `holy` (the Rosary Said Aloud), the iOS app's names for the forms."
+  id: String!
+
+  "The line under the name where the form is listed under Ways to Pray."
+  detail: String!
+
+  "What the form is, on the page's ledger."
+  about: String!
+}
+
+type RosaryFormRule {
+  "The ids, in order, while it is not."
+  whenSilent: [String!]!
+
+  "The ids, in order, while the Audio choice is the Whole Rosary. Always the case in the Rosary Said Aloud."
+  whenAloud: [String!]!
+
+  "`meditation`, `scriptural` or `holy`."
+  form: String!
+}
+
+type RosaryRowTitle {
+  "The row's name."
+  title: String!
+
+  "`audio`, `mysteries` or `voice`."
+  id: String!
+}
+
+type RosaryForms {
+  "Which rows a form's page carries beneath the choices, by row id, in the same two cases."
+  rows: [RosaryFormRule!]!
+
+  "What each row is called."
+  rowTitles: [RosaryRowTitle!]!
+
+  "Which choices a form's page offers, by choice id, while the Audio choice is Whole Rosary (`when_aloud`) and while it is not (`when_silent`)."
+  offered: [RosaryFormRule!]!
+
+  "What the Rosary Said Aloud's audio row says, as a fact rather than a choice."
+  holyAudioValue: String!
+
+  "The two forms with a name of their own: the Scriptural Rosary and the Rosary Said Aloud. The third form, a meditation set, is named by the set."
+  forms: [RosaryFormInfo!]!
+
+  "The two choices that change how the Rosary is prayed, Audio and Counting."
+  choices: [RosaryChoice!]!
+}
+
+type MeditationKind {
+  "A short heading."
+  title: String!
+
+  "The stored label it explains."
+  label: String!
+
+  "The glyph, by the iOS app's icon name."
+  icon: String!
+
+  "What it is like, then, after a blank line, the voices that carry it. The voices are examples, not an index: the library grows."
+  description: String!
+}
+
+type LabelName {
+  "What a reader sees. Equal to `id` where the app does not reword it (`Considerations` reads Reflections, `Contemplative` Inside the Scene, `Scriptural` Gospel)."
+  name: String!
+
+  "The label as a set stores and serves it: raw, case-sensitive."
+  id: String!
+}
+
+type RosaryLabels {
+  "Every label a set may carry, in the vocabulary's order. A set's labels are stored as `id`."
+  labels: [LabelName!]!
+
+  "The kinds of meditation, for the page that explains them."
+  kinds: [MeditationKind!]!
+}
+
+type ReminderMessage {
+  "The notification's title."
+  title: String!
+
+  "The notification's body."
+  body: String!
+}
+
+type ReminderGroup {
+  "The group's messages, in the order the rotation counts them."
+  messages: [ReminderMessage!]!
+
+  "The group's key (`peace`, `habit`, `devotion`, `learning`, `standard`)."
+  id: String!
+}
+
+type ReminderIntention {
+  "The string the iOS app stores for the choice. It never changes, so a client that wants to read an iOS-kept answer can match it."
+  rawValue: String!
+
+  "What the choice is called on screen."
+  name: String!
+
+  "The intention's key (`peace`), which names its groups."
+  id: String!
+
+  "The groups this intention draws from, in order. Someone still learning has not settled into one way of praying, so `learning` lists them all."
+  groups: [String!]!
+
+  "The line under the name."
+  detail: String!
+}
+
+type RosaryReminders {
+  "The number of reminders scheduled at once, one for each weekday."
+  weekLength: Int!
+
+  "What can draw someone to the Rosary, and the groups each draws its reminders from."
+  intentions: [ReminderIntention!]!
+
+  "The message groups. Titles are under about 35 characters and bodies under about 75, so neither is cut on a lock screen. No message holds a placeholder: each is shown as it is written."
+  groups: [ReminderGroup!]!
+
+  "The group used when no intention was chosen."
+  fallbackGroup: String!
+}
+
+type RosaryMilestone {
+  "What the Church calls a run of this length, in plain words (`a novena`), where it has a name. Shown after the days, never alone. Null where it has none."
+  meaning: String
+
+  "The glyph on the milestone's badge, by the iOS app's icon name: a numeral (`ph-number-circle-nine`) or a named devotion's sign (`lv-rosary`). An Android client draws its own for each name."
+  icon: String!
+
+  "The consecutive days of prayer. The milestone is earned at exactly this streak."
+  days: Int!
+
+  "The line shown when the milestone is reached."
+  blessing: String!
+}
+
+type RosaryQuote {
+  "The words."
+  text: String!
+
+  "The work or occasion, only where it can be cited with confidence. Null where the attribution is traditional rather than documented."
+  source: String
+
+  "Who is quoted, named as the Church now names them (`St. Pius X`, `Bl. Pius IX`)."
+  author: String!
+}
+
+type QuoteRotation {
+  "The offset for the home screen's quotation: `items[(day_of_year + home_offset) mod count]`."
+  homeOffset: Int!
+
+  "The offset for the quotation after praying is the number of quotations divided by this, rounded down: `items[(day_of_year + count div divisor) mod count]`, half the catalogue from the home screen's so one session never shows one line twice."
+  afterPrayerOffsetDivisor: Int!
+}
+
+type RosaryQuotes {
+  "How a quotation is chosen for a day."
+  rotation: QuoteRotation!
+
+  "The quotations, in the order the rotation counts them. A client should keep to this order: the rotation indexes into it."
+  items: [RosaryQuote!]!
+}
+
 type RosaryVerse {
   "The verse, in the original Douay-Rheims, exactly as the spoken Rosary says it."
   text: String!
@@ -866,6 +1074,21 @@ type RosaryContent {
 
   "The Scriptural Rosary's verses as text, each mystery's in bead order: ten to a mystery, seven to a sorrow. The words the spoken Rosary says."
   verses: [RosaryVerses!]!
+
+  "The daily quotations on the Rosary, and the rule that chooses one for a day: the home screen's, and a second one for after praying, half the catalogue away."
+  quotes: RosaryQuotes!
+
+  "The streak's named devotional milestones, by days ascending. One is reached when a day's first prayer brings the streak to exactly its days."
+  milestones: [RosaryMilestone!]!
+
+  "The daily reminders' messages in their groups, what each intention draws from, and the numbers of the rule that picks a week of them."
+  reminders: RosaryReminders!
+
+  "The meditation set labels, what the app calls each and the kinds of meditation they describe."
+  labels: RosaryLabels!
+
+  "The Rosary's forms (the Scriptural Rosary, the Rosary Said Aloud), the Audio and Counting choices in their words, and what each form's page offers."
+  forms: RosaryForms!
 }
 
 type SpokenRosary {
