@@ -10,6 +10,9 @@ defmodule LumenViae.Rosary.ContentTest do
   @history %{
     "prayers.json" => [
       {~U[2026-10-03 00:00:00Z], "6d3c6b121b21ec9e"}
+    ],
+    "script.json" => [
+      {~U[2026-10-04 02:04:00Z], "7346f03c03ccaa1c"}
     ]
   }
 

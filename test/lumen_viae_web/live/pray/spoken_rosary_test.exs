@@ -89,12 +89,25 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     captions = Enum.map(steps, & &1["caption"])
 
     assert hd(captions) == "The Sign of the Cross"
-    assert "Fatima Prayer" in captions
+    assert "The Fatima Prayer" in captions
+    assert "Hail Mary · 10 of 10" in captions
     assert List.last(captions) == "The Sign of the Cross"
     assert Enum.all?(steps, &String.contains?(&1["url"], "/voices/female/rosary/"))
     # The meditations have no narration here, so they are left out rather
     # than handed to the player as nothing to play.
-    refute "Meditation" in captions
+    refute "The meditation" in captions
+
+    # What the hook reads of a step (assets/js/hooks/spoken_rosary.js), and
+    # nothing it does not.
+    assert Enum.all?(steps, &(Map.keys(&1) |> Enum.sort() == ~w(caption decade pause_ms url)))
+
+    # The app's breath after each prayer. (These mysteries' orders have no
+    # recorded announcement, so only the prayers are left to play.)
+    assert Enum.all?(steps, &(&1["pause_ms"] == 900))
+
+    # The voice turns the page at each decade, and the pendant's prayers
+    # turn none.
+    assert Enum.map(steps, & &1["decade"]) |> Enum.dedup() == [nil, 0, 1, 2, 3, 4, nil]
   end
 
   test "a Seven Sorrows set is prayed as the chaplet", %{conn: conn} do
@@ -103,9 +116,9 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
 
     captions = view |> script() |> Enum.map(& &1["caption"])
 
-    assert Enum.take(captions, 2) == ["The Sign of the Cross", "Act of Contrition"]
-    refute "Fatima Prayer" in captions
-    assert "Hail Mary for her tears, 3 of 3" in captions
+    assert Enum.take(captions, 2) == ["The Sign of the Cross", "The Act of Contrition"]
+    refute "The Fatima Prayer" in captions
+    assert "In honor of her tears · 3 of 3" in captions
   end
 
   test "choosing a voice re-signs the script in that voice", %{conn: conn} do

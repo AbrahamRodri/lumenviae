@@ -122,8 +122,8 @@ defmodule LumenViae.Rosary.PrayerAudioTest do
                  List.duplicate("hail_mary", 10) ++ ["glory_be", "fatima_prayer"]
 
       assert [
-               %{kind: :announcement, caption: "The Third Glorious Mystery: " <> _},
-               %{kind: :meditation} | _
+               %{kind: :announcement, caption: "The mystery", mystery: "glorious_3"},
+               %{kind: :meditation, caption: "The meditation"} | _
              ] =
                decade
     end

@@ -21,6 +21,7 @@ defmodule LumenViae.Rosary.RosaryContent do
   alias LumenViae.Rosary.RosaryContent.Current
   alias LumenViae.Rosary.RosaryContent.Prayers
   alias LumenViae.Rosary.RosaryContent.Schedule
+  alias LumenViae.Rosary.RosaryContent.Script
   alias LumenViae.Rosary.Types
 
   graphql do
@@ -95,6 +96,13 @@ defmodule LumenViae.Rosary.RosaryContent do
       public? true
 
       description "Which mysteries a day calls for, on both weekly schedules, as rules to apply offline: each weekday's set, Sunday's by season, every Lent and Advent from last year to three years ahead, the home grid's order and the days each set is prayed in words. The day is the device's calendar day, turning at midnight, not the prayer day that turns at four in the morning."
+    end
+
+    calculate :script, Types.ScriptTemplates, Script do
+      allow_nil? false
+      public? true
+
+      description "The order a Rosary is said in, as templates a client expands offline: the Rosary's and the chaplet's steps, the optional prayers after the Rosary and the strand's beads. GET /api/v2/rosary-script expands them."
     end
   end
 end

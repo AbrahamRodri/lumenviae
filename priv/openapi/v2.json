@@ -772,6 +772,703 @@
                 ],
                 "type": "object"
               },
+              "script": {
+                "description": "The order a Rosary is said in, as templates a client expands offline: the Rosary's and the chaplet's steps, the optional prayers after the Rosary and the strand's beads. GET /api/v2/rosary-script expands them.",
+                "nullable": true,
+                "properties": {
+                  "chaplet": {
+                    "properties": {
+                      "categories": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "closing": {
+                        "items": {
+                          "properties": {
+                            "bead": {
+                              "nullable": true,
+                              "type": "integer"
+                            },
+                            "caption": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "pause_ms": {
+                              "type": "integer"
+                            },
+                            "per_bead": {
+                              "type": "boolean"
+                            },
+                            "place": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "prayer_id": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "style": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "caption",
+                            "per_bead",
+                            "pause_ms"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "decade": {
+                        "items": {
+                          "properties": {
+                            "bead": {
+                              "nullable": true,
+                              "type": "integer"
+                            },
+                            "caption": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "pause_ms": {
+                              "type": "integer"
+                            },
+                            "per_bead": {
+                              "type": "boolean"
+                            },
+                            "place": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "prayer_id": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "style": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "caption",
+                            "per_bead",
+                            "pause_ms"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "final": {
+                        "items": {
+                          "properties": {
+                            "bead": {
+                              "nullable": true,
+                              "type": "integer"
+                            },
+                            "caption": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "pause_ms": {
+                              "type": "integer"
+                            },
+                            "per_bead": {
+                              "type": "boolean"
+                            },
+                            "place": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "prayer_id": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "style": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "caption",
+                            "per_bead",
+                            "pause_ms"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "opening": {
+                        "items": {
+                          "properties": {
+                            "bead": {
+                              "nullable": true,
+                              "type": "integer"
+                            },
+                            "caption": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "pause_ms": {
+                              "type": "integer"
+                            },
+                            "per_bead": {
+                              "type": "boolean"
+                            },
+                            "place": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "prayer_id": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "style": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "caption",
+                            "per_bead",
+                            "pause_ms"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "strand": {
+                        "properties": {
+                          "beads": {
+                            "type": "integer"
+                          },
+                          "decade_length": {
+                            "type": "integer"
+                          },
+                          "decades": {
+                            "type": "integer"
+                          },
+                          "fatima_prayer": {
+                            "type": "boolean"
+                          },
+                          "glory_be_bead": {
+                            "type": "integer"
+                          },
+                          "hail_marys": {
+                            "type": "integer"
+                          },
+                          "label_lines": {
+                            "properties": {
+                              "glory_be": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "hail_mary": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "our_father": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "our_father",
+                              "hail_mary",
+                              "glory_be"
+                            ],
+                            "type": "object"
+                          },
+                          "labels": {
+                            "properties": {
+                              "glory_be": {
+                                "type": "string"
+                              },
+                              "hail_mary": {
+                                "type": "string"
+                              },
+                              "our_father": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "our_father",
+                              "hail_mary",
+                              "glory_be"
+                            ],
+                            "type": "object"
+                          },
+                          "strand_labels": {
+                            "properties": {
+                              "amen": {
+                                "type": "string"
+                              },
+                              "our_father": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "our_father",
+                              "amen"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "decades",
+                          "hail_marys",
+                          "decade_length",
+                          "beads",
+                          "glory_be_bead",
+                          "fatima_prayer",
+                          "labels",
+                          "label_lines",
+                          "strand_labels"
+                        ],
+                        "type": "object"
+                      },
+                      "takes_extras": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "categories",
+                      "takes_extras",
+                      "opening",
+                      "decade",
+                      "closing",
+                      "final",
+                      "strand"
+                    ],
+                    "type": "object"
+                  },
+                  "closing_extras": {
+                    "items": {
+                      "properties": {
+                        "detail": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "short_title": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "items": {
+                            "properties": {
+                              "bead": {
+                                "nullable": true,
+                                "type": "integer"
+                              },
+                              "caption": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "pause_ms": {
+                                "type": "integer"
+                              },
+                              "per_bead": {
+                                "type": "boolean"
+                              },
+                              "place": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "prayer_id": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "style": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "caption",
+                              "per_bead",
+                              "pause_ms"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "short_title",
+                        "detail",
+                        "steps"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "headings": {
+                    "properties": {
+                      "closing": {
+                        "type": "string"
+                      },
+                      "opening": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "opening",
+                      "closing"
+                    ],
+                    "type": "object"
+                  },
+                  "pendant": {
+                    "items": {
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "place": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "place",
+                        "name"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "rosary": {
+                    "properties": {
+                      "categories": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "closing": {
+                        "items": {
+                          "properties": {
+                            "bead": {
+                              "nullable": true,
+                              "type": "integer"
+                            },
+                            "caption": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "pause_ms": {
+                              "type": "integer"
+                            },
+                            "per_bead": {
+                              "type": "boolean"
+                            },
+                            "place": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "prayer_id": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "style": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "caption",
+                            "per_bead",
+                            "pause_ms"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "decade": {
+                        "items": {
+                          "properties": {
+                            "bead": {
+                              "nullable": true,
+                              "type": "integer"
+                            },
+                            "caption": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "pause_ms": {
+                              "type": "integer"
+                            },
+                            "per_bead": {
+                              "type": "boolean"
+                            },
+                            "place": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "prayer_id": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "style": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "caption",
+                            "per_bead",
+                            "pause_ms"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "final": {
+                        "items": {
+                          "properties": {
+                            "bead": {
+                              "nullable": true,
+                              "type": "integer"
+                            },
+                            "caption": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "pause_ms": {
+                              "type": "integer"
+                            },
+                            "per_bead": {
+                              "type": "boolean"
+                            },
+                            "place": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "prayer_id": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "style": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "caption",
+                            "per_bead",
+                            "pause_ms"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "opening": {
+                        "items": {
+                          "properties": {
+                            "bead": {
+                              "nullable": true,
+                              "type": "integer"
+                            },
+                            "caption": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "pause_ms": {
+                              "type": "integer"
+                            },
+                            "per_bead": {
+                              "type": "boolean"
+                            },
+                            "place": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "prayer_id": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "style": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "caption",
+                            "per_bead",
+                            "pause_ms"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "strand": {
+                        "properties": {
+                          "beads": {
+                            "type": "integer"
+                          },
+                          "decade_length": {
+                            "type": "integer"
+                          },
+                          "decades": {
+                            "type": "integer"
+                          },
+                          "fatima_prayer": {
+                            "type": "boolean"
+                          },
+                          "glory_be_bead": {
+                            "type": "integer"
+                          },
+                          "hail_marys": {
+                            "type": "integer"
+                          },
+                          "label_lines": {
+                            "properties": {
+                              "glory_be": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "hail_mary": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "our_father": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "our_father",
+                              "hail_mary",
+                              "glory_be"
+                            ],
+                            "type": "object"
+                          },
+                          "labels": {
+                            "properties": {
+                              "glory_be": {
+                                "type": "string"
+                              },
+                              "hail_mary": {
+                                "type": "string"
+                              },
+                              "our_father": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "our_father",
+                              "hail_mary",
+                              "glory_be"
+                            ],
+                            "type": "object"
+                          },
+                          "strand_labels": {
+                            "properties": {
+                              "amen": {
+                                "type": "string"
+                              },
+                              "our_father": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "our_father",
+                              "amen"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "decades",
+                          "hail_marys",
+                          "decade_length",
+                          "beads",
+                          "glory_be_bead",
+                          "fatima_prayer",
+                          "labels",
+                          "label_lines",
+                          "strand_labels"
+                        ],
+                        "type": "object"
+                      },
+                      "takes_extras": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "categories",
+                      "takes_extras",
+                      "opening",
+                      "decade",
+                      "closing",
+                      "final",
+                      "strand"
+                    ],
+                    "type": "object"
+                  },
+                  "styles": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "styles",
+                  "rosary",
+                  "chaplet",
+                  "closing_extras",
+                  "pendant",
+                  "headings"
+                ],
+                "type": "object"
+              },
               "updated_at": {
                 "description": "When the content last changed. Field included by default.",
                 "format": "date-time",
@@ -795,6 +1492,105 @@
           "type": {
             "enum": [
               "rosary_content"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "rosary_script": {
+        "description": "A \"Resource object\" representing a rosary_script",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a rosary_script",
+            "properties": {
+              "category": {
+                "description": "Field included by default.",
+                "type": "string"
+              },
+              "extras": {
+                "description": "The optional prayers said, in the order they are said. Field included by default.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "orders": {
+                "description": "The mysteries' orders, one per decade, in prayer order. Field included by default.",
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              "steps": {
+                "description": "Every step, in the order it is said. Field included by default.",
+                "items": {
+                  "properties": {
+                    "bead": {
+                      "type": "integer"
+                    },
+                    "caption": {
+                      "type": "string"
+                    },
+                    "decade": {
+                      "nullable": true,
+                      "type": "integer"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "mystery": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "pause_ms": {
+                      "type": "integer"
+                    },
+                    "phase": {
+                      "type": "string"
+                    },
+                    "place": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "name",
+                    "caption",
+                    "phase",
+                    "bead",
+                    "pause_ms"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "style": {
+                "description": "Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a rosary_script",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "rosary_script"
             ],
             "type": "string"
           }
@@ -1627,7 +2423,7 @@
             "style": "form"
           },
           {
-            "description": "Comma separated fields of rosary_content: prayers, schedule, updated_at, version",
+            "description": "Comma separated fields of rosary_content: prayers, schedule, script, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[rosary_content]",
@@ -1663,6 +2459,105 @@
         },
         "tags": [
           "rosary_content"
+        ]
+      }
+    },
+    "/api/v2/rosary-script": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "One Rosary's script, every step in order: a category's mysteries in a style, with any optional prayers after it.",
+        "operationId": "getRosaryScript",
+        "parameters": [
+          {
+            "description": "Relationship paths to include in the response",
+            "explode": false,
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "pattern": "^()(,())*$",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Comma separated fields of rosary_script: category, extras, orders, steps, style",
+            "explode": false,
+            "in": "query",
+            "name": "fields[rosary_script]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The mysteries prayed: joyful, sorrowful, glorious, luminous or seven_sorrows (the chaplet).",
+            "in": "query",
+            "name": "category",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Rosary Said Aloud, the prayers alone.",
+            "in": "query",
+            "name": "style",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The optional prayers after the Rosary, comma-separated, any of holy_father, memorare, st_michael. Said in that order whatever order they are given in; the chaplet takes none.",
+            "in": "query",
+            "name": "extras",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The mysteries' orders in prayer order, comma-separated (3,4,5), for a set whose meditations do not run from the first. Every mystery of the category when absent.",
+            "in": "query",
+            "name": "orders",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/rosary_script"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "rosary_script"
         ]
       }
     },

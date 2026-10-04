@@ -25,6 +25,11 @@ defmodule LumenViae.Rosary.Content do
   two-language view can pair them; a `[bracketed]` line is a rubric, shown
   and not said as written.
 
+  `script.json` holds the order a Rosary is said in, as templates the
+  spoken Rosary and a client both expand (`script/0`, docs/SPOKEN_ROSARY.md).
+  Its captions, pauses, beads and pendant places are shown and timed but
+  never spoken, so a change to them records nothing.
+
   ## Every file is dated
 
   Each file carries a top-level `updated_at`, an ISO 8601 UTC timestamp:
@@ -36,9 +41,13 @@ defmodule LumenViae.Rosary.Content do
   bump the file's `updated_at` and add its new version to that history.
 
   A file that is missing a field, holds an unknown group, repeats an id,
-  pairs languages of different lengths or carries no valid date fails the
-  compile, never a request.
+  pairs languages of different lengths, names a prayer, place or style
+  that does not exist, or carries no valid date fails the compile, never
+  a request.
   """
+
+  alias LumenViae.Rosary.Categories
+  alias LumenViae.Rosary.Content.ScriptCheck
 
   @dir Path.join(:code.priv_dir(:lumen_viae), "rosary_content")
 
@@ -102,16 +111,36 @@ defmodule LumenViae.Rosary.Content do
     raise CompileError, description: "priv/rosary_content/prayers.json repeats a prayer id"
   end
 
+  @script_path Path.join(@dir, "script.json")
+  @external_resource @script_path
+
+  {script_file, script_updated_at} = read.(@script_path)
+
+  @script Map.get(script_file, "script")
+
+  # Every part of the file a Rosary or the document needs: see ScriptCheck.
+  case ScriptCheck.errors(@script, @prayer_ids, Categories.slugs()) do
+    [] ->
+      :ok
+
+    errors ->
+      raise CompileError,
+        description: "priv/rosary_content/script.json:\n  " <> Enum.join(errors, "\n  ")
+  end
+
   # One entry per file. A new file is read and checked as prayers.json is
   # above, and listed here; its sections join the document.
-  @files [%{name: "prayers.json", content: prayers_file, updated_at: prayers_updated_at}]
+  @files [
+    %{name: "prayers.json", content: prayers_file, updated_at: prayers_updated_at},
+    %{name: "script.json", content: script_file, updated_at: script_updated_at}
+  ]
 
   @document Enum.reduce(@files, %{}, &Map.merge(&2, &1.content))
 
   @updated_at @files |> Enum.map(& &1.updated_at) |> Enum.max(DateTime)
 
   @doc """
-  Everything served, keyed by section: `%{"prayers" => [...]}`, string
+  Everything served, keyed by section (`"prayers"`, `"script"`), string
   keys throughout, as the files hold it.
   """
   @spec document() :: map
@@ -123,6 +152,16 @@ defmodule LumenViae.Rosary.Content do
   """
   @spec prayers() :: [map]
   def prayers, do: @prayers
+
+  @doc """
+  The order a Rosary is said in, as templates: the Rosary's and the
+  chaplet's opening, decade, closing and final steps, the optional
+  prayers after the Rosary, the bead rules, the pendant's places and the
+  styles. `LumenViae.Rosary.PrayerAudio.script/3` expands them, and a
+  client can do the same offline. See docs/SPOKEN_ROSARY.md.
+  """
+  @spec script() :: map
+  def script, do: @script
 
   @doc "The prayer ids, in the order they are said."
   @spec prayer_ids() :: [String.t()]
