@@ -23,6 +23,16 @@ defmodule LumenViaeWeb.Graphql.AuthorizationTest do
     assert mutations == [:record_completion]
   end
 
+  test "the content document takes no argument, so no input can change what it serves" do
+    field =
+      LumenViaeWeb.GraphqlSchema
+      |> Absinthe.Schema.lookup_type(:query)
+      |> Map.fetch!(:fields)
+      |> Map.fetch!(:rosary_content)
+
+    assert field.args == %{}
+  end
+
   test "a write the schema does not offer is refused before anything runs", %{conn: conn} do
     body =
       graphql(conn, """

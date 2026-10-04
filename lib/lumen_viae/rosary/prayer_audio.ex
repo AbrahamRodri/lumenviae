@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerAudio do
   (`LumenViae.Rosary.Voices`):
 
     * `:prayer` - the fixed prayers, keyed by the app's prayer ids
-      (`RosaryPrayers.swift`): the Sign of the Cross, the Creed, the Our
+      (`LumenViae.Rosary.Content`): the Sign of the Cross, the Creed, the Our
       Father, the Hail Mary, the Glory Be, the Fatima Prayer, the Hail Holy
       Queen and the closing prayer; the Seven Sorrows chaplet's Act of
       Contrition and closing prayer; and the optional Memorare and Saint
@@ -34,13 +34,16 @@ defmodule LumenViae.Rosary.PrayerAudio do
       recordings for those. Served only when asked for (`include=book`),
       so the spoken Rosary's manifest and its `version` are as they were.
 
-  ## The text is the app's
+  ## The words are the server's
 
-  The prayer wording is copied from the app's `RosaryPrayers.swift` and
-  `RosaryPrayerText`, and the verses are the app's own export
-  (`Tools/ScripturalRosary/generate.py` writes
-  `scriptural_rosary.json`, copied here verbatim). What is heard has to be
-  what is on the screen, so change the two together.
+  The prayers' words are `LumenViae.Rosary.Content`'s
+  (`priv/rosary_content/prayers.json`), which `GET /api/v2/rosary-content`
+  serves as text: what is heard is what is on the screen because both read
+  the same file. The iOS app's `RosaryPrayers.swift` is its offline copy of
+  them. The verses are still the app's own export
+  (`Tools/ScripturalRosary/generate.py` writes `scriptural_rosary.json`,
+  copied here verbatim). A changed word is a clip to record again; see
+  docs/SPOKEN_ROSARY.md.
 
   ## S3 layout
 
@@ -63,6 +66,7 @@ defmodule LumenViae.Rosary.PrayerAudio do
   fetch the new files.
   """
 
+  alias LumenViae.Rosary.Content
   alias LumenViae.Rosary.Voices
 
   defmodule Clip do
@@ -90,133 +94,6 @@ defmodule LumenViae.Rosary.PrayerAudio do
   @external_resource @book_path
 
   @book @book_path |> File.read!() |> Jason.decode!() |> Map.fetch!("prayers")
-
-  # The Rosary's own prayers in the order they are said, then the
-  # chaplet's and the optional closing prayers. Line breaks are where the app breaks the
-  # lines on screen; `speech_text/1` joins them.
-  @prayers [
-    {"sign_of_cross", "In the name of the Father, and of the Son, and of the Holy Spirit. Amen."},
-    {"apostles_creed",
-     """
-     I believe in God, the Father almighty, Creator of heaven and earth,
-     and in Jesus Christ, His only Son, our Lord,
-     who was conceived by the Holy Spirit, born of the Virgin Mary,
-     suffered under Pontius Pilate, was crucified, died and was buried;
-     He descended into hell;
-     on the third day He rose again from the dead;
-     He ascended into heaven, and is seated at the right hand of God the Father almighty;
-     from there He will come to judge the living and the dead.
-     I believe in the Holy Spirit,
-     the holy catholic Church, the communion of saints,
-     the forgiveness of sins, the resurrection of the body,
-     and life everlasting. Amen.
-     """},
-    {"our_father",
-     """
-     Our Father, who art in heaven,
-     hallowed be Thy name;
-     Thy kingdom come;
-     Thy will be done on earth as it is in heaven.
-     Give us this day our daily bread;
-     and forgive us our trespasses
-     as we forgive those who trespass against us;
-     and lead us not into temptation,
-     but deliver us from evil. Amen.
-     """},
-    {"hail_mary",
-     """
-     Hail Mary, full of grace, the Lord is with thee;
-     blessed art thou among women,
-     and blessed is the fruit of thy womb, Jesus.
-     Holy Mary, Mother of God,
-     pray for us sinners,
-     now and at the hour of our death. Amen.
-     """},
-    {"glory_be",
-     """
-     Glory be to the Father, and to the Son, and to the Holy Spirit.
-     As it was in the beginning, is now, and ever shall be,
-     world without end. Amen.
-     """},
-    {"fatima_prayer",
-     """
-     O my Jesus, forgive us our sins,
-     save us from the fires of hell,
-     and lead all souls to heaven,
-     especially those in most need of Thy mercy. Amen.
-     """},
-    {"hail_holy_queen",
-     """
-     Hail, holy Queen, Mother of mercy,
-     our life, our sweetness and our hope.
-     To thee do we cry, poor banished children of Eve.
-     To thee do we send up our sighs,
-     mourning and weeping in this valley of tears.
-     Turn, then, most gracious advocate,
-     thine eyes of mercy toward us,
-     and after this, our exile, show unto us the blessed fruit of thy womb, Jesus.
-     O clement, O loving, O sweet Virgin Mary.
-     Pray for us, O holy Mother of God,
-     that we may be made worthy of the promises of Christ.
-     """},
-    {"rosary_closing_prayer",
-     """
-     [Let us pray.]
-     O God, whose only-begotten Son,
-     by His life, death and resurrection,
-     has purchased for us the rewards of eternal life;
-     grant, we beseech Thee,
-     that meditating upon these mysteries of the most holy Rosary of the Blessed Virgin Mary,
-     we may imitate what they contain
-     and obtain what they promise,
-     through the same Christ our Lord. Amen.
-     """},
-    # The Seven Sorrows chaplet opens with an Act of Contrition and closes
-    # with its own versicle and prayer, in the Servite form.
-    {"act_of_contrition",
-     """
-     O my God, I am heartily sorry for having offended Thee,
-     and I detest all my sins because I dread the loss of heaven and the pains of hell;
-     but most of all because they offend Thee, my God,
-     Who art all good and deserving of all my love.
-     I firmly resolve, with the help of Thy grace,
-     to confess my sins, to do penance,
-     and to amend my life. Amen.
-     """},
-    {"sorrows_closing_prayer",
-     """
-     Pray for us, O most sorrowful Virgin,
-     that we may be made worthy of the promises of Christ.
-     [Let us pray.]
-     Lord Jesus, we now implore, both for the present and for the hour of our death,
-     the intercession of the most Blessed Virgin Mary, Thy Mother,
-     whose holy soul was pierced at the time of Thy Passion by a sword of grief.
-     Grant us this favor, O Savior of the world,
-     Who livest and reignest with the Father and the Holy Spirit,
-     world without end. Amen.
-     """},
-    # Optional prayers after the Rosary's closing prayer, each a setting in
-    # the app.
-    {"memorare",
-     """
-     Remember, O most gracious Virgin Mary,
-     that never was it known that anyone who fled to thy protection,
-     implored thy help, or sought thine intercession, was left unaided.
-     Inspired by this confidence, I fly unto thee, O Virgin of virgins, my Mother;
-     to thee do I come, before thee I stand, sinful and sorrowful.
-     O Mother of the Word Incarnate, despise not my petitions,
-     but in thy mercy hear and answer me. Amen.
-     """},
-    {"st_michael_prayer",
-     """
-     Saint Michael the Archangel, defend us in battle.
-     Be our safeguard against the wickedness and snares of the devil.
-     May God rebuke him, we humbly pray;
-     and do thou, O Prince of the heavenly hosts,
-     by the power of God, cast into hell Satan and all the evil spirits,
-     who prowl about the world seeking the ruin of souls. Amen.
-     """}
-  ]
 
   # The mystery names exactly as the app's MysteryData carries them, in
   # order within each category.
@@ -271,14 +148,18 @@ defmodule LumenViae.Rosary.PrayerAudio do
   The prayer ids, in the order they are said.
   """
   @spec prayer_ids() :: [String.t()]
-  def prayer_ids, do: Enum.map(@prayers, &elem(&1, 0))
+  def prayer_ids, do: Content.prayer_ids()
 
   @doc """
-  The fixed prayers, in the order they are said.
+  The fixed prayers, in the order they are said: the English of
+  `LumenViae.Rosary.Content`'s prayers, its lines joined by newlines as the
+  app breaks them on screen. `speech_text/1` joins them into one sentence.
   """
   @spec prayers() :: [Clip.t()]
   def prayers do
-    for {id, text} <- @prayers, do: %Clip{kind: :prayer, name: id, text: String.trim(text)}
+    for %{"id" => id, "text" => %{"en" => lines}} <- Content.prayers() do
+      %Clip{kind: :prayer, name: id, text: Enum.join(lines, "\n")}
+    end
   end
 
   @doc """

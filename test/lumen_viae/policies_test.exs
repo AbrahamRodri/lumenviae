@@ -23,6 +23,7 @@ defmodule LumenViae.PoliciesTest do
     Mystery,
     Narration,
     NarrationVoice,
+    RosaryContent,
     SetMembership,
     SpokenRosary
   }
@@ -316,6 +317,13 @@ defmodule LumenViae.PoliciesTest do
       # And the reads themselves answer, not only the checks.
       assert [_ | _] = Ash.read!(NarrationVoice, action: :offered)
       assert %SpokenRosary{} = Ash.read_one!(SpokenRosary, action: :for_voice)
+    end
+
+    test "the Rosary's words are a public read" do
+      assert Ash.can?({RosaryContent, :current}, nil)
+      assert Ash.can?({RosaryContent, :current}, admin())
+
+      assert %RosaryContent{id: "current"} = Ash.read_one!(RosaryContent, action: :current)
     end
 
     test "the Office is open to anyone" do

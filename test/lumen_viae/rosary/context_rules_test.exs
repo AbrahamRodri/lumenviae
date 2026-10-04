@@ -30,7 +30,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   # Value modules hold shared vocabulary and pure calculation, not state or
   # queries, so any layer may call them (see docs/ARCHITECTURE.md, "Value
   # modules").
-  @value_modules ~w(categories labels artwork voices prayer_audio)
+  @value_modules ~w(categories labels artwork voices prayer_audio content)
 
   defp module_name(name), do: "LumenViae.Rosary." <> Macro.camelize(name)
 

@@ -21,14 +21,15 @@ defmodule LumenViae.Rosary do
     * `LumenViae.Rosary.Author`
     * `LumenViae.Rosary.Completion`
 
-  plus two with no table, `LumenViae.Rosary.NarrationVoice` and
-  `LumenViae.Rosary.SpokenRosary`, which give the APIs the configured
-  voices and the spoken Rosary.
+  plus three with no table, `LumenViae.Rosary.NarrationVoice`,
+  `LumenViae.Rosary.SpokenRosary` and `LumenViae.Rosary.RosaryContent`,
+  which give the APIs the configured voices, the spoken Rosary and the
+  Rosary's words.
 
   Nothing outside `lib/lumen_viae/rosary/` names a resource, calls `Ash`
   on one, or touches the Repo for Rosary data; `test/lumen_viae/rosary/context_rules_test.exs`
   fails the build if something does. The value modules (`Categories`,
-  `Labels`, `Artwork`, `Voices`, `PrayerAudio`) hold vocabulary and pure
+  `Labels`, `Artwork`, `Voices`, `PrayerAudio`, `Content`) hold vocabulary and pure
   calculation and may be called from any layer.
 
   ## What is a function here, and what is an action
@@ -81,6 +82,7 @@ defmodule LumenViae.Rosary do
       list LumenViae.Rosary.NarrationVoice, :voices, :offered, paginate_with: nil
       list LumenViae.Rosary.NarrationVoice, :retired_voices, :retired, paginate_with: nil
       read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: true
+      read_one LumenViae.Rosary.RosaryContent, :rosary_content, :current, allow_nil?: false
       action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
 
       # The sets the public may see. Both read through :visible, so a set
@@ -177,6 +179,17 @@ defmodule LumenViae.Rosary do
         get :for_voice do
           route "/"
           name "getRosaryAudio"
+          derive_sort? false
+        end
+      end
+
+      # The Rosary's words, for a client that prays offline. The bare
+      # request is the version and the date; the sections are named in
+      # fields[rosary_content]=.
+      base_route "/rosary-content", LumenViae.Rosary.RosaryContent do
+        get :current do
+          route "/"
+          name "getRosaryContent"
           derive_sort? false
         end
       end
@@ -312,10 +325,12 @@ defmodule LumenViae.Rosary do
 
     resource LumenViae.Rosary.Narration
 
-    # No tables: GraphQL's view of the narration voices and the spoken
-    # Rosary, both of which are configuration rather than data.
+    # No tables: the APIs' view of the narration voices, the spoken Rosary
+    # and the Rosary's words, all of which are configuration or fixed
+    # content rather than data.
     resource LumenViae.Rosary.NarrationVoice
     resource LumenViae.Rosary.SpokenRosary
+    resource LumenViae.Rosary.RosaryContent
   end
 
   require Ash.Query

@@ -44,6 +44,7 @@ involved.
 | `GET /voices` | `NarrationVoice.:offered` | The voices a listener may choose, default first. The same list as `GET /api/voices`. |
 | `GET /voices/retired` | `NarrationVoice.:retired` | The voices taken out of the pickers, each with `replaced_by`. |
 | `GET /rosary-audio?voice=` | `SpokenRosary.:for_voice` | One voice's spoken Rosary; the same recordings, keys and files as `GET /api/rosary/audio`. |
+| `GET /rosary-content` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
 
@@ -89,6 +90,10 @@ a calculation is computed only when a client names it in `fields`:
   `version expires_at` alone, which is how a device asks whether its saved
   pack is current. `fields` does the job v1's `?include=` does there.
 
+The content document works the same way without signing anything: its
+sections are calculations too, and the bare request carries only
+`version` and `updated_at` (see "The content document").
+
 Naming a field that is not served is a 400 (`invalid_field`).
 
 **Signed audio carries its own expiry**, `{url, expires_at}`, whole-second
@@ -125,6 +130,64 @@ title, detail, source}]}`, with the HTTP status of the first:
 A recording that cannot be signed fails the whole request for the spoken
 Rosary and for `POST /meditations/audio`, and nulls a meditation's
 `narrations` (never a shorter list), exactly as in GraphQL.
+
+## The content document
+
+```
+GET /api/v2/rosary-content
+GET /api/v2/rosary-content?fields[rosary_content]=version,updated_at,prayers
+```
+
+Everything a client needs to show and say the Rosary without a connection
+comes in one document, `rosary_content`, whose id is always `current`.
+The client keeps a copy and polls: the bare request answers with only
+`version` and `updated_at`, and when the version differs from the copy's,
+it asks again naming the sections it wants. GraphQL's `rosaryContent`
+serves the same document, its sections chosen by the selection set.
+
+```json
+{"data": {"type": "rosary_content", "id": "current",
+          "attributes": {"version": "6d3c6b121b21ec9e", "updated_at": "2026-10-03T00:00:00Z"}}}
+```
+
+- **`version`** fingerprints everything the document serves, every
+  section, whether or not this request named it. The same content always
+  gives the same version, and any change to a word, a line break or an
+  order gives another. Compare it; do not parse it.
+- **`updated_at`** is when the content last changed, whole-second UTC.
+- **`prayers`**: the twelve prayers of the Rosary and the Seven Sorrows
+  chaplet, in the order they are said: `id` (the app's prayer id, the key
+  the spoken Rosary's recordings use), `group` (`rosary`, `chaplet` or
+  `after`, the optional prayers after the Rosary; keep a prayer whose
+  group you do not know), and `title` and `text`, each `{en, la}`. A text
+  is a list of lines, and the two languages have the same number of lines,
+  so they pair line for line. A line in square brackets is a rubric
+  (`[Let us pray.]`), shown and not said as written.
+
+The document is the server's own copy of the words (docs/SPOKEN_ROSARY.md,
+"The words are the server's"): `LumenViae.Rosary.Content` reads it from
+the files in `priv/rosary_content/` when it compiles, and the spoken
+Rosary's narration is made from the same file, so what is heard is what
+is shown. There is no table and nothing to filter, sort, page or include:
+an `include` is a 400, and a `filter`, `sort` or `page` is ignored.
+
+**Change a content file: bump its `updated_at` and the pinned version in
+`test/lumen_viae/rosary/content_test.exs`.** Each file in
+`priv/rosary_content/` carries a top-level `updated_at`, an ISO 8601 UTC
+timestamp, which `Content` checks when it compiles (a missing or
+malformed date fails the compile, not a request). The test keeps each
+file's history of `{updated_at, version}`, oldest first, and fails when a
+file's content no longer matches the last entry, printing the entry to
+add. The dates in a history must increase, so a file cannot change
+without being dated. A new file needs an entry of its own, and is listed
+in `Content`'s `@files`. A change to `prayers.json` also rewords a
+recording: see docs/SPOKEN_ROSARY.md before making one.
+
+Each section is a calculation on `LumenViae.Rosary.RosaryContent`, typed
+so the OpenAPI document and the GraphQL schema describe it
+(`Types.RosaryPrayer`, `Types.PrayerTitle`, `Types.PrayerText`). Content
+read from the database is folded into the version and the date in one
+place, `RosaryContent.Current.stamp/0`.
 
 ## Fresh meditation audio
 
