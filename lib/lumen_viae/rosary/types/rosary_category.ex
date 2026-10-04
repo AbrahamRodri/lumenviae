@@ -35,6 +35,23 @@ defmodule LumenViae.Rosary.Types.RosaryCategory do
       description:
         "Whether the Fatima Prayer follows the Glory Be at the end of each decade. False for the Seven Sorrows."
 
+    field :card_mystery_key, :string,
+      description:
+        "The mystery whose painting the category's card shows (`joyful_1`). Null when the card has a painting of its own, in `card_artwork` (the Seven Sorrows' Pieta)."
+
+    field :card_focal_x, :float,
+      allow_nil?: false,
+      description:
+        "Where the card's crop is centred across the painting, from 0 to 1: the point the app's card keeps in view."
+
+    field :card_focal_y, :float,
+      allow_nil?: false,
+      description: "Where the card's crop is centred down the painting, from 0 to 1."
+
+    field :card_artwork, LumenViae.Rosary.Types.Artwork,
+      description:
+        "The card's own painting, for a category whose card is not one of its mysteries'. Null until it is uploaded and published, and for a category whose card is `card_mystery_key`'s painting."
+
     field :graces, {:array, :string},
       allow_nil?: false,
       constraints: [nil_items?: false],

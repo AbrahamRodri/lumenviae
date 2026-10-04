@@ -43,6 +43,14 @@ defmodule LumenViae.Curation.ArtworkUploadTest do
       assert key =~ ~r"^meditations/412/[0-9a-f]{16}\.jpg$"
     end
 
+    test "files a mystery's painting and a category card under their own prefixes" do
+      assert {:ok, %{key: mystery}} = ArtworkUpload.prepare(jpeg(1600, 2400), :mystery, 46)
+      assert mystery =~ ~r"^mysteries/46/[0-9a-f]{16}\.jpg$"
+
+      assert {:ok, %{key: card}} = ArtworkUpload.prepare(jpeg(1600, 2400), :category_card, 1)
+      assert card =~ ~r"^category_cards/1/[0-9a-f]{16}\.jpg$"
+    end
+
     test "the same painting on the same set always lands on the same key" do
       binary = jpeg(1600, 2400)
 

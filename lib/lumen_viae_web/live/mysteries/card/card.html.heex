@@ -1,0 +1,21 @@
+<.admin_page
+  active="mysteries"
+  title={"#{LumenViae.Rosary.Categories.label(@slug)} card"}
+  subtitle="The painting on this category's card in the app. It is not any one mystery's painting, so it is kept here."
+  flash={@flash}
+  max_width="max-w-3xl"
+>
+  <:actions>
+    <.link navigate="/admin/mysteries" class="admin-btn admin-btn-secondary">Back to mysteries</.link>
+  </:actions>
+
+  <LumenViaeWeb.Components.ArtworkSection.artwork_section
+    record={LumenViaeWeb.Live.Admin.ArtworkEditing.shown(@artwork_record)}
+    intro="The painting on the category's card, on the home grid and wherever the category is shown whole."
+    artwork_url={@artwork_url}
+    form={@artwork_form}
+    upload={@uploads.artwork}
+    licenses={@license_options}
+    rules={@artwork_rules}
+  />
+</.admin_page>

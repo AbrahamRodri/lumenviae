@@ -124,6 +124,8 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - `mysteries` - The mysteries of the Rosary, grouped by category, each with
   the app's name, fruit and key verse; `key` (`<category>_<order>`) is how
   the app and every section of the Rosary's content name one
+- `category_cards` - A category card's own painting, for a category whose
+  card is not one of its mysteries' paintings (the Seven Sorrows' Pieta)
 - `meditations` - Individual meditations tied to mysteries
 - `meditation_sets` - Curated collections of meditations
 - `meditation_set_meditations` - Join table with ordering

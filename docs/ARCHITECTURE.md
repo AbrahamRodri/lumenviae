@@ -51,7 +51,9 @@ lib/lumen_viae/
 │   ├── rosary_content.ex      resource with no table: the Rosary's words as one document, for the APIs
 │   ├── rosary_script.ex       resource with no table: one Rosary's script, expanded, for the APIs
 │   ├── artwork.ex             value module: licences, field lists and framing arithmetic
-│   ├── artwork/fragment.ex    the artwork columns and their two actions, shared by set and author
+│   ├── artwork/fragment.ex    the artwork columns and their two actions, shared by set, author, mystery and category card
+│   ├── artwork/published.ex   the published-artwork calculation (alt text and a licence) and the API's artwork shape
+│   ├── category_card.ex       resource, table category_cards: a category card's own painting (the Sorrows' Pieta)
 │   ├── categories.ex          value module: mystery category vocabulary
 │   ├── labels.ex              value module: meditation set label vocabulary
 │   ├── voices.ex              value module: narration voices and the S3 key layout
@@ -191,7 +193,7 @@ so an admin may do anything. Everyone else gets this, and nothing more:
 | SetMembership | read the memberships of a visible set |
 | Meditation | read one that is not archived and is in at least one set (a draft in no set is private, audio included; one in a hidden set stays readable so a set saved on a device keeps its narration); `:audio_for`, which signs the same ones |
 | Narration | read one whose meditation is not archived |
-| Mystery, Author, NarrationVoice, SpokenRosary, RosaryContent, RosaryScript | read |
+| Mystery, Author, CategoryCard, NarrationVoice, SpokenRosary, RosaryContent, RosaryScript | read (a painting is served only once published) |
 | Completion | `:record` and `:record_from_app` only, never read; the place lookup job may `:read` and `:add_place` (see below) |
 | Office.Breviary | its generic actions |
 | Admin, Token | nothing; AshAuthentication's own sign-in reads bypass |
@@ -464,9 +466,19 @@ dimensions, `image_updated_at`) written only by
 and the *editable* columns a curator types. The columns themselves and the
 two actions that write them, `:record_artwork` for a proved upload and
 `:update_artwork_metadata` for what the curator typed, are
-`LumenViae.Rosary.Artwork.Fragment`, a Spark fragment that `MeditationSet`
-and `Author` both take, so a set's painting and an author's portrait are
-the same thirteen columns written through the same two doors. The managed
+`LumenViae.Rosary.Artwork.Fragment`, a Spark fragment that `MeditationSet`,
+`Author`, `Mystery` and `CategoryCard` take, so a set's painting, an
+author's portrait, a mystery's painting and a category card's are the same
+thirteen columns written through the same two doors. A mystery's and a
+card's are served by `Artwork.Published`, the publish gate (alt text and a
+licence) and the API's artwork shape in one calculation, which a set's
+own calculation shares, adding its author's portrait as a fallback. A
+category card holds the painting of a category whose card is not one of
+its mysteries': the Seven Sorrows' Pieta. The four Rosaries' cards show
+their first mystery's painting (`Categories.card_mystery_key/1`). The
+console's mystery page carries the artwork panel, and
+`/admin/mysteries/cards/:slug` a card's; both pages answer the panel's
+events through `LumenViaeWeb.Live.Admin.ArtworkEditing`. The managed
 columns are inputs of neither the metadata action nor the ordinary update,
 which is what keeps a crafted form post from pointing a set at an
 arbitrary S3 key.

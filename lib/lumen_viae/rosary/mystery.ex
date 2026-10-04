@@ -6,6 +6,13 @@ defmodule LumenViae.Rosary.Mystery do
   left it: integer ids, second-precision naive timestamps, `varchar(255)`
   where the column was an Ecto `:string`.
 
+  ## Artwork
+
+  A mystery's painting is the artwork columns and the two actions that
+  write them, from `LumenViae.Rosary.Artwork.Fragment`, as a set's and an
+  author's are. It is served as `artwork` once it can be published (alt
+  text and a licence), and as null until then.
+
   Reach mysteries through `LumenViae.Rosary`; nothing outside
   `lib/lumen_viae/rosary/` names this module.
   """
@@ -14,7 +21,8 @@ defmodule LumenViae.Rosary.Mystery do
     domain: LumenViae.Rosary,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource, AshJsonApi.Resource, AshPaperTrail.Resource]
+    extensions: [AshGraphql.Resource, AshJsonApi.Resource, AshPaperTrail.Resource],
+    fragments: [LumenViae.Rosary.Artwork.Fragment]
 
   alias LumenViae.Rosary.Categories
 
@@ -45,7 +53,8 @@ defmodule LumenViae.Rosary.Mystery do
       :scripture_reference,
       :fruit,
       :key_verse,
-      :key_verse_reference
+      :key_verse_reference,
+      :artwork
     ]
 
     show_fields [
@@ -57,7 +66,8 @@ defmodule LumenViae.Rosary.Mystery do
       :scripture_reference,
       :fruit,
       :key_verse,
-      :key_verse_reference
+      :key_verse_reference,
+      :artwork
     ]
 
     derive_filter? false
@@ -74,13 +84,31 @@ defmodule LumenViae.Rosary.Mystery do
                     order: :integer,
                     days_prayed: :string,
                     fruit: :string,
-                    key_verse_reference: :string
+                    key_verse_reference: :string,
+                    image_key: :string,
+                    image_width: :integer,
+                    image_height: :integer,
+                    image_title: :string,
+                    image_artist: :string,
+                    image_year: :string,
+                    image_source_url: :string,
+                    image_license: :string
 
     migration_defaults inserted_at: "nil", updated_at: "nil"
     identity_index_names unique_order_in_category: "mysteries_category_order_index"
 
     custom_indexes do
       index [:category]
+    end
+
+    check_constraints do
+      check_constraint :image_focal_x, "image_focal_x_in_range",
+        check: "image_focal_x >= 0.0 AND image_focal_x <= 1.0",
+        message: "must be between 0.0 and 1.0"
+
+      check_constraint :image_focal_y, "image_focal_y_in_range",
+        check: "image_focal_y >= 0.0 AND image_focal_y <= 1.0",
+        message: "must be between 0.0 and 1.0"
     end
   end
 
@@ -253,6 +281,12 @@ defmodule LumenViae.Rosary.Mystery do
   end
 
   calculations do
+    calculate :artwork, LumenViae.Rosary.Types.Artwork, LumenViae.Rosary.Artwork.Published do
+      public? true
+
+      description "The mystery's painting, with its attribution. Null until one is uploaded and published with alt text and a licence."
+    end
+
     calculate :key, :string, expr(category <> "_" <> type(order, :string)) do
       public? true
       allow_nil? false

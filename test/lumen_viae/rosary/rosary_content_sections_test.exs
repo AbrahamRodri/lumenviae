@@ -43,7 +43,10 @@ defmodule LumenViae.Rosary.RosaryContentSectionsTest do
   # has been served at, oldest first. Change what a section serves: move its
   # @updated_at and add the new pair at the end of its list here.
   @history %{
-    categories: [{~U[2026-10-04 00:00:00Z], "d29c9a26a3a64014"}],
+    categories: [
+      {~U[2026-10-04 00:00:00Z], "d29c9a26a3a64014"},
+      {~U[2026-10-04 03:00:00Z], "bb54d4b8158c254d"}
+    ],
     verses: [{~U[2026-10-04 00:00:00Z], "9dc68b86b1bd0730"}]
   }
 
@@ -315,7 +318,7 @@ defmodule LumenViae.Rosary.RosaryContentSectionsTest do
   describe "the fixed sections are dated" do
     test "each is dated and versioned as its history last records it" do
       for {name, module, value} <- [
-            {:categories, RosaryContent.Categories, RosaryContent.Categories.all()},
+            {:categories, RosaryContent.Categories, RosaryContent.Categories.fixed()},
             {:verses, RosaryContent.Verses, RosaryContent.Verses.groups()}
           ] do
         {pinned_at, pinned_version} = List.last(@history[name])

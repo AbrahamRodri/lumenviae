@@ -147,4 +147,16 @@
       </.form_actions>
     </.panel>
   </.form>
+
+  <div class="mt-5">
+    <LumenViaeWeb.Components.ArtworkSection.artwork_section
+      record={LumenViaeWeb.Live.Admin.ArtworkEditing.shown(@artwork_record)}
+      intro="The painting shown for this mystery in the app: on the prayer screen, and on its category's card for the first mystery of each Rosary."
+      artwork_url={@artwork_url}
+      form={@artwork_form}
+      upload={@uploads.artwork}
+      licenses={@license_options}
+      rules={@artwork_rules}
+    />
+  </div>
 </.admin_page>

@@ -51,7 +51,11 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
     sections = [
       {"content", Content.document(), Content.updated_at()},
       {"schedule", Schedule.section(year), Schedule.updated_at(year)},
-      {"categories", Categories.all(), Categories.updated_at()},
+      {"categories", Categories.all(opts),
+       Enum.max(
+         Enum.reject([Categories.updated_at(), Categories.cards_updated_at(opts)], &is_nil/1),
+         DateTime
+       )},
       {"labels", Labels.section(), Labels.updated_at()},
       {"verses", Verses.groups(), Verses.updated_at()},
       {"mysteries", Enum.map(mysteries, &elem(&1, 0)),

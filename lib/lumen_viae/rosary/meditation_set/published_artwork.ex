@@ -9,22 +9,9 @@ defmodule LumenViae.Rosary.MeditationSet.PublishedArtwork do
   use Ash.Resource.Calculation
 
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.Artwork
-  alias LumenViae.Rosary.Types
+  alias LumenViae.Rosary.Artwork.Published
 
-  @fields [
-    :image_key,
-    :image_width,
-    :image_height,
-    :image_focal_x,
-    :image_focal_y,
-    :image_alt,
-    :image_title,
-    :image_artist,
-    :image_year,
-    :image_source_url,
-    :image_license
-  ]
+  @fields Published.fields()
 
   # GraphQL selects only the fields a query names, and every image column
   # is private, so the calculation asks for them itself, on the set and on
@@ -42,22 +29,5 @@ defmodule LumenViae.Rosary.MeditationSet.PublishedArtwork do
     end)
   end
 
-  defp artwork(record) do
-    %Types.Artwork{
-      url: Rosary.artwork_url(record),
-      alignment: Artwork.alignment(record.image_focal_y),
-      focal_x: record.image_focal_x,
-      focal_y: record.image_focal_y,
-      width: record.image_width,
-      height: record.image_height,
-      alt: record.image_alt,
-      attribution: %Types.ArtworkAttribution{
-        title: record.image_title,
-        artist: record.image_artist,
-        year: record.image_year,
-        source_url: record.image_source_url,
-        license: record.image_license
-      }
-    }
-  end
+  defp artwork(record), do: Published.shape(record)
 end
