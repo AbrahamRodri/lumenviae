@@ -17,6 +17,13 @@ defmodule LumenViaeWeb.UserAuth do
   admin anyway is refused here. The token is checked afresh on every
   mount, so a socket opened before sign-out cannot mount another console
   page after it.
+
+  Sign-out and a password reset close open sockets at once
+  (`LumenViaeWeb.AdminSockets`), but a token simply reaching its expiry
+  closes nothing, so a console tab left open would go on acting past it.
+  `:require_admin` therefore also schedules the end of the session: when
+  the token's `exp` passes, the page sends the admin to the login page, as
+  a fresh request would have.
   """
   import Phoenix.Component
   import Phoenix.LiveView
@@ -31,7 +38,7 @@ defmodule LumenViaeWeb.UserAuth do
     socket = load_admin(params, session, socket)
 
     if socket.assigns.current_admin do
-      {:cont, socket}
+      {:cont, expire_with_token(socket, session)}
     else
       {:halt,
        socket
@@ -39,6 +46,42 @@ defmodule LumenViaeWeb.UserAuth do
        |> redirect(to: "/admin/login")}
     end
   end
+
+  @doc """
+  Milliseconds until `token` expires, `0` if it already has, or `nil` if it
+  carries no readable expiry. The claims are only peeked at: the token was
+  verified when the admin was loaded from it.
+  """
+  def ms_until_expiry(token) when is_binary(token) do
+    case AshAuthentication.Jwt.peek(token) do
+      {:ok, %{"exp" => exp}} when is_integer(exp) ->
+        max(exp * 1000 - System.system_time(:millisecond), 0)
+
+      _unreadable ->
+        nil
+    end
+  end
+
+  def ms_until_expiry(_no_token), do: nil
+
+  defp expire_with_token(socket, session) do
+    with true <- connected?(socket),
+         ms when is_integer(ms) <- ms_until_expiry(session["admin_token"]) do
+      Process.send_after(self(), :admin_session_expired, ms)
+      attach_hook(socket, :admin_session_expiry, :handle_info, &handle_expiry/2)
+    else
+      _not_scheduled -> socket
+    end
+  end
+
+  defp handle_expiry(:admin_session_expired, socket) do
+    {:halt,
+     socket
+     |> put_flash(:error, "Your session has expired. Please sign in again.")
+     |> redirect(to: "/admin/login")}
+  end
+
+  defp handle_expiry(_message, socket), do: {:cont, socket}
 
   defp load_admin(params, session, socket) do
     {:cont, socket} = LiveSession.on_mount(:default, params, session, socket)

@@ -93,6 +93,9 @@ defmodule LumenViae.Rosary.ContextRulesTest do
     offenders =
       for {path, source} <- Enum.map(outside_domain(), &read/1),
           not String.starts_with?(path, "lib/lumen_viae/office"),
+          # The Accounts domain's own resources and their changes and
+          # preparations, which call Ash on Accounts resources, not Rosary
+          # ones.
           not String.starts_with?(path, "lib/lumen_viae/accounts/"),
           Regex.match?(
             ~r/\bAsh\.(read|get|create|update|destroy|load|count|exists\?|bulk_\w+|Query|Changeset)\b/,

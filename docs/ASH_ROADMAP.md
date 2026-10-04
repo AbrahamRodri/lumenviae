@@ -158,7 +158,11 @@ shared-CPU machine. #47 matches on `path_info`, as the router does, and
 adds the three tests. A percent-encoded segment (`sign%5Fin`) is not a
 bypass: AshAuthentication's strategy router answers it 404.
 
-**A3. Low: the session cookie is not `secure`, and SSL is not forced.**
+**A3. Done with workstream 6.** Production compiles the session cookie
+`secure` and sets `force_ssl` with a one-day HSTS, `rewrite_on:
+[:x_forwarded_proto]` and `/healthz` excluded (`config/prod.exs`). Raise
+the max-age once it has run clean. As found: **the session cookie is not
+`secure`, and SSL is not forced.**
 `lib/lumen_viae_web/endpoint.ex:7-12` sets no `secure: true`, and
 `force_ssl` is only the generator's comment in `config/runtime.exs:206-212`.
 Fly's `force_https` redirects, but a first plain-HTTP request still
@@ -167,7 +171,9 @@ session options) and `force_ssl: [hsts: true, rewrite_on: [:x_forwarded_proto]]`
 on the endpoint. TLS ends at Fly's proxy, so without `rewrite_on` every
 request would redirect to itself.
 
-**A4. Low: expired tokens are never deleted.**
+**A4. Done with workstream 6:** `AshAuthentication.Supervisor` runs, so
+the expunger clears `admin_tokens` every twelve hours. As found: **expired
+tokens are never deleted.**
 `lib/lumen_viae/application.ex` starts Hammer and Oban (line 24) but not
 `{AshAuthentication.Supervisor, otp_app: :lumen_viae}`, so `Token`'s
 `:expunge_expired` (`accounts/token.ex:76`) never runs, and `admin_tokens`
@@ -175,7 +181,9 @@ request would redirect to itself.
 Add the supervisor; it is the package's own way. An AshOban scheduled
 action on `Token` would also work now that Oban runs.
 
-**A5. Low: an open console socket outlives its token.**
+**A5. Done with workstream 6:** `:require_admin` schedules a redirect to
+the login at the token's `exp`. As found: **an open console socket
+outlives its token.**
 `lib/lumen_viae_web/live/user_auth.ex` checks the token on mount only
 (lines 26, 30). Sign-out and password changes close open sockets; a
 seven-day expiry does not. Schedule a disconnect for the token's `exp` on
@@ -201,7 +209,12 @@ meditations should stay private, the policy becomes
 `authorize_if expr(is_nil(archived_at) and in_a_visible_set?)`, and the
 audio paths and the iOS contract need rechecking.
 
-**A7. Low (hardening): `Admin.hashed_password` has no field policy**
+**A7. Done with workstream 6, differently:** Ash applies field policies
+to public attributes only, and the hash is private, so a field policy
+will not compile. A preparation (`Admin.HidePasswordHash`) deselects the
+hash on every read that is not AshAuthentication's own; AshAdmin listed
+it behind a reveal toggle. As found: **`Admin.hashed_password` has no
+field policy**
 (`accounts/admin.ex:168`). It is sensitive and not public, but an admin
 actor can read it, so it shows in AshAdmin. A `field_policies` block that
 lets only `AshAuthenticationInteraction` read it removes it from every
@@ -445,7 +458,8 @@ quota runs out, every prefix asked about after that stays placeless.
 Return `{:error, :transient}` without caching it, and let `LookUpPlace`
 (`look_up_place.ex:28-33`) add an error so Oban retries with backoff.
 
-**J5. Low: the whole admin record goes into Oban Web's page.**
+**J5. Done** (`ObanResolver.resolve_user/1` returns id and email only).
+As found: **the whole admin record goes into Oban Web's page.**
 `ObanResolver.resolve_user/1` (`lib/lumen_viae_web/oban_resolver.ex:21`)
 returns `conn.assigns[:current_admin]`, and Oban Web puts it in its
 LiveView session, which is signed into `data-phx-session` but not
@@ -1105,6 +1119,8 @@ rather than through `assign_async`.
   production origin, so the policy need not allow cdnjs).
 
 ### 6. Console session hardening
+
+Done: A3, A4, A5, A7 (by a preparation, not a field policy) and J5.
 
 - **Packages:** AshAuthentication (adopted).
 - **Changes:** `secure: true` on the production session cookie and
