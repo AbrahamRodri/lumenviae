@@ -1,6 +1,7 @@
 defmodule LumenViaeWeb.Live.Meditations.Edit do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
+  alias LumenViaeWeb.Live.Admin.History
 
   def mount(%{"id" => id}, _session, socket) do
     meditation = Rosary.get_meditation!(id, actor: socket.assigns.current_admin)
@@ -35,9 +36,26 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
     end
   end
 
+  def handle_event("restore_version", %{"id" => version_id}, socket) do
+    case History.restore(socket, socket.assigns.meditation, version_id) do
+      {:ok, meditation} ->
+        meditation = Rosary.get_meditation!(meditation.id, actor: socket.assigns.current_admin)
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Version restored")
+         |> assign(:meditation, meditation)
+         |> assign_edit_form(meditation)}
+
+      {:error, message} ->
+        {:noreply, put_flash(socket, :error, message)}
+    end
+  end
+
   defp assign_edit_form(socket, meditation) do
-    assign(
-      socket,
+    socket
+    |> History.assign_history(meditation)
+    |> assign(
       :edit_form,
       to_form(
         Rosary.form_to_update_meditation(meditation,

@@ -4,6 +4,7 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
   alias LumenViae.Curation.ArtworkUpload
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
+  alias LumenViaeWeb.Live.Admin.History
 
   def mount(%{"id" => id}, _session, socket) do
     author = Rosary.get_author!(id, actor: socket.assigns.current_admin)
@@ -38,6 +39,23 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
          socket
          |> put_flash(:error, "Failed to update author")
          |> assign(:edit_form, form)}
+    end
+  end
+
+  def handle_event("restore_version", %{"id" => version_id}, socket) do
+    case History.restore(socket, socket.assigns.author, version_id) do
+      {:ok, author} ->
+        author = Rosary.get_author!(author.id, actor: socket.assigns.current_admin)
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Version restored")
+         |> assign(:author, author)
+         |> assign_edit_form(author)
+         |> assign_artwork(author)}
+
+      {:error, message} ->
+        {:noreply, put_flash(socket, :error, message)}
     end
   end
 
@@ -157,6 +175,7 @@ defmodule LumenViaeWeb.Live.Meditations.Authors.Edit do
 
   defp assign_artwork(socket, author) do
     socket
+    |> History.assign_history(author)
     |> assign(:artwork_url, Rosary.artwork_url(author))
     |> assign(
       :artwork_form,

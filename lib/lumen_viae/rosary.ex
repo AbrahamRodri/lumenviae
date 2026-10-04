@@ -1275,4 +1275,92 @@ defmodule LumenViae.Rosary do
   end
 
   defp days_ago(days), do: DateTime.add(DateTime.utc_now(), -days * 24 * 3600, :second)
+
+  ## History
+  #
+  # Every change to a mystery, meditation, set or author is a version row
+  # (AshPaperTrail), holding the whole record as it stood after the change.
+  # These are the console's way in to them: a record's versions, newest
+  # first, and putting one back.
+
+  @versioned [Mystery, Meditation, MeditationSet, Author]
+
+  # A meditation edited every day for a year is still one panel, not a
+  # page of its own.
+  @history_limit 50
+
+  @doc """
+  The versions of `record` (a mystery, meditation, set or author), newest
+  first, at most #{@history_limit}, as
+  `[%{id, action, type, at, by, snapshot}]`: the action's name and type, when,
+  the email of the admin who made it (`nil` for an operator's shell or a
+  change made before that was recorded), and the record as it stood after
+  the change, keyed by field name.
+
+  Admin only: the version resources' policies refuse everyone else.
+  """
+  def list_history(%resource{id: id}, opts \\ []) when resource in @versioned do
+    resource
+    |> version_resource()
+    |> Ash.Query.filter(version_source_id == ^id)
+    |> Ash.Query.sort(version_inserted_at: :desc, id: :desc)
+    |> Ash.Query.limit(@history_limit)
+    |> Ash.Query.load(:admin)
+    |> Ash.read!(AshOpts.take(opts))
+    |> Enum.map(fn version ->
+      %{
+        id: version.id,
+        action: version.version_action_name,
+        type: version.version_action_type,
+        at: version.version_inserted_at,
+        by: version.admin && to_string(version.admin.email),
+        snapshot: version.changes
+      }
+    end)
+  end
+
+  @doc """
+  The fields of `record` that `restore_version/3` puts back: the ones its
+  update action accepts, by name. Anything else in a snapshot (an archive
+  date, a set's artwork) has its own action and is left as it is.
+  """
+  def restorable_fields(%resource{}) when resource in @versioned do
+    resource
+    |> Ash.Resource.Info.primary_action!(:update)
+    |> Map.fetch!(:accept)
+    |> Enum.map(&to_string/1)
+  end
+
+  @doc """
+  Puts `record` back as it stood in one of its versions, through its own
+  update action, so the restore is checked like any edit and is itself a
+  new version that can be undone.
+
+  Only the fields the update action accepts are restored (see
+  `restorable_fields/1`). Returns `{:ok, record}` or `{:error, error}`; a
+  version of another record is not found.
+  """
+  def restore_version(%resource{id: id} = record, version_id, opts \\ [])
+      when resource in @versioned do
+    ash_opts = AshOpts.take(opts)
+
+    with {:ok, version} <- Ash.get(version_resource(resource), version_id, ash_opts),
+         :ok <- same_record(version, id) do
+      params = Map.take(version.changes, restorable_fields(record))
+
+      record
+      |> Ash.Changeset.for_update(:update, params, ash_opts)
+      |> Ash.update()
+    end
+  end
+
+  # Another record's version is not found, as far as this record goes.
+  defp same_record(%{version_source_id: id}, id), do: :ok
+
+  defp same_record(version, _id) do
+    {:error,
+     Ash.Error.Query.NotFound.exception(resource: version.__struct__, primary_key: version.id)}
+  end
+
+  defp version_resource(resource), do: Module.concat(resource, Version)
 end

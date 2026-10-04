@@ -61,6 +61,15 @@ defmodule LumenViae.Rosary.PaperTrailTest do
     assert archived.changes["content"] == "Second wording."
   end
 
+  test "each version records the admin who made it, and nobody for an operator's shell" do
+    mystery = create_mystery()
+    {:ok, _} = Rosary.update_mystery(mystery, %{name: "Renamed"}, authorize?: false)
+
+    assert [by_admin, by_shell] = versions_of(mystery)
+    assert by_admin.admin_id == admin().id
+    assert by_shell.admin_id == nil
+  end
+
   test "nothing is written for an update that changes nothing" do
     mystery = create_mystery()
     {:ok, _} = Rosary.update_mystery(mystery, %{name: mystery.name}, actor: admin())

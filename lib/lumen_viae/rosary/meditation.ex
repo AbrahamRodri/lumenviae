@@ -87,6 +87,11 @@ defmodule LumenViae.Rosary.Meditation do
     ignore_attributes [:inserted_at, :updated_at]
     reference_source? false
 
+    # Which admin made the change: the actor of the action, when it is one.
+    # Nil for an operator's shell (mix tasks, LumenViae.Release), which runs
+    # with no actor, and for rows written before this was recorded.
+    belongs_to_actor :admin, LumenViae.Accounts.Admin, domain: LumenViae.Accounts
+
     # Admin-only, read-only history. See LumenViae.Rosary.VersionPolicies.
     version_extensions authorizers: [Ash.Policy.Authorizer]
     mixin LumenViae.Rosary.VersionPolicies

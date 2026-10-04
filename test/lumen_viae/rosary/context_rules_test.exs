@@ -167,13 +167,18 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   # The Accounts domain follows rule 1 too. The router is the one exception:
   # AshAuthentication's `auth_routes` macro must name the admin resource.
   # `LumenViae.Accounts.Checks.ActorIsAdmin` is not a resource, and every
-  # resource's policies name it.
+  # resource's policies name it. AshPaperTrail's `belongs_to_actor` names
+  # it too, on the content resources whose versions record who made them:
+  # a relationship across the two domains, declared, not a call around one.
+  @actor_relationship ~r/^\s*belongs_to_actor :admin, LumenViae\.Accounts\.Admin,.*$/m
+
   test "nothing outside the Accounts domain names an Accounts resource" do
     offenders =
       for path <- lib_files(),
           not String.starts_with?(path, "lib/lumen_viae/accounts"),
           path != "lib/lumen_viae_web/router.ex",
           {_path, source} = read(path),
+          source = String.replace(source, @actor_relationship, ""),
           resource <- ["LumenViae.Accounts.Admin", "LumenViae.Accounts.Token"],
           references?(source, resource),
           do: "#{path} -> #{resource}"
