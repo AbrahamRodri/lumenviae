@@ -43,7 +43,18 @@ defmodule LumenViae.Office.Cache do
     ArgumentError -> :ok
   end
 
-  @doc "Empties the cache. For tests."
+  @doc "How many entries the table holds and their size in bytes."
+  def stats do
+    case {:ets.info(@table, :size), :ets.info(@table, :memory)} do
+      {size, words} when is_integer(size) and is_integer(words) ->
+        %{entries: size, bytes: words * :erlang.system_info(:wordsize)}
+
+      _no_table ->
+        %{entries: 0, bytes: 0}
+    end
+  end
+
+  @doc "Empties the cache: for tests, and the console's System screen."
   def reset do
     :ets.delete_all_objects(@table)
     :ok

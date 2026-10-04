@@ -7,6 +7,14 @@ defmodule LumenViae.Application do
 
   @impl true
   def start(_type, _args) do
+    # One log line as each job starts, finishes, fails or is cancelled, with
+    # its worker, queue, attempt and timings, so `fly logs` says what the
+    # queues did without opening Oban Web. Jobs only: the plugins' events
+    # (the pruner every five minutes, the cron every minute) would bury them.
+    # Arguments are logged too, which is safe because nothing goes in them
+    # that could not be stored on a row (docs/ARCHITECTURE.md).
+    Oban.Telemetry.attach_default_logger(level: :info, events: [:job], encode: false)
+
     children = [
       LumenViaeWeb.Telemetry,
       LumenViae.Repo,
