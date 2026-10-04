@@ -1,10 +1,10 @@
 # Completion analytics
 
 What is recorded when somebody finishes a Rosary, where it comes from, and
-what the iOS app sends.
+what the iOS and Android apps send.
 
 Nothing here prompts anyone for anything. There is no location permission
-dialog, no Core Location, and no tracking prompt, on either surface.
+dialog, no Core Location, and no tracking prompt, on any surface.
 
 ---
 
@@ -13,7 +13,7 @@ dialog, no Core Location, and no tracking prompt, on either surface.
 | Column | Source | Example |
 | --- | --- | --- |
 | `meditation_set_id`, `completed_at` | The completion itself | `42`, `2026-08-22T19:11:00Z` |
-| `source` | The surface it was prayed on | `"web"`, `"ios"` |
+| `source` | The surface it was prayed on | `"web"`, `"ios"`, `"android"` |
 | `city`, `region`, `country`, `country_code` | Looked up from `ip_prefix` by a background job | `"Dallas"`, `"Texas"`, `"United States"`, `"US"` |
 | `ip_prefix` | The request's address, truncated | `"203.0.113.0"` |
 | `time_zone`, `locale` | Reported by a client that sends them; no build of the app does | `"America/Chicago"`, `"en-US"` |
@@ -122,6 +122,49 @@ not read by any build. See "Rate limits" in
 
 ---
 
+## The Android app
+
+The Android app calls `/api/v2` and nothing else, so it records a
+completion with `POST /api/v2/completions`, the same two attributes the
+iOS app sends (docs/JSON_API.md, "Recording a completion"):
+
+```jsonc
+POST /api/v2/completions
+Content-Type: application/vnd.api+json
+
+{"data": {"type": "completion", "attributes": {"meditation_set_id": 42, "prayed_aloud": true}}}
+```
+
+Nothing in the body says which app it is. The app identifies itself by
+its user agent,
+
+```
+LumenViae-Android/<versionName> (Android <release>; <model>)
+```
+
+for example `LumenViae-Android/1.0.0 (Android 14; Pixel 8)`, and the
+server reads the surface from that (`LumenViae.Rosary.Completion.AppSource`):
+an agent containing `Android`, in any case, is recorded as `"android"`, and
+anything else, a missing agent included, as `"ios"`, because every app
+build before the Android one is an iOS build and the iOS app's CFNetwork
+agent names no platform.
+
+**The app must set that agent, and never send its HTTP library's
+default.** OkHttp, which Retrofit, Coil and most Android HTTP stacks use,
+sends `okhttp/4.12.0`, and `okhttp` is on `LumenViae.BotDetection`'s list
+because scripts use it: left at the default, every completion would answer
+`403 automated_client`, which a client drops without retrying, and
+Android's figures would read zero with nothing saying why. Android's stock
+`Dalvik/2.1.0 (Linux; U; Android 14; ...)` would pass and be recorded as
+Android, but is not what the app sends. The tests in
+`test/lumen_viae_web/bot_detection_test.exs` and the two completion
+suites pin all three.
+
+The two responses worth handling, and the reason to fail quietly on both,
+are the iOS app's above.
+
+---
+
 ## The website
 
 Nothing to do. `LumenViaeWeb.Plugs.PutClientIP` reads `Fly-Client-IP` during
@@ -143,7 +186,7 @@ own proxy in Chicago.
 ## Where it shows up
 
 The admin dashboard, under **Where Rosaries are prayed** (countries and
-cities), **Website or app** (with the aloud-or-silently split under it), and the **From** and **How** columns of
+cities), **Website or app** (Website, iOS app and Android app, with the aloud-or-silently split under it), and the **From** and **How** columns of
 **Recent completions**.
 
 The location panel states how many completions in the period actually have a

@@ -163,6 +163,46 @@ defmodule LumenViaeWeb.JsonApi.RecordCompletionTest do
     end
   end
 
+  describe "which app" do
+    defp source_of(conn, set) do
+      body = conn |> record(%{meditation_set_id: set.id}) |> v2_response(201)
+      Repo.get!(Completion, String.to_integer(body["data"]["id"])).source
+    end
+
+    test "the Android app's agent records an Android completion", %{conn: conn, set: set} do
+      for agent <- [
+            "LumenViae-Android/1.0.0 (Android 14; Pixel 8)",
+            "Dalvik/2.1.0 (Linux; U; Android 14; Pixel 8 Build/AP2A.240805.005)"
+          ] do
+        assert conn |> as(agent) |> source_of(set) == "android", agent
+      end
+    end
+
+    test "the iOS app's agents, and no agent at all, record an iOS completion", %{
+      conn: conn,
+      set: set
+    } do
+      for agent <- [
+            "app/5 CFNetwork/3826.500.111 Darwin/25.0.0",
+            "app/4 CFNetwork/1568.100.1 Darwin/24.0.0"
+          ] do
+        assert conn |> as(agent) |> source_of(set) == "ios", agent
+      end
+
+      assert source_of(conn, set) == "ios"
+    end
+
+    test "OkHttp's default agent is refused, which is why the app sends its own", %{
+      conn: conn,
+      set: set
+    } do
+      conn
+      |> as("okhttp/4.12.0")
+      |> record(%{meditation_set_id: set.id})
+      |> v2_response(403)
+    end
+  end
+
   describe "the rate limit" do
     @limit 2
 

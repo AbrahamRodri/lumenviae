@@ -44,7 +44,7 @@ lib/lumen_viae/
 │   ├── narration.ex           resource, table meditation_narrations: one voice's recording of one meditation
 │   ├── author.ex              resource, table authors
 │   ├── completion.ex          resource, table rosary_completions
-│   ├── completion/            how a completion is stamped, and the visible-set check
+│   ├── completion/            how a completion is stamped, which app sent it, and the visible-set check
 │   ├── narration_voice.ex     resource with no table: the configured voices, for GraphQL
 │   ├── spoken_rosary.ex       resource with no table: the spoken Rosary manifest, for GraphQL
 │   ├── rosary_content.ex      resource with no table: the Rosary's words as one document, for the APIs
@@ -1119,7 +1119,19 @@ A completion carries an approximate place, the surface it was prayed on,
 whether the spoken Rosary was on, and, from a client that sends them, a
 timezone and a locale. None of it requires asking anyone for anything: the
 place is derived from the address the request arrives on, and the rest is
-reported. No build of the iOS app sends `time_zone` or `locale` (see
+reported.
+
+The surface is `"web"`, `"ios"` or `"android"`. The website and v1's
+REST controller say which they are (`"web"`, and `"ios"`, since only the
+iOS app calls v1). `:record_from_app`, behind GraphQL and `/api/v2`,
+reads it from the user agent the server put in the action context, in
+`Completion.AppSource`: `"android"` when the agent contains `Android`, in
+any case, and `"ios"` otherwise, a missing agent included, since every app
+build before the Android one is an iOS build. The Android app sends
+`LumenViae-Android/<versionName> (Android <release>; <model>)`; no
+attribute on the write names a platform.
+
+No build of the iOS app sends `time_zone` or `locale` (see
 docs/IOS_API_CONTRACT.md, section 6); the server accepts both from any
 client that does, and on iOS they would be readable from `TimeZone.current`
 and `Locale.current` without a prompt. Core Location is deliberately not
@@ -1171,9 +1183,12 @@ security - an agent string is whatever the caller says it is - and it
 catches the crawlers that announce themselves honestly. Its generic match is
 bounded on the left so `Cubot` and its relatives are not read as bots; a new
 crawler that runs a word into `bot` has to be named in `@named_agents`. A
-*missing* agent is treated as unknown rather than as a bot, because the iOS
-app's agent is set outside this repo and refusing a blank one would take the
-app's analytics silently to zero.
+*missing* agent is treated as unknown rather than as a bot, because the
+apps' agents are set outside this repo and refusing a blank one would take
+an app's analytics silently to zero. The apps must not send an HTTP
+library's default agent: OkHttp's `okhttp/4.12.0` is on the list, so the
+Android app sends its own (see "What a completion records about where it
+came from"), and the tests pin that it passes.
 
 The rate limit on the completion actions caps completions per address per
 hour, and is the part that still holds when the agent string is a lie. It

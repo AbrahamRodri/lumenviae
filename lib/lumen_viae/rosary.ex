@@ -1030,7 +1030,7 @@ defmodule LumenViae.Rosary do
 
     * `:ip` - the caller's address, used to look up a rough place and then
       truncated before it is stored. Never written down in full.
-    * `:source` - `"web"` or `"ios"`
+    * `:source` - `"web"`, `"ios"` or `"android"`
     * `:time_zone` - an IANA zone name reported by the client
     * `:locale` - a locale reported by the client
     * `:prayed_aloud` - whether the spoken Rosary was on

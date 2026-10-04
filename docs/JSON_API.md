@@ -233,6 +233,8 @@ with REST and GraphQL: over it, `429 rate_limited`, "Too many completions
 from this address", with a `Retry-After` header, and nothing is written. A crawler's refusal and a read
 spend none of it.
 
+A client must not send its HTTP library's default user agent (OkHttp's `okhttp/4.12.0` is refused as scripted): the Android app sends `LumenViae-Android/<versionName> (Android <release>; <model>)`, from which the server records the completion as Android's (docs/COMPLETION_ANALYTICS.md).
+
 ## What is exposed, and authorization
 
 v2 is anonymous. It runs off the browser pipeline, with no session and no

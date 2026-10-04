@@ -1,9 +1,11 @@
 defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
   @moduledoc """
-  Privacy policy page for the Lumen Viae iOS app and the website.
+  Privacy policy page for the Lumen Viae iOS and Android apps and the
+  website.
 
-  Keep it in step with the app's own policy (`PrivacyPolicySheet`), its
-  privacy manifest (`PrivacyInfo.xcprivacy`) and docs/COMPLETION_ANALYTICS.md.
+  Keep it in step with the iOS app's own policy (`PrivacyPolicySheet`), its
+  privacy manifest (`PrivacyInfo.xcprivacy`), the Android app's Google Play
+  data safety answers and docs/COMPLETION_ANALYTICS.md.
   """
   use LumenViaeWeb, :live_view
 
@@ -30,10 +32,10 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         <.sacred_divider class="max-w-[210px]" />
 
         <p class="mb-6 font-garamond text-lg leading-relaxed">
-          Lumen Viae ("we", "our", or "us") operates the Lumen Viae iOS application and the
-          website at www.lumenviae.org. This policy describes what information we collect, how we
-          use it, and your rights regarding that information. It covers both, and says where the
-          two differ.
+          Lumen Viae ("we", "our", or "us") operates the Lumen Viae apps for iPhone and for
+          Android and the website at www.lumenviae.org. This policy describes what information we
+          collect, how we use it, and your rights regarding that information. It covers all three,
+          and says where they differ.
         </p>
 
         <section class="mt-10 pt-8 border-t border-gold/20">
@@ -45,22 +47,23 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
             <li>
               <strong>Rosary completion data</strong> - When you finish praying a meditation set's
               Rosary, we record which set it was, when it was finished, and whether it was prayed in
-              the app or on the website. This data is stored on our servers and is not linked to any
-              personal identity. The app's other ways of praying - the Scriptural Rosary, the Holy
-              Rosary and the guided first Rosary - send nothing at all.
+              the iPhone app, in the Android app or on the website. This data is stored on our
+              servers and is not linked to any personal identity. The apps' other ways of praying -
+              the Scriptural Rosary, the Holy Rosary and the guided first Rosary - send nothing at
+              all.
             </li>
             <li>
               <strong>Approximate location</strong> - We record the approximate place a completed
               Rosary was prayed from: city, region and country. This is worked out from the network
               address your device connects with, which every website and app receives automatically
               as part of an ordinary internet request. We never ask your device for its location,
-              and the app does not use iOS Location Services, so you will never see a location
-              permission prompt from us. The accuracy is roughly city-level at best, and is often
-              only correct to the country - it commonly reports the location of your internet
-              provider rather than yours.
+              and neither app uses iOS Location Services or Android's location permission, so you
+              will never see a location permission prompt from us. The accuracy is roughly
+              city-level at best, and is often only correct to the country - it commonly reports the
+              location of your internet provider rather than yours.
             </li>
             <li>
-              <strong>Whether the Rosary was prayed aloud</strong> - With a completion, the app notes
+              <strong>Whether the Rosary was prayed aloud</strong> - With a completion, the apps note
               whether the Rosary was said aloud as the Whole Rosary (every prayer read aloud), and
               the website whether its Pray aloud switch was on, so we can tell how many people pray
               with the spoken Rosary. It is a yes or no, and nothing is recorded from your
@@ -72,7 +75,8 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
               whether it succeeded and how long it took. These logs do not record your network
               address, and they do not record your device, app version or system version. The user
               agent - the short description of the browser or app that every request carries - is
-              read only to turn away automated crawlers, and is not kept.
+              read only to turn away automated crawlers and to tell whether a completed Rosary came
+              from the iPhone app or the Android app, and is not kept.
             </li>
           </ul>
         </section>
@@ -83,11 +87,12 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
             <li>We do not collect your name, email address, or any account information.</li>
             <li>We do not require you to create an account or log in.</li>
             <li>
-              We do not use advertising networks or sell data to third parties, and neither the app
-              nor the website carries analytics or advertising code from anyone else.
+              We do not use advertising networks or sell data to third parties, and neither the apps
+              nor the website carry analytics or advertising code from anyone else.
             </li>
             <li>
-              We do not use GPS or iOS Location Services, and we never ask your device where it is.
+              We do not use GPS, iOS Location Services or Android's location services, and we never
+              ask your device where it is.
               The approximate location described above is worked out from your network address
               alone.
             </li>
@@ -111,14 +116,15 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
         <section class="mt-10 pt-8 border-t border-gold/20">
           <h2 class="font-cinzel text-2xl mb-4 text-navy">What Stays on Your Phone</h2>
           <p class="font-garamond text-lg leading-relaxed">
-            In the app, almost everything. Your journal, your prayer record and streak, your place in
+            In the apps, almost everything. Your journal, your prayer record and streak, your place in
             every book, your Chapel and your settings are kept on your device and never sent to us.
-            They leave it only in your iPhone's own iCloud Backup, if you have it turned on, under
-            Apple's privacy policy.
+            They leave it only in your phone's own backup, if you have it turned on: iCloud Backup on
+            an iPhone, under Apple's privacy policy, or Android's backup to your Google Account on an
+            Android phone, under Google's.
           </p>
           <p class="font-garamond text-lg leading-relaxed mt-4">
-            Daily reminders and the Angelus bell are scheduled on your phone by iOS. We send no push
-            notifications.
+            Daily reminders and the Angelus bell are scheduled on your phone itself, by iOS on an
+            iPhone and by Android on an Android phone. We send no push notifications.
           </p>
         </section>
 
@@ -126,7 +132,7 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
           <h2 class="font-cinzel text-2xl mb-4 text-navy">How We Use the Information</h2>
           <p class="font-garamond text-lg leading-relaxed">
             Completion data is used solely to track aggregate prayer statistics for the purpose of
-            improving the app and understanding which meditations are most used, when they are
+            improving the apps and understanding which meditations are most used, when they are
             prayed, and roughly where in the world they are being prayed. It is never sold, and it
             is never shared with third parties for their own purposes.
           </p>
@@ -147,7 +153,7 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
           <h2 class="font-cinzel text-2xl mb-4 text-navy">Third-Party Services</h2>
           <p class="font-garamond text-lg leading-relaxed">
             The website and our server are hosted by Fly.io. Every request to the website, and every
-            request the app makes to us, passes through Fly.io's network, which sees your network
+            request the apps make to us, passes through Fly.io's network, which sees your network
             address as any host does.
           </p>
           <p class="font-garamond text-lg leading-relaxed mt-4">
@@ -165,7 +171,7 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
             or anything else from this app or website, is sent with it.
           </p>
           <p class="font-garamond text-lg leading-relaxed mt-4">
-            Some of what the app shows is fetched directly from other sites, not through us: the
+            Some of what the iPhone app shows is fetched directly from other sites, not through us: the
             Daily Missal from Missale Meum, and the Spiritual Reading shelf's books and recordings
             from Project Gutenberg and LibriVox, whose recordings are kept by the Internet Archive.
             Each receives the request itself - which day of the Missal, which book or recording -
@@ -180,7 +186,7 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
           <h2 class="font-cinzel text-2xl mb-4 text-navy">Children's Privacy</h2>
           <p class="font-garamond text-lg leading-relaxed">
             Lumen Viae does not knowingly collect information from children under the age of 13.
-            The app contains no account creation, social features, or targeted content, and is
+            The apps contain no account creation, social features, or targeted content, and are
             suitable for all ages.
           </p>
         </section>
@@ -189,7 +195,7 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
           <h2 class="font-cinzel text-2xl mb-4 text-navy">Changes to This Policy</h2>
           <p class="font-garamond text-lg leading-relaxed">
             We may update this privacy policy from time to time. Any changes will be posted at this
-            URL with an updated revision date. Continued use of the app after changes constitutes
+            URL with an updated revision date. Continued use of the apps after changes constitutes
             acceptance of the revised policy.
           </p>
         </section>

@@ -177,5 +177,32 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
       assert html =~ "Rosaries completed"
       assert Rosary.completion_summary(actor: admin()).last_7 == 2
     end
+
+    test "reads the website and each app apart", %{conn: conn} do
+      set = create_set()
+
+      for source <- ["web", "ios", "android", "android"] do
+        {:ok, _} = Rosary.record_completion(set.id, %{source: source})
+      end
+
+      {:ok, _view, html} = live(conn, "/admin")
+      {:ok, doc} = Floki.parse_document(html)
+
+      rows =
+        doc
+        |> Floki.find("section")
+        |> Enum.find(&(&1 |> Floki.find("h2") |> Floki.text() == "Website or app"))
+        |> Floki.find("li")
+        |> Enum.map(fn row ->
+          [label, count] =
+            row |> Floki.find(".truncate, span") |> Enum.map(&String.trim(Floki.text(&1)))
+
+          {label, count}
+        end)
+
+      assert {"Android app", "2"} in rows
+      assert {"iOS app", "1"} in rows
+      assert {"Website", "1"} in rows
+    end
   end
 end

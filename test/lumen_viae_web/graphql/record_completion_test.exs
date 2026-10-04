@@ -109,6 +109,36 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
     assert body["errors"] != []
   end
 
+  describe "which app" do
+    # Each from an address of its own: this file's budget is two an address.
+    defp source_as(agent, set) do
+      conn = from_a_new_address(build_conn())
+      conn = if agent, do: as(conn, agent), else: conn
+
+      %{"data" => %{"recordCompletion" => %{"result" => %{"id" => id}}}} = record(conn, set.id)
+      Repo.get!(Completion, String.to_integer(id)).source
+    end
+
+    test "the Android app's agent records an Android completion", %{set: set} do
+      for agent <- [
+            "LumenViae-Android/1.0.0 (Android 14; Pixel 8)",
+            "Dalvik/2.1.0 (Linux; U; Android 14; Pixel 8 Build/AP2A.240805.005)"
+          ] do
+        assert source_as(agent, set) == "android", agent
+      end
+    end
+
+    test "the iOS app's agents, and no agent at all, record an iOS completion", %{set: set} do
+      for agent <- [
+            "app/5 CFNetwork/3826.500.111 Darwin/25.0.0",
+            "app/4 CFNetwork/1568.100.1 Darwin/24.0.0",
+            nil
+          ] do
+        assert source_as(agent, set) == "ios", inspect(agent)
+      end
+    end
+  end
+
   describe "the guard" do
     test "turns a crawler away, and records nothing", %{conn: conn, set: set} do
       before = Rosary.count_total_completions(actor: admin())

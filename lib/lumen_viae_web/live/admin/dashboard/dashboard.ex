@@ -335,6 +335,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   """
   def source_label("web"), do: "Website"
   def source_label("ios"), do: "iOS app"
+  def source_label("android"), do: "Android app"
   def source_label(_unrecorded), do: "Not recorded"
 
   @doc """
@@ -407,6 +408,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     |> Enum.map(fn
       {"web", count} -> {"Website", count}
       {"ios", count} -> {"iOS app", count}
+      {"android", count} -> {"Android app", count}
       {_unrecorded, count} -> {"Unknown", count}
     end)
     |> Enum.reduce(%{}, fn {label, count}, acc -> Map.update(acc, label, count, &(&1 + count)) end)

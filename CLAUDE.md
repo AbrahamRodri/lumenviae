@@ -128,7 +128,7 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - `meditation_narrations` - One row per (meditation, voice) recording and
   its S3 key; `meditations.audio_url` is the recording's filename
 - `rosary_completions` - Completion analytics, including approximate
-  location, surface (web or iOS) and a truncated IP prefix. The full
+  location, surface (web, iOS or Android) and a truncated IP prefix. The full
   address is never stored
 - `meditations_versions`, `meditation_sets_versions`, `mysteries_versions`,
   `authors_versions` - AshPaperTrail's snapshot of every change to those

@@ -31,6 +31,12 @@ defmodule LumenViaeWeb.BotDetectionTest do
       end
     end
 
+    test "an Android HTTP library's default agent" do
+      # Why the Android app must send an agent of its own: left at OkHttp's
+      # default, every completion it records would be refused as scripted.
+      assert BotDetection.bot?("okhttp/4.12.0")
+    end
+
     test "an unknown crawler that formats its agent conventionally" do
       assert BotDetection.bot?("SomeNewThing-bot/1.0")
       assert BotDetection.bot?("Mozilla/5.0 (compatible; spider; +http://example.com)")
@@ -50,6 +56,17 @@ defmodule LumenViaeWeb.BotDetectionTest do
 
     test "the iOS app's own agent" do
       refute BotDetection.bot?("LumenViae/1.2 CFNetwork/1494.0.7 Darwin/23.4.0")
+    end
+
+    test "the Android app's own agent, and Android's stock one" do
+      # The Android app names itself (decision D4 of the Android backend
+      # plan). Dalvik's agent is what Android's own HTTP stack sends.
+      for agent <- [
+            "LumenViae-Android/1.0.0 (Android 14; Pixel 8)",
+            "Dalvik/2.1.0 (Linux; U; Android 14; Pixel 8 Build/AP2A.240805.005)"
+          ] do
+        refute BotDetection.bot?(agent), "expected a person: #{agent}"
+      end
     end
 
     test "a phone whose model name happens to end in bot" do
