@@ -30,6 +30,14 @@ defmodule LumenViae.Rosary.Content do
   Its captions, pauses, beads and pendant places are shown and timed but
   never spoken, so a change to them records nothing.
 
+  `learn.json` is the iOS app's How to Pray course and `guided_rosary.json`
+  its "Your First Rosary", the Rosary a step at a time for each of the
+  four sets, both word for word. Every prayer id either names is one
+  `prayers.json` holds, and every door of a reading leads to a target in
+  `door_targets/0`; a file that breaks either fails the compile. Their
+  shapes are `Types.RosaryLearn` and `Types.GuidedRosary`, documented in
+  docs/JSON_API.md, "The How to Pray course".
+
   ## Every file is dated
 
   Each file carries a top-level `updated_at`, an ISO 8601 UTC timestamp:
@@ -53,6 +61,12 @@ defmodule LumenViae.Rosary.Content do
 
   @prayers_path Path.join(@dir, "prayers.json")
   @external_resource @prayers_path
+
+  @learn_path Path.join(@dir, "learn.json")
+  @external_resource @learn_path
+
+  @guided_rosary_path Path.join(@dir, "guided_rosary.json")
+  @external_resource @guided_rosary_path
 
   @groups ~w(rosary chaplet after)
 
@@ -128,11 +142,93 @@ defmodule LumenViae.Rosary.Content do
         description: "priv/rosary_content/script.json:\n  " <> Enum.join(errors, "\n  ")
   end
 
+  # learn.json and guided_rosary.json: the How to Pray course and "Your
+  # First Rosary". Their shapes are checked by casting them to their types
+  # (Types.RosaryLearn, Types.GuidedRosary) when the sections are served
+  # and in the test; what a type cannot say, every prayer id and door
+  # target naming something there is, is checked here.
+
+  {learn_file, learn_updated_at} = read.(@learn_path)
+  {guided_rosary_file, guided_rosary_updated_at} = read.(@guided_rosary_path)
+
+  @learn Map.fetch!(learn_file, "learn")
+  @guided_rosary Map.fetch!(guided_rosary_file, "guided_rosary")
+
+  check_prayers = fn file, ids ->
+    for id <- ids, id not in @prayer_ids do
+      raise CompileError,
+        description:
+          "priv/rosary_content/#{file} names the prayer #{inspect(id)}, which prayers.json does not hold"
+    end
+  end
+
+  check_prayers.(
+    "learn.json",
+    Enum.flat_map(@learn["steps"], & &1["prayer_ids"]) ++
+      Enum.map(@learn["prayer_counts"], & &1["prayer_id"]) ++
+      Enum.flat_map(@learn["lessons"], fn lesson ->
+        Enum.flat_map(lesson["sections"], &(&1["prayer_ids"] || []))
+      end)
+  )
+
+  @reading_ids for shelf <- @learn["shelves"], reading <- shelf["readings"], do: reading["id"]
+
+  if Enum.uniq(@reading_ids) != @reading_ids do
+    raise CompileError, description: "priv/rosary_content/learn.json repeats a reading id"
+  end
+
+  # Where a reading's door may lead. A `reading` door may also name a
+  # reading of the app's libraries that the document does not hold yet.
+  @door_targets %{
+    "act" => ~w(todays_rosary),
+    "reading" => @reading_ids ++ ~w(montfort cana),
+    "prayer" => @prayer_ids,
+    "page" => ~w(mysteries_in_scripture)
+  }
+
+  for shelf <- @learn["shelves"],
+      reading <- shelf["readings"],
+      %{"kind" => kind, "target" => target} <- reading["doors"],
+      target not in Map.get(@door_targets, kind, []) do
+    raise CompileError,
+      description:
+        "priv/rosary_content/learn.json: #{reading["id"]} has a door #{kind}:#{target}, which is not in Content.door_targets/0"
+  end
+
+  @guided_parts @guided_rosary["parts"]
+
+  if Enum.uniq(@guided_parts) != @guided_parts do
+    raise CompileError, description: "priv/rosary_content/guided_rosary.json repeats a part"
+  end
+
+  for %{"category" => category, "steps" => steps} <- @guided_rosary["rosaries"],
+      step <- steps do
+    check_prayers.("guided_rosary.json", step["prayer_ids"])
+
+    if step["part"] not in @guided_parts do
+      raise CompileError,
+        description:
+          "priv/rosary_content/guided_rosary.json: a #{category} step is on #{inspect(step["part"])}, which is not one of its parts"
+    end
+  end
+
+  for anatomy <- @guided_rosary["anatomy"], part <- anatomy["parts"], part not in @guided_parts do
+    raise CompileError,
+      description:
+        "priv/rosary_content/guided_rosary.json: the anatomy's #{anatomy["id"]} names #{inspect(part)}, which is not one of its parts"
+  end
+
   # One entry per file. A new file is read and checked as prayers.json is
   # above, and listed here; its sections join the document.
   @files [
     %{name: "prayers.json", content: prayers_file, updated_at: prayers_updated_at},
-    %{name: "script.json", content: script_file, updated_at: script_updated_at}
+    %{name: "script.json", content: script_file, updated_at: script_updated_at},
+    %{name: "learn.json", content: learn_file, updated_at: learn_updated_at},
+    %{
+      name: "guided_rosary.json",
+      content: guided_rosary_file,
+      updated_at: guided_rosary_updated_at
+    }
   ]
 
   @document Enum.reduce(@files, %{}, &Map.merge(&2, &1.content))
@@ -170,6 +266,28 @@ defmodule LumenViae.Rosary.Content do
   @doc "One prayer by its id, or `nil`."
   @spec prayer(String.t()) :: map | nil
   def prayer(id), do: Enum.find(@prayers, &(&1["id"] == id))
+
+  @doc """
+  The How to Pray course: the `learn` section, string keys throughout, as
+  `priv/rosary_content/learn.json` holds it. See `Types.RosaryLearn`.
+  """
+  @spec learn() :: map
+  def learn, do: @learn
+
+  @doc """
+  "Your First Rosary": the `guided_rosary` section, as
+  `priv/rosary_content/guided_rosary.json` holds it. See
+  `Types.GuidedRosary`.
+  """
+  @spec guided_rosary() :: map
+  def guided_rosary, do: @guided_rosary
+
+  @doc """
+  Where a reading's door may lead: each `kind` with the targets it may
+  name. See `Types.ReadingDoor`.
+  """
+  @spec door_targets() :: %{String.t() => [String.t()]}
+  def door_targets, do: @door_targets
 
   @doc "The groups a prayer may belong to."
   @spec groups() :: [String.t()]

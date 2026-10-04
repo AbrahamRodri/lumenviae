@@ -13,6 +13,12 @@ defmodule LumenViae.Rosary.ContentTest do
     ],
     "script.json" => [
       {~U[2026-10-04 02:04:00Z], "7346f03c03ccaa1c"}
+    ],
+    "learn.json" => [
+      {~U[2026-10-04 02:00:00Z], "ea31551072a242a6"}
+    ],
+    "guided_rosary.json" => [
+      {~U[2026-10-04 02:00:00Z], "6dfea61161cb95e7"}
     ]
   }
 

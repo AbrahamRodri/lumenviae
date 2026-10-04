@@ -280,6 +280,287 @@ type RosarySchedule {
   default: String!
 }
 
+type RosaryAnatomy {
+  "What is prayed there."
+  prayed: String!
+
+  "The beads it names (keys in `parts`), in the order the fingers travel them."
+  parts: [String!]!
+
+  "Its name."
+  name: String!
+
+  "Its id."
+  id: String!
+}
+
+type GuidedStep {
+  "The prayers said here, in order (ids in the `prayers` section); empty for a mystery's announcement."
+  prayerIds: [String!]!
+
+  "Where on the Rosary, as the app names it: \"The crucifix\", \"The Annunciation · 3 of 10\"."
+  place: String!
+
+  "The bead under the fingers (a key in `parts`)."
+  part: String!
+
+  "What to do here, in plain words."
+  instruction: String!
+
+  "The decade it belongs to, from 0, or null for the opening and closing prayers."
+  decade: Int
+
+  "Whether it is one of the closing prayers, after the last decade, when every bead is behind the fingers."
+  closing: Boolean!
+
+  "Whether it names the mystery before its decade."
+  announcement: Boolean!
+}
+
+type GuidedMysteries {
+  "Every step, in order: 75 for a Rosary of five decades. A step is known by its place in the list, from 0."
+  steps: [GuidedStep!]!
+
+  "A category slug."
+  category: String!
+}
+
+type GuidedRosary {
+  "The steps for each set the guide can walk: the Joyful, Sorrowful, Glorious and Luminous. The Seven Sorrows chaplet is not guided."
+  rosaries: [GuidedMysteries!]!
+
+  "Every bead of a rosary, in the order the fingers travel them: `crucifix`, `pendantLarge.0`, `pendantSmall.0`-`.2`, `pendantLarge.1`, the loop (`loopSmall.<decade>.<bead>`, decades and beads from 0, with `loopLarge.0`-`.3` between the tens), and `medal`. A step's `part` and an anatomy's `parts` are these keys, which never change."
+  parts: [String!]!
+
+  "The first step (from 0) at which a place is worth keeping, and leaving asks first: the Our Father on the first large bead."
+  firstKeptStep: Int!
+
+  "How the prayer record names a Rosary prayed with the guide: \"A Guided Rosary\". It counts as the day's Rosary."
+  devotionName: String!
+
+  "The parts of a rosary as a beginner learns them."
+  anatomy: [RosaryAnatomy!]!
+}
+
+type FirstRosary {
+  "The welcome's first paragraphs."
+  welcome: [String!]!
+
+  "Its name."
+  title: String!
+
+  "One line saying what it is."
+  summary: String!
+
+  "The line under it."
+  mysteriesNote: String!
+
+  "The heading over the choice of mysteries."
+  mysteriesHeading: String!
+
+  "The paragraphs after the choice."
+  beforeYouBegin: [String!]!
+}
+
+type LessonSection {
+  "Its heading, or null where the lesson sets none."
+  title: String
+
+  "What it draws; see the type's description."
+  shows: String!
+
+  "For `prayers`: the prayers, in the order the lesson teaches them (the Hail Mary first)."
+  prayerIds: [String!]
+
+  "For `dwell`: the points, in order."
+  items: [NumberedPoint!]
+
+  "For `categories`: the category slugs."
+  categories: [String!]
+}
+
+type RosaryLesson {
+  "Its name."
+  title: String!
+
+  "One line saying what it teaches."
+  summary: String!
+
+  "What follows the prose, in order."
+  sections: [LessonSection!]!
+
+  "Its opening prose, a paragraph to an item. The first may open on a versal."
+  paragraphs: [String!]!
+
+  "Its place in the course, from 1."
+  number: Int!
+
+  "`beads`, `prayers` or `mysteries`."
+  id: String!
+}
+
+type PrayerCount {
+  "An id in the `prayers` section."
+  prayerId: String!
+
+  "In words: \"Six times — once on each large bead\"."
+  count: String!
+}
+
+type NumberedPoint {
+  "Its few words."
+  title: String!
+
+  "What it says."
+  text: String!
+
+  "Its numeral as shown (`I`, `II`)."
+  numeral: String!
+}
+
+type NumberedPoints {
+  "The points, in order."
+  items: [NumberedPoint!]!
+
+  "The heading, as written."
+  heading: String!
+}
+
+type ScriptureNotes {
+  "The line over the seven graces promised to those devoted to Our Lady's sorrows."
+  sorrowsGracesNote: String!
+
+  "The opening line."
+  intro: String!
+
+  "What a mystery's fruit is."
+  fruitNote: String!
+
+  "What to do with a mystery's verse before its decade."
+  beforeEachDecade: NumberedPoints!
+}
+
+type ReadingDoor {
+  "The door's name, or null for an `act`, which the client names."
+  title: String
+
+  "What it opens; see the type's description."
+  target: String!
+
+  "The line under it."
+  note: String!
+
+  "`act`, `reading`, `prayer` or `page`."
+  kind: String!
+
+  "The iOS app's glyph name for it, for reference; null for an `act`."
+  icon: String
+}
+
+type ReadingQuote {
+  "The words."
+  text: String!
+
+  "Whose, and where."
+  citation: String!
+}
+
+type ReadingTableRow {
+  "The right column."
+  value: String!
+
+  "The left column."
+  label: String!
+}
+
+type ReadingTable {
+  "Its title."
+  title: String!
+
+  "Its rows, in order."
+  rows: [ReadingTableRow!]!
+}
+
+type Reading {
+  "Its title."
+  title: String!
+
+  "Two-column tables, after the prose; often empty."
+  tables: [ReadingTable!]!
+
+  "A saying set apart, or null."
+  quote: ReadingQuote
+
+  "Its prose, a paragraph to an item."
+  paragraphs: [String!]!
+
+  "The reading's id, unique across the app's shelves: a door of kind `reading` names it."
+  id: String!
+
+  "Where the reading leads, in order; often empty."
+  doors: [ReadingDoor!]!
+
+  "One line under the title."
+  detail: String!
+}
+
+type ReadingShelf {
+  "Its name."
+  title: String!
+
+  "One line under the name."
+  subtitle: String!
+
+  "Its readings, in order."
+  readings: [Reading!]!
+
+  "The short label the app sets in the margin; a newline marks where it breaks."
+  marginLabel: String!
+
+  "The shelf's id."
+  id: String!
+
+  "The iOS app's glyph name, for reference."
+  icon: String!
+}
+
+type RosaryStep {
+  "What to do."
+  title: String!
+
+  "The prayers said at it, in order (ids in the `prayers` section); empty for a step that names none."
+  prayerIds: [String!]!
+
+  "Its number, from 1."
+  number: Int!
+
+  "How, in a sentence or two."
+  detail: String!
+}
+
+type RosaryLearn {
+  "How to pray the Rosary, step by step, each with the prayers said at it. Lesson 1's \"The order\"."
+  steps: [RosaryStep!]!
+
+  "Montfort's counsel (`montfort_methods`) and the questions beginners ask (`rosary_questions`), each a shelf of short readings."
+  shelves: [ReadingShelf!]!
+
+  "The words that frame the mysteries in Scripture."
+  scripture: ScriptureNotes!
+
+  "How often each of the Rosary's eight prayers comes round in one Rosary of five decades, in the order lesson 2 teaches them."
+  prayerCounts: [PrayerCount!]!
+
+  "The three lessons, in order."
+  lessons: [RosaryLesson!]!
+
+  "The course's opening paragraph."
+  intro: String!
+
+  "The course's last station: the Rosary prayed with a guide (the `guided_rosary` section)."
+  firstRosary: FirstRosary!
+}
+
 type PrayerText {
   "In Latin, line by line."
   la: [String!]!
@@ -487,6 +768,12 @@ type RosaryContent {
 
   "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin."
   prayers: [RosaryPrayer!]!
+
+  "The How to Pray course: three lessons, then \"Your First Rosary\", with the steps of the Rosary and the prayers said at each, how often each prayer comes round, Montfort's counsel and the questions beginners ask."
+  learn: RosaryLearn!
+
+  "\"Your First Rosary\": the Rosary a step at a time for each of the four sets, every step tied to the bead under the fingers, with the parts of a rosary as a beginner learns them."
+  guidedRosary: GuidedRosary!
 
   "Which mysteries a day calls for, on both weekly schedules, as rules to apply offline: each weekday's set, Sunday's by season, every Lent and Advent from last year to three years ahead, the home grid's order and the days each set is prayed in words. The day is the device's calendar day, turning at midnight, not the prayer day that turns at four in the morning."
   schedule: RosarySchedule!

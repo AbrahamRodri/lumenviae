@@ -174,6 +174,9 @@ serves the same document, its sections chosen by the selection set.
   pendant's places; the styles. docs/SPOKEN_ROSARY.md, "The templates",
   says how to expand them, and `GET /rosary-script` is the expansion to
   check against.
+- **`learn`**: the How to Pray course (below).
+- **`guided_rosary`**: "Your First Rosary", the Rosary a step at a time
+  (below).
 
 ### The day's mysteries
 
@@ -229,6 +232,67 @@ year turns, and with it the document's `version`; `updated_at` is then
 January 1. A client polling the version refetches once a year for this
 alone, which is correct: its seasons have moved on.
 
+### The How to Pray course
+
+`learn` (`priv/rosary_content/learn.json`) is the iOS app's course for
+someone who has never prayed the Rosary, word for word:
+
+- **`intro`**, then **`lessons`**: three, each `id` (`beads`, `prayers`,
+  `mysteries`), `number`, `title`, `summary`, `paragraphs` and
+  `sections`. A section has a `title` (null where the lesson sets none)
+  and says what it `shows`: `anatomy` (`guided_rosary.anatomy`), `steps`
+  (`learn.steps`), `prayers` (its `prayer_ids`, the Hail Mary first, from
+  the `prayers` section, with `learn.prayer_counts`), `categories` (its
+  category slugs), `dwell` (its numbered `items`) or `week` (this week's
+  mysteries, from `schedule`). Pass over a section whose `shows` you do
+  not know.
+- **`first_rosary`**: the course's last station and the guided Rosary's
+  welcome.
+- **`steps`**: how to pray the Rosary in ten steps, each with the
+  `prayer_ids` said at it. **`prayer_counts`**: how often each of the
+  eight prayers comes round in one Rosary, in words.
+- **`shelves`**: Montfort's counsel (`montfort_methods`) and the
+  questions beginners ask (`rosary_questions`), each a shelf of short
+  readings: `paragraphs`, an optional `quote`, two-column `tables`
+  (Montfort's mysteries and their graces) and `doors`.
+- **`scripture`**: the words that frame the mysteries in Scripture.
+
+**A reading's door is a neutral target**, `{kind, target, title, note,
+icon}`, which a client maps to its own screen; `icon` is the iOS app's
+glyph name, for reference. The vocabulary (`Content.door_targets/0`,
+checked when the file compiles):
+
+| `kind` | `target` |
+| --- | --- |
+| `act` | `todays_rosary`: begin today's Rosary. `title` and `icon` are null; the client names it. |
+| `reading` | A reading id: one on these shelves, or a reading of the app's libraries the document does not hold yet (`montfort`, `cana`). |
+| `prayer` | An id in the `prayers` section. |
+| `page` | `mysteries_in_scripture`: the mysteries with their Gospel passages. |
+
+Pass over a door you cannot open. A new kind or target is added to the
+vocabulary, never a renamed one.
+
+`guided_rosary` (`priv/rosary_content/guided_rosary.json`) is "Your First
+Rosary", for each of the four sets (the Seven Sorrows chaplet is not
+guided):
+
+- **`parts`**: the 61 beads of a rosary in the order the fingers travel
+  them, as keys that never change: `crucifix`, `pendantLarge.0`,
+  `pendantSmall.0` to `.2`, `pendantLarge.1`, the loop
+  (`loopSmall.<decade>.<bead>` from 0, `loopLarge.0` to `.3` between the
+  tens), and `medal`.
+- **`anatomy`**: the parts as a beginner learns them, each naming its
+  beads.
+- **`rosaries`**: `{category, steps}`, 75 steps each, in order: the bead
+  under the fingers (`part`), where (`place`), what to do
+  (`instruction`), the `prayer_ids` said there, the `decade` (from 0;
+  null for the opening and closing prayers), and whether the step
+  announces a mystery (`announcement`) or is one of the closing prayers
+  (`closing`). The mystery names are written in.
+- **`first_kept_step`**: the step (from 0) from which a place is worth
+  keeping. **`devotion_name`**: how the prayer record names a Rosary
+  prayed with the guide.
+
 The document is the server's own copy of the words (docs/SPOKEN_ROSARY.md,
 "The words are the server's"): `LumenViae.Rosary.Content` reads it from
 the files in `priv/rosary_content/` when it compiles, and the spoken
@@ -252,7 +316,8 @@ Each section is a calculation on `LumenViae.Rosary.RosaryContent`, typed
 so the OpenAPI document and the GraphQL schema describe it
 (`Types.RosaryPrayer`, `Types.PrayerTitle`, `Types.PrayerText`;
 `Types.RosarySchedule`, `Types.MysterySchedule`, `Types.ScheduleWeekdays`,
-`Types.ScheduleSunday`, `Types.ScheduleDays`, `Types.RosarySeason`).
+`Types.ScheduleSunday`, `Types.ScheduleDays`, `Types.RosarySeason`;
+`Types.RosaryLearn` and `Types.GuidedRosary` and the types they hold).
 Content computed from code or read from the database is folded into the
 version and the date in one place, `RosaryContent.Current.stamp/1`.
 

@@ -1,0 +1,306 @@
+# The iOS app's GuidedRosary.steps(for:) for each guidable set, one line
+# per step, tab-separated: category, index, part, place, instruction,
+# prayer ids (comma-separated), decade (empty for none), announcement,
+# closing. Produced by compiling the app's GuidedRosary.swift and
+# MysteryData.swift unchanged and printing each step. Regenerate the same
+# way; never edit by hand.
+joyful	0	crucifix	The crucifix	Take the crucifix in your hand. Touch your forehead, your breast, your left shoulder and your right as you say:	sign_of_cross		false	false
+joyful	1	crucifix	The crucifix	Still holding the crucifix, profess the faith of the Church. Everything the Rosary is about is in this prayer.	apostles_creed		false	false
+joyful	2	pendantLarge.0	The first large bead	Move your fingers up to the first large bead, and pray the prayer Jesus taught His disciples.	our_father		false	false
+joyful	3	pendantSmall.0	Small bead · 1 of 3	On each of the next three small beads, a Hail Mary. This first one asks God for an increase of faith.	hail_mary		false	false
+joyful	4	pendantSmall.1	Small bead · 2 of 3	The next small bead: a Hail Mary for an increase of hope.	hail_mary		false	false
+joyful	5	pendantSmall.2	Small bead · 3 of 3	The next small bead: a Hail Mary for an increase of charity.	hail_mary		false	false
+joyful	6	pendantLarge.1	The next large bead	Move up to the next large bead. Before anything else is said on it, give glory to the Holy Trinity.	glory_be		false	false
+joyful	7	pendantLarge.1	The First Joyful Mystery	Now the heart of the Rosary. Each decade is spent with one scene from the life of Jesus and Mary. Say its name, aloud or silently, and picture it.		0	true	false
+joyful	8	pendantLarge.1	The Annunciation · the large bead	On the large bead, the Our Father. Keep the scene before you as you pray.	our_father	0	false	false
+joyful	9	loopSmall.0.0	The Annunciation · 1 of 10	Ten Hail Marys, one on each small bead. The words are the same each time; let them carry you while your mind stays with the Annunciation.	hail_mary	0	false	false
+joyful	10	loopSmall.0.1	The Annunciation · 2 of 10	The next bead. If your mind wanders, simply come back to the scene.	hail_mary	0	false	false
+joyful	11	loopSmall.0.2	The Annunciation · 3 of 10	Stay with the Annunciation.	hail_mary	0	false	false
+joyful	12	loopSmall.0.3	The Annunciation · 4 of 10	Stay with the Annunciation.	hail_mary	0	false	false
+joyful	13	loopSmall.0.4	The Annunciation · 5 of 10	Stay with the Annunciation.	hail_mary	0	false	false
+joyful	14	loopSmall.0.5	The Annunciation · 6 of 10	Stay with the Annunciation.	hail_mary	0	false	false
+joyful	15	loopSmall.0.6	The Annunciation · 7 of 10	Stay with the Annunciation.	hail_mary	0	false	false
+joyful	16	loopSmall.0.7	The Annunciation · 8 of 10	Stay with the Annunciation.	hail_mary	0	false	false
+joyful	17	loopSmall.0.8	The Annunciation · 9 of 10	Stay with the Annunciation.	hail_mary	0	false	false
+joyful	18	loopSmall.0.9	The Annunciation · 10 of 10	The last of the ten.	hail_mary	0	false	false
+joyful	19	loopLarge.0	The decade closes	Move on to the next large bead. Before its Our Father, close the decade: the Glory Be, and the prayer Our Lady asked for at Fatima. You have prayed one decade.	glory_be,fatima_prayer	0	false	false
+joyful	20	loopLarge.0	The Second Joyful Mystery	Say the name of the next mystery, and picture the scene.		1	true	false
+joyful	21	loopLarge.0	The Visitation · the large bead	On the large bead, the Our Father.	our_father	1	false	false
+joyful	22	loopSmall.1.0	The Visitation · 1 of 10	Ten Hail Marys on the Visitation.	hail_mary	1	false	false
+joyful	23	loopSmall.1.1	The Visitation · 2 of 10	Stay with the Visitation.	hail_mary	1	false	false
+joyful	24	loopSmall.1.2	The Visitation · 3 of 10	Stay with the Visitation.	hail_mary	1	false	false
+joyful	25	loopSmall.1.3	The Visitation · 4 of 10	Stay with the Visitation.	hail_mary	1	false	false
+joyful	26	loopSmall.1.4	The Visitation · 5 of 10	Stay with the Visitation.	hail_mary	1	false	false
+joyful	27	loopSmall.1.5	The Visitation · 6 of 10	Stay with the Visitation.	hail_mary	1	false	false
+joyful	28	loopSmall.1.6	The Visitation · 7 of 10	Stay with the Visitation.	hail_mary	1	false	false
+joyful	29	loopSmall.1.7	The Visitation · 8 of 10	Stay with the Visitation.	hail_mary	1	false	false
+joyful	30	loopSmall.1.8	The Visitation · 9 of 10	Stay with the Visitation.	hail_mary	1	false	false
+joyful	31	loopSmall.1.9	The Visitation · 10 of 10	The last of the ten.	hail_mary	1	false	false
+joyful	32	loopLarge.1	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	1	false	false
+joyful	33	loopLarge.1	The Third Joyful Mystery	Say the name of the next mystery, and picture the scene.		2	true	false
+joyful	34	loopLarge.1	The Nativity · the large bead	On the large bead, the Our Father.	our_father	2	false	false
+joyful	35	loopSmall.2.0	The Nativity · 1 of 10	Ten Hail Marys on the Nativity.	hail_mary	2	false	false
+joyful	36	loopSmall.2.1	The Nativity · 2 of 10	Stay with the Nativity.	hail_mary	2	false	false
+joyful	37	loopSmall.2.2	The Nativity · 3 of 10	Stay with the Nativity.	hail_mary	2	false	false
+joyful	38	loopSmall.2.3	The Nativity · 4 of 10	Stay with the Nativity.	hail_mary	2	false	false
+joyful	39	loopSmall.2.4	The Nativity · 5 of 10	Stay with the Nativity.	hail_mary	2	false	false
+joyful	40	loopSmall.2.5	The Nativity · 6 of 10	Stay with the Nativity.	hail_mary	2	false	false
+joyful	41	loopSmall.2.6	The Nativity · 7 of 10	Stay with the Nativity.	hail_mary	2	false	false
+joyful	42	loopSmall.2.7	The Nativity · 8 of 10	Stay with the Nativity.	hail_mary	2	false	false
+joyful	43	loopSmall.2.8	The Nativity · 9 of 10	Stay with the Nativity.	hail_mary	2	false	false
+joyful	44	loopSmall.2.9	The Nativity · 10 of 10	The last of the ten.	hail_mary	2	false	false
+joyful	45	loopLarge.2	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	2	false	false
+joyful	46	loopLarge.2	The Fourth Joyful Mystery	Say the name of the next mystery, and picture the scene.		3	true	false
+joyful	47	loopLarge.2	The Presentation · the large bead	On the large bead, the Our Father.	our_father	3	false	false
+joyful	48	loopSmall.3.0	The Presentation · 1 of 10	Ten Hail Marys on the Presentation.	hail_mary	3	false	false
+joyful	49	loopSmall.3.1	The Presentation · 2 of 10	Stay with the Presentation.	hail_mary	3	false	false
+joyful	50	loopSmall.3.2	The Presentation · 3 of 10	Stay with the Presentation.	hail_mary	3	false	false
+joyful	51	loopSmall.3.3	The Presentation · 4 of 10	Stay with the Presentation.	hail_mary	3	false	false
+joyful	52	loopSmall.3.4	The Presentation · 5 of 10	Stay with the Presentation.	hail_mary	3	false	false
+joyful	53	loopSmall.3.5	The Presentation · 6 of 10	Stay with the Presentation.	hail_mary	3	false	false
+joyful	54	loopSmall.3.6	The Presentation · 7 of 10	Stay with the Presentation.	hail_mary	3	false	false
+joyful	55	loopSmall.3.7	The Presentation · 8 of 10	Stay with the Presentation.	hail_mary	3	false	false
+joyful	56	loopSmall.3.8	The Presentation · 9 of 10	Stay with the Presentation.	hail_mary	3	false	false
+joyful	57	loopSmall.3.9	The Presentation · 10 of 10	The last of the ten.	hail_mary	3	false	false
+joyful	58	loopLarge.3	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	3	false	false
+joyful	59	loopLarge.3	The Fifth Joyful Mystery	Say the name of the next mystery, and picture the scene.		4	true	false
+joyful	60	loopLarge.3	The Finding in the Temple · the large bead	On the large bead, the Our Father.	our_father	4	false	false
+joyful	61	loopSmall.4.0	The Finding in the Temple · 1 of 10	Ten Hail Marys on the Finding in the Temple.	hail_mary	4	false	false
+joyful	62	loopSmall.4.1	The Finding in the Temple · 2 of 10	Stay with the Finding in the Temple.	hail_mary	4	false	false
+joyful	63	loopSmall.4.2	The Finding in the Temple · 3 of 10	Stay with the Finding in the Temple.	hail_mary	4	false	false
+joyful	64	loopSmall.4.3	The Finding in the Temple · 4 of 10	Stay with the Finding in the Temple.	hail_mary	4	false	false
+joyful	65	loopSmall.4.4	The Finding in the Temple · 5 of 10	Stay with the Finding in the Temple.	hail_mary	4	false	false
+joyful	66	loopSmall.4.5	The Finding in the Temple · 6 of 10	Stay with the Finding in the Temple.	hail_mary	4	false	false
+joyful	67	loopSmall.4.6	The Finding in the Temple · 7 of 10	Stay with the Finding in the Temple.	hail_mary	4	false	false
+joyful	68	loopSmall.4.7	The Finding in the Temple · 8 of 10	Stay with the Finding in the Temple.	hail_mary	4	false	false
+joyful	69	loopSmall.4.8	The Finding in the Temple · 9 of 10	Stay with the Finding in the Temple.	hail_mary	4	false	false
+joyful	70	loopSmall.4.9	The Finding in the Temple · 10 of 10	The last of the ten.	hail_mary	4	false	false
+joyful	71	medal	The decade closes	Move on to the medal, and close the last decade.	glory_be,fatima_prayer	4	false	false
+joyful	72	medal	The medal	You have come round to the medal. Hold it, and greet Our Lady as Queen and Mother.	hail_holy_queen		false	true
+joyful	73	medal	The medal	The closing prayer asks that what the mysteries hold may become ours.	rosary_closing_prayer		false	true
+joyful	74	crucifix	The crucifix	End as you began, with the Sign of the Cross.	sign_of_cross		false	true
+sorrowful	0	crucifix	The crucifix	Take the crucifix in your hand. Touch your forehead, your breast, your left shoulder and your right as you say:	sign_of_cross		false	false
+sorrowful	1	crucifix	The crucifix	Still holding the crucifix, profess the faith of the Church. Everything the Rosary is about is in this prayer.	apostles_creed		false	false
+sorrowful	2	pendantLarge.0	The first large bead	Move your fingers up to the first large bead, and pray the prayer Jesus taught His disciples.	our_father		false	false
+sorrowful	3	pendantSmall.0	Small bead · 1 of 3	On each of the next three small beads, a Hail Mary. This first one asks God for an increase of faith.	hail_mary		false	false
+sorrowful	4	pendantSmall.1	Small bead · 2 of 3	The next small bead: a Hail Mary for an increase of hope.	hail_mary		false	false
+sorrowful	5	pendantSmall.2	Small bead · 3 of 3	The next small bead: a Hail Mary for an increase of charity.	hail_mary		false	false
+sorrowful	6	pendantLarge.1	The next large bead	Move up to the next large bead. Before anything else is said on it, give glory to the Holy Trinity.	glory_be		false	false
+sorrowful	7	pendantLarge.1	The First Sorrowful Mystery	Now the heart of the Rosary. Each decade is spent with one scene from the life of Jesus and Mary. Say its name, aloud or silently, and picture it.		0	true	false
+sorrowful	8	pendantLarge.1	The Agony in the Garden · the large bead	On the large bead, the Our Father. Keep the scene before you as you pray.	our_father	0	false	false
+sorrowful	9	loopSmall.0.0	The Agony in the Garden · 1 of 10	Ten Hail Marys, one on each small bead. The words are the same each time; let them carry you while your mind stays with the Agony in the Garden.	hail_mary	0	false	false
+sorrowful	10	loopSmall.0.1	The Agony in the Garden · 2 of 10	The next bead. If your mind wanders, simply come back to the scene.	hail_mary	0	false	false
+sorrowful	11	loopSmall.0.2	The Agony in the Garden · 3 of 10	Stay with the Agony in the Garden.	hail_mary	0	false	false
+sorrowful	12	loopSmall.0.3	The Agony in the Garden · 4 of 10	Stay with the Agony in the Garden.	hail_mary	0	false	false
+sorrowful	13	loopSmall.0.4	The Agony in the Garden · 5 of 10	Stay with the Agony in the Garden.	hail_mary	0	false	false
+sorrowful	14	loopSmall.0.5	The Agony in the Garden · 6 of 10	Stay with the Agony in the Garden.	hail_mary	0	false	false
+sorrowful	15	loopSmall.0.6	The Agony in the Garden · 7 of 10	Stay with the Agony in the Garden.	hail_mary	0	false	false
+sorrowful	16	loopSmall.0.7	The Agony in the Garden · 8 of 10	Stay with the Agony in the Garden.	hail_mary	0	false	false
+sorrowful	17	loopSmall.0.8	The Agony in the Garden · 9 of 10	Stay with the Agony in the Garden.	hail_mary	0	false	false
+sorrowful	18	loopSmall.0.9	The Agony in the Garden · 10 of 10	The last of the ten.	hail_mary	0	false	false
+sorrowful	19	loopLarge.0	The decade closes	Move on to the next large bead. Before its Our Father, close the decade: the Glory Be, and the prayer Our Lady asked for at Fatima. You have prayed one decade.	glory_be,fatima_prayer	0	false	false
+sorrowful	20	loopLarge.0	The Second Sorrowful Mystery	Say the name of the next mystery, and picture the scene.		1	true	false
+sorrowful	21	loopLarge.0	The Scourging at the Pillar · the large bead	On the large bead, the Our Father.	our_father	1	false	false
+sorrowful	22	loopSmall.1.0	The Scourging at the Pillar · 1 of 10	Ten Hail Marys on the Scourging at the Pillar.	hail_mary	1	false	false
+sorrowful	23	loopSmall.1.1	The Scourging at the Pillar · 2 of 10	Stay with the Scourging at the Pillar.	hail_mary	1	false	false
+sorrowful	24	loopSmall.1.2	The Scourging at the Pillar · 3 of 10	Stay with the Scourging at the Pillar.	hail_mary	1	false	false
+sorrowful	25	loopSmall.1.3	The Scourging at the Pillar · 4 of 10	Stay with the Scourging at the Pillar.	hail_mary	1	false	false
+sorrowful	26	loopSmall.1.4	The Scourging at the Pillar · 5 of 10	Stay with the Scourging at the Pillar.	hail_mary	1	false	false
+sorrowful	27	loopSmall.1.5	The Scourging at the Pillar · 6 of 10	Stay with the Scourging at the Pillar.	hail_mary	1	false	false
+sorrowful	28	loopSmall.1.6	The Scourging at the Pillar · 7 of 10	Stay with the Scourging at the Pillar.	hail_mary	1	false	false
+sorrowful	29	loopSmall.1.7	The Scourging at the Pillar · 8 of 10	Stay with the Scourging at the Pillar.	hail_mary	1	false	false
+sorrowful	30	loopSmall.1.8	The Scourging at the Pillar · 9 of 10	Stay with the Scourging at the Pillar.	hail_mary	1	false	false
+sorrowful	31	loopSmall.1.9	The Scourging at the Pillar · 10 of 10	The last of the ten.	hail_mary	1	false	false
+sorrowful	32	loopLarge.1	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	1	false	false
+sorrowful	33	loopLarge.1	The Third Sorrowful Mystery	Say the name of the next mystery, and picture the scene.		2	true	false
+sorrowful	34	loopLarge.1	The Crowning with Thorns · the large bead	On the large bead, the Our Father.	our_father	2	false	false
+sorrowful	35	loopSmall.2.0	The Crowning with Thorns · 1 of 10	Ten Hail Marys on the Crowning with Thorns.	hail_mary	2	false	false
+sorrowful	36	loopSmall.2.1	The Crowning with Thorns · 2 of 10	Stay with the Crowning with Thorns.	hail_mary	2	false	false
+sorrowful	37	loopSmall.2.2	The Crowning with Thorns · 3 of 10	Stay with the Crowning with Thorns.	hail_mary	2	false	false
+sorrowful	38	loopSmall.2.3	The Crowning with Thorns · 4 of 10	Stay with the Crowning with Thorns.	hail_mary	2	false	false
+sorrowful	39	loopSmall.2.4	The Crowning with Thorns · 5 of 10	Stay with the Crowning with Thorns.	hail_mary	2	false	false
+sorrowful	40	loopSmall.2.5	The Crowning with Thorns · 6 of 10	Stay with the Crowning with Thorns.	hail_mary	2	false	false
+sorrowful	41	loopSmall.2.6	The Crowning with Thorns · 7 of 10	Stay with the Crowning with Thorns.	hail_mary	2	false	false
+sorrowful	42	loopSmall.2.7	The Crowning with Thorns · 8 of 10	Stay with the Crowning with Thorns.	hail_mary	2	false	false
+sorrowful	43	loopSmall.2.8	The Crowning with Thorns · 9 of 10	Stay with the Crowning with Thorns.	hail_mary	2	false	false
+sorrowful	44	loopSmall.2.9	The Crowning with Thorns · 10 of 10	The last of the ten.	hail_mary	2	false	false
+sorrowful	45	loopLarge.2	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	2	false	false
+sorrowful	46	loopLarge.2	The Fourth Sorrowful Mystery	Say the name of the next mystery, and picture the scene.		3	true	false
+sorrowful	47	loopLarge.2	The Carrying of the Cross · the large bead	On the large bead, the Our Father.	our_father	3	false	false
+sorrowful	48	loopSmall.3.0	The Carrying of the Cross · 1 of 10	Ten Hail Marys on the Carrying of the Cross.	hail_mary	3	false	false
+sorrowful	49	loopSmall.3.1	The Carrying of the Cross · 2 of 10	Stay with the Carrying of the Cross.	hail_mary	3	false	false
+sorrowful	50	loopSmall.3.2	The Carrying of the Cross · 3 of 10	Stay with the Carrying of the Cross.	hail_mary	3	false	false
+sorrowful	51	loopSmall.3.3	The Carrying of the Cross · 4 of 10	Stay with the Carrying of the Cross.	hail_mary	3	false	false
+sorrowful	52	loopSmall.3.4	The Carrying of the Cross · 5 of 10	Stay with the Carrying of the Cross.	hail_mary	3	false	false
+sorrowful	53	loopSmall.3.5	The Carrying of the Cross · 6 of 10	Stay with the Carrying of the Cross.	hail_mary	3	false	false
+sorrowful	54	loopSmall.3.6	The Carrying of the Cross · 7 of 10	Stay with the Carrying of the Cross.	hail_mary	3	false	false
+sorrowful	55	loopSmall.3.7	The Carrying of the Cross · 8 of 10	Stay with the Carrying of the Cross.	hail_mary	3	false	false
+sorrowful	56	loopSmall.3.8	The Carrying of the Cross · 9 of 10	Stay with the Carrying of the Cross.	hail_mary	3	false	false
+sorrowful	57	loopSmall.3.9	The Carrying of the Cross · 10 of 10	The last of the ten.	hail_mary	3	false	false
+sorrowful	58	loopLarge.3	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	3	false	false
+sorrowful	59	loopLarge.3	The Fifth Sorrowful Mystery	Say the name of the next mystery, and picture the scene.		4	true	false
+sorrowful	60	loopLarge.3	The Crucifixion · the large bead	On the large bead, the Our Father.	our_father	4	false	false
+sorrowful	61	loopSmall.4.0	The Crucifixion · 1 of 10	Ten Hail Marys on the Crucifixion.	hail_mary	4	false	false
+sorrowful	62	loopSmall.4.1	The Crucifixion · 2 of 10	Stay with the Crucifixion.	hail_mary	4	false	false
+sorrowful	63	loopSmall.4.2	The Crucifixion · 3 of 10	Stay with the Crucifixion.	hail_mary	4	false	false
+sorrowful	64	loopSmall.4.3	The Crucifixion · 4 of 10	Stay with the Crucifixion.	hail_mary	4	false	false
+sorrowful	65	loopSmall.4.4	The Crucifixion · 5 of 10	Stay with the Crucifixion.	hail_mary	4	false	false
+sorrowful	66	loopSmall.4.5	The Crucifixion · 6 of 10	Stay with the Crucifixion.	hail_mary	4	false	false
+sorrowful	67	loopSmall.4.6	The Crucifixion · 7 of 10	Stay with the Crucifixion.	hail_mary	4	false	false
+sorrowful	68	loopSmall.4.7	The Crucifixion · 8 of 10	Stay with the Crucifixion.	hail_mary	4	false	false
+sorrowful	69	loopSmall.4.8	The Crucifixion · 9 of 10	Stay with the Crucifixion.	hail_mary	4	false	false
+sorrowful	70	loopSmall.4.9	The Crucifixion · 10 of 10	The last of the ten.	hail_mary	4	false	false
+sorrowful	71	medal	The decade closes	Move on to the medal, and close the last decade.	glory_be,fatima_prayer	4	false	false
+sorrowful	72	medal	The medal	You have come round to the medal. Hold it, and greet Our Lady as Queen and Mother.	hail_holy_queen		false	true
+sorrowful	73	medal	The medal	The closing prayer asks that what the mysteries hold may become ours.	rosary_closing_prayer		false	true
+sorrowful	74	crucifix	The crucifix	End as you began, with the Sign of the Cross.	sign_of_cross		false	true
+glorious	0	crucifix	The crucifix	Take the crucifix in your hand. Touch your forehead, your breast, your left shoulder and your right as you say:	sign_of_cross		false	false
+glorious	1	crucifix	The crucifix	Still holding the crucifix, profess the faith of the Church. Everything the Rosary is about is in this prayer.	apostles_creed		false	false
+glorious	2	pendantLarge.0	The first large bead	Move your fingers up to the first large bead, and pray the prayer Jesus taught His disciples.	our_father		false	false
+glorious	3	pendantSmall.0	Small bead · 1 of 3	On each of the next three small beads, a Hail Mary. This first one asks God for an increase of faith.	hail_mary		false	false
+glorious	4	pendantSmall.1	Small bead · 2 of 3	The next small bead: a Hail Mary for an increase of hope.	hail_mary		false	false
+glorious	5	pendantSmall.2	Small bead · 3 of 3	The next small bead: a Hail Mary for an increase of charity.	hail_mary		false	false
+glorious	6	pendantLarge.1	The next large bead	Move up to the next large bead. Before anything else is said on it, give glory to the Holy Trinity.	glory_be		false	false
+glorious	7	pendantLarge.1	The First Glorious Mystery	Now the heart of the Rosary. Each decade is spent with one scene from the life of Jesus and Mary. Say its name, aloud or silently, and picture it.		0	true	false
+glorious	8	pendantLarge.1	The Resurrection · the large bead	On the large bead, the Our Father. Keep the scene before you as you pray.	our_father	0	false	false
+glorious	9	loopSmall.0.0	The Resurrection · 1 of 10	Ten Hail Marys, one on each small bead. The words are the same each time; let them carry you while your mind stays with the Resurrection.	hail_mary	0	false	false
+glorious	10	loopSmall.0.1	The Resurrection · 2 of 10	The next bead. If your mind wanders, simply come back to the scene.	hail_mary	0	false	false
+glorious	11	loopSmall.0.2	The Resurrection · 3 of 10	Stay with the Resurrection.	hail_mary	0	false	false
+glorious	12	loopSmall.0.3	The Resurrection · 4 of 10	Stay with the Resurrection.	hail_mary	0	false	false
+glorious	13	loopSmall.0.4	The Resurrection · 5 of 10	Stay with the Resurrection.	hail_mary	0	false	false
+glorious	14	loopSmall.0.5	The Resurrection · 6 of 10	Stay with the Resurrection.	hail_mary	0	false	false
+glorious	15	loopSmall.0.6	The Resurrection · 7 of 10	Stay with the Resurrection.	hail_mary	0	false	false
+glorious	16	loopSmall.0.7	The Resurrection · 8 of 10	Stay with the Resurrection.	hail_mary	0	false	false
+glorious	17	loopSmall.0.8	The Resurrection · 9 of 10	Stay with the Resurrection.	hail_mary	0	false	false
+glorious	18	loopSmall.0.9	The Resurrection · 10 of 10	The last of the ten.	hail_mary	0	false	false
+glorious	19	loopLarge.0	The decade closes	Move on to the next large bead. Before its Our Father, close the decade: the Glory Be, and the prayer Our Lady asked for at Fatima. You have prayed one decade.	glory_be,fatima_prayer	0	false	false
+glorious	20	loopLarge.0	The Second Glorious Mystery	Say the name of the next mystery, and picture the scene.		1	true	false
+glorious	21	loopLarge.0	The Ascension · the large bead	On the large bead, the Our Father.	our_father	1	false	false
+glorious	22	loopSmall.1.0	The Ascension · 1 of 10	Ten Hail Marys on the Ascension.	hail_mary	1	false	false
+glorious	23	loopSmall.1.1	The Ascension · 2 of 10	Stay with the Ascension.	hail_mary	1	false	false
+glorious	24	loopSmall.1.2	The Ascension · 3 of 10	Stay with the Ascension.	hail_mary	1	false	false
+glorious	25	loopSmall.1.3	The Ascension · 4 of 10	Stay with the Ascension.	hail_mary	1	false	false
+glorious	26	loopSmall.1.4	The Ascension · 5 of 10	Stay with the Ascension.	hail_mary	1	false	false
+glorious	27	loopSmall.1.5	The Ascension · 6 of 10	Stay with the Ascension.	hail_mary	1	false	false
+glorious	28	loopSmall.1.6	The Ascension · 7 of 10	Stay with the Ascension.	hail_mary	1	false	false
+glorious	29	loopSmall.1.7	The Ascension · 8 of 10	Stay with the Ascension.	hail_mary	1	false	false
+glorious	30	loopSmall.1.8	The Ascension · 9 of 10	Stay with the Ascension.	hail_mary	1	false	false
+glorious	31	loopSmall.1.9	The Ascension · 10 of 10	The last of the ten.	hail_mary	1	false	false
+glorious	32	loopLarge.1	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	1	false	false
+glorious	33	loopLarge.1	The Third Glorious Mystery	Say the name of the next mystery, and picture the scene.		2	true	false
+glorious	34	loopLarge.1	The Descent of the Holy Spirit · the large bead	On the large bead, the Our Father.	our_father	2	false	false
+glorious	35	loopSmall.2.0	The Descent of the Holy Spirit · 1 of 10	Ten Hail Marys on the Descent of the Holy Spirit.	hail_mary	2	false	false
+glorious	36	loopSmall.2.1	The Descent of the Holy Spirit · 2 of 10	Stay with the Descent of the Holy Spirit.	hail_mary	2	false	false
+glorious	37	loopSmall.2.2	The Descent of the Holy Spirit · 3 of 10	Stay with the Descent of the Holy Spirit.	hail_mary	2	false	false
+glorious	38	loopSmall.2.3	The Descent of the Holy Spirit · 4 of 10	Stay with the Descent of the Holy Spirit.	hail_mary	2	false	false
+glorious	39	loopSmall.2.4	The Descent of the Holy Spirit · 5 of 10	Stay with the Descent of the Holy Spirit.	hail_mary	2	false	false
+glorious	40	loopSmall.2.5	The Descent of the Holy Spirit · 6 of 10	Stay with the Descent of the Holy Spirit.	hail_mary	2	false	false
+glorious	41	loopSmall.2.6	The Descent of the Holy Spirit · 7 of 10	Stay with the Descent of the Holy Spirit.	hail_mary	2	false	false
+glorious	42	loopSmall.2.7	The Descent of the Holy Spirit · 8 of 10	Stay with the Descent of the Holy Spirit.	hail_mary	2	false	false
+glorious	43	loopSmall.2.8	The Descent of the Holy Spirit · 9 of 10	Stay with the Descent of the Holy Spirit.	hail_mary	2	false	false
+glorious	44	loopSmall.2.9	The Descent of the Holy Spirit · 10 of 10	The last of the ten.	hail_mary	2	false	false
+glorious	45	loopLarge.2	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	2	false	false
+glorious	46	loopLarge.2	The Fourth Glorious Mystery	Say the name of the next mystery, and picture the scene.		3	true	false
+glorious	47	loopLarge.2	The Assumption · the large bead	On the large bead, the Our Father.	our_father	3	false	false
+glorious	48	loopSmall.3.0	The Assumption · 1 of 10	Ten Hail Marys on the Assumption.	hail_mary	3	false	false
+glorious	49	loopSmall.3.1	The Assumption · 2 of 10	Stay with the Assumption.	hail_mary	3	false	false
+glorious	50	loopSmall.3.2	The Assumption · 3 of 10	Stay with the Assumption.	hail_mary	3	false	false
+glorious	51	loopSmall.3.3	The Assumption · 4 of 10	Stay with the Assumption.	hail_mary	3	false	false
+glorious	52	loopSmall.3.4	The Assumption · 5 of 10	Stay with the Assumption.	hail_mary	3	false	false
+glorious	53	loopSmall.3.5	The Assumption · 6 of 10	Stay with the Assumption.	hail_mary	3	false	false
+glorious	54	loopSmall.3.6	The Assumption · 7 of 10	Stay with the Assumption.	hail_mary	3	false	false
+glorious	55	loopSmall.3.7	The Assumption · 8 of 10	Stay with the Assumption.	hail_mary	3	false	false
+glorious	56	loopSmall.3.8	The Assumption · 9 of 10	Stay with the Assumption.	hail_mary	3	false	false
+glorious	57	loopSmall.3.9	The Assumption · 10 of 10	The last of the ten.	hail_mary	3	false	false
+glorious	58	loopLarge.3	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	3	false	false
+glorious	59	loopLarge.3	The Fifth Glorious Mystery	Say the name of the next mystery, and picture the scene.		4	true	false
+glorious	60	loopLarge.3	The Coronation · the large bead	On the large bead, the Our Father.	our_father	4	false	false
+glorious	61	loopSmall.4.0	The Coronation · 1 of 10	Ten Hail Marys on the Coronation.	hail_mary	4	false	false
+glorious	62	loopSmall.4.1	The Coronation · 2 of 10	Stay with the Coronation.	hail_mary	4	false	false
+glorious	63	loopSmall.4.2	The Coronation · 3 of 10	Stay with the Coronation.	hail_mary	4	false	false
+glorious	64	loopSmall.4.3	The Coronation · 4 of 10	Stay with the Coronation.	hail_mary	4	false	false
+glorious	65	loopSmall.4.4	The Coronation · 5 of 10	Stay with the Coronation.	hail_mary	4	false	false
+glorious	66	loopSmall.4.5	The Coronation · 6 of 10	Stay with the Coronation.	hail_mary	4	false	false
+glorious	67	loopSmall.4.6	The Coronation · 7 of 10	Stay with the Coronation.	hail_mary	4	false	false
+glorious	68	loopSmall.4.7	The Coronation · 8 of 10	Stay with the Coronation.	hail_mary	4	false	false
+glorious	69	loopSmall.4.8	The Coronation · 9 of 10	Stay with the Coronation.	hail_mary	4	false	false
+glorious	70	loopSmall.4.9	The Coronation · 10 of 10	The last of the ten.	hail_mary	4	false	false
+glorious	71	medal	The decade closes	Move on to the medal, and close the last decade.	glory_be,fatima_prayer	4	false	false
+glorious	72	medal	The medal	You have come round to the medal. Hold it, and greet Our Lady as Queen and Mother.	hail_holy_queen		false	true
+glorious	73	medal	The medal	The closing prayer asks that what the mysteries hold may become ours.	rosary_closing_prayer		false	true
+glorious	74	crucifix	The crucifix	End as you began, with the Sign of the Cross.	sign_of_cross		false	true
+luminous	0	crucifix	The crucifix	Take the crucifix in your hand. Touch your forehead, your breast, your left shoulder and your right as you say:	sign_of_cross		false	false
+luminous	1	crucifix	The crucifix	Still holding the crucifix, profess the faith of the Church. Everything the Rosary is about is in this prayer.	apostles_creed		false	false
+luminous	2	pendantLarge.0	The first large bead	Move your fingers up to the first large bead, and pray the prayer Jesus taught His disciples.	our_father		false	false
+luminous	3	pendantSmall.0	Small bead · 1 of 3	On each of the next three small beads, a Hail Mary. This first one asks God for an increase of faith.	hail_mary		false	false
+luminous	4	pendantSmall.1	Small bead · 2 of 3	The next small bead: a Hail Mary for an increase of hope.	hail_mary		false	false
+luminous	5	pendantSmall.2	Small bead · 3 of 3	The next small bead: a Hail Mary for an increase of charity.	hail_mary		false	false
+luminous	6	pendantLarge.1	The next large bead	Move up to the next large bead. Before anything else is said on it, give glory to the Holy Trinity.	glory_be		false	false
+luminous	7	pendantLarge.1	The First Luminous Mystery	Now the heart of the Rosary. Each decade is spent with one scene from the life of Jesus and Mary. Say its name, aloud or silently, and picture it.		0	true	false
+luminous	8	pendantLarge.1	The Baptism in the Jordan · the large bead	On the large bead, the Our Father. Keep the scene before you as you pray.	our_father	0	false	false
+luminous	9	loopSmall.0.0	The Baptism in the Jordan · 1 of 10	Ten Hail Marys, one on each small bead. The words are the same each time; let them carry you while your mind stays with the Baptism in the Jordan.	hail_mary	0	false	false
+luminous	10	loopSmall.0.1	The Baptism in the Jordan · 2 of 10	The next bead. If your mind wanders, simply come back to the scene.	hail_mary	0	false	false
+luminous	11	loopSmall.0.2	The Baptism in the Jordan · 3 of 10	Stay with the Baptism in the Jordan.	hail_mary	0	false	false
+luminous	12	loopSmall.0.3	The Baptism in the Jordan · 4 of 10	Stay with the Baptism in the Jordan.	hail_mary	0	false	false
+luminous	13	loopSmall.0.4	The Baptism in the Jordan · 5 of 10	Stay with the Baptism in the Jordan.	hail_mary	0	false	false
+luminous	14	loopSmall.0.5	The Baptism in the Jordan · 6 of 10	Stay with the Baptism in the Jordan.	hail_mary	0	false	false
+luminous	15	loopSmall.0.6	The Baptism in the Jordan · 7 of 10	Stay with the Baptism in the Jordan.	hail_mary	0	false	false
+luminous	16	loopSmall.0.7	The Baptism in the Jordan · 8 of 10	Stay with the Baptism in the Jordan.	hail_mary	0	false	false
+luminous	17	loopSmall.0.8	The Baptism in the Jordan · 9 of 10	Stay with the Baptism in the Jordan.	hail_mary	0	false	false
+luminous	18	loopSmall.0.9	The Baptism in the Jordan · 10 of 10	The last of the ten.	hail_mary	0	false	false
+luminous	19	loopLarge.0	The decade closes	Move on to the next large bead. Before its Our Father, close the decade: the Glory Be, and the prayer Our Lady asked for at Fatima. You have prayed one decade.	glory_be,fatima_prayer	0	false	false
+luminous	20	loopLarge.0	The Second Luminous Mystery	Say the name of the next mystery, and picture the scene.		1	true	false
+luminous	21	loopLarge.0	The Wedding at Cana · the large bead	On the large bead, the Our Father.	our_father	1	false	false
+luminous	22	loopSmall.1.0	The Wedding at Cana · 1 of 10	Ten Hail Marys on the Wedding at Cana.	hail_mary	1	false	false
+luminous	23	loopSmall.1.1	The Wedding at Cana · 2 of 10	Stay with the Wedding at Cana.	hail_mary	1	false	false
+luminous	24	loopSmall.1.2	The Wedding at Cana · 3 of 10	Stay with the Wedding at Cana.	hail_mary	1	false	false
+luminous	25	loopSmall.1.3	The Wedding at Cana · 4 of 10	Stay with the Wedding at Cana.	hail_mary	1	false	false
+luminous	26	loopSmall.1.4	The Wedding at Cana · 5 of 10	Stay with the Wedding at Cana.	hail_mary	1	false	false
+luminous	27	loopSmall.1.5	The Wedding at Cana · 6 of 10	Stay with the Wedding at Cana.	hail_mary	1	false	false
+luminous	28	loopSmall.1.6	The Wedding at Cana · 7 of 10	Stay with the Wedding at Cana.	hail_mary	1	false	false
+luminous	29	loopSmall.1.7	The Wedding at Cana · 8 of 10	Stay with the Wedding at Cana.	hail_mary	1	false	false
+luminous	30	loopSmall.1.8	The Wedding at Cana · 9 of 10	Stay with the Wedding at Cana.	hail_mary	1	false	false
+luminous	31	loopSmall.1.9	The Wedding at Cana · 10 of 10	The last of the ten.	hail_mary	1	false	false
+luminous	32	loopLarge.1	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	1	false	false
+luminous	33	loopLarge.1	The Third Luminous Mystery	Say the name of the next mystery, and picture the scene.		2	true	false
+luminous	34	loopLarge.1	The Proclamation of the Kingdom · the large bead	On the large bead, the Our Father.	our_father	2	false	false
+luminous	35	loopSmall.2.0	The Proclamation of the Kingdom · 1 of 10	Ten Hail Marys on the Proclamation of the Kingdom.	hail_mary	2	false	false
+luminous	36	loopSmall.2.1	The Proclamation of the Kingdom · 2 of 10	Stay with the Proclamation of the Kingdom.	hail_mary	2	false	false
+luminous	37	loopSmall.2.2	The Proclamation of the Kingdom · 3 of 10	Stay with the Proclamation of the Kingdom.	hail_mary	2	false	false
+luminous	38	loopSmall.2.3	The Proclamation of the Kingdom · 4 of 10	Stay with the Proclamation of the Kingdom.	hail_mary	2	false	false
+luminous	39	loopSmall.2.4	The Proclamation of the Kingdom · 5 of 10	Stay with the Proclamation of the Kingdom.	hail_mary	2	false	false
+luminous	40	loopSmall.2.5	The Proclamation of the Kingdom · 6 of 10	Stay with the Proclamation of the Kingdom.	hail_mary	2	false	false
+luminous	41	loopSmall.2.6	The Proclamation of the Kingdom · 7 of 10	Stay with the Proclamation of the Kingdom.	hail_mary	2	false	false
+luminous	42	loopSmall.2.7	The Proclamation of the Kingdom · 8 of 10	Stay with the Proclamation of the Kingdom.	hail_mary	2	false	false
+luminous	43	loopSmall.2.8	The Proclamation of the Kingdom · 9 of 10	Stay with the Proclamation of the Kingdom.	hail_mary	2	false	false
+luminous	44	loopSmall.2.9	The Proclamation of the Kingdom · 10 of 10	The last of the ten.	hail_mary	2	false	false
+luminous	45	loopLarge.2	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	2	false	false
+luminous	46	loopLarge.2	The Fourth Luminous Mystery	Say the name of the next mystery, and picture the scene.		3	true	false
+luminous	47	loopLarge.2	The Transfiguration · the large bead	On the large bead, the Our Father.	our_father	3	false	false
+luminous	48	loopSmall.3.0	The Transfiguration · 1 of 10	Ten Hail Marys on the Transfiguration.	hail_mary	3	false	false
+luminous	49	loopSmall.3.1	The Transfiguration · 2 of 10	Stay with the Transfiguration.	hail_mary	3	false	false
+luminous	50	loopSmall.3.2	The Transfiguration · 3 of 10	Stay with the Transfiguration.	hail_mary	3	false	false
+luminous	51	loopSmall.3.3	The Transfiguration · 4 of 10	Stay with the Transfiguration.	hail_mary	3	false	false
+luminous	52	loopSmall.3.4	The Transfiguration · 5 of 10	Stay with the Transfiguration.	hail_mary	3	false	false
+luminous	53	loopSmall.3.5	The Transfiguration · 6 of 10	Stay with the Transfiguration.	hail_mary	3	false	false
+luminous	54	loopSmall.3.6	The Transfiguration · 7 of 10	Stay with the Transfiguration.	hail_mary	3	false	false
+luminous	55	loopSmall.3.7	The Transfiguration · 8 of 10	Stay with the Transfiguration.	hail_mary	3	false	false
+luminous	56	loopSmall.3.8	The Transfiguration · 9 of 10	Stay with the Transfiguration.	hail_mary	3	false	false
+luminous	57	loopSmall.3.9	The Transfiguration · 10 of 10	The last of the ten.	hail_mary	3	false	false
+luminous	58	loopLarge.3	The decade closes	On the next large bead, before its Our Father, close the decade.	glory_be,fatima_prayer	3	false	false
+luminous	59	loopLarge.3	The Fifth Luminous Mystery	Say the name of the next mystery, and picture the scene.		4	true	false
+luminous	60	loopLarge.3	The Institution of the Eucharist · the large bead	On the large bead, the Our Father.	our_father	4	false	false
+luminous	61	loopSmall.4.0	The Institution of the Eucharist · 1 of 10	Ten Hail Marys on the Institution of the Eucharist.	hail_mary	4	false	false
+luminous	62	loopSmall.4.1	The Institution of the Eucharist · 2 of 10	Stay with the Institution of the Eucharist.	hail_mary	4	false	false
+luminous	63	loopSmall.4.2	The Institution of the Eucharist · 3 of 10	Stay with the Institution of the Eucharist.	hail_mary	4	false	false
+luminous	64	loopSmall.4.3	The Institution of the Eucharist · 4 of 10	Stay with the Institution of the Eucharist.	hail_mary	4	false	false
+luminous	65	loopSmall.4.4	The Institution of the Eucharist · 5 of 10	Stay with the Institution of the Eucharist.	hail_mary	4	false	false
+luminous	66	loopSmall.4.5	The Institution of the Eucharist · 6 of 10	Stay with the Institution of the Eucharist.	hail_mary	4	false	false
+luminous	67	loopSmall.4.6	The Institution of the Eucharist · 7 of 10	Stay with the Institution of the Eucharist.	hail_mary	4	false	false
+luminous	68	loopSmall.4.7	The Institution of the Eucharist · 8 of 10	Stay with the Institution of the Eucharist.	hail_mary	4	false	false
+luminous	69	loopSmall.4.8	The Institution of the Eucharist · 9 of 10	Stay with the Institution of the Eucharist.	hail_mary	4	false	false
+luminous	70	loopSmall.4.9	The Institution of the Eucharist · 10 of 10	The last of the ten.	hail_mary	4	false	false
+luminous	71	medal	The decade closes	Move on to the medal, and close the last decade.	glory_be,fatima_prayer	4	false	false
+luminous	72	medal	The medal	You have come round to the medal. Hold it, and greet Our Lady as Queen and Mother.	hail_holy_queen		false	true
+luminous	73	medal	The medal	The closing prayer asks that what the mysteries hold may become ours.	rosary_closing_prayer		false	true
+luminous	74	crucifix	The crucifix	End as you began, with the Sign of the Cross.	sign_of_cross		false	true

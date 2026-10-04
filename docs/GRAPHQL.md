@@ -227,7 +227,7 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 
 | Query | Returns |
 | --- | --- |
-| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers schedule script`. The same document as `GET /api/v2/rosary-content`. |
+| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers schedule script learn guidedRosary`. The same document as `GET /api/v2/rosary-content`. |
 | `rosaryScript(category, style, extras, orders)` | `RosaryScript`: `id category style extras orders steps`, one Rosary expanded. The same as `GET /api/v2/rosary-script`, and null with `invalid_argument` (its `fields` naming the argument) for a value it does not know. |
 
 Everything a client needs to show and say the Rosary offline, as one
@@ -256,6 +256,15 @@ when the content last changed. `id` is always `"current"`.
 `rosaryScript`'s arguments are strings, the lists among them
 comma-separated (`extras: "memorare,st_michael"`, `orders: "3,4,5"`), as
 the v2 route takes them.
+
+- `learn`: `RosaryLearn!`, the How to Pray course: `intro lessons
+  firstRosary steps prayerCounts shelves scripture`. A reading's `doors`
+  are neutral targets, `{ kind target title note icon }`.
+- `guidedRosary`: `GuidedRosary!`, "Your First Rosary": `devotionName
+  firstKeptStep parts anatomy rosaries { category steps }`.
+
+  See docs/JSON_API.md, "The How to Pray course", for both and for the
+  doors' vocabulary.
 
 `rosaryContent` is non-null and takes no argument: it is answered from
 files compiled into the server (`LumenViae.Rosary.Content`) and from code

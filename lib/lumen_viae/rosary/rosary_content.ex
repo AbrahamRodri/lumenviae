@@ -19,6 +19,7 @@ defmodule LumenViae.Rosary.RosaryContent do
     extensions: [AshGraphql.Resource, AshJsonApi.Resource]
 
   alias LumenViae.Rosary.RosaryContent.Current
+  alias LumenViae.Rosary.RosaryContent.Learn
   alias LumenViae.Rosary.RosaryContent.Prayers
   alias LumenViae.Rosary.RosaryContent.Schedule
   alias LumenViae.Rosary.RosaryContent.Script
@@ -89,6 +90,20 @@ defmodule LumenViae.Rosary.RosaryContent do
       constraints nil_items?: false
 
       description "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin."
+    end
+
+    calculate :learn, Types.RosaryLearn, {Learn, section: :learn} do
+      allow_nil? false
+      public? true
+
+      description "The How to Pray course: three lessons, then \"Your First Rosary\", with the steps of the Rosary and the prayers said at each, how often each prayer comes round, Montfort's counsel and the questions beginners ask."
+    end
+
+    calculate :guided_rosary, Types.GuidedRosary, {Learn, section: :guided_rosary} do
+      allow_nil? false
+      public? true
+
+      description "\"Your First Rosary\": the Rosary a step at a time for each of the four sets, every step tied to the bead under the fingers, with the parts of a rosary as a beginner learns them."
     end
 
     calculate :schedule, Types.RosarySchedule, Schedule do

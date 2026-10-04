@@ -1,0 +1,653 @@
+{
+  "updated_at": "2026-10-04T02:00:00Z",
+  "learn": {
+    "intro": "If you have never prayed the Rosary, begin here. You need no beads — your fingers will do — and nothing by heart. Three short lessons, and then your first Rosary, with every word in front of you.",
+    "lessons": [
+      {
+        "id": "beads",
+        "number": 1,
+        "title": "The Beads and the Order",
+        "summary": "What a rosary is, each part of it, and what is said where.",
+        "paragraphs": [
+          "The Rosary is a prayer of the Gospel. It is prayed in five decades — sets of ten Hail Marys. For each decade we call to mind one scene from the life of Jesus and His Mother — a mystery — and while we think about it, we pray: an Our Father, ten Hail Marys, a Glory Be, and the Fatima Prayer.",
+          "The words are simple and the same each time, and that is the point. They become a quiet rhythm under the heart, leaving the mind free to look at Christ. The beads keep the count, so you do not have to."
+        ],
+        "sections": [
+          {
+            "title": "Meet the beads",
+            "shows": "anatomy",
+            "prayer_ids": null,
+            "categories": null,
+            "items": null
+          },
+          {
+            "title": "The order",
+            "shows": "steps",
+            "prayer_ids": null,
+            "categories": null,
+            "items": null
+          }
+        ]
+      },
+      {
+        "id": "prayers",
+        "number": 2,
+        "title": "The Prayers",
+        "summary": "Eight prayers make the whole Rosary. Read them, then say them with the page until they are yours.",
+        "paragraphs": [
+          "Eight prayers make the whole Rosary, and most of them you may already half know. Read each one through. Then try “Say it with me”: the prayer comes a line at a time, so you can say each line before you see it.",
+          "Start with the Hail Mary. It is said fifty-three times in one Rosary, and after a week it will be yours."
+        ],
+        "sections": [
+          {
+            "title": null,
+            "shows": "prayers",
+            "prayer_ids": [
+              "hail_mary",
+              "our_father",
+              "glory_be",
+              "sign_of_cross",
+              "apostles_creed",
+              "fatima_prayer",
+              "hail_holy_queen",
+              "rosary_closing_prayer"
+            ],
+            "categories": null,
+            "items": null
+          }
+        ]
+      },
+      {
+        "id": "mysteries",
+        "number": 3,
+        "title": "The Mysteries",
+        "summary": "The scenes from the Gospel you think about while you pray, and which to pray each day.",
+        "paragraphs": [
+          "A mystery is a moment in the life of Jesus and Mary — His birth, His agony in the garden, His rising. There are twenty, in four sets of five, and one set is prayed each day. While your lips say the Hail Marys of a decade, your mind stays with its mystery."
+        ],
+        "sections": [
+          {
+            "title": "The four sets",
+            "shows": "categories",
+            "categories": [
+              "joyful",
+              "sorrowful",
+              "glorious",
+              "luminous"
+            ],
+            "prayer_ids": null,
+            "items": null
+          },
+          {
+            "title": "How to dwell on a mystery",
+            "shows": "dwell",
+            "items": [
+              {
+                "numeral": "I",
+                "title": "Name it",
+                "text": "Say the mystery's name before the decade: “The first Joyful Mystery, the Annunciation.”"
+              },
+              {
+                "numeral": "II",
+                "title": "Picture it",
+                "text": "Place yourself in the scene. Where is Mary? What does she see, and hear? What would you say to her Son?"
+              },
+              {
+                "numeral": "III",
+                "title": "Ask for its grace",
+                "text": "Each mystery teaches a virtue — humility, patience, faith. Ask for it as you begin the ten Hail Marys."
+              }
+            ],
+            "prayer_ids": null,
+            "categories": null
+          },
+          {
+            "title": "This week",
+            "shows": "week",
+            "prayer_ids": null,
+            "categories": null,
+            "items": null
+          }
+        ]
+      }
+    ],
+    "first_rosary": {
+      "title": "Your First Rosary",
+      "summary": "Prayed with a guide: every step, every word, and the beads drawn so you always know where you are.",
+      "welcome": [
+        "You do not need to know anything by heart. Every step will tell you where you are and what to do, and every word is written out."
+      ],
+      "mysteries_heading": "THE MYSTERIES YOU WILL PRAY",
+      "mysteries_note": "The Rosary is five decades — sets of ten Hail Marys — each spent with one scene from the life of Jesus and Mary. Today's are chosen for you; you may pick others.",
+      "before_you_begin": [
+        "Hold a rosary if you have one; if not, your ten fingers will count the beads. Pray aloud or silently, as you like.",
+        "The drawing above is a rosary. The bead you are on will light up as you go, so you can always find your place."
+      ]
+    },
+    "steps": [
+      {
+        "number": 1,
+        "title": "Make the Sign of the Cross",
+        "detail": "Holding the crucifix, sign yourself from forehead to breast, and shoulder to shoulder.",
+        "prayer_ids": [
+          "sign_of_cross"
+        ]
+      },
+      {
+        "number": 2,
+        "title": "Pray the Apostles' Creed",
+        "detail": "Still holding the crucifix, profess the faith of the Church.",
+        "prayer_ids": [
+          "apostles_creed"
+        ]
+      },
+      {
+        "number": 3,
+        "title": "Pray one Our Father",
+        "detail": "On the first large bead.",
+        "prayer_ids": [
+          "our_father"
+        ]
+      },
+      {
+        "number": 4,
+        "title": "Pray three Hail Marys",
+        "detail": "On the three small beads — traditionally offered for an increase of faith, hope, and charity.",
+        "prayer_ids": [
+          "hail_mary"
+        ]
+      },
+      {
+        "number": 5,
+        "title": "Pray the Glory Be",
+        "detail": "On reaching the next large bead, before anything else is said on it.",
+        "prayer_ids": [
+          "glory_be"
+        ]
+      },
+      {
+        "number": 6,
+        "title": "Announce the first mystery",
+        "detail": "Name it — “The first Joyful Mystery: the Annunciation” — and picture the scene. Then, on the large bead, pray the Our Father.",
+        "prayer_ids": [
+          "our_father"
+        ]
+      },
+      {
+        "number": 7,
+        "title": "Pray ten Hail Marys",
+        "detail": "On the ten small beads of the decade, keeping the mystery before your mind's eye.",
+        "prayer_ids": [
+          "hail_mary"
+        ]
+      },
+      {
+        "number": 8,
+        "title": "Close the decade",
+        "detail": "On the next large bead, before its Our Father: the Glory Be, then the Fatima Prayer, which Our Lady asked for at Fatima.",
+        "prayer_ids": [
+          "glory_be",
+          "fatima_prayer"
+        ]
+      },
+      {
+        "number": 9,
+        "title": "Pray the other four decades",
+        "detail": "Announce each mystery in turn, then the Our Father, ten Hail Marys, the Glory Be and the Fatima Prayer.",
+        "prayer_ids": []
+      },
+      {
+        "number": 10,
+        "title": "Conclude",
+        "detail": "Pray the Hail, Holy Queen and the closing prayer, and end with the Sign of the Cross. Many add the Memorare, the Prayer to Saint Michael, or an Our Father, Hail Mary and Glory Be for the Pope's intentions before the last Sign of the Cross.",
+        "prayer_ids": [
+          "hail_holy_queen",
+          "rosary_closing_prayer"
+        ]
+      }
+    ],
+    "prayer_counts": [
+      {
+        "prayer_id": "hail_mary",
+        "count": "Fifty-three times — ten on each decade, three at the start"
+      },
+      {
+        "prayer_id": "our_father",
+        "count": "Six times — once on each large bead"
+      },
+      {
+        "prayer_id": "glory_be",
+        "count": "Six times — after the three and after each decade"
+      },
+      {
+        "prayer_id": "sign_of_cross",
+        "count": "At the beginning and the end"
+      },
+      {
+        "prayer_id": "apostles_creed",
+        "count": "Once, on the crucifix"
+      },
+      {
+        "prayer_id": "fatima_prayer",
+        "count": "Five times — after each decade"
+      },
+      {
+        "prayer_id": "hail_holy_queen",
+        "count": "Once, at the end"
+      },
+      {
+        "prayer_id": "rosary_closing_prayer",
+        "count": "Once, at the very end"
+      }
+    ],
+    "shelves": [
+      {
+        "id": "montfort_methods",
+        "title": "Montfort's Counsel",
+        "subtitle": "From St. Louis de Montfort's The Secret of the Rosary",
+        "margin_label": "Praying\nit well",
+        "icon": "lv-rosary",
+        "readings": [
+          {
+            "id": "montfort_offering",
+            "title": "Offer Each Decade",
+            "detail": "His first method",
+            "paragraphs": [
+              "St. Louis de Montfort, the great apostle of the Rosary, left several methods for praying it more fruitfully. Each uses the same beads and the same prayers; what changes is how deeply the mystery enters them. In the first, each decade is offered to Our Lord before it is prayed, in honour of its mystery, with a request through Mary for the grace that mystery teaches.",
+              "After the decade, ask for that grace again: “May the grace of the mystery of the Incarnation come down into our souls. Amen.” He wrote the method for the fifteen traditional mysteries; the same spirit carries naturally into the Luminous."
+            ],
+            "quote": {
+              "citation": "The offering of the first Joyful Mystery",
+              "text": "We offer Thee, O Lord Jesus, this first decade in honour of Thy Incarnation, and we ask of Thee, through this mystery and through the intercession of Thy most holy Mother, a profound humility. Amen."
+            },
+            "tables": [
+              {
+                "rows": [
+                  {
+                    "label": "The Annunciation",
+                    "value": "a profound humility"
+                  },
+                  {
+                    "label": "The Visitation",
+                    "value": "charity towards our neighbour"
+                  },
+                  {
+                    "label": "The Nativity",
+                    "value": "detachment from the things of the world and love of poverty"
+                  },
+                  {
+                    "label": "The Presentation",
+                    "value": "purity of body and soul"
+                  },
+                  {
+                    "label": "The Finding in the Temple",
+                    "value": "true wisdom"
+                  }
+                ],
+                "title": "The Joyful Mysteries"
+              },
+              {
+                "rows": [
+                  {
+                    "label": "The Agony in the Garden",
+                    "value": "contrition for our sins"
+                  },
+                  {
+                    "label": "The Scourging",
+                    "value": "mortification of our senses"
+                  },
+                  {
+                    "label": "The Crowning with Thorns",
+                    "value": "contempt of the world"
+                  },
+                  {
+                    "label": "The Carrying of the Cross",
+                    "value": "patience in bearing our crosses"
+                  },
+                  {
+                    "label": "The Crucifixion",
+                    "value": "horror of sin, love of the Cross, and the grace of a holy death"
+                  }
+                ],
+                "title": "The Sorrowful Mysteries"
+              },
+              {
+                "rows": [
+                  {
+                    "label": "The Resurrection",
+                    "value": "a lively faith"
+                  },
+                  {
+                    "label": "The Ascension",
+                    "value": "a firm hope and a longing for heaven"
+                  },
+                  {
+                    "label": "The Descent of the Holy Spirit",
+                    "value": "the coming of the Holy Spirit into our souls"
+                  },
+                  {
+                    "label": "The Assumption",
+                    "value": "a tender devotion to Mary"
+                  },
+                  {
+                    "label": "The Coronation",
+                    "value": "perseverance in grace and a crown of glory"
+                  }
+                ],
+                "title": "The Glorious Mysteries"
+              }
+            ],
+            "doors": [
+              {
+                "kind": "act",
+                "target": "todays_rosary",
+                "title": null,
+                "note": "Pray it this way today",
+                "icon": null
+              }
+            ]
+          },
+          {
+            "id": "montfort_clauses",
+            "title": "A Word Within Each Hail Mary",
+            "detail": "His shorter method",
+            "paragraphs": [
+              "The second method keeps the mystery present through every bead. After the name of Jesus in each Hail Mary of the decade, add a few words that recall the mystery — “and blessed is the fruit of thy womb, Jesus, becoming man” — and go on with the prayer.",
+              "It is the simplest way to keep the mind from wandering, because the mystery is spoken ten times in the decade and the Hail Mary becomes a meditation of its own. The clause for each mystery:"
+            ],
+            "quote": {
+              "citation": "The first Joyful Mystery",
+              "text": "…and blessed is the fruit of thy womb, Jesus, becoming man. Holy Mary, Mother of God…"
+            },
+            "tables": [
+              {
+                "rows": [
+                  {
+                    "label": "The Annunciation",
+                    "value": "Jesus becoming man"
+                  },
+                  {
+                    "label": "The Visitation",
+                    "value": "Jesus sanctifying"
+                  },
+                  {
+                    "label": "The Nativity",
+                    "value": "Jesus born in poverty"
+                  },
+                  {
+                    "label": "The Presentation",
+                    "value": "Jesus sacrificed"
+                  },
+                  {
+                    "label": "The Finding in the Temple",
+                    "value": "Jesus, holy of holies"
+                  }
+                ],
+                "title": "The Joyful Mysteries"
+              },
+              {
+                "rows": [
+                  {
+                    "label": "The Agony in the Garden",
+                    "value": "Jesus in His agony"
+                  },
+                  {
+                    "label": "The Scourging",
+                    "value": "Jesus scourged"
+                  },
+                  {
+                    "label": "The Crowning with Thorns",
+                    "value": "Jesus crowned with thorns"
+                  },
+                  {
+                    "label": "The Carrying of the Cross",
+                    "value": "Jesus carrying His cross"
+                  },
+                  {
+                    "label": "The Crucifixion",
+                    "value": "Jesus crucified"
+                  }
+                ],
+                "title": "The Sorrowful Mysteries"
+              },
+              {
+                "rows": [
+                  {
+                    "label": "The Resurrection",
+                    "value": "Jesus risen from the dead"
+                  },
+                  {
+                    "label": "The Ascension",
+                    "value": "Jesus ascending to heaven"
+                  },
+                  {
+                    "label": "The Descent of the Holy Spirit",
+                    "value": "Jesus filling thee with the Holy Spirit"
+                  },
+                  {
+                    "label": "The Assumption",
+                    "value": "Jesus raising thee up"
+                  },
+                  {
+                    "label": "The Coronation",
+                    "value": "Jesus crowning thee"
+                  }
+                ],
+                "title": "The Glorious Mysteries"
+              }
+            ],
+            "doors": [
+              {
+                "kind": "act",
+                "target": "todays_rosary",
+                "title": null,
+                "note": "Pray it this way today",
+                "icon": null
+              }
+            ]
+          },
+          {
+            "id": "montfort_well",
+            "title": "Saying It Well",
+            "detail": "His counsel for every Rosary",
+            "paragraphs": [
+              "Begin with purity of intention. Offer the Rosary for a definite grace or intention, in union with Jesus praying in you, and remember whom you are speaking to.",
+              "Picture the scene. Before each decade, pause and place the mystery before your mind's eye — the stable, the garden, the empty tomb — and stay in it while you pray. The words are the beads' work; the heart's work is to look.",
+              "Pray without rushing. Montfort asks for small pauses within the prayers themselves, and says that one Rosary said slowly and attentively is worth more than several hurried ones.",
+              "Fight distractions gently. They will come, and they are not a failure. Each time you notice you have wandered, return to the mystery without fuss; that quiet return is itself a prayer.",
+              "Persevere in dryness. The Rosary prayed faithfully when it feels dry and unrewarding is especially pleasing to God. Fidelity, not feeling, is the measure."
+            ],
+            "quote": {
+              "citation": "St. Louis de Montfort, The Secret of the Rosary",
+              "text": "The Rosary without meditation on the sacred mysteries of our salvation would almost be a body without a soul."
+            },
+            "tables": [],
+            "doors": [
+              {
+                "kind": "reading",
+                "target": "montfort",
+                "title": "St. Louis de Montfort",
+                "note": "The Marian Saints",
+                "icon": "lv-saint"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rosary_questions",
+        "title": "Questions Beginners Ask",
+        "subtitle": "What people wonder before their first Rosary",
+        "margin_label": "Questions",
+        "icon": "ph-question",
+        "readings": [
+          {
+            "id": "q_beads",
+            "title": "Do I need a rosary?",
+            "detail": "No — ten fingers will do",
+            "paragraphs": [
+              "Beads help, because they keep the count so your mind does not have to, but they are not required. Count the Hail Marys on your ten fingers, or on a knotted cord, as Christians did for centuries before beads were common.",
+              "If you would like a rosary, any parish or Catholic shop will have one, and many parishes give them away. It is customary to have it blessed by a priest, but an unblessed rosary prays just as well."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": []
+          },
+          {
+            "id": "q_by_heart",
+            "title": "Do I have to know the prayers by heart?",
+            "detail": "No — read them",
+            "paragraphs": [
+              "Read them from the page as you go; your first Rosary, the last step of the course, shows every word. After a few times you will find you know them, without ever having sat down to memorise anything.",
+              "Start with the Hail Mary, since it is said fifty-three times in a Rosary. The first half is the angel Gabriel's greeting and St. Elizabeth's words from the Gospel of Luke; the second half is a request for Mary's prayers."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": [
+              {
+                "kind": "prayer",
+                "target": "hail_mary",
+                "title": "The Hail Mary",
+                "note": "The words, on a page of their own",
+                "icon": "ch-praying-hands"
+              }
+            ]
+          },
+          {
+            "id": "q_think",
+            "title": "What do I think about while I pray?",
+            "detail": "The mystery",
+            "paragraphs": [
+              "Each decade has a mystery — a scene from the life of Jesus and Mary: the angel's visit to Nazareth, the agony in the garden, the empty tomb. While your lips say the Hail Marys, your mind stays with that scene.",
+              "It can help to picture it as if you were there. Where is Mary standing? What does she see? What would you say? The words of the prayer become like music playing while you look.",
+              "Some people read the Gospel passage first. Others ask, in each decade, for the grace the mystery teaches — humility, patience, faith. There is no wrong way to look at Christ."
+            ],
+            "quote": {
+              "citation": "St. Paul VI, Marialis Cultus",
+              "text": "Without contemplation, the Rosary is a body without a soul."
+            },
+            "tables": [],
+            "doors": [
+              {
+                "kind": "page",
+                "target": "mysteries_in_scripture",
+                "title": "The Mysteries in Scripture",
+                "note": "Each mystery's passage, to read first",
+                "icon": "lv-breviary"
+              }
+            ]
+          },
+          {
+            "id": "q_wander",
+            "title": "What if my mind wanders?",
+            "detail": "It will — come back gently",
+            "paragraphs": [
+              "It happens to everyone, saints included. When you notice that you have drifted, do not scold yourself and do not start again. Simply come back to the mystery and carry on from the bead you are on.",
+              "Each return is itself an act of love. A Rosary full of wandering and returning is still a Rosary prayed."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": []
+          },
+          {
+            "id": "q_count",
+            "title": "What if I lose count?",
+            "detail": "Carry on",
+            "paragraphs": [
+              "The beads keep the count so you do not have to. If you lose track, go on from wherever you think you are. God is not counting Hail Marys; He is looking at the heart that says them.",
+              "In your first Rosary, the drawing of the beads shows exactly where you are, bead by bead."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": []
+          },
+          {
+            "id": "q_mary",
+            "title": "Is it praying to Mary instead of God?",
+            "detail": "It is praying with her",
+            "paragraphs": [
+              "Every mystery of the Rosary is about Jesus: His birth, His suffering, His rising. We ask Mary to pray for us, as we might ask a friend, and she does what she has always done — she points to her Son.",
+              "Most of the Hail Mary is Scripture: the angel's words, “Hail, full of grace, the Lord is with thee,” and Elizabeth's, “Blessed art thou among women, and blessed is the fruit of thy womb.” Its centre is the name of Jesus.",
+              "The Rosary begins with the Creed and the Our Father and ends with a prayer to God. Mary is the one who walks beside us through it."
+            ],
+            "quote": {
+              "citation": "St. John Paul II, Rosarium Virginis Mariae, n. 3",
+              "text": "To recite the Rosary is nothing other than to contemplate with Mary the face of Christ."
+            },
+            "tables": [],
+            "doors": [
+              {
+                "kind": "reading",
+                "target": "cana",
+                "title": "The Wedding at Cana",
+                "note": "“Whatsoever he shall say to you, do ye”",
+                "icon": "ch-lily"
+              }
+            ]
+          },
+          {
+            "id": "q_one_decade",
+            "title": "Can I pray just one decade?",
+            "detail": "Yes — it is a good beginning",
+            "paragraphs": [
+              "A single decade — an Our Father, ten Hail Marys and a Glory Be, on one mystery — is a real prayer, and many people begin with one a day. The whole Rosary is five decades.",
+              "You can also divide a Rosary through the day: a decade in the morning, one on the way to work, the rest in the evening."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": []
+          },
+          {
+            "id": "q_where",
+            "title": "Where and how should I pray it?",
+            "detail": "Anywhere",
+            "paragraphs": [
+              "In a church before the tabernacle, at home, walking, on a bus, lying awake at night. Kneeling is a beautiful posture if you are able; sitting or walking is fine. Praying it aloud with others — a family, a group, a parish — is a treasured custom, and so is praying it alone and silent.",
+              "What matters is attention, not position. Find a time you can keep, and come back to it."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": []
+          },
+          {
+            "id": "q_not_catholic",
+            "title": "Can I pray it if I'm not Catholic?",
+            "detail": "Yes — anyone may",
+            "paragraphs": [
+              "The Rosary belongs to anyone who wants to meet Christ in the Gospel. Many have come to faith by way of it, and many Christians of other traditions pray it.",
+              "If you are exploring the faith, the Rosary is a gentle place to begin: it walks you through the life of Jesus, a scene at a time, in the company of His Mother."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": []
+          }
+        ]
+      }
+    ],
+    "scripture": {
+      "intro": "Every mystery of the Rosary is a page of the Gospel. Read its verse before the decade (the ten Hail Marys said for it), and pray with the scene in front of you.",
+      "before_each_decade": {
+        "heading": "BEFORE EACH DECADE",
+        "items": [
+          {
+            "numeral": "I",
+            "title": "Read",
+            "text": "the verse slowly, and let one phrase settle"
+          },
+          {
+            "numeral": "II",
+            "title": "Picture",
+            "text": "the scene, and stand in it beside Mary"
+          },
+          {
+            "numeral": "III",
+            "title": "Ask",
+            "text": "for its grace, then begin the decade"
+          }
+        ]
+      },
+      "fruit_note": "Each mystery has its fruit — the grace, by long tradition, to ask for while its decade is prayed. The cards name it under Ask for.",
+      "sorrows_graces_note": "By tradition handed down through St. Bridget of Sweden, Our Lady promises seven graces to those who honour her daily by meditating on her sorrows."
+    }
+  }
+}
