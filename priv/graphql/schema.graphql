@@ -3,6 +3,93 @@ schema {
   query: RootQueryType
 }
 
+type ScheduleDays {
+  "What the app shows under the set's name: `days_prayed`, or for a set the schedule never reaches, when it is kept (`Fridays, and on her feast, September 15`; `Any day you choose`)."
+  words: String!
+
+  "The days the schedule prays it (`Monday, Thursday, Sundays of Advent`), or null when the schedule never reaches it: the Luminous on the traditional schedule, the Seven Sorrows on either."
+  daysPrayed: String
+
+  "A category slug."
+  category: String!
+}
+
+type ScheduleSunday {
+  "Any other Sunday, Christmastide and Eastertide included."
+  ordinary: String!
+
+  "A Sunday of Lent."
+  lent: String!
+
+  "A Sunday of Advent."
+  advent: String!
+}
+
+type ScheduleWeekdays {
+  "A category slug."
+  wednesday: String!
+
+  "A category slug."
+  tuesday: String!
+
+  "A category slug."
+  thursday: String!
+
+  "A category slug."
+  saturday: String!
+
+  "A category slug."
+  monday: String!
+
+  "A category slug."
+  friday: String!
+}
+
+type MysterySchedule {
+  "The category of each day from Monday to Saturday. The day is the device's calendar day, turning at midnight; not the prayer day that turns at four in the morning."
+  weekdays: ScheduleWeekdays!
+
+  "Sunday's category, by the season the Sunday falls in (see `seasons`)."
+  sunday: ScheduleSunday!
+
+  "`traditional` (Joyful on Thursday, Glorious on Saturday) or `modern` (Rosarium Virginis Mariae 38: Luminous on Thursday, Joyful on Saturday)."
+  id: String!
+
+  "Category slugs in the order the home grid shows them: the sets the week prays, in the week's order from Monday, then the Seven Sorrows."
+  grid: [String!]!
+
+  "Each of the five categories, in the app's order, with the days it is prayed in words."
+  days: [ScheduleDays!]!
+}
+
+type RosarySeason {
+  "Its first day: Ash Wednesday, or the first Sunday of Advent."
+  startsOn: Date!
+
+  "`lent` or `advent`."
+  season: String!
+
+  "Its last day, included: Holy Saturday, or December 24. Easter and Christmas are ordinary."
+  endsOn: Date!
+}
+
+type RosarySchedule {
+  "The last date `seasons` answers for: December 31 three years ahead."
+  seasonsThrough: Date!
+
+  "The first date `seasons` answers for: January 1 of last year. The range moves on when the year turns, and with it the document's version."
+  seasonsFrom: Date!
+
+  "Every Lent and Advent from `seasons_from` through `seasons_through`, in calendar order. A date inside one is in that season; every other date in the range is `ordinary`, Christmastide and Eastertide included."
+  seasons: [RosarySeason!]!
+
+  "The weekly schedules, the default first. A client should pass over a schedule whose id it does not know."
+  schedules: [MysterySchedule!]!
+
+  "The id of the schedule a client follows until its reader chooses another: `traditional`."
+  default: String!
+}
+
 type PrayerText {
   "In Latin, line by line."
   la: [String!]!
@@ -192,6 +279,9 @@ type RosaryContent {
 
   "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin."
   prayers: [RosaryPrayer!]!
+
+  "Which mysteries a day calls for, on both weekly schedules, as rules to apply offline: each weekday's set, Sunday's by season, every Lent and Advent from last year to three years ahead, the home grid's order and the days each set is prayed in words. The day is the device's calendar day, turning at midnight, not the prayer day that turns at four in the morning."
+  schedule: RosarySchedule!
 }
 
 type SpokenRosary {

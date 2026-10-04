@@ -36,6 +36,11 @@ defmodule LumenViae.LiturgicalCalendar do
 
   The words for the days a set is prayed (`days_prayed/2`,
   `days_in_words/2`) are the app's own, character for character.
+
+  `LumenViae.Rosary.RosaryContent.Schedule` serves these rules as the
+  content document's `schedule` section, so a client can apply them
+  offline (docs/JSON_API.md, "The day's mysteries"). A change to a rule or
+  a word here moves that section: date it there.
   """
 
   @type schedule :: :traditional | :modern
@@ -90,19 +95,18 @@ defmodule LumenViae.LiturgicalCalendar do
   which follows the season: see `sunday_mysteries/1`.
   """
   @spec weekday_mysteries(1..7, schedule()) :: category() | nil
-  def weekday_mysteries(day_of_week, schedule) when schedule in @schedules do
-    case {day_of_week, schedule} do
-      {1, _} -> :joyful
-      {2, _} -> :sorrowful
-      {3, _} -> :glorious
-      {4, :traditional} -> :joyful
-      {4, :modern} -> :luminous
-      {5, _} -> :sorrowful
-      {6, :traditional} -> :glorious
-      {6, :modern} -> :joyful
-      {7, _} -> nil
-    end
-  end
+  def weekday_mysteries(day_of_week, schedule) when schedule in @schedules,
+    do: weekday(day_of_week, schedule)
+
+  defp weekday(1, _schedule), do: :joyful
+  defp weekday(2, _schedule), do: :sorrowful
+  defp weekday(3, _schedule), do: :glorious
+  defp weekday(4, :traditional), do: :joyful
+  defp weekday(4, :modern), do: :luminous
+  defp weekday(5, _schedule), do: :sorrowful
+  defp weekday(6, :traditional), do: :glorious
+  defp weekday(6, :modern), do: :joyful
+  defp weekday(7, _schedule), do: nil
 
   @doc """
   Sunday's mysteries in a season, the same on both schedules.

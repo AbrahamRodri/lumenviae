@@ -1,8 +1,9 @@
 defmodule LumenViae.Rosary.RosaryContent do
   @moduledoc """
   The Rosary's words as one document, for a client that prays offline:
-  `GET /api/v2/rosary-content` and GraphQL's `rosaryContent`. The content
-  is `LumenViae.Rosary.Content`'s.
+  `GET /api/v2/rosary-content` and GraphQL's `rosaryContent`. The words
+  are `LumenViae.Rosary.Content`'s, and the `schedule` section is
+  `LumenViae.LiturgicalCalendar`'s.
 
   There is no table. `:current` answers with the one document there is,
   carrying a `version` that fingerprints everything it serves and the
@@ -19,6 +20,7 @@ defmodule LumenViae.Rosary.RosaryContent do
 
   alias LumenViae.Rosary.RosaryContent.Current
   alias LumenViae.Rosary.RosaryContent.Prayers
+  alias LumenViae.Rosary.RosaryContent.Schedule
   alias LumenViae.Rosary.Types
 
   graphql do
@@ -86,6 +88,13 @@ defmodule LumenViae.Rosary.RosaryContent do
       constraints nil_items?: false
 
       description "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin."
+    end
+
+    calculate :schedule, Types.RosarySchedule, Schedule do
+      allow_nil? false
+      public? true
+
+      description "Which mysteries a day calls for, on both weekly schedules, as rules to apply offline: each weekday's set, Sunday's by season, every Lent and Advent from last year to three years ahead, the home grid's order and the days each set is prayed in words. The day is the device's calendar day, turning at midnight, not the prayer day that turns at four in the morning."
     end
   end
 end

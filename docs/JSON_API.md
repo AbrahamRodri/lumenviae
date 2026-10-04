@@ -136,6 +136,7 @@ Rosary and for `POST /meditations/audio`, and nulls a meditation's
 ```
 GET /api/v2/rosary-content
 GET /api/v2/rosary-content?fields[rosary_content]=version,updated_at,prayers
+GET /api/v2/rosary-content?fields[rosary_content]=version,schedule
 ```
 
 Everything a client needs to show and say the Rosary without a connection
@@ -163,6 +164,62 @@ serves the same document, its sections chosen by the selection set.
   is a list of lines, and the two languages have the same number of lines,
   so they pair line for line. A line in square brackets is a rubric
   (`[Let us pray.]`), shown and not said as written.
+- **`schedule`**: which mysteries a day calls for, as rules a client
+  applies offline, from `LumenViae.LiturgicalCalendar` (below).
+
+### The day's mysteries
+
+The `schedule` section serves the rule rather than a list of days, so a
+device answers "which mysteries today?" with no connection:
+
+```json
+{"default": "traditional",
+ "schedules": [
+   {"id": "traditional",
+    "weekdays": {"monday": "joyful", "tuesday": "sorrowful", "wednesday": "glorious",
+                 "thursday": "joyful", "friday": "sorrowful", "saturday": "glorious"},
+    "sunday": {"advent": "joyful", "lent": "sorrowful", "ordinary": "glorious"},
+    "grid": ["joyful", "sorrowful", "glorious", "seven_sorrows"],
+    "days": [{"category": "joyful", "days_prayed": "Monday, Thursday, Sundays of Advent",
+              "words": "Monday, Thursday, Sundays of Advent"}, "..."]},
+   {"id": "modern", "...": "..."}],
+ "seasons": [{"season": "lent", "starts_on": "2025-03-05", "ends_on": "2025-04-19"}, "..."],
+ "seasons_from": "2025-01-01",
+ "seasons_through": "2029-12-31"}
+```
+
+To find a date's mysteries on a schedule: Monday to Saturday, read
+`weekdays`; on a Sunday, find the season whose `starts_on` and `ends_on`
+(both included) hold the date, `ordinary` when none does, and read
+`sunday`. The values are category slugs.
+
+- **The day** is the device's calendar day, turning at its midnight. It
+  is not the iOS app's prayer day, which turns at four in the morning and
+  decides only what counts as prayed: a Rosary begun at half past midnight
+  on a Wednesday prays Wednesday's mysteries.
+- **`schedules`**: `traditional`, the default and the website's (Joyful on
+  Thursday, Glorious on Saturday), and `modern`, from Rosarium Virginis
+  Mariae 38 (Luminous on Thursday, Joyful on Saturday). Sunday follows
+  the season on both. A client should pass over a schedule whose id it
+  does not know.
+- **`grid`**: the order the app's home grid shows the sets in: the week's,
+  from Monday, then the Seven Sorrows.
+- **`days`**: each of the five categories with the days it is prayed in
+  the app's words. `days_prayed` is null for a set the schedule never
+  reaches; `words` is what the app shows under the set's name, saying
+  when such a set is kept ("Fridays, and on her feast, September 15";
+  "Any day you choose").
+- **`seasons`**: every Lent (Ash Wednesday through Holy Saturday) and
+  Advent (the Sunday on or after November 27 through December 24) from
+  January 1 of last year (`seasons_from`) through December 31 three years
+  ahead (`seasons_through`). Every other date in that range is
+  `ordinary`, Christmastide and Eastertide included. For a date outside
+  the range, fetch the document again.
+
+The range is computed for the current UTC year, so it moves on when the
+year turns, and with it the document's `version`; `updated_at` is then
+January 1. A client polling the version refetches once a year for this
+alone, which is correct: its seasons have moved on.
 
 The document is the server's own copy of the words (docs/SPOKEN_ROSARY.md,
 "The words are the server's"): `LumenViae.Rosary.Content` reads it from
@@ -185,9 +242,20 @@ recording: see docs/SPOKEN_ROSARY.md before making one.
 
 Each section is a calculation on `LumenViae.Rosary.RosaryContent`, typed
 so the OpenAPI document and the GraphQL schema describe it
-(`Types.RosaryPrayer`, `Types.PrayerTitle`, `Types.PrayerText`). Content
-read from the database is folded into the version and the date in one
-place, `RosaryContent.Current.stamp/0`.
+(`Types.RosaryPrayer`, `Types.PrayerTitle`, `Types.PrayerText`;
+`Types.RosarySchedule`, `Types.MysterySchedule`, `Types.ScheduleWeekdays`,
+`Types.ScheduleSunday`, `Types.ScheduleDays`, `Types.RosarySeason`).
+Content computed from code or read from the database is folded into the
+version and the date in one place, `RosaryContent.Current.stamp/1`.
+
+**The `schedule` section is code, not a file**
+(`RosaryContent.Schedule`), so it is dated in the module:
+`@rules_updated_at` is when its rules or words last changed, and
+`test/lumen_viae/rosary/rosary_content/schedule_test.exs` pins the rules'
+version against it. Change a rule or a word in `LiturgicalCalendar`: bump
+`@rules_updated_at` and add the entry the test prints. The iOS app
+computes the same rule on the device (`ScheduleService`); change the two
+together.
 
 ## Fresh meditation audio
 

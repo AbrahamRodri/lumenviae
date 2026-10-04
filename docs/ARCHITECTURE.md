@@ -72,7 +72,7 @@ lib/lumen_viae/
 ├── storage/s3.ex              S3 uploads, pre-signed and public URLs
 ├── services/geolocation.ex    IP to approximate location
 ├── central_time.ex            US Central offsets, calculated not looked up
-├── liturgical_calendar.ex     which mysteries are prayed today
+├── liturgical_calendar.ex     which mysteries a day calls for, on both weekly schedules
 ├── repo.ex                    the Ecto repo, through AshPostgres
 └── release.ex                 production tasks without Mix
 ```
@@ -492,7 +492,8 @@ Latin have different numbers of lines, an unknown group or a missing date
 fails the build, not a request), and fingerprints them (`version/1`).
 `PrayerAudio` takes its prayers' English from it, and
 `LumenViae.Rosary.RosaryContent`, a resource with no table, serves it as
-`GET /api/v2/rosary-content` and GraphQL's `rosaryContent`. See
+`GET /api/v2/rosary-content` and GraphQL's `rosaryContent`, beside the
+`schedule` section it computes from `LumenViae.LiturgicalCalendar`. See
 docs/JSON_API.md, "The content document".
 
 Add a value module when a list of allowed values is needed in more than one

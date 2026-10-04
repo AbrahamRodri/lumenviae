@@ -581,6 +581,151 @@
                 "nullable": true,
                 "type": "array"
               },
+              "schedule": {
+                "description": "Which mysteries a day calls for, on both weekly schedules, as rules to apply offline: each weekday's set, Sunday's by season, every Lent and Advent from last year to three years ahead, the home grid's order and the days each set is prayed in words. The day is the device's calendar day, turning at midnight, not the prayer day that turns at four in the morning.",
+                "nullable": true,
+                "properties": {
+                  "default": {
+                    "type": "string"
+                  },
+                  "schedules": {
+                    "items": {
+                      "properties": {
+                        "days": {
+                          "items": {
+                            "properties": {
+                              "category": {
+                                "type": "string"
+                              },
+                              "days_prayed": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "words": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "category",
+                              "words"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "grid": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "sunday": {
+                          "properties": {
+                            "advent": {
+                              "type": "string"
+                            },
+                            "lent": {
+                              "type": "string"
+                            },
+                            "ordinary": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "advent",
+                            "lent",
+                            "ordinary"
+                          ],
+                          "type": "object"
+                        },
+                        "weekdays": {
+                          "properties": {
+                            "friday": {
+                              "type": "string"
+                            },
+                            "monday": {
+                              "type": "string"
+                            },
+                            "saturday": {
+                              "type": "string"
+                            },
+                            "thursday": {
+                              "type": "string"
+                            },
+                            "tuesday": {
+                              "type": "string"
+                            },
+                            "wednesday": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "weekdays",
+                        "sunday",
+                        "grid",
+                        "days"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "seasons": {
+                    "items": {
+                      "properties": {
+                        "ends_on": {
+                          "format": "date",
+                          "type": "string"
+                        },
+                        "season": {
+                          "type": "string"
+                        },
+                        "starts_on": {
+                          "format": "date",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "season",
+                        "starts_on",
+                        "ends_on"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "seasons_from": {
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "seasons_through": {
+                    "format": "date",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "default",
+                  "schedules",
+                  "seasons",
+                  "seasons_from",
+                  "seasons_through"
+                ],
+                "type": "object"
+              },
               "updated_at": {
                 "description": "When the content last changed. Field included by default.",
                 "format": "date-time",
@@ -1491,7 +1636,7 @@
               "additionalProperties": true,
               "properties": {
                 "rosary_content": {
-                  "description": "Comma separated fields of rosary_content: prayers, updated_at, version",
+                  "description": "Comma separated fields of rosary_content: prayers, schedule, updated_at, version",
                   "type": "string"
                 }
               },
