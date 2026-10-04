@@ -14,13 +14,19 @@ defmodule LumenViae.Storage.S3 do
   @doc """
   Generates a pre-signed URL for a private S3 object.
 
-  The URL is valid for 1 hour (3600 seconds) and allows GET access to the object.
+  The URL allows GET access to the object for `:expires_in` seconds. Every
+  caller in the app passes `LumenViae.Rosary.audio_url_ttl/0`, which reads
+  `:audio_url_ttl_seconds` from `config/runtime.exs`: the
+  `AUDIO_URL_TTL_SECONDS` environment variable, default 86400 (24 hours).
+  See the comment there for why one hour was too short.
 
   ## Parameters
 
     * `s3_key` - The S3 object key (e.g., "meditation1.mp3" or "joyful/annunciation.mp3")
     * `opts` - Optional keyword list of options:
-      * `:expires_in` - Expiration time in seconds (default: 3600, i.e., 1 hour)
+      * `:expires_in` - Expiration time in seconds. Omitted, it falls back
+        to 3600 (1 hour); pass `Rosary.audio_url_ttl()` for the configured
+        lifetime.
       * `:bucket` - S3 bucket name (default: from config)
 
   ## Returns
