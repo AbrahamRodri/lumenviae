@@ -3,7 +3,8 @@ defmodule LumenViae.Rosary.RosaryContent do
   The Rosary's words as one document, for a client that prays offline:
   `GET /api/v2/rosary-content` and GraphQL's `rosaryContent`. The words
   are `LumenViae.Rosary.Content`'s, and the `schedule` section is
-  `LumenViae.LiturgicalCalendar`'s.
+  `LumenViae.LiturgicalCalendar`'s and the `labels` section is
+  `LumenViae.Rosary.Labels`'s.
 
   There is no table. `:current` answers with the one document there is,
   carrying a `version` that fingerprints everything it serves and the
@@ -20,9 +21,14 @@ defmodule LumenViae.Rosary.RosaryContent do
 
   alias LumenViae.Rosary.RosaryContent.Categories
   alias LumenViae.Rosary.RosaryContent.Current
+  alias LumenViae.Rosary.RosaryContent.Forms
+  alias LumenViae.Rosary.RosaryContent.Labels
   alias LumenViae.Rosary.RosaryContent.Learn
+  alias LumenViae.Rosary.RosaryContent.Milestones
   alias LumenViae.Rosary.RosaryContent.Mysteries
   alias LumenViae.Rosary.RosaryContent.Prayers
+  alias LumenViae.Rosary.RosaryContent.Quotes
+  alias LumenViae.Rosary.RosaryContent.Reminders
   alias LumenViae.Rosary.RosaryContent.Schedule
   alias LumenViae.Rosary.RosaryContent.Script
   alias LumenViae.Rosary.RosaryContent.Verses
@@ -145,6 +151,42 @@ defmodule LumenViae.Rosary.RosaryContent do
       constraints nil_items?: false
 
       description "The Scriptural Rosary's verses as text, each mystery's in bead order: ten to a mystery, seven to a sorrow. The words the spoken Rosary says."
+    end
+
+    calculate :quotes, Types.RosaryQuotes, Quotes do
+      allow_nil? false
+      public? true
+
+      description "The daily quotations on the Rosary, and the rule that chooses one for a day: the home screen's, and a second one for after praying, half the catalogue away."
+    end
+
+    calculate :milestones, {:array, Types.RosaryMilestone}, Milestones do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The streak's named devotional milestones, by days ascending. One is reached when a day's first prayer brings the streak to exactly its days."
+    end
+
+    calculate :reminders, Types.RosaryReminders, Reminders do
+      allow_nil? false
+      public? true
+
+      description "The daily reminders' messages in their groups, what each intention draws from, and the numbers of the rule that picks a week of them."
+    end
+
+    calculate :labels, Types.RosaryLabels, Labels do
+      allow_nil? false
+      public? true
+
+      description "The meditation set labels, what the app calls each and the kinds of meditation they describe."
+    end
+
+    calculate :forms, Types.RosaryForms, Forms do
+      allow_nil? false
+      public? true
+
+      description "The Rosary's forms (the Scriptural Rosary, the Rosary Said Aloud), the Audio and Counting choices in their words, and what each form's page offers."
     end
   end
 end

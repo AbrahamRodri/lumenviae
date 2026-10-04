@@ -639,6 +639,185 @@
                 "nullable": true,
                 "type": "array"
               },
+              "forms": {
+                "description": "The Rosary's forms (the Scriptural Rosary, the Rosary Said Aloud), the Audio and Counting choices in their words, and what each form's page offers.",
+                "nullable": true,
+                "properties": {
+                  "choices": {
+                    "items": {
+                      "properties": {
+                        "icon": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "options": {
+                          "items": {
+                            "properties": {
+                              "form": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "note": {
+                                "type": "string"
+                              },
+                              "value": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "form",
+                              "value",
+                              "name",
+                              "note"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "icon",
+                        "options"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "forms": {
+                    "items": {
+                      "properties": {
+                        "about": {
+                          "type": "string"
+                        },
+                        "detail": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "kicker": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "recorded_as": {
+                          "type": "string"
+                        },
+                        "subtitle": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "recorded_as",
+                        "kicker",
+                        "subtitle",
+                        "detail",
+                        "about"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "holy_audio_value": {
+                    "type": "string"
+                  },
+                  "offered": {
+                    "items": {
+                      "properties": {
+                        "form": {
+                          "type": "string"
+                        },
+                        "when_aloud": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "when_silent": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "form",
+                        "when_aloud",
+                        "when_silent"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "row_titles": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "rows": {
+                    "items": {
+                      "properties": {
+                        "form": {
+                          "type": "string"
+                        },
+                        "when_aloud": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "when_silent": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "form",
+                        "when_aloud",
+                        "when_silent"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "forms",
+                  "choices",
+                  "offered",
+                  "rows",
+                  "row_titles",
+                  "holy_audio_value"
+                ],
+                "type": "object"
+              },
               "guided_rosary": {
                 "description": "\"Your First Rosary\": the Rosary a step at a time for each of the four sets, every step tied to the bead under the fingers, with the parts of a rosary as a beginner learns them.",
                 "nullable": true,
@@ -747,6 +926,61 @@
                   "parts",
                   "anatomy",
                   "rosaries"
+                ],
+                "type": "object"
+              },
+              "labels": {
+                "description": "The meditation set labels, what the app calls each and the kinds of meditation they describe.",
+                "nullable": true,
+                "properties": {
+                  "kinds": {
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "icon": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "icon",
+                        "title",
+                        "description"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "labels": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "labels",
+                  "kinds"
                 ],
                 "type": "object"
               },
@@ -1137,6 +1371,34 @@
                 ],
                 "type": "object"
               },
+              "milestones": {
+                "description": "The streak's named devotional milestones, by days ascending. One is reached when a day's first prayer brings the streak to exactly its days.",
+                "items": {
+                  "properties": {
+                    "blessing": {
+                      "type": "string"
+                    },
+                    "days": {
+                      "type": "integer"
+                    },
+                    "icon": {
+                      "type": "string"
+                    },
+                    "meaning": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "days",
+                    "icon",
+                    "blessing"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
+              },
               "mysteries": {
                 "description": "The 27 mysteries in the order they are prayed, by category (Joyful, Sorrowful, Glorious, Luminous, the Seven Sorrows) and then by place, each keyed `<category>_<order>`, with its fruit, key verse and the spoken Rosary's announcement.",
                 "items": {
@@ -1246,6 +1508,139 @@
                 },
                 "nullable": true,
                 "type": "array"
+              },
+              "quotes": {
+                "description": "The daily quotations on the Rosary, and the rule that chooses one for a day: the home screen's, and a second one for after praying, half the catalogue away.",
+                "nullable": true,
+                "properties": {
+                  "items": {
+                    "items": {
+                      "properties": {
+                        "author": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "author"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "rotation": {
+                    "properties": {
+                      "after_prayer_offset_divisor": {
+                        "type": "integer"
+                      },
+                      "home_offset": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "home_offset",
+                      "after_prayer_offset_divisor"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "rotation",
+                  "items"
+                ],
+                "type": "object"
+              },
+              "reminders": {
+                "description": "The daily reminders' messages in their groups, what each intention draws from, and the numbers of the rule that picks a week of them.",
+                "nullable": true,
+                "properties": {
+                  "fallback_group": {
+                    "type": "string"
+                  },
+                  "groups": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "messages": {
+                          "items": {
+                            "properties": {
+                              "body": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "title",
+                              "body"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "messages"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "intentions": {
+                    "items": {
+                      "properties": {
+                        "detail": {
+                          "type": "string"
+                        },
+                        "groups": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "raw_value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "raw_value",
+                        "name",
+                        "detail",
+                        "groups"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "week_length": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "groups",
+                  "intentions",
+                  "fallback_group",
+                  "week_length"
+                ],
+                "type": "object"
               },
               "schedule": {
                 "description": "Which mysteries a day calls for, on both weekly schedules, as rules to apply offline: each weekday's set, Sunday's by season, every Lent and Advent from last year to three years ahead, the home grid's order and the days each set is prayed in words. The day is the device's calendar day, turning at midnight, not the prayer day that turns at four in the morning.",
@@ -3082,7 +3477,7 @@
             "style": "form"
           },
           {
-            "description": "Comma separated fields of rosary_content: categories, guided_rosary, learn, mysteries, prayers, schedule, script, updated_at, verses, version",
+            "description": "Comma separated fields of rosary_content: categories, forms, guided_rosary, labels, learn, milestones, mysteries, prayers, quotes, reminders, schedule, script, updated_at, verses, version",
             "explode": false,
             "in": "query",
             "name": "fields[rosary_content]",

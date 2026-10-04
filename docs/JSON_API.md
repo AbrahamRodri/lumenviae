@@ -139,6 +139,7 @@ GET /api/v2/rosary-content
 GET /api/v2/rosary-content?fields[rosary_content]=version,updated_at,prayers
 GET /api/v2/rosary-content?fields[rosary_content]=version,schedule
 GET /api/v2/rosary-content?fields[rosary_content]=mysteries,categories,verses
+GET /api/v2/rosary-content?fields[rosary_content]=quotes,milestones,reminders,labels,forms
 ```
 
 Everything a client needs to show and say the Rosary without a connection
@@ -200,6 +201,9 @@ serves the same document, its sections chosen by the selection set.
   mystery (`key`, `verses`), each verse `bead` (the Hail Mary it is said
   before, from 1), `reference` and `text`: ten to a mystery, seven to a
   sorrow, the words the spoken Rosary says.
+- **`quotes`**, **`milestones`**, **`reminders`**, **`labels`** and
+  **`forms`**: what the app keeps around the Rosary, and the rules it
+  chooses by (see "The companion sections", below).
 
 ### The day's mysteries
 
@@ -363,6 +367,118 @@ together.
 them serves: move its date and the pinned version in
 `test/lumen_viae/rosary/rosary_content_sections_test.exs`, which prints
 the pair to add.
+### The companion sections
+
+Five more sections carry what the iOS app keeps beside the prayers. The
+words are the app's, copied verbatim (`priv/rosary_content/quotes.json`,
+`milestones.json`, `reminders.json`, `forms.json`, and for `labels` the
+vocabulary in `LumenViae.Rosary.Labels`), and each rule is stated here
+because a client applies it on its own. A word changed on the server is a
+change to the file, its dated entry in `content_test.exs`, and a word to
+change in the app too.
+
+**`quotes`**: `{rotation, items}`. `items` are 21 quotations, each
+`{text, author, source}`; `source` is null unless the work or the occasion
+can be cited with confidence (six are). The order is the rotation's, so
+keep it. `rotation` is `{home_offset, after_prayer_offset_divisor}`.
+Take the device's calendar day of the year (January 1 is 1, the day turning
+at midnight in the device's own calendar: not the prayer day), then:
+
+- the home screen's quotation is `items[(day_of_year + home_offset) mod
+  count]`;
+- the one shown after praying is `items[(day_of_year + count div
+  after_prayer_offset_divisor) mod count]`, which with 21 quotations and a
+  divisor of 2 is ten away from the home screen's, so a single session
+  never shows the same line twice.
+
+Everyone praying on one day sees the same line at home, steady through the
+day, because the choice has no randomness.
+
+**`milestones`**: seven `{days, meaning, icon, blessing}`, by days
+ascending: 3, 7, 9, 33, 54, 100 and 365. `meaning` is what the Church calls
+a run of this length (`a novena`) and is null for 33 and 100. `icon` is the
+iOS app's glyph name (`ph-number-circle-nine`, `ch-consecration`,
+`lv-rosary`, `lv-wheat`, `ch-chi-rho`), as the app has it; a client draws
+its own for each name. A milestone is shown as:
+
+- its **name**, `"{days} days"` (`9 days`), and under it the **blessing**;
+- its **title**, where a line has no blessing to explain it, `"{days} days
+  · {meaning}"` (`9 days · a novena`), or the name alone when there is no
+  meaning.
+
+A milestone **fires** once, on the completion screen, when both hold after
+a prayer is recorded: the streak is exactly the milestone's `days`, and
+that prayer is the first of the prayer day (the day turns at four in the
+morning; a second prayer the same day does not repeat it). The streak, and
+the prayer day, are the client's own record. The goal-gradient line on the
+streak card uses the same list: the next milestone is the first whose `days`
+is greater than the streak (`9 days · a novena · 3 days away`), the latest
+achieved is the last whose `days` is at most the streak, and the progress
+toward the next is `(streak - latest.days) / (next.days - latest.days)`,
+with `latest.days` 0 before the first and 1 once there is no next.
+Milestones celebrate and invite; nothing here may say what might be lost.
+
+**`reminders`**: `{groups, intentions, fallback_group, week_length}`. There
+are five `groups` (`peace`, `habit`, `devotion`, `learning`, `standard`),
+30 messages in all, each `{title, body}`. A message is shown as written:
+**none holds a placeholder or any value to fill in.** `intentions` are
+what can draw someone to the Rosary, chosen in onboarding and used only to
+choose copy, never to gate anything: each is `{id, raw_value, name,
+detail, groups}`. `raw_value` is the string the iOS app stores (`Peace &
+Stillness`); `name` and `detail` are what is shown. The week's reminders
+are chosen like this:
+
+1. The **pool**. With no intention chosen, it is the `fallback_group`'s
+   messages. If `learning` is among those chosen, it is `learning`'s
+   `groups` (all five: someone still learning has not settled into one way
+   of praying, so nothing is narrowed). Otherwise it is the chosen
+   intentions' groups, in the order chosen, **interleaved**: take the first
+   message of each group, then the second of each, and so on, skipping a
+   message already taken. One group is simply that group's messages.
+2. The **week**: `week_length` (7) reminders, one for each weekday,
+   `pool[(offset + i) mod pool_length]` for i from 0 to 6, where `offset`
+   is the number of whole days since 2001-01-01 00:00 UTC (Apple's
+   reference date) when the week is scheduled, so no weekday settles onto
+   one line. A client without that date takes any day counter that
+   advances once a day.
+
+**`labels`**: `{labels, kinds}`. `labels` is every label a set may carry, in
+the vocabulary's order, each `{id, name}`: `id` is the label as a set
+stores and serves it, and `name` is what a reader sees. Three are
+reworded (`Considerations` as Reflections, `Contemplative` as Inside the
+Scene, `Scriptural` as Gospel, so that one thing on a mysteries' page is
+called Scriptural), the rest read as stored. A label that is not listed
+reads as it is stored. A set's labels are shown as one tracked line: the
+names joined by two spaces, a middle dot and two spaces, in capitals
+(`SAINTS  ·  REFLECTIONS`). `kinds` are the four kinds of meditation the
+app's page explains (`Considerations`, `Contemplative`, `Saints`,
+`Scriptural`), each `{label, icon, title, description}`; a description is
+what it is like, then after a blank line a few of the voices that carry it,
+which are examples and not an index of the library.
+
+**`forms`**: the Rosary is one prayer in three forms, chosen on a
+mysteries' page: with a meditation set, as the Scriptural Rosary (a verse
+for every Hail Mary), or as the Rosary Said Aloud (every prayer aloud, no
+readings). `forms` names the two that have a name of their own (`scriptural`
+and `holy`) with `{name, recorded_as, kicker, subtitle, detail, about}`.
+`recorded_as` is what the Prayer Record keeps a prayer of that form under:
+the Rosary Said Aloud is still recorded as `The Rosary Aloud`, its old name,
+and a client whose history should read beside the iOS app's keeps that
+string. The third form, a meditation set, is named by the set. Two
+`choices` change how the Rosary is prayed, `audio` and `counting`, each
+`{id, title, icon, options}`; an option is `{form, value, name, note}`:
+choose the options whose `form` is the page's form (`meditation` or
+`scriptural`), or else `any`. Audio is true for the Whole Rosary and its
+quieter option reads Meditation Only for a set and Read in Silence for the
+Scriptural Rosary; Counting is true for the beads on the screen. What a
+form's page carries depends on the Audio choice, as `offered` (the choices,
+by id) and `rows` (the rows beneath them, by id, named in `row_titles`)
+say, each as `{form, when_aloud, when_silent}`: `when_aloud` while Audio is
+the Whole Rosary, and `when_silent` otherwise. The Rosary Said Aloud is
+always aloud, and offers no choice. Counting is offered only while the
+voice reads the meditation alone, because with the Whole Rosary the voice
+moves the beads on the screen. `holy_audio_value` is what the Rosary Said
+Aloud's audio row says as a fact, not a choice.
 
 ## One Rosary's script
 

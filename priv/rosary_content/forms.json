@@ -1,0 +1,153 @@
+{
+  "updated_at": "2026-10-04T02:40:00Z",
+  "forms": {
+    "forms": [
+      {
+        "id": "scriptural",
+        "name": "The Scriptural Rosary",
+        "recorded_as": "Scriptural Rosary",
+        "kicker": "A verse for every bead",
+        "subtitle": "One verse of Scripture for every Hail Mary.",
+        "detail": "A Bible verse for every Hail Mary",
+        "about": "Each mystery, a scene from the lives of Jesus and Mary, is told verse by verse. The Our Father bead names the mystery and a grace to ask for, each of the Hail Marys has its own verse, and the Glory Be closes it."
+      },
+      {
+        "id": "holy",
+        "name": "The Rosary Said Aloud",
+        "recorded_as": "The Rosary Aloud",
+        "kicker": "Every prayer, no readings",
+        "subtitle": "A voice leads every prayer, with no readings between.",
+        "detail": "Every prayer, no readings",
+        "about": "The beads move with the voice — for praying with the phone put away, or for learning the prayers by ear. Each mystery, a scene from the lives of Jesus and Mary, is announced, and each prayer is shown on the screen as it is said. Pause the voice to pray quietly for a while."
+      }
+    ],
+    "choices": [
+      {
+        "id": "audio",
+        "title": "Audio",
+        "icon": "ph-speaker-high",
+        "options": [
+          {
+            "form": "meditation",
+            "value": false,
+            "name": "Meditation Only",
+            "note": "The meditation is read aloud. You say the prayers."
+          },
+          {
+            "form": "meditation",
+            "value": true,
+            "name": "Whole Rosary",
+            "note": "Every prayer is said aloud. Pray along with the voice."
+          },
+          {
+            "form": "scriptural",
+            "value": false,
+            "name": "Read in Silence",
+            "note": "A verse is shown for each Hail Mary. You read and pray in silence."
+          },
+          {
+            "form": "scriptural",
+            "value": true,
+            "name": "Whole Rosary",
+            "note": "Every verse and prayer is said aloud."
+          }
+        ]
+      },
+      {
+        "id": "counting",
+        "title": "Counting",
+        "icon": "lv-rosary",
+        "options": [
+          {
+            "form": "any",
+            "value": false,
+            "name": "On My Rosary",
+            "note": "Count on your own rosary. The screen shows one mystery at a time."
+          },
+          {
+            "form": "any",
+            "value": true,
+            "name": "On the Screen",
+            "note": "The beads are on the screen. Swipe for each Hail Mary."
+          }
+        ]
+      }
+    ],
+    "offered": [
+      {
+        "form": "meditation",
+        "when_aloud": [
+          "audio"
+        ],
+        "when_silent": [
+          "audio",
+          "counting"
+        ]
+      },
+      {
+        "form": "scriptural",
+        "when_aloud": [
+          "audio"
+        ],
+        "when_silent": [
+          "audio",
+          "counting"
+        ]
+      },
+      {
+        "form": "holy",
+        "when_aloud": [],
+        "when_silent": []
+      }
+    ],
+    "rows": [
+      {
+        "form": "meditation",
+        "when_aloud": [
+          "voice"
+        ],
+        "when_silent": [
+          "voice"
+        ]
+      },
+      {
+        "form": "scriptural",
+        "when_aloud": [
+          "mysteries",
+          "voice"
+        ],
+        "when_silent": [
+          "mysteries"
+        ]
+      },
+      {
+        "form": "holy",
+        "when_aloud": [
+          "audio",
+          "mysteries",
+          "voice"
+        ],
+        "when_silent": [
+          "audio",
+          "mysteries",
+          "voice"
+        ]
+      }
+    ],
+    "row_titles": [
+      {
+        "id": "audio",
+        "title": "Audio"
+      },
+      {
+        "id": "mysteries",
+        "title": "Mysteries"
+      },
+      {
+        "id": "voice",
+        "title": "Voice & speed"
+      }
+    ],
+    "holy_audio_value": "Whole Rosary · pause anytime"
+  }
+}
