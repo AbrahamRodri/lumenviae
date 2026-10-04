@@ -15,7 +15,9 @@ defmodule LumenViae.Curation.CsvImport do
 
   Required columns:
 
-    * `mystery_name` - must exactly match an existing mystery name
+    * `mystery_name` - must exactly match an existing mystery name; a name
+      that stands in two categories (The Crucifixion) is matched by the
+      row's set's category, and refused when the row does not say one
     * `content` - the meditation text. It may carry inline `{pause:N}`
       markers (N in seconds, decimals allowed, capped at 3) to tune the
       narration pause at that spot; markers are stripped before the content
@@ -187,7 +189,8 @@ defmodule LumenViae.Curation.CsvImport do
               set_statuses,
               structure_errors,
               duplicate_audio,
-              existing_audio
+              existing_audio,
+              opts
             )
           end)
 
@@ -235,10 +238,12 @@ defmodule LumenViae.Curation.CsvImport do
          set_statuses,
          structure_errors,
          duplicate_audio,
-         existing_audio
+         existing_audio,
+         opts
        ) do
     mystery_name = Map.get(row_map, "mystery_name")
-    mystery_ok = mystery_name != nil and get_in(mysteries, [mystery_name, Access.at(0)]) != nil
+    mystery = find_mystery(mysteries, row_map, opts)
+    mystery_ok = match?({:ok, _}, mystery)
     {content, tts_annotations, marker_errors} = preview_content(Map.get(row_map, "content"))
     audio_filename = Map.get(row_map, "audio_filename")
     set_name = Map.get(row_map, "set_name")
@@ -251,7 +256,7 @@ defmodule LumenViae.Curation.CsvImport do
 
     errors =
       structure_errors ++
-        mystery_errors(mystery_name, mystery_ok) ++
+        mystery_errors(mystery_name, mystery) ++
         content_errors(content) ++
         marker_errors ++
         duplicate_audio_errors(audio_filename, duplicate_audio) ++
@@ -280,9 +285,13 @@ defmodule LumenViae.Curation.CsvImport do
     }
   end
 
-  defp mystery_errors(nil, _mystery_ok), do: ["missing mystery_name"]
-  defp mystery_errors(mystery_name, false), do: ["mystery not found: #{mystery_name}"]
-  defp mystery_errors(_mystery_name, true), do: []
+  defp mystery_errors(nil, _mystery), do: ["missing mystery_name"]
+  defp mystery_errors(_mystery_name, {:ok, _mystery}), do: []
+
+  defp mystery_errors(mystery_name, {:error, :not_found}),
+    do: ["mystery not found: #{mystery_name}"]
+
+  defp mystery_errors(mystery_name, {:error, :ambiguous}), do: [ambiguous_mystery(mystery_name)]
 
   # Preview counterpart of extract_content/2: cleans the content the same
   # way the import will, surfacing marker problems as row errors. Unusable
@@ -512,7 +521,7 @@ defmodule LumenViae.Curation.CsvImport do
   defp process_row(row_map, mysteries, sets_cache, {index, total}, opts) do
     mystery_name = Map.get(row_map, "mystery_name")
 
-    with {:ok, mystery} <- fetch_mystery(mysteries, mystery_name),
+    with {:ok, mystery} <- fetch_mystery(mysteries, row_map, opts),
          {:ok, content, tts_annotations} <- extract_content(row_map, mystery_name),
          {:ok, set, sets_cache} <- resolve_set(row_map, sets_cache, opts) do
       attrs = %{
@@ -558,17 +567,65 @@ defmodule LumenViae.Curation.CsvImport do
     end
   end
 
-  defp fetch_mystery(_mysteries, nil), do: {:error, "Row is missing mystery_name"}
+  defp fetch_mystery(mysteries, row_map, opts) do
+    mystery_name = Map.get(row_map, "mystery_name")
 
-  defp fetch_mystery(mysteries, mystery_name) do
-    case get_in(mysteries, [mystery_name, Access.at(0)]) do
-      nil ->
+    case find_mystery(mysteries, row_map, opts) do
+      {:ok, mystery} ->
+        {:ok, mystery}
+
+      {:error, :missing} ->
+        {:error, "Row is missing mystery_name"}
+
+      {:error, :not_found} ->
         {:error,
          "Mystery not found: #{mystery_name}. Make sure the mystery name exactly matches an existing mystery."}
 
-      mystery ->
-        {:ok, mystery}
+      {:error, :ambiguous} ->
+        {:error, ambiguous_mystery(mystery_name)}
     end
+  end
+
+  # The mystery a row names. A name is not unique: The Crucifixion is the
+  # fifth Sorrowful Mystery and the fifth sorrow of the Seven Sorrows. When
+  # a name stands in more than one category, the row's set says which: its
+  # set_category, or else the category of the existing set it names. Taking
+  # the first match instead put a Sorrowful set's meditation on the Seven
+  # Sorrows, which sort first. A row that still leaves more than one is
+  # refused rather than guessed.
+  defp find_mystery(_mysteries, %{"mystery_name" => nil}, _opts), do: {:error, :missing}
+
+  defp find_mystery(mysteries, row_map, opts) do
+    case Map.get(mysteries, Map.get(row_map, "mystery_name"), []) do
+      [] ->
+        {:error, :not_found}
+
+      [mystery] ->
+        {:ok, mystery}
+
+      candidates ->
+        case Enum.filter(candidates, &(&1.category == row_category(row_map, opts))) do
+          [mystery] -> {:ok, mystery}
+          _none_or_several -> {:error, :ambiguous}
+        end
+    end
+  end
+
+  defp row_category(row_map, opts) do
+    case Map.get(row_map, "set_category") do
+      nil ->
+        case Map.get(row_map, "set_name") && lookup_set(row_map, opts) do
+          {:ok, %{category: category}} -> category
+          _no_set -> nil
+        end
+
+      category ->
+        category
+    end
+  end
+
+  defp ambiguous_mystery(mystery_name) do
+    "mystery name '#{mystery_name}' is in more than one category; add set_category"
   end
 
   # Set resolution: rows without set columns behave exactly like the legacy

@@ -30,10 +30,36 @@ defmodule LumenViae.Rosary.Mystery do
     derive_sort? false
   end
 
-  # As in GraphQL: no relationships, and not days_prayed.
+  # As in GraphQL: no relationships, and not days_prayed. `key` is a
+  # calculation, which AshJsonApi serves only as a default field, so every
+  # shown field is named a default.
   json_api do
     type "mystery"
-    show_fields [:name, :category, :order, :description, :scripture_reference]
+
+    default_fields [
+      :key,
+      :name,
+      :category,
+      :order,
+      :description,
+      :scripture_reference,
+      :fruit,
+      :key_verse,
+      :key_verse_reference
+    ]
+
+    show_fields [
+      :key,
+      :name,
+      :category,
+      :order,
+      :description,
+      :scripture_reference,
+      :fruit,
+      :key_verse,
+      :key_verse_reference
+    ]
+
     derive_filter? false
     derive_sort? false
   end
@@ -43,7 +69,13 @@ defmodule LumenViae.Rosary.Mystery do
     repo LumenViae.Repo
 
     # Ash would make an :integer attribute a bigint; `order` is an int4.
-    migration_types name: :string, category: :string, order: :integer, days_prayed: :string
+    migration_types name: :string,
+                    category: :string,
+                    order: :integer,
+                    days_prayed: :string,
+                    fruit: :string,
+                    key_verse_reference: :string
+
     migration_defaults inserted_at: "nil", updated_at: "nil"
     identity_index_names unique_order_in_category: "mysteries_category_order_index"
 
@@ -76,12 +108,33 @@ defmodule LumenViae.Rosary.Mystery do
     defaults [
       :read,
       :destroy,
-      create: [:name, :category, :order, :days_prayed, :description, :scripture_reference]
+      create: [
+        :name,
+        :category,
+        :order,
+        :days_prayed,
+        :description,
+        :scripture_reference,
+        :fruit,
+        :key_verse,
+        :key_verse_reference
+      ]
     ]
 
     update :update do
       primary? true
-      accept [:name, :category, :order, :days_prayed, :description, :scripture_reference]
+
+      accept [
+        :name,
+        :category,
+        :order,
+        :days_prayed,
+        :description,
+        :scripture_reference,
+        :fruit,
+        :key_verse,
+        :key_verse_reference
+      ]
 
       # With the record in hand the paper trail can tell an edit from a save
       # that changed nothing, and writes no version for the latter. An
@@ -161,6 +214,27 @@ defmodule LumenViae.Rosary.Mystery do
       constraints trim?: false
     end
 
+    # The grace the mystery is prayed for: "Humility". The app's
+    # MysteryData.traditionalFruits, keyed the same way.
+    attribute :fruit, :string do
+      public? true
+      constraints max_length: 255, trim?: false
+    end
+
+    # The one verse to carry into the decade, in the Douay-Rheims, and its
+    # citation: the app's MysteriesInScriptureData.keyVerses, split where
+    # the app splits them. Served as written; the Scriptural Rosary's bead
+    # verses are another rendering and are not made to agree with it.
+    attribute :key_verse, :string do
+      public? true
+      constraints trim?: false
+    end
+
+    attribute :key_verse_reference, :string do
+      public? true
+      constraints max_length: 255, trim?: false
+    end
+
     create_timestamp :inserted_at, type: :naive_datetime
     update_timestamp :updated_at, type: :naive_datetime
   end
@@ -175,6 +249,15 @@ defmodule LumenViae.Rosary.Mystery do
     has_many :active_meditations, LumenViae.Rosary.Meditation do
       filter expr(is_nil(archived_at))
       public? true
+    end
+  end
+
+  calculations do
+    calculate :key, :string, expr(category <> "_" <> type(order, :string)) do
+      public? true
+      allow_nil? false
+
+      description "The app's key for the mystery, `<category>_<order>`: `joyful_1`. Every section of the Rosary's content that is keyed by a mystery uses it; the id is the server's and differs between databases."
     end
   end
 

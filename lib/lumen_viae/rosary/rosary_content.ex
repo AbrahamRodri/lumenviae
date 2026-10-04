@@ -18,11 +18,14 @@ defmodule LumenViae.Rosary.RosaryContent do
     authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshJsonApi.Resource]
 
+  alias LumenViae.Rosary.RosaryContent.Categories
   alias LumenViae.Rosary.RosaryContent.Current
   alias LumenViae.Rosary.RosaryContent.Learn
+  alias LumenViae.Rosary.RosaryContent.Mysteries
   alias LumenViae.Rosary.RosaryContent.Prayers
   alias LumenViae.Rosary.RosaryContent.Schedule
   alias LumenViae.Rosary.RosaryContent.Script
+  alias LumenViae.Rosary.RosaryContent.Verses
   alias LumenViae.Rosary.Types
 
   graphql do
@@ -118,6 +121,30 @@ defmodule LumenViae.Rosary.RosaryContent do
       public? true
 
       description "The order a Rosary is said in, as templates a client expands offline: the Rosary's and the chaplet's steps, the optional prayers after the Rosary and the strand's beads. GET /api/v2/rosary-script expands them."
+    end
+
+    calculate :mysteries, {:array, Types.RosaryMystery}, Mysteries do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The 27 mysteries in the order they are prayed, by category (Joyful, Sorrowful, Glorious, Luminous, the Seven Sorrows) and then by place, each keyed `<category>_<order>`, with its fruit, key verse and the spoken Rosary's announcement."
+    end
+
+    calculate :categories, {:array, Types.RosaryCategory}, Categories do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The five categories of mysteries, in the order the app presents them: names, the label of each mystery by position, Hail Marys per decade, whether the Fatima Prayer is said, and the Seven Sorrows' graces."
+    end
+
+    calculate :verses, {:array, Types.RosaryVerses}, Verses do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The Scriptural Rosary's verses as text, each mystery's in bead order: ten to a mystery, seven to a sorrow. The words the spoken Rosary says."
     end
   end
 end

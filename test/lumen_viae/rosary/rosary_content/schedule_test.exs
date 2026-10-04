@@ -4,7 +4,7 @@ defmodule LumenViae.Rosary.RosaryContent.ScheduleTest do
   versions the document. The section is code, so its rules are pinned
   here as the content files' are in `content_test.exs`.
   """
-  use ExUnit.Case, async: true
+  use LumenViae.DataCase, async: true
 
   alias LumenViae.Rosary.Content
   alias LumenViae.Rosary.RosaryContent.Current

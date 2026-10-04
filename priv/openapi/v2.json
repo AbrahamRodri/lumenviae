@@ -474,6 +474,26 @@
                 "nullable": true,
                 "type": "string"
               },
+              "fruit": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "key": {
+                "description": "The app's key for the mystery, `<category>_<order>`: `joyful_1`. Every section of the Rosary's content that is keyed by a mystery uses it; the id is the server's and differs between databases. Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "key_verse": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
+              "key_verse_reference": {
+                "description": "Field included by default.",
+                "nullable": true,
+                "type": "string"
+              },
               "name": {
                 "description": "Field included by default.",
                 "type": "string"
@@ -569,6 +589,56 @@
           "attributes": {
             "description": "An attributes object for a rosary_content",
             "properties": {
+              "categories": {
+                "description": "The five categories of mysteries, in the order the app presents them: names, the label of each mystery by position, Hail Marys per decade, whether the Fatima Prayer is said, and the Seven Sorrows' graces.",
+                "items": {
+                  "properties": {
+                    "devotion_title": {
+                      "type": "string"
+                    },
+                    "fatima_prayer": {
+                      "type": "boolean"
+                    },
+                    "graces": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "hail_marys": {
+                      "type": "integer"
+                    },
+                    "mystery_labels": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "subtitle": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "slug",
+                    "name",
+                    "devotion_title",
+                    "subtitle",
+                    "mystery_labels",
+                    "hail_marys",
+                    "fatima_prayer",
+                    "graces"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
+              },
               "guided_rosary": {
                 "description": "\"Your First Rosary\": the Rosary a step at a time for each of the four sets, every step tied to the bead under the fingers, with the parts of a rosary as a beginner learns them.",
                 "nullable": true,
@@ -1066,6 +1136,58 @@
                   "scripture"
                 ],
                 "type": "object"
+              },
+              "mysteries": {
+                "description": "The 27 mysteries in the order they are prayed, by category (Joyful, Sorrowful, Glorious, Luminous, the Seven Sorrows) and then by place, each keyed `<category>_<order>`, with its fruit, key verse and the spoken Rosary's announcement.",
+                "items": {
+                  "properties": {
+                    "announcement": {
+                      "type": "string"
+                    },
+                    "category": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "fruit": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "key_verse": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "key_verse_reference": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "order": {
+                      "type": "integer"
+                    },
+                    "scripture_reference": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "category",
+                    "order",
+                    "name",
+                    "announcement"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
               },
               "prayers": {
                 "description": "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin.",
@@ -1972,6 +2094,45 @@
                 "format": "date-time",
                 "type": "string"
               },
+              "verses": {
+                "description": "The Scriptural Rosary's verses as text, each mystery's in bead order: ten to a mystery, seven to a sorrow. The words the spoken Rosary says.",
+                "items": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "verses": {
+                      "items": {
+                        "properties": {
+                          "bead": {
+                            "type": "integer"
+                          },
+                          "reference": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "bead",
+                          "reference",
+                          "text"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "verses"
+                  ],
+                  "type": "object"
+                },
+                "nullable": true,
+                "type": "array"
+              },
               "version": {
                 "description": "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it. Field included by default.",
                 "type": "string"
@@ -2607,7 +2768,7 @@
             "style": "form"
           },
           {
-            "description": "Comma separated fields of mystery: category, description, name, order, scripture_reference",
+            "description": "Comma separated fields of mystery: category, description, fruit, key, key_verse, key_verse_reference, name, order, scripture_reference",
             "explode": false,
             "in": "query",
             "name": "fields[mystery]",
@@ -2788,7 +2949,7 @@
             "style": "form"
           },
           {
-            "description": "Comma separated fields of mystery: category, description, name, order, scripture_reference",
+            "description": "Comma separated fields of mystery: category, description, fruit, key, key_verse, key_verse_reference, name, order, scripture_reference",
             "explode": false,
             "in": "query",
             "name": "fields[mystery]",
@@ -2921,7 +3082,7 @@
             "style": "form"
           },
           {
-            "description": "Comma separated fields of rosary_content: guided_rosary, learn, prayers, schedule, script, updated_at, version",
+            "description": "Comma separated fields of rosary_content: categories, guided_rosary, learn, mysteries, prayers, schedule, script, updated_at, verses, version",
             "explode": false,
             "in": "query",
             "name": "fields[rosary_content]",

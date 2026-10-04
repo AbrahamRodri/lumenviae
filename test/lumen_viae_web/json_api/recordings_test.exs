@@ -80,7 +80,7 @@ defmodule LumenViaeWeb.JsonApi.RecordingsTest do
         assert mystery["type"] == "mystery"
 
         assert Map.keys(mystery["attributes"]) |> Enum.sort() ==
-                 ~w(category description name order scripture_reference)
+                 ~w(category description fruit key key_verse key_verse_reference name order scripture_reference)
       end
     end
   end

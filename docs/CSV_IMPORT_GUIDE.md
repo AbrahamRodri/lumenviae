@@ -87,10 +87,10 @@ The following mystery names are available (must match exactly):
 - The Ascension
 - The Descent of the Holy Spirit
 - The Assumption
-- The Coronation of Mary
+- The Coronation
 
 **Luminous Mysteries:**
-- The Baptism of Jesus
+- The Baptism in the Jordan
 - The Wedding at Cana
 - The Proclamation of the Kingdom
 - The Transfiguration
@@ -100,10 +100,25 @@ The following mystery names are available (must match exactly):
 - The Prophecy of Simeon
 - The Flight into Egypt
 - The Loss of Jesus in the Temple
-- Mary Meets Jesus on the Way to Calvary
-- The Crucifixion and Death of Jesus
-- Mary Receives the Body of Jesus
+- Mary Meets Jesus Carrying the Cross
+- The Crucifixion
+- Jesus Taken Down from the Cross
 - The Burial of Jesus
+
+These are the iOS app's names. Since 4 October 2026 the database holds
+them too: the migration `align_mystery_names_with_the_app` renamed the six
+that differed (The Coronation of Mary, The Baptism of Jesus, Mary Meets
+Jesus on the Way to Calvary, Jesus Dies on the Cross, Mary Receives the
+Dead Body of Jesus in Her Arms, Jesus is Placed in the Tomb). A CSV
+written with an old name is refused with "mystery not found"; use the new
+one.
+
+Two mysteries share a name: The Crucifixion is the fifth Sorrowful
+Mystery and the fifth sorrow of the Seven Sorrows. A row naming it is
+matched by its set's category: the row's `set_category`, or else the
+category of the existing set its `set_name` names. A row that says
+neither is refused with "mystery name 'The Crucifixion' is in more than
+one category; add set_category", and the preview shows the same error.
 
 Note: the database is the source of truth, because `mystery_name` has to
 match a stored name character for character. `priv/repo/seeds.exs` is kept

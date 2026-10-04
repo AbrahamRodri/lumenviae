@@ -121,7 +121,9 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - Traditional Latin Mass aesthetic (Navy/Gold color scheme)
 
 ### Database Structure
-- `mysteries` - The mysteries of the Rosary, grouped by category
+- `mysteries` - The mysteries of the Rosary, grouped by category, each with
+  the app's name, fruit and key verse; `key` (`<category>_<order>`) is how
+  the app and every section of the Rosary's content name one
 - `meditations` - Individual meditations tied to mysteries
 - `meditation_sets` - Curated collections of meditations
 - `meditation_set_meditations` - Join table with ordering

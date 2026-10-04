@@ -32,6 +32,83 @@ type ScriptStep {
   bead: Int!
 }
 
+type RosaryVerse {
+  "The verse, in the original Douay-Rheims, exactly as the spoken Rosary says it."
+  text: String!
+
+  "Its citation: `Luke 1:26`."
+  reference: String!
+
+  "The Hail Mary it is said before, counting from 1."
+  bead: Int!
+}
+
+type RosaryVerses {
+  "One verse per Hail Mary, in bead order."
+  verses: [RosaryVerse!]!
+
+  "The mystery's key: `joyful_1`."
+  key: String!
+}
+
+type RosaryCategory {
+  "What its mysteries are about, in everyday words."
+  subtitle: String!
+
+  "`joyful`, `sorrowful`, `glorious`, `luminous` or `seven_sorrows`."
+  slug: String!
+
+  "Its short name: `Joyful`."
+  name: String!
+
+  "Each mystery's label by position, from the first: `The First Joyful Mystery`, `The First Sorrow of Mary`. As many as the category has mysteries."
+  mysteryLabels: [String!]!
+
+  "Hail Marys in a decade: 10, or 7 in a sorrow of the chaplet."
+  hailMarys: Int!
+
+  "The graces promised to those who pray it: the seven of the Seven Sorrows, empty for the others."
+  graces: [String!]!
+
+  "Whether the Fatima Prayer follows the Glory Be at the end of each decade. False for the Seven Sorrows."
+  fatimaPrayer: Boolean!
+
+  "Its full title: `Joyful Mysteries`, `Seven Sorrows of Mary`."
+  devotionTitle: String!
+}
+
+type RosaryMystery {
+  "Where the Gospel tells it."
+  scriptureReference: String
+
+  "Its place in the category, from 1."
+  order: Int!
+
+  "The mystery's name."
+  name: String!
+
+  "The key verse's citation."
+  keyVerseReference: String
+
+  "One verse to carry into the decade, in the Douay-Rheims, without its citation. Another rendering than the Scriptural Rosary's verses, and served as written."
+  keyVerse: String
+
+  "`<category>_<order>`: `joyful_1`. The key the verses, the announcement and every other section use. Never the server's id."
+  key: String!
+
+  "The grace it is prayed for: `Humility`."
+  fruit: String
+
+  "A sentence on what happens in it."
+  description: String
+
+  "The category's slug."
+  category: String!
+
+  "What the spoken Rosary says before the decade, exactly as recorded: `The First Joyful Mystery: The Annunciation`."
+  announcement: String!
+}
+
 type BeadLabelLines {
   "An Our Father bead."
   ourFather: [String!]!
@@ -780,6 +857,15 @@ type RosaryContent {
 
   "The order a Rosary is said in, as templates a client expands offline: the Rosary's and the chaplet's steps, the optional prayers after the Rosary and the strand's beads. GET \/api\/v2\/rosary-script expands them."
   script: RosaryScriptTemplates!
+
+  "The 27 mysteries in the order they are prayed, by category (Joyful, Sorrowful, Glorious, Luminous, the Seven Sorrows) and then by place, each keyed `<category>_<order>`, with its fruit, key verse and the spoken Rosary's announcement."
+  mysteries: [RosaryMystery!]!
+
+  "The five categories of mysteries, in the order the app presents them: names, the label of each mystery by position, Hail Marys per decade, whether the Fatima Prayer is said, and the Seven Sorrows' graces."
+  categories: [RosaryCategory!]!
+
+  "The Scriptural Rosary's verses as text, each mystery's in bead order: ten to a mystery, seven to a sorrow. The words the spoken Rosary says."
+  verses: [RosaryVerses!]!
 }
 
 type SpokenRosary {
@@ -896,11 +982,25 @@ type Meditation {
 
 type Mystery {
   id: ID!
+
   name: String!
+
   category: String!
+
   order: Int!
+
   description: String
+
   scriptureReference: String
+
+  fruit: String
+
+  keyVerse: String
+
+  keyVerseReference: String
+
+  "The app's key for the mystery, `<category>_<order>`: `joyful_1`. Every section of the Rosary's content that is keyed by a mystery uses it; the id is the server's and differs between databases."
+  key: String!
 }
 
 type RootQueryType {
