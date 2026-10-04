@@ -164,6 +164,9 @@ defmodule LumenViaeWeb.Router do
       # Who may sign in, and their passwords
       live "/admins", Live.Admin.Admins
 
+      # Completions broken down by day, set, surface, place and hour
+      live "/completions", Live.Admin.Completions
+
       # Meditation Sets management
       live "/meditation-sets", Live.Meditations.Sets.List
       live "/meditation-sets/new", Live.Meditations.Sets.New

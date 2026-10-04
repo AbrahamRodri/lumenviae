@@ -41,6 +41,12 @@ defmodule LumenViaeWeb.Components.Admin do
     %{label: "Authors", path: "/admin/authors", key: "authors", icon: "hero-user-circle"},
     %{label: "Mysteries", path: "/admin/mysteries", key: "mysteries", icon: "hero-sparkles"},
     %{
+      label: "Completions",
+      path: "/admin/completions",
+      key: "completions",
+      icon: "hero-chart-bar"
+    },
+    %{
       label: "Spoken Rosary",
       path: "/admin/rosary-audio",
       key: "rosary_audio",

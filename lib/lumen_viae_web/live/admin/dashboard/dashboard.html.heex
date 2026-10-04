@@ -50,18 +50,21 @@
       <.metric
         label="Prayed today"
         value={@completions.today}
+        navigate="/admin/completions?days=1"
         tone="accent"
         hint="Since midnight CT"
       />
       <.metric
         label="Last 7 days"
         value={@completions.last_7}
+        navigate="/admin/completions?days=7"
         delta={delta(@completions.last_7, @completions.previous_7)}
         delta_label={delta_label(@completions.last_7, @completions.previous_7)}
       />
       <.metric
         label="Last 30 days"
         value={@completions.last_30}
+        navigate="/admin/completions"
         delta={delta(@completions.last_30, @completions.previous_30)}
         delta_label={delta_label(@completions.last_30, @completions.previous_30)}
       />

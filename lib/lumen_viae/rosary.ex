@@ -1276,6 +1276,108 @@ defmodule LumenViae.Rosary do
 
   defp days_ago(days), do: DateTime.add(DateTime.utc_now(), -days * 24 * 3600, :second)
 
+  @doc """
+  The console's Completions screen: every completion in the trailing `days`
+  (or ever, for `nil`) that matches `filters`, folded every way the screen
+  breaks them down.
+
+  `filters` takes `:set_id`, `:source`, `:country_code` and `:prayed_aloud`;
+  a missing or nil one does not narrow.
+
+  Returns `%{total, located, by_day, sets, sources, prayed_aloud, countries,
+  cities, hours, locales, recent}`:
+
+    * `by_day` - a dense daily series, as `completions_by_day/2`, for a
+      period of a year or less; `nil` for all time
+    * `sets` - `[%{set_id, set_name, category, count}]`, most prayed first
+    * `sources`, `prayed_aloud` - frequencies, `nil` for not recorded
+    * `countries`, `cities` - as `completion_locations/2`
+    * `hours` - `%{0..23 => count}`, the hour of day in the reporting zone
+    * `locales` - `[{locale, count}]`, most first, unreported left out
+    * `recent` - the newest 25 rows, each with its set's name and
+      category
+
+  A period of `days` is today and the `days - 1` days before it, from
+  midnight in the reporting zone, so the figures and the daily series
+  cover the same days.
+
+  One read of the matching rows, folded here, like the dashboard's figures.
+  """
+  def completion_report(days, filters, opts \\ []) when is_nil(days) or days > 0 do
+    rows =
+      Completion
+      |> Ash.Query.for_read(:report, %{
+        since: days && CentralTime.day_start(Date.add(CentralTime.today(), -(days - 1))),
+        meditation_set_id: filters[:set_id],
+        source: filters[:source],
+        country_code: filters[:country_code],
+        prayed_aloud: filters[:prayed_aloud]
+      })
+      |> Ash.Query.select([
+        :completed_at,
+        :meditation_set_id,
+        :city,
+        :region,
+        :country,
+        :country_code,
+        :source,
+        :prayed_aloud,
+        :locale
+      ])
+      |> Ash.Query.load(
+        local_day: %{time_zone: reporting_time_zone()},
+        meditation_set: Ash.Query.select(MeditationSet, [:name, :category])
+      )
+      |> Ash.read!(AshOpts.take(opts))
+
+    %{
+      total: length(rows),
+      located: Enum.count(rows, &(not is_nil(&1.country_code))),
+      by_day: days && days <= 366 && dense_days(rows, days),
+      sets:
+        rows
+        |> ranked(&{&1.meditation_set_id, &1.meditation_set.name, &1.meditation_set.category})
+        |> Enum.map(fn {{id, name, category}, count} ->
+          %{set_id: id, set_name: name, category: category, count: count}
+        end),
+      sources: Enum.frequencies_by(rows, & &1.source),
+      prayed_aloud: Enum.frequencies_by(rows, & &1.prayed_aloud),
+      countries:
+        rows
+        |> Enum.reject(&is_nil(&1.country))
+        |> ranked(&{&1.country, &1.country_code})
+        |> Enum.map(fn {{country, code}, count} ->
+          %{country: country, country_code: code, count: count}
+        end),
+      cities:
+        rows
+        |> Enum.reject(&is_nil(&1.city))
+        |> ranked(&{&1.city, &1.region, &1.country_code})
+        |> Enum.map(fn {{city, region, code}, count} ->
+          %{city: city, region: region, country_code: code, count: count}
+        end),
+      hours: Enum.frequencies_by(rows, &CentralTime.to_local(&1.completed_at).hour),
+      locales:
+        rows
+        |> Enum.reject(&(&1.locale in [nil, ""]))
+        |> ranked(&{&1.locale})
+        |> Enum.map(fn {{locale}, count} -> {locale, count} end),
+      recent: Enum.take(rows, 25)
+    }
+  end
+
+  # The trailing `days` days, oldest first, with a zero for every day
+  # nothing was prayed, from rows that already carry their local day.
+  defp dense_days(rows, days) do
+    first = Date.add(CentralTime.today(), -(days - 1))
+    counted = Enum.frequencies_by(rows, & &1.local_day)
+
+    Enum.map(0..(days - 1), fn offset ->
+      date = Date.add(first, offset)
+      %{date: date, count: Map.get(counted, date, 0)}
+    end)
+  end
+
   ## History
   #
   # Every change to a mystery, meditation, set or author is a version row
