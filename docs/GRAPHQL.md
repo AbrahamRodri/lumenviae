@@ -227,7 +227,7 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 
 | Query | Returns |
 | --- | --- |
-| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers`. The same document as `GET /api/v2/rosary-content`. |
+| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers schedule`. The same document as `GET /api/v2/rosary-content`. |
 
 Everything a client needs to show and say the Rosary offline, as one
 document: selecting only `version updatedAt` is how a device asks whether
@@ -240,9 +240,16 @@ when the content last changed. `id` is always `"current"`.
   `id group title { en la } text { en la }`. `group` is `rosary`,
   `chaplet` or `after` (a string, as everywhere in this API); `text` is
   two lists of lines of the same length, paired line for line.
+- `schedule`: `RosarySchedule!`, which mysteries a day calls for, as
+  rules to apply offline: `default seasonsFrom seasonsThrough`,
+  `seasons { season startsOn endsOn }` and `schedules { id grid
+  weekdays { monday ... saturday } sunday { advent lent ordinary }
+  days { category daysPrayed words } }`. See docs/JSON_API.md, "The day's
+  mysteries", for how a client applies it.
 
 `rosaryContent` is non-null and takes no argument: it is answered from
-files compiled into the server (`LumenViae.Rosary.Content`), with nothing
+files compiled into the server (`LumenViae.Rosary.Content`) and from code
+(`LumenViae.LiturgicalCalendar`), with nothing
 to sign or fetch, so there is no failure for it to keep to its own field.
 It is served by `LumenViae.Rosary.RosaryContent`, a resource with no
 table. See docs/JSON_API.md, "The content document", for where the words
