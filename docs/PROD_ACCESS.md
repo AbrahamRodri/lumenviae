@@ -170,10 +170,13 @@ Rules for anyone (including Claude) operating this shell:
 
 ## Console admins
 
-Nobody can sign up to the console, and production has no mailer, so admins
-are made and their passwords replaced from this shell. Both commands print
-a generated password once; nothing stores it in the clear, so copy it
-before closing the terminal.
+Nobody can sign up to the console, and production has no mailer. Once one
+admin exists, the console's Admins screen (`/admin/admins`) adds admins,
+replaces another admin's password and changes your own, each asking for
+your own password again; a generated password is shown once there. The
+first admin, and a password nobody signed in can reset, come from this
+shell. Both commands print a generated password once; nothing stores it in
+the clear, so copy it before closing the terminal.
 
 ```
 fly ssh console --app lumenviae -C "/app/bin/lumen_viae eval 'LumenViae.Release.create_admin(\"you@example.com\")'"

@@ -262,8 +262,23 @@ context rules test checks this too.
 
 Sign-in is AshAuthentication's password strategy (email and bcrypt). There
 is no registration, no reset email and no magic link, because production
-has no mailer: admins are made and their passwords replaced from a
-production shell (docs/PROD_ACCESS.md). Tokens are stored, so signing out
+has no mailer. Admins are made and their passwords replaced on the
+console's Admins screen, or from a production shell (docs/PROD_ACCESS.md),
+which is how the first one is made.
+
+The console's account actions (`Admin`'s `:add`, `:reset_password` and
+`:change_password`) each ask for the acting admin's own password again,
+checked against the stored hash by `Admin.ConfirmActorPassword`, and count
+the attempts: 10 per admin per 15 minutes on each machine, so about 20
+across production's two (`LumenViae.Limits.admin_confirmation/1`), right
+or wrong. A session cookie is enough to edit content, which is
+versioned and can be put back; it must not be enough to plant an admin who
+outlives a password reset, or to lock the real ones out. A generated
+password is shown once on the screen and never stored in the clear.
+Resetting someone else's password closes their open tabs
+(`LumenViaeWeb.AdminSockets`); changing your own signs you out too. The
+shell's `:create` and `:set_password` stay refused to every actor, and
+there is no destroy. Tokens are stored, so signing out
 revokes the token, and resetting a password signs that admin out
 everywhere. A token lasts 7 days. The signing secret is
 `TOKEN_SIGNING_SECRET` if set (at least 32 bytes), and otherwise derived
@@ -914,7 +929,7 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/dashboard/` | the prayer dashboard, where a set is chosen |
 | `live/pray/` | the prayer experience itself |
 | `live/meditations/` | admin CRUD for meditations and sets |
-| `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage |
+| `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 | `live/privacy_policy/` | App Store privacy policy |
 
 ### Module names match file paths
@@ -969,6 +984,7 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.Footer` | site footer | no, used by the layout |
 | `Components.MeditationFilters` | shared filter controls | no, called fully qualified |
 | `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
+| `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
 
 If you add a component that most pages will use, add it to
@@ -1178,11 +1194,41 @@ the Office cache on every machine with its last warm and an Empty, and the
 third-party probes, which fill in after the page is up. See "The Ops
 domain".
 
+**History** sits at the foot of the meditation, set, mystery and author
+edit pages (`Components.History`, with `Live.Admin.History` holding the
+few lines each page shares): every version newest first, the admin who made
+it (`belongs_to_actor` on the version resources; blank for an operator's
+shell), the fields it changed, as a word diff for long text, and Restore.
+Restoring puts back the fields the update action accepts, through that
+action, so it is validated like an edit and is itself a version that can be
+undone. A record older than its history has an update as its oldest
+version, and the panel says what it changed from was never kept rather than
+listing every field as changed. The domain's way in is
+`Rosary.list_history/2`, `restorable_fields/1` and `restore_version/3`.
+
+**Narration** sits on the meditation edit page above History: each voice,
+recorded or not and when, and any recording queued or running, following
+the audio jobs live. Record queues a missing voice and Record again is a
+confirmed, paid second take, both through `Curation.AudioRegeneration` as
+the signed-in admin. A recording reads the saved text.
+
+**The Admins screen** (`/admin/admins`) is described under "The Accounts
+domain".
+
+**The Completions screen** (`/admin/completions`) is where the dashboard's
+completion figures lead: a period, the filters (set, surface, country,
+aloud) in the query string, and the breakdowns by day, set, place, surface,
+language and hour, every bar narrowing the page. It is one read,
+`Rosary.completion_report/3` over `Completion`'s `:report` action.
+
 **Phoenix LiveDashboard** is at `/admin/live`, behind the console's guard
 like Oban Web, in every environment: processes, ETS, ports, and the metrics
 in `LumenViaeWeb.Telemetry`, Oban's job durations, waits and failures
 among them. It can kill a process, so it is an admin's tool. It is mounted
 without `env_keys`, because the environment holds every secret the app has.
+Its Ecto Stats page (ecto_psql_extras) reads Postgres's own statistics:
+index use, bloat, cache hits, locks and long-running queries. See
+docs/DEV_TOOLS.md.
 
 ### Two rules the console screens follow
 

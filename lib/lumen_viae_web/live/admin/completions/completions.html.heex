@@ -1,0 +1,201 @@
+<.admin_page
+  active="completions"
+  title="Completions"
+  subtitle={"Rosaries finished, over #{String.downcase(period_label(@params))}. Times in #{zone()}."}
+  flash={@flash}
+>
+  <.panel class="mb-5">
+    <.form for={%{}} id="completions-filters" phx-change="filter">
+      <div class="grid gap-3 grid-cols-2 md:grid-cols-5">
+        <.filter_select
+          name="days"
+          label="Period"
+          value={@params["days"] || "30"}
+          options={@period_options}
+        />
+        <.filter_select
+          name="set"
+          label="Set"
+          value={@params["set"]}
+          prompt="Every set"
+          options={@set_options}
+        />
+        <.filter_select
+          name="source"
+          label="Surface"
+          value={@params["source"]}
+          prompt="Every surface"
+          options={[{"Website", "web"}, {"iOS app", "ios"}, {"Android app", "android"}]}
+        />
+        <.filter_select
+          name="country"
+          label="Country"
+          value={@params["country"]}
+          prompt="Every country"
+          options={Enum.map(@report.countries, &{&1.country, &1.country_code})}
+        />
+        <.filter_select
+          name="aloud"
+          label="Aloud"
+          value={@params["aloud"]}
+          prompt="Either way"
+          options={[{"Prayed aloud", "true"}, {"Read silently", "false"}]}
+        />
+      </div>
+      <.filter_summary
+        shown={@report.total}
+        total={@report.total}
+        noun="completions"
+        filtered={filtered?(@params)}
+      />
+    </.form>
+  </.panel>
+
+  <div class="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-5">
+    <.metric label="Completions" value={@report.total} tone="accent" />
+    <.metric
+      label="Per day"
+      value={per_day(@report) || "-"}
+      hint={if per_day(@report), do: "Over #{length(@report.by_day)} days", else: "All time"}
+    />
+    <.metric label="Sets prayed" value={length(@report.sets)} />
+    <.metric
+      label="With a place"
+      value={percent(@report.located, @report.total)}
+      hint={"#{@report.located} of #{@report.total}"}
+    />
+  </div>
+
+  <.callout :if={@report.capped?} tone="notice">
+    This period holds more completions than the page reads at once, so the figures below cover
+    the newest {@report.total} of them. Choose a shorter period for exact counts.
+  </.callout>
+
+  <.panel :if={@report.by_day} title="By day" class="mb-5">
+    <.day_chart series={@report.by_day} />
+  </.panel>
+
+  <%= if @report.total == 0 do %>
+    <.panel>
+      <.empty_state>No completions match. Try a longer period or fewer filters.</.empty_state>
+    </.panel>
+  <% else %>
+    <div class="grid gap-5 lg:grid-cols-3 mb-5 items-start">
+      <.panel title="Sets" description="Most prayed first. Each narrows the page to that set.">
+        <.bar_list rows={
+          Enum.map(Enum.take(@report.sets, 15), fn set ->
+            %{
+              label: set.set_name,
+              count: set.count,
+              sublabel: LumenViae.Rosary.Categories.label(set.category),
+              navigate: narrow(@params, "set", set.set_id)
+            }
+          end)
+        } />
+      </.panel>
+
+      <.panel title="Where" description={coverage_note(@report)}>
+        <p :if={@report.countries != []} class="admin-eyebrow mb-2">Countries</p>
+        <.bar_list rows={
+          Enum.map(Enum.take(@report.countries, 10), fn country ->
+            %{
+              label: country.country,
+              count: country.count,
+              navigate: narrow(@params, "country", country.country_code)
+            }
+          end)
+        } />
+        <div :if={@report.cities != []} class="mt-4 pt-4 border-t border-admin-hairline">
+          <p class="admin-eyebrow mb-2">Cities</p>
+          <.bar_list rows={
+            Enum.map(Enum.take(@report.cities, 10), fn city ->
+              %{label: city_label(city), count: city.count, sublabel: city.country_code}
+            end)
+          } />
+        </div>
+      </.panel>
+
+      <.panel title="How">
+        <p class="admin-eyebrow mb-2">Surface</p>
+        <.bar_list rows={
+          Enum.map(source_rows(@report.sources), fn {label, count} ->
+            slug = source_slug(label)
+            %{label: label, count: count, navigate: slug && narrow(@params, "source", slug)}
+          end)
+        } />
+        <div
+          :if={prayed_aloud_rows(@report.prayed_aloud) != []}
+          class="mt-4 pt-4 border-t border-admin-hairline"
+        >
+          <p class="admin-eyebrow mb-2">Aloud or silently</p>
+          <.bar_list rows={
+            Enum.map(prayed_aloud_rows(@report.prayed_aloud), fn {label, count} ->
+              value = aloud_value(label)
+              %{label: label, count: count, navigate: value && narrow(@params, "aloud", value)}
+            end)
+          } />
+        </div>
+        <div :if={@report.locales != []} class="mt-4 pt-4 border-t border-admin-hairline">
+          <p class="admin-eyebrow mb-2">Language</p>
+          <.bar_list rows={
+            Enum.map(Enum.take(@report.locales, 8), fn {locale, count} ->
+              %{label: locale, count: count}
+            end)
+          } />
+        </div>
+      </.panel>
+    </div>
+
+    <div class="grid gap-5 lg:grid-cols-3 mb-5 items-start">
+      <.panel title="Hour of day" description={"When they finished, in #{zone()}."}>
+        <.bar_list rows={hour_rows(@report.hours)} />
+      </.panel>
+
+      <div class="lg:col-span-2">
+        <.panel
+          title="Recent"
+          description={"The newest #{length(@report.recent)} of #{@report.total}."}
+          flush
+        >
+          <div class="overflow-x-auto">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>When</th>
+                  <th>Set</th>
+                  <th>Where</th>
+                  <th>Surface</th>
+                  <th>Aloud</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :for={completion <- @report.recent}>
+                  <td class="text-admin-ink-soft whitespace-nowrap">
+                    {format_time(completion.completed_at)}
+                  </td>
+                  <td class="font-medium text-admin-ink">
+                    <.link
+                      patch={narrow(@params, "set", completion.meditation_set_id)}
+                      class="hover:text-navy"
+                    >
+                      {completion.meditation_set.name}
+                    </.link>
+                  </td>
+                  <td class="text-admin-ink-faint">{place(completion)}</td>
+                  <td class="text-admin-ink-soft">{source_label(completion.source)}</td>
+                  <td class="text-admin-ink-soft">
+                    {case completion.prayed_aloud do
+                      true -> "Yes"
+                      false -> "No"
+                      nil -> "-"
+                    end}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </.panel>
+      </div>
+    </div>
+  <% end %>
+</.admin_page>

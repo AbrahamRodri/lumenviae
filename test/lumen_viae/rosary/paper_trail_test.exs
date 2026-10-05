@@ -61,6 +61,37 @@ defmodule LumenViae.Rosary.PaperTrailTest do
     assert archived.changes["content"] == "Second wording."
   end
 
+  test "each version records the admin who made it, and nobody for an operator's shell" do
+    mystery = create_mystery()
+    {:ok, _} = Rosary.update_mystery(mystery, %{name: "Renamed"}, authorize?: false)
+
+    assert [by_admin, by_shell] = versions_of(mystery)
+    assert by_admin.admin_id == admin().id
+    assert by_shell.admin_id == nil
+  end
+
+  test "removing an admin keeps the history they made and forgets only who" do
+    actor = admin_fixture()
+
+    {:ok, mystery} =
+      Rosary.create_mystery(
+        %{
+          name: "Mystery #{System.unique_integer([:positive])}",
+          category: "joyful",
+          order: System.unique_integer([:positive])
+        },
+        actor: actor
+      )
+
+    assert [%{admin_id: admin_id}] = versions_of(mystery)
+    assert admin_id == actor.id
+
+    # Admins have no destroy action; the shell removes one with SQL.
+    LumenViae.Repo.query!("DELETE FROM admins WHERE id = $1", [Ecto.UUID.dump!(actor.id)])
+
+    assert [%{admin_id: nil, changes: %{"name" => _}}] = versions_of(mystery)
+  end
+
   test "nothing is written for an update that changes nothing" do
     mystery = create_mystery()
     {:ok, _} = Rosary.update_mystery(mystery, %{name: mystery.name}, actor: admin())

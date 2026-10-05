@@ -222,6 +222,27 @@ defmodule LumenViae.Rosary.Completion do
       run LumenViae.Rosary.Completion.PlaceCounts
     end
 
+    read :report do
+      description "The completions the console's Completions screen reports on, newest first: since a moment, and narrowed by any of set, surface, country and whether it was prayed aloud. A nil argument does not narrow."
+
+      argument :since, :utc_datetime
+      argument :meditation_set_id, :integer
+      argument :source, :string
+      argument :country_code, :string
+      argument :prayed_aloud, :boolean
+
+      filter expr(
+               (is_nil(^arg(:since)) or completed_at >= ^arg(:since)) and
+                 (is_nil(^arg(:meditation_set_id)) or
+                    meditation_set_id == ^arg(:meditation_set_id)) and
+                 (is_nil(^arg(:source)) or source == ^arg(:source)) and
+                 (is_nil(^arg(:country_code)) or country_code == ^arg(:country_code)) and
+                 (is_nil(^arg(:prayed_aloud)) or prayed_aloud == ^arg(:prayed_aloud))
+             )
+
+      prepare build(sort: [completed_at: :desc, id: :desc])
+    end
+
     read :awaiting_place do
       description "Completions the place lookup sweep should ask about: none at all while lookups are switched off."
       # AshOban requires a trigger's read action to support keyset

@@ -105,4 +105,10 @@
       </.form_actions>
     </.panel>
   </.form>
+  <NarrationPanel.narration_panel
+    rows={@narration_rows}
+    filename={NarrationPanel.filename(@meditation)}
+  />
+
+  <LumenViaeWeb.Components.History.history_panel history={@history} restorable={@restorable} />
 </.admin_page>

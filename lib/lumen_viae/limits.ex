@@ -66,6 +66,25 @@ defmodule LumenViae.Limits do
     ]
   end
 
+  @admin_confirmations 10
+  @admin_confirmation_window :timer.minutes(15)
+
+  @doc """
+  How often one admin may try their own password to add an admin or replace
+  a password from the console (`LumenViae.Accounts.Admin.ConfirmActorPassword`):
+  10 attempts in 15 minutes per machine, right or wrong. The counters are
+  per machine, like every limit here, and production runs two, so the real
+  ceiling is about 20 in 15 minutes. Keyed on the admin, not the address,
+  because the thing being guessed is that admin's password.
+  """
+  def admin_confirmation(admin_id) when is_binary(admin_id) do
+    [
+      limit: @admin_confirmations,
+      per: @admin_confirmation_window,
+      key: "admin-confirmation:" <> admin_id
+    ]
+  end
+
   @doc """
   The window, in milliseconds, of the limit called `name`. Only the
   completion limit has one that a response needs to say.

@@ -6,6 +6,7 @@ defmodule LumenViaeWeb.Live.Mysteries.Edit do
   use LumenViaeWeb, :live_view
   alias LumenViae.Rosary
   alias LumenViaeWeb.Live.Admin.ArtworkEditing
+  alias LumenViaeWeb.Live.Admin.History
 
   @artwork_events ArtworkEditing.events()
 
@@ -47,6 +48,23 @@ defmodule LumenViaeWeb.Live.Mysteries.Edit do
     end
   end
 
+  def handle_event("restore_version", %{"id" => version_id}, socket) do
+    case History.restore(socket, socket.assigns.mystery, version_id) do
+      {:ok, mystery} ->
+        mystery = Rosary.get_mystery!(mystery.id, actor: socket.assigns.current_admin)
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Version restored")
+         |> assign(:mystery, mystery)
+         |> assign_edit_form(mystery)
+         |> ArtworkEditing.setup_record(mystery)}
+
+      {:error, message} ->
+        {:noreply, put_flash(socket, :error, message)}
+    end
+  end
+
   # The painting's writes go through the artwork actions; after each, both
   # forms are rebuilt from the saved row, since each holds the record it was
   # built from.
@@ -67,8 +85,9 @@ defmodule LumenViaeWeb.Live.Mysteries.Edit do
   end
 
   defp assign_edit_form(socket, mystery) do
-    assign(
-      socket,
+    socket
+    |> History.assign_history(mystery)
+    |> assign(
       :edit_form,
       to_form(
         Rosary.form_to_update_mystery(mystery, as: "mystery", actor: socket.assigns.current_admin)

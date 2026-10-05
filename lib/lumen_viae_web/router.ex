@@ -161,6 +161,12 @@ defmodule LumenViaeWeb.Router do
       # The running app: release, database, queues, schedule, third parties
       live "/system", Live.Admin.System
 
+      # Who may sign in, and their passwords
+      live "/admins", Live.Admin.Admins
+
+      # Completions broken down by day, set, surface, place and hour
+      live "/completions", Live.Admin.Completions
+
       # Meditation Sets management
       live "/meditation-sets", Live.Meditations.Sets.List
       live "/meditation-sets/new", Live.Meditations.Sets.New
@@ -203,11 +209,14 @@ defmodule LumenViaeWeb.Router do
     # Phoenix LiveDashboard: the VM's processes, ETS tables, ports and the
     # metrics in LumenViaeWeb.Telemetry, behind the console's guard like
     # Oban Web. It can kill a process, so it is an admin's tool only. No
-    # env_keys: the environment holds every secret the app has.
+    # env_keys: the environment holds every secret the app has. ecto_repos
+    # adds the Ecto Stats page (ecto_psql_extras): bloat, index use, locks,
+    # long-running queries.
     live_dashboard "/live",
       live_session_name: :live_dashboard,
       on_mount: [{LumenViaeWeb.UserAuth, :require_admin}],
-      metrics: LumenViaeWeb.Telemetry
+      metrics: LumenViaeWeb.Telemetry,
+      ecto_repos: [LumenViae.Repo]
   end
 
   # Liveness and the database, for whatever watches the app. Off the

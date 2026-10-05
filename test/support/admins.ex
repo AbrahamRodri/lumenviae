@@ -2,10 +2,12 @@ defmodule LumenViae.Test.Admins do
   @moduledoc """
   Admins for the suite.
 
-  `admin/0` is an actor, not an account: the policies only ask whether the
-  actor is an `%Admin{}`, so a test that sets data up through the domain,
-  or exercises the console's reads, acts as one without touching the
-  database or bcrypt. `admin_fixture/1` is a real account, for the tests
+  `admin/0` is an actor, not an account to sign in with: the policies only
+  ask whether the actor is an `%Admin{}`, so a test that sets data up
+  through the domain, or exercises the console's reads, acts as one without
+  bcrypt. Its row is stored once, before the suite, by `store_admin!/0`,
+  because a content write records its actor on the version row and the
+  version's `admin_id` is a foreign key. `admin_fixture/1` is a real account, for the tests
   that sign in. `sign_in_admin/1` is a `setup` callback for a ConnCase that
   needs the console.
 
@@ -15,14 +17,43 @@ defmodule LumenViae.Test.Admins do
 
   alias LumenViae.Accounts
   alias LumenViae.Accounts.Admin
+  alias LumenViae.Repo
 
   @password "correct horse battery staple"
 
   def password, do: @password
 
-  @doc "An admin actor that exists only in memory."
+  @admin_id "00000000-0000-0000-0000-00000000ad31"
+  @admin_email "actor@lumenviae.test"
+
+  @doc "The suite's admin actor. Its row is stored by `store_admin!/0`."
   def admin do
-    %Admin{id: "00000000-0000-0000-0000-00000000ad31", email: "actor@lumenviae.test"}
+    %Admin{id: @admin_id, email: @admin_email}
+  end
+
+  @doc """
+  Stores `admin/0`'s row if it is not there yet. Run once from
+  `test_helper.exs`, outside the sandbox, so every test sees it. Written
+  with the Repo because the create action takes no id, and the id has to
+  be the fixed one the in-memory actor carries. The password hash is
+  never checked: nothing signs in as this admin.
+  """
+  def store_admin! do
+    now = NaiveDateTime.utc_now()
+
+    Repo.insert_all(
+      "admins",
+      [
+        %{
+          id: Ecto.UUID.dump!(@admin_id),
+          email: @admin_email,
+          hashed_password: "not a hash: this admin never signs in",
+          inserted_at: now,
+          updated_at: now
+        }
+      ],
+      on_conflict: :nothing
+    )
   end
 
   @doc "A stored admin account whose password is `password/0`."

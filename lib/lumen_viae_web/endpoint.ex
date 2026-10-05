@@ -35,6 +35,14 @@ defmodule LumenViaeWeb.Endpoint do
     gzip: not code_reloading?,
     only: LumenViaeWeb.static_paths()
 
+  # Tidewave: an MCP server for coding agents at /tidewave/mcp, which runs
+  # code and SQL inside this app. Development only - the dependency is not
+  # compiled outside :dev, so the plug cannot reach a release. It answers
+  # loopback requests only. See docs/DEV_TOOLS.md.
+  if Mix.env() == :dev do
+    plug Tidewave
+  end
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

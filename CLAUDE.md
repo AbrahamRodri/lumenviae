@@ -153,10 +153,14 @@ docs/ARCHITECTURE.md before touching an admin screen.
 
 Admins sign in at `/admin/login` with an email and password
 (AshAuthentication's password strategy, `LumenViae.Accounts`). There is no
-sign-up and no reset email: make an admin with
-`LumenViae.Release.create_admin(email)` and replace a password with
-`LumenViae.Release.reset_admin_password(email)`, from a production shell
-(docs/PROD_ACCESS.md).
+sign-up and no reset email. A signed-in admin adds admins and replaces
+passwords on `/admin/admins`, each write asking for their own password
+again; the first admin comes from a production shell with
+`LumenViae.Release.create_admin(email)`, and
+`LumenViae.Release.reset_admin_password(email)` still works there
+(docs/PROD_ACCESS.md). Every change to a mystery, meditation, set or author
+records which admin made it, and its edit page has a History panel that can
+restore an earlier version.
 
 Local development skips the login (`config :lumen_viae, :skip_admin_auth,
 true` in `config/dev.exs`) by signing in the seeded dev admin, so `/admin`
@@ -195,6 +199,11 @@ The dev server listens on port 8080. Every worktree shares the
 copy it (`createdb -h localhost -U postgres -T lumen_viae_dev <name>`) and
 set `DEV_DATABASE=<name>`. In tests, give each worktree its own
 `MIX_TEST_PARTITION`.
+
+The dev server carries Tidewave (an MCP server for coding agents, registered
+in `.mcp.json` through `mix tidewave.proxy`; pass your server's port) and
+LiveDebugger (port 4007 or the next free one), and `/admin/live` has an
+Ecto Stats page. See docs/DEV_TOOLS.md.
 
 ## Meditation CSV Imports
 

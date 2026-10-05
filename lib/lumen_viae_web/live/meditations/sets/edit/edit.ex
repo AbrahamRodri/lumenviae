@@ -7,6 +7,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.Labels
+  alias LumenViaeWeb.Live.Admin.History
 
   def mount(%{"id" => id}, _session, socket) do
     set =
@@ -134,6 +135,24 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
 
   def handle_event("move_label", %{"label" => label, "direction" => direction}, socket) do
     update_labels(socket, move_label(socket.assigns.meditation_set.labels, label, direction))
+  end
+
+  def handle_event("restore_version", %{"id" => version_id}, socket) do
+    case History.restore(socket, socket.assigns.meditation_set, version_id) do
+      {:ok, set} ->
+        set =
+          Rosary.get_meditation_set_with_ordered_meditations!(set.id,
+            actor: socket.assigns.current_admin
+          )
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Version restored")
+         |> assign_set(set)}
+
+      {:error, message} ->
+        {:noreply, put_flash(socket, :error, message)}
+    end
   end
 
   def handle_event("add_to_set", %{"meditation_id" => meditation_id, "order" => order}, socket) do
@@ -280,6 +299,7 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit do
   defp assign_set(socket, set) do
     socket
     |> assign(:meditation_set, set)
+    |> History.assign_history(set)
     |> assign(
       :edit_form,
       to_form(

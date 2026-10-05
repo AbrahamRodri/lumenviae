@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "tidewave": {
+      "type": "stdio",
+      "command": "mix",
+      "args": ["tidewave.proxy"],
+      "env": {
+        "MIX_ENV": "dev"
+      }
+    }
+  }
+}

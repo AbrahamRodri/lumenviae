@@ -41,6 +41,12 @@ defmodule LumenViaeWeb.Components.Admin do
     %{label: "Authors", path: "/admin/authors", key: "authors", icon: "hero-user-circle"},
     %{label: "Mysteries", path: "/admin/mysteries", key: "mysteries", icon: "hero-sparkles"},
     %{
+      label: "Completions",
+      path: "/admin/completions",
+      key: "completions",
+      icon: "hero-chart-bar"
+    },
+    %{
       label: "Spoken Rosary",
       path: "/admin/rosary-audio",
       key: "rosary_audio",
@@ -53,6 +59,7 @@ defmodule LumenViaeWeb.Components.Admin do
       icon: "hero-arrow-up-tray"
     },
     %{label: "System", path: "/admin/system", key: "system", icon: "hero-server-stack"},
+    %{label: "Admins", path: "/admin/admins", key: "admins", icon: "hero-users"},
     # Oban Web, which draws its own page, so this item is never the active
     # one.
     %{label: "Jobs", path: "/admin/jobs", key: "jobs", icon: "hero-queue-list"}
@@ -64,7 +71,8 @@ defmodule LumenViaeWeb.Components.Admin do
   console canvas.
 
   `active` marks the current section: one of "dashboard", "meditations",
-  "sets", "authors", "mysteries", "rosary_audio", "import".
+  "sets", "authors", "mysteries", "rosary_audio", "import", "completions",
+  "system", "admins".
   """
   attr :active, :string, required: true
   attr :title, :string, required: true

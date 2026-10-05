@@ -358,6 +358,8 @@ defmodule LumenViae.Rosary do
   require Ash.Query
   require Ash.Expr
 
+  alias Ash.Error.Query.NotFound
+  alias Ash.Resource.Info
   alias LumenViae.AshOpts
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.Author
@@ -1275,4 +1277,220 @@ defmodule LumenViae.Rosary do
   end
 
   defp days_ago(days), do: DateTime.add(DateTime.utc_now(), -days * 24 * 3600, :second)
+
+  @doc """
+  The console's Completions screen: every completion in the trailing `days`
+  (or ever, for `nil`) that matches `filters`, folded every way the screen
+  breaks them down.
+
+  `filters` takes `:set_id`, `:source`, `:country_code` and `:prayed_aloud`;
+  a missing or nil one does not narrow.
+
+  Returns `%{total, capped?, located, by_day, sets, sources, prayed_aloud,
+  countries, cities, hours, locales, recent}`:
+
+    * `by_day` - a dense daily series, as `completions_by_day/2`, for a
+      period of a year or less; `nil` for all time
+    * `sets` - `[%{set_id, set_name, category, count}]`, most prayed first
+    * `sources`, `prayed_aloud` - frequencies, `nil` for not recorded
+    * `countries`, `cities` - as `completion_locations/2`
+    * `hours` - `%{0..23 => count}`, the hour of day in the reporting zone
+    * `locales` - `[{locale, count}]`, most first, unreported left out
+    * `recent` - the newest 25 rows, each with its set's name and
+      category
+
+  A period of `days` is today and the `days - 1` days before it, starting
+  at midnight in the reporting zone, so the figures and the daily series
+  cover the same days.
+
+  One read of the matching rows, folded here, like the dashboard's figures.
+  The read stops at the newest 20,000 rows, so a long period cannot pull
+  the whole table into memory on a small machine; `capped?` says when it
+  did, and the figures then cover those rows only.
+  """
+  @report_rows 20_000
+
+  def completion_report(days, filters, opts \\ []) when is_nil(days) or days > 0 do
+    rows =
+      Completion
+      |> Ash.Query.for_read(:report, %{
+        since: days && CentralTime.day_start(Date.add(CentralTime.today(), -(days - 1))),
+        meditation_set_id: filters[:set_id],
+        source: filters[:source],
+        country_code: filters[:country_code],
+        prayed_aloud: filters[:prayed_aloud]
+      })
+      |> Ash.Query.select([
+        :completed_at,
+        :meditation_set_id,
+        :city,
+        :region,
+        :country,
+        :country_code,
+        :source,
+        :prayed_aloud,
+        :locale
+      ])
+      |> Ash.Query.load(
+        local_day: %{time_zone: reporting_time_zone()},
+        meditation_set: Ash.Query.select(MeditationSet, [:name, :category])
+      )
+      |> Ash.Query.limit(@report_rows)
+      |> Ash.read!(AshOpts.take(opts))
+
+    %{
+      total: length(rows),
+      capped?: length(rows) == @report_rows,
+      located: Enum.count(rows, &(not is_nil(&1.country_code))),
+      by_day: days && days <= 366 && dense_days(rows, days),
+      sets:
+        rows
+        |> ranked(&{&1.meditation_set_id, &1.meditation_set.name, &1.meditation_set.category})
+        |> Enum.map(fn {{id, name, category}, count} ->
+          %{set_id: id, set_name: name, category: category, count: count}
+        end),
+      sources: Enum.frequencies_by(rows, & &1.source),
+      prayed_aloud: Enum.frequencies_by(rows, & &1.prayed_aloud),
+      countries:
+        rows
+        |> Enum.reject(&is_nil(&1.country))
+        |> ranked(&{&1.country, &1.country_code})
+        |> Enum.map(fn {{country, code}, count} ->
+          %{country: country, country_code: code, count: count}
+        end),
+      cities:
+        rows
+        |> Enum.reject(&is_nil(&1.city))
+        |> ranked(&{&1.city, &1.region, &1.country_code})
+        |> Enum.map(fn {{city, region, code}, count} ->
+          %{city: city, region: region, country_code: code, count: count}
+        end),
+      hours: Enum.frequencies_by(rows, &CentralTime.to_local(&1.completed_at).hour),
+      locales:
+        rows
+        |> Enum.reject(&(&1.locale in [nil, ""]))
+        |> ranked(&{&1.locale})
+        |> Enum.map(fn {{locale}, count} -> {locale, count} end),
+      recent: Enum.take(rows, 25)
+    }
+  end
+
+  # Most frequent first, then by name, so two groups counted equally often
+  # always come out in the same order.
+  defp ranked(rows, key) do
+    rows
+    |> Enum.frequencies_by(key)
+    |> Enum.sort_by(fn {group, count} -> {-count, elem(group, 0)} end)
+  end
+
+  # The trailing `days` days, oldest first, with a zero for every day
+  # nothing was prayed, from rows that already carry their local day.
+  defp dense_days(rows, days) do
+    first = Date.add(CentralTime.today(), -(days - 1))
+    counted = Enum.frequencies_by(rows, & &1.local_day)
+
+    Enum.map(0..(days - 1), fn offset ->
+      date = Date.add(first, offset)
+      %{date: date, count: Map.get(counted, date, 0)}
+    end)
+  end
+
+  ## History
+  #
+  # Every change to a mystery, meditation, set or author is a version row
+  # (AshPaperTrail), holding the whole record as it stood after the change.
+  # These are the console's way in to them: a record's versions, newest
+  # first, and putting one back.
+
+  @versioned [Mystery, Meditation, MeditationSet, Author]
+
+  # A meditation edited every day for a year is still one panel, not a
+  # page of its own.
+  @history_limit 50
+
+  @doc """
+  The versions of `record` (a mystery, meditation, set or author), newest
+  first, at most #{@history_limit}, as
+  `[%{id, action, type, at, by, snapshot}]`: the action's name and type, when,
+  the email of the admin who made it (`nil` for an operator's shell or a
+  change made before that was recorded), and the record as it stood after
+  the change, keyed by field name.
+
+  Admin only: the version resources' policies refuse everyone else.
+  """
+  def list_history(%resource{id: id}, opts \\ []) when resource in @versioned do
+    resource
+    |> version_resource()
+    |> Ash.Query.filter(version_source_id == ^id)
+    |> Ash.Query.sort(version_inserted_at: :desc, id: :desc)
+    |> Ash.Query.limit(@history_limit)
+    |> Ash.Query.load(:admin)
+    |> Ash.read!(AshOpts.take(opts))
+    |> Enum.map(fn version ->
+      %{
+        id: version.id,
+        action: version.version_action_name,
+        type: version.version_action_type,
+        at: version.version_inserted_at,
+        by: version.admin && to_string(version.admin.email),
+        snapshot: version.changes
+      }
+    end)
+  end
+
+  # Accepted by an update action but never put back by a restore. A
+  # meditation's audio filename and the filename its import named point at
+  # S3 objects, which a version does not restore: undoing a text edit must
+  # not point the app at a recording that may no longer exist. The
+  # narration annotations are the pipeline's, written for the text they
+  # sit beside, and the update resets them when the text changes.
+  @not_restored ~w(audio_url narration_filename tts_annotations)
+
+  @doc """
+  The fields of `record` that `restore_version/3` puts back: the ones its
+  update action accepts, by name, less the storage pointers and pipeline
+  fields no snapshot should overwrite (a meditation's `audio_url`,
+  `narration_filename` and `tts_annotations`). Anything else in a snapshot
+  (an archive date, a set's artwork) has its own action and is left as it
+  is.
+  """
+  def restorable_fields(%resource{}) when resource in @versioned do
+    resource
+    |> Info.primary_action!(:update)
+    |> Map.fetch!(:accept)
+    |> Enum.map(&to_string/1)
+    |> Enum.reject(&(&1 in @not_restored))
+  end
+
+  @doc """
+  Puts `record` back as it stood in one of its versions, through its own
+  update action, so the restore is checked like any edit and is itself a
+  new version that can be undone.
+
+  Only the fields the update action accepts are restored (see
+  `restorable_fields/1`). Returns `{:ok, record}` or `{:error, error}`; a
+  version of another record is not found.
+  """
+  def restore_version(%resource{id: id} = record, version_id, opts \\ [])
+      when resource in @versioned do
+    ash_opts = AshOpts.take(opts)
+
+    with {:ok, version} <- Ash.get(version_resource(resource), version_id, ash_opts),
+         :ok <- same_record(version, id) do
+      params = Map.take(version.changes, restorable_fields(record))
+
+      record
+      |> Ash.Changeset.for_update(:update, params, ash_opts)
+      |> Ash.update()
+    end
+  end
+
+  # Another record's version is not found, as far as this record goes.
+  defp same_record(%{version_source_id: id}, id), do: :ok
+
+  defp same_record(version, _id) do
+    {:error, NotFound.exception(resource: version.__struct__, primary_key: version.id)}
+  end
+
+  defp version_resource(resource), do: Module.concat(resource, Version)
 end

@@ -1,0 +1,146 @@
+<.admin_page
+  active="admins"
+  title="Admins"
+  subtitle="Who may sign in to this console. Adding an admin or replacing a password asks for your own password first."
+  flash={@flash}
+  max_width="max-w-4xl"
+>
+  <.callout :if={@revealed} tone="notice">
+    <p>
+      The password for <strong>{@revealed.email}</strong>
+      is below. It is shown this once and not kept anywhere in the clear: give it to them over a
+      channel you trust, and they can change it under Your password.
+    </p>
+    <p class="mt-2">
+      <code class="font-mono text-sm bg-admin-surface border border-admin-hairline rounded px-2 py-1 select-all break-all">
+        {@revealed.password}
+      </code>
+    </p>
+    <button type="button" phx-click="dismiss_password" class="admin-btn admin-btn-secondary mt-3">
+      Done, I have passed it on
+    </button>
+  </.callout>
+
+  <.panel title="Accounts" description={"#{length(@admins)} admin(s)."} flush>
+    <div class="overflow-x-auto">
+      <table class="admin-table w-full">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Added</th>
+            <th class="text-right">Password</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={admin <- @admins}>
+            <td class="font-medium text-admin-ink">
+              {admin.email}
+              <.admin_badge :if={me?(admin, @current_admin)} tone="navy">You</.admin_badge>
+            </td>
+            <td class="text-admin-ink-soft whitespace-nowrap">{added(admin)}</td>
+            <td class="text-right">
+              <button
+                :if={not me?(admin, @current_admin)}
+                type="button"
+                phx-click="start_reset"
+                phx-value-id={admin.id}
+                class="admin-btn admin-btn-ghost"
+              >
+                Reset password
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </.panel>
+
+  <.panel
+    :if={@resetting}
+    title={"Reset the password for #{@resetting.email}"}
+    description="They get a new generated password, shown here once, and are signed out everywhere."
+    class="mt-5"
+  >
+    <form id="reset-password-form" phx-submit="reset_password" class="space-y-4">
+      <.field label="Your password" required>
+        <input
+          type="password"
+          name="current_password"
+          autocomplete="current-password"
+          required
+          class="admin-input"
+        />
+      </.field>
+      <div class="flex justify-end gap-2">
+        <button type="button" phx-click="cancel_reset" class="admin-btn admin-btn-ghost">
+          Cancel
+        </button>
+        <button type="submit" class="admin-btn admin-btn-danger">Reset password</button>
+      </div>
+    </form>
+  </.panel>
+
+  <div class="grid md:grid-cols-2 gap-5 mt-5">
+    <.panel
+      title="Add an admin"
+      description="They get a generated password, shown here once."
+    >
+      <form id="add-admin-form" phx-submit="add_admin" class="space-y-4">
+        <.field label="Their email" required>
+          <input type="email" name="admin[email]" required class="admin-input" />
+        </.field>
+        <.field label="Your password" required>
+          <input
+            type="password"
+            name="admin[current_password]"
+            autocomplete="current-password"
+            required
+            class="admin-input"
+          />
+        </.field>
+        <div class="flex justify-end">
+          <button type="submit" class="admin-btn admin-btn-primary">Add admin</button>
+        </div>
+      </form>
+    </.panel>
+
+    <.panel
+      title="Your password"
+      description="Changing it signs you out everywhere, here included."
+    >
+      <form id="change-password-form" phx-submit="change_password" class="space-y-4">
+        <.field label="Current password" required>
+          <input
+            type="password"
+            name="own[current_password]"
+            autocomplete="current-password"
+            required
+            class="admin-input"
+          />
+        </.field>
+        <.field label="New password" hint="At least 12 characters." required>
+          <input
+            type="password"
+            name="own[password]"
+            autocomplete="new-password"
+            minlength="12"
+            required
+            class="admin-input"
+          />
+        </.field>
+        <.field label="New password again" required>
+          <input
+            type="password"
+            name="own[password_confirmation]"
+            autocomplete="new-password"
+            required
+            class="admin-input"
+          />
+        </.field>
+        <div class="flex justify-end">
+          <button type="submit" class="admin-btn admin-btn-primary">Change password</button>
+        </div>
+      </form>
+    </.panel>
+  </div>
+</.admin_page>
