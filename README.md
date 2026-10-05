@@ -51,7 +51,7 @@ Built with:
 | Path | What it is |
 | --- | --- |
 | `/` | The public site |
-| `/admin` | The curation console, for signed-in admins only. `/admin/data` browses every resource (AshAdmin), `/admin/jobs` shows the background jobs (Oban Web), `/admin/system` the release, database, queues and third parties, and `/admin/live` the running VM (Phoenix LiveDashboard) |
+| `/admin` | The curation console, for signed-in admins only. `/admin/data` browses every resource (AshAdmin), `/admin/jobs` shows the background jobs (Oban Web), `/admin/system` the release, database, queues and third parties, `/admin/live` the running VM (Phoenix LiveDashboard, with Ecto Stats), `/admin/admins` the admin accounts, and `/admin/completions` every completion figure, filtered |
 | `/healthz` | Up, which release, and whether the database answers: 200, or 503 when it does not. For an uptime monitor |
 | `/api` | The REST API the iPhone app reads. Frozen: every installed build depends on its shape |
 | `/api/office` | The Divine Office: a day, an hour, or a month |
@@ -185,6 +185,7 @@ Working on the code:
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - The Ash domains, who may do what, background jobs, the web layer, components, design tokens and the admin console
 - **[USAGE_RULES.md](docs/USAGE_RULES.md)** - The Ash packages' own guidance, generated from the dependencies
 - **[CI.md](docs/CI.md)** - What CI checks, and how a merge to `main` deploys
+- **[DEV_TOOLS.md](docs/DEV_TOOLS.md)** - Tidewave, LiveDebugger and the Ecto Stats page, for development
 - **[CLAUDE.md](CLAUDE.md)** - Instructions for AI assistants working on this codebase
 
 The APIs:

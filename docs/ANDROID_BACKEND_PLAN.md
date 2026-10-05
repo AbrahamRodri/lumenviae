@@ -694,8 +694,8 @@ records the answers here.
 ## Status
 
 Decisions D1-D10 answered at kickoff (3 Oct 2026), all as recommended; PR
-#54 had already merged. Every workstream merged on 3-4 October 2026, one
-at a time, each rebased onto the last and smoke-tested against production
+#54 had already merged. Every workstream merged between 3 and 5 October
+2026, one at a time, each rebased onto the last and smoke-tested against production
 after its deploy (`.claude/plans/android-backend/STATUS.md` in the main
 checkout holds the board and the notes). The server's half is done:
 **docs/ANDROID_API.md** is where the Android app starts.
@@ -715,6 +715,22 @@ checkout holds the board and the notes). The server's half is done:
 | W9b | The Kotlin and Swift clients generated from the document and checked against all ten operations (58 captured responses, encoded back unchanged); no further correction was needed | #71 | ffb749e |
 | W10 | docs/ANDROID_API.md, the Android app's contract, and the documents made to agree | #75 | |
 
+Merged alongside, from other sessions and outside this plan:
+
+| PR | What | Merged |
+| --- | --- | --- |
+| #58 | Warm the Office cache on a schedule, reindex Oban weekly, log each job | d3b8bf7 |
+| #62 | A System screen, `/healthz`, LiveDashboard and the ops mix tasks | 91f4068 |
+| #64 | An hourly sweep for completions still waiting for a place; failed jobs on the dashboard | c50e490 |
+| #72 | Functional tests for the public and admin screens, and a How to Pray crash fix | 21ad21a |
+| #74 | The dashboard's completions counted in the database, and read once per visit | 482f833 |
+| #76 | The System screen's tests made independent of the probes' timing | 5319cb2 |
+| #73 | Dev tools, version history with restore, and the console's narration, admins and completions screens | 8c484f8 |
+| #69 | A cold Office key fetched from the engine once | 28502ee |
+| #68 | A console session ends with its token; the password hash off every page; HTTPS forced with HSTS | 7b765f0 |
+| iOS #23 | Tests for untested pure logic, and storage injected into three services | 028a15a |
+| iOS #24 | 370 functional tests across 27 suites | ca31a9d |
+
 One thing the plan said turned out otherwise: `lumenviae.fly.dev`
 redirects only the website's pages to `www`, and the API answers on every
 host with no redirect (`CanonicalHost` is in the browser pipeline). The
@@ -731,7 +747,10 @@ Android app still uses `www.lumenviae.org`.
 - **The CSVs in `priv/repo/imports/`** still use the Seven Sorrows' old
   names, which the import now refuses as not found: update them.
 - **The project CLAUDE.md** still says the prayer text is the app's, which
-  D1 made wrong for the prayers; its wording is the owner's to change.
+  D1 made wrong for the prayers, and its Key Features do not name the
+  content document or the Android app. Its wording is the owner's to
+  change; a patch is drafted at `.claude/plans/android-backend/claude_md.patch`
+  in the main checkout.
 - **Scratch databases** the workers made (`lumen_viae_testcalendar`,
   `lv_client`, `lv_kotlin_probe`, `lv_mysteries`, and each worker's test
   partition): `dropdb -h localhost -U postgres <name>`.

@@ -194,7 +194,9 @@ are signed with `TOKEN_SIGNING_SECRET` if it is set (an empty value counts
 as unset; one shorter than 32 bytes stops the app booting), and otherwise
 with a key derived from `SECRET_KEY_BASE`, so rotating `SECRET_KEY_BASE`
 signs every admin out. A session lasts 7 days, then asks you to sign in
-again.
+again, a console tab left open included: it is sent to the login page when
+its token expires. Expired and revoked tokens are deleted from
+`admin_tokens` every twelve hours.
 
 `ADMIN_PASSWORD` is no longer read, but keep it until rolling back to a
 release from before admin accounts is off the table. Those releases sign

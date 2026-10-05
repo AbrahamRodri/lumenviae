@@ -287,7 +287,15 @@ Resetting someone else's password closes their open tabs
 shell's `:create` and `:set_password` stay refused to every actor, and
 there is no destroy. Tokens are stored, so signing out
 revokes the token, and resetting a password signs that admin out
-everywhere. A token lasts 7 days. The signing secret is
+everywhere. A token lasts 7 days, and an open console page sends its admin
+to the login when the token expires (`LumenViaeWeb.UserAuth`'s
+`:require_admin` schedules it), so a tab left open does not go on acting
+past it. AshAuthentication's own supervisor expunges expired and revoked
+tokens from `admin_tokens` every twelve hours. The password hash is read
+only by AshAuthentication's sign-in and by `Admin.ConfirmActorPassword`,
+each marked by private context no API can send; `Admin.HidePasswordHash`
+leaves it out of every other read of admins, AshAdmin's data browser
+included, since a field policy cannot cover a private attribute. The signing secret is
 `TOKEN_SIGNING_SECRET` if set (at least 32 bytes), and otherwise derived
 from `SECRET_KEY_BASE` (`LumenViae.Accounts.Secrets`).
 
@@ -455,8 +463,10 @@ which Ash does not have, so they are generic actions on `Completion`
 Ecto queries over that one table. That is the one sanctioned Ecto use in
 the domain: single-table, behind an action and its policies, never a
 join, and the architecture test names both files. The completions table
-is the one that grows with traffic, so nothing reads its rows into
-Elixir to count them.
+is the one that grows with traffic, so the dashboard reads none of its
+rows into Elixir to count them. The console's Completions screen does:
+`Rosary.completion_report/3` reads the matching rows, at most the newest
+20,000 (`capped?` says when it stopped), and folds them in Elixir.
 
 **Order is explicit.** Every read an API depends on declares its sort:
 sets by category and then creation order (the app builds its filter chips
@@ -1438,6 +1448,12 @@ out is `DELETE /admin/session`, which revokes the token. Attempts are
 throttled per address (an IPv6 caller by its /64) and per email in front of
 the route, by
 `Plugs.ThrottleSignIn`; see "Rate limits" for why that is a plug.
+
+In production the session cookie is `secure`, and the endpoint forces
+HTTPS with HSTS (`force_ssl` in config/prod.exs): a one-day max-age to
+begin with, since HSTS sticks in browsers; the proxy's `X-Forwarded-Proto`
+trusted, since Fly's proxy ends TLS; and `/healthz` excluded, so a check
+over the private network gets its answer rather than a redirect.
 
 `:load_from_session` in the browser pipeline puts the signed-in admin in
 `current_admin`, having checked the token is genuine, unexpired and not

@@ -198,8 +198,21 @@ own proxy in Chicago.
 ## Where it shows up
 
 The admin dashboard, under **Where Rosaries are prayed** (countries and
-cities), **Website or app** (Website, iOS app and Android app, with the aloud-or-silently split under it), and the **From** and **How** columns of
-**Recent completions**.
+cities), **Website or app** (Website, iOS app and Android app, with the
+aloud-or-silently split under it), and the **From** and **How** columns of
+**Recent completions**. Its figures are counted by Postgres, not by
+reading rows: the headline counts are one aggregate, and the days and the
+places are `Completion`'s grouped `:daily_counts` and `:place_counts`
+actions. The dashboard reads them once, when its socket connects. An index
+on `(meditation_set_id, completed_at)` serves the most-prayed ranking,
+which counts each set's completions in the period.
+
+The dashboard's completion figures lead to the **Completions** screen
+(`/admin/completions`): a period, filters by set, surface, country and
+aloud in the query string, and the breakdowns by day, set, place, surface,
+language and hour. It reads the matching rows (`Completion`'s `:report`)
+and folds them, at most the newest 20,000, and says when a period was
+capped.
 
 The location panel states how many completions in the period actually have a
 place attached. Read it: the lookup is best-effort, so a ranking may cover a

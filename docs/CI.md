@@ -160,7 +160,9 @@ same CI as any PR. Merging one to `main` deploys it, like any other merge.
   database is one small machine, so a blip there would pull every app
   machine out of rotation at once. Proposal: a second path that answers 200
   and touches nothing else (no database), served before the router in the
-  endpoint, then in `fly.toml`:
+  endpoint and excluded from `force_ssl` as `/healthz` is (config/prod.exs),
+  so a check over the private network gets its answer rather than a
+  redirect, then in `fly.toml`:
 
   ```
   [[http_service.checks]]
