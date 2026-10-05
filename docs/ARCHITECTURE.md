@@ -172,7 +172,8 @@ can express: signing narration URLs, the artwork a set actually shows
 fails the build when something outside the domain names a resource (Rosary
 or Accounts), calls
 `Ash` on one or builds an Ash form for one directly; when anything but the
-Repo module and `release.ex` uses `Repo.`, `Ecto.Query` or imports Ecto;
+Repo module, `release.ex` and the two completion tallies uses `Repo.`,
+`Ecto.Query` or imports Ecto;
 when a resource composes with a hand-written join instead of a
 relationship; and when the web layer names any domain module other than
 `LumenViae.Rosary` and the value modules. A rule that is only written down
@@ -422,10 +423,17 @@ attribution was fixed.
 health questions are read actions on `Meditation` (archived, active and in
 no set, reachable but silent, missing a voice), the set and author counts
 are aggregates, and a set's completions in a window is a calculation with
-arguments. What remains in Elixir is the folding of a period's completion
-rows into countries, cities and surfaces: one read of six small columns
-where there were six group-by queries, on a table that grows by the
-Rosary.
+arguments; the most-prayed ranking filters, sorts and limits on it in the
+query. The headline completion figures are one `Ash.aggregate` with a
+filtered count each. The per-day and per-place tallies need GROUP BY,
+which Ash does not have, so they are generic actions on `Completion`
+(`:daily_counts`, `:place_counts`) whose implementations
+(`completion/daily_counts.ex`, `completion/place_counts.ex`) run grouped
+Ecto queries over that one table. That is the one sanctioned Ecto use in
+the domain: single-table, behind an action and its policies, never a
+join, and the architecture test names both files. The completions table
+is the one that grows with traffic, so nothing reads its rows into
+Elixir to count them.
 
 **Order is explicit.** Every read an API depends on declares its sort:
 sets by category and then creation order (the app builds its filter chips

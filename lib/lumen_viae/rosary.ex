@@ -356,6 +356,7 @@ defmodule LumenViae.Rosary do
   end
 
   require Ash.Query
+  require Ash.Expr
 
   alias LumenViae.AshOpts
   alias LumenViae.Rosary.Artwork
@@ -1120,21 +1121,25 @@ defmodule LumenViae.Rosary do
     * `:days` - only count completions from the trailing N days, so the
       dashboard can show what is being prayed *now* rather than a ranking
       dominated by whichever set has existed longest
+    * `:limit` - only the first N
     * `:actor` / `:authorize?` - as everywhere in this module
+
+  The filter, the ranking and the limit are all in the query.
   """
   def get_completions_by_set(opts \\ []) do
     range =
       case opts[:days] do
-        nil -> %{}
+        nil -> %{since: nil, until: nil}
         days -> %{since: days_ago(days), until: DateTime.utc_now()}
       end
 
     MeditationSet
     |> Ash.Query.select([:id, :name, :category])
+    |> Ash.Query.filter(completion_count(since: ^range.since, until: ^range.until) > 0)
     |> Ash.Query.load(completion_count: range)
+    |> Ash.Query.sort(completion_count: {range, :desc}, id: :asc)
+    |> then(&if(opts[:limit], do: Ash.Query.limit(&1, opts[:limit]), else: &1))
     |> Ash.read!(AshOpts.take(opts))
-    |> Enum.reject(&(&1.completion_count == 0))
-    |> Enum.sort_by(&{-&1.completion_count, &1.id})
     |> Enum.map(
       &%{set_id: &1.id, set_name: &1.name, category: &1.category, count: &1.completion_count}
     )
@@ -1176,49 +1181,15 @@ defmodule LumenViae.Rosary do
   covering a tenth of the completions and one covering all of them look
   identical otherwise.
 
-  One read of the period's rows, six small columns each, folded here.
+  Counted by Postgres in grouped queries (`Completion`'s `:place_counts`).
   """
   def completion_locations(days, opts \\ []) when is_integer(days) and days > 0 do
-    rows =
-      days_ago(days)
-      |> completions_between(DateTime.utc_now())
-      |> Ash.Query.select([:city, :region, :country, :country_code, :source, :prayed_aloud])
-      |> Ash.read!(AshOpts.take(opts))
-
-    %{
-      # Rows whose lookup never produced a country are left out rather than
-      # grouped under a blank heading.
-      countries:
-        rows
-        |> Enum.reject(&is_nil(&1.country))
-        |> ranked(&{&1.country, &1.country_code})
-        |> Enum.map(fn {{country, code}, count} ->
-          %{country: country, country_code: code, count: count}
-        end),
-      # Grouped by city *and* region, because a city name on its own is not
-      # a place: there is a Paris in Texas, and several dozen Springfields.
-      cities:
-        rows
-        |> Enum.reject(&is_nil(&1.city))
-        |> ranked(&{&1.city, &1.region, &1.country_code})
-        |> Enum.map(fn {{city, region, code}, count} ->
-          %{city: city, region: region, country_code: code, count: count}
-        end),
-      # Completions recorded before a source was stored answer to `nil`.
-      sources: Enum.frequencies_by(rows, & &1.source),
-      # true, false, or nil for not reported either way.
-      prayed_aloud: Enum.frequencies_by(rows, & &1.prayed_aloud),
-      located: Enum.count(rows, &(not is_nil(&1.country_code))),
-      total: length(rows)
-    }
-  end
-
-  # Most frequent first, then by name, so two places prayed from equally
-  # often always come out in the same order.
-  defp ranked(rows, key) do
-    rows
-    |> Enum.frequencies_by(key)
-    |> Enum.sort_by(fn {group, count} -> {-count, elem(group, 0)} end)
+    Completion
+    |> Ash.ActionInput.for_action(:place_counts, %{
+      since: days_ago(days),
+      until: DateTime.utc_now()
+    })
+    |> Ash.run_action!(AshOpts.take(opts))
   end
 
   @doc """
@@ -1247,30 +1218,30 @@ defmodule LumenViae.Rosary do
   number with nothing to compare it to.
 
   Returns `%{total:, today:, last_7:, previous_7:, last_30:, previous_30:,
-  active_sets_30:}`.
+  active_sets_30:}`, from one aggregate query with a filtered count each.
   """
   def completion_summary(opts \\ []) do
     now = DateTime.utc_now()
+    today = CentralTime.day_start(CentralTime.today())
+    [d7, d14, d30, d60] = Enum.map([7, 14, 30, 60], &days_ago/1)
 
-    %{
-      total: count_total_completions(opts),
-      today: count_completions_today(opts),
-      last_7: count_completions_in_range(days_ago(7), now, opts),
-      previous_7: count_completions_in_range(days_ago(14), days_ago(7), opts),
-      last_30: count_completions_in_range(days_ago(30), now, opts),
-      previous_30: count_completions_in_range(days_ago(60), days_ago(30), opts),
-      active_sets_30: count_sets_completed_in_range(days_ago(30), now, opts)
-    }
-  end
+    between = fn since, until ->
+      [query: [filter: Ash.Expr.expr(completed_at >= ^since and completed_at <= ^until)]]
+    end
 
-  # How many distinct sets have been completed at least once in the range.
-  defp count_sets_completed_in_range(start_at, end_at, opts) do
-    start_at
-    |> completions_between(end_at)
-    |> Ash.Query.select([:meditation_set_id])
-    |> Ash.read!(AshOpts.take(opts))
-    |> Enum.uniq_by(& &1.meditation_set_id)
-    |> length()
+    Completion
+    |> Ash.aggregate!(
+      [
+        {:total, :count, []},
+        {:today, :count, between.(today, now)},
+        {:last_7, :count, between.(d7, now)},
+        {:previous_7, :count, between.(d14, d7)},
+        {:last_30, :count, between.(d30, now)},
+        {:previous_30, :count, between.(d60, d30)},
+        {:active_sets_30, :count, [field: :meditation_set_id, uniq?: true] ++ between.(d30, now)}
+      ],
+      AshOpts.take(opts)
+    )
   end
 
   @doc """
@@ -1280,21 +1251,22 @@ defmodule LumenViae.Rosary do
   Days with no completions are filled in with zero: a chart that silently
   drops empty days draws a flat line through a week nobody prayed.
 
-  The day each completion belongs to is Completion's `local_day`
-  calculation, worked out by Postgres in the reporting zone.
+  Counted per day by Postgres in the reporting zone (`Completion`'s
+  `:daily_counts`, bucketed as its `local_day` calculation is).
   """
   def completions_by_day(days, opts \\ []) when is_integer(days) and days > 0 do
     today = CentralTime.today()
     first = Date.add(today, -(days - 1))
 
     counted =
-      first
-      |> CentralTime.day_start()
-      |> completions_between(DateTime.utc_now())
-      |> Ash.Query.select([:id])
-      |> Ash.Query.load(local_day: %{time_zone: reporting_time_zone()})
-      |> Ash.read!(AshOpts.take(opts))
-      |> Enum.frequencies_by(& &1.local_day)
+      Completion
+      |> Ash.ActionInput.for_action(:daily_counts, %{
+        since: CentralTime.day_start(first),
+        until: DateTime.utc_now(),
+        time_zone: reporting_time_zone()
+      })
+      |> Ash.run_action!(AshOpts.take(opts))
+      |> Map.new(&{&1.date, &1.count})
 
     Enum.map(0..(days - 1), fn offset ->
       date = Date.add(first, offset)

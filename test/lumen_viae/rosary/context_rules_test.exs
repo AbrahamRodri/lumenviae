@@ -115,7 +115,12 @@ defmodule LumenViae.Rosary.ContextRulesTest do
     allowed = [
       "lib/lumen_viae/repo.ex",
       "lib/lumen_viae/release.ex",
-      "lib/lumen_viae/curation/audio_jobs.ex"
+      "lib/lumen_viae/curation/audio_jobs.ex",
+      # Ash has no GROUP BY: the completion tallies are grouped Ecto
+      # queries inside the resource that owns the table, behind its
+      # generic actions and their policies.
+      "lib/lumen_viae/rosary/completion/daily_counts.ex",
+      "lib/lumen_viae/rosary/completion/place_counts.ex"
     ]
 
     offenders =
@@ -135,10 +140,23 @@ defmodule LumenViae.Rosary.ContextRulesTest do
            """
   end
 
+  # The completion tallies are grouped queries over the one table their
+  # resource owns (Ash has no GROUP BY). They may use Ecto, never a join.
+  @grouped_queries [
+    "#{@domain_root}/completion/daily_counts.ex",
+    "#{@domain_root}/completion/place_counts.ex"
+  ]
+
   test "rule 4: the resources compose through relationships, not joins written by hand" do
+    for path <- @grouped_queries do
+      {_path, source} = read(path)
+      refute Regex.match?(~r/\bjoin:|\bjoin\(/, source), "#{path} joins another table"
+    end
+
     offenders =
       for {path, source} <-
             Enum.map(Path.wildcard("#{@domain_root}/**/*.ex") ++ [@domain], &read/1),
+          path not in @grouped_queries,
           Regex.match?(~r/\bEcto\.Query\b|\bjoin:|\bfrom\s*\(?\s*\w+\s+in\s/, source),
           do: path
 

@@ -22,322 +22,326 @@
     </.link>
   </:actions>
 
-  <!-- The pulse: what is live, and whether anyone is praying it -->
-  <div class="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-6">
-    <.metric
-      label="Live sets"
-      value={@library.live_sets}
-      hint={"#{@library.hidden_sets} hidden of #{@library.total_sets}"}
-      navigate="/admin/meditation-sets"
-    />
-    <.metric
-      label="Meditations"
-      value={@library.meditations}
-      hint={"#{@library.archived} archived"}
-      navigate="/admin/meditations"
-    />
-    <.metric
-      label="Needs attention"
-      value={@open_issues}
-      tone="caution"
-      hint={
-        if @health == [], do: "Nothing outstanding", else: "#{length(@health)} kinds of issue"
-      }
-    />
-    <.metric
-      label="Prayed today"
-      value={@completions.today}
-      tone="accent"
-      hint="Since midnight CT"
-    />
-    <.metric
-      label="Last 7 days"
-      value={@completions.last_7}
-      delta={delta(@completions.last_7, @completions.previous_7)}
-      delta_label={delta_label(@completions.last_7, @completions.previous_7)}
-    />
-    <.metric
-      label="Last 30 days"
-      value={@completions.last_30}
-      delta={delta(@completions.last_30, @completions.previous_30)}
-      delta_label={delta_label(@completions.last_30, @completions.previous_30)}
-    />
-  </div>
+  <div :if={not @loaded?} class="admin-eyebrow py-8 text-center">Loading the dashboard</div>
 
-  <div class="grid gap-5 xl:grid-cols-3 mb-5 items-start">
-    <!-- Content health: the working list -->
-    <div class="xl:col-span-2">
+  <%= if @loaded? do %>
+    <!-- The pulse: what is live, and whether anyone is praying it -->
+    <div class="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-6">
+      <.metric
+        label="Live sets"
+        value={@library.live_sets}
+        hint={"#{@library.hidden_sets} hidden of #{@library.total_sets}"}
+        navigate="/admin/meditation-sets"
+      />
+      <.metric
+        label="Meditations"
+        value={@library.meditations}
+        hint={"#{@library.archived} archived"}
+        navigate="/admin/meditations"
+      />
+      <.metric
+        label="Needs attention"
+        value={@open_issues}
+        tone="caution"
+        hint={
+          if @health == [], do: "Nothing outstanding", else: "#{length(@health)} kinds of issue"
+        }
+      />
+      <.metric
+        label="Prayed today"
+        value={@completions.today}
+        tone="accent"
+        hint="Since midnight CT"
+      />
+      <.metric
+        label="Last 7 days"
+        value={@completions.last_7}
+        delta={delta(@completions.last_7, @completions.previous_7)}
+        delta_label={delta_label(@completions.last_7, @completions.previous_7)}
+      />
+      <.metric
+        label="Last 30 days"
+        value={@completions.last_30}
+        delta={delta(@completions.last_30, @completions.previous_30)}
+        delta_label={delta_label(@completions.last_30, @completions.previous_30)}
+      />
+    </div>
+
+    <div class="grid gap-5 xl:grid-cols-3 mb-5 items-start">
+      <!-- Content health: the working list -->
+      <div class="xl:col-span-2">
+        <.panel
+          title="Needs attention"
+          description="Live content, and background jobs that failed. Hidden sets are one issue, listed once, not counted again under every heading."
+          flush
+        >
+          <%= if @health == [] do %>
+            <div class="p-4">
+              <.empty_state>
+                Nothing outstanding. Every live set is complete, illustrated, labelled and
+                narrated, every mystery has a meditation, and no background job has failed.
+              </.empty_state>
+            </div>
+          <% else %>
+            <ul class="divide-y divide-admin-hairline">
+              <li
+                :for={item <- @health}
+                class="flex items-start gap-3 px-4 py-3 hover:bg-admin-sunken transition-colors"
+              >
+                <span class={[
+                  "shrink-0 min-w-7 h-6 px-1.5 rounded inline-flex items-center justify-center",
+                  "text-[0.8125rem] font-semibold",
+                  health_tone_classes(item.tone)
+                ]}>
+                  {item.count}
+                </span>
+                <div class="min-w-0 flex-1">
+                  <p class="font-medium text-admin-ink">{item.label}</p>
+                  <p class="text-xs text-admin-ink-soft">{item.description}</p>
+                  <p
+                    :if={names_preview(item.names)}
+                    class="text-xs text-admin-ink-faint mt-0.5 truncate"
+                  >
+                    {names_preview(item.names)}
+                  </p>
+                </div>
+                <.link navigate={item.link} class="admin-btn admin-btn-secondary shrink-0">
+                  Review
+                </.link>
+              </li>
+            </ul>
+          <% end %>
+        </.panel>
+      </div>
+
+      <!-- Prayer activity -->
       <.panel
-        title="Needs attention"
-        description="Live content, and background jobs that failed. Hidden sets are one issue, listed once, not counted again under every heading."
-        flush
+        title="Rosaries completed"
+        description={"Last #{length(@completion_days)} days. Recorded when someone presses Complete on the final mystery."}
       >
-        <%= if @health == [] do %>
-          <div class="p-4">
-            <.empty_state>
-              Nothing outstanding. Every live set is complete, illustrated, labelled and
-              narrated, every mystery has a meditation, and no background job has failed.
-            </.empty_state>
+        <.day_chart series={@completion_days} />
+
+        <dl class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-admin-hairline">
+          <div>
+            <dt class="admin-eyebrow">All time</dt>
+            <dd class="text-lg font-semibold text-admin-ink mt-0.5">{@completions.total}</dd>
           </div>
-        <% else %>
-          <ul class="divide-y divide-admin-hairline">
-            <li
-              :for={item <- @health}
-              class="flex items-start gap-3 px-4 py-3 hover:bg-admin-sunken transition-colors"
-            >
-              <span class={[
-                "shrink-0 min-w-7 h-6 px-1.5 rounded inline-flex items-center justify-center",
-                "text-[0.8125rem] font-semibold",
-                health_tone_classes(item.tone)
-              ]}>
-                {item.count}
-              </span>
-              <div class="min-w-0 flex-1">
-                <p class="font-medium text-admin-ink">{item.label}</p>
-                <p class="text-xs text-admin-ink-soft">{item.description}</p>
-                <p
-                  :if={names_preview(item.names)}
-                  class="text-xs text-admin-ink-faint mt-0.5 truncate"
-                >
-                  {names_preview(item.names)}
-                </p>
-              </div>
-              <.link navigate={item.link} class="admin-btn admin-btn-secondary shrink-0">
-                Review
-              </.link>
-            </li>
-          </ul>
-        <% end %>
+          <div>
+            <dt class="admin-eyebrow">Sets prayed</dt>
+            <dd class="text-lg font-semibold text-admin-ink mt-0.5">
+              {@completions.active_sets_30}
+            </dd>
+          </div>
+          <div>
+            <dt class="admin-eyebrow">Daily avg</dt>
+            <dd class="text-lg font-semibold text-admin-ink mt-0.5">
+              {Float.round(@completions.last_30 / 30, 1)}
+            </dd>
+          </div>
+        </dl>
       </.panel>
     </div>
 
-    <!-- Prayer activity -->
-    <.panel
-      title="Rosaries completed"
-      description={"Last #{length(@completion_days)} days. Recorded when someone presses Complete on the final mystery."}
-    >
-      <.day_chart series={@completion_days} />
-
-      <dl class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-admin-hairline">
-        <div>
-          <dt class="admin-eyebrow">All time</dt>
-          <dd class="text-lg font-semibold text-admin-ink mt-0.5">{@completions.total}</dd>
-        </div>
-        <div>
-          <dt class="admin-eyebrow">Sets prayed</dt>
-          <dd class="text-lg font-semibold text-admin-ink mt-0.5">
-            {@completions.active_sets_30}
-          </dd>
-        </div>
-        <div>
-          <dt class="admin-eyebrow">Daily avg</dt>
-          <dd class="text-lg font-semibold text-admin-ink mt-0.5">
-            {Float.round(@completions.last_30 / 30, 1)}
-          </dd>
-        </div>
-      </dl>
-    </.panel>
-  </div>
-
-  <div class="grid gap-5 xl:grid-cols-3 items-start">
-    <!-- Catalogue coverage, then the log, in one column -->
-    <div class="xl:col-span-2 space-y-5">
-      <.panel
-        title="Catalogue coverage"
-        description="Live sets per category, and how many of them are finished."
-        flush
-      >
-        <div class="overflow-x-auto">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Live sets</th>
-                <th>Complete</th>
-                <th>Fully narrated</th>
-                <th>Artwork served</th>
-                <th class="text-right">Browse</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr :for={row <- @coverage}>
-                <td class="font-medium text-admin-ink">{row.label}</td>
-                <td>{row.sets}</td>
-                <td>
-                  <span class={row.sets > 0 && row.complete < row.sets && "text-caution-strong"}>
-                    {row.complete}
-                  </span>
-                  <span class="text-admin-ink-faint">/ {row.sets}</span>
-                </td>
-                <td>
-                  <span class={row.sets > 0 && row.narrated < row.sets && "text-caution-strong"}>
-                    {row.narrated}
-                  </span>
-                  <span class="text-admin-ink-faint">/ {row.sets}</span>
-                </td>
-                <td>
-                  <span class={
-                    row.sets > 0 && row.illustrated < row.sets && "text-caution-strong"
-                  }>
-                    {row.illustrated}
-                  </span>
-                  <span class="text-admin-ink-faint">/ {row.sets}</span>
-                </td>
-                <td class="text-right">
-                  <.link
-                    navigate={"/admin/meditation-sets?category=#{row.slug}"}
-                    class="text-admin-ink-soft hover:text-navy"
-                  >
-                    Sets
-                  </.link>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </.panel>
-
-      <!-- The log of what has actually been prayed -->
-      <.panel
-        title="Recent completions"
-        description="The last few Rosaries someone finished, newest first."
-        flush
-      >
-        <%= if @recent_completions == [] do %>
-          <div class="p-4">
-            <.empty_state>
-              Nothing recorded yet. A completion is written when someone presses Complete at
-              the end of the last mystery.
-            </.empty_state>
-          </div>
-        <% else %>
+    <div class="grid gap-5 xl:grid-cols-3 items-start">
+      <!-- Catalogue coverage, then the log, in one column -->
+      <div class="xl:col-span-2 space-y-5">
+        <.panel
+          title="Catalogue coverage"
+          description="Live sets per category, and how many of them are finished."
+          flush
+        >
           <div class="overflow-x-auto">
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>When</th>
-                  <th>Set</th>
                   <th>Category</th>
-                  <th>From</th>
-                  <th>How</th>
+                  <th>Live sets</th>
+                  <th>Complete</th>
+                  <th>Fully narrated</th>
+                  <th>Artwork served</th>
+                  <th class="text-right">Browse</th>
                 </tr>
               </thead>
               <tbody>
-                <tr :for={completion <- @recent_completions}>
-                  <td class="text-admin-ink-soft whitespace-nowrap">
-                    {format_time(completion.completed_at)}
+                <tr :for={row <- @coverage}>
+                  <td class="font-medium text-admin-ink">{row.label}</td>
+                  <td>{row.sets}</td>
+                  <td>
+                    <span class={row.sets > 0 && row.complete < row.sets && "text-caution-strong"}>
+                      {row.complete}
+                    </span>
+                    <span class="text-admin-ink-faint">/ {row.sets}</span>
                   </td>
-                  <td class="font-medium text-admin-ink">{completion.set_name}</td>
-                  <td><.category_badge category={completion.category} /></td>
-                  <td class="text-admin-ink-faint">{place(completion)}</td>
-                  <td class="text-admin-ink-faint whitespace-nowrap">
-                    {source_label(completion.source)}
+                  <td>
+                    <span class={row.sets > 0 && row.narrated < row.sets && "text-caution-strong"}>
+                      {row.narrated}
+                    </span>
+                    <span class="text-admin-ink-faint">/ {row.sets}</span>
+                  </td>
+                  <td>
+                    <span class={
+                      row.sets > 0 && row.illustrated < row.sets && "text-caution-strong"
+                    }>
+                      {row.illustrated}
+                    </span>
+                    <span class="text-admin-ink-faint">/ {row.sets}</span>
+                  </td>
+                  <td class="text-right">
+                    <.link
+                      navigate={"/admin/meditation-sets?category=#{row.slug}"}
+                      class="text-admin-ink-soft hover:text-navy"
+                    >
+                      Sets
+                    </.link>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
+        </.panel>
+
+        <!-- The log of what has actually been prayed -->
+        <.panel
+          title="Recent completions"
+          description="The last few Rosaries someone finished, newest first."
+          flush
+        >
+          <%= if @recent_completions == [] do %>
+            <div class="p-4">
+              <.empty_state>
+                Nothing recorded yet. A completion is written when someone presses Complete at
+                the end of the last mystery.
+              </.empty_state>
+            </div>
+          <% else %>
+            <div class="overflow-x-auto">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Set</th>
+                    <th>Category</th>
+                    <th>From</th>
+                    <th>How</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr :for={completion <- @recent_completions}>
+                    <td class="text-admin-ink-soft whitespace-nowrap">
+                      {format_time(completion.completed_at)}
+                    </td>
+                    <td class="font-medium text-admin-ink">{completion.set_name}</td>
+                    <td><.category_badge category={completion.category} /></td>
+                    <td class="text-admin-ink-faint">{place(completion)}</td>
+                    <td class="text-admin-ink-faint whitespace-nowrap">
+                      {source_label(completion.source)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+        </.panel>
+      </div>
+
+      <!-- What is actually being prayed -->
+      <.panel title="Most prayed sets" description={"Last #{length(@completion_days)} days."}>
+        <%= if @top_sets == [] do %>
+          <.empty_state>No Rosaries completed in this period yet.</.empty_state>
+        <% else %>
+          <.bar_list rows={
+            Enum.map(@top_sets, fn completion ->
+              %{
+                label: completion.set_name,
+                count: completion.count,
+                sublabel: LumenViae.Rosary.Categories.label(completion.category),
+                navigate: "/admin/meditation-sets/#{completion.set_id}/edit"
+              }
+            end)
+          } />
         <% end %>
       </.panel>
     </div>
 
-    <!-- What is actually being prayed -->
-    <.panel title="Most prayed sets" description={"Last #{length(@completion_days)} days."}>
-      <%= if @top_sets == [] do %>
-        <.empty_state>No Rosaries completed in this period yet.</.empty_state>
-      <% else %>
-        <.bar_list rows={
-          Enum.map(@top_sets, fn completion ->
-            %{
-              label: completion.set_name,
-              count: completion.count,
-              sublabel: LumenViae.Rosary.Categories.label(completion.category),
-              navigate: "/admin/meditation-sets/#{completion.set_id}/edit"
-            }
-          end)
-        } />
-      <% end %>
-    </.panel>
-  </div>
-
-  <!-- Where the praying happens, and on what -->
-  <div class="grid gap-5 xl:grid-cols-3 mt-5 items-start">
-    <div class="xl:col-span-2">
-      <.panel
-        title="Where Rosaries are prayed"
-        description={coverage_note(@locations)}
-      >
-        <%= if @locations.countries == [] and @locations.cities == [] do %>
-          <.empty_state>
-            No places recorded yet. A place is looked up from the address a completion arrives
-            from, so nothing appears here until geolocation is switched on in production and
-            somebody prays.
-          </.empty_state>
-        <% else %>
-          <div class="grid gap-8 md:grid-cols-2">
-            <div>
-              <h3 class="text-[0.6875rem] uppercase tracking-wider text-admin-ink-faint mb-3">
-                Countries
-              </h3>
-              <.bar_list rows={
-                Enum.map(Enum.take(@locations.countries, 8), fn row ->
-                  %{
-                    label:
-                      [flag(row.country_code), row.country]
-                      |> Enum.reject(&is_nil/1)
-                      |> Enum.join(" "),
-                    count: row.count
-                  }
-                end)
-              } />
-            </div>
-
-            <div>
-              <h3 class="text-[0.6875rem] uppercase tracking-wider text-admin-ink-faint mb-3">
-                Cities
-              </h3>
-              <%= if @locations.cities == [] do %>
-                <.empty_state>
-                  No completion has been placed more precisely than its country yet.
-                </.empty_state>
-              <% else %>
+    <!-- Where the praying happens, and on what -->
+    <div class="grid gap-5 xl:grid-cols-3 mt-5 items-start">
+      <div class="xl:col-span-2">
+        <.panel
+          title="Where Rosaries are prayed"
+          description={coverage_note(@locations)}
+        >
+          <%= if @locations.countries == [] and @locations.cities == [] do %>
+            <.empty_state>
+              No places recorded yet. A place is looked up from the address a completion arrives
+              from, so nothing appears here until geolocation is switched on in production and
+              somebody prays.
+            </.empty_state>
+          <% else %>
+            <div class="grid gap-8 md:grid-cols-2">
+              <div>
+                <h3 class="text-[0.6875rem] uppercase tracking-wider text-admin-ink-faint mb-3">
+                  Countries
+                </h3>
                 <.bar_list rows={
-                  Enum.map(Enum.take(@locations.cities, 8), fn row ->
-                    %{label: city_label(row), count: row.count}
+                  Enum.map(Enum.take(@locations.countries, 8), fn row ->
+                    %{
+                      label:
+                        [flag(row.country_code), row.country]
+                        |> Enum.reject(&is_nil/1)
+                        |> Enum.join(" "),
+                      count: row.count
+                    }
                   end)
                 } />
-              <% end %>
+              </div>
+
+              <div>
+                <h3 class="text-[0.6875rem] uppercase tracking-wider text-admin-ink-faint mb-3">
+                  Cities
+                </h3>
+                <%= if @locations.cities == [] do %>
+                  <.empty_state>
+                    No completion has been placed more precisely than its country yet.
+                  </.empty_state>
+                <% else %>
+                  <.bar_list rows={
+                    Enum.map(Enum.take(@locations.cities, 8), fn row ->
+                      %{label: city_label(row), count: row.count}
+                    end)
+                  } />
+                <% end %>
+              </div>
             </div>
-          </div>
+          <% end %>
+        </.panel>
+      </div>
+
+      <.panel
+        title="Website or app"
+        description={"Which surface the last #{length(@completion_days)} days were prayed on."}
+      >
+        <%= if source_rows(@locations.sources) == [] do %>
+          <.empty_state>No Rosaries completed in this period yet.</.empty_state>
+        <% else %>
+          <.bar_list rows={
+            Enum.map(source_rows(@locations.sources), fn {label, count} ->
+              %{label: label, count: count}
+            end)
+          } />
         <% end %>
+
+        <div
+          :if={prayed_aloud_rows(@locations.prayed_aloud) != []}
+          class="mt-4 pt-4 border-t border-admin-hairline"
+        >
+          <p class="admin-eyebrow mb-2">Aloud or silently</p>
+          <.bar_list rows={
+            Enum.map(prayed_aloud_rows(@locations.prayed_aloud), fn {label, count} ->
+              %{label: label, count: count}
+            end)
+          } />
+        </div>
       </.panel>
     </div>
-
-    <.panel
-      title="Website or app"
-      description={"Which surface the last #{length(@completion_days)} days were prayed on."}
-    >
-      <%= if source_rows(@locations.sources) == [] do %>
-        <.empty_state>No Rosaries completed in this period yet.</.empty_state>
-      <% else %>
-        <.bar_list rows={
-          Enum.map(source_rows(@locations.sources), fn {label, count} ->
-            %{label: label, count: count}
-          end)
-        } />
-      <% end %>
-
-      <div
-        :if={prayed_aloud_rows(@locations.prayed_aloud) != []}
-        class="mt-4 pt-4 border-t border-admin-hairline"
-      >
-        <p class="admin-eyebrow mb-2">Aloud or silently</p>
-        <.bar_list rows={
-          Enum.map(prayed_aloud_rows(@locations.prayed_aloud), fn {label, count} ->
-            %{label: label, count: count}
-          end)
-        } />
-      </div>
-    </.panel>
-  </div>
+  <% end %>
 </.admin_page>

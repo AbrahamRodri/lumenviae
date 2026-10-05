@@ -246,4 +246,21 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
       assert html =~ ~s(href="/admin/system")
     end
   end
+
+  describe "loading" do
+    test "the first render waits for the socket; the connected one has the figures",
+         %{conn: conn} do
+      set = create_set()
+      {:ok, _} = Rosary.record_completion(set.id)
+
+      dead = conn |> get("/admin") |> html_response(200)
+      assert dead =~ "Loading the dashboard"
+      refute dead =~ "Rosaries completed"
+
+      {:ok, _view, html} = live(conn, "/admin")
+      refute html =~ "Loading the dashboard"
+      assert html =~ "Rosaries completed"
+      assert html =~ set.name
+    end
+  end
 end

@@ -210,7 +210,10 @@ domain. See also J5.
 
 ### Queries and growth
 
-**Q1. High: the dashboard counts completions in Elixir, twice per
+**Q1. Done with workstream 3:** grouped `:daily_counts` and
+`:place_counts` actions, the distinct-set count in the summary's
+aggregate, and the dashboard reads once, after the socket connects. As
+found: **the dashboard counts completions in Elixir, twice per
 visit.** In `lib/lumen_viae/rosary.ex`, `completion_locations/2` (line
 1126) reads every completion in the window and folds it with
 `Enum.frequencies_by`; `completions_by_day/2` (line 1231) reads every row
@@ -246,7 +249,10 @@ A nightly rollup table is premature: "today" cannot be rolled up, the
 rolling 24-hour `days_ago` windows do not align with daily buckets, and
 the place lookup fills places in after the fact.
 
-**Q2. High: no read is paginated, `Completion`'s included.**
+**Q2. Done for `Completion` with workstream 3** (optional keyset and
+offset pagination on its primary read); the version tables' index is left
+to workstream 8. As found: **no read is paginated, `Completion`'s
+included.**
 `completion.ex:146` (`defaults [:read, :destroy]`), `:in_range` (148) and
 `:recent` (163, which limits by hand). AshAdmin at `/admin/data` browses
 the primary read, so opening completions there loads the table.
@@ -265,8 +271,11 @@ no index (`priv/repo/migrations/20261001163951_add_paper_trail_versions.exs:15,3
 Lower priority, since only admins read them. `oban_jobs`, the newest
 growing table, is pruned after seven days (`config/config.exs:186`).
 
-**Q3. Medium: `get_completions_by_set/1` filters, sorts and limits in
-Elixir** (`rosary.ex:1070`). It loads every set with its
+**Q3. Done for the ranking with workstream 3** (filter, sort and
+`:limit` in the query, and the `[:meditation_set_id, :completed_at]`
+index); the three small "load all, reject zeros" reads are left to
+workstream 12. As found: **`get_completions_by_set/1` filters, sorts and
+limits in Elixir** (`rosary.ex:1070`). It loads every set with its
 `completion_count`, rejects zeros, sorts, and the dashboard takes six.
 Make it a read on `MeditationSet` that filters on
 `completion_count(since:, until:) > 0`, sorts on the same calculation and
@@ -304,7 +313,8 @@ narrations they never show. `get_meditation_set` (`rosary.ex:279-282`)
 defaults to loading `:meditations`, and its only caller
 (`sets/list/list.ex:62`) loads the set to delete it.
 
-**Q7. Low: `completion_summary/1` runs seven count queries**
+**Q7. Done with workstream 3:** one aggregate query. As found:
+**`completion_summary/1` runs seven count queries**
 (`rosary.ex:1197`). Indexed and acceptable; one `Ash.aggregate` call with
 filtered counts makes it one.
 
@@ -1022,6 +1032,10 @@ they describe or tidy; 15 runs alone, between rounds.
 - **Depends on:** nothing. Do it before 5.
 
 ### 3. Completion analytics in the database
+
+Done: Q1, Q7, Q2 for `Completion` and Q3 for the ranking. The dashboard
+loads after the socket connects, behind a one-line "Loading" state,
+rather than through `assign_async`.
 
 - **Packages:** none new.
 - **Changes:** generic actions on `Completion` for per-day and per-place
