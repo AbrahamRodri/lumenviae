@@ -30,12 +30,21 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   @chart_days 30
   @recent_completions 8
 
+  # Everything below is read once the socket connects, not on the first
+  # (dead) render as well: that render is shown for a moment before the
+  # socket replaces it, and would cost the whole page's queries twice.
   def mount(_params, _session, socket) do
-    {:ok,
-     socket
-     |> assign(:page_title, "Dashboard")
-     |> assign(:rosary_audio_missing, 0)
-     |> load()}
+    socket =
+      socket
+      |> assign(:page_title, "Dashboard")
+      |> assign(:rosary_audio_missing, 0)
+      |> assign(:refreshed_at, DateTime.utc_now())
+
+    if connected?(socket) do
+      {:ok, socket |> assign(:loaded?, true) |> load()}
+    else
+      {:ok, assign(socket, :loaded?, false)}
+    end
   end
 
   def handle_event("refresh", _params, socket) do
@@ -104,8 +113,11 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     )
     |> assign(
       :top_sets,
-      Rosary.get_completions_by_set(days: @chart_days, actor: socket.assigns.current_admin)
-      |> Enum.take(6)
+      Rosary.get_completions_by_set(
+        days: @chart_days,
+        limit: 6,
+        actor: socket.assigns.current_admin
+      )
     )
     |> assign(
       :recent_completions,

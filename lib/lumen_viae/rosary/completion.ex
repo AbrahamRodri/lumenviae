@@ -107,6 +107,9 @@ defmodule LumenViae.Rosary.Completion do
 
     custom_indexes do
       index [:completed_at]
+      # A set's completions in a range: the dashboard's most-prayed ranking
+      # counts them per set (MeditationSet's completion_count).
+      index [:meditation_set_id, :completed_at]
       index [:country_code]
       index [:source]
     end
@@ -172,7 +175,15 @@ defmodule LumenViae.Rosary.Completion do
   end
 
   actions do
-    defaults [:read, :destroy]
+    defaults [:destroy]
+
+    # Paginated on request, so the data browser at /admin/data pages the
+    # table instead of loading it whole. Optional, because the place lookup
+    # job reads a single row through it.
+    read :read do
+      primary? true
+      pagination keyset?: true, offset?: true, required?: false, default_limit: 50
+    end
 
     read :in_range do
       description "The completions between two moments, oldest first."
@@ -187,6 +198,28 @@ defmodule LumenViae.Rosary.Completion do
 
       filter expr(completed_at >= ^arg(:since) and completed_at <= ^arg(:until))
       prepare build(sort: [completed_at: :asc, id: :asc])
+    end
+
+    # The dashboard's tallies. Ash has no GROUP BY, so each runs grouped
+    # Ecto queries over this table rather than reading every row of the
+    # range into Elixir; see the modules.
+    action :daily_counts, {:array, :map} do
+      description "How many completions fell on each day of a range, in the given zone; days with none are left out."
+
+      argument :since, :utc_datetime, allow_nil?: false
+      argument :until, :utc_datetime, allow_nil?: false
+      argument :time_zone, :string, allow_nil?: false
+
+      run LumenViae.Rosary.Completion.DailyCounts
+    end
+
+    action :place_counts, :map do
+      description "Where and on what the completions of a range were prayed: counts by country, city, source and prayed aloud."
+
+      argument :since, :utc_datetime, allow_nil?: false
+      argument :until, :utc_datetime, allow_nil?: false
+
+      run LumenViae.Rosary.Completion.PlaceCounts
     end
 
     read :awaiting_place do
