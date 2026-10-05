@@ -707,13 +707,19 @@ calls the domain's plain functions rather than the actions, so REST
 bypasses policies and Ash telemetry; the docs say that is deliberate.
 /api/v2 does not serve the Office.
 
-**O1. Low: concurrent cold misses all reach the engine**
+**O1. Done with workstream 14:** `Cache.fetch_or_load/2` loads a cold
+key once; concurrent callers wait for that load (up to 25s, then load for
+themselves), and a dead loader hands the key to the next waiter. As
+found: **concurrent cold misses all reach the engine**
 (`lib/lumen_viae/office.ex:171-177`). A burst for today's hours at
 midnight sends one identical request per caller to Divinum Officium.
 Serialise misses per key (a per-key lock in the `Cache` GenServer, or
 `:global.trans`).
 
-**O2. Low: the Office tests share the global cache.** All three files are
+**O2. Done with workstream 14:** `Cache.isolate/0`, on in the test
+configuration only, gives a test and its processes keys of their own;
+the three async Office suites call it. As found: **the Office tests share
+the global cache.** All three files are
 `async: true` and stay correct only because each test uses its own date.
 `Cache.reset/0` exists but nothing calls it. Namespace the keys per test,
 or make the cache table name configurable.
@@ -1270,6 +1276,8 @@ The candidate "nightly self-healing narration", turned into a button.
   wrong meditation.
 
 ### 14. Office cache
+
+Done: O1 and O2.
 
 - **Packages:** none.
 - **Changes:** one engine request per cold key (O1); a cache the tests

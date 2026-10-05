@@ -641,6 +641,11 @@ cache keeps an entry for 30 days and sweeps every 12 hours; it has no
 size cap, so warming alone holds it near 6 MB per machine. A node that
 does not answer in time is reported, not waited on.
 
+Between warmings, a key missing from the cache is fetched once however
+many requests want it at the same moment: `Office.Cache.fetch_or_load/2`
+lets the first caller load it and has the rest wait for that answer
+(`Office.Cache`'s moduledoc has the timeouts).
+
 The engine is its own Fly app and suspends when idle, so each run also
 wakes it, two or three times a day. A machine stops at its first failed
 fetch (`Office.warm/1` counts the rest as skipped), so a dead engine is

@@ -9,6 +9,12 @@ defmodule LumenViaeWeb.API.OfficeControllerTest do
   """
   use LumenViaeWeb.ConnCase, async: true
 
+  # A cache of this test's own, so no other test's entries answer for it.
+  setup do
+    LumenViae.Office.Cache.isolate()
+    :ok
+  end
+
   alias LumenViae.Office.DivinumOfficium
 
   @fixtures Path.expand("../../../support/fixtures/divinum_officium", __DIR__)
