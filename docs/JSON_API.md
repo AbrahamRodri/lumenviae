@@ -684,13 +684,20 @@ leaves the others out.
 
 This document was generated into a client with swift-openapi-generator
 (main as of 2 October 2026, 813aa54) and swift-openapi-runtime 1.12.2, with
-no warnings, and every operation was called through that client against
-responses captured from the server (`./dev.sh`, a copy of the development
-database): both set routes, one set with its includes and signed fields,
-the mysteries (and with a sparse `fields`), both voice lists, the whole
-spoken Rosary, the content document (bare and with `fields`), a completion, fresh audio, and the errors: a 404, the 400s,
-a 403 and a 429. All of them decoded, and each request carried
-`fields[<type>]` as the server reads it.
+no warnings, and all ten operations were called through that client against
+58 responses captured from the server (`./dev.sh` on a copy of the
+development database, with one mystery painting and one category card
+published so the non-null artwork shapes were captured too): both set
+routes (one set with its includes and signed fields), the mysteries (bare
+and with a sparse `fields`), both voice lists, the whole spoken Rosary, the
+content document (bare, each of its thirteen sections alone, and all
+together), one Rosary's script for every style, the chaplet, extras and
+orders, a completion and fresh audio, and the errors: a 404, the 400s (the
+script's six among them), a 403 and a 429. All of them decoded, each
+request carried `fields[<type>]` as the server reads it, and what was
+decoded encodes back to what was captured (`data` and `included`, leaving
+out JSON:API's own open `links` and `meta`), so no field the server sends
+is missing from the generated types.
 
 Regenerate the client whenever `priv/openapi/v2.json` changes. Like v1,
 the document may gain fields without notice; a generated client tolerates
@@ -783,10 +790,17 @@ that has one (`RecordCompletionDefaultResponse`), and a 429's wait is its
 `Retry-After` header.
 
 The document was generated into a client this way and built with no errors.
-A JUnit test (kotlin-test and OkHttp's MockWebServer) replayed the responses
-captured for the Swift check, through the generated services: every
-operation, the signed narrations and the whole spoken Rosary included, the
-errors (404, the 400s, 403, 429 and its `Retry-After`), a sparse `fields`,
-and the request each call sent (the `fields[<type>]` names, the media type).
-All 28 decoded and passed. Run it again whenever `priv/openapi/v2.json`
-changes.
+A JUnit test (kotlin-test and OkHttp's MockWebServer) replayed the 58
+responses captured for the Swift check, through the generated services:
+every operation; the signed narrations and the whole spoken Rosary; the
+content document bare, each section alone (and only that one present) and
+all together, with the card painting and a mystery's painting non-null where
+published and null elsewhere; every style of Rosary script; the errors (404,
+the 400s, 403, 429 and its `Retry-After`); a sparse `fields`; and the request
+each call sent (the `fields[<type>]` names, the media type). It also
+encodes every decoded response back and compares `data` and `included`
+with the capture, so a field the generated types drop fails the test, and
+fails if any capture was not decoded. All 37 tests passed, and no
+correction to the document was needed beyond the ones the moduledoc of
+`LumenViaeWeb.JsonApi.OpenApi` lists. Run it again whenever
+`priv/openapi/v2.json` changes.
