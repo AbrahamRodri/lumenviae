@@ -2,7 +2,8 @@
 
 Every prayer of the Rosary, one announcement per mystery and the Scriptural
 Rosary's verse for every Hail Mary, recorded in each narration voice, so the
-iOS app and the website can pray a whole Rosary aloud, bead by bead.
+apps (the iOS app, and the Android app through `/api/v2/rosary-audio`) and
+the website can pray a whole Rosary aloud, bead by bead.
 
 | Piece | Where |
 | --- | --- |
@@ -82,9 +83,10 @@ GraphQL's `rosaryContent { script }`), so a client builds any Rosary
 offline. `PrayerAudio.script/3` expands the same templates for the
 website's "Pray aloud", and `GET /api/v2/rosary-script` serves that
 expansion as the reference a client's own is held to. The order, the
-captions, the pauses, the beads and the pendant's places are the app's
-`SpokenRosaryScript` (`SpokenRosary.swift`) and `RosaryStrand`; the app
-keeps its copy as the offline one. A caption, a pause or a bead is shown
+captions, the pauses, the beads and the pendant's places were taken from
+the app's `SpokenRosaryScript` (`SpokenRosary.swift`) and `RosaryStrand`
+(D3); since D1 the server's file is canonical, and the app's code is the
+offline copy, changed to match. A caption, a pause or a bead is shown
 or timed and never spoken, so changing one records nothing (the clip
 fixture holds that); the dating rule applies to the file as to any other
 (docs/JSON_API.md, "The content document").

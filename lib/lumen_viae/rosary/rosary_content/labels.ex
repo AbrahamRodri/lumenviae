@@ -11,7 +11,7 @@ defmodule LumenViae.Rosary.RosaryContent.Labels do
   the section's version against it, as the content files' histories are
   pinned. Change one: bump `@updated_at` and add the version the test
   prints. The section's value is folded into the document's version through
-  `LumenViae.Rosary.RosaryContent.Current.stamp/1`.
+  `LumenViae.Rosary.RosaryContent.Current.stamp/2`.
   """
   use Ash.Resource.Calculation
 

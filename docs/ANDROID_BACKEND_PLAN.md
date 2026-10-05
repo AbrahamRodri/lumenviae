@@ -693,6 +693,76 @@ records the answers here.
 
 ## Status
 
-Decisions D1-D10 answered at kickoff (3 Oct 2026); PR #54 had already
-merged. Updated by the manager as workstreams land; the live board is
-`.claude/plans/android-backend/STATUS.md` in the main checkout.
+Decisions D1-D10 answered at kickoff (3 Oct 2026), all as recommended; PR
+#54 had already merged. Every workstream merged on 3-4 October 2026, one
+at a time, each rebased onto the last and smoke-tested against production
+after its deploy (`.claude/plans/android-backend/STATUS.md` in the main
+checkout holds the board and the notes). The server's half is done:
+**docs/ANDROID_API.md** is where the Android app starts.
+
+| W | What was done | PR | Merged |
+| --- | --- | --- | --- |
+| plan | This plan, with the owner's decisions | #56 | 006997b |
+| W1 | Completions from the Android app recorded as `android`, from its user agent (D4); the OkHttp default still refused; the dashboard and the privacy policy name the Android app (D5) | #57 | 61a9c8d |
+| W2 | `GET /api/v2/rosary-content` with `version`, `updated_at` and `prayers`; the twelve prayers' words in `priv/rosary_content/prayers.json`, read by the spoken Rosary too (D1); every spoken-Rosary file name pinned by a committed fixture | #59 | d3fb106 |
+| W9a | The OpenAPI document corrected so a Kotlin client can be generated: flat `fields[type]`, a named `included_resource`, no required attributes, no `uniqueItems` | #60 | 30d1e37 |
+| W5 | `schedule`: both weekly schedules, Sunday by season, dated Lents and Advents, the days in words; `LiturgicalCalendar` given the modern schedule and tests | #61 | d47a9b3 |
+| W4 | `script`: the order a Rosary is said in as templates, with the app's captions and pauses (D3); `GET /api/v2/rosary-script`, their expansion, held to a client's own by a test | #63 | 176f02d |
+| W6 | `learn` and `guided_rosary`: the How to Pray course and "Your First Rosary" | #65 | ec27fd1 |
+| W3 | `mysteries`, `categories` and `verses`, keyed `<category>_<order>`; production's six differing names aligned to the app's by a guarded migration (D2); the CSV import's lookups disambiguated | #66 | 991ad92 |
+| W7 | `quotes`, `milestones`, `reminders`, `labels` and `forms`, each with the rule a client applies | #67 | 0bfe3b8 |
+| W8 | A painting for each mystery and the Seven Sorrows' card (`category_cards`), served once published; provenance in docs/MYSTERY_PAINTINGS.md (D7) | #70 | fd7eab8 |
+| W9b | The Kotlin and Swift clients generated from the document and checked against all ten operations (58 captured responses, encoded back unchanged); no further correction was needed | #71 | ffb749e |
+| W10 | docs/ANDROID_API.md, the Android app's contract, and the documents made to agree | #75 | |
+
+One thing the plan said turned out otherwise: `lumenviae.fly.dev`
+redirects only the website's pages to `www`, and the API answers on every
+host with no redirect (`CanonicalHost` is in the browser pipeline). The
+Android app still uses `www.lumenviae.org`.
+
+### Owner steps outstanding
+
+- **Paintings (D7):** confirm the four unidentified paintings
+  (`glorious_ascension`, `glorious_pentecost`, `glorious_assumption`,
+  `joyful_nativity`) or replace them, supply larger originals where
+  docs/MYSTERY_PAINTINGS.md says the bundled file will not pass, and upload
+  in the production console. Until then every `artwork` is null and the
+  apps keep their bundled paintings.
+- **The CSVs in `priv/repo/imports/`** still use the Seven Sorrows' old
+  names, which the import now refuses as not found: update them.
+- **The project CLAUDE.md** still says the prayer text is the app's, which
+  D1 made wrong for the prayers; its wording is the owner's to change.
+- **Scratch databases** the workers made (`lumen_viae_testcalendar`,
+  `lv_client`, `lv_kotlin_probe`, `lv_mysteries`, and each worker's test
+  partition): `dropdb -h localhost -U postgres <name>`.
+
+### Later items
+
+Found during the programme and left outside it:
+
+- The privacy policy still calls the Rosary Said Aloud "the Holy Rosary".
+- The days each set is prayed, in words, are the app's in `schedule`, and
+  still differ from the `mysteries.days_prayed` rows and the website's
+  wording ("Mondays and Thursdays, and Sundays of Advent").
+- The website's static pages keep their own mystery names ("Jesus Dies on
+  the Cross", "The Coronation of Our Lady"), and its mystery pages their
+  own fruits and passages, rather than reading the database's.
+- `GET /api/v2/meditation-sets/{id}` advertises a stray `category` query
+  parameter in the OpenAPI document (from the `:visible` action).
+- The CSV preview refuses an ambiguous mystery name on a new set's row with
+  no `set_category`, where the import itself accepts it; and the
+  ambiguous-name message says "add set_category" even when one was given
+  but matched neither.
+- A bare `GET /api/v2/rosary-content` reads the 27 mystery rows to
+  compute its version: cheap, but a query on every poll.
+- `forms` names the Scriptural Rosary and the Rosary Said Aloud; the
+  meditation-set form has no name of its own in the app, and the Kinds of
+  Meditation page's introduction is not served.
+- `RosaryContent.Categories` and `Labels` pin their `@updated_at` a few
+  hours into 4 October, which briefly hides a later date from the
+  database; `Categories.all/1` would serve `card_artwork` for a card row
+  of one of the four Rosaries if an admin made one (guard on
+  `card_mystery_key == nil`); a rejected card upload leaves an empty
+  card row; and the publish gate accepts the licence `unknown`.
+  CategoryCard's public read is the one row of docs/ARCHITECTURE.md's
+  policy table that `test/lumen_viae/policies_test.exs` does not check.

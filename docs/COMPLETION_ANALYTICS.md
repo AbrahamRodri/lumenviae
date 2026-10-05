@@ -124,9 +124,9 @@ recorded is a missing analytics row, not a missing Rosary, and it is not
 worth an error in front of somebody who has just finished praying.
 
 The `429` is the completion action's own rate limit, not something this route
-adds: the website, this route and GraphQL's `recordCompletion` all record a
-completion through the same `Completion` actions, so all three spend one
-budget per address and a client does not double its allowance by using more
+adds: the website, this route, `POST /api/v2/completions` and GraphQL's
+`recordCompletion` all record a completion through the same `Completion`
+actions, so all four spend one budget per address and a client does not double its allowance by using more
 than one. The status, the code and the body are unchanged from when the
 limit stood in front of the route; the `Retry-After` header is added and is
 not read by any build. See "Rate limits" in
@@ -163,7 +163,7 @@ agent names no platform.
 
 **The app must set that agent, and never send its HTTP library's
 default.** OkHttp, which Retrofit, Coil and most Android HTTP stacks use,
-sends `okhttp/4.12.0`, and `okhttp` is on `LumenViae.BotDetection`'s list
+sends `okhttp/<version>`, and `okhttp` is on `LumenViae.BotDetection`'s list
 because scripts use it: left at the default, every completion would answer
 `403 automated_client`, which a client drops without retrying, and
 Android's figures would read zero with nothing saying why. Android's stock
@@ -264,8 +264,10 @@ flow, the console and the API, and asks AI-training and SEO crawlers away
 entirely.
 
 That file is a request, not a fence, so the completion route is guarded in
-the application as well — a crawler is refused on its user agent
-(`LumenViaeWeb.Plugs.GuardCompletions`), and every address is rate limited by
+the application as well — a crawler is refused on its user agent (by
+`LumenViaeWeb.Plugs.GuardCompletions` in front of v1's route and GraphQL's,
+and by the completion action's own first step, `Completion.NotAutomated`,
+on `/api/v2`), and every address is rate limited by
 the completion action (`LumenViae.Rosary.Completion.RateLimit`). See the
 "Crawlers are kept out of the figures" and "Rate limits" sections of
 [ARCHITECTURE.md](ARCHITECTURE.md).

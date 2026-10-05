@@ -279,7 +279,7 @@ Everything Lumen Viae uses lives in AWS account **536691528861**, region
 | Bucket | Visibility | Holds |
 | --- | --- | --- |
 | `lumenviae-audio` | private; served as presigned URLs | ElevenLabs narration. The unlicensed consecration chants still sit under `prayers/` but were withdrawn and are no longer signed (`GET /api/prayers/:id/audio` answers 410) |
-| `lumenviae-images` | objects publicly readable; listing and writing denied | meditation set and meditation artwork |
+| `lumenviae-images` | objects publicly readable; listing and writing denied | the paintings: meditation sets' and authors', the mysteries', and the Seven Sorrows' card's |
 
 They are deliberately separate buckets rather than one bucket with a public
 prefix. Artwork has to be served from a stable unsigned URL the iOS app can
