@@ -51,9 +51,14 @@ defmodule LumenViae.Accounts.Admin.ConfirmActorPassword do
   defp confirm(changeset, actor_id) do
     password = Ash.Changeset.get_argument(changeset, :current_password)
 
-    # The actor reads itself, as any admin may read the admins.
+    # The actor reads itself, as any admin may read the admins. The hash is
+    # left out of every admin read but AshAuthentication's and this one
+    # (Admin.HidePasswordHash), so it is asked for by name.
     hash =
-      case LumenViae.Accounts.get_admin(actor_id, actor: %Admin{id: actor_id}) do
+      case LumenViae.Accounts.get_admin(actor_id,
+             actor: %Admin{id: actor_id},
+             context: %{private: %{password_hash?: true}}
+           ) do
         {:ok, admin} -> admin.hashed_password
         {:error, _} -> nil
       end
