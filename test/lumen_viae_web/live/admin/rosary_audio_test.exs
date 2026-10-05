@@ -28,7 +28,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudioTest do
     {:ok, view, html} = live(conn, "/admin/rosary-audio")
 
     assert html =~ "Checking"
-    html = render_async(view)
+    html = render_async(view, 10_000)
 
     for clip <- PrayerAudio.prayers(), do: assert(html =~ clip.name)
     assert html =~ "The First Sorrow of Mary: The Prophecy of Simeon"
@@ -41,7 +41,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudioTest do
     put_env(:ex_aws, :secret_access_key, nil)
 
     {:ok, view, _html} = live(conn, "/admin/rosary-audio?voice=male")
-    html = render_async(view)
+    html = render_async(view, 10_000)
 
     assert html =~ "could not be checked"
     refute html =~ "not recorded in the"
@@ -62,7 +62,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudioTest do
       |> LumenViae.Curation.AudioJobs.enqueue("live-run")
 
     {:ok, view, _html} = live(conn, "/admin/rosary-audio")
-    html = render_async(view)
+    html = render_async(view, 10_000)
 
     # The job was waiting when the page connected.
     assert html =~ "1 clip(s) are being recorded now"

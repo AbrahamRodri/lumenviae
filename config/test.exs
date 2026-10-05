@@ -89,3 +89,12 @@ config :lumen_viae, :narration_voices, [
     default: false
   }
 ]
+
+# The System screen probes S3 and the Office engine when it mounts. In the
+# suite they answer at once from here, so the screen's tests never wait on
+# a fake client or a missing stub; test/lumen_viae/ops/probes_test.exs
+# clears it to exercise the real probes. See LumenViae.Ops.Probes.
+config :lumen_viae, :ops_probe_answers, %{
+  s3: %{status: :ok, detail: "answered by config/test.exs"},
+  office_engine: %{status: :ok, detail: "answered by config/test.exs"}
+}

@@ -17,6 +17,12 @@ defmodule LumenViae.Ops.Probes do
 
   Every probe runs in a task with a timeout, so a third party that hangs
   costs `:timeout` milliseconds (default five seconds), never a stuck page.
+
+  `config :lumen_viae, :ops_probe_answers, %{name => %{status:, detail:}}`
+  answers a probe at once without asking anybody. The suite sets it for
+  `:s3` and `:office_engine` (config/test.exs), so a screen that probes on
+  mount renders the same way every run, however slow the machine; the
+  probes' own tests clear it.
   """
 
   alias LumenViae.Services.Geolocation
@@ -28,6 +34,13 @@ defmodule LumenViae.Ops.Probes do
   def names, do: @names
 
   def run(name, opts \\ []) when name in @names do
+    case Application.get_env(:lumen_viae, :ops_probe_answers, %{}) do
+      %{^name => answer} -> Map.put(answer, :ms, 0)
+      _ask -> ask_in_time(name, opts)
+    end
+  end
+
+  defp ask_in_time(name, opts) do
     timeout = Keyword.get(opts, :timeout, 5_000)
     started = System.monotonic_time(:millisecond)
     task = Task.async(fn -> safely(fn -> ask(name) end) end)
