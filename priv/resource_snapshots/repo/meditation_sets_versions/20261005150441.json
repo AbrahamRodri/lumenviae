@@ -105,8 +105,8 @@
           "global": null,
           "strategy": null
         },
-        "name": "authors_versions_admin_id_fkey",
-        "on_delete": "nothing",
+        "name": "meditation_sets_versions_admin_id_fkey",
+        "on_delete": "nilify",
         "on_update": "update",
         "primary_key?": true,
         "schema": "public",
@@ -124,7 +124,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "16B814B2CB97571CE19F0197CD271F86CE948CB739E9F4D8B8B373DC7511209A",
+  "hash": "755B17A1F333527394E7908B166F90CE331F0BA57962918B5DCD4F5DB5E3F37C",
   "identities": [],
   "multitenancy": {
     "attribute": null,
@@ -133,5 +133,5 @@
   },
   "repo": "Elixir.LumenViae.Repo",
   "schema": null,
-  "table": "authors_versions"
+  "table": "meditation_sets_versions"
 }

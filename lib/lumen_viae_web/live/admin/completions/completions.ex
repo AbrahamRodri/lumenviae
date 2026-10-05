@@ -55,7 +55,7 @@ defmodule LumenViaeWeb.Live.Admin.Completions do
   end
 
   def handle_params(params, _uri, socket) do
-    params = Map.take(params, @filter_keys)
+    params = clean(params)
 
     {:noreply,
      socket
@@ -64,7 +64,7 @@ defmodule LumenViaeWeb.Live.Admin.Completions do
   end
 
   def handle_event("filter", params, socket) do
-    {:noreply, push_patch(socket, to: path(params))}
+    {:noreply, push_patch(socket, to: path(clean(params)))}
   end
 
   def handle_event("clear_filters", _params, socket) do
@@ -87,9 +87,33 @@ defmodule LumenViaeWeb.Live.Admin.Completions do
   defp days(params) do
     case Map.get(params, "days", @default_period) do
       "all" -> nil
-      value -> integer(value) || String.to_integer(@default_period)
+      value -> String.to_integer(value)
     end
   end
+
+  @sources ~w(web ios android)
+
+  @doc """
+  The query string as the page will use it: only the filters it knows, each
+  only when it is a value the page offers (a listed period, a set id, a
+  surface, a two-letter country code, true or false). Anything else - a
+  list where a string belongs, a period of a million days, a stray key - is
+  dropped, so the page falls back to its default rather than failing.
+  """
+  def clean(params) when is_map(params) do
+    for {key, value} <- params, is_binary(value), valid?(key, value), into: %{} do
+      {key, value}
+    end
+  end
+
+  def clean(_params), do: %{}
+
+  defp valid?("days", value), do: Enum.any?(@periods, fn {_label, v} -> v == value end)
+  defp valid?("set", value), do: integer(value) != nil
+  defp valid?("source", value), do: value in @sources
+  defp valid?("country", value), do: value =~ ~r/\A[A-Z]{2}\z/
+  defp valid?("aloud", value), do: value in ["true", "false"]
+  defp valid?(_key, _value), do: false
 
   @doc """
   The page's path for `params`, leaving out anything blank and the default
@@ -163,9 +187,10 @@ defmodule LumenViaeWeb.Live.Admin.Completions do
 
   defp integer(nil), do: nil
 
+  # A positive id that fits Postgres's integer column.
   defp integer(value) when is_binary(value) do
     case Integer.parse(value) do
-      {int, ""} when int > 0 -> int
+      {int, ""} when int > 0 and int <= 2_147_483_647 -> int
       _ -> nil
     end
   end

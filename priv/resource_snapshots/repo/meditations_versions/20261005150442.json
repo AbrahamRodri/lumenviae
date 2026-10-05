@@ -106,7 +106,7 @@
           "strategy": null
         },
         "name": "meditations_versions_admin_id_fkey",
-        "on_delete": "nothing",
+        "on_delete": "nilify",
         "on_update": "update",
         "primary_key?": true,
         "schema": "public",
@@ -124,7 +124,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "97872E08B0A0B868EF7DDDF5BA1CC49E67AF50C7B586A67BE65BA6FBD262C6C1",
+  "hash": "A45EBD2D34254197B5984D60814613D250C0FB10F189F094531E3B6605EA3563",
   "identities": [],
   "multitenancy": {
     "attribute": null,

@@ -105,8 +105,8 @@
           "global": null,
           "strategy": null
         },
-        "name": "mysteries_versions_admin_id_fkey",
-        "on_delete": "nothing",
+        "name": "authors_versions_admin_id_fkey",
+        "on_delete": "nilify",
         "on_update": "update",
         "primary_key?": true,
         "schema": "public",
@@ -124,7 +124,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "59933030C8CC3EE5CCD5A63A9DBD5DE2EC77AC64454E424D79E90B3A81965337",
+  "hash": "DAE0F17F8BA31C8D363AF2499617C748516B753535B76DD16482587FB2BB2234",
   "identities": [],
   "multitenancy": {
     "attribute": null,
@@ -133,5 +133,5 @@
   },
   "repo": "Elixir.LumenViae.Repo",
   "schema": null,
-  "table": "mysteries_versions"
+  "table": "authors_versions"
 }

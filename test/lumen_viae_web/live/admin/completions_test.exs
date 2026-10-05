@@ -75,6 +75,24 @@ defmodule LumenViaeWeb.Live.Admin.CompletionsTest do
     assert_patch(view, "/admin/completions?source=ios")
   end
 
+  test "a malformed query string falls back to the defaults rather than failing", %{conn: conn} do
+    for query <- [
+          "days=99999999999",
+          "days=-3",
+          "source[]=x",
+          "set=99999999999999",
+          "country=united",
+          "aloud=maybe",
+          "days[a]=1&set[]=2"
+        ] do
+      assert {:ok, _view, html} = live(conn, "/admin/completions?" <> query)
+      assert html =~ "over 30 days"
+    end
+
+    assert Completions.clean(%{"days" => "7", "source" => ["x"], "set" => "abc", "x" => "1"}) ==
+             %{"days" => "7"}
+  end
+
   test "a bar's link keeps the other filters" do
     assert Completions.narrow(%{"days" => "7", "source" => "web"}, "set", 12) ==
              "/admin/completions?days=7&set=12&source=web"

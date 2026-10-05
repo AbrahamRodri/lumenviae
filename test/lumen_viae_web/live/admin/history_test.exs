@@ -58,6 +58,32 @@ defmodule LumenViaeWeb.Live.Admin.HistoryTest do
              Rosary.list_history(mystery, actor: admin())
   end
 
+  test "restoring a meditation's text leaves its recording where it is" do
+    mystery = create_mystery()
+
+    {:ok, meditation} =
+      Rosary.create_meditation(
+        %{content: "First wording.", mystery_id: mystery.id, audio_url: "Old-1.mp3"},
+        actor: admin()
+      )
+
+    {:ok, meditation} =
+      Rosary.update_meditation(
+        meditation,
+        %{content: "Second wording.", audio_url: "New-1.mp3", narration_filename: "New-1.mp3"},
+        actor: admin()
+      )
+
+    [_current, created] = Rosary.list_history(meditation, actor: admin())
+    refute "audio_url" in Rosary.restorable_fields(meditation)
+    refute "narration_filename" in Rosary.restorable_fields(meditation)
+
+    assert {:ok, restored} = Rosary.restore_version(meditation, created.id, actor: admin())
+    assert restored.content == "First wording."
+    assert restored.audio_url == "New-1.mp3"
+    assert restored.narration_filename == "New-1.mp3"
+  end
+
   test "a version of another record is not restored" do
     mystery = create_mystery()
     other = create_mystery()

@@ -1286,8 +1286,8 @@ defmodule LumenViae.Rosary do
   `filters` takes `:set_id`, `:source`, `:country_code` and `:prayed_aloud`;
   a missing or nil one does not narrow.
 
-  Returns `%{total, located, by_day, sets, sources, prayed_aloud, countries,
-  cities, hours, locales, recent}`:
+  Returns `%{total, capped?, located, by_day, sets, sources, prayed_aloud,
+  countries, cities, hours, locales, recent}`:
 
     * `by_day` - a dense daily series, as `completions_by_day/2`, for a
       period of a year or less; `nil` for all time
@@ -1304,7 +1304,12 @@ defmodule LumenViae.Rosary do
   cover the same days.
 
   One read of the matching rows, folded here, like the dashboard's figures.
+  The read stops at the newest 20,000 rows, so a long period cannot pull
+  the whole table into memory on a small machine; `capped?` says when it
+  did, and the figures then cover those rows only.
   """
+  @report_rows 20_000
+
   def completion_report(days, filters, opts \\ []) when is_nil(days) or days > 0 do
     rows =
       Completion
@@ -1330,10 +1335,12 @@ defmodule LumenViae.Rosary do
         local_day: %{time_zone: reporting_time_zone()},
         meditation_set: Ash.Query.select(MeditationSet, [:name, :category])
       )
+      |> Ash.Query.limit(@report_rows)
       |> Ash.read!(AshOpts.take(opts))
 
     %{
       total: length(rows),
+      capped?: length(rows) == @report_rows,
       located: Enum.count(rows, &(not is_nil(&1.country_code))),
       by_day: days && days <= 366 && dense_days(rows, days),
       sets:
@@ -1423,16 +1430,28 @@ defmodule LumenViae.Rosary do
     end)
   end
 
+  # Accepted by an update action but never put back by a restore. A
+  # meditation's audio filename and the filename its import named point at
+  # S3 objects, which a version does not restore: undoing a text edit must
+  # not point the app at a recording that may no longer exist. The
+  # narration annotations are the pipeline's, written for the text they
+  # sit beside, and the update resets them when the text changes.
+  @not_restored ~w(audio_url narration_filename tts_annotations)
+
   @doc """
   The fields of `record` that `restore_version/3` puts back: the ones its
-  update action accepts, by name. Anything else in a snapshot (an archive
-  date, a set's artwork) has its own action and is left as it is.
+  update action accepts, by name, less the storage pointers and pipeline
+  fields no snapshot should overwrite (a meditation's `audio_url`,
+  `narration_filename` and `tts_annotations`). Anything else in a snapshot
+  (an archive date, a set's artwork) has its own action and is left as it
+  is.
   """
   def restorable_fields(%resource{}) when resource in @versioned do
     resource
     |> Info.primary_action!(:update)
     |> Map.fetch!(:accept)
     |> Enum.map(&to_string/1)
+    |> Enum.reject(&(&1 in @not_restored))
   end
 
   @doc """

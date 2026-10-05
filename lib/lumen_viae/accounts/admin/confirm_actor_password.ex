@@ -13,8 +13,10 @@ defmodule LumenViae.Accounts.Admin.ConfirmActorPassword do
 
   Checked in a `before_action`, against the actor's stored hash, so it runs
   only when the action really runs, not when a form is built. Attempts are
-  counted per admin before the check (`LumenViae.Limits.admin_confirmation/1`),
-  so a hijacked session cannot guess the password at bcrypt's pace for long.
+  counted per admin before the check (`LumenViae.Limits.admin_confirmation/1`):
+  10 in 15 minutes per machine, so about 20 across production's two, which
+  keeps a hijacked session from guessing the password at bcrypt's pace for
+  long.
   """
   use Ash.Resource.Change
 

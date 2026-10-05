@@ -72,8 +72,10 @@ defmodule LumenViae.Limits do
   @doc """
   How often one admin may try their own password to add an admin or replace
   a password from the console (`LumenViae.Accounts.Admin.ConfirmActorPassword`):
-  10 attempts in 15 minutes, right or wrong. Keyed on the admin, not the
-  address, because the thing being guessed is that admin's password.
+  10 attempts in 15 minutes per machine, right or wrong. The counters are
+  per machine, like every limit here, and production runs two, so the real
+  ceiling is about 20 in 15 minutes. Keyed on the admin, not the address,
+  because the thing being guessed is that admin's password.
   """
   def admin_confirmation(admin_id) when is_binary(admin_id) do
     [

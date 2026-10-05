@@ -15,7 +15,7 @@ defmodule LumenViae.Repo.Migrations.RecordVersionAdmin do
             name: "authors_versions_admin_id_fkey",
             type: :uuid,
             prefix: "public",
-            on_delete: :nothing,
+            on_delete: :nilify_all,
             on_update: :update_all
           )
     end
@@ -27,7 +27,7 @@ defmodule LumenViae.Repo.Migrations.RecordVersionAdmin do
             name: "meditation_sets_versions_admin_id_fkey",
             type: :uuid,
             prefix: "public",
-            on_delete: :nothing,
+            on_delete: :nilify_all,
             on_update: :update_all
           )
     end
@@ -39,7 +39,7 @@ defmodule LumenViae.Repo.Migrations.RecordVersionAdmin do
             name: "meditations_versions_admin_id_fkey",
             type: :uuid,
             prefix: "public",
-            on_delete: :nothing,
+            on_delete: :nilify_all,
             on_update: :update_all
           )
     end
@@ -51,7 +51,7 @@ defmodule LumenViae.Repo.Migrations.RecordVersionAdmin do
             name: "mysteries_versions_admin_id_fkey",
             type: :uuid,
             prefix: "public",
-            on_delete: :nothing,
+            on_delete: :nilify_all,
             on_update: :update_all
           )
     end

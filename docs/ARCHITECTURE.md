@@ -269,8 +269,9 @@ which is how the first one is made.
 The console's account actions (`Admin`'s `:add`, `:reset_password` and
 `:change_password`) each ask for the acting admin's own password again,
 checked against the stored hash by `Admin.ConfirmActorPassword`, and count
-the attempts: 10 per admin per 15 minutes (`LumenViae.Limits.admin_confirmation/1`),
-right or wrong. A session cookie is enough to edit content, which is
+the attempts: 10 per admin per 15 minutes on each machine, so about 20
+across production's two (`LumenViae.Limits.admin_confirmation/1`), right
+or wrong. A session cookie is enough to edit content, which is
 versioned and can be put back; it must not be enough to plant an admin who
 outlives a password reset, or to lock the real ones out. A generated
 password is shown once on the screen and never stored in the clear.

@@ -75,8 +75,11 @@ defmodule LumenViae.Rosary.Author do
 
     # Which admin made the change: the actor of the action, when it is one.
     # Nil for an operator's shell (mix tasks, LumenViae.Release), which runs
-    # with no actor, and for rows written before this was recorded.
-    belongs_to_actor :admin, LumenViae.Accounts.Admin, domain: LumenViae.Accounts
+    # with no actor, and for rows written before this was recorded. Removing
+    # an admin keeps their history and forgets only who made it.
+    belongs_to_actor :admin, LumenViae.Accounts.Admin,
+      domain: LumenViae.Accounts,
+      on_delete: :nilify
 
     # Admin-only, read-only history. See LumenViae.Rosary.VersionPolicies.
     version_extensions authorizers: [Ash.Policy.Authorizer]
