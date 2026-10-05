@@ -28,7 +28,7 @@ Three layers, and dependencies only ever point downward:
 
 ```
 lib/lumen_viae_web/     LiveViews, controllers, JSON views, the GraphQL schema, the v2 JSON:API router, components
-lib/lumen_viae/         domains (Rosary, Office), services, infrastructure
+lib/lumen_viae/         domains (Rosary, Accounts, Office, Ops), services, infrastructure
 lib/mix/tasks/          command-line entry points
 ```
 
@@ -200,8 +200,9 @@ so an admin may do anything. Everyone else gets this, and nothing more:
 | Narration | read one whose meditation is not archived |
 | Mystery, Author, CategoryCard | read (a painting is served only once published) |
 | NarrationVoice, SpokenRosary, RosaryContent, RosaryScript | the reads the APIs make: `:offered` and `:retired`, `:for_voice`, `:current`, `:expand`. Their primary reads are AshAdmin's |
-| Completion | `:record` and `:record_from_app` only, never read; the place lookup job may `:read` and `:add_place` (see below) |
+| Completion | `:record` and `:record_from_app` only, never read; the place lookup job may `:read` and `:add_place`, and its hourly sweep `:awaiting_place` (see below) |
 | Office.Breviary | its generic actions |
+| Ops.Maintenance | nothing; its acts are an admin's (`test/lumen_viae/ops/ops_test.exs`) |
 | Admin, Token | nothing; AshAuthentication's own sign-in reads bypass |
 | the PaperTrail version resources | nothing |
 
@@ -246,7 +247,8 @@ for themselves.
 Background jobs are not on that list. An AshOban job runs its action with
 no actor and with authorization on, and is let through by a policy on
 `AshOban.Checks.AshObanInteraction`, scoped to the actions the job calls
-(`Completion`'s `:read` and `:add_place` for the place lookup). The check
+(`Completion`'s `:read` and `:add_place` for the place lookup, and
+`:awaiting_place` for its hourly sweep). The check
 matches only the private context AshOban's own worker sets, which no
 request can set, so a policy on it opens the action to the job and to
 nobody else.
@@ -861,8 +863,10 @@ lib/lumen_viae/office/
 │                                 engine = one env var, no code change)
 ├── parser.ex                     the engine's HTML into sections of plain
 │                                 text lines, Latin and translation
-└── cache.ex                      supervised ETS, month TTL, same recipe as
-                                  the geolocation cache
+├── cache.ex                      supervised ETS, month TTL, same recipe as
+│                                 the geolocation cache
+└── jobs/warm_cache.ex            fills every machine's cache with the days
+                                  about to be asked for, on a schedule
 ```
 
 The REST surface is `LumenViaeWeb.API.OfficeController` + `OfficeJSON`

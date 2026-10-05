@@ -260,8 +260,7 @@ omitting the clause leaves every new table unreadable by claude_ro.
 
 Do NOT put the connection string in `.env`: dev.sh exports every line of
 that file into each local dev server's environment, which would hand prod
-credentials to the dev app (and its `export $(cat .env | xargs)` mangles
-values containing spaces). Keep it in a separate gitignored file such as
+credentials to the dev app. Keep it in a separate gitignored file such as
 `.env.prod-ro` and source it only in the shell session doing the reporting:
 
 ```

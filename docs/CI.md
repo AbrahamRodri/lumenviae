@@ -154,17 +154,20 @@ same CI as any PR. Merging one to `main` deploys it, like any other merge.
 - **A Fly HTTP health check.** Today `fly.toml` has none, so Fly keeps a
   machine in rotation as long as it accepts connections. A wrong check can
   take production down, so it needs its own PR and a deploy watched by a
-  person. Proposal: a plug before the router in the endpoint that answers
-  `GET /healthz` with 200 and touches nothing else (no database, since the
-  database is one small machine and a blip there would otherwise pull the
-  app out of rotation), then in `fly.toml`:
+  person. `GET /healthz` exists (`LumenViaeWeb.HealthController`,
+  `LumenViae.Ops.Health`), but it is for an uptime monitor, not for this:
+  it asks the database `SELECT 1` and answers 503 when that fails, and the
+  database is one small machine, so a blip there would pull every app
+  machine out of rotation at once. Proposal: a second path that answers 200
+  and touches nothing else (no database), served before the router in the
+  endpoint, then in `fly.toml`:
 
   ```
   [[http_service.checks]]
     grace_period = "30s"
     interval = "15s"
     method = "GET"
-    path = "/healthz"
+    path = "<that path, not /healthz>"
     timeout = "5s"
   ```
 

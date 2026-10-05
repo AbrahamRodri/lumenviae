@@ -51,7 +51,8 @@ Built with:
 | Path | What it is |
 | --- | --- |
 | `/` | The public site |
-| `/admin` | The curation console, for signed-in admins only. `/admin/data` browses every resource (AshAdmin) and `/admin/jobs` shows the background jobs (Oban Web) |
+| `/admin` | The curation console, for signed-in admins only. `/admin/data` browses every resource (AshAdmin), `/admin/jobs` shows the background jobs (Oban Web), `/admin/system` the release, database, queues and third parties, and `/admin/live` the running VM (Phoenix LiveDashboard) |
+| `/healthz` | Up, which release, and whether the database answers: 200, or 503 when it does not. For an uptime monitor |
 | `/api` | The REST API the iPhone app reads. Frozen: every installed build depends on its shape |
 | `/api/office` | The Divine Office: a day, an hour, or a month |
 | `/api/v2` | A versioned JSON:API with an OpenAPI document, for generated Swift and Kotlin clients: the Android app's API, and the Rosary's content document |
@@ -150,6 +151,8 @@ lib/lumen_viae/
   ├── office.ex                 # The Divine Office domain
   ├── office/                   # Divinum Officium client, parser and cache
   ├── accounts.ex               # Admin accounts
+  ├── ops.ex                    # The Ops domain: the app looking at itself
+  ├── ops/                      # Health, the database, the queues, the probes, Maintenance
   ├── curation/                 # CSV import, re-recording, the spoken Rosary, jobs
   ├── audio/                    # ElevenLabs narration
   ├── storage/                  # S3
@@ -161,16 +164,17 @@ lib/lumen_viae_web/
   │   ├── mysteries/            # Mysteries by category and in Scripture; admin editing
   │   ├── pray/                 # The prayer experience
   │   ├── meditations/          # Admin: meditations, sets and authors
-  │   └── admin/                # Console dashboard, sign-in, CSV import, spoken Rosary
+  │   └── admin/                # Console dashboard, sign-in, CSV import, spoken Rosary, System
   ├── controllers/api/          # The REST API for the iPhone app
   ├── graphql/                  # The GraphQL pipeline and its guards
   ├── json_api/                 # The v2 OpenAPI document
   └── components/               # Shared function components
-lib/mix/tasks/                  # Import, update and audio recording tasks
+lib/mix/tasks/                  # Import, update, audio recording, doctor and jobs tasks
 ```
 
 Code outside a domain reaches it only through the domain module
-(`LumenViae.Rosary`, `LumenViae.Office`, `LumenViae.Accounts`), and tests
+(`LumenViae.Rosary`, `LumenViae.Office`, `LumenViae.Accounts`,
+`LumenViae.Ops`), and tests
 enforce the architecture rules - see
 [ARCHITECTURE.md](docs/ARCHITECTURE.md) before adding a module, a query or
 a page.
