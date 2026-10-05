@@ -134,4 +134,110 @@ defmodule LumenViae.Office.CacheTest do
     assert Task.await(other) == :miss
     assert Cache.fetch(key) == {:ok, :mine}
   end
+
+  test "a load that raises in a process that lives on releases the key at once" do
+    key = {:test, make_ref()}
+
+    # As a GraphQL resolver does: the error is caught and the process
+    # carries on serving.
+    assert_raise RuntimeError, fn ->
+      Cache.fetch_or_load(key, fn -> raise "engine page did not parse" end)
+    end
+
+    {elapsed_us, result} =
+      :timer.tc(fn -> Cache.fetch_or_load(key, fn -> {:ok, :next} end) end)
+
+    assert result == {:ok, :next}
+    assert elapsed_us < 1_000_000
+    assert %{loading: loading} = :sys.get_state(Cache)
+    refute Enum.any?(Map.keys(loading), &match?({_namespace, ^key}, &1))
+  end
+
+  test "a raising load hands the key to a waiter rather than failing it" do
+    test_pid = self()
+    key = {:test, make_ref()}
+
+    loader =
+      Task.async(fn ->
+        try do
+          Cache.fetch_or_load(key, fn ->
+            send(test_pid, {:loading, self()})
+
+            receive do
+              :raise -> raise "boom"
+            end
+          end)
+        rescue
+          RuntimeError -> :raised
+        end
+      end)
+
+    assert_receive {:loading, loading_pid}
+    waiter = Task.async(fn -> Cache.fetch_or_load(key, fn -> {:ok, :from_waiter} end) end)
+    wait_until(fn -> waiting() == 1 end)
+
+    send(loading_pid, :raise)
+
+    assert Task.await(loader) == :raised
+    assert Task.await(waiter) == {:ok, :from_waiter}
+  end
+
+  test "a waiter that gives up leaves the list" do
+    test_pid = self()
+    key = {:test, make_ref()}
+
+    Task.async(fn ->
+      Cache.fetch_or_load(key, fn ->
+        send(test_pid, {:loading, self()})
+
+        receive do
+          :go -> {:ok, :slow}
+        end
+      end)
+    end)
+
+    assert_receive {:loading, loading_pid}
+
+    impatient = Task.async(fn -> Cache.fetch_or_load(key, fn -> {:ok, :own} end, 50) end)
+    assert Task.await(impatient) == {:ok, :own}
+    wait_until(fn -> waiting() == 0 end)
+
+    send(loading_pid, :go)
+  end
+
+  test "a waiter promoted after it gave up passes the key on" do
+    test_pid = self()
+    key = {:test, make_ref()}
+
+    loader =
+      spawn(fn ->
+        Process.put(:"$callers", [test_pid])
+
+        Cache.fetch_or_load(key, fn ->
+          send(test_pid, {:loading, self()})
+          Process.sleep(:infinity)
+        end)
+      end)
+
+    assert_receive {:loading, ^loader}
+
+    # Suspend the coordinator so the impatient waiter's give-up and the
+    # loader's death are both queued before either is handled: the death
+    # promotes the waiter, and then its withdraw arrives.
+    impatient = Task.async(fn -> Cache.fetch_or_load(key, fn -> {:ok, :own} end, 100) end)
+    wait_until(fn -> waiting() == 1 end)
+    :sys.suspend(Cache)
+    Process.exit(loader, :kill)
+    Process.sleep(150)
+    :sys.resume(Cache)
+
+    assert Task.await(impatient) == {:ok, :own}
+
+    wait_until(fn ->
+      %{loading: loading} = :sys.get_state(Cache)
+      not Enum.any?(Map.keys(loading), &match?({_namespace, ^key}, &1))
+    end)
+
+    assert Cache.fetch_or_load(key, fn -> {:ok, :fresh} end) in [{:ok, :own}, {:ok, :fresh}]
+  end
 end

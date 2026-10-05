@@ -21,10 +21,10 @@ defmodule LumenViae.Office.Cache do
   The first caller to miss loads it, in its own process; the others wait
   for that load's answer, success or failure, instead of each asking the
   engine. This process only keeps the list of who is waiting for what. If
-  the loader dies, the first waiter becomes the loader. A waiter gives up
-  after `@wait_ms`, longer than the engine client's own timeouts allow a
-  request to take, and loads for itself, so a stuck load can delay a
-  request but never hang it.
+  the loader dies or its load raises, the first waiter becomes the loader.
+  A waiter gives up after `@wait_ms`, longer than the engine client's own
+  timeouts allow a request to take, leaves the list, and loads for itself,
+  so a stuck load can delay a request but never hang it.
 
   ## Tests
 
@@ -49,35 +49,55 @@ defmodule LumenViae.Office.Cache do
   @doc """
   The value under `key`, or what `load` returns, storing it on `{:ok, _}`.
   Concurrent callers for the same missing key share one `load`; see the
-  module.
+  module. `wait_ms`, how long to wait on another caller's load, is
+  `@wait_ms` except in the tests.
   """
-  def fetch_or_load(key, load) when is_function(load, 0) do
+  def fetch_or_load(key, load, wait_ms \\ @wait_ms) when is_function(load, 0) do
     case fetch(key) do
       {:ok, value} -> {:ok, value}
-      :miss -> claim(key, load)
+      :miss -> claim(key, load, wait_ms)
     end
   end
 
-  defp claim(key, load) do
-    case wait_for_claim(key) do
-      :load -> load_and_release(key, load)
-      {:loaded, result} -> result
-      :gave_up -> load_and_store(key, load)
+  defp claim(key, load, wait_ms) do
+    case wait_for_claim(key, wait_ms) do
+      :load ->
+        load_and_release(key, load)
+
+      {:loaded, result} ->
+        result
+
+      :gave_up ->
+        # Off the waiting list, so this caller is neither answered nor
+        # promoted later; and if it was promoted in the moment it gave up,
+        # the key passes to the next waiter.
+        GenServer.cast(__MODULE__, {:withdraw, namespaced(key), self()})
+        load_and_store(key, load)
     end
   end
 
-  defp wait_for_claim(key) do
-    GenServer.call(__MODULE__, {:claim, namespaced(key)}, @wait_ms)
+  defp wait_for_claim(key, wait_ms) do
+    GenServer.call(__MODULE__, {:claim, namespaced(key)}, wait_ms)
   catch
     # No coordinator (it is restarting), or the load waited on has run
     # past every timeout: load for ourselves rather than fail the request.
     :exit, _reason -> :gave_up
   end
 
+  # The key is released on every path. A load that raises may leave its
+  # process alive (a GraphQL resolver catches the error and the connection
+  # serves its next request), so without the `catch` the key would stay
+  # claimed until that process ended, and every caller would wait out
+  # `@wait_ms` for it. On a raise the waiters are not given the exception:
+  # the first of them loads instead.
   defp load_and_release(key, load) do
     result = load_and_store(key, load)
-    GenServer.cast(__MODULE__, {:release, namespaced(key), self(), result})
+    GenServer.cast(__MODULE__, {:release, namespaced(key), self(), {:loaded, result}})
     result
+  catch
+    kind, reason ->
+      GenServer.cast(__MODULE__, {:release, namespaced(key), self(), :retry})
+      :erlang.raise(kind, reason, __STACKTRACE__)
   end
 
   defp load_and_store(key, load) do
@@ -180,12 +200,36 @@ defmodule LumenViae.Office.Cache do
   end
 
   @impl true
-  def handle_cast({:release, key, pid, result}, state) do
+  def handle_cast({:release, key, pid, outcome}, state) do
     case state.loading do
       %{^key => %{loader: ^pid} = entry} ->
         Process.demonitor(entry.monitor, [:flush])
-        Enum.each(entry.waiters, &GenServer.reply(&1, {:loaded, result}))
-        {:noreply, %{state | loading: Map.delete(state.loading, key)}}
+
+        case outcome do
+          {:loaded, result} ->
+            Enum.each(entry.waiters, &GenServer.reply(&1, {:loaded, result}))
+            {:noreply, %{state | loading: Map.delete(state.loading, key)}}
+
+          :retry ->
+            {:noreply, hand_on(state, key, entry.waiters)}
+        end
+
+      %{} ->
+        {:noreply, state}
+    end
+  end
+
+  # A waiter that gave up. If it had been promoted to loader in the
+  # meantime, it will not load under this claim, so the key passes on.
+  def handle_cast({:withdraw, key, pid}, state) do
+    case state.loading do
+      %{^key => %{loader: ^pid} = entry} ->
+        Process.demonitor(entry.monitor, [:flush])
+        {:noreply, hand_on(state, key, entry.waiters)}
+
+      %{^key => entry} ->
+        waiters = Enum.reject(entry.waiters, fn {waiter, _tag} -> waiter == pid end)
+        {:noreply, put_in(state.loading[key], %{entry | waiters: waiters})}
 
       %{} ->
         {:noreply, state}
@@ -194,18 +238,10 @@ defmodule LumenViae.Office.Cache do
 
   @impl true
   def handle_info({:DOWN, ref, :process, _pid, _reason}, state) do
+    # The loader died: the first waiter loads instead.
     case Enum.find(state.loading, fn {_key, entry} -> entry.monitor == ref end) do
-      {key, %{waiters: [{next, _tag} = from | rest]}} ->
-        # The loader died: the first waiter loads instead.
-        GenServer.reply(from, :load)
-        entry = %{loader: next, monitor: Process.monitor(next), waiters: rest}
-        {:noreply, put_in(state.loading[key], entry)}
-
-      {key, %{waiters: []}} ->
-        {:noreply, %{state | loading: Map.delete(state.loading, key)}}
-
-      nil ->
-        {:noreply, state}
+      {key, entry} -> {:noreply, hand_on(state, key, entry.waiters)}
+      nil -> {:noreply, state}
     end
   end
 
@@ -216,6 +252,15 @@ defmodule LumenViae.Office.Cache do
     schedule_sweep()
     {:noreply, state}
   end
+
+  # The claim passes to the first waiter, or ends if nobody is waiting.
+  defp hand_on(state, key, [{next, _tag} = from | rest]) do
+    GenServer.reply(from, :load)
+    entry = %{loader: next, monitor: Process.monitor(next), waiters: rest}
+    put_in(state.loading[key], entry)
+  end
+
+  defp hand_on(state, key, []), do: %{state | loading: Map.delete(state.loading, key)}
 
   defp schedule_sweep, do: Process.send_after(self(), :sweep, @sweep_interval_ms)
 end
