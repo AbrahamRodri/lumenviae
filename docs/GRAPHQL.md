@@ -153,8 +153,9 @@ artwork setMemberships`:
   takes no limit or offset: a prayer is the whole set.
 
 A `Meditation` is `id title content author source mystery narratedVoices
-narrations narration(preferring:)`. Its `mystery` is `id name category
-order description scriptureReference`. (`daysPrayed` is not served: the
+narrations narration(preferring:)`. Its `mystery` is `id key name
+category order description scriptureReference fruit keyVerse
+keyVerseReference artwork`, `key` being the app's `<category>_<order>`. (`daysPrayed` is not served: the
 column carries an older schedule the app no longer reads. REST keeps it for
 the builds that still decode it.)
 
@@ -253,10 +254,6 @@ when the content last changed. `id` is always `"current"`.
   `pendant` and `headings`. docs/SPOKEN_ROSARY.md, "The templates", says
   how to expand them; `rosaryScript` is the expansion to check against.
 
-`rosaryScript`'s arguments are strings, the lists among them
-comma-separated (`extras: "memorare,st_michael"`, `orders: "3,4,5"`), as
-the v2 route takes them.
-
 - `learn`: `RosaryLearn!`, the How to Pray course: `intro lessons
   firstRosary steps prayerCounts shelves scripture`. A reading's `doors`
   are neutral targets, `{ kind target title note icon }`.
@@ -288,13 +285,17 @@ the v2 route takes them.
 
 `rosaryContent` is non-null and takes no argument: it is answered from
 files compiled into the server (`LumenViae.Rosary.Content`), from code
-(`LumenViae.LiturgicalCalendar`) and from the `mysteries` table, with
-nothing to sign or fetch, so there is no failure for it to keep to its own
-field. A meditation's `mystery` also carries `key fruit keyVerse
-keyVerseReference artwork`.
-It is served by `LumenViae.Rosary.RosaryContent`, a resource with no
-table. See docs/JSON_API.md, "The content document", for where the words
+(`LumenViae.LiturgicalCalendar` for the schedule, and the modules that
+serve the categories, the verses and the labels) and from the
+`mysteries` and `category_cards` tables, with nothing to sign or fetch,
+so there is no failure for it to keep to its own field. It is served by
+`LumenViae.Rosary.RosaryContent`, a resource with no table of its own. See
+docs/JSON_API.md, "The content document", for where the words
 live and what a change to them takes.
+
+`rosaryScript`'s arguments are strings, the lists among them
+comma-separated (`extras: "memorare,st_michael"`, `orders: "3,4,5"`), as
+the v2 route takes them.
 
 ## Recording a completion
 
@@ -309,8 +310,9 @@ mutation {
 
 The GraphQL twin of `POST /api/completions`, and the API's one write. The
 client says which set and whether it was prayed aloud, and nothing else:
-the source is always the app, the time is the server's, and the address
-comes from the connection (never from the query), truncated before it is
+the source is `android` when the user agent names Android and `ios`
+otherwise (`Completion.AppSource`), the time is the server's, and the
+address comes from the connection (never from the query), truncated before it is
 stored. A set the public cannot see is refused exactly like one that does
 not exist, so the write cannot be used to learn that a hidden set exists.
 
@@ -331,7 +333,8 @@ level too, but it also reports every query error twice, so it is off.)
 A crawler is turned away on its user agent, by the same check that stands in
 front of the REST route, run on this field alone. Every address also gets a
 rate limit, which is on the `Completion` action and not on this field, so it
-is one budget shared with `POST /api/completions` and the website, and using
+is one budget shared with `POST /api/completions`, `POST /api/v2/completions`
+and the website, and using
 more than one does not double it; reads never spend it. AshGraphql would put
 that refusal in the mutation's own `errors`, so the guard moves it to the top
 level, where it has always been (`rate_limited`, `data` null).

@@ -1303,7 +1303,9 @@ defmodule LumenViae.Rosary do
   at midnight in the reporting zone, so the figures and the daily series
   cover the same days.
 
-  One read of the matching rows, folded here, like the dashboard's figures.
+  One read of the matching rows, folded here. (The dashboard's figures are
+  counted by Postgres instead, through `Completion`'s `:daily_counts` and
+  `:place_counts`.)
   The read stops at the newest 20,000 rows, so a long period cannot pull
   the whole table into memory on a small machine; `capped?` says when it
   did, and the figures then cover those rows only.

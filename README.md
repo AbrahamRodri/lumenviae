@@ -26,7 +26,9 @@ Pray it at [www.lumenviae.org](https://www.lumenviae.org), or carry it with you 
 
 **The Divine Office** - The traditional Office, under the 1960 rubrics by default or any of ten other versions from 1570 on, the monastic among them, assembled by the open-source Divinum Officium engine and served to the iPhone app
 
-**iOS App** - The companion iPhone app reads the same meditation catalog, narration and Office from this server
+**The Rosary's Content** - The prayers in English and Latin, the mysteries with their fruits and verses, the order a Rosary is said in, the day's mysteries and the How to Pray course, served as one versioned document so an app prays with no connection
+
+**iOS and Android** - The companion iPhone app reads the same meditation catalog, narration and Office from this server. An Android app, not yet released, is built against `/api/v2` and the Rosary's content document ([ANDROID_API.md](docs/ANDROID_API.md))
 
 **Nothing Asked of You** - No account and no sign-up to pray. A finished Rosary is counted with an approximate place, and never a full address; see the [privacy policy](https://www.lumenviae.org/privacy-policy)
 
@@ -49,10 +51,11 @@ Built with:
 | Path | What it is |
 | --- | --- |
 | `/` | The public site |
-| `/admin` | The curation console, for signed-in admins only. `/admin/data` browses every resource (AshAdmin) and `/admin/jobs` shows the background jobs (Oban Web) |
+| `/admin` | The curation console, for signed-in admins only. `/admin/data` browses every resource (AshAdmin), `/admin/jobs` shows the background jobs (Oban Web), `/admin/system` the release, database, queues and third parties, `/admin/live` the running VM (Phoenix LiveDashboard, with Ecto Stats), `/admin/admins` the admin accounts, and `/admin/completions` every completion figure, filtered |
+| `/healthz` | Up, which release, and whether the database answers: 200, or 503 when it does not. For an uptime monitor |
 | `/api` | The REST API the iPhone app reads. Frozen: every installed build depends on its shape |
 | `/api/office` | The Divine Office: a day, an hour, or a month |
-| `/api/v2` | A versioned JSON:API with an OpenAPI document, for a generated Swift client |
+| `/api/v2` | A versioned JSON:API with an OpenAPI document, for generated Swift and Kotlin clients: the Android app's API, and the Rosary's content document |
 | `/api/graphql` | GraphQL over the same actions |
 
 ## Getting Started
@@ -148,6 +151,8 @@ lib/lumen_viae/
   ├── office.ex                 # The Divine Office domain
   ├── office/                   # Divinum Officium client, parser and cache
   ├── accounts.ex               # Admin accounts
+  ├── ops.ex                    # The Ops domain: the app looking at itself
+  ├── ops/                      # Health, the database, the queues, the probes, Maintenance
   ├── curation/                 # CSV import, re-recording, the spoken Rosary, jobs
   ├── audio/                    # ElevenLabs narration
   ├── storage/                  # S3
@@ -159,16 +164,17 @@ lib/lumen_viae_web/
   │   ├── mysteries/            # Mysteries by category and in Scripture; admin editing
   │   ├── pray/                 # The prayer experience
   │   ├── meditations/          # Admin: meditations, sets and authors
-  │   └── admin/                # Console dashboard, sign-in, CSV import, spoken Rosary
+  │   └── admin/                # Console dashboard, sign-in, CSV import, spoken Rosary, System
   ├── controllers/api/          # The REST API for the iPhone app
   ├── graphql/                  # The GraphQL pipeline and its guards
   ├── json_api/                 # The v2 OpenAPI document
   └── components/               # Shared function components
-lib/mix/tasks/                  # Import, update and audio recording tasks
+lib/mix/tasks/                  # Import, update, audio recording, doctor and jobs tasks
 ```
 
 Code outside a domain reaches it only through the domain module
-(`LumenViae.Rosary`, `LumenViae.Office`, `LumenViae.Accounts`), and tests
+(`LumenViae.Rosary`, `LumenViae.Office`, `LumenViae.Accounts`,
+`LumenViae.Ops`), and tests
 enforce the architecture rules - see
 [ARCHITECTURE.md](docs/ARCHITECTURE.md) before adding a module, a query or
 a page.
@@ -179,18 +185,21 @@ Working on the code:
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - The Ash domains, who may do what, background jobs, the web layer, components, design tokens and the admin console
 - **[USAGE_RULES.md](docs/USAGE_RULES.md)** - The Ash packages' own guidance, generated from the dependencies
 - **[CI.md](docs/CI.md)** - What CI checks, and how a merge to `main` deploys
+- **[DEV_TOOLS.md](docs/DEV_TOOLS.md)** - Tidewave, LiveDebugger and the Ecto Stats page, for development
 - **[CLAUDE.md](CLAUDE.md)** - Instructions for AI assistants working on this codebase
 
 The APIs:
 - **[IOS_API_CONTRACT.md](docs/IOS_API_CONTRACT.md)** - What every installed iPhone build depends on in the REST API
-- **[JSON_API.md](docs/JSON_API.md)** - The v2 JSON:API, and how to generate the Swift client
+- **[ANDROID_API.md](docs/ANDROID_API.md)** - What the Android app calls, how, and what it keeps on the device
+- **[JSON_API.md](docs/JSON_API.md)** - The v2 JSON:API, the Rosary's content document, and how to generate the Swift and Kotlin clients
 - **[GRAPHQL.md](docs/GRAPHQL.md)** - The GraphQL API and its committed schema
 - **[OFFICE_API.md](docs/OFFICE_API.md)** - The Divine Office API and the Divinum Officium engine
 
 Content and audio:
 - **[MEDITATION_CURATION_GUIDE.md](docs/MEDITATION_CURATION_GUIDE.md)** - Rules for selecting and formatting meditation content
 - **[CSV_IMPORT_GUIDE.md](docs/CSV_IMPORT_GUIDE.md)** - The import CSV format and the import workflow
-- **[SPOKEN_ROSARY.md](docs/SPOKEN_ROSARY.md)** - Recording and serving the spoken Rosary
+- **[SPOKEN_ROSARY.md](docs/SPOKEN_ROSARY.md)** - The Rosary's words and order, and recording and serving the spoken Rosary
+- **[MYSTERY_PAINTINGS.md](docs/MYSTERY_PAINTINGS.md)** - The mysteries' paintings: provenance, and the steps to publish them
 - **[COMPLETION_ANALYTICS.md](docs/COMPLETION_ANALYTICS.md)** - What is recorded when somebody finishes a Rosary
 
 Running it:
@@ -200,6 +209,7 @@ Plans and records:
 - **[ASH_ROADMAP.md](docs/ASH_ROADMAP.md)** - An audit of the Ash domains and the packages to adopt next
 - **[ASH_MIGRATION.md](docs/ASH_MIGRATION.md)** - The record of moving the domain to Ash
 - **[API_EXPANSION_PLAN.md](docs/API_EXPANSION_PLAN.md)** - The August 2026 plan for expanding the API
+- **[ANDROID_BACKEND_PLAN.md](docs/ANDROID_BACKEND_PLAN.md)** - The October 2026 plan that made the server ready for an Android app, and what was done
 - **[UPCOMING_FEATURES.md](docs/UPCOMING_FEATURES.md)** - Roadmap for future enhancements
 
 ## Contributing

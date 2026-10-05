@@ -124,9 +124,9 @@ recorded is a missing analytics row, not a missing Rosary, and it is not
 worth an error in front of somebody who has just finished praying.
 
 The `429` is the completion action's own rate limit, not something this route
-adds: the website, this route and GraphQL's `recordCompletion` all record a
-completion through the same `Completion` actions, so all three spend one
-budget per address and a client does not double its allowance by using more
+adds: the website, this route, `POST /api/v2/completions` and GraphQL's
+`recordCompletion` all record a completion through the same `Completion`
+actions, so all four spend one budget per address and a client does not double its allowance by using more
 than one. The status, the code and the body are unchanged from when the
 limit stood in front of the route; the `Retry-After` header is added and is
 not read by any build. See "Rate limits" in
@@ -163,7 +163,7 @@ agent names no platform.
 
 **The app must set that agent, and never send its HTTP library's
 default.** OkHttp, which Retrofit, Coil and most Android HTTP stacks use,
-sends `okhttp/4.12.0`, and `okhttp` is on `LumenViae.BotDetection`'s list
+sends `okhttp/<version>`, and `okhttp` is on `LumenViae.BotDetection`'s list
 because scripts use it: left at the default, every completion would answer
 `403 automated_client`, which a client drops without retrying, and
 Android's figures would read zero with nothing saying why. Android's stock
@@ -198,8 +198,21 @@ own proxy in Chicago.
 ## Where it shows up
 
 The admin dashboard, under **Where Rosaries are prayed** (countries and
-cities), **Website or app** (Website, iOS app and Android app, with the aloud-or-silently split under it), and the **From** and **How** columns of
-**Recent completions**.
+cities), **Website or app** (Website, iOS app and Android app, with the
+aloud-or-silently split under it), and the **From** and **How** columns of
+**Recent completions**. Its figures are counted by Postgres, not by
+reading rows: the headline counts are one aggregate, and the days and the
+places are `Completion`'s grouped `:daily_counts` and `:place_counts`
+actions. The dashboard reads them once, when its socket connects. An index
+on `(meditation_set_id, completed_at)` serves the most-prayed ranking,
+which counts each set's completions in the period.
+
+The dashboard's completion figures lead to the **Completions** screen
+(`/admin/completions`): a period, filters by set, surface, country and
+aloud in the query string, and the breakdowns by day, set, place, surface,
+language and hour. It reads the matching rows (`Completion`'s `:report`)
+and folds them, at most the newest 20,000, and says when a period was
+capped.
 
 The location panel states how many completions in the period actually have a
 place attached. Read it: the lookup is best-effort, so a ranking may cover a
@@ -264,8 +277,10 @@ flow, the console and the API, and asks AI-training and SEO crawlers away
 entirely.
 
 That file is a request, not a fence, so the completion route is guarded in
-the application as well — a crawler is refused on its user agent
-(`LumenViaeWeb.Plugs.GuardCompletions`), and every address is rate limited by
+the application as well — a crawler is refused on its user agent (by
+`LumenViaeWeb.Plugs.GuardCompletions` in front of v1's route and GraphQL's,
+and by the completion action's own first step, `Completion.NotAutomated`,
+on `/api/v2`), and every address is rate limited by
 the completion action (`LumenViae.Rosary.Completion.RateLimit`). See the
 "Crawlers are kept out of the figures" and "Rate limits" sections of
 [ARCHITECTURE.md](ARCHITECTURE.md).

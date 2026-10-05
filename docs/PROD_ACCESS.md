@@ -194,7 +194,9 @@ are signed with `TOKEN_SIGNING_SECRET` if it is set (an empty value counts
 as unset; one shorter than 32 bytes stops the app booting), and otherwise
 with a key derived from `SECRET_KEY_BASE`, so rotating `SECRET_KEY_BASE`
 signs every admin out. A session lasts 7 days, then asks you to sign in
-again.
+again, a console tab left open included: it is sent to the login page when
+its token expires. Expired and revoked tokens are deleted from
+`admin_tokens` every twelve hours.
 
 `ADMIN_PASSWORD` is no longer read, but keep it until rolling back to a
 release from before admin accounts is off the table. Those releases sign
@@ -260,8 +262,7 @@ omitting the clause leaves every new table unreadable by claude_ro.
 
 Do NOT put the connection string in `.env`: dev.sh exports every line of
 that file into each local dev server's environment, which would hand prod
-credentials to the dev app (and its `export $(cat .env | xargs)` mangles
-values containing spaces). Keep it in a separate gitignored file such as
+credentials to the dev app. Keep it in a separate gitignored file such as
 `.env.prod-ro` and source it only in the shell session doing the reporting:
 
 ```
@@ -279,7 +280,7 @@ Everything Lumen Viae uses lives in AWS account **536691528861**, region
 | Bucket | Visibility | Holds |
 | --- | --- | --- |
 | `lumenviae-audio` | private; served as presigned URLs | ElevenLabs narration. The unlicensed consecration chants still sit under `prayers/` but were withdrawn and are no longer signed (`GET /api/prayers/:id/audio` answers 410) |
-| `lumenviae-images` | objects publicly readable; listing and writing denied | meditation set and meditation artwork |
+| `lumenviae-images` | objects publicly readable; listing and writing denied | the paintings: meditation sets' and authors', the mysteries', and the Seven Sorrows' card's |
 
 They are deliberately separate buckets rather than one bucket with a public
 prefix. Artwork has to be served from a stable unsigned URL the iOS app can
