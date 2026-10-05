@@ -1375,6 +1375,14 @@ defmodule LumenViae.Rosary do
     }
   end
 
+  # Most frequent first, then by name, so two groups counted equally often
+  # always come out in the same order.
+  defp ranked(rows, key) do
+    rows
+    |> Enum.frequencies_by(key)
+    |> Enum.sort_by(fn {group, count} -> {-count, elem(group, 0)} end)
+  end
+
   # The trailing `days` days, oldest first, with a zero for every day
   # nothing was prayed, from rows that already carry their local day.
   defp dense_days(rows, days) do
