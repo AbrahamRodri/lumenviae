@@ -64,4 +64,56 @@ defmodule LumenViaeWeb.Live.Admin.SystemTest do
     {:ok, view, _html} = live(conn, "/admin/system")
     assert view |> element("button", "Empty") |> render_click() =~ "Emptied the Office cache"
   end
+
+  # The button only exists for crontab workers, but the event carries the
+  # worker's name from the browser. A forged one is refused by the Ops
+  # domain, and the screen says so rather than queueing it.
+  test "a forged Run now for a worker off the crontab queues nothing", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/admin/system")
+    worker = "LumenViae.Curation.Jobs.NarrateMeditation"
+
+    html = render_click(view, "run_job", %{"worker" => worker})
+
+    assert html =~ "Could not queue Curation.Jobs.NarrateMeditation"
+    assert html =~ "is not in the crontab"
+    refute_enqueued(worker: worker)
+  end
+
+  test "Run now shows only once for a worker the crontab names twice", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/admin/system")
+
+    buttons =
+      view
+      |> render()
+      |> Floki.parse_document!()
+      |> Floki.find("button[phx-click=run_job]")
+      |> Enum.flat_map(&Floki.attribute(&1, "phx-value-worker"))
+
+    assert buttons != []
+    assert buttons == Enum.uniq(buttons)
+  end
+
+  test "Refresh reloads the screen and checks the third parties again", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/admin/system")
+    render_async(view)
+
+    LumenViae.Repo.insert!(%Oban.Job{
+      worker: "LumenViae.Test.Worker",
+      queue: "geolocation",
+      args: %{},
+      state: "discarded",
+      attempt: 3,
+      max_attempts: 3,
+      attempted_at: DateTime.utc_now(),
+      errors: [%{"attempt" => 3, "at" => "x", "error" => "gave up after three tries"}]
+    })
+
+    refute render(view) =~ "gave up after three tries"
+
+    html = view |> element("button[phx-click=refresh]") |> render_click()
+
+    assert html =~ "Refreshed."
+    assert html =~ "gave up after three tries"
+    assert render_async(view) =~ "switched off: completions are not placed"
+  end
 end

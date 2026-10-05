@@ -348,9 +348,16 @@ defmodule LumenViaeWeb.Live.Home.Methods.Index do
   end
 
   @impl true
+  # The step arrives from the client, so anything that is not a whole
+  # number leaves the guide where it is rather than taking the page down.
   def handle_event("select-step", %{"step" => step}, socket) do
-    {:noreply, assign(socket, :selected_step, clamp_step(step))}
+    case parse_step(step) do
+      {:ok, step} -> {:noreply, assign(socket, :selected_step, clamp_step(step))}
+      :error -> {:noreply, socket}
+    end
   end
+
+  def handle_event("select-step", _params, socket), do: {:noreply, socket}
 
   def handle_event("next-step", _params, socket) do
     {:noreply, assign(socket, :selected_step, clamp_step(socket.assigns.selected_step + 1))}
@@ -389,7 +396,17 @@ defmodule LumenViaeWeb.Live.Home.Methods.Index do
   def step_for_bead("sep1"), do: 7
   def step_for_bead("rest"), do: 8
 
-  defp clamp_step(step) when is_binary(step), do: step |> String.to_integer() |> clamp_step()
+  defp parse_step(step) when is_integer(step), do: {:ok, step}
+
+  defp parse_step(step) when is_binary(step) do
+    case Integer.parse(step) do
+      {step, ""} -> {:ok, step}
+      _not_a_number -> :error
+    end
+  end
+
+  defp parse_step(_other), do: :error
+
   defp clamp_step(step) when step < 1, do: 1
   defp clamp_step(step) when step > length(@steps), do: length(@steps)
   defp clamp_step(step), do: step
