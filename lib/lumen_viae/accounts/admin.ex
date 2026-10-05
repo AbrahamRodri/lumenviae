@@ -248,6 +248,11 @@ defmodule LumenViae.Accounts.Admin do
     end
   end
 
+  preparations do
+    # The password hash is AshAuthentication's alone; see the module.
+    prepare LumenViae.Accounts.Admin.HidePasswordHash
+  end
+
   attributes do
     uuid_primary_key :id
 

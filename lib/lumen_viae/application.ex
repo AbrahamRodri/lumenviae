@@ -26,6 +26,10 @@ defmodule LumenViae.Application do
       LumenViae.Services.Geolocation,
       # Owns the parsed Divine Office cache.
       LumenViae.Office.Cache,
+      # AshAuthentication's own processes: chiefly the expunger, which
+      # deletes expired rows from `admin_tokens` (revocations included)
+      # every twelve hours. Without it that table only grows.
+      {AshAuthentication.Supervisor, otp_app: :lumen_viae},
       # Background jobs, with every resource's AshOban triggers added to
       # the configured queues. After the Repo, which it needs, and before
       # the endpoint, so a request can enqueue as soon as it can be served.

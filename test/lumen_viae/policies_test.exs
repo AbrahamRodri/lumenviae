@@ -424,8 +424,17 @@ defmodule LumenViae.PoliciesTest do
       assert attribute.sensitive?
       refute attribute.public?
 
-      # What is stored is a bcrypt hash of the password, never the password.
-      stored = Ash.get!(Accounts.Admin, admin.id, actor: admin())
+      # An admin reading admins is not even sent it.
+      read = Ash.get!(Accounts.Admin, admin.id, actor: admin())
+      assert %Ash.NotLoaded{} = read.hashed_password
+
+      # What is stored, which only AshAuthentication reads, is a bcrypt hash
+      # of the password, never the password.
+      stored =
+        Ash.get!(Accounts.Admin, admin.id,
+          authorize?: false,
+          context: %{private: %{ash_authentication?: true}}
+        )
 
       assert "$2b$" <> _ = stored.hashed_password
       assert Bcrypt.verify_pass(password(), stored.hashed_password)

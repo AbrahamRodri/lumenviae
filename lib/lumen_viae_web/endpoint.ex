@@ -4,11 +4,16 @@ defmodule LumenViaeWeb.Endpoint do
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
+  #
+  # `secure` is set in production only (config/prod.exs), so the browser
+  # never sends the admin's cookie over plain HTTP; development serves plain
+  # HTTP and would lose its session.
   @session_options [
     store: :cookie,
     key: "_lumen_viae_key",
     signing_salt: "4tFxwdp5",
-    same_site: "Lax"
+    same_site: "Lax",
+    secure: Application.compile_env(:lumen_viae, :secure_session_cookie, false)
   ]
 
   # `:x_headers` and `:peer_data` are what let a LiveView see who connected,

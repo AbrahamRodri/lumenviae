@@ -6,7 +6,24 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :lumen_viae, LumenViaeWeb.Endpoint,
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  # Fly's proxy ends TLS and already redirects plain HTTP (`force_https` in
+  # fly.toml); this adds HSTS, so a browser never makes that first plain
+  # request again. `rewrite_on` trusts the proxy's X-Forwarded-Proto, or
+  # every request would look like HTTP and redirect to itself. `/healthz`
+  # is excluded so a check over the private network gets its 200, not a
+  # redirect. The max-age starts at one day because HSTS is sticky in
+  # browsers; raise it once production has run with it.
+  force_ssl: [
+    rewrite_on: [:x_forwarded_proto],
+    hsts: true,
+    expires: 86_400,
+    exclude: [hosts: ["localhost", "127.0.0.1"], paths: ["/healthz"]]
+  ]
+
+# The session cookie only over HTTPS (read at compile time by
+# `LumenViaeWeb.Endpoint`).
+config :lumen_viae, :secure_session_cookie, true
 
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Req
