@@ -128,7 +128,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImportFlowTest do
       )
 
       view |> element("button[phx-click=start-import]") |> render_click()
-      render_async(view)
+      render_async(view, 10_000)
       html = render(view)
 
       assert html =~ "Import complete"
@@ -153,7 +153,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImportFlowTest do
       refute html =~ "will be queued for recording"
 
       view |> element("button[phx-click=start-import]") |> render_click()
-      render_async(view)
+      render_async(view, 10_000)
 
       assert render(view) =~ "Import complete"
       assert meditation_contents() == ["Behold the handmaid."]
@@ -177,7 +177,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImportFlowTest do
       view = open(conn)
       upload_and_preview(view, @header <> "The Annunciation,Behold the handmaid.,,,\n")
       view |> element("button[phx-click=start-import]") |> render_click()
-      render_async(view)
+      render_async(view, 10_000)
 
       view |> element("button", "Import another file") |> render_click()
 

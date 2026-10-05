@@ -2,6 +2,11 @@ defmodule LumenViaeWeb.Live.Admin.SystemTest do
   @moduledoc """
   The System screen reads, and its two acts go through the Ops domain with
   the signed-in admin as actor.
+
+  The screen probes the third parties after it mounts. In the suite S3 and
+  the Office engine answer at once from config (`:ops_probe_answers`), and
+  every `render_async/2` waits up to ten seconds rather than LiveViewTest's
+  default 100 ms, which a slow CI runner can miss.
   """
   use LumenViaeWeb.ConnCase, async: true
   use Oban.Testing, repo: LumenViae.Repo
@@ -27,7 +32,7 @@ defmodule LumenViaeWeb.Live.Admin.SystemTest do
     assert html =~ "Largest tables"
 
     # The probes fill in after the page is up.
-    assert render_async(view) =~ "switched off: completions are not placed"
+    assert render_async(view, 10_000) =~ "switched off: completions are not placed"
   end
 
   test "links each count to Oban Web, filtered", %{conn: conn} do
@@ -95,7 +100,7 @@ defmodule LumenViaeWeb.Live.Admin.SystemTest do
 
   test "Refresh reloads the screen and checks the third parties again", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/admin/system")
-    render_async(view)
+    render_async(view, 10_000)
 
     LumenViae.Repo.insert!(%Oban.Job{
       worker: "LumenViae.Test.Worker",
@@ -114,6 +119,6 @@ defmodule LumenViaeWeb.Live.Admin.SystemTest do
 
     assert html =~ "Refreshed."
     assert html =~ "gave up after three tries"
-    assert render_async(view) =~ "switched off: completions are not placed"
+    assert render_async(view, 10_000) =~ "switched off: completions are not placed"
   end
 end

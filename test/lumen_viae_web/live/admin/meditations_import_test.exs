@@ -45,7 +45,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImportTest do
 
     view |> element("#import-form") |> render_submit()
     view |> element("button", "Start import") |> render_click()
-    render_async(view)
+    render_async(view, 10_000)
 
     html = render(view)
     assert html =~ "Import complete"
