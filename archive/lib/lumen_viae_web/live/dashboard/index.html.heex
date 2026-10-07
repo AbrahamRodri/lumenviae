@@ -37,7 +37,7 @@
       </div>
     </header>
 
-<!-- Today's devotion: the altar card -->
+    <!-- Today's devotion: the altar card -->
     <section
       class="relative hairline-card ornate-corners overflow-hidden mb-8 animate-rise"
       style="animation-delay: 300ms"
@@ -54,7 +54,7 @@
           <.sacred_divider class="max-w-[150px] mx-auto" />
         </div>
 
-<!-- The five mysteries -->
+        <!-- The five mysteries -->
         <ol class="max-w-md mx-auto mb-10 space-y-0">
           <%= for {mystery, index} <- Enum.with_index(@recommended_set.mysteries, 1) do %>
             <li class="flex items-baseline gap-4 py-2.5 border-b border-gold/15 last:border-b-0">
@@ -68,7 +68,7 @@
           <% end %>
         </ol>
 
-<!-- Choose meditations, straight into prayer -->
+        <!-- Choose meditations, straight into prayer -->
         <%= if @todays_meditation_sets == [] do %>
           <div class="text-center">
             <p class="font-garamond text-lg text-brown italic mb-5">
@@ -132,7 +132,7 @@
       </div>
     </section>
 
-<!-- Other devotions -->
+    <!-- Other devotions -->
     <section class="mb-8 animate-rise" style="animation-delay: 400ms" aria-label="Other devotions">
       <div class="flex items-center gap-3 mb-4">
         <span class="h-px bg-gold/40 grow" aria-hidden="true"></span>
@@ -212,7 +212,7 @@
       </div>
     </section>
 
-<!-- Study links -->
+    <!-- Study links -->
     <footer
       class="flex items-center justify-center gap-8 pt-2 pb-6 animate-rise"
       style="animation-delay: 500ms"

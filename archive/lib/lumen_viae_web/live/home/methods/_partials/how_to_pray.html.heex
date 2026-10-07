@@ -46,8 +46,8 @@
           stroke-opacity="0.35"
           stroke-width="1.5"
         />
-        
-<!-- Loop beads -->
+
+        <!-- Loop beads -->
         <%= for bead <- @loop_beads do %>
           <circle
             cx={bead.x}
@@ -65,8 +65,8 @@
             stroke-width="1.5"
           />
         <% end %>
-        
-<!-- Centerpiece medal -->
+
+        <!-- Centerpiece medal -->
         <g
           phx-click="select-step"
           phx-value-step={if @selected_step >= 8, do: 9, else: 5}
@@ -101,8 +101,8 @@
             M
           </text>
         </g>
-        
-<!-- Pendant beads: Glory Be bead nearest the medal -->
+
+        <!-- Pendant beads: Glory Be bead nearest the medal -->
         <circle
           cx="210"
           cy="372"
@@ -150,8 +150,8 @@
           ]}
           stroke-width="1.5"
         />
-        
-<!-- Crucifix -->
+
+        <!-- Crucifix -->
         <g
           phx-click="select-step"
           phx-value-step={if @selected_step >= 9, do: 10, else: 1}
@@ -188,8 +188,8 @@
             stroke-width="1.5"
           />
         </g>
-        
-<!-- Decade labels inside the ring (first decade runs clockwise from the medal) -->
+
+        <!-- Decade labels inside the ring (first decade runs clockwise from the medal) -->
         <text
           x="278"
           y="281"
@@ -254,8 +254,8 @@
         </button>
       </div>
     </div>
-    
-<!-- Step panel -->
+
+    <!-- Step panel -->
     <div class="hairline-card p-5 md:p-7">
       <!-- Step selector pills -->
       <div
