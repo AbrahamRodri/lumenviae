@@ -44,7 +44,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
     end
 
     actor = socket.assigns.current_admin
-    sets = Rosary.list_visible_meditation_sets_by_category!(category, actor: actor)
+    sets = Rosary.list_visible_meditation_set_summaries_by_category!(category, actor: actor)
     mysteries = Rosary.list_mysteries_by_category!(category, actor: actor, load: [:artwork])
 
     {:ok,

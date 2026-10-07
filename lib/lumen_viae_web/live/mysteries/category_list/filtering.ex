@@ -69,5 +69,5 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Filtering do
 
   @doc "Whether any of the set's meditations has narration."
   @spec narrated?(map) :: boolean
-  def narrated?(set), do: Enum.any?(set.meditations, & &1.audio_url)
+  def narrated?(set), do: set.audio_count > 0
 end
