@@ -27,20 +27,20 @@ defmodule LumenViaeWeb.Components.Nav do
             </p>
           </div>
         </.link>
-        
-    <!-- Desktop Navigation -->
+
+        <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center gap-6">
-          <.nav_link navigate="/dashboard">
-            Dashboard
+          <.nav_link navigate="/">
+            Today's Rosary
           </.nav_link>
 
           <div class="relative flex items-center">
             <button
               type="button"
-              id="learn-menu-button"
+              id="mysteries-menu-button"
               phx-click={
                 JS.toggle(
-                  to: "#learn-menu",
+                  to: "#mysteries-menu",
                   in:
                     {"ease-out duration-200", "opacity-0 -translate-y-1", "opacity-100 translate-y-0"},
                   out:
@@ -50,10 +50,16 @@ defmodule LumenViaeWeb.Components.Nav do
               }
               class="inline-flex items-center gap-1.5 font-cinzel text-[0.8rem] tracking-[0.18em] uppercase text-gold-light hover:text-gold transition-colors"
               aria-expanded="false"
-              aria-controls="learn-menu"
+              aria-controls="mysteries-menu"
             >
-              Learn
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              The Mysteries
+              <svg
+                class="w-3 h-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -64,39 +70,27 @@ defmodule LumenViaeWeb.Components.Nav do
             </button>
 
             <div
-              id="learn-menu"
+              id="mysteries-menu"
               class="hidden absolute right-0 top-full mt-3 w-72 bg-navy border border-gold/40 rounded-lg shadow-ornate py-2 z-50"
-              phx-click-away={JS.hide(to: "#learn-menu")}
+              phx-click-away={
+                JS.hide(to: "#mysteries-menu")
+                |> JS.set_attribute({"aria-expanded", "false"}, to: "#mysteries-menu-button")
+              }
             >
-              <.learn_link navigate="/rosary-methods">
-                How to Pray the Rosary
-              </.learn_link>
-              <.learn_link navigate="/mysteries">
-                Finding the Mysteries in Scripture
-              </.learn_link>
-              <.learn_link navigate="/true-devotion">
-                True Devotion to Mary
-              </.learn_link>
-              <.learn_link navigate="/saint-carlo">
-                St. Carlo Acutis
-              </.learn_link>
+              <.menu_link :for={{path, label} <- mystery_links()} navigate={path}>
+                {label}
+              </.menu_link>
             </div>
           </div>
 
-          <.nav_link navigate="/app">
-            The App
-          </.nav_link>
-          <.nav_link navigate="/feedback">
-            Feedback
-          </.nav_link>
           <%= if @is_admin do %>
             <.nav_link navigate="/admin">
               Admin
             </.nav_link>
           <% end %>
         </div>
-        
-    <!-- Mobile Menu Button -->
+
+        <!-- Mobile Menu Button -->
         <button
           type="button"
           id="mobile-menu-button"
@@ -145,42 +139,24 @@ defmodule LumenViaeWeb.Components.Nav do
           </svg>
         </button>
       </div>
-      
-    <!-- Mobile Menu -->
+
+      <!-- Mobile Menu -->
       <div
         id="mobile-menu"
         class="hidden md:hidden bg-navy border-t border-gold/30 overflow-hidden"
       >
         <nav class="px-6 py-4 space-y-3">
-          <.nav_link navigate="/dashboard" mobile>
-            Dashboard
+          <.nav_link navigate="/" mobile>
+            Today's Rosary
           </.nav_link>
 
           <p class="font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-gold/60 pt-2">
-            Learn
+            The Mysteries
           </p>
-          <.nav_link navigate="/rosary-methods" mobile>
-            How to Pray the Rosary
-          </.nav_link>
-          <.nav_link navigate="/mysteries" mobile>
-            Finding the Mysteries in Scripture
-          </.nav_link>
-          <.nav_link navigate="/true-devotion" mobile>
-            True Devotion to Mary
-          </.nav_link>
-          <.nav_link navigate="/saint-carlo" mobile>
-            St. Carlo Acutis
+          <.nav_link :for={{path, label} <- mystery_links()} navigate={path} mobile>
+            {label}
           </.nav_link>
 
-          <p class="font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-gold/60 pt-2">
-            More
-          </p>
-          <.nav_link navigate="/app" mobile>
-            The App
-          </.nav_link>
-          <.nav_link navigate="/feedback" mobile>
-            Feedback
-          </.nav_link>
           <%= if @is_admin do %>
             <.nav_link navigate="/admin" mobile>
               Admin
@@ -202,14 +178,28 @@ defmodule LumenViaeWeb.Components.Nav do
     """
   end
 
+  defp mystery_links do
+    [
+      {"/mysteries/joyful", "The Joyful Mysteries"},
+      {"/mysteries/sorrowful", "The Sorrowful Mysteries"},
+      {"/mysteries/glorious", "The Glorious Mysteries"},
+      {"/mysteries/luminous", "The Luminous Mysteries"},
+      {"/mysteries/seven_sorrows", "The Seven Sorrows of Mary"},
+      {"/mysteries", "The Mysteries in Scripture"}
+    ]
+  end
+
   attr :navigate, :string, required: true
   slot :inner_block, required: true
 
-  defp learn_link(assigns) do
+  defp menu_link(assigns) do
     ~H"""
     <.link
       navigate={@navigate}
-      phx-click={JS.hide(to: "#learn-menu")}
+      phx-click={
+        JS.hide(to: "#mysteries-menu")
+        |> JS.set_attribute({"aria-expanded", "false"}, to: "#mysteries-menu-button")
+      }
       class="block px-5 py-3 font-garamond text-base text-gold-light hover:text-gold hover:bg-gold/10 transition-colors"
     >
       {render_slot(@inner_block)}

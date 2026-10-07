@@ -1,20 +1,23 @@
 defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
   @moduledoc """
-  The privacy policy, which the App Store listing links to, and the footer
-  that leads to it from every public page.
+  The pages the footer leads to: the iPhone app's landing page, the
+  feedback page and the privacy policy. Each is reached from every public
+  page, and each sends the visitor somewhere outside the site (the App
+  Store, their mail client), so those doors are what is tested.
   """
   use LumenViaeWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
 
+  @app_store "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749"
   @contact "rodriguez.abrahamdev@gmail.com"
 
   describe "the footer" do
     # The footer is in the root layout, outside the LiveView, so it is read
     # from the full page the server sends.
-    test "on every public page leads to the mysteries and the privacy policy",
+    test "on every public page leads to the app, feedback and privacy pages",
          %{conn: conn} do
-      for page <- ["/", "/mysteries", "/mysteries/joyful", "/privacy-policy"] do
+      for page <- ["/", "/dashboard", "/mysteries/joyful", "/privacy-policy"] do
         footer =
           conn
           |> get(page)
@@ -23,9 +26,8 @@ defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
           |> Floki.find("footer")
 
         for {path, label} <- [
-              {"/mysteries/joyful", "Joyful"},
-              {"/mysteries/seven_sorrows", "Seven Sorrows"},
-              {"/mysteries", "Mysteries in Scripture"},
+              {"/app", "The App"},
+              {"/feedback", "Feedback"},
               {"/privacy-policy", "Privacy Policy"}
             ] do
           link = Floki.find(footer, ~s(a[href="#{path}"]))
@@ -34,6 +36,55 @@ defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
           assert Floki.text(link) =~ label
         end
       end
+    end
+  end
+
+  describe "the app page (/app)" do
+    test "presents the iPhone app and its features", %{conn: conn} do
+      {:ok, view, html} = live(conn, "/app")
+
+      assert page_title(view) =~ "Lumen Viae for iPhone"
+
+      for feature <- [
+            "Guided Audio Rosary",
+            "The Daily Mysteries",
+            "Meditations of the Saints",
+            "Two Ways of Meditating",
+            "Listen Anywhere",
+            "Free of Distraction"
+          ] do
+        assert html =~ feature
+      end
+    end
+
+    test "every download button goes to the App Store listing", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/app")
+
+      links = html |> Floki.parse_document!() |> Floki.find(~s(a[href^="https://apps.apple.com"]))
+
+      assert length(links) >= 2
+      assert Enum.all?(links, &(Floki.attribute(&1, "href") == [@app_store]))
+    end
+  end
+
+  describe "the feedback page (/feedback)" do
+    test "opens a mail to the contact address with the subject already written",
+         %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/feedback")
+
+      assert page_title(view) =~ "Share Feedback"
+
+      assert has_element?(
+               view,
+               ~s(a[href="mailto:#{@contact}?subject=Lumen+Viae+Issue+Report"])
+             )
+
+      assert has_element?(
+               view,
+               ~s(a[href="mailto:#{@contact}?subject=Lumen+Viae+Feature+Request"])
+             )
+
+      assert has_element?(view, ~s(a[href="mailto:#{@contact}"]))
     end
   end
 

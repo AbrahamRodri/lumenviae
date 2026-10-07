@@ -16,19 +16,19 @@ defmodule LumenViaeWeb.Components.Footer do
         <div class="mx-auto px-8">
           <.medallion type="crucifix" size="medium" />
         </div>
-        
-    <!-- Site navigation -->
+
+        <!-- Site navigation -->
         <nav
           class="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-4 px-8"
           aria-label="Footer navigation"
         >
-          <.footer_link navigate="/">Home</.footer_link>
-          <.footer_link navigate="/rosary-methods">How to Pray the Rosary</.footer_link>
+          <.footer_link navigate="/">Today's Rosary</.footer_link>
+          <.footer_link navigate="/mysteries/joyful">Joyful</.footer_link>
+          <.footer_link navigate="/mysteries/sorrowful">Sorrowful</.footer_link>
+          <.footer_link navigate="/mysteries/glorious">Glorious</.footer_link>
+          <.footer_link navigate="/mysteries/luminous">Luminous</.footer_link>
+          <.footer_link navigate="/mysteries/seven_sorrows">Seven Sorrows</.footer_link>
           <.footer_link navigate="/mysteries">Mysteries in Scripture</.footer_link>
-          <.footer_link navigate="/true-devotion">True Devotion to Mary</.footer_link>
-          <.footer_link navigate="/saint-carlo">St. Carlo Acutis</.footer_link>
-          <.footer_link navigate="/app">The App</.footer_link>
-          <.footer_link navigate="/feedback">Feedback</.footer_link>
           <.footer_link navigate="/privacy-policy">Privacy Policy</.footer_link>
         </nav>
 
