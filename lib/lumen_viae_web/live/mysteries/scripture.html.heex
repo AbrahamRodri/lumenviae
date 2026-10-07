@@ -1,9 +1,9 @@
-<div class="parchment-texture min-h-screen">
+<div class="bg-night min-h-screen">
   <Layouts.flash_group flash={@flash} variant={:public} />
   <!-- Frontispiece hero: an open page, not a poster -->
-  <section class="relative border-b-4 border-double border-gold/70">
+  <section class="relative bg-night-deep border-b border-night-border">
     <div class="max-w-3xl mx-auto px-6 pt-14 pb-10 md:pt-20 md:pb-14 text-center">
-      <p class="font-cinzel text-gold-dark text-xs md:text-sm tracking-[0.5em] uppercase mb-6 animate-rise">
+      <p class="kicker mb-6 animate-rise">
         The Word Behind Every Decade
       </p>
 
@@ -12,14 +12,14 @@
       </div>
 
       <h1
-        class="font-cinzel text-4xl md:text-6xl text-navy mb-5 animate-rise"
+        class="font-display text-[2.75rem] leading-[1.1] md:text-7xl text-ink-light mb-5 animate-rise"
         style="animation-delay: 180ms"
       >
         Finding the Mysteries<br class="hidden md:block" /> in Scripture
       </h1>
 
       <p
-        class="font-garamond text-lg md:text-2xl text-brown italic max-w-2xl mx-auto animate-rise"
+        class="font-garamond text-lg md:text-2xl text-ink-muted italic max-w-2xl mx-auto animate-rise"
         style="animation-delay: 280ms"
       >
         The Life, Passion, and Glory of Christ in the words of the
@@ -28,7 +28,7 @@
     </div>
   </section>
 
-  <!-- Category tabs: bookmark ribbons hanging from the rule -->
+  <!-- Category tabs: ribbons hanging from the rule -->
   <%!-- On a phone the five ribbons sit in one row that scrolls sideways,
         rather than wrapping into a second row that hangs from nothing. --%>
   <div class="relative z-10">
@@ -50,11 +50,11 @@
           phx-click="select-category"
           phx-value-id={category.id}
           class={[
-            "shrink-0 whitespace-nowrap px-4 md:px-5 rounded-b-lg font-cinzel text-sm md:text-base tracking-wide transition-all duration-300 border border-t-0 shadow-soft",
+            "shrink-0 whitespace-nowrap px-4 md:px-5 rounded-b-lg font-garamond text-lg transition-all duration-300 border border-t-0",
             if(category.id == @selected_category,
-              do: "bg-navy text-cream border-navy pt-4 pb-4 md:pb-4.5 shadow-ornate",
+              do: "bg-gilt text-night font-semibold border-gilt pt-4 pb-4 md:pb-4.5",
               else:
-                "bg-white text-navy border-gold/50 min-h-11 pt-2.5 pb-2.5 md:pb-3 hover:border-gold hover:bg-cream hover:pb-3.5"
+                "bg-night-raised text-ink-light border-night-line min-h-11 pt-2.5 pb-2.5 md:pb-3 hover:border-gilt hover:pb-3.5"
             )
           ]}
         >
@@ -69,55 +69,68 @@
     <div class="max-w-4xl mx-auto px-3 md:px-6">
       <!-- Introduction -->
       <div class="mb-6 md:mb-10">
-        <details class="group hairline-card p-3 md:p-5 hover:border-gold/60 transition-colors duration-300">
-          <summary class="min-h-11 font-cinzel text-navy md:text-lg lg:text-xl flex flex-wrap items-center justify-between cursor-pointer select-none gap-2">
-            <span>Traditional vs Modern Rosary Schedule</span>
-            <span class="font-cinzel text-gold-dark text-xs uppercase tracking-[0.15em] group-open:hidden flex-shrink-0">
+        <details class="group hairline-card p-3 md:p-5 hover:border-night-line transition-colors duration-300">
+          <summary class="min-h-11 font-display font-semibold text-ink-light text-xl md:text-2xl flex flex-wrap items-center justify-between cursor-pointer select-none gap-x-2">
+            <span class="min-w-0">Traditional vs Modern Rosary Schedule</span>
+            <span class="font-garamond text-base font-normal text-sky group-open:hidden">
               Show
             </span>
-            <span class="font-cinzel text-gold-dark text-xs uppercase tracking-[0.15em] hidden group-open:inline flex-shrink-0">
+            <span class="font-garamond text-base font-normal text-sky hidden group-open:inline">
               Hide
             </span>
           </summary>
 
-          <div class="mt-3 md:mt-4 space-y-3 md:space-y-4 font-garamond text-brown leading-relaxed text-lg">
+          <div class="mt-3 md:mt-4 space-y-3 md:space-y-4 font-garamond text-ink-muted leading-relaxed text-lg">
             <p>
               The Rosary contemplates the mysteries of Christ's life through the eyes of Mary.
-              Traditionally, the Rosary consisted of <strong>fifteen mysteries</strong>
+              Traditionally, the Rosary consisted of
+              <strong class="text-ink-light">fifteen mysteries</strong>
               divided into three sets:
               the Joyful, Sorrowful, and Glorious Mysteries.
             </p>
 
-            <div class="bg-cream p-3 md:p-4 rounded-lg border border-gold/20">
-              <h3 class="font-cinzel text-navy text-base md:text-lg mb-2">
+            <div class="bg-night p-3 md:p-4 rounded-lg border border-night-border">
+              <h2 class="font-display font-semibold text-ink-light text-xl mb-2">
                 Traditional Schedule (15 Mysteries)
-              </h3>
+              </h2>
               <ul class="space-y-1">
-                <li><strong>Monday & Thursday</strong> Joyful Mysteries</li>
-                <li><strong>Tuesday & Friday</strong> Sorrowful Mysteries</li>
-                <li><strong>Wednesday & Saturday</strong> Glorious Mysteries</li>
-                <li><strong>Sunday</strong> Glorious Mysteries (or the mystery of the season)</li>
+                <li>
+                  <strong class="text-ink-light">Monday & Thursday</strong> Joyful Mysteries
+                </li>
+                <li>
+                  <strong class="text-ink-light">Tuesday & Friday</strong> Sorrowful Mysteries
+                </li>
+                <li>
+                  <strong class="text-ink-light">Wednesday & Saturday</strong> Glorious Mysteries
+                </li>
+                <li>
+                  <strong class="text-ink-light">Sunday</strong>
+                  Glorious Mysteries (or the mystery of the season)
+                </li>
               </ul>
             </div>
 
             <p>
-              In 2002, Pope St. John Paul II proposed the addition of five <strong>Luminous Mysteries</strong>,
+              In 2002, Pope St. John Paul II proposed the addition of five <strong class="text-ink-light">Luminous Mysteries</strong>,
               also called the Mysteries of Light, which focus on Christ's public ministry between His Baptism
-              and His Passion. This brought the total to <strong>twenty mysteries</strong>.
+              and His Passion. This brought the total to <strong class="text-ink-light">twenty mysteries</strong>.
             </p>
 
-            <div class="bg-cream p-3 md:p-4 rounded-lg border border-gold/20">
-              <h3 class="font-cinzel text-navy text-base md:text-lg mb-2">
+            <div class="bg-night p-3 md:p-4 rounded-lg border border-night-border">
+              <h2 class="font-display font-semibold text-ink-light text-xl mb-2">
                 Modern Schedule (20 Mysteries)
-              </h3>
+              </h2>
               <ul class="space-y-1">
-                <li><strong>Monday</strong> Joyful Mysteries</li>
-                <li><strong>Tuesday</strong> Sorrowful Mysteries</li>
-                <li><strong>Wednesday</strong> Glorious Mysteries</li>
-                <li><strong>Thursday</strong> Luminous Mysteries</li>
-                <li><strong>Friday</strong> Sorrowful Mysteries</li>
-                <li><strong>Saturday</strong> Joyful Mysteries</li>
-                <li><strong>Sunday</strong> Glorious Mysteries (or the mystery of the season)</li>
+                <li><strong class="text-ink-light">Monday</strong> Joyful Mysteries</li>
+                <li><strong class="text-ink-light">Tuesday</strong> Sorrowful Mysteries</li>
+                <li><strong class="text-ink-light">Wednesday</strong> Glorious Mysteries</li>
+                <li><strong class="text-ink-light">Thursday</strong> Luminous Mysteries</li>
+                <li><strong class="text-ink-light">Friday</strong> Sorrowful Mysteries</li>
+                <li><strong class="text-ink-light">Saturday</strong> Joyful Mysteries</li>
+                <li>
+                  <strong class="text-ink-light">Sunday</strong>
+                  Glorious Mysteries (or the mystery of the season)
+                </li>
               </ul>
             </div>
           </div>

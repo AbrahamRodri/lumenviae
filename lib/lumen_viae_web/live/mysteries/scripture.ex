@@ -12,6 +12,8 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   alias LumenViae.Rosary
   alias LumenViaeWeb.PageMeta
 
+  alias LumenViaeWeb.Components.WoodcutPlate
+
   embed_templates "_partials/*"
 
   @categories [
@@ -76,33 +78,33 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
     <article
       :if={@mystery}
       id={"mystery-#{@category}-#{@mystery.order}"}
-      class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60"
+      class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-night-line"
     >
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
+      <h3 class="font-display font-semibold text-ink-light text-2xl lg:text-3xl mb-1 md:mb-2">
         {@mystery.order}. {@mystery.name}
       </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-3 max-w-[65ch]">
+      <p class="font-garamond text-ink-muted italic leading-relaxed text-lg md:text-xl mb-3 max-w-[65ch]">
         {render_slot(@summary)}
       </p>
       <p
         :if={@mystery.fruit}
-        class="font-cinzel text-xs tracking-[0.25em] uppercase text-gold-dark"
+        class="kicker"
       >
         Fruit of the Mystery: {@mystery.fruit}
       </p>
-      <p :if={@mystery.scripture_reference} class="font-garamond text-brown-light italic">
+      <p :if={@mystery.scripture_reference} class="font-garamond text-ink-muted italic">
         {@mystery.scripture_reference}
       </p>
       <details class="mt-1">
-        <summary class="min-h-11 flex items-center font-cinzel text-xs text-gold-dark cursor-pointer hover:text-navy uppercase tracking-[0.15em] transition-colors duration-300">
+        <summary class="min-h-11 flex items-center font-garamond text-lg text-gilt cursor-pointer hover:text-gilt-light transition-colors duration-300">
           Read the Scripture
         </summary>
         {render_slot(@passage)}
       </details>
-      <p class="mt-3 border-t border-gold/20 pt-1 text-right">
+      <p class="mt-3 border-t border-night-border pt-1 text-right">
         <.link
           navigate={"/mysteries/#{@category}"}
-          class="inline-flex items-center gap-2 min-h-11 font-cinzel text-xs tracking-[0.15em] uppercase text-navy hover:text-gold-dark transition-colors"
+          class="inline-flex items-center gap-2 min-h-11 font-garamond text-lg text-sky hover:text-ink-light transition-colors"
         >
           {@pray}
           <svg
