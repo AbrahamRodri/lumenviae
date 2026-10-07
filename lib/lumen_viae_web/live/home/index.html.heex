@@ -91,6 +91,33 @@
             </li>
           </ol>
         </div>
+
+        <div
+          id="mystery-schedule"
+          phx-hook="MysterySchedule"
+          data-schedule={@schedule}
+          role="group"
+          aria-label="Which schedule the week follows"
+          class="mt-4 flex items-center justify-center gap-1"
+        >
+          <button
+            :for={schedule <- LumenViae.LiturgicalCalendar.schedules()}
+            type="button"
+            phx-click="set_schedule"
+            phx-value-schedule={schedule}
+            aria-pressed={to_string(@schedule == schedule)}
+            title={schedule_detail(schedule)}
+            class={[
+              "rounded-full px-3 min-h-11 font-cinzel text-[0.65rem] tracking-[0.2em] uppercase",
+              if(@schedule == schedule,
+                do: "text-cream bg-gold/15",
+                else: "text-gold-light/70 hover:text-gold"
+              )
+            ]}
+          >
+            {schedule_name(schedule)}
+          </button>
+        </div>
       </div>
 
       <div class="animate-rise" style="animation-delay: 500ms">

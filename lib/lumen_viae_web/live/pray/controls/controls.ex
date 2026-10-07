@@ -1,7 +1,7 @@
 defmodule LumenViaeWeb.Live.Pray.Controls do
   @moduledoc """
   The prayer page's controls: the way to pray it (form, counting, the
-  closing prayers, the text size), praying aloud and its voice, the offer
+  closing prayers, the language of the prayers, the text size), praying aloud and its voice, the offer
   to continue where the reader left off, and Previous and Next.
   """
   use LumenViaeWeb, :html
@@ -25,6 +25,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   attr :count, :string, required: true
   attr :extras, :list, required: true
   attr :chaplet, :boolean, required: true
+  attr :language, :string, required: true
 
   def settings_panel(assigns) do
     assigns =
@@ -85,6 +86,21 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
             pressed={extra.id in @extras}
             title={extra.title}
             note={extra.detail}
+          />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class={legend_class()}>Prayer language</legend>
+        <div class="mt-2 grid gap-2 sm:grid-cols-2">
+          <.choice
+            :for={language <- Sequence.languages()}
+            event="set_language"
+            name="language"
+            value={language}
+            pressed={@language == language}
+            title={language_name(language)}
+            note={language_note(language)}
           />
         </div>
       </fieldset>
@@ -260,6 +276,42 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     """
   end
 
+  attr :place, :string, required: true, doc: "the page and bead, so a move is seen"
+
+  @doc """
+  The one-time hint that a bead is swiped, as the app's `PrayerSwipeHint`
+  teaches it: counting on the screen, on a touch screen, never while the
+  voice is moving the beads. The SwipeHint hook shows it once in this
+  browser, a moment after the page settles, and spends it as it is shown;
+  it leaves after five seconds, at the first bead moved, or when
+  dismissed. It teaches a shortcut, never a requirement: Next bead does
+  everything the swipe does.
+  """
+  def swipe_hint(assigns) do
+    ~H"""
+    <div id="swipe-hint" phx-hook="SwipeHint" data-place={@place}>
+      <div id="swipe-hint-body" phx-update="ignore">
+        <p
+          data-hint
+          hidden
+          class="mx-auto mb-3 flex w-fit items-center gap-2 rounded-full border border-gold/30 bg-navy-dark/70 pl-4 pr-1 font-cinzel text-[0.6rem] tracking-[0.2em] uppercase text-cream/80"
+        >
+          <span>Swipe left for the next bead</span>
+          <span class="hero-arrow-left size-4 text-gold" aria-hidden="true" />
+          <button
+            type="button"
+            data-dismiss
+            aria-label="Dismiss the hint"
+            class="flex items-center justify-center w-11 h-11 rounded-full text-gold-light/70 hover:text-gold"
+          >
+            <span class="hero-x-mark size-4" aria-hidden="true" />
+          </button>
+        </p>
+      </div>
+    </div>
+    """
+  end
+
   attr :count, :string, required: true
   attr :at_start, :boolean, required: true
   attr :at_end, :boolean, required: true
@@ -298,6 +350,14 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     </nav>
     """
   end
+
+  defp language_name("en"), do: "English"
+  defp language_name("la"), do: "Latin"
+
+  defp language_note("en"), do: "Every prayer in English."
+
+  defp language_note("la"),
+    do: "The prayers in Latin. The mysteries and Scripture stay in English."
 
   defp form_name(form), do: Map.fetch!(@form_names, form)
   defp form_note(form), do: Map.fetch!(@form_notes, form)

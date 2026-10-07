@@ -3,6 +3,10 @@
 // completed here and the run of days up to it. Nothing is sent to the
 // server. It also lets go of the place saved for "Continue where you left
 // off" (PrayerMemory), since this Rosary is finished.
+//
+// On the day's first Rosary, the one that moves the count on, it shows the
+// devotional milestone the count has just reached, if there is one: the
+// completion screen carries them all, hidden, as [data-milestone="<days>"].
 
 const STREAK_KEY = "lv:pray:streak"
 
@@ -22,7 +26,8 @@ export default {
       // Counted from today.
     }
 
-    if (streak.last !== today()) {
+    const firstToday = streak.last !== today()
+    if (firstToday) {
       streak = { last: today(), days: streak.last === today(-1) ? (streak.days || 0) + 1 : 1 }
     }
 
@@ -41,5 +46,8 @@ export default {
     if (line) {
       line.textContent = streak.days === 1 ? "1 day so far" : `${streak.days} days in a row`
     }
+
+    const milestone = firstToday && this.el.querySelector(`[data-milestone="${streak.days}"]`)
+    if (milestone) milestone.hidden = false
   }
 }

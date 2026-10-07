@@ -18,6 +18,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   alias LumenViae.Storage.S3
   alias LumenViaeWeb.BotDetection
   alias LumenViaeWeb.ClientIP
+  alias LumenViaeWeb.PageMeta
 
   alias LumenViaeWeb.Live.Pray.{
     BeadScreen,
@@ -50,7 +51,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     |> assign(:storage_key, "set:#{set.id}")
     |> assign(:decades, Sequence.set_decades(set))
     |> assign(:heading, set.name)
-    |> assign(:page_title, set.name)
+    |> put_set_meta(set)
     |> mount_common(session)
   end
 
@@ -69,8 +70,29 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     |> assign(:storage_key, "mysteries:#{category}")
     |> assign(:decades, Sequence.category_decades(category, mysteries))
     |> assign(:heading, Categories.devotion_title(category))
-    |> assign(:page_title, "Pray the " <> Categories.devotion_title(category))
+    |> put_category_meta(category)
     |> mount_common(session)
+  end
+
+  # What search results and link previews say about the page, from the
+  # decades it prays: the set's name and author and the mysteries, with the
+  # first mystery's woodcut.
+  defp put_set_meta(socket, set) do
+    %{decades: decades} = socket.assigns
+
+    PageMeta.put(
+      socket,
+      ~p"/meditation-sets/#{set.id}/pray",
+      PageMeta.pray_set(set, Enum.map(decades, & &1.name), hd(decades).key)
+    )
+  end
+
+  defp put_category_meta(socket, category) do
+    PageMeta.put(
+      socket,
+      ~p"/mysteries/#{category}/pray",
+      PageMeta.pray_category(category, Enum.map(socket.assigns.decades, & &1.name))
+    )
   end
 
   defp mount_common(socket, session) do
@@ -82,6 +104,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
      |> assign(:form, nil)
      |> assign(:count, "beads")
      |> assign(:extras, [])
+     |> assign(:language, Sequence.default_language())
      |> assign(:sequence, nil)
      |> assign(:page, 0)
      |> assign(:step, 0)
@@ -224,6 +247,29 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   end
 
   def handle_event("restore_extras", _params, socket), do: {:noreply, socket}
+
+  # The language of the prayers is this browser's, like the closing
+  # prayers: chosen here and kept by the PrayerMemory hook, never in the
+  # URL. Only the prayers change; the spoken Rosary is English.
+  def handle_event("set_language", %{"language" => language}, socket) do
+    if language in Sequence.languages() do
+      {:noreply,
+       socket
+       |> assign(:language, language)
+       |> push_event("prayer:language", %{language: language})}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  # The PrayerMemory hook hands back the language this browser chose.
+  def handle_event("restore_language", %{"language" => language}, socket) do
+    if language in Sequence.languages(),
+      do: {:noreply, assign(socket, :language, language)},
+      else: {:noreply, socket}
+  end
+
+  def handle_event("restore_language", _params, socket), do: {:noreply, socket}
 
   def handle_event("toggle_panel", _params, socket),
     do: {:noreply, assign(socket, :panel_open, !socket.assigns.panel_open)}

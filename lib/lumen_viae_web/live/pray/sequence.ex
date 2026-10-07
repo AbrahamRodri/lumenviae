@@ -211,22 +211,35 @@ defmodule LumenViaeWeb.Live.Pray.Sequence do
 
   ## Words
 
-  @doc "A prayer's title as the app sets it."
-  def prayer_title(id) do
+  @languages ~w(en la)
+
+  @doc """
+  The languages the prayers can be set in, as the app offers them on the
+  Rosary: English, the default, or Latin. The app's two bilingual settings
+  set the Rosary in English, so the page has no third choice. Only the
+  prayers change: captions, announcements, verses and meditations stay in
+  English.
+  """
+  def languages, do: @languages
+
+  def default_language, do: "en"
+
+  @doc "A prayer's title as the app sets it, in `language`."
+  def prayer_title(id, language \\ "en") do
     case Content.prayer(id) do
-      %{"title" => %{"en" => title}} -> title
+      %{"title" => title} -> title[language] || title["en"]
       nil -> nil
     end
   end
 
   @doc """
-  A prayer's English lines, each `{:rubric, text}` for a `[bracketed]`
-  direction or `{:line, text}` for words said.
+  A prayer's lines in `language`, each `{:rubric, text}` for a
+  `[bracketed]` direction or `{:line, text}` for words said.
   """
-  def prayer_lines(id) do
+  def prayer_lines(id, language \\ "en") do
     case Content.prayer(id) do
-      %{"text" => %{"en" => lines}} ->
-        Enum.map(lines, fn line ->
+      %{"text" => text} ->
+        Enum.map(text[language] || text["en"], fn line ->
           case Regex.run(~r/^\[(.*)\]$/, String.trim(line)) do
             [_, rubric] -> {:rubric, rubric}
             nil -> {:line, line}
@@ -309,6 +322,23 @@ defmodule LumenViaeWeb.Live.Pray.Sequence do
     case Enum.find(PrayerAudio.announcements(), &(&1.mystery == key)) do
       %{text: text} -> text |> String.split(": ", parts: 2) |> List.last()
       nil -> Categories.mystery_label(category, order)
+    end
+  end
+
+  ## The streak
+
+  @doc """
+  The streak's devotional milestones, by days ascending, as the app's
+  `StreakMilestone` names them: `%{days, name, blessing}`. The completion
+  screen shows one only on the day it is reached.
+  """
+  def milestones do
+    for milestone <- Content.milestones() do
+      %{
+        days: milestone["days"],
+        name: "#{milestone["days"]} days",
+        blessing: milestone["blessing"]
+      }
     end
   end
 

@@ -104,7 +104,8 @@ defmodule LumenViaeWeb.Live.HomeTodayTest do
       end
     end
 
-    # The home page keeps the traditional schedule: Thursday is not Luminous.
+    # The home page starts on the traditional schedule: Thursday is not
+    # Luminous. HomeScheduleTest covers the modern one.
     test "Thursday stays Joyful", %{conn: conn} do
       {view, _html} = open_on(conn, 4)
 

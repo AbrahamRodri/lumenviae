@@ -10,6 +10,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
   alias LumenViae.Rosary
   alias LumenViae.Rosary.{Artwork, Labels}
+  alias LumenViaeWeb.Components.ArtworkPicture
   alias LumenViaeWeb.Live.Mysteries.CategoryList.{Filtering, PrayLinks}
 
   attr :title, :string, required: true
@@ -141,10 +142,10 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
     <article class="category-card relative flex gap-4 p-4 sm:p-5 h-full">
       <div class="w-20 sm:w-24 shrink-0">
         <%= if @artwork do %>
-          <img
-            src={Rosary.artwork_url(@artwork)}
+          <ArtworkPicture.artwork_picture
+            record={@artwork}
             alt={@portrait_alt}
-            loading="lazy"
+            sizes="(min-width: 640px) 96px, 80px"
             class="w-full aspect-[4/5] object-cover rounded-t-full border border-gold/40"
             style={"object-position: #{Artwork.object_position(@artwork.image_focal_x, @artwork.image_focal_y)}"}
           />
@@ -208,20 +209,5 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
     end
   end
 
-  defp author_name(set) do
-    profile_name =
-      case Map.get(set, :author_profile) do
-        %{name: name} -> name
-        _none -> nil
-      end
-
-    blank_to_nil(set.author) || blank_to_nil(profile_name) ||
-      blank_to_nil(Map.get(set, :derived_author))
-  end
-
-  defp blank_to_nil(value) when is_binary(value) do
-    if String.trim(value) == "", do: nil, else: value
-  end
-
-  defp blank_to_nil(_value), do: nil
+  defp author_name(set), do: LumenViaeWeb.PageMeta.set_author(set)
 end
