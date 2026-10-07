@@ -130,7 +130,7 @@ mysteries_data = [
     order: 2,
     days_prayed: "Tuesdays and Fridays, and Sundays of Lent",
     description: "Jesus is bound and cruelly scourged by the Roman soldiers.",
-    scripture_reference: "Matthew 27:26",
+    scripture_reference: "John 19:1",
     fruit: "Purity",
     key_verse: "Then therefore, Pilate took Jesus, and scourged him.",
     key_verse_reference: "John 19:1"
@@ -176,7 +176,7 @@ mysteries_data = [
     order: 1,
     days_prayed: "Wednesdays and Saturdays, and Sundays outside Advent and Lent",
     description: "Jesus rises from the dead on the third day, glorious and immortal.",
-    scripture_reference: "Matthew 28:1-10",
+    scripture_reference: "Mark 16:1-8",
     fruit: "Faith",
     key_verse: "He is not here, for he is risen, as he said.",
     key_verse_reference: "Matthew 28:6"
@@ -187,7 +187,7 @@ mysteries_data = [
     order: 2,
     days_prayed: "Wednesdays and Saturdays, and Sundays outside Advent and Lent",
     description: "Jesus ascends into Heaven forty days after His Resurrection.",
-    scripture_reference: "Acts 1:6-11",
+    scripture_reference: "Acts 1:9-11",
     fruit: "Hope",
     key_verse:
       "And the Lord Jesus, after he had spoken to them, was taken up into heaven, and sitteth on the right hand of God.",
@@ -222,7 +222,7 @@ mysteries_data = [
     order: 5,
     days_prayed: "Wednesdays and Saturdays, and Sundays outside Advent and Lent",
     description: "Mary is crowned Queen of Heaven and Earth.",
-    scripture_reference: "Revelation 12:1-6",
+    scripture_reference: "Revelation 12:1",
     fruit: "Trust in Mary's Intercession",
     key_verse:
       "And a great sign appeared in heaven: A woman clothed with the sun, and the moon under her feet, and on her head a crown of twelve stars.",
@@ -276,7 +276,7 @@ mysteries_data = [
     days_prayed: "Thursdays in the modern schedule",
     description:
       "Jesus is transfigured in glory upon the mountain before Peter, James, and John.",
-    scripture_reference: "Luke 9:28-36",
+    scripture_reference: "Matthew 17:1-8",
     fruit: "Desire for Holiness",
     key_verse: "And he was transfigured before them. And his face did shine as the sun.",
     key_verse_reference: "Matthew 17:2"
@@ -313,7 +313,7 @@ mysteries_data = [
     days_prayed: "Fridays in Lent and September 15th",
     description:
       "Mary and Joseph flee with the infant Jesus to Egypt to escape Herod's persecution.",
-    scripture_reference: "Matthew 2:13-21",
+    scripture_reference: "Matthew 2:13-15",
     fruit: "Trust in God's Providence",
     key_verse: "Arise, and take the child and his mother, and fly into Egypt.",
     key_verse_reference: "Matthew 2:13"
@@ -360,7 +360,7 @@ mysteries_data = [
     order: 6,
     days_prayed: "Fridays in Lent and September 15th",
     description: "Mary receives her Son's lifeless body taken down from the cross.",
-    scripture_reference: "John 19:38-40",
+    scripture_reference: "Matthew 27:57-59",
     fruit: "Receiving Christ into Our Hearts",
     key_verse: "Joseph of Arimathea... came and took away the body of Jesus.",
     key_verse_reference: "John 19:38"
@@ -371,7 +371,7 @@ mysteries_data = [
     order: 7,
     days_prayed: "Fridays in Lent and September 15th",
     description: "Mary witnesses the burial of Jesus in the tomb.",
-    scripture_reference: "John 19:41-42",
+    scripture_reference: "John 19:40-42",
     fruit: "Hope in the Resurrection",
     key_verse:
       "Now there was in the place where he was crucified, a garden; and in the garden a new sepulchre... There, therefore, they laid Jesus.",

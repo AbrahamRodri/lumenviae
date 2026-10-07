@@ -1,4 +1,5 @@
 <div class="parchment-texture min-h-screen">
+  <Layouts.flash_group flash={@flash} variant={:public} />
   <!-- Frontispiece hero: an open page, not a poster -->
   <section class="relative border-b-4 border-double border-gold/70">
     <div class="max-w-3xl mx-auto px-6 pt-14 pb-10 md:pt-20 md:pb-14 text-center">
@@ -26,13 +27,15 @@
       </p>
     </div>
   </section>
-  
-<!-- Category tabs: bookmark ribbons hanging from the rule -->
-  <div class="relative z-10 px-4">
+
+  <!-- Category tabs: bookmark ribbons hanging from the rule -->
+  <%!-- On a phone the five ribbons sit in one row that scrolls sideways,
+        rather than wrapping into a second row that hangs from nothing. --%>
+  <div class="relative z-10">
     <div
       id="category-tablist"
       phx-hook="Tablist"
-      class="max-w-3xl mx-auto flex flex-wrap justify-center gap-2 md:gap-3"
+      class="tab-scroller max-w-3xl mx-auto flex items-start gap-2 md:gap-3 overflow-x-auto px-4 pb-4 sm:flex-wrap sm:justify-center sm:overflow-visible"
       role="tablist"
       aria-label="Sets of mysteries"
     >
@@ -47,11 +50,11 @@
           phx-click="select-category"
           phx-value-id={category.id}
           class={[
-            "px-3 md:px-5 rounded-b-lg font-cinzel text-sm md:text-base tracking-wide transition-all duration-300 border border-t-0 shadow-soft",
+            "shrink-0 whitespace-nowrap px-4 md:px-5 rounded-b-lg font-cinzel text-sm md:text-base tracking-wide transition-all duration-300 border border-t-0 shadow-soft",
             if(category.id == @selected_category,
-              do: "bg-navy text-cream border-navy pt-3 pb-3.5 md:pb-4 shadow-ornate",
+              do: "bg-navy text-cream border-navy pt-4 pb-4 md:pb-4.5 shadow-ornate",
               else:
-                "bg-white text-navy border-gold/40 pt-1.5 pb-2 md:pb-2.5 hover:border-gold hover:bg-gold-light/20 hover:pb-3"
+                "bg-white text-navy border-gold/50 min-h-11 pt-2.5 pb-2.5 md:pb-3 hover:border-gold hover:bg-cream hover:pb-3.5"
             )
           ]}
         >
@@ -60,8 +63,8 @@
       <% end %>
     </div>
   </div>
-  
-<!-- Main Content -->
+
+  <!-- Main Content -->
   <div class="py-6 md:py-12">
     <div class="max-w-4xl mx-auto px-3 md:px-6">
       <!-- Introduction -->
@@ -122,8 +125,8 @@
       </div>
 
       <.sacred_divider class="max-w-[240px] mx-auto my-8" />
-      
-<!-- Mystery Content -->
+
+      <!-- Mystery Content -->
       <div
         id="category-panel"
         role="tabpanel"
@@ -131,15 +134,15 @@
       >
         <%= case @selected_category do %>
           <% "joyful" -> %>
-            <.joyful />
+            <.joyful mysteries={Map.get(@mysteries, "joyful", %{})} />
           <% "luminous" -> %>
-            <.luminous />
+            <.luminous mysteries={Map.get(@mysteries, "luminous", %{})} />
           <% "sorrowful" -> %>
-            <.sorrowful />
+            <.sorrowful mysteries={Map.get(@mysteries, "sorrowful", %{})} />
           <% "glorious" -> %>
-            <.glorious />
+            <.glorious mysteries={Map.get(@mysteries, "glorious", %{})} />
           <% "seven_sorrows" -> %>
-            <.seven_sorrows />
+            <.seven_sorrows mysteries={Map.get(@mysteries, "seven_sorrows", %{})} />
         <% end %>
       </div>
     </div>

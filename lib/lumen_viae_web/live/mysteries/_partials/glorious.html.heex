@@ -30,24 +30,11 @@
   </div>
 
   <div class="space-y-3 md:space-y-4">
-    <!-- 1. Resurrection -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        1. The Resurrection
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+    <.mystery_card mystery={@mysteries[1]} category="glorious">
+      <:summary>
         Christ rises from the dead, glorious and immortal.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Faith
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (Matthew 28:1–10; Mark 16:1–14; Luke 24:1–12; John 20:1–18; 20:19–29)
-          </span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -198,27 +185,14 @@
             Jesus saith to him: Because thou hast seen me, Thomas, thou hast believed: blessed are they that have not seen, and have believed.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 2. Ascension -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        2. The Ascension
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[2]} category="glorious">
+      <:summary>
         Jesus ascends to the right hand of the Father.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Hope and the Desire for Heaven
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (Luke 24:50–53; Acts 1:6–11)
-          </span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -251,25 +225,14 @@
             Who also said: Ye men of Galilee, why stand you looking up to heaven? This Jesus who is taken up from you into heaven, shall so come, as you have seen him going into heaven.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 3. Descent of the Holy Ghost -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        3. The Descent of the Holy Ghost
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[3]} category="glorious">
+      <:summary>
         The Holy Ghost descends upon Mary and the Apostles in tongues of fire.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Love of God and Holy Wisdom
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Acts 2:1–21)</span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -320,28 +283,14 @@
             And it shall come to pass, that whosoever shall call upon the name of the Lord, shall be saved.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 4. Assumption -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        4. The Assumption of the Blessed Virgin Mary
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
-        Having completed the course of her earthly life, Mary was assumed body and
-        soul into heavenly glory&mdash;a dogma solemnly defined by Pope Pius XII in 1950.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Devotion to Mary and the Grace of a Happy Death
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (Apocalypse 12:1; Judith 13:23–25)
-          </span>
-        </summary>
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[4]} category="glorious">
+      <:summary>
+        Having completed the course of her earthly life, Mary was assumed body and soul into heavenly glory&mdash;a dogma solemnly defined by Pope Pius XII in 1950.
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -360,27 +309,14 @@
             Because he hath so magnified thy name this day, that thy praise shall not depart out of the mouth of men who shall be mindful of the power of the Lord for ever, for that thou hast not spared thy life, by reason of the distress and tribulation of thy people, but hast prevented our ruin in the presence of our God.<br /><br />
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 5. Coronation -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        5. The Coronation of the Blessed Virgin Mary
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[5]} category="glorious">
+      <:summary>
         Mary is crowned Queen of Heaven and Earth.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Perseverance and Trust in Mary's Intercession
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (Apocalypse 12:1; Psalm 44:11–18)
-          </span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -409,7 +345,7 @@
             They shall remember thy name throughout all generations. Therefore shall people praise thee for ever; yea, for ever and ever.<br /><br />
           </p>
         </div>
-      </details>
-    </div>
+      </:passage>
+    </.mystery_card>
   </div>
 </section>

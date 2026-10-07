@@ -118,6 +118,9 @@ defmodule LumenViaeWeb.Router do
 
       # Prayer experience for a specific meditation set
       live "/meditation-sets/:set_id/pray", Live.Pray.Index
+
+      # The Scriptural Rosary, or the prayers alone, without choosing a set
+      live "/mysteries/:category/pray", Live.Pray.Index
     end
   end
 

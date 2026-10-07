@@ -3,10 +3,12 @@
 //
 // The script comes from the server (LumenViae.Rosary.PrayerAudio.script/3,
 // the same order the iOS app prays in) as data-script: a list of
-// {url, caption, pause_ms, decade}. The hook owns playback and nothing
-// else. When the voice reaches a new decade it tells the LiveView, which
-// turns the page to that mystery; when the reader turns the page
-// themselves the LiveView sends "spoken_seek" and the voice follows.
+// {url, caption, pause_ms, page, screen}, where page and screen are where
+// the prayer page shows that step. The hook owns playback and nothing
+// else. Each time the voice reaches another screen it tells the LiveView
+// ("spoken_at"), which turns the page, or moves the bead when counting on
+// the screen; when the reader moves themselves the LiveView sends
+// "spoken_seek" and the voice follows.
 //
 // Clips play through an Audio element rather than fetch(): the audio bucket
 // sends no CORS headers, and a media element does not need them.
@@ -15,19 +17,14 @@ export default {
     this.steps = JSON.parse(this.el.dataset.script || "[]")
     this.index = 0
     this.loadedIndex = null
-    this.lastDecade = null
+    this.lastScreen = null
     this.playing = false
     this.finished = false
     this.timer = null
 
-    const start = this.el.dataset.startDecade
-    if (start) {
-      const at = this.steps.findIndex((step) => step.decade === Number(start))
-      if (at >= 0) {
-        this.index = at
-        this.lastDecade = Number(start)
-      }
-    }
+    const start = Number(this.el.dataset.startScreen || 0)
+    const at = this.steps.findIndex((step) => step.screen >= start)
+    if (at >= 0) this.index = at
 
     this.audio = new Audio()
     this.audio.preload = "auto"
@@ -51,7 +48,7 @@ export default {
       if (this.playing) this.advance()
     })
 
-    this.handleEvent("spoken_seek", ({ decade }) => this.seekDecade(decade))
+    this.handleEvent("spoken_seek", ({ screen }) => this.seekScreen(screen))
     this.setUpMediaSession()
     this.render()
 
@@ -73,7 +70,7 @@ export default {
     if (this.finished) {
       this.finished = false
       this.index = 0
-      this.lastDecade = null
+      this.lastScreen = null
     }
     if (this.loadedIndex !== this.index) this.load()
     this.playing = true
@@ -124,13 +121,16 @@ export default {
     this.render()
   },
 
-  seekDecade(decade) {
-    const at = this.steps.findIndex((step) => step.decade === decade)
+  // A screen with nothing to play (a meditation with no narration) starts
+  // the voice at the next one that has.
+  seekScreen(screen) {
+    if (typeof screen !== "number") return
+    const at = this.steps.findIndex((step) => step.screen >= screen)
     if (at < 0) return
     clearTimeout(this.timer)
     this.finished = false
     this.index = at
-    this.lastDecade = decade
+    this.lastScreen = this.steps[at].screen
     this.load()
     if (this.playing) this.audio.play().catch(() => {})
     this.render()
@@ -145,9 +145,9 @@ export default {
     const next = this.steps[this.index + 1]
     if (next && next.url !== step.url) this.prefetch.src = next.url
 
-    if (step.decade !== null && step.decade !== this.lastDecade) {
-      this.lastDecade = step.decade
-      this.pushEvent("spoken_at", { decade: step.decade })
+    if (step.screen !== this.lastScreen) {
+      this.lastScreen = step.screen
+      this.pushEvent("spoken_at", { page: step.page, screen: step.screen })
     }
   },
 
