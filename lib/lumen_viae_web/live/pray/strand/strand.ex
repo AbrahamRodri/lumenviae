@@ -26,7 +26,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
             phx-value-page={page.index}
             aria-label={"Go to " <> page_name(page)}
             aria-current={if page.index == @page, do: "step", else: "false"}
-            class="group flex items-center justify-center w-9 h-11 rounded-full focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-gold"
+            class="group flex items-center justify-center w-9 h-11 rounded-full"
           >
             <span
               :if={page.kind == :decade}

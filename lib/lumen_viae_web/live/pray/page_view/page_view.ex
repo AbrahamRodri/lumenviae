@@ -73,7 +73,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
           </li>
         </ol>
         <details class="mt-4 group">
-          <summary class="cursor-pointer min-h-11 flex items-center font-cinzel text-[0.7rem] tracking-[0.22em] uppercase text-gold-light/80 hover:text-gold focus-visible:outline-2 focus-visible:outline-gold rounded">
+          <summary class="cursor-pointer min-h-11 flex items-center font-cinzel text-[0.7rem] tracking-[0.22em] uppercase text-gold-light/80 hover:text-gold rounded">
             Show the words
           </summary>
           <div class="mt-4 space-y-6">

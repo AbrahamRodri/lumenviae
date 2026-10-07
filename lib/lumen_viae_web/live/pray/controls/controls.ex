@@ -121,7 +121,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       {%{"phx-value-#{@name}" => @value}}
       aria-pressed={to_string(@pressed)}
       class={[
-        "text-left rounded-xl border px-4 py-3 min-h-11 motion-safe:transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
+        "text-left rounded-xl border px-4 py-3 min-h-11 motion-safe:transition-colors",
         if(@pressed,
           do: "border-gold bg-gold/15",
           else: "border-gold/25 hover:border-gold/60"
@@ -149,7 +149,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         aria-pressed={to_string(@pray_aloud)}
         title="Hear every prayer of the Rosary, bead by bead"
         class={[
-          "inline-flex items-center gap-2 rounded-full border px-4 min-h-11 font-cinzel text-[0.7rem] tracking-[0.2em] uppercase motion-safe:transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
+          "inline-flex items-center gap-2 rounded-full border px-4 min-h-11 font-cinzel text-[0.7rem] tracking-[0.2em] uppercase motion-safe:transition-colors",
           if(@pray_aloud,
             do: "border-gold bg-gold text-navy",
             else: "border-gold/40 text-gold-light/80 hover:border-gold hover:text-gold"
@@ -165,7 +165,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         <select
           id="narration-voice"
           name="voice"
-          class="rounded-full border border-gold/40 bg-navy min-h-11 pl-4 pr-9 font-cinzel text-[0.7rem] tracking-[0.2em] uppercase text-gold-light/80 focus:border-gold focus:ring-0 focus-visible:outline-2 focus-visible:outline-gold"
+          class="rounded-full border border-gold/40 bg-navy min-h-11 pl-4 pr-9 font-cinzel text-[0.7rem] tracking-[0.2em] uppercase text-gold-light/80 focus:border-gold focus:ring-0"
         >
           <option :for={voice <- @voices} value={voice.slug} selected={voice.slug == @voice.slug}>
             {voice.name} voice
@@ -201,7 +201,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           type="button"
           data-play
           aria-label="Play"
-          class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gold hover:bg-gold-light text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+          class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gold hover:bg-gold-light text-navy"
         >
           <span class="hero-play-solid size-4 ml-0.5" aria-hidden="true" />
         </button>
@@ -209,7 +209,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           type="button"
           data-pause
           aria-label="Pause"
-          class="hidden flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gold hover:bg-gold-light text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+          class="hidden flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gold hover:bg-gold-light text-navy"
         >
           <span class="hero-pause-solid size-4" aria-hidden="true" />
         </button>
@@ -307,9 +307,9 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
 
   defp size_button_class,
     do:
-      "flex items-center justify-center w-11 h-11 rounded-full border border-gold/40 font-cinzel text-gold-light hover:border-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+      "flex items-center justify-center w-11 h-11 rounded-full border border-gold/40 font-cinzel text-gold-light hover:border-gold"
 
   defp player_button_class,
     do:
-      "flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-gold-light/70 hover:text-gold focus-visible:outline-2 focus-visible:outline-gold"
+      "flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-gold-light/70 hover:text-gold"
 end

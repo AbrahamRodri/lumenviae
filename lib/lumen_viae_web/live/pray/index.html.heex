@@ -2,17 +2,31 @@
   id="prayer"
   class="prayer-surface relative min-h-[100dvh] bg-navy text-cream flex flex-col"
   phx-hook="PrayerSurface"
+  data-layout="focused"
   data-count={@count}
 >
   <div class="absolute inset-0 opacity-[0.04] pointer-events-none" aria-hidden="true">
-    <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
+    <picture>
+      <source
+        type="image/webp"
+        srcset="/images/ornate-blue-gold-bg-symbols-480.webp 480w, /images/ornate-blue-gold-bg-symbols-735.webp 735w"
+        sizes="100vw"
+      />
+      <img
+        src="/images/ornate-blue-gold-bg-symbols.jpg"
+        alt=""
+        class="w-full h-full object-cover"
+      />
+    </picture>
   </div>
+
+  <Layouts.flash_group flash={@flash} variant={:public} />
 
   <div class="prayer-safe-area relative flex-1 flex flex-col w-full max-w-3xl mx-auto">
     <header class="flex items-center gap-2 pt-3">
       <.link
         navigate={~p"/mysteries/#{@category}"}
-        class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-gold-light/70 hover:text-gold focus-visible:outline-2 focus-visible:outline-gold"
+        class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-gold-light/70 hover:text-gold"
         aria-label="Leave the prayer and return to the mysteries"
       >
         <span class="hero-x-mark size-5" aria-hidden="true" />
@@ -30,7 +44,7 @@
         aria-controls="prayer-settings"
         aria-label="How to pray"
         class={[
-          "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gold focus-visible:outline-2 focus-visible:outline-gold",
+          "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gold",
           if(@panel_open, do: "text-gold bg-gold/15", else: "text-gold-light/70")
         ]}
       >
@@ -69,7 +83,7 @@
         title={@heading}
       />
 
-      <main id="prayer-main" class="flex-1 pt-8 pb-6">
+      <div id="prayer-main" class="flex-1 pt-8 pb-6">
         <%= if @count == "screen" do %>
           <BeadScreen.bead_screen
             sequence={@sequence}
@@ -87,7 +101,7 @@
             show_meditation={@show_meditation}
           />
         <% end %>
-      </main>
+      </div>
 
       <Controls.bottom_nav
         count={@count}

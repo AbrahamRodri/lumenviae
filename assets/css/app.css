@@ -1018,10 +1018,17 @@
   overflow-x: clip;
 }
 
-/* Clear of the notch, the home indicator and rounded corners */
+/* The shell pads the sides clear of the notch; with no site header above
+   it, the page clears the status bar itself. */
 .prayer-safe-area {
-  padding-left: max(1rem, env(safe-area-inset-left));
-  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-inline: 1rem;
+  padding-top: env(safe-area-inset-top);
+}
+
+@media (min-width: 640px) {
+  .prayer-safe-area {
+    padding-inline: 1.5rem;
+  }
 }
 
 .prayer-bottom-nav {

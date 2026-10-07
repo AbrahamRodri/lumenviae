@@ -303,7 +303,9 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
         if target == {socket.assigns.page, socket.assigns.step},
           do: {:noreply, socket},
-          else: {:noreply, push_patch(socket, to: pray_url(socket.assigns, page, step), replace: true)}
+          else:
+            {:noreply,
+             push_patch(socket, to: pray_url(socket.assigns, page, step), replace: true)}
     end
   end
 
