@@ -9,11 +9,13 @@ keep them working.
 | Page | Was at | Module |
 |---|---|---|
 | Prayer dashboard | `/dashboard` | `LumenViaeWeb.Live.Dashboard.Index` (folded into the home page) |
-| The iPhone app | `/app` | `LumenViaeWeb.Live.Home.App.Index` |
 | How to Pray the Rosary | `/rosary-methods` | `LumenViaeWeb.Live.Home.Methods.Index` |
 | True Devotion to Mary | `/true-devotion` | `LumenViaeWeb.Live.Home.TrueDevotion.Index` |
 | St. Carlo Acutis | `/saint-carlo` | `LumenViaeWeb.Live.Home.SaintCarlo.Index` |
 | Feedback | `/feedback` | `LumenViaeWeb.Live.Home.Feedback.Index` |
+
+The iPhone app's page (`/app`) was retired with them and brought back
+the same day, rewritten for the app's 4.0; it is in `lib/` again.
 
 Each old address now answers with a permanent redirect to `/`
 (`LumenViaeWeb.RedirectController`), because the addresses are linked

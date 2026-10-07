@@ -99,7 +99,7 @@ defmodule LumenViaeWeb.Router do
     # Pages retired to archive/ (see archive/README.md). Their addresses
     # are linked from outside the site, so each answers with a permanent
     # redirect home rather than a 404.
-    for path <- ~w(/dashboard /app /rosary-methods /true-devotion /saint-carlo /feedback) do
+    for path <- ~w(/dashboard /rosary-methods /true-devotion /saint-carlo /feedback) do
       get path, RedirectController, :home
     end
 
@@ -109,6 +109,9 @@ defmodule LumenViaeWeb.Router do
 
       # All 20 mysteries of the Rosary
       live "/mysteries", Live.Mysteries.Scripture
+
+      # The iPhone app's landing page
+      live "/app", Live.Home.App.Index
 
       # Privacy policy (for iOS App Store listing)
       live "/privacy-policy", Live.PrivacyPolicy.Index

@@ -110,9 +110,11 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   prayer page (the whole Rosary bead by bead, in meditation, scriptural or
   holy form, counted on the screen or on your own rosary, English or Latin
   prayers, optional closing prayers, streak milestones), the set-less
-  `/mysteries/:category/pray` (records no completion), and the privacy
-  policy. Read docs/PUBLIC_SITE.md before touching a public page
-- Retired pages (dashboard, app, How to Pray, True Devotion, St. Carlo,
+  `/mysteries/:category/pray` (records no completion), the iPhone app's
+  page at `/app` (real app screenshots; see "The app page" in
+  docs/PUBLIC_SITE.md), and the privacy policy. Read docs/PUBLIC_SITE.md
+  before touching a public page
+- Retired pages (dashboard, How to Pray, True Devotion, St. Carlo,
   Feedback) live in `archive/`, outside the build, and their addresses
   301 to `/` through `RedirectController`. Do not maintain or link them;
   `archive/README.md` says how to bring one back

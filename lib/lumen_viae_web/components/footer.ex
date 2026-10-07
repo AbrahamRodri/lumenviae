@@ -32,6 +32,7 @@ defmodule LumenViaeWeb.Components.Footer do
           <ul class="flex flex-wrap justify-center gap-x-2 sm:gap-x-4">
             <li><.footer_link navigate="/">Today's Rosary</.footer_link></li>
             <li><.footer_link navigate="/mysteries">Mysteries in Scripture</.footer_link></li>
+            <li><.footer_link navigate="/app">The App</.footer_link></li>
           </ul>
 
           <p

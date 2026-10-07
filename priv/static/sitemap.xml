@@ -36,6 +36,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.lumenviae.org/app</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.lumenviae.org/privacy-policy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
