@@ -65,7 +65,7 @@ defmodule LumenViae.Rosary.Artwork.Fragment do
         description "The key the variants were made from; refused if the painting has changed since."
       end
 
-      validate LumenViae.Rosary.Artwork.SameImageKey
+      change LumenViae.Rosary.Artwork.SameImageKey
     end
   end
 

@@ -39,9 +39,10 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     # with no meditations is hidden, so what comes back always has something
     # to pray.
     set =
-      Rosary.get_visible_meditation_set_with_ordered_meditations!(set_id,
-        actor: socket.assigns.current_admin
-      )
+      case Rosary.fetch_visible_meditation_set(set_id, actor: socket.assigns.current_admin) do
+        {:ok, set} -> set
+        {:error, :not_found} -> raise LumenViaeWeb.NotFoundError, message: "no such set"
+      end
 
     socket
     |> assign(:route, :set)
@@ -163,15 +164,17 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   def handle_event("advance", _params, socket), do: {:noreply, move(socket, :next)}
 
   def handle_event("go_to", %{"page" => page}, socket) do
-    case Integer.parse(to_string(page)) do
-      {page, ""} ->
+    case integer(page) do
+      nil ->
+        {:noreply, socket}
+
+      page ->
         page = page |> max(0) |> min(Sequence.last_page(socket.assigns.sequence))
         {:noreply, patch_to(socket, page, 0)}
-
-      _ ->
-        {:noreply, socket}
     end
   end
+
+  def handle_event("go_to", _params, socket), do: {:noreply, socket}
 
   def handle_event("key_nav", %{"key" => key}, socket) do
     direction =
@@ -271,6 +274,12 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   def handle_event("restore_language", _params, socket), do: {:noreply, socket}
 
+  # A click carries its phx-value; anything else sent under these names is
+  # not one, and changes nothing.
+  def handle_event(event, _params, socket)
+      when event in ~w(set_voice set_form toggle_extra set_language),
+      do: {:noreply, socket}
+
   def handle_event("toggle_panel", _params, socket),
     do: {:noreply, assign(socket, :panel_open, !socket.assigns.panel_open)}
 
@@ -282,7 +291,10 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   # The PrayerMemory hook found a place saved in this browser. It is
   # offered only to a reader who arrived at the beginning and has not
   # moved yet; a link to a particular mystery means that mystery.
-  def handle_event("resume_available", %{"mystery" => mystery} = saved, socket) do
+  # What it hands back was read from localStorage, so it may be anything:
+  # only a string or a number is a place.
+  def handle_event("resume_available", %{"mystery" => mystery} = saved, socket)
+      when is_binary(mystery) or is_integer(mystery) do
     %{fresh: fresh, page: page, step: step, sequence: sequence} = socket.assigns
     decades = length(socket.assigns.decades)
     count = Params.count(saved)
@@ -292,7 +304,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       if count == "screen",
         do:
           min(
-            Params.step(%{"step" => to_string(saved["step"])}),
+            max(integer(saved["step"]) || 0, 0),
             Sequence.step_count(sequence, saved_page) - 1
           ),
         else: 0
@@ -364,7 +376,16 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   # arrivals meant every crawler that walked the set left a prayed Rosary
   # behind it. A Rosary prayed without a set records nothing: a completion
   # belongs to a set.
+  #
+  # Only at the end: the button is not offered before then, so a complete
+  # from anywhere else is not a reader finishing the Rosary.
   def handle_event("complete", _params, socket) do
+    if at_end?(socket.assigns), do: {:noreply, complete(socket)}, else: {:noreply, socket}
+  end
+
+  ## Helpers
+
+  defp complete(socket) do
     socket =
       if socket.assigns.completion_tracked do
         socket
@@ -373,10 +394,20 @@ defmodule LumenViaeWeb.Live.Pray.Index do
         assign(socket, :completion_tracked, true)
       end
 
-    {:noreply, socket |> assign(:completed, true) |> push_event("prayer:top", %{})}
+    socket |> assign(:completed, true) |> push_event("prayer:top", %{})
   end
 
-  ## Helpers
+  # A whole number from a client: a string of digits or an integer, or nil.
+  defp integer(value) when is_integer(value), do: value
+
+  defp integer(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {n, ""} -> n
+      _ -> nil
+    end
+  end
+
+  defp integer(_value), do: nil
 
   defp at_end?(%{count: "screen"} = assigns),
     do: is_nil(Sequence.next(assigns.sequence, assigns.page, assigns.step))
