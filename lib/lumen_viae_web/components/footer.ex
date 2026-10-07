@@ -32,7 +32,7 @@ defmodule LumenViaeWeb.Components.Footer do
 
           <p
             id="footer-pray-heading"
-            class="mt-5 font-cinzel text-[0.65rem] tracking-[0.3em] uppercase text-brown-light"
+            class="mt-5 font-cinzel text-xs tracking-[0.3em] uppercase text-brown-light"
           >
             Pray the Mysteries
           </p>
@@ -76,7 +76,7 @@ defmodule LumenViaeWeb.Components.Footer do
     ~H"""
     <.link
       navigate={@navigate}
-      class="inline-flex items-center min-h-11 px-2 font-cinzel text-[0.72rem] tracking-[0.15em] uppercase text-gold-dark underline-offset-4 decoration-gold hover:text-navy hover:underline transition-colors"
+      class="inline-flex items-center min-h-11 px-2 font-cinzel text-xs tracking-[0.15em] uppercase text-gold-dark underline-offset-4 decoration-gold hover:text-navy hover:underline transition-colors"
     >
       {render_slot(@inner_block)}
     </.link>

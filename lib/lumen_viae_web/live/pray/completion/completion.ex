@@ -21,7 +21,8 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
       phx-hook="PrayerStreak"
       data-key={@storage_key}
       aria-labelledby="prayer-complete-title"
-      class="flex-1 flex flex-col items-center justify-center text-center py-10 md:py-16"
+      tabindex="-1"
+      class="flex-1 flex flex-col items-center justify-center text-center py-10 md:py-16 focus:outline-none"
     >
       <span
         class="flex items-center justify-center w-14 h-14 rounded-full border border-gold/60 shadow-glow"
@@ -42,11 +43,9 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
       <p
         id="prayer-streak"
         phx-update="ignore"
-        id="prayer-streak"
-        phx-update="ignore"
         data-streak
         aria-live="polite"
-        class="mt-5 min-h-6 font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-light/80"
+        class="mt-5 min-h-6 font-cinzel text-xs tracking-[0.25em] uppercase text-gold-light/80"
       >
       </p>
 
@@ -56,7 +55,7 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
         <blockquote class="font-garamond text-xl md:text-2xl text-cream/90 leading-relaxed">
           &ldquo;{@quote["text"]}&rdquo;
         </blockquote>
-        <figcaption class="mt-4 font-cinzel text-[0.7rem] tracking-[0.22em] uppercase text-gold-light/80">
+        <figcaption class="mt-4 font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/80">
           {@quote["author"]}
         </figcaption>
       </figure>

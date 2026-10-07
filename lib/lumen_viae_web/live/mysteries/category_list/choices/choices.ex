@@ -66,8 +66,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Choices do
 
   defp choice_group(assigns) do
     ~H"""
-    <fieldset class="py-3 border-b border-gold/20" aria-describedby={"choice-#{@name}-note"}>
-      <legend class="font-cinzel text-[0.7rem] tracking-[0.2em] uppercase text-navy mb-2 float-left w-full">
+    <fieldset class="min-w-0 py-3 border-b border-gold/20" aria-describedby={"choice-#{@name}-note"}>
+      <legend class="font-cinzel text-xs tracking-[0.2em] uppercase text-navy mb-2 float-left w-full">
         {@legend}
       </legend>
       <div class="category-pill clear-left">

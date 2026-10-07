@@ -14,7 +14,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
 
   def progress(assigns) do
     ~H"""
-    <nav aria-label="The Rosary's parts" class="max-w-sm mx-auto">
+    <nav aria-label="The Rosary's parts" class="max-w-sm mx-auto max-sm:-mx-3">
       <ol class="relative flex items-center justify-center">
         <li
           :for={page <- @sequence.pages}
@@ -26,7 +26,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
             phx-value-page={page.index}
             aria-label={"Go to " <> page_name(page)}
             aria-current={if page.index == @page, do: "step", else: "false"}
-            class="group flex items-center justify-center w-9 h-11 rounded-full"
+            class="group flex items-center justify-center w-11 h-11 rounded-full"
           >
             <span
               :if={page.kind == :decade}
@@ -45,7 +45,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
           </button>
         </li>
       </ol>
-      <p class="mt-1 font-cinzel text-[0.65rem] tracking-[0.25em] uppercase text-center text-gold-light/70">
+      <p class="mt-1 font-cinzel text-xs tracking-[0.25em] uppercase text-center text-gold-light/70">
         {position_label(@sequence, @page)}
       </p>
     </nav>

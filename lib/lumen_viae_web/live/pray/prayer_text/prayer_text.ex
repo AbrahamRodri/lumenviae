@@ -44,7 +44,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
       </blockquote>
       <figcaption
         :if={@verse.reference}
-        class="mt-3 font-cinzel text-[0.7rem] tracking-[0.22em] uppercase text-gold-light/80"
+        class="mt-3 font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/80"
       >
         {@verse.reference}
       </figcaption>
@@ -60,7 +60,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
     <header class="text-center">
       <p
         :if={@decade.label}
-        class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-light/80"
+        class="font-cinzel text-xs tracking-[0.25em] uppercase text-gold-light/80"
       >
         {@decade.label}
       </p>
@@ -68,7 +68,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
         {@decade.name}
       </h2>
       <p :if={@decade.fruit} class="mt-3 font-garamond text-lg text-cream/80">
-        <span class="font-cinzel text-[0.7rem] tracking-[0.22em] uppercase text-gold-light/80">
+        <span class="font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/80">
           Ask for
         </span>
         <span class="text-gold/60" aria-hidden="true">&middot;</span>
@@ -77,7 +77,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
       </p>
       <p
         :if={@decade.scripture_reference}
-        class="mt-2 font-cinzel text-[0.65rem] tracking-[0.22em] uppercase text-gold-light/60"
+        class="mt-2 font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/60"
       >
         {@decade.scripture_reference}
       </p>

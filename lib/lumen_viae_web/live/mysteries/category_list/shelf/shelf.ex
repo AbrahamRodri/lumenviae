@@ -44,7 +44,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
         <div class="category-card px-5 py-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
           <div>
-            <p class="font-cinzel text-[0.7rem] tracking-[0.2em] uppercase text-gold-dark">
+            <p class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
               Divine Providence
             </p>
             <p class="font-garamond text-base text-brown">
@@ -64,7 +64,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
         >
           <p
             id="filters-label"
-            class="font-cinzel text-[0.7rem] tracking-[0.2em] uppercase text-navy mb-2"
+            class="font-cinzel text-xs tracking-[0.2em] uppercase text-navy mb-2"
           >
             Filter by kind
           </p>
@@ -112,7 +112,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
           </div>
         <% else %>
           <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-1" id="meditation-sets">
-            <li :for={set <- @shown_sets} id={"set-#{set.id}"}>
+            <li :for={set <- @shown_sets} id={"set-#{set.id}"} class="min-w-0">
               <.set_card set={set} choices={@choices} />
             </li>
           </ul>
@@ -168,7 +168,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
         </h3>
         <p :if={@byline} class="font-garamond italic text-base text-brown">{@byline}</p>
 
-        <p class="font-cinzel text-[0.65rem] tracking-[0.15em] uppercase text-brown-light mt-1.5">
+        <p class="font-cinzel text-xs tracking-[0.15em] uppercase text-brown-light mt-1.5">
           {@count} {if @count == 1, do: "meditation", else: "meditations"}
           <span :if={@narrated?}>
             <span aria-hidden="true"> &middot; </span><span class="text-gold-dark">Narrated</span>
@@ -176,7 +176,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
         </p>
         <p
           :if={(@set.labels || []) != []}
-          class="font-cinzel text-[0.6rem] tracking-[0.18em] uppercase text-gold-dark mt-1"
+          class="font-cinzel text-xs tracking-[0.18em] uppercase text-gold-dark mt-1"
         >
           {Enum.map_join(@set.labels, " · ", &Labels.display_name/1)}
         </p>
@@ -189,7 +189,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
         </p>
 
         <span
-          class="font-cinzel text-[0.7rem] tracking-[0.15em] uppercase text-gold-dark mt-auto pt-3"
+          class="font-cinzel text-xs tracking-[0.15em] uppercase text-gold-dark mt-auto pt-3"
           aria-hidden="true"
         >
           Pray <span class="category-arrow">&rarr;</span>

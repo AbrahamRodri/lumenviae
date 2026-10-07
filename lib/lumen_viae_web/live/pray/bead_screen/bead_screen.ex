@@ -17,10 +17,11 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
 
   def bead_screen(assigns) do
     page = Sequence.page(assigns.sequence, assigns.screen.page)
-    assigns = assign(assigns, :decade, page.decade)
+    assigns = assigns |> assign(:decade, page.decade) |> assign(:page_name, Strand.page_name(page))
 
     ~H"""
     <section aria-label="The bead you are on" class="flex flex-col">
+      <h2 class="sr-only">{@page_name}</h2>
       <Strand.beads sequence={@sequence} screen={@screen} />
 
       <p

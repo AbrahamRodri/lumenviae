@@ -29,7 +29,7 @@ defmodule LumenViaeWeb.Components.Nav do
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-2.5 md:py-6 flex items-center justify-between gap-4">
         <.link
           navigate="/"
-          class="flex items-center gap-3 md:gap-4 min-h-11 rounded-sm hover:opacity-90 transition-opacity"
+          class="flex min-w-0 items-center gap-3 md:gap-4 min-h-11 rounded-sm hover:opacity-90 transition-opacity"
           aria-label="Lumen Viae, home"
         >
           <.medallion_bg type="saint_benedict" size="small" class="shrink-0 scale-90 md:scale-100" />
@@ -101,7 +101,7 @@ defmodule LumenViaeWeb.Components.Nav do
           type="button"
           id="mobile-menu-button"
           data-menu-toggle
-          class="group md:hidden inline-flex items-center justify-center size-11 -mr-2 rounded-sm text-gold-light hover:text-cream transition-colors"
+          class="group md:hidden inline-flex shrink-0 items-center justify-center size-11 -mr-2 rounded-sm text-gold-light hover:text-cream transition-colors"
           aria-label="Menu"
           aria-expanded="false"
           aria-controls="mobile-menu"
@@ -151,7 +151,7 @@ defmodule LumenViaeWeb.Components.Nav do
           <li class="pt-3">
             <p
               id="mobile-mysteries-heading"
-              class="font-cinzel text-[0.7rem] tracking-[0.3em] uppercase text-gold-light/90 pb-1"
+              class="font-cinzel text-xs tracking-[0.3em] uppercase text-gold-light/90 pb-1"
             >
               The Mysteries
             </p>

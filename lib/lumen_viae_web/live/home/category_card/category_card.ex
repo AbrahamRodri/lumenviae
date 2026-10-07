@@ -31,14 +31,14 @@ defmodule LumenViaeWeb.Live.Home.CategoryCard do
         />
         <span
           :if={!@category.painting}
-          class="absolute inset-0 flex items-center justify-center font-cinzel text-6xl text-gold-dark/60"
+          class="absolute inset-0 flex items-center justify-center font-cinzel text-6xl text-gold-dark"
           aria-hidden="true"
         >
           {@category.numeral}
         </span>
         <span
           :if={@today?}
-          class="absolute top-3 left-3 font-cinzel text-[0.7rem] tracking-[0.2em] uppercase text-navy-dark bg-gold-light px-3 py-1 rounded-full"
+          class="absolute top-3 left-3 font-cinzel text-xs tracking-[0.2em] uppercase text-navy-dark bg-gold-light px-3 py-1 rounded-full"
         >
           Today
         </span>

@@ -85,7 +85,7 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
       </p>
       <p
         :if={@mystery.fruit}
-        class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark"
+        class="font-cinzel text-xs tracking-[0.25em] uppercase text-gold-dark"
       >
         Fruit of the Mystery: {@mystery.fruit}
       </p>
@@ -93,7 +93,7 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
         {@mystery.scripture_reference}
       </p>
       <details class="mt-1">
-        <summary class="py-3 font-cinzel text-xs text-gold-dark cursor-pointer hover:text-navy uppercase tracking-[0.15em] transition-colors duration-300">
+        <summary class="min-h-11 flex items-center font-cinzel text-xs text-gold-dark cursor-pointer hover:text-navy uppercase tracking-[0.15em] transition-colors duration-300">
           Read the Scripture
         </summary>
         {render_slot(@passage)}

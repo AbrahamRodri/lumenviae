@@ -41,5 +41,9 @@ export default {
     if (line) {
       line.textContent = streak.days === 1 ? "1 day so far" : `${streak.days} days in a row`
     }
+
+    // The Complete button that was pressed is gone; without this focus falls
+    // to the top of the page and a screen reader never hears the Amen.
+    this.el.focus({ preventScroll: true })
   }
 }

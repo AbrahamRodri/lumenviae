@@ -78,7 +78,7 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
 
         _ ->
           {
-            "flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-gold ring-1 ring-gold-light/50 hover:bg-gold-light transition-all hover:scale-105",
+            "flex items-center justify-center w-11 h-11 rounded-full bg-gold ring-1 ring-gold-light/50 hover:bg-gold-light transition-all hover:scale-105",
             "w-5 h-5 md:w-6 md:h-6 text-navy ml-0.5",
             "w-5 h-5 md:w-6 md:h-6 text-navy"
           }
