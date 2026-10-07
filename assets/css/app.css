@@ -20,6 +20,61 @@
 
 /* This file is for your main application CSS */
 
+/* === fonts === */
+/* The public site's two families, self-hosted from priv/static/fonts:
+   woff2 cut to Latin and Latin-1 (Google Fonts' "latin" subset, OFL).
+   Three files, the only faces the site uses: Cormorant Garamond 500 to
+   600 and EB Garamond 500 to 600 (each a variable font over that range),
+   and EB Garamond italic 500. Nothing asks for 400 or 700, and no heading
+   is set in italic.
+
+   Each has a fallback face on a local serif, scaled and given the web
+   font's ascent and descent, so the swap moves nothing on the page. The
+   numbers were measured in Chrome against Times New Roman; measure them
+   again if a font file changes. */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-italic-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond Fallback';
+  src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Times');
+  size-adjust: 95.73%;
+  ascent-override: 96.52%;
+  descent-override: 29.98%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'EB Garamond Fallback';
+  src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Times');
+  size-adjust: 97%;
+  ascent-override: 103.81%;
+  descent-override: 30.72%;
+  line-gap-override: 0%;
+}
+/* === end fonts === */
+
 /* Lumen Viae theme. Two sets of colours live here: the public site's
    "Midnight Marian" palette (night, ink, gilt, sky, vellum) and the admin
    console's (navy, gold, parchment, cream, brown, and the admin-* tokens).
@@ -144,7 +199,7 @@
      Tailwind v4 generates font-* utilities from the --font-* namespace. */
   --font-ovo: 'Ovo', serif;
   --font-work-sans: 'Work Sans', sans-serif;
-  --font-garamond: 'EB Garamond', serif;
+  --font-garamond: 'EB Garamond', 'EB Garamond Fallback', serif;
   --font-cinzel-decorative: 'Cinzel Decorative', 'Cinzel', serif;
   --font-cinzel: 'Cinzel', serif;
 
@@ -157,7 +212,7 @@
      sentence case; EB Garamond (--font-garamond) for everything read and
      for the small tracked-caps labels. Cinzel stays only for the
      console's wordmark. */
-  --font-display: 'Cormorant Garamond', 'EB Garamond', serif;
+  --font-display: 'Cormorant Garamond', 'Cormorant Garamond Fallback', serif;
 
   --shadow-night: 0 10px 30px rgba(3, 7, 18, 0.45), 0 1px 3px rgba(3, 7, 18, 0.35);
   --shadow-gilt: 0 0 18px rgba(217, 184, 74, 0.35);
@@ -230,6 +285,11 @@
   }
 
   .site h1 {
+    font-weight: 600;
+  }
+
+  /* 600 is the heaviest face served; asking for 700 would fake a bold. */
+  .site :is(strong, b) {
     font-weight: 600;
   }
 }

@@ -52,7 +52,7 @@ defmodule LumenViaeWeb.Components.Footer do
 
         <.sacred_divider class="my-8 max-w-xs mx-auto" />
 
-        <p class="font-display text-ink-light text-xl italic">
+        <p class="font-garamond text-ink-light text-xl italic">
           Lumen Viae - Light of the Way
         </p>
         <p class="kicker mt-3">

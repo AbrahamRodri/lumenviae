@@ -1298,6 +1298,13 @@ else is night.
 
 Reading text is at least 17px on a phone; the body is 19px.
 
+The fonts are self-hosted (`priv/static/fonts`, Latin subset woff2) and
+declared in the fonts block at the top of `app.css`, each with a fallback
+face on Times New Roman sized to match, so the swap does not move the page.
+Only Cormorant 500 and 600, EB Garamond 500 and 600 and EB Garamond italic
+500 exist: ask for no other weight or a Cormorant italic, and `strong` is
+600.
+
 **The mark.** `<.logo />` in `CoreComponents` is the Stella Maris: an
 eight-point Marian star in a thin circle, its lower ray drawn out into a
 path. One colour (`currentColor`, gilt by default), sizes `:sm` to `:xl`,

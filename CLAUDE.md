@@ -212,7 +212,9 @@ do what" in docs/ARCHITECTURE.md before adding an action or a policy.
 - Fonts: Cormorant Garamond (`font-display`) for headings in sentence
   case; EB Garamond (`font-garamond`) for everything else, with `.kicker`
   for small tracked-caps labels. No public text below 12px, every control
-  at least 44px. Cinzel, Ovo and Work Sans are admin-only.
+  at least 44px. Cinzel, Ovo and Work Sans are admin-only. The two public
+  fonts are self-hosted in `priv/static/fonts` in weights 500 and 600 only
+  (and EB Garamond italic 500); see the fonts block in `app.css`.
 - The logo is the Stella Maris, `<.logo />`, beside a "Lumen Viae"
   wordmark; `priv/static/favicon.svg` and the PNG icons are the same
   drawing.

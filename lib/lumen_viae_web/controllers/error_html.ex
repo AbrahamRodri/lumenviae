@@ -29,12 +29,6 @@ defmodule LumenViaeWeb.ErrorHTML do
         <meta name="theme-color" content="#070E1F" />
         <meta name="robots" content="noindex" />
         <title>{@title} - Lumen Viae</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap"
-          rel="stylesheet"
-        />
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="stylesheet" href={~p"/assets/css/app.css"} />
