@@ -10,6 +10,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
   alias LumenViae.Rosary
   alias LumenViae.Rosary.{Artwork, Labels}
+  alias LumenViaeWeb.Components.ArtworkPicture
   alias LumenViaeWeb.Live.Mysteries.CategoryList.{Filtering, PrayLinks}
 
   attr :title, :string, required: true
@@ -141,10 +142,10 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
     <article class="category-card relative flex gap-4 p-4 sm:p-5 h-full">
       <div class="w-20 sm:w-24 shrink-0">
         <%= if @artwork do %>
-          <img
-            src={Rosary.artwork_url(@artwork)}
+          <ArtworkPicture.artwork_picture
+            record={@artwork}
             alt={@portrait_alt}
-            loading="lazy"
+            sizes="(min-width: 640px) 96px, 80px"
             class="w-full aspect-[4/5] object-cover rounded-t-full border border-gold/40"
             style={"object-position: #{Artwork.object_position(@artwork.image_focal_x, @artwork.image_focal_y)}"}
           />

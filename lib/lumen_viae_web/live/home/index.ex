@@ -159,7 +159,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
       {x, y} = Categories.card_focal_point(slug)
 
       %{
-        src: Rosary.artwork_url(record),
+        record: record,
         alt: record.image_alt,
         position: Artwork.object_position(x, y)
       }

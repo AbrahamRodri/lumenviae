@@ -375,6 +375,7 @@ defmodule LumenViae.Rosary do
   alias LumenViae.Rosary.Narration
   alias LumenViae.Rosary.SetMembership
   alias LumenViae.Rosary.Voices
+  alias LumenViae.Images.Variants
   alias LumenViae.Storage.S3
 
   ## Mysteries
@@ -755,6 +756,24 @@ defmodule LumenViae.Rosary do
   """
   def artwork_url(%{image_key: key}), do: S3.public_url(key)
   def artwork_url(_record), do: nil
+
+  @doc """
+  The WebP display variants of a record's painting that are known to be in
+  S3, as `[{width, url}]` narrowest first: only the widths recorded in
+  `image_variant_widths`, never ones inferred from the original's size, so
+  a page that offers them cannot point at an object that is not there. An
+  empty list means "draw the original". Pure string work, like
+  `artwork_url/1`.
+  """
+  @spec artwork_variant_urls(map | nil) :: [{pos_integer, String.t()}]
+  def artwork_variant_urls(%{image_key: key, image_variant_widths: widths})
+      when is_binary(key) and key != "" and is_list(widths) do
+    widths
+    |> Enum.sort()
+    |> Enum.map(&{&1, S3.public_url(Variants.key(key, &1))})
+  end
+
+  def artwork_variant_urls(_record), do: []
 
   @doc """
   A category's card, created the first time it is needed: the console
