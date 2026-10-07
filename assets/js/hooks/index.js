@@ -6,6 +6,7 @@ import SpokenRosary from "./spoken_rosary"
 import PrayerSurface from "./prayer_surface"
 import PrayerMemory from "./prayer_memory"
 import PrayerStreak from "./prayer_streak"
+import RosaryChoices from "./rosary_choices"
 
 export default {
   UserTimezone,
@@ -15,5 +16,6 @@ export default {
   SpokenRosary,
   PrayerSurface,
   PrayerMemory,
-  PrayerStreak
+  PrayerStreak,
+  RosaryChoices
 }
