@@ -14,6 +14,8 @@ with its source and licence.
   No other site, however free it says it is.
 - Never overwrite an existing plate. A better scan of a covered mystery
   gets a new file name, and the manifest entry moves to it.
+- One file may serve two keys when one print shows both scenes (the
+  Seven Sorrows reuse several Joyful and Sorrowful plates).
 
 ## Adding a plate
 
@@ -24,16 +26,25 @@ with its source and licence.
 2. Download it outside the repo and look at it: the right scene, the whole
    composition, no watermark, no colour tint (make a sepia scan grayscale),
    no figures cropped.
-3. Resize: long side 1600px at most, JPEG quality about 80, under about
-   450KB.
+3. Resize: long side 1200px, JPEG quality 75, up to about 550KB. Lower
+   the quality a little if needed, but open the result at full size: no
+   blocking, no smeared hatching.
 
    ```
-   sips -Z 1600 -s format jpeg -s formatOptions 80 in.jpg --out out.jpg
+   sips -Z 1200 -s format jpeg -s formatOptions 75 in.jpg --out out.jpg
    ```
 
 4. Save it as `priv/static/images/woodcuts/<scene>-<artist>.jpg`, lowercase
    with hyphens (`visitation-durer.jpg`).
-5. Add its entry to `manifest.json`, keeping the list sorted by key. One
+5. Make the WebP variants beside it, 640px and 1200px wide at quality 85.
+   Never upscale: skip a width the JPEG does not reach.
+
+   ```
+   cwebp -q 85 -resize 640 0 visitation-durer.jpg -o visitation-durer-640.webp
+   cwebp -q 85 -resize 1200 0 visitation-durer.jpg -o visitation-durer-1200.webp
+   ```
+
+6. Add its entry to `manifest.json`, keeping the list sorted by key. One
    plate per key.
 
 ## A manifest entry
@@ -50,7 +61,8 @@ with its source and licence.
   "width": 850,
   "height": 1200,
   "source": "https://commons.wikimedia.org/wiki/File:...",
-  "licence": "CC0"
+  "licence": "CC0",
+  "webp": {"640": "visitation-durer-640.webp"}
 }
 ```
 
@@ -59,6 +71,7 @@ with its source and licence.
 - `alt` describes the scene for someone who cannot see it. Never the file
   name, never "woodcut of".
 - `source` is the Commons file page, `licence` its `LicenseShortName`.
+- `webp` lists only the variants that exist, by width.
 
 ## Keys
 

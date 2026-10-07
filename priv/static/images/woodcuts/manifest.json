@@ -11,7 +11,10 @@
       "width": 800,
       "height": 1121,
       "source": "https://commons.wikimedia.org/wiki/File:The_Annunciation,_from_The_Life_of_the_Virgin_MET_DP816271.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "annunciation-durer-640.webp"
+      }
     },
     {
       "file": "visitation-durer.jpg",
@@ -24,7 +27,10 @@
       "width": 850,
       "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Visitation%2C_c._1504%2C_NGA_6700.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "visitation-durer-640.webp"
+      }
     },
     {
       "file": "nativity-durer.jpg",
@@ -37,7 +43,10 @@
       "width": 855,
       "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Nativity%2C_c._1502-1504%2C_NGA_6701.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "nativity-durer-640.webp"
+      }
     },
     {
       "file": "presentation-durer.jpg",
@@ -50,7 +59,10 @@
       "width": 858,
       "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Presentation_of_Christ_in_the_Temple%2C_c._1504-1505%2C_NGA_6705.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "presentation-durer-640.webp"
+      }
     },
     {
       "file": "finding-temple-durer.jpg",
@@ -63,7 +75,10 @@
       "width": 858,
       "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_Christ_among_the_Doctors%2C_c._1503-1504%2C_NGA_6708.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "finding-temple-durer-640.webp"
+      }
     },
     {
       "file": "agony-garden-durer.jpg",
@@ -73,10 +88,13 @@
       "year": "c. 1497-1499",
       "series": "Large Passion",
       "alt": "Christ kneels in prayer on a rocky hillside as an angel offers the chalice, while Peter, James and John sleep below and soldiers approach in the distance",
-      "width": 937,
-      "height": 1300,
+      "width": 865,
+      "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:Christ_on_the_Mount_of_Olives,_from_The_Large_Passion_MET_DP816593.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "agony-garden-durer-640.webp"
+      }
     },
     {
       "file": "scourging-durer.jpg",
@@ -86,10 +104,13 @@
       "year": "c. 1497-1500",
       "series": "Large Passion",
       "alt": "Christ stands bound to a column in a vaulted hall while tormentors strike him with rods and onlookers crowd around",
-      "width": 937,
-      "height": 1300,
+      "width": 865,
+      "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:The_Flagellation,_from_The_Large_Passion_MET_DP816589.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "scourging-durer-640.webp"
+      }
     },
     {
       "file": "crowning-thorns-durer.jpg",
@@ -99,10 +120,13 @@
       "year": "c. 1509",
       "series": "Small Passion",
       "alt": "Christ sits bound beneath arches as a kneeling man mockingly offers him a reed and other men press the crown of thorns on his head with sticks",
-      "width": 1000,
-      "height": 1300,
+      "width": 923,
+      "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:Christ_Crowned_with_Thorns,_from_The_Small_Passion_MET_DP816006.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "crowning-thorns-durer-640.webp"
+      }
     },
     {
       "file": "carrying-cross-durer.jpg",
@@ -112,10 +136,13 @@
       "year": "c. 1498",
       "series": "Large Passion",
       "alt": "Christ bends beneath the weight of the cross as soldiers drive him on and holy women grieve at the left near a city gate",
-      "width": 946,
-      "height": 1300,
+      "width": 874,
+      "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:The_Bearing_of_the_Cross,_from_The_Large_Passion_MET_DP816602.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "carrying-cross-durer-640.webp"
+      }
     },
     {
       "file": "crucifixion-durer.jpg",
@@ -128,7 +155,10 @@
       "width": 800,
       "height": 1060,
       "source": "https://commons.wikimedia.org/wiki/File:The_Crucifixion,_from_The_Small_Passion_MET_DP816039.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "crucifixion-durer-640.webp"
+      }
     },
     {
       "file": "resurrection-durer.jpg",
@@ -141,7 +171,10 @@
       "width": 800,
       "height": 1134,
       "source": "https://commons.wikimedia.org/wiki/File:The_Resurrection,_from_The_Large_Passion_MET_DP816615.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "resurrection-durer-640.webp"
+      }
     },
     {
       "file": "ascension-durer.jpg",
@@ -151,10 +184,13 @@
       "year": "c. 1510",
       "series": "Small Passion",
       "alt": "The apostles and Mary kneel and gaze upward as only the feet of the ascending Christ remain visible in the clouds above",
-      "width": 1175,
-      "height": 1500,
+      "width": 940,
+      "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:The_Ascension,_from_The_Small_Passion_MET_DP816019.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "ascension-durer-640.webp"
+      }
     },
     {
       "file": "pentecost-durer.jpg",
@@ -164,10 +200,29 @@
       "year": "c. 1510",
       "series": "Small Passion",
       "alt": "The Holy Spirit as a dove radiates light over Mary and the apostles, who sit and stand with small flames on their heads",
-      "width": 1163,
-      "height": 1500,
+      "width": 930,
+      "height": 1200,
       "source": "https://commons.wikimedia.org/wiki/File:Pentecost,_from_The_Small_Passion_MET_DP816020.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "pentecost-durer-640.webp"
+      }
+    },
+    {
+      "file": "death-of-virgin-durer.jpg",
+      "key": "glorious_4",
+      "title": "The Death of the Virgin",
+      "artist": "Albrecht Durer",
+      "year": "1510",
+      "series": "Life of the Virgin",
+      "alt": "Mary lies propped on pillows in a canopied bed, holding a candle, as the apostles gather around her in prayer, with censer, book and processional cross",
+      "width": 855,
+      "height": 1200,
+      "source": "https://commons.wikimedia.org/wiki/File:The_Death_of_the_Virgin,_from_The_Life_of_the_Virgin_MET_DP816288.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "death-of-virgin-durer-640.webp"
+      }
     },
     {
       "file": "coronation-durer.jpg",
@@ -180,7 +235,10 @@
       "width": 800,
       "height": 1123,
       "source": "https://commons.wikimedia.org/wiki/File:The_Assumption_and_Coronation_of_the_Virgin,_from_The_Life_of_the_Virgin_MET_DP816292.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "coronation-durer-640.webp"
+      }
     },
     {
       "file": "baptism-dore.jpg",
@@ -193,7 +251,10 @@
       "width": 800,
       "height": 1014,
       "source": "https://commons.wikimedia.org/wiki/File:Gustave_Dore_-_John_the_Baptist_baptizes_Jesus.jpg",
-      "licence": "Public domain"
+      "licence": "Public domain",
+      "webp": {
+        "640": "baptism-dore-640.webp"
+      }
     },
     {
       "file": "cana-dore.jpg",
@@ -204,9 +265,12 @@
       "series": "La Grande Bible de Tours",
       "alt": "Under a draped canopy at a long banquet table Christ sits with the wedding guests while servants in the foreground fill great stone water jars",
       "width": 771,
-      "height": 1000,
+      "height": 780,
       "source": "https://commons.wikimedia.org/wiki/File:Marriage_at_Cana_engraving_by_Gustave_Dor%C3%A9.jpg",
-      "licence": "Public domain"
+      "licence": "Public domain",
+      "webp": {
+        "640": "cana-dore-640.webp"
+      }
     },
     {
       "file": "sermon-mount-dore.jpg",
@@ -219,7 +283,10 @@
       "width": 1009,
       "height": 1300,
       "source": "https://commons.wikimedia.org/wiki/File:Dore_Bible_Sermon_on_the_Mount.jpg",
-      "licence": "Public domain"
+      "licence": "Public domain",
+      "webp": {
+        "640": "sermon-mount-dore-640.webp"
+      }
     },
     {
       "file": "transfiguration-dore.jpg",
@@ -227,12 +294,15 @@
       "title": "The Transfiguration",
       "artist": "Gustave Dore",
       "year": "1866",
-      "series": "La Grande Bible de Tours",
+      "series": "La Grande Bible de Tours (as reproduced in The Bible Panorama, 1891)",
       "alt": "Christ radiant in the clouds between Moses with the tablets of the Law and Elijah, while three apostles lie fallen on the mountainside below",
-      "width": 497,
-      "height": 622,
-      "source": "https://commons.wikimedia.org/wiki/File:Gustave_Dore_-_The_Transfiguration.jpg",
-      "licence": "Public domain"
+      "width": 1040,
+      "height": 1300,
+      "source": "https://commons.wikimedia.org/wiki/File:The_Bible_panorama%2C_or_The_Holy_Scriptures_in_picture_and_story_(1891)_(14598318760).jpg",
+      "licence": "PD-old-100 (Flickr Commons: no known copyright restrictions)",
+      "webp": {
+        "640": "transfiguration-dore-640.webp"
+      }
     },
     {
       "file": "last-supper-dore.jpg",
@@ -240,12 +310,95 @@
       "title": "The Last Supper",
       "artist": "Gustave Dore",
       "year": "1866",
-      "series": "La Grande Bible de Tours",
+      "series": "La Grande Bible de Tours (as reproduced in The Bible Panorama, 1891)",
       "alt": "Christ with a halo of light at the centre of a long table with a chalice and bread before him, the twelve apostles gathered about him in a columned room",
-      "width": 475,
-      "height": 602,
-      "source": "https://commons.wikimedia.org/wiki/File:Jesus_and_the_disciples_at_the_Last_Supper.jpg",
-      "licence": "Public domain"
+      "width": 1047,
+      "height": 1300,
+      "source": "https://commons.wikimedia.org/wiki/File:The_Bible_panorama%2C_or_The_Holy_Scriptures_in_picture_and_story_(1891)_(14598393068).jpg",
+      "licence": "PD-old-100 (Flickr Commons: no known copyright restrictions)",
+      "webp": {
+        "640": "last-supper-dore-640.webp"
+      }
+    },
+    {
+      "file": "presentation-durer.jpg",
+      "key": "seven_sorrows_1",
+      "title": "The Presentation in the Temple (Simeon's prophecy)",
+      "artist": "Albrecht Durer",
+      "year": "c. 1504-1505",
+      "series": "Life of the Virgin",
+      "alt": "In a pillared temple hall, Mary kneels at the altar table offering the Child to the aged Simeon, while Joseph and a crowd of onlookers gather round",
+      "width": 858,
+      "height": 1200,
+      "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Presentation_of_Christ_in_the_Temple%2C_c._1504-1505%2C_NGA_6705.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "presentation-durer-640.webp"
+      }
+    },
+    {
+      "file": "flight-egypt-durer.jpg",
+      "key": "seven_sorrows_2",
+      "title": "The Flight into Egypt",
+      "artist": "Albrecht Durer",
+      "year": "c. 1504",
+      "series": "Life of the Virgin",
+      "alt": "Mary, the Child in her arms, rides a donkey through a palm forest as Joseph strides ahead leading it, with a host of angels in the clouds above",
+      "width": 856,
+      "height": 1200,
+      "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Flight_into_Egypt%2C_c._1504%2C_NGA_6706.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "flight-egypt-durer-640.webp"
+      }
+    },
+    {
+      "file": "finding-temple-durer.jpg",
+      "key": "seven_sorrows_3",
+      "title": "Christ among the Doctors",
+      "artist": "Albrecht Durer",
+      "year": "c. 1503-1504",
+      "series": "Life of the Virgin",
+      "alt": "Under a great arch, the boy Jesus sits among the doctors of the Temple, who consult their books, while Mary and Joseph enter anxiously at the left",
+      "width": 858,
+      "height": 1200,
+      "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_Christ_among_the_Doctors%2C_c._1503-1504%2C_NGA_6708.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "finding-temple-durer-640.webp"
+      }
+    },
+    {
+      "file": "carrying-cross-durer.jpg",
+      "key": "seven_sorrows_4",
+      "title": "The Bearing of the Cross",
+      "artist": "Albrecht Durer",
+      "year": "c. 1498-1499",
+      "series": "Large Passion",
+      "alt": "Christ, crowned with thorns, falls beneath the weight of the cross among soldiers and onlookers, while Mary and the holy women grieve at the lower left",
+      "width": 874,
+      "height": 1200,
+      "source": "https://commons.wikimedia.org/wiki/File:The_Bearing_of_the_Cross%2C_from_The_Large_Passion_MET_DP816602.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "carrying-cross-durer-640.webp"
+      }
+    },
+    {
+      "file": "crucifixion-durer.jpg",
+      "key": "seven_sorrows_5",
+      "title": "The Crucifixion",
+      "artist": "Albrecht Durer",
+      "year": "c. 1509",
+      "series": "Small Passion",
+      "alt": "Christ hangs on the cross under the INRI title; Mary and the holy women grieve with Saint John on the left, soldiers with spears stand on the right, and Mary Magdalene kneels at the foot of the cross beside a skull",
+      "width": 800,
+      "height": 1060,
+      "source": "https://commons.wikimedia.org/wiki/File:The_Crucifixion%2C_from_The_Small_Passion_MET_DP816039.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "crucifixion-durer-640.webp"
+      }
     },
     {
       "file": "lamentation-durer.jpg",
@@ -258,7 +411,58 @@
       "width": 800,
       "height": 1030,
       "source": "https://commons.wikimedia.org/wiki/File:The_Lamentation,_from_The_Small_Passion_MET_DP816047.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "lamentation-durer-640.webp"
+      }
+    },
+    {
+      "file": "entombment-durer.jpg",
+      "key": "seven_sorrows_7",
+      "title": "The Entombment",
+      "artist": "Albrecht Durer",
+      "year": "c. 1509-1510",
+      "series": "Small Passion",
+      "alt": "Joseph of Arimathea and Nicodemus lay the body of Christ in the stone tomb, while Mary, Saint John and the holy women mourn behind, one with a jar of ointment; the crown of thorns lies in the grass",
+      "width": 929,
+      "height": 1200,
+      "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Deposition%2C_probably_c._1509-1510%2C_NGA_6778.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "entombment-durer-640.webp"
+      }
+    },
+    {
+      "file": "holy-family-dragonfly-durer.jpg",
+      "key": "general_holy_family_dragonfly",
+      "title": "The Holy Family with the Dragonfly",
+      "artist": "Albrecht Durer",
+      "year": "c. 1495",
+      "series": "Single-sheet engraving",
+      "alt": "Mary, her long hair loose, sits in a landscape holding the Christ Child to her cheek while Joseph sleeps beside her; the Father and the dove shine from the clouds above and a river town lies behind",
+      "width": 932,
+      "height": 1200,
+      "source": "https://commons.wikimedia.org/wiki/File:Holy_Family_with_a_Dragonfly_MET_DP815298.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "holy-family-dragonfly-durer-640.webp"
+      }
+    },
+    {
+      "file": "holy-family-egypt-durer.jpg",
+      "key": "general_holy_family_egypt",
+      "title": "The Holy Family in Egypt",
+      "artist": "Albrecht Durer",
+      "year": "c. 1504",
+      "series": "Life of the Virgin",
+      "alt": "Mary sits spinning and sewing beside the cradle with angels attending her, while Joseph works with an axe at a timber trough and child angels gather wood chips; God the Father and the dove look down from the clouds",
+      "width": 851,
+      "height": 1200,
+      "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_Sojourn_of_the_Holy_Family_in_Egypt%2C_c._1504%2C_NGA_6707.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "holy-family-egypt-durer-640.webp"
+      }
     },
     {
       "file": "madonna-crescent-durer.jpg",
@@ -271,7 +475,10 @@
       "width": 800,
       "height": 1159,
       "source": "https://commons.wikimedia.org/wiki/File:The_Madonna_on_the_Crescent,_Frontispiece_to_The_Life_of_the_Virgin_MET_DP816150.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {
+        "640": "madonna-crescent-durer-640.webp"
+      }
     },
     {
       "file": "madonna-crescent-crop.jpg",
@@ -284,7 +491,24 @@
       "width": 540,
       "height": 508,
       "source": "https://commons.wikimedia.org/wiki/File:The_Madonna_on_the_Crescent,_Frontispiece_to_The_Life_of_the_Virgin_MET_DP816150.jpg",
-      "licence": "CC0"
+      "licence": "CC0",
+      "webp": {}
+    },
+    {
+      "file": "madonna-monkey-durer.jpg",
+      "key": "general_madonna_monkey",
+      "title": "The Virgin and Child with the Monkey",
+      "artist": "Albrecht Durer",
+      "year": "c. 1498",
+      "series": "Single-sheet engraving",
+      "alt": "Mary, a halo about her head, sits by a river holding the Christ Child, who has a small bird on his hand; a chained monkey crouches at her feet and a half-timbered house stands behind",
+      "width": 778,
+      "height": 1200,
+      "source": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Virgin_and_Child_with_the_Monkey%2C_c._1498%2C_NGA_35104.jpg",
+      "licence": "CC0",
+      "webp": {
+        "640": "madonna-monkey-durer-640.webp"
+      }
     }
   ]
 }
