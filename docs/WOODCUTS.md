@@ -33,7 +33,15 @@ with its source and licence.
 
 4. Save it as `priv/static/images/woodcuts/<scene>-<artist>.jpg`, lowercase
    with hyphens (`visitation-durer.jpg`).
-5. Add its entry to `manifest.json`, keeping the list sorted by key. One
+5. Make the WebP variants beside it, 640px and 1200px wide at quality 85.
+   Never upscale: skip a width the JPEG does not reach.
+
+   ```
+   cwebp -q 85 -resize 640 0 visitation-durer.jpg -o visitation-durer-640.webp
+   cwebp -q 85 -resize 1200 0 visitation-durer.jpg -o visitation-durer-1200.webp
+   ```
+
+6. Add its entry to `manifest.json`, keeping the list sorted by key. One
    plate per key.
 
 ## A manifest entry
@@ -50,7 +58,8 @@ with its source and licence.
   "width": 850,
   "height": 1200,
   "source": "https://commons.wikimedia.org/wiki/File:...",
-  "licence": "CC0"
+  "licence": "CC0",
+  "webp": {"640": "visitation-durer-640.webp"}
 }
 ```
 
@@ -59,6 +68,7 @@ with its source and licence.
 - `alt` describes the scene for someone who cannot see it. Never the file
   name, never "woodcut of".
 - `source` is the Commons file page, `licence` its `LicenseShortName`.
+- `webp` lists only the variants that exist, by width.
 
 ## Keys
 
