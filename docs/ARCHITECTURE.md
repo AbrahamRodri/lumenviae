@@ -14,11 +14,12 @@ this before adding a module, a query, or a page.
 7. [The Office domain](#the-office-domain)
 8. [The Ops domain](#the-ops-domain)
 9. [The web layer](#the-web-layer)
-10. [Components](#components)
-11. [Templates and partials](#templates-and-partials)
-12. [Where does this go?](#where-does-this-go)
-13. [Design tokens](#design-tokens)
-14. [The admin console](#the-admin-console)
+10. [The prayer page](#the-prayer-page)
+11. [Components](#components)
+12. [Templates and partials](#templates-and-partials)
+13. [Where does this go?](#where-does-this-go)
+14. [Design tokens](#design-tokens)
+15. [The admin console](#the-admin-console)
 
 ---
 
@@ -956,17 +957,36 @@ LiveViews are grouped by **area of the site**, not by resource:
 
 | Directory | Contents |
 | --- | --- |
-| `live/home/` | the home page: today's mysteries, the sets for them, and every category |
-| `live/mysteries/` | public mystery browsing, plus admin mystery CRUD and a category card's painting (`card/`) |
-| `live/pray/` | the prayer experience itself |
+| `live/home/` | the home page, the daily hub: today's mysteries on either schedule, the sets for them, the Rosary without a set, and a card per category (`category_card/`) |
+| `live/mysteries/` | public: the mysteries in Scripture (`scripture.ex`, its sections in `_partials/`) and the category page (`category_list/`). Admin: mystery CRUD and a category card's painting (`card/`) |
+| `live/pray/` | the prayer page: see [The prayer page](#the-prayer-page) |
+| `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
-| `live/privacy_policy/` | App Store privacy policy |
 
 The public site is only the Rosary: home, the mysteries, their sets and
-the prayer page. Pages retired from it (the dashboard, the app page, How
-to Pray, True Devotion, St. Carlo, Feedback) are in `archive/`, outside
-the build; `archive/README.md` says how to bring one back.
+the prayer page, six routes in all (`docs/PUBLIC_SITE.md` lists them, the
+prayer page's link and where each setting is kept). Pages retired from it
+(the dashboard, the app page, How to Pray, True Devotion, St. Carlo,
+Feedback) are in `archive/`, outside the build; each old path answers a
+`301` to `/` through `LumenViaeWeb.RedirectController`, and
+`archive/README.md` says how to bring one back. Archived pages are not
+maintained: do not update them when a shared component changes.
+
+The category page is the model for a public page with sub-components, each
+in its own directory beside the LiveView:
+
+```
+live/mysteries/category_list/
+├── category_list.ex             LumenViaeWeb.Live.Mysteries.CategoryList
+├── category_list.html.heex
+├── filtering.ex                 filters the shelf of sets (presentation only)
+├── pray_links.ex                the "Your Rosary Today" choices, and the links that carry them
+├── header/header.ex             LumenViaeWeb.Live.Mysteries.CategoryList.Header
+├── choices/choices.ex           ...Choices
+├── ways_to_pray/ways_to_pray.ex ...WaysToPray
+└── shelf/shelf.ex               ...Shelf
+```
 
 ### Module names match file paths
 
@@ -1000,6 +1020,99 @@ domain, and lives in `LumenViae.Rosary`.
 
 ---
 
+## The prayer page
+
+`LumenViaeWeb.Live.Pray.Index` prays the whole Rosary, from the Sign of the
+Cross to the last Amen, bead by bead. Two routes reach it, and both mount
+the same LiveView:
+
+- `/meditation-sets/:set_id/pray` prays a set, with its meditations or as the
+  Scriptural Rosary. A set that is missing or hidden is a 404.
+- `/mysteries/:category/pray` prays a category without a set, as the
+  Scriptural Rosary or with the prayers alone.
+
+The reader counts on their own rosary (`count=beads`, a decade a page) or on
+the screen (`count=screen`, a bead a screen).
+
+### The modules
+
+```
+live/pray/
+├── index.ex, index.html.heex   the LiveView: mounts, events, completion
+├── params.ex                   Params: the URL, read and written
+├── sequence.ex                 Sequence: the order of prayers, pages and screens
+├── page_view/page_view.ex      PageView: counting on a rosary, a page at a time
+├── bead_screen/bead_screen.ex  BeadScreen: counting on the screen, a bead at a time
+├── strand/strand.ex            Strand: the Rosary drawn as a strand, and the way to each page
+├── prayer_text/prayer_text.ex  PrayerText: a prayer, a verse, an announcement, a meditation
+├── controls/controls.ex        Controls: the settings, the aloud controls, the resume offer, Previous and Next
+└── completion/completion.ex    Completion: the Amen, the streak and the milestones
+```
+
+Apart from `Index`, each is a function component under
+`LumenViaeWeb.Live.Pray`. The LiveView owns the state and passes it down.
+
+**`Sequence`** builds the Rosary as a list of pages: the opening prayers, one
+page per decade, the closing prayers. A page is a list of screens, one per
+bead counted on the screen. It is built from the same script the spoken
+Rosary plays (`LumenViae.Rosary.PrayerAudio.script/3`), so what is read and
+what is heard are one order. It is presentation only: it reads the value
+modules and the records the LiveView already loaded, and never queries.
+
+**`Params`** is the URL contract. Everything the reader chose rides in the
+query string, and a default is left out:
+
+| Parameter | Values |
+| --- | --- |
+| `mystery` | `opening`, a decade number from `0`, or `closing` |
+| `step` | the bead on that page, used with `count=screen` |
+| `form` | a set: `meditation` (default) or `scriptural`. A category: `scriptural` (default) or `holy` |
+| `count` | `beads` (default) or `screen` |
+| `aloud` | `true` |
+| `voice` | a narration voice's slug |
+
+Change the contract in `Params` and in `docs/PUBLIC_SITE.md` together.
+Links made before the page worked on phones carry `mobile`, which is
+accepted and ignored.
+
+### What the browser keeps
+
+Nothing about a visitor is stored on the server. The page's hooks keep a few
+things in `localStorage`, under these keys:
+
+| Key | Holds | Hook |
+| --- | --- | --- |
+| `lumenviae:rosary-choices` | the category page's "Your Rosary Today" choices | `RosaryChoices` |
+| `lv:schedule` | traditional or modern weekly schedule, on the home page | `MysterySchedule` |
+| `lv:pray:<key>:<form>` | the place in a Rosary, `{mystery, step, count, at}`, for "Continue where you left off". `<key>` is `set:<id>` or `mysteries:<category>` | `PrayerMemory` |
+| `lv:pray:extras` | the closing prayers chosen | `PrayerMemory` |
+| `lv:pray:language` | the prayers' language, English or Latin | `PrayerMemory` |
+| `lv:pray:text-size` | the text size | `PrayerSurface` |
+| `lv:pray:streak` | the days in a row | `PrayerStreak` |
+| `lv:pray:swipe-hint-seen` | that the swipe hint has been shown | `SwipeHint` |
+
+A hook that cannot read or write storage leaves the page on its defaults.
+The hooks are in `assets/js/hooks/`; `PrayerSurface` also turns the keys and
+swipes into moves through the Rosary.
+
+### Completions
+
+A completion is recorded only when the reader presses Complete on a set's
+page. A Rosary prayed without a set records none, because a completion
+belongs to a meditation set; see `docs/UPCOMING_FEATURES.md`.
+
+### Checking a public page in a browser
+
+`scripts/e2e/` holds a Playwright smoke test of the public site at a phone
+and a desktop width: the pages load, each has an `h1`, nothing logs a
+console error or scrolls sideways, a Pray link leads to a prayer page that
+answers ArrowRight, and the archived paths redirect to `/`. It is not part
+of CI, so run it against your own server and a copy of the dev database
+before handing in a change to a public page. `docs/PUBLIC_SITE.md` has the
+steps.
+
+---
+
 ## Components
 
 Everything in this codebase is a **function component**. There are currently
@@ -1019,16 +1132,18 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.Admin` | admin page chrome | yes |
 | `Components.Footer` | site footer | no, used by the layout |
 | `Components.MeditationFilters` | shared filter controls | no, called fully qualified |
+| `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
+| `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
+| `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
+| `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json` | no, imported where used |
+| `Components.MetaTags` | the description, canonical link, link previews and structured data a page put in `LumenViaeWeb.PageMeta` | no, used by the root layout |
+| `LumenViaeWeb.Layouts` | root and app layouts | aliased |
 
 The flash has two looks: the console's by default, and the public site's
 with `<Layouts.flash_group flash={@flash} variant={:public} />`, rendered
 inside a public LiveView's own template. The root layout owns the page's
 only `<main id="main-content">`, so a page template never renders
 another.
-| `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
-| `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
-| `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
-| `LumenViaeWeb.Layouts` | root and app layouts | aliased |
 
 If you add a component that most pages will use, add it to
 `html_helpers/0`. Otherwise leave it fully qualified at the call site -

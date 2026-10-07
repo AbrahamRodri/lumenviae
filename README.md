@@ -8,31 +8,39 @@ Lumen Viae is a web application dedicated to helping the faithful pray the Rosar
 
 Pray it at [www.lumenviae.org](https://www.lumenviae.org), or carry it with you in [Lumen Viae for iPhone](https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749). This repository is the website, and the server that the iPhone app reads its meditations, narration and Divine Office from.
 
-### Features
+### What you can do
 
-**Twenty Mysteries, and the Seven Sorrows** - the traditional Joyful, Sorrowful and Glorious mysteries, the Luminous Mysteries, and the Seven Sorrows of Mary
+- **Pray today's mysteries** - The home page proposes the mysteries for the day in your own time zone, on the traditional weekly schedule or the modern one (Luminous on Thursday), and takes you straight into prayer
+- **Pray the whole Rosary, bead by bead** - From the Sign of the Cross to the last Amen. Count on your own rosary, a decade a page, or on the screen, a bead at a time: tap, swipe or press Space for each Hail Mary
+- **Choose how to pray it** - With a meditation from the saints for each mystery, as the Scriptural Rosary (a verse of Scripture before every Hail Mary), or with the prayers alone
+- **Pray in Latin** - Set the prayers in English or Latin; add the Pope's intentions, the Memorare or the Saint Michael Prayer at the end
+- **Pray aloud** - Every prayer and mystery announcement is said in a voice you choose, so a whole Rosary can be prayed with nothing to read
+- **Listen to the meditations** - Meditations can be read or listened to, in a choice of narration voices recorded through ElevenLabs
+- **Find your place again** - Your place is kept in the page's address and in your browser, so a locked phone or a reload never loses it, and "Continue where you left off" offers it for a week
+- **Keep a streak** - A finished Rosary shows the days in a row you have prayed, with the Church's milestones: a triduum, a faithful week, a novena, and on to a year
+- **Twenty mysteries, and the Seven Sorrows** - The Joyful, Sorrowful, Glorious and Luminous Mysteries and the Seven Sorrows of Mary, each with its days, fruits and a woodcut by Albrecht Durer or Gustave Dore
+- **Every mystery in Scripture** - The Douay-Rheims passages for each mystery, and how the traditional and modern schedules differ
+- **Curated meditations** - Drawn verbatim from the public domain writings of saints and spiritual writers
+- **Nothing asked of you** - No account and no sign-up to pray. A finished Rosary is counted with an approximate place, and never a full address; see the [privacy policy](https://www.lumenviae.org/privacy-policy)
 
-**Guided Meditation** - Carefully curated meditations for each mystery, drawn verbatim from the public domain writings of saints and spiritual writers
+### What else is here
 
-**Today's Mysteries** - The prayer dashboard proposes the mysteries for the day and takes you straight into prayer with any set of meditations for them
+- **The Divine Office** - The traditional Office, under the 1960 rubrics by default or any of ten other versions from 1570 on, the monastic among them, assembled by the open-source Divinum Officium engine and served to the iPhone app
+- **The Rosary's content** - The prayers in English and Latin, the mysteries with their fruits and verses, the order a Rosary is said in, the day's mysteries and the How to Pray course, served as one versioned document so an app prays with no connection
+- **iOS and Android** - The companion iPhone app reads the same meditation catalog, narration and Office from this server. An Android app, not yet released, is built against `/api/v2` and the Rosary's content document ([ANDROID_API.md](docs/ANDROID_API.md))
+- **A curation console** - Admins manage meditations, sets, authors and paintings, check the spoken Rosary, and read the completion figures
 
-**Narrated Prayer** - Meditations can be listened to as well as read, in a choice of narration voices recorded through ElevenLabs
+### Pages
 
-**The Spoken Rosary** - Turn on "Pray aloud" and every prayer and mystery announcement is said in your chosen voice, so a whole Rosary can be prayed aloud, bead by bead. The iPhone app adds a Scriptural verse for every Hail Mary
+The public site is only the Rosary:
 
-**Prayer Progress** - Your place is kept in the page's address, so a locked phone or a reload never loses it (life happens during prayer!)
+- **Home** (`/`) - The daily hub: today's mysteries, the sets for them, and every category
+- **The Mysteries in Scripture** (`/mysteries`) - Every mystery with its passages
+- **A category** (`/mysteries/joyful`, `/mysteries/sorrowful`, `/mysteries/glorious`, `/mysteries/luminous`, `/mysteries/seven_sorrows`) - "Your Rosary Today": the two ways to pray without a set, and the shelf of meditation sets
+- **The prayer page** (`/meditation-sets/:id/pray`, and `/mysteries/:category/pray` without a set)
+- **Privacy Policy** (`/privacy-policy`)
 
-**Learn Pages** - How to pray the Rosary with the methods of St. Louis de Montfort, his treatise on True Devotion, the life of St. Carlo Acutis, and every mystery found in Scripture
-
-**The Divine Office** - The traditional Office, under the 1960 rubrics by default or any of ten other versions from 1570 on, the monastic among them, assembled by the open-source Divinum Officium engine and served to the iPhone app
-
-**The Rosary's Content** - The prayers in English and Latin, the mysteries with their fruits and verses, the order a Rosary is said in, the day's mysteries and the How to Pray course, served as one versioned document so an app prays with no connection
-
-**iOS and Android** - The companion iPhone app reads the same meditation catalog, narration and Office from this server. An Android app, not yet released, is built against `/api/v2` and the Rosary's content document ([ANDROID_API.md](docs/ANDROID_API.md))
-
-**Nothing Asked of You** - No account and no sign-up to pray. A finished Rosary is counted with an approximate place, and never a full address; see the [privacy policy](https://www.lumenviae.org/privacy-policy)
-
-**Traditional Aesthetic** - Navy and gold reminiscent of traditional Catholic missals and devotional books
+The dashboard, the iPhone app page, How to Pray, True Devotion, St. Carlo Acutis and Feedback pages are retired to [`archive/`](archive/README.md) and no longer maintained. Their old addresses answer with a permanent redirect to the home page. See [PUBLIC_SITE.md](docs/PUBLIC_SITE.md).
 
 ## Tech Stack
 
@@ -50,7 +58,7 @@ Built with:
 
 | Path | What it is |
 | --- | --- |
-| `/` | The public site |
+| `/` | The public site: the home page and the pages above |
 | `/admin` | The curation console, for signed-in admins only. `/admin/data` browses every resource (AshAdmin), `/admin/jobs` shows the background jobs (Oban Web), `/admin/system` the release, database, queues and third parties, `/admin/live` the running VM (Phoenix LiveDashboard, with Ecto Stats), `/admin/admins` the admin accounts, and `/admin/completions` every completion figure, filtered |
 | `/healthz` | Up, which release, and whether the database answers: 200, or 503 when it does not. For an uptime monitor |
 | `/api` | The REST API the iPhone app reads. Frozen: every installed build depends on its shape |
@@ -128,6 +136,16 @@ of the files this branch changed against `origin/main`, and the whole
 suite with warnings as errors. It runs in the test environment, so set
 `MIX_TEST_PARTITION` in a worktree.
 
+### Checking the public site in a browser
+
+```bash
+BASE_URL=http://localhost:8096 scripts/e2e/run.sh
+```
+
+A Playwright smoke test of the public pages, at phone and desktop widths. It
+needs its own server on a copy of the dev database; see
+[PUBLIC_SITE.md](docs/PUBLIC_SITE.md) for the steps.
+
 ### Jobs
 
 `mix lumen_viae.jobs` shows the queues by state; `failures`, `schedule`,
@@ -159,10 +177,10 @@ lib/lumen_viae/
   └── release.ex                # Production tasks without Mix
 lib/lumen_viae_web/
   ├── live/
-  │   ├── home/                 # Home, learn pages, the iPhone app page, feedback
-  │   ├── dashboard/            # Today's mysteries
-  │   ├── mysteries/            # Mysteries by category and in Scripture; admin editing
-  │   ├── pray/                 # The prayer experience
+  │   ├── home/                 # The home page: today's mysteries and every category
+  │   ├── mysteries/            # Mysteries in Scripture, the category pages; admin editing
+  │   ├── pray/                 # The prayer page
+  │   ├── privacy_policy/       # The privacy policy
   │   ├── meditations/          # Admin: meditations, sets and authors
   │   └── admin/                # Console dashboard, sign-in, CSV import, spoken Rosary, System
   ├── controllers/api/          # The REST API for the iPhone app
@@ -170,6 +188,8 @@ lib/lumen_viae_web/
   ├── json_api/                 # The v2 OpenAPI document
   └── components/               # Shared function components
 lib/mix/tasks/                  # Import, update, audio recording, doctor and jobs tasks
+archive/                        # Retired public pages, not compiled (archive/README.md)
+scripts/e2e/                    # The browser smoke test for the public site
 ```
 
 Code outside a domain reaches it only through the domain module
@@ -182,6 +202,7 @@ a page.
 ## Documentation
 
 Working on the code:
+- **[PUBLIC_SITE.md](docs/PUBLIC_SITE.md)** - The public pages, the prayer page's link, where each setting is kept, the browser smoke test, and the archived pages
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - The Ash domains, who may do what, background jobs, the web layer, components, design tokens and the admin console
 - **[USAGE_RULES.md](docs/USAGE_RULES.md)** - The Ash packages' own guidance, generated from the dependencies
 - **[CI.md](docs/CI.md)** - What CI checks, and how a merge to `main` deploys
@@ -201,6 +222,7 @@ Content and audio:
 - **[SPOKEN_ROSARY.md](docs/SPOKEN_ROSARY.md)** - The Rosary's words and order, and recording and serving the spoken Rosary
 - **[MYSTERY_PAINTINGS.md](docs/MYSTERY_PAINTINGS.md)** - The mysteries' paintings: provenance, and the steps to publish them
 - **[COMPLETION_ANALYTICS.md](docs/COMPLETION_ANALYTICS.md)** - What is recorded when somebody finishes a Rosary
+- **[audits/](docs/audits/)** - The accessibility and mobile audits of the public site
 
 Running it:
 - **[PROD_ACCESS.md](docs/PROD_ACCESS.md)** - Reaching production, running release tasks and making an admin

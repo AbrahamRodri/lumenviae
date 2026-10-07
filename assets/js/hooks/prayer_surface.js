@@ -1,6 +1,8 @@
 // The prayer page's surface: the keys and swipes that move through the
 // Rosary, the text size, and keeping the screen awake while praying.
 //
+// Escape closes the settings pane, from wherever the focus is in it.
+//
 // Keys: counting on the screen, Space, Enter, ArrowDown and ArrowRight
 // move a bead on and ArrowUp and ArrowLeft move one back; counting on a
 // rosary, only the left and right arrows turn the page, so Space and the
@@ -89,6 +91,11 @@ export default {
   },
 
   key(event) {
+    if (event.key === "Escape" && this.closeSettings()) {
+      event.preventDefault()
+      return
+    }
+
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
     const target = event.target
     if (target.closest && target.closest("button, a, input, select, textarea, summary, [contenteditable]")) return
@@ -101,6 +108,16 @@ export default {
 
     event.preventDefault()
     this.pushEvent("key_nav", { key: event.key })
+  },
+
+  // The settings pane is open when its button says so; closing it is the
+  // button's own event, and the focus goes back to the button.
+  closeSettings() {
+    const button = this.el.querySelector('[aria-controls="prayer-settings"][aria-expanded="true"]')
+    if (!button) return false
+    button.click()
+    button.focus()
+    return true
   },
 
   // Counting on the screen, a swipe left is the next bead and a swipe right

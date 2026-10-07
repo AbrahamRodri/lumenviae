@@ -104,6 +104,26 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
   change as any code that widens what is collected
+- The public website is only the Rosary: home (today's mysteries and
+  today's sets), `/mysteries` (the mysteries in Scripture), each category
+  page with "Your Rosary Today" (audio, counting and voice choices), the
+  prayer page (the whole Rosary bead by bead, in meditation, scriptural or
+  holy form, counted on the screen or on your own rosary, English or Latin
+  prayers, optional closing prayers, streak milestones), the set-less
+  `/mysteries/:category/pray` (records no completion), and the privacy
+  policy. Read docs/PUBLIC_SITE.md before touching a public page
+- Retired pages (dashboard, app, How to Pray, True Devotion, St. Carlo,
+  Feedback) live in `archive/`, outside the build, and their addresses
+  301 to `/` through `RedirectController`. Do not maintain or link them;
+  `archive/README.md` says how to bring one back
+- Public-domain woodcuts for every mystery
+  (`priv/static/images/woodcuts/manifest.json`, `<.woodcut_plate>`; see
+  docs/WOODCUTS.md), WebP variants of static images (docs/IMAGES.md) and of
+  uploaded artwork (`image_variant_widths`), and per-page titles, previews
+  and structured data (`LumenViaeWeb.PageMeta`, docs/PAGE_META.md)
+- An end-to-end smoke test in `scripts/e2e/` (Playwright, phone and
+  desktop widths); run it against a dev server before merging public-site
+  work
 - Admin interface for managing meditations and sets
 - JSON API consumed by the iOS app. Its shape is a contract with every
   installed build: see docs/IOS_API_CONTRACT.md before changing any
@@ -131,6 +151,9 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - `meditation_set_meditations` - Join table with ordering
 - `meditation_narrations` - One row per (meditation, voice) recording and
   its S3 key; `meditations.audio_url` is the recording's filename
+- `image_variant_widths` on `authors`, `category_cards`, `meditation_sets`
+  and `mysteries` - the WebP widths stored beside an uploaded image; pages
+  offer only those, so an image without variants shows its original
 - `rosary_completions` - Completion analytics, including approximate
   location, surface (web, iOS or Android) and a truncated IP prefix. The full
   address is never stored
