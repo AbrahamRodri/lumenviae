@@ -37,6 +37,39 @@ defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
     end
   end
 
+  describe "the header" do
+    defp page(conn, path), do: conn |> get(path) |> html_response(200) |> Floki.parse_document!()
+
+    test "marks the page it is on, and only that one", %{conn: conn} do
+      doc = page(conn, "/mysteries/joyful")
+
+      current = Floki.find(doc, ~s(header [aria-current="page"]))
+      assert current != []
+      assert Enum.all?(Floki.attribute(current, "href"), &(&1 == "/mysteries/joyful"))
+
+      assert page(conn, "/privacy-policy") |> Floki.find(~s(header [aria-current])) == []
+    end
+
+    test "each menu button names the menu it opens, closed to begin with", %{conn: conn} do
+      doc = page(conn, "/")
+
+      for button <- ["#mysteries-menu-button", "#mobile-menu-button"] do
+        [menu_id] = doc |> Floki.find(button) |> Floki.attribute("aria-controls")
+
+        assert Floki.attribute(Floki.find(doc, button), "aria-expanded") == ["false"]
+        assert Floki.find(doc, "##{menu_id}.hidden") != []
+      end
+    end
+
+    test "is skipped by the first link on the page", %{conn: conn} do
+      doc = page(conn, "/privacy-policy")
+
+      assert [first | _] = Floki.find(doc, "body a")
+      assert Floki.attribute(first, "href") == ["#main-content"]
+      assert Floki.find(doc, "main#main-content") != []
+    end
+  end
+
   describe "the privacy policy (/privacy-policy)" do
     test "has every section a reader looks for", %{conn: conn} do
       {:ok, view, html} = live(conn, "/privacy-policy")

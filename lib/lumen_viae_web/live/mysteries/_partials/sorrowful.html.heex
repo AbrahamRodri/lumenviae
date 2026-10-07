@@ -30,24 +30,11 @@
   </div>
 
   <div class="space-y-3 md:space-y-4">
-    <!-- 1. Agony in the Garden -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        1. The Agony in the Garden
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+    <.mystery_card mystery={@mysteries[1]} category="sorrowful">
+      <:summary>
         Jesus prays in Gethsemane and accepts the chalice of suffering.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Contrition for Sin
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (Matthew 26:36–46; Mark 14:32–42; Luke 22:39–46)
-          </span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -124,27 +111,14 @@
             And he said to them: Why sleep you? Arise: pray: lest you enter into temptation.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 2. Scourging at the Pillar -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        2. The Scourging at the Pillar
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[2]} category="sorrowful">
+      <:summary>
         Jesus is scourged by order of Pilate.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Purity and Mortification
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (John 19:1; Matthew 27:26; Mark 15:15)
-          </span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -168,27 +142,14 @@
             And so Pilate being willing to satisfy the people, released to them Barabbas, and delivered up Jesus, when he had scourged him, to be crucified.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 3. Crowning with Thorns -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        3. The Crowning with Thorns
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[3]} category="sorrowful">
+      <:summary>
         The soldiers mock Christ as King and crown Him with thorns.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Moral Courage and Contempt of the World
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (Matthew 27:27–31; Mark 15:16–20; John 19:2–3)
-          </span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -229,27 +190,14 @@
             And they came to him, and said: Hail, king of the Jews; and they gave him blows.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 4. Carrying of the Cross -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        4. The Carrying of the Cross
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[4]} category="sorrowful">
+      <:summary>
         Jesus carries His Cross to Calvary, meeting His Mother and Veronica.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Patience under Crosses
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (Luke 23:26–32; Matthew 27:31–33; Mark 15:20–22; John 19:16–17)
-          </span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -300,27 +248,14 @@
             And bearing his own cross, he went forth to that place which is called Calvary, but in Hebrew Golgotha.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 5. Crucifixion -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        5. The Crucifixion and Death of Our Lord
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[5]} category="sorrowful">
+      <:summary>
         Jesus is nailed to the Cross, forgives His enemies, and dies for our salvation.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Final Perseverance and Pardon of Injuries
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (Luke 23:33–49; John 19:18–37; Matthew 27:33–54; Mark 15:22–39)
-          </span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -495,7 +430,7 @@
             Now the centurion and they that were with him watching Jesus, having seen the earthquake and the things that were done, were sore afraid, saying: Indeed this was the Son of God.
           </p>
         </div>
-      </details>
-    </div>
+      </:passage>
+    </.mystery_card>
   </div>
 </section>

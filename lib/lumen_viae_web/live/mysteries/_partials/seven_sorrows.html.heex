@@ -32,19 +32,11 @@
   </div>
 
   <div class="space-y-3 md:space-y-4">
-    <!-- 1. The Prophecy of Simeon -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        1. The Prophecy of Simeon
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+    <.mystery_card mystery={@mysteries[1]} category="seven_sorrows">
+      <:summary>
         Simeon foretells that a sword of sorrow shall pierce Mary's soul.
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Luke 2:34–35)</span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -57,22 +49,14 @@
             And thy own soul a sword shall pierce, that, out of many hearts thoughts may be revealed.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 2. The Flight into Egypt -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        2. The Flight into Egypt
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[2]} category="seven_sorrows">
+      <:summary>
         The Holy Family flees by night to save the Child from Herod.
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Matthew 2:13–15)</span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -87,22 +71,14 @@
             That it might be fulfilled which the Lord spoke by the prophet, saying: Out of Egypt have I called my son.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 3. The Loss of the Child Jesus -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        3. The Loss of the Child Jesus in the Temple
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[3]} category="seven_sorrows">
+      <:summary>
         Mary and Joseph seek the Child Jesus sorrowing for three days.
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Luke 2:43–48)</span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -123,23 +99,14 @@
             And seeing him, they wondered. And his mother said to him: Son, why hast thou done so to us? behold thy father and I have sought thee sorrowing.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 4. Mary Meets Jesus on the Way of the Cross -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        4. Mary Meets Jesus on the Way to Calvary
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
-        Mary follows her Son on the sorrowful way, a meeting honored in the
-        Fourth Station of the Cross and handed down by sacred tradition.
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Luke 23:26–27)</span>
-        </summary>
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[4]} category="seven_sorrows">
+      <:summary>
+        Mary follows her Son on the sorrowful way, a meeting honored in the Fourth Station of the Cross and handed down by sacred tradition.
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -152,22 +119,14 @@
             And there followed him a great multitude of people, and of women, who bewailed and lamented him.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 5. Jesus Dies on the Cross -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        5. Jesus Dies on the Cross
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[5]} category="seven_sorrows">
+      <:summary>
         Mary stands at the foot of the Cross as her Son gives up His spirit.
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(John 19:25–30)</span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -188,23 +147,14 @@
             Jesus therefore, when he had taken the vinegar, said: It is consummated. And bowing his head, he gave up the ghost.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 6. Mary Receives the Body of Jesus -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        6. Mary Receives the Body of Jesus in Her Arms
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
-        The body of Jesus is taken down from the Cross and laid in His Mother's arms,
-        the sorrow contemplated in the Pieta.
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Mark 15:43–46)</span>
-        </summary>
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[6]} category="seven_sorrows">
+      <:summary>
+        The body of Jesus is taken down from the Cross and laid in His Mother's arms, the sorrow contemplated in the Pieta.
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -221,25 +171,14 @@
             And Joseph buying fine linen, and taking him down, wrapped him up in the fine linen, and laid him in a sepulchre which was hewed out of a rock. And he rolled a stone to the door of the sepulchre.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 7. Jesus Is Laid in the Tomb -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        7. Jesus Is Laid in the Tomb
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
-        Mary watches as her Son is buried, keeping faith through the great silence
-        of Holy Saturday.
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (John 19:40–42; Luke 23:55–56)
-          </span>
-        </summary>
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[7]} category="seven_sorrows">
+      <:summary>
+        Mary watches as her Son is buried, keeping faith through the great silence of Holy Saturday.
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -262,7 +201,7 @@
             And returning, they prepared spices and ointments; and on the sabbath day they rested, according to the commandment.
           </p>
         </div>
-      </details>
-    </div>
+      </:passage>
+    </.mystery_card>
   </div>
 </section>
