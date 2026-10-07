@@ -88,6 +88,40 @@ defmodule LumenViae.Curation.ArtworkVariantsTest do
     end
   end
 
+  describe "the mix task" do
+    setup do
+      shell = Mix.shell()
+      Mix.shell(Mix.Shell.Process)
+      on_exit(fn -> Mix.shell(shell) end)
+    end
+
+    defp said(kind) do
+      receive do
+        {:mix_shell, ^kind, [text]} -> [text | said(kind)]
+      after
+        0 -> []
+      end
+    end
+
+    @tag :capture_log
+    test "exits non-zero with a summary when an upload is refused", %{author: author} do
+      stored_painting(author, 1300, 1600)
+      put_env(:lumen_viae, :fake_aws_refuse_puts, true)
+
+      assert catch_exit(Mix.Tasks.LumenViae.ArtworkVariants.run([])) == {:shutdown, 1}
+
+      assert Enum.any?(said(:info), &(&1 =~ "0 succeeded, 0 with warnings, 1 failed"))
+      assert Enum.any?(said(:error), &(&1 =~ "1 painting(s) failed"))
+    end
+
+    test "exits normally when every variant was stored", %{author: author} do
+      stored_painting(author, 1300, 1600)
+
+      Mix.Tasks.LumenViae.ArtworkVariants.run([])
+      assert Enum.any?(said(:info), &(&1 =~ "1 succeeded, 0 with warnings, 0 failed"))
+    end
+  end
+
   describe "a photograph tagged with a quarter turn" do
     # Stored 1700x1200, tagged orientation 6: shown 1200 wide and 1700 tall.
     @rotated "test/support/fixtures/orientation_6.jpg"
@@ -300,9 +334,12 @@ defmodule LumenViae.Curation.ArtworkVariantsTest do
 
       put_env(:lumen_viae, :fake_aws_refuse_puts, true)
 
-      assert [{:warning, message}] = ArtworkVariants.run(authorize?: false)
+      assert [{:error, message}] = results = ArtworkVariants.run(authorize?: false)
       assert message =~ "Made only"
       assert reload(author).image_variant_widths == [480]
+
+      assert %{succeeded: 0, warnings: 0, failed: 1, failures: [^message]} =
+               ArtworkVariants.summarize(results)
     end
 
     test "an original too small for any variant is never pending", %{author: author} do

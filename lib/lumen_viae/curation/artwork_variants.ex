@@ -67,6 +67,30 @@ defmodule LumenViae.Curation.ArtworkVariants do
     end)
   end
 
+  @doc """
+  Counts a run's results for whoever started it: `succeeded`, `warnings`
+  (an original missing from the bucket), `failed` (a variant that could
+  not be stored, a download or a write that failed) and `failures`, the
+  failed paintings' messages.
+  """
+  @spec summarize([{:ok | :warning | :error, String.t()}]) :: %{
+          succeeded: non_neg_integer,
+          warnings: non_neg_integer,
+          failed: non_neg_integer,
+          failures: [String.t()]
+        }
+  def summarize(results) do
+    failures = for {:error, message} <- results, do: message
+    warnings = Enum.count(results, &match?({:warning, _}, &1))
+
+    %{
+      succeeded: length(results) - warnings - length(failures),
+      warnings: warnings,
+      failed: length(failures),
+      failures: failures
+    }
+  end
+
   defp pending?(%{record: record}), do: missing(record) != []
 
   # Each kind of record that carries artwork, with the write that records
@@ -115,10 +139,13 @@ defmodule LumenViae.Curation.ArtworkVariants do
          widths = Enum.sort(Enum.uniq(recorded ++ stored)),
          changes = changes(record, widths, shown_width, shown_height),
          :ok <- record_changes(record_fun, record, changes, label, ash_opts) do
+      # A variant that could not be stored is a failure, not a warning:
+      # the bucket refused it or the original would not resize, and a run
+      # that ends this way must say so to whoever started it.
       if widths == expected do
         {:ok, "Made #{Enum.join(widths, ", ")}px variants of #{key} (#{label})"}
       else
-        {:warning,
+        {:error,
          "Made only #{inspect(widths)} of #{inspect(expected)}px variants of #{key} " <>
            "(#{label}); run again to retry the rest"}
       end
