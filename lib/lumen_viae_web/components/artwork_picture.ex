@@ -5,7 +5,8 @@ defmodule LumenViaeWeb.Components.ArtworkPicture do
   rather than a several-megabyte original.
 
   The variants offered are only the ones recorded as stored
-  (`LumenViae.Rosary.artwork_variant_urls/1`). A painting with none
+  (`LumenViae.Rosary.artwork_variant_urls/1`), followed by the original at
+  its own width. A painting with none
   renders exactly the plain `<img>` it always did, and the original stays
   the `<img>`'s own `src` either way, so a browser without WebP, or a
   painting not yet backfilled, still shows the painting and never a broken
@@ -28,11 +29,12 @@ defmodule LumenViaeWeb.Components.ArtworkPicture do
 
   def artwork_picture(assigns) do
     variants = Rosary.artwork_variant_urls(assigns.record)
+    src = Rosary.artwork_url(assigns.record)
 
     assigns =
       assigns
-      |> assign(:src, Rosary.artwork_url(assigns.record))
-      |> assign(:srcset, srcset(variants))
+      |> assign(:src, src)
+      |> assign(:srcset, srcset(variants, src, assigns.record.image_width))
       |> assign(:width, assigns.record.image_width)
       |> assign(:height, assigns.record.image_height)
 
@@ -72,9 +74,21 @@ defmodule LumenViaeWeb.Components.ArtworkPicture do
     """
   end
 
-  defp srcset([]), do: nil
+  defp srcset([], _original, _width), do: nil
 
-  defp srcset(variants) do
-    Enum.map_join(variants, ", ", fn {width, url} -> "#{url} #{width}w" end)
+  # The original closes the list at its own width, so a 2x screen can still
+  # choose it when the variants stop short (a backfill that ran partway).
+  # It sits in the WebP source though it may be a JPEG: `type` only says
+  # whether the browser can read the source at all, and every browser that
+  # reads WebP reads JPEG and PNG.
+  defp srcset(variants, original, width) do
+    widest = variants |> Enum.map(&elem(&1, 0)) |> Enum.max()
+
+    candidates =
+      if is_integer(width) and width > widest,
+        do: variants ++ [{width, original}],
+        else: variants
+
+    Enum.map_join(candidates, ", ", fn {width, url} -> "#{url} #{width}w" end)
   end
 end
