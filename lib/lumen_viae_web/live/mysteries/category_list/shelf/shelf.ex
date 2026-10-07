@@ -29,26 +29,26 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
       <%= if @sets == [] do %>
         <div class="category-card px-6 py-10 text-center">
-          <p class="font-garamond text-xl text-navy italic mb-2">
+          <p class="font-garamond text-xl text-ink-light italic mb-2">
             No meditation sets are available yet for {@title}.
           </p>
-          <p class="font-garamond text-brown-light text-base">
+          <p class="font-garamond text-ink-muted text-base">
             New sets are added regularly. In the meantime, pray the Scriptural
             Rosary or the Rosary Said Aloud above.
           </p>
         </div>
       <% else %>
-        <p class="font-garamond text-base text-brown mb-4 max-w-[60ch]">
+        <p class="font-garamond text-base text-ink-muted mb-4 max-w-[60ch]">
           Each set contemplates the same mysteries through a different light: a
           meditation is read before each decade.
         </p>
 
         <div class="category-card px-5 py-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
           <div>
-            <p class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
+            <p class="font-display text-xl font-semibold text-ink-light">
               Divine Providence
             </p>
-            <p class="font-garamond text-base text-brown">
+            <p class="font-garamond text-base text-ink-muted">
               Not sure which to pray? Let a set be chosen for you.
             </p>
           </div>
@@ -65,7 +65,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
         >
           <p
             id="filters-label"
-            class="font-cinzel text-xs tracking-[0.2em] uppercase text-navy mb-2"
+            class="font-display text-lg font-semibold text-ink-light mb-2"
           >
             Filter by kind
           </p>
@@ -92,7 +92,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
           </div>
           <p
             :if={Filtering.active?(@filters)}
-            class="font-garamond text-sm text-brown-light mt-2"
+            class="font-garamond text-base text-ink-muted mt-2"
             aria-live="polite"
           >
             Showing {length(@shown_sets)} of {length(@sets)} sets.
@@ -104,7 +104,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
         <%= if @shown_sets == [] do %>
           <div class="category-card px-6 py-8 text-center">
-            <p class="font-garamond text-lg text-navy italic mb-3">
+            <p class="font-garamond text-lg text-ink-light italic mb-3">
               No meditations match all of those kinds.
             </p>
             <button type="button" phx-click="clear_filters" class="category-quiet-btn">
@@ -139,19 +139,19 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
       |> assign(:portrait_alt, artwork && artwork.image_alt)
 
     ~H"""
-    <article class="category-card relative flex gap-4 p-4 sm:p-5 h-full">
+    <article class="category-card relative flex flex-wrap gap-4 p-4 sm:p-5 h-full">
       <div class="w-20 sm:w-24 shrink-0">
         <%= if @artwork do %>
           <ArtworkPicture.artwork_picture
             record={@artwork}
             alt={@portrait_alt}
             sizes="(min-width: 640px) 96px, 80px"
-            class="w-full aspect-[4/5] object-cover rounded-t-full border border-gold/40"
+            class="w-full aspect-[4/5] object-cover rounded-t-full border border-night-border bg-night"
             style={"object-position: #{Artwork.object_position(@artwork.image_focal_x, @artwork.image_focal_y)}"}
           />
         <% else %>
           <div
-            class="w-full aspect-[4/5] rounded-t-full border border-gold/40 bg-cream flex items-center justify-center text-gold"
+            class="w-full aspect-[4/5] rounded-t-full border border-night-border bg-night flex items-center justify-center text-gilt"
             aria-hidden="true"
           >
             <svg viewBox="0 0 10 14" class="w-4 h-5 fill-current">
@@ -161,36 +161,36 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
         <% end %>
       </div>
 
-      <div class="min-w-0 flex flex-col">
-        <h3 class="font-cinzel text-lg text-navy leading-snug">
+      <div class="min-w-0 flex-1 basis-40 flex flex-col">
+        <h3 class="font-display text-2xl font-semibold text-ink-light leading-snug break-words">
           <.link navigate={PrayLinks.set_path(@set.id, @choices)} class="category-stretched-link">
             {@set.name}
           </.link>
         </h3>
-        <p :if={@byline} class="font-garamond italic text-base text-brown">{@byline}</p>
+        <p :if={@byline} class="font-garamond italic text-base text-ink-muted">{@byline}</p>
 
-        <p class="font-cinzel text-xs tracking-[0.15em] uppercase text-brown-light mt-1.5">
+        <p class="font-garamond text-sm text-ink-muted mt-1.5">
           {@count} {if @count == 1, do: "meditation", else: "meditations"}
           <span :if={@narrated?}>
-            <span aria-hidden="true"> &middot; </span><span class="text-gold-dark">Narrated</span>
+            <span aria-hidden="true"> &middot; </span><span class="text-sky">Narrated</span>
           </span>
         </p>
         <p
           :if={(@set.labels || []) != []}
-          class="font-cinzel text-xs tracking-[0.18em] uppercase text-gold-dark mt-1"
+          class="font-garamond text-sm text-sky mt-1 break-words"
         >
           {Enum.map_join(@set.labels, " · ", &Labels.display_name/1)}
         </p>
 
         <p
           :if={@set.description}
-          class="font-garamond text-base text-brown leading-relaxed mt-2 line-clamp-3"
+          class="font-garamond text-base text-ink-muted leading-relaxed mt-2 line-clamp-3"
         >
           {@set.description}
         </p>
 
         <span
-          class="font-cinzel text-xs tracking-[0.15em] uppercase text-gold-dark mt-auto pt-3"
+          class="font-garamond text-base font-semibold text-gilt mt-auto pt-3"
           aria-hidden="true"
         >
           Pray <span class="category-arrow">&rarr;</span>

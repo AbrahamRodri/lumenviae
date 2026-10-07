@@ -27,7 +27,10 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray do
     <section aria-labelledby="ways-heading">
       <h2 id="ways-heading" class="category-section-label">Ways to Pray</h2>
       <ul class="grid gap-3 sm:grid-cols-2">
-        <li :for={way <- @ways} class="category-card relative flex min-w-0 items-start gap-4 p-4 sm:p-5">
+        <li
+          :for={way <- @ways}
+          class="category-card relative flex min-w-0 items-start gap-4 p-4 sm:p-5"
+        >
           <span class="category-glyph" aria-hidden="true">
             <svg
               :if={way.form == :scriptural}
@@ -53,7 +56,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray do
             </svg>
           </span>
           <div class="min-w-0">
-            <h3 class="font-cinzel text-base text-navy leading-snug">
+            <h3 class="font-display text-xl font-semibold text-ink-light leading-snug">
               <.link
                 navigate={PrayLinks.way_path(@category, way.form, @choices)}
                 class="category-stretched-link"
@@ -62,8 +65,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray do
                 {way.title}
               </.link>
             </h3>
-            <p class="font-garamond text-base text-brown">{way.detail}</p>
-            <p class="font-cinzel text-xs tracking-[0.15em] uppercase text-gold-dark mt-1.5">
+            <p class="font-garamond text-base text-ink-muted">{way.detail}</p>
+            <p class="font-garamond text-sm text-sky mt-1.5">
               {PrayLinks.summary(way.form, @choices)}
             </p>
           </div>
