@@ -39,9 +39,10 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     # with no meditations is hidden, so what comes back always has something
     # to pray.
     set =
-      Rosary.get_visible_meditation_set_with_ordered_meditations!(set_id,
-        actor: socket.assigns.current_admin
-      )
+      case Rosary.fetch_visible_meditation_set(set_id, actor: socket.assigns.current_admin) do
+        {:ok, set} -> set
+        {:error, :not_found} -> raise LumenViaeWeb.NotFoundError, message: "no such set"
+      end
 
     socket
     |> assign(:route, :set)
@@ -111,6 +112,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
      |> assign(:pray_aloud, false)
      |> assign(:spoken_script, nil)
      |> assign(:spoken_at, nil)
+     |> assign(:seek, 0)
      |> assign(:fresh, false)
      |> assign(:resume, nil)
      |> assign(:panel_open, false)
@@ -123,13 +125,15 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   @impl true
   def handle_params(params, _url, socket) do
     first_visit? = is_nil(socket.assigns.sequence)
-    count = Params.count(params)
+    form = Params.form(params, socket.assigns.route)
+    count = Params.count(params, form)
+    player_before = player(socket)
 
     socket =
       socket
       |> assign(:count, count)
       |> assign_voice(params["voice"])
-      |> assign_form(Params.form(params, socket.assigns.route))
+      |> assign_form(form)
 
     page = Params.page(params, length(socket.assigns.decades))
 
@@ -150,9 +154,26 @@ defmodule LumenViaeWeb.Live.Pray.Index do
      |> then(&if(moved?, do: assign(&1, :show_meditation, false), else: &1))
      |> assign(:page, page)
      |> assign(:step, max(step, 0))
-     |> assign_pray_aloud(Params.aloud?(params))
+     |> assign_pray_aloud(Params.aloud?(params, form))
      |> follow_with_spoken_rosary()
+     |> then(&if(first_visit?, do: &1, else: play_new_player(&1, player_before)))
      |> then(&if(moved? and count == "beads", do: push_event(&1, "prayer:top", %{}), else: &1))}
+  end
+
+  # The spoken Rosary never starts by itself on arrival: a browser allows
+  # sound only after a tap, so a page opened from a link (the Rosary Said
+  # Aloud is aloud from the start) waits for Play. A player that appears
+  # because the reader did something - turned the voice on, chose another
+  # voice, form or closing prayers - is told to play, since that was the
+  # tap.
+  #
+  # A player is known by its id, which changes whenever it is remounted.
+  defp player(socket), do: socket.assigns.pray_aloud && spoken_id(socket.assigns)
+
+  defp play_new_player(socket, before) do
+    if socket.assigns.pray_aloud and player(socket) != before,
+      do: push_event(socket, "spoken_play", %{}),
+      else: socket
   end
 
   ## Moving through the Rosary
@@ -163,15 +184,17 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   def handle_event("advance", _params, socket), do: {:noreply, move(socket, :next)}
 
   def handle_event("go_to", %{"page" => page}, socket) do
-    case Integer.parse(to_string(page)) do
-      {page, ""} ->
+    case integer(page) do
+      nil ->
+        {:noreply, socket}
+
+      page ->
         page = page |> max(0) |> min(Sequence.last_page(socket.assigns.sequence))
         {:noreply, patch_to(socket, page, 0)}
-
-      _ ->
-        {:noreply, socket}
     end
   end
+
+  def handle_event("go_to", _params, socket), do: {:noreply, socket}
 
   def handle_event("key_nav", %{"key" => key}, socket) do
     direction =
@@ -212,7 +235,15 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   def handle_event("set_form", %{"form" => form}, socket) do
     if form in Params.forms(socket.assigns.route) do
-      assigns = %{socket.assigns | form: form}
+      # A form is chosen with its own way of praying: the Rosary Said
+      # Aloud aloud on the screen, the others silent on the reader's beads.
+      assigns = %{
+        socket.assigns
+        | form: form,
+          count: Params.default_count(form),
+          pray_aloud: Params.default_aloud?(form)
+      }
+
       {:noreply, push_patch(socket, to: pray_url(assigns, assigns.page, 0))}
     else
       {:noreply, socket}
@@ -233,7 +264,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
           do: List.delete(socket.assigns.extras, extra),
           else: [extra | socket.assigns.extras]
 
-      socket = set_extras(socket, extras)
+      before = player(socket)
+      socket = socket |> set_extras(extras) |> play_new_player(before)
       {:noreply, push_event(socket, "prayer:extras", %{extras: socket.assigns.extras})}
     else
       {:noreply, socket}
@@ -271,6 +303,12 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   def handle_event("restore_language", _params, socket), do: {:noreply, socket}
 
+  # A click carries its phx-value; anything else sent under these names is
+  # not one, and changes nothing.
+  def handle_event(event, _params, socket)
+      when event in ~w(set_voice set_form toggle_extra set_language),
+      do: {:noreply, socket}
+
   def handle_event("toggle_panel", _params, socket),
     do: {:noreply, assign(socket, :panel_open, !socket.assigns.panel_open)}
 
@@ -282,7 +320,10 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   # The PrayerMemory hook found a place saved in this browser. It is
   # offered only to a reader who arrived at the beginning and has not
   # moved yet; a link to a particular mystery means that mystery.
-  def handle_event("resume_available", %{"mystery" => mystery} = saved, socket) do
+  # What it hands back was read from localStorage, so it may be anything:
+  # only a string or a number is a place.
+  def handle_event("resume_available", %{"mystery" => mystery} = saved, socket)
+      when is_binary(mystery) or is_integer(mystery) do
     %{fresh: fresh, page: page, step: step, sequence: sequence} = socket.assigns
     decades = length(socket.assigns.decades)
     count = Params.count(saved)
@@ -292,7 +333,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       if count == "screen",
         do:
           min(
-            Params.step(%{"step" => to_string(saved["step"])}),
+            max(integer(saved["step"]) || 0, 0),
             Sequence.step_count(sequence, saved_page) - 1
           ),
         else: 0
@@ -333,7 +374,24 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   # Recording `spoken_at` first is what stops handle_params from reading
   # the patch as the reader moving and seeking the voice to where it
   # already is.
-  def handle_event("spoken_at", %{"screen" => index}, socket) when is_integer(index) do
+  #
+  # Each seek the page sends the voice is numbered, and the voice says which
+  # it last heard. A report from before the latest seek was sent while the
+  # reader was moving, about a place they have already left, and following
+  # it would turn the page back under them; the voice reports again once it
+  # has caught up. Nothing is followed while the Rosary is not said aloud.
+  def handle_event("spoken_at", %{"screen" => index} = params, socket)
+      when is_integer(index) do
+    stale? = is_integer(params["seek"]) and params["seek"] < socket.assigns.seek
+
+    if socket.assigns.pray_aloud and not stale?,
+      do: follow_voice(socket, index),
+      else: {:noreply, socket}
+  end
+
+  def handle_event("spoken_at", _params, socket), do: {:noreply, socket}
+
+  defp follow_voice(socket, index) do
     case Sequence.screen_at(socket.assigns.sequence, index) do
       nil ->
         {:noreply, socket}
@@ -355,8 +413,6 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     end
   end
 
-  def handle_event("spoken_at", _params, socket), do: {:noreply, socket}
-
   ## Completion
 
   # The one place a completion is recorded. Pressing this is a deliberate
@@ -364,7 +420,16 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   # arrivals meant every crawler that walked the set left a prayed Rosary
   # behind it. A Rosary prayed without a set records nothing: a completion
   # belongs to a set.
+  #
+  # Only at the end: the button is not offered before then, so a complete
+  # from anywhere else is not a reader finishing the Rosary.
   def handle_event("complete", _params, socket) do
+    if at_end?(socket.assigns), do: {:noreply, complete(socket)}, else: {:noreply, socket}
+  end
+
+  ## Helpers
+
+  defp complete(socket) do
     socket =
       if socket.assigns.completion_tracked do
         socket
@@ -373,10 +438,20 @@ defmodule LumenViaeWeb.Live.Pray.Index do
         assign(socket, :completion_tracked, true)
       end
 
-    {:noreply, socket |> assign(:completed, true) |> push_event("prayer:top", %{})}
+    socket |> assign(:completed, true) |> push_event("prayer:top", %{})
   end
 
-  ## Helpers
+  # A whole number from a client: a string of digits or an integer, or nil.
+  defp integer(value) when is_integer(value), do: value
+
+  defp integer(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {n, ""} -> n
+      _ -> nil
+    end
+  end
+
+  defp integer(_value), do: nil
 
   defp at_end?(%{count: "screen"} = assigns),
     do: is_nil(Sequence.next(assigns.sequence, assigns.page, assigns.step))
@@ -524,17 +599,19 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     |> assign(:spoken_script, nil)
   end
 
+  # The player is taken away, and a new one counts its seeks from 0.
   defp assign_pray_aloud(socket, false) do
-    socket |> assign(:pray_aloud, false) |> assign(:spoken_at, nil)
+    socket |> assign(:pray_aloud, false) |> assign(:spoken_at, nil) |> assign(:seek, 0)
   end
 
   defp assign_pray_aloud(socket, true) do
     socket
     |> assign(:pray_aloud, true)
     |> then(fn socket ->
+      # A new script is a new player, which counts its seeks from 0.
       if socket.assigns.spoken_script,
         do: socket,
-        else: assign(socket, :spoken_script, build_script(socket))
+        else: socket |> assign(:spoken_script, build_script(socket)) |> assign(:seek, 0)
     end)
   end
 
@@ -554,9 +631,12 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     else
       screen = Sequence.screen(socket.assigns.sequence, page, step)
 
+      seek = socket.assigns.seek + 1
+
       socket
       |> assign(:spoken_at, {page, step})
-      |> push_event("spoken_seek", %{screen: screen && screen.index})
+      |> assign(:seek, seek)
+      |> push_event("spoken_seek", %{screen: screen && screen.index, seek: seek})
     end
   end
 

@@ -18,21 +18,49 @@ This document captures the high-level objectives and design intent for planned f
 - Offer a dedicated "Resolution Journal" view where participants can review, edit, or export their saved resolutions.
 - Persist journal entries so they can be retrieved in future sessions and linked back to the originating mysteries and meditations.
 
-## 4. User Accounts and Authentication
-- Implement full user account management, including registration, login, password recovery, and profile maintenance.
-- Introduce secure session handling and consider multi-factor authentication for enhanced protection.
-- Provide role-based access controls to differentiate between general users, content authors, and administrators.
+## 4. Completions for a Rosary prayed without a set
 
-## 5. Hardened Administration Experience
+The prayer page can pray a category without a meditation set
+(`/mysteries/:category/pray`, as the Scriptural Rosary or with the prayers
+alone). Pressing Complete there records nothing in the completion figures,
+because a completion belongs to a meditation set: `rosary_completions` has a
+set and `Rosary.record_completion/3` takes a set id.
+
+- Decide what such a completion is counted against: a category, a form, or a
+  stand-in set.
+- Change the completion resource, its checks (`GuardCompletions`, the visible-set check)
+  and the admin figures in the same step, and edit the privacy policy if
+  anything new is collected (docs/COMPLETION_ANALYTICS.md).
+- The days-in-a-row count already includes these Rosaries, because it lives
+  in the visitor's browser and does not ask the server.
+
+## 5. Visitor Accounts
+
+Only one kind of account exists today: the admin who signs in to the
+console, with an email and password and no sign-up. Praying needs no account.
+
+- If visitors are ever to have accounts, decide first what they would keep
+  that the browser does not already keep for them (the place in a Rosary,
+  the days in a row, the choices on the category page).
+- Password recovery by email for admins, which needs a mailer production does
+  not have today.
+- Multi-factor authentication for the console.
+
+## 6. Hardened Administration Experience
 
 Partly shipped. In place today: every `/admin` route goes through
-`LumenViaeWeb.Plugs.RequireAdmin` behind a password session, and the browser
-pipeline applies CSRF protection and secure browser headers.
+`LumenViaeWeb.Plugs.RequireAdmin` behind a password session, the browser
+pipeline applies CSRF protection and secure browser headers, sign-in is
+throttled per address and per email before the password is checked
+(`LumenViaeWeb.Plugs.ThrottleSignIn`), every change to a mystery, meditation,
+set or author records which admin made it and can be restored from the
+History panel, and docs/PROD_ACCESS.md covers creating an admin and
+resetting a password.
 
 Still open:
-- Rate limiting on the admin login endpoint, which is currently unthrottled.
-- Detailed logging of administrative actions and failed sign-in attempts.
-- Documented procedures for rotating the admin credential and responding to
-  suspicious activity (docs/PROD_ACCESS.md covers shell access but not this).
+- Logging of failed sign-in attempts. Only a failure that is not about the
+  credentials is logged today.
+- A log of administrative actions beyond edits to those four resources.
+- A documented procedure for responding to suspicious activity.
 
 These initiatives are intended to be iterative. Each feature can be delivered incrementally while maintaining the stability of the current production experience.

@@ -8,10 +8,18 @@
 // else. Each time the voice reaches another screen it tells the LiveView
 // ("spoken_at"), which turns the page, or moves the bead when counting on
 // the screen; when the reader moves themselves the LiveView sends
-// "spoken_seek" and the voice follows.
+// "spoken_seek" and the voice follows. Seeks are numbered, and every
+// "spoken_at" carries the number of the last one heard, so the LiveView can
+// tell a report sent before the reader's latest move from one sent after.
+//
+// Destroyed (the switch turned off, a voice or form changed), the hook lets
+// go of everything the page outlives: the clip, the lock-screen controls
+// and any timer, and a late callback finds it dead and does nothing.
 //
 // Clips play through an Audio element rather than fetch(): the audio bucket
 // sends no CORS headers, and a media element does not need them.
+const MEDIA_ACTIONS = ["play", "pause", "previoustrack", "nexttrack"]
+
 export default {
   mounted() {
     this.steps = JSON.parse(this.el.dataset.script || "[]")
@@ -21,6 +29,8 @@ export default {
     this.playing = false
     this.finished = false
     this.timer = null
+    this.seek = 0
+    this.dead = false
 
     const start = Number(this.el.dataset.startScreen || 0)
     const at = this.steps.findIndex((step) => step.screen >= start)
@@ -48,25 +58,56 @@ export default {
       if (this.playing) this.advance()
     })
 
-    this.handleEvent("spoken_seek", ({ screen }) => this.seekScreen(screen))
+    this.handleEvent("spoken_seek", ({ screen, seek }) => {
+      if (typeof seek === "number") this.seek = seek
+      this.seekScreen(screen)
+    })
+    // Never started on arrival: a browser allows sound only after a tap, so
+    // the reader presses Play. When the player appears because of a tap -
+    // the switch turned on, another voice, form or closing prayer chosen -
+    // the LiveView says so, and it starts; a browser that still refuses
+    // leaves the Play button showing.
+    this.handleEvent("spoken_play", () => this.play())
     this.setUpMediaSession()
     this.render()
-
-    // Turning the switch on is the gesture that allows sound; a browser
-    // that still refuses leaves the Play button showing.
-    this.play()
   },
 
   destroyed() {
+    this.dead = true
+    this.playing = false
     clearTimeout(this.timer)
     this.audio.pause()
-    this.audio.removeAttribute("src")
-    this.prefetch.removeAttribute("src")
-    if ("mediaSession" in navigator) navigator.mediaSession.metadata = null
+    for (const audio of [this.audio, this.prefetch]) {
+      audio.removeAttribute("src")
+      audio.load()
+    }
+    if ("mediaSession" in navigator) {
+      const session = navigator.mediaSession
+      for (const action of MEDIA_ACTIONS) {
+        try {
+          session.setActionHandler(action, null)
+        } catch (_unsupported) {
+          // Never set, so nothing to clear.
+        }
+      }
+      session.metadata = null
+      session.playbackState = "none"
+    }
+  },
+
+  // Starts the loaded clip. A browser that will not play without a gesture
+  // stops the Rosary and shows Play; a clip interrupted by the next one
+  // loading (AbortError) is not a refusal and leaves it playing.
+  start() {
+    this.audio.play().catch((error) => {
+      if (this.dead || error?.name === "AbortError") return
+      this.playing = false
+      this.render()
+    })
   },
 
   play() {
-    if (this.steps.length === 0) return
+    if (this.dead || this.steps.length === 0) return
     if (this.finished) {
       this.finished = false
       this.index = 0
@@ -74,10 +115,7 @@ export default {
     }
     if (this.loadedIndex !== this.index) this.load()
     this.playing = true
-    this.audio.play().catch(() => {
-      this.playing = false
-      this.render()
-    })
+    this.start()
     this.render()
   },
 
@@ -91,16 +129,18 @@ export default {
   // Back and forward move a whole prayer, so a Hail Mary missed while
   // distracted can be said again.
   step(offset) {
+    if (this.dead) return
     const next = Math.min(Math.max(this.index + offset, 0), this.steps.length - 1)
     clearTimeout(this.timer)
     this.finished = false
     this.index = next
     this.load()
-    if (this.playing) this.audio.play().catch(() => {})
+    if (this.playing) this.start()
     this.render()
   },
 
   advance() {
+    if (this.dead) return
     const pause = this.steps[this.index]?.pause_ms ?? 700
     this.index += 1
 
@@ -113,9 +153,9 @@ export default {
 
     clearTimeout(this.timer)
     this.timer = setTimeout(() => {
-      if (!this.playing) return
+      if (!this.playing || this.dead) return
       this.load()
-      this.audio.play().catch(() => {})
+      this.start()
       this.render()
     }, pause)
     this.render()
@@ -124,7 +164,7 @@ export default {
   // A screen with nothing to play (a meditation with no narration) starts
   // the voice at the next one that has.
   seekScreen(screen) {
-    if (typeof screen !== "number") return
+    if (this.dead || typeof screen !== "number") return
     const at = this.steps.findIndex((step) => step.screen >= screen)
     if (at < 0) return
     clearTimeout(this.timer)
@@ -132,13 +172,13 @@ export default {
     this.index = at
     this.lastScreen = this.steps[at].screen
     this.load()
-    if (this.playing) this.audio.play().catch(() => {})
+    if (this.playing) this.start()
     this.render()
   },
 
   load() {
     const step = this.steps[this.index]
-    if (!step) return
+    if (this.dead || !step) return
     this.loadedIndex = this.index
     this.audio.src = step.url
 
@@ -147,11 +187,12 @@ export default {
 
     if (step.screen !== this.lastScreen) {
       this.lastScreen = step.screen
-      this.pushEvent("spoken_at", { page: step.page, screen: step.screen })
+      this.pushEvent("spoken_at", { page: step.page, screen: step.screen, seek: this.seek })
     }
   },
 
   render() {
+    if (this.dead) return
     const step = this.steps[Math.min(this.index, this.steps.length - 1)]
 
     this.caption.textContent = this.finished
