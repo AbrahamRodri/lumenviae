@@ -206,6 +206,47 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     assert screen == hail_mary["screen"] + 1
   end
 
+  test "a place the voice reports from before the reader's last move is not followed",
+       %{conn: conn} do
+    set = create_set("joyful", 5)
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?aloud=true")
+    steps = script(view)
+
+    view |> element("button[phx-click=next]") |> render_click()
+    assert_patch(view, "/meditation-sets/#{set.id}/pray?mystery=0&aloud=true")
+    assert_push_event(view, "spoken_seek", %{seek: seek})
+
+    # Sent before the voice heard the seek: still on the opening prayers.
+    opening = Enum.find(steps, &(&1["page"] == 0))
+
+    view
+    |> element("[phx-hook=SpokenRosary]")
+    |> render_hook("spoken_at", %{page: 0, screen: opening["screen"], seek: seek - 1})
+
+    refute_patched(view)
+
+    # Once it has caught up, it is followed again.
+    later = Enum.find(steps, &(&1["page"] == 3))
+
+    view
+    |> element("[phx-hook=SpokenRosary]")
+    |> render_hook("spoken_at", %{page: 3, screen: later["screen"], seek: seek})
+
+    assert_patch(view, "/meditation-sets/#{set.id}/pray?mystery=2&aloud=true")
+  end
+
+  test "the voice moves nothing once the Rosary is no longer said aloud", %{conn: conn} do
+    set = create_set("joyful", 5)
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?aloud=true")
+    later = view |> script() |> Enum.find(&(&1["page"] == 3))
+
+    view |> element("button[phx-click=toggle_pray_aloud]") |> render_click()
+    assert_patch(view, "/meditation-sets/#{set.id}/pray?mystery=opening")
+
+    render_hook(view, "spoken_at", %{page: 3, screen: later["screen"]})
+    refute_patched(view)
+  end
+
   test "a Rosary prayed aloud is recorded as prayed aloud", %{conn: conn} do
     set = create_set("joyful", 5)
 

@@ -112,6 +112,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
      |> assign(:pray_aloud, false)
      |> assign(:spoken_script, nil)
      |> assign(:spoken_at, nil)
+     |> assign(:seek, 0)
      |> assign(:fresh, false)
      |> assign(:resume, nil)
      |> assign(:panel_open, false)
@@ -345,7 +346,24 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   # Recording `spoken_at` first is what stops handle_params from reading
   # the patch as the reader moving and seeking the voice to where it
   # already is.
-  def handle_event("spoken_at", %{"screen" => index}, socket) when is_integer(index) do
+  #
+  # Each seek the page sends the voice is numbered, and the voice says which
+  # it last heard. A report from before the latest seek was sent while the
+  # reader was moving, about a place they have already left, and following
+  # it would turn the page back under them; the voice reports again once it
+  # has caught up. Nothing is followed while the Rosary is not said aloud.
+  def handle_event("spoken_at", %{"screen" => index} = params, socket)
+      when is_integer(index) do
+    stale? = is_integer(params["seek"]) and params["seek"] < socket.assigns.seek
+
+    if socket.assigns.pray_aloud and not stale?,
+      do: follow_voice(socket, index),
+      else: {:noreply, socket}
+  end
+
+  def handle_event("spoken_at", _params, socket), do: {:noreply, socket}
+
+  defp follow_voice(socket, index) do
     case Sequence.screen_at(socket.assigns.sequence, index) do
       nil ->
         {:noreply, socket}
@@ -366,8 +384,6 @@ defmodule LumenViaeWeb.Live.Pray.Index do
              push_patch(socket, to: pray_url(socket.assigns, page, step), replace: true)}
     end
   end
-
-  def handle_event("spoken_at", _params, socket), do: {:noreply, socket}
 
   ## Completion
 
@@ -555,17 +571,19 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     |> assign(:spoken_script, nil)
   end
 
+  # The player is taken away, and a new one counts its seeks from 0.
   defp assign_pray_aloud(socket, false) do
-    socket |> assign(:pray_aloud, false) |> assign(:spoken_at, nil)
+    socket |> assign(:pray_aloud, false) |> assign(:spoken_at, nil) |> assign(:seek, 0)
   end
 
   defp assign_pray_aloud(socket, true) do
     socket
     |> assign(:pray_aloud, true)
     |> then(fn socket ->
+      # A new script is a new player, which counts its seeks from 0.
       if socket.assigns.spoken_script,
         do: socket,
-        else: assign(socket, :spoken_script, build_script(socket))
+        else: socket |> assign(:spoken_script, build_script(socket)) |> assign(:seek, 0)
     end)
   end
 
@@ -585,9 +603,12 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     else
       screen = Sequence.screen(socket.assigns.sequence, page, step)
 
+      seek = socket.assigns.seek + 1
+
       socket
       |> assign(:spoken_at, {page, step})
-      |> push_event("spoken_seek", %{screen: screen && screen.index})
+      |> assign(:seek, seek)
+      |> push_event("spoken_seek", %{screen: screen && screen.index, seek: seek})
     end
   end
 
