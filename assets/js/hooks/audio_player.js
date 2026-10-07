@@ -109,7 +109,9 @@ export default {
     // Clean up
     if (this.audio) {
       this.audio.pause()
-      this.audio.src = ''
+      // Setting src to '' fires the error listener; removing it does not.
+      this.audio.removeAttribute('src')
+      this.audio.load()
     }
   }
 }

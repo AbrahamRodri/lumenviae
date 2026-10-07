@@ -44,9 +44,6 @@ defmodule LumenViaeWeb.Live.Pray.IndexTest do
     {:ok, set} =
       Rosary.create_meditation_set(%{name: "Not filled yet", category: "joyful"}, actor: admin())
 
-    error =
-      assert_raise Ash.Error.Invalid, fn -> live(conn, "/meditation-sets/#{set.id}/pray") end
-
-    assert Plug.Exception.status(error) == 404
+    assert_error_sent :not_found, fn -> get(conn, "/meditation-sets/#{set.id}/pray") end
   end
 end
