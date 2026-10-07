@@ -28,8 +28,8 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
       kicker: "Your Rosary Today",
       title: "Three ways to pray, chosen on one page",
       body: [
-        "Pick the mysteries, then how to pray them: with a short reading from a saint before each decade, with a Bible verse before every Hail Mary, or with the app saying every prayer aloud with you.",
-        "Before you start, one screen asks two questions. Should the app read only the meditation aloud, or every prayer? And will you count the beads on the screen, or on your own rosary?"
+        "Pick the mysteries, then the way to pray them: with a meditation from the saints between the decades, as the Scriptural Rosary with a verse for every Hail Mary, or as the Rosary Said Aloud.",
+        "Before you begin, one page confirms two choices. Audio: the meditation alone, or the whole Rosary said aloud. Counting: on the screen, or on your own rosary."
       ],
       screen: %{
         name: "confirm",
@@ -42,8 +42,8 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
       kicker: "Meditations",
       title: "The saints' meditations, read aloud",
       body: [
-        "Each mystery has its own painting, and its meditation is read aloud in the voice you choose, at the speed you like. You can also read it instead.",
-        "The meditations come from St. Alphonsus Liguori, St. John Henry Newman, Blessed Anne Catherine Emmerich, Blessed Fulton J. Sheen and others. New ones appear without updating the app."
+        "Each mystery is set under its painting, and its meditation is read aloud in the voice you choose, at a speed you set. The text is a tap away.",
+        "Meditation sets come from St. Alphonsus Liguori, St. John Henry Newman, Blessed Anne Catherine Emmerich, Blessed Fulton J. Sheen and others, and new sets arrive without an update."
       ],
       screen: %{
         name: "player",
@@ -54,10 +54,10 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     %{
       id: "beads",
       kicker: "The Scriptural Rosary",
-      title: "Rosary beads on the screen",
+      title: "A strand of beads beside every prayer",
       body: [
-        "The whole Rosary appears as a string of beads along the edge of the screen. Swipe down to move one bead, and the next mystery begins by itself.",
-        "In the Scriptural Rosary, a Bible verse appears with every Hail Mary, from the traditional Catholic English Bible (the Douay-Rheims). All 249 verses are stored in the app."
+        "The whole Rosary hangs as one strand of beads at the edge of the screen. Swipe down a bead at a time, and the decade turns on its own at the next Our Father.",
+        "In the Scriptural Rosary a verse of the Douay-Rheims stands beside every Hail Mary: 249 verses, all kept in the app."
       ],
       screen: %{
         name: "scriptural",
@@ -68,10 +68,10 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     %{
       id: "hours",
       kicker: "Hours of Prayer and Today's Mass",
-      title: "The Church's prayer through the day",
+      title: "The Church's day, hour by hour",
       body: [
-        "Hours of Prayer gives you the Church's traditional prayers for eight times of day, from the night prayer to bedtime, in the form used in 1960. It opens on the prayer for right now.",
-        "Today's Mass shows the traditional Latin Mass for any day, in Latin, English or both. Read the whole Mass, or only the parts that change from day to day."
+        "The Hours of Prayer are the Divine Office under the 1960 rubrics: eight hours in plain names, from the Night Vigil to Bedtime Prayer, opening on the hour it is now.",
+        "Today's Mass is the Daily Missal, the 1962 propers for any day, in Latin, English or both, with the whole Ordinary or the propers alone."
       ],
       screen: %{
         name: "hours",
@@ -84,8 +84,8 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
       kicker: "The Chant Library",
       title: "A hundred and four chants, to hear and to learn",
       body: [
-        "Each chant comes with a recording, the sheet music, and the words in Latin and English, highlighted line by line as it plays. Everything is stored on your phone. Browse by today, season, occasion or type, or keep your favorites.",
-        "\"Learn this chant\" teaches it in four steps: listen, read along, sing along, then sing on your own."
+        "Each chant has its recording, its score and its words in Latin and English, timed line by line and kept on the phone. Find them by Today, Seasons, Occasions, Types, Learn and Saved.",
+        "Learn this chant teaches one in four steps: Listen, Read along, Sing along, On your own."
       ],
       screen: %{
         name: "chants",
@@ -98,8 +98,8 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
       kicker: "Prayers",
       title: "A prayer book of more than 150 prayers",
       body: [
-        "Everyday Catholic prayers in English, and in Latin too where the Church prays them in Latin: a prayer for this time of day, prayers for Mass, for Confession, for home and for times of need, and twelve more chapters.",
-        "Pray a set of prayers such as Morning Prayers, the Angelus or Night Prayers one at a time, silently or aloud, and learn any prayer by heart in four steps."
+        "The Church's common prayers in English and, where the Church prays in Latin, in Latin too: the prayer for this time of day, prayers for Mass, Confession, home and need, and twelve chapters of all the rest.",
+        "Pray an order such as Morning Prayers, the Angelus or Night Prayers one prayer at a time, in silence or aloud, and learn a prayer by heart in four steps."
       ],
       screen: %{
         name: "prayers",
@@ -112,7 +112,7 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
   @also [
     %{
       title: "The meditation as text",
-      body: "Read the meditation instead of listening to it, then tap to begin the Hail Marys.",
+      body: "Read the meditation instead of hearing it, and tap on to the first Hail Mary.",
       screen: %{
         name: "reader",
         alt:
@@ -121,7 +121,7 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     },
     %{
       title: "Today's Mass",
-      body: "Today's traditional Latin Mass, with the Latin and the English side by side.",
+      body: "The Mass of the day from the 1962 Missal, the Latin and the English line by line.",
       screen: %{
         name: "mass",
         alt:
@@ -131,7 +131,7 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     %{
       title: "Consecration to Mary",
       body:
-        "St. Louis de Montfort's 33 days of preparation to give yourself to Jesus through Mary, timed to end on a feast of Our Lady that you choose.",
+        "The 33-day preparation of St. Louis de Montfort, counted back from a Marian feast you choose.",
       screen: %{
         name: "consecrate",
         alt:
@@ -141,7 +141,7 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     %{
       title: "The Chapel",
       body:
-        "A page you arrange yourself: your next daily prayer, what is left to pray today, your streak, reading and chant.",
+        "A page you arrange: the next of your Daily Prayers, then tiles for today, your prayer streak, reading and chant.",
       screen: %{
         name: "chapel",
         alt:
@@ -154,22 +154,22 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     %{
       title: "Said aloud, start to finish",
       body:
-        "Turn on the whole Rosary aloud and every prayer is spoken for you while the beads move along, so you can pray with your phone in your pocket."
+        "With the whole Rosary said aloud, every prayer is read aloud in the voice you choose and the beads move with it, so you can pray with the phone in your pocket."
     },
     %{
       title: "Without a connection",
       body:
-        "Download meditations with their paintings and audio. The prayers, verses and chants are already in the app, so you can pray with no internet connection."
+        "Download meditation sets with their paintings and narration. With the prayers, verses, chants and books the app carries, the Rosary prays offline."
     },
     %{
       title: "Kept on your phone",
       body:
-        "No account needed. Your journal and your prayer history stay on your phone. The app only sends an anonymous note when a Rosary is finished."
+        "No account to make. Your journal and your prayer record stay on the phone; the app sends only an anonymous note that a Rosary was finished."
     },
     %{
       title: "Milestones, not scores",
       body:
-        "The app marks the days you pray in a row with numbers that mean something in the Church: 3 days, 9 days (a novena), 33 days, and the 54-day Rosary novena. Missing a day is never held against you."
+        "The days you pray are marked by the Church's own numbers: a triduum, a novena, 33 days, a Rosary novena of 54. A missed day is never held against you."
     }
   ]
 
@@ -180,7 +180,7 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
      |> PageMeta.put("/app",
        title: "Lumen Viae for iPhone",
        description:
-         "Pray the Rosary on iPhone: saints' meditations read aloud, a Bible verse on every bead, the whole Rosary prayed aloud, plus chant, daily prayers and today's Mass.",
+         "The Rosary on iPhone: meditations from the saints read aloud, the Scriptural Rosary, the Rosary said aloud, with chant, the Hours and the Mass of the day.",
        image: %{
          url: PageMeta.absolute_url("/images/app/og-app.jpg"),
          width: 1200,
