@@ -689,3 +689,74 @@
   padding-inline: clamp(1rem, 3vw, 2rem);
   margin-inline: auto;
 }
+
+/* === prayer page === */
+/* The words of the Rosary on the navy prayer page. Their size follows the
+   reader's choice, the --prayer-text-scale the PrayerSurface hook sets on
+   <html>. */
+.prayer-text {
+  font-size: calc(1.1875rem * var(--prayer-text-scale, 1));
+  line-height: 1.7;
+}
+
+.prayer-text-quiet {
+  font-size: calc(1.0625rem * var(--prayer-text-scale, 1));
+  line-height: 1.65;
+}
+
+.prayer-verse .prayer-text {
+  font-size: calc(1.3125rem * var(--prayer-text-scale, 1));
+  line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+  .prayer-text {
+    font-size: calc(1.3125rem * var(--prayer-text-scale, 1));
+  }
+
+  .prayer-text-quiet {
+    font-size: calc(1.125rem * var(--prayer-text-scale, 1));
+  }
+
+  .prayer-verse .prayer-text {
+    font-size: calc(1.5rem * var(--prayer-text-scale, 1));
+  }
+}
+
+.prayer-surface {
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: clip;
+}
+
+/* Clear of the notch, the home indicator and rounded corners */
+.prayer-safe-area {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.prayer-bottom-nav {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+@keyframes prayer-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prayer-surface *,
+  .prayer-surface *::before,
+  .prayer-surface *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* === end prayer page === */
