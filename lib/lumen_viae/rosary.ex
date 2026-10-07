@@ -312,6 +312,22 @@ defmodule LumenViae.Rosary do
         default_options: [load: [:meditations | @set_context]],
         functions: @read
 
+      # The same sets without their meditations, for a page that lists them
+      # and says how many meditations each has and whether any is narrated.
+      # `meditation_count` and `audio_count` answer those in the query, so
+      # the text of every meditation is neither read from the database nor
+      # kept in the page's process.
+      define :list_visible_meditation_set_summaries,
+        action: :visible,
+        default_options: [load: [:meditation_count, :audio_count | @set_context]],
+        functions: @read
+
+      define :list_visible_meditation_set_summaries_by_category,
+        action: :visible,
+        args: [:category],
+        default_options: [load: [:meditation_count, :audio_count | @set_context]],
+        functions: @read
+
       define :get_meditation_set,
         action: :read,
         get_by: [:id],
@@ -856,6 +872,9 @@ defmodule LumenViae.Rosary do
   #   * list_visible_meditation_sets!/0
   #   * list_visible_meditation_sets_with_meditations!/0
   #   * list_visible_meditation_sets_by_category!/1 (with meditations)
+  #   * list_visible_meditation_set_summaries!/0 and
+  #     list_visible_meditation_set_summaries_by_category!/1 (with the counts
+  #     of meditations and narrated meditations instead of the meditations)
   #
   # Each set comes with its linked author and its derived byline.
 

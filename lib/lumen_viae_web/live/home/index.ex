@@ -41,7 +41,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
 
     categories = build_categories(actor)
 
-    meditation_sets = Rosary.list_visible_meditation_sets_with_meditations!(actor: actor)
+    meditation_sets = Rosary.list_visible_meditation_set_summaries!(actor: actor)
 
     {:ok,
      socket
@@ -231,7 +231,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
   def schedule_detail(:modern), do: "Luminous on Thursday, Joyful on Saturday"
 
   @doc false
-  def has_audio?(set), do: Enum.any?(set.meditations, & &1.audio_url)
+  def has_audio?(set), do: set.audio_count > 0
 
   @doc false
   def scriptural_path(slug), do: "/mysteries/#{slug}/pray?form=scriptural"
