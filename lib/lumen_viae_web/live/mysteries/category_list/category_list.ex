@@ -1,30 +1,161 @@
 defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
+  @moduledoc """
+  `/mysteries/:category`: where a visitor chooses how to pray one
+  category's mysteries. The category's painting, days and mysteries with
+  their fruits; the two ways to pray it without a set; the shelf of its
+  meditation sets, filtered by kind or narration, or one chosen by Divine
+  Providence; and the "Your Rosary Today" choices every Pray link carries
+  (`PrayLinks`), which the `RosaryChoices` hook keeps in the browser.
+  """
   use LumenViaeWeb, :live_view
+
+  alias LumenViae.LiturgicalCalendar
   alias LumenViae.Rosary
+  alias LumenViae.Rosary.{Categories, Voices}
+  alias LumenViaeWeb.PageMeta
+  alias LumenViaeWeb.Live.Mysteries.CategoryList.{Filtering, PrayLinks}
 
+  import LumenViaeWeb.Live.Mysteries.CategoryList.Header
+  import LumenViaeWeb.Live.Mysteries.CategoryList.Choices
+  import LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray
+  import LumenViaeWeb.Live.Mysteries.CategoryList.Shelf
+
+  @calendar_categories Map.new(LiturgicalCalendar.categories(), &{Atom.to_string(&1), &1})
+
+  @impl true
   def mount(%{"category" => category}, _session, socket) do
-    if category in ["joyful", "sorrowful", "glorious", "luminous", "seven_sorrows"] do
-      meditation_sets =
-        Rosary.list_visible_meditation_sets_by_category!(category,
-          actor: socket.assigns.current_admin
-        )
-
-      {:ok,
-       socket
-       |> assign(:category, category)
-       |> assign(:meditation_sets, meditation_sets)
-       |> assign(:page_title, category_title(category))
-       |> assign(:meta_description, category_description(category))}
-    else
+    unless category in Categories.slugs() do
       raise LumenViaeWeb.NotFoundError, message: "unknown mystery category: #{category}"
+    end
+
+    actor = socket.assigns.current_admin
+    sets = Rosary.list_visible_meditation_set_summaries_by_category!(category, actor: actor)
+    mysteries = Rosary.list_mysteries_by_category!(category, actor: actor, load: [:artwork])
+
+    {:ok,
+     socket
+     |> assign(:category, category)
+     |> assign(:title, category_title(category))
+     |> assign(:subtitle, Categories.subtitle(category))
+     |> assign(
+       :days,
+       LiturgicalCalendar.days_in_words(@calendar_categories[category], :traditional)
+     )
+     |> assign(:mysteries, mystery_rows(category, mysteries))
+     |> assign(:painting, painting(category, mysteries, actor))
+     |> assign(:meditation_sets, sets)
+     |> assign(:kinds_offered, Filtering.kinds_offered(sets))
+     |> assign(:voices, Voices.list())
+     |> assign(:choices, PrayLinks.defaults())
+     |> PageMeta.put("/mysteries/#{category}",
+       title: category_title(category),
+       description: category_description(category),
+       image: PageMeta.category_image(category),
+       trail: [{category_title(category), "/mysteries/#{category}"}]
+     )}
+  end
+
+  @impl true
+  def handle_params(params, _uri, socket) do
+    filters = Filtering.from_params(params)
+
+    {:noreply,
+     socket
+     |> assign(:filters, filters)
+     |> assign(:shown_sets, Filtering.apply_filters(socket.assigns.meditation_sets, filters))}
+  end
+
+  @impl true
+  def handle_event("choose", %{"choices" => params}, socket) do
+    choices = PrayLinks.merge(socket.assigns.choices, params)
+
+    {:noreply,
+     socket
+     |> assign(:choices, choices)
+     |> push_event("store_choices", PrayLinks.to_storage(choices))}
+  end
+
+  def handle_event("restore_choices", params, socket) do
+    {:noreply, assign(socket, :choices, PrayLinks.merge(socket.assigns.choices, params))}
+  end
+
+  def handle_event("toggle_kind", %{"kind" => kind}, socket) do
+    {:noreply, patch_filters(socket, Filtering.toggle_kind(socket.assigns.filters, kind))}
+  end
+
+  def handle_event("toggle_narrated", _params, socket) do
+    filters = socket.assigns.filters
+    {:noreply, patch_filters(socket, %{filters | narrated: not filters.narrated})}
+  end
+
+  def handle_event("clear_filters", _params, socket) do
+    {:noreply, patch_filters(socket, %{kinds: [], narrated: false})}
+  end
+
+  def handle_event("providence", _params, socket) do
+    case providence_pool(socket.assigns) do
+      [] ->
+        {:noreply, socket}
+
+      sets ->
+        set = Enum.random(sets)
+        {:noreply, push_navigate(socket, to: PrayLinks.set_path(set.id, socket.assigns.choices))}
     end
   end
 
-  defp category_title("joyful"), do: "The Joyful Mysteries"
-  defp category_title("sorrowful"), do: "The Sorrowful Mysteries"
-  defp category_title("glorious"), do: "The Glorious Mysteries"
-  defp category_title("luminous"), do: "The Luminous Mysteries"
-  defp category_title("seven_sorrows"), do: "The Seven Sorrows of Mary"
+  # Providence chooses among the sets showing, or among all of them when
+  # the filters leave none.
+  defp providence_pool(%{shown_sets: [], meditation_sets: sets}), do: sets
+  defp providence_pool(%{shown_sets: sets}), do: sets
+
+  defp patch_filters(socket, filters) do
+    path =
+      case Filtering.to_params(filters) do
+        [] -> "/mysteries/#{socket.assigns.category}"
+        params -> "/mysteries/#{socket.assigns.category}?" <> URI.encode_query(params)
+      end
+
+    push_patch(socket, to: path, replace: true)
+  end
+
+  # One row per mystery the category has, in prayer order: the mystery's
+  # own name and fruit where the table has them, its ordinal label always.
+  defp mystery_rows(category, mysteries) do
+    by_order = Map.new(mysteries, &{&1.order, &1})
+
+    for order <- 1..Categories.mystery_count(category) do
+      mystery = Map.get(by_order, order)
+
+      %{
+        order: order,
+        label: Categories.mystery_label(category, order),
+        name: mystery && mystery.name,
+        fruit: mystery && mystery.fruit
+      }
+    end
+  end
+
+  # The painting the app's card shows for the category (its first
+  # mystery's, or the Seven Sorrows' own card); nil until one is published,
+  # and the header shows the category's woodcut.
+  defp painting(category, mysteries, actor) do
+    artwork =
+      case Categories.card_mystery_key(category) do
+        nil ->
+          card = Rosary.get_category_card!(category, actor: actor, load: [:artwork])
+          card && card.artwork
+
+        _key ->
+          mysteries |> Enum.find(&(&1.order == 1)) |> then(&(&1 && &1.artwork))
+      end
+
+    case artwork do
+      %{url: url, alt: alt} when is_binary(url) -> %{src: url, alt: alt}
+      _none -> nil
+    end
+  end
+
+  defp category_title(category), do: PageMeta.category_title(category)
 
   defp category_description("joyful"),
     do:
@@ -45,41 +176,4 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
   defp category_description("seven_sorrows"),
     do:
       "Pray the Seven Sorrows of Mary with meditations from the saints, from the prophecy of Simeon to the burial of Our Lord, with guided audio."
-
-  defp category_days("joyful"), do: "Mondays and Thursdays"
-  defp category_days("sorrowful"), do: "Tuesdays and Fridays"
-  defp category_days("glorious"), do: "Wednesdays, Saturdays, and Sundays"
-  defp category_days("luminous"), do: "Thursdays in the modern schedule"
-  defp category_days("seven_sorrows"), do: "Fridays in Lent and September 15th"
-
-  defp category_epigraph("joyful"),
-    do: {"Behold the handmaid of the Lord; be it done to me according to thy word.", "Luke 1:38"}
-
-  defp category_epigraph("sorrowful"),
-    do: {"Surely he hath borne our infirmities and carried our sorrows.", "Isaiah 53:4"}
-
-  defp category_epigraph("glorious"),
-    do: {"He is not here, but is risen.", "Luke 24:6"}
-
-  defp category_epigraph("luminous"),
-    do: {"This is my beloved Son, in whom I am well pleased: hear ye him.", "Matthew 17:5"}
-
-  defp category_epigraph("seven_sorrows"),
-    do: {"And thy own soul a sword shall pierce.", "Luke 2:35"}
-
-  defp has_audio?(set), do: Enum.any?(set.meditations, & &1.audio_url)
-
-  def handle_event("random_set", _params, %{assigns: %{meditation_sets: []}} = socket) do
-    {:noreply, socket}
-  end
-
-  def handle_event(
-        "random_set",
-        _params,
-        %{assigns: %{meditation_sets: meditation_sets}} = socket
-      ) do
-    random_set = Enum.random(meditation_sets)
-
-    {:noreply, push_navigate(socket, to: "/meditation-sets/#{random_set.id}/pray")}
-  end
 end

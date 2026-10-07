@@ -14,11 +14,12 @@ this before adding a module, a query, or a page.
 7. [The Office domain](#the-office-domain)
 8. [The Ops domain](#the-ops-domain)
 9. [The web layer](#the-web-layer)
-10. [Components](#components)
-11. [Templates and partials](#templates-and-partials)
-12. [Where does this go?](#where-does-this-go)
-13. [Design tokens](#design-tokens)
-14. [The admin console](#the-admin-console)
+10. [The prayer page](#the-prayer-page)
+11. [Components](#components)
+12. [Templates and partials](#templates-and-partials)
+13. [Where does this go?](#where-does-this-go)
+14. [Design tokens](#design-tokens)
+15. [The admin console](#the-admin-console)
 
 ---
 
@@ -501,16 +502,21 @@ have actually recorded a meditation is data, and lives on the `Narration`
 resource.
 
 `Artwork` holds the licence vocabulary, the framing arithmetic, and the
-two field lists that matter: four *managed* columns (`image_key`, the
-dimensions, `image_updated_at`) written only by
-`LumenViae.Curation.ArtworkUpload` after it has proved the object is in S3,
+two field lists that matter: five *managed* columns (`image_key`, the
+dimensions, `image_updated_at`, `image_variant_widths`) written only by
+`LumenViae.Curation.ArtworkUpload` after it has proved the objects are in S3,
 and the *editable* columns a curator types. The columns themselves and the
-two actions that write them, `:record_artwork` for a proved upload and
-`:update_artwork_metadata` for what the curator typed, are
+actions that write them, `:record_artwork` for a proved upload,
+`:update_artwork_metadata` for what the curator typed and
+`:record_artwork_variants` for display variants made later, are
 `LumenViae.Rosary.Artwork.Fragment`, a Spark fragment that `MeditationSet`,
 `Author`, `Mystery` and `CategoryCard` take, so a set's painting, an
 author's portrait, a mystery's painting and a category card's are the same
-thirteen columns written through the same two doors. A mystery's and a
+fourteen columns written through the same doors. Beside each original,
+`ArtworkUpload` stores WebP display variants (`LumenViae.Images.Variants`,
+libvips through `vix`) and records their widths; the public site draws
+from those through `Components.ArtworkPicture`, and the APIs keep serving
+the original (docs/MYSTERY_PAINTINGS.md, "Display variants"). A mystery's and a
 card's are served by `Artwork.Published`, the publish gate (alt text and a
 licence) and the API's artwork shape in one calculation, which a set's
 own calculation shares, adding its author's portrait as a fallback. A
@@ -951,20 +957,44 @@ LiveViews are grouped by **area of the site**, not by resource:
 
 | Directory | Contents |
 | --- | --- |
-| `live/home/` | public informational pages (home, methods, true devotion, saint carlo, feedback, app) |
-| `live/mysteries/` | public mystery browsing, plus admin mystery CRUD and a category card's painting (`card/`) |
-| `live/dashboard/` | the prayer dashboard, where a set is chosen |
-| `live/pray/` | the prayer experience itself |
+| `live/home/` | the home page, the daily hub: today's mysteries on either schedule, the sets for them, the Rosary without a set, and a card per category (`category_card/`); and the iPhone app's page (`app/`, its screenshots drawn by `app/phone_screen.ex`) |
+| `live/mysteries/` | public: the mysteries in Scripture (`scripture.ex`, its sections in `_partials/`) and the category page (`category_list/`). Admin: mystery CRUD and a category card's painting (`card/`) |
+| `live/pray/` | the prayer page: see [The prayer page](#the-prayer-page) |
+| `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
-| `live/privacy_policy/` | App Store privacy policy |
+
+The public site is only the Rosary: home, the mysteries, their sets and
+the prayer page, with the iPhone app's page and the privacy policy beside
+them, seven routes in all (`docs/PUBLIC_SITE.md` lists them, the prayer
+page's link and where each setting is kept). Pages retired from it (the
+dashboard, How to Pray, True Devotion, St. Carlo, Feedback) are in
+`archive/`, outside the build; each old path answers a
+`301` to `/` through `LumenViaeWeb.RedirectController`, and
+`archive/README.md` says how to bring one back. Archived pages are not
+maintained: do not update them when a shared component changes.
+
+The category page is the model for a public page with sub-components, each
+in its own directory beside the LiveView:
+
+```
+live/mysteries/category_list/
+├── category_list.ex             LumenViaeWeb.Live.Mysteries.CategoryList
+├── category_list.html.heex
+├── filtering.ex                 filters the shelf of sets (presentation only)
+├── pray_links.ex                the "Your Rosary Today" choices, and the links that carry them
+├── header/header.ex             LumenViaeWeb.Live.Mysteries.CategoryList.Header
+├── choices/choices.ex           ...Choices
+├── ways_to_pray/ways_to_pray.ex ...WaysToPray
+└── shelf/shelf.ex               ...Shelf
+```
 
 ### Module names match file paths
 
 - `LumenViaeWeb.Live.Meditations.Sets.List` is
   `live/meditations/sets/list/list.ex`
-- `LumenViaeWeb.Live.Home.TrueDevotion.Index` is
-  `live/home/true_devotion/index.ex`
+- `LumenViaeWeb.Live.Mysteries.CategoryList` is
+  `live/mysteries/category_list/category_list.ex`
 
 A LiveView with sub-components gets a directory per component:
 
@@ -991,6 +1021,99 @@ domain, and lives in `LumenViae.Rosary`.
 
 ---
 
+## The prayer page
+
+`LumenViaeWeb.Live.Pray.Index` prays the whole Rosary, from the Sign of the
+Cross to the last Amen, bead by bead. Two routes reach it, and both mount
+the same LiveView:
+
+- `/meditation-sets/:set_id/pray` prays a set, with its meditations or as the
+  Scriptural Rosary. A set that is missing or hidden is a 404.
+- `/mysteries/:category/pray` prays a category without a set, as the
+  Scriptural Rosary or with the prayers alone.
+
+The reader counts on their own rosary (`count=beads`, a decade a page) or on
+the screen (`count=screen`, a bead a screen).
+
+### The modules
+
+```
+live/pray/
+├── index.ex, index.html.heex   the LiveView: mounts, events, completion
+├── params.ex                   Params: the URL, read and written
+├── sequence.ex                 Sequence: the order of prayers, pages and screens
+├── page_view/page_view.ex      PageView: counting on a rosary, a page at a time
+├── bead_screen/bead_screen.ex  BeadScreen: counting on the screen, a bead at a time
+├── strand/strand.ex            Strand: the Rosary drawn as a strand, and the way to each page
+├── prayer_text/prayer_text.ex  PrayerText: a prayer, a verse, an announcement, a meditation
+├── controls/controls.ex        Controls: the settings, the aloud controls, the resume offer, Previous and Next
+└── completion/completion.ex    Completion: the Amen, the streak and the milestones
+```
+
+Apart from `Index`, each is a function component under
+`LumenViaeWeb.Live.Pray`. The LiveView owns the state and passes it down.
+
+**`Sequence`** builds the Rosary as a list of pages: the opening prayers, one
+page per decade, the closing prayers. A page is a list of screens, one per
+bead counted on the screen. It is built from the same script the spoken
+Rosary plays (`LumenViae.Rosary.PrayerAudio.script/3`), so what is read and
+what is heard are one order. It is presentation only: it reads the value
+modules and the records the LiveView already loaded, and never queries.
+
+**`Params`** is the URL contract. Everything the reader chose rides in the
+query string, and a default is left out:
+
+| Parameter | Values |
+| --- | --- |
+| `mystery` | `opening`, a decade number from `0`, or `closing` |
+| `step` | the bead on that page, used with `count=screen` |
+| `form` | a set: `meditation` (default) or `scriptural`. A category: `scriptural` (default) or `holy` |
+| `count` | `beads` (default) or `screen` |
+| `aloud` | `true` |
+| `voice` | a narration voice's slug |
+
+Change the contract in `Params` and in `docs/PUBLIC_SITE.md` together.
+Links made before the page worked on phones carry `mobile`, which is
+accepted and ignored.
+
+### What the browser keeps
+
+Nothing about a visitor is stored on the server. The page's hooks keep a few
+things in `localStorage`, under these keys:
+
+| Key | Holds | Hook |
+| --- | --- | --- |
+| `lumenviae:rosary-choices` | the category page's "Your Rosary Today" choices | `RosaryChoices` |
+| `lv:schedule` | traditional or modern weekly schedule, on the home page | `MysterySchedule` |
+| `lv:pray:<key>:<form>` | the place in a Rosary, `{mystery, step, count, at}`, for "Continue where you left off". `<key>` is `set:<id>` or `mysteries:<category>` | `PrayerMemory` |
+| `lv:pray:extras` | the closing prayers chosen | `PrayerMemory` |
+| `lv:pray:language` | the prayers' language, English or Latin | `PrayerMemory` |
+| `lv:pray:text-size` | the text size | `PrayerSurface` |
+| `lv:pray:streak` | the days in a row | `PrayerStreak` |
+| `lv:pray:swipe-hint-seen` | that the swipe hint has been shown | `SwipeHint` |
+
+A hook that cannot read or write storage leaves the page on its defaults.
+The hooks are in `assets/js/hooks/`; `PrayerSurface` also turns the keys and
+swipes into moves through the Rosary.
+
+### Completions
+
+A completion is recorded only when the reader presses Complete on a set's
+page. A Rosary prayed without a set records none, because a completion
+belongs to a meditation set; see `docs/UPCOMING_FEATURES.md`.
+
+### Checking a public page in a browser
+
+`scripts/e2e/` holds a Playwright smoke test of the public site at a phone
+and a desktop width: the pages load, each has an `h1`, nothing logs a
+console error or scrolls sideways, a Pray link leads to a prayer page that
+answers ArrowRight, and the archived paths redirect to `/`. It is not part
+of CI, so run it against your own server and a copy of the dev database
+before handing in a change to a public page. `docs/PUBLIC_SITE.md` has the
+steps.
+
+---
+
 ## Components
 
 Everything in this codebase is a **function component**. There are currently
@@ -1012,7 +1135,16 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.MeditationFilters` | shared filter controls | no, called fully qualified |
 | `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
 | `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
+| `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
+| `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json` | no, imported where used |
+| `Components.MetaTags` | the description, canonical link, link previews and structured data a page put in `LumenViaeWeb.PageMeta` | no, used by the root layout |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
+
+The flash has two looks: the console's by default, and the public site's
+with `<Layouts.flash_group flash={@flash} variant={:public} />`, rendered
+inside a public LiveView's own template. The root layout owns the page's
+only `<main id="main-content">`, so a page template never renders
+another.
 
 If you add a component that most pages will use, add it to
 `html_helpers/0`. Otherwise leave it fully qualified at the call site -
@@ -1053,7 +1185,7 @@ live/pray/index.html.heex
 function component named after itself:
 
 ```elixir
-defmodule LumenViaeWeb.Live.Home.TrueDevotion.Index do
+defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   use LumenViaeWeb, :live_view
 
   embed_templates "_partials/*"
@@ -1061,13 +1193,12 @@ end
 ```
 
 ```heex
-<.devotion_comparison devotion_tab={@devotion_tab} true_marks={@true_marks} />
+<.joyful />
 ```
 
 Partials receive everything they need as assigns - they read `@assigns`
-passed at the call site, not the LiveView's socket. The learn pages
-(`home/methods/`, `home/true_devotion/`, `home/saint_carlo/`,
-`mysteries/`) all use this pattern.
+passed at the call site, not the LiveView's socket. The mysteries in
+Scripture page (`mysteries/_partials/`) uses this pattern.
 
 ---
 
@@ -1120,37 +1251,81 @@ instead.
 Defined in `assets/css/app.css` and consumed as Tailwind v4 utilities.
 Never hardcode a hex value in a template.
 
-The public site follows the iOS app's design language ("the sanctuary"),
-adapted to light backgrounds: two type families only, gold hairlines for
-structure, and the app's motifs (lancet arch frames, ornament dividers,
-gold capsule CTAs, Roman numerals, colophon quotes).
+The public site is **Midnight Marian**: the iOS app's Marian Blue theme.
+Every page is night, with light ink, one gilt accent and sky for the
+quiet labels. Long reading sits on a **vellum** page. Two type families,
+and the app's motifs (lancet arch frames, ornament dividers, Roman
+numerals, colophon quotes).
 
-**Colors**
+**Colors** (contrast is against `night` unless the Use column says so)
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `navy` / `navy-dark` / `navy-light` | `#003b5c` / `#002840` / `#004d75` | headings ink; hero and at most one accent band per page |
-| `gold` / `gold-light` / `gold-dark` | `#b18b49` / `#c9a96b` / `#7f6132` | rules and borders (`gold`), gold text on light (`gold-dark`) |
-| `parchment` | `#fdfaf4` | the almost-white default page ground |
-| `cream` / `cream-dark` | `#faf2e6` / `#f0e5d0` | alternating section backgrounds, inset panels |
-| `brown` / `brown-light` | `#4a3f33` / `#6f6353` | body copy, captions |
-| `rubric` | `#8b2f23` | admin status accents only; public kickers are gold |
+| `night` | `#0D1730` | the page ground |
+| `night-deep` | `#070E1F` | the header, the footer and a page's hero band |
+| `night-raised` | `#17284E` | cards, panels, the settings pane |
+| `night-border` | `#2A3B63` | decorative hairlines only (1.6:1) |
+| `night-line` | `#6E80AB` | a border that marks a control: chips, fields, pills (4.5:1; 3.7:1 on raised) |
+| `ink-light` | `#F4EFE2` | primary text (15.5:1) |
+| `ink-muted` | `#B9B3A3` | secondary text, captions (8.5:1; 6.9:1 on raised) |
+| `gilt` / `gilt-light` | `#D9B84A` / `#E9CC6E` | the one accent (9.2:1): filled buttons with `night` text, numerals, the lit bead, the focus ring; `gilt-light` for hover |
+| `sky` | `#9DB4E0` | kickers and links (8.5:1) |
+| `vellum` | `#F6F0E2` | the reading page |
+| `vellum-ink` / `vellum-muted` | `#2A211C` / `#6A5B4E` | text on vellum (13.9:1 / 5.7:1) |
+| `vellum-gold` | `#7A5A1E` | small rubrics on vellum: verse numbers, references, list markers (5.6:1) |
+| `vellum-border` | `#E3D7BF` | rules on vellum |
+
+`gilt`, `sky` and the `ink-*` tokens never go on vellum (they fail), and
+the `vellum-*` text tokens never go on night.
+
+`navy`, `gold`, `parchment`, `cream`, `brown` and `rubric` are the palette
+the whole site had before the redesign. Only the admin console uses them
+now; no public template may.
+
+**Where vellum goes.** Long-form reading only: the meditation on the
+prayer page (`.reading-page`, which the reader can turn back to night with
+"Reading page" in the settings pane), the Scripture passages on
+`/mysteries` and the privacy policy body (`.reading-vellum`). Everything
+else is night.
 
 **Fonts**
 
 | Utility | Family | Use |
 | --- | --- | --- |
-| `font-cinzel` | Cinzel | all headings, tracked-caps kickers and labels, numerals, buttons |
-| `font-garamond` | EB Garamond | all body, reading, and quotation text |
-| `font-cinzel-decorative` | Cinzel Decorative | the LUMEN VIAE wordmark only |
-| `font-ovo` / `font-work-sans` | Ovo / Work Sans | legacy, admin surfaces only |
-| `font-roman-uncial` | Roman Uncial Modern | retired from pages |
+| `font-display` | Cormorant Garamond 500/600 | headings, in sentence case, never tracked caps |
+| `font-garamond` | EB Garamond 400/500/600, italic | all body, reading and quotation text, buttons, and the small labels |
+| `.kicker` | EB Garamond, 13px tracked caps, `sky` | the label above a heading or group; never below 12px |
+| `font-cinzel-decorative` / `font-ovo` / `font-work-sans` | Cinzel Decorative / Ovo / Work Sans | admin surfaces only |
 
-Shared vocabulary: `.btn-gold` / `<.gold_cta>` (gold capsule CTA, one filled
-gold shape per screen region), `<.sacred_divider>` (hairlines, diamonds,
-Latin cross), `<.arch_frame>` (lancet-arch image frame for devotional art),
-`.hairline-card`, `.ornate-corners`, `.drop-cap`. Quotes are set as centered
-colophons between dividers, never as filled bordered panels.
+Reading text is at least 17px on a phone; the body is 19px.
+
+The fonts are self-hosted (`priv/static/fonts`, Latin subset woff2) and
+declared in the fonts block at the top of `app.css`, each with a fallback
+face on Times New Roman sized to match, so the swap does not move the page.
+Only Cormorant 500 and 600, EB Garamond 500 and 600 and EB Garamond italic
+500 exist: ask for no other weight or a Cormorant italic, and `strong` is
+600.
+
+**The mark.** `<.logo />` in `CoreComponents` is the Stella Maris: an
+eight-point Marian star in a thin circle, its lower ray drawn out into a
+path. One colour (`currentColor`, gilt by default), sizes `:sm` to `:xl`,
+beside the "Lumen Viae" wordmark in `font-display` 600. The same drawing
+is `priv/static/favicon.svg`, `favicon.ico` (16 and 32) and
+`apple-touch-icon.png` (180); change them together.
+
+Shared vocabulary: `.btn-gold` / `<.gold_cta>` (the gilt capsule, one
+filled gilt shape per screen region), `.btn-outline-gold` (the gilt-ruled
+secondary), `<.sacred_divider>` (hairlines, diamonds, Latin cross),
+`<.arch_frame>` (lancet-arch frame for a devotional painting),
+`.hairline-card` (a raised night card), `.reading-vellum`, `.kicker`.
+Woodcuts are `LumenViaeWeb.Components.WoodcutPlate`: on a vellum mat on
+night (the default variant), or `variant={:vellum}` on a reading page;
+never inverted. At most one woodcut per screen. Quotes are set as
+centered colophons between dividers, never as filled bordered panels.
+
+The focus ring is `gilt` on night and `vellum-ink` on vellum (the
+`--focus-ring` variable in the site shell). Every control is at least 44px
+tall and no public text is below 12px.
 
 Long passages are set upright, not italic - italics are for short asides,
 citations and captions. Keep body measure around 60-65 characters
@@ -1163,8 +1338,8 @@ citations and captions. Keep body measure around 60-65 characters
 Everything under `/admin` is a **console**, and it deliberately does not look
 like the site.
 
-The public pages are parchment, Cinzel and EB Garamond, with gold rules
-around every panel. That is right for a page someone reads a paragraph of at
+The public pages are night, Cormorant and EB Garamond, with vellum for
+reading. That is right for a page someone prays or reads a paragraph of at
 a time. A console is scanned, not read: it wants density, alignment, one type
 family with tabular figures, and colour reserved for status so that an amber
 cell means something. Every gold rule that only decorates is a rule the eye

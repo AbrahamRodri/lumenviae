@@ -20,45 +20,123 @@
 
 /* This file is for your main application CSS */
 
-/* Custom font: Roman Uncial Modern */
+/* === fonts === */
+/* The public site's two families, self-hosted from priv/static/fonts:
+   woff2 cut to Latin and Latin-1 (Google Fonts' "latin" subset, OFL).
+   Three files, the only faces the site uses: Cormorant Garamond 500 to
+   600 and EB Garamond 500 to 600 (each a variable font over that range),
+   and EB Garamond italic 500. Nothing asks for 400 or 700, and no heading
+   is set in italic.
+
+   Each has a fallback face on a local serif, scaled and given the web
+   font's ascent and descent, so the swap moves nothing on the page. The
+   numbers were measured in Chrome against Times New Roman; measure them
+   again if a font file changes. */
 @font-face {
-  font-family: 'Roman Uncial Modern';
-  src: url('/fonts/Romanuncialmodern-jra0.ttf') format('truetype');
-  font-weight: normal;
+  font-family: 'Cormorant Garamond';
   font-style: normal;
+  font-weight: 500 600;
   font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin.woff2') format('woff2');
 }
 
-/* Custom Lumen Viae theme - Inspired by  Catholic aesthetics */
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-italic-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond Fallback';
+  src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Times');
+  size-adjust: 95.73%;
+  ascent-override: 96.52%;
+  descent-override: 29.98%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'EB Garamond Fallback';
+  src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Times');
+  size-adjust: 97%;
+  ascent-override: 103.81%;
+  descent-override: 30.72%;
+  line-gap-override: 0%;
+}
+/* === end fonts === */
+
+/* Lumen Viae theme. Two sets of colours live here: the public site's
+   "Midnight Marian" palette (night, ink, gilt, sky, vellum) and the admin
+   console's (navy, gold, parchment, cream, brown, and the admin-* tokens).
+   Never cross them. */
 @theme {
-  /* Primary Colors - Deep navy for depth and contemplation */
+  /* --- The public site: Midnight Marian ---------------------------------
+     The iOS app's Marian Blue theme. Every page is night; long reading
+     (the meditation on the prayer page, the Scripture passages, the privacy
+     policy) sits on a vellum page. Ratios are WCAG contrast against the
+     surface named; keep them when changing a value. */
+
+  /* Surfaces. night is the page ground, night-deep the header, footer and
+     hero bands, night-raised every card and panel. */
+  --color-night: #0D1730;
+  --color-night-deep: #070E1F;
+  --color-night-raised: #17284E;
+
+  /* Rules. night-border is a decorative hairline only (1.6:1); a border
+     that marks a control (a chip, a field, an outline button) is
+     night-line (4.5:1 on night, 3.7:1 on night-raised) or gilt. */
+  --color-night-border: #2A3B63;
+  --color-night-line: #6E80AB;
+
+  /* Text on night. ink-light 15.5:1, ink-muted 8.5:1 (6.9:1 on raised). */
+  --color-ink-light: #F4EFE2;
+  --color-ink-muted: #B9B3A3;
+
+  /* Accents. gilt is the one primary accent (9.2:1 on night): filled
+     buttons are gilt with night text. sky is the quiet accent for
+     kickers and links (8.5:1). */
+  --color-gilt: #D9B84A;
+  --color-gilt-light: #E9CC6E;
+  --color-sky: #9DB4E0;
+
+  /* The vellum reading page. vellum-ink 13.9:1, vellum-muted 5.7:1,
+     vellum-gold 5.6:1 for small rubrics (verse numbers, references).
+     gilt, sky and ink-* never go on vellum: they fail. */
+  --color-vellum: #F6F0E2;
+  --color-vellum-ink: #2A211C;
+  --color-vellum-muted: #6A5B4E;
+  --color-vellum-gold: #7A5A1E;
+  --color-vellum-border: #E3D7BF;
+
+  /* --- The admin console ------------------------------------------------
+     The palette the whole site used before the redesign. The console
+     still draws its rail, buttons and accents from it; no public page
+     does. */
   --color-navy: #003b5c;
   --color-navy-dark: #002840;
   --color-navy-light: #004d75;
-
-  /* Accent Colors - Warm ecclesiastical gold */
   --color-gold: #b18b49;
   --color-gold-light: #c9a96b;
   --color-gold-dark: #7f6132;
-
-  /* Base Colors - Soft, parchment-like cream.
-     parchment is the almost-white warm ground most sections sit on; cream and
-     cream-dark are the deeper steps for alternating bands and inset panels. */
   --color-parchment: #fdfaf4;
   --color-cream: #faf2e6;
   --color-cream-dark: #f0e5d0;
   --color-white: #ffffff;
-
-  /* Text Colors - Warm ink browns for body copy.
-     brown-light is the quieter tier: captions, citations, pull-quotes. It has
-     to clear WCAG AA (4.5:1) on the lightest surface it is used on, which is
-     cream-dark, not cream - keep it at or below #6f6353. */
   --color-brown: #4a3f33;
   --color-brown-light: #6f6353;
 
-  /* Accent Colors - manuscript rubric red and St. Carlo polo red */
+  /* Accent Colors - manuscript rubric red */
   --color-rubric: #8b2f23;
-  --color-carlo: #a63a2e;
 
   /* Status Colors - the admin surfaces need to say "saved", "careful", and
      "this will delete something". Kept in the same warm, muted register as
@@ -119,10 +197,9 @@
 
   /* Typography - Clear Creek inspired fonts.
      Tailwind v4 generates font-* utilities from the --font-* namespace. */
-  --font-roman-uncial: 'Roman Uncial Modern', serif;
   --font-ovo: 'Ovo', serif;
   --font-work-sans: 'Work Sans', sans-serif;
-  --font-garamond: 'EB Garamond', serif;
+  --font-garamond: 'EB Garamond', 'EB Garamond Fallback', serif;
   --font-cinzel-decorative: 'Cinzel Decorative', 'Cinzel', serif;
   --font-cinzel: 'Cinzel', serif;
 
@@ -131,9 +208,17 @@
   --shadow-ornate: 0 8px 30px rgba(0, 59, 92, 0.12), 0 0 0 1px rgba(177, 139, 73, 0.25);
   --shadow-glow: 0 0 40px rgba(201, 169, 107, 0.35);
 
+  /* The public site's type. Cormorant Garamond for headings, set in
+     sentence case; EB Garamond (--font-garamond) for everything read and
+     for the small tracked-caps labels. Cinzel stays only for the
+     console's wordmark. */
+  --font-display: 'Cormorant Garamond', 'Cormorant Garamond Fallback', serif;
+
+  --shadow-night: 0 10px 30px rgba(3, 7, 18, 0.45), 0 1px 3px rgba(3, 7, 18, 0.35);
+  --shadow-gilt: 0 0 18px rgba(217, 184, 74, 0.35);
+
   /* Animations */
   --animate-rise: rise 0.9s ease-out both;
-  --animate-rise-slow: rise 1.4s ease-out both;
   --animate-halo: halo 6s ease-in-out infinite;
 
   @keyframes rise {
@@ -160,68 +245,15 @@
 }
 
 :root {
-  /* Color roles */
-  --color-bg-primary: #faf2e6;
-  --color-bg-surface: #ffffff;
+  /* Body ink outside the public site (the console resets it again). */
   --color-text: #1f1b18;
-  --color-text-muted: #5a5148;
-  --color-accent-primary: #003b5c;
-  --color-accent-secondary: #b18b49;
-  --color-border: #c9a96b;
-  --color-cta-bg: #003b5c;
-  --color-cta-text: #faf2e6;
-
-  /* Spacing scale (4px baseline) */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-7: 2rem;
-  --space-8: 2.5rem;
-  --space-9: 3rem;
-  --space-10: 4rem;
-  --space-11: 5rem;
 }
 
-
-/* Typography utilities for meditation-friendly reading.
-   The site follows the iOS app's two-family system: Cinzel (engraved Roman
-   capitals) for titles and tracked labels, EB Garamond for everything read. */
-.text-meditation {
-  font-family: var(--font-garamond);
-  font-size: 1.1875rem;
-  line-height: 1.7;
-  color: var(--color-text-muted);
-}
-
-.heading-ornate {
-  font-family: var(--font-cinzel);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-}
-
-.heading-elegant {
-  font-family: var(--font-cinzel);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-}
-
-/* Ornate text styles */
-.text-ornate {
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-family: var(--font-cinzel);
-}
-
-/* Base body styling for readability - matches the app's Garamond Medium body.
-
-   Declared in the base layer, not unlayered, so that a component can still
-   override it. Unlayered CSS beats every layer regardless of specificity,
-   which meant `.admin-root h1` could not take the console's headings off
-   Cinzel however specific it was. In `base` the ordinary cascade applies:
-   components beat base, utilities beat components. */
+/* Base body type: EB Garamond at 19px, the reading size. Declared in the
+   base layer, not unlayered, so that a component can still override it:
+   unlayered CSS beats every layer regardless of specificity. In `base` the
+   ordinary cascade applies: components beat base, utilities beat
+   components. */
 @layer base {
   body {
     font-family: var(--font-garamond);
@@ -231,47 +263,116 @@
     color: var(--color-text);
   }
 
-  h1 {
-    font-family: var(--font-cinzel);
-    line-height: 1.25;
-    letter-spacing: 0.02em;
-    font-weight: 400;
-  }
-
-  h2 {
+  h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-cinzel);
     line-height: 1.3;
     letter-spacing: 0.02em;
     font-weight: 400;
   }
 
-  h3, h4, h5, h6 {
-    font-family: var(--font-cinzel);
-    line-height: 1.4;
-    letter-spacing: 0.02em;
-    font-weight: 400;
+  /* The public site: night ground, light ink, Cormorant headings in
+     sentence case. */
+  .site {
+    background-color: var(--color-night);
+    color: var(--color-ink-light);
+  }
+
+  .site :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.2;
+  }
+
+  .site h1 {
+    font-weight: 600;
+  }
+
+  /* 600 is the heaviest face served; asking for 700 would fake a bold. */
+  .site :is(strong, b) {
+    font-weight: 600;
   }
 }
 
-/* Illuminated drop cap for scripture and quote passages - a gold Cinzel
-   versal leading into Garamond body, as in the app's DropCapText */
-.drop-cap::first-letter {
-  font-family: var(--font-cinzel);
-  font-size: 2.6em;
-  line-height: 0.85;
-  float: left;
-  padding-right: 0.14em;
-  padding-top: 0.06em;
-  color: var(--color-gold-dark);
+/* ---------------------------------------------------------------------
+   Site shell: the public root layout's skip link, focus ring, safe areas,
+   header and footer. None of it reaches the admin console, which has its
+   own root layout without the `site` class on its body.
+   --------------------------------------------------------------------- */
+@layer base {
+  /* The focus ring clears 3:1 on whatever it sits on: gilt on night
+     (9.2:1), vellum-ink on a vellum page (13.9:1). */
+  .site {
+    --focus-ring: var(--color-gilt);
+  }
+
+  .site :is(.reading-vellum, .bg-vellum, .woodcut-plate__mount) {
+    --focus-ring: var(--color-vellum-ink);
+  }
+
+  .site :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+
+  /* The skip link's target is focused by script, never by the user. */
+  .site-main:focus {
+    outline: none;
+  }
+
+  /* Room for the notch and the home indicator once viewport-fit=cover lets
+     the page run under them. */
+  .site {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .site-header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .site-footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* On a phone the header stays in reach as a compact bar. */
+  @media (max-width: 47.99rem) {
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    html:has(.site) {
+      scroll-padding-top: 4.5rem;
+    }
+  }
+
+  /* A page that wants the whole screen (the prayer page) puts
+     data-layout="focused" on its outermost element, and the shell steps
+     aside. Works across live navigation, which never re-renders the root
+     layout. */
+  .site:has([data-layout="focused"]) :is(.site-header, .site-footer, .skip-link) {
+    display: none;
+  }
 }
 
-/* Gold call-to-action - the app's flat gold plate: a capsule struck from a
-   horizontal gold gradient (never vertical - no lit top edge), engraved caps,
-   a fine gold-light rim, and a quiet standing halo. ONE filled gold shape per
-   screen region; a second primary action means one of them is wrong.
 
-   Declared in the components layer so Tailwind utilities on the same element
-   (text-cream, px-*, ...) can override individual properties. */
+/* Reduced motion: no decorative entrances, no breathing halo, no slides.
+   Content that animates in is simply there. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer components {
 /* ---------------------------------------------------------------------
    Admin console
@@ -493,134 +594,112 @@
   background: var(--color-admin-sunken);
 }
 
+
+/* ---------------------------------------------------------------------
+   The public site's shared vocabulary. Declared in the components layer
+   so Tailwind utilities on the same element (!py-2.5, w-full, ...) can
+   still override a property.
+   --------------------------------------------------------------------- */
+
+/* The small label above a heading or a group: EB Garamond in modest
+   tracked capitals, 13px, sky on night. Never below 12px. */
+.kicker {
+  font-family: var(--font-garamond);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-sky);
+}
+
+/* The primary action: a gilt capsule with night text (9.2:1). One filled
+   gilt shape per screen region; a second primary action means one of them
+   is wrong. */
 .btn-gold {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.625rem;
-  padding: 1rem 1.75rem;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.8125rem 1.75rem;
   border-radius: 9999px;
-  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
-  border: 1px solid rgba(201, 169, 107, 0.6);
-  color: var(--color-navy-dark);
-  font-family: var(--font-cinzel);
-  font-size: 0.875rem;
+  border: 1px solid var(--color-gilt);
+  background: var(--color-gilt);
+  color: var(--color-night);
+  font-family: var(--font-garamond);
+  font-size: 1.0625rem;
   font-weight: 600;
-  letter-spacing: 0.19em;
-  text-transform: uppercase;
-  box-shadow:
-    0 0 9px rgba(177, 139, 73, 0.21),
-    0 0 20px rgba(177, 139, 73, 0.1);
-  transition: all 0.16s ease-out;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-align: center;
+  box-shadow: 0 6px 22px rgba(217, 184, 74, 0.16);
+  transition: background-color 0.16s ease-out, transform 0.16s ease-out, box-shadow 0.16s ease-out;
 }
 
 .btn-gold:hover {
-  filter: brightness(1.05);
-  box-shadow: var(--shadow-glow);
+  background: var(--color-gilt-light);
+  box-shadow: var(--shadow-gilt);
 }
 
 .btn-gold:active {
   transform: scale(0.97);
-  filter: brightness(0.94);
 }
 
-.btn-gold:focus-visible {
-  outline: 2px solid var(--color-gold-dark);
-  outline-offset: 3px;
-}
-
-/* Quiet secondary action: same capsule, hairline gold rule, transparent
-   interior, ink color inherited from context (navy on light, cream on navy) */
+/* The quiet secondary action: the same capsule, a gilt rule (9.2:1, so
+   it reads as a control), light ink inside. */
 .btn-outline-gold {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 1.75rem;
+  min-height: 2.75rem;
+  padding: 0.8125rem 1.75rem;
   border-radius: 9999px;
-  border: 1px solid rgba(177, 139, 73, 0.5);
-  font-family: var(--font-cinzel);
-  font-size: 0.875rem;
-  letter-spacing: 0.19em;
-  text-transform: uppercase;
-  transition: all 0.16s ease-out;
+  border: 1px solid var(--color-gilt);
+  background: transparent;
+  color: var(--color-ink-light);
+  font-family: var(--font-garamond);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-align: center;
+  transition: background-color 0.16s ease-out, transform 0.16s ease-out;
 }
 
 .btn-outline-gold:hover {
-  border-color: var(--color-gold);
-  background: rgba(177, 139, 73, 0.08);
+  background: rgba(217, 184, 74, 0.12);
 }
 
 .btn-outline-gold:active {
   transform: scale(0.97);
 }
 
-/* The app's card shell in daylight: a light surface behind a fine gold rule */
+/* A raised night card with a decorative hairline. */
 .hairline-card {
-  background: var(--color-white);
-  border: 1px solid rgba(177, 139, 73, 0.3);
+  background: var(--color-night-raised);
+  border: 1px solid var(--color-night-border);
   border-radius: 1rem;
-  box-shadow: var(--shadow-soft);
-}
 }
 
-/* Double-hairline corner ticks, like the ruled corners of an illuminated
-   page (the app's OrnateCornersOverlay). Overlay on ceremonial panels. */
-.ornate-corners {
-  position: relative;
+/* A vellum reading page: long-form text only (the Scripture passages,
+   the privacy policy). Inside it, text is vellum-ink, vellum-muted or
+   vellum-gold; nothing from the night palette. */
+.reading-vellum {
+  background: var(--color-vellum);
+  color: var(--color-vellum-ink);
+  border: 1px solid var(--color-vellum-border);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-night);
 }
 
-.ornate-corners::before,
-.ornate-corners::after {
-  content: "";
-  position: absolute;
-  inset: 10px;
-  pointer-events: none;
-  background-repeat: no-repeat;
-}
-
-.ornate-corners::before {
-  background-image:
-    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
-    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
-    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
-    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5));
-  background-size: 16px 1px, 1px 16px, 16px 1px, 1px 16px;
-  background-position: top left, top left, top right, top right;
-}
-
-.ornate-corners::after {
-  background-image:
-    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
-    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
-    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5)),
-    linear-gradient(rgba(177, 139, 73, 0.5), rgba(177, 139, 73, 0.5));
-  background-size: 16px 1px, 1px 16px, 16px 1px, 1px 16px;
-  background-position: bottom left, bottom left, bottom right, bottom right;
-}
-
-/* Parchment mottling for manuscript-styled pages - pure CSS, no image */
-.parchment-texture {
-  background-color: var(--color-cream);
-  background-image:
-    radial-gradient(ellipse at 20% 10%, rgba(177, 139, 73, 0.07), transparent 50%),
-    radial-gradient(ellipse at 80% 30%, rgba(177, 139, 73, 0.05), transparent 45%),
-    radial-gradient(ellipse at 40% 70%, rgba(143, 110, 56, 0.06), transparent 50%),
-    radial-gradient(ellipse at 90% 90%, rgba(177, 139, 73, 0.07), transparent 40%);
-}
-
-/* Woodcut scans sit into cream backgrounds instead of floating as white plates */
-.woodcut-blend {
-  mix-blend-mode: multiply;
-  filter: sepia(0.12) contrast(1.03);
-}
-
-/* Radial halo glow, used behind sacred imagery */
+/* Radial gilt halo, behind the hero's image. */
 .bg-halo {
   background: radial-gradient(
     closest-side,
-    rgba(201, 169, 107, 0.45),
-    rgba(201, 169, 107, 0.15) 55%,
+    rgba(217, 184, 74, 0.35),
+    rgba(217, 184, 74, 0.1) 55%,
     transparent 100%
   );
 }
@@ -630,62 +709,609 @@
   width: 0.625rem;
   height: 0.625rem;
   border-radius: 9999px;
-  border: 1px solid rgba(201, 169, 107, 0.6);
-  background: transparent;
+  border: 1px solid var(--color-night-line);
+  background: var(--color-night);
   transition: all 0.3s ease;
 }
 
 .bead-today {
   width: 0.875rem;
   height: 0.875rem;
-  background: var(--color-gold);
-  border-color: var(--color-gold-light);
-  box-shadow: 0 0 12px rgba(201, 169, 107, 0.8);
+  background: var(--color-gilt);
+  border-color: var(--color-gilt-light);
+  box-shadow: var(--shadow-gilt);
 }
 
-/* Phone frame for app mockups - pure CSS device chrome */
-.phone-frame {
-  position: relative;
-  width: 18rem;
-  border-radius: 2.75rem;
-  padding: 0.625rem;
-  background: linear-gradient(160deg, #1c2b3a, #0a1622);
-  box-shadow:
-    0 24px 60px rgba(0, 26, 42, 0.45),
-    0 0 0 1px rgba(201, 169, 107, 0.35),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-.phone-screen {
-  border-radius: 2.15rem;
-  overflow: hidden;
-  aspect-ratio: 9 / 19;
-  display: flex;
-  flex-direction: column;
-}
-
-.phone-notch {
+/* Skip link: off screen until focused, then a gilt plate at the top left. */
+.skip-link {
   position: absolute;
-  top: 1.1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6.5rem;
-  height: 1.35rem;
+  left: max(0.75rem, env(safe-area-inset-left));
+  top: 0.75rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
   border-radius: 9999px;
-  background: #0a1622;
-  z-index: 10;
+  background: var(--color-gilt);
+  color: var(--color-night);
+  font-family: var(--font-garamond);
+  font-size: 1rem;
+  font-weight: 600;
+  transform: translateY(-200%);
 }
 
-/* Layout structure - Clear Creek inspired boxed layout */
-.container-boxed {
-  max-width: 1365px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-inline: clamp(1rem, 3vw, 2rem);
+.skip-link:focus {
+  transform: translateY(0);
+  outline-color: var(--color-ink-light);
 }
 
-.content-main {
-  width: min(72ch, 100%);
-  padding-inline: clamp(1rem, 3vw, 2rem);
-  margin-inline: auto;
+/* A row that scrolls sideways on a phone (the Scripture page's tabs). */
+.tab-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(217, 184, 74, 0.5) transparent;
+  scroll-padding-inline: 1rem;
 }
+}
+
+/* === home page === */
+#home-page .home-card:focus-visible {
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #home-page .animate-rise,
+  #home-page .animate-halo {
+    animation: none;
+  }
+
+  #home-page .home-card,
+  #home-page .home-card img,
+  #home-page .home-row,
+  #home-page .home-row * {
+    transition: none;
+  }
+
+  #home-page .home-card:hover,
+  #home-page .home-card:hover img {
+    transform: none;
+  }
+}
+/* === end home page === */
+
+/* === category page === */
+/* /mysteries/:category: section labels, the choice pills, filter chips,
+   cards whose title link covers the whole card, and quiet buttons. */
+.category-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-garamond);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-sky);
+}
+
+.category-section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--color-night-border), transparent);
+}
+
+.category-choices {
+  background: var(--color-night-raised);
+  border: 1px solid var(--color-night-border);
+  border-radius: 1rem;
+  padding: 1.25rem 1rem 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .category-choices {
+    padding: 1.5rem 1.5rem 0.75rem;
+  }
+}
+
+.category-choices fieldset:last-of-type {
+  border-bottom: 0;
+}
+
+.category-choice-note {
+  font-family: var(--font-garamond);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--color-ink-muted);
+}
+
+.category-pill {
+  display: flex;
+  padding: 3px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-night-line);
+  background: var(--color-night);
+}
+
+.category-pill-option {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  font-family: var(--font-garamond);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--color-ink-muted);
+  transition:
+    background-color 0.2s ease-out,
+    color 0.2s ease-out;
+}
+
+.category-pill-option:hover {
+  color: var(--color-ink-light);
+}
+
+.category-pill-option:has(:checked) {
+  background: var(--color-gilt);
+  color: var(--color-night);
+  font-weight: 600;
+}
+
+.category-pill-option:has(:focus-visible) {
+  outline: 2px solid var(--color-gilt);
+  outline-offset: 2px;
+}
+
+.category-card {
+  background: var(--color-night-raised);
+  border: 1px solid var(--color-night-border);
+  border-radius: 1rem;
+  transition:
+    border-color 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+
+.category-card:has(.category-stretched-link):hover {
+  border-color: var(--color-night-line);
+  transform: translateY(-2px);
+}
+
+.category-card:has(.category-stretched-link:focus-visible) {
+  outline: 2px solid var(--color-gilt);
+  outline-offset: 3px;
+}
+
+.category-stretched-link {
+  outline: none;
+}
+
+.category-stretched-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.category-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease-out;
+}
+
+.category-card:hover .category-arrow {
+  transform: translateX(3px);
+}
+
+.category-glyph {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-night-border);
+  color: var(--color-gilt);
+  background: var(--color-night);
+}
+
+.category-chip {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-night-line);
+  background: transparent;
+  font-family: var(--font-garamond);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-ink-light);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease-out,
+    color 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.category-chip:hover {
+  border-color: var(--color-gilt);
+}
+
+.category-chip[aria-pressed="true"] {
+  background: var(--color-gilt);
+  border-color: var(--color-gilt);
+  color: var(--color-night);
+  font-weight: 600;
+}
+
+.category-quiet-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-gilt);
+  background: transparent;
+  font-family: var(--font-garamond);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-ink-light);
+  cursor: pointer;
+  transition: background-color 0.2s ease-out;
+}
+
+.category-quiet-btn:hover {
+  background: rgba(217, 184, 74, 0.12);
+}
+
+.category-text-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.25rem;
+  font-family: var(--font-garamond);
+  font-size: 1rem;
+  color: var(--color-sky);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.category-chip:focus-visible,
+.category-quiet-btn:focus-visible,
+.category-text-btn:focus-visible {
+  outline: 2px solid var(--color-gilt);
+  outline-offset: 2px;
+}
+
+.category-rise {
+  animation: var(--animate-rise);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-page *,
+  .category-page *::before,
+  .category-page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .category-card:has(.category-stretched-link):hover {
+    transform: none;
+  }
+}
+/* === end category page === */
+
+/* === scripture page === */
+/* /mysteries: the Douay-Rheims passages, each on a vellum page
+   (.reading-vellum). The rubrics are vellum-gold (5.6:1). */
+.scripture-reference {
+  font-family: var(--font-garamond);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-vellum-gold);
+}
+
+.scripture-verse-number {
+  font-family: var(--font-garamond);
+  font-size: 0.75rem;
+  font-weight: 600;
+  vertical-align: super;
+  line-height: 0;
+  color: var(--color-vellum-gold);
+}
+/* === end scripture page === */
+
+/* === prayer page === */
+/* The words of the Rosary on the night prayer page. Their size follows the
+   reader's choice, the --prayer-text-scale the PrayerSurface hook sets on
+   <html>. */
+.prayer-text {
+  font-size: calc(1.1875rem * var(--prayer-text-scale, 1));
+  line-height: 1.7;
+}
+
+.prayer-text-quiet {
+  font-size: calc(1.0625rem * var(--prayer-text-scale, 1));
+  line-height: 1.65;
+}
+
+.prayer-verse .prayer-text {
+  font-size: calc(1.3125rem * var(--prayer-text-scale, 1));
+  line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+  .prayer-text {
+    font-size: calc(1.3125rem * var(--prayer-text-scale, 1));
+  }
+
+  .prayer-text-quiet {
+    font-size: calc(1.125rem * var(--prayer-text-scale, 1));
+  }
+
+  .prayer-verse .prayer-text {
+    font-size: calc(1.5rem * var(--prayer-text-scale, 1));
+  }
+}
+
+.prayer-surface {
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: clip;
+}
+
+/* The meditation's reading page. Vellum by default; the reader may keep
+   it on night ("Reading page" in the settings pane), which the
+   PrayerSurface hook records as data-reading-page on <html>. Its colours
+   live here, not in utilities, so the switch is one attribute. */
+.reading-page {
+  --focus-ring: var(--color-vellum-ink);
+  background: var(--color-vellum);
+  color: var(--color-vellum-ink);
+  border: 1px solid var(--color-vellum-border);
+  border-radius: 1rem;
+  padding: 1.5rem 1.25rem;
+  box-shadow: var(--shadow-night);
+}
+
+@media (min-width: 640px) {
+  .reading-page {
+    padding: 2.25rem 2.5rem;
+  }
+}
+
+.reading-page__title {
+  color: var(--color-vellum-ink);
+}
+
+.reading-page__meta {
+  color: var(--color-vellum-muted);
+  border-color: var(--color-vellum-border);
+}
+
+html[data-reading-page="night"] .reading-page {
+  --focus-ring: var(--color-gilt);
+  background: transparent;
+  color: var(--color-ink-light);
+  border-color: transparent;
+  padding-inline: 0;
+  box-shadow: none;
+}
+
+html[data-reading-page="night"] .reading-page__title {
+  color: var(--color-gilt);
+}
+
+html[data-reading-page="night"] .reading-page__meta {
+  color: var(--color-ink-muted);
+  border-color: var(--color-night-border);
+}
+
+/* The current mystery's plate, which the reader can turn off ("Images"
+   in the settings pane). */
+html[data-prayer-images="off"] .prayer-plate {
+  display: none;
+}
+
+/* The settings pane's client-side choices (reading page, images) show
+   their state through aria-pressed, which the DisplayChoice hook keeps. */
+.prayer-choice {
+  border-color: var(--color-night-line);
+}
+
+.prayer-choice:hover {
+  border-color: var(--color-gilt);
+}
+
+.prayer-choice[aria-pressed="true"] {
+  border-color: var(--color-gilt);
+  background: rgba(217, 184, 74, 0.14);
+}
+
+/* The shell pads the sides clear of the notch; with no site header above
+   it, the page clears the status bar itself. */
+.prayer-safe-area {
+  padding-inline: 1rem;
+  padding-top: env(safe-area-inset-top);
+}
+
+@media (min-width: 640px) {
+  .prayer-safe-area {
+    padding-inline: 1.5rem;
+  }
+}
+
+.prayer-bottom-nav {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+@keyframes prayer-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prayer-surface *,
+  .prayer-surface *::before,
+  .prayer-surface *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* === end prayer page === */
+
+/* === woodcut plates === */
+/* LumenViaeWeb.Components.WoodcutPlate. A plate is a scan mounted like a
+   print in a book: a vellum mat, a fine rule and a ruled inner line. On
+   night (the default) the scan keeps its own paper on the mat, never
+   blended into the dark and never inverted; on a vellum page its paper
+   multiplies into the vellum. Captions sit outside the mat, on the page. */
+@layer components {
+  .woodcut-plate {
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .woodcut-plate--sm { max-width: 11rem; }
+  .woodcut-plate--md { max-width: 20rem; }
+  .woodcut-plate--lg { max-width: 28rem; }
+
+  @media (min-width: 768px) {
+    .woodcut-plate--sm { max-width: 14rem; }
+  }
+
+  .woodcut-plate__mount {
+    position: relative;
+    padding: 0.625rem;
+    background: var(--color-vellum);
+    border: 1px solid var(--color-vellum-border);
+    border-radius: 0.25rem;
+    box-shadow: var(--shadow-night);
+  }
+
+  .woodcut-plate__mount::after {
+    content: "";
+    position: absolute;
+    inset: 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--color-vellum-gold) 30%, transparent);
+    pointer-events: none;
+  }
+
+  .woodcut-plate--lg .woodcut-plate__mount { padding: 0.875rem; }
+  .woodcut-plate--lg .woodcut-plate__mount::after { inset: 0.45rem; }
+
+  .woodcut-plate__image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .woodcut-plate__caption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    margin-top: 0.75rem;
+    text-align: center;
+    font-family: var(--font-garamond);
+    color: var(--color-ink-light);
+    line-height: 1.35;
+  }
+
+  .woodcut-plate__title {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-gilt);
+  }
+
+  .woodcut-plate__credit {
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  .woodcut-plate__series {
+    font-size: 0.9375rem;
+    color: var(--color-ink-muted);
+  }
+
+  .woodcut-plate__source {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-family: var(--font-garamond);
+    font-size: 0.875rem;
+    color: var(--color-sky);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .woodcut-plate--sm .woodcut-plate__credit { font-size: 0.9375rem; }
+  .woodcut-plate--sm .woodcut-plate__series { font-size: 0.875rem; }
+
+  /* On a vellum page: no shadow, the scan's paper multiplied into the
+     mat, and the caption in vellum ink. */
+  .woodcut-plate--vellum .woodcut-plate__mount { box-shadow: none; }
+  .woodcut-plate--vellum .woodcut-plate__image { mix-blend-mode: multiply; }
+  .woodcut-plate--vellum .woodcut-plate__caption { color: var(--color-vellum-ink); }
+  .woodcut-plate--vellum .woodcut-plate__title { color: var(--color-vellum-ink); }
+  .woodcut-plate--vellum .woodcut-plate__series { color: var(--color-vellum-muted); }
+  .woodcut-plate--vellum .woodcut-plate__source { color: var(--color-vellum-gold); }
+}
+/* === end woodcut plates === */
+
+/* === the app page's phones === */
+/* LumenViaeWeb.Live.Home.App.PhoneScreen: a real screenshot in a phone
+   drawn here, not a device photograph. The radii are percentages of the
+   frame's own width and height (horizontal / vertical), so the corners
+   keep their shape at any width. */
+@layer components {
+  .phone-frame {
+    position: relative;
+    padding: 3.2%;
+    border-radius: 15% / 7%;
+    background: linear-gradient(
+      160deg,
+      var(--color-night-border) 0%,
+      var(--color-night-deep) 45%,
+      var(--color-night-raised) 100%
+    );
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-night-line) 45%, transparent),
+      0 30px 60px -20px rgba(3, 7, 18, 0.8),
+      0 18px 40px -24px color-mix(in srgb, var(--color-gilt) 25%, transparent);
+  }
+
+  .phone-frame__screen {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12.5% / 5.8%;
+    background: var(--color-night-deep);
+  }
+
+  /* The download link, set in two lines like Apple's badge. */
+  .app-store-button {
+    min-width: 12rem;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+  }
+}
+/* === end the app page's phones === */

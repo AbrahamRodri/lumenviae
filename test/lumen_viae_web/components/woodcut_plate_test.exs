@@ -1,0 +1,147 @@
+defmodule LumenViaeWeb.Components.WoodcutPlateTest do
+  use ExUnit.Case, async: true
+
+  import Phoenix.Component, only: [sigil_H: 2]
+  import Phoenix.LiveViewTest, only: [rendered_to_string: 1]
+
+  alias LumenViaeWeb.Components.WoodcutPlate
+  alias LumenViaeWeb.Components.WoodcutPlate.Manifest
+
+  @fixture_dir Path.expand("../../support/fixtures/woodcuts", __DIR__)
+  @real_dir Path.expand("../../../priv/static/images/woodcuts", __DIR__)
+
+  defp fixture_plates, do: Manifest.load(@fixture_dir, "/images/woodcuts")
+
+  defp render_figure(plate, opts \\ []) do
+    assigns = Map.merge(%{plate: plate, caption: true, variant: :night, size: :md}, Map.new(opts))
+
+    rendered_to_string(~H"""
+    <WoodcutPlate.plate_figure plate={@plate} caption={@caption} variant={@variant} size={@size} />
+    """)
+  end
+
+  describe "Manifest.index/3" do
+    test "indexes plates by mystery key with their URL and dimensions" do
+      plates = fixture_plates()
+
+      assert %{src: "/images/woodcuts/annunciation-durer.jpg", width: 800, height: 1121} =
+               plates["joyful_1"]
+
+      assert plates["joyful_1"].sources == []
+    end
+
+    test "offers the WebP variants the manifest lists, narrowest first" do
+      assert fixture_plates()["luminous_1"].sources == [
+               %{
+                 type: "image/webp",
+                 srcset:
+                   "/images/woodcuts/baptism-dore-640.webp 640w, /images/woodcuts/baptism-dore-1200.webp 1200w"
+               }
+             ]
+    end
+
+    test "drops a WebP variant whose file is missing, and the picture with the last one" do
+      plate = %{
+        "file" => "a.jpg",
+        "key" => "joyful_2",
+        "width" => 1600,
+        "webp" => %{"640" => "a-640.webp", "1200" => "a-1200.webp"}
+      }
+
+      manifest = %{"plates" => [plate]}
+
+      assert %{"joyful_2" => %{sources: [%{srcset: "/x/a-640.webp 640w"}]}} =
+               Manifest.index(manifest, ["a.jpg", "a-640.webp"], "/x")
+
+      assert %{"joyful_2" => %{sources: []}} = Manifest.index(manifest, ["a.jpg"], "/x")
+    end
+
+    test "drops a plate whose image is missing" do
+      manifest = %{"plates" => [%{"file" => "missing.jpg", "key" => "joyful_2"}]}
+      assert Manifest.index(manifest, ["other.jpg"], "/x") == %{}
+    end
+  end
+
+  describe "plate_figure/1" do
+    test "renders the plate with its alt, size, lazy loading and caption" do
+      html = render_figure(fixture_plates()["joyful_1"])
+
+      assert html =~ ~s(<figure class="woodcut-plate woodcut-plate--md woodcut-plate--night")
+      assert html =~ ~s(src="/images/woodcuts/annunciation-durer.jpg")
+      assert html =~ ~s(alt="The angel Gabriel greets the Virgin Mary)
+      assert html =~ ~s(width="800")
+      assert html =~ ~s(height="1121")
+      assert html =~ ~s(loading="lazy")
+      assert html =~ ~s(decoding="async")
+      refute html =~ "<picture"
+
+      assert html =~ "<figcaption"
+      assert html =~ "The Annunciation"
+      assert html =~ "Albrecht Durer"
+      assert html =~ "c. 1503"
+      assert html =~ "Life of the Virgin"
+      assert html =~ ~s(href="https://commons.wikimedia.org/wiki/File:Durer_annunciation.jpg")
+    end
+
+    test "wraps the image in a picture when the plate has WebP variants" do
+      html = render_figure(fixture_plates()["luminous_1"], size: :lg)
+
+      assert html =~ "<picture>"
+      assert html =~ ~s(type="image/webp")
+      assert html =~ "baptism-dore-640.webp 640w, /images/woodcuts/baptism-dore-1200.webp 1200w"
+      refute html =~ "image/avif"
+      assert html =~ ~s|sizes="(min-width: 1024px) 28rem, 90vw"|
+      assert html =~ ~s(src="/images/woodcuts/baptism-dore.jpg")
+    end
+
+    test "caption={false} leaves out the figcaption" do
+      html = render_figure(fixture_plates()["joyful_1"], caption: false)
+
+      assert html =~ "<img"
+      refute html =~ "<figcaption"
+      refute html =~ "commons.wikimedia.org"
+    end
+
+    test "the vellum variant mounts the plate without inverting it" do
+      html = render_figure(fixture_plates()["joyful_1"], variant: :vellum)
+
+      assert html =~ "woodcut-plate--vellum"
+      refute html =~ "invert"
+    end
+  end
+
+  describe "woodcut_plate/1" do
+    test "renders nothing for a key with no plate" do
+      assigns = %{}
+
+      assert rendered_to_string(~H"""
+             <WoodcutPlate.woodcut_plate key="no_such_mystery" />
+             """) == ""
+
+      assert WoodcutPlate.plate("no_such_mystery") == nil
+    end
+
+    test "renders every plate in the manifest, and the manifest names only images on disk" do
+      path = Path.join(@real_dir, "manifest.json")
+      entries = if File.exists?(path), do: Jason.decode!(File.read!(path))["plates"], else: []
+
+      assert entries |> Enum.map(& &1["key"]) |> Enum.sort() == WoodcutPlate.keys()
+
+      for entry <- entries do
+        assert File.exists?(Path.join(@real_dir, entry["file"])), "missing #{entry["file"]}"
+        assert is_integer(entry["width"]) and is_integer(entry["height"])
+        assert entry["alt"] not in [nil, ""]
+
+        assigns = %{key: entry["key"]}
+
+        html =
+          rendered_to_string(~H"""
+          <WoodcutPlate.woodcut_plate key={@key} variant={:vellum} />
+          """)
+
+        assert html =~ ~s(src="/images/woodcuts/#{entry["file"]}")
+        assert html =~ "woodcut-plate--vellum"
+      end
+    end
+  end
+end

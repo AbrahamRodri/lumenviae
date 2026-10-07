@@ -2,44 +2,41 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <%!-- The header's night, so the browser chrome on a phone runs into it. --%>
+    <meta name="theme-color" content="#070E1F" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="Lumen Viae">
+    <.live_title default="Lumen Viae" suffix=" | Lumen Viae">
       {assigns[:page_title] || "Meditations on the Holy Rosary"}
     </.live_title>
-    <% meta_description =
-      assigns[:meta_description] ||
-        "Pray the traditional fifteen mysteries of the Holy Rosary with meditations from the saints and doctors of the Church. Guided audio, scripture, and the methods of St. Louis de Montfort." %>
-    <meta name="description" content={meta_description} />
-    <link rel="canonical" href={"https://www.lumenviae.org#{@conn.request_path}"} />
-    <meta property="og:site_name" content="Lumen Viae" />
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:title"
-      content={assigns[:page_title] || "Lumen Viae - Meditations on the Holy Rosary"}
+    <%!-- Description, canonical link, link previews and structured data: what a
+          page put in LumenViaeWeb.PageMeta, or the site's defaults. --%>
+    <LumenViaeWeb.Components.MetaTags.meta_tags
+      meta={assigns[:meta]}
+      page_title={assigns[:page_title]}
+      description={assigns[:meta_description]}
+      request_path={@conn.request_path}
     />
-    <meta property="og:description" content={meta_description} />
-    <meta property="og:url" content={"https://www.lumenviae.org#{@conn.request_path}"} />
-    <meta
-      property="og:image"
-      content="https://www.lumenviae.org/images/pngs/our-lady-of-sorrows-horizontal.jpg"
-    />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content={assigns[:page_title] || "Lumen Viae - Meditations on the Holy Rosary"}
-    />
-    <meta name="twitter:description" content={meta_description} />
-    <meta
-      name="twitter:image"
-      content="https://www.lumenviae.org/images/pngs/our-lady-of-sorrows-horizontal.jpg"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <%!-- The two faces every page draws above the fold: the body and the
+          headings. The italic waits for its first use. See the fonts block
+          in app.css. --%>
     <link
-      href="https://fonts.googleapis.com/css2?family=Ovo&family=Work+Sans:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      href={~p"/fonts/eb-garamond-latin.woff2"}
+      as="font"
+      type="font/woff2"
+      crossorigin
     />
+    <link
+      rel="preload"
+      href={~p"/fonts/cormorant-garamond-latin.woff2"}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="icon" href={~p"/favicon.ico"} sizes="32x32" />
+    <link rel="icon" href={~p"/favicon.svg"} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={~p"/apple-touch-icon.png"} />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
@@ -47,7 +44,8 @@
           nothing, everywhere else. See docs/DEV_TOOLS.md. --%>
     {Application.get_env(:live_debugger, :live_debugger_tags)}
   </head>
-  <body class="bg-parchment">
+  <body class="site bg-night text-ink-light">
+    <a href="#main-content" class="skip-link">Skip to content</a>
     <%!-- Lancet-arch clip path for <.arch_frame>, in objectBoundingBox units so
           it scales with any element. Straight sides sweep into a pointed apex,
           mirroring the app's GothicArchShape. --%>
@@ -58,9 +56,16 @@
         </clipPath>
       </defs>
     </svg>
-    <LumenViaeWeb.Components.Nav.header is_admin={assigns[:is_admin] || false} />
+    <LumenViaeWeb.Components.Nav.header
+      is_admin={assigns[:is_admin] || false}
+      current_path={@conn.request_path}
+    />
 
-    {@inner_content}
+    <%!-- The page's one <main>. A page template must not render another;
+          tabindex lets the skip link move focus here in every browser. --%>
+    <main id="main-content" tabindex="-1" class="site-main">
+      {@inner_content}
+    </main>
 
     <LumenViaeWeb.Components.Footer.footer />
   </body>

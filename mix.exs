@@ -129,7 +129,11 @@ defmodule LumenViae.MixProject do
       {:nimble_csv, "~> 1.3"},
       {:ex_aws, "~> 2.7"},
       {:ex_aws_s3, "~> 2.5"},
-      {:sweet_xml, "~> 0.7"}
+      {:sweet_xml, "~> 0.7"},
+      # libvips bindings, for the artwork display variants. Ships a
+      # precompiled libvips, so the Dockerfile installs nothing for it.
+      # See LumenViae.Images.Variants.
+      {:vix, "~> 0.41.0"}
     ]
   end
 

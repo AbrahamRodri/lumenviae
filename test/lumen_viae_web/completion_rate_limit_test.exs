@@ -94,10 +94,9 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
     end
   end
 
-  # The set has one meditation, so its last mystery, where the Complete
-  # button is offered, is the first.
+  # The Complete button is offered on the closing prayers.
   defp press_complete(conn, set) do
-    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=0")
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=closing")
 
     view |> element("button[phx-click=complete]") |> render_click()
   end
@@ -156,10 +155,10 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
                body["errors"]
     end
 
-    test "the prayer page still sends the reader back to the category", %{conn: conn, set: set} do
+    test "the prayer page still shows the Rosary offered", %{conn: conn, set: set} do
       for _ <- 1..@limit, do: assert(complete(:rest, conn, set) == :recorded)
 
-      assert {:error, {:live_redirect, %{to: "/mysteries/joyful"}}} = press_complete(conn, set)
+      assert press_complete(conn, set) =~ "The Rosary is offered"
     end
   end
 

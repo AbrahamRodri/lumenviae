@@ -7,10 +7,15 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 
-# AWS S3 Configuration for all environments
+# AWS S3 Configuration for all environments. Tests never see real keys,
+# even when .env has been loaded into the shell (./dev.sh mix test): a
+# test that reached S3 with them would write to the production bucket.
+# Tests that need credentials put fake ones in place themselves.
+aws_env = fn name -> if config_env() == :test, do: nil, else: System.get_env(name) end
+
 config :ex_aws,
-  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+  access_key_id: aws_env.("AWS_ACCESS_KEY_ID"),
+  secret_access_key: aws_env.("AWS_SECRET_ACCESS_KEY"),
   region: System.get_env("AWS_REGION") || "us-east-2",
   json_codec: Jason
 

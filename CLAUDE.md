@@ -104,6 +104,28 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
   change as any code that widens what is collected
+- The public website is only the Rosary: home (today's mysteries and
+  today's sets), `/mysteries` (the mysteries in Scripture), each category
+  page with "Your Rosary Today" (audio, counting and voice choices), the
+  prayer page (the whole Rosary bead by bead, in meditation, scriptural or
+  holy form, counted on the screen or on your own rosary, English or Latin
+  prayers, optional closing prayers, streak milestones), the set-less
+  `/mysteries/:category/pray` (records no completion), the iPhone app's
+  page at `/app` (real app screenshots; see "The app page" in
+  docs/PUBLIC_SITE.md), and the privacy policy. Read docs/PUBLIC_SITE.md
+  before touching a public page
+- Retired pages (dashboard, How to Pray, True Devotion, St. Carlo,
+  Feedback) live in `archive/`, outside the build, and their addresses
+  301 to `/` through `RedirectController`. Do not maintain or link them;
+  `archive/README.md` says how to bring one back
+- Public-domain woodcuts for every mystery
+  (`priv/static/images/woodcuts/manifest.json`, `<.woodcut_plate>`; see
+  docs/WOODCUTS.md), WebP variants of static images (docs/IMAGES.md) and of
+  uploaded artwork (`image_variant_widths`), and per-page titles, previews
+  and structured data (`LumenViaeWeb.PageMeta`, docs/PAGE_META.md)
+- An end-to-end smoke test in `scripts/e2e/` (Playwright, phone and
+  desktop widths); run it against a dev server before merging public-site
+  work
 - Admin interface for managing meditations and sets
 - JSON API consumed by the iOS app. Its shape is a contract with every
   installed build: see docs/IOS_API_CONTRACT.md before changing any
@@ -131,6 +153,9 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - `meditation_set_meditations` - Join table with ordering
 - `meditation_narrations` - One row per (meditation, voice) recording and
   its S3 key; `meditations.audio_url` is the recording's filename
+- `image_variant_widths` on `authors`, `category_cards`, `meditation_sets`
+  and `mysteries` - the WebP widths stored beside an uploaded image; pages
+  offer only those, so an image without variants shows its original
 - `rosary_completions` - Completion analytics, including approximate
   location, surface (web, iOS or Android) and a truncated IP prefix. The full
   address is never stored
@@ -178,18 +203,32 @@ do what" in docs/ARCHITECTURE.md before adding an action or a policy.
 
 ### Styling
 - Tailwind CSS v4 with a custom theme in `assets/css/app.css`
-- The public site follows the iOS app's design language on light
-  backgrounds: Cinzel (headings, tracked-caps labels, buttons) and
-  EB Garamond (all body and quotation text) are the only two public
-  families. Ovo and Work Sans remain on admin surfaces only.
-- Colors: Navy (#003b5c), Gold (#b18b49), Parchment (#fdfaf4),
-  Cream (#faf2e6), Brown (#4a3f33). Navy backgrounds are for the page
-  hero and at most one accent band per page; everything else stays light.
-- Shared vocabulary: `<.gold_cta>`, `<.sacred_divider>`, `<.arch_frame>`,
-  `.hairline-card`, `.drop-cap` - see the design tokens section in
-  docs/ARCHITECTURE.md.
-- Use the Tailwind tokens (`text-navy`, `bg-cream`, `font-cinzel`), never
-  raw hex values. See the design tokens table in docs/ARCHITECTURE.md.
+- The public site is "Midnight Marian", the iOS app's Marian Blue theme:
+  every page is night (`bg-night`, cards `night-raised`), text `ink-light`
+  and `ink-muted`, one accent `gilt` (filled buttons are gilt with night
+  text), and `sky` for kickers and links.
+- Vellum is for long-form reading only: the meditation on the prayer page
+  (the reader can switch it to night in the settings pane), the Scripture
+  passages on /mysteries and the privacy policy body. On vellum use only
+  `vellum-ink`, `vellum-muted` and `vellum-gold`; never gilt, sky or ink.
+- Fonts: Cormorant Garamond (`font-display`) for headings in sentence
+  case; EB Garamond (`font-garamond`) for everything else, with `.kicker`
+  for small tracked-caps labels. No public text below 12px, every control
+  at least 44px. Cinzel, Ovo and Work Sans are admin-only. The two public
+  fonts are self-hosted in `priv/static/fonts` in weights 500 and 600 only
+  (and EB Garamond italic 500); see the fonts block in `app.css`.
+- The logo is the Stella Maris, `<.logo />`, beside a "Lumen Viae"
+  wordmark; `priv/static/favicon.svg` and the PNG icons are the same
+  drawing.
+- `navy`, `gold`, `parchment`, `cream` and `brown` are the console's
+  colours now; never use them on a public page.
+- Shared vocabulary: `<.gold_cta>`, `.btn-outline-gold`, `<.sacred_divider>`,
+  `<.arch_frame>`, `.hairline-card`, `.reading-vellum`, `.kicker`, and
+  `WoodcutPlate` for the woodcuts (at most one per screen) - see the design
+  tokens section in docs/ARCHITECTURE.md.
+- Use the Tailwind tokens (`text-ink-light`, `bg-night-raised`,
+  `font-display`), never raw hex values. Every text pair clears 4.5:1;
+  the ratios are in the design tokens table in docs/ARCHITECTURE.md.
 
 ### Local Development
 Start the server with `./dev.sh`, not `mix phx.server` - it loads `.env`

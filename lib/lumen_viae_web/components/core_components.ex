@@ -2,11 +2,11 @@ defmodule LumenViaeWeb.CoreComponents do
   @moduledoc """
   Components shared by the whole application: the flash notice, icons, the
   show and hide JS helpers, error translation, and the public site's
-  ornaments (`sacred_divider/1`, `gold_cta/1`, `arch_frame/1`, the medallions).
+  vocabulary (`logo/1`, `sacred_divider/1`, `gold_cta/1`, `arch_frame/1`,
+  `medallion/1`).
 
-  The flash notice is styled in the admin console's vocabulary, because the
-  console is the only place that renders it. See `docs/ARCHITECTURE.md` for
-  the tokens.
+  The flash notice comes in the console's vocabulary and in the public
+  site's (`variant`). See `docs/ARCHITECTURE.md` for the tokens.
   """
   use Phoenix.Component
   use Gettext, backend: LumenViaeWeb.Gettext
@@ -16,18 +16,56 @@ defmodule LumenViaeWeb.CoreComponents do
   @doc """
   Renders flash notices.
 
+  Two looks, one per side of the app: `variant={:admin}` (the default) in the
+  console's tokens, `variant={:public}` in the site's night, gilt and
+  Garamond. Never cross them.
+
   ## Examples
 
       <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
+      <.flash kind={:error} flash={@flash} variant={:public} />
   """
   attr :id, :string, doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
   attr :kind, :atom, values: [:info, :error], doc: "used for styling and flash lookup"
+  attr :variant, :atom, default: :admin, values: [:admin, :public]
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
 
   slot :inner_block, doc: "the optional inner block that renders the flash message"
+
+  def flash(%{variant: :public} = assigns) do
+    assigns = assign_new(assigns, :id, fn -> "flash-#{assigns.kind}" end)
+
+    ~H"""
+    <div
+      :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
+      id={@id}
+      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
+      role="alert"
+      class="fixed z-50 inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:inset-x-auto sm:bottom-auto sm:top-28 sm:right-6 sm:w-96 cursor-pointer"
+      {@rest}
+    >
+      <div class={[
+        "flex items-start gap-3 rounded-xl border border-night-line border-l-4 bg-night-raised px-4 py-3 shadow-night font-garamond text-base text-ink-light",
+        @kind == :info && "border-l-sky",
+        @kind == :error && "border-l-gilt"
+      ]}>
+        <div class="min-w-0 flex-1">
+          <p :if={@title} class="font-display text-lg font-semibold text-ink-light">{@title}</p>
+          <p>{msg}</p>
+        </div>
+        <button
+          type="button"
+          class="shrink-0 -m-2 inline-flex size-11 items-center justify-center text-ink-muted hover:text-ink-light cursor-pointer"
+          aria-label={gettext("close")}
+        >
+          <.icon name="hero-x-mark-solid" class="size-4" />
+        </button>
+      </div>
+    </div>
+    """
+  end
 
   def flash(assigns) do
     assigns = assign_new(assigns, :id, fn -> "flash-#{assigns.kind}" end)
@@ -126,37 +164,9 @@ defmodule LumenViaeWeb.CoreComponents do
   end
 
   @doc """
-  Renders an ornate divider for visual separation.
-
-  ## Examples
-
-      <.ornate_divider />
-      <.ornate_divider variant="white" class="my-12" />
-  """
-  attr :class, :string, default: nil
-  attr :variant, :string, default: "black", values: ["black", "white"]
-  attr :rest, :global
-
-  def ornate_divider(assigns) do
-    ~H"""
-    <div class={["flex justify-center items-center my-8", @class]} {@rest}>
-      <img
-        src={
-          if @variant == "white",
-            do: "/images/pngs/white-ornate.png",
-            else: "/images/pngs/black-ornate.png"
-        }
-        alt=""
-        class="w-full max-w-2xl h-auto opacity-60"
-      />
-    </div>
-    """
-  end
-
-  @doc """
-  Renders the app's ornament divider: fading gold hairlines flanking two
-  rotated diamonds and a small Latin cross. The shared Catholic visual
-  vocabulary of the iOS app, translated to markup.
+  Renders the ornament divider: fading hairlines flanking two small gilt
+  diamonds and a Latin cross. Decorative, and hidden from assistive
+  technology.
 
   ## Examples
 
@@ -174,30 +184,30 @@ defmodule LumenViaeWeb.CoreComponents do
       aria-hidden="true"
       {@rest}
     >
-      <span class="h-px w-full max-w-40 bg-gradient-to-r from-transparent to-gold/60"></span>
-      <span class="w-1.5 h-1.5 rotate-45 bg-gold/80 shrink-0"></span>
-      <svg :if={@cross} viewBox="0 0 9 13" class="w-2.5 h-3.5 fill-gold/90 shrink-0">
+      <span class="h-px w-full max-w-40 bg-gradient-to-r from-transparent to-night-line"></span>
+      <span class="w-1.5 h-1.5 rotate-45 bg-gilt/70 shrink-0"></span>
+      <svg :if={@cross} viewBox="0 0 9 13" class="w-2.5 h-3.5 fill-gilt shrink-0">
         <path d="M3.24 0 H5.76 V2.64 H9 V5.16 H5.76 V13 H3.24 V5.16 H0 V2.64 H3.24 Z" />
       </svg>
-      <span class="w-1.5 h-1.5 rotate-45 bg-gold/80 shrink-0"></span>
-      <span class="h-px w-full max-w-40 bg-gradient-to-l from-transparent to-gold/60"></span>
+      <span class="w-1.5 h-1.5 rotate-45 bg-gilt/70 shrink-0"></span>
+      <span class="h-px w-full max-w-40 bg-gradient-to-l from-transparent to-night-line"></span>
     </div>
     """
   end
 
   @doc """
-  The app's primary call to action: a gold capsule in engraved caps, led by
-  the hand-drawn Latin cross. Renders a link when `navigate`/`href` is given,
-  a button otherwise. One filled gold shape per screen region.
+  The primary call to action: a gilt capsule (`.btn-gold`). Renders a link
+  when `navigate`/`href` is given, a button otherwise. One filled gilt shape
+  per screen region. `cross` leads it with a small Latin cross.
 
   ## Examples
 
-      <.gold_cta navigate="/mysteries/joyful">Begin Praying</.gold_cta>
-      <.gold_cta href={@app_store_url} cross={false}>Download the App</.gold_cta>
+      <.gold_cta navigate="/mysteries/joyful">Begin praying</.gold_cta>
+      <.gold_cta href={@app_store_url}>Download the app</.gold_cta>
   """
   attr :navigate, :string, default: nil
   attr :href, :string, default: nil
-  attr :cross, :boolean, default: true
+  attr :cross, :boolean, default: false
   attr :class, :string, default: nil
   attr :rest, :global, include: ~w(target rel type disabled aria-label)
   slot :inner_block, required: true
@@ -228,7 +238,7 @@ defmodule LumenViaeWeb.CoreComponents do
   end
 
   @doc """
-  Frames sacred artwork in a gothic lancet arch with a double gold hairline,
+  Frames sacred artwork in a gothic lancet arch with a double gilt hairline,
   the app's signature image treatment. Reserve it for devotional paintings
   and portraits; photographs and screenshots stay rectangular.
 
@@ -243,6 +253,8 @@ defmodule LumenViaeWeb.CoreComponents do
   attr :alt, :string, required: true
   attr :class, :string, default: nil
   attr :img_class, :string, default: nil
+  attr :srcset, :string, default: nil, doc: "Lighter copies of `src` (WebP, say), as a srcset"
+  attr :sizes, :string, default: nil, doc: "The width the frame is drawn at, for `srcset`"
   attr :rest, :global
 
   def arch_frame(assigns) do
@@ -250,6 +262,8 @@ defmodule LumenViaeWeb.CoreComponents do
     <div class={["relative aspect-[10/13]", @class]} {@rest}>
       <img
         src={@src}
+        srcset={@srcset}
+        sizes={@sizes}
         alt={@alt}
         class={["absolute inset-0 w-full h-full object-cover", @img_class]}
         style="clip-path: url(#lancet-arch)"
@@ -263,7 +277,7 @@ defmodule LumenViaeWeb.CoreComponents do
         <path
           d="M 0.5 129.5 L 0.5 36.4 Q 3.5 13.8 50 0.7 Q 96.5 13.8 99.5 36.4 L 99.5 129.5"
           fill="none"
-          stroke="var(--color-gold)"
+          stroke="var(--color-gilt)"
           stroke-opacity="0.55"
           stroke-width="1"
           vector-effect="non-scaling-stroke"
@@ -271,7 +285,7 @@ defmodule LumenViaeWeb.CoreComponents do
         <path
           d="M 3.5 129.5 L 3.5 38 Q 6.3 17.2 50 4.8 Q 93.7 17.2 96.5 38 L 96.5 129.5"
           fill="none"
-          stroke="var(--color-gold)"
+          stroke="var(--color-gilt)"
           stroke-opacity="0.25"
           stroke-width="0.5"
           vector-effect="non-scaling-stroke"
@@ -292,7 +306,7 @@ defmodule LumenViaeWeb.CoreComponents do
   """
   attr :type, :string,
     required: true,
-    values: ["holy_family", "crucifix", "pax", "deo_gratias", "saint_benedict"]
+    values: ["holy_family", "crucifix", "pax", "deo_gratias"]
 
   attr :size, :string, default: "medium", values: ["small", "medium", "large"]
   attr :class, :string, default: nil
@@ -301,63 +315,108 @@ defmodule LumenViaeWeb.CoreComponents do
   def medallion(assigns) do
     assigns =
       assigns
-      |> assign(:image_path, medallion_image_path(assigns.type))
+      |> assign(:image, medallion_image(assigns.type))
       |> assign(:size_class, medallion_size_class(assigns.size))
+      |> assign(:sizes, medallion_sizes(assigns.type, assigns.size))
 
     ~H"""
     <div class={["flex justify-center items-center", @class]} {@rest}>
-      <img src={@image_path} alt="" class={["h-auto", @size_class]} />
+      <.medallion_img image={@image} sizes={@sizes} class={["h-auto", @size_class]} />
     </div>
     """
   end
 
-  defp medallion_image_path("holy_family"), do: "/images/pngs/holy-family.png"
-  defp medallion_image_path("crucifix"), do: "/images/pngs/crucifix.png"
-  defp medallion_image_path("pax"), do: "/images/pngs/olive-branch-pax.png"
-  defp medallion_image_path("deo_gratias"), do: "/images/pngs/deo-gratias.png"
-  defp medallion_image_path("saint_benedict"), do: "/images/pngs/saint-benedict-symbol.png"
+  # Each medallion's file and pixel size, so the browser can reserve its space
+  # before it loads. Only the crucifix has lighter WebP copies; see
+  # docs/IMAGES.md.
+  defp medallion_image("holy_family"),
+    do: %{src: "/images/pngs/holy-family.png", width: 474, height: 287}
+
+  defp medallion_image("crucifix"),
+    do: %{
+      src: "/images/pngs/crucifix.png",
+      width: 322,
+      height: 321,
+      srcset: "/images/pngs/crucifix-160.webp 160w, /images/pngs/crucifix-256.webp 256w"
+    }
+
+  defp medallion_image("pax"),
+    do: %{src: "/images/pngs/olive-branch-pax.png", width: 591, height: 422}
+
+  defp medallion_image("deo_gratias"),
+    do: %{src: "/images/pngs/deo-gratias.png", width: 474, height: 266}
+
+  # What `medallion_size_class/1` draws, for the srcset's `sizes`.
+  defp medallion_sizes("crucifix", "small"), do: "(min-width: 768px) 48px, 40px"
+  defp medallion_sizes("crucifix", "medium"), do: "(min-width: 768px) 128px, 112px"
+  defp medallion_sizes("crucifix", "large"), do: "(min-width: 768px) 256px, 192px"
+  defp medallion_sizes(_type, _size), do: nil
+
+  attr :image, :map, required: true
+  attr :sizes, :string, default: nil
+  attr :class, :any, default: nil
+
+  defp medallion_img(assigns) do
+    ~H"""
+    <img
+      src={@image.src}
+      srcset={@image[:srcset]}
+      sizes={@sizes}
+      width={@image.width}
+      height={@image.height}
+      alt=""
+      class={@class}
+    />
+    """
+  end
 
   defp medallion_size_class("small"), do: "w-10 md:w-12"
   defp medallion_size_class("medium"), do: "w-28 md:w-32"
   defp medallion_size_class("large"), do: "w-48 md:w-64"
 
   @doc """
-  Renders a religious medallion with a light circular background.
-  Use this for dark medallion images that need contrast on dark backgrounds.
+  The Stella Maris mark: an eight-point Marian star in a thin circle, its
+  lower ray drawn out into a path, the light of the way. One colour,
+  `currentColor`, gilt unless the caller says otherwise. Decorative unless
+  given a `title`.
+
+  The same drawing is `priv/static/favicon.svg` and the PNG icons beside
+  it; change them together.
 
   ## Examples
 
-      <.medallion_bg type="holy_family" />
-      <.medallion_bg type="pax" size="large" />
-      <.medallion_bg type="saint_benedict" size="small" />
+      <.logo />
+      <.logo size={:xl} class="text-gilt" />
+      <.logo size={:sm} title="Lumen Viae" />
   """
-  attr :type, :string,
-    required: true,
-    values: ["holy_family", "crucifix", "pax", "deo_gratias", "saint_benedict"]
-
-  attr :size, :string, default: "medium", values: ["small", "medium", "large"]
-  attr :class, :string, default: nil
+  attr :size, :atom, values: [:sm, :md, :lg, :xl], default: :md
+  attr :title, :string, default: nil
+  attr :class, :any, default: "text-gilt"
   attr :rest, :global
 
-  def medallion_bg(assigns) do
-    assigns =
-      assigns
-      |> assign(:image_path, medallion_image_path(assigns.type))
-      |> assign(:size_class, medallion_size_class(assigns.size))
-      |> assign(:padding_class, medallion_bg_padding(assigns.size))
-
+  def logo(assigns) do
     ~H"""
-    <div class={["flex justify-center items-center", @class]} {@rest}>
-      <div class={["bg-cream rounded-full", @padding_class]}>
-        <img src={@image_path} alt="" class={["h-auto", @size_class]} />
-      </div>
-    </div>
+    <svg
+      viewBox="0 0 64 64"
+      class={["shrink-0", logo_size(@size), @class]}
+      role={@title && "img"}
+      aria-hidden={if @title, do: nil, else: "true"}
+      {@rest}
+    >
+      <title :if={@title}>{@title}</title>
+      <circle cx="32" cy="26" r="21" fill="none" stroke="currentColor" stroke-width="1.5" />
+      <polygon
+        fill="currentColor"
+        points="32,8 33.3,22.86 38.72,19.28 35.14,24.7 50,26 35.14,27.3 38.72,32.72 33.3,29.14 32,61 30.7,29.14 25.28,32.72 28.86,27.3 14,26 28.86,24.7 25.28,19.28 30.7,22.86"
+      />
+    </svg>
     """
   end
 
-  defp medallion_bg_padding("small"), do: "p-2"
-  defp medallion_bg_padding("medium"), do: "p-4"
-  defp medallion_bg_padding("large"), do: "p-6"
+  defp logo_size(:sm), do: "size-8"
+  defp logo_size(:md), do: "size-11 md:size-12"
+  defp logo_size(:lg), do: "size-16"
+  defp logo_size(:xl), do: "size-24 md:size-28"
 
   @doc """
   Translates an error message using gettext.
