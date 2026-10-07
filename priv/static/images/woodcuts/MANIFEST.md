@@ -17,26 +17,35 @@ Generated from manifest.json. Source and licence are on each plate's Commons pag
 | glorious_1 | [resurrection-durer.jpg](resurrection-durer.jpg) | [The Resurrection](https://commons.wikimedia.org/wiki/File:The_Resurrection,_from_The_Large_Passion_MET_DP816615.jpg) | Albrecht Durer | Large Passion | 1510 | 800x1134 | 640 | CC0 |
 | glorious_2 | [ascension-durer.jpg](ascension-durer.jpg) | [The Ascension](https://commons.wikimedia.org/wiki/File:The_Ascension,_from_The_Small_Passion_MET_DP816019.jpg) | Albrecht Durer | Small Passion | c. 1510 | 1175x1500 | 640 | CC0 |
 | glorious_3 | [pentecost-durer.jpg](pentecost-durer.jpg) | [Pentecost](https://commons.wikimedia.org/wiki/File:Pentecost,_from_The_Small_Passion_MET_DP816020.jpg) | Albrecht Durer | Small Passion | c. 1510 | 1163x1500 | 640 | CC0 |
+| glorious_4 | [coronation-durer.jpg](coronation-durer.jpg) | [The Assumption and Coronation of the Virgin](https://commons.wikimedia.org/wiki/File:The_Assumption_and_Coronation_of_the_Virgin,_from_The_Life_of_the_Virgin_MET_DP816292.jpg) | Albrecht Durer | Life of the Virgin | 1510 | 800x1123 | 640 | CC0 |
 | glorious_5 | [coronation-durer.jpg](coronation-durer.jpg) | [The Assumption and Coronation of the Virgin](https://commons.wikimedia.org/wiki/File:The_Assumption_and_Coronation_of_the_Virgin,_from_The_Life_of_the_Virgin_MET_DP816292.jpg) | Albrecht Durer | Life of the Virgin | 1510 | 800x1123 | 640 | CC0 |
 | luminous_1 | [baptism-dore.jpg](baptism-dore.jpg) | [The Baptism of Jesus](https://commons.wikimedia.org/wiki/File:Gustave_Dore_-_John_the_Baptist_baptizes_Jesus.jpg) | Gustave Dore | La Grande Bible de Tours | 1866 | 800x1014 | 640 | Public domain |
 | luminous_2 | [cana-dore.jpg](cana-dore.jpg) | [The Marriage at Cana](https://commons.wikimedia.org/wiki/File:Marriage_at_Cana_engraving_by_Gustave_Dor%C3%A9.jpg) | Gustave Dore | La Grande Bible de Tours | 1866 | 771x1000 | 640 | Public domain |
 | luminous_3 | [sermon-mount-dore.jpg](sermon-mount-dore.jpg) | [The Sermon on the Mount](https://commons.wikimedia.org/wiki/File:Dore_Bible_Sermon_on_the_Mount.jpg) | Gustave Dore | La Grande Bible de Tours | 1866 | 1009x1300 | 640 | Public domain |
 | luminous_4 | [transfiguration-dore.jpg](transfiguration-dore.jpg) | [The Transfiguration](https://commons.wikimedia.org/wiki/File:Gustave_Dore_-_The_Transfiguration.jpg) | Gustave Dore | La Grande Bible de Tours | 1866 | 497x622 | none | Public domain |
 | luminous_5 | [last-supper-dore.jpg](last-supper-dore.jpg) | [The Last Supper](https://commons.wikimedia.org/wiki/File:Jesus_and_the_disciples_at_the_Last_Supper.jpg) | Gustave Dore | La Grande Bible de Tours | 1866 | 475x602 | none | Public domain |
+| seven_sorrows_1 | [presentation-durer.jpg](presentation-durer.jpg) | [The Presentation in the Temple (Simeon's prophecy)](https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Presentation_of_Christ_in_the_Temple%2C_c._1504-1505%2C_NGA_6705.jpg) | Albrecht Durer | Life of the Virgin | c. 1504-1505 | 858x1200 | 640 | CC0 |
+| seven_sorrows_2 | [flight-egypt-durer.jpg](flight-egypt-durer.jpg) | [The Flight into Egypt](https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Flight_into_Egypt%2C_c._1504%2C_NGA_6706.jpg) | Albrecht Durer | Life of the Virgin | c. 1503 | 998x1400 | 640 | CC0 |
+| seven_sorrows_3 | [finding-temple-durer.jpg](finding-temple-durer.jpg) | [Christ among the Doctors](https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_Christ_among_the_Doctors%2C_c._1503-1504%2C_NGA_6708.jpg) | Albrecht Durer | Life of the Virgin | c. 1503-1504 | 858x1200 | 640 | CC0 |
+| seven_sorrows_4 | [carrying-cross-durer.jpg](carrying-cross-durer.jpg) | [The Bearing of the Cross](https://commons.wikimedia.org/wiki/File:The_Bearing_of_the_Cross%2C_from_The_Large_Passion_MET_DP816602.jpg) | Albrecht Durer | Large Passion | c. 1498-1499 | 946x1300 | 640 | CC0 |
+| seven_sorrows_5 | [crucifixion-durer.jpg](crucifixion-durer.jpg) | [The Crucifixion](https://commons.wikimedia.org/wiki/File:The_Crucifixion%2C_from_The_Small_Passion_MET_DP816039.jpg) | Albrecht Durer | Small Passion | c. 1509 | 800x1060 | 640 | CC0 |
 | seven_sorrows_6 | [lamentation-durer.jpg](lamentation-durer.jpg) | [The Lamentation](https://commons.wikimedia.org/wiki/File:The_Lamentation,_from_The_Small_Passion_MET_DP816047.jpg) | Albrecht Durer | Small Passion | c. 1509 | 800x1030 | 640 | CC0 |
+| seven_sorrows_7 | [entombment-durer.jpg](entombment-durer.jpg) | [The Entombment](https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Deposition%2C_probably_c._1509-1510%2C_NGA_6778.jpg) | Albrecht Durer | Small Passion | c. 1509-1510 | 1084x1400 | 640 | CC0 |
+| general_holy_family_dragonfly | [holy-family-dragonfly-durer.jpg](holy-family-dragonfly-durer.jpg) | [The Holy Family with the Dragonfly](https://commons.wikimedia.org/wiki/File:Holy_Family_with_a_Dragonfly_MET_DP815298.jpg) | Albrecht Durer | Engravings of the Virgin | c. 1495 | 1088x1400 | 640 | CC0 |
+| general_holy_family_egypt | [holy-family-egypt-durer.jpg](holy-family-egypt-durer.jpg) | [The Holy Family in Egypt](https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_Sojourn_of_the_Holy_Family_in_Egypt%2C_c._1504%2C_NGA_6707.jpg) | Albrecht Durer | Life of the Virgin | c. 1504 | 992x1400 | 640 | CC0 |
 | general_madonna_crescent | [madonna-crescent-durer.jpg](madonna-crescent-durer.jpg) | [The Madonna on the Crescent](https://commons.wikimedia.org/wiki/File:The_Madonna_on_the_Crescent,_Frontispiece_to_The_Life_of_the_Virgin_MET_DP816150.jpg) | Albrecht Durer | Life of the Virgin (title page) | c. 1511 | 800x1159 | 640 | CC0 |
 | general_madonna_crescent_crop | [madonna-crescent-crop.jpg](madonna-crescent-crop.jpg) | [The Madonna on the Crescent (detail)](https://commons.wikimedia.org/wiki/File:The_Madonna_on_the_Crescent,_Frontispiece_to_The_Life_of_the_Virgin_MET_DP816150.jpg) | Albrecht Durer | Life of the Virgin (title page) | c. 1511 | 540x508 | none | CC0 |
+| general_madonna_monkey | [madonna-monkey-durer.jpg](madonna-monkey-durer.jpg) | [The Virgin and Child with the Monkey](https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_The_Virgin_and_Child_with_the_Monkey%2C_c._1498%2C_NGA_35104.jpg) | Albrecht Durer | Engravings of the Virgin | c. 1498 | 907x1400 | 640 | CC0 |
 
 ## Missing
 
-- glorious_4
-- seven_sorrows_1
-- seven_sorrows_2
-- seven_sorrows_3
-- seven_sorrows_4
-- seven_sorrows_5
-- seven_sorrows_7
+None.
+
+## Notes
+
+- A file may serve more than one key when one print shows both scenes: the Assumption and Coronation of the Virgin serves glorious_4 and glorious_5, and the Seven Sorrows reuse the Presentation (1), the Finding in the Temple (3), the Bearing of the Cross (4) and the Crucifixion (5).
+- Where two fragments gave the same key, existing.json wins, then fragments in file-name order.
 
 ## Duplicate candidates
 
-None.
+- seven_sorrows_6: kept lamentation-durer.jpg over lamentation-durer.jpg
