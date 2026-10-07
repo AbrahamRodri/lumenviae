@@ -262,6 +262,7 @@ defmodule LumenViae.Rosary do
       define :delete_mystery, action: :destroy, default_options: [return_destroyed?: true]
       define :update_mystery_artwork, action: :record_artwork
       define :update_mystery_artwork_metadata, action: :update_artwork_metadata
+      define :record_mystery_artwork_variants, action: :record_artwork_variants
     end
 
     resource LumenViae.Rosary.CategoryCard do
@@ -270,6 +271,7 @@ defmodule LumenViae.Rosary do
       define :create_category_card, action: :create, args: [:slug]
       define :update_category_card_artwork, action: :record_artwork
       define :update_category_card_artwork_metadata, action: :update_artwork_metadata
+      define :record_category_card_artwork_variants, action: :record_artwork_variants
     end
 
     resource LumenViae.Rosary.Meditation do
@@ -324,6 +326,7 @@ defmodule LumenViae.Rosary do
 
       define :update_meditation_set_artwork, action: :record_artwork
       define :update_meditation_set_artwork_metadata, action: :update_artwork_metadata
+      define :record_meditation_set_artwork_variants, action: :record_artwork_variants
     end
 
     resource LumenViae.Rosary.SetMembership do
@@ -342,6 +345,7 @@ defmodule LumenViae.Rosary do
       define :delete_author, action: :destroy, default_options: [return_destroyed?: true]
       define :update_author_artwork, action: :record_artwork
       define :update_author_artwork_metadata, action: :update_artwork_metadata
+      define :record_author_artwork_variants, action: :record_artwork_variants
     end
 
     resource LumenViae.Rosary.Narration
