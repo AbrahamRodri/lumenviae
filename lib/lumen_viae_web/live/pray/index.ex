@@ -18,6 +18,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   alias LumenViae.Storage.S3
   alias LumenViaeWeb.BotDetection
   alias LumenViaeWeb.ClientIP
+  alias LumenViaeWeb.PageMeta
 
   alias LumenViaeWeb.Live.Pray.{
     BeadScreen,
@@ -50,7 +51,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     |> assign(:storage_key, "set:#{set.id}")
     |> assign(:decades, Sequence.set_decades(set))
     |> assign(:heading, set.name)
-    |> assign(:page_title, set.name)
+    |> put_set_meta(set)
     |> mount_common(session)
   end
 
@@ -69,8 +70,29 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     |> assign(:storage_key, "mysteries:#{category}")
     |> assign(:decades, Sequence.category_decades(category, mysteries))
     |> assign(:heading, Categories.devotion_title(category))
-    |> assign(:page_title, "Pray the " <> Categories.devotion_title(category))
+    |> put_category_meta(category)
     |> mount_common(session)
+  end
+
+  # What search results and link previews say about the page, from the
+  # decades it prays: the set's name and author and the mysteries, with the
+  # first mystery's woodcut.
+  defp put_set_meta(socket, set) do
+    %{decades: decades} = socket.assigns
+
+    PageMeta.put(
+      socket,
+      ~p"/meditation-sets/#{set.id}/pray",
+      PageMeta.pray_set(set, Enum.map(decades, & &1.name), hd(decades).key)
+    )
+  end
+
+  defp put_category_meta(socket, category) do
+    PageMeta.put(
+      socket,
+      ~p"/mysteries/#{category}/pray",
+      PageMeta.pray_category(category, Enum.map(socket.assigns.decades, & &1.name))
+    )
   end
 
   defp mount_common(socket, session) do
