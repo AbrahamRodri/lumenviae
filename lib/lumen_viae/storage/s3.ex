@@ -335,6 +335,26 @@ defmodule LumenViae.Storage.S3 do
   end
 
   @doc """
+  Downloads an object from the public assets bucket, as `{:ok, bytes}`.
+
+  A 403 or 404 is `{:error, :not_found}`, read as `audio_exists?/2` reads
+  a HEAD: the scoped IAM user has no `s3:ListBucket`, so S3 answers a GET
+  on a missing key with 403.
+  """
+  @spec get_public(String.t(), keyword) :: {:ok, binary} | {:error, term}
+  def get_public(key, opts \\ []) when is_binary(key) do
+    bucket = opts[:bucket] || public_bucket()
+
+    with :ok <- validate_aws_config() do
+      case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
+        {:ok, %{body: body}} when is_binary(body) -> {:ok, body}
+        {:error, {:http_error, status, _body}} when status in [403, 404] -> {:error, :not_found}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+  end
+
+  @doc """
   Stable, unsigned, cacheable URL for an object in the public assets bucket.
 
   Unlike `generate_presigned_url/2` this signs nothing and expires never:
