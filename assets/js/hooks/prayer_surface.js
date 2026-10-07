@@ -10,7 +10,10 @@
 // button, link or field is that control's, never the page's.
 //
 // The text size is this browser's alone, kept in localStorage, and set as
-// a CSS variable on <html> so a LiveView patch never takes it away.
+// a CSS variable on <html> so a LiveView patch never takes it away. The
+// reading page and the images are kept the same way (display_choices.js).
+
+import { applyDisplay, clearDisplay } from "./display_choices"
 
 const ADVANCE = ["ArrowRight", "ArrowDown", " ", "Spacebar", "Enter"]
 const BACK = ["ArrowLeft", "ArrowUp"]
@@ -43,6 +46,7 @@ export default {
     const index = saved === null ? NaN : Number(saved)
     this.sizeIndex = Number.isInteger(index) && SCALES[index] ? index : 1
     this.applySize()
+    applyDisplay()
 
     this.onKey = (event) => this.key(event)
     window.addEventListener("keydown", this.onKey)
@@ -82,6 +86,7 @@ export default {
     window.removeEventListener("keydown", this.onKey)
     document.removeEventListener("visibilitychange", this.onVisibility)
     document.documentElement.style.removeProperty("--prayer-text-scale")
+    clearDisplay()
     this.release()
   },
 

@@ -201,18 +201,32 @@ do what" in docs/ARCHITECTURE.md before adding an action or a policy.
 
 ### Styling
 - Tailwind CSS v4 with a custom theme in `assets/css/app.css`
-- The public site follows the iOS app's design language on light
-  backgrounds: Cinzel (headings, tracked-caps labels, buttons) and
-  EB Garamond (all body and quotation text) are the only two public
-  families. Ovo and Work Sans remain on admin surfaces only.
-- Colors: Navy (#003b5c), Gold (#b18b49), Parchment (#fdfaf4),
-  Cream (#faf2e6), Brown (#4a3f33). Navy backgrounds are for the page
-  hero and at most one accent band per page; everything else stays light.
-- Shared vocabulary: `<.gold_cta>`, `<.sacred_divider>`, `<.arch_frame>`,
-  `.hairline-card`, `.drop-cap` - see the design tokens section in
-  docs/ARCHITECTURE.md.
-- Use the Tailwind tokens (`text-navy`, `bg-cream`, `font-cinzel`), never
-  raw hex values. See the design tokens table in docs/ARCHITECTURE.md.
+- The public site is "Midnight Marian", the iOS app's Marian Blue theme:
+  every page is night (`bg-night`, cards `night-raised`), text `ink-light`
+  and `ink-muted`, one accent `gilt` (filled buttons are gilt with night
+  text), and `sky` for kickers and links.
+- Vellum is for long-form reading only: the meditation on the prayer page
+  (the reader can switch it to night in the settings pane), the Scripture
+  passages on /mysteries and the privacy policy body. On vellum use only
+  `vellum-ink`, `vellum-muted` and `vellum-gold`; never gilt, sky or ink.
+- Fonts: Cormorant Garamond (`font-display`) for headings in sentence
+  case; EB Garamond (`font-garamond`) for everything else, with `.kicker`
+  for small tracked-caps labels. No public text below 12px, every control
+  at least 44px. Cinzel, Ovo and Work Sans are admin-only. The two public
+  fonts are self-hosted in `priv/static/fonts` in weights 500 and 600 only
+  (and EB Garamond italic 500); see the fonts block in `app.css`.
+- The logo is the Stella Maris, `<.logo />`, beside a "Lumen Viae"
+  wordmark; `priv/static/favicon.svg` and the PNG icons are the same
+  drawing.
+- `navy`, `gold`, `parchment`, `cream` and `brown` are the console's
+  colours now; never use them on a public page.
+- Shared vocabulary: `<.gold_cta>`, `.btn-outline-gold`, `<.sacred_divider>`,
+  `<.arch_frame>`, `.hairline-card`, `.reading-vellum`, `.kicker`, and
+  `WoodcutPlate` for the woodcuts (at most one per screen) - see the design
+  tokens section in docs/ARCHITECTURE.md.
+- Use the Tailwind tokens (`text-ink-light`, `bg-night-raised`,
+  `font-display`), never raw hex values. Every text pair clears 4.5:1;
+  the ratios are in the design tokens table in docs/ARCHITECTURE.md.
 
 ### Local Development
 Start the server with `./dev.sh`, not `mix phx.server` - it loads `.env`

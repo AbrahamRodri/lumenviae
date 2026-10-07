@@ -58,7 +58,9 @@ defmodule LumenViaeWeb.Live.HomeMysteriesTest do
        %{conn: conn, annunciation: annunciation} do
     card = fn -> conn |> open_on_monday() |> element("#category-joyful") |> render() end
 
-    refute card.() =~ "<img"
+    before = card.()
+    refute before =~ "0123456789abcdef"
+    assert before =~ "/images/woodcuts/annunciation-durer.jpg"
 
     {:ok, annunciation} =
       Rosary.update_mystery_artwork(
@@ -82,5 +84,6 @@ defmodule LumenViaeWeb.Live.HomeMysteriesTest do
     html = card.()
     assert html =~ "mysteries/1/0123456789abcdef.jpg"
     assert html =~ ~s(alt="The angel Gabriel kneels before Mary.")
+    refute html =~ "/images/woodcuts/"
   end
 end

@@ -1,7 +1,8 @@
 defmodule LumenViaeWeb.Components.Nav do
   @moduledoc """
-  The public site's header: the wordmark, Today's Rosary, and a Mysteries
-  menu of the five categories and the Scripture page.
+  The public site's header: the Stella Maris mark and the wordmark, Today's
+  Rosary, and a Mysteries menu of the five categories and the Scripture
+  page.
 
   The header lives in the root layout, outside every LiveView, so its menus
   are driven by `assets/js/site_nav.js` rather than by LiveView JS commands:
@@ -25,20 +26,20 @@ defmodule LumenViaeWeb.Components.Nav do
 
   def header(assigns) do
     ~H"""
-    <header id="site-header" class="site-header bg-navy border-b-2 md:border-b-3 border-gold">
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-2.5 md:py-6 flex items-center justify-between gap-4">
+    <header id="site-header" class="site-header bg-night-deep border-b border-night-border">
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-2 md:py-4 flex items-center justify-between gap-3">
         <.link
           navigate="/"
-          class="flex min-w-0 items-center gap-3 md:gap-4 min-h-11 rounded-sm hover:opacity-90 transition-opacity"
+          class="flex min-w-0 items-center gap-2.5 md:gap-3 min-h-11 rounded-sm hover:opacity-90 transition-opacity"
           aria-label="Lumen Viae, home"
         >
-          <.medallion_bg type="saint_benedict" size="small" class="shrink-0 scale-90 md:scale-100" />
+          <.logo />
 
-          <span class="block">
-            <span class="block font-cinzel-decorative text-gold text-xl sm:text-2xl md:text-3xl tracking-widest font-bold leading-tight">
-              LUMEN VIAE
+          <span class="block min-w-0">
+            <span class="block font-display font-semibold text-ink-light text-2xl md:text-[1.75rem] leading-tight">
+              Lumen Viae
             </span>
-            <span class="hidden sm:block font-garamond text-gold-light text-sm tracking-wide italic">
+            <span class="hidden sm:block font-garamond text-ink-muted text-sm italic leading-snug">
               Meditations on the Holy Rosary
             </span>
           </span>
@@ -54,7 +55,7 @@ defmodule LumenViaeWeb.Components.Nav do
               type="button"
               id="mysteries-menu-button"
               data-menu-toggle
-              class="group inline-flex items-center gap-1.5 min-h-11 px-3 rounded-sm font-cinzel text-[0.8rem] tracking-[0.18em] uppercase text-gold-light hover:text-cream transition-colors aria-expanded:text-cream"
+              class="group inline-flex items-center gap-1.5 min-h-11 px-3 rounded-sm font-garamond text-lg text-ink-muted hover:text-ink-light transition-colors aria-expanded:text-ink-light"
               aria-expanded="false"
               aria-controls="mysteries-menu"
             >
@@ -77,14 +78,14 @@ defmodule LumenViaeWeb.Components.Nav do
 
             <ul
               id="mysteries-menu"
-              class="hidden absolute right-0 top-full mt-3 w-72 bg-navy border border-gold/40 rounded-lg shadow-ornate py-2 z-50"
+              class="hidden absolute right-0 top-full mt-3 w-72 bg-night-raised border border-night-line rounded-lg shadow-night py-2 z-50"
             >
               <li :for={{path, label} <- mystery_links()}>
                 <.link
                   navigate={path}
                   data-nav-link
                   aria-current={current(path, @current_path)}
-                  class="flex items-center min-h-11 px-5 py-2 font-garamond text-base text-gold-light hover:text-cream hover:bg-gold/10 aria-[current=page]:text-cream aria-[current=page]:bg-gold/15 transition-colors"
+                  class="flex items-center min-h-11 px-5 py-2 font-garamond text-lg text-ink-light hover:bg-night aria-[current=page]:text-gilt aria-[current=page]:bg-night transition-colors"
                 >
                   {label}
                 </.link>
@@ -101,7 +102,7 @@ defmodule LumenViaeWeb.Components.Nav do
           type="button"
           id="mobile-menu-button"
           data-menu-toggle
-          class="group md:hidden inline-flex shrink-0 items-center justify-center size-11 -mr-2 rounded-sm text-gold-light hover:text-cream transition-colors"
+          class="group md:hidden inline-flex shrink-0 items-center justify-center size-11 -mr-2 rounded-sm text-ink-light hover:text-gilt transition-colors"
           aria-label="Menu"
           aria-expanded="false"
           aria-controls="mobile-menu"
@@ -139,7 +140,7 @@ defmodule LumenViaeWeb.Components.Nav do
 
       <nav
         id="mobile-menu"
-        class="hidden md:hidden bg-navy border-t border-gold/30 max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
+        class="hidden md:hidden bg-night-deep border-t border-night-border max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
         aria-label="Main"
       >
         <ul class="px-4 sm:px-6 py-3">
@@ -151,7 +152,7 @@ defmodule LumenViaeWeb.Components.Nav do
           <li class="pt-3">
             <p
               id="mobile-mysteries-heading"
-              class="font-cinzel text-xs tracking-[0.3em] uppercase text-gold-light/90 pb-1"
+              class="kicker pb-1"
             >
               The Mysteries
             </p>
@@ -164,7 +165,7 @@ defmodule LumenViaeWeb.Components.Nav do
             </ul>
           </li>
 
-          <li :if={@is_admin} class="pt-3 mt-3 border-t border-gold/20">
+          <li :if={@is_admin} class="pt-3 mt-3 border-t border-night-border">
             <.nav_link navigate="/admin" current_path={@current_path} mobile>
               Admin
             </.nav_link>
@@ -173,7 +174,7 @@ defmodule LumenViaeWeb.Components.Nav do
               <input type="hidden" name="_method" value="delete" />
               <button
                 type="submit"
-                class="flex items-center w-full min-h-11 font-garamond text-lg text-gold-light hover:text-cream transition-colors text-left"
+                class="flex items-center w-full min-h-11 font-garamond text-lg text-ink-light hover:text-gilt transition-colors text-left"
               >
                 Logout
               </button>
@@ -213,12 +214,12 @@ defmodule LumenViaeWeb.Components.Nav do
       data-nav-link
       aria-current={current(@navigate, @current_path)}
       class={[
-        "text-gold-light hover:text-cream aria-[current=page]:text-cream transition-colors",
+        "transition-colors",
         if(@mobile,
           do:
-            "flex items-center min-h-11 font-garamond text-lg aria-[current=page]:underline decoration-gold underline-offset-4",
+            "flex items-center min-h-11 font-garamond text-lg text-ink-light hover:text-gilt aria-[current=page]:text-gilt aria-[current=page]:underline decoration-gilt underline-offset-4",
           else:
-            "inline-flex items-center min-h-11 px-3 rounded-sm font-cinzel text-[0.8rem] tracking-[0.18em] uppercase border-b-2 border-transparent aria-[current=page]:border-gold"
+            "inline-flex items-center min-h-11 px-3 rounded-sm font-garamond text-lg text-ink-muted hover:text-ink-light aria-[current=page]:text-ink-light border-b-2 border-transparent aria-[current=page]:border-gilt"
         )
       ]}
     >

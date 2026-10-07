@@ -44,7 +44,10 @@ imported into LumenViae, whether curated by hand or with Claude's help.
    the turn from action to vision.
 8. Do not use markdown, headers, or list syntax inside content; plain
    paragraphs only. The app renders content with `whitespace-pre-wrap`, so
-   line breaks in the database appear exactly as stored.
+   line breaks in the database appear exactly as stored. The website sets
+   each blank-line-separated block as a paragraph and a single newline as a
+   line break inside it (`PrayerText.meditation_text/1`), so never use a
+   blank line where you mean only a line break.
 9. Dialogue keeps the source's own quotation style.
 
 ## Metadata

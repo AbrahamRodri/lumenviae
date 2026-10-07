@@ -13,7 +13,7 @@ defmodule LumenViaeWeb.Components.WoodcutPlateTest do
   defp fixture_plates, do: Manifest.load(@fixture_dir, "/images/woodcuts")
 
   defp render_figure(plate, opts \\ []) do
-    assigns = Map.merge(%{plate: plate, caption: true, variant: :light, size: :md}, Map.new(opts))
+    assigns = Map.merge(%{plate: plate, caption: true, variant: :night, size: :md}, Map.new(opts))
 
     rendered_to_string(~H"""
     <WoodcutPlate.plate_figure plate={@plate} caption={@caption} variant={@variant} size={@size} />
@@ -66,7 +66,7 @@ defmodule LumenViaeWeb.Components.WoodcutPlateTest do
     test "renders the plate with its alt, size, lazy loading and caption" do
       html = render_figure(fixture_plates()["joyful_1"])
 
-      assert html =~ ~s(<figure class="woodcut-plate woodcut-plate--md woodcut-plate--light")
+      assert html =~ ~s(<figure class="woodcut-plate woodcut-plate--md woodcut-plate--night")
       assert html =~ ~s(src="/images/woodcuts/annunciation-durer.jpg")
       assert html =~ ~s(alt="The angel Gabriel greets the Virgin Mary)
       assert html =~ ~s(width="800")
@@ -102,10 +102,10 @@ defmodule LumenViaeWeb.Components.WoodcutPlateTest do
       refute html =~ "commons.wikimedia.org"
     end
 
-    test "the navy variant mounts the plate without inverting it" do
-      html = render_figure(fixture_plates()["joyful_1"], variant: :navy)
+    test "the vellum variant mounts the plate without inverting it" do
+      html = render_figure(fixture_plates()["joyful_1"], variant: :vellum)
 
-      assert html =~ "woodcut-plate--navy"
+      assert html =~ "woodcut-plate--vellum"
       refute html =~ "invert"
     end
   end
@@ -136,11 +136,11 @@ defmodule LumenViaeWeb.Components.WoodcutPlateTest do
 
         html =
           rendered_to_string(~H"""
-          <WoodcutPlate.woodcut_plate key={@key} variant={:navy} />
+          <WoodcutPlate.woodcut_plate key={@key} variant={:vellum} />
           """)
 
         assert html =~ ~s(src="/images/woodcuts/#{entry["file"]}")
-        assert html =~ "woodcut-plate--navy"
+        assert html =~ "woodcut-plate--vellum"
       end
     end
   end

@@ -1,7 +1,8 @@
 defmodule LumenViaeWeb.Live.Pray.Controls do
   @moduledoc """
   The prayer page's controls: the way to pray it (form, counting, the
-  closing prayers, the language of the prayers, the text size), praying aloud and its voice, the offer
+  closing prayers, the language of the prayers, the reading page, the
+  images, the text size), praying aloud and its voice, the offer
   to continue where the reader left off, and Previous and Next.
   """
   use LumenViaeWeb, :html
@@ -36,7 +37,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     ~H"""
     <div
       id="prayer-settings"
-      class="mt-3 rounded-2xl border border-gold/25 bg-navy-dark/70 px-4 py-5 sm:px-6 space-y-6"
+      class="mt-3 rounded-2xl border border-night-border bg-night-raised px-4 py-5 sm:px-6 space-y-6"
     >
       <fieldset>
         <legend class={legend_class()}>How to pray</legend>
@@ -105,6 +106,44 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         </div>
       </fieldset>
 
+      <div id="prayer-display-choices" phx-hook="DisplayChoices" phx-update="ignore" class="space-y-6">
+        <fieldset>
+          <legend class={legend_class()}>Reading page</legend>
+          <div class="mt-2 grid gap-2 sm:grid-cols-2">
+            <.display_choice
+              setting="reading-page"
+              value="vellum"
+              title="Vellum"
+              note="The meditation on a light page, like a book."
+            />
+            <.display_choice
+              setting="reading-page"
+              value="night"
+              title="Night"
+              note="The meditation on the dark, like the prayers."
+            />
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class={legend_class()}>Images</legend>
+          <div class="mt-2 grid gap-2 sm:grid-cols-2">
+            <.display_choice
+              setting="prayer-images"
+              value="on"
+              title="Show"
+              note="The mystery's woodcut above its name."
+            />
+            <.display_choice
+              setting="prayer-images"
+              value="off"
+              title="Hide"
+              note="Words only."
+            />
+          </div>
+        </fieldset>
+      </div>
+
       <fieldset>
         <legend class={legend_class()}>Text size</legend>
         <div class="mt-2 flex items-center gap-2">
@@ -139,15 +178,37 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       class={[
         "text-left rounded-xl border px-4 py-3 min-h-11 motion-safe:transition-colors",
         if(@pressed,
-          do: "border-gold bg-gold/15",
-          else: "border-gold/25 hover:border-gold/60"
+          do: "border-gilt bg-gilt/15",
+          else: "border-night-border hover:border-night-line"
         )
       ]}
     >
-      <span class="block font-cinzel text-xs tracking-[0.18em] uppercase text-gold">{@title}</span>
-      <span :if={@note} class="block mt-1 font-garamond text-base text-cream/70 leading-snug">
+      <span class="block kicker text-gilt">{@title}</span>
+      <span :if={@note} class="block mt-1 font-garamond text-base text-ink-muted leading-snug">
         {@note}
       </span>
+    </button>
+    """
+  end
+
+  attr :setting, :string, required: true
+  attr :value, :string, required: true
+  attr :title, :string, required: true
+  attr :note, :string, required: true
+
+  # A look chosen in this browser only, kept by the DisplayChoices hook,
+  # which sets aria-pressed; the server never knows it.
+  defp display_choice(assigns) do
+    ~H"""
+    <button
+      type="button"
+      data-display={@setting}
+      data-value={@value}
+      aria-pressed="false"
+      class="prayer-choice text-left rounded-xl border px-4 py-3 min-h-11 motion-safe:transition-colors"
+    >
+      <span class="block kicker text-gilt">{@title}</span>
+      <span class="block mt-1 font-garamond text-base text-ink-muted leading-snug">{@note}</span>
     </button>
     """
   end
@@ -165,10 +226,10 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         aria-pressed={to_string(@pray_aloud)}
         title="Hear every prayer of the Rosary, bead by bead"
         class={[
-          "inline-flex items-center gap-2 rounded-full border px-4 min-h-11 font-cinzel text-xs tracking-[0.2em] uppercase motion-safe:transition-colors",
+          "inline-flex items-center gap-2 rounded-full border px-4 min-h-11 font-garamond text-base motion-safe:transition-colors",
           if(@pray_aloud,
-            do: "border-gold bg-gold text-navy",
-            else: "border-gold/40 text-gold-light/80 hover:border-gold hover:text-gold"
+            do: "border-gilt bg-gilt text-night",
+            else: "border-night-line text-ink-muted hover:border-gilt hover:text-gilt"
           )
         ]}
       >
@@ -181,7 +242,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         <select
           id="narration-voice"
           name="voice"
-          class="rounded-full border border-gold/40 bg-navy min-h-11 pl-4 pr-9 font-cinzel text-xs tracking-[0.2em] uppercase text-gold-light/80 focus:border-gold focus:ring-0"
+          class="rounded-full border border-night-line bg-night min-h-11 pl-4 pr-9 font-garamond text-base text-ink-muted focus:border-gilt focus:ring-0"
         >
           <option :for={voice <- @voices} value={voice.slug} selected={voice.slug == @voice.slug}>
             {voice.name} voice
@@ -207,7 +268,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       data-script={Jason.encode!(@script)}
       data-start-screen={@start_screen}
       data-set-name={@title}
-      class="max-w-sm mx-auto mt-3 rounded-2xl border border-gold/25 bg-navy-light/40 px-3 py-2"
+      class="max-w-sm mx-auto mt-3 rounded-2xl border border-night-border bg-night-raised px-3 py-2"
     >
       <div class="flex items-center gap-1">
         <button type="button" data-back aria-label="Previous prayer" class={player_button_class()}>
@@ -217,7 +278,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           type="button"
           data-play
           aria-label="Play"
-          class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gold hover:bg-gold-light text-navy"
+          class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gilt hover:bg-gilt-light text-night"
         >
           <span class="hero-play-solid size-4 ml-0.5" aria-hidden="true" />
         </button>
@@ -225,20 +286,23 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           type="button"
           data-pause
           aria-label="Pause"
-          class="hidden flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gold hover:bg-gold-light text-navy"
+          class="hidden flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gilt hover:bg-gilt-light text-night"
         >
           <span class="hero-pause-solid size-4" aria-hidden="true" />
         </button>
         <button type="button" data-forward aria-label="Next prayer" class={player_button_class()}>
           <span class="hero-forward size-4" aria-hidden="true" />
         </button>
-        <p data-caption class="flex-1 min-w-0 pl-2 font-garamond text-cream/90 text-base leading-snug">
+        <p
+          data-caption
+          class="flex-1 min-w-0 pl-2 font-garamond text-ink-light text-base leading-snug"
+        >
         </p>
       </div>
-      <div class="mt-2 h-px bg-gold/20">
+      <div class="mt-2 h-px bg-gilt/20">
         <div
           data-progress
-          class="h-px bg-gold motion-safe:transition-[width] duration-500"
+          class="h-px bg-gilt motion-safe:transition-[width] duration-500"
           style="width: 0%"
         >
         </div>
@@ -255,10 +319,10 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       id="resume-banner"
       role="region"
       aria-label="Continue where you left off"
-      class="mt-4 rounded-2xl border border-gold/40 bg-navy-dark/70 px-4 py-4 text-center"
+      class="mt-4 rounded-2xl border border-night-line bg-night-raised px-4 py-4 text-center"
     >
-      <p class="font-garamond text-lg text-cream/85">
-        You were praying <span class="text-gold-light">{@resume.label}</span>.
+      <p class="font-garamond text-lg text-ink-light">
+        You were praying <span class="text-gilt">{@resume.label}</span>.
       </p>
       <div class="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2">
         <button type="button" phx-click="resume" class="btn-gold !py-2.5 min-h-11">
@@ -267,7 +331,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         <button
           type="button"
           phx-click="dismiss_resume"
-          class="btn-outline-gold text-gold-light !py-2.5 min-h-11"
+          class="btn-outline-gold !py-2.5 min-h-11"
         >
           Start from the beginning
         </button>
@@ -294,15 +358,15 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         <p
           data-hint
           hidden
-          class="mx-auto mb-3 flex w-fit items-center gap-2 rounded-full border border-gold/30 bg-navy-dark/70 pl-4 pr-1 font-cinzel text-[0.6rem] tracking-[0.2em] uppercase text-cream/80"
+          class="mx-auto mb-3 flex w-fit items-center gap-2 rounded-full border border-night-border bg-night-raised pl-4 pr-1 font-garamond text-sm text-ink-light"
         >
           <span>Swipe left for the next bead</span>
-          <span class="hero-arrow-left size-4 text-gold" aria-hidden="true" />
+          <span class="hero-arrow-left size-4 text-gilt" aria-hidden="true" />
           <button
             type="button"
             data-dismiss
             aria-label="Dismiss the hint"
-            class="flex items-center justify-center w-11 h-11 rounded-full text-gold-light/70 hover:text-gold"
+            class="flex items-center justify-center w-11 h-11 rounded-full text-ink-muted hover:text-gilt"
           >
             <span class="hero-x-mark size-4" aria-hidden="true" />
           </button>
@@ -320,14 +384,14 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     ~H"""
     <nav
       aria-label="Move through the Rosary"
-      class="prayer-bottom-nav sticky bottom-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 bg-gradient-to-t from-navy via-navy to-navy/0"
+      class="prayer-bottom-nav sticky bottom-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 bg-gradient-to-t from-night via-night to-night/0"
     >
       <div class="grid grid-cols-[auto_1fr] gap-3 items-center">
         <button
           type="button"
           phx-click="previous"
           disabled={@at_start}
-          class="btn-outline-gold text-gold-light min-h-14 !px-5 disabled:opacity-30 disabled:cursor-not-allowed"
+          class="btn-outline-gold min-h-14 !px-5 disabled:opacity-30 disabled:cursor-not-allowed"
           aria-label={if @count == "screen", do: "Previous bead", else: "Previous"}
         >
           <span class="hero-arrow-left size-4" aria-hidden="true" />
@@ -342,7 +406,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           <span class="hero-arrow-right size-4" aria-hidden="true" />
         </button>
       </div>
-      <p class="hidden md:block mt-2 text-center font-cinzel text-xs tracking-[0.2em] uppercase text-gold-light/50">
+      <p class="hidden md:block mt-2 text-center font-garamond text-base text-ink-muted">
         {if @count == "screen",
           do: "Space, Enter or the arrow keys move a bead",
           else: "The left and right arrow keys turn the page"}
@@ -363,13 +427,13 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   defp form_note(form), do: Map.fetch!(@form_notes, form)
 
   defp legend_class,
-    do: "font-cinzel text-xs tracking-[0.25em] uppercase text-gold-light/80"
+    do: "kicker"
 
   defp size_button_class,
     do:
-      "flex items-center justify-center w-11 h-11 rounded-full border border-gold/40 font-cinzel text-gold-light hover:border-gold"
+      "flex items-center justify-center w-11 h-11 rounded-full border border-night-line font-garamond text-ink-light hover:border-gilt"
 
   defp player_button_class,
     do:
-      "flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-gold-light/70 hover:text-gold"
+      "flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-ink-muted hover:text-gilt"
 end

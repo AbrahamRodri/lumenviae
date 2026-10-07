@@ -36,7 +36,7 @@ defmodule LumenViaeWeb.Components.ArtworkPictureTest do
     assert src =~ "sets/27/8f21c4d9e0b3a7f6.jpg"
   end
 
-  test "offers exactly the recorded variants as WebP, with the original as the fallback" do
+  test "offers the recorded variants as WebP, then the original at its width, and the original as the fallback" do
     doc = parse(picture(painting([960, 480])))
 
     [srcset] = doc |> LazyHTML.query("picture > source") |> LazyHTML.attribute("srcset")
@@ -48,15 +48,25 @@ defmodule LumenViaeWeb.Components.ArtworkPictureTest do
 
     assert [
              [_, "480w"],
-             [_, "960w"]
+             [_, "960w"],
+             [_, "3051w"]
            ] = srcset |> String.split(", ") |> Enum.map(&String.split(&1, " "))
 
     assert srcset =~ "sets/27/8f21c4d9e0b3a7f6-480.webp 480w"
     assert srcset =~ "sets/27/8f21c4d9e0b3a7f6-960.webp 960w"
+    assert srcset =~ "sets/27/8f21c4d9e0b3a7f6.jpg 3051w"
     refute srcset =~ "1600"
 
     [src] = doc |> LazyHTML.query("picture > img") |> LazyHTML.attribute("src")
     assert src =~ "sets/27/8f21c4d9e0b3a7f6.jpg"
+  end
+
+  test "a partial backfill still offers the original, so a 2x screen is not left soft" do
+    doc = parse(picture(painting([480])))
+    [srcset] = doc |> LazyHTML.query("picture > source") |> LazyHTML.attribute("srcset")
+
+    assert srcset =~ "-480.webp 480w"
+    assert srcset =~ "sets/27/8f21c4d9e0b3a7f6.jpg 3051w"
   end
 
   test "reserves the painting's box and loads it lazily, either way" do

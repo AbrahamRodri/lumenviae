@@ -9,6 +9,7 @@ import PrayerStreak from "./prayer_streak"
 import RosaryChoices from "./rosary_choices"
 import SwipeHint from "./swipe_hint"
 import MysterySchedule from "./mystery_schedule"
+import DisplayChoices from "./display_choices"
 
 export default {
   UserTimezone,
@@ -21,5 +22,6 @@ export default {
   PrayerStreak,
   RosaryChoices,
   SwipeHint,
-  MysterySchedule
+  MysterySchedule,
+  DisplayChoices
 }

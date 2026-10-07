@@ -22,21 +22,6 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
 
   @calendar_categories Map.new(LiturgicalCalendar.categories(), &{Atom.to_string(&1), &1})
 
-  # The woodcut a category's header shows until its own painting is
-  # published: the same prints the mysteries in Scripture page uses.
-  @woodcuts %{
-    "joyful" =>
-      {"/images/woodcuts/annunciation-durer.jpg", "The Annunciation, woodcut by Albrecht Durer"},
-    "sorrowful" =>
-      {"/images/woodcuts/crucifixion-durer.jpg", "The Crucifixion, woodcut by Albrecht Durer"},
-    "glorious" =>
-      {"/images/woodcuts/resurrection-durer.jpg", "The Resurrection, woodcut by Albrecht Durer"},
-    "luminous" =>
-      {"/images/woodcuts/baptism-dore.jpg", "The Baptism of Jesus, engraving by Gustave Dore"},
-    "seven_sorrows" =>
-      {"/images/woodcuts/lamentation-durer.jpg", "The Lamentation, woodcut by Albrecht Durer"}
-  }
-
   @impl true
   def mount(%{"category" => category}, _session, socket) do
     unless category in Categories.slugs() do
@@ -151,7 +136,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
   end
 
   # The painting the app's card shows for the category (its first
-  # mystery's, or the Seven Sorrows' own card), else the woodcut.
+  # mystery's, or the Seven Sorrows' own card); nil until one is published,
+  # and the header shows the category's woodcut.
   defp painting(category, mysteries, actor) do
     artwork =
       case Categories.card_mystery_key(category) do
@@ -164,11 +150,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
       end
 
     case artwork do
-      %{url: url, alt: alt} when is_binary(url) ->
-        %{src: url, alt: alt}
-
-      _none ->
-        @woodcuts |> Map.fetch!(category) |> then(fn {src, alt} -> %{src: src, alt: alt} end)
+      %{url: url, alt: alt} when is_binary(url) -> %{src: url, alt: alt}
+      _none -> nil
     end
   end
 

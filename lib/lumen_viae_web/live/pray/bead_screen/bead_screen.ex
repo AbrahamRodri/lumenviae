@@ -18,7 +18,9 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
 
   def bead_screen(assigns) do
     page = Sequence.page(assigns.sequence, assigns.screen.page)
-    assigns = assigns |> assign(:decade, page.decade) |> assign(:page_name, Strand.page_name(page))
+
+    assigns =
+      assigns |> assign(:decade, page.decade) |> assign(:page_name, Strand.page_name(page))
 
     ~H"""
     <section aria-label="The bead you are on" class="flex flex-col">
@@ -29,7 +31,7 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
         id="bead-status"
         aria-live="polite"
         aria-atomic="true"
-        class="mt-1 text-center font-cinzel text-xs tracking-[0.25em] uppercase text-gold"
+        class="mt-1 text-center kicker text-gilt"
       >
         {status(@screen, @decade)}
       </p>
@@ -44,6 +46,7 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
       >
         <%= case @screen.kind do %>
           <% :announcement -> %>
+            <PrayerText.plate key={@decade.key} />
             <PrayerText.announcement decade={@decade} chaplet={@sequence.chaplet?} />
             <div :if={@decade.meditation && @sequence.form == "scriptural"} class="mt-8">
               <PageView.meditation_toggle

@@ -110,15 +110,23 @@ In order of what it would save a phone:
    woodcut, `annunciation-durer.jpg`, where a 640 pixel WebP of it exists. The
    artwork is resized at upload, not by this change: see "Paintings served from
    S3" in `docs/IMAGES.md`. The woodcut is a template change:
-   `<.woodcut_plate>` serves the WebP.
+   `<.woodcut_plate>` serves the WebP. **Done in the redesign**: the header
+   draws its woodcut through `<.woodcut_plate>`.
 2. **Layout shift on the home page (0.036).** It comes from the web fonts
    arriving after the text: blocking Google Fonts in a test run takes it to
    0.000, with no change in the paint times. Self-hosting the three families,
    with `size-adjust` on the fallback faces, removes the shift and the
-   cross-origin hop. That is a stylesheet change.
+   cross-origin hop. That is a stylesheet change. **Done in the redesign**:
+   the fonts are served from `priv/static/fonts` with fallback faces
+   measured against Times New Roman (the fonts block in `app.css`); home
+   measures 0.000 locally.
 3. **The fonts are 133 KB on the home page**: EB Garamond, Cinzel and Cinzel
    Decorative, ten styles between them asked for in the `<link>` in
    `root.html.heex`. Any the redesign does not use need not be asked for.
+   **Done in the redesign**: three files, about 109 KB, all Latin-subset
+   woff2 (Cormorant Garamond and EB Garamond upright, each a variable font
+   over 500 to 600, and EB Garamond italic 500). The two uprights are
+   preloaded; the italic loads at first use.
 4. **`woodcuts/*-640.webp`** are 84 to 256 KB each, most about 200 KB, large
    for a 640 pixel print, because a woodcut's fine lines do not compress. A
    lower quality or a 480 pixel width would shrink them; it changes how the
