@@ -10,6 +10,14 @@ defmodule LumenViae.Curation.ArtworkVariants do
   `LumenViae.Curation.ArtworkUpload.store_variants/2`, and records the
   widths now in S3. The original is never changed.
 
+  It also corrects the size of a painting recorded sideways. The upload
+  once read a JPEG's stored geometry and ignored its Exif orientation, so a
+  photograph tagged with a quarter turn was recorded with its width and
+  height swapped, and its variants, made the way it is shown, never matched
+  the widths expected from that width: it stayed pending on every run. The
+  size is now read from the original downloaded, as it is shown
+  (`LumenViae.Images.Inspector`), and recorded with the widths.
+
   Idempotent: a painting that already has all its variants is skipped, so
   a run cut short can simply be repeated. A dry run reads the database and
   nothing else - no download, no upload, no write - and lists what a real
@@ -29,6 +37,7 @@ defmodule LumenViae.Curation.ArtworkVariants do
 
   alias LumenViae.AshOpts
   alias LumenViae.Curation.ArtworkUpload
+  alias LumenViae.Images.Inspector
   alias LumenViae.Images.Variants
   alias LumenViae.Rosary
   alias LumenViae.Storage.S3
@@ -56,6 +65,30 @@ defmodule LumenViae.Curation.ArtworkVariants do
       notify(opts, {:item_finished, index, total, result})
       result
     end)
+  end
+
+  @doc """
+  Counts a run's results for whoever started it: `succeeded`, `warnings`
+  (an original missing from the bucket), `failed` (a variant that could
+  not be stored, a download or a write that failed) and `failures`, the
+  failed paintings' messages.
+  """
+  @spec summarize([{:ok | :warning | :error, String.t()}]) :: %{
+          succeeded: non_neg_integer,
+          warnings: non_neg_integer,
+          failed: non_neg_integer,
+          failures: [String.t()]
+        }
+  def summarize(results) do
+    failures = for {:error, message} <- results, do: message
+    warnings = Enum.count(results, &match?({:warning, _}, &1))
+
+    %{
+      succeeded: length(results) - warnings - length(failures),
+      warnings: warnings,
+      failed: length(failures),
+      failures: failures
+    }
   end
 
   defp pending?(%{record: record}), do: missing(record) != []
@@ -93,7 +126,6 @@ defmodule LumenViae.Curation.ArtworkVariants do
   defp backfill(%{kind: kind, record: record, record_fun: record_fun}, ash_opts) do
     key = record.image_key
     label = "#{kind} #{record.id}"
-    expected = Variants.widths_for(record.image_width)
 
     # Variants are named after their key and never change, so the ones
     # recorded before are still there: this run adds to them. A width that
@@ -101,17 +133,40 @@ defmodule LumenViae.Curation.ArtworkVariants do
     recorded = record.image_variant_widths || []
 
     with {:ok, original} <- download(key, label),
+         {shown_width, shown_height} = shown_size(original, record),
+         expected = Variants.widths_for(shown_width),
          {:ok, stored} <- ArtworkUpload.store_variants(original, key),
          widths = Enum.sort(Enum.uniq(recorded ++ stored)),
-         :ok <- record_widths(record_fun, record, recorded, widths, label, ash_opts) do
+         changes = changes(record, widths, shown_width, shown_height),
+         :ok <- record_changes(record_fun, record, changes, label, ash_opts) do
+      # A variant that could not be stored is a failure, not a warning:
+      # the bucket refused it or the original would not resize, and a run
+      # that ends this way must say so to whoever started it.
       if widths == expected do
         {:ok, "Made #{Enum.join(widths, ", ")}px variants of #{key} (#{label})"}
       else
-        {:warning,
+        {:error,
          "Made only #{inspect(widths)} of #{inspect(expected)}px variants of #{key} " <>
            "(#{label}); run again to retry the rest"}
       end
     end
+  end
+
+  # The painting's size as it is shown, read from the original itself; the
+  # recorded size if the header cannot be read (the variants are made from
+  # the decoded picture either way).
+  defp shown_size(original, record) do
+    case Inspector.inspect(original) do
+      {:ok, %{width: width, height: height}} -> {width, height}
+      {:error, _reason} -> {record.image_width, record.image_height}
+    end
+  end
+
+  # Only what differs from the record is written.
+  defp changes(record, widths, width, height) do
+    %{image_variant_widths: widths, image_width: width, image_height: height}
+    |> Enum.reject(fn {field, value} -> Map.get(record, field) == value end)
+    |> Map.new()
   end
 
   defp download(key, label) do
@@ -122,10 +177,12 @@ defmodule LumenViae.Curation.ArtworkVariants do
     end
   end
 
-  defp record_widths(_record_fun, _record, recorded, recorded, _label, _ash_opts), do: :ok
+  defp record_changes(_record_fun, _record, changes, _label, _ash_opts)
+       when map_size(changes) == 0,
+       do: :ok
 
-  defp record_widths(record_fun, record, _recorded, widths, label, ash_opts) do
-    params = %{image_variant_widths: widths, for_image_key: record.image_key}
+  defp record_changes(record_fun, record, changes, label, ash_opts) do
+    params = Map.put(changes, :for_image_key, record.image_key)
 
     case record_fun.(record, params, ash_opts) do
       {:ok, _record} ->

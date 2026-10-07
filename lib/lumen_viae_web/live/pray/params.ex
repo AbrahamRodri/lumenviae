@@ -6,7 +6,14 @@ defmodule LumenViaeWeb.Live.Pray.Params do
   back button keeps it: `mystery` (`opening`, a decade from 0, or
   `closing`), `step` (the bead on that page, counting on the screen),
   `form`, `count`, `aloud` and `voice`. Defaults are left out to keep
-  ordinary links short. `mobile`, from links made before the page worked
+  ordinary links short.
+
+  How the beads are counted and whether the Rosary is said aloud default
+  by form. The Rosary Said Aloud (`holy`), as the app prays it, is the
+  whole Rosary aloud with the beads on the screen; every other form is
+  silent and counted on the reader's own rosary. A URL that says otherwise
+  (`aloud=false`, `count=beads`) is followed, and only a choice away from
+  its form's default is written into a URL. `mobile`, from links made before the page worked
   on phones by itself, is accepted and ignored.
   """
 
@@ -28,9 +35,25 @@ defmodule LumenViaeWeb.Live.Pray.Params do
     if params["form"] in forms(route), do: params["form"], else: default_form(route)
   end
 
-  def count(params), do: if(params["count"] in @counts, do: params["count"], else: "beads")
+  @doc "How the beads are counted in `form` unless the URL says otherwise."
+  def default_count("holy"), do: "screen"
+  def default_count(_form), do: "beads"
 
-  def aloud?(params), do: params["aloud"] == "true"
+  @doc "Whether `form` is said aloud unless the URL says otherwise."
+  def default_aloud?("holy"), do: true
+  def default_aloud?(_form), do: false
+
+  def count(params, form \\ nil) do
+    if params["count"] in @counts, do: params["count"], else: default_count(form)
+  end
+
+  def aloud?(params, form \\ nil) do
+    case params["aloud"] do
+      "true" -> true
+      "false" -> false
+      _other -> default_aloud?(form)
+    end
+  end
 
   @doc """
   The page the URL names, given how many decades there are: 0 the
@@ -84,8 +107,12 @@ defmodule LumenViaeWeb.Live.Pray.Params do
       |> then(
         &if(state.form != default_form(state.route), do: &1 ++ [form: state.form], else: &1)
       )
-      |> then(&if(state.count != "beads", do: &1 ++ [count: state.count], else: &1))
-      |> then(&if(state.aloud, do: &1 ++ [aloud: true], else: &1))
+      |> then(
+        &if(state.count != default_count(state.form), do: &1 ++ [count: state.count], else: &1)
+      )
+      |> then(
+        &if(state.aloud != default_aloud?(state.form), do: &1 ++ [aloud: state.aloud], else: &1)
+      )
       |> then(fn query ->
         if state.voice && state.voice != Voices.default(),
           do: query ++ [voice: state.voice.slug],

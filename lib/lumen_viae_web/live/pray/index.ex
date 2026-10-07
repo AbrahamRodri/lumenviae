@@ -125,13 +125,15 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   @impl true
   def handle_params(params, _url, socket) do
     first_visit? = is_nil(socket.assigns.sequence)
-    count = Params.count(params)
+    form = Params.form(params, socket.assigns.route)
+    count = Params.count(params, form)
+    player_before = player(socket)
 
     socket =
       socket
       |> assign(:count, count)
       |> assign_voice(params["voice"])
-      |> assign_form(Params.form(params, socket.assigns.route))
+      |> assign_form(form)
 
     page = Params.page(params, length(socket.assigns.decades))
 
@@ -152,9 +154,26 @@ defmodule LumenViaeWeb.Live.Pray.Index do
      |> then(&if(moved?, do: assign(&1, :show_meditation, false), else: &1))
      |> assign(:page, page)
      |> assign(:step, max(step, 0))
-     |> assign_pray_aloud(Params.aloud?(params))
+     |> assign_pray_aloud(Params.aloud?(params, form))
      |> follow_with_spoken_rosary()
+     |> then(&if(first_visit?, do: &1, else: play_new_player(&1, player_before)))
      |> then(&if(moved? and count == "beads", do: push_event(&1, "prayer:top", %{}), else: &1))}
+  end
+
+  # The spoken Rosary never starts by itself on arrival: a browser allows
+  # sound only after a tap, so a page opened from a link (the Rosary Said
+  # Aloud is aloud from the start) waits for Play. A player that appears
+  # because the reader did something - turned the voice on, chose another
+  # voice, form or closing prayers - is told to play, since that was the
+  # tap.
+  #
+  # A player is known by its id, which changes whenever it is remounted.
+  defp player(socket), do: socket.assigns.pray_aloud && spoken_id(socket.assigns)
+
+  defp play_new_player(socket, before) do
+    if socket.assigns.pray_aloud and player(socket) != before,
+      do: push_event(socket, "spoken_play", %{}),
+      else: socket
   end
 
   ## Moving through the Rosary
@@ -216,7 +235,15 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   def handle_event("set_form", %{"form" => form}, socket) do
     if form in Params.forms(socket.assigns.route) do
-      assigns = %{socket.assigns | form: form}
+      # A form is chosen with its own way of praying: the Rosary Said
+      # Aloud aloud on the screen, the others silent on the reader's beads.
+      assigns = %{
+        socket.assigns
+        | form: form,
+          count: Params.default_count(form),
+          pray_aloud: Params.default_aloud?(form)
+      }
+
       {:noreply, push_patch(socket, to: pray_url(assigns, assigns.page, 0))}
     else
       {:noreply, socket}
@@ -237,7 +264,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
           do: List.delete(socket.assigns.extras, extra),
           else: [extra | socket.assigns.extras]
 
-      socket = set_extras(socket, extras)
+      before = player(socket)
+      socket = socket |> set_extras(extras) |> play_new_player(before)
       {:noreply, push_event(socket, "prayer:extras", %{extras: socket.assigns.extras})}
     else
       {:noreply, socket}
