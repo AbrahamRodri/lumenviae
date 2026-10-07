@@ -7,6 +7,8 @@ defmodule LumenViaeWeb.Live.Home.CategoryCard do
   """
   use LumenViaeWeb, :html
 
+  alias LumenViaeWeb.Components.ArtworkPicture
+
   attr :category, :map, required: true
   attr :today?, :boolean, default: false
 
@@ -21,11 +23,11 @@ defmodule LumenViaeWeb.Live.Home.CategoryCard do
       ]}
     >
       <div class="relative aspect-[4/5] overflow-hidden bg-cream-dark">
-        <img
+        <ArtworkPicture.artwork_picture
           :if={@category.painting}
-          src={@category.painting.src}
+          record={@category.painting.record}
           alt={@category.painting.alt}
-          loading="lazy"
+          sizes="(min-width: 1024px) 215px, (min-width: 768px) 31vw, 47vw"
           class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           style={"object-position: #{@category.painting.position}"}
         />

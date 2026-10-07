@@ -125,13 +125,15 @@ and `logo.svg`. They are in the git history if one is wanted back.
 
 The mystery and category paintings (`docs/MYSTERY_PAINTINGS.md`) are not
 static files: they are uploaded through the console to the public assets
-bucket (`LumenViae.Curation.ArtworkUpload`, URL from `Rosary.artwork_url/1`)
-and stored without resizing, as JPEGs of 1200 to 4000 pixels and up to
-12 MB. The public site shows them on the set cards of the category list. A
-phone gets the original for every card. This was not measured, but it is
-likely the largest remaining cost, and nothing under `priv/static` can fix
-it: narrower copies would have to be written at upload and named by
-`Rosary.artwork_url/1`.
+bucket (`LumenViae.Curation.ArtworkUpload`, URL from `Rosary.artwork_url/1`).
+The originals are whatever was uploaded: JPEGs of 1200 to 4000 pixels, up
+to 12 MB, stored without resizing, and still what the APIs serve. Beside
+each, the upload stores WebP display variants at 480, 960 and 1600 pixels
+wide, and the public pages (the category list's set cards and the home
+page's category cards) draw from those with `srcset`. Paintings uploaded
+before the variants existed are backfilled with
+`mix lumen_viae.artwork_variants`. See docs/MYSTERY_PAINTINGS.md,
+"Display variants".
 
 ## Also worth doing
 
