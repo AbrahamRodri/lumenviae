@@ -391,6 +391,20 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   def handle_event("spoken_at", _params, socket), do: {:noreply, socket}
 
+  ## Completion
+
+  # The one place a completion is recorded. Pressing this is a deliberate
+  # act at the end of the Rosary; arriving at the end is not, and counting
+  # arrivals meant every crawler that walked the set left a prayed Rosary
+  # behind it. A Rosary prayed without a set records nothing: a completion
+  # belongs to a set.
+  #
+  # Only at the end: the button is not offered before then, so a complete
+  # from anywhere else is not a reader finishing the Rosary.
+  def handle_event("complete", _params, socket) do
+    if at_end?(socket.assigns), do: {:noreply, complete(socket)}, else: {:noreply, socket}
+  end
+
   defp follow_voice(socket, index) do
     case Sequence.screen_at(socket.assigns.sequence, index) do
       nil ->
@@ -411,20 +425,6 @@ defmodule LumenViaeWeb.Live.Pray.Index do
             {:noreply,
              push_patch(socket, to: pray_url(socket.assigns, page, step), replace: true)}
     end
-  end
-
-  ## Completion
-
-  # The one place a completion is recorded. Pressing this is a deliberate
-  # act at the end of the Rosary; arriving at the end is not, and counting
-  # arrivals meant every crawler that walked the set left a prayed Rosary
-  # behind it. A Rosary prayed without a set records nothing: a completion
-  # belongs to a set.
-  #
-  # Only at the end: the button is not offered before then, so a complete
-  # from anywhere else is not a reader finishing the Rosary.
-  def handle_event("complete", _params, socket) do
-    if at_end?(socket.assigns), do: {:noreply, complete(socket)}, else: {:noreply, socket}
   end
 
   ## Helpers
