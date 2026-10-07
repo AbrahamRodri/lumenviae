@@ -1,443 +1,111 @@
 <div
-  class="relative min-h-screen bg-navy flex flex-col overflow-hidden"
-  id="prayer-container"
-  phx-hook="MobileMode"
-  phx-window-keydown="key_nav"
+  id="prayer"
+  class="prayer-surface relative min-h-[100dvh] bg-navy text-cream flex flex-col"
+  phx-hook="PrayerSurface"
+  data-count={@count}
 >
-  <!-- Ornate background -->
   <div class="absolute inset-0 opacity-[0.04] pointer-events-none" aria-hidden="true">
     <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
   </div>
 
-  <div
-    class={[
-      "relative flex-1 flex flex-col max-w-4xl w-full mx-auto",
-      if(@mobile_mode_enabled,
-        do: "px-6 py-4 md:px-8 md:py-6",
-        else: "px-4 py-3 md:px-8 md:py-4"
-      )
-    ]}
-    id={"meditation-container-#{@current_index}"}
-    phx-hook="ScrollToTop"
-  >
-    <!-- Header: Exit | Set Name | Mobile Toggle -->
-    <div class="flex-shrink-0 mb-3 md:mb-4">
-      <div class="flex justify-between items-center mb-3">
-        <div class="flex-1">
-          <.link
-            navigate={"/mysteries/" <> @set.category}
-            class="inline-flex items-center gap-1.5 text-gold-light/60 hover:text-gold transition-colors p-1"
-            aria-label="Exit prayer and return to meditation sets"
-            title="Exit prayer"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              class="w-5 h-5"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </.link>
-        </div>
+  <div class="prayer-safe-area relative flex-1 flex flex-col w-full max-w-3xl mx-auto">
+    <header class="flex items-center gap-2 pt-3">
+      <.link
+        navigate={~p"/mysteries/#{@category}"}
+        class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-gold-light/70 hover:text-gold focus-visible:outline-2 focus-visible:outline-gold"
+        aria-label="Leave the prayer and return to the mysteries"
+      >
+        <span class="hero-x-mark size-5" aria-hidden="true" />
+      </.link>
 
-        <h1 class="font-cinzel text-base md:text-lg text-gold text-center flex-[3] leading-snug">
-          {@set.name}
-        </h1>
+      <h1 class="flex-1 min-w-0 text-center font-cinzel text-base md:text-lg text-gold leading-snug">
+        {@heading}
+      </h1>
 
-        <div class="flex-1 flex justify-end">
-          <button
-            phx-click="toggle_mobile_mode"
-            class="md:hidden text-gold-light/60 hover:text-gold transition-colors p-1"
-            title={
-              if @mobile_mode_enabled, do: "Switch to full view", else: "Switch to mobile view"
-            }
-            aria-label="Toggle mobile mode"
-            type="button"
-          >
-            <%= if @mobile_mode_enabled do %>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="w-5 h-5"
-              >
-                <path d="M11.25 4.533A9.707 9.707 0 006 3a9.735 9.735 0 00-3.25.555.75.75 0 00-.5.707v14.25a.75.75 0 001 .707A8.237 8.237 0 016 18.75c1.995 0 3.823.707 5.25 1.886V4.533zM12.75 20.636A8.214 8.214 0 0118 18.75c.966 0 1.89.166 2.75.47a.75.75 0 001-.708V4.262a.75.75 0 00-.5-.707A9.735 9.735 0 0018 3a9.707 9.707 0 00-5.25 1.533v16.103z" />
-              </svg>
-            <% else %>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="w-5 h-5"
-              >
-                <path d="M10.5 18.75a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" />
-                <path
-                  fill-rule="evenodd"
-                  d="M8.625.75A3.375 3.375 0 005.25 4.125v15.75a3.375 3.375 0 003.375 3.375h6.75a3.375 3.375 0 003.375-3.375V4.125A3.375 3.375 0 0015.375.75h-6.75zM7.5 4.125C7.5 3.504 8.004 3 8.625 3H9.75v.375c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125V3h1.125c.621 0 1.125.504 1.125 1.125v15.75c0 .621-.504 1.125-1.125 1.125h-6.75A1.125 1.125 0 017.5 19.875V4.125z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            <% end %>
-          </button>
-        </div>
+      <button
+        :if={!@completed}
+        type="button"
+        phx-click="toggle_panel"
+        aria-expanded={to_string(@panel_open)}
+        aria-controls="prayer-settings"
+        aria-label="How to pray"
+        class={[
+          "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gold focus-visible:outline-2 focus-visible:outline-gold",
+          if(@panel_open, do: "text-gold bg-gold/15", else: "text-gold-light/70")
+        ]}
+      >
+        <span class="hero-adjustments-horizontal size-5" aria-hidden="true" />
+      </button>
+      <span :if={@completed} class="w-11 shrink-0" aria-hidden="true"></span>
+    </header>
+
+    <%= if @completed do %>
+      <Completion.completion category={@category} storage_key={@storage_key} />
+    <% else %>
+      <Controls.settings_panel
+        :if={@panel_open}
+        route={@route}
+        form={@form}
+        count={@count}
+        extras={@extras}
+        chaplet={@sequence.chaplet?}
+      />
+
+      <Controls.resume_banner :if={@resume} resume={@resume} />
+
+      <div class="mt-3">
+        <Strand.progress sequence={@sequence} page={@page} />
       </div>
 
-      <!-- Rosary bead progress (clickable) -->
-      <div class="relative max-w-xs mx-auto mb-2">
-        <div class="absolute top-1/2 inset-x-2 h-px bg-gold/20" aria-hidden="true"></div>
-        <div class="relative flex justify-center items-center gap-3">
-          <%= for i <- 0..(@total_count - 1) do %>
-            <button
-              type="button"
-              phx-click="go_to"
-              phx-value-index={i}
-              aria-label={"Go to mystery #{i + 1}"}
-              aria-current={if i == @current_index, do: "step", else: "false"}
-              class={[
-                "rounded-full transition-all duration-300 border",
-                cond do
-                  i == @current_index ->
-                    "w-3.5 h-3.5 bg-gold border-gold-light shadow-glow"
-
-                  i < @current_index ->
-                    "w-2.5 h-2.5 bg-gold/50 border-gold/40 hover:bg-gold/80"
-
-                  true ->
-                    "w-2.5 h-2.5 bg-navy border-gold/40 hover:bg-gold/30"
-                end
-              ]}
-            ></button>
-          <% end %>
-        </div>
+      <div class="mt-3">
+        <Controls.aloud_controls voices={@voices} voice={@voice} pray_aloud={@pray_aloud} />
       </div>
 
-      <p class={[
-        "font-cinzel tracking-[0.25em] uppercase text-center",
-        if(@mobile_mode_enabled,
-          do: "text-xs text-gold-light/50",
-          else: "text-[0.65rem] text-gold-light/60"
-        )
-      ]}>
-        Mystery {roman(@current_index + 1)} of {roman(@total_count)}
-      </p>
+      <Controls.spoken_player
+        :if={@pray_aloud}
+        id={spoken_id(assigns)}
+        script={@spoken_script}
+        start_screen={current_screen(assigns).index}
+        title={@heading}
+      />
 
-      <!-- Pray aloud, and the voice it is prayed in -->
-      <div class="flex flex-wrap items-center justify-center gap-2 mt-3">
-        <button
-          type="button"
-          phx-click="toggle_pray_aloud"
-          aria-pressed={to_string(@pray_aloud)}
-          title="Hear every prayer of the Rosary, bead by bead, with the meditations"
-          class={[
-            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-cinzel text-[0.65rem] tracking-[0.2em] uppercase transition-colors",
-            if(@pray_aloud,
-              do: "border-gold bg-gold text-navy",
-              else: "border-gold/40 text-gold-light/70 hover:border-gold hover:text-gold"
-            )
-          ]}
-        >
-          <span class="hero-speaker-wave size-3.5" aria-hidden="true" />
-          {if @pray_aloud, do: "Praying aloud", else: "Pray aloud"}
-        </button>
+      <main id="prayer-main" class="flex-1 pt-8 pb-6">
+        <%= if @count == "screen" do %>
+          <BeadScreen.bead_screen
+            sequence={@sequence}
+            screen={current_screen(assigns)}
+            audio_url={current_audio_url(assigns)}
+            pray_aloud={@pray_aloud}
+            show_meditation={@show_meditation}
+          />
+        <% else %>
+          <PageView.page_view
+            sequence={@sequence}
+            page={Sequence.page(@sequence, @page)}
+            audio_url={current_audio_url(assigns)}
+            pray_aloud={@pray_aloud}
+            show_meditation={@show_meditation}
+          />
+        <% end %>
+      </main>
 
-        <form :if={length(@voices) > 1} id="voice-form" phx-change="set_voice" class="inline-flex">
-          <label for="narration-voice" class="sr-only">Narration voice</label>
-          <select
-            id="narration-voice"
-            name="voice"
-            class="rounded-full border border-gold/40 bg-navy py-1 pl-3 pr-8 font-cinzel text-[0.65rem] tracking-[0.2em] uppercase text-gold-light/80 focus:border-gold focus:ring-0"
-          >
-            <option
-              :for={voice <- @voices}
-              value={voice.slug}
-              selected={voice.slug == @voice.slug}
-            >
-              {voice.name} voice
-            </option>
-          </select>
-        </form>
-      </div>
+      <Controls.bottom_nav
+        count={@count}
+        at_start={@page == 0 and @step == 0}
+        at_end={at_end?(assigns)}
+      />
 
       <div
-        :if={@pray_aloud}
-        id={"spoken-rosary-#{@voice.slug}"}
-        phx-hook="SpokenRosary"
-        phx-update="ignore"
-        data-script={Jason.encode!(@spoken_script)}
-        data-start-decade={if @current_index > 0, do: @current_index}
-        data-set-name={@set.name}
-        class="max-w-sm mx-auto mt-3 rounded-2xl border border-gold/25 bg-navy-light/50 px-4 py-3"
+        id="prayer-memory"
+        phx-hook="PrayerMemory"
+        hidden
+        data-key={"#{@storage_key}:#{@form}"}
+        data-mystery={Params.mystery_param(@page, length(@decades))}
+        data-step={@step}
+        data-count={@count}
+        data-extras={Enum.join(@extras, ",")}
       >
-        <div class="flex items-center gap-3">
-          <button
-            type="button"
-            data-back
-            aria-label="Previous prayer"
-            class="text-gold-light/60 hover:text-gold p-1"
-          >
-            <span class="hero-backward size-4" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            data-play
-            aria-label="Play"
-            class="flex items-center justify-center w-9 h-9 rounded-full bg-gold hover:bg-gold-light text-navy"
-          >
-            <span class="hero-play-solid size-4 ml-0.5" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            data-pause
-            aria-label="Pause"
-            class="hidden flex items-center justify-center w-9 h-9 rounded-full bg-gold hover:bg-gold-light text-navy"
-          >
-            <span class="hero-pause-solid size-4" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            data-forward
-            aria-label="Next prayer"
-            class="text-gold-light/60 hover:text-gold p-1"
-          >
-            <span class="hero-forward size-4" aria-hidden="true" />
-          </button>
-          <p
-            data-caption
-            aria-live="polite"
-            class="flex-1 min-w-0 font-garamond text-cream/90 text-base leading-snug"
-          >
-          </p>
-        </div>
-        <div class="mt-2.5 h-px bg-gold/20">
-          <div
-            data-progress
-            class="h-px bg-gold transition-[width] duration-500"
-            style="width: 0%"
-          >
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scrollable Content Area -->
-    <div class="flex-1 overflow-y-auto mb-2 px-1 pb-6 md:pb-8">
-      <div class={[
-        if(@mobile_mode_enabled,
-          do: "bg-transparent p-6 md:p-8",
-          else: "bg-navy-light/50 border border-gold/20 rounded-2xl p-5 md:p-8"
-        )
-      ]}>
-        <!-- Mystery Title -->
-        <h2 class={[
-          "font-cinzel text-gold text-center",
-          if(@mobile_mode_enabled,
-            do: "text-2xl md:text-3xl mb-8 md:mb-12 leading-relaxed",
-            else: "text-xl md:text-2xl mb-2"
-          )
-        ]}>
-          {@meditation.mystery.name}
-        </h2>
-
-        <%= if !@mobile_mode_enabled do %>
-          <%= if @meditation.mystery.scripture_reference do %>
-            <p class="font-cinzel text-[0.7rem] md:text-xs tracking-[0.25em] uppercase text-gold-light text-center mb-4">
-              {@meditation.mystery.scripture_reference}
-            </p>
-          <% end %>
-
-          <div class="flex items-center gap-4 justify-center mb-4 text-gold/50" aria-hidden="true">
-            <div class="h-px w-12 bg-gold/25"></div>
-            <span class="font-cinzel text-sm">&#10022;</span>
-            <div class="h-px w-12 bg-gold/25"></div>
-          </div>
-        <% end %>
-
-        <!-- Audio Player -->
-        <div class={[
-          "flex justify-center",
-          if(@mobile_mode_enabled,
-            do: "mb-12 md:mb-16",
-            else: "mb-5 md:mb-6"
-          )
-        ]}>
-          <.audio_player
-            :if={!@pray_aloud}
-            audio_url={@audio_presigned_url}
-            size={if @mobile_mode_enabled, do: "large", else: "normal"}
-          />
-          <%= if !@pray_aloud && @meditation.audio_url && !@audio_presigned_url do %>
-            <p
-              class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-light/50 border border-gold/20 rounded-full px-4 py-2"
-              title="This meditation has audio, but the audio URL could not be generated. Check that AWS credentials are configured on the server."
-            >
-              Audio unavailable
-            </p>
-          <% end %>
-        </div>
-
-        <!-- Mystery Description -->
-        <%= if !@mobile_mode_enabled do %>
-          <%= if @meditation.mystery.description do %>
-            <p class="font-garamond text-base md:text-lg text-cream/70 italic text-center max-w-xl mx-auto mb-5 pb-5 border-b border-gold/20">
-              {@meditation.mystery.description}
-            </p>
-          <% end %>
-        <% end %>
-
-        <!-- Meditation Content -->
-        <%= if !@mobile_mode_enabled do %>
-          <%= if @meditation.title do %>
-            <h3 class="font-cinzel text-base md:text-lg text-gold mb-3 mt-4 text-center">
-              {@meditation.title}
-            </h3>
-          <% end %>
-
-          <div class="font-garamond text-cream/90 text-lg md:text-xl leading-relaxed md:leading-loose whitespace-pre-wrap max-w-2xl mx-auto">
-            {@meditation.content}
-          </div>
-        <% end %>
-
-        <!-- Attribution -->
-        <%= if @meditation.author || @meditation.source do %>
-          <div class={[
-            if(@mobile_mode_enabled,
-              do: "text-center mt-8 md:mt-12",
-              else: "text-right max-w-2xl mx-auto mt-5 pt-4 border-t border-gold/20"
-            )
-          ]}>
-            <p class={[
-              "font-garamond text-gold-light italic",
-              if(@mobile_mode_enabled,
-                do: "text-sm opacity-70",
-                else: "text-sm md:text-base"
-              )
-            ]}>
-              <%= if @meditation.author do %>
-                &mdash; {@meditation.author}
-              <% end %>
-              <%= if @meditation.source do %>
-                <span class="block mt-1 not-italic font-garamond text-sm tracking-wide opacity-70">
-                  {@meditation.source}
-                </span>
-              <% end %>
-            </p>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Bottom Controls: Previous | Next -->
-    <%= if !@mobile_mode_enabled do %>
-      <div class="flex-shrink-0 flex items-center justify-between gap-3 pb-3 text-cream">
-        <button
-          phx-click="previous"
-          disabled={@current_index == 0}
-          class="btn-outline-gold disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
-        >
-          <span aria-hidden="true">&larr;</span> Previous
-        </button>
-
-        <span class="hidden md:block font-cinzel text-[0.6rem] tracking-[0.2em] uppercase text-gold-light/40">
-          Use arrow keys to navigate
-        </span>
-
-        <%= if @current_index == @total_count - 1 do %>
-          <button
-            phx-click="complete"
-            type="button"
-            class="btn-gold text-center flex-shrink-0"
-          >
-            Complete <span aria-hidden="true">&#10022;</span>
-          </button>
-        <% else %>
-          <button
-            phx-click="next"
-            class="btn-gold flex-shrink-0"
-          >
-            Next <span aria-hidden="true">&rarr;</span>
-          </button>
-        <% end %>
       </div>
     <% end %>
   </div>
-
-  <!-- Mobile Mode: Large Tap Zones (Bottom Half of Screen) -->
-  <%= if @mobile_mode_enabled do %>
-    <!-- Left Half: Previous -->
-    <button
-      phx-click="previous"
-      disabled={@current_index == 0}
-      class="fixed bottom-0 left-0 w-1/2 h-1/2 flex items-center justify-center transition-colors disabled:opacity-30 disabled:cursor-not-allowed group"
-      style="background: linear-gradient(to top, rgba(0, 40, 64, 0.5), transparent);"
-      aria-label="Previous mystery"
-    >
-      <div class="flex flex-col items-center gap-2 opacity-40 group-active:opacity-100 transition-opacity">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          class="w-12 h-12 text-gold"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        <span class="font-cinzel tracking-[0.2em] uppercase text-gold text-sm">Previous</span>
-      </div>
-    </button>
-
-    <!-- Right Half: Next or Complete -->
-    <%= if @current_index == @total_count - 1 do %>
-      <button
-        phx-click="complete"
-        type="button"
-        class="fixed bottom-0 right-0 w-1/2 h-1/2 flex items-center justify-center transition-colors group"
-        style="background: linear-gradient(to top, rgba(0, 40, 64, 0.5), transparent);"
-        aria-label="Complete rosary"
-      >
-        <div class="flex flex-col items-center gap-2 opacity-40 group-active:opacity-100 transition-opacity">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            class="w-12 h-12 text-gold"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          <span class="font-cinzel tracking-[0.2em] uppercase text-gold text-sm">Complete</span>
-        </div>
-      </button>
-    <% else %>
-      <button
-        phx-click="next"
-        class="fixed bottom-0 right-0 w-1/2 h-1/2 flex items-center justify-center transition-colors group"
-        style="background: linear-gradient(to top, rgba(0, 40, 64, 0.5), transparent);"
-        aria-label="Next mystery"
-      >
-        <div class="flex flex-col items-center gap-2 opacity-40 group-active:opacity-100 transition-opacity">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            class="w-12 h-12 text-gold"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          <span class="font-cinzel tracking-[0.2em] uppercase text-gold text-sm">Continue</span>
-        </div>
-      </button>
-    <% end %>
-  <% end %>
 </div>
