@@ -134,7 +134,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
       assigns
       |> assign(:artwork, artwork)
       |> assign(:byline, byline(set))
-      |> assign(:count, length(set.meditations))
+      |> assign(:count, set.meditation_count)
       |> assign(:narrated?, Filtering.narrated?(set))
       |> assign(:portrait_alt, artwork && artwork.image_alt)
 
