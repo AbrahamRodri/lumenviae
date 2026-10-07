@@ -40,6 +40,22 @@ defmodule LumenViaeWeb.Components.WoodcutPlateTest do
              ]
     end
 
+    test "drops a WebP variant whose file is missing, and the picture with the last one" do
+      plate = %{
+        "file" => "a.jpg",
+        "key" => "joyful_2",
+        "width" => 1600,
+        "webp" => %{"640" => "a-640.webp", "1200" => "a-1200.webp"}
+      }
+
+      manifest = %{"plates" => [plate]}
+
+      assert %{"joyful_2" => %{sources: [%{srcset: "/x/a-640.webp 640w"}]}} =
+               Manifest.index(manifest, ["a.jpg", "a-640.webp"], "/x")
+
+      assert %{"joyful_2" => %{sources: []}} = Manifest.index(manifest, ["a.jpg"], "/x")
+    end
+
     test "drops a plate whose image is missing" do
       manifest = %{"plates" => [%{"file" => "missing.jpg", "key" => "joyful_2"}]}
       assert Manifest.index(manifest, ["other.jpg"], "/x") == %{}

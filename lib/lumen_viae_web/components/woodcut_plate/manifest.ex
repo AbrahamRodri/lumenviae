@@ -27,8 +27,8 @@ defmodule LumenViaeWeb.Components.WoodcutPlate.Manifest do
   A plate's `"webp"` is a map of pixel width to file name, such as
   `{"640": "baptism-dore-640.webp", "1200": "baptism-dore-1200.webp"}`,
   listing only the variants that exist. `files` is the list of file names in
-  the woodcuts directory: a plate whose JPEG is not in it is dropped, so a
-  manifest entry can never render a broken image.
+  the woodcuts directory: a plate whose JPEG is not in it is dropped, and so
+  is a WebP variant, so a manifest entry can never render a broken image.
   """
   def index(%{"plates" => plates}, files, url_root) when is_list(plates) do
     files = MapSet.new(files)
@@ -36,7 +36,7 @@ defmodule LumenViaeWeb.Components.WoodcutPlate.Manifest do
     for %{"file" => file, "key" => key} = raw <- plates,
         MapSet.member?(files, file),
         into: %{} do
-      {key, build(raw, url_root)}
+      {key, build(raw, files, url_root)}
     end
   end
 
@@ -48,7 +48,7 @@ defmodule LumenViaeWeb.Components.WoodcutPlate.Manifest do
     end
   end
 
-  defp build(raw, url_root) do
+  defp build(raw, files, url_root) do
     %{
       key: raw["key"],
       file: raw["file"],
@@ -62,23 +62,25 @@ defmodule LumenViaeWeb.Components.WoodcutPlate.Manifest do
       height: raw["height"],
       source: raw["source"],
       licence: raw["licence"],
-      sources: sources(raw, url_root)
+      sources: sources(raw, files, url_root)
     }
   end
 
-  defp sources(raw, url_root) do
-    case raw["webp"] do
-      variants when is_map(variants) and map_size(variants) > 0 ->
-        srcset =
-          variants
-          |> Enum.map(fn {width, name} -> {String.to_integer(width), name} end)
-          |> Enum.sort()
-          |> Enum.map_join(", ", fn {width, name} -> "#{url_root}/#{name} #{width}w" end)
+  defp sources(raw, files, url_root) do
+    variants =
+      for {width, name} <- raw["webp"] || %{},
+          MapSet.member?(files, name),
+          do: {String.to_integer(width), name}
 
-        [%{type: "image/webp", srcset: srcset}]
+    if variants == [] do
+      []
+    else
+      srcset =
+        variants
+        |> Enum.sort()
+        |> Enum.map_join(", ", fn {width, name} -> "#{url_root}/#{name} #{width}w" end)
 
-      _ ->
-        []
+      [%{type: "image/webp", srcset: srcset}]
     end
   end
 end
