@@ -727,3 +727,251 @@
   }
 }
 /* === end home page === */
+
+/* === category page === */
+/* /mysteries/:category: section labels, the choice pills, filter chips,
+   cards whose title link covers the whole card, and quiet buttons. */
+.category-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-cinzel);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+}
+
+.category-section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-gold) 45%, transparent),
+    transparent
+  );
+}
+
+.category-choices {
+  background: var(--color-cream);
+  border: 1px solid color-mix(in srgb, var(--color-gold) 30%, transparent);
+  border-radius: 1rem;
+  padding: 1.25rem 1rem 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .category-choices {
+    padding: 1.5rem 1.5rem 0.75rem;
+  }
+}
+
+.category-choices fieldset:last-of-type {
+  border-bottom: 0;
+}
+
+.category-choice-note {
+  font-family: var(--font-garamond);
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--color-brown-light);
+}
+
+.category-pill {
+  display: flex;
+  padding: 3px;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 35%, transparent);
+  background: var(--color-parchment);
+}
+
+.category-pill-option {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  font-family: var(--font-cinzel);
+  font-size: 0.66rem;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-brown-light);
+  transition:
+    background-color 0.2s ease-out,
+    color 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.category-pill-option:hover {
+  color: var(--color-navy);
+}
+
+.category-pill-option:has(:checked) {
+  background: var(--color-white);
+  border-color: color-mix(in srgb, var(--color-gold) 75%, transparent);
+  color: var(--color-navy);
+  box-shadow: var(--shadow-soft);
+}
+
+.category-pill-option:has(:focus-visible) {
+  outline: 2px solid var(--color-gold-dark);
+  outline-offset: 2px;
+}
+
+.category-card {
+  background: var(--color-white);
+  border: 1px solid color-mix(in srgb, var(--color-gold) 30%, transparent);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-soft);
+  transition:
+    border-color 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+
+.category-card:has(.category-stretched-link):hover {
+  border-color: color-mix(in srgb, var(--color-gold) 60%, transparent);
+  box-shadow: var(--shadow-ornate);
+  transform: translateY(-2px);
+}
+
+.category-card:has(.category-stretched-link:focus-visible) {
+  outline: 2px solid var(--color-gold-dark);
+  outline-offset: 3px;
+}
+
+.category-stretched-link {
+  outline: none;
+}
+
+.category-stretched-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.category-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease-out;
+}
+
+.category-card:hover .category-arrow {
+  transform: translateX(3px);
+}
+
+.category-glyph {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 40%, transparent);
+  color: var(--color-gold-dark);
+  background: var(--color-cream);
+}
+
+.category-chip {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 40%, transparent);
+  background: var(--color-white);
+  font-family: var(--font-cinzel);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-brown);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease-out,
+    color 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.category-chip:hover {
+  border-color: var(--color-gold);
+  color: var(--color-navy);
+}
+
+.category-chip[aria-pressed="true"] {
+  background: var(--color-navy);
+  border-color: var(--color-navy);
+  color: var(--color-cream);
+}
+
+.category-quiet-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 55%, transparent);
+  background: transparent;
+  font-family: var(--font-cinzel);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-navy);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.category-quiet-btn:hover {
+  border-color: var(--color-gold);
+  background: color-mix(in srgb, var(--color-gold) 8%, transparent);
+}
+
+.category-text-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.25rem;
+  font-family: var(--font-cinzel);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.category-chip:focus-visible,
+.category-quiet-btn:focus-visible,
+.category-text-btn:focus-visible {
+  outline: 2px solid var(--color-gold-dark);
+  outline-offset: 2px;
+}
+
+.category-rise {
+  animation: var(--animate-rise);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-page *,
+  .category-page *::before,
+  .category-page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .category-card:has(.category-stretched-link):hover {
+    transform: none;
+  }
+}
+/* === end category page === */
