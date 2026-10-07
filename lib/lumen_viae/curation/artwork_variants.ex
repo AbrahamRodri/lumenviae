@@ -95,9 +95,15 @@ defmodule LumenViae.Curation.ArtworkVariants do
     label = "#{kind} #{record.id}"
     expected = Variants.widths_for(record.image_width)
 
+    # Variants are named after their key and never change, so the ones
+    # recorded before are still there: this run adds to them. A width that
+    # fails this time must not take one stored earlier off the page.
+    recorded = record.image_variant_widths || []
+
     with {:ok, original} <- download(key, label),
-         {:ok, widths} <- ArtworkUpload.store_variants(original, key),
-         :ok <- record_widths(record_fun, record, widths, label, ash_opts) do
+         {:ok, stored} <- ArtworkUpload.store_variants(original, key),
+         widths = Enum.sort(Enum.uniq(recorded ++ stored)),
+         :ok <- record_widths(record_fun, record, recorded, widths, label, ash_opts) do
       if widths == expected do
         {:ok, "Made #{Enum.join(widths, ", ")}px variants of #{key} (#{label})"}
       else
@@ -116,7 +122,9 @@ defmodule LumenViae.Curation.ArtworkVariants do
     end
   end
 
-  defp record_widths(record_fun, record, widths, label, ash_opts) do
+  defp record_widths(_record_fun, _record, recorded, recorded, _label, _ash_opts), do: :ok
+
+  defp record_widths(record_fun, record, _recorded, widths, label, ash_opts) do
     params = %{image_variant_widths: widths, for_image_key: record.image_key}
 
     case record_fun.(record, params, ash_opts) do

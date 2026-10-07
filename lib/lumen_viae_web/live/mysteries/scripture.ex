@@ -51,6 +51,8 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
     {:noreply, assign(socket, :selected_category, selected_category)}
   end
 
+  def handle_event("select-category", _params, socket), do: {:noreply, socket}
+
   # %{"joyful" => %{1 => %Mystery{}, ...}, ...}: a partial looks its
   # mysteries up by their place in the category.
   defp mysteries_by_category(actor) do

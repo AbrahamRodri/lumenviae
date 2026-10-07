@@ -21,14 +21,24 @@ export default {
   mounted() {
     let streak = { last: null, days: 0 }
     try {
-      streak = JSON.parse(window.localStorage.getItem(STREAK_KEY)) || streak
+      const saved = JSON.parse(window.localStorage.getItem(STREAK_KEY))
+      // Only a well-formed count is carried on; anything else in its place
+      // (another version's shape, a hand edit) starts again from today.
+      if (
+        saved &&
+        typeof saved.last === "string" &&
+        Number.isInteger(saved.days) &&
+        saved.days > 0
+      ) {
+        streak = saved
+      }
     } catch (_blockedOrUnreadable) {
       // Counted from today.
     }
 
     const firstToday = streak.last !== today()
     if (firstToday) {
-      streak = { last: today(), days: streak.last === today(-1) ? (streak.days || 0) + 1 : 1 }
+      streak = { last: today(), days: streak.last === today(-1) ? streak.days + 1 : 1 }
     }
 
     try {

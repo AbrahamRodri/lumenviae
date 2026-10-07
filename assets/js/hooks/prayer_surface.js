@@ -40,8 +40,11 @@ const storage = {
 
 export default {
   mounted() {
-    this.sizeIndex = Number(storage.get(SIZE_KEY))
-    if (!Number.isInteger(this.sizeIndex) || !SCALES[this.sizeIndex]) this.sizeIndex = 1
+    // Nothing saved reads as null, and Number(null) is 0, the smallest
+    // size: only a saved index counts.
+    const saved = storage.get(SIZE_KEY)
+    const index = saved === null ? NaN : Number(saved)
+    this.sizeIndex = Number.isInteger(index) && SCALES[index] ? index : 1
     this.applySize()
     applyDisplay()
 
@@ -79,6 +82,7 @@ export default {
   },
 
   destroyed() {
+    this.dead = true
     window.removeEventListener("keydown", this.onKey)
     document.removeEventListener("visibilitychange", this.onVisibility)
     document.documentElement.style.removeProperty("--prayer-text-scale")
@@ -140,15 +144,27 @@ export default {
   // The Screen Wake Lock API, where there is one. The browser lets go of
   // the lock whenever the page is hidden, so it is asked for again on the
   // way back. Unsupported or refused, the screen sleeps as it always did.
+  //
+  // The request is asynchronous, so one is never started while another is
+  // pending, and a lock granted after the page was left is let go at once
+  // rather than keeping the next page awake.
   async keepAwake() {
-    if (!("wakeLock" in navigator) || this.lock) return
+    if (!("wakeLock" in navigator) || this.lock || this.requesting || this.dead) return
+    this.requesting = true
     try {
-      this.lock = await navigator.wakeLock.request("screen")
-      this.lock.addEventListener("release", () => {
-        this.lock = null
+      const sentinel = await navigator.wakeLock.request("screen")
+      if (this.dead) {
+        sentinel.release().catch(() => {})
+        return
+      }
+      this.lock = sentinel
+      sentinel.addEventListener("release", () => {
+        if (this.lock === sentinel) this.lock = null
       })
     } catch (_refused) {
       this.lock = null
+    } finally {
+      this.requesting = false
     }
   },
 

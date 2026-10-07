@@ -47,8 +47,17 @@ export default {
     this.handleEvent("prayer:language", ({ language }) => storage.set(LANGUAGE_KEY, language))
 
     const saved = storage.get(this.storageKey())
-    if (saved && saved.mystery !== undefined && Date.now() - (saved.at || 0) < MAX_AGE_MS) {
-      this.pushEvent("resume_available", saved)
+    // Sent only in the shape it was saved in: a value damaged in storage
+    // is dropped here rather than handed to the page.
+    if (
+      saved &&
+      (typeof saved.mystery === "string" || Number.isInteger(saved.mystery)) &&
+      Number.isFinite(saved.at) &&
+      Date.now() - saved.at < MAX_AGE_MS
+    ) {
+      const step = Number.isInteger(saved.step) ? saved.step : 0
+      const count = typeof saved.count === "string" ? saved.count : "beads"
+      this.pushEvent("resume_available", { mystery: saved.mystery, step, count })
     }
 
     this.save()

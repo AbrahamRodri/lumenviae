@@ -108,6 +108,64 @@ async function checkPrayFlow(page, errors, vp) {
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
 }
 
+async function connected(page) {
+  return page.evaluate(() => {
+    const main = document.querySelector("[data-phx-main]");
+    return Boolean(main && main.classList.contains("phx-connected"));
+  });
+}
+
+// What the prayer page's hooks keep in this browser, checked in a fresh
+// context so nothing saved by an earlier run is in the way: the text size a
+// first visit starts at, and values damaged in localStorage, which must be
+// passed over rather than break the page.
+async function checkHooks(page, errors, vp) {
+  const label = `${vp.name} prayer hooks`;
+  console.log(label);
+  errors.length = 0;
+  const pray = `${BASE_URL}/mysteries/joyful/pray`;
+
+  await page.goto(pray);
+  await settle(page);
+  const scale = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue("--prayer-text-scale").trim()
+  );
+  check(scale === "1", `${label}: a first visit reads at the normal text size`, `scale ${scale}`);
+
+  const key = await page.evaluate(() => document.querySelector("[phx-hook=PrayerMemory]").dataset.key);
+  await page.evaluate((key) => {
+    localStorage.setItem(`lv:pray:${key}`, JSON.stringify({ mystery: { a: 1 }, step: [1], at: Date.now() }));
+    // Yesterday, with the count saved as a string: carried on, it would
+    // read "71 days".
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+    const pad = (n) => String(n).padStart(2, "0");
+    const last = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    localStorage.setItem("lv:pray:streak", JSON.stringify({ last, days: "7" }));
+  }, key);
+  await page.reload();
+  await settle(page);
+  check(await connected(page), `${label}: a damaged saved place leaves the page connected`);
+
+  await page.goto(`${pray}?mystery=closing`);
+  await settle(page);
+  await page.getByRole("button", { name: /Complete/ }).click();
+  await page.waitForTimeout(500);
+  const streak = await page.evaluate(() => document.querySelector("[data-streak]").textContent.trim());
+  check(streak === "1 day so far", `${label}: a damaged streak starts again from today`, `"${streak}"`);
+
+  await page.goto(`${pray}?aloud=true`);
+  await settle(page);
+  await page.getByRole("button", { name: /Praying aloud/ }).click();
+  await page.waitForTimeout(500);
+  const playback = await page.evaluate(() =>
+    "mediaSession" in navigator ? navigator.mediaSession.playbackState : "none"
+  );
+  check(playback === "none", `${label}: turning the voice off lets go of the media controls`, playback);
+
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+}
+
 async function checkRedirects(page, vp) {
   for (const retired of RETIRED) {
     const label = `${vp.name} ${retired}`;
@@ -384,6 +442,7 @@ async function checkCompletion(browser, vp) {
     const errors = [];
     const { context, page } = await freshPage(browser, vp, errors);
 
+    await checkHooks(page, errors, vp);
     for (const spec of PAGES) await checkPage(page, errors, vp, spec);
     await checkPrayFlow(page, errors, vp);
     await checkRedirects(page, vp);

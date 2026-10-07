@@ -116,6 +116,67 @@ defmodule LumenViae.Curation.ArtworkVariantsTest do
       assert author.image_variant_widths == []
     end
 
+    test "a new painting recorded with the same widths as the old one keeps them", %{
+      author: author
+    } do
+      widths = [480, 960, 1600]
+
+      {:ok, author} =
+        Rosary.update_author_artwork(
+          author,
+          %{
+            "image_key" => "authors/1/a.jpg",
+            "image_width" => 2000,
+            "image_height" => 2500,
+            "image_variant_widths" => widths
+          },
+          actor: admin()
+        )
+
+      {:ok, author} =
+        Rosary.update_author_artwork(
+          author,
+          %{
+            "image_key" => "authors/1/b.jpg",
+            "image_width" => 2000,
+            "image_height" => 2500,
+            "image_variant_widths" => widths
+          },
+          actor: admin()
+        )
+
+      assert author.image_key == "authors/1/b.jpg"
+      assert author.image_variant_widths == widths
+      assert reload(author).image_variant_widths == widths
+    end
+
+    test "variants are refused when the painting changed after the record was read", %{
+      author: author
+    } do
+      stale = stored_painting(author, 1300, 1600)
+
+      {:ok, _replaced} =
+        Rosary.update_author_artwork(
+          stale,
+          %{
+            "image_key" => "authors/1/replaced.jpg",
+            "image_width" => 1300,
+            "image_height" => 1600
+          },
+          actor: admin()
+        )
+
+      assert {:error, error} =
+               Rosary.record_author_artwork_variants(
+                 stale,
+                 %{image_variant_widths: [480, 960], for_image_key: stale.image_key},
+                 actor: admin()
+               )
+
+      assert Rosary.error_summary(error) =~ "image_key"
+      assert reload(stale).image_variant_widths == []
+    end
+
     test "variants made from a key the record no longer has are refused", %{author: author} do
       author = stored_painting(author, 1300, 1600)
 
@@ -189,6 +250,23 @@ defmodule LumenViae.Curation.ArtworkVariantsTest do
       assert [{:warning, message}] = ArtworkVariants.run(authorize?: false)
       assert message =~ "No object at authors/1/gone.jpg"
       assert reload(author).image_variant_widths == []
+    end
+
+    test "a run whose uploads fail keeps the variants already recorded", %{author: author} do
+      author = stored_painting(author, 1300, 1600)
+
+      {:ok, author} =
+        Rosary.record_author_artwork_variants(
+          author,
+          %{image_variant_widths: [480], for_image_key: author.image_key},
+          actor: admin()
+        )
+
+      put_env(:lumen_viae, :fake_aws_refuse_puts, true)
+
+      assert [{:warning, message}] = ArtworkVariants.run(authorize?: false)
+      assert message =~ "Made only"
+      assert reload(author).image_variant_widths == [480]
     end
 
     test "an original too small for any variant is never pending", %{author: author} do

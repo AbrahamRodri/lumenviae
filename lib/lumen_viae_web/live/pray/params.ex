@@ -57,12 +57,15 @@ defmodule LumenViaeWeb.Live.Pray.Params do
     end
   end
 
-  def step(params) do
-    case Integer.parse(params["step"] || "") do
+  def step(%{"step" => step}) when is_binary(step) do
+    case Integer.parse(step) do
       {n, ""} when n >= 0 -> n
       _ -> 0
     end
   end
+
+  # Absent, or not a string at all (`step[]=1` arrives as a list).
+  def step(_params), do: 0
 
   @doc "How a page is named in the URL."
   def mystery_param(0, _decades), do: "opening"
