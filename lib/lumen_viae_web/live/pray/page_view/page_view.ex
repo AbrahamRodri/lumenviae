@@ -13,6 +13,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
   attr :audio_url, :string, default: nil
   attr :pray_aloud, :boolean, default: false
   attr :show_meditation, :boolean, default: false
+  attr :language, :string, default: "en"
 
   def page_view(%{page: %{kind: :decade}} = assigns) do
     assigns =
@@ -80,8 +81,9 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
             <PrayerText.prayer
               :for={id <- decade_prayers(@sequence)}
               prayer_id={id}
-              title={Sequence.prayer_title(id)}
+              title={Sequence.prayer_title(id, @language)}
               size="quiet"
+              language={@language}
             />
           </div>
         </details>
@@ -112,7 +114,8 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
           </p>
           <PrayerText.prayer
             prayer_id={hd(block).prayer_id}
-            title={block_title(block)}
+            title={block_title(block, @language)}
+            language={@language}
           />
         </li>
       </ol>
@@ -165,8 +168,8 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
 
   defp caption_line(block), do: Enum.map_join(block, " · ", & &1.caption)
 
-  defp block_title([screen]), do: Sequence.prayer_title(screen.prayer_id)
+  defp block_title([screen], language), do: Sequence.prayer_title(screen.prayer_id, language)
 
-  defp block_title([screen | _] = block),
-    do: "#{Sequence.prayer_title(screen.prayer_id)} (#{length(block)} times)"
+  defp block_title([screen | _] = block, language),
+    do: "#{Sequence.prayer_title(screen.prayer_id, language)} (#{length(block)} times)"
 end

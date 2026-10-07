@@ -82,6 +82,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
      |> assign(:form, nil)
      |> assign(:count, "beads")
      |> assign(:extras, [])
+     |> assign(:language, Sequence.default_language())
      |> assign(:sequence, nil)
      |> assign(:page, 0)
      |> assign(:step, 0)
@@ -224,6 +225,29 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   end
 
   def handle_event("restore_extras", _params, socket), do: {:noreply, socket}
+
+  # The language of the prayers is this browser's, like the closing
+  # prayers: chosen here and kept by the PrayerMemory hook, never in the
+  # URL. Only the prayers change; the spoken Rosary is English.
+  def handle_event("set_language", %{"language" => language}, socket) do
+    if language in Sequence.languages() do
+      {:noreply,
+       socket
+       |> assign(:language, language)
+       |> push_event("prayer:language", %{language: language})}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  # The PrayerMemory hook hands back the language this browser chose.
+  def handle_event("restore_language", %{"language" => language}, socket) do
+    if language in Sequence.languages(),
+      do: {:noreply, assign(socket, :language, language)},
+      else: {:noreply, socket}
+  end
+
+  def handle_event("restore_language", _params, socket), do: {:noreply, socket}
 
   def handle_event("toggle_panel", _params, socket),
     do: {:noreply, assign(socket, :panel_open, !socket.assigns.panel_open)}

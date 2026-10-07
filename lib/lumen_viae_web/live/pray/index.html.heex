@@ -63,6 +63,7 @@
         count={@count}
         extras={@extras}
         chaplet={@sequence.chaplet?}
+        language={@language}
       />
 
       <Controls.resume_banner :if={@resume} resume={@resume} />
@@ -91,6 +92,7 @@
             audio_url={current_audio_url(assigns)}
             pray_aloud={@pray_aloud}
             show_meditation={@show_meditation}
+            language={@language}
           />
         <% else %>
           <PageView.page_view
@@ -99,9 +101,12 @@
             audio_url={current_audio_url(assigns)}
             pray_aloud={@pray_aloud}
             show_meditation={@show_meditation}
+            language={@language}
           />
         <% end %>
       </div>
+
+      <Controls.swipe_hint :if={@count == "screen" and !@pray_aloud} place={"#{@page}-#{@step}"} />
 
       <Controls.bottom_nav
         count={@count}
@@ -118,6 +123,7 @@
         data-step={@step}
         data-count={@count}
         data-extras={Enum.join(@extras, ",")}
+        data-language={@language}
       >
       </div>
     <% end %>

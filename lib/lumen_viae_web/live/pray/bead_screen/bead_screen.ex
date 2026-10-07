@@ -14,6 +14,7 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
   attr :audio_url, :string, default: nil
   attr :pray_aloud, :boolean, default: false
   attr :show_meditation, :boolean, default: false
+  attr :language, :string, default: "en"
 
   def bead_screen(assigns) do
     page = Sequence.page(assigns.sequence, assigns.screen.page)
@@ -64,8 +65,9 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
             </div>
             <PrayerText.prayer
               prayer_id={@screen.prayer_id}
-              title={Sequence.prayer_title(@screen.prayer_id)}
+              title={Sequence.prayer_title(@screen.prayer_id, @language)}
               size={if @screen.verse, do: "quiet", else: "full"}
+              language={@language}
             />
         <% end %>
       </div>

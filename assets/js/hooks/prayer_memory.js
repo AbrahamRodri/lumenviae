@@ -1,7 +1,7 @@
 // What this browser remembers of the prayer page, in localStorage only:
 // where the reader was in a Rosary, so the page can offer "Continue where
-// you left off", and which closing prayers they chose. Nothing here is sent
-// anywhere but back to the page.
+// you left off", which closing prayers they chose, and the language the
+// prayers are set in. Nothing here is sent anywhere but back to the page.
 //
 // A place is kept per set (or category) and form, under
 // lv:pray:<key>, as {mystery, step, count, at}. The beginning is never
@@ -10,6 +10,7 @@
 // once the Rosary is complete.
 
 const EXTRAS_KEY = "lv:pray:extras"
+const LANGUAGE_KEY = "lv:pray:language"
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 
 const storage = {
@@ -37,6 +38,13 @@ export default {
     }
 
     this.handleEvent("prayer:extras", ({ extras }) => storage.set(EXTRAS_KEY, extras))
+
+    const language = storage.get(LANGUAGE_KEY)
+    if (typeof language === "string" && language !== this.el.dataset.language) {
+      this.pushEvent("restore_language", { language })
+    }
+
+    this.handleEvent("prayer:language", ({ language }) => storage.set(LANGUAGE_KEY, language))
 
     const saved = storage.get(this.storageKey())
     if (saved && saved.mystery !== undefined && Date.now() - (saved.at || 0) < MAX_AGE_MS) {
