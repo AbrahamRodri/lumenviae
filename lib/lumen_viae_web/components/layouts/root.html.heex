@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <%!-- The header's navy, so the browser chrome on a phone runs into it. --%>
+    <meta name="theme-color" content="#003b5c" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title default="Lumen Viae">
       {assigns[:page_title] || "Meditations on the Holy Rosary"}
@@ -37,7 +39,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Ovo&family=Work+Sans:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
@@ -47,7 +49,8 @@
           nothing, everywhere else. See docs/DEV_TOOLS.md. --%>
     {Application.get_env(:live_debugger, :live_debugger_tags)}
   </head>
-  <body class="bg-parchment">
+  <body class="site bg-parchment">
+    <a href="#main-content" class="skip-link">Skip to content</a>
     <%!-- Lancet-arch clip path for <.arch_frame>, in objectBoundingBox units so
           it scales with any element. Straight sides sweep into a pointed apex,
           mirroring the app's GothicArchShape. --%>
@@ -58,9 +61,16 @@
         </clipPath>
       </defs>
     </svg>
-    <LumenViaeWeb.Components.Nav.header is_admin={assigns[:is_admin] || false} />
+    <LumenViaeWeb.Components.Nav.header
+      is_admin={assigns[:is_admin] || false}
+      current_path={@conn.request_path}
+    />
 
-    {@inner_content}
+    <%!-- The page's one <main>. A page template must not render another;
+          tabindex lets the skip link move focus here in every browser. --%>
+    <main id="main-content" tabindex="-1" class="site-main">
+      {@inner_content}
+    </main>
 
     <LumenViaeWeb.Components.Footer.footer />
   </body>
