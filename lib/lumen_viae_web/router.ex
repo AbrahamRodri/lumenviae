@@ -96,30 +96,19 @@ defmodule LumenViaeWeb.Router do
 
     delete "/admin/session", AuthController, :sign_out
 
+    # Pages retired to archive/ (see archive/README.md). Their addresses
+    # are linked from outside the site, so each answers with a permanent
+    # redirect home rather than a 404.
+    for path <- ~w(/dashboard /app /rosary-methods /true-devotion /saint-carlo /feedback) do
+      get path, RedirectController, :home
+    end
+
     live_session :public do
-      # Home page - welcome and mystery categories
+      # Home page - today's mysteries and every category
       live "/", Live.Home.Index
-
-      # iOS app landing page
-      live "/app", Live.Home.App.Index
-
-      # Prayer dashboard - focused mystery selection
-      live "/dashboard", Live.Dashboard.Index
 
       # All 20 mysteries of the Rosary
       live "/mysteries", Live.Mysteries.Scripture
-
-      # How to pray the Rosary, with the methods of St. Louis de Montfort
-      live "/rosary-methods", Live.Home.Methods.Index
-
-      # True Devotion to Mary (St. Louis de Montfort)
-      live "/true-devotion", Live.Home.TrueDevotion.Index
-
-      # St. Carlo Acutis - patron of Lumen Viae
-      live "/saint-carlo", Live.Home.SaintCarlo.Index
-
-      # Feedback and feature requests
-      live "/feedback", Live.Home.Feedback.Index
 
       # Privacy policy (for iOS App Store listing)
       live "/privacy-policy", Live.PrivacyPolicy.Index

@@ -951,20 +951,24 @@ LiveViews are grouped by **area of the site**, not by resource:
 
 | Directory | Contents |
 | --- | --- |
-| `live/home/` | public informational pages (home, methods, true devotion, saint carlo, feedback, app) |
+| `live/home/` | the home page: today's mysteries, the sets for them, and every category |
 | `live/mysteries/` | public mystery browsing, plus admin mystery CRUD and a category card's painting (`card/`) |
-| `live/dashboard/` | the prayer dashboard, where a set is chosen |
 | `live/pray/` | the prayer experience itself |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 | `live/privacy_policy/` | App Store privacy policy |
 
+The public site is only the Rosary: home, the mysteries, their sets and
+the prayer page. Pages retired from it (the dashboard, the app page, How
+to Pray, True Devotion, St. Carlo, Feedback) are in `archive/`, outside
+the build; `archive/README.md` says how to bring one back.
+
 ### Module names match file paths
 
 - `LumenViaeWeb.Live.Meditations.Sets.List` is
   `live/meditations/sets/list/list.ex`
-- `LumenViaeWeb.Live.Home.TrueDevotion.Index` is
-  `live/home/true_devotion/index.ex`
+- `LumenViaeWeb.Live.Mysteries.CategoryList` is
+  `live/mysteries/category_list/category_list.ex`
 
 A LiveView with sub-components gets a directory per component:
 
@@ -1053,7 +1057,7 @@ live/pray/index.html.heex
 function component named after itself:
 
 ```elixir
-defmodule LumenViaeWeb.Live.Home.TrueDevotion.Index do
+defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   use LumenViaeWeb, :live_view
 
   embed_templates "_partials/*"
@@ -1061,13 +1065,12 @@ end
 ```
 
 ```heex
-<.devotion_comparison devotion_tab={@devotion_tab} true_marks={@true_marks} />
+<.joyful />
 ```
 
 Partials receive everything they need as assigns - they read `@assigns`
-passed at the call site, not the LiveView's socket. The learn pages
-(`home/methods/`, `home/true_devotion/`, `home/saint_carlo/`,
-`mysteries/`) all use this pattern.
+passed at the call site, not the LiveView's socket. The mysteries in
+Scripture page (`mysteries/_partials/`) uses this pattern.
 
 ---
 
