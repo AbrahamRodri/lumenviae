@@ -1,11 +1,36 @@
 defmodule LumenViaeWeb.Live.Pray.Index do
+  @moduledoc """
+  The prayer page: the whole Rosary, from the Sign of the Cross to the
+  last Amen, as the iOS app prays it.
+
+  Two routes reach it. `/meditation-sets/:set_id/pray` prays a set, with
+  its meditations or as the Scriptural Rosary; `/mysteries/:category/pray`
+  prays a category without a set, as the Scriptural Rosary or with the
+  prayers alone. Either way the reader counts on their own rosary, a
+  decade at a time, or on the screen, a bead at a time, and may have the
+  whole of it said aloud. `LumenViaeWeb.Live.Pray.Params` is the URL,
+  `LumenViaeWeb.Live.Pray.Sequence` the order of prayers.
+  """
   use LumenViaeWeb, :live_view
 
   alias LumenViae.Rosary
-  alias LumenViae.Rosary.{PrayerAudio, Voices}
+  alias LumenViae.Rosary.{Categories, PrayerAudio, Voices}
   alias LumenViae.Storage.S3
   alias LumenViaeWeb.BotDetection
   alias LumenViaeWeb.ClientIP
+
+  alias LumenViaeWeb.Live.Pray.{
+    BeadScreen,
+    Completion,
+    Controls,
+    PageView,
+    Params,
+    Sequence,
+    Strand
+  }
+
+  @advance_keys ["ArrowRight", "ArrowDown", " ", "Spacebar", "Enter"]
+  @back_keys ["ArrowLeft", "ArrowUp"]
 
   @impl true
   def mount(%{"set_id" => set_id}, session, socket) do
@@ -17,54 +42,138 @@ defmodule LumenViaeWeb.Live.Pray.Index do
         actor: socket.assigns.current_admin
       )
 
+    socket
+    |> assign(:route, :set)
+    |> assign(:set, set)
+    |> assign(:category, set.category)
+    |> assign(:base_path, ~p"/meditation-sets/#{set.id}/pray")
+    |> assign(:storage_key, "set:#{set.id}")
+    |> assign(:decades, Sequence.set_decades(set))
+    |> assign(:heading, set.name)
+    |> assign(:page_title, set.name)
+    |> mount_common(session)
+  end
+
+  def mount(%{"category" => category}, session, socket) do
+    if category not in Categories.slugs() do
+      raise LumenViaeWeb.NotFoundError, message: "unknown mystery category: #{category}"
+    end
+
+    mysteries = Rosary.list_mysteries_by_category!(category, actor: socket.assigns.current_admin)
+
+    socket
+    |> assign(:route, :category)
+    |> assign(:set, nil)
+    |> assign(:category, category)
+    |> assign(:base_path, ~p"/mysteries/#{category}/pray")
+    |> assign(:storage_key, "mysteries:#{category}")
+    |> assign(:decades, Sequence.category_decades(category, mysteries))
+    |> assign(:heading, Categories.devotion_title(category))
+    |> assign(:page_title, "Pray the " <> Categories.devotion_title(category))
+    |> mount_common(session)
+  end
+
+  defp mount_common(socket, session) do
     {:ok,
      socket
-     |> assign(:set, set)
      |> assign(:voices, Voices.list())
      |> assign(:voice, nil)
+     |> assign(:audio_urls, [])
+     |> assign(:form, nil)
+     |> assign(:count, "beads")
+     |> assign(:extras, [])
+     |> assign(:sequence, nil)
+     |> assign(:page, 0)
+     |> assign(:step, 0)
      |> assign(:pray_aloud, false)
      |> assign(:spoken_script, nil)
-     |> assign(:spoken_index, nil)
-     |> assign(:current_index, 0)
+     |> assign(:spoken_at, nil)
+     |> assign(:fresh, false)
+     |> assign(:resume, nil)
+     |> assign(:panel_open, false)
+     |> assign(:show_meditation, false)
+     |> assign(:completed, false)
      |> assign(:completion_tracked, false)
-     |> assign(:mobile_mode_enabled, false)
-     |> assign(:completion_context, completion_context(socket, session))
-     |> assign(:page_title, set.name)}
+     |> assign(:completion_context, completion_context(socket, session))}
   end
 
   @impl true
-  def handle_event("next", _params, socket) do
-    current = socket.assigns.current_index
-    total = length(socket.assigns.set.meditations)
+  def handle_params(params, _url, socket) do
+    first_visit? = is_nil(socket.assigns.sequence)
+    count = Params.count(params)
 
-    new_index = (current + 1) |> clamp_index(total)
+    socket =
+      socket
+      |> assign(:count, count)
+      |> assign_voice(params["voice"])
+      |> assign_form(Params.form(params, socket.assigns.route))
 
-    socket
-    |> push_patch(to: build_url(socket.assigns, new_index, socket.assigns.mobile_mode_enabled))
-    |> then(&{:noreply, &1})
+    page = Params.page(params, length(socket.assigns.decades))
+
+    step =
+      if count == "screen",
+        do: min(Params.step(params), Sequence.step_count(socket.assigns.sequence, page) - 1),
+        else: 0
+
+    moved? = {page, step} != {socket.assigns.page, socket.assigns.step}
+
+    {:noreply,
+     socket
+     |> assign(
+       :fresh,
+       if(first_visit?, do: is_nil(params["mystery"]), else: socket.assigns.fresh)
+     )
+     |> then(&if(moved? or not first_visit?, do: assign(&1, :resume, nil), else: &1))
+     |> then(&if(moved?, do: assign(&1, :show_meditation, false), else: &1))
+     |> assign(:page, page)
+     |> assign(:step, max(step, 0))
+     |> assign_pray_aloud(Params.aloud?(params))
+     |> follow_with_spoken_rosary()
+     |> then(&if(moved? and count == "beads", do: push_event(&1, "prayer:top", %{}), else: &1))}
   end
 
-  def handle_event("previous", _params, socket) do
-    current = socket.assigns.current_index
-    total = length(socket.assigns.set.meditations)
-    new_index = (current - 1) |> clamp_index(total)
+  ## Moving through the Rosary
 
-    socket
-    |> push_patch(to: build_url(socket.assigns, new_index, socket.assigns.mobile_mode_enabled))
-    |> then(&{:noreply, &1})
+  @impl true
+  def handle_event("next", _params, socket), do: {:noreply, move(socket, :next)}
+  def handle_event("previous", _params, socket), do: {:noreply, move(socket, :previous)}
+  def handle_event("advance", _params, socket), do: {:noreply, move(socket, :next)}
+
+  def handle_event("go_to", %{"page" => page}, socket) do
+    case Integer.parse(to_string(page)) do
+      {page, ""} ->
+        page = page |> max(0) |> min(Sequence.last_page(socket.assigns.sequence))
+        {:noreply, patch_to(socket, page, 0)}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
-  def handle_event("audio_ended", _params, socket) do
-    {:noreply, socket}
+  def handle_event("key_nav", %{"key" => key}, socket) do
+    direction =
+      case {socket.assigns.count, key} do
+        {"beads", "ArrowRight"} -> :next
+        {"beads", "ArrowLeft"} -> :previous
+        {"screen", key} when key in @advance_keys -> :next
+        {"screen", key} when key in @back_keys -> :previous
+        _ -> nil
+      end
+
+    if direction && !socket.assigns.completed,
+      do: {:noreply, move(socket, direction)},
+      else: {:noreply, socket}
   end
+
+  def handle_event("key_nav", _params, socket), do: {:noreply, socket}
+
+  def handle_event("audio_ended", _params, socket), do: {:noreply, socket}
+
+  ## How the Rosary is prayed
 
   def handle_event("toggle_pray_aloud", _params, socket) do
     assigns = %{socket.assigns | pray_aloud: !socket.assigns.pray_aloud}
-
-    {:noreply,
-     push_patch(socket,
-       to: build_url(assigns, socket.assigns.current_index, socket.assigns.mobile_mode_enabled)
-     )}
+    {:noreply, push_patch(socket, to: pray_url(assigns, assigns.page, assigns.step))}
   end
 
   def handle_event("set_voice", %{"voice" => slug}, socket) do
@@ -75,49 +184,140 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       end
 
     assigns = %{socket.assigns | voice: voice}
-
-    {:noreply,
-     push_patch(socket,
-       to: build_url(assigns, socket.assigns.current_index, socket.assigns.mobile_mode_enabled)
-     )}
+    {:noreply, push_patch(socket, to: pray_url(assigns, assigns.page, assigns.step))}
   end
 
-  # The spoken Rosary has reached another decade: follow it to that
-  # mystery. Recording `spoken_index` first is what stops handle_params
-  # from reading the patch as the reader jumping ahead and seeking the
-  # player back to where it already is.
-  def handle_event("spoken_at", %{"decade" => decade}, socket) when is_integer(decade) do
-    index = clamp_index(decade, socket.assigns.total_count)
-
-    if index == socket.assigns.current_index do
-      {:noreply, assign(socket, :spoken_index, index)}
+  def handle_event("set_form", %{"form" => form}, socket) do
+    if form in Params.forms(socket.assigns.route) do
+      assigns = %{socket.assigns | form: form}
+      {:noreply, push_patch(socket, to: pray_url(assigns, assigns.page, 0))}
     else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("set_count", %{"count" => count}, socket) when count in ~w(beads screen) do
+    assigns = %{socket.assigns | count: count}
+    {:noreply, push_patch(socket, to: pray_url(assigns, assigns.page, 0))}
+  end
+
+  def handle_event("set_count", _params, socket), do: {:noreply, socket}
+
+  def handle_event("toggle_extra", %{"extra" => extra}, socket) do
+    if extra in Sequence.extra_ids() do
+      extras =
+        if extra in socket.assigns.extras,
+          do: List.delete(socket.assigns.extras, extra),
+          else: [extra | socket.assigns.extras]
+
+      socket = set_extras(socket, extras)
+      {:noreply, push_event(socket, "prayer:extras", %{extras: socket.assigns.extras})}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  # The PrayerMemory hook hands back the closing prayers this browser
+  # chose last time.
+  def handle_event("restore_extras", %{"extras" => extras}, socket) when is_list(extras) do
+    {:noreply, set_extras(socket, Enum.filter(extras, &(&1 in Sequence.extra_ids())))}
+  end
+
+  def handle_event("restore_extras", _params, socket), do: {:noreply, socket}
+
+  def handle_event("toggle_panel", _params, socket),
+    do: {:noreply, assign(socket, :panel_open, !socket.assigns.panel_open)}
+
+  def handle_event("toggle_meditation", _params, socket),
+    do: {:noreply, assign(socket, :show_meditation, !socket.assigns.show_meditation)}
+
+  ## Continue where you left off
+
+  # The PrayerMemory hook found a place saved in this browser. It is
+  # offered only to a reader who arrived at the beginning and has not
+  # moved yet; a link to a particular mystery means that mystery.
+  def handle_event("resume_available", %{"mystery" => mystery} = saved, socket) do
+    %{fresh: fresh, page: page, step: step, sequence: sequence} = socket.assigns
+    decades = length(socket.assigns.decades)
+    count = Params.count(saved)
+    saved_page = Params.page(%{"mystery" => to_string(mystery)}, decades)
+
+    saved_step =
+      if count == "screen",
+        do:
+          min(
+            Params.step(%{"step" => to_string(saved["step"])}),
+            Sequence.step_count(sequence, saved_page) - 1
+          ),
+        else: 0
+
+    if fresh and {page, step} == {0, 0} and {saved_page, saved_step} != {0, 0} do
       {:noreply,
-       socket
-       |> assign(:spoken_index, index)
-       |> push_patch(to: build_url(socket.assigns, index, socket.assigns.mobile_mode_enabled))}
+       assign(socket, :resume, %{
+         page: saved_page,
+         step: max(saved_step, 0),
+         count: count,
+         label: describe(socket.assigns, saved_page, max(saved_step, 0), count)
+       })}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("resume_available", _params, socket), do: {:noreply, socket}
+
+  def handle_event("resume", _params, socket) do
+    case socket.assigns.resume do
+      nil ->
+        {:noreply, socket}
+
+      resume ->
+        assigns = %{socket.assigns | count: resume.count}
+        {:noreply, push_patch(socket, to: pray_url(assigns, resume.page, resume.step))}
+    end
+  end
+
+  def handle_event("dismiss_resume", _params, socket),
+    do: {:noreply, socket |> assign(:resume, nil) |> assign(:fresh, false)}
+
+  ## The spoken Rosary
+
+  # The voice has moved on: the page follows it, to the decade when
+  # counting on a rosary and to the bead when counting on the screen.
+  # Recording `spoken_at` first is what stops handle_params from reading
+  # the patch as the reader moving and seeking the voice to where it
+  # already is.
+  def handle_event("spoken_at", %{"screen" => index}, socket) when is_integer(index) do
+    case Sequence.screen_at(socket.assigns.sequence, index) do
+      nil ->
+        {:noreply, socket}
+
+      screen ->
+        {page, step} =
+          if socket.assigns.count == "screen",
+            do: {screen.page, screen.step},
+            else: {screen.page, 0}
+
+        target = {page, step}
+        socket = assign(socket, :spoken_at, target)
+
+        if target == {socket.assigns.page, socket.assigns.step},
+          do: {:noreply, socket},
+          else:
+            {:noreply,
+             push_patch(socket, to: pray_url(socket.assigns, page, step), replace: true)}
     end
   end
 
   def handle_event("spoken_at", _params, socket), do: {:noreply, socket}
 
-  def handle_event("go_to", %{"index" => index}, socket) do
-    total = length(socket.assigns.set.meditations)
-
-    new_index =
-      index
-      |> normalize_index()
-      |> clamp_index(total)
-
-    socket
-    |> push_patch(to: build_url(socket.assigns, new_index, socket.assigns.mobile_mode_enabled))
-    |> then(&{:noreply, &1})
-  end
+  ## Completion
 
   # The one place a completion is recorded. Pressing this is a deliberate
-  # act at the end of the last mystery; arriving at the last mystery is not,
-  # and counting arrivals meant every crawler that walked the set left a
-  # prayed Rosary behind it.
+  # act at the end of the Rosary; arriving at the end is not, and counting
+  # arrivals meant every crawler that walked the set left a prayed Rosary
+  # behind it. A Rosary prayed without a set records nothing: a completion
+  # belongs to a set.
   def handle_event("complete", _params, socket) do
     socket =
       if socket.assigns.completion_tracked do
@@ -127,72 +327,84 @@ defmodule LumenViaeWeb.Live.Pray.Index do
         assign(socket, :completion_tracked, true)
       end
 
-    {:noreply, push_navigate(socket, to: ~p"/mysteries/#{socket.assigns.set.category}")}
+    {:noreply, socket |> assign(:completed, true) |> push_event("prayer:top", %{})}
   end
 
-  def handle_event("key_nav", %{"key" => "ArrowRight"}, socket) do
-    if socket.assigns.current_index < socket.assigns.total_count - 1 do
-      handle_event("next", %{}, socket)
-    else
-      {:noreply, socket}
+  ## Helpers
+
+  defp at_end?(%{count: "screen"} = assigns),
+    do: is_nil(Sequence.next(assigns.sequence, assigns.page, assigns.step))
+
+  defp at_end?(assigns), do: assigns.page == Sequence.last_page(assigns.sequence)
+
+  defp current_screen(assigns), do: Sequence.screen(assigns.sequence, assigns.page, assigns.step)
+
+  defp current_audio_url(assigns) do
+    case Sequence.page(assigns.sequence, assigns.page) do
+      %{decade: %{index: index}} -> Enum.at(assigns.audio_urls, index)
+      _ -> nil
     end
   end
 
-  def handle_event("key_nav", %{"key" => "ArrowLeft"}, socket) do
-    handle_event("previous", %{}, socket)
-  end
+  # Remounted, and so restarted where the reader is, whenever what it
+  # would say changes.
+  defp spoken_id(assigns),
+    do: "spoken-rosary-#{assigns.voice.slug}-#{assigns.form}-#{Enum.join(assigns.extras, "-")}"
 
-  def handle_event("key_nav", _params, socket), do: {:noreply, socket}
+  defp move(socket, direction) do
+    %{sequence: sequence, page: page, step: step, count: count} = socket.assigns
 
-  def handle_event("toggle_mobile_mode", _params, socket) do
-    new_mobile_mode = !socket.assigns.mobile_mode_enabled
-
-    {:noreply,
-     push_patch(socket,
-       to: build_url(socket.assigns, socket.assigns.current_index, new_mobile_mode)
-     )}
-  end
-
-  def handle_event("init_mobile_mode", %{"enabled" => enabled}, socket) do
-    {:noreply,
-     push_patch(socket,
-       to: build_url(socket.assigns, socket.assigns.current_index, enabled)
-     )}
-  end
-
-  @impl true
-  def handle_params(params, _url, socket) do
-    total_count = length(socket.assigns.set.meditations)
-
-    # Read mystery index from URL params, default to current index or 0
-    mystery_index =
-      params
-      |> Map.get("mystery", "0")
-      |> normalize_index()
-      |> clamp_index(total_count)
-
-    # Read mobile mode from URL params, default to nil (will be set by hook)
-    mobile_mode =
-      case Map.get(params, "mobile") do
-        "true" -> true
-        "false" -> false
-        _ -> nil
+    target =
+      case {count, direction} do
+        {"screen", :next} -> Sequence.next(sequence, page, step)
+        {"screen", :previous} -> Sequence.previous(sequence, page, step)
+        {"beads", :next} -> if page < Sequence.last_page(sequence), do: {page + 1, 0}
+        {"beads", :previous} -> if page > 0, do: {page - 1, 0}
       end
 
-    socket =
-      if mobile_mode != nil do
-        assign(socket, :mobile_mode_enabled, mobile_mode)
-      else
-        socket
+    case target do
+      nil -> socket
+      {page, step} -> patch_to(socket, page, step)
+    end
+  end
+
+  defp patch_to(socket, page, step) do
+    push_patch(socket,
+      to: pray_url(socket.assigns, page, step),
+      replace: socket.assigns.count == "screen" and page == socket.assigns.page
+    )
+  end
+
+  defp pray_url(assigns, page, step) do
+    Params.url(
+      assigns.base_path,
+      %{
+        route: assigns.route,
+        form: assigns.form,
+        count: assigns.count,
+        aloud: assigns.pray_aloud,
+        voice: assigns.voice,
+        decades: length(assigns.decades)
+      },
+      page,
+      step
+    )
+  end
+
+  # Where a saved place is, in words: the page, and the bead on it.
+  defp describe(assigns, page, step, count) do
+    page_title =
+      case Sequence.page(assigns.sequence, page) do
+        %{kind: :opening} -> "The opening prayers"
+        %{kind: :closing} -> "The closing prayers"
+        %{decade: decade} -> decade.label || decade.name
+        nil -> nil
       end
 
-    {:noreply,
-     socket
-     |> assign(:total_count, total_count)
-     |> assign_voice(params["voice"])
-     |> assign_pray_aloud(params["aloud"] == "true")
-     |> assign_current_meditation(mystery_index)
-     |> follow_with_spoken_rosary(mystery_index)}
+    case {count, Sequence.screen(assigns.sequence, page, step)} do
+      {"screen", %{caption: caption}} when step > 0 -> "#{page_title}, #{caption}"
+      _ -> page_title
+    end
   end
 
   # The voice both the meditation narration and the spoken Rosary are heard
@@ -207,7 +419,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     if socket.assigns.voice == voice do
       socket
     else
-      audio_urls = Enum.map(socket.assigns.set.meditations, &narration_url(&1, voice))
+      audio_urls = Enum.map(socket.assigns.decades, &narration_url(&1.meditation, voice))
 
       socket
       |> assign(:voice, voice)
@@ -218,6 +430,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   # A meditation not yet recorded in the chosen voice is still heard, in
   # whichever voice it does have, rather than going silent.
+  defp narration_url(nil, _voice), do: nil
+
   defp narration_url(meditation, voice) do
     case Rosary.fetch_meditation_audio(meditation, voice.slug) do
       {:ok, %{url: url}} -> url
@@ -225,8 +439,47 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     end
   end
 
+  defp assign_form(socket, form) do
+    if socket.assigns.form == form and socket.assigns.sequence do
+      socket
+    else
+      socket |> assign(:form, form) |> rebuild_sequence()
+    end
+  end
+
+  defp set_extras(socket, extras) do
+    # Said in the app's order whatever order they were chosen in.
+    extras = Enum.filter(Sequence.extra_ids(), &(&1 in extras))
+
+    if extras == socket.assigns.extras do
+      socket
+    else
+      %{page: page, step: step} = socket.assigns
+
+      socket
+      |> assign(:extras, extras)
+      |> rebuild_sequence()
+      |> then(fn socket ->
+        last = Sequence.last_page(socket.assigns.sequence)
+        step = min(step, Sequence.step_count(socket.assigns.sequence, min(page, last)) - 1)
+        socket |> assign(:page, min(page, last)) |> assign(:step, max(step, 0))
+      end)
+      |> assign_pray_aloud(socket.assigns.pray_aloud)
+      |> assign(:spoken_at, nil)
+      |> follow_with_spoken_rosary()
+    end
+  end
+
+  defp rebuild_sequence(socket) do
+    %{category: category, form: form, extras: extras, decades: decades} = socket.assigns
+
+    socket
+    |> assign(:sequence, Sequence.build(category, form, extras, decades))
+    |> assign(:spoken_script, nil)
+  end
+
   defp assign_pray_aloud(socket, false) do
-    socket |> assign(:pray_aloud, false) |> assign(:spoken_index, nil)
+    socket |> assign(:pray_aloud, false) |> assign(:spoken_at, nil)
   end
 
   defp assign_pray_aloud(socket, true) do
@@ -239,37 +492,51 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     end)
   end
 
-  # The reader moved to another mystery themselves - Next, Previous, a
-  # bead, an arrow key - so the voice goes there too. Turning the spoken
-  # Rosary on counts as arriving at the current mystery.
-  defp follow_with_spoken_rosary(%{assigns: %{pray_aloud: false}} = socket, _index), do: socket
+  # The reader moved themselves - Next, Previous, a bead, a key, a swipe -
+  # so the voice goes there too. Turning the spoken Rosary on counts as
+  # arriving where the reader already is.
+  defp follow_with_spoken_rosary(%{assigns: %{pray_aloud: false}} = socket), do: socket
 
-  defp follow_with_spoken_rosary(%{assigns: %{spoken_index: nil}} = socket, index),
-    do: assign(socket, :spoken_index, index)
+  defp follow_with_spoken_rosary(%{assigns: %{spoken_at: nil}} = socket),
+    do: assign(socket, :spoken_at, {socket.assigns.page, socket.assigns.step})
 
-  defp follow_with_spoken_rosary(%{assigns: %{spoken_index: index}} = socket, index), do: socket
+  defp follow_with_spoken_rosary(socket) do
+    %{page: page, step: step, spoken_at: spoken_at} = socket.assigns
 
-  defp follow_with_spoken_rosary(socket, index) do
-    socket
-    |> assign(:spoken_index, index)
-    |> push_event("spoken_seek", %{decade: index})
+    if spoken_at == {page, step} do
+      socket
+    else
+      screen = Sequence.screen(socket.assigns.sequence, page, step)
+
+      socket
+      |> assign(:spoken_at, {page, step})
+      |> push_event("spoken_seek", %{screen: screen && screen.index})
+    end
   end
 
   # Every step of the whole Rosary with its URL, handed to the SpokenRosary
-  # hook as JSON. A step with nothing to play - a meditation with no
-  # narration in any voice - is dropped, and the prayers carry on around it.
+  # hook as JSON, each with the page and the screen it is shown on. A step
+  # with nothing to play - a meditation with no narration in any voice - is
+  # dropped, and the prayers carry on around it.
   defp build_script(socket) do
-    %{set: set, voice: voice, audio_urls: audio_urls} = socket.assigns
+    %{sequence: sequence, voice: voice, audio_urls: audio_urls} = socket.assigns
     ttl = Rosary.audio_url_ttl()
-    orders = Enum.map(set.meditations, & &1.mystery.order)
 
-    set.category
-    |> PrayerAudio.script(orders)
-    |> Enum.map(fn step ->
+    pages =
+      for page <- sequence.pages,
+          screen <- page.screens,
+          into: %{},
+          do: {screen.index, page.index}
+
+    sequence.steps
+    |> Enum.map(fn {step, screen} ->
       url =
         case PrayerAudio.clip_for_step(step) do
-          nil ->
+          nil when step.kind == :meditation ->
             Enum.at(audio_urls, step.decade)
+
+          nil ->
+            nil
 
           clip ->
             case S3.generate_presigned_url(PrayerAudio.served_key(voice, clip), expires_in: ttl) do
@@ -278,65 +545,16 @@ defmodule LumenViaeWeb.Live.Pray.Index do
             end
         end
 
-      %{url: url, caption: step.caption, pause_ms: step.pause_ms, decade: step.decade}
+      %{
+        url: url,
+        caption: step.caption,
+        pause_ms: step.pause_ms,
+        page: pages[screen],
+        screen: screen
+      }
     end)
     |> Enum.reject(&is_nil(&1.url))
   end
-
-  defp assign_current_meditation(socket, index) do
-    meditation = Enum.at(socket.assigns.set.meditations, index)
-    audio_presigned_url = Enum.at(socket.assigns.audio_urls, index)
-
-    socket
-    |> assign(:current_index, index)
-    |> assign(:meditation, meditation)
-    |> assign(:audio_presigned_url, audio_presigned_url)
-  end
-
-  defp clamp_index(_index, total) when total <= 0, do: 0
-
-  defp clamp_index(index, total) do
-    index
-    |> max(0)
-    |> min(total - 1)
-  end
-
-  defp normalize_index(index) when is_integer(index), do: index
-
-  defp normalize_index(index) when is_binary(index) do
-    case Integer.parse(index) do
-      {value, _} -> value
-      :error -> 0
-    end
-  end
-
-  defp normalize_index(_), do: 0
-
-  # The voice and the spoken Rosary ride in the URL with the mystery, so a
-  # reload, a shared link or the back button keeps the way someone chose to
-  # pray. The default voice is left out to keep ordinary links short.
-  defp build_url(assigns, mystery_index, mobile_mode_enabled) do
-    query =
-      [mystery: mystery_index, mobile: mobile_mode_enabled]
-      |> then(&if(assigns.pray_aloud, do: &1 ++ [aloud: true], else: &1))
-      |> then(fn query ->
-        if assigns.voice && assigns.voice != Voices.default(),
-          do: query ++ [voice: assigns.voice.slug],
-          else: query
-      end)
-
-    ~p"/meditation-sets/#{assigns.set.id}/pray?#{query}"
-  end
-
-  # Roman numerals for mystery indices (sets range from 5 to 7 meditations)
-  defp roman(n) when n in 1..20 do
-    Enum.at(
-      ~w(I II III IV V VI VII VIII IX X XI XII XIII XIV XV XVI XVII XVIII XIX XX),
-      n - 1
-    )
-  end
-
-  defp roman(n), do: Integer.to_string(n)
 
   ## Completion analytics
 
@@ -373,6 +591,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   # page says a Rosary was not counted. With no address to key on the limit
   # cannot apply, and the completion is allowed; that is the
   # disconnected-mount case and a handful of proxies, not an open door.
+  defp maybe_record_completion(%{assigns: %{set: nil}}), do: :ok
+
   defp maybe_record_completion(socket) do
     context = socket.assigns.completion_context
 
