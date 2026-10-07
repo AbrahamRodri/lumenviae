@@ -140,18 +140,20 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
     ~H"""
     <article class="category-card relative flex flex-wrap gap-4 p-4 sm:p-5 h-full">
-      <div class="w-20 sm:w-24 shrink-0">
+      <%!-- The frame draws the arch, not the image, so a portrait and the
+            placeholder share one shape whatever the picture's size. --%>
+      <div class="relative w-20 sm:w-24 shrink-0 self-start aspect-[4/5] overflow-hidden rounded-t-full border border-night-border bg-night">
         <%= if @artwork do %>
           <ArtworkPicture.artwork_picture
             record={@artwork}
             alt={@portrait_alt}
             sizes="(min-width: 640px) 96px, 80px"
-            class="w-full aspect-[4/5] object-cover rounded-t-full border border-night-border bg-night"
+            class="absolute inset-0 w-full h-full object-cover"
             style={"object-position: #{Artwork.object_position(@artwork.image_focal_x, @artwork.image_focal_y)}"}
           />
         <% else %>
           <div
-            class="w-full aspect-[4/5] rounded-t-full border border-night-border bg-night flex items-center justify-center text-gilt"
+            class="absolute inset-0 flex items-center justify-center text-gilt"
             aria-hidden="true"
           >
             <svg viewBox="0 0 10 14" class="w-4 h-5 fill-current">
