@@ -66,6 +66,58 @@
       "licence": "CC0"
     },
     {
+      "file": "agony-garden-durer.jpg",
+      "key": "sorrowful_1",
+      "title": "The Agony in the Garden",
+      "artist": "Albrecht Durer",
+      "year": "c. 1497-1499",
+      "series": "Large Passion",
+      "alt": "Christ kneels in prayer on a rocky hillside as an angel offers the chalice, while Peter, James and John sleep below and soldiers approach in the distance",
+      "width": 937,
+      "height": 1300,
+      "source": "https://commons.wikimedia.org/wiki/File:Christ_on_the_Mount_of_Olives,_from_The_Large_Passion_MET_DP816593.jpg",
+      "licence": "CC0"
+    },
+    {
+      "file": "scourging-durer.jpg",
+      "key": "sorrowful_2",
+      "title": "The Scourging at the Pillar",
+      "artist": "Albrecht Durer",
+      "year": "c. 1497-1500",
+      "series": "Large Passion",
+      "alt": "Christ stands bound to a column in a vaulted hall while tormentors strike him with rods and onlookers crowd around",
+      "width": 937,
+      "height": 1300,
+      "source": "https://commons.wikimedia.org/wiki/File:The_Flagellation,_from_The_Large_Passion_MET_DP816589.jpg",
+      "licence": "CC0"
+    },
+    {
+      "file": "crowning-thorns-durer.jpg",
+      "key": "sorrowful_3",
+      "title": "Christ Crowned with Thorns",
+      "artist": "Albrecht Durer",
+      "year": "c. 1509",
+      "series": "Small Passion",
+      "alt": "Christ sits bound beneath arches as a kneeling man mockingly offers him a reed and other men press the crown of thorns on his head with sticks",
+      "width": 1000,
+      "height": 1300,
+      "source": "https://commons.wikimedia.org/wiki/File:Christ_Crowned_with_Thorns,_from_The_Small_Passion_MET_DP816006.jpg",
+      "licence": "CC0"
+    },
+    {
+      "file": "carrying-cross-durer.jpg",
+      "key": "sorrowful_4",
+      "title": "Christ Carrying the Cross",
+      "artist": "Albrecht Durer",
+      "year": "c. 1498",
+      "series": "Large Passion",
+      "alt": "Christ bends beneath the weight of the cross as soldiers drive him on and holy women grieve at the left near a city gate",
+      "width": 946,
+      "height": 1300,
+      "source": "https://commons.wikimedia.org/wiki/File:The_Bearing_of_the_Cross,_from_The_Large_Passion_MET_DP816602.jpg",
+      "licence": "CC0"
+    },
+    {
       "file": "crucifixion-durer.jpg",
       "key": "sorrowful_5",
       "title": "The Crucifixion",
@@ -89,6 +141,32 @@
       "width": 800,
       "height": 1134,
       "source": "https://commons.wikimedia.org/wiki/File:The_Resurrection,_from_The_Large_Passion_MET_DP816615.jpg",
+      "licence": "CC0"
+    },
+    {
+      "file": "ascension-durer.jpg",
+      "key": "glorious_2",
+      "title": "The Ascension",
+      "artist": "Albrecht Durer",
+      "year": "c. 1510",
+      "series": "Small Passion",
+      "alt": "The apostles and Mary kneel and gaze upward as only the feet of the ascending Christ remain visible in the clouds above",
+      "width": 1175,
+      "height": 1500,
+      "source": "https://commons.wikimedia.org/wiki/File:The_Ascension,_from_The_Small_Passion_MET_DP816019.jpg",
+      "licence": "CC0"
+    },
+    {
+      "file": "pentecost-durer.jpg",
+      "key": "glorious_3",
+      "title": "Pentecost",
+      "artist": "Albrecht Durer",
+      "year": "c. 1510",
+      "series": "Small Passion",
+      "alt": "The Holy Spirit as a dove radiates light over Mary and the apostles, who sit and stand with small flames on their heads",
+      "width": 1163,
+      "height": 1500,
+      "source": "https://commons.wikimedia.org/wiki/File:Pentecost,_from_The_Small_Passion_MET_DP816020.jpg",
       "licence": "CC0"
     },
     {
