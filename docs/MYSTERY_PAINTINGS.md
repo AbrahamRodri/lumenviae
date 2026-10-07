@@ -40,7 +40,9 @@ keep their bundled copy.
 
 The upload rules are `LumenViae.Curation.ArtworkUpload`'s: a JPEG, at most
 12 MB, at least 1200px on its shortest side and at most 4000px on its
-longest, in RGB (not CMYK). Nothing is resized on the server. All 26
+longest, in RGB (not CMYK). The original is never resized on the
+server; the website's smaller copies are made beside it (see "Display
+variants" below). All 26
 bundled files are RGB JPEGs under 12 MB, so size is the only rule any of
 them fails.
 
@@ -109,3 +111,44 @@ Check afterwards with `GET /api/v2/mysteries`, or
 `GET /api/v2/rosary-content?fields[rosary_content]=mysteries,categories`:
 a published painting's `artwork` (a card's `card_artwork`) is an object,
 and every other is null.
+
+## Display variants
+
+Every upload is stored twice over. The original goes to the public assets
+bucket exactly as uploaded, at `<scope>/<id>/<hash>.jpg`, and is what the
+iOS and Android apps, the APIs and the console show. Beside it go WebP
+copies for the website at `<scope>/<id>/<hash>-480.webp`, `-960.webp` and
+`-1600.webp` (`LumenViae.Images.Variants`): quality 85, resized with
+lanczos3, turned upright by the EXIF orientation, converted to sRGB, and
+stripped of every piece of metadata except the colour profile. A width at
+or above the original's is never made, so nothing is upscaled.
+
+The widths actually stored are recorded on the row
+(`image_variant_widths`), and the public pages offer only those, with the
+original as the `<img>` fallback. A painting with no variants yet is drawn
+from its original, exactly as before, so a missing variant can never show
+as a broken image.
+
+Paintings uploaded before this existed have no variants until the backfill
+runs. It finds every set, author, mystery and category card whose painting
+is missing a variant, downloads the original, makes the missing ones and
+records them. It never changes the original, and it skips anything already
+done, so it can be re-run after a partial failure. **Always dry-run
+first.** The dry run reads the database and lists what it would make,
+without touching S3 or writing anything.
+
+Locally:
+
+    mix lumen_viae.artwork_variants --dry-run
+    mix lumen_viae.artwork_variants
+
+In production, after the deploy that adds the `image_variant_widths`
+column:
+
+    fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants(dry_run: true)'"
+    fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants()'"
+
+Each painting is a GET of the original and three PUTs. Read the output:
+`WARN` means a painting's original is not in the bucket, or only some of
+its variants were stored (run it again), and `ERROR` means a download or the
+database write failed. Backfill writes do not appear in a record's History panel.

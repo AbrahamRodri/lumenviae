@@ -15,9 +15,9 @@ defmodule LumenViae.Test.FakeAwsHttpClient do
 
   By default every request succeeds with an empty 200, so every HEAD says
   the object exists. A test that needs a bucket that remembers - one where
-  a HEAD on a key nobody wrote is a 404, and a HEAD on a key that was
-  written answers with the metadata it was written with - calls `store!/0`
-  in its setup.
+  a HEAD or GET on a key nobody wrote is a 404, a HEAD on a key that was
+  written answers with the metadata it was written with, and a GET with
+  its bytes - calls `store!/0` in its setup.
   """
 
   @behaviour ExAws.Request.HttpClient
@@ -41,9 +41,17 @@ defmodule LumenViae.Test.FakeAwsHttpClient do
   end
 
   @doc "Puts an object straight into the remembering bucket, as if uploaded earlier."
-  def put_object!(key, meta \\ %{}) do
-    :ets.insert(@store, {key, meta})
+  def put_object!(key, meta \\ %{}, body \\ "") do
+    :ets.insert(@store, {key, meta, body})
     :ok
+  end
+
+  @doc "The bytes stored at `key` in the remembering bucket, or nil."
+  def object_body(key) do
+    case :ets.lookup(@store, key) do
+      [{^key, _meta, body}] -> body
+      [] -> nil
+    end
   end
 
   @impl true
@@ -54,22 +62,25 @@ defmodule LumenViae.Test.FakeAwsHttpClient do
     end
 
     if Application.get_env(:lumen_viae, :fake_aws_store),
-      do: remembered(method, key_of(url), headers),
+      do: remembered(method, key_of(url), headers, body),
       else: {:ok, %{status_code: 200, headers: [], body: ""}}
   end
 
   # :fake_aws_refuse_puts makes every upload a 403, which ExAws does not
   # retry, for testing what happens to audio that cannot be stored.
-  defp remembered(:put, key, headers) do
+  defp remembered(:put, key, headers, body) do
     if Application.get_env(:lumen_viae, :fake_aws_refuse_puts),
       do: {:ok, %{status_code: 403, headers: [], body: "AccessDenied"}},
-      else: store_put(key, headers)
+      else: store_put(key, headers, body)
   end
 
-  defp remembered(:head, key, headers), do: head(key, headers)
-  defp remembered(_method, _key, _headers), do: {:ok, %{status_code: 200, headers: [], body: ""}}
+  defp remembered(:head, key, headers, _body), do: head(key, headers)
+  defp remembered(:get, key, _headers, _body), do: get(key)
 
-  defp store_put(key, headers) do
+  defp remembered(_method, _key, _headers, _body),
+    do: {:ok, %{status_code: 200, headers: [], body: ""}}
+
+  defp store_put(key, headers, body) do
     meta =
       for {name, value} <- headers,
           name = String.downcase(name),
@@ -77,13 +88,13 @@ defmodule LumenViae.Test.FakeAwsHttpClient do
           into: %{},
           do: {String.replace_prefix(name, "x-amz-meta-", ""), value}
 
-    :ets.insert(@store, {key, meta})
+    :ets.insert(@store, {key, meta, body})
     {:ok, %{status_code: 200, headers: [], body: ""}}
   end
 
   defp head(key, _headers) do
     case :ets.lookup(@store, key) do
-      [{^key, meta}] ->
+      [{^key, meta, _body}] ->
         {:ok,
          %{
            status_code: 200,
@@ -93,6 +104,13 @@ defmodule LumenViae.Test.FakeAwsHttpClient do
 
       [] ->
         {:ok, %{status_code: 404, headers: [], body: ""}}
+    end
+  end
+
+  defp get(key) do
+    case :ets.lookup(@store, key) do
+      [{^key, _meta, body}] -> {:ok, %{status_code: 200, headers: [], body: body}}
+      [] -> {:ok, %{status_code: 404, headers: [], body: ""}}
     end
   end
 

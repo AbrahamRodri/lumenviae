@@ -184,6 +184,34 @@ defmodule LumenViae.Release do
   end
 
   @doc """
+  Makes the WebP display variants of every stored painting that is missing
+  some, leaving the originals untouched (see
+  `LumenViae.Curation.ArtworkVariants`). Takes `dry_run: true`, which reads
+  the database and lists what would be made without downloading,
+  uploading or writing anything. Idempotent, so a run cut short can be
+  repeated. Always dry-run first:
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants(dry_run: true)'
+      /app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants()'
+  """
+  def artwork_variants(opts \\ []) do
+    load_app()
+    start_audio_clients()
+
+    for repo <- repos() do
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, fn _repo ->
+          LumenViae.Curation.ArtworkVariants.run(
+            [dry_run: Keyword.get(opts, :dry_run, false), progress: &print_progress/1] ++
+              @operator
+          )
+        end)
+    end
+
+    :ok
+  end
+
+  @doc """
   Records the spoken Rosary's prayers, announcements and verses with
   ElevenLabs, skipping every clip already in the bucket. Takes the options
   of `LumenViae.Curation.RosaryAudioGeneration.run/1` (`voices:`, `kinds:`,

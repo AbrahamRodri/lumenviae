@@ -9,14 +9,16 @@ defmodule LumenViaeWeb.Live.PrivacyPolicy.Index do
   """
   use LumenViaeWeb, :live_view
 
+  alias LumenViaeWeb.PageMeta
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "Privacy Policy")
-     |> assign(
-       :meta_description,
-       "How Lumen Viae handles your information: what is collected, what is not, and how it is used."
+     |> PageMeta.put("/privacy-policy",
+       title: "Privacy Policy",
+       description:
+         "How Lumen Viae handles your information on the website and in the iOS and Android apps: what is collected, what is not, and how it is used."
      )}
   end
 end

@@ -23,6 +23,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.Categories
+  alias LumenViaeWeb.PageMeta
 
   @numerals ~w(I II III IV V VI VII)
   @week_days Enum.zip(1..7, ~w(Monday Tuesday Wednesday Thursday Friday Saturday Sunday))
@@ -31,6 +32,8 @@ defmodule LumenViaeWeb.Live.Home.Index do
   # bound is a week so the tests can move "today" by whole days, and
   # anything past it is not an offset at all.
   @max_offset_minutes 7 * 24 * 60
+
+  @description "Pray the Holy Rosary each day with meditations from the saints: today's mysteries, the Scriptural Rosary and guided audio, from the Joyful to the Seven Sorrows."
 
   @impl true
   def mount(_params, _session, socket) do
@@ -42,10 +45,10 @@ defmodule LumenViaeWeb.Live.Home.Index do
 
     {:ok,
      socket
-     |> assign(:page_title, "Meditations on the Holy Rosary")
-     |> assign(
-       :meta_description,
-       "Pray the Holy Rosary each day with meditations from the saints and doctors of the Church: today's mysteries, guided audio, the Scriptural Rosary, and every mystery from the Joyful to the Seven Sorrows."
+     |> PageMeta.put("/",
+       title: "Meditations on the Holy Rosary",
+       description: @description,
+       json_ld: [PageMeta.website(@description)]
      )
      |> assign(:schedule, LiturgicalCalendar.default_schedule())
      |> assign(:categories, categories)
@@ -212,7 +215,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
       {x, y} = Categories.card_focal_point(slug)
 
       %{
-        src: Rosary.artwork_url(record),
+        record: record,
         alt: record.image_alt,
         position: Artwork.object_position(x, y)
       }

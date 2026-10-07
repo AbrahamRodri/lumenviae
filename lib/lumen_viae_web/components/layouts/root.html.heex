@@ -6,35 +6,16 @@
     <%!-- The header's navy, so the browser chrome on a phone runs into it. --%>
     <meta name="theme-color" content="#003b5c" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="Lumen Viae">
+    <.live_title default="Lumen Viae" suffix=" | Lumen Viae">
       {assigns[:page_title] || "Meditations on the Holy Rosary"}
     </.live_title>
-    <% meta_description =
-      assigns[:meta_description] ||
-        "Pray the traditional fifteen mysteries of the Holy Rosary with meditations from the saints and doctors of the Church. Guided audio, scripture, and the methods of St. Louis de Montfort." %>
-    <meta name="description" content={meta_description} />
-    <link rel="canonical" href={"https://www.lumenviae.org#{@conn.request_path}"} />
-    <meta property="og:site_name" content="Lumen Viae" />
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:title"
-      content={assigns[:page_title] || "Lumen Viae - Meditations on the Holy Rosary"}
-    />
-    <meta property="og:description" content={meta_description} />
-    <meta property="og:url" content={"https://www.lumenviae.org#{@conn.request_path}"} />
-    <meta
-      property="og:image"
-      content="https://www.lumenviae.org/images/pngs/our-lady-of-sorrows-horizontal.jpg"
-    />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content={assigns[:page_title] || "Lumen Viae - Meditations on the Holy Rosary"}
-    />
-    <meta name="twitter:description" content={meta_description} />
-    <meta
-      name="twitter:image"
-      content="https://www.lumenviae.org/images/pngs/our-lady-of-sorrows-horizontal.jpg"
+    <%!-- Description, canonical link, link previews and structured data: what a
+          page put in LumenViaeWeb.PageMeta, or the site's defaults. --%>
+    <LumenViaeWeb.Components.MetaTags.meta_tags
+      meta={assigns[:meta]}
+      page_title={assigns[:page_title]}
+      description={assigns[:meta_description]}
+      request_path={@conn.request_path}
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -10,6 +10,7 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   use LumenViaeWeb, :live_view
 
   alias LumenViae.Rosary
+  alias LumenViaeWeb.PageMeta
 
   embed_templates "_partials/*"
 
@@ -30,10 +31,10 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
 
     socket =
       socket
-      |> assign(page_title: "Finding the Mysteries in Scripture")
-      |> assign(
-        meta_description:
-          "Read the scriptural accounts behind every mystery of the Holy Rosary and the Seven Sorrows of Mary, with Douay-Rheims passages and the traditional fruit of each mystery."
+      |> PageMeta.put("/mysteries",
+        title: "Finding the Mysteries in Scripture",
+        description:
+          "Read the scriptural accounts behind every mystery of the Holy Rosary and the Seven Sorrows of Mary, with Douay-Rheims passages and the fruit of each mystery."
       )
       |> assign(categories: @categories, selected_category: selected_category)
       |> assign(mysteries: mysteries_by_category(socket.assigns.current_admin))
