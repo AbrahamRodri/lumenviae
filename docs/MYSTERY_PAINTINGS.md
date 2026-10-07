@@ -149,6 +149,10 @@ column:
     fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants()'"
 
 Each painting is a GET of the original and three PUTs. Read the output:
-`WARN` means a painting's original is not in the bucket, or only some of
-its variants were stored (run it again), and `ERROR` means a download or the
-database write failed. Backfill writes do not appear in a record's History panel.
+`WARN` means a painting's original is not in the bucket, and `ERROR` means
+only some of its variants were stored, or a download or the database write
+failed (run it again). The mix task exits non-zero after its summary line
+when any painting failed; the release task returns the counts
+(`%{succeeded:, warnings:, failed:, failures:}`) and logs each failure.
+A photograph recorded sideways by an earlier upload (an Exif quarter
+turn) has its size corrected by the same run. Backfill writes do not appear in a record's History panel.

@@ -15,7 +15,8 @@ defmodule Mix.Tasks.LumenViae.ArtworkVariants do
       downloaded, uploaded or written
 
   Always dry-run first. Idempotent: a second run skips everything the
-  first one finished. In production use
+  first one finished. Exits non-zero, after a summary line, when any
+  painting failed: a variant the bucket refused, a download or a write. In production use
   `LumenViae.Release.artwork_variants/1` (docs/MYSTERY_PAINTINGS.md).
   """
 
@@ -40,16 +41,23 @@ defmodule Mix.Tasks.LumenViae.ArtworkVariants do
         authorize?: false
       )
 
-    errors = Enum.count(results, &match?({:error, _}, &1))
-    warnings = Enum.count(results, &match?({:warning, _}, &1))
+    summary = LumenViae.Curation.ArtworkVariants.summarize(results)
     suffix = if dry_run, do: " (dry run: nothing was changed)", else: ""
 
     Mix.shell().info(
-      "\n#{length(results) - errors - warnings} succeeded, #{warnings} with warnings, " <>
-        "#{errors} failed#{suffix}"
+      "\n#{summary.succeeded} succeeded, #{summary.warnings} with warnings, " <>
+        "#{summary.failed} failed#{suffix}"
     )
 
-    if errors > 0, do: exit({:shutdown, 1})
+    # Any painting whose variants could not all be stored fails the run, so
+    # a script or an operator cannot read a refused upload as done.
+    if summary.failed > 0 do
+      Mix.shell().error(
+        "#{summary.failed} painting(s) failed; nothing was lost, run again to retry them"
+      )
+
+      exit({:shutdown, 1})
+    end
   end
 
   defp progress({:started, total}), do: Mix.shell().info("#{total} painting(s) need variants")

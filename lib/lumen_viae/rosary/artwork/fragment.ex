@@ -55,8 +55,12 @@ defmodule LumenViae.Rosary.Artwork.Fragment do
     end
 
     update :record_artwork_variants do
-      description "Records the display variants made for the painting already stored, and nothing else."
-      accept [:image_variant_widths]
+      description "Records the display variants made for the painting already stored, and the size it is shown at, read from that painting."
+
+      # The size is here for the backfill, which reads it from the original
+      # it resized: a painting recorded sideways, before the upload read
+      # the Exif orientation, is corrected with its variants.
+      accept [:image_variant_widths, :image_width, :image_height]
       require_atomic? false
 
       argument :for_image_key, :string do
