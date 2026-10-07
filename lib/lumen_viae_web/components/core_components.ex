@@ -4,9 +4,8 @@ defmodule LumenViaeWeb.CoreComponents do
   show and hide JS helpers, error translation, and the public site's
   ornaments (`sacred_divider/1`, `gold_cta/1`, `arch_frame/1`, the medallions).
 
-  The flash notice is styled in the admin console's vocabulary, because the
-  console is the only place that renders it. See `docs/ARCHITECTURE.md` for
-  the tokens.
+  The flash notice comes in the console's vocabulary and in the public
+  site's (`variant`). See `docs/ARCHITECTURE.md` for the tokens.
   """
   use Phoenix.Component
   use Gettext, backend: LumenViaeWeb.Gettext
@@ -16,18 +15,56 @@ defmodule LumenViaeWeb.CoreComponents do
   @doc """
   Renders flash notices.
 
+  Two looks, one per side of the app: `variant={:admin}` (the default) in the
+  console's tokens, `variant={:public}` in the site's parchment, navy and
+  Garamond. Never cross them.
+
   ## Examples
 
       <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
+      <.flash kind={:error} flash={@flash} variant={:public} />
   """
   attr :id, :string, doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
   attr :kind, :atom, values: [:info, :error], doc: "used for styling and flash lookup"
+  attr :variant, :atom, default: :admin, values: [:admin, :public]
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
 
   slot :inner_block, doc: "the optional inner block that renders the flash message"
+
+  def flash(%{variant: :public} = assigns) do
+    assigns = assign_new(assigns, :id, fn -> "flash-#{assigns.kind}" end)
+
+    ~H"""
+    <div
+      :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
+      id={@id}
+      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
+      role="alert"
+      class="fixed z-50 inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:inset-x-auto sm:bottom-auto sm:top-28 sm:right-6 sm:w-96 cursor-pointer"
+      {@rest}
+    >
+      <div class={[
+        "flex items-start gap-3 rounded-xl border border-gold/50 border-l-4 bg-parchment px-4 py-3 shadow-ornate font-garamond text-base text-brown",
+        @kind == :info && "border-l-navy",
+        @kind == :error && "border-l-rubric"
+      ]}>
+        <div class="min-w-0 flex-1">
+          <p :if={@title} class="font-cinzel text-sm tracking-wide text-navy">{@title}</p>
+          <p>{msg}</p>
+        </div>
+        <button
+          type="button"
+          class="shrink-0 -m-2 inline-flex size-11 items-center justify-center text-brown-light hover:text-navy cursor-pointer"
+          aria-label={gettext("close")}
+        >
+          <.icon name="hero-x-mark-solid" class="size-4" />
+        </button>
+      </div>
+    </div>
+    """
+  end
 
   def flash(assigns) do
     assigns = assign_new(assigns, :id, fn -> "flash-#{assigns.kind}" end)
@@ -123,34 +160,6 @@ defmodule LumenViaeWeb.CoreComponents do
         {"transition-all ease-in duration-200", "opacity-100 translate-y-0 sm:scale-100",
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
     )
-  end
-
-  @doc """
-  Renders an ornate divider for visual separation.
-
-  ## Examples
-
-      <.ornate_divider />
-      <.ornate_divider variant="white" class="my-12" />
-  """
-  attr :class, :string, default: nil
-  attr :variant, :string, default: "black", values: ["black", "white"]
-  attr :rest, :global
-
-  def ornate_divider(assigns) do
-    ~H"""
-    <div class={["flex justify-center items-center my-8", @class]} {@rest}>
-      <img
-        src={
-          if @variant == "white",
-            do: "/images/pngs/white-ornate.png",
-            else: "/images/pngs/black-ornate.png"
-        }
-        alt=""
-        class="w-full max-w-2xl h-auto opacity-60"
-      />
-    </div>
-    """
   end
 
   @doc """

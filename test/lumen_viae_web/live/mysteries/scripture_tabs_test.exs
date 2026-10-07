@@ -1,7 +1,15 @@
 defmodule LumenViaeWeb.Live.Mysteries.ScriptureTabsTest do
-  use LumenViaeWeb.ConnCase, async: true
+  # Not async: the page needs the real mysteries, whose fixed (category,
+  # order) keys deadlock against another module inserting them.
+  use LumenViaeWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
+  import LumenViae.Test.Mysteries
+
+  setup do
+    seed_app_mysteries(%{"joyful_1" => "Luke 1:26-38"})
+    :ok
+  end
 
   # Every `role="tab"` must point at an element that is really a tabpanel.
   # Without the pairing, `aria-selected` announces a state about nothing.
@@ -91,6 +99,41 @@ defmodule LumenViaeWeb.Live.Mysteries.ScriptureTabsTest do
       assert html =~ "The Seven Sorrows of Mary"
       assert html =~ "The Prophecy of Simeon"
       assert html =~ "thy own soul a sword shall pierce"
+    end
+
+    # The app's names and fruits, from the database, not the page's own
+    # copies, which had drifted from them.
+    test "names each mystery as the app does, with its fruit and reference", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/mysteries")
+
+      card = element(view, "#mystery-joyful-1") |> render()
+      assert card =~ "1. The Annunciation"
+      assert card =~ "Fruit of the Mystery: Humility"
+      assert card =~ "Luke 1:26-38"
+
+      assert render(view) =~ "Fruit of the Mystery: Love of Neighbor"
+      refute render(view) =~ "Charity toward Neighbor"
+    end
+
+    test "every mystery links to its category's page to pray it", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/mysteries?category=seven_sorrows")
+
+      links =
+        view
+        |> render()
+        |> Floki.parse_document!()
+        |> Floki.find("article[id^='mystery-seven_sorrows'] a[href='/mysteries/seven_sorrows']")
+
+      assert length(links) == 7
+      assert links |> hd() |> Floki.text() =~ "Pray the Seven Sorrows"
+    end
+
+    test "the page is landmarked once: the layout's main, not one of its own", %{conn: conn} do
+      doc = conn |> get("/mysteries") |> html_response(200) |> Floki.parse_document!()
+
+      assert [_] = Floki.find(doc, "main")
+      assert Floki.find(doc, "main#main-content") != []
+      assert Floki.find(doc, ~s(a.skip-link[href="#main-content"])) != []
     end
   end
 end
