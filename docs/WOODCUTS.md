@@ -17,6 +17,24 @@ with its source and licence.
 - One file may serve two keys when one print shows both scenes (the
   Seven Sorrows reuse several Joyful and Sorrowful plates).
 
+## Where the plates are shown
+
+Through `LumenViaeWeb.Components.WoodcutPlate`, on a vellum mat on the
+night pages (never inverted, never blended into the dark), at most one per
+screen:
+
+- the category page's header and the home page's category card, until the
+  category's own painting is published: `WoodcutPlate.category_key/1`
+  picks the Annunciation, the Crucifixion, the Resurrection, the Baptism
+  and the Lamentation;
+- the head of each category on the mysteries in Scripture page, the same
+  five;
+- on the prayer page, the current mystery's plate above its announcement,
+  unless the reader turned images off in the settings pane.
+
+The Baptism (`luminous_1`) and the Transfiguration (`luminous_4`) plates
+are the owner's choice; never swap or alter them.
+
 ## Adding a plate
 
 1. Find it on Commons. Check the licence on its file page, or with the API:

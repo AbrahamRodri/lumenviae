@@ -75,7 +75,8 @@ Rules that hold for every link:
 - A value that is not allowed is the default. A decade number out of range
   is held to the nearest decade.
 - `mobile` is accepted and ignored. Old links carry it.
-- The closing prayers, the language and the text size are not in the link.
+- The closing prayers, the language, the text size, the reading page and
+  the images are not in the link.
   They are the browser's (below).
 
 Examples:
@@ -105,6 +106,8 @@ starts from the defaults. The one thing the server writes is a completion.
 | Closing prayers (Pope's intentions, Memorare, St. Michael) | `lv:pray:extras` | `PrayerMemory` |
 | Language of the prayers, English or Latin | `lv:pray:language` | `PrayerMemory` |
 | Text size | `lv:pray:text-size` | the `PrayerSurface` hook |
+| Reading page, vellum or night | `lv:pray:reading-page` | the `DisplayChoices` hook, read by `PrayerSurface` |
+| The mystery's woodcut shown or hidden | `lv:pray:images` | `DisplayChoices`, read by `PrayerSurface` |
 | Days in a row | `lv:pray:streak` | the `PrayerStreak` hook |
 | Swipe hint already shown | `lv:pray:swipe-hint-seen` | the `SwipeHint` hook |
 

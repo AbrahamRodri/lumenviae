@@ -1250,36 +1250,74 @@ instead.
 Defined in `assets/css/app.css` and consumed as Tailwind v4 utilities.
 Never hardcode a hex value in a template.
 
-The public site follows the iOS app's design language ("the sanctuary"),
-adapted to light backgrounds: two type families only, gold hairlines for
-structure, and the app's motifs (lancet arch frames, ornament dividers,
-gold capsule CTAs, Roman numerals, colophon quotes).
+The public site is **Midnight Marian**: the iOS app's Marian Blue theme.
+Every page is night, with light ink, one gilt accent and sky for the
+quiet labels. Long reading sits on a **vellum** page. Two type families,
+and the app's motifs (lancet arch frames, ornament dividers, Roman
+numerals, colophon quotes).
 
-**Colors**
+**Colors** (contrast is against `night` unless the Use column says so)
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `navy` / `navy-dark` / `navy-light` | `#003b5c` / `#002840` / `#004d75` | headings ink; hero and at most one accent band per page |
-| `gold` / `gold-light` / `gold-dark` | `#b18b49` / `#c9a96b` / `#7f6132` | rules and borders (`gold`), gold text on light (`gold-dark`) |
-| `parchment` | `#fdfaf4` | the almost-white default page ground |
-| `cream` / `cream-dark` | `#faf2e6` / `#f0e5d0` | alternating section backgrounds, inset panels |
-| `brown` / `brown-light` | `#4a3f33` / `#6f6353` | body copy, captions |
-| `rubric` | `#8b2f23` | admin status accents only; public kickers are gold |
+| `night` | `#0D1730` | the page ground |
+| `night-deep` | `#070E1F` | the header, the footer and a page's hero band |
+| `night-raised` | `#17284E` | cards, panels, the settings pane |
+| `night-border` | `#2A3B63` | decorative hairlines only (1.6:1) |
+| `night-line` | `#6E80AB` | a border that marks a control: chips, fields, pills (4.5:1; 3.7:1 on raised) |
+| `ink-light` | `#F4EFE2` | primary text (15.5:1) |
+| `ink-muted` | `#B9B3A3` | secondary text, captions (8.5:1; 6.9:1 on raised) |
+| `gilt` / `gilt-light` | `#D9B84A` / `#E9CC6E` | the one accent (9.2:1): filled buttons with `night` text, numerals, the lit bead, the focus ring; `gilt-light` for hover |
+| `sky` | `#9DB4E0` | kickers and links (8.5:1) |
+| `vellum` | `#F6F0E2` | the reading page |
+| `vellum-ink` / `vellum-muted` | `#2A211C` / `#6A5B4E` | text on vellum (13.9:1 / 5.7:1) |
+| `vellum-gold` | `#7A5A1E` | small rubrics on vellum: verse numbers, references, list markers (5.6:1) |
+| `vellum-border` | `#E3D7BF` | rules on vellum |
+
+`gilt`, `sky` and the `ink-*` tokens never go on vellum (they fail), and
+the `vellum-*` text tokens never go on night.
+
+`navy`, `gold`, `parchment`, `cream`, `brown` and `rubric` are the palette
+the whole site had before the redesign. Only the admin console uses them
+now; no public template may.
+
+**Where vellum goes.** Long-form reading only: the meditation on the
+prayer page (`.reading-page`, which the reader can turn back to night with
+"Reading page" in the settings pane), the Scripture passages on
+`/mysteries` and the privacy policy body (`.reading-vellum`). Everything
+else is night.
 
 **Fonts**
 
 | Utility | Family | Use |
 | --- | --- | --- |
-| `font-cinzel` | Cinzel | all headings, tracked-caps kickers and labels, numerals, buttons |
-| `font-garamond` | EB Garamond | all body, reading, and quotation text |
-| `font-cinzel-decorative` | Cinzel Decorative | the LUMEN VIAE wordmark only |
-| `font-ovo` / `font-work-sans` | Ovo / Work Sans | legacy, admin surfaces only |
+| `font-display` | Cormorant Garamond 500/600 | headings, in sentence case, never tracked caps |
+| `font-garamond` | EB Garamond 400/500/600, italic | all body, reading and quotation text, buttons, and the small labels |
+| `.kicker` | EB Garamond, 13px tracked caps, `sky` | the label above a heading or group; never below 12px |
+| `font-cinzel-decorative` / `font-ovo` / `font-work-sans` | Cinzel Decorative / Ovo / Work Sans | admin surfaces only |
 
-Shared vocabulary: `.btn-gold` / `<.gold_cta>` (gold capsule CTA, one filled
-gold shape per screen region), `<.sacred_divider>` (hairlines, diamonds,
-Latin cross), `<.arch_frame>` (lancet-arch image frame for devotional art),
-`.hairline-card`, `.ornate-corners`, `.drop-cap`. Quotes are set as centered
-colophons between dividers, never as filled bordered panels.
+Reading text is at least 17px on a phone; the body is 19px.
+
+**The mark.** `<.logo />` in `CoreComponents` is the Stella Maris: an
+eight-point Marian star in a thin circle, its lower ray drawn out into a
+path. One colour (`currentColor`, gilt by default), sizes `:sm` to `:xl`,
+beside the "Lumen Viae" wordmark in `font-display` 600. The same drawing
+is `priv/static/favicon.svg`, `favicon.ico` (16 and 32) and
+`apple-touch-icon.png` (180); change them together.
+
+Shared vocabulary: `.btn-gold` / `<.gold_cta>` (the gilt capsule, one
+filled gilt shape per screen region), `.btn-outline-gold` (the gilt-ruled
+secondary), `<.sacred_divider>` (hairlines, diamonds, Latin cross),
+`<.arch_frame>` (lancet-arch frame for a devotional painting),
+`.hairline-card` (a raised night card), `.reading-vellum`, `.kicker`.
+Woodcuts are `LumenViaeWeb.Components.WoodcutPlate`: on a vellum mat on
+night (the default variant), or `variant={:vellum}` on a reading page;
+never inverted. At most one woodcut per screen. Quotes are set as
+centered colophons between dividers, never as filled bordered panels.
+
+The focus ring is `gilt` on night and `vellum-ink` on vellum (the
+`--focus-ring` variable in the site shell). Every control is at least 44px
+tall and no public text is below 12px.
 
 Long passages are set upright, not italic - italics are for short asides,
 citations and captions. Keep body measure around 60-65 characters
@@ -1292,8 +1330,8 @@ citations and captions. Keep body measure around 60-65 characters
 Everything under `/admin` is a **console**, and it deliberately does not look
 like the site.
 
-The public pages are parchment, Cinzel and EB Garamond, with gold rules
-around every panel. That is right for a page someone reads a paragraph of at
+The public pages are night, Cormorant and EB Garamond, with vellum for
+reading. That is right for a page someone prays or reads a paragraph of at
 a time. A console is scanned, not read: it wants density, alignment, one type
 family with tabular figures, and colour reserved for status so that an amber
 cell means something. Every gold rule that only decorates is a rule the eye

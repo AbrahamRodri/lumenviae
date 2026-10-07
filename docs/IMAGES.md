@@ -29,7 +29,7 @@ cwebp -q <quality> -alpha_q 90 -m 6 -resize <width> 0 <original> -o <name>-<widt
 | --- | --- | --- |
 | `ornate-blue-gold-bg-symbols.jpg` (143,570) | `-480.webp` 31,022; `-735.webp` 61,924 | home hero, category header; `/pray` not yet |
 | `pngs/blessed-mary-with-child-jesus-rustic-cutout.png` (1,762,243) | `-320.webp` 33,704; `-512.webp` 66,982 | home hero |
-| `pngs/crucifix.png` (42,535) | `-160.webp` 13,864; `-256.webp` 28,648 | `<.medallion type="crucifix">`, the footer |
+| `pngs/crucifix.png` (42,535) | `-160.webp` 13,864; `-256.webp` 28,648 | `<.medallion type="crucifix">`; no page shows it since the redesign |
 
 The ornate background is drawn at 4 to 5 percent opacity, so it is
 compressed hard (quality 25). The cutout keeps its transparency.
@@ -54,7 +54,7 @@ browser that cannot read WebP still gets the original, with `width` and
 - The cutout, in `live/home/index.html.heex`:
   `sizes="(min-width: 768px) 176px, 128px"` (the `w-32 md:w-44` it is drawn
   at); 864x1512.
-- `<.medallion>` and `<.medallion_bg>` in `core_components.ex`: one private
+- `<.medallion>` in `core_components.ex`: one private
   `medallion_img/1` renders every medallion, with the pixel size of each
   file; only the crucifix has a `srcset` (`medallion_image/1`), and
   `medallion_sizes/2` gives its `sizes` from the size class.
@@ -97,17 +97,15 @@ Replace its `<img src="/images/ornate-blue-gold-bg-symbols.jpg" ...>` with:
   with that example.
 - `pngs/deo-gratias.png` and `carlo-acutis.jpg`: read as fixtures by
   `test/lumen_viae/images/inspector_test.exs`.
-- `pngs/holy-family.png`, `pngs/olive-branch-pax.png`,
-  `pngs/saint-benedict-symbol.png`: reached through `<.medallion>`. Only the
-  Saint Benedict symbol is shown (the nav, 9 KB, where a WebP was larger);
-  the other two have no caller and no variants.
+- `pngs/holy-family.png`, `pngs/olive-branch-pax.png`: reached through
+  `<.medallion>`, with no caller and no variants. The Saint Benedict symbol
+  was deleted with the October 2026 redesign, when the header took the
+  Stella Maris mark (`<.logo />`, an inline SVG).
 - Used only by `archive/`: `woodcuts/coronation-durer.jpg`,
   `woodcuts/madonna-crescent-crop.jpg`, `pngs/most-sacred-heart-white-bg.jpg`.
-- `woodcuts/`: the five live woodcuts (800 pixels wide, 198 to 456 KB each,
-  drawn about 160 to 208 CSS pixels wide) have no variants and are now the
-  largest images on the Mysteries pages. When that folder settles, 320 and
-  480 pixel copies with `sizes="(min-width: 768px) 208px, 160px"` would fit
-  the `w-44 md:w-56` figure with its `p-2` frame.
+- `woodcuts/`: every page now shows the woodcuts through
+  `LumenViaeWeb.Components.WoodcutPlate`, which serves the WebP variants
+  the manifest lists. See docs/WOODCUTS.md for where each is placed.
 
 ## Deleted
 
