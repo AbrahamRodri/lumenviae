@@ -62,12 +62,14 @@ export default {
       if (typeof seek === "number") this.seek = seek
       this.seekScreen(screen)
     })
+    // Never started on arrival: a browser allows sound only after a tap, so
+    // the reader presses Play. When the player appears because of a tap -
+    // the switch turned on, another voice, form or closing prayer chosen -
+    // the LiveView says so, and it starts; a browser that still refuses
+    // leaves the Play button showing.
+    this.handleEvent("spoken_play", () => this.play())
     this.setUpMediaSession()
     this.render()
-
-    // Turning the switch on is the gesture that allows sound; a browser
-    // that still refuses leaves the Play button showing.
-    this.play()
   },
 
   destroyed() {
