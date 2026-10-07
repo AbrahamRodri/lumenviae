@@ -10,12 +10,13 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   attr :prayer_id, :string, required: true
   attr :title, :string, default: nil, doc: "shown above the words; nil for none"
   attr :size, :string, default: "full", values: ~w(full quiet)
+  attr :language, :string, default: "en", doc: "the language the prayer is set in"
 
   def prayer(assigns) do
-    assigns = assign(assigns, :lines, Sequence.prayer_lines(assigns.prayer_id))
+    assigns = assign(assigns, :lines, Sequence.prayer_lines(assigns.prayer_id, assigns.language))
 
     ~H"""
-    <div>
+    <div lang={@language}>
       <h3 :if={@title} class="font-cinzel text-xs tracking-[0.22em] uppercase text-gold mb-3">
         {@title}
       </h3>

@@ -7,6 +7,8 @@ import PrayerSurface from "./prayer_surface"
 import PrayerMemory from "./prayer_memory"
 import PrayerStreak from "./prayer_streak"
 import RosaryChoices from "./rosary_choices"
+import SwipeHint from "./swipe_hint"
+import MysterySchedule from "./mystery_schedule"
 
 export default {
   UserTimezone,
@@ -17,5 +19,7 @@ export default {
   PrayerSurface,
   PrayerMemory,
   PrayerStreak,
-  RosaryChoices
+  RosaryChoices,
+  SwipeHint,
+  MysterySchedule
 }

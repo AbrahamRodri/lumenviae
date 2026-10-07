@@ -2,7 +2,12 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
   @moduledoc """
   After Complete: the Rosary offered, the app's line for after praying,
   the days in a row this browser has prayed (kept in this browser only, by
-  the PrayerStreak hook) and the ways back to the mysteries.
+  the PrayerStreak hook), the devotional milestone reached today if there
+  is one, and the ways back to the mysteries.
+
+  Every milestone is in the page, hidden; the PrayerStreak hook shows the
+  one the streak has just reached, and only on the day's first Rosary, as
+  the app does, so it stays rare enough to be special.
   """
   use LumenViaeWeb, :html
 
@@ -13,7 +18,10 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
   attr :storage_key, :string, required: true
 
   def completion(assigns) do
-    assigns = assign(assigns, :quote, Sequence.quote_after_praying())
+    assigns =
+      assigns
+      |> assign(:quote, Sequence.quote_after_praying())
+      |> assign(:milestones, Sequence.milestones())
 
     ~H"""
     <section
@@ -42,13 +50,28 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
       <p
         id="prayer-streak"
         phx-update="ignore"
-        id="prayer-streak"
-        phx-update="ignore"
         data-streak
         aria-live="polite"
         class="mt-5 min-h-6 font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-light/80"
       >
       </p>
+
+      <div id="prayer-milestones" phx-update="ignore" aria-live="polite" class="w-full max-w-sm">
+        <div
+          :for={milestone <- @milestones}
+          data-milestone={milestone.days}
+          hidden
+          class="mt-4 rounded-2xl border border-gold/40 bg-navy-dark/70 px-5 py-4"
+        >
+          <p class="font-cinzel text-[0.6rem] tracking-[0.3em] uppercase text-gold-light">
+            Milestone reached
+          </p>
+          <p class="mt-2 font-cinzel text-2xl text-cream">{milestone.name}</p>
+          <p class="mt-2 font-garamond italic text-base text-cream/85 leading-relaxed">
+            {milestone.blessing}
+          </p>
+        </div>
+      </div>
 
       <.sacred_divider class="!my-8 w-full max-w-sm" />
 
