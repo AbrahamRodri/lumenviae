@@ -121,9 +121,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
           {@meditation.title}
         </h3>
 
-        <div class="font-garamond prayer-text whitespace-pre-wrap">
-          {@meditation.content}
-        </div>
+        <.meditation_text content={@meditation.content} />
 
         <footer
           :if={@meditation.author || @meditation.source}
@@ -137,6 +135,49 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
       </article>
     </div>
     """
+  end
+
+  attr :content, :string, default: nil
+
+  @doc """
+  A meditation's words as the curation guide writes them
+  (docs/MEDITATION_CURATION_GUIDE.md): a blank line starts a new paragraph,
+  and a single newline is a line break inside one.
+  """
+  def meditation_text(assigns) do
+    assigns = assign(assigns, :paragraphs, paragraphs(assigns.content))
+
+    ~H"""
+    <div class="font-garamond prayer-text space-y-[0.9em]">
+      <p :for={lines <- @paragraphs}>
+        <%= for {line, index} <- Enum.with_index(lines) do %>
+          <br :if={index > 0} />{line}
+        <% end %>
+      </p>
+    </div>
+    """
+  end
+
+  @doc """
+  Splits meditation content into paragraphs, each a list of its lines.
+  Blank lines (or lines of only spaces) separate paragraphs; the lines keep
+  their words and lose stray indentation.
+
+      paragraphs("a\\nb\\n\\nc") #=> [["a", "b"], ["c"]]
+  """
+  def paragraphs(nil), do: []
+
+  def paragraphs(content) when is_binary(content) do
+    content
+    |> String.replace("\r\n", "\n")
+    |> String.split(~r/\n[ \t]*\n/)
+    |> Enum.map(fn paragraph ->
+      paragraph
+      |> String.split("\n")
+      |> Enum.map(&String.trim/1)
+      |> Enum.reject(&(&1 == ""))
+    end)
+    |> Enum.reject(&(&1 == []))
   end
 
   attr :key, :string, required: true, doc: "the mystery's key, such as \"joyful_1\""
