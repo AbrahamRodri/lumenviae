@@ -111,7 +111,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
             </button>
           </div>
         <% else %>
-          <ul class="grid gap-4 md:grid-cols-2" id="meditation-sets">
+          <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-1" id="meditation-sets">
             <li :for={set <- @shown_sets} id={"set-#{set.id}"}>
               <.set_card set={set} choices={@choices} />
             </li>
@@ -202,6 +202,13 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
   # The set's own byline, else its linked author's name, else the author
   # its meditations agree on.
   defp byline(set) do
+    case author_name(set) do
+      name when name == set.name -> nil
+      name -> name
+    end
+  end
+
+  defp author_name(set) do
     profile_name =
       case Map.get(set, :author_profile) do
         %{name: name} -> name
