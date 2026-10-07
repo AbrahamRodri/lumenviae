@@ -22,9 +22,12 @@ const PAGES = [
   { path: "/mysteries/joyful", slug: "mysteries-joyful" },
   { path: "/mysteries/seven_sorrows", slug: "mysteries-seven-sorrows" },
   { path: "/privacy-policy", slug: "privacy-policy" },
+  { path: "/app", slug: "app" },
 ];
 
-const RETIRED = ["/dashboard", "/app", "/rosary-methods", "/true-devotion", "/saint-carlo", "/feedback"];
+const APP_STORE = "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749";
+
+const RETIRED = ["/dashboard", "/rosary-methods", "/true-devotion", "/saint-carlo", "/feedback"];
 
 const failures = [];
 let checks = 0;
@@ -164,6 +167,30 @@ async function checkHooks(page, errors, vp) {
   check(playback === "none", `${label}: turning the voice off lets go of the media controls`, playback);
 
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+}
+
+// The iPhone app's page: every download link goes to the App Store listing,
+// and each screenshot has loaded.
+async function checkAppPage(page, vp) {
+  const label = `${vp.name} /app`;
+  console.log(`${label} (downloads)`);
+  await page.goto(`${BASE_URL}/app`);
+  await settle(page);
+
+  const hrefs = await page.locator('a[href^="https://apps.apple.com"]').evaluateAll((links) =>
+    links.map((a) => a.getAttribute("href"))
+  );
+  check(hrefs.length >= 2, `${label}: has App Store links`, `found ${hrefs.length}`);
+  check(hrefs.every((href) => href === APP_STORE), `${label}: every App Store link is the listing`, hrefs.join(" "));
+
+  await page.evaluate(async () => {
+    for (const img of document.images) img.loading = "eager";
+    await Promise.all([...document.images].map((img) => (img.complete ? null : img.decode().catch(() => {}))));
+  });
+  const broken = await page.evaluate(() =>
+    [...document.querySelectorAll("main img")].filter((img) => !img.naturalWidth).map((img) => img.currentSrc || img.src)
+  );
+  check(broken.length === 0, `${label}: every screenshot loads`, broken.join(" "));
 }
 
 async function checkRedirects(page, vp) {
@@ -445,6 +472,7 @@ async function checkCompletion(browser, vp) {
     await checkHooks(page, errors, vp);
     for (const spec of PAGES) await checkPage(page, errors, vp, spec);
     await checkPrayFlow(page, errors, vp);
+    await checkAppPage(page, vp);
     await checkRedirects(page, vp);
     await context.close();
 

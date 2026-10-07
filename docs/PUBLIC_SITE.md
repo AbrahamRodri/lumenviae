@@ -16,27 +16,28 @@ The public site is only the Rosary. The console (`/admin`), the APIs
 | `/mysteries/:category` | `LumenViaeWeb.Live.Mysteries.CategoryList` | One category: `joyful`, `sorrowful`, `glorious`, `luminous` or `seven_sorrows`. Its mysteries, "Your Rosary Today" choices, the two ways to pray without a set, and the shelf of meditation sets. |
 | `/meditation-sets/:set_id/pray` | `LumenViaeWeb.Live.Pray.Index` | The prayer page, praying one set. |
 | `/mysteries/:category/pray` | `LumenViaeWeb.Live.Pray.Index` | The same page, praying a category without a set. |
+| `/app` | `LumenViaeWeb.Live.Home.App.Index` | The iPhone app's page: real screenshots of the app in CSS-drawn phones, what it holds in the app's own names, and the App Store link. |
 | `/privacy-policy` | `LumenViaeWeb.Live.PrivacyPolicy.Index` | The privacy policy the App Store listing links to. |
 
-All six are in the `:public` live session in `router.ex`. A set that does
+All seven are in the `:public` live session in `router.ex`. A set that does
 not exist, or is hidden, answers 404, and so does an unknown category.
 
-`priv/static/sitemap.xml` lists `/`, `/mysteries`, the five category pages
-and `/privacy-policy`. The prayer pages are not in it, and `robots.txt`
+`priv/static/sitemap.xml` lists `/`, `/mysteries`, the five category pages,
+`/app` and `/privacy-policy`. The prayer pages are not in it, and `robots.txt`
 asks crawlers to stay out of `/meditation-sets/`. A crawler that walked the
 prayer flow once pressed Complete often enough to leave Rosaries nobody had
 prayed; see `docs/COMPLETION_ANALYTICS.md`.
 
 ## Archived pages
 
-These pages left the site on 7 October 2026. Their code is in `archive/`,
+These pages left the site on 7 October 2026. The iPhone app's page left
+with them and came back the same day, rewritten. Their code is in `archive/`,
 which is outside `lib/` and `test/`, so it is not compiled and its tests are
 not run.
 
 | Old path | Page |
 | --- | --- |
 | `/dashboard` | Prayer dashboard (folded into the home page) |
-| `/app` | The iPhone app |
 | `/rosary-methods` | How to Pray the Rosary |
 | `/true-devotion` | True Devotion to Mary |
 | `/saint-carlo` | St. Carlo Acutis |
@@ -121,6 +122,29 @@ Details worth knowing:
 - The hooks live in `assets/js/hooks/`, and each file opens with a comment
   saying what it keeps and why.
 
+## The app page
+
+`/app` describes the iPhone app as it is now, in the app's own names
+(Your Rosary Today, the Rosary Said Aloud, Hours of Prayer, Today's Mass,
+the Chant Library, the Chapel). Describe nothing the app does not do, and
+no ratings, reviews or download counts.
+
+- Every screen is a real screenshot from the iOS Simulator (iPhone 17 Pro,
+  the Marian Blue theme, which is the site's own palette, status bar set to
+  9:41 and full), in `priv/static/images/app/`: `<name>-390.webp`,
+  `<name>-780.webp` (cwebp at quality 85) and a 390 pixel `<name>.jpg`.
+  The originals stay out of the repository.
+- `LumenViaeWeb.Live.Home.App.PhoneScreen` draws each one in a CSS phone
+  (`.phone-frame` in `app.css`), with `width` and `height` and alt text
+  saying what the screen shows.
+- `og-app.jpg` (1200x630) is three of the screenshots composed for link
+  previews.
+- The download button is the site's gilt button worded like Apple's badge,
+  not the badge itself, which is licensed artwork. Every download link is
+  the App Store listing, and `test/lumen_viae_web/live/home/app_test.exs`
+  and the smoke test check it.
+- When the app changes a screen the page shows, retake that screenshot.
+
 ## Completions
 
 A completion is recorded only when the reader presses Complete on a set's
@@ -170,11 +194,12 @@ row still count, in the browser. See `docs/UPCOMING_FEATURES.md`.
 
 The smoke test in `scripts/e2e/` drives the real site in Chrome at a phone
 width (390 px) and a desktop width (1280 px). It loads `/`, `/mysteries`,
-`/mysteries/joyful`, `/mysteries/seven_sorrows` and `/privacy-policy`, and
-checks each one answers 200, has an `h1`, logs no console errors and does
-not scroll sideways. It follows the first Pray link on `/mysteries/joyful`
-and presses ArrowRight, and checks that the six archived paths redirect to
-`/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
+`/mysteries/joyful`, `/mysteries/seven_sorrows`, `/privacy-policy` and
+`/app`, and checks each one answers 200, has an `h1`, logs no console
+errors and does not scroll sideways. It follows the first Pray link on
+`/mysteries/joyful` and presses ArrowRight, checks every App Store link
+and screenshot on `/app`, and checks that the five archived paths redirect
+to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 gitignored.
 
 It is not part of CI. Run it before you hand in a change to a public page.

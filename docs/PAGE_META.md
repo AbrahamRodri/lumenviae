@@ -49,6 +49,7 @@ reads WebP.
 | Page | Image |
 | --- | --- |
 | Home, Scripture, privacy | the Our Lady of Sorrows banner, 1200x410 |
+| The app page | three app screenshots, `images/app/og-app.jpg`, 1200x630 |
 | A category | the woodcut its header shows (`PageMeta.category_image/1`) |
 | A set's prayer page | the woodcut of the set's first mystery, else the category's |
 | A category's prayer page | the woodcut of the category's first mystery |

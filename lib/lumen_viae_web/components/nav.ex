@@ -93,6 +93,10 @@ defmodule LumenViaeWeb.Components.Nav do
             </ul>
           </div>
 
+          <.nav_link navigate="/app" current_path={@current_path}>
+            The App
+          </.nav_link>
+
           <.nav_link :if={@is_admin} navigate="/admin" current_path={@current_path}>
             Admin
           </.nav_link>
@@ -163,6 +167,12 @@ defmodule LumenViaeWeb.Components.Nav do
                 </.nav_link>
               </li>
             </ul>
+          </li>
+
+          <li class="pt-3 mt-3 border-t border-night-border">
+            <.nav_link navigate="/app" current_path={@current_path} mobile>
+              The App
+            </.nav_link>
           </li>
 
           <li :if={@is_admin} class="pt-3 mt-3 border-t border-night-border">

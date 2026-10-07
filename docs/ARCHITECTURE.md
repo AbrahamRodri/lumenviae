@@ -957,7 +957,7 @@ LiveViews are grouped by **area of the site**, not by resource:
 
 | Directory | Contents |
 | --- | --- |
-| `live/home/` | the home page, the daily hub: today's mysteries on either schedule, the sets for them, the Rosary without a set, and a card per category (`category_card/`) |
+| `live/home/` | the home page, the daily hub: today's mysteries on either schedule, the sets for them, the Rosary without a set, and a card per category (`category_card/`); and the iPhone app's page (`app/`, its screenshots drawn by `app/phone_screen.ex`) |
 | `live/mysteries/` | public: the mysteries in Scripture (`scripture.ex`, its sections in `_partials/`) and the category page (`category_list/`). Admin: mystery CRUD and a category card's painting (`card/`) |
 | `live/pray/` | the prayer page: see [The prayer page](#the-prayer-page) |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
@@ -965,10 +965,11 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
 The public site is only the Rosary: home, the mysteries, their sets and
-the prayer page, six routes in all (`docs/PUBLIC_SITE.md` lists them, the
-prayer page's link and where each setting is kept). Pages retired from it
-(the dashboard, the app page, How to Pray, True Devotion, St. Carlo,
-Feedback) are in `archive/`, outside the build; each old path answers a
+the prayer page, with the iPhone app's page and the privacy policy beside
+them, seven routes in all (`docs/PUBLIC_SITE.md` lists them, the prayer
+page's link and where each setting is kept). Pages retired from it (the
+dashboard, How to Pray, True Devotion, St. Carlo, Feedback) are in
+`archive/`, outside the build; each old path answers a
 `301` to `/` through `LumenViaeWeb.RedirectController`, and
 `archive/README.md` says how to bring one back. Archived pages are not
 maintained: do not update them when a shared component changes.

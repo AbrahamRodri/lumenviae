@@ -3,7 +3,7 @@ defmodule LumenViaeWeb.RedirectControllerTest do
 
   # The pages retired to archive/ are still linked from bookmarks and
   # search results, so each address sends the reader home for good.
-  for path <- ~w(/dashboard /app /rosary-methods /true-devotion /saint-carlo /feedback) do
+  for path <- ~w(/dashboard /rosary-methods /true-devotion /saint-carlo /feedback) do
     test "#{path} redirects home permanently", %{conn: conn} do
       conn = get(conn, unquote(path))
 

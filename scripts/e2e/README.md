@@ -6,14 +6,16 @@ Playwright through `npx`.
 
 At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
 
-- loads `/`, `/mysteries`, `/mysteries/joyful`, `/mysteries/seven_sorrows`
-  and `/privacy-policy`, and checks each answers 200 with an h1 and no
+- loads `/`, `/mysteries`, `/mysteries/joyful`, `/mysteries/seven_sorrows`,
+  `/privacy-policy` and `/app`, and checks each answers 200 with an h1 and no
   console errors;
 - checks no page scrolls sideways (`scrollWidth <= innerWidth`);
 - follows the first Pray link on `/mysteries/joyful` to
   `/meditation-sets/:id/pray` and presses ArrowRight;
-- checks `/dashboard`, `/app`, `/rosary-methods`, `/true-devotion`,
-  `/saint-carlo` and `/feedback` redirect to `/`;
+- on `/app`, checks every App Store link goes to the listing and every
+  screenshot loads;
+- checks `/dashboard`, `/rosary-methods`, `/true-devotion`, `/saint-carlo`
+  and `/feedback` redirect to `/`;
 - on the category page, chooses the whole Rosary aloud (Counting
   disappears and the Pray links gain `aloud=true`), then counting on the
   screen (the Pray links gain `count=screen`), and checks both survive a

@@ -1276,3 +1276,42 @@ html[data-prayer-images="off"] .prayer-plate {
   .woodcut-plate--vellum .woodcut-plate__source { color: var(--color-vellum-gold); }
 }
 /* === end woodcut plates === */
+
+/* === the app page's phones === */
+/* LumenViaeWeb.Live.Home.App.PhoneScreen: a real screenshot in a phone
+   drawn here, not a device photograph. The radii are percentages of the
+   frame's own width and height (horizontal / vertical), so the corners
+   keep their shape at any width. */
+@layer components {
+  .phone-frame {
+    position: relative;
+    padding: 3.2%;
+    border-radius: 15% / 7%;
+    background: linear-gradient(
+      160deg,
+      var(--color-night-border) 0%,
+      var(--color-night-deep) 45%,
+      var(--color-night-raised) 100%
+    );
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-night-line) 45%, transparent),
+      0 30px 60px -20px rgba(3, 7, 18, 0.8),
+      0 18px 40px -24px color-mix(in srgb, var(--color-gilt) 25%, transparent);
+  }
+
+  .phone-frame__screen {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12.5% / 5.8%;
+    background: var(--color-night-deep);
+  }
+
+  /* The download link, set in two lines like Apple's badge. */
+  .app-store-button {
+    min-width: 12rem;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+  }
+}
+/* === end the app page's phones === */
