@@ -49,5 +49,9 @@ export default {
 
     const milestone = firstToday && this.el.querySelector(`[data-milestone="${streak.days}"]`)
     if (milestone) milestone.hidden = false
+
+    // The Complete button that was pressed is gone; without this focus falls
+    // to the top of the page and a screen reader never hears the Amen.
+    this.el.focus({ preventScroll: true })
   }
 }

@@ -165,7 +165,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         aria-pressed={to_string(@pray_aloud)}
         title="Hear every prayer of the Rosary, bead by bead"
         class={[
-          "inline-flex items-center gap-2 rounded-full border px-4 min-h-11 font-cinzel text-[0.7rem] tracking-[0.2em] uppercase motion-safe:transition-colors",
+          "inline-flex items-center gap-2 rounded-full border px-4 min-h-11 font-cinzel text-xs tracking-[0.2em] uppercase motion-safe:transition-colors",
           if(@pray_aloud,
             do: "border-gold bg-gold text-navy",
             else: "border-gold/40 text-gold-light/80 hover:border-gold hover:text-gold"
@@ -181,7 +181,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         <select
           id="narration-voice"
           name="voice"
-          class="rounded-full border border-gold/40 bg-navy min-h-11 pl-4 pr-9 font-cinzel text-[0.7rem] tracking-[0.2em] uppercase text-gold-light/80 focus:border-gold focus:ring-0"
+          class="rounded-full border border-gold/40 bg-navy min-h-11 pl-4 pr-9 font-cinzel text-xs tracking-[0.2em] uppercase text-gold-light/80 focus:border-gold focus:ring-0"
         >
           <option :for={voice <- @voices} value={voice.slug} selected={voice.slug == @voice.slug}>
             {voice.name} voice
@@ -342,7 +342,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           <span class="hero-arrow-right size-4" aria-hidden="true" />
         </button>
       </div>
-      <p class="hidden md:block mt-2 text-center font-cinzel text-[0.6rem] tracking-[0.2em] uppercase text-gold-light/50">
+      <p class="hidden md:block mt-2 text-center font-cinzel text-xs tracking-[0.2em] uppercase text-gold-light/50">
         {if @count == "screen",
           do: "Space, Enter or the arrow keys move a bead",
           else: "The left and right arrow keys turn the page"}
@@ -363,7 +363,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   defp form_note(form), do: Map.fetch!(@form_notes, form)
 
   defp legend_class,
-    do: "font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-light/80"
+    do: "font-cinzel text-xs tracking-[0.25em] uppercase text-gold-light/80"
 
   defp size_button_class,
     do:

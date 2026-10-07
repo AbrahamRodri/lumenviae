@@ -804,7 +804,7 @@
   cursor: pointer;
   text-align: center;
   font-family: var(--font-cinzel);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   line-height: 1.25;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -893,7 +893,7 @@
   border: 1px solid color-mix(in srgb, var(--color-gold) 40%, transparent);
   background: var(--color-white);
   font-family: var(--font-cinzel);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-brown);
@@ -925,7 +925,7 @@
   border: 1px solid color-mix(in srgb, var(--color-gold) 55%, transparent);
   background: transparent;
   font-family: var(--font-cinzel);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-navy);
@@ -946,7 +946,7 @@
   min-height: 44px;
   padding: 0 0.25rem;
   font-family: var(--font-cinzel);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-gold-dark);

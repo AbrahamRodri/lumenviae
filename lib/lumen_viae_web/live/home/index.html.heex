@@ -73,11 +73,11 @@
         <div class="relative max-w-sm mx-auto">
           <div class="absolute top-[0.4rem] inset-x-6 h-px bg-gold/30" aria-hidden="true"></div>
           <ol class="relative flex items-start justify-between" aria-label="This week's mysteries">
-            <li :for={day <- @week} class="flex flex-col items-center gap-2 w-10">
+            <li :for={day <- @week} class="flex flex-col items-center gap-2 flex-1 min-w-0">
               <span class={["bead", day.today? && "bead-today"]} aria-hidden="true"></span>
               <span
                 class={[
-                  "font-cinzel text-[0.7rem] tracking-[0.15em] uppercase",
+                  "font-cinzel text-xs tracking-[0.15em] uppercase",
                   day.today? && "text-cream font-semibold",
                   !day.today? && "text-gold-light"
                 ]}
@@ -139,7 +139,7 @@
   <!-- Today's devotion: the mysteries, the sets for them, and the set-less forms -->
   <section class="px-4 sm:px-8 py-14 md:py-20" aria-labelledby="todays-devotion-heading">
     <div class="max-w-6xl mx-auto grid gap-12 lg:grid-cols-2 lg:gap-16">
-      <div>
+      <div class="min-w-0">
         <p class="font-cinzel text-xs tracking-[0.3em] uppercase text-gold-dark mb-3">
           {Calendar.strftime(@today, "%A")}'s Devotion
         </p>
@@ -168,7 +168,7 @@
             <div class="min-w-0">
               <p class="font-garamond text-xl text-navy leading-snug">{mystery.name}</p>
               <p :if={mystery.fruit} class="font-garamond text-base text-brown-light">
-                <span class="font-cinzel text-[0.7rem] tracking-[0.15em] uppercase text-gold-dark">
+                <span class="font-cinzel text-xs tracking-[0.15em] uppercase text-gold-dark">
                   Fruit
                 </span>
                 {mystery.fruit}
@@ -178,7 +178,7 @@
         </ol>
       </div>
 
-      <div class="flex flex-col gap-10">
+      <div class="flex min-w-0 flex-col gap-10">
         <!-- Pray with a meditation set -->
         <div id="todays-sets">
           <h3 class="font-cinzel text-xl md:text-2xl text-navy mb-2">Pray with the Saints</h3>
@@ -193,7 +193,7 @@
               into the Rosary.
             </p>
             <ul class="space-y-2.5 mb-6">
-              <li :for={set <- @todays_sets}>
+              <li :for={set <- @todays_sets} class="min-w-0">
                 <.link
                   navigate={"/meditation-sets/#{set.id}/pray"}
                   class="home-row group hairline-card flex items-center gap-3 px-5 py-3.5 min-h-12 hover:border-gold transition-colors"
@@ -203,7 +203,7 @@
                   </span>
                   <span
                     :if={has_audio?(set)}
-                    class="flex items-center gap-1.5 shrink-0 font-cinzel text-[0.65rem] tracking-[0.12em] uppercase text-gold-dark"
+                    class="flex items-center gap-1.5 shrink-0 font-cinzel text-xs tracking-[0.12em] uppercase text-gold-dark"
                   >
                     <svg
                       viewBox="0 0 24 24"

@@ -10,7 +10,7 @@
   <.mysteries_list category={@category} mysteries={@mysteries} />
 
   <div class="max-w-5xl mx-auto px-4 sm:px-8 pt-10 md:pt-14 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-12 items-start">
-    <div class="lg:col-start-2 lg:row-start-1 lg:sticky lg:top-6">
+    <div class="min-w-0 lg:col-start-2 lg:row-start-1 lg:sticky lg:top-6">
       <.rosary_choices choices={@choices} voices={@voices} />
     </div>
 
@@ -31,7 +31,7 @@
   <div class="mt-14 text-center px-4">
     <.link
       navigate="/"
-      class="inline-flex items-center gap-2 min-h-11 px-2 font-cinzel text-[0.7rem] tracking-[0.15em] uppercase text-gold-dark hover:text-navy transition-colors"
+      class="inline-flex items-center gap-2 min-h-11 px-2 font-cinzel text-xs tracking-[0.15em] uppercase text-gold-dark hover:text-navy transition-colors"
     >
       <span aria-hidden="true">&larr;</span> Return to All Mysteries
     </.link>

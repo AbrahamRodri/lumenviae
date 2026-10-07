@@ -47,7 +47,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
           </span>
           <div class="flex-1">
             <PrayerText.verse verse={screen.verse} />
-            <p class="mt-1 font-cinzel text-[0.65rem] tracking-[0.22em] uppercase text-gold-light/60">
+            <p class="mt-1 font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/60">
               {screen.caption}
             </p>
           </div>
@@ -74,7 +74,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
           </li>
         </ol>
         <details class="mt-4 group">
-          <summary class="cursor-pointer min-h-11 flex items-center font-cinzel text-[0.7rem] tracking-[0.22em] uppercase text-gold-light/80 hover:text-gold rounded">
+          <summary class="cursor-pointer min-h-11 flex items-center font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/80 hover:text-gold rounded">
             Show the words
           </summary>
           <div class="mt-4 space-y-6">
@@ -108,7 +108,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
         <li :for={block <- @blocks}>
           <p
             :if={caption_line(block)}
-            class="font-cinzel text-[0.65rem] tracking-[0.22em] uppercase text-gold-light/70 mb-1"
+            class="font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/70 mb-1"
           >
             {caption_line(block)}
           </p>

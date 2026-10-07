@@ -54,7 +54,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
           </h1>
           <p class="font-garamond italic text-xl text-gold-light mb-5">{@subtitle}</p>
           <.sacred_divider class="max-w-[14rem] mx-auto md:mx-0 my-5 md:justify-start" />
-          <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-light/70 mb-1">
+          <p class="font-cinzel text-xs tracking-[0.25em] uppercase text-gold-light/70 mb-1">
             Prayed on
           </p>
           <p class="font-garamond text-lg text-cream" data-role="days">{@days}</p>
