@@ -35,6 +35,11 @@ RUN mix local.hex --force \
 # set build ENV
 ENV MIX_ENV="prod"
 
+# The BEAM JIT's dual-mapped code memory breaks under CPU emulation (an
+# amd64 build on Apple Silicon): `mix deps.compile` dies loading a dep's
+# mix.exs. Single mapping is harmless natively. Builder stage only.
+ENV ERL_FLAGS="+JMsingle true"
+
 # install mix dependencies
 COPY mix.exs mix.lock ./
 RUN mix deps.get --only $MIX_ENV
