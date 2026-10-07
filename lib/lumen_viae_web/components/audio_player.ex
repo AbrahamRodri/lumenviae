@@ -25,8 +25,7 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
       phx-hook="AudioPlayer"
     >
       <audio preload="auto">
-        <source src={@audio_url} type="audio/mpeg" />
-        Your browser does not support the audio element.
+        <source src={@audio_url} type="audio/mpeg" /> Your browser does not support the audio element.
       </audio>
 
       <div class="flex items-center justify-center">
@@ -71,16 +70,16 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
       case assigns.size do
         "large" ->
           {
-            "flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-gold ring-1 ring-gold-light/60 ring-offset-4 ring-offset-transparent hover:bg-gold-light transition-all shadow-glow hover:scale-105",
-            "w-10 h-10 md:w-12 md:h-12 text-navy ml-1",
-            "w-10 h-10 md:w-12 md:h-12 text-navy"
+            "flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-gilt ring-1 ring-gilt-light/60 ring-offset-4 ring-offset-transparent hover:bg-gilt-light transition-all shadow-gilt hover:scale-105",
+            "w-10 h-10 md:w-12 md:h-12 text-night ml-1",
+            "w-10 h-10 md:w-12 md:h-12 text-night"
           }
 
         _ ->
           {
-            "flex items-center justify-center w-11 h-11 rounded-full bg-gold ring-1 ring-gold-light/50 hover:bg-gold-light transition-all hover:scale-105",
-            "w-5 h-5 md:w-6 md:h-6 text-navy ml-0.5",
-            "w-5 h-5 md:w-6 md:h-6 text-navy"
+            "flex items-center justify-center w-11 h-11 rounded-full bg-gilt ring-1 ring-gilt-light/50 hover:bg-gilt-light transition-all hover:scale-105",
+            "w-5 h-5 md:w-6 md:h-6 text-night ml-0.5",
+            "w-5 h-5 md:w-6 md:h-6 text-night"
           }
       end
 

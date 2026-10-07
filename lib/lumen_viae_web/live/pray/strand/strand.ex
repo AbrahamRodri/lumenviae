@@ -34,9 +34,14 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
               class={[
                 "block rounded-full border motion-safe:transition-all motion-safe:duration-300",
                 cond do
-                  page.index == @page -> "w-3.5 h-3.5 bg-gold border-gold-light shadow-glow"
-                  page.index < @page -> "w-2.5 h-2.5 bg-gold/60 border-gold/50 group-hover:bg-gold/90"
-                  true -> "w-2.5 h-2.5 bg-navy border-gold/50 group-hover:bg-gold/30"
+                  page.index == @page ->
+                    "w-3.5 h-3.5 bg-gilt border-gilt-light shadow-gilt"
+
+                  page.index < @page ->
+                    "w-2.5 h-2.5 bg-gilt/60 border-night-line group-hover:bg-gilt/90"
+
+                  true ->
+                    "w-2.5 h-2.5 bg-night border-night-line group-hover:bg-gilt/30"
                 end
               ]}
             ></span>
@@ -45,7 +50,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
           </button>
         </li>
       </ol>
-      <p class="mt-1 font-cinzel text-xs tracking-[0.25em] uppercase text-center text-gold-light/70">
+      <p class="mt-1 kicker text-center">
         {position_label(@sequence, @page)}
       </p>
     </nav>
@@ -64,23 +69,23 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
     <div aria-hidden="true" class="flex items-center justify-center gap-1.5 sm:gap-2 py-2">
       <%= if @page_kind == :decade do %>
         <span class={bead_class(:large, @screen.bead == 0)}></span>
-        <span class="w-2 h-px bg-gold/30"></span>
+        <span class="w-2 h-px bg-gilt/30"></span>
         <span
           :for={n <- 1..@sequence.hail_marys}
           class={bead_class(:small, @screen.bead == n, @screen.bead > n)}
         ></span>
-        <span class="w-2 h-px bg-gold/30"></span>
+        <span class="w-2 h-px bg-gilt/30"></span>
         <span class={bead_class(:diamond, @screen.bead == @sequence.hail_marys + 1)}></span>
       <% else %>
         <.cross lit={@screen.place == "cross"} />
-        <span class="w-2 h-px bg-gold/30"></span>
+        <span class="w-2 h-px bg-gilt/30"></span>
         <span class={bead_class(:large, @screen.place == "large_bead")}></span>
         <span
           :for={n <- 1..3}
           class={bead_class(:small, @screen.place == "small_bead_#{n}")}
         ></span>
         <span class={bead_class(:diamond, @screen.place == "chain")}></span>
-        <span class="w-2 h-px bg-gold/30"></span>
+        <span class="w-2 h-px bg-gilt/30"></span>
         <.medal lit={@screen.place == "medal"} />
       <% end %>
     </div>
@@ -99,9 +104,9 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
 
     tone =
       cond do
-        lit -> "bg-gold border-gold-light shadow-glow scale-125"
-        said -> "bg-gold/55 border-gold/50"
-        true -> "bg-transparent border-gold/45"
+        lit -> "bg-gilt border-gilt-light shadow-gilt scale-125"
+        said -> "bg-gilt/55 border-night-line"
+        true -> "bg-transparent border-night-line"
       end
 
     [base, size, tone]
@@ -114,7 +119,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
     <svg
       viewBox="0 0 9 13"
       aria-hidden="true"
-      class={["w-3 h-4 shrink-0", if(@lit, do: "fill-gold", else: "fill-gold/45")]}
+      class={["w-3 h-4 shrink-0", if(@lit, do: "fill-gilt", else: "fill-night-line")]}
     >
       <path d="M3.24 0 H5.76 V2.64 H9 V5.16 H5.76 V13 H3.24 V5.16 H0 V2.64 H3.24 Z" />
     </svg>
@@ -129,7 +134,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
       aria-hidden="true"
       class={[
         "block w-3 h-4 rounded-[50%] border shrink-0",
-        if(@lit, do: "bg-gold border-gold-light shadow-glow", else: "border-gold/50")
+        if(@lit, do: "bg-gilt border-gilt-light shadow-gilt", else: "border-night-line")
       ]}
     ></span>
     """

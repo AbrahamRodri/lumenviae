@@ -23,8 +23,11 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
 
     ~H"""
     <section aria-labelledby={"page-title-#{@page.index}"} class="space-y-8">
-      <div id={"page-title-#{@page.index}"}>
-        <PrayerText.announcement decade={@decade} chaplet={@sequence.chaplet?} />
+      <div>
+        <PrayerText.plate key={@decade.key} />
+        <div id={"page-title-#{@page.index}"}>
+          <PrayerText.announcement decade={@decade} chaplet={@sequence.chaplet?} />
+        </div>
       </div>
 
       <.sacred_divider class="!my-6" />
@@ -42,12 +45,12 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
         aria-label="The verses, one before each Hail Mary"
       >
         <li :for={screen <- @verses} class="flex gap-4">
-          <span class="font-cinzel text-gold text-sm pt-1 w-6 shrink-0 text-right" aria-hidden="true">
+          <span class="font-display text-gilt text-lg pt-1 w-6 shrink-0 text-right" aria-hidden="true">
             {screen.bead}
           </span>
           <div class="flex-1">
             <PrayerText.verse verse={screen.verse} />
-            <p class="mt-1 font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/60">
+            <p class="mt-1 kicker">
               {screen.caption}
             </p>
           </div>
@@ -62,11 +65,11 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
         open={@show_meditation}
       />
 
-      <div class="max-w-[62ch] mx-auto rounded-2xl border border-gold/20 bg-navy-dark/40 px-5 py-5">
-        <h3 class="font-cinzel text-xs tracking-[0.22em] uppercase text-gold mb-3">
+      <div class="max-w-[62ch] mx-auto rounded-2xl border border-night-border bg-night-raised px-5 py-5">
+        <h3 class="kicker text-gilt mb-3">
           On your rosary
         </h3>
-        <ol class="font-garamond text-lg text-cream/85 space-y-1">
+        <ol class="font-garamond text-lg text-ink-light space-y-1">
           <li>The Our Father, on the large bead</li>
           <li>{hail_marys_line(@sequence)}</li>
           <li>
@@ -74,7 +77,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
           </li>
         </ol>
         <details class="mt-4 group">
-          <summary class="cursor-pointer min-h-11 flex items-center font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/80 hover:text-gold rounded">
+          <summary class="cursor-pointer min-h-11 flex items-center kicker hover:text-gilt rounded">
             Show the words
           </summary>
           <div class="mt-4 space-y-6">
@@ -99,7 +102,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
     <section aria-labelledby={"page-title-#{@page.index}"} class="max-w-[62ch] mx-auto">
       <h2
         id={"page-title-#{@page.index}"}
-        class="font-cinzel text-2xl md:text-3xl text-gold text-center"
+        class="font-display font-semibold text-3xl md:text-4xl text-gilt text-center"
       >
         {if @page.kind == :opening, do: "The Opening Prayers", else: "The Closing Prayers"}
       </h2>
@@ -108,7 +111,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
         <li :for={block <- @blocks}>
           <p
             :if={caption_line(block)}
-            class="font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/70 mb-1"
+            class="kicker mb-1"
           >
             {caption_line(block)}
           </p>
@@ -137,7 +140,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
         phx-click="toggle_meditation"
         aria-expanded={to_string(@open)}
         aria-controls="scriptural-meditation"
-        class="btn-outline-gold text-gold-light !py-2.5 min-h-11"
+        class="btn-outline-gold !py-2.5 min-h-11"
       >
         {if @open, do: "Hide the meditation", else: "Read the meditation"}
       </button>

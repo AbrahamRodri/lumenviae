@@ -33,19 +33,19 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
       class="flex-1 flex flex-col items-center justify-center text-center py-10 md:py-16 focus:outline-none"
     >
       <span
-        class="flex items-center justify-center w-14 h-14 rounded-full border border-gold/60 shadow-glow"
+        class="flex items-center justify-center w-14 h-14 rounded-full border border-night-line shadow-gilt"
         aria-hidden="true"
       >
-        <span class="hero-check size-6 text-gold"></span>
+        <span class="hero-check size-6 text-gilt"></span>
       </span>
 
       <h2 id="prayer-complete-title" class="mt-6">
-        <span class="block font-cinzel text-xs tracking-[0.25em] uppercase text-gold">
+        <span class="block kicker text-gilt">
           {if @category == "seven_sorrows",
             do: "The Seven Sorrows are offered",
             else: "The Rosary is offered"}
         </span>
-        <span class="block mt-2 font-cinzel text-4xl text-cream">Amen</span>
+        <span class="block mt-2 font-display font-semibold text-5xl text-ink-light">Amen</span>
       </h2>
 
       <p
@@ -53,7 +53,7 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
         phx-update="ignore"
         data-streak
         aria-live="polite"
-        class="mt-5 min-h-6 font-cinzel text-xs tracking-[0.25em] uppercase text-gold-light/80"
+        class="mt-5 min-h-6 kicker"
       >
       </p>
 
@@ -62,13 +62,13 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
           :for={milestone <- @milestones}
           data-milestone={milestone.days}
           hidden
-          class="mt-4 rounded-2xl border border-gold/40 bg-navy-dark/70 px-5 py-4"
+          class="mt-4 rounded-2xl border border-night-line bg-night-raised px-5 py-4"
         >
-          <p class="font-cinzel text-[0.6rem] tracking-[0.3em] uppercase text-gold-light">
+          <p class="kicker">
             Milestone reached
           </p>
-          <p class="mt-2 font-cinzel text-2xl text-cream">{milestone.name}</p>
-          <p class="mt-2 font-garamond italic text-base text-cream/85 leading-relaxed">
+          <p class="mt-2 font-display font-semibold text-3xl text-ink-light">{milestone.name}</p>
+          <p class="mt-2 font-garamond italic text-base text-ink-light leading-relaxed">
             {milestone.blessing}
           </p>
         </div>
@@ -77,10 +77,10 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
       <.sacred_divider class="!my-8 w-full max-w-sm" />
 
       <figure :if={@quote} class="max-w-[52ch]">
-        <blockquote class="font-garamond text-xl md:text-2xl text-cream/90 leading-relaxed">
+        <blockquote class="font-garamond text-xl md:text-2xl text-ink-light leading-relaxed">
           &ldquo;{@quote["text"]}&rdquo;
         </blockquote>
-        <figcaption class="mt-4 font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/80">
+        <figcaption class="mt-4 kicker">
           {@quote["author"]}
         </figcaption>
       </figure>
@@ -89,7 +89,7 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
         <.link navigate={~p"/mysteries/#{@category}"} class="btn-gold min-h-11">
           Back to the {Categories.devotion_title(@category)}
         </.link>
-        <.link navigate={~p"/"} class="btn-outline-gold text-gold-light min-h-11">
+        <.link navigate={~p"/"} class="btn-outline-gold min-h-11">
           All the mysteries
         </.link>
       </div>

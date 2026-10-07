@@ -1,6 +1,6 @@
 <div
   id="prayer"
-  class="prayer-surface relative min-h-[100dvh] bg-navy text-cream flex flex-col"
+  class="prayer-surface relative min-h-[100dvh] bg-night text-ink-light flex flex-col"
   phx-hook="PrayerSurface"
   data-layout="focused"
   data-count={@count}
@@ -26,13 +26,13 @@
     <header class="flex items-center gap-2 pt-3">
       <.link
         navigate={~p"/mysteries/#{@category}"}
-        class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-gold-light/70 hover:text-gold"
+        class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-ink-muted hover:text-gilt"
         aria-label="Leave the prayer and return to the mysteries"
       >
         <span class="hero-x-mark size-5" aria-hidden="true" />
       </.link>
 
-      <h1 class="flex-1 min-w-0 text-center font-cinzel text-base md:text-lg text-gold leading-snug">
+      <h1 class="flex-1 min-w-0 text-center font-display font-semibold text-xl md:text-2xl text-gilt leading-snug">
         {@heading}
       </h1>
 
@@ -44,8 +44,8 @@
         aria-controls="prayer-settings"
         aria-label="How to pray"
         class={[
-          "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gold",
-          if(@panel_open, do: "text-gold bg-gold/15", else: "text-gold-light/70")
+          "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gilt",
+          if(@panel_open, do: "text-gilt bg-gilt/15", else: "text-ink-muted")
         ]}
       >
         <span class="hero-adjustments-horizontal size-5" aria-hidden="true" />

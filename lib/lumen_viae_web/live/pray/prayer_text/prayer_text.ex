@@ -5,6 +5,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   """
   use LumenViaeWeb, :html
 
+  alias LumenViaeWeb.Components.WoodcutPlate
   alias LumenViaeWeb.Live.Pray.Sequence
 
   attr :prayer_id, :string, required: true
@@ -17,15 +18,18 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
 
     ~H"""
     <div lang={@language}>
-      <h3 :if={@title} class="font-cinzel text-xs tracking-[0.22em] uppercase text-gold mb-3">
+      <h3 :if={@title} class="kicker text-gilt mb-3">
         {@title}
       </h3>
       <div class={[
         "font-garamond",
-        if(@size == "full", do: "prayer-text text-cream/95", else: "prayer-text-quiet text-cream/75")
+        if(@size == "full",
+          do: "prayer-text text-ink-light",
+          else: "prayer-text-quiet text-ink-muted"
+        )
       ]}>
         <%= for line <- @lines do %>
-          <p :if={elem(line, 0) == :rubric} class="italic text-gold-light/80 text-[0.9em] my-2">
+          <p :if={elem(line, 0) == :rubric} class="italic text-ink-muted text-[0.9em] my-2">
             {elem(line, 1)}
           </p>
           <p :if={elem(line, 0) == :line}>{elem(line, 1)}</p>
@@ -40,12 +44,12 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   def verse(assigns) do
     ~H"""
     <figure class="prayer-verse">
-      <blockquote class="font-garamond prayer-text text-cream">
+      <blockquote class="font-garamond prayer-text text-ink-light">
         {@verse.text}
       </blockquote>
       <figcaption
         :if={@verse.reference}
-        class="mt-3 font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/80"
+        class="mt-3 kicker"
       >
         {@verse.reference}
       </figcaption>
@@ -61,24 +65,24 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
     <header class="text-center">
       <p
         :if={@decade.label}
-        class="font-cinzel text-xs tracking-[0.25em] uppercase text-gold-light/80"
+        class="kicker"
       >
         {@decade.label}
       </p>
-      <h2 class="mt-2 font-cinzel text-2xl md:text-3xl text-gold leading-snug">
+      <h2 class="mt-2 font-display font-semibold text-3xl md:text-4xl text-gilt leading-snug">
         {@decade.name}
       </h2>
-      <p :if={@decade.fruit} class="mt-3 font-garamond text-lg text-cream/80">
-        <span class="font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/80">
+      <p :if={@decade.fruit} class="mt-3 font-garamond text-lg text-ink-muted">
+        <span class="kicker">
           Ask for
         </span>
-        <span class="text-gold/60" aria-hidden="true">&middot;</span>
+        <span class="text-ink-muted" aria-hidden="true">&middot;</span>
         <span class="sr-only">:</span>
         {@decade.fruit}
       </p>
       <p
         :if={@decade.scripture_reference}
-        class="mt-2 font-cinzel text-xs tracking-[0.22em] uppercase text-gold-light/60"
+        class="mt-2 kicker"
       >
         {@decade.scripture_reference}
       </p>
@@ -90,38 +94,67 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   attr :audio_url, :string, default: nil
   attr :pray_aloud, :boolean, default: false
 
+  @doc """
+  A set's meditation, on its reading page: vellum, or night if the reader
+  chose it (`.reading-page` in app.css). The audio stays on the night above
+  the page.
+  """
   def meditation(assigns) do
     ~H"""
-    <article class="max-w-[62ch] mx-auto">
-      <div :if={!@pray_aloud} class="flex justify-center mb-6">
+    <div class="max-w-[62ch] mx-auto">
+      <div :if={!@pray_aloud} class="flex justify-center mb-6 empty:hidden">
         <.audio_player audio_url={@audio_url} />
         <p
           :if={@meditation.audio_url && !@audio_url}
-          class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-light/60 border border-gold/20 rounded-full px-4 py-2"
+          class="font-garamond text-base text-ink-muted border border-night-border rounded-full px-4 py-2"
           title="This meditation has audio, but the audio URL could not be generated. Check that AWS credentials are configured on the server."
         >
           Audio unavailable
         </p>
       </div>
 
-      <h3 :if={@meditation.title} class="font-cinzel text-base md:text-lg text-gold mb-4 text-center">
-        {@meditation.title}
-      </h3>
+      <article class="reading-page">
+        <h3
+          :if={@meditation.title}
+          class="reading-page__title font-display font-semibold text-2xl md:text-3xl mb-4 text-center"
+        >
+          {@meditation.title}
+        </h3>
 
-      <div class="font-garamond prayer-text text-cream/90 whitespace-pre-wrap">
-        {@meditation.content}
-      </div>
+        <div class="font-garamond prayer-text whitespace-pre-wrap">
+          {@meditation.content}
+        </div>
 
-      <footer
-        :if={@meditation.author || @meditation.source}
-        class="mt-6 pt-4 border-t border-gold/20 text-right font-garamond text-gold-light italic"
-      >
-        <p :if={@meditation.author}>&mdash; {@meditation.author}</p>
-        <p :if={@meditation.source} class="not-italic text-sm opacity-75 mt-1">
-          {@meditation.source}
-        </p>
-      </footer>
-    </article>
+        <footer
+          :if={@meditation.author || @meditation.source}
+          class="reading-page__meta mt-6 pt-4 border-t text-right font-garamond italic"
+        >
+          <p :if={@meditation.author}>&mdash; {@meditation.author}</p>
+          <p :if={@meditation.source} class="not-italic text-base mt-1">
+            {@meditation.source}
+          </p>
+        </footer>
+      </article>
+    </div>
+    """
+  end
+
+  attr :key, :string, required: true, doc: "the mystery's key, such as \"joyful_1\""
+
+  @doc """
+  The mystery's woodcut above its announcement, unless the reader turned
+  images off in the settings pane (`.prayer-plate` in app.css).
+  """
+  def plate(assigns) do
+    ~H"""
+    <div class="prayer-plate mb-6">
+      <WoodcutPlate.woodcut_plate
+        key={@key}
+        size={:sm}
+        caption={false}
+        class="!max-w-36 sm:!max-w-44"
+      />
+    </div>
     """
   end
 end
