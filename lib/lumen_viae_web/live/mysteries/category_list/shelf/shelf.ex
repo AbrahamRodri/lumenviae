@@ -208,20 +208,5 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
     end
   end
 
-  defp author_name(set) do
-    profile_name =
-      case Map.get(set, :author_profile) do
-        %{name: name} -> name
-        _none -> nil
-      end
-
-    blank_to_nil(set.author) || blank_to_nil(profile_name) ||
-      blank_to_nil(Map.get(set, :derived_author))
-  end
-
-  defp blank_to_nil(value) when is_binary(value) do
-    if String.trim(value) == "", do: nil, else: value
-  end
-
-  defp blank_to_nil(_value), do: nil
+  defp author_name(set), do: LumenViaeWeb.PageMeta.set_author(set)
 end

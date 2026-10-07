@@ -12,6 +12,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
   alias LumenViae.LiturgicalCalendar
   alias LumenViae.Rosary
   alias LumenViae.Rosary.{Categories, Voices}
+  alias LumenViaeWeb.PageMeta
   alias LumenViaeWeb.Live.Mysteries.CategoryList.{Filtering, PrayLinks}
 
   import LumenViaeWeb.Live.Mysteries.CategoryList.Header
@@ -61,8 +62,12 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
      |> assign(:kinds_offered, Filtering.kinds_offered(sets))
      |> assign(:voices, Voices.list())
      |> assign(:choices, PrayLinks.defaults())
-     |> assign(:page_title, category_title(category))
-     |> assign(:meta_description, category_description(category))}
+     |> PageMeta.put("/mysteries/#{category}",
+       title: category_title(category),
+       description: category_description(category),
+       image: PageMeta.category_image(category),
+       trail: [{category_title(category), "/mysteries/#{category}"}]
+     )}
   end
 
   @impl true
@@ -167,11 +172,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
     end
   end
 
-  defp category_title("joyful"), do: "The Joyful Mysteries"
-  defp category_title("sorrowful"), do: "The Sorrowful Mysteries"
-  defp category_title("glorious"), do: "The Glorious Mysteries"
-  defp category_title("luminous"), do: "The Luminous Mysteries"
-  defp category_title("seven_sorrows"), do: "The Seven Sorrows of Mary"
+  defp category_title(category), do: PageMeta.category_title(category)
 
   defp category_description("joyful"),
     do:
