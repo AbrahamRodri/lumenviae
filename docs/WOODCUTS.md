@@ -14,6 +14,8 @@ with its source and licence.
   No other site, however free it says it is.
 - Never overwrite an existing plate. A better scan of a covered mystery
   gets a new file name, and the manifest entry moves to it.
+- One file may serve two keys when one print shows both scenes (the
+  Seven Sorrows reuse several Joyful and Sorrowful plates).
 
 ## Adding a plate
 
@@ -24,11 +26,12 @@ with its source and licence.
 2. Download it outside the repo and look at it: the right scene, the whole
    composition, no watermark, no colour tint (make a sepia scan grayscale),
    no figures cropped.
-3. Resize: long side 1600px at most, JPEG quality about 80, under about
-   450KB.
+3. Resize: long side 1200px, JPEG quality 75, up to about 550KB. Lower
+   the quality a little if needed, but open the result at full size: no
+   blocking, no smeared hatching.
 
    ```
-   sips -Z 1600 -s format jpeg -s formatOptions 80 in.jpg --out out.jpg
+   sips -Z 1200 -s format jpeg -s formatOptions 75 in.jpg --out out.jpg
    ```
 
 4. Save it as `priv/static/images/woodcuts/<scene>-<artist>.jpg`, lowercase
