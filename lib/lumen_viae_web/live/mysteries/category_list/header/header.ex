@@ -18,7 +18,20 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
       aria-labelledby="category-heading"
     >
       <div class="absolute inset-0 opacity-[0.05]" aria-hidden="true">
-        <img src="/images/ornate-blue-gold-bg-symbols.jpg" alt="" class="w-full h-full object-cover" />
+        <picture class="contents">
+          <source
+            type="image/webp"
+            srcset="/images/ornate-blue-gold-bg-symbols-480.webp 480w, /images/ornate-blue-gold-bg-symbols-735.webp 735w"
+            sizes="100vw"
+          />
+          <img
+            src="/images/ornate-blue-gold-bg-symbols.jpg"
+            width="735"
+            height="489"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </picture>
       </div>
 
       <div class="relative max-w-5xl mx-auto px-4 sm:px-8 py-10 md:py-16 grid gap-8 md:grid-cols-[auto_1fr] md:gap-12 items-center">
