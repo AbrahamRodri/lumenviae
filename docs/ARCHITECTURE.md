@@ -1014,6 +1014,12 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.Admin` | admin page chrome | yes |
 | `Components.Footer` | site footer | no, used by the layout |
 | `Components.MeditationFilters` | shared filter controls | no, called fully qualified |
+
+The flash has two looks: the console's by default, and the public site's
+with `<Layouts.flash_group flash={@flash} variant={:public} />`, rendered
+inside a public LiveView's own template. The root layout owns the page's
+only `<main id="main-content">`, so a page template never renders
+another.
 | `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
 | `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
@@ -1147,7 +1153,6 @@ gold capsule CTAs, Roman numerals, colophon quotes).
 | `font-garamond` | EB Garamond | all body, reading, and quotation text |
 | `font-cinzel-decorative` | Cinzel Decorative | the LUMEN VIAE wordmark only |
 | `font-ovo` / `font-work-sans` | Ovo / Work Sans | legacy, admin surfaces only |
-| `font-roman-uncial` | Roman Uncial Modern | retired from pages |
 
 Shared vocabulary: `.btn-gold` / `<.gold_cta>` (gold capsule CTA, one filled
 gold shape per screen region), `<.sacred_divider>` (hairlines, diamonds,
