@@ -501,16 +501,21 @@ have actually recorded a meditation is data, and lives on the `Narration`
 resource.
 
 `Artwork` holds the licence vocabulary, the framing arithmetic, and the
-two field lists that matter: four *managed* columns (`image_key`, the
-dimensions, `image_updated_at`) written only by
-`LumenViae.Curation.ArtworkUpload` after it has proved the object is in S3,
+two field lists that matter: five *managed* columns (`image_key`, the
+dimensions, `image_updated_at`, `image_variant_widths`) written only by
+`LumenViae.Curation.ArtworkUpload` after it has proved the objects are in S3,
 and the *editable* columns a curator types. The columns themselves and the
-two actions that write them, `:record_artwork` for a proved upload and
-`:update_artwork_metadata` for what the curator typed, are
+actions that write them, `:record_artwork` for a proved upload,
+`:update_artwork_metadata` for what the curator typed and
+`:record_artwork_variants` for display variants made later, are
 `LumenViae.Rosary.Artwork.Fragment`, a Spark fragment that `MeditationSet`,
 `Author`, `Mystery` and `CategoryCard` take, so a set's painting, an
 author's portrait, a mystery's painting and a category card's are the same
-thirteen columns written through the same two doors. A mystery's and a
+fourteen columns written through the same doors. Beside each original,
+`ArtworkUpload` stores WebP display variants (`LumenViae.Images.Variants`,
+libvips through `vix`) and records their widths; the public site draws
+from those through `Components.ArtworkPicture`, and the APIs keep serving
+the original (docs/MYSTERY_PAINTINGS.md, "Display variants"). A mystery's and a
 card's are served by `Artwork.Published`, the publish gate (alt text and a
 licence) and the API's artwork shape in one calculation, which a set's
 own calculation shares, adding its author's portrait as a fallback. A
@@ -1022,6 +1027,7 @@ only `<main id="main-content">`, so a page template never renders
 another.
 | `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
 | `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
+| `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
 
 If you add a component that most pages will use, add it to

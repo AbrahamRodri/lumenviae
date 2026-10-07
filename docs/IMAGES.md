@@ -20,9 +20,9 @@ no page uses them until the call sites below are changed.
 - The variants are lossy WebP made with `cwebp`; the originals are
   untouched and stay as the fallback inside `<picture>`. The variants add
   about 0.5 MB to the repository.
-- The mystery and set paintings on the category list come from S3, not
-  from this folder, and are **not** covered here: see "Paintings served
-  from S3" below.
+- The mystery and set paintings on the category list and the home page
+  come from S3, not from this folder: see "Paintings served from S3"
+  below.
 
 ## How the variants are named and made
 
@@ -308,16 +308,14 @@ The one place the public site shows them is the set cards on the category
 list, `category_list.html.heex:103`, a `w-full h-full object-cover` card at
 least 24rem tall.
 
-Those objects are whatever was uploaded: JPEGs of 1200 to 4000 pixels, up
-to 12 MB, stored without resizing. A phone gets the original for every card.
-This was not measured here (no production bucket listing was run) but it is
-likely the biggest remaining cost, and nothing in `priv/static` can fix it.
-The fix is in the upload path: write one or two narrower copies beside the
-original in `ArtworkUpload` (for example 800 pixels wide as WebP), give
-`Rosary.artwork_url/1` a way to name them, then use `srcset` at that
-`<img>`. That is a change to `.ex` files and to what the apps may rely on
-(`image_key` is the cache-invalidation contract), so it is a decision for the
-coordinator, not part of this change.
+The originals are whatever was uploaded: JPEGs of 1200 to 4000 pixels, up
+to 12 MB, stored without resizing, and still what the APIs serve. Beside
+each, the upload stores WebP display variants at 480, 960 and 1600 pixels
+wide, and the public pages (the category list's set cards and the home
+page's category cards) draw from those with `srcset`. Paintings uploaded
+before the variants existed are backfilled with
+`mix lumen_viae.artwork_variants`. See docs/MYSTERY_PAINTINGS.md,
+"Display variants".
 
 ## Also worth doing
 
