@@ -689,3 +689,122 @@
   padding-inline: clamp(1rem, 3vw, 2rem);
   margin-inline: auto;
 }
+
+/* === woodcut plates === */
+/* LumenViaeWeb.Components.WoodcutPlate. A plate is a scan mounted like a
+   print in a book: a parchment mount, a gold hairline and a ruled inner
+   line. On light pages the scan's paper multiplies into the mount; on navy
+   it keeps its own paper on the mat and is never inverted. */
+@layer components {
+  .woodcut-plate {
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .woodcut-plate--sm { max-width: 11rem; }
+  .woodcut-plate--md { max-width: 20rem; }
+  .woodcut-plate--lg { max-width: 28rem; }
+
+  @media (min-width: 768px) {
+    .woodcut-plate--sm { max-width: 14rem; }
+  }
+
+  .woodcut-plate__mount {
+    position: relative;
+    padding: 0.5rem;
+    background: var(--color-parchment);
+    border: 1px solid color-mix(in srgb, var(--color-gold) 60%, transparent);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .woodcut-plate__mount::after {
+    content: "";
+    position: absolute;
+    inset: 0.3rem;
+    border: 1px solid color-mix(in srgb, var(--color-gold) 25%, transparent);
+    pointer-events: none;
+  }
+
+  .woodcut-plate--lg .woodcut-plate__mount { padding: 0.75rem; }
+  .woodcut-plate--lg .woodcut-plate__mount::after { inset: 0.4rem; }
+
+  .woodcut-plate__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    mix-blend-mode: multiply;
+  }
+
+  .woodcut-plate__caption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    margin-top: 0.75rem;
+    text-align: center;
+    font-family: var(--font-garamond);
+    color: var(--color-brown);
+    line-height: 1.35;
+  }
+
+  .woodcut-plate__title {
+    font-family: var(--font-cinzel);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-navy);
+  }
+
+  .woodcut-plate__credit {
+    font-style: italic;
+    font-size: 0.95rem;
+  }
+
+  .woodcut-plate__series {
+    font-size: 0.85rem;
+    color: var(--color-brown-light);
+  }
+
+  .woodcut-plate__source {
+    margin-top: 0.2rem;
+    font-family: var(--font-cinzel);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-gold-dark);
+    opacity: 0.75;
+    text-decoration: none;
+    transition: opacity 150ms ease;
+  }
+
+  .woodcut-plate__source:hover,
+  .woodcut-plate__source:focus-visible {
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .woodcut-plate--sm .woodcut-plate__credit { font-size: 0.85rem; }
+  .woodcut-plate--sm .woodcut-plate__series { font-size: 0.8rem; }
+
+  /* Navy page: a cream mat with a full gold hairline, the scan unblended. */
+  .woodcut-plate--navy .woodcut-plate__mount {
+    padding: 0.75rem;
+    background: var(--color-cream);
+    border-color: var(--color-gold);
+    box-shadow: 0 6px 24px rgba(0, 20, 32, 0.35);
+  }
+
+  .woodcut-plate--navy .woodcut-plate__mount::after {
+    inset: 0.4rem;
+    border-color: color-mix(in srgb, var(--color-gold) 40%, transparent);
+  }
+
+  .woodcut-plate--navy .woodcut-plate__image { mix-blend-mode: normal; }
+
+  .woodcut-plate--navy .woodcut-plate__caption { color: var(--color-cream); }
+  .woodcut-plate--navy .woodcut-plate__title { color: var(--color-gold-light); }
+  .woodcut-plate--navy .woodcut-plate__series { color: color-mix(in srgb, var(--color-cream) 75%, transparent); }
+  .woodcut-plate--navy .woodcut-plate__source { color: var(--color-gold-light); }
+}
+/* === end woodcut plates === */
