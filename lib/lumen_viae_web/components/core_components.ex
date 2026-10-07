@@ -4,9 +4,8 @@ defmodule LumenViaeWeb.CoreComponents do
   show and hide JS helpers, error translation, and the public site's
   ornaments (`sacred_divider/1`, `gold_cta/1`, `arch_frame/1`, the medallions).
 
-  The flash notice is styled in the admin console's vocabulary, because the
-  console is the only place that renders it. See `docs/ARCHITECTURE.md` for
-  the tokens.
+  The flash notice comes in the console's vocabulary and in the public
+  site's (`variant`). See `docs/ARCHITECTURE.md` for the tokens.
   """
   use Phoenix.Component
   use Gettext, backend: LumenViaeWeb.Gettext
@@ -16,18 +15,56 @@ defmodule LumenViaeWeb.CoreComponents do
   @doc """
   Renders flash notices.
 
+  Two looks, one per side of the app: `variant={:admin}` (the default) in the
+  console's tokens, `variant={:public}` in the site's parchment, navy and
+  Garamond. Never cross them.
+
   ## Examples
 
       <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
+      <.flash kind={:error} flash={@flash} variant={:public} />
   """
   attr :id, :string, doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
   attr :kind, :atom, values: [:info, :error], doc: "used for styling and flash lookup"
+  attr :variant, :atom, default: :admin, values: [:admin, :public]
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
 
   slot :inner_block, doc: "the optional inner block that renders the flash message"
+
+  def flash(%{variant: :public} = assigns) do
+    assigns = assign_new(assigns, :id, fn -> "flash-#{assigns.kind}" end)
+
+    ~H"""
+    <div
+      :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
+      id={@id}
+      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
+      role="alert"
+      class="fixed z-50 inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:inset-x-auto sm:bottom-auto sm:top-28 sm:right-6 sm:w-96 cursor-pointer"
+      {@rest}
+    >
+      <div class={[
+        "flex items-start gap-3 rounded-xl border border-gold/50 border-l-4 bg-parchment px-4 py-3 shadow-ornate font-garamond text-base text-brown",
+        @kind == :info && "border-l-navy",
+        @kind == :error && "border-l-rubric"
+      ]}>
+        <div class="min-w-0 flex-1">
+          <p :if={@title} class="font-cinzel text-sm tracking-wide text-navy">{@title}</p>
+          <p>{msg}</p>
+        </div>
+        <button
+          type="button"
+          class="shrink-0 -m-2 inline-flex size-11 items-center justify-center text-brown-light hover:text-navy cursor-pointer"
+          aria-label={gettext("close")}
+        >
+          <.icon name="hero-x-mark-solid" class="size-4" />
+        </button>
+      </div>
+    </div>
+    """
+  end
 
   def flash(assigns) do
     assigns = assign_new(assigns, :id, fn -> "flash-#{assigns.kind}" end)
@@ -126,34 +163,6 @@ defmodule LumenViaeWeb.CoreComponents do
   end
 
   @doc """
-  Renders an ornate divider for visual separation.
-
-  ## Examples
-
-      <.ornate_divider />
-      <.ornate_divider variant="white" class="my-12" />
-  """
-  attr :class, :string, default: nil
-  attr :variant, :string, default: "black", values: ["black", "white"]
-  attr :rest, :global
-
-  def ornate_divider(assigns) do
-    ~H"""
-    <div class={["flex justify-center items-center my-8", @class]} {@rest}>
-      <img
-        src={
-          if @variant == "white",
-            do: "/images/pngs/white-ornate.png",
-            else: "/images/pngs/black-ornate.png"
-        }
-        alt=""
-        class="w-full max-w-2xl h-auto opacity-60"
-      />
-    </div>
-    """
-  end
-
-  @doc """
   Renders the app's ornament divider: fading gold hairlines flanking two
   rotated diamonds and a small Latin cross. The shared Catholic visual
   vocabulary of the iOS app, translated to markup.
@@ -243,6 +252,8 @@ defmodule LumenViaeWeb.CoreComponents do
   attr :alt, :string, required: true
   attr :class, :string, default: nil
   attr :img_class, :string, default: nil
+  attr :srcset, :string, default: nil, doc: "Lighter copies of `src` (WebP, say), as a srcset"
+  attr :sizes, :string, default: nil, doc: "The width the frame is drawn at, for `srcset`"
   attr :rest, :global
 
   def arch_frame(assigns) do
@@ -250,6 +261,8 @@ defmodule LumenViaeWeb.CoreComponents do
     <div class={["relative aspect-[10/13]", @class]} {@rest}>
       <img
         src={@src}
+        srcset={@srcset}
+        sizes={@sizes}
         alt={@alt}
         class={["absolute inset-0 w-full h-full object-cover", @img_class]}
         style="clip-path: url(#lancet-arch)"
@@ -301,21 +314,63 @@ defmodule LumenViaeWeb.CoreComponents do
   def medallion(assigns) do
     assigns =
       assigns
-      |> assign(:image_path, medallion_image_path(assigns.type))
+      |> assign(:image, medallion_image(assigns.type))
       |> assign(:size_class, medallion_size_class(assigns.size))
+      |> assign(:sizes, medallion_sizes(assigns.type, assigns.size))
 
     ~H"""
     <div class={["flex justify-center items-center", @class]} {@rest}>
-      <img src={@image_path} alt="" class={["h-auto", @size_class]} />
+      <.medallion_img image={@image} sizes={@sizes} class={["h-auto", @size_class]} />
     </div>
     """
   end
 
-  defp medallion_image_path("holy_family"), do: "/images/pngs/holy-family.png"
-  defp medallion_image_path("crucifix"), do: "/images/pngs/crucifix.png"
-  defp medallion_image_path("pax"), do: "/images/pngs/olive-branch-pax.png"
-  defp medallion_image_path("deo_gratias"), do: "/images/pngs/deo-gratias.png"
-  defp medallion_image_path("saint_benedict"), do: "/images/pngs/saint-benedict-symbol.png"
+  # Each medallion's file and pixel size, so the browser can reserve its space
+  # before it loads. Only the crucifix has lighter WebP copies; see
+  # docs/IMAGES.md.
+  defp medallion_image("holy_family"),
+    do: %{src: "/images/pngs/holy-family.png", width: 474, height: 287}
+
+  defp medallion_image("crucifix"),
+    do: %{
+      src: "/images/pngs/crucifix.png",
+      width: 322,
+      height: 321,
+      srcset: "/images/pngs/crucifix-160.webp 160w, /images/pngs/crucifix-256.webp 256w"
+    }
+
+  defp medallion_image("pax"),
+    do: %{src: "/images/pngs/olive-branch-pax.png", width: 591, height: 422}
+
+  defp medallion_image("deo_gratias"),
+    do: %{src: "/images/pngs/deo-gratias.png", width: 474, height: 266}
+
+  defp medallion_image("saint_benedict"),
+    do: %{src: "/images/pngs/saint-benedict-symbol.png", width: 150, height: 150}
+
+  # What `medallion_size_class/1` draws, for the srcset's `sizes`.
+  defp medallion_sizes("crucifix", "small"), do: "(min-width: 768px) 48px, 40px"
+  defp medallion_sizes("crucifix", "medium"), do: "(min-width: 768px) 128px, 112px"
+  defp medallion_sizes("crucifix", "large"), do: "(min-width: 768px) 256px, 192px"
+  defp medallion_sizes(_type, _size), do: nil
+
+  attr :image, :map, required: true
+  attr :sizes, :string, default: nil
+  attr :class, :any, default: nil
+
+  defp medallion_img(assigns) do
+    ~H"""
+    <img
+      src={@image.src}
+      srcset={@image[:srcset]}
+      sizes={@sizes}
+      width={@image.width}
+      height={@image.height}
+      alt=""
+      class={@class}
+    />
+    """
+  end
 
   defp medallion_size_class("small"), do: "w-10 md:w-12"
   defp medallion_size_class("medium"), do: "w-28 md:w-32"
@@ -342,14 +397,15 @@ defmodule LumenViaeWeb.CoreComponents do
   def medallion_bg(assigns) do
     assigns =
       assigns
-      |> assign(:image_path, medallion_image_path(assigns.type))
+      |> assign(:image, medallion_image(assigns.type))
       |> assign(:size_class, medallion_size_class(assigns.size))
+      |> assign(:sizes, medallion_sizes(assigns.type, assigns.size))
       |> assign(:padding_class, medallion_bg_padding(assigns.size))
 
     ~H"""
     <div class={["flex justify-center items-center", @class]} {@rest}>
       <div class={["bg-cream rounded-full", @padding_class]}>
-        <img src={@image_path} alt="" class={["h-auto", @size_class]} />
+        <.medallion_img image={@image} sizes={@sizes} class={["h-auto", @size_class]} />
       </div>
     </div>
     """

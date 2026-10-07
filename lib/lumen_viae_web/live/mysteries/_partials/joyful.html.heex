@@ -30,22 +30,11 @@
   </div>
 
   <div class="space-y-3 md:space-y-4">
-    <!-- 1. The Annunciation -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        1. The Annunciation
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+    <.mystery_card mystery={@mysteries[1]} category="joyful">
+      <:summary>
         The angel Gabriel announces to Mary that she will conceive by the Holy Ghost.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Humility
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Luke 1:26–38)</span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -80,25 +69,14 @@
             And Mary said: Behold the handmaid of the Lord; be it done to me according to thy word. And the angel departed from her.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 2. The Visitation -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        2. The Visitation
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[2]} category="joyful">
+      <:summary>
         Mary visits Elizabeth; St. John the Baptist leaps in the womb.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Charity toward Neighbor
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Luke 1:39–56)</span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -143,27 +121,14 @@
             And Mary abode with her about three months; and she returned to her own house.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 3. The Nativity -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        3. The Nativity of Our Lord
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[3]} category="joyful">
+      <:summary>
         Christ is born in Bethlehem; angels announce peace to men of good will.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Poverty of Spirit
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">
-            (Luke 2:1–20; Matthew 1:18–25)
-          </span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -232,25 +197,14 @@
             And he knew her not till she brought forth her first born son: and he called his name JESUS.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 4. The Presentation -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        4. The Presentation in the Temple
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[4]} category="joyful">
+      <:summary>
         Mary and Joseph present Jesus in the Temple; Simeon and Anna prophesy.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Obedience and Purity
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Luke 2:22–38)</span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -293,25 +247,14 @@
             Now she, at the same hour, coming in, confessed to the Lord: and spoke of him to all that looked for the redemption of Israel.
           </p>
         </div>
-      </details>
-    </div>
-    
-<!-- 5. Finding in the Temple -->
-    <div class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-gold/60">
-      <h3 class="font-cinzel text-navy text-xl lg:text-2xl mb-1 md:mb-2">
-        5. The Finding of the Child Jesus in the Temple
-      </h3>
-      <p class="font-garamond text-brown italic leading-relaxed text-lg md:text-xl mb-2 max-w-[65ch]">
+      </:passage>
+    </.mystery_card>
+
+    <.mystery_card mystery={@mysteries[5]} category="joyful">
+      <:summary>
         The twelve-year-old Jesus is found teaching among the doctors.
-      </p>
-      <p class="font-cinzel text-[0.7rem] tracking-[0.25em] uppercase text-gold-dark mb-2">
-        Fruit of the Mystery: Piety and the Joy of Finding Jesus
-      </p>
-      <details class="mt-2 md:mt-3">
-        <summary class="font-cinzel text-xs text-gold-dark cursor-pointer hover:text-gold uppercase tracking-[0.15em] transition-colors duration-300">
-          Read the Scripture
-          <span class="normal-case font-garamond text-brown-light italic">(Luke 2:41–52)</span>
-        </summary>
+      </:summary>
+      <:passage>
         <div class="mt-3 md:mt-4 py-1 pl-4 md:pl-6 border-l border-gold/20">
           <p class="font-garamond text-brown text-lg md:text-xl leading-relaxed max-w-[65ch]">
             <strong class="font-cinzel text-xs tracking-[0.2em] uppercase text-gold-dark">
@@ -344,7 +287,7 @@
             And Jesus advanced in wisdom, and age, and grace with God and men.
           </p>
         </div>
-      </details>
-    </div>
+      </:passage>
+    </.mystery_card>
   </div>
 </section>

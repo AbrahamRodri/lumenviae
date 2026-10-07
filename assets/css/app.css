@@ -20,15 +20,6 @@
 
 /* This file is for your main application CSS */
 
-/* Custom font: Roman Uncial Modern */
-@font-face {
-  font-family: 'Roman Uncial Modern';
-  src: url('/fonts/Romanuncialmodern-jra0.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* Custom Lumen Viae theme - Inspired by  Catholic aesthetics */
 @theme {
   /* Primary Colors - Deep navy for depth and contemplation */
@@ -56,9 +47,8 @@
   --color-brown: #4a3f33;
   --color-brown-light: #6f6353;
 
-  /* Accent Colors - manuscript rubric red and St. Carlo polo red */
+  /* Accent Colors - manuscript rubric red */
   --color-rubric: #8b2f23;
-  --color-carlo: #a63a2e;
 
   /* Status Colors - the admin surfaces need to say "saved", "careful", and
      "this will delete something". Kept in the same warm, muted register as
@@ -119,7 +109,6 @@
 
   /* Typography - Clear Creek inspired fonts.
      Tailwind v4 generates font-* utilities from the --font-* namespace. */
-  --font-roman-uncial: 'Roman Uncial Modern', serif;
   --font-ovo: 'Ovo', serif;
   --font-work-sans: 'Work Sans', sans-serif;
   --font-garamond: 'EB Garamond', serif;
@@ -160,62 +149,14 @@
 }
 
 :root {
-  /* Color roles */
-  --color-bg-primary: #faf2e6;
-  --color-bg-surface: #ffffff;
+  /* Body ink */
   --color-text: #1f1b18;
-  --color-text-muted: #5a5148;
-  --color-accent-primary: #003b5c;
-  --color-accent-secondary: #b18b49;
-  --color-border: #c9a96b;
-  --color-cta-bg: #003b5c;
-  --color-cta-text: #faf2e6;
-
-  /* Spacing scale (4px baseline) */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-7: 2rem;
-  --space-8: 2.5rem;
-  --space-9: 3rem;
-  --space-10: 4rem;
-  --space-11: 5rem;
 }
 
+/* The site follows the iOS app's two-family system: Cinzel (engraved Roman
+   capitals) for titles and tracked labels, EB Garamond for everything read.
 
-/* Typography utilities for meditation-friendly reading.
-   The site follows the iOS app's two-family system: Cinzel (engraved Roman
-   capitals) for titles and tracked labels, EB Garamond for everything read. */
-.text-meditation {
-  font-family: var(--font-garamond);
-  font-size: 1.1875rem;
-  line-height: 1.7;
-  color: var(--color-text-muted);
-}
-
-.heading-ornate {
-  font-family: var(--font-cinzel);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-}
-
-.heading-elegant {
-  font-family: var(--font-cinzel);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-}
-
-/* Ornate text styles */
-.text-ornate {
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-family: var(--font-cinzel);
-}
-
-/* Base body styling for readability - matches the app's Garamond Medium body.
+   Base body styling for readability - matches the app's Garamond Medium body.
 
    Declared in the base layer, not unlayered, so that a component can still
    override it. Unlayered CSS beats every layer regardless of specificity,
@@ -250,6 +191,91 @@
     line-height: 1.4;
     letter-spacing: 0.02em;
     font-weight: 400;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Site shell: the public root layout's skip link, focus ring, safe areas,
+   header and footer. None of it reaches the admin console, which has its
+   own root layout without the `site` class on its body.
+   --------------------------------------------------------------------- */
+@layer base {
+  /* The focus ring has to clear 3:1 against whatever it sits on. gold-dark
+     does on every light ground; on navy it all but vanishes, so dark
+     surfaces switch the ring to gold-light. A light card inside a navy band
+     switches it back. */
+  .site {
+    --focus-ring: var(--color-gold-dark);
+  }
+
+  .site :is(.bg-navy, .bg-navy-dark, .bg-navy-light, .site-header) {
+    --focus-ring: var(--color-gold-light);
+  }
+
+  .site :is(.bg-parchment, .bg-cream, .bg-cream-dark, .bg-white, .hairline-card) {
+    --focus-ring: var(--color-gold-dark);
+  }
+
+  .site :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+
+  /* The skip link's target is focused by script, never by the user. */
+  .site-main:focus {
+    outline: none;
+  }
+
+  /* Room for the notch and the home indicator once viewport-fit=cover lets
+     the page run under them. */
+  .site {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .site-header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .site-footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* On a phone the header stays in reach as a compact bar. */
+  @media (max-width: 47.99rem) {
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    html:has(.site) {
+      scroll-padding-top: 4.5rem;
+    }
+  }
+
+  /* A page that wants the whole screen (the prayer page) puts
+     data-layout="focused" on its outermost element, and the shell steps
+     aside. Works across live navigation, which never re-renders the root
+     layout. */
+  .site:has([data-layout="focused"]) :is(.site-header, .site-footer, .skip-link) {
+    display: none;
+  }
+}
+
+
+/* Reduced motion: no decorative entrances, no breathing halo, no slides.
+   Content that animates in is simply there. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -525,12 +551,15 @@
 }
 
 .btn-gold:focus-visible {
-  outline: 2px solid var(--color-gold-dark);
+  outline: 2px solid var(--focus-ring, var(--color-gold-dark));
   outline-offset: 3px;
 }
 
 /* Quiet secondary action: same capsule, hairline gold rule, transparent
-   interior, ink color inherited from context (navy on light, cream on navy) */
+   interior, ink color inherited from context (navy on light, cream on navy).
+   The rule is full-strength gold, not a tint: it is what marks the capsule
+   as a control, and gold clears 3:1 on parchment and on navy where half
+   strength cleared neither. Set the text navy or cream, never gold. */
 .btn-outline-gold {
   display: inline-flex;
   align-items: center;
@@ -538,7 +567,7 @@
   gap: 0.5rem;
   padding: 1rem 1.75rem;
   border-radius: 9999px;
-  border: 1px solid rgba(177, 139, 73, 0.5);
+  border: 1px solid var(--color-gold);
   font-family: var(--font-cinzel);
   font-size: 0.875rem;
   letter-spacing: 0.19em;
@@ -547,8 +576,8 @@
 }
 
 .btn-outline-gold:hover {
-  border-color: var(--color-gold);
-  background: rgba(177, 139, 73, 0.08);
+  border-color: var(--color-gold-dark);
+  background: rgba(177, 139, 73, 0.1);
 }
 
 .btn-outline-gold:active {
@@ -561,7 +590,6 @@
   border: 1px solid rgba(177, 139, 73, 0.3);
   border-radius: 1rem;
   box-shadow: var(--shadow-soft);
-}
 }
 
 /* Double-hairline corner ticks, like the ruled corners of an illuminated
@@ -609,12 +637,6 @@
     radial-gradient(ellipse at 90% 90%, rgba(177, 139, 73, 0.07), transparent 40%);
 }
 
-/* Woodcut scans sit into cream backgrounds instead of floating as white plates */
-.woodcut-blend {
-  mix-blend-mode: multiply;
-  filter: sepia(0.12) contrast(1.03);
-}
-
 /* Radial halo glow, used behind sacred imagery */
 .bg-halo {
   background: radial-gradient(
@@ -643,49 +665,395 @@
   box-shadow: 0 0 12px rgba(201, 169, 107, 0.8);
 }
 
-/* Phone frame for app mockups - pure CSS device chrome */
-.phone-frame {
-  position: relative;
-  width: 18rem;
-  border-radius: 2.75rem;
-  padding: 0.625rem;
-  background: linear-gradient(160deg, #1c2b3a, #0a1622);
-  box-shadow:
-    0 24px 60px rgba(0, 26, 42, 0.45),
-    0 0 0 1px rgba(201, 169, 107, 0.35),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-.phone-screen {
-  border-radius: 2.15rem;
-  overflow: hidden;
-  aspect-ratio: 9 / 19;
-  display: flex;
-  flex-direction: column;
-}
-
-.phone-notch {
+/* Skip link: off screen until focused, then a cream plate at the top left. */
+.skip-link {
   position: absolute;
-  top: 1.1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6.5rem;
-  height: 1.35rem;
+  left: max(0.75rem, env(safe-area-inset-left));
+  top: 0.75rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
   border-radius: 9999px;
-  background: #0a1622;
-  z-index: 10;
+  background: var(--color-cream);
+  color: var(--color-navy);
+  font-family: var(--font-cinzel);
+  font-size: 0.8125rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transform: translateY(-200%);
 }
 
-/* Layout structure - Clear Creek inspired boxed layout */
-.container-boxed {
-  max-width: 1365px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-inline: clamp(1rem, 3vw, 2rem);
+.skip-link:focus {
+  transform: translateY(0);
 }
 
-.content-main {
-  width: min(72ch, 100%);
-  padding-inline: clamp(1rem, 3vw, 2rem);
-  margin-inline: auto;
+/* A row that scrolls sideways on a phone (the Scripture page's tabs). */
+.tab-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(177, 139, 73, 0.5) transparent;
+  scroll-padding-inline: 1rem;
 }
+}
+
+/* === home page === */
+/* Focus rings for the home page's links and buttons: gold-dark on the
+   light sections, gold-light on the navy hero. */
+#home-page a:focus-visible,
+#home-page button:focus-visible {
+  outline: 2px solid var(--color-gold-dark);
+  outline-offset: 3px;
+}
+
+#home-page .home-hero a:focus-visible,
+#home-page .home-hero button:focus-visible {
+  outline-color: var(--color-gold-light);
+}
+
+#home-page .home-card:focus-visible {
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #home-page .animate-rise,
+  #home-page .animate-halo {
+    animation: none;
+  }
+
+  #home-page .home-card,
+  #home-page .home-card img,
+  #home-page .home-row,
+  #home-page .home-row * {
+    transition: none;
+  }
+
+  #home-page .home-card:hover,
+  #home-page .home-card:hover img {
+    transform: none;
+  }
+}
+/* === end home page === */
+
+/* === category page === */
+/* /mysteries/:category: section labels, the choice pills, filter chips,
+   cards whose title link covers the whole card, and quiet buttons. */
+.category-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-cinzel);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+}
+
+.category-section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-gold) 45%, transparent),
+    transparent
+  );
+}
+
+.category-choices {
+  background: var(--color-cream);
+  border: 1px solid color-mix(in srgb, var(--color-gold) 30%, transparent);
+  border-radius: 1rem;
+  padding: 1.25rem 1rem 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .category-choices {
+    padding: 1.5rem 1.5rem 0.75rem;
+  }
+}
+
+.category-choices fieldset:last-of-type {
+  border-bottom: 0;
+}
+
+.category-choice-note {
+  font-family: var(--font-garamond);
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--color-brown-light);
+}
+
+.category-pill {
+  display: flex;
+  padding: 3px;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 35%, transparent);
+  background: var(--color-parchment);
+}
+
+.category-pill-option {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  font-family: var(--font-cinzel);
+  font-size: 0.66rem;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-brown-light);
+  transition:
+    background-color 0.2s ease-out,
+    color 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.category-pill-option:hover {
+  color: var(--color-navy);
+}
+
+.category-pill-option:has(:checked) {
+  background: var(--color-white);
+  border-color: color-mix(in srgb, var(--color-gold) 75%, transparent);
+  color: var(--color-navy);
+  box-shadow: var(--shadow-soft);
+}
+
+.category-pill-option:has(:focus-visible) {
+  outline: 2px solid var(--color-gold-dark);
+  outline-offset: 2px;
+}
+
+.category-card {
+  background: var(--color-white);
+  border: 1px solid color-mix(in srgb, var(--color-gold) 30%, transparent);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-soft);
+  transition:
+    border-color 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+
+.category-card:has(.category-stretched-link):hover {
+  border-color: color-mix(in srgb, var(--color-gold) 60%, transparent);
+  box-shadow: var(--shadow-ornate);
+  transform: translateY(-2px);
+}
+
+.category-card:has(.category-stretched-link:focus-visible) {
+  outline: 2px solid var(--color-gold-dark);
+  outline-offset: 3px;
+}
+
+.category-stretched-link {
+  outline: none;
+}
+
+.category-stretched-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.category-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease-out;
+}
+
+.category-card:hover .category-arrow {
+  transform: translateX(3px);
+}
+
+.category-glyph {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 40%, transparent);
+  color: var(--color-gold-dark);
+  background: var(--color-cream);
+}
+
+.category-chip {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 40%, transparent);
+  background: var(--color-white);
+  font-family: var(--font-cinzel);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-brown);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease-out,
+    color 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.category-chip:hover {
+  border-color: var(--color-gold);
+  color: var(--color-navy);
+}
+
+.category-chip[aria-pressed="true"] {
+  background: var(--color-navy);
+  border-color: var(--color-navy);
+  color: var(--color-cream);
+}
+
+.category-quiet-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 55%, transparent);
+  background: transparent;
+  font-family: var(--font-cinzel);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-navy);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.category-quiet-btn:hover {
+  border-color: var(--color-gold);
+  background: color-mix(in srgb, var(--color-gold) 8%, transparent);
+}
+
+.category-text-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.25rem;
+  font-family: var(--font-cinzel);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.category-chip:focus-visible,
+.category-quiet-btn:focus-visible,
+.category-text-btn:focus-visible {
+  outline: 2px solid var(--color-gold-dark);
+  outline-offset: 2px;
+}
+
+.category-rise {
+  animation: var(--animate-rise);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-page *,
+  .category-page *::before,
+  .category-page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .category-card:has(.category-stretched-link):hover {
+    transform: none;
+  }
+}
+/* === end category page === */
+
+/* === prayer page === */
+/* The words of the Rosary on the navy prayer page. Their size follows the
+   reader's choice, the --prayer-text-scale the PrayerSurface hook sets on
+   <html>. */
+.prayer-text {
+  font-size: calc(1.1875rem * var(--prayer-text-scale, 1));
+  line-height: 1.7;
+}
+
+.prayer-text-quiet {
+  font-size: calc(1.0625rem * var(--prayer-text-scale, 1));
+  line-height: 1.65;
+}
+
+.prayer-verse .prayer-text {
+  font-size: calc(1.3125rem * var(--prayer-text-scale, 1));
+  line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+  .prayer-text {
+    font-size: calc(1.3125rem * var(--prayer-text-scale, 1));
+  }
+
+  .prayer-text-quiet {
+    font-size: calc(1.125rem * var(--prayer-text-scale, 1));
+  }
+
+  .prayer-verse .prayer-text {
+    font-size: calc(1.5rem * var(--prayer-text-scale, 1));
+  }
+}
+
+.prayer-surface {
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: clip;
+}
+
+/* The shell pads the sides clear of the notch; with no site header above
+   it, the page clears the status bar itself. */
+.prayer-safe-area {
+  padding-inline: 1rem;
+  padding-top: env(safe-area-inset-top);
+}
+
+@media (min-width: 640px) {
+  .prayer-safe-area {
+    padding-inline: 1.5rem;
+  }
+}
+
+.prayer-bottom-nav {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+@keyframes prayer-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prayer-surface *,
+  .prayer-surface *::before,
+  .prayer-surface *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* === end prayer page === */
