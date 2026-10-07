@@ -7,8 +7,8 @@
     "year": "c. 1497-1499",
     "series": "Large Passion",
     "alt": "Christ kneels in prayer on a rocky hillside as an angel offers the chalice, while Peter, James and John sleep below and soldiers approach in the distance",
-    "width": 937,
-    "height": 1300,
+    "width": 865,
+    "height": 1200,
     "source": "https://commons.wikimedia.org/wiki/File:Christ_on_the_Mount_of_Olives,_from_The_Large_Passion_MET_DP816593.jpg",
     "licence": "CC0"
   },
@@ -20,8 +20,8 @@
     "year": "c. 1497-1500",
     "series": "Large Passion",
     "alt": "Christ stands bound to a column in a vaulted hall while tormentors strike him with rods and onlookers crowd around",
-    "width": 937,
-    "height": 1300,
+    "width": 865,
+    "height": 1200,
     "source": "https://commons.wikimedia.org/wiki/File:The_Flagellation,_from_The_Large_Passion_MET_DP816589.jpg",
     "licence": "CC0"
   },
@@ -33,8 +33,8 @@
     "year": "c. 1509",
     "series": "Small Passion",
     "alt": "Christ sits bound beneath arches as a kneeling man mockingly offers him a reed and other men press the crown of thorns on his head with sticks",
-    "width": 1000,
-    "height": 1300,
+    "width": 923,
+    "height": 1200,
     "source": "https://commons.wikimedia.org/wiki/File:Christ_Crowned_with_Thorns,_from_The_Small_Passion_MET_DP816006.jpg",
     "licence": "CC0"
   },
@@ -46,8 +46,8 @@
     "year": "c. 1498",
     "series": "Large Passion",
     "alt": "Christ bends beneath the weight of the cross as soldiers drive him on and holy women grieve at the left near a city gate",
-    "width": 946,
-    "height": 1300,
+    "width": 874,
+    "height": 1200,
     "source": "https://commons.wikimedia.org/wiki/File:The_Bearing_of_the_Cross,_from_The_Large_Passion_MET_DP816602.jpg",
     "licence": "CC0"
   },
@@ -59,8 +59,8 @@
     "year": "c. 1510",
     "series": "Small Passion",
     "alt": "The apostles and Mary kneel and gaze upward as only the feet of the ascending Christ remain visible in the clouds above",
-    "width": 1175,
-    "height": 1500,
+    "width": 940,
+    "height": 1200,
     "source": "https://commons.wikimedia.org/wiki/File:The_Ascension,_from_The_Small_Passion_MET_DP816019.jpg",
     "licence": "CC0"
   },
@@ -72,9 +72,22 @@
     "year": "c. 1510",
     "series": "Small Passion",
     "alt": "The Holy Spirit as a dove radiates light over Mary and the apostles, who sit and stand with small flames on their heads",
-    "width": 1163,
-    "height": 1500,
+    "width": 930,
+    "height": 1200,
     "source": "https://commons.wikimedia.org/wiki/File:Pentecost,_from_The_Small_Passion_MET_DP816020.jpg",
+    "licence": "CC0"
+  },
+  {
+    "file": "death-of-virgin-durer.jpg",
+    "key": "glorious_4",
+    "title": "The Death of the Virgin",
+    "artist": "Albrecht Durer",
+    "year": "1510",
+    "series": "Life of the Virgin",
+    "alt": "Mary lies propped on pillows in a canopied bed, holding a candle, as the apostles gather around her in prayer, with censer, book and processional cross",
+    "width": 855,
+    "height": 1200,
+    "source": "https://commons.wikimedia.org/wiki/File:The_Death_of_the_Virgin,_from_The_Life_of_the_Virgin_MET_DP816288.jpg",
     "licence": "CC0"
   }
 ]
