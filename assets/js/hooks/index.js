@@ -5,6 +5,7 @@ import MobileMode from "./mobile_mode"
 import FocalPoint from "./focal_point"
 import Tablist from "./tablist"
 import SpokenRosary from "./spoken_rosary"
+import RosaryChoices from "./rosary_choices"
 
 export default {
   ScrollToTop,
@@ -13,5 +14,6 @@ export default {
   MobileMode,
   FocalPoint,
   Tablist,
-  SpokenRosary
+  SpokenRosary,
+  RosaryChoices
 }
