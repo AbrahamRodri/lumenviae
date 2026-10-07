@@ -106,29 +106,26 @@ defmodule LumenViaeWeb.Components.WoodcutPlateTest do
       assert WoodcutPlate.plate("no_such_mystery") == nil
     end
 
-    test "renders every plate in the manifest" do
-      for key <- WoodcutPlate.keys() do
-        plate = WoodcutPlate.plate(key)
-        assigns = %{key: key}
+    test "renders every plate in the manifest, and the manifest names only images on disk" do
+      path = Path.join(@real_dir, "manifest.json")
+      entries = if File.exists?(path), do: Jason.decode!(File.read!(path))["plates"], else: []
+
+      assert entries |> Enum.map(& &1["key"]) |> Enum.sort() == WoodcutPlate.keys()
+
+      for entry <- entries do
+        assert File.exists?(Path.join(@real_dir, entry["file"])), "missing #{entry["file"]}"
+        assert is_integer(entry["width"]) and is_integer(entry["height"])
+        assert entry["alt"] not in [nil, ""]
+
+        assigns = %{key: entry["key"]}
 
         html =
           rendered_to_string(~H"""
           <WoodcutPlate.woodcut_plate key={@key} variant={:navy} />
           """)
 
-        assert html =~ ~s(src="#{plate.src}")
-        assert File.exists?(Path.join(@real_dir, plate.file))
-        assert is_integer(plate.width) and is_integer(plate.height)
-        assert plate.alt not in [nil, ""]
-      end
-    end
-
-    test "every plate in the manifest has its image on disk" do
-      path = Path.join(@real_dir, "manifest.json")
-
-      if File.exists?(path) do
-        listed = for p <- Jason.decode!(File.read!(path))["plates"], do: p["key"]
-        assert Enum.sort(listed) == WoodcutPlate.keys()
+        assert html =~ ~s(src="/images/woodcuts/#{entry["file"]}")
+        assert html =~ "woodcut-plate--navy"
       end
     end
   end
