@@ -1,6 +1,7 @@
 defmodule LumenViaeWeb.Components.Footer do
   @moduledoc """
-  The public site's footer: the crucifix, the site's links and the colophon.
+  The public site's footer: the Stella Maris mark, the site's links and the
+  colophon.
   """
   use Phoenix.Component
   import LumenViaeWeb.CoreComponents
@@ -20,9 +21,12 @@ defmodule LumenViaeWeb.Components.Footer do
     assigns = assign(assigns, :categories, @categories)
 
     ~H"""
-    <footer id="site-footer" class="site-footer bg-cream text-center border-t border-gold/30">
+    <footer
+      id="site-footer"
+      class="site-footer bg-night-deep text-center border-t border-night-border"
+    >
       <div class="max-w-3xl mx-auto px-4 sm:px-8 pt-12 pb-10 md:pt-14">
-        <.medallion type="crucifix" size="medium" />
+        <.logo size={:lg} class="text-gilt mx-auto" />
 
         <nav class="mt-8" aria-label="Footer">
           <ul class="flex flex-wrap justify-center gap-x-2 sm:gap-x-4">
@@ -32,7 +36,7 @@ defmodule LumenViaeWeb.Components.Footer do
 
           <p
             id="footer-pray-heading"
-            class="mt-5 font-cinzel text-xs tracking-[0.3em] uppercase text-brown-light"
+            class="mt-5 kicker"
           >
             Pray the Mysteries
           </p>
@@ -48,18 +52,18 @@ defmodule LumenViaeWeb.Components.Footer do
 
         <.sacred_divider class="my-8 max-w-xs mx-auto" />
 
-        <p class="font-garamond text-brown text-lg tracking-wide italic">
+        <p class="font-display text-ink-light text-xl italic">
           Lumen Viae - Light of the Way
         </p>
-        <p class="font-cinzel text-gold-dark text-xs sm:text-sm tracking-[0.25em] uppercase mt-3">
+        <p class="kicker mt-3">
           Ad Majorem Dei Gloriam
         </p>
-        <p class="font-garamond text-brown-light text-sm mt-6">
+        <p class="font-garamond text-ink-muted text-base mt-6">
           &copy; {Date.utc_today().year} Lumen Viae. All rights reserved.
           <span aria-hidden="true" class="mx-1.5">&middot;</span>
           <.link
             navigate="/privacy-policy"
-            class="underline decoration-gold/60 underline-offset-4 hover:text-navy hover:decoration-navy transition-colors"
+            class="inline-flex items-center min-h-11 text-sky underline underline-offset-4 hover:text-ink-light transition-colors"
           >
             Privacy Policy
           </.link>
@@ -76,7 +80,7 @@ defmodule LumenViaeWeb.Components.Footer do
     ~H"""
     <.link
       navigate={@navigate}
-      class="inline-flex items-center min-h-11 px-2 font-cinzel text-xs tracking-[0.15em] uppercase text-gold-dark underline-offset-4 decoration-gold hover:text-navy hover:underline transition-colors"
+      class="inline-flex items-center min-h-11 px-2 font-garamond text-lg text-ink-light underline-offset-4 decoration-gilt hover:text-gilt hover:underline transition-colors"
     >
       {render_slot(@inner_block)}
     </.link>

@@ -17,7 +17,9 @@ defmodule LumenViaeWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt sitemap.xml)
+  def static_paths,
+    do:
+      ~w(assets fonts images favicon.ico favicon.svg apple-touch-icon.png robots.txt sitemap.xml)
 
   def router do
     quote do

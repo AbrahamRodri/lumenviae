@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <%!-- The header's navy, so the browser chrome on a phone runs into it. --%>
-    <meta name="theme-color" content="#003b5c" />
+    <%!-- The header's night, so the browser chrome on a phone runs into it. --%>
+    <meta name="theme-color" content="#070E1F" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title default="Lumen Viae" suffix=" | Lumen Viae">
       {assigns[:page_title] || "Meditations on the Holy Rosary"}
@@ -20,9 +20,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap"
       rel="stylesheet"
     />
+    <link rel="icon" href={~p"/favicon.ico"} sizes="32x32" />
+    <link rel="icon" href={~p"/favicon.svg"} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={~p"/apple-touch-icon.png"} />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
@@ -30,7 +33,7 @@
           nothing, everywhere else. See docs/DEV_TOOLS.md. --%>
     {Application.get_env(:live_debugger, :live_debugger_tags)}
   </head>
-  <body class="site bg-parchment">
+  <body class="site bg-night text-ink-light">
     <a href="#main-content" class="skip-link">Skip to content</a>
     <%!-- Lancet-arch clip path for <.arch_frame>, in objectBoundingBox units so
           it scales with any element. Straight sides sweep into a pointed apex,

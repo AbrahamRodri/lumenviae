@@ -14,7 +14,7 @@ defmodule LumenViaeWeb.Components.WoodcutPlate do
 
       <.woodcut_plate key="sorrowful_1" />
       <.woodcut_plate key={@mystery.key} size={:sm} caption={false} />
-      <.woodcut_plate key="glorious_5" variant={:navy} />
+      <.woodcut_plate key="glorious_5" variant={:vellum} />
 
   A key with no plate renders nothing, so a page can ask for every mystery and
   show the ones that exist. `keys/0` and `plate/1` say which those are.
@@ -52,19 +52,64 @@ defmodule LumenViaeWeb.Components.WoodcutPlate do
   @doc "Every mystery key that has a plate, sorted."
   def keys, do: @keys
 
+  @category_keys %{
+    "joyful" => "joyful_1",
+    "sorrowful" => "sorrowful_5",
+    "glorious" => "glorious_1",
+    "luminous" => "luminous_1",
+    "seven_sorrows" => "seven_sorrows_6"
+  }
+
+  @doc """
+  The key of the plate that stands for a whole category, where its own
+  painting is not published: the Annunciation, the Crucifixion, the
+  Resurrection, the Baptism and the Lamentation. The same prints head the
+  categories on the mysteries in Scripture page.
+  """
+  def category_key(category), do: Map.get(@category_keys, category)
+
+  @doc """
+  A plate's scan alone, as a `<picture>` with no mount or caption, for a
+  card that crops it (`class` sets the crop). Renders nothing for a key
+  with no plate.
+  """
+  attr :key, :string, required: true
+  attr :class, :any, default: nil
+  attr :sizes, :string, required: true
+
+  def plate_picture(assigns) do
+    assigns = assign(assigns, :plate, plate(assigns.key))
+
+    ~H"""
+    <picture :if={@plate}>
+      <source :for={s <- @plate.sources} type={s.type} srcset={s.srcset} sizes={@sizes} />
+      <img
+        src={@plate.src}
+        alt={@plate.alt}
+        width={@plate.width}
+        height={@plate.height}
+        loading="lazy"
+        decoding="async"
+        class={@class}
+      />
+    </picture>
+    """
+  end
+
   @doc """
   The plate for a mystery, mounted with its caption. Renders nothing for a
   key with no plate.
 
-  `size` sets the plate's width and the `sizes` hint for its sources.
-  `variant={:navy}` is for a navy page: the plate keeps its own paper on a
-  parchment mat rather than being inverted or blended into the dark.
+  `size` sets the plate's width and the `sizes` hint for its sources. The default variant is for
+  the night pages: the plate keeps its own paper on a vellum mat rather
+  than being inverted or blended into the dark. `variant={:vellum}` is for
+  a plate set on a vellum reading page, its paper multiplied into the mat.
   """
   attr :key, :string, required: true, doc: "a mystery key, such as \"sorrowful_1\""
   attr :class, :any, default: nil
   attr :caption, :boolean, default: true
   attr :size, :atom, values: [:sm, :md, :lg], default: :md
-  attr :variant, :atom, values: [:light, :navy], default: :light
+  attr :variant, :atom, values: [:night, :vellum], default: :night
 
   def woodcut_plate(assigns) do
     assigns = assign(assigns, :plate, plate(assigns.key))
@@ -89,7 +134,7 @@ defmodule LumenViaeWeb.Components.WoodcutPlate do
   attr :class, :any, default: nil
   attr :caption, :boolean, default: true
   attr :size, :atom, values: [:sm, :md, :lg], default: :md
-  attr :variant, :atom, values: [:light, :navy], default: :light
+  attr :variant, :atom, values: [:night, :vellum], default: :night
 
   def plate_figure(assigns) do
     assigns = assign(assigns, :sizes, Map.fetch!(@sizes, assigns.size))
