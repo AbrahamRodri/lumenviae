@@ -30,16 +30,14 @@ defmodule LumenViaeWeb.Components.WoodcutPlateTest do
       assert plates["joyful_1"].sources == []
     end
 
-    test "offers AVIF and WebP copies only where the files exist, widest last" do
-      assert [avif, webp] = fixture_plates()["luminous_1"].sources
-
-      assert avif == %{type: "image/avif", srcset: "/images/woodcuts/baptism-dore.avif 800w"}
-
-      assert webp == %{
-               type: "image/webp",
-               srcset:
-                 "/images/woodcuts/baptism-dore-400.webp 400w, /images/woodcuts/baptism-dore.webp 800w"
-             }
+    test "offers the WebP variants the manifest lists, narrowest first" do
+      assert fixture_plates()["luminous_1"].sources == [
+               %{
+                 type: "image/webp",
+                 srcset:
+                   "/images/woodcuts/baptism-dore-640.webp 640w, /images/woodcuts/baptism-dore-1200.webp 1200w"
+               }
+             ]
     end
 
     test "drops a plate whose image is missing" do
@@ -69,12 +67,13 @@ defmodule LumenViaeWeb.Components.WoodcutPlateTest do
       assert html =~ ~s(href="https://commons.wikimedia.org/wiki/File:Durer_annunciation.jpg")
     end
 
-    test "wraps the image in a picture when other formats exist" do
+    test "wraps the image in a picture when the plate has WebP variants" do
       html = render_figure(fixture_plates()["luminous_1"], size: :lg)
 
       assert html =~ "<picture>"
-      assert html =~ ~s(type="image/avif")
       assert html =~ ~s(type="image/webp")
+      assert html =~ "baptism-dore-640.webp 640w, /images/woodcuts/baptism-dore-1200.webp 1200w"
+      refute html =~ "image/avif"
       assert html =~ ~s|sizes="(min-width: 1024px) 28rem, 90vw"|
       assert html =~ ~s(src="/images/woodcuts/baptism-dore.jpg")
     end

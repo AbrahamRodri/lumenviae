@@ -24,7 +24,11 @@
       "width": 800,
       "height": 1014,
       "source": "https://commons.wikimedia.org/wiki/File:Dore_baptism.jpg",
-      "licence": "PD-old-100"
+      "licence": "PD-old-100",
+      "webp": {
+        "640": "baptism-dore-640.webp",
+        "1200": "baptism-dore-1200.webp"
+      }
     }
   ]
 }

@@ -5,9 +5,8 @@ defmodule LumenViaeWeb.Components.WoodcutPlate do
 
   The plates come from `priv/static/images/woodcuts/manifest.json`, read when
   this module compiles. Editing the manifest, or adding or removing a file in
-  that directory, recompiles it. A WebP or AVIF copy beside a JPEG
-  (`baptism-dore.webp`, or a narrower `baptism-dore-800.webp`) is offered
-  through `<picture>` only when the file was there at compile time.
+  that directory, recompiles it. A plate whose manifest entry lists WebP
+  variants is served through `<picture>`, with the JPEG as the fallback.
 
   Import it where it is used; it is deliberately not in `html_helpers`.
 

@@ -6,8 +6,6 @@ defmodule LumenViaeWeb.Components.WoodcutPlate.Manifest do
   compiles, which a module cannot do with its own functions.
   """
 
-  @formats [{"avif", "image/avif"}, {"webp", "image/webp"}]
-
   @doc """
   Load the manifest in `dir` and index it by mystery key. An absent manifest
   is an empty index.
@@ -24,12 +22,13 @@ defmodule LumenViaeWeb.Components.WoodcutPlate.Manifest do
 
   @doc """
   Index a decoded manifest by mystery key, with each plate's image URL and
-  its alternative formats.
+  its WebP variants.
 
-  `files` is the list of file names in the woodcuts directory; it decides
-  which WebP and AVIF copies exist (`baptism-dore.webp` at the JPEG's width,
-  `baptism-dore-800.webp` at 800 pixels). A plate whose JPEG is not in
-  `files` is dropped, so a manifest entry can never render a broken image.
+  A plate's `"webp"` is a map of pixel width to file name, such as
+  `{"640": "baptism-dore-640.webp", "1200": "baptism-dore-1200.webp"}`,
+  listing only the variants that exist. `files` is the list of file names in
+  the woodcuts directory: a plate whose JPEG is not in it is dropped, so a
+  manifest entry can never render a broken image.
   """
   def index(%{"plates" => plates}, files, url_root) when is_list(plates) do
     files = MapSet.new(files)
@@ -37,7 +36,7 @@ defmodule LumenViaeWeb.Components.WoodcutPlate.Manifest do
     for %{"file" => file, "key" => key} = raw <- plates,
         MapSet.member?(files, file),
         into: %{} do
-      {key, build(raw, files, url_root)}
+      {key, build(raw, url_root)}
     end
   end
 
@@ -49,7 +48,7 @@ defmodule LumenViaeWeb.Components.WoodcutPlate.Manifest do
     end
   end
 
-  defp build(raw, files, url_root) do
+  defp build(raw, url_root) do
     %{
       key: raw["key"],
       file: raw["file"],
@@ -63,43 +62,23 @@ defmodule LumenViaeWeb.Components.WoodcutPlate.Manifest do
       height: raw["height"],
       source: raw["source"],
       licence: raw["licence"],
-      sources: sources(Path.rootname(raw["file"]), raw["width"], files, url_root)
+      sources: sources(raw, url_root)
     }
   end
 
-  defp sources(base, full_width, files, url_root) do
-    for {ext, type} <- @formats,
-        candidates = variants(base, ext, full_width, files),
-        candidates != [] do
-      srcset =
-        candidates
-        |> Enum.sort()
-        |> Enum.map_join(", ", fn {width, name} -> "#{url_root}/#{name} #{width}w" end)
+  defp sources(raw, url_root) do
+    case raw["webp"] do
+      variants when is_map(variants) and map_size(variants) > 0 ->
+        srcset =
+          variants
+          |> Enum.map(fn {width, name} -> {String.to_integer(width), name} end)
+          |> Enum.sort()
+          |> Enum.map_join(", ", fn {width, name} -> "#{url_root}/#{name} #{width}w" end)
 
-      %{type: type, srcset: srcset}
+        [%{type: "image/webp", srcset: srcset}]
+
+      _ ->
+        []
     end
-  end
-
-  defp variants(base, ext, full_width, files) do
-    Enum.flat_map(files, fn name ->
-      cond do
-        Path.extname(name) != "." <> ext -> []
-        name == "#{base}.#{ext}" -> [{full_width, name}]
-        true -> sized_variant(name, base)
-      end
-    end)
-  end
-
-  defp sized_variant(name, base) do
-    with suffix when suffix != nil <- strip(Path.rootname(name), base <> "-"),
-         {width, ""} <- Integer.parse(suffix) do
-      [{width, name}]
-    else
-      _ -> []
-    end
-  end
-
-  defp strip(string, prefix) do
-    if String.starts_with?(string, prefix), do: String.replace_prefix(string, prefix, "")
   end
 end
