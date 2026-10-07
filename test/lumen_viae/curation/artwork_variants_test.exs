@@ -88,6 +88,42 @@ defmodule LumenViae.Curation.ArtworkVariantsTest do
     end
   end
 
+  describe "a photograph tagged with a quarter turn" do
+    # Stored 1700x1200, tagged orientation 6: shown 1200 wide and 1700 tall.
+    @rotated "test/support/fixtures/orientation_6.jpg"
+
+    test "is uploaded with the size it is shown at, and variants that size" do
+      assert {:ok, fields} = ArtworkUpload.upload(File.read!(@rotated), :author, 9)
+
+      assert fields["image_width"] == 1200
+      assert fields["image_height"] == 1700
+      assert fields["image_variant_widths"] == [480, 960]
+    end
+
+    test "recorded sideways before, is corrected once and then left alone", %{author: author} do
+      key = "authors/#{author.id}/rotated.jpg"
+      FakeAwsHttpClient.put_object!(key, %{}, File.read!(@rotated))
+
+      # As the header-only reading recorded it: the stored geometry.
+      {:ok, author} =
+        Rosary.update_author_artwork(
+          author,
+          %{"image_key" => key, "image_width" => 1700, "image_height" => 1200},
+          actor: admin()
+        )
+
+      assert [{:ok, message}] = ArtworkVariants.run(authorize?: false)
+      assert message =~ "Made 480, 960px variants"
+
+      author = reload(author)
+      assert {author.image_width, author.image_height} == {1200, 1700}
+      assert author.image_variant_widths == [480, 960]
+
+      assert ArtworkVariants.run(dry_run: true, authorize?: false) == []
+      assert ArtworkVariants.run(authorize?: false) == []
+    end
+  end
+
   describe "recording artwork" do
     test "a new painting recorded without widths does not keep the old one's", %{
       author: author
