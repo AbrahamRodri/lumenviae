@@ -252,6 +252,8 @@ defmodule LumenViaeWeb.CoreComponents do
   attr :alt, :string, required: true
   attr :class, :string, default: nil
   attr :img_class, :string, default: nil
+  attr :srcset, :string, default: nil, doc: "Lighter copies of `src` (WebP, say), as a srcset"
+  attr :sizes, :string, default: nil, doc: "The width the frame is drawn at, for `srcset`"
   attr :rest, :global
 
   def arch_frame(assigns) do
@@ -259,6 +261,8 @@ defmodule LumenViaeWeb.CoreComponents do
     <div class={["relative aspect-[10/13]", @class]} {@rest}>
       <img
         src={@src}
+        srcset={@srcset}
+        sizes={@sizes}
         alt={@alt}
         class={["absolute inset-0 w-full h-full object-cover", @img_class]}
         style="clip-path: url(#lancet-arch)"
@@ -310,21 +314,63 @@ defmodule LumenViaeWeb.CoreComponents do
   def medallion(assigns) do
     assigns =
       assigns
-      |> assign(:image_path, medallion_image_path(assigns.type))
+      |> assign(:image, medallion_image(assigns.type))
       |> assign(:size_class, medallion_size_class(assigns.size))
+      |> assign(:sizes, medallion_sizes(assigns.type, assigns.size))
 
     ~H"""
     <div class={["flex justify-center items-center", @class]} {@rest}>
-      <img src={@image_path} alt="" class={["h-auto", @size_class]} />
+      <.medallion_img image={@image} sizes={@sizes} class={["h-auto", @size_class]} />
     </div>
     """
   end
 
-  defp medallion_image_path("holy_family"), do: "/images/pngs/holy-family.png"
-  defp medallion_image_path("crucifix"), do: "/images/pngs/crucifix.png"
-  defp medallion_image_path("pax"), do: "/images/pngs/olive-branch-pax.png"
-  defp medallion_image_path("deo_gratias"), do: "/images/pngs/deo-gratias.png"
-  defp medallion_image_path("saint_benedict"), do: "/images/pngs/saint-benedict-symbol.png"
+  # Each medallion's file and pixel size, so the browser can reserve its space
+  # before it loads. Only the crucifix has lighter WebP copies; see
+  # docs/IMAGES.md.
+  defp medallion_image("holy_family"),
+    do: %{src: "/images/pngs/holy-family.png", width: 474, height: 287}
+
+  defp medallion_image("crucifix"),
+    do: %{
+      src: "/images/pngs/crucifix.png",
+      width: 322,
+      height: 321,
+      srcset: "/images/pngs/crucifix-160.webp 160w, /images/pngs/crucifix-256.webp 256w"
+    }
+
+  defp medallion_image("pax"),
+    do: %{src: "/images/pngs/olive-branch-pax.png", width: 591, height: 422}
+
+  defp medallion_image("deo_gratias"),
+    do: %{src: "/images/pngs/deo-gratias.png", width: 474, height: 266}
+
+  defp medallion_image("saint_benedict"),
+    do: %{src: "/images/pngs/saint-benedict-symbol.png", width: 150, height: 150}
+
+  # What `medallion_size_class/1` draws, for the srcset's `sizes`.
+  defp medallion_sizes("crucifix", "small"), do: "(min-width: 768px) 48px, 40px"
+  defp medallion_sizes("crucifix", "medium"), do: "(min-width: 768px) 128px, 112px"
+  defp medallion_sizes("crucifix", "large"), do: "(min-width: 768px) 256px, 192px"
+  defp medallion_sizes(_type, _size), do: nil
+
+  attr :image, :map, required: true
+  attr :sizes, :string, default: nil
+  attr :class, :any, default: nil
+
+  defp medallion_img(assigns) do
+    ~H"""
+    <img
+      src={@image.src}
+      srcset={@image[:srcset]}
+      sizes={@sizes}
+      width={@image.width}
+      height={@image.height}
+      alt=""
+      class={@class}
+    />
+    """
+  end
 
   defp medallion_size_class("small"), do: "w-10 md:w-12"
   defp medallion_size_class("medium"), do: "w-28 md:w-32"
@@ -351,14 +397,15 @@ defmodule LumenViaeWeb.CoreComponents do
   def medallion_bg(assigns) do
     assigns =
       assigns
-      |> assign(:image_path, medallion_image_path(assigns.type))
+      |> assign(:image, medallion_image(assigns.type))
       |> assign(:size_class, medallion_size_class(assigns.size))
+      |> assign(:sizes, medallion_sizes(assigns.type, assigns.size))
       |> assign(:padding_class, medallion_bg_padding(assigns.size))
 
     ~H"""
     <div class={["flex justify-center items-center", @class]} {@rest}>
       <div class={["bg-cream rounded-full", @padding_class]}>
-        <img src={@image_path} alt="" class={["h-auto", @size_class]} />
+        <.medallion_img image={@image} sizes={@sizes} class={["h-auto", @size_class]} />
       </div>
     </div>
     """
