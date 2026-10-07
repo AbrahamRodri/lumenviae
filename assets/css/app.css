@@ -689,3 +689,41 @@
   padding-inline: clamp(1rem, 3vw, 2rem);
   margin-inline: auto;
 }
+
+/* === home page === */
+/* Focus rings for the home page's links and buttons: gold-dark on the
+   light sections, gold-light on the navy hero. */
+#home-page a:focus-visible,
+#home-page button:focus-visible {
+  outline: 2px solid var(--color-gold-dark);
+  outline-offset: 3px;
+}
+
+#home-page .home-hero a:focus-visible,
+#home-page .home-hero button:focus-visible {
+  outline-color: var(--color-gold-light);
+}
+
+#home-page .home-card:focus-visible {
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #home-page .animate-rise,
+  #home-page .animate-halo {
+    animation: none;
+  }
+
+  #home-page .home-card,
+  #home-page .home-card img,
+  #home-page .home-row,
+  #home-page .home-row * {
+    transition: none;
+  }
+
+  #home-page .home-card:hover,
+  #home-page .home-card:hover img {
+    transform: none;
+  }
+}
+/* === end home page === */
