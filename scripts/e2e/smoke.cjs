@@ -82,7 +82,8 @@ async function checkPrayFlow(page, errors, vp) {
   await page.goto(`${BASE_URL}/mysteries/joyful`);
   await settle(page);
 
-  const prayLink = page.getByRole("link", { name: /pray/i }).first();
+  // The set cards name their link after the set, so find it by address.
+  const prayLink = page.locator('a[href^="/meditation-sets/"][href*="/pray"]').first();
   check((await prayLink.count()) > 0, `${label}: a Pray link exists on /mysteries/joyful`);
   if ((await prayLink.count()) === 0) return;
 
