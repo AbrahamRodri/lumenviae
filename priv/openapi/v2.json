@@ -207,7 +207,6 @@
                 "items": {
                   "type": "string"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "narrations": {
@@ -548,7 +547,6 @@
               },
               "key": {
                 "description": "The app's key for the mystery, `<category>_<order>`: `joyful_1`. Every section of the Rosary's content that is keyed by a mystery uses it; the id is the server's and differs between databases. Field included by default.",
-                "nullable": true,
                 "type": "string"
               },
               "key_verse": {
@@ -783,12 +781,10 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "forms": {
                 "description": "The Rosary's forms (the Scriptural Rosary, the Rosary Said Aloud), the Audio and Counting choices in their words, and what each form's page offers.",
-                "nullable": true,
                 "properties": {
                   "choices": {
                     "items": {
@@ -967,7 +963,6 @@
               },
               "guided_rosary": {
                 "description": "\"Your First Rosary\": the Rosary a step at a time for each of the four sets, every step tied to the bead under the fingers, with the parts of a rosary as a beginner learns them.",
-                "nullable": true,
                 "properties": {
                   "anatomy": {
                     "items": {
@@ -1078,7 +1073,6 @@
               },
               "labels": {
                 "description": "The meditation set labels, what the app calls each and the kinds of meditation they describe.",
-                "nullable": true,
                 "properties": {
                   "kinds": {
                     "items": {
@@ -1133,7 +1127,6 @@
               },
               "learn": {
                 "description": "The How to Pray course: three lessons, then \"Your First Rosary\", with the steps of the Rosary and the prayers said at each, how often each prayer comes round, Montfort's counsel and the questions beginners ask.",
-                "nullable": true,
                 "properties": {
                   "first_rosary": {
                     "properties": {
@@ -1543,7 +1536,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "mysteries": {
@@ -1661,7 +1653,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "prayers": {
@@ -1719,12 +1710,10 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "quotes": {
                 "description": "The daily quotations on the Rosary, and the rule that chooses one for a day: the home screen's, and a second one for after praying, half the catalogue away.",
-                "nullable": true,
                 "properties": {
                   "items": {
                     "items": {
@@ -1772,7 +1761,6 @@
               },
               "reminders": {
                 "description": "The daily reminders' messages in their groups, what each intention draws from, and the numbers of the rule that picks a week of them.",
-                "nullable": true,
                 "properties": {
                   "fallback_group": {
                     "type": "string"
@@ -1857,7 +1845,6 @@
               },
               "schedule": {
                 "description": "Which mysteries a day calls for, on both weekly schedules, as rules to apply offline: each weekday's set, Sunday's by season, every Lent and Advent from last year to three years ahead, the home grid's order and the days each set is prayed in words. The day is the device's calendar day, turning at midnight, not the prayer day that turns at four in the morning.",
-                "nullable": true,
                 "properties": {
                   "default": {
                     "type": "string"
@@ -2002,7 +1989,6 @@
               },
               "script": {
                 "description": "The order a Rosary is said in, as templates a client expands offline: the Rosary's and the chaplet's steps, the optional prayers after the Rosary and the strand's beads. GET /api/v2/rosary-script expands them.",
-                "nullable": true,
                 "properties": {
                   "chaplet": {
                     "properties": {
@@ -2738,7 +2724,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "version": {
@@ -2972,7 +2957,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "book": {
@@ -3013,7 +2997,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "expires_at": {
@@ -3059,7 +3042,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "verses": {
@@ -3115,7 +3097,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "version": {
@@ -3161,18 +3142,6 @@
         "description": "Records a finished Rosary reported by the app over the public write API. The client says which set and whether it was prayed aloud, and nothing else: the surface is always the app, and the set must be one the public can see.",
         "operationId": "recordCompletion",
         "parameters": [
-          {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
           {
             "description": "Comma separated fields of completion: completed_at, meditation_set_id",
             "explode": false,
@@ -3396,15 +3365,6 @@
               "type": "string"
             },
             "style": "form"
-          },
-          {
-            "in": "query",
-            "name": "category",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "style": "form"
           }
         ],
         "responses": {
@@ -3461,6 +3421,7 @@
                         "items": {
                           "type": "integer"
                         },
+                        "maxItems": 200,
                         "type": "array"
                       },
                       "voice": {
@@ -3545,18 +3506,6 @@
         "operationId": "listMysteries",
         "parameters": [
           {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
-          {
             "description": "Comma separated fields of mystery: artwork, category, description, fruit, key, key_verse, key_verse_reference, name, order, scripture_reference",
             "explode": false,
             "in": "query",
@@ -3608,18 +3557,6 @@
         "description": "One voice's spoken Rosary. Without a voice, the default voice's.",
         "operationId": "getRosaryAudio",
         "parameters": [
-          {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
           {
             "description": "Comma separated fields of spoken_rosary: announcements, book, expires_at, prayers, verses, version",
             "explode": false,
@@ -3678,18 +3615,6 @@
         "operationId": "getRosaryContent",
         "parameters": [
           {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
-          {
             "description": "Comma separated fields of rosary_content: categories, forms, guided_rosary, labels, learn, milestones, mysteries, prayers, quotes, reminders, schedule, script, updated_at, verses, version",
             "explode": false,
             "in": "query",
@@ -3736,18 +3661,6 @@
         "description": "One Rosary's script, every step in order: a category's mysteries in a style, with any optional prayers after it.",
         "operationId": "getRosaryScript",
         "parameters": [
-          {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
           {
             "description": "Comma separated fields of rosary_script: category, extras, orders, steps, style",
             "explode": false,
@@ -3836,18 +3749,6 @@
         "operationId": "listVoices",
         "parameters": [
           {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
-          {
             "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
             "explode": false,
             "in": "query",
@@ -3899,18 +3800,6 @@
         "description": "Voices no longer offered, each with the voice that now answers for it.",
         "operationId": "listRetiredVoices",
         "parameters": [
-          {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
           {
             "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
             "explode": false,
