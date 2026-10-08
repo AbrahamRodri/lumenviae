@@ -197,6 +197,45 @@ defmodule LumenViaeWeb.JsonApi.OpenApiTest do
     test "no list claims to be a set" do
       refute encoded() =~ "uniqueItems"
     end
+
+    test "only a set by id offers include, and a set by id offers no category" do
+      for operation <- operations() do
+        names = Enum.map(Map.get(operation, "parameters", []), & &1["name"])
+
+        if operation["operationId"] == "getMeditationSet" do
+          assert "include" in names
+          refute "category" in names
+        else
+          refute "include" in names, "#{operation["operationId"]} offers include"
+        end
+      end
+
+      assert "category" in Enum.map(parameters("listMeditationSets"), & &1["name"])
+    end
+
+    test "a field that is never null is not nullable" do
+      attributes = &schemas()[&1]["properties"]["attributes"]["properties"]
+
+      refute attributes.("mystery")["key"]["nullable"]
+
+      for {section, schema} <- attributes.("rosary_content") do
+        refute schema["nullable"], "rosary_content.#{section} is nullable"
+      end
+
+      # Null where the server does send null: a painting not yet
+      # published, and narrations that could not be signed.
+      assert attributes.("mystery")["artwork"]["nullable"]
+      assert attributes.("meditation")["narrations"]["nullable"]
+    end
+
+    test "the audio of at most 200 meditations is asked for at once" do
+      operation = Enum.find(operations(), &(&1["operationId"] == "getMeditationAudio"))
+
+      body =
+        operation["requestBody"]["content"]["application/vnd.api+json"]["schema"]
+
+      assert body["properties"]["data"]["properties"]["meditation_ids"]["maxItems"] == 200
+    end
   end
 
   test "offers exactly the operations it should" do

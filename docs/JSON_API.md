@@ -68,7 +68,10 @@ recordings).
 `relationships.set_memberships.data` lists its memberships in prayer
 order, each membership has an `order` running from 1 and a `meditation`,
 and the meditations and mysteries arrive once each in `included`. That is
-the only path that can be included; anything else is a 400.
+the only path that can be included; anything else is a 400. No other route
+can include anything, so it is the only operation in the OpenAPI document
+with an `include` parameter, and an `include` on any other route is a 400
+(`invalid_includes`).
 
 Includes are for one set: `GET /meditation-sets/:id`. **The list takes no
 `include`**, and naming one there is a 400 (`invalid_includes`, with
@@ -639,7 +642,12 @@ a 3.0 document, a path parameter in the wrong style, a `fields` parameter
 that is one `deepObject` (which a Kotlin generator cannot send), an
 `included` list a decoder cannot tell apart (and a Kotlin generator cannot
 compile), attributes marked required that a sparse `fields` leaves out,
-lists marked `uniqueItems` that are in prayer order, an error body described
+calculations marked nullable that are never null (a mystery's `key`, every
+section of the content document, the spoken Rosary's clips), a list
+argument with no `maxItems` (the 200 ids of `POST /meditations/audio`), an
+`include` parameter on every route though only a set by id can include
+anything, a `category` on a set by id that the route does not offer, lists
+marked `uniqueItems` that are in prayer order, an error body described
 as a bare list, and a bearer token the API does not take.
 `LumenViaeWeb.JsonApi.OpenApi` corrects each one before the document is
 written; its moduledoc lists them, and

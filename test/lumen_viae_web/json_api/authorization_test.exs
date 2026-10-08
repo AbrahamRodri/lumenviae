@@ -157,6 +157,22 @@ defmodule LumenViaeWeb.JsonApi.AuthorizationTest do
     end
   end
 
+  # Only a set by id has anything to include, so the OpenAPI document
+  # offers include nowhere else.
+  test "every other route refuses an include", %{conn: conn} do
+    for path <- [
+          "/meditation-sets?include=set_memberships",
+          "/mysteries?include=meditations",
+          "/voices?include=replaced_by",
+          "/voices/retired?include=replaced_by",
+          "/rosary-audio?include=prayers",
+          "/rosary-script?category=joyful&include=steps"
+        ] do
+      body = conn |> get_v2(path) |> v2_response(400)
+      assert [%{"code" => "invalid_includes"} | _] = body["errors"], path
+    end
+  end
+
   # The content document is the same for everyone: nothing in the query
   # string can change what it serves, and it has nothing to include.
   test "the content document takes no include, and no filter or sort changes it", %{conn: conn} do
