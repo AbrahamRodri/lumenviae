@@ -33,7 +33,9 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: postgres:17
+        # From mirror.gcr.io, not Docker Hub, for the rate limit the release
+        # build explains.
+        image: mirror.gcr.io/library/postgres:17
         env:
           POSTGRES_PASSWORD: postgres
         ports:
