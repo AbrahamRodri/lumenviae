@@ -141,8 +141,27 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Base images come from mirror.gcr.io, not Docker Hub: anonymous pulls
+      # from GitHub's shared runner IPs keep hitting Docker Hub's rate limit.
+      # Same images, same digests (see REGISTRY in the Dockerfile). If the
+      # mirror cannot serve both, the build falls back to Docker Hub.
+      - name: Pick the base image registry
+        id: registry
+        run: |
+          registry=mirror.gcr.io
+          eval "$(grep -E '^ARG (ELIXIR_VERSION|OTP_VERSION|DEBIAN_VERSION)=' Dockerfile | sed 's/^ARG //')"
+          for image in \
+            "hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}" \
+            "library/debian:${DEBIAN_VERSION}"; do
+            if ! docker buildx imagetools inspect "$registry/$image" >/dev/null; then
+              echo "::warning::$registry has no $image; pulling from Docker Hub"
+              registry=docker.io
+              break
+            fi
+          done
+          echo "registry=$registry" >> "$GITHUB_OUTPUT"
       - name: Build the image from the Dockerfile
-        run: docker build --progress=plain --tag lumen-viae-ci .
+        run: docker build --progress=plain --build-arg REGISTRY=${{ steps.registry.outputs.registry }} --tag lumen-viae-ci .
 
   # Report only. These never fail the run and are not conditions of the
   # deploy; the counts land in each job's summary.
