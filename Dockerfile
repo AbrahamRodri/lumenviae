@@ -15,8 +15,15 @@ ARG ELIXIR_VERSION=1.18.3
 ARG OTP_VERSION=27.2.4
 ARG DEBIAN_VERSION=bookworm-20251020-slim
 
-ARG BUILDER_IMAGE="docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
-ARG RUNNER_IMAGE="docker.io/debian:${DEBIAN_VERSION}"
+# Where the two base images are pulled from. Fly builds with the default,
+# Docker Hub. CI sets mirror.gcr.io, Google's read-only cache of Docker Hub,
+# because GitHub's runners share IPs and hit Docker Hub's anonymous pull limit
+# (429 Too Many Requests). The mirror serves the same images under the same
+# digests, so the image does not change. See docs/CI.md.
+ARG REGISTRY=docker.io
+
+ARG BUILDER_IMAGE="${REGISTRY}/hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
+ARG RUNNER_IMAGE="${REGISTRY}/library/debian:${DEBIAN_VERSION}"
 
 FROM ${BUILDER_IMAGE} AS builder
 
