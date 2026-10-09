@@ -233,11 +233,20 @@ do what" in docs/ARCHITECTURE.md before adding an action or a policy.
 ### Local Development
 Start the server with `./dev.sh`, not `mix phx.server` - it loads `.env`
 first, and without the AWS credentials the audio players silently vanish.
-The dev server listens on port 8080. Every worktree shares the
-`lumen_viae_dev` database; to run or migrate a branch without touching it,
-copy it (`createdb -h localhost -U postgres -T lumen_viae_dev <name>`) and
-set `DEV_DATABASE=<name>`. In tests, give each worktree its own
-`MIX_TEST_PARTITION`.
+The dev server listens on port 8080.
+
+A worktree made by the workspace manager (`.claude/manager/setup.sh`) has
+its own environment in `.wt.env`: `PORT` (8081 and up), `DEV_DATABASE` (a
+copy of `lumen_viae_dev` it can migrate freely) and `MIX_TEST_PARTITION`
+(its own test database). `_build` and `deps` are cloned from `api/`, so the
+first compile is incremental. `./dev.sh` loads `.wt.env`, and worker
+sessions start with it loaded. Use those values; do not run a server on
+8080 or tests on `lumen_viae_test` from a worktree.
+
+Anywhere else every checkout shares `lumen_viae_dev`; to run or migrate a
+branch without touching it, copy it (`createdb -h localhost -U postgres -T
+lumen_viae_dev <name>`) and set `DEV_DATABASE=<name>`. In tests, give each
+checkout its own `MIX_TEST_PARTITION`.
 
 The dev server carries Tidewave (an MCP server for coding agents, registered
 in `.mcp.json` through `mix tidewave.proxy`; pass your server's port) and
