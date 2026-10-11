@@ -78,9 +78,14 @@ defmodule LumenViae.Rosary.ContextRulesTest do
       ["priv/repo/seeds.exs"]
   end
 
-  defp outside_domain do
-    Enum.reject(lib_files(), &(String.starts_with?(&1, @domain_root) or &1 == @domain))
+  # Whether a path is one domain's own: its module file (`office.ex`) or
+  # anything in its folder. The slash matters: `lib/lumen_viae/office_*.ex`
+  # would be outside.
+  defp in_domain?(path, name) do
+    path == "lib/lumen_viae/#{name}.ex" or String.starts_with?(path, "lib/lumen_viae/#{name}/")
   end
+
+  defp outside_domain, do: Enum.reject(lib_files(), &in_domain?(&1, "rosary"))
 
   defp read(path), do: {path, File.read!(path)}
 
@@ -91,6 +96,10 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   # A documentation attribute and its string: a heredoc (plain or ~S/~s)
   # or a one-line string.
   @doc_attribute ~r/@(?:moduledoc|doc|typedoc|shortdoc)\s+(?:~[sS])?(?:"""\n.*?"""|"(?:[^"\\\n]|\\.)*")/s
+  # Any line that begins with `#`, wherever it is: a line of a multi-line
+  # string or a ~H template that begins with an interpolation (`#{...}`)
+  # is dropped too. Accepted: that line is not a call either, and telling a
+  # comment from a string would need a parser where a regex does.
   @line_comment ~r/^[ \t]*#.*$/m
 
   defp without_documentation(source) do
@@ -252,11 +261,11 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   # Rosary ones. Rules 1 and 3 and the Office and Accounts checks still
   # cover them.
   @own_domains [
-    "lib/lumen_viae/office",
-    "lib/lumen_viae/accounts",
+    "office",
+    "accounts",
     # Ops: generic actions on LumenViae.Ops.Maintenance, and
     # Ash.Domain.Info in ops/jobs.ex to list every domain's AshOban triggers.
-    "lib/lumen_viae/ops"
+    "ops"
   ]
 
   # Calls allowed by name in one file, each with its reason.
@@ -278,7 +287,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   test "rule 2: nothing outside a domain calls Ash or builds an Ash form itself" do
     offenders =
       for {path, source} <- Enum.map(outside_domain(), &read/1),
-          not Enum.any?(@own_domains, &String.starts_with?(path, &1)),
+          not Enum.any?(@own_domains, &in_domain?(path, &1)),
           call <- ash_calls(source) -- Map.get(@ash_calls_allowed, path, []),
           do: "#{path} -> #{call}"
 
@@ -314,8 +323,8 @@ defmodule LumenViae.Rosary.ContextRulesTest do
     offenders =
       for {path, source} <- Enum.map(lib_files(), &read/1),
           path not in allowed,
-          not String.starts_with?(path, "lib/lumen_viae/office"),
-          not String.starts_with?(path, "lib/lumen_viae/ops"),
+          not in_domain?(path, "office"),
+          not in_domain?(path, "ops"),
           uses_repo?(source),
           do: path
 
@@ -365,7 +374,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   test "nothing outside the Office domain names an Office module" do
     offenders =
       for {path, source} <- Enum.map(lib_files(), &read/1),
-          not String.starts_with?(path, "lib/lumen_viae/office"),
+          not in_domain?(path, "office"),
           path not in @office_exceptions,
           module <- office_modules_named(source),
           do: "#{path} -> #{module}"
@@ -389,7 +398,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   test "nothing outside the Accounts domain names an Accounts resource" do
     offenders =
       for {path, source} <- Enum.map(lib_files(), &read/1),
-          not String.starts_with?(path, "lib/lumen_viae/accounts"),
+          not in_domain?(path, "accounts"),
           path != "lib/lumen_viae_web/router.ex",
           source = String.replace(source, @actor_relationship, ""),
           module <- accounts_resources_named(source),
