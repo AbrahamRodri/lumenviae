@@ -173,16 +173,41 @@ can express: signing narration URLs, the artwork a set actually shows
 
 ### These rules are tested
 
-`test/lumen_viae/rosary/context_rules_test.exs` reads the source tree and
-fails the build when something outside the domain names a resource (Rosary
-or Accounts), calls
-`Ash` on one or builds an Ash form for one directly; when anything but the
-Repo module, `release.ex` and the two completion tallies uses `Repo.`,
-`Ecto.Query` or imports Ecto;
-when a resource composes with a hand-written join instead of a
-relationship; and when the web layer names any domain module other than
-`LumenViae.Rosary` and the value modules. A rule that is only written down
-survives as long as everyone remembers it; this one fails the build.
+`test/lumen_viae/rosary/context_rules_test.exs` reads the source tree
+(`lib/` and `priv/repo/seeds.exs`) and fails the build when:
+
+- anything outside `lib/lumen_viae/rosary/` names a module beneath
+  `LumenViae.Rosary` other than the value modules: a resource, a module
+  beneath one (`Completion.RateLimit`, `Meditation.Version`), an error, a
+  type. A module counts as named in any of its three forms: the full name,
+  a brace alias (`alias LumenViae.Rosary.{Meditation, Voices}`) and the
+  short form after `alias LumenViae.Rosary` (`Rosary.Meditation`);
+- anything outside a domain (Rosary, Office, Accounts, Ops) calls any
+  function under `Ash`, names `Ash.Query`, `Ash.Changeset` or
+  `Ash.ActionInput`, or builds an `AshPhoenix.Form` itself. `Ash.Error`,
+  `Ash.PlugHelpers` and `Ash.UUID` may be called anywhere; two calls are
+  allowed by name, the dev-only `Ash.Resource.put_metadata` in
+  `plugs/require_admin.ex` and the `Ash.Resource.Info` reads with which
+  `json_api/open_api.ex` corrects the generated OpenAPI document;
+- anything but the Repo module, `release.ex`, the two completion tallies
+  inside the resource, the Office and Ops domains and
+  `curation/audio_jobs.ex` uses `Repo.`, `Ecto.Query` or imports Ecto, or
+  `audio_jobs.ex` queries anything but `Oban.Job`;
+- a resource composes with a hand-written join instead of a relationship;
+- anything outside `lib/lumen_viae/office/` names an Office module
+  (`application.ex`, which starts the cache, excepted), or anything
+  outside `lib/lumen_viae/accounts/` names an Accounts resource (the
+  router's `auth_routes` and the content resources' `belongs_to_actor`
+  excepted);
+- the resources in the tree and the list in the test differ.
+
+Documentation does not count: `@moduledoc`, `@doc`, `@typedoc` and
+`@shortdoc` strings and whole-line comments are stripped before a file is
+read, so a doc may name the internal module it describes. Each check is a
+function from a source string to its offenders, and the test proves on
+short snippets that every form above is caught. A rule that is only
+written down survives as long as everyone remembers it; this one fails the
+build.
 
 ### Who may do what
 
