@@ -200,6 +200,9 @@ defmodule LumenViae.Office do
   @doc "How much this machine's cache holds: `%{entries:, bytes:}`."
   def cache_stats, do: Cache.stats()
 
+  @doc "The job that warms every machine's cache, for the console's last-run figure."
+  def warm_cache_worker, do: LumenViae.Office.Jobs.WarmCache
+
   @doc "Empties this machine's cache, so the next request for anything refetches it."
   def clear_cache, do: Cache.reset()
 
