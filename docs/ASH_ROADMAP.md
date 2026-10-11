@@ -6,10 +6,10 @@ A read-only audit of the three Ash domains (`LumenViae.Rosary`,
 3 October 2026 against `e45e77e`, the head of the admin accounts and
 policies work. It was refreshed the same day against `main` at `b229436`,
 after #40 to #45 had merged and deployed. Each finding names the file and
-line it was read at, says what is wrong, and sketches the fix. One finding
-(A2) has been fixed since, in #47; nothing else has changed in code. Part C
-turns the findings and the packages into workstreams, each sized for one
-session.
+line it was read at, says what is wrong, and sketches the fix. Two things
+have been fixed since: A2, in #47, and the boundary test's blind spots
+B1-B4, in #83; nothing else has changed in code. Part C turns the findings
+and the packages into workstreams, each sized for one session.
 
 Line numbers are those of `b229436` and will drift; search for the
 function or action named beside them.
@@ -752,23 +752,28 @@ domain, and the only new Repo use is `curation/audio_jobs.ex` on
 `test/lumen_viae/rosary/context_rules_test.exs` would not catch some
 future violations:
 
-**B1. Medium: aliased names slip through.** Rule 1 (lines 60-62, 177)
+**B1. Medium (fixed in #83): aliased names slip through.** Rule 1 (lines 60-62, 177)
 matches only the full literal `LumenViae.Rosary.Meditation`, so
 `alias LumenViae.Rosary.{Meditation, MeditationSet}` and
 `Rosary.Meditation` after `alias LumenViae.Rosary` pass. The web-layer
 check has the same blind spot. Also match the brace form and
 `Rosary\.<Resource>\b`, excluding `<Resource>\.[A-Z]` so documentation
 mentions of submodules (`limits.ex:7`, `services/geolocation.ex:35`) do
-not trip it.
+not trip it. #83 matches all three forms and, instead of the exclusion,
+strips documentation (doc attributes and whole-line comments) before any
+rule reads a file.
 
-**B2. Low: the resource list is incomplete** (line 28): it lacks
+**B2. Low (fixed in #83): the resource list is incomplete** (line 28): it lacks
 `narration_voice`, `spoken_rosary` and the `*.Version` modules (the
 lookahead deliberately rejects `Meditation.Version`). The lookahead also
 lets through the newer internal modules: `Completion.RateLimit`,
 `NotAutomated`, `LookUpPlace`, the generated `Completion.LocateWorker`,
-and `Rosary.Errors.AudioUnavailable` and `AutomatedClient`.
+and `Rosary.Errors.AudioUnavailable` and `AutomatedClient`. #83 lists all
+twelve resources, checks the list against the tree, names the four
+`.Version` resources, and flags every module beneath `LumenViae.Rosary`
+other than the value modules.
 
-**B3. Low: rule 2's regex is narrow** (lines 94-98). It misses
+**B3. Low (fixed in #83): rule 2's regex is narrow** (lines 94-98). It misses
 `Ash.read_one`, `Ash.run_action`, `Ash.calculate`, `Ash.aggregate`,
 `Ash.stream!`, `Ash.ActionInput`, `Ash.Resource.*`,
 `AshPhoenix.Form.for_read`, and now `AshOban.build_trigger` and
@@ -778,12 +783,18 @@ with a short allowlist (`Ash.Error`, `Ash.PlugHelpers`, `Ash.UUID` for
 `Ash.Resource.put_metadata` call allowed by name. Rule 3 allows the whole
 of `curation/audio_jobs.ex` (test lines 111-117), so a Rosary query added
 to that file would pass; limit the exception to queries on `Oban.Job`.
+#83 does both, and also allows by name the two `Ash.Resource.Info` reads
+with which `json_api/open_api.ex` corrects the OpenAPI document; the Ops
+domain is excluded from rule 2 like Office and Accounts. AshOban is not
+flagged.
 
-**B4. Low: nothing enforces the Office rule.** CLAUDE.md and
+**B4. Low (fixed in #83): nothing enforces the Office rule.** CLAUDE.md and
 ARCHITECTURE.md say nothing outside `office/` names its internals, but
 the test exempts the Office everywhere. Add a check like the Accounts one
 for `LumenViae.Office.[A-Z]`, allowing `application.ex:20` and the
-documentation mention in `rosary/errors/audio_unavailable.ex:9`.
+documentation mention in `rosary/errors/audio_unavailable.ex:9`. #83
+adds it, and the one call it found, `ops/runtime.ex` naming
+`Office.Jobs.WarmCache`, now goes through `LumenViae.Office.warm_cache_worker/0`.
 
 ### Stale documentation
 
@@ -796,7 +807,7 @@ documentation mention in `rosary/errors/audio_unavailable.ex:9`.
 | docs/ARCHITECTURE.md:78-81 | "Every table-backed resource also has a version resource": only four do. | Name the four. |
 | docs/ARCHITECTURE.md, "Who may do what" (line 173) | Partly fixed: the `authorize?: false` list (220-230) now names the narration jobs and drops Stamp, and an AshOban paragraph was added. It still omits Meditation's `in_any_set?` and `in_a_visible_set?` aggregates (`meditation.ex:350-357`). | Add them. |
 | docs/ARCHITECTURE.md, lib tree (lines 35-75) | Worse. Names `rate_limit.ex`, deleted in #42 (now `limits.ex`, `limits/backend.ex`, `hammer.ex`); misses `accounts/`, `ash_opts.ex`, `bot_detection.ex`, `audio/recording.ex`, `curation/audio_jobs.ex`, `curation/jobs/`, `rosary/version_policies.ex`, `rosary/errors/`, `rosary/types/`, `rosary/narration_voice/`, `rosary/spoken_rosary/` and the office files. The web tree (709-715) lacks `graphql/`, `json_api/`, `json_api_router.ex`, `graphql_schema.ex` and `oban_resolver.ex`; its plugs line omits `guard_completions`, `put_client_ip` and `throttle_sign_in`. | Regenerate both trees. |
-| docs/ARCHITECTURE.md, "These rules are tested" (lines 161-171) | Worse: says only the Repo module and `release.ex` may use the Repo, but the test also allows `audio_jobs.ex`; and it claims more than the test checks (B1-B4). | Fix the test, then the claim. |
+| docs/ARCHITECTURE.md, "These rules are tested" (lines 161-171) | Fixed in #83, with B1-B4: the paragraph now says exactly what the test checks, exceptions included. | Done. |
 | docs/ARCHITECTURE.md:570, `audio/recording.ex:38-42` | Call the paid-twice window "a second or two" (J1). | Correct with J1's fix. |
 | docs/ARCHITECTURE.md:608, `config/config.exs:163` | "One lookup at a time": two, one per machine (J8). | Correct. |
 | docs/CI.md:78-82 | Recommends "Re-run failed jobs" on a `main` run, which can deploy an older commit (C1). | Correct with C1's fix. |
@@ -1238,8 +1249,9 @@ The candidate "scheduled set publishing", built without a job.
 ### 11. Boundary test and documentation
 
 - **Packages:** none.
-- **Changes:** tighten the test first (B1-B4) and fix anything it then
-  finds; then the stale-docs table, J8's wording, and the removal of
+- **Changes:** B1-B4 are done (#83: the test tightened, the one call it
+  found moved behind `LumenViae.Office`, and "These rules are tested"
+  rewritten). Left: the stale-docs table, J8's wording, and the removal of
   docs/ASH_MIGRATION.md with its three references repointed and its
   "Left for later" moved to docs/UPCOMING_FEATURES.md; move `UserAuth`
   to match its module name.
