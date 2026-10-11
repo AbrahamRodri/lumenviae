@@ -53,7 +53,8 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   )
 
   # The resources AshPaperTrail versions. Each has a generated
-  # `<Resource>.Version` resource, named by rule 1 like any other.
+  # `<Resource>.Version` resource, which rule 1 catches as a module beneath
+  # its parent.
   @versioned ~w(author meditation meditation_set mystery)
 
   # Value modules hold shared vocabulary and pure calculation, not state or
@@ -62,11 +63,6 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   @value_modules ~w(categories labels artwork voices prayer_audio content)
 
   defp module_name(name), do: "LumenViae.Rosary." <> Macro.camelize(name)
-
-  defp resource_modules do
-    Enum.map(@resources, &module_name/1) ++
-      Enum.map(@versioned, &(module_name(&1) <> ".Version"))
-  end
 
   defp value_module_names, do: Enum.map(@value_modules, &module_name/1)
 
