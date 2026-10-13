@@ -524,8 +524,9 @@ which the code cannot show. Trust the header only from the proxy's
 address, once it is known how the proxy appears as the peer.
 
 **R3. Low (accepted): counters are per machine and reset on restart**
-(`lib/lumen_viae/hammer.ex:9-19`). Two machines make the real ceiling 40
-an hour, and every deploy wipes the counters. Documented and accepted;
+(`lib/lumen_viae/hammer.ex:9-19`). Two machines made the real ceiling 40
+an hour (production has run one since October 2026, so it is 20 again),
+and every deploy wipes the counters. Documented and accepted;
 listed for completeness.
 
 **R4. Low: a 429 carries no `Retry-After`**
@@ -879,7 +880,7 @@ docs/PROD_ACCESS.md:184.
   `before_transaction`, and no job holds a connection across an HTTP
   call. The exception is D3's `Oban.insert` between create and attach.
 - Oban: pruner (seven days), lifeline (30 minutes, beyond the five-minute
-  job timeout) and stager are valid; one leader across both machines; no
+  job timeout) and stager are valid; one leader across machines; no
   cron, so no duplicate scheduled runs; the PG notifier adds no
   connection; tests run with `testing: :manual`; the migration is pinned
   to Oban's version 14.
@@ -1238,7 +1239,8 @@ The candidate "scheduled set publishing", built without a job.
 - **Likely files:** `curation/csv_import.ex`, `curation/jobs/`,
   `live/admin/meditations_import/import/`, possibly a new resource and
   migration, `docs/CSV_IMPORT_GUIDE.md`, tests.
-- **Risks:** two machines: a job may run on the machine that did not
+- **Risks:** more than one machine (production runs one, but a
+  bluegreen deploy overlaps two): a job may run on the machine that did not
   receive the upload, so the CSV must travel in the job's arguments or a
   table, not a temp file. Meditation text in `oban_jobs` is pruned after
   seven days; say so, since content stays out of git but would sit in the

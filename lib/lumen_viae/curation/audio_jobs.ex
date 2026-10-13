@@ -295,8 +295,8 @@ defmodule LumenViae.Curation.AudioJobs do
   @doc """
   For a mix task whose own node runs the queue: raises this node's
   `elevenlabs` limit to `concurrency` (default 3; the queue's configured
-  limit is sized for production's two machines, and a laptop running the
-  task is one), then `follow/3`s the batch to the terminal.
+  limit is one job per machine, sized for production, and a laptop running
+  the task is one machine), then `follow/3`s the batch to the terminal.
   """
   def wait_here(batch, concurrency \\ nil) do
     Oban.scale_queue(queue: :elevenlabs, limit: concurrency || 3, local_only: true)

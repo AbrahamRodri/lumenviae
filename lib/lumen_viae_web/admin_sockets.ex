@@ -15,7 +15,9 @@ defmodule LumenViaeWeb.AdminSockets do
   interrupts that admin's tabs on another. Those tabs reconnect with their
   own still-valid tokens, so they are interrupted, not signed out.
 
-  Production runs two clustered machines, so one broadcast reaches both.
+  Production runs one machine, but the broadcast goes through PubSub, so it
+  reaches every clustered machine when there are more (as for the minute a
+  bluegreen deploy overlaps the old and new ones).
   """
 
   @doc "The `:live_socket_id` for an admin's sockets."
