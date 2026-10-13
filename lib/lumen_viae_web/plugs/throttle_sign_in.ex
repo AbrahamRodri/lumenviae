@@ -22,7 +22,7 @@ defmodule LumenViaeWeb.Plugs.ThrottleSignIn do
   Every attempt counts, successes included: the counter counts on each
   check. Five successful sign-ins to one account in 15 minutes is not a
   pattern anyone has. The counters are per machine, as `LumenViae.Hammer`
-  explains, so with two machines the real ceiling is about double.
+  explains, so with more than one machine the real ceiling multiplies.
 
   ## Why this is a plug and not a limit on the sign-in action
 

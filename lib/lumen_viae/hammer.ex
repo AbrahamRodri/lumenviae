@@ -7,13 +7,14 @@ defmodule LumenViae.Hammer do
   calls directly. Nothing else touches the counters.
 
   This is deliberately the smallest thing that works, and it is per-machine
-  rather than shared. **Production runs two machines**, so each holds its
-  own counters and the effective ceiling is twice the number configured: a
-  caller landing on one machine and then the other gets both budgets.
+  rather than shared. Production runs one machine, so the ceiling is the
+  number configured, but a deploy empties the counters, and with more than
+  one machine each would hold its own and a caller landing on each would
+  get every budget.
 
   That is accepted rather than overlooked. The completion limit exists to
   stop a script writing thousands of rows, and 40 an hour stops that as well
-  as 20 does against a site seeing between one and two a day; the sign-in
+  as 20 does (which is what two machines made it) against a site seeing between one and two a day; the sign-in
   limits exist to make guessing a password slow, and twice a slow rate is
   still slow. What it is not is a precise quota, and it should not be
   described as one.

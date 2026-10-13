@@ -792,11 +792,12 @@ connections. Oban's defaults assume a database with room to spare, so each
 standing cost is set deliberately (`config/config.exs`):
 
 - **One queue per third party, sized to what it allows.** Both queues run
-  one job at a time per machine. A queue's limit is per node and
-  production runs two clustered machines, so each is two at once in
-  production. For `geolocation` that is well inside ipapi.co's rate. For
+  one job at a time per machine. A queue's limit is per node, and
+  production runs one machine, so each is one at once in production (two
+  for the minute of a bluegreen deploy, when the old and new machines
+  overlap). For `geolocation` that is well inside ipapi.co's rate. For
   `elevenlabs`, ElevenLabs counts concurrent requests across the account,
-  so it is two at once against an account that has run three.
+  so it is at most two at once against an account that has run three.
   `ELEVENLABS_CONCURRENCY` raises it in production without a code change,
   and a 429 from going over is retried, not paid for. A queue's concurrency
   is also the most connections its jobs can hold at once, and no job holds
@@ -1585,10 +1586,11 @@ The rate limit on the completion actions caps completions per address per
 hour, and is the part that still holds when the agent string is a lie. It
 is keyed on the caller's address, not the stored prefix, because telling
 neighbours apart is the whole job; for IPv6 that address is the /64 (see
-"Rate limits"). It is per-machine ETS, and production
-runs two machines, so the real ceiling is twice the configured number. That
-is fine for what the limit is for - stopping a script, not metering - but it
-is not a precise quota. Making it exact needs a shared store, not a smaller
+"Rate limits"). It is per-machine ETS. Production runs one machine, so
+the ceiling is the configured number, but the counters reset on every
+deploy, and with more machines the real ceiling would be that many times
+the number. That is fine for what the limit is for - stopping a script, not
+metering - but it is not a precise quota. Making it exact needs a shared store, not a smaller
 number. See "Rate limits" under the domain.
 
 `LumenViaeWeb.ClientIP` finds the address, and reads only `Fly-Client-IP`

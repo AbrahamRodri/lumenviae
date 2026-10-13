@@ -17,6 +17,13 @@ kill_timeout = 150
 
 [deploy]
   release_command = '/app/bin/migrate'
+  # Production runs one app machine (docs/PROD_ACCESS.md, "Hosting cost").
+  # A rolling deploy would stop that machine before its replacement is up;
+  # bluegreen boots the new machine beside it, moves traffic once the new
+  # one passes the check below, and only then destroys the old one. It
+  # needs at least one service check and cannot be used with volumes (the
+  # app has none).
+  strategy = 'bluegreen'
 
 [env]
   PHX_HOST = 'www.lumenviae.org'
@@ -38,6 +45,29 @@ kill_timeout = 150
     type = 'connections'
     hard_limit = 100
     soft_limit = 50
+
+  # The check bluegreen waits on, and the one Fly's proxy routes by: a
+  # machine failing it gets no traffic. It asks for robots.txt, which
+  # Plug.Static answers before the router and the request log, so it says
+  # "the release booted and the endpoint is serving" and nothing about the
+  # database. That is deliberate. `/healthz` returns 503 when Postgres does
+  # not answer, and lumenviae-db is one 256MB machine that has had blips
+  # (an out-of-memory restart, a dropped proxy connection); with one app
+  # machine, a check on `/healthz` would take the whole site off the proxy
+  # for a database blip it would otherwise ride out, pages that need no
+  # database included. A deploy cannot start against a database that is
+  # down anyway: the release command (migrate) fails first.
+  # The check is plain HTTP on the private network; X-Forwarded-Proto
+  # tells force_ssl (config/prod.exs) not to redirect it, since a check
+  # does not follow redirects.
+  [[http_service.checks]]
+    grace_period = '30s'
+    interval = '15s'
+    timeout = '5s'
+    method = 'GET'
+    path = '/robots.txt'
+    [http_service.checks.headers]
+      X-Forwarded-Proto = 'https'
 
 [[vm]]
   memory = '1gb'
