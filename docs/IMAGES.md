@@ -89,9 +89,6 @@ Replace its `<img src="/images/ornate-blue-gold-bg-symbols.jpg" ...>` with:
 
 ## Files kept for other reasons
 
-- `pngs/our-lady-of-sorrows-horizontal.jpg`: the `og:image` and
-  `twitter:image` in `root.html.heex`. They stay a JPEG, as link-preview
-  crawlers do not all read WebP.
 - `pngs/queen-of-heaven-white-bg.jpg`: named only in the `<.arch_frame>`
   example in `core_components.ex`. No page shows it; a candidate for deletion
   with that example.
@@ -99,8 +96,8 @@ Replace its `<img src="/images/ornate-blue-gold-bg-symbols.jpg" ...>` with:
   `test/lumen_viae/images/inspector_test.exs`.
 - `pngs/holy-family.png`, `pngs/olive-branch-pax.png`: reached through
   `<.medallion>`, with no caller and no variants. The Saint Benedict symbol
-  was deleted with the October 2026 redesign, when the header took the
-  Stella Maris mark (`<.logo />`, an inline SVG).
+  was deleted with the October 2026 redesign, when the header took a logo
+  mark (`<.logo />`, now the arch-and-star art in `images/logo/`).
 - Used only by `archive/`: `woodcuts/coronation-durer.jpg`,
   `woodcuts/madonna-crescent-crop.jpg`, `pngs/most-sacred-heart-white-bg.jpg`.
 - `woodcuts/`: every page now shows the woodcuts through

@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <%!-- The header's night, so the browser chrome on a phone runs into it. --%>
-    <meta name="theme-color" content="#070E1F" />
+    <%!-- The colour comes from the logo: its candlelit night, so the browser
+          chrome on a phone runs into the mark. --%>
+    <meta name="theme-color" content="#0A0A15" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title default="Lumen Viae" suffix=" | Lumen Viae">
       {assigns[:page_title] || "Meditations on the Holy Rosary"}
@@ -34,9 +35,12 @@
       type="font/woff2"
       crossorigin
     />
-    <link rel="icon" href={~p"/favicon.ico"} sizes="32x32" />
-    <link rel="icon" href={~p"/favicon.svg"} type="image/svg+xml" />
-    <link rel="apple-touch-icon" href={~p"/apple-touch-icon.png"} />
+    <%!-- Plain paths, not ~p: ~p would give the digested name, and the
+          top-level Plug.Static serves these files only under their own. --%>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>

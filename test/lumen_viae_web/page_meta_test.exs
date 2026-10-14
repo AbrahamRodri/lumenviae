@@ -115,7 +115,10 @@ defmodule LumenViaeWeb.PageMetaTest do
           assert content(doc, ~s(meta[property="og:url"])) == @site <> path
 
           image = content(doc, ~s(meta[property="og:image"]))
-          assert String.starts_with?(image, @site <> "/images/")
+
+          assert String.starts_with?(image, @site <> "/images/") or
+                   image == @site <> "/og-image.png"
+
           assert content(doc, ~s(meta[name="twitter:image"])) == image
           assert String.to_integer(content(doc, ~s(meta[property="og:image:width"]))) > 0
           assert String.to_integer(content(doc, ~s(meta[property="og:image:height"]))) > 0
@@ -154,14 +157,13 @@ defmodule LumenViaeWeb.PageMetaTest do
   end
 
   describe "the home page" do
-    test "keeps the banner as its preview, and is a WebSite", %{conn: conn} do
+    test "has the logo's share image as its preview, and is a WebSite", %{conn: conn} do
       doc = page(conn, "/")
 
-      assert content(doc, ~s(meta[property="og:image"])) ==
-               @site <> "/images/pngs/our-lady-of-sorrows-horizontal.jpg"
-
+      assert content(doc, ~s(meta[property="og:image"])) == @site <> "/og-image.png"
       assert content(doc, ~s(meta[property="og:image:width"])) == "1200"
-      assert content(doc, ~s(meta[property="og:image:height"])) == "410"
+      assert content(doc, ~s(meta[property="og:image:height"])) == "630"
+      assert content(doc, ~s(meta[property="og:image:alt"])) =~ "Lumen Viae"
       assert content(doc, ~s(meta[name="twitter:card"])) == "summary_large_image"
 
       assert types(doc) == ["WebSite"]

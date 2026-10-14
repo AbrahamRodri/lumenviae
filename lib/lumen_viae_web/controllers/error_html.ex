@@ -26,11 +26,11 @@ defmodule LumenViaeWeb.ErrorHTML do
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#070E1F" />
+        <meta name="theme-color" content="#0A0A15" />
         <meta name="robots" content="noindex" />
         <title>{@title} - Lumen Viae</title>
-        <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="stylesheet" href={~p"/assets/css/app.css"} />
       </head>
       <body class="site bg-night text-ink-light min-h-dvh flex flex-col">
@@ -38,9 +38,10 @@ defmodule LumenViaeWeb.ErrorHTML do
           <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 md:py-4">
             <a
               href="/"
-              class="inline-flex items-center gap-2.5 min-h-11 font-display font-semibold text-ink-light text-2xl md:text-[1.75rem]"
+              class="inline-flex items-center min-h-11"
+              aria-label="Lumen Viae, home"
             >
-              <.logo /> Lumen Viae
+              <.logo variant={:lockup} />
             </a>
           </div>
         </header>
