@@ -23,7 +23,8 @@ defmodule LumenViae.Rosary.LibraryTest do
   # itself when it rewrites it.
   @history %{
     "prayer_book.json" => [
-      {~U[2026-10-14 02:51:54Z], "63167a494d1c4b44"}
+      {~U[2026-10-14 02:51:54Z], "63167a494d1c4b44"},
+      {~U[2026-10-14 03:14:56Z], "f16e6e8bb9b60649"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"}
