@@ -1186,7 +1186,7 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
 | `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
 | `Components.MysteryPainting` | the app's painting for a mystery or a category's card, from `priv/static/images/paintings/manifest.json`; an uploaded painting wins | no, called fully qualified |
-| `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json`; now only for link previews | no, imported where used |
+| `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json`; no longer shown on any page or preview | no, imported where used |
 | `Components.MetaTags` | the description, canonical link, link previews and structured data a page put in `LumenViaeWeb.PageMeta` | no, used by the root layout |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
 

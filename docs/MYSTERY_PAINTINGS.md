@@ -88,7 +88,8 @@ Since 14 October 2026 the website shows these same paintings without any
 upload: the 28 files from the app's `Assets.xcassets` (the 27 mysteries'
 paintings and the Seven Sorrows' Pieta) are served from
 `priv/static/images/paintings/` as `<name>-480.webp`, `<name>-960.webp` (or
-the full width, when narrower) and a 480 pixel `<name>.jpg`, with each
+the full width, when narrower), a 480 pixel `<name>.jpg` and, for link
+previews, `<name>-preview.jpg` (at most 800 pixels), with each
 painting's title, artist, date and licence in its `manifest.json`, taken
 from the iOS repository's `Tools/ContentSourcing/manifest.json`.
 `LumenViaeWeb.Components.MysteryPainting` draws them. An uploaded,

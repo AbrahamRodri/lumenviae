@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
   attr :title, :string, required: true
   attr :subtitle, :string, required: true
   attr :days, :string, required: true
-  attr :painting, :map, default: nil, doc: "the published painting, or nil for the woodcut"
+  attr :painting, :map, default: nil, doc: "the uploaded painting, or nil for the app's own"
 
   def category_hero(assigns) do
     ~H"""

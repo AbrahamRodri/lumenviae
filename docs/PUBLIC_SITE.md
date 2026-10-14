@@ -167,9 +167,12 @@ row still count, in the browser. See `docs/UPCOMING_FEATURES.md`.
   `manifest.json` (see docs/MYSTERY_PAINTINGS.md), and drawn with
   `LumenViaeWeb.Components.MysteryPainting`. A painting uploaded on a
   mystery or a card in the console wins over the static one.
-- The woodcuts in `priv/static/images/woodcuts/` now only illustrate link
-  previews (`PageMeta`); no page shows them. Leave the directory alone
-  unless you are changing a preview.
+- Link previews show the same paintings, from each one's
+  `<name>-preview.jpg` (a JPEG, at most 800 pixels wide), because not every
+  preview crawler reads WebP.
+- The woodcuts in `priv/static/images/woodcuts/` and
+  `LumenViaeWeb.Components.WoodcutPlate` are no longer shown anywhere; they
+  are kept until someone decides to remove them.
 - Images ship as WebP with a JPEG or PNG fallback: `name-480.webp` and
   `name-960.webp` beside a 480 pixel `name.jpg` for the paintings, and `-320`, `-512` and similar widths for the other
   images. An uploaded painting (of a set, an author, a mystery or a

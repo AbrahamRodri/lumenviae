@@ -11,8 +11,9 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
   card (the four Rosaries' first mystery, the Seven Sorrows' Pieta), and
   `paintings` holds each picture's widths and its title, artist and date
   from the app's sourcing notes. Each painting is `<name>-480.webp`,
-  `<name>-960.webp` (or its full width, when narrower) and a 480 pixel
-  `<name>.jpg`. See docs/MYSTERY_PAINTINGS.md.
+  `<name>-960.webp` (or its full width, when narrower), a 480 pixel
+  `<name>.jpg`, and `<name>-preview.jpg` (at most 800 pixels) for link
+  previews. See docs/MYSTERY_PAINTINGS.md.
 
       <MysteryPainting.picture key="sorrowful_1" sizes="64px" class="..." />
       <MysteryPainting.picture category="glorious" sizes="50vw" class="..." />
@@ -31,6 +32,7 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
 
   @paintings Map.new(@manifest["paintings"], fn p ->
                [[w1, h1], [w2, h2]] = p["widths"]
+               [pw, ph] = p["preview"]
                base = "/images/paintings/#{p["name"]}"
 
                credit =
@@ -53,6 +55,7 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
                   width: w2,
                   height: h2,
                   small: {w1, h1},
+                  preview: %{src: "#{base}-preview.jpg", width: pw, height: ph},
                   title: p["title"],
                   artist: p["artist"],
                   date: p["date"],

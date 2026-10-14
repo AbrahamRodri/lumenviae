@@ -139,7 +139,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
 
   # The painting the app's card shows for the category (its first
   # mystery's, or the Seven Sorrows' own card); nil until one is published,
-  # and the header shows the category's woodcut.
+  # and the header shows the app's own painting for the category.
   defp painting(category, mysteries, actor) do
     artwork =
       case Categories.card_mystery_key(category) do

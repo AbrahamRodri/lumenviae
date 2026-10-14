@@ -1,5 +1,5 @@
 {
-  "_about": "The iOS app's paintings for the mysteries and the Seven Sorrows' card, as static WebP for the website (from ios app/Assets.xcassets; credits from ios Tools/ContentSourcing/manifest.json). An uploaded painting on the mystery or card wins over these. See docs/MYSTERY_PAINTINGS.md.",
+  "_about": "The iOS app's paintings for the mysteries and the Seven Sorrows' card, as static WebP for the website (from ios app/Assets.xcassets; credits from ios Tools/ContentSourcing/manifest.json). An uploaded painting on the mystery or card wins over these. See docs/MYSTERY_PAINTINGS.md. Each painting also has a JPEG `<name>-preview.jpg` (at most 800 pixels wide) for link previews, which not every crawler reads as WebP.",
   "mysteries": {
     "joyful_1": "joyful_annunciation",
     "joyful_2": "joyful_visitation",
@@ -54,6 +54,10 @@
           960,
           1463
         ]
+      ],
+      "preview": [
+        800,
+        1219
       ]
     },
     {
@@ -73,6 +77,10 @@
           960,
           1492
         ]
+      ],
+      "preview": [
+        800,
+        1244
       ]
     },
     {
@@ -92,6 +100,10 @@
           960,
           1278
         ]
+      ],
+      "preview": [
+        800,
+        1065
       ]
     },
     {
@@ -111,6 +123,10 @@
           737,
           1600
         ]
+      ],
+      "preview": [
+        737,
+        1600
       ]
     },
     {
@@ -130,6 +146,10 @@
           771,
           1500
         ]
+      ],
+      "preview": [
+        771,
+        1500
       ]
     },
     {
@@ -149,6 +169,10 @@
           960,
           1120
         ]
+      ],
+      "preview": [
+        800,
+        933
       ]
     },
     {
@@ -168,6 +192,10 @@
           960,
           524
         ]
+      ],
+      "preview": [
+        800,
+        437
       ]
     },
     {
@@ -187,6 +215,10 @@
           960,
           1457
         ]
+      ],
+      "preview": [
+        800,
+        1214
       ]
     },
     {
@@ -206,6 +238,10 @@
           800,
           1302
         ]
+      ],
+      "preview": [
+        800,
+        1302
       ]
     },
     {
@@ -225,6 +261,10 @@
           960,
           1327
         ]
+      ],
+      "preview": [
+        800,
+        1106
       ]
     },
     {
@@ -244,6 +284,10 @@
           960,
           1363
         ]
+      ],
+      "preview": [
+        800,
+        1136
       ]
     },
     {
@@ -263,6 +307,10 @@
           960,
           703
         ]
+      ],
+      "preview": [
+        800,
+        586
       ]
     },
     {
@@ -282,6 +330,10 @@
           960,
           631
         ]
+      ],
+      "preview": [
+        800,
+        526
       ]
     },
     {
@@ -301,6 +353,10 @@
           960,
           1077
         ]
+      ],
+      "preview": [
+        800,
+        897
       ]
     },
     {
@@ -320,6 +376,10 @@
           960,
           1446
         ]
+      ],
+      "preview": [
+        800,
+        1205
       ]
     },
     {
@@ -339,6 +399,10 @@
           960,
           1426
         ]
+      ],
+      "preview": [
+        800,
+        1188
       ]
     },
     {
@@ -358,6 +422,10 @@
           960,
           906
         ]
+      ],
+      "preview": [
+        800,
+        755
       ]
     },
     {
@@ -377,6 +445,10 @@
           960,
           1277
         ]
+      ],
+      "preview": [
+        800,
+        1064
       ]
     },
     {
@@ -396,6 +468,10 @@
           960,
           588
         ]
+      ],
+      "preview": [
+        800,
+        490
       ]
     },
     {
@@ -415,6 +491,10 @@
           960,
           1232
         ]
+      ],
+      "preview": [
+        800,
+        1027
       ]
     },
     {
@@ -434,6 +514,10 @@
           960,
           1331
         ]
+      ],
+      "preview": [
+        800,
+        1109
       ]
     },
     {
@@ -453,6 +537,10 @@
           960,
           1507
         ]
+      ],
+      "preview": [
+        800,
+        1256
       ]
     },
     {
@@ -472,6 +560,10 @@
           960,
           1236
         ]
+      ],
+      "preview": [
+        800,
+        1030
       ]
     },
     {
@@ -491,6 +583,10 @@
           960,
           1346
         ]
+      ],
+      "preview": [
+        800,
+        1121
       ]
     },
     {
@@ -510,6 +606,10 @@
           960,
           1261
         ]
+      ],
+      "preview": [
+        800,
+        1051
       ]
     },
     {
@@ -529,6 +629,10 @@
           960,
           1099
         ]
+      ],
+      "preview": [
+        800,
+        916
       ]
     },
     {
@@ -548,6 +652,10 @@
           960,
           1431
         ]
+      ],
+      "preview": [
+        800,
+        1193
       ]
     },
     {
@@ -567,6 +675,10 @@
           960,
           1374
         ]
+      ],
+      "preview": [
+        800,
+        1145
       ]
     }
   ]
