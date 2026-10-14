@@ -103,7 +103,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.PrayLinks do
   row: "Read in silence · On my rosary".
   """
   @spec summary(form, choices) :: String.t()
-  def summary(:holy, choices), do: Enum.join(["Listen and pray along" | voice_words(choices)], " · ")
+  def summary(:holy, choices),
+    do: Enum.join(["Listen and pray along" | voice_words(choices)], " · ")
 
   def summary(form, %{aloud: true} = choices) do
     Enum.join([audio_name(form, true) | voice_words(choices)], " · ")
