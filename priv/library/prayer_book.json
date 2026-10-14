@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-10-13T00:00:00Z",
+  "updated_at": "2026-10-14T03:00:00Z",
   "chapters": [
     {
       "id": "first",
       "latin_title": "Orationes Primæ",
-      "note": "The prayers every Catholic learns first.",
+      "note": null,
       "numeral": "I",
       "prayer_ids": [
         "sign_of_cross",
@@ -139,7 +139,7 @@
     {
       "id": "short",
       "latin_title": "Iaculatoriæ",
-      "note": "A few words said in passing.",
+      "note": null,
       "numeral": "III",
       "prayer_ids": [
         "my_jesus_mercy",
@@ -207,7 +207,7 @@
     {
       "id": "mass",
       "latin_title": "De Sancta Missa",
-      "note": "Before Mass, at Communion, and after.",
+      "note": null,
       "numeral": "IV",
       "prayer_ids": [
         "aquinas_before_mass",
@@ -273,7 +273,7 @@
     {
       "id": "penance",
       "latin_title": "De Pænitentia",
-      "note": "Getting ready, confessing, giving thanks.",
+      "note": null,
       "numeral": "V",
       "prayer_ids": [
         "before_confession",
@@ -379,7 +379,7 @@
     {
       "id": "holy_ghost",
       "latin_title": "De Sanctissima Trinitate",
-      "note": "Father, Son and Holy Spirit.",
+      "note": null,
       "numeral": "VII",
       "prayer_ids": [
         "glory_be",
@@ -429,7 +429,7 @@
     {
       "id": "our_lord",
       "latin_title": "De Domino Nostro",
-      "note": "His Name, His Heart, His Blood, His mercy.",
+      "note": null,
       "numeral": "VIII",
       "prayer_ids": [
         "litany_holy_name",
@@ -542,7 +542,7 @@
     {
       "id": "our_lady",
       "latin_title": "De Beata Maria Virgine",
-      "note": "Prayers to Mary, from the oldest to the newest.",
+      "note": "Prayers to Mary.",
       "numeral": "IX",
       "prayer_ids": [
         "hail_mary",
@@ -658,7 +658,7 @@
     {
       "id": "st_joseph",
       "latin_title": "De Sancto Ioseph",
-      "note": "Patron of the Church, of workers and of a happy death.",
+      "note": null,
       "numeral": "X",
       "prayer_ids": [
         "ad_te_beate_ioseph",
@@ -693,7 +693,7 @@
     {
       "id": "saints",
       "latin_title": "De Angelis et Sanctis",
-      "note": "The friends of God, asked to pray for us.",
+      "note": null,
       "numeral": "XI",
       "prayer_ids": [
         "angele_dei",
@@ -743,7 +743,7 @@
     {
       "id": "seasons",
       "latin_title": "De Festis et Temporibus",
-      "note": "Through the Church's year.",
+      "note": null,
       "numeral": "XII",
       "prayer_ids": [
         "alma_redemptoris",
@@ -823,7 +823,7 @@
     {
       "id": "thanks",
       "latin_title": "Gratiarum Actio",
-      "note": "The Church's songs of thanks.",
+      "note": null,
       "numeral": "XIII",
       "prayer_ids": [
         "te_deum",
@@ -897,7 +897,7 @@
     {
       "id": "church",
       "latin_title": "Pro Vivis",
-      "note": "For the Pope, priests, family and country.",
+      "note": null,
       "numeral": "XV",
       "prayer_ids": [
         "prayer_for_the_pope",
@@ -950,7 +950,7 @@
     {
       "id": "sick",
       "latin_title": "Pro Infirmis et Morientibus",
-      "note": "For healing, and for a holy death.",
+      "note": null,
       "numeral": "XVI",
       "prayer_ids": [
         "prayer_for_the_sick",
@@ -988,7 +988,7 @@
     {
       "id": "departed",
       "latin_title": "Pro Defunctis",
-      "note": "Rest and peace for those who have died.",
+      "note": "For those who have died.",
       "numeral": "XVII",
       "prayer_ids": [
         "requiem_aeternam",
@@ -1024,7 +1024,7 @@
     {
       "id": "needs",
       "latin_title": "In Variis Necessitatibus",
-      "note": "For help, protection and peace of heart.",
+      "note": null,
       "numeral": "XVIII",
       "prayer_ids": [
         "sub_tuum",
