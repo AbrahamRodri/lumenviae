@@ -108,7 +108,7 @@ starts from the defaults. The one thing the server writes is a completion.
 | Language of the prayers, English or Latin | `lv:pray:language` | `PrayerMemory` |
 | Text size | `lv:pray:text-size` | the `PrayerSurface` hook |
 | Reading page, night (the default, as the app's reader) or vellum | `lv:pray:reading-page` | the `DisplayChoices` hook, read by `PrayerSurface` |
-| The mystery's woodcut shown or hidden | `lv:pray:images` | `DisplayChoices`, read by `PrayerSurface` |
+| The mystery's painting shown or hidden | `lv:pray:images` | `DisplayChoices`, read by `PrayerSurface` |
 | Days in a row | `lv:pray:streak` | the `PrayerStreak` hook |
 | Swipe hint already shown | `lv:pray:swipe-hint-seen` | the `SwipeHint` hook |
 
@@ -159,14 +159,19 @@ row still count, in the browser. See `docs/UPCOMING_FEATURES.md`.
 - A public page calls `LumenViaeWeb.PageMeta.put/3` from `mount/3`. The root
   layout turns the result into the description, canonical link, link
   previews and structured data, in the first server-rendered response.
-- A mystery's picture is a woodcut or engraving by Albrecht Durer or
-  Gustave Dore, from `priv/static/images/woodcuts/` and its
-  `manifest.json`. Show one with `LumenViaeWeb.Components.WoodcutPlate`.
-  The manifest lists each plate's source and licence, and `MANIFEST.md` in
-  that directory is generated from it. Leave the directory alone unless you
-  are adding or replacing a plate.
-- Images ship as WebP with a JPEG or PNG fallback: `name-640.webp` beside
-  `name.jpg` for plates, and `-320`, `-512` and similar widths for the other
+- A mystery's picture is the app's own old-master painting: the hero's
+  arch, the category tiles, the small arches beside each mystery, the head
+  of a category page, the decade on the prayer page and the categories on
+  `/mysteries`. They are the files the iOS app bundles, served from
+  `priv/static/images/paintings/` with their credits in its
+  `manifest.json` (see docs/MYSTERY_PAINTINGS.md), and drawn with
+  `LumenViaeWeb.Components.MysteryPainting`. A painting uploaded on a
+  mystery or a card in the console wins over the static one.
+- The woodcuts in `priv/static/images/woodcuts/` now only illustrate link
+  previews (`PageMeta`); no page shows them. Leave the directory alone
+  unless you are changing a preview.
+- Images ship as WebP with a JPEG or PNG fallback: `name-480.webp` and
+  `name-960.webp` beside a 480 pixel `name.jpg` for the paintings, and `-320`, `-512` and similar widths for the other
   images. An uploaded painting (of a set, an author, a mystery or a
   category card) is shown from its WebP variants by
   `LumenViaeWeb.Components.ArtworkPicture`. The widths that exist for it are

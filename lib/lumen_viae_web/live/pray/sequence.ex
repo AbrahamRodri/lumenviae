@@ -26,7 +26,9 @@ defmodule LumenViaeWeb.Live.Pray.Sequence do
       :fruit,
       :scripture_reference,
       :description,
-      :meditation
+      :meditation,
+      # The mystery's record, for a painting uploaded on it.
+      :mystery
     ]
   end
 
@@ -304,7 +306,8 @@ defmodule LumenViaeWeb.Live.Pray.Sequence do
       fruit: Map.get(mystery, :fruit),
       scripture_reference: Map.get(mystery, :scripture_reference),
       description: Map.get(mystery, :description),
-      meditation: meditation
+      meditation: meditation,
+      mystery: mystery
     }
   end
 

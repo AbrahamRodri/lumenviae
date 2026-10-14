@@ -60,7 +60,8 @@ defmodule LumenViaeWeb.Live.HomeMysteriesTest do
 
     before = card.()
     refute before =~ "0123456789abcdef"
-    assert before =~ "/images/woodcuts/annunciation-durer.jpg"
+    # Until one is uploaded, the card shows the app's own painting.
+    assert before =~ "/images/paintings/joyful_annunciation.jpg"
 
     {:ok, annunciation} =
       Rosary.update_mystery_artwork(
@@ -84,6 +85,6 @@ defmodule LumenViaeWeb.Live.HomeMysteriesTest do
     html = card.()
     assert html =~ "mysteries/1/0123456789abcdef.jpg"
     assert html =~ ~s(alt="The angel Gabriel kneels before Mary.")
-    refute html =~ "/images/woodcuts/"
+    refute html =~ "/images/paintings/joyful_annunciation"
   end
 end

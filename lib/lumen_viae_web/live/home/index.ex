@@ -23,7 +23,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.{Categories, Labels}
-  alias LumenViaeWeb.Components.SetPortrait
+  alias LumenViaeWeb.Components.{MysteryPainting, SetPortrait}
   alias LumenViaeWeb.PageMeta
 
   @numerals ~w(I II III IV V VI VII)
@@ -199,13 +199,21 @@ defmodule LumenViaeWeb.Live.Home.Index do
       case Map.get(in_category, order) do
         nil ->
           %{
+            key: "#{slug}_#{order}",
             numeral: Enum.at(@numerals, order - 1),
             name: Categories.mystery_label(slug, order),
-            fruit: nil
+            fruit: nil,
+            record: nil
           }
 
         mystery ->
-          %{numeral: Enum.at(@numerals, order - 1), name: mystery.name, fruit: mystery.fruit}
+          %{
+            key: "#{slug}_#{order}",
+            numeral: Enum.at(@numerals, order - 1),
+            name: mystery.name,
+            fruit: mystery.fruit,
+            record: mystery
+          }
       end
     end)
   end
@@ -245,6 +253,17 @@ defmodule LumenViaeWeb.Live.Home.Index do
       [] -> nil
       words -> Enum.join(words, " · ")
     end
+  end
+
+  @doc """
+  Where the hero frames today's painting: an uploaded painting's own
+  focal point, else the app's framing of the card.
+  """
+  def hero_position(%{painting: %{position: position}}), do: position
+
+  def hero_position(%{slug: slug}) do
+    {x, y} = Categories.card_focal_point(slug)
+    Artwork.object_position(x, y)
   end
 
   @doc "The last card of an odd number takes a phone's whole row."

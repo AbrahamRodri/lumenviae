@@ -1,60 +1,23 @@
 <div class="min-h-screen" id="home-page" phx-hook="UserTimezone">
-  <!-- Hero: the page's one deep band -->
-  <section
-    class="home-hero relative bg-night-deep overflow-hidden border-b border-night-border"
-    aria-labelledby="home-hero-heading"
-  >
-    <div class="absolute inset-0 opacity-[0.05]" aria-hidden="true">
-      <picture class="contents">
-        <source
-          type="image/webp"
-          srcset="/images/ornate-blue-gold-bg-symbols-480.webp 480w, /images/ornate-blue-gold-bg-symbols-735.webp 735w"
-          sizes="100vw"
-        />
-        <img
-          src="/images/ornate-blue-gold-bg-symbols.jpg"
-          width="735"
-          height="489"
-          alt=""
-          class="w-full h-full object-cover"
-        />
-      </picture>
-    </div>
-    <div
-      class="absolute inset-0 bg-gradient-to-b from-night-deep/60 via-transparent to-night/90"
-      aria-hidden="true"
-    >
-    </div>
+  <!-- Hero: the app's lancet arch, today's painting dissolving into the page -->
+  <section class="home-hero relative" aria-labelledby="home-hero-heading">
+    <%!-- The arch's shape, in the plate's own units, for clip-path. --%>
+    <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+      <clipPath id="lancet-hero-arch" clipPathUnits="objectBoundingBox">
+        <path d="M0,1 L0,0.34 C0,0.17 0.22,0.045 0.5,0 C0.78,0.045 1,0.17 1,0.34 L1,1 Z" />
+      </clipPath>
+    </svg>
 
-    <div class="relative max-w-4xl mx-auto px-4 sm:px-8 pt-10 pb-12 md:pt-14 md:pb-16 text-center">
-      <div class="relative inline-block mb-6 animate-rise">
-        <div class="bg-halo absolute -inset-8 rounded-full animate-halo" aria-hidden="true"></div>
-        <picture>
-          <source
-            type="image/webp"
-            srcset="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout-320.webp 320w, /images/pngs/blessed-mary-with-child-jesus-rustic-cutout-512.webp 512w"
-            sizes="(min-width: 768px) 176px, 128px"
-          />
-          <img
-            src="/images/pngs/blessed-mary-with-child-jesus-rustic-cutout.png"
-            width="864"
-            height="1512"
-            alt="The Blessed Virgin Mary holding the Child Jesus"
-            class="relative w-32 md:w-44 mx-auto drop-shadow-2xl"
-          />
-        </picture>
-      </div>
-
+    <div class="relative max-w-xl mx-auto px-5 pt-8 pb-10 md:pt-12 md:pb-14 text-center">
       <h1
         id="home-hero-heading"
-        class="font-display font-semibold text-[2.5rem] leading-[1.1] sm:text-6xl md:text-7xl text-ink-light mb-8 animate-rise"
-        style="animation-delay: 200ms"
+        class="font-display text-[1.75rem] sm:text-4xl md:text-5xl text-ink-light leading-tight animate-rise"
       >
         The Rosary, Illuminated
       </h1>
 
       <!-- The week as a strand of beads, today's lit -->
-      <div class="animate-rise mb-8" style="animation-delay: 400ms">
+      <div class="animate-rise mt-5" style="animation-delay: 120ms">
         <div class="relative max-w-sm mx-auto">
           <div class="absolute top-[0.4rem] inset-x-6 h-px bg-night-line" aria-hidden="true">
           </div>
@@ -79,13 +42,39 @@
         </div>
       </div>
 
-      <div class="animate-rise" style="animation-delay: 500ms">
-        <.gold_cta
-          navigate={@today_category.path}
-          id="pray-today"
-        >
-          Pray the {@today_category.devotion_title}
-        </.gold_cta>
+      <div class="lancet-hero mt-7 animate-rise" style="animation-delay: 240ms">
+        <div class="lancet-hero__art" aria-hidden="true">
+          <div class="lancet-hero__fade">
+            <div class="lancet-hero__plate">
+              <MysteryPainting.picture
+                category={@today_category.slug}
+                record={@today_category.painting && @today_category.painting.record}
+                sizes="(min-width: 640px) 34rem, 92vw"
+                loading="eager"
+                alt=""
+                class="lancet-hero__image"
+                style={"object-position: #{hero_position(@today_category)}"}
+              />
+            </div>
+            <svg class="lancet-hero__rim" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path d="M0.4,100 L0.4,34 C0.4,17 22,4.5 50,0.4 C78,4.5 99.6,17 99.6,34 L99.6,100" />
+              <path
+                class="lancet-hero__rim-inner"
+                d="M2.4,100 L2.4,34.5 C2.4,18.5 23,6.5 50,2.8 C77,6.5 97.6,18.5 97.6,34.5 L97.6,100"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div class="lancet-hero__words">
+          <span class="badge-capsule">Today's Mysteries</span>
+          <p class="font-display font-semibold text-[1.625rem] sm:text-4xl text-ink-light leading-tight mt-3 mb-5 [text-shadow:0_1px_6px_rgba(0,0,0,0.6)]">
+            {@today_category.title}
+          </p>
+          <.gold_cta navigate={@today_category.path} id="pray-today">
+            Pray the {@today_category.devotion_title} <span aria-hidden="true">&rsaquo;</span>
+          </.gold_cta>
+        </div>
       </div>
     </div>
   </section>
@@ -141,6 +130,15 @@
         >
           <li :for={mystery <- @today_category.mysteries}>
             <span class="mystery-ledger__numeral" aria-hidden="true">{mystery.numeral}</span>
+            <span class="mystery-thumb" aria-hidden="true">
+              <MysteryPainting.picture
+                key={mystery.key}
+                record={mystery.record}
+                sizes="44px"
+                alt=""
+                class="w-full h-full object-cover"
+              />
+            </span>
             <p class="min-w-0">
               <span class="block text-lg text-ink-light leading-snug">{mystery.name}</span>
               <span :if={mystery.fruit} class="block italic text-base text-ink-muted">

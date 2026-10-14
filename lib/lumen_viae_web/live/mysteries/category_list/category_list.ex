@@ -128,9 +128,11 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
 
       %{
         order: order,
+        key: "#{category}_#{order}",
         label: Categories.mystery_label(category, order),
         name: mystery && mystery.name,
-        fruit: mystery && mystery.fruit
+        fruit: mystery && mystery.fruit,
+        record: mystery
       }
     end
   end

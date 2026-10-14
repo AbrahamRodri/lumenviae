@@ -59,7 +59,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       assert has_element?(view, "h2#mysteries-heading", "The Seven Sorrows")
       assert html =~ "The First Sorrow of Mary"
       assert html =~ "The Seventh Sorrow of Mary"
-      assert has_element?(view, ~s(img[src="/images/woodcuts/lamentation-durer.jpg"]))
+      # The card's painting is the app's Pieta, until one is uploaded.
+      assert has_element?(view, ~s(img[src="/images/paintings/seven_sorrows_pieta.jpg"]))
     end
 
     test "an unknown category is a 404", %{conn: conn} do

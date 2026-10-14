@@ -82,6 +82,21 @@ names what is recorded about the painting and what the owner must do.
 | `seven_sorrows_7` | `seven_sorrows_burial` | 1920x2852 | yes | The Entombment of Christ, Caravaggio, 1603–04 (Pinacoteca Vaticana). Commons: `The Entombment of Christ-Caravaggio (c.1602-3).jpg`, Public domain, match: exact | Confirm the licence on the Commons page; upload the bundled file. |
 | `card: seven_sorrows` | `seven_sorrows_pieta` | 1920x3015 | yes | Pietà, William-Adolphe Bouguereau (d. 1905), 1876 (Private collection). Commons: `William-Adolphe Bouguereau (1825-1905) - Pieta (1876).jpg`, Public domain, match: exact | Confirm the licence on the Commons page; upload the bundled file. |
 
+## On the website
+
+Since 14 October 2026 the website shows these same paintings without any
+upload: the 28 files from the app's `Assets.xcassets` (the 27 mysteries'
+paintings and the Seven Sorrows' Pieta) are served from
+`priv/static/images/paintings/` as `<name>-480.webp`, `<name>-960.webp` (or
+the full width, when narrower) and a 480 pixel `<name>.jpg`, with each
+painting's title, artist, date and licence in its `manifest.json`, taken
+from the iOS repository's `Tools/ContentSourcing/manifest.json`.
+`LumenViaeWeb.Components.MysteryPainting` draws them. An uploaded,
+published painting on a mystery or a card still wins wherever the page has
+its record. The app has since replaced several paintings listed above
+(the third and fifth sorrows have their own now); the manifest is the
+current list.
+
 ## How to upload
 
 In the production console, signed in as an admin:

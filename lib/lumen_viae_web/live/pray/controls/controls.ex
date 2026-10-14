@@ -149,7 +149,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
               setting="prayer-images"
               value="on"
               title="Show"
-              note="The mystery's woodcut above its name."
+              note="The mystery's painting beside its name."
             />
             <.display_choice
               setting="prayer-images"

@@ -1,12 +1,12 @@
 defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
   @moduledoc """
-  The category page's head (painting or woodcut beside the name, the days
+  The category page's head (its painting beside the name, the days
   it is prayed), as the app heads a pushed page, and beneath it its
   mysteries with the fruit each is prayed for.
   """
   use LumenViaeWeb, :html
 
-  alias LumenViaeWeb.Components.WoodcutPlate
+  alias LumenViaeWeb.Components.MysteryPainting
 
   attr :category, :string, required: true
   attr :title, :string, required: true
@@ -30,13 +30,14 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
           class="w-full category-rise"
           img_class={focal_class(@category)}
         />
-        <WoodcutPlate.woodcut_plate
-          :if={!@painting}
-          key={WoodcutPlate.category_key(@category)}
-          size={:sm}
-          caption={false}
-          class="category-plate category-rise"
-        />
+        <div :if={!@painting} class="painting-frame category-rise">
+          <MysteryPainting.picture
+            category={@category}
+            sizes="(min-width: 768px) 160px, (min-width: 640px) 112px, 72px"
+            loading="eager"
+            class="w-full h-full object-cover"
+          />
+        </div>
 
         <div class="min-w-0">
           <p class="kicker hidden sm:block mb-1">The Holy Rosary</p>
@@ -74,6 +75,15 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
       <ol class="mystery-ledger grid gap-x-10 sm:grid-cols-2">
         <li :for={mystery <- @mysteries}>
           <span class="mystery-ledger__numeral" aria-hidden="true">{roman(mystery.order)}</span>
+          <span class="mystery-thumb" aria-hidden="true">
+            <MysteryPainting.picture
+              key={mystery.key}
+              record={mystery.record}
+              sizes="44px"
+              alt=""
+              class="w-full h-full object-cover"
+            />
+          </span>
           <p class="min-w-0">
             <span class="block text-lg text-ink-light leading-snug">
               {mystery.name || mystery.label}

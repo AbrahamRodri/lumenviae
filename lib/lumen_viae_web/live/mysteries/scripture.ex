@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   alias LumenViae.Rosary
   alias LumenViaeWeb.PageMeta
 
-  alias LumenViaeWeb.Components.WoodcutPlate
+  alias LumenViaeWeb.Components.MysteryPainting
 
   embed_templates "_partials/*"
 

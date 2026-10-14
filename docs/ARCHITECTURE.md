@@ -1185,7 +1185,8 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
 | `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
 | `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
-| `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json` | no, imported where used |
+| `Components.MysteryPainting` | the app's painting for a mystery or a category's card, from `priv/static/images/paintings/manifest.json`; an uploaded painting wins | no, called fully qualified |
+| `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json`; now only for link previews | no, imported where used |
 | `Components.MetaTags` | the description, canonical link, link previews and structured data a page put in `LumenViaeWeb.PageMeta` | no, used by the root layout |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
 
@@ -1307,9 +1308,9 @@ chapel lit by warm gold", drawn the way the app draws it
 gradient darker at the top and foot, with light ink and gold for every
 label, accent and action. Cinzel for every heading, label and button; EB
 Garamond for reading, its italic for every quiet line. Lists are ruled
-ledgers, not cards; pictures are painted tiles. The app's motifs: lancet
-arch frames, the diamond-and-cross ornament, Roman numerals, colophon
-quotes.
+ledgers, not cards; pictures are the app's old-master paintings, on
+painted tiles. The app's motifs: lancet arches, the diamond-and-cross
+ornament, Roman numerals, colophon quotes.
 
 **Colors** (contrast is against `night` unless the Use column says so)
 
@@ -1397,18 +1398,21 @@ Shared vocabulary, each the public twin of an app component:
   the fruit in italic.
 - `.paint-tile`: the app's mystery card and set tile, the picture
   full-bleed under a dark fall-off, the name in Cinzel on it, a gold rim.
-  A woodcut on a tile is toned warm (`.paint-tile__image--woodcut`).
+- `.lancet-hero`: the home hero, the app's `ArchHero`: today's painting
+  in a pointed arch with two gold rims and a halo, dissolving into the
+  page under the words.
+- `.painting-frame` (a painting beside a title) and `.mystery-thumb` (the
+  small arch beside a mystery in a list).
 - `.badge-capsule`: the app's hero badge.
 - `<.sacred_divider>`: the app's ornament, rules, diamonds, Latin cross.
 - `<.arch_frame>` (lancet-arch frame for a devotional painting),
   `.hairline-card` (a raised card with a gold rim), `.reading-vellum`,
   `.kicker`.
 
-Woodcuts are `LumenViaeWeb.Components.WoodcutPlate`: on a vellum mat on
-night (the default variant), or `variant={:vellum}` on a reading page;
-never inverted. At most one woodcut per screen, except the painted tiles
-of a grid. Quotes are set as centered colophons between dividers, never
-as filled bordered panels.
+Pictures of the mysteries are the app's paintings
+(`LumenViaeWeb.Components.MysteryPainting`), never inverted or recoloured;
+an uploaded painting wins. Quotes are set as centered colophons between
+dividers, never as filled bordered panels.
 
 The focus ring is `gilt` on night and `vellum-ink` on vellum (the
 `--focus-ring` variable in the site shell). Every control is at least 44px

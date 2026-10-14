@@ -5,7 +5,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   """
   use LumenViaeWeb, :html
 
-  alias LumenViaeWeb.Components.WoodcutPlate
+  alias LumenViaeWeb.Components.MysteryPainting
   alias LumenViaeWeb.Live.Pray.Sequence
 
   attr :prayer_id, :string, required: true
@@ -66,19 +66,20 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   attr :decade, :map, required: true
 
   @doc """
-  A decade's header: the mystery's woodcut beside its announcement, so
+  A decade's header: the mystery's painting beside its announcement, so
   the words of the decade start on the first screen of a phone. With the
   images turned off the announcement takes the whole width.
   """
   def decade_header(assigns) do
     ~H"""
     <header class="flex items-center gap-4 sm:gap-6 max-w-[62ch] mx-auto">
-      <div class="prayer-plate w-[5.5rem] sm:w-32 shrink-0">
-        <WoodcutPlate.woodcut_plate
+      <div class="prayer-plate painting-frame w-[5.5rem] sm:w-32 shrink-0">
+        <MysteryPainting.picture
           key={@decade.key}
-          size={:sm}
-          caption={false}
-          class="prayer-plate-mat"
+          record={@decade.mystery}
+          sizes="(min-width: 640px) 128px, 88px"
+          loading="eager"
+          class="w-full h-full object-cover"
         />
       </div>
       <div class="min-w-0">

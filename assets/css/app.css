@@ -725,12 +725,12 @@
   box-shadow: var(--shadow-night);
 }
 
-/* Radial gilt halo, behind the hero's image. */
+/* Radial gilt halo, behind a featured image (the app page's phones). */
 .bg-halo {
   background: radial-gradient(
     closest-side,
-    rgba(217, 184, 74, 0.35),
-    rgba(217, 184, 74, 0.1) 55%,
+    rgba(227, 188, 91, 0.3),
+    rgba(227, 188, 91, 0.08) 55%,
     transparent 100%
   );
 }
@@ -901,12 +901,141 @@
   transform: translateX(2px);
 }
 
+/* A painting in a frame, as the app frames one beside a title: a
+   portrait crop with rounded corners, a gold rim and a soft gold halo. */
+.painting-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(227, 188, 91, 0.35);
+  background: var(--color-night-raised);
+  box-shadow: var(--shadow-gilt);
+}
+
+/* The home hero, as the app's ArchHero: today's painting cut into a
+   pointed (lancet) arch with two gold rims and a gold halo round its top,
+   dissolving to nothing toward its foot so the words stand on the page
+   itself, never on a band of colour. The arch's shape is the clipPath
+   #lancet-hero-arch in the hero's markup. */
+.lancet-hero {
+  position: relative;
+  max-width: 30rem;
+  margin-inline: auto;
+}
+
+/* The halo is on the outer box, the dissolve on the inner one, so the
+   glow follows the arch and fades with it instead of being cut off. */
+.lancet-hero__art {
+  position: relative;
+  aspect-ratio: 1 / 1.05;
+  filter: drop-shadow(0 -2px 14px rgba(227, 188, 91, 0.18));
+}
+
+.lancet-hero__fade {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 34%, rgba(0, 0, 0, 0.82) 48%, rgba(0, 0, 0, 0.45) 64%, rgba(0, 0, 0, 0.12) 80%, transparent 90%);
+  mask-image: linear-gradient(to bottom, #000 34%, rgba(0, 0, 0, 0.82) 48%, rgba(0, 0, 0, 0.45) 64%, rgba(0, 0, 0, 0.12) 80%, transparent 90%);
+}
+
+.lancet-hero__plate {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  clip-path: url(#lancet-hero-arch);
+}
+
+.lancet-hero__plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.62));
+}
+
+.lancet-hero__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lancet-hero__rim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: rgba(227, 188, 91, 0.45);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.lancet-hero__rim path {
+  vector-effect: non-scaling-stroke;
+}
+
+.lancet-hero__rim .lancet-hero__rim-inner {
+  stroke: rgba(227, 188, 91, 0.18);
+}
+
+/* The badge, the title and the button stand over the dissolve. */
+.lancet-hero__words {
+  position: relative;
+  margin-top: -38%;
+}
+
+/* A painting with its credit beneath, on a page that names it. */
+.painting-figure__caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  margin-top: 0.75rem;
+  text-align: center;
+  line-height: 1.35;
+}
+
+@media (min-width: 768px) {
+  .painting-figure__caption {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+.painting-figure__title {
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-gilt-light);
+}
+
+.painting-figure__credit {
+  font-style: italic;
+  font-size: 0.9375rem;
+  color: var(--color-ink-muted);
+}
+
+/* A mystery's painting in a row, as the app's small lancet thumbnail. */
+.mystery-thumb {
+  position: relative;
+  overflow: hidden;
+  width: 2.75rem;
+  height: 3.5rem;
+  border-radius: 9999px 9999px 0.25rem 0.25rem;
+  border: 1px solid rgba(227, 188, 91, 0.5);
+  background: var(--color-night-raised);
+}
+
 /* A category's mysteries as a ruled ledger: a gilt Cinzel numeral, the
    name, its fruit in italic beneath. The home page and a category page. */
 .mystery-ledger > li {
   display: grid;
-  grid-template-columns: 2.25rem minmax(0, 1fr);
-  align-items: baseline;
+  grid-template-columns: 1.75rem 2.75rem minmax(0, 1fr);
+  column-gap: 0.75rem;
+  align-items: center;
   padding: 0.625rem 0;
   border-bottom: 1px solid rgba(227, 188, 91, 0.15);
 }
@@ -1001,17 +1130,6 @@
 /* === category page === */
 /* /mysteries/:category: the choice pills, filter chips,
    cards whose title link covers the whole card, and quiet buttons. */
-/* The hero's woodcut beside the title on a phone: a slimmer mat. */
-@media (max-width: 639px) {
-  .category-plate .woodcut-plate__mount {
-    padding: 0.375rem;
-  }
-
-  .category-plate .woodcut-plate__mount::after {
-    inset: 0.2rem;
-  }
-}
-
 /* "Your Rosary Today": on a phone a ruled row that opens the choices; on
    a wide screen the app's outlined section, the choices always open. */
 @media (min-width: 1024px) {
@@ -1160,11 +1278,6 @@
   height: 100%;
   object-fit: cover;
   z-index: -2;
-}
-
-/* A woodcut is paper and ink, so it is toned warm to sit in the dark. */
-.paint-tile__image--woodcut {
-  filter: sepia(0.35) contrast(1.05);
 }
 
 .paint-tile::after {
@@ -1457,15 +1570,6 @@ html[data-reading-page="vellum"] .reading-page__play {
 
 html[data-reading-page="vellum"] .reading-page__play:hover {
   background: var(--color-vellum-ink);
-}
-
-/* The woodcut beside a decade's name: a slimmer mat at that size. */
-.prayer-plate-mat .woodcut-plate__mount {
-  padding: 0.375rem;
-}
-
-.prayer-plate-mat .woodcut-plate__mount::after {
-  inset: 0.2rem;
 }
 
 /* The current mystery's plate, which the reader can turn off ("Images"

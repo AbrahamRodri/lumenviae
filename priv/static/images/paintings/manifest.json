@@ -1,0 +1,573 @@
+{
+  "_about": "The iOS app's paintings for the mysteries and the Seven Sorrows' card, as static WebP for the website (from ios app/Assets.xcassets; credits from ios Tools/ContentSourcing/manifest.json). An uploaded painting on the mystery or card wins over these. See docs/MYSTERY_PAINTINGS.md.",
+  "mysteries": {
+    "joyful_1": "joyful_annunciation",
+    "joyful_2": "joyful_visitation",
+    "joyful_3": "joyful_nativity",
+    "joyful_4": "joyful_presentation",
+    "joyful_5": "joyful_finding",
+    "sorrowful_1": "sorrowful_agony",
+    "sorrowful_2": "sorrowful_scourging",
+    "sorrowful_3": "sorrowful_crowning",
+    "sorrowful_4": "sorrowful_carrying",
+    "sorrowful_5": "sorrowful_crucifixion",
+    "glorious_1": "glorious_resurrection",
+    "glorious_2": "glorious_ascension",
+    "glorious_3": "glorious_pentecost",
+    "glorious_4": "glorious_assumption",
+    "glorious_5": "glorious_coronation",
+    "luminous_1": "luminous_baptism",
+    "luminous_2": "luminous_cana",
+    "luminous_3": "luminous_proclamation",
+    "luminous_4": "luminous_transfiguration",
+    "luminous_5": "luminous_eucharist",
+    "seven_sorrows_1": "seven_sorrows_simeon",
+    "seven_sorrows_2": "seven_sorrows_flight",
+    "seven_sorrows_3": "seven_sorrows_finding",
+    "seven_sorrows_4": "seven_sorrows_meeting",
+    "seven_sorrows_5": "seven_sorrows_calvary",
+    "seven_sorrows_6": "seven_sorrows_descent",
+    "seven_sorrows_7": "seven_sorrows_burial"
+  },
+  "cards": {
+    "joyful": "joyful_annunciation",
+    "sorrowful": "sorrowful_agony",
+    "glorious": "glorious_resurrection",
+    "luminous": "luminous_baptism",
+    "seven_sorrows": "seven_sorrows_pieta"
+  },
+  "paintings": [
+    {
+      "name": "glorious_ascension",
+      "title": "The Ascension",
+      "artist": "Francisco Camilo",
+      "date": "1651",
+      "collection": "Museo del Prado, Madrid (Google Art Project scan)",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Francisco_Camilo_-_Ascension_-_Google_Art_Project.jpg",
+      "widths": [
+        [
+          480,
+          731
+        ],
+        [
+          960,
+          1463
+        ]
+      ]
+    },
+    {
+      "name": "glorious_assumption",
+      "title": "The Assumption of the Virgin",
+      "artist": "Corrado Giaquinto",
+      "date": null,
+      "collection": "Private collection (Sotheby's, New York, 2013, lot 76)",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:CORRADO_GIAQUINTO_MOLFETTA_1703_-_1766_NAPLES_ASSUMPTION_OF_THE_VIRGIN.jpg",
+      "widths": [
+        [
+          480,
+          746
+        ],
+        [
+          960,
+          1492
+        ]
+      ]
+    },
+    {
+      "name": "glorious_coronation",
+      "title": "The Coronation of the Virgin",
+      "artist": "Diego Velázquez",
+      "date": "1635–36",
+      "collection": "Museo del Prado",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Diego_Vel%C3%A1zquez_-_Coronation_of_the_Virgin_-_Prado.jpg",
+      "widths": [
+        [
+          480,
+          639
+        ],
+        [
+          960,
+          1278
+        ]
+      ]
+    },
+    {
+      "name": "glorious_pentecost",
+      "title": "The Pentecost",
+      "artist": "El Greco",
+      "date": "c. 1600",
+      "collection": "Museo del Prado, Madrid",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Pentecost%C3%A9s_(El_Greco,_c._1600)_Prado.jpg",
+      "widths": [
+        [
+          480,
+          1042
+        ],
+        [
+          737,
+          1600
+        ]
+      ]
+    },
+    {
+      "name": "glorious_resurrection",
+      "title": "The Resurrection of Christ",
+      "artist": "Annibale Carracci",
+      "date": "1593",
+      "collection": "Musée du Louvre, Paris",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Carracci_-_La_R%C3%A9surrection_du_Christ,_1593,_INV_200_;_MR_117.jpg",
+      "widths": [
+        [
+          480,
+          934
+        ],
+        [
+          771,
+          1500
+        ]
+      ]
+    },
+    {
+      "name": "joyful_annunciation",
+      "title": "The Annunciation",
+      "artist": "Paolo de Matteis",
+      "date": "1712",
+      "collection": "Saint Louis Art Museum",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3APaolo_de_Matteis_-_The_Annunciation_-_69-1973_-_Saint_Louis_Art_Museum.jpg",
+      "widths": [
+        [
+          480,
+          560
+        ],
+        [
+          960,
+          1120
+        ]
+      ]
+    },
+    {
+      "name": "joyful_finding",
+      "title": "Christ among the Doctors",
+      "artist": "Paolo Veronese",
+      "date": "c. 1558",
+      "collection": "Museo del Prado",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3ADisputa_con_los_doctores_%28El_Veron%C3%A9s%29_grande.jpg",
+      "widths": [
+        [
+          480,
+          262
+        ],
+        [
+          960,
+          524
+        ]
+      ]
+    },
+    {
+      "name": "joyful_nativity",
+      "title": "The Adoration of the Shepherds",
+      "artist": "Guido Reni",
+      "date": "c. 1640",
+      "collection": "National Gallery, London",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:The_Adoration_of_the_Shepherds_by_Guido_Reni.jpg",
+      "widths": [
+        [
+          480,
+          729
+        ],
+        [
+          960,
+          1457
+        ]
+      ]
+    },
+    {
+      "name": "joyful_presentation",
+      "title": "The Presentation in the Temple",
+      "artist": "Simon Vouet",
+      "date": "1641",
+      "collection": "Musée du Louvre",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3ASimon_Vouet_-_Presentation_in_the_Temple_-_WGA25366.jpg",
+      "widths": [
+        [
+          480,
+          781
+        ],
+        [
+          800,
+          1302
+        ]
+      ]
+    },
+    {
+      "name": "joyful_visitation",
+      "title": "The Visitation",
+      "artist": "Raphael and workshop",
+      "date": "c. 1517",
+      "collection": "Museo del Prado",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AVisitaci%C3%B3n_de_Rafael.jpg",
+      "widths": [
+        [
+          480,
+          664
+        ],
+        [
+          960,
+          1327
+        ]
+      ]
+    },
+    {
+      "name": "luminous_baptism",
+      "title": "The Baptism of Christ",
+      "artist": "Guido Reni",
+      "date": "c. 1623",
+      "collection": "Kunsthistorisches Museum, Vienna",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AGuido_Reni_-_The_Baptism_of_Christ_-_Google_Art_Project.jpg",
+      "widths": [
+        [
+          480,
+          682
+        ],
+        [
+          960,
+          1363
+        ]
+      ]
+    },
+    {
+      "name": "luminous_cana",
+      "title": "The Marriage Feast at Cana",
+      "artist": "Bartolomé Esteban Murillo",
+      "date": "c. 1672",
+      "collection": "Barber Institute of Fine Arts, Birmingham",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AThe_Barber_Institute_of_Fine_Arts_-_Bartolom%C3%A9_Esteban_Murillo_-_The_Marriage_Feast_at_CanaFXD.jpg",
+      "widths": [
+        [
+          480,
+          352
+        ],
+        [
+          960,
+          703
+        ]
+      ]
+    },
+    {
+      "name": "luminous_eucharist",
+      "title": "The Last Supper",
+      "artist": "Juan de Juanes",
+      "date": "c. 1562",
+      "collection": "Museo del Prado",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AThe_Last_Supper_by_Vicente_Juan_Macip.jpg",
+      "widths": [
+        [
+          480,
+          316
+        ],
+        [
+          960,
+          631
+        ]
+      ]
+    },
+    {
+      "name": "luminous_proclamation",
+      "title": "The Sermon on the Mount",
+      "artist": "Carl Heinrich Bloch",
+      "date": "1877",
+      "collection": "Museum of National History, Frederiksborg Castle",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3ABloch-SermonOnTheMount.jpg",
+      "widths": [
+        [
+          480,
+          539
+        ],
+        [
+          960,
+          1077
+        ]
+      ]
+    },
+    {
+      "name": "luminous_transfiguration",
+      "title": "The Transfiguration",
+      "artist": "Raphael",
+      "date": "1516–20",
+      "collection": "Pinacoteca Vaticana",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3ATransfiguration_Raphael.jpg",
+      "widths": [
+        [
+          480,
+          723
+        ],
+        [
+          960,
+          1446
+        ]
+      ]
+    },
+    {
+      "name": "seven_sorrows_burial",
+      "title": "The Entombment of Christ",
+      "artist": "Caravaggio",
+      "date": "1603–04",
+      "collection": "Pinacoteca Vaticana",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AThe_Entombment_of_Christ-Caravaggio_%28c.1602-3%29.jpg",
+      "widths": [
+        [
+          480,
+          713
+        ],
+        [
+          960,
+          1426
+        ]
+      ]
+    },
+    {
+      "name": "seven_sorrows_calvary",
+      "title": "Crucifixion Diptych",
+      "artist": "Rogier van der Weyden",
+      "date": "c. 1460",
+      "collection": "Philadelphia Museum of Art",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Crucifixion_Diptych_(Rogier_van_der_Weyden).jpg",
+      "widths": [
+        [
+          480,
+          453
+        ],
+        [
+          960,
+          906
+        ]
+      ]
+    },
+    {
+      "name": "seven_sorrows_descent",
+      "title": "The Descent from the Cross",
+      "artist": "Peter Paul Rubens",
+      "date": "1612–14",
+      "collection": "Cathedral of Our Lady, Antwerp",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_-_Descent_from_the_Cross_-_WGA20212_%28cropped%29.jpg",
+      "widths": [
+        [
+          480,
+          639
+        ],
+        [
+          960,
+          1277
+        ]
+      ]
+    },
+    {
+      "name": "seven_sorrows_finding",
+      "title": "The Finding of the Saviour in the Temple",
+      "artist": "William Holman Hunt",
+      "date": "1854–60",
+      "collection": "Birmingham Museum and Art Gallery",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:William_Holman_Hunt_-_The_Finding_of_the_Saviour_in_the_Temple_-_Google_Art_Project.jpg",
+      "widths": [
+        [
+          480,
+          294
+        ],
+        [
+          960,
+          588
+        ]
+      ]
+    },
+    {
+      "name": "seven_sorrows_flight",
+      "title": "The Flight into Egypt",
+      "artist": "Bartolomé Esteban Murillo",
+      "date": "1647–50",
+      "collection": "Musei di Strada Nuova (Palazzo Bianco), Genoa",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3ABartolom%C3%A9_Esteban_Murillo_-_The_Flight_into_Egypt_-_Google_Art_Project.jpg",
+      "widths": [
+        [
+          480,
+          616
+        ],
+        [
+          960,
+          1232
+        ]
+      ]
+    },
+    {
+      "name": "seven_sorrows_meeting",
+      "title": "Christ Falls on the Way to Calvary (Lo Spasimo di Sicilia)",
+      "artist": "Raphael",
+      "date": "c. 1516",
+      "collection": "Museo del Prado",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AChrist_Falling_on_the_Way_to_Calvary_-_Raphael.jpg",
+      "widths": [
+        [
+          480,
+          666
+        ],
+        [
+          960,
+          1331
+        ]
+      ]
+    },
+    {
+      "name": "seven_sorrows_pieta",
+      "title": "Pietà",
+      "artist": "William-Adolphe Bouguereau",
+      "date": "1876",
+      "collection": "Private collection",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AWilliam-Adolphe_Bouguereau_%281825-1905%29_-_Pieta_%281876%29.jpg",
+      "widths": [
+        [
+          480,
+          754
+        ],
+        [
+          960,
+          1507
+        ]
+      ]
+    },
+    {
+      "name": "seven_sorrows_simeon",
+      "title": "Simeon's Song of Praise",
+      "artist": "Rembrandt",
+      "date": "1631",
+      "collection": "Mauritshuis, The Hague",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3ASimeon_in_the_temple%2C_by_Rembrandt_van_Rijn.jpg",
+      "widths": [
+        [
+          480,
+          618
+        ],
+        [
+          960,
+          1236
+        ]
+      ]
+    },
+    {
+      "name": "sorrowful_agony",
+      "title": "Christ in Gethsemane",
+      "artist": "Heinrich Hofmann",
+      "date": "1886",
+      "collection": "Riverside Church, New York",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AChrist_in_Gethsemane.jpg",
+      "widths": [
+        [
+          480,
+          673
+        ],
+        [
+          960,
+          1346
+        ]
+      ]
+    },
+    {
+      "name": "sorrowful_carrying",
+      "title": "Christ Carrying the Cross",
+      "artist": "Anthony van Dyck",
+      "date": "1617–18",
+      "collection": "Sint-Pauluskerk, Antwerp",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Anthony_van_Dyck_-_Jesus_Christ_bearing_the_Cross.jpg",
+      "widths": [
+        [
+          480,
+          631
+        ],
+        [
+          960,
+          1261
+        ]
+      ]
+    },
+    {
+      "name": "sorrowful_crowning",
+      "title": "The Crowning with Thorns",
+      "artist": "Anthony van Dyck",
+      "date": "1618–20",
+      "collection": "Museo del Prado",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AAnthonis_van_Dyck_004.jpg",
+      "widths": [
+        [
+          480,
+          550
+        ],
+        [
+          960,
+          1099
+        ]
+      ]
+    },
+    {
+      "name": "sorrowful_crucifixion",
+      "title": "Christ Crucified",
+      "artist": "Diego Velázquez",
+      "date": "c. 1632",
+      "collection": "Museo del Prado",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3ACristo_crucificado.jpg",
+      "widths": [
+        [
+          480,
+          716
+        ],
+        [
+          960,
+          1431
+        ]
+      ]
+    },
+    {
+      "name": "sorrowful_scourging",
+      "title": "The Flagellation of Our Lord Jesus Christ",
+      "artist": "William-Adolphe Bouguereau",
+      "date": "1880",
+      "collection": "Cathédrale Saint-Louis, La Rochelle",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:William-Adolphe_Bouguereau_(1825-1905)_-_The_Flagellation_of_Our_Lord_Jesus_Christ_(1880).jpg",
+      "widths": [
+        [
+          480,
+          687
+        ],
+        [
+          960,
+          1374
+        ]
+      ]
+    }
+  ]
+}
