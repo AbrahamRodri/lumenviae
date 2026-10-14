@@ -49,7 +49,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   @resources ~w(
     mystery meditation meditation_set set_membership completion author
     narration narration_voice spoken_rosary category_card rosary_content
-    rosary_script
+    rosary_script prayer_book chant_library
   )
 
   # The resources AshPaperTrail versions. Each has a generated
@@ -60,7 +60,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   # Value modules hold shared vocabulary and pure calculation, not state or
   # queries, so any layer may call them (see docs/ARCHITECTURE.md, "Value
   # modules").
-  @value_modules ~w(categories labels artwork voices prayer_audio content)
+  @value_modules ~w(categories labels artwork voices prayer_audio content library)
 
   defp module_name(name), do: "LumenViae.Rosary." <> Macro.camelize(name)
 

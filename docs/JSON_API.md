@@ -47,6 +47,8 @@ involved.
 | `GET /rosary-audio?voice=` | `SpokenRosary.:for_voice` | One voice's spoken Rosary; the same recordings, keys and files as `GET /api/rosary/audio`. |
 | `GET /rosary-script?category=&style=&extras=&orders=` | `RosaryScript.:expand` | One Rosary's script, every step in order: the reference expansion of the content document's `script` templates. See "One Rosary's script". |
 | `GET /rosary-content` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
+| `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers` and `chapters` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
+| `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
 
@@ -508,6 +510,122 @@ always aloud, and offers no choice. Counting is offered only while the
 voice reads the meditation alone, because with the Whole Rosary the voice
 moves the beads on the screen. `holy_audio_value` is what the Rosary Said
 Aloud's audio row says as a fact, not a choice.
+
+## The Prayer Book and the Chant Library
+
+```
+GET /api/v2/prayer-book
+GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters
+GET /api/v2/chant-library
+GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants
+```
+
+Two more documents, kept and polled exactly as the content document is:
+each is one resource with id `current`, the bare request answers with
+`version` and `updated_at` only, and the sections come when named in
+`fields[prayer_book]=` or `fields[chant_library]=`. GraphQL's `prayerBook`
+and `chantLibrary` serve the same documents. The words are
+`LumenViae.Rosary.Library`'s, from `priv/library/`; a new or corrected
+prayer or chant is a deploy.
+
+`version` fingerprints every section (16 lowercase hex characters): it
+changes when, and only when, the content does. `updated_at` is when the
+content last changed. Every id (prayer, chapter, group, chant) is stable
+forever: a device stores them for saved prayers, favourites and learned
+chants.
+
+### `prayer_book`
+
+- **`prayers`**: every prayer the book prints, each once, the Rosary's and
+  the consecration's resolved, so a client needs nothing else: `id`,
+  `title`, `latin_title`, `origin`, `note`, `english`, `latin`,
+  `list_title`, `english_name` and `search_words` (`[]` when none). Every
+  field but `id`, `title`, `english` and `search_words` may be null.
+  `english` and `latin` are written in the iOS app's `PrayerText` grammar
+  (one line per paragraph; versicles, responses and crosses marked; a
+  rubric in square brackets), and where there is Latin the two pair line
+  for line, blank lines included. A prayer no chapter names is still
+  kept: the app's orders of prayer (Morning Prayers, the Angelus) name
+  prayers too, and those orders stay in the app.
+- **`chapters`**: the book's chapters in order: `id`, `numeral`, `title`,
+  `latin_title`, `note` (the chapter's one italic line, or null), `topic`
+  (or null), `search_words`, `sections` (its sub-headings in order, each
+  `{title, prayer_ids}`; a prayer may stand under two) and `prayer_ids`,
+  the sections' prayers each once, in the order they first stand. Every
+  id a chapter names is one of `prayers`.
+
+### `chant_library`
+
+- **`groups`**: the Parish Book of Chant's order: `id`, `title`, `note`
+  (or null) and `parts`, each `{title, note, chant_ids}` (title and note
+  may be null). Every chant stands in its own group's parts.
+- **`chants`**: in the catalog's order, which matters: a client takes the
+  first chant listed for a prayer. Each is `id`, `group_id`,
+  `latin_title`, `english_title`, `setting` (or null), `detail`,
+  `prayer_ids` (prayers of the Prayer Book), `duration` (seconds),
+  `source_url`, `audio` `{url, bytes, sha256}`, `score` (its pages in
+  order, each `{file, caption, aspect_ratio, url, bytes, sha256}`) and
+  `lines` (the words as sung, each `{latin, english, start, end, part}`,
+  in order and within the recording; `part` is the score page it is sung
+  from, counting from 0, or null; `lines` is empty for a chant not yet
+  timed).
+
+### The chant files
+
+Each recording (`.m4a`, AAC) and score page (`.lvscore`, the app's packed
+drawing, zlib-compressed) is a public file in the assets bucket at an
+unsigned URL named by its checksum:
+
+```
+https://s3.us-east-2.amazonaws.com/lumenviae-images/chants/audio/<id>-<sha256 first 12>.m4a
+https://s3.us-east-2.amazonaws.com/lumenviae-images/chants/scores/<file>-<sha256 first 12>.lvscore
+```
+
+A changed file is a new URL, and a URL never changes what it serves
+(`Cache-Control: public, max-age=31536000, immutable`), so a client
+caches by URL, checks a download against `bytes` and `sha256`, and drops
+a file no URL in its copy names any more. Chants share some score pages
+(`chant-vers-alt-ora-pro-nobis`), so a file is fetched once for all of
+them. About 100 MB in all, 261 files as of 14 October 2026.
+
+`mix lumen_viae.upload_chants` puts the files there and writes each one's
+`url`, `bytes` and `sha256` into `priv/library/chant_library.json`
+(`LumenViae.Curation.ChantUpload`).
+
+The words of a prayer or a chant are edited in `priv/library/` directly:
+correct the text, bump the file's `updated_at` and pin its new version
+in `library_test.exs`, then refresh the apps' seed copies (the iOS repo's
+`Tools/dev library-seed`). A new chant, recording or score comes from
+the iOS repo's `Tools/Chants/generate.py`, which stages every file and a
+new `chant_library.json` in `Tools/Chants/out/`, new files' URLs null;
+the task reads that document with `--from`, uploads what the bucket
+lacks and writes the file the server compiles, dated now when anything
+changed:
+
+```
+eval "$(aws configure export-credentials --profile lumenviae-agent --format env)"
+mix lumen_viae.upload_chants --source ../ios/Tools/Chants/out \
+  --from ../ios/Tools/Chants/out/chant_library.json --dry-run
+mix lumen_viae.upload_chants --source ../ios/Tools/Chants/out \
+  --from ../ios/Tools/Chants/out/chant_library.json
+```
+
+The task refuses to move the files to another base (the bucket's URL
+comes from `AWS_REGION`, `AWS_S3_PUBLIC_BUCKET` and
+`PUBLIC_ASSET_BASE_URL`) unless given `--move-base`, and
+`Library.asset_base/0` is pinned in the test.
+
+Upload before you deploy: the deployed document names the files at once.
+A file in `priv/library/` that repeats an id, names one that does not
+exist, holds an id or score file name other than letters, digits, `_` and
+`-`, pairs English and Latin of different lengths, gives a chapter no
+sections, puts a chant's lines out of order, holds a file without its URL,
+size and checksum or off the one base the others share, or holds text a
+type would change (spaces at either end, empty text) fails the compile.
+The sections are cast to their types once, as the module compiles, so a
+request serves exactly the file's words and does no work to do it. Each file carries a top-level `updated_at`, and
+`test/lumen_viae/rosary/library_test.exs` pins each file's dates and
+versions: a change to the words is a new date and a new entry there.
 
 ## One Rosary's script
 
