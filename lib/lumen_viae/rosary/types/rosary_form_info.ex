@@ -8,7 +8,7 @@ defmodule LumenViae.Rosary.Types.RosaryFormInfo do
     field :id, :string,
       allow_nil?: false,
       description:
-        "`scriptural` or `holy` (the Rosary Said Aloud), the iOS app's names for the forms."
+        "`scriptural` or `holy` (the Audio Rosary), the iOS app's names for the forms."
 
     field :name, :string,
       allow_nil?: false,
@@ -17,7 +17,7 @@ defmodule LumenViae.Rosary.Types.RosaryFormInfo do
     field :recorded_as, :string,
       allow_nil?: false,
       description:
-        "What the Prayer Record keeps a prayer of this form under. It is the old name for the Rosary Said Aloud, because the record already holds days under it; a client that wants its history readable beside the iOS app's keeps the same."
+        "What the Prayer Record keeps a prayer of this form under. It is the old name for the Audio Rosary, because the record already holds days under it; a client that wants its history readable beside the iOS app's keeps the same."
 
     field :kicker, :string,
       allow_nil?: false,

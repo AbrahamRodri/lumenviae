@@ -51,7 +51,7 @@ defmodule LumenViae.Rosary.RosaryScript do
       end
 
       argument :style, :string do
-        description "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Rosary Said Aloud, the prayers alone."
+        description "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Audio Rosary, the prayers alone."
       end
 
       argument :extras, :string do

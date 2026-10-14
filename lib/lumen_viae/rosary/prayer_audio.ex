@@ -277,7 +277,7 @@ defmodule LumenViae.Rosary.PrayerAudio do
 
     * `:style` - `:meditation` (default) says each set's meditation after
       its announcement; `:scriptural` says a verse before every Hail Mary
-      and no meditation; `:plain` is the Rosary Said Aloud, the prayers
+      and no meditation; `:plain` is the Audio Rosary, the prayers
       alone.
     * `:closing` - optional prayers after the closing prayer, any of
       `:holy_father`, `:memorare`, `:st_michael`, said in that order

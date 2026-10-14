@@ -28,8 +28,8 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
       kicker: "Your Rosary Today",
       title: "Three ways to pray, chosen on one page",
       body: [
-        "Pick the mysteries, then the way to pray them: with a meditation from the saints between the decades, as the Scriptural Rosary with a verse for every Hail Mary, or as the Rosary Said Aloud.",
-        "Before you begin, one page confirms two choices. Audio: the meditation alone, or the whole Rosary said aloud. Counting: on the screen, or on your own rosary."
+        "Pick the mysteries, then the way to pray them: with a meditation from the saints between the decades, as the Scriptural Rosary with a verse for every Hail Mary, or as the Audio Rosary.",
+        "Before you begin, one page confirms two choices. Audio: the meditation alone, or the whole Rosary read to you. Counting: on the screen, or on your own rosary."
       ],
       screen: %{
         name: "confirm",
@@ -40,9 +40,9 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
     %{
       id: "meditations",
       kicker: "Meditations",
-      title: "The saints' meditations, read aloud",
+      title: "The saints' meditations, read to you",
       body: [
-        "Each mystery is set under its painting, and its meditation is read aloud in the voice you choose, at a speed you set. The text is a tap away.",
+        "Each mystery is set under its painting, and you hear its meditation in the voice you choose, at a speed you set. The text is a tap away.",
         "Meditation sets come from St. Alphonsus Liguori, St. John Henry Newman, Blessed Anne Catherine Emmerich, Blessed Fulton J. Sheen and others, and new sets arrive without an update."
       ],
       screen: %{
@@ -152,9 +152,9 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
 
   @promises [
     %{
-      title: "Said aloud, start to finish",
+      title: "Heard from start to finish",
       body:
-        "With the whole Rosary said aloud, every prayer is read aloud in the voice you choose and the beads move with it, so you can pray with the phone in your pocket."
+        "With the whole Rosary read to you, you hear every prayer in the voice you choose and the beads move with it, so you can pray with the phone in your pocket."
     },
     %{
       title: "Without a connection",
@@ -180,7 +180,7 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
      |> PageMeta.put("/app",
        title: "Lumen Viae for iPhone",
        description:
-         "The Rosary on iPhone: meditations from the saints read aloud, the Scriptural Rosary, the Rosary said aloud, with chant, the Hours and the Mass of the day.",
+         "The Rosary on iPhone: meditations from the saints read to you, the Scriptural Rosary, the Audio Rosary, with chant, the Hours and the Mass of the day.",
        image: %{
          url: PageMeta.absolute_url("/images/app/og-app.jpg"),
          width: 1200,

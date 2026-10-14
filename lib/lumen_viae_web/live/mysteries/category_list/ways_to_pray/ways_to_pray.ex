@@ -1,8 +1,8 @@
 defmodule LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray do
   @moduledoc """
   The Rosary's two forms that need no meditation set, for this category:
-  the Scriptural Rosary (a verse for every Hail Mary) and the Rosary Said
-  Aloud (every prayer, no readings). Each row says how it will be prayed
+  the Scriptural Rosary (a verse for every Hail Mary) and the Audio
+  Rosary (listen and pray along). Each row says how it will be prayed
   with the visitor's choices.
   """
   use LumenViaeWeb, :html
@@ -20,7 +20,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray do
           title: "The Scriptural Rosary",
           detail: "A Bible verse for every Hail Mary"
         },
-        %{form: :holy, title: "The Rosary Said Aloud", detail: "Every prayer, no readings"}
+        %{form: :holy, title: "The Audio Rosary", detail: "Listen and pray along"}
       ])
 
     ~H"""

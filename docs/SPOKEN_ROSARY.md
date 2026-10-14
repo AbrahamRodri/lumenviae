@@ -15,7 +15,7 @@ the website can pray a whole Rosary aloud, bead by bead.
 | Coverage (is every clip in the bucket) | `LumenViae.Curation.RosaryAudioGeneration.coverage/1` |
 | The app's manifest | `GET /api/rosary/audio` |
 | Listening to and checking every clip | `/admin/rosary-audio`, and a row on the dashboard when anything is missing |
-| Praying aloud on the website | the "Pray aloud" switch on `/meditation-sets/:id/pray`, the `SpokenRosary` hook |
+| Praying aloud on the website | the "Hear the prayers" switch on `/meditation-sets/:id/pray`, the `SpokenRosary` hook |
 | Whether a Rosary was prayed aloud | `rosary_completions.prayed_aloud`, see docs/COMPLETION_ANALYTICS.md |
 
 ---
@@ -81,7 +81,7 @@ The order is the server's, as data: `priv/rosary_content/script.json`,
 served as the `script` section of `GET /api/v2/rosary-content` (and
 GraphQL's `rosaryContent { script }`), so a client builds any Rosary
 offline. `PrayerAudio.script/3` expands the same templates for the
-website's "Pray aloud", and `GET /api/v2/rosary-script` serves that
+website's "Hear the prayers", and `GET /api/v2/rosary-script` serves that
 expansion as the reference a client's own is held to. The order, the
 captions, the pauses, the beads and the pendant's places were taken from
 the app's `SpokenRosaryScript` (`SpokenRosary.swift`) and `RosaryStrand`
@@ -115,7 +115,7 @@ The optional closing prayers are not added to the chaplet.
 There are three styles of the same order: `meditation`, with the set's
 meditation after each announcement (the website's); `scriptural`, the
 Scriptural Rosary, with a verse before each Hail Mary and no meditation;
-and `plain`, the Rosary Said Aloud, with neither. None of them needs a
+and `plain`, the Audio Rosary, with neither. None of them needs a
 recording the others do not. The app's counts hold on the server
 (`spoken_rosary_script_test.exs`, ported from its
 `SpokenRosaryScriptTests`): 85 steps with meditations, 80 said aloud, 130
@@ -312,7 +312,7 @@ which gives it a new key.
 
 ## The website
 
-The prayer page has a "Pray aloud" switch and a voice choice; both ride in
+The prayer page has a "Hear the prayers" switch and a voice choice; both ride in
 the URL (`aloud=true`, `voice=male`). With the switch on, the LiveView builds
 the whole script with signed URLs and hands it to the `SpokenRosary` hook,
 which plays it through one `Audio` element (the bucket sends no CORS

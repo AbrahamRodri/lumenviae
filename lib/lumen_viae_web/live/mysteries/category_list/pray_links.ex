@@ -7,7 +7,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.PrayLinks do
 
     * `aloud` - `false` for "Meditation only" (the voice reads the
       meditation and the visitor says the prayers), `true` for the Whole
-      Rosary said aloud
+      Rosary read to you
     * `count` - `"beads"` on the visitor's own rosary, `"screen"` on the
       screen. It only holds while `aloud` is false: with the Whole Rosary
       the voice moves the beads on the screen itself
@@ -61,7 +61,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.PrayLinks do
   @spec set_path(integer | String.t(), choices) :: String.t()
   def set_path(set_id, choices), do: path("/meditation-sets/#{set_id}/pray", :meditation, choices)
 
-  @doc "Where a category is prayed without a set, in the Scriptural or the said-aloud form."
+  @doc "Where a category is prayed without a set, in the Scriptural or the Audio Rosary form."
   @spec way_path(String.t(), :scriptural | :holy, choices) :: String.t()
   def way_path(category, form, choices) when form in [:scriptural, :holy] do
     path("/mysteries/#{category}/pray", form, choices)
@@ -82,7 +82,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.PrayLinks do
   defp form_param(:meditation), do: []
   defp form_param(form), do: [form: Atom.to_string(form)]
 
-  # The Rosary Said Aloud is always aloud, its beads always on the screen.
+  # The Audio Rosary is always heard, its beads always on the screen.
   defp count_param(:holy, _choices), do: []
   defp count_param(_form, %{aloud: false, count: "screen"}), do: [count: "screen"]
   defp count_param(_form, _choices), do: []
@@ -103,7 +103,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.PrayLinks do
   row: "Read in silence · On my rosary".
   """
   @spec summary(form, choices) :: String.t()
-  def summary(:holy, choices), do: Enum.join(["Every prayer aloud" | voice_words(choices)], " · ")
+  def summary(:holy, choices), do: Enum.join(["Listen and pray along" | voice_words(choices)], " · ")
 
   def summary(form, %{aloud: true} = choices) do
     Enum.join([audio_name(form, true) | voice_words(choices)], " · ")
@@ -115,7 +115,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.PrayLinks do
 
   @doc "What the Audio choice's option is called in a form."
   @spec audio_name(form, boolean) :: String.t()
-  def audio_name(_form, true), do: "Whole Rosary aloud"
+  def audio_name(_form, true), do: "Whole Rosary read to you"
   def audio_name(:scriptural, false), do: "Read in silence"
   def audio_name(_form, false), do: "Meditation only"
 

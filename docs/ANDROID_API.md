@@ -259,7 +259,7 @@ The app posts a completion **only when a meditation set's Rosary is
 finished**, at its last bead's Amen, as the iPhone app does
 (`PrayerSessionViewModel.recordCompletion`): the set's id and whether it
 was prayed aloud as the Whole Rosary (`prayed_aloud`). The Scriptural
-Rosary, the Rosary Said Aloud and "Your First Rosary" post nothing, and
+Rosary, the Audio Rosary and "Your First Rosary" post nothing, and
 neither does a Rosary abandoned before its Amen.
 
 - **At most once per Rosary**, guarded against a double tap; fire and
@@ -336,7 +336,7 @@ Paths are under the iOS repository's `app/`.
   (`ViewModels/PrayerSessionViewModel.swift`, `beadsUnlocked`). On a
   mystery's Our Father the strand is locked until the narration plays to
   its end, unless there is nothing to wait for: no narration, a narration
-  that would not load, or the Rosary said aloud (the voice moves the
+  that would not load, or the Audio Rosary (the voice moves the
   beads). Once the hand has moved past the Our Father the mystery stays
   unlocked; reading the meditation, rather than hearing it, never locks.
 - **Two languages pair line for line** (`Data/BilingualPrayer.swift`,

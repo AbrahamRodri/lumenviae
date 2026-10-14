@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.Types.ScriptTemplates do
       allow_nil?: false,
       constraints: [nil_items?: false],
       description:
-        "The styles a Rosary is said in: `meditation`, `scriptural`, `plain` (the Rosary Said Aloud)."
+        "The styles a Rosary is said in: `meditation`, `scriptural`, `plain` (the Audio Rosary)."
 
     field :rosary, Types.ScriptForm,
       allow_nil?: false,

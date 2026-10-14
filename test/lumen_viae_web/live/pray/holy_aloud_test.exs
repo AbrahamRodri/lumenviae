@@ -1,6 +1,6 @@
 defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
   @moduledoc """
-  The Rosary Said Aloud is, as the app prays it, the whole Rosary aloud
+  The Audio Rosary is, as the app prays it, the whole Rosary aloud
   with the beads on the screen: `form=holy` defaults to both, and a URL
   that says otherwise is followed. The voice never starts on arrival, since
   a browser allows sound only after a tap; it is told to play only when
@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
 
   @holy "/mysteries/joyful/pray?form=holy"
 
-  test "the Rosary Said Aloud opens aloud, counting on the screen", %{conn: conn} do
+  test "the Audio Rosary opens aloud, counting on the screen", %{conn: conn} do
     {:ok, view, _html} = live(conn, @holy)
 
     assert has_element?(view, "[phx-hook=SpokenRosary]")
@@ -57,7 +57,7 @@ defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
     refute has_element?(view, "#bead-0")
   end
 
-  test "choosing the Rosary Said Aloud brings its way of praying, and plays", %{conn: conn} do
+  test "choosing the Audio Rosary brings its way of praying, and plays", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/mysteries/joyful/pray")
 
     render_click(view, "set_form", %{"form" => "holy"})

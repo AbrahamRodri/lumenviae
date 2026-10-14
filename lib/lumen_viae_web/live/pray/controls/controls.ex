@@ -234,7 +234,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         ]}
       >
         <span class="hero-speaker-wave size-4" aria-hidden="true" />
-        {if @pray_aloud, do: "Praying aloud", else: "Pray aloud"}
+        {if @pray_aloud, do: "Hearing the prayers", else: "Hear the prayers"}
       </button>
 
       <form :if={length(@voices) > 1} id="voice-form" phx-change="set_voice" class="inline-flex">

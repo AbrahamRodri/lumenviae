@@ -25,7 +25,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Choices do
         <.choice_group
           name="aloud"
           legend="Audio"
-          options={[{"false", "Meditation only"}, {"true", "Whole Rosary aloud"}]}
+          options={[{"false", "Meditation only"}, {"true", "Whole Rosary read to you"}]}
           selected={to_string(@choices.aloud)}
           note={audio_note(@choices.aloud)}
         />
@@ -92,11 +92,11 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Choices do
     """
   end
 
-  defp audio_note(true), do: "Every prayer is said aloud. Pray along with the voice."
+  defp audio_note(true), do: "You hear every prayer. Pray along with the voice."
 
   defp audio_note(false),
     do:
-      "The meditation is read aloud. You say the prayers. In the Scriptural Rosary, the verses are read in silence."
+      "You hear the meditation. You say the prayers. In the Scriptural Rosary, the verses are read in silence."
 
   defp count_note("screen"), do: "The beads are on the screen. Tap or swipe for each Hail Mary."
 
@@ -106,7 +106,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Choices do
   defp voice_note(voices, slug) do
     case Enum.find(voices, &(&1.slug == slug)) do
       %{description: description} when is_binary(description) -> description
-      _voice -> "The voice that reads aloud."
+      _voice -> "The voice you hear."
     end
   end
 end

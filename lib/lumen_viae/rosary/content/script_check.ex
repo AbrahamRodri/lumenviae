@@ -6,7 +6,7 @@ defmodule LumenViae.Rosary.Content.ScriptCheck do
   compile on any error, so a malformed file fails the build, never a
   request: a missing label would otherwise fail the whole
   `GET /api/v2/rosary-content` document, prayers and all, and a missing
-  Hail Mary count the website's "Pray aloud".
+  Hail Mary count the website's "Hear the prayers".
 
   `errors/3` never raises on a malformed shape; it describes it.
   """
