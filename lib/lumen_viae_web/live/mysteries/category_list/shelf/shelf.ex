@@ -197,7 +197,9 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
     |> Enum.reject(&(&1 in @honorifics or roman_numeral?(&1)))
   end
 
-  defp roman_numeral?(word), do: word =~ ~r/^[ivxlc]+$/
+  # A regnal numeral as names carry them, I to XXXIX ("John XXIII"), not
+  # any word spelt with those letters ("civil", "ill").
+  defp roman_numeral?(word), do: word =~ ~r/^x{0,3}(ix|iv|v?i{0,3})$/ and word != ""
 
   defp author_name(set), do: LumenViaeWeb.PageMeta.set_author(set)
 end

@@ -202,6 +202,10 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       refute named?.("Inside the Scene II", "Pope St. John Paul II")
       refute named?.("Sheen's Favourite Prayers", "Archbishop Fulton J. Sheen")
       refute named?.("On Detachment", "St. Alphonsus Liguori")
+      assert named?.("Pope John XXIII on the Rosary", "Pope St. John XXIII")
+      # A word made of numeral letters is still a word of the name.
+      refute named?.("Lucy on the Rosary", "Sister Lucy Civil")
+      refute named?.("Lucy on the Rosary", "Sister Lucy Ill")
     end
   end
 
