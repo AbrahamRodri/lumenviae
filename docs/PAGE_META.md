@@ -21,7 +21,7 @@ That assigns `:page_title`, `:meta_description` and `:meta`. The root layout
 passes them to `LumenViaeWeb.Components.MetaTags`, which writes the tags in
 `<head>` of the first, server-rendered response: the one a crawler or a link
 preview reads. A page that sets nothing gets the site's default description,
-the Our Lady of Sorrows banner and the address it was asked for.
+the logo share image (`og-image.png`) and the address it was asked for.
 
 `PageMeta` is a value module, like `LumenViae.Rosary.Categories`: no state, no
 queries. The text for a set's or a category's prayer page is built there
@@ -43,19 +43,19 @@ queries. The text for a set's or a category's prayer page is built there
 
 ## Preview images
 
-Every image is an absolute address to a JPEG, since not every preview crawler
-reads WebP.
+Every image is an absolute address to a JPEG or PNG, since not every preview
+crawler reads WebP.
 
 | Page | Image |
 | --- | --- |
-| Home, Scripture, privacy | the Our Lady of Sorrows banner, 1200x410 |
+| Home, Scripture, privacy | the logo share image, `og-image.png`, 1200x630 |
 | The app page | three app screenshots, `images/app/og-app.jpg`, 1200x630 |
 | A category | the woodcut its header shows (`PageMeta.category_image/1`) |
 | A set's prayer page | the woodcut of the set's first mystery, else the category's |
 | A category's prayer page | the woodcut of the category's first mystery |
 
 The woodcuts are taller than wide, so those pages use the `summary` Twitter
-card, which shows a small square, and the banner pages use
+card, which shows a small square, and the others use
 `summary_large_image`. The large card would crop a portrait print to a strip.
 
 ## Structured data

@@ -1,6 +1,6 @@
 defmodule LumenViaeWeb.Components.Nav do
   @moduledoc """
-  The public site's header: the Stella Maris mark and the wordmark, Today's
+  The public site's header: the logo lockup (the mark and the wordmark), Today's
   Rosary, and a Mysteries menu of the five categories and the Scripture
   page.
 
@@ -30,18 +30,12 @@ defmodule LumenViaeWeb.Components.Nav do
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-2 md:py-4 flex items-center justify-between gap-3">
         <.link
           navigate="/"
-          class="flex min-w-0 items-center gap-2.5 md:gap-3 min-h-11 rounded-sm hover:opacity-90 transition-opacity"
+          class="flex min-w-0 items-center gap-4 min-h-11 rounded-sm hover:opacity-90 transition-opacity"
           aria-label="Lumen Viae, home"
         >
-          <.logo />
-
-          <span class="block min-w-0">
-            <span class="block font-display font-semibold text-ink-light text-2xl md:text-[1.75rem] leading-tight">
-              Lumen Viae
-            </span>
-            <span class="hidden sm:block font-garamond text-ink-muted text-sm italic leading-snug">
-              Meditations on the Holy Rosary
-            </span>
+          <.logo variant={:lockup} />
+          <span class="hidden lg:block font-garamond text-ink-muted text-sm italic leading-snug">
+            Meditations on the Holy Rosary
           </span>
         </.link>
 
