@@ -23,10 +23,8 @@ defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
           |> Floki.find("footer")
 
         for {path, label} <- [
-              {"/mysteries/joyful", "Joyful"},
-              {"/mysteries/seven_sorrows", "Seven Sorrows"},
-              {"/mysteries", "Mysteries in Scripture"},
-              {"/privacy-policy", "Privacy Policy"}
+              {"/mysteries", "Mysteries"},
+              {"/privacy-policy", "Privacy"}
             ] do
           link = Floki.find(footer, ~s(a[href="#{path}"]))
 

@@ -5,7 +5,11 @@ defmodule LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSectionTest do
 
   alias LumenViaeWeb.Live.Meditations.Sets.Edit.LabelsSection
 
-  defp render_section(labels, vocabulary \\ ["Intentions", "Saints", "Scriptural"], max_labels \\ 3) do
+  defp render_section(
+         labels,
+         vocabulary \\ ["Intentions", "Saints", "Scriptural"],
+         max_labels \\ 3
+       ) do
     render_component(&LabelsSection.labels_section/1,
       labels: labels,
       vocabulary: vocabulary,
