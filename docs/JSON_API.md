@@ -506,10 +506,10 @@ form's page carries depends on the Audio choice, as `offered` (the choices,
 by id) and `rows` (the rows beneath them, by id, named in `row_titles`)
 say, each as `{form, when_aloud, when_silent}`: `when_aloud` while Audio is
 the Whole Rosary, and `when_silent` otherwise. The Audio Rosary is
-always aloud, and offers no choice. Counting is offered only while the
+always heard, and offers no choice. Counting is offered only while the
 voice reads the meditation alone, because with the Whole Rosary the voice
-moves the beads on the screen. `holy_audio_value` is what the Rosary Said
-Aloud's audio row says as a fact, not a choice.
+moves the beads on the screen. `holy_audio_value` is what the Audio
+Rosary's audio row says as a fact, not a choice.
 
 ## The Prayer Book and the Chant Library
 

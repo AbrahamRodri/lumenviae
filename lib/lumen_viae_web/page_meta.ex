@@ -248,9 +248,9 @@ defmodule LumenViaeWeb.PageMeta do
       title: "Pray the #{devotion}",
       description:
         first_that_fits([
-          "Pray the #{devotion} of the Holy Rosary, with a voice or on your beads, with the Scripture for each: #{join_names(mystery_names)}.",
-          "Pray the #{count_word(category)} #{devotion} of the Holy Rosary decade by decade, with a voice or on your beads, with the Scripture for each mystery.",
-          "Pray the #{devotion} of the Holy Rosary, with a voice or on your beads."
+          "Pray the #{devotion} of the Holy Rosary, listen along or count on your beads, with the Scripture for each: #{join_names(mystery_names)}.",
+          "Pray the #{count_word(category)} #{devotion} of the Holy Rosary decade by decade, listen along or count on your beads, with the Scripture for each mystery.",
+          "Pray the #{devotion} of the Holy Rosary, listen along or count on your beads."
         ]),
       image: plate_image("#{category}_1") || category_image(category),
       trail: [
