@@ -52,8 +52,8 @@
     total_count={@summary.total}
     filtered={filters_applied?(@filters)}
   />
-
-  <!-- The bulk bar appears only when there is a selection to act on -->
+  
+<!-- The bulk bar appears only when there is a selection to act on -->
   <div
     :if={MapSet.size(@selected_ids) > 0}
     class="sticky top-[4.5rem] z-10 flex flex-wrap items-center justify-between gap-3 mb-3
