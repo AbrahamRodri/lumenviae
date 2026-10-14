@@ -129,15 +129,15 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           <div class="mt-2 grid gap-2 sm:grid-cols-2">
             <.display_choice
               setting="reading-page"
-              value="vellum"
-              title="Vellum"
-              note="The meditation on a light page, like a book."
-            />
-            <.display_choice
-              setting="reading-page"
               value="night"
               title="Night"
               note="The meditation on the dark, like the prayers."
+            />
+            <.display_choice
+              setting="reading-page"
+              value="vellum"
+              title="Vellum"
+              note="The meditation on a light page, like a book."
             />
           </div>
         </fieldset>
@@ -394,11 +394,10 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           type="button"
           phx-click="previous"
           disabled={@at_start}
-          class="btn-outline-gold min-h-14 !px-5 disabled:opacity-30 disabled:cursor-not-allowed"
+          class="btn-text !text-ink-muted hover:!text-gilt min-h-14 !px-2 disabled:opacity-30 disabled:cursor-not-allowed"
           aria-label={if @count == "screen", do: "Previous bead", else: "Previous"}
         >
-          <span class="hero-arrow-left size-4" aria-hidden="true" />
-          <span class="hidden sm:inline">Previous</span>
+          <span aria-hidden="true">&lsaquo;</span> Back
         </button>
 
         <button :if={@at_end} type="button" phx-click="complete" class="btn-gold min-h-14 w-full">
@@ -406,7 +405,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         </button>
         <button :if={!@at_end} type="button" phx-click="next" class="btn-gold min-h-14 w-full">
           {if @count == "screen", do: "Next bead", else: "Next"}
-          <span class="hero-arrow-right size-4" aria-hidden="true" />
+          <span aria-hidden="true">&rsaquo;</span>
         </button>
       </div>
       <p class="hidden md:block mt-2 text-center font-garamond text-base text-ink-muted">

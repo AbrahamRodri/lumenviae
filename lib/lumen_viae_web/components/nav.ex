@@ -55,7 +55,7 @@ defmodule LumenViaeWeb.Components.Nav do
               type="button"
               id="mysteries-menu-button"
               data-menu-toggle
-              class="group inline-flex items-center gap-1.5 min-h-11 px-3 rounded-sm font-garamond text-lg text-ink-muted hover:text-ink-light transition-colors aria-expanded:text-ink-light"
+              class="group inline-flex items-center gap-1.5 min-h-11 px-3 rounded-sm font-display text-xs tracking-[0.16em] uppercase text-ink-muted hover:text-gilt transition-colors aria-expanded:text-gilt"
               aria-expanded="false"
               aria-controls="mysteries-menu"
             >
@@ -85,7 +85,7 @@ defmodule LumenViaeWeb.Components.Nav do
                   navigate={path}
                   data-nav-link
                   aria-current={current(path, @current_path)}
-                  class="flex items-center min-h-11 px-5 py-2 font-garamond text-lg text-ink-light hover:bg-night aria-[current=page]:text-gilt aria-[current=page]:bg-night transition-colors"
+                  class="flex items-center min-h-11 px-5 py-2 font-display text-sm tracking-[0.12em] uppercase text-ink-light hover:bg-night aria-[current=page]:text-gilt aria-[current=page]:bg-night transition-colors"
                 >
                   {label}
                 </.link>
@@ -184,7 +184,7 @@ defmodule LumenViaeWeb.Components.Nav do
               <input type="hidden" name="_method" value="delete" />
               <button
                 type="submit"
-                class="flex items-center w-full min-h-11 font-garamond text-lg text-ink-light hover:text-gilt transition-colors text-left"
+                class="flex items-center w-full min-h-11 font-display text-sm tracking-[0.12em] uppercase text-ink-light hover:text-gilt transition-colors text-left"
               >
                 Logout
               </button>
@@ -227,9 +227,9 @@ defmodule LumenViaeWeb.Components.Nav do
         "transition-colors",
         if(@mobile,
           do:
-            "flex items-center min-h-11 font-garamond text-lg text-ink-light hover:text-gilt aria-[current=page]:text-gilt aria-[current=page]:underline decoration-gilt underline-offset-4",
+            "flex items-center min-h-11 font-display text-sm tracking-[0.12em] uppercase text-ink-light hover:text-gilt aria-[current=page]:text-gilt",
           else:
-            "inline-flex items-center min-h-11 px-3 rounded-sm font-garamond text-lg text-ink-muted hover:text-ink-light aria-[current=page]:text-ink-light border-b-2 border-transparent aria-[current=page]:border-gilt"
+            "inline-flex items-center min-h-11 px-3 rounded-sm font-display text-xs tracking-[0.16em] uppercase text-ink-muted hover:text-gilt aria-[current=page]:text-gilt border-b border-transparent aria-[current=page]:border-gilt"
         )
       ]}
     >

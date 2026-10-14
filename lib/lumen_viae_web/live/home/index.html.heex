@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-night" id="home-page" phx-hook="UserTimezone">
+<div class="min-h-screen" id="home-page" phx-hook="UserTimezone">
   <!-- Hero: the page's one deep band -->
   <section
     class="home-hero relative bg-night-deep overflow-hidden border-b border-night-border"
@@ -99,11 +99,11 @@
         </p>
         <h2
           id="todays-devotion-heading"
-          class="font-display text-4xl md:text-5xl text-ink-light leading-tight"
+          class="font-display text-[1.75rem] md:text-4xl text-ink-light leading-tight"
         >
           {@today_category.title}
         </h2>
-        <p class="font-garamond text-xl text-ink-muted italic mt-1 mb-5">
+        <p class="font-garamond text-lg text-ink-muted italic mt-1 mb-5">
           {@today_category.subtitle}
         </p>
 
@@ -136,18 +136,16 @@
 
         <ol
           id="todays-mysteries"
-          class="border-t border-night-border"
+          class="mystery-ledger"
           aria-label={"The #{length(@today_category.mysteries)} mysteries"}
         >
-          <li
-            :for={mystery <- @today_category.mysteries}
-            class="flex items-baseline gap-3 py-2.5 border-b border-night-border"
-          >
-            <span class="font-display text-gilt text-lg w-8 shrink-0" aria-hidden="true">
-              {mystery.numeral}
-            </span>
-            <p class="min-w-0 font-garamond text-lg text-ink-light leading-snug">
-              {mystery.name}<span :if={mystery.fruit} class="italic text-base text-ink-muted"><span aria-hidden="true"> &middot; </span><span class="sr-only">. Fruit: </span>{mystery.fruit}</span>
+          <li :for={mystery <- @today_category.mysteries}>
+            <span class="mystery-ledger__numeral" aria-hidden="true">{mystery.numeral}</span>
+            <p class="min-w-0">
+              <span class="block text-lg text-ink-light leading-snug">{mystery.name}</span>
+              <span :if={mystery.fruit} class="block italic text-base text-ink-muted">
+                <span class="sr-only">Fruit: </span>{mystery.fruit}
+              </span>
             </p>
           </li>
         </ol>
@@ -156,7 +154,10 @@
       <div class="flex min-w-0 flex-col gap-10">
         <!-- Pray with a meditation set -->
         <div id="todays-sets">
-          <h3 class="section-label">Pray with the Saints</h3>
+          <h3 class="section-heading">Pray with the Saints</h3>
+          <p class="italic text-base text-ink-muted mt-0.5 mb-2">
+            Each opens straight into the Rosary
+          </p>
           <%= if @todays_sets == [] do %>
             <p class="font-garamond text-lg text-ink-muted italic">
               No meditation sets are available yet for these mysteries. Pray them
@@ -166,17 +167,10 @@
             <ul class="row-list">
               <li :for={set <- @todays_sets}>
                 <.link navigate={"/meditation-sets/#{set.id}/pray"} class="row-link home-row">
-                  <SetPortrait.set_portrait set={set} sizes="44px" class="w-11 h-14" />
+                  <SetPortrait.set_portrait set={set} sizes="64px" class="w-16 h-16" />
                   <span class="flex-1 min-w-0">
-                    <span class="block font-garamond text-lg font-semibold text-ink-light leading-snug">
-                      {set.name}
-                    </span>
-                    <span
-                      :if={set_detail(set)}
-                      class="block font-garamond text-base text-ink-muted leading-snug"
-                    >
-                      {set_detail(set)}
-                    </span>
+                    <span class="row-title">{set.name}</span>
+                    <span :if={set_detail(set)} class="row-fact">{set_detail(set)}</span>
                   </span>
                   <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
                 </.link>
@@ -189,7 +183,7 @@
                 id="divine-providence"
                 class="btn-text"
               >
-                Let one be chosen for me
+                Let one be chosen for me <span aria-hidden="true">&rsaquo;</span>
               </button>
             </p>
           <% end %>
@@ -214,10 +208,8 @@
                   </svg>
                 </span>
                 <span class="flex-1 min-w-0">
-                  <span class="block font-garamond text-lg font-semibold text-ink-light leading-snug">
-                    The Scriptural Rosary
-                  </span>
-                  <span class="block font-garamond text-base text-ink-muted leading-snug">
+                  <span class="row-title !font-normal">The Scriptural Rosary</span>
+                  <span class="block italic text-base text-ink-muted leading-snug">
                     A verse of Holy Scripture before each Hail Mary
                   </span>
                 </span>
@@ -239,10 +231,8 @@
                   </svg>
                 </span>
                 <span class="flex-1 min-w-0">
-                  <span class="block font-garamond text-lg font-semibold text-ink-light leading-snug">
-                    The Rosary Said Aloud
-                  </span>
-                  <span class="block font-garamond text-base text-ink-muted leading-snug">
+                  <span class="row-title !font-normal">The Rosary Said Aloud</span>
+                  <span class="block italic text-base text-ink-muted leading-snug">
                     Every prayer spoken aloud, with no meditation between
                   </span>
                 </span>
@@ -255,19 +245,21 @@
     </div>
   </section>
 
+  <.sacred_divider class="!my-0" />
+
   <!-- Every category, as the app's "all mysteries" -->
-  <section
-    class="border-t border-night-border px-4 sm:px-8 py-12 md:py-16"
-    aria-labelledby="all-mysteries-heading"
-  >
+  <section class="px-4 sm:px-8 py-12 md:py-16" aria-labelledby="all-mysteries-heading">
     <div class="max-w-6xl mx-auto">
-      <h2 id="all-mysteries-heading" class="section-label">
+      <h2 id="all-mysteries-heading" class="section-heading">
         The Mysteries of the Rosary
       </h2>
+      <p class="italic text-base text-ink-muted mt-0.5 mb-4">
+        Scenes from the lives of Jesus and Mary
+      </p>
 
       <%!-- Two to a row on a phone, with the fifth card the width of both, so
             no card is left alone on the last row. --%>
-      <ul class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-5">
+      <ul class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
         <li
           :for={{category, index} <- Enum.with_index(@categories)}
           class={[

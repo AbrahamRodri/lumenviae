@@ -85,18 +85,14 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
         <p :if={@decade.label} class="kicker">
           {@decade.label}
         </p>
-        <h2 class="mt-1 font-display font-semibold text-[2rem] md:text-4xl text-gilt leading-[1.1]">
+        <h2 class="mt-1 font-display !font-normal text-[1.625rem] md:text-4xl text-ink-light leading-[1.15]">
           {@decade.name}
         </h2>
         <p
           :if={@decade.fruit || @decade.scripture_reference}
           class="mt-1.5 font-garamond text-base md:text-lg text-ink-muted leading-snug"
         >
-          <span :if={@decade.fruit}>
-            <span class="kicker">Ask for</span>
-            <span class="sr-only">:</span>
-            {@decade.fruit}
-          </span>
+          <span :if={@decade.fruit} class="italic">Ask for {@decade.fruit}</span>
           <span :if={@decade.fruit && @decade.scripture_reference} aria-hidden="true">
             &middot;
           </span>
@@ -114,7 +110,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   attr :pray_aloud, :boolean, default: false
 
   @doc """
-  A set's meditation, on its reading page: vellum, or night if the reader
+  A set's meditation, on its reading page: night, or vellum if the reader
   chose it (`.reading-page` in app.css). Its recording is played from the
   top of the page, in the page's own colours.
   """
@@ -124,7 +120,9 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
       <article class="reading-page">
         <div :if={!@pray_aloud && @audio_url} class="flex items-center gap-3 mb-4">
           <.audio_player audio_url={@audio_url} size="reading" />
-          <p class="reading-page__meta font-garamond text-base">Listen to the meditation</p>
+          <p class="reading-page__meta font-display text-xs tracking-[0.16em] uppercase">
+            Listen to the meditation
+          </p>
         </div>
         <p
           :if={!@pray_aloud && @meditation.audio_url && !@audio_url}
@@ -168,7 +166,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
     assigns = assign(assigns, :paragraphs, paragraphs(assigns.content))
 
     ~H"""
-    <div class="font-garamond prayer-text space-y-[0.9em]">
+    <div class="meditation-text font-garamond prayer-text space-y-[0.9em]">
       <p :for={lines <- @paragraphs}>
         <%= for {line, index} <- Enum.with_index(lines) do %>
           <br :if={index > 0} />{line}

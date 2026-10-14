@@ -1,11 +1,13 @@
 <div
   id="prayer"
-  class="prayer-surface relative min-h-[100dvh] bg-night text-ink-light flex flex-col"
+  class="prayer-surface relative min-h-[100dvh] text-ink-light flex flex-col"
   phx-hook="PrayerSurface"
   data-layout="focused"
   data-count={@count}
 >
-  <div class="absolute inset-0 opacity-[0.04] pointer-events-none" aria-hidden="true">
+  <%!-- The app's candle: a warm glow from the top of the page. --%>
+  <div class="prayer-glow absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+  <div class="absolute inset-0 opacity-[0.03] pointer-events-none" aria-hidden="true">
     <picture>
       <source
         type="image/webp"
@@ -26,13 +28,13 @@
     <header class="flex items-center gap-1 pt-3">
       <.link
         navigate={~p"/mysteries/#{@category}"}
-        class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-ink-muted hover:text-gilt"
+        class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-ink-light/7 text-ink-light hover:text-gilt"
         aria-label="Leave the prayer and return to the mysteries"
       >
         <span class="hero-x-mark size-5" aria-hidden="true" />
       </.link>
 
-      <h1 class="flex-1 min-w-0 text-center font-display font-semibold text-xl md:text-2xl text-gilt leading-snug">
+      <h1 class="flex-1 min-w-0 text-center font-display !font-normal text-xs sm:text-sm tracking-[0.2em] uppercase text-gilt leading-snug">
         {@heading}
       </h1>
 

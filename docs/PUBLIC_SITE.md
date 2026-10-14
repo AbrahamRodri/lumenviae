@@ -107,7 +107,7 @@ starts from the defaults. The one thing the server writes is a completion.
 | Closing prayers (Pope's intentions, Memorare, St. Michael) | `lv:pray:extras` | `PrayerMemory` |
 | Language of the prayers, English or Latin | `lv:pray:language` | `PrayerMemory` |
 | Text size | `lv:pray:text-size` | the `PrayerSurface` hook |
-| Reading page, vellum or night | `lv:pray:reading-page` | the `DisplayChoices` hook, read by `PrayerSurface` |
+| Reading page, night (the default, as the app's reader) or vellum | `lv:pray:reading-page` | the `DisplayChoices` hook, read by `PrayerSurface` |
 | The mystery's woodcut shown or hidden | `lv:pray:images` | `DisplayChoices`, read by `PrayerSurface` |
 | Days in a row | `lv:pray:streak` | the `PrayerStreak` hook |
 | Swipe hint already shown | `lv:pray:swipe-hint-seen` | the `SwipeHint` hook |
@@ -130,7 +130,7 @@ the Chant Library, the Chapel). Describe nothing the app does not do, and
 no ratings, reviews or download counts.
 
 - Every screen is a real screenshot from the iOS Simulator (iPhone 17 Pro,
-  the Marian Blue theme, which is the site's own palette, status bar set to
+  the Marian Blue theme, status bar set to
   9:41 and full), in `priv/static/images/app/`: `<name>-390.webp`,
   `<name>-780.webp` (cwebp at quality 85) and a 390 pixel `<name>.jpg`.
   The originals stay out of the repository.
@@ -172,6 +172,16 @@ row still count, in the browser. See `docs/UPCOMING_FEATURES.md`.
   `LumenViaeWeb.Components.ArtworkPicture`. The widths that exist for it are
   recorded in its `image_variant_widths` column, never guessed from the
   size of the original.
+
+## How the pages look
+
+The site is drawn the way the iOS app draws its Candlelit theme: Cinzel
+for every heading, label and button, EB Garamond for reading, gold on a
+near-black gradient, ruled ledgers instead of cards, painted tiles for
+pictures, one gold pill per screen and quiet gold type for every other
+action. When a page changes, check it beside the app's own screen. The
+tokens and the shared vocabulary are in the "Design tokens" section of
+`docs/ARCHITECTURE.md`.
 
 ## Rules for editing a public page
 

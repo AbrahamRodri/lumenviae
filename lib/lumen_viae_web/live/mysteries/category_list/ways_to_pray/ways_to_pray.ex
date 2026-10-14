@@ -58,15 +58,9 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray do
               </svg>
             </span>
             <span class="flex-1 min-w-0">
-              <span class="block font-garamond text-lg font-semibold text-ink-light leading-snug">
-                {way.title}
-              </span>
-              <span class="block font-garamond text-base text-ink-muted leading-snug">
-                {way.detail}
-              </span>
-              <span class="block font-garamond text-sm text-sky leading-snug mt-0.5">
-                {PrayLinks.summary(way.form, @choices)}
-              </span>
+              <span class="row-title !font-normal">{way.title}</span>
+              <span class="block italic text-base text-ink-muted leading-snug">{way.detail}</span>
+              <span class="row-fact !text-sky">{PrayLinks.summary(way.form, @choices)}</span>
             </span>
             <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
           </.link>

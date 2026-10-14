@@ -2,14 +2,15 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
   @moduledoc """
   The category's meditation sets: the filters (each kind of meditation the
   shelf carries, and narrated only) in one row, "Let one be chosen for
-  me", and one card per set with its painting or author's portrait,
-  byline, kinds, narration and the start of its description, each card a
-  Pray link carrying the visitor's choices.
+  me", and one painted tile per set, as the app's shelf draws it: its
+  painting or author's portrait, name, byline, kinds and narration, each
+  tile a Pray link carrying the visitor's choices.
   """
   use LumenViaeWeb, :html
 
-  alias LumenViae.Rosary.Labels
-  alias LumenViaeWeb.Components.SetPortrait
+  alias LumenViae.Rosary
+  alias LumenViae.Rosary.{Artwork, Labels}
+  alias LumenViaeWeb.Components.ArtworkPicture
   alias LumenViaeWeb.Live.Mysteries.CategoryList.{Filtering, PrayLinks}
 
   attr :title, :string, required: true
@@ -89,7 +90,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
             </button>
           </div>
         <% else %>
-          <ul class="grid gap-3 md:grid-cols-2 lg:grid-cols-1" id="meditation-sets">
+          <ul class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3" id="meditation-sets">
             <li :for={set <- @shown_sets} id={"set-#{set.id}"} class="min-w-0">
               <.set_card set={set} choices={@choices} />
             </li>
@@ -108,44 +109,48 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
     assigns =
       assigns
+      |> assign(:artwork, Rosary.artwork_record(set))
       |> assign(:byline, byline(set))
       |> assign(:meta, meta(set))
 
     ~H"""
-    <article class="category-card relative flex gap-4 p-4 h-full">
-      <SetPortrait.set_portrait
-        set={@set}
-        sizes="(min-width: 640px) 80px, 64px"
-        class="w-16 h-20 sm:w-20 sm:h-24 self-start"
+    <article class="paint-tile aspect-[1/1.08] h-full">
+      <ArtworkPicture.artwork_picture
+        :if={@artwork}
+        record={@artwork}
+        alt={@artwork.image_alt}
+        sizes="(min-width: 768px) 220px, 47vw"
+        class="paint-tile__image"
+        style={"object-position: #{Artwork.object_position(@artwork.image_focal_x, @artwork.image_focal_y)}"}
       />
+      <span
+        :if={!@artwork}
+        class="absolute inset-x-0 top-6 flex justify-center text-gilt"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 10 14" class="w-5 h-7 fill-current">
+          <path d="M3.6 0 H6.4 V2.8 H10 V5.6 H6.4 V14 H3.6 V5.6 H0 V2.8 H3.6 Z" />
+        </svg>
+      </span>
 
-      <div class="min-w-0 flex-1 flex flex-col">
-        <h3 class="font-display text-[1.375rem] font-semibold text-ink-light leading-tight break-words">
+      <div class="paint-tile__words">
+        <h3 class="paint-tile__title break-words">
           <.link navigate={PrayLinks.set_path(@set.id, @choices)} class="category-stretched-link">
             {@set.name}
           </.link>
         </h3>
-        <p :if={@byline} class="font-garamond italic text-base text-ink-muted leading-snug">
-          {@byline}
-        </p>
-        <p :if={@meta} class="font-garamond text-sm text-sky mt-1 break-words">{@meta}</p>
-        <p
-          :if={@set.description}
-          class="font-garamond text-base text-ink-muted leading-normal mt-1.5 line-clamp-2"
-        >
-          {@set.description}
-        </p>
+        <p :if={@byline} class="paint-tile__line">{@byline}</p>
+        <p :if={@meta} class="paint-tile__fact">{@meta}</p>
       </div>
-
-      <span class="hero-chevron-right size-5 row-chevron self-center" aria-hidden="true" />
     </article>
     """
   end
 
-  # The set's kinds and whether it is narrated, in one line.
+  # The set's kinds in one line, and "Text only" for a set with no
+  # narration: narration is the rule, so the exception is named.
   defp meta(set) do
     kinds = Enum.map(set.labels || [], &Labels.display_name/1)
-    words = if Filtering.narrated?(set), do: kinds ++ ["Narrated"], else: kinds
+    words = if Filtering.narrated?(set), do: kinds, else: kinds ++ ["Text only"]
 
     case words do
       [] -> nil
@@ -154,12 +159,19 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
   end
 
   # The set's own byline, else its linked author's name, else the author
-  # its meditations agree on.
+  # its meditations agree on; left off when the set is already named for
+  # its author ("Venerable Fulton J. Sheen" by "Archbishop Fulton J.
+  # Sheen").
   defp byline(set) do
     case author_name(set) do
-      name when name == set.name -> nil
-      name -> name
+      nil -> nil
+      name -> if named_for?(set.name, name), do: nil, else: name
     end
+  end
+
+  defp named_for?(set_name, author) do
+    surname = author |> String.split() |> List.last()
+    String.contains?(set_name, surname)
   end
 
   defp author_name(set), do: LumenViaeWeb.PageMeta.set_author(set)

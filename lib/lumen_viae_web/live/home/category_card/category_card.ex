@@ -1,9 +1,9 @@
 defmodule LumenViaeWeb.Live.Home.CategoryCard do
   @moduledoc """
-  One category on the home page's grid, as the app's "all mysteries" shows
-  it: the card's painting, the category's name and the days it is prayed.
-  The wide card (the odd one out on a phone) also says what its mysteries
-  are about. A category with no published painting
+  One category on the home page's grid, as the app's mystery card draws
+  it: the painting full-bleed (`.paint-tile`), the category's name in
+  Cinzel on it and the days it is prayed. The wide card (the odd one out
+  on a phone) also says what its mysteries are about. A category with no published painting
   shows its woodcut instead (`WoodcutPlate.category_key/1`).
   """
   use LumenViaeWeb, :html
@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.Home.CategoryCard do
 
   attr :category, :map, required: true
   attr :today?, :boolean, default: false
-  attr :wide?, :boolean, default: false, doc: "a phone's whole row: the picture beside the words"
+  attr :wide?, :boolean, default: false, doc: "a phone's whole row"
 
   def category_card(assigns) do
     assigns = assign(assigns, :woodcut, WoodcutPlate.category_key(assigns.category.slug))
@@ -21,52 +21,38 @@ defmodule LumenViaeWeb.Live.Home.CategoryCard do
     <.link
       navigate={@category.path}
       class={[
-        "home-card group flex h-full overflow-hidden rounded-2xl bg-night-raised border transition-colors duration-300",
-        if(@wide?, do: "max-md:flex-row flex-col", else: "flex-col"),
-        @today? && "border-gilt ring-1 ring-gilt",
-        !@today? && "border-night-border hover:border-night-line"
+        "home-card paint-tile h-40 md:h-56",
+        @today? && "paint-tile--today"
       ]}
     >
-      <div class={[
-        "relative overflow-hidden bg-vellum",
-        if(@wide?,
-          do: "aspect-[4/3] max-md:aspect-auto max-md:w-[46%] shrink-0",
-          else: "aspect-[4/3]"
-        )
-      ]}>
-        <ArtworkPicture.artwork_picture
-          :if={@category.painting}
-          record={@category.painting.record}
-          alt={@category.painting.alt}
-          sizes="(min-width: 1024px) 215px, (min-width: 768px) 31vw, 47vw"
-          class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          style={"object-position: #{@category.painting.position}"}
-        />
-        <WoodcutPlate.plate_picture
-          :if={!@category.painting && @woodcut}
-          key={@woodcut}
-          sizes="(min-width: 1024px) 215px, (min-width: 768px) 31vw, 47vw"
-          class="absolute inset-0 w-full h-full object-cover object-[50%_30%] transition-transform duration-500 group-hover:scale-[1.03]"
-        />
-      </div>
-      <div class="flex flex-col grow gap-0.5 px-3.5 pt-3 pb-3.5 md:px-4 md:pb-4 min-w-0">
-        <span
-          :if={@today?}
-          class="self-start font-garamond text-sm font-semibold text-night bg-gilt px-2.5 rounded-full mb-1"
-        >
-          Today
-        </span>
-        <h3 class="font-display text-xl md:text-2xl font-semibold text-ink-light leading-tight group-hover:text-gilt transition-colors break-words">
-          {@category.name}
-        </h3>
-        <p :if={@wide?} class="md:hidden font-garamond text-base text-ink-muted leading-snug">
-          {@category.subtitle}
-        </p>
-        <p class="font-garamond italic text-sm text-ink-muted leading-snug mt-auto pt-1">
-          {@category.days}
-        </p>
-      </div>
+      <ArtworkPicture.artwork_picture
+        :if={@category.painting}
+        record={@category.painting.record}
+        alt={@category.painting.alt}
+        sizes="(min-width: 1024px) 215px, (min-width: 768px) 31vw, 47vw"
+        class="paint-tile__image"
+        style={"object-position: #{@category.painting.position}"}
+      />
+      <WoodcutPlate.plate_picture
+        :if={!@category.painting && @woodcut}
+        key={@woodcut}
+        sizes="(min-width: 1024px) 215px, (min-width: 768px) 31vw, 47vw"
+        class={["paint-tile__image paint-tile__image--woodcut", woodcut_position(@wide?)]}
+      />
+      <span class="paint-tile__arrow" aria-hidden="true">
+        <span class="hero-arrow-right size-3.5" />
+      </span>
+      <span class="paint-tile__words">
+        <span :if={@today?} class="badge-capsule mb-1.5">Today</span>
+        <h3 class="paint-tile__title">{@category.name}</h3>
+        <span class="paint-tile__line">{if @wide?, do: @category.subtitle, else: @category.days}</span>
+        <span :if={@wide?} class="paint-tile__line">{@category.days}</span>
+      </span>
     </.link>
     """
   end
+
+  # A woodcut's subject sits high; the wide tile shows a band across it.
+  defp woodcut_position(true), do: "object-[50%_35%]"
+  defp woodcut_position(false), do: "object-[50%_25%]"
 end

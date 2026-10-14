@@ -109,7 +109,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
 
       card = view |> element("#set-#{set.id}") |> render()
       assert card =~ "Meditations of St. Bernard"
-      assert card =~ "Honey-sweet."
+      # A tile is the app's: name, byline and kinds, not the description.
+      refute card =~ "Honey-sweet."
       assert card =~ "St. Bernard"
       # Every set has its five, so the count is not shown.
       refute card =~ "1 meditation"

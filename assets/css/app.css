@@ -21,11 +21,12 @@
 /* This file is for your main application CSS */
 
 /* === fonts === */
-/* The public site's two families, self-hosted from priv/static/fonts:
-   woff2 cut to Latin and Latin-1 (Google Fonts' "latin" subset, OFL).
-   Three files, the only faces the site uses: Cormorant Garamond 500 to
-   600 and EB Garamond 500 to 600 (each a variable font over that range),
-   and EB Garamond italic 500. Nothing asks for 400 or 700, and no heading
+/* The public site's two families, the iOS app's own, self-hosted from
+   priv/static/fonts: woff2 cut to Latin and Latin-1 (Google Fonts'
+   "latin" subset, OFL). Three files, the only faces the site uses: Cinzel
+   400 to 600 (Roman inscription capitals, for every heading, label and
+   button) and EB Garamond 500 to 600 (each a variable font over that
+   range), and EB Garamond italic 500. Nothing asks for 700, and no heading
    is set in italic.
 
    Each has a fallback face on a local serif, scaled and given the web
@@ -33,11 +34,11 @@
    numbers were measured in Chrome against Times New Roman; measure them
    again if a font file changes. */
 @font-face {
-  font-family: 'Cormorant Garamond';
+  font-family: 'Cinzel';
   font-style: normal;
-  font-weight: 500 600;
+  font-weight: 400 600;
   font-display: swap;
-  src: url('/fonts/cormorant-garamond-latin.woff2') format('woff2');
+  src: url('/fonts/cinzel-latin.woff2') format('woff2');
 }
 
 @font-face {
@@ -57,11 +58,11 @@
 }
 
 @font-face {
-  font-family: 'Cormorant Garamond Fallback';
+  font-family: 'Cinzel Fallback';
   src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Times');
-  size-adjust: 95.73%;
-  ascent-override: 96.52%;
-  descent-override: 29.98%;
+  size-adjust: 123.34%;
+  ascent-override: 79.46%;
+  descent-override: 30%;
   line-gap-override: 0%;
 }
 
@@ -76,38 +77,45 @@
 /* === end fonts === */
 
 /* Lumen Viae theme. Two sets of colours live here: the public site's
-   "Midnight Marian" palette (night, ink, gilt, sky, vellum) and the admin
+   "Candlelit" palette (night, ink, gilt, sky, vellum) and the admin
    console's (navy, gold, parchment, cream, brown, and the admin-* tokens).
    Never cross them. */
 @theme {
-  /* --- The public site: Midnight Marian ---------------------------------
-     The iOS app's Marian Blue theme. Every page is night; long reading
-     (the meditation on the prayer page, the Scripture passages, the privacy
-     policy) sits on a vellum page. Ratios are WCAG contrast against the
-     surface named; keep them when changing a value. */
+  /* --- The public site: Candlelit -------------------------------------
+     The iOS app's Candlelit theme, its default: "a dark chapel lit by warm
+     gold" (ios app/DesignSystem/Theme.swift). Every page is night, the
+     meditation included; the Scripture passages and the privacy policy sit
+     on a vellum page. Ratios are WCAG contrast against the surface named;
+     keep them when changing a value. */
 
-  /* Surfaces. night is the page ground, night-deep the header, footer and
-     hero bands, night-raised every card and panel. */
-  --color-night: #0D1730;
-  --color-night-deep: #070E1F;
-  --color-night-raised: #17284E;
+  /* Surfaces. night is the page ground, night-deep the top and foot of the
+     page's gradient and the header, night-raised every card and panel,
+     night-elevated the chosen segment of a choice. */
+  --color-night: #0A0A15;
+  --color-night-deep: #050509;
+  --color-night-raised: #151521;
+  --color-night-elevated: #1E1E2E;
 
-  /* Rules. night-border is a decorative hairline only (1.6:1); a border
-     that marks a control (a chip, a field, an outline button) is
-     night-line (4.5:1 on night, 3.7:1 on night-raised) or gilt. */
-  --color-night-border: #2A3B63;
-  --color-night-line: #6E80AB;
+  /* Rules, in the app's gold at opacity, flattened onto night.
+     night-border is a decorative hairline only (gold at 20%, 1.5:1); a
+     border that marks a control (a chip, a field, an outline button) is
+     night-line (gold at 60%: 4.4:1 on night, 4.1:1 on night-raised) or
+     gilt. */
+  --color-night-border: #352E23;
+  --color-night-line: #8C753F;
 
-  /* Text on night. ink-light 15.5:1, ink-muted 8.5:1 (6.9:1 on raised). */
-  --color-ink-light: #F4EFE2;
-  --color-ink-muted: #B9B3A3;
+  /* Text on night. ink-light 17.5:1, ink-muted 5.9:1 (5.5:1 on raised,
+     5.0:1 on elevated). */
+  --color-ink-light: #F6F1E4;
+  --color-ink-muted: #8B8BA5;
 
-  /* Accents. gilt is the one primary accent (9.2:1 on night): filled
-     buttons are gilt with night text. sky is the quiet accent for
-     kickers and links (8.5:1). */
-  --color-gilt: #D9B84A;
-  --color-gilt-light: #E9CC6E;
-  --color-sky: #9DB4E0;
+  /* Accents. gilt is the one accent (10.9:1 on night): kickers, labels,
+     the gold button (night text on it, 10.9:1) and every quiet action.
+     gilt-light is emphasis gold for section headings (14.2:1). sky is the
+     app's soft accent, for links and a set's kinds (10.1:1). */
+  --color-gilt: #E3BC5B;
+  --color-gilt-light: #F3D89A;
+  --color-sky: #C9B98F;
 
   /* The vellum reading page. vellum-ink 13.9:1, vellum-muted 5.7:1,
      vellum-gold 5.6:1 for small rubrics (verse numbers, references).
@@ -208,14 +216,16 @@
   --shadow-ornate: 0 8px 30px rgba(0, 59, 92, 0.12), 0 0 0 1px rgba(177, 139, 73, 0.25);
   --shadow-glow: 0 0 40px rgba(201, 169, 107, 0.35);
 
-  /* The public site's type. Cormorant Garamond for headings, set in
-     sentence case; EB Garamond (--font-garamond) for everything read and
-     for the small tracked-caps labels. Cinzel stays only for the
-     console's wordmark. */
-  --font-display: 'Cormorant Garamond', 'Cormorant Garamond Fallback', serif;
+  /* The public site's type, as the app sets it. Cinzel for every heading,
+     title, label and button: its lowercase is small capitals, so headings
+     are written in title case and never uppercased. EB Garamond
+     (--font-garamond) for everything read, its italic for every quiet
+     line. */
+  --font-display: 'Cinzel', 'Cinzel Fallback', serif;
 
-  --shadow-night: 0 10px 30px rgba(3, 7, 18, 0.45), 0 1px 3px rgba(3, 7, 18, 0.35);
-  --shadow-gilt: 0 0 18px rgba(217, 184, 74, 0.35);
+  --shadow-night: 0 10px 30px rgba(3, 3, 8, 0.5), 0 1px 3px rgba(3, 3, 8, 0.4);
+  /* The app's halo: light from the gold, never a dark shadow. */
+  --shadow-gilt: 0 0 9px rgba(227, 188, 91, 0.21), 0 0 20px rgba(227, 188, 91, 0.105);
 
   /* Animations */
   --animate-rise: rise 0.9s ease-out both;
@@ -270,22 +280,31 @@
     font-weight: 400;
   }
 
-  /* The public site: night ground, light ink, Cormorant headings in
-     sentence case. */
-  .site {
+  /* The public site: the app's page ground, a gradient darker at the top
+     and foot (AppColors.appGradient), light ink, Cinzel headings. A page
+     leaves its own background off so the gradient shows. The ground is on
+     <html>, not <body>: LiveView can make the body `display: contents`,
+     and a box that is not drawn paints no background. */
+  html:has(> body.site) {
     background-color: var(--color-night);
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-night-deep),
+      var(--color-night) 18rem,
+      var(--color-night) calc(100% - 18rem),
+      var(--color-night-deep)
+    );
+  }
+
+  .site {
     color: var(--color-ink-light);
   }
 
   .site :is(h1, h2, h3, h4, h5, h6) {
     font-family: var(--font-display);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0;
     line-height: 1.2;
-  }
-
-  .site h1 {
-    font-weight: 600;
   }
 
   /* 600 is the heaviest face served; asking for 700 would fake a bold. */
@@ -601,85 +620,90 @@
    still override a property.
    --------------------------------------------------------------------- */
 
-/* The small label above a heading or a group: EB Garamond in modest
-   tracked capitals, 13px, sky on night. Never below 12px. */
+/* The small label above a heading or a group, as the app's labelFont:
+   Cinzel tracked capitals, 12px, gilt on night. Never below 12px. */
 .kicker {
-  font-family: var(--font-garamond);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.16em;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-sky);
+  color: var(--color-gilt);
 }
 
-/* The primary action: a gilt capsule with night text (9.2:1). One filled
-   gilt shape per screen region; a second primary action means one of them
-   is wrong. */
+/* The primary action, as the app's GoldCTAButton: a pill of gold
+   brightening to the right, night Cinzel capitals on it (10.9:1), a soft
+   gold halo. One per screen; everything else is quiet gold type. */
 .btn-gold {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding: 0.8125rem 1.75rem;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding: 0.875rem 1.75rem;
   border-radius: 9999px;
-  border: 1px solid var(--color-gilt);
-  background: var(--color-gilt);
+  border: 1px solid color-mix(in srgb, var(--color-gilt-light) 60%, transparent);
+  background-color: var(--color-gilt);
+  background-image: linear-gradient(to right, var(--color-gilt), var(--color-gilt-light));
   color: var(--color-night);
-  font-family: var(--font-garamond);
-  font-size: 1.0625rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 400;
   line-height: 1.2;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
   text-align: center;
-  box-shadow: 0 6px 22px rgba(217, 184, 74, 0.16);
-  transition: background-color 0.16s ease-out, transform 0.16s ease-out, box-shadow 0.16s ease-out;
+  box-shadow: var(--shadow-gilt);
+  transition: filter 0.18s ease-out, transform 0.18s ease-out;
 }
 
 .btn-gold:hover {
-  background: var(--color-gilt-light);
-  box-shadow: var(--shadow-gilt);
+  filter: brightness(1.05);
 }
 
 .btn-gold:active {
   transform: scale(0.97);
+  filter: brightness(0.94);
 }
 
-/* The quiet secondary action: the same capsule, a gilt rule (9.2:1, so
-   it reads as a control), light ink inside. */
+/* A secondary action that needs a shape, as the app's outlined button:
+   the same capsule, a gilt rim, gilt-light Cinzel capitals inside. */
 .btn-outline-gold {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   min-height: 2.75rem;
-  padding: 0.8125rem 1.75rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 9999px;
-  border: 1px solid var(--color-gilt);
-  background: transparent;
-  color: var(--color-ink-light);
-  font-family: var(--font-garamond);
-  font-size: 1.0625rem;
-  font-weight: 500;
+  border: 1px solid var(--color-night-line);
+  background: radial-gradient(circle at top, rgba(227, 188, 91, 0.12), transparent 70%);
+  color: var(--color-gilt-light);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 400;
   line-height: 1.2;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   text-align: center;
   transition: background-color 0.16s ease-out, transform 0.16s ease-out;
 }
 
 .btn-outline-gold:hover {
-  background: rgba(217, 184, 74, 0.12);
+  background-color: rgba(227, 188, 91, 0.1);
 }
 
 .btn-outline-gold:active {
   transform: scale(0.97);
 }
 
-/* A raised night card with a decorative hairline. */
+/* A raised night card with a gold hairline, as the app's sacredCard.
+   The app keeps filled cards for a few blocks; lists are ruled ledgers
+   (.row-list). */
 .hairline-card {
   background: var(--color-night-raised);
-  border: 1px solid var(--color-night-border);
+  border: 1px solid rgba(227, 188, 91, 0.3);
   border-radius: 1rem;
 }
 
@@ -750,42 +774,69 @@
   scroll-padding-inline: 1rem;
 }
 
-/* The one section label on every public page: tracked capitals in sky,
-   with a rule running to the end of the line. Put it on the section's
-   heading, so the label is the heading. */
+/* The one section label on every public page, as the app's ShelfHeading:
+   Cinzel tracked capitals in gilt, with a gold rule running to the end of
+   the line. Put it on the section's heading, so the label is the heading.
+   `.site` raises its specificity over the base heading rule. */
+.site .section-label,
 .section-label {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.875rem;
   margin-bottom: 0.75rem;
-  font-family: var(--font-garamond);
+  font-family: var(--font-display);
   font-size: 0.8125rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.4;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-sky);
+  color: var(--color-gilt);
 }
 
 .section-label::after {
   content: "";
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, var(--color-night-border), transparent);
+  background: linear-gradient(to right, rgba(227, 188, 91, 0.4), transparent);
 }
 
-/* The one list of choices: rows in a single raised card, divided by a
-   hairline, each row a link at least 64px tall with a gilt chevron. Used
-   for today's sets and the ways to pray without a set. */
-.row-list {
-  background: var(--color-night-raised);
-  border: 1px solid var(--color-night-border);
-  border-radius: 1rem;
-  overflow: hidden;
+/* A section heading as the app's home sets one: Cinzel in gilt-light,
+   title case, an italic line under it. */
+.site .section-heading,
+.section-heading {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-gilt-light);
 }
 
+/* The app's day label: a word centred between two gold rules that fade
+   toward it. */
+.rule-label {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.rule-label::before,
+.rule-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-gilt));
+}
+
+.rule-label::after {
+  background: linear-gradient(to left, transparent, var(--color-gilt));
+}
+
+/* The one list of choices, as the app's ruled ledger: rows on the page,
+   a gold hairline (15%) between them, no card. Each row is a link at
+   least 64px tall with a quiet chevron. Used for today's sets and the
+   ways to pray. */
 .row-list > li + li {
-  border-top: 1px solid var(--color-night-border);
+  border-top: 1px solid rgba(227, 188, 91, 0.15);
 }
 
 .row-link {
@@ -793,23 +844,49 @@
   align-items: center;
   gap: 0.875rem;
   min-height: 4rem;
-  padding: 0.625rem 1rem;
-  transition: background-color 0.16s ease-out;
+  padding: 0.75rem 0;
+  transition: opacity 0.18s ease-out;
 }
 
-.row-link:hover {
-  background: color-mix(in srgb, var(--color-night-line) 14%, transparent);
+.row-link:active {
+  opacity: 0.92;
 }
 
 .row-link:focus-visible {
   outline: 2px solid var(--color-gilt);
-  outline-offset: -3px;
-  border-radius: 1rem;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* A row's title in Cinzel, its line in Garamond, its facts in tracked
+   capitals. */
+.row-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-ink-light);
+  transition: color 0.18s ease-out;
+}
+
+.row-link:hover .row-title {
+  color: var(--color-gilt-light);
+}
+
+.row-fact {
+  display: block;
+  margin-top: 0.125rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
 }
 
 .row-chevron {
   flex-shrink: 0;
-  color: var(--color-gilt);
+  color: var(--color-ink-muted);
   transition: transform 0.16s ease-out;
 }
 
@@ -817,47 +894,70 @@
   transform: translateX(2px);
 }
 
-/* A round badge for a way of praying's icon. */
+/* A category's mysteries as a ruled ledger: a gilt Cinzel numeral, the
+   name, its fruit in italic beneath. The home page and a category page. */
+.mystery-ledger > li {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  align-items: baseline;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid rgba(227, 188, 91, 0.15);
+}
+
+.mystery-ledger__numeral {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  color: var(--color-gilt);
+}
+
+/* A way of praying's icon, as the app's arched icon frame: a gold
+   outline round at the top. */
 .glyph-badge {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 9999px;
-  border: 1px solid var(--color-night-border);
+  width: 3.25rem;
+  height: 3.75rem;
+  border-radius: 0.75rem 0.75rem 0.375rem 0.375rem;
+  border: 1px solid rgba(227, 188, 91, 0.55);
   color: var(--color-gilt);
-  background: var(--color-night);
 }
 
-/* A portrait in the arch every set's picture shares. The frame draws the
-   arch, so a portrait and the placeholder have one shape. */
+/* A set's picture in a row: the app's rounded square with a gold rim.
+   The frame draws the shape, so a portrait and the placeholder share it. */
 .arch-thumb {
   position: relative;
   flex-shrink: 0;
   overflow: hidden;
-  border-radius: 9999px 9999px 0.375rem 0.375rem;
-  border: 1px solid var(--color-night-border);
-  background: var(--color-night);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(227, 188, 91, 0.28);
+  background: var(--color-night-raised);
 }
 
-/* The quietest action: underlined sky text, still 44px tall. */
+/* The quiet action, as the app's QuietGoldButton: bare gilt Cinzel
+   capitals, no shape, still 44px tall. */
 .btn-text {
   display: inline-flex;
   align-items: center;
+  gap: 0.375rem;
   min-height: 44px;
-  padding: 0 0.25rem;
-  font-family: var(--font-garamond);
-  font-size: 1.0625rem;
-  color: var(--color-sky);
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  padding: 0 0.125rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-gilt);
   cursor: pointer;
+  transition: opacity 0.18s ease-out;
 }
 
 .btn-text:hover {
-  color: var(--color-ink-light);
+  color: var(--color-gilt-light);
+}
+
+.btn-text:active {
+  opacity: 0.6;
 }
 
 .btn-text:focus-visible {
@@ -905,17 +1005,43 @@
   }
 }
 
-.category-choices {
-  background: var(--color-night-raised);
-  border: 1px solid var(--color-night-border);
-  border-radius: 1rem;
-  padding: 0.75rem 0.75rem 0.75rem 1rem;
+/* "Your Rosary Today": on a phone a ruled row that opens the choices; on
+   a wide screen the app's outlined section, the choices always open. */
+@media (min-width: 1024px) {
+  .category-choices {
+    border: 1px solid rgba(227, 188, 91, 0.24);
+    border-radius: 1rem;
+    padding: 1.125rem 1.25rem 0.5rem;
+  }
 }
 
-@media (min-width: 640px) {
-  .category-choices {
-    padding: 1rem 1rem 1rem 1.25rem;
+.category-choices-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(227, 188, 91, 0.15);
+  border-bottom: 1px solid rgba(227, 188, 91, 0.15);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Declared outside a layer, so a utility cannot hide it: the wide screen
+   hides it here. */
+@media (min-width: 1024px) {
+  .category-choices-row {
+    display: none;
   }
+}
+
+.category-choice-legend {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-light);
 }
 
 .category-choices fieldset:last-of-type {
@@ -930,12 +1056,13 @@
   color: var(--color-ink-muted);
 }
 
+/* The app's RosaryChoicePill: a faint gold capsule; the chosen segment a
+   raised capsule with a gold rim and gilt-light Cinzel capitals. */
 .category-pill {
   display: flex;
   padding: 3px;
   border-radius: 9999px;
-  border: 1px solid var(--color-night-line);
-  background: var(--color-night);
+  border: 1px solid rgba(227, 188, 91, 0.18);
 }
 
 .category-pill-option {
@@ -950,9 +1077,11 @@
   border: 1px solid transparent;
   cursor: pointer;
   text-align: center;
-  font-family: var(--font-garamond);
-  font-size: 0.9375rem;
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   line-height: 1.25;
   color: var(--color-ink-muted);
   transition:
@@ -965,9 +1094,9 @@
 }
 
 .category-pill-option:has(:checked) {
-  background: var(--color-gilt);
-  color: var(--color-night);
-  font-weight: 600;
+  background: var(--color-night-elevated);
+  border-color: rgba(227, 188, 91, 0.7);
+  color: var(--color-gilt-light);
 }
 
 .category-pill-option:has(:focus-visible) {
@@ -977,16 +1106,138 @@
 
 .category-card {
   background: var(--color-night-raised);
-  border: 1px solid var(--color-night-border);
+  border: 1px solid rgba(227, 188, 91, 0.3);
   border-radius: 1rem;
   transition:
     border-color 0.2s ease-out,
-    transform 0.2s ease-out;
+    transform 0.18s ease-out;
 }
 
 .category-card:has(.category-stretched-link):hover {
-  border-color: var(--color-night-line);
-  transform: translateY(-2px);
+  border-color: rgba(227, 188, 91, 0.6);
+}
+
+.category-card:has(.category-stretched-link):active {
+  transform: scale(0.98);
+}
+
+/* A painted tile, as the app's MysteryCard and MeditationSetTile: the
+   picture full-bleed, a dark fall-off under the words, the name in Cinzel
+   on it, a gold hairline rim. */
+.paint-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.75rem 0.75rem 0.75rem 0.875rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgba(227, 188, 91, 0.35);
+  background: linear-gradient(to bottom, #2a2a4a, #1a1a3a);
+  isolation: isolate;
+  transition: transform 0.18s ease-out, border-color 0.18s ease-out;
+}
+
+.paint-tile:hover {
+  border-color: rgba(227, 188, 91, 0.7);
+}
+
+.paint-tile:active {
+  transform: scale(0.98);
+}
+
+.paint-tile__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+/* A woodcut is paper and ink, so it is toned warm to sit in the dark. */
+.paint-tile__image--woodcut {
+  filter: sepia(0.35) contrast(1.05);
+}
+
+.paint-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom, rgba(5, 5, 9, 0.08), rgba(5, 5, 9, 0.3) 45%, rgba(5, 5, 9, 0.88));
+}
+
+/* Static, so a stretched link inside covers the whole tile. */
+.paint-tile__words {
+  min-width: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+
+.paint-tile:has(.category-stretched-link:focus-visible) {
+  outline: 2px solid var(--color-gilt);
+  outline-offset: 3px;
+}
+
+.paint-tile__title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-ink-light);
+}
+
+.paint-tile__line {
+  display: block;
+  font-style: italic;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  color: rgba(246, 241, 228, 0.88);
+}
+
+.paint-tile__fact {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 228, 0.88);
+}
+
+.paint-tile__arrow {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(227, 188, 91, 0.8);
+  background: rgba(10, 10, 21, 0.25);
+  color: var(--color-gilt);
+}
+
+.paint-tile--today {
+  border-color: var(--color-gilt);
+  box-shadow: var(--shadow-gilt);
+}
+
+/* The app's hero badge: Cinzel capitals in a dark capsule, gold rim. */
+.badge-capsule {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(227, 188, 91, 0.45);
+  background: rgba(10, 10, 21, 0.55);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-gilt-light);
 }
 
 .category-card:has(.category-stretched-link:focus-visible) {
@@ -1016,14 +1267,16 @@
 
 .category-chip {
   min-height: 44px;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.9375rem;
   border-radius: 9999px;
-  border: 1px solid var(--color-night-line);
-  background: transparent;
-  font-family: var(--font-garamond);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--color-ink-light);
+  border: 1px solid rgba(227, 188, 91, 0.3);
+  background: rgba(21, 21, 33, 0.6);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
   cursor: pointer;
   transition:
     background-color 0.2s ease-out,
@@ -1032,14 +1285,13 @@
 }
 
 .category-chip:hover {
-  border-color: var(--color-gilt);
+  border-color: var(--color-night-line);
 }
 
 .category-chip[aria-pressed="true"] {
-  background: var(--color-gilt);
-  border-color: var(--color-gilt);
-  color: var(--color-night);
-  font-weight: 600;
+  background: var(--color-night-elevated);
+  border-color: rgba(227, 188, 91, 0.7);
+  color: var(--color-gilt-light);
 }
 
 .category-quiet-btn {
@@ -1049,18 +1301,20 @@
   min-height: 44px;
   padding: 0.6rem 1.25rem;
   border-radius: 9999px;
-  border: 1px solid var(--color-gilt);
+  border: 1px solid var(--color-night-line);
   background: transparent;
-  font-family: var(--font-garamond);
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-ink-light);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-gilt-light);
   cursor: pointer;
   transition: background-color 0.2s ease-out;
 }
 
 .category-quiet-btn:hover {
-  background: rgba(217, 184, 74, 0.12);
+  background: rgba(227, 188, 91, 0.1);
 }
 
 .category-chip:focus-visible,
@@ -1147,11 +1401,55 @@
   overflow-x: clip;
 }
 
-/* The meditation's reading page. Vellum by default; the reader may keep
-   it on night ("Reading page" in the settings pane), which the
-   PrayerSurface hook records as data-reading-page on <html>. Its colours
-   live here, not in utilities, so the switch is one attribute. */
+/* The app's candle glow on the prayer page: warm gold from the top
+   centre, gone by mid-page. */
+.prayer-glow {
+  background: radial-gradient(ellipse 90% 45% at 50% 0%, rgba(227, 188, 91, 0.1), rgba(227, 188, 91, 0.025) 55%, transparent 75%);
+}
+
+/* The meditation's reading page. On night by default, as the app's
+   reader; the reader may put it on a vellum page ("Reading page" in the
+   settings pane), which the PrayerSurface hook records as
+   data-reading-page on <html>. Night is the page with no attribute, so
+   nothing flashes before the script runs. Its colours live here, not in
+   utilities, so the switch is one attribute. */
 .reading-page {
+  --focus-ring: var(--color-gilt);
+  color: var(--color-ink-light);
+}
+
+.reading-page__title {
+  color: var(--color-gilt);
+}
+
+.reading-page__meta {
+  color: var(--color-ink-muted);
+  border-color: rgba(227, 188, 91, 0.2);
+}
+
+/* The app's versal: the first letter in Cinzel, gilt, half as large
+   again, on the first line's baseline. */
+.reading-page .meditation-text > p:first-child::first-letter {
+  font-family: var(--font-display);
+  font-size: 1.6em;
+  line-height: 1;
+  color: var(--color-gilt);
+}
+
+/* The meditation's play button, in the reading page's own colours: the
+   app's gold disc with night on night (10.9:1), vellum-gold with vellum on
+   a vellum page (5.6:1). */
+.reading-page__play {
+  background: linear-gradient(to bottom, var(--color-gilt-light), var(--color-gilt));
+  color: var(--color-night);
+  box-shadow: var(--shadow-gilt);
+}
+
+.reading-page__play:hover {
+  filter: brightness(1.05);
+}
+
+html[data-reading-page="vellum"] .reading-page {
   --focus-ring: var(--color-vellum-ink);
   background: var(--color-vellum);
   color: var(--color-vellum-ink);
@@ -1162,38 +1460,29 @@
 }
 
 @media (min-width: 640px) {
-  .reading-page {
+  html[data-reading-page="vellum"] .reading-page {
     padding: 2.25rem 2.5rem;
   }
 }
 
-.reading-page__title {
+html[data-reading-page="vellum"] .reading-page__title,
+html[data-reading-page="vellum"] .reading-page .meditation-text > p:first-child::first-letter {
   color: var(--color-vellum-ink);
 }
 
-.reading-page__meta {
+html[data-reading-page="vellum"] .reading-page__meta {
   color: var(--color-vellum-muted);
   border-color: var(--color-vellum-border);
 }
 
-/* The meditation's play button, in the reading page's own colours:
-   vellum-gold with vellum on the page (5.6:1), gilt with night on night. */
-.reading-page__play {
+html[data-reading-page="vellum"] .reading-page__play {
   background: var(--color-vellum-gold);
   color: var(--color-vellum);
+  box-shadow: none;
 }
 
-.reading-page__play:hover {
+html[data-reading-page="vellum"] .reading-page__play:hover {
   background: var(--color-vellum-ink);
-}
-
-html[data-reading-page="night"] .reading-page__play {
-  background: var(--color-gilt);
-  color: var(--color-night);
-}
-
-html[data-reading-page="night"] .reading-page__play:hover {
-  background: var(--color-gilt-light);
 }
 
 /* The woodcut beside a decade's name: a slimmer mat at that size. */
@@ -1203,24 +1492,6 @@ html[data-reading-page="night"] .reading-page__play:hover {
 
 .prayer-plate-mat .woodcut-plate__mount::after {
   inset: 0.2rem;
-}
-
-html[data-reading-page="night"] .reading-page {
-  --focus-ring: var(--color-gilt);
-  background: transparent;
-  color: var(--color-ink-light);
-  border-color: transparent;
-  padding-inline: 0;
-  box-shadow: none;
-}
-
-html[data-reading-page="night"] .reading-page__title {
-  color: var(--color-gilt);
-}
-
-html[data-reading-page="night"] .reading-page__meta {
-  color: var(--color-ink-muted);
-  border-color: var(--color-night-border);
 }
 
 /* The current mystery's plate, which the reader can turn off ("Images"
