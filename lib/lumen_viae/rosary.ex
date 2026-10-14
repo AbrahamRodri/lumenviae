@@ -21,15 +21,17 @@ defmodule LumenViae.Rosary do
     * `LumenViae.Rosary.Author`
     * `LumenViae.Rosary.Completion`
 
-  plus four with no table, `LumenViae.Rosary.NarrationVoice`,
-  `LumenViae.Rosary.SpokenRosary`, `LumenViae.Rosary.RosaryContent` and
-  `LumenViae.Rosary.RosaryScript`, which give the APIs the configured
-  voices, the spoken Rosary, the Rosary's words and one Rosary's script.
+  plus six with no table, `LumenViae.Rosary.NarrationVoice`,
+  `LumenViae.Rosary.SpokenRosary`, `LumenViae.Rosary.RosaryContent`,
+  `LumenViae.Rosary.RosaryScript`, `LumenViae.Rosary.PrayerBook` and
+  `LumenViae.Rosary.ChantLibrary`, which give the APIs the configured
+  voices, the spoken Rosary, the Rosary's words, one Rosary's script, the
+  Prayer Book and the Chant Library.
 
   Nothing outside `lib/lumen_viae/rosary/` names a resource, calls `Ash`
   on one, or touches the Repo for Rosary data; `test/lumen_viae/rosary/context_rules_test.exs`
   fails the build if something does. The value modules (`Categories`,
-  `Labels`, `Artwork`, `Voices`, `PrayerAudio`, `Content`) hold vocabulary and pure
+  `Labels`, `Artwork`, `Voices`, `PrayerAudio`, `Content`, `Library`) hold vocabulary and pure
   calculation and may be called from any layer.
 
   ## What is a function here, and what is an action
@@ -84,6 +86,8 @@ defmodule LumenViae.Rosary do
       read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: true
       read_one LumenViae.Rosary.RosaryContent, :rosary_content, :current, allow_nil?: false
       read_one LumenViae.Rosary.RosaryScript, :rosary_script, :expand, allow_nil?: true
+      read_one LumenViae.Rosary.PrayerBook, :prayer_book, :current, allow_nil?: false
+      read_one LumenViae.Rosary.ChantLibrary, :chant_library, :current, allow_nil?: false
       action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
 
       # The sets the public may see. Both read through :visible, so a set
@@ -201,6 +205,26 @@ defmodule LumenViae.Rosary do
         get :expand do
           route "/"
           name "getRosaryScript"
+          derive_sort? false
+        end
+      end
+
+      # The Prayer Book and the Chant Library, for a client that keeps them
+      # offline. As with the Rosary's words, the bare request is the version
+      # and the date; the sections are named in fields[prayer_book]= and
+      # fields[chant_library]=.
+      base_route "/prayer-book", LumenViae.Rosary.PrayerBook do
+        get :current do
+          route "/"
+          name "getPrayerBook"
+          derive_sort? false
+        end
+      end
+
+      base_route "/chant-library", LumenViae.Rosary.ChantLibrary do
+        get :current do
+          route "/"
+          name "getChantLibrary"
           derive_sort? false
         end
       end
@@ -367,12 +391,14 @@ defmodule LumenViae.Rosary do
     resource LumenViae.Rosary.Narration
 
     # No tables: the APIs' view of the narration voices, the spoken Rosary
-    # and the Rosary's words, all of which are configuration or fixed
-    # content rather than data.
+    # the Rosary's words, the Prayer Book and the Chant Library, all of
+    # which are configuration or fixed content rather than data.
     resource LumenViae.Rosary.NarrationVoice
     resource LumenViae.Rosary.SpokenRosary
     resource LumenViae.Rosary.RosaryContent
     resource LumenViae.Rosary.RosaryScript
+    resource LumenViae.Rosary.PrayerBook
+    resource LumenViae.Rosary.ChantLibrary
   end
 
   require Ash.Query
