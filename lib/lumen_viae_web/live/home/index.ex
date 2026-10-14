@@ -22,7 +22,8 @@ defmodule LumenViaeWeb.Live.Home.Index do
   alias LumenViae.LiturgicalCalendar
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
-  alias LumenViae.Rosary.Categories
+  alias LumenViae.Rosary.{Categories, Labels}
+  alias LumenViaeWeb.Components.{MysteryPainting, SetPortrait}
   alias LumenViaeWeb.PageMeta
 
   @numerals ~w(I II III IV V VI VII)
@@ -198,13 +199,21 @@ defmodule LumenViaeWeb.Live.Home.Index do
       case Map.get(in_category, order) do
         nil ->
           %{
+            key: "#{slug}_#{order}",
             numeral: Enum.at(@numerals, order - 1),
             name: Categories.mystery_label(slug, order),
-            fruit: nil
+            fruit: nil,
+            record: nil
           }
 
         mystery ->
-          %{numeral: Enum.at(@numerals, order - 1), name: mystery.name, fruit: mystery.fruit}
+          %{
+            key: "#{slug}_#{order}",
+            numeral: Enum.at(@numerals, order - 1),
+            name: mystery.name,
+            fruit: mystery.fruit,
+            record: mystery
+          }
       end
     end)
   end
@@ -231,8 +240,35 @@ defmodule LumenViaeWeb.Live.Home.Index do
   def schedule_detail(:traditional), do: "Joyful on Thursday, Glorious on Saturday"
   def schedule_detail(:modern), do: "Luminous on Thursday, Joyful on Saturday"
 
-  @doc false
-  def has_audio?(set), do: set.audio_count > 0
+  @doc """
+  The line under a set's name in today's list: its kinds, and "Text only"
+  for a set with no narration. Narration is the rule, so it is the
+  exception that is named.
+  """
+  def set_detail(set) do
+    kinds = Enum.map(set.labels || [], &Labels.display_name/1)
+    words = if set.audio_count > 0, do: kinds, else: kinds ++ ["Text only"]
+
+    case words do
+      [] -> nil
+      words -> Enum.join(words, " · ")
+    end
+  end
+
+  @doc """
+  Where the hero frames today's painting: an uploaded painting's own
+  focal point, else the app's framing of the card.
+  """
+  def hero_position(%{painting: %{position: position}}), do: position
+
+  def hero_position(%{slug: slug}) do
+    {x, y} = Categories.card_focal_point(slug)
+    Artwork.object_position(x, y)
+  end
+
+  @doc "The last card of an odd number takes a phone's whole row."
+  def wide_card?(index, categories),
+    do: rem(length(categories), 2) == 1 and index == length(categories) - 1
 
   @doc false
   def scriptural_path(slug), do: "/mysteries/#{slug}/pray?form=scriptural"

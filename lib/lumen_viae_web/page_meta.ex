@@ -13,7 +13,7 @@ defmodule LumenViaeWeb.PageMeta do
       |> PageMeta.put("/mysteries/joyful",
         title: "The Joyful Mysteries",
         description: "...",
-        image: PageMeta.plate_image("joyful_1"),
+        image: PageMeta.painting_image("joyful_1"),
         trail: [{"The Joyful Mysteries", "/mysteries/joyful"}]
       )
 
@@ -22,7 +22,7 @@ defmodule LumenViaeWeb.PageMeta do
   """
 
   alias LumenViae.Rosary.Categories
-  alias LumenViaeWeb.Components.WoodcutPlate
+  alias LumenViaeWeb.Components.MysteryPainting
 
   @site "https://www.lumenviae.org"
   @site_name "Lumen Viae"
@@ -37,17 +37,6 @@ defmodule LumenViaeWeb.PageMeta do
     width: 1200,
     height: 630,
     alt: "Lumen Viae, Light of the Way: a gold arch holding a guiding star"
-  }
-
-  # The woodcut a category's page and its card in a link preview show: the
-  # same prints the category page's header shows until its painting is
-  # published.
-  @category_plates %{
-    "joyful" => "joyful_1",
-    "sorrowful" => "sorrowful_5",
-    "glorious" => "glorious_1",
-    "luminous" => "luminous_1",
-    "seven_sorrows" => "seven_sorrows_6"
   }
 
   @doc "The site's address, with no trailing slash."
@@ -69,7 +58,7 @@ defmodule LumenViaeWeb.PageMeta do
 
     * `:title` and `:description` (required). The description is cut to
       `max_description/0` characters at a word.
-    * `:image` - `plate_image/1`'s result, or `nil` for the default share image.
+    * `:image` - `painting_image/1`'s result, or `nil` for the default share image.
     * `:trail` - the page's breadcrumb below Home, as `{name, path}` pairs
       ending with the page itself; empty on the home page and on pages with
       no parent.
@@ -105,29 +94,27 @@ defmodule LumenViaeWeb.PageMeta do
   end
 
   @doc """
-  The preview image for a mystery's woodcut, by mystery key (`"joyful_1"`):
-  its JPEG as an absolute address, with its size and what it shows. Nil for a
-  key with no plate.
+  The preview image for a mystery's painting, by mystery key
+  (`"joyful_1"`): the app's painting as a JPEG at an absolute address, with
+  its size and what it shows. Nil for a key with no painting.
   """
-  def plate_image(key) do
-    case WoodcutPlate.plate(key) do
-      nil ->
-        nil
+  def painting_image(key), do: preview(MysteryPainting.for_mystery(key))
 
-      plate ->
-        %{
-          url: absolute_url(plate.src),
-          width: plate.width,
-          height: plate.height,
-          alt: plate.alt
-        }
-    end
+  @doc "The preview image for a category's page: the painting its head shows."
+  def category_image(category), do: preview(MysteryPainting.for_category(category))
+
+  defp preview(nil), do: nil
+
+  defp preview(painting) do
+    %{
+      url: absolute_url(painting.preview.src),
+      width: painting.preview.width,
+      height: painting.preview.height,
+      alt: painting.alt
+    }
   end
 
-  @doc "The preview image for a category's page: the woodcut its header shows."
-  def category_image(category), do: plate_image(Map.get(@category_plates, category))
-
-  @doc "The default share image: what link previews show for the home page and any page with no woodcut."
+  @doc "The default share image: what link previews show for the home page and any page with no painting."
   def default_image do
     %{
       url: absolute_url(@default_image.path),
@@ -218,7 +205,7 @@ defmodule LumenViaeWeb.PageMeta do
   and the mysteries it prays.
 
   `mystery_names` are the names of the set's decades in prayer order and
-  `first_key` is the first decade's mystery key (`"joyful_3"`), whose woodcut
+  `first_key` is the first decade's mystery key (`"joyful_3"`), whose painting
   is the preview image.
   """
   def pray_set(set, mystery_names, first_key) do
@@ -228,7 +215,7 @@ defmodule LumenViaeWeb.PageMeta do
     [
       title: set_title(set.name, category),
       description: set_description(set.name, author, category, mystery_names),
-      image: plate_image(first_key) || category_image(category),
+      image: painting_image(first_key) || category_image(category),
       trail: [
         {category_title(category), "/mysteries/#{category}"},
         {set.name, "/meditation-sets/#{set.id}/pray"}
@@ -251,7 +238,7 @@ defmodule LumenViaeWeb.PageMeta do
           "Pray the #{count_word(category)} #{devotion} of the Holy Rosary decade by decade, listen along or count on your beads, with the Scripture for each mystery.",
           "Pray the #{devotion} of the Holy Rosary, listen along or count on your beads."
         ]),
-      image: plate_image("#{category}_1") || category_image(category),
+      image: painting_image("#{category}_1") || category_image(category),
       trail: [
         {category_title(category), "/mysteries/#{category}"},
         {"Pray the #{devotion}", "/mysteries/#{category}/pray"}

@@ -1,69 +1,56 @@
 defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
   @moduledoc """
-  The category page's hero (painting or woodcut, name, the days it is prayed)
-  and, beneath it, its mysteries with the fruit each is prayed for.
+  The category page's head (its painting beside the name, the days
+  it is prayed), as the app heads a pushed page, and beneath it its
+  mysteries with the fruit each is prayed for.
   """
   use LumenViaeWeb, :html
 
-  alias LumenViaeWeb.Components.WoodcutPlate
+  alias LumenViaeWeb.Components.MysteryPainting
 
   attr :category, :string, required: true
   attr :title, :string, required: true
   attr :subtitle, :string, required: true
   attr :days, :string, required: true
-  attr :painting, :map, default: nil, doc: "the published painting, or nil for the woodcut"
+  attr :painting, :map, default: nil, doc: "the uploaded painting, or nil for the app's own"
 
   def category_hero(assigns) do
     ~H"""
     <section
-      class="relative bg-night-deep overflow-hidden border-b border-night-border"
+      class="border-b border-[rgba(227,188,91,0.15)]"
       aria-labelledby="category-heading"
     >
-      <div class="absolute inset-0 opacity-[0.05]" aria-hidden="true">
-        <picture class="contents">
-          <source
-            type="image/webp"
-            srcset="/images/ornate-blue-gold-bg-symbols-480.webp 480w, /images/ornate-blue-gold-bg-symbols-735.webp 735w"
-            sizes="100vw"
-          />
-          <img
-            src="/images/ornate-blue-gold-bg-symbols.jpg"
-            width="735"
-            height="489"
-            alt=""
-            class="w-full h-full object-cover"
-          />
-        </picture>
-      </div>
-
-      <div class="relative max-w-5xl mx-auto px-4 sm:px-8 py-10 md:py-16 grid gap-8 md:grid-cols-[auto_1fr] md:gap-12 items-center">
+      <%!-- As the app heads a pushed page: the picture beside the title in
+            Cinzel, the days in tracked gold capitals. --%>
+      <div class="max-w-5xl mx-auto px-4 sm:px-8 py-5 md:py-10 grid grid-cols-[4.5rem_minmax(0,1fr)] sm:grid-cols-[7rem_minmax(0,1fr)] md:grid-cols-[10rem_minmax(0,1fr)] gap-4 sm:gap-6 md:gap-10 items-center">
         <.arch_frame
           :if={@painting}
           src={@painting.src}
           alt={@painting.alt}
-          class="w-36 sm:w-44 md:w-56 mx-auto md:mx-0 category-rise"
+          class="w-full category-rise"
           img_class={focal_class(@category)}
         />
-        <WoodcutPlate.woodcut_plate
-          :if={!@painting}
-          key={WoodcutPlate.category_key(@category)}
-          size={:sm}
-          caption={false}
-          class="!max-w-40 md:!max-w-56 category-rise"
-        />
+        <div :if={!@painting} class="painting-frame category-rise">
+          <MysteryPainting.picture
+            category={@category}
+            sizes="(min-width: 768px) 160px, (min-width: 640px) 112px, 72px"
+            loading="eager"
+            class="w-full h-full object-cover"
+          />
+        </div>
 
-        <div class="min-w-0 text-center md:text-left">
-          <p class="kicker mb-2">The Holy Rosary</p>
+        <div class="min-w-0">
+          <p class="kicker hidden sm:block mb-1">The Holy Rosary</p>
           <h1
             id="category-heading"
-            class="font-display text-4xl sm:text-5xl md:text-6xl text-ink-light leading-tight mb-3"
+            class="font-display text-[1.5rem] sm:text-4xl md:text-5xl text-ink-light leading-[1.1] mb-1 sm:mb-2"
           >
             {@title}
           </h1>
-          <p class="font-garamond italic text-xl text-ink-muted mb-5">{@subtitle}</p>
-          <.sacred_divider class="max-w-[14rem] mx-auto md:mx-0 my-5 md:justify-start" />
-          <p class="kicker mb-1">Prayed on</p>
-          <p class="font-garamond text-lg text-ink-light" data-role="days">{@days}</p>
+          <p class="hidden sm:block font-garamond italic text-lg text-ink-muted mb-1">{@subtitle}</p>
+          <p class="kicker" data-role="days">
+            <span class="sr-only">Prayed on </span>{@days}
+          </p>
         </div>
       </div>
     </section>
@@ -81,26 +68,30 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
 
   def mysteries_list(assigns) do
     ~H"""
-    <section class="max-w-5xl mx-auto px-4 sm:px-8 pt-10 md:pt-14" aria-labelledby="mysteries-heading">
-      <h2 id="mysteries-heading" class="category-section-label">
+    <section class="max-w-5xl mx-auto px-4 sm:px-8 pt-8 md:pt-12" aria-labelledby="mysteries-heading">
+      <h2 id="mysteries-heading" class="section-label">
         {if @category == "seven_sorrows", do: "The Seven Sorrows", else: "The Mysteries"}
       </h2>
-      <ol class="grid gap-x-10 sm:grid-cols-2 border-t border-night-border">
-        <li :for={mystery <- @mysteries} class="flex gap-4 py-3.5 border-b border-night-border">
-          <span
-            class="font-display text-gilt text-lg w-7 shrink-0 text-right"
-            aria-hidden="true"
-          >
-            {roman(mystery.order)}
+      <ol class="mystery-ledger grid gap-x-10 sm:grid-cols-2">
+        <li :for={mystery <- @mysteries}>
+          <span class="mystery-ledger__numeral" aria-hidden="true">{roman(mystery.order)}</span>
+          <span class="mystery-thumb" aria-hidden="true">
+            <MysteryPainting.picture
+              key={mystery.key}
+              record={mystery.record}
+              sizes="44px"
+              alt=""
+              class="w-full h-full object-cover"
+            />
           </span>
-          <div class="min-w-0">
-            <p class="font-garamond text-lg text-ink-light leading-snug">
+          <p class="min-w-0">
+            <span class="block text-lg text-ink-light leading-snug">
               {mystery.name || mystery.label}
-            </p>
-            <p :if={mystery.fruit} class="font-garamond italic text-ink-muted text-base">
-              Fruit: {mystery.fruit}
-            </p>
-          </div>
+            </span>
+            <span :if={mystery.fruit} class="block italic text-base text-ink-muted">
+              <span class="sr-only">Fruit: </span>{mystery.fruit}
+            </span>
+          </p>
         </li>
       </ol>
     </section>

@@ -50,9 +50,9 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
           </button>
         </li>
       </ol>
-      <p class="mt-1 kicker text-center">
-        {position_label(@sequence, @page)}
-      </p>
+      <%!-- Said in words for a screen reader; on the screen the lit bead
+            and the decade's own header say it. --%>
+      <p class="sr-only">{position_label(@sequence, @page)}</p>
     </nav>
     """
   end

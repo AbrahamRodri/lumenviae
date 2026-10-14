@@ -128,16 +128,18 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList do
 
       %{
         order: order,
+        key: "#{category}_#{order}",
         label: Categories.mystery_label(category, order),
         name: mystery && mystery.name,
-        fruit: mystery && mystery.fruit
+        fruit: mystery && mystery.fruit,
+        record: mystery
       }
     end
   end
 
   # The painting the app's card shows for the category (its first
   # mystery's, or the Seven Sorrows' own card); nil until one is published,
-  # and the header shows the category's woodcut.
+  # and the header shows the app's own painting for the category.
   defp painting(category, mysteries, actor) do
     artwork =
       case Categories.card_mystery_key(category) do

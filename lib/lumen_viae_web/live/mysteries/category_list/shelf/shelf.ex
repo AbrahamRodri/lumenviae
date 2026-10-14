@@ -1,10 +1,10 @@
 defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
   @moduledoc """
   The category's meditation sets: the filters (each kind of meditation the
-  shelf carries, and narrated only), "Let one be chosen for me", and one
-  card per set with its painting or author's portrait, byline, number of
-  meditations, narration and kinds, each card a Pray link carrying the
-  visitor's choices.
+  shelf carries, and narrated only) in one row, "Let one be chosen for
+  me", and one painted tile per set, as the app's shelf draws it: its
+  painting or author's portrait, name, byline, kinds and narration, each
+  tile a Pray link carrying the visitor's choices.
   """
   use LumenViaeWeb, :html
 
@@ -25,7 +25,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
     ~H"""
     <section aria-labelledby="sets-heading">
-      <h2 id="sets-heading" class="category-section-label">Meditations</h2>
+      <h2 id="sets-heading" class="section-label">Meditations</h2>
 
       <%= if @sets == [] do %>
         <div class="category-card px-6 py-10 text-center">
@@ -38,45 +38,17 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
           </p>
         </div>
       <% else %>
-        <p class="font-garamond text-base text-ink-muted mb-4 max-w-[60ch]">
-          Each set contemplates the same mysteries through a different light: a
-          meditation is read before each decade.
-        </p>
-
-        <div class="category-card px-5 py-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-          <div>
-            <p class="font-display text-xl font-semibold text-ink-light">
-              Divine Providence
-            </p>
-            <p class="font-garamond text-base text-ink-muted">
-              Not sure which to pray? Let a set be chosen for you.
-            </p>
-          </div>
-          <button type="button" phx-click="providence" class="category-quiet-btn shrink-0">
-            Let one be chosen for me
-          </button>
-        </div>
-
-        <div
-          :if={@kinds_offered != [] or @any_narrated?}
-          role="group"
-          aria-labelledby="filters-label"
-          class="mb-5"
-        >
-          <p
-            id="filters-label"
-            class="font-display text-lg font-semibold text-ink-light mb-2"
-          >
-            Filter by kind
-          </p>
-          <div class="flex flex-wrap gap-2">
+        <div :if={@kinds_offered != [] or @any_narrated?} role="group" aria-labelledby="filters-label">
+          <p id="filters-label" class="sr-only">Filter by kind</p>
+          <%!-- One row that scrolls sideways on a phone, not a wrapping block. --%>
+          <div class="tab-scroller flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
             <button
               :for={kind <- @kinds_offered}
               type="button"
               phx-click="toggle_kind"
               phx-value-kind={kind}
               aria-pressed={to_string(kind in @filters.kinds)}
-              class="category-chip"
+              class="category-chip shrink-0 whitespace-nowrap"
             >
               {Labels.display_name(kind)}
             </button>
@@ -85,7 +57,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
               type="button"
               phx-click="toggle_narrated"
               aria-pressed={to_string(@filters.narrated)}
-              class="category-chip"
+              class="category-chip shrink-0 whitespace-nowrap"
             >
               Narrated only
             </button>
@@ -96,23 +68,29 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
             aria-live="polite"
           >
             Showing {length(@shown_sets)} of {length(@sets)} sets.
-            <button type="button" phx-click="clear_filters" class="category-text-btn">
+            <button type="button" phx-click="clear_filters" class="btn-text">
               Clear filters
             </button>
           </p>
         </div>
+
+        <p class="mt-1 mb-3">
+          <button type="button" phx-click="providence" class="btn-text">
+            Let one be chosen for me
+          </button>
+        </p>
 
         <%= if @shown_sets == [] do %>
           <div class="category-card px-6 py-8 text-center">
             <p class="font-garamond text-lg text-ink-light italic mb-3">
               No meditations match all of those kinds.
             </p>
-            <button type="button" phx-click="clear_filters" class="category-quiet-btn">
+            <button type="button" phx-click="clear_filters" class="btn-text">
               Clear filters
             </button>
           </div>
         <% else %>
-          <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-1" id="meditation-sets">
+          <ul class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3" id="meditation-sets">
             <li :for={set <- @shown_sets} id={"set-#{set.id}"} class="min-w-0">
               <.set_card set={set} choices={@choices} />
             </li>
@@ -128,88 +106,100 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
   defp set_card(assigns) do
     set = assigns.set
-    artwork = Rosary.artwork_record(set)
 
     assigns =
       assigns
-      |> assign(:artwork, artwork)
+      |> assign(:artwork, Rosary.artwork_record(set))
       |> assign(:byline, byline(set))
-      |> assign(:count, set.meditation_count)
-      |> assign(:narrated?, Filtering.narrated?(set))
-      |> assign(:portrait_alt, artwork && artwork.image_alt)
+      |> assign(:meta, meta(set))
 
     ~H"""
-    <article class="category-card relative flex flex-wrap gap-4 p-4 sm:p-5 h-full">
-      <%!-- The frame draws the arch, not the image, so a portrait and the
-            placeholder share one shape whatever the picture's size. --%>
-      <div class="relative w-20 sm:w-24 shrink-0 self-start aspect-[4/5] overflow-hidden rounded-t-full border border-night-border bg-night">
-        <%= if @artwork do %>
-          <ArtworkPicture.artwork_picture
-            record={@artwork}
-            alt={@portrait_alt}
-            sizes="(min-width: 640px) 96px, 80px"
-            class="absolute inset-0 w-full h-full object-cover"
-            style={"object-position: #{Artwork.object_position(@artwork.image_focal_x, @artwork.image_focal_y)}"}
-          />
-        <% else %>
-          <div
-            class="absolute inset-0 flex items-center justify-center text-gilt"
-            aria-hidden="true"
-          >
-            <svg viewBox="0 0 10 14" class="w-4 h-5 fill-current">
-              <path d="M3.6 0 H6.4 V2.8 H10 V5.6 H6.4 V14 H3.6 V5.6 H0 V2.8 H3.6 Z" />
-            </svg>
-          </div>
-        <% end %>
-      </div>
+    <article class="paint-tile aspect-[1/1.08] h-full">
+      <ArtworkPicture.artwork_picture
+        :if={@artwork}
+        record={@artwork}
+        alt={@artwork.image_alt}
+        sizes="(min-width: 768px) 220px, 47vw"
+        class="paint-tile__image"
+        style={"object-position: #{Artwork.object_position(@artwork.image_focal_x, @artwork.image_focal_y)}"}
+      />
+      <span
+        :if={!@artwork}
+        class="absolute inset-x-0 top-6 flex justify-center text-gilt"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 10 14" class="w-5 h-7 fill-current">
+          <path d="M3.6 0 H6.4 V2.8 H10 V5.6 H6.4 V14 H3.6 V5.6 H0 V2.8 H3.6 Z" />
+        </svg>
+      </span>
 
-      <div class="min-w-0 flex-1 basis-40 flex flex-col">
-        <h3 class="font-display text-2xl font-semibold text-ink-light leading-snug break-words">
+      <div class="paint-tile__words">
+        <h3 class="paint-tile__title break-words">
           <.link navigate={PrayLinks.set_path(@set.id, @choices)} class="category-stretched-link">
             {@set.name}
           </.link>
         </h3>
-        <p :if={@byline} class="font-garamond italic text-base text-ink-muted">{@byline}</p>
-
-        <p class="font-garamond text-sm text-ink-muted mt-1.5">
-          {@count} {if @count == 1, do: "meditation", else: "meditations"}
-          <span :if={@narrated?}>
-            <span aria-hidden="true"> &middot; </span><span class="text-sky">Narrated</span>
-          </span>
-        </p>
-        <p
-          :if={(@set.labels || []) != []}
-          class="font-garamond text-sm text-sky mt-1 break-words"
-        >
-          {Enum.map_join(@set.labels, " · ", &Labels.display_name/1)}
-        </p>
-
-        <p
-          :if={@set.description}
-          class="font-garamond text-base text-ink-muted leading-relaxed mt-2 line-clamp-3"
-        >
-          {@set.description}
-        </p>
-
-        <span
-          class="font-garamond text-base font-semibold text-gilt mt-auto pt-3"
-          aria-hidden="true"
-        >
-          Pray <span class="category-arrow">&rarr;</span>
-        </span>
+        <p :if={@byline} class="paint-tile__line">{@byline}</p>
+        <p :if={@meta} class="paint-tile__fact">{@meta}</p>
       </div>
     </article>
     """
   end
 
-  # The set's own byline, else its linked author's name, else the author
-  # its meditations agree on.
-  defp byline(set) do
-    case author_name(set) do
-      name when name == set.name -> nil
-      name -> name
+  # The set's kinds in one line, and "Text only" for a set with no
+  # narration: narration is the rule, so the exception is named.
+  defp meta(set) do
+    kinds = Enum.map(set.labels || [], &Labels.display_name/1)
+    words = if Filtering.narrated?(set), do: kinds, else: kinds ++ ["Text only"]
+
+    case words do
+      [] -> nil
+      words -> Enum.join(words, " · ")
     end
   end
+
+  # The set's own byline, else its linked author's name, else the author
+  # its meditations agree on; left off when the set is already named for
+  # its author ("Venerable Fulton J. Sheen" by "Archbishop Fulton J.
+  # Sheen").
+  defp byline(set) do
+    case author_name(set) do
+      nil -> nil
+      name -> if named_for_author?(set.name, name), do: nil, else: name
+    end
+  end
+
+  # Titles and honorifics that differ between a set's name and its
+  # byline without naming anyone else.
+  @honorifics ~w(st saint ven venerable bl blessed pope archbishop bishop
+                 cardinal father fr dom sister sr mother brother br
+                 the of)
+
+  @doc """
+  Whether a set's name already names its author, so the byline would
+  only repeat it: every word of the author's name, leaving out titles
+  ("St.", "Archbishop", "Pope") and regnal numerals ("II"), is a word of
+  the set's name, in any case. "Venerable Fulton J. Sheen" names
+  "Archbishop Fulton J. Sheen"; "Inside the Scene II" does not name
+  "Pope St. John Paul II".
+  """
+  def named_for_author?(set_name, author) do
+    case name_words(author) do
+      [] -> String.downcase(set_name) == String.downcase(author)
+      words -> MapSet.subset?(MapSet.new(words), MapSet.new(name_words(set_name)))
+    end
+  end
+
+  defp name_words(text) do
+    text
+    |> String.downcase()
+    |> String.split(~r/[^\p{L}\p{N}]+/u, trim: true)
+    |> Enum.reject(&(&1 in @honorifics or roman_numeral?(&1)))
+  end
+
+  # A regnal numeral as names carry them, I to XXXIX ("John XXIII"), not
+  # any word spelt with those letters ("civil", "ill").
+  defp roman_numeral?(word), do: word =~ ~r/^x{0,3}(ix|iv|v?i{0,3})$/ and word != ""
 
   defp author_name(set), do: LumenViaeWeb.PageMeta.set_author(set)
 end

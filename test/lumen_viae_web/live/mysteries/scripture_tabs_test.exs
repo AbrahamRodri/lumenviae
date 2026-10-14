@@ -115,17 +115,18 @@ defmodule LumenViaeWeb.Live.Mysteries.ScriptureTabsTest do
       refute render(view) =~ "Charity toward Neighbor"
     end
 
-    test "every mystery links to its category's page to pray it", %{conn: conn} do
+    test "links once, after the last mystery, to its category's page to pray it", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries?category=seven_sorrows")
 
-      links =
-        view
-        |> render()
-        |> Floki.parse_document!()
-        |> Floki.find("article[id^='mystery-seven_sorrows'] a[href='/mysteries/seven_sorrows']")
+      doc = view |> render() |> Floki.parse_document!()
 
-      assert length(links) == 7
-      assert links |> hd() |> Floki.text() =~ "Pray the Seven Sorrows"
+      assert Floki.find(
+               doc,
+               "article[id^='mystery-seven_sorrows'] a[href='/mysteries/seven_sorrows']"
+             ) == []
+
+      assert [link] = Floki.find(doc, "a#pray-category[href='/mysteries/seven_sorrows']")
+      assert Floki.text(link) =~ "Pray the Seven Sorrows"
     end
 
     test "the page is landmarked once: the layout's main, not one of its own", %{conn: conn} do

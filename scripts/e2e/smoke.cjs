@@ -159,7 +159,7 @@ async function checkHooks(page, errors, vp) {
 
   await page.goto(`${pray}?aloud=true`);
   await settle(page);
-  await page.getByRole("button", { name: /Hearing the prayers/ }).click();
+  await page.getByRole("button", { name: "Hear the prayers", pressed: true }).click();
   await page.waitForTimeout(500);
   const playback = await page.evaluate(() =>
     "mediaSession" in navigator ? navigator.mediaSession.playbackState : "none"
@@ -261,8 +261,18 @@ async function checkCategoryChoices(browser, vp) {
   const prayHrefs = () => page.locator(PRAY_LINK).evaluateAll((links) => links.map((a) => a.getAttribute("href")));
   const countingShown = async () => (await page.getByRole("group", { name: "Counting" }).count()) > 0;
 
+  // On a phone the choices are folded behind one row; open them.
+  const openChoices = async () => {
+    const toggle = page.locator("#choices-toggle");
+    if (await toggle.isVisible()) {
+      await toggle.click();
+      await page.waitForTimeout(200);
+    }
+  };
+
   await page.goto(`${BASE_URL}/mysteries/joyful`);
   await settle(page);
+  await openChoices();
   check(await countingShown(), `${label}: Counting shows while the audio is meditation only`);
 
   await choose("Whole Rosary read to you");
@@ -274,6 +284,7 @@ async function checkCategoryChoices(browser, vp) {
 
   await page.reload();
   await settle(page);
+  await openChoices();
   check(
     await eventually(() => radio("Whole Rosary read to you").isChecked()),
     `${label}: the whole Rosary aloud persists across a reload`
@@ -290,6 +301,7 @@ async function checkCategoryChoices(browser, vp) {
 
   await page.reload();
   await settle(page);
+  await openChoices();
   check(
     await eventually(() => radio("On the screen").isChecked()),
     `${label}: counting on the screen persists across a reload`

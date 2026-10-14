@@ -13,7 +13,7 @@ defmodule LumenViaeWeb.PageMetaTest do
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Categories
   alias LumenViae.Test.Mysteries
-  alias LumenViaeWeb.Components.WoodcutPlate
+  alias LumenViaeWeb.Components.MysteryPainting
   alias LumenViaeWeb.PageMeta
 
   @site "https://www.lumenviae.org"
@@ -24,7 +24,7 @@ defmodule LumenViaeWeb.PageMetaTest do
   end
 
   # A visible set praying the Joyful Mysteries from the third on, with the
-  # real mysteries, so its first mystery has a woodcut of its own.
+  # real mysteries, so its first mystery has a painting of its own.
   defp joyful_set(mysteries, attrs \\ %{}) do
     {:ok, set} =
       Rosary.create_meditation_set(
@@ -188,7 +188,7 @@ defmodule LumenViaeWeb.PageMetaTest do
 
   describe "a category page" do
     for category <- Categories.slugs() do
-      test "#{category} names itself and previews with its woodcut", %{conn: conn} do
+      test "#{category} names itself and previews with its painting", %{conn: conn} do
         category = unquote(category)
         doc = page(conn, "/mysteries/#{category}")
 
@@ -205,7 +205,7 @@ defmodule LumenViaeWeb.PageMetaTest do
       end
     end
 
-    test "a tall woodcut is a summary card, as the large card would crop it", %{conn: conn} do
+    test "a tall painting is a summary card, as the large card would crop it", %{conn: conn} do
       doc = page(conn, "/mysteries/joyful")
       assert content(doc, ~s(meta[name="twitter:card"])) == "summary"
     end
@@ -236,10 +236,10 @@ defmodule LumenViaeWeb.PageMetaTest do
       assert description =~ "the Presentation"
       refute description =~ "the Annunciation"
 
-      image = WoodcutPlate.plate("joyful_3")
-      assert content(doc, ~s(meta[property="og:image"])) == @site <> image.src
-      assert content(doc, ~s(meta[property="og:image:width"])) == to_string(image.width)
-      assert content(doc, ~s(meta[property="og:image:height"])) == to_string(image.height)
+      image = MysteryPainting.for_mystery("joyful_3")
+      assert content(doc, ~s(meta[property="og:image"])) == @site <> image.preview.src
+      assert content(doc, ~s(meta[property="og:image:width"])) == to_string(image.preview.width)
+      assert content(doc, ~s(meta[property="og:image:height"])) == to_string(image.preview.height)
       assert content(doc, ~s(meta[property="og:image:alt"])) == image.alt
 
       assert breadcrumb_names(doc) == ["Home", "The Joyful Mysteries", "A Set For Meta"]
@@ -298,8 +298,8 @@ defmodule LumenViaeWeb.PageMetaTest do
       assert title(doc) =~ "Pray the Sorrowful Mysteries"
       assert content(doc, ~s(meta[name="description"])) =~ "Sorrowful Mysteries"
 
-      image = WoodcutPlate.plate("sorrowful_1")
-      assert content(doc, ~s(meta[property="og:image"])) == @site <> image.src
+      image = MysteryPainting.for_mystery("sorrowful_1")
+      assert content(doc, ~s(meta[property="og:image"])) == @site <> image.preview.src
 
       assert canonical(doc) == @site <> "/mysteries/sorrowful/pray"
 
@@ -336,9 +336,16 @@ defmodule LumenViaeWeb.PageMetaTest do
       assert PageMeta.card(%{width: 800, height: 1121}) == "summary"
     end
 
-    test "plate_image/1 is nil for a mystery with no woodcut" do
-      assert PageMeta.plate_image("joyful_1005") == nil
-      assert PageMeta.plate_image(nil) == nil
+    test "painting_image/1 is nil for a mystery with no painting" do
+      assert PageMeta.painting_image("joyful_1005") == nil
+      assert PageMeta.painting_image(nil) == nil
+    end
+
+    test "a preview is the painting's JPEG, never its WebP" do
+      image = PageMeta.painting_image("sorrowful_1")
+
+      assert image.url =~ "/images/paintings/sorrowful_agony-preview.jpg"
+      assert image.alt =~ "Christ in Gethsemane"
     end
   end
 end

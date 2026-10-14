@@ -1185,7 +1185,8 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
 | `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
 | `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
-| `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json` | no, imported where used |
+| `Components.MysteryPainting` | the app's painting for a mystery or a category's card, from `priv/static/images/paintings/manifest.json`; an uploaded painting wins | no, called fully qualified |
+| `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json`; no longer shown on any page or preview | no, imported where used |
 | `Components.MetaTags` | the description, canonical link, link previews and structured data a page put in `LumenViaeWeb.PageMeta` | no, used by the root layout |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
 
@@ -1300,29 +1301,39 @@ instead.
 Defined in `assets/css/app.css` and consumed as Tailwind v4 utilities.
 Never hardcode a hex value in a template.
 
-The public site is **Midnight Marian**: the iOS app's Marian Blue theme.
-Every page is night, with light ink, one gilt accent and sky for the
-quiet labels. Long reading sits on a **vellum** page. Two type families,
-and the app's motifs (lancet arch frames, ornament dividers, Roman
-numerals, colophon quotes).
+The public site is **Candlelit**: the iOS app's default theme, "a dark
+chapel lit by warm gold", drawn the way the app draws it
+(`ios/app/DesignSystem/`; the measured write-up of 14 October 2026 is
+`app-style.md` in the website-polish run). Every page is night on a
+gradient darker at the top and foot, with light ink and gold for every
+label, accent and action. Cinzel for every heading, label and button; EB
+Garamond for reading, its italic for every quiet line. Lists are ruled
+ledgers, not cards; pictures are the app's old-master paintings, on
+painted tiles. The app's motifs: lancet arches, the diamond-and-cross
+ornament, Roman numerals, colophon quotes.
 
 **Colors** (contrast is against `night` unless the Use column says so)
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `night` | `#0D1730` | the page ground |
-| `night-deep` | `#070E1F` | the header, the footer and a page's hero band |
-| `night-raised` | `#17284E` | cards, panels, the settings pane |
-| `night-border` | `#2A3B63` | decorative hairlines only (1.6:1) |
-| `night-line` | `#6E80AB` | a border that marks a control: chips, fields, pills (4.5:1; 3.7:1 on raised) |
-| `ink-light` | `#F4EFE2` | primary text (15.5:1) |
-| `ink-muted` | `#B9B3A3` | secondary text, captions (8.5:1; 6.9:1 on raised) |
-| `gilt` / `gilt-light` | `#D9B84A` / `#E9CC6E` | the one accent (9.2:1): filled buttons with `night` text, numerals, the lit bead, the focus ring; `gilt-light` for hover |
-| `sky` | `#9DB4E0` | kickers and links (8.5:1) |
+| `night` | `#0A0A15` | the page ground (the middle of the page gradient on `<html>`) |
+| `night-deep` | `#050509` | the top and foot of the gradient, the header, the footer, a hero band |
+| `night-raised` | `#151521` | cards, panels, the settings pane |
+| `night-elevated` | `#1E1E2E` | the chosen segment of a choice or chip |
+| `night-border` | `#352E23` | decorative hairlines only: the app's gold at 20% (1.5:1) |
+| `night-line` | `#8C753F` | a border that marks a control: chips, fields, outlines; the app's gold at 60% (4.4:1; 4.1:1 on raised) |
+| `ink-light` | `#F6F1E4` | primary text (17.5:1) |
+| `ink-muted` | `#8B8BA5` | secondary text, italic lines, captions (5.9:1; 5.5:1 on raised, 5.0:1 on elevated) |
+| `gilt` / `gilt-light` | `#E3BC5B` / `#F3D89A` | the accent (10.9:1 / 14.2:1): labels and kickers, numerals, the gold button with `night` text, quiet actions, the lit bead, the focus ring; `gilt-light` for section headings and chosen segments |
+| `sky` | `#C9B98F` | the app's soft accent: links and a set's kinds (10.1:1) |
 | `vellum` | `#F6F0E2` | the reading page |
 | `vellum-ink` / `vellum-muted` | `#2A211C` / `#6A5B4E` | text on vellum (13.9:1 / 5.7:1) |
 | `vellum-gold` | `#7A5A1E` | small rubrics on vellum: verse numbers, references, list markers (5.6:1) |
 | `vellum-border` | `#E3D7BF` | rules on vellum |
+
+Hairlines and rims are the app's gold at opacity, written as
+`rgba(227, 188, 91, a)` in `app.css`: 0.15 between ledger rows, 0.2 to
+0.3 on card and tile rims, 0.4 on a section label's rule.
 
 `gilt`, `sky` and the `ink-*` tokens never go on vellum (they fail), and
 the `vellum-*` text tokens never go on night.
@@ -1331,19 +1342,19 @@ the `vellum-*` text tokens never go on night.
 the whole site had before the redesign. Only the admin console uses them
 now; no public template may.
 
-**Where vellum goes.** Long-form reading only: the meditation on the
-prayer page (`.reading-page`, which the reader can turn back to night with
-"Reading page" in the settings pane), the Scripture passages on
-`/mysteries` and the privacy policy body (`.reading-vellum`). Everything
-else is night.
+**Where vellum goes.** The Scripture passages on `/mysteries` and the
+privacy policy body (`.reading-vellum`), and the prayer page's meditation
+when the reader chooses it ("Reading page" in the settings pane). The
+meditation is on night by default, as the app's reader is. Everything else
+is night.
 
 **Fonts**
 
 | Utility | Family | Use |
 | --- | --- | --- |
-| `font-display` | Cormorant Garamond 500/600 | headings, in sentence case, never tracked caps |
-| `font-garamond` | EB Garamond 400/500/600, italic | all body, reading and quotation text, buttons, and the small labels |
-| `.kicker` | EB Garamond, 13px tracked caps, `sky` | the label above a heading or group; never below 12px |
+| `font-display` | Cinzel 400-600 | every heading, title, label and button, as the app's `titleFont`, `headlineFont` and `labelFont`. Headings are written in title case and never uppercased (Cinzel's lowercase is its small capitals); labels and buttons are uppercase and tracked |
+| `font-garamond` | EB Garamond 500/600, italic 500 | all body, reading and quotation text; the italic for every quiet line (a subtitle, a fruit, a note) |
+| `.kicker` | Cinzel, 12px tracked caps, `gilt` | the label above a heading or group; never below 12px |
 | `font-cinzel-decorative` / `font-ovo` / `font-work-sans` | Cinzel Decorative / Ovo / Work Sans | admin surfaces only |
 
 Reading text is at least 17px on a phone; the body is 19px.
@@ -1351,9 +1362,8 @@ Reading text is at least 17px on a phone; the body is 19px.
 The fonts are self-hosted (`priv/static/fonts`, Latin subset woff2) and
 declared in the fonts block at the top of `app.css`, each with a fallback
 face on Times New Roman sized to match, so the swap does not move the page.
-Only Cormorant 500 and 600, EB Garamond 500 and 600 and EB Garamond italic
-500 exist: ask for no other weight or a Cormorant italic, and `strong` is
-600.
+Only Cinzel 400 to 600, EB Garamond 500 and 600 and EB Garamond italic 500
+exist: ask for no other weight, and `strong` is 600.
 
 **The mark.** `<.logo />` in `CoreComponents` is a gold lancet arch
 holding a four-pointed star whose long lower ray falls toward the
@@ -1368,15 +1378,41 @@ by height through `class`. The same mark is `priv/static/favicon.svg`,
 image); change them together. The browser chrome's `theme-color` is the
 mark's candlelit `#0A0A15`.
 
-Shared vocabulary: `.btn-gold` / `<.gold_cta>` (the gilt capsule, one
-filled gilt shape per screen region), `.btn-outline-gold` (the gilt-ruled
-secondary), `<.sacred_divider>` (hairlines, diamonds, Latin cross),
-`<.arch_frame>` (lancet-arch frame for a devotional painting),
-`.hairline-card` (a raised night card), `.reading-vellum`, `.kicker`.
-Woodcuts are `LumenViaeWeb.Components.WoodcutPlate`: on a vellum mat on
-night (the default variant), or `variant={:vellum}` on a reading page;
-never inverted. At most one woodcut per screen. Quotes are set as
-centered colophons between dividers, never as filled bordered panels.
+Shared vocabulary, each the public twin of an app component:
+
+- `.btn-gold` / `<.gold_cta>`: the app's `GoldCTAButton`, a pill of gold
+  brightening to the right with night Cinzel capitals and a soft gold
+  halo. One per screen.
+- `.btn-text`: the app's `QuietGoldButton`, bare gilt Cinzel capitals.
+  Every other action.
+- `.btn-outline-gold`: an outlined capsule, for the few secondary actions
+  that need a shape.
+- `.section-label` (Cinzel capitals in gilt with a gold rule) and
+  `.section-heading` (Cinzel in `gilt-light`, an italic line under it);
+  `.rule-label` centres a word between two fading rules.
+- `.row-list` / `.row-link` / `.row-title` / `.row-fact`: the ruled
+  ledger, rows on the page with gold hairlines between, a rounded picture
+  (`.arch-thumb`, `<SetPortrait.set_portrait>`) or an arched icon frame
+  (`.glyph-badge`), a Cinzel title, a tracked fact, a quiet chevron.
+- `.mystery-ledger`: a category's mysteries, a gilt numeral, the name and
+  the fruit in italic.
+- `.paint-tile`: the app's mystery card and set tile, the picture
+  full-bleed under a dark fall-off, the name in Cinzel on it, a gold rim.
+- `.lancet-hero`: the home hero, the app's `ArchHero`: today's painting
+  in a pointed arch with two gold rims and a halo, dissolving into the
+  page under the words.
+- `.painting-frame` (a painting beside a title) and `.mystery-thumb` (the
+  small arch beside a mystery in a list).
+- `.badge-capsule`: the app's hero badge.
+- `<.sacred_divider>`: the app's ornament, rules, diamonds, Latin cross.
+- `<.arch_frame>` (lancet-arch frame for a devotional painting),
+  `.hairline-card` (a raised card with a gold rim), `.reading-vellum`,
+  `.kicker`.
+
+Pictures of the mysteries are the app's paintings
+(`LumenViaeWeb.Components.MysteryPainting`), never inverted or recoloured;
+an uploaded painting wins. Quotes are set as centered colophons between
+dividers, never as filled bordered panels.
 
 The focus ring is `gilt` on night and `vellum-ink` on vellum (the
 `--focus-ring` variable in the site shell). Every control is at least 44px
@@ -1393,8 +1429,8 @@ citations and captions. Keep body measure around 60-65 characters
 Everything under `/admin` is a **console**, and it deliberately does not look
 like the site.
 
-The public pages are night, Cormorant and EB Garamond, with vellum for
-reading. That is right for a page someone prays or reads a paragraph of at
+The public pages are night, Cinzel and EB Garamond, with vellum for
+some reading. That is right for a page someone prays or reads a paragraph of at
 a time. A console is scanned, not read: it wants density, alignment, one type
 family with tabular figures, and colour reserved for status so that an amber
 cell means something. Every gold rule that only decorates is a rule the eye

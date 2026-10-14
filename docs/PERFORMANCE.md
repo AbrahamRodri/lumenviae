@@ -123,10 +123,11 @@ In order of what it would save a phone:
 3. **The fonts are 133 KB on the home page**: EB Garamond, Cinzel and Cinzel
    Decorative, ten styles between them asked for in the `<link>` in
    `root.html.heex`. Any the redesign does not use need not be asked for.
-   **Done in the redesign**: three files, about 109 KB, all Latin-subset
-   woff2 (Cormorant Garamond and EB Garamond upright, each a variable font
-   over 500 to 600, and EB Garamond italic 500). The two uprights are
-   preloaded; the italic loads at first use.
+   **Done in the redesign**: three files, about 97 KB, all Latin-subset
+   woff2 (Cinzel over 400 to 600 and EB Garamond upright over 500 to 600,
+   each a variable font, and EB Garamond italic 500; Cinzel replaced
+   Cormorant Garamond on 14 October 2026, 12 KB lighter). The two uprights
+   are preloaded; the italic loads at first use.
 4. **`woodcuts/*-640.webp`** are 84 to 256 KB each, most about 200 KB, large
    for a 640 pixel print, because a woodcut's fine lines do not compress. A
    lower quality or a 480 pixel width would shrink them; it changes how the

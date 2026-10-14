@@ -1,5 +1,6 @@
 // How the prayer page looks, chosen in its settings pane: the meditation
-// on a vellum page or on night, and the mystery's woodcut shown or not.
+// on night (the default, as the app reads it) or on a vellum page, and the
+// mystery's woodcut shown or not. The first value of each is the default.
 // Like the text size, the choice is this browser's alone (localStorage)
 // and lives as an attribute on <html>, which a LiveView patch never
 // touches; the CSS reads data-reading-page and data-prayer-images.
@@ -10,7 +11,7 @@
 // them true to the attributes.
 
 export const DISPLAY = {
-  "reading-page": { key: "lv:pray:reading-page", attr: "readingPage", values: ["vellum", "night"] },
+  "reading-page": { key: "lv:pray:reading-page", attr: "readingPage", values: ["night", "vellum"] },
   "prayer-images": { key: "lv:pray:images", attr: "prayerImages", values: ["on", "off"] }
 }
 

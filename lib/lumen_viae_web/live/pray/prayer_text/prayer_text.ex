@@ -5,11 +5,17 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   """
   use LumenViaeWeb, :html
 
-  alias LumenViaeWeb.Components.WoodcutPlate
+  alias LumenViaeWeb.Components.MysteryPainting
   alias LumenViaeWeb.Live.Pray.Sequence
 
   attr :prayer_id, :string, required: true
   attr :title, :string, default: nil, doc: "shown above the words; nil for none"
+
+  attr :title_shown, :boolean,
+    default: true,
+    doc:
+      "false where the line above already names the prayer: the title is then for screen readers"
+
   attr :size, :string, default: "full", values: ~w(full quiet)
   attr :language, :string, default: "en", doc: "the language the prayer is set in"
 
@@ -18,7 +24,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
 
     ~H"""
     <div lang={@language}>
-      <h3 :if={@title} class="kicker text-gilt mb-3">
+      <h3 :if={@title} class={if @title_shown, do: "kicker text-gilt mb-3", else: "sr-only"}>
         {@title}
       </h3>
       <div class={[
@@ -58,34 +64,44 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   end
 
   attr :decade, :map, required: true
-  attr :chaplet, :boolean, default: false
 
-  def announcement(assigns) do
+  @doc """
+  A decade's header: the mystery's painting beside its announcement, so
+  the words of the decade start on the first screen of a phone. With the
+  images turned off the announcement takes the whole width.
+  """
+  def decade_header(assigns) do
     ~H"""
-    <header class="text-center">
-      <p
-        :if={@decade.label}
-        class="kicker"
-      >
-        {@decade.label}
-      </p>
-      <h2 class="mt-2 font-display font-semibold text-3xl md:text-4xl text-gilt leading-snug">
-        {@decade.name}
-      </h2>
-      <p :if={@decade.fruit} class="mt-3 font-garamond text-lg text-ink-muted">
-        <span class="kicker">
-          Ask for
-        </span>
-        <span class="text-ink-muted" aria-hidden="true">&middot;</span>
-        <span class="sr-only">:</span>
-        {@decade.fruit}
-      </p>
-      <p
-        :if={@decade.scripture_reference}
-        class="mt-2 kicker"
-      >
-        {@decade.scripture_reference}
-      </p>
+    <header class="flex items-center gap-4 sm:gap-6 max-w-[62ch] mx-auto">
+      <div class="prayer-plate painting-frame w-[5.5rem] sm:w-32 shrink-0">
+        <MysteryPainting.picture
+          key={@decade.key}
+          record={@decade.mystery}
+          sizes="(min-width: 640px) 128px, 88px"
+          loading="eager"
+          class="w-full h-full object-cover"
+        />
+      </div>
+      <div class="min-w-0">
+        <p :if={@decade.label} class="kicker">
+          {@decade.label}
+        </p>
+        <h2 class="mt-1 font-display !font-normal text-[1.625rem] md:text-4xl text-ink-light leading-[1.15]">
+          {@decade.name}
+        </h2>
+        <p
+          :if={@decade.fruit || @decade.scripture_reference}
+          class="mt-1.5 font-garamond text-base md:text-lg text-ink-muted leading-snug"
+        >
+          <span :if={@decade.fruit} class="italic">Ask for {@decade.fruit}</span>
+          <span :if={@decade.fruit && @decade.scripture_reference} aria-hidden="true">
+            &middot;
+          </span>
+          <span :if={@decade.scripture_reference} class="whitespace-nowrap">
+            {@decade.scripture_reference}
+          </span>
+        </p>
+      </div>
     </header>
     """
   end
@@ -95,25 +111,28 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
   attr :pray_aloud, :boolean, default: false
 
   @doc """
-  A set's meditation, on its reading page: vellum, or night if the reader
-  chose it (`.reading-page` in app.css). The audio stays on the night above
-  the page.
+  A set's meditation, on its reading page: night, or vellum if the reader
+  chose it (`.reading-page` in app.css). Its recording is played from the
+  top of the page, in the page's own colours.
   """
   def meditation(assigns) do
     ~H"""
     <div class="max-w-[62ch] mx-auto">
-      <div :if={!@pray_aloud} class="flex justify-center mb-6 empty:hidden">
-        <.audio_player audio_url={@audio_url} />
+      <article class="reading-page">
+        <div :if={!@pray_aloud && @audio_url} class="flex items-center gap-3 mb-4">
+          <.audio_player audio_url={@audio_url} size="reading" />
+          <p class="reading-page__meta font-display text-xs tracking-[0.16em] uppercase">
+            Listen to the meditation
+          </p>
+        </div>
         <p
-          :if={@meditation.audio_url && !@audio_url}
-          class="font-garamond text-base text-ink-muted border border-night-border rounded-full px-4 py-2"
+          :if={!@pray_aloud && @meditation.audio_url && !@audio_url}
+          class="reading-page__meta font-garamond text-base mb-4"
           title="This meditation has audio, but the audio URL could not be generated. Check that AWS credentials are configured on the server."
         >
           Audio unavailable
         </p>
-      </div>
 
-      <article class="reading-page">
         <h3
           :if={@meditation.title}
           class="reading-page__title font-display font-semibold text-2xl md:text-3xl mb-4 text-center"
@@ -148,7 +167,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
     assigns = assign(assigns, :paragraphs, paragraphs(assigns.content))
 
     ~H"""
-    <div class="font-garamond prayer-text space-y-[0.9em]">
+    <div class="meditation-text font-garamond prayer-text space-y-[0.9em]">
       <p :for={lines <- @paragraphs}>
         <%= for {line, index} <- Enum.with_index(lines) do %>
           <br :if={index > 0} />{line}
@@ -178,24 +197,5 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
       |> Enum.reject(&(&1 == ""))
     end)
     |> Enum.reject(&(&1 == []))
-  end
-
-  attr :key, :string, required: true, doc: "the mystery's key, such as \"joyful_1\""
-
-  @doc """
-  The mystery's woodcut above its announcement, unless the reader turned
-  images off in the settings pane (`.prayer-plate` in app.css).
-  """
-  def plate(assigns) do
-    ~H"""
-    <div class="prayer-plate mb-6">
-      <WoodcutPlate.woodcut_plate
-        key={@key}
-        size={:sm}
-        caption={false}
-        class="!max-w-36 sm:!max-w-44"
-      />
-    </div>
-    """
   end
 end

@@ -157,6 +157,12 @@
           <% "seven_sorrows" -> %>
             <.seven_sorrows mysteries={Map.get(@mysteries, "seven_sorrows", %{})} />
         <% end %>
+
+        <p class="mt-8 text-center">
+          <.link navigate={"/mysteries/#{@selected_category}"} class="btn-gold" id="pray-category">
+            {pray_label(@selected_category)}
+          </.link>
+        </p>
       </div>
     </div>
   </div>

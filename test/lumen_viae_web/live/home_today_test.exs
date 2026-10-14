@@ -159,14 +159,14 @@ defmodule LumenViaeWeb.Live.HomeTodayTest do
       refute html =~ "Joyful With Bernard"
     end
 
-    test "mark narrated sets as having guided audio", %{conn: conn} do
+    test "mark only the sets with no narration, as text only", %{conn: conn} do
       visible_set(%{name: "Narrated", category: "joyful"}, %{audio_url: "narrated.mp3"})
       visible_set(%{name: "Silent", category: "joyful"})
 
       {view, _html} = open_on(conn, 1)
 
-      assert view |> element("#todays-sets li", "Narrated") |> render() =~ "Guided audio"
-      refute view |> element("#todays-sets li", "Silent") |> render() =~ "Guided audio"
+      refute view |> element("#todays-sets li", "Narrated") |> render() =~ "Text only"
+      assert view |> element("#todays-sets li", "Silent") |> render() =~ "Text only"
     end
 
     test "leave out a set with nothing in it", %{conn: conn} do

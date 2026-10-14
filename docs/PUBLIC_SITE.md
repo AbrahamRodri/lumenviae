@@ -107,8 +107,8 @@ starts from the defaults. The one thing the server writes is a completion.
 | Closing prayers (Pope's intentions, Memorare, St. Michael) | `lv:pray:extras` | `PrayerMemory` |
 | Language of the prayers, English or Latin | `lv:pray:language` | `PrayerMemory` |
 | Text size | `lv:pray:text-size` | the `PrayerSurface` hook |
-| Reading page, vellum or night | `lv:pray:reading-page` | the `DisplayChoices` hook, read by `PrayerSurface` |
-| The mystery's woodcut shown or hidden | `lv:pray:images` | `DisplayChoices`, read by `PrayerSurface` |
+| Reading page, night (the default, as the app's reader) or vellum | `lv:pray:reading-page` | the `DisplayChoices` hook, read by `PrayerSurface` |
+| The mystery's painting shown or hidden | `lv:pray:images` | `DisplayChoices`, read by `PrayerSurface` |
 | Days in a row | `lv:pray:streak` | the `PrayerStreak` hook |
 | Swipe hint already shown | `lv:pray:swipe-hint-seen` | the `SwipeHint` hook |
 
@@ -130,7 +130,7 @@ the Chant Library, the Chapel). Describe nothing the app does not do, and
 no ratings, reviews or download counts.
 
 - Every screen is a real screenshot from the iOS Simulator (iPhone 17 Pro,
-  the Marian Blue theme, which is the site's own palette, status bar set to
+  the Marian Blue theme, status bar set to
   9:41 and full), in `priv/static/images/app/`: `<name>-390.webp`,
   `<name>-780.webp` (cwebp at quality 85) and a 390 pixel `<name>.jpg`.
   The originals stay out of the repository.
@@ -159,19 +159,37 @@ row still count, in the browser. See `docs/UPCOMING_FEATURES.md`.
 - A public page calls `LumenViaeWeb.PageMeta.put/3` from `mount/3`. The root
   layout turns the result into the description, canonical link, link
   previews and structured data, in the first server-rendered response.
-- A mystery's picture is a woodcut or engraving by Albrecht Durer or
-  Gustave Dore, from `priv/static/images/woodcuts/` and its
-  `manifest.json`. Show one with `LumenViaeWeb.Components.WoodcutPlate`.
-  The manifest lists each plate's source and licence, and `MANIFEST.md` in
-  that directory is generated from it. Leave the directory alone unless you
-  are adding or replacing a plate.
-- Images ship as WebP with a JPEG or PNG fallback: `name-640.webp` beside
-  `name.jpg` for plates, and `-320`, `-512` and similar widths for the other
+- A mystery's picture is the app's own old-master painting: the hero's
+  arch, the category tiles, the small arches beside each mystery, the head
+  of a category page, the decade on the prayer page and the categories on
+  `/mysteries`. They are the files the iOS app bundles, served from
+  `priv/static/images/paintings/` with their credits in its
+  `manifest.json` (see docs/MYSTERY_PAINTINGS.md), and drawn with
+  `LumenViaeWeb.Components.MysteryPainting`. A painting uploaded on a
+  mystery or a card in the console wins over the static one.
+- Link previews show the same paintings, from each one's
+  `<name>-preview.jpg` (a JPEG, at most 800 pixels wide), because not every
+  preview crawler reads WebP.
+- The woodcuts in `priv/static/images/woodcuts/` and
+  `LumenViaeWeb.Components.WoodcutPlate` are no longer shown anywhere; they
+  are kept until someone decides to remove them.
+- Images ship as WebP with a JPEG or PNG fallback: `name-480.webp` and
+  `name-960.webp` beside a 480 pixel `name.jpg` for the paintings, and `-320`, `-512` and similar widths for the other
   images. An uploaded painting (of a set, an author, a mystery or a
   category card) is shown from its WebP variants by
   `LumenViaeWeb.Components.ArtworkPicture`. The widths that exist for it are
   recorded in its `image_variant_widths` column, never guessed from the
   size of the original.
+
+## How the pages look
+
+The site is drawn the way the iOS app draws its Candlelit theme: Cinzel
+for every heading, label and button, EB Garamond for reading, gold on a
+near-black gradient, ruled ledgers instead of cards, painted tiles for
+pictures, one gold pill per screen and quiet gold type for every other
+action. When a page changes, check it beside the app's own screen. The
+tokens and the shared vocabulary are in the "Design tokens" section of
+`docs/ARCHITECTURE.md`.
 
 ## Rules for editing a public page
 

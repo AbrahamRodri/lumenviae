@@ -59,7 +59,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       assert has_element?(view, "h2#mysteries-heading", "The Seven Sorrows")
       assert html =~ "The First Sorrow of Mary"
       assert html =~ "The Seventh Sorrow of Mary"
-      assert has_element?(view, ~s(img[src="/images/woodcuts/lamentation-durer.jpg"]))
+      # The card's painting is the app's Pieta, until one is uploaded.
+      assert has_element?(view, ~s(img[src="/images/paintings/seven_sorrows_pieta.jpg"]))
     end
 
     test "an unknown category is a 404", %{conn: conn} do
@@ -109,9 +110,11 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
 
       card = view |> element("#set-#{set.id}") |> render()
       assert card =~ "Meditations of St. Bernard"
-      assert card =~ "Honey-sweet."
+      # A tile is the app's: name, byline and kinds, not the description.
+      refute card =~ "Honey-sweet."
       assert card =~ "St. Bernard"
-      assert card =~ "1 meditation"
+      # Every set has its five, so the count is not shown.
+      refute card =~ "1 meditation"
       assert card =~ "Saints · Reflections"
       assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray"]))
     end
@@ -167,6 +170,43 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
 
       assert view |> element("#set-#{narrated.id}") |> render() =~ "Narrated"
       refute view |> element("#set-#{silent.id}") |> render() =~ "Narrated"
+    end
+  end
+
+  describe "a set's byline" do
+    test "is left off a set already named for its author", %{conn: conn} do
+      set =
+        visible_set(%{
+          name: "Venerable Fulton J. Sheen",
+          author: "Archbishop Fulton J. Sheen"
+        })
+
+      {:ok, view, _html} = live(conn, "/mysteries/joyful")
+
+      refute view |> element("#set-#{set.id}") |> render() =~ "Archbishop"
+    end
+
+    test "stays on a set named for something else", %{conn: conn} do
+      set = visible_set(%{name: "Inside the Scene II", author: "Pope St. John Paul II"})
+
+      {:ok, view, _html} = live(conn, "/mysteries/joyful")
+
+      assert view |> element("#set-#{set.id}") |> render() =~ "Pope St. John Paul II"
+    end
+
+    test "compares whole words, leaving out titles and numerals, in any case" do
+      named? = &LumenViaeWeb.Live.Mysteries.CategoryList.Shelf.named_for_author?/2
+
+      assert named?.("Venerable Fulton J. Sheen", "Archbishop Fulton J. Sheen")
+      assert named?.("meditations of st. bernard", "St. Bernard")
+      assert named?.("John Paul II on the Rosary", "Pope St. John Paul II")
+      refute named?.("Inside the Scene II", "Pope St. John Paul II")
+      refute named?.("Sheen's Favourite Prayers", "Archbishop Fulton J. Sheen")
+      refute named?.("On Detachment", "St. Alphonsus Liguori")
+      assert named?.("Pope John XXIII on the Rosary", "Pope St. John XXIII")
+      # A word made of numeral letters is still a word of the name.
+      refute named?.("Lucy on the Rosary", "Sister Lucy Civil")
+      refute named?.("Lucy on the Rosary", "Sister Lucy Ill")
     end
   end
 
@@ -254,6 +294,24 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
   describe "Your Rosary Today" do
     setup do
       %{set: visible_set(%{name: "A Set"})}
+    end
+
+    test "says in one line how the Rosary will be prayed", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/mysteries/joyful")
+
+      summary = fn -> view |> element("#choices-summary") |> render() end
+      voice = LumenViae.Rosary.Voices.default().name
+
+      assert summary.() =~ "On my rosary"
+      assert summary.() =~ "#{voice} voice"
+
+      choose(view, %{count: "screen"})
+      assert summary.() =~ "On the screen"
+
+      # With the whole Rosary aloud, counting is not a choice; the voice is.
+      choose(view, %{aloud: "true"})
+      refute summary.() =~ "On the screen"
+      assert summary.() =~ "#{voice} voice"
     end
 
     test "offers Audio, Counting and Voice as radio groups", %{conn: conn} do

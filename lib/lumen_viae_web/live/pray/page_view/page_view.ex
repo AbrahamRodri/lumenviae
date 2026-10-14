@@ -22,15 +22,12 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
       |> assign(:verses, Enum.filter(assigns.page.screens, & &1.verse))
 
     ~H"""
-    <section aria-labelledby={"page-title-#{@page.index}"} class="space-y-8">
-      <div>
-        <PrayerText.plate key={@decade.key} />
-        <div id={"page-title-#{@page.index}"}>
-          <PrayerText.announcement decade={@decade} chaplet={@sequence.chaplet?} />
-        </div>
+    <section aria-labelledby={"page-title-#{@page.index}"} class="space-y-6">
+      <div id={"page-title-#{@page.index}"}>
+        <PrayerText.decade_header decade={@decade} />
       </div>
 
-      <.sacred_divider class="!my-6" />
+      <.sacred_divider cross={false} class="!my-2" />
 
       <PrayerText.meditation
         :if={@decade.meditation && @sequence.form == "meditation"}
@@ -65,11 +62,12 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
         open={@show_meditation}
       />
 
-      <div class="max-w-[62ch] mx-auto rounded-2xl border border-night-border bg-night-raised px-5 py-5">
-        <h3 class="kicker text-gilt mb-3">
+      <div class="max-w-[62ch] mx-auto">
+        <.sacred_divider class="!mt-2 !mb-6" />
+        <h3 class="kicker mb-2">
           On your rosary
         </h3>
-        <ol class="font-garamond text-lg text-ink-light space-y-1">
+        <ol class="font-garamond italic text-lg text-ink-muted space-y-0.5">
           <li>The Our Father, on the large bead</li>
           <li>{hail_marys_line(@sequence)}</li>
           <li>
@@ -77,8 +75,9 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
           </li>
         </ol>
         <details class="mt-4 group">
-          <summary class="cursor-pointer min-h-11 flex items-center kicker hover:text-gilt rounded">
-            Show the words
+          <summary class="btn-text w-fit list-none [&::-webkit-details-marker]:hidden">
+            <span class="group-open:hidden">Show the words <span aria-hidden="true">&rsaquo;</span></span>
+            <span class="hidden group-open:inline">Hide the words</span>
           </summary>
           <div class="mt-4 space-y-6">
             <PrayerText.prayer
@@ -102,7 +101,7 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
     <section aria-labelledby={"page-title-#{@page.index}"} class="max-w-[62ch] mx-auto">
       <h2
         id={"page-title-#{@page.index}"}
-        class="font-display font-semibold text-3xl md:text-4xl text-gilt text-center"
+        class="font-display !font-normal text-[1.625rem] md:text-4xl text-ink-light text-center"
       >
         {if @page.kind == :opening, do: "The Opening Prayers", else: "The Closing Prayers"}
       </h2>

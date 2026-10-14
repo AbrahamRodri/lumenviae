@@ -77,7 +77,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
   # What search results and link previews say about the page, from the
   # decades it prays: the set's name and author and the mysteries, with the
-  # first mystery's woodcut.
+  # first mystery's painting.
   defp put_set_meta(socket, set) do
     %{decades: decades} = socket.assigns
 
