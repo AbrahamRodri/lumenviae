@@ -230,6 +230,8 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 | --- | --- |
 | `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers schedule script learn guidedRosary mysteries categories verses quotes milestones reminders labels forms`. The same document as `GET /api/v2/rosary-content`. |
 | `rosaryScript(category, style, extras, orders)` | `RosaryScript`: `id category style extras orders steps`, one Rosary expanded. The same as `GET /api/v2/rosary-script`, and null with `invalid_argument` (its `fields` naming the argument) for a value it does not know. |
+| `prayerBook` | `PrayerBook!`: `id version updatedAt prayers chapters`. The same document as `GET /api/v2/prayer-book`; a chapter's `sections` are its sub-headings. |
+| `chantLibrary` | `ChantLibrary!`: `id version updatedAt groups chants`, each chant with its `audio`, `score` and `lines`. The same document as `GET /api/v2/chant-library`. |
 
 Everything a client needs to show and say the Rosary offline, as one
 document: selecting only `version updatedAt` is how a device asks whether

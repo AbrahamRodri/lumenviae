@@ -21,6 +21,234 @@
       }
     },
     "schemas": {
+      "chant_library": {
+        "description": "A \"Resource object\" representing a chant_library",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a chant_library",
+            "properties": {
+              "chants": {
+                "description": "Every chant, in the catalog's order: a client takes the first chant listed for a prayer.",
+                "items": {
+                  "properties": {
+                    "audio": {
+                      "properties": {
+                        "bytes": {
+                          "type": "integer"
+                        },
+                        "sha256": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "bytes",
+                        "sha256"
+                      ],
+                      "type": "object"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "duration": {
+                      "format": "float",
+                      "type": "number"
+                    },
+                    "english_title": {
+                      "type": "string"
+                    },
+                    "group_id": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "latin_title": {
+                      "type": "string"
+                    },
+                    "lines": {
+                      "items": {
+                        "properties": {
+                          "end": {
+                            "format": "float",
+                            "type": "number"
+                          },
+                          "english": {
+                            "type": "string"
+                          },
+                          "latin": {
+                            "type": "string"
+                          },
+                          "part": {
+                            "nullable": true,
+                            "type": "integer"
+                          },
+                          "start": {
+                            "format": "float",
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "latin",
+                          "english",
+                          "start",
+                          "end"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "prayer_ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "score": {
+                      "items": {
+                        "properties": {
+                          "aspect_ratio": {
+                            "format": "float",
+                            "type": "number"
+                          },
+                          "bytes": {
+                            "type": "integer"
+                          },
+                          "caption": {
+                            "type": "string"
+                          },
+                          "file": {
+                            "type": "string"
+                          },
+                          "sha256": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "file",
+                          "caption",
+                          "aspect_ratio",
+                          "url",
+                          "bytes",
+                          "sha256"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "setting": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "source_url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "group_id",
+                    "latin_title",
+                    "english_title",
+                    "detail",
+                    "prayer_ids",
+                    "duration",
+                    "source_url",
+                    "audio",
+                    "score",
+                    "lines"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "groups": {
+                "description": "The library's groups in the Parish Book of Chant's order, each naming its chants.",
+                "items": {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "parts": {
+                      "items": {
+                        "properties": {
+                          "chant_ids": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "note": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "title": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "chant_ids"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "parts"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves, the chant files' URLs included: a device whose copy has the same version holds the current library. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a chant_library",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "chant_library"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
       "completion": {
         "description": "A \"Resource object\" representing a completion",
         "properties": {
@@ -638,6 +866,170 @@
           "type": {
             "enum": [
               "narration_voice"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "prayer_book": {
+        "description": "A \"Resource object\" representing a prayer_book",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a prayer_book",
+            "properties": {
+              "chapters": {
+                "description": "The book's chapters in order, each with its sub-headings and the prayers under them.",
+                "items": {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "latin_title": {
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "numeral": {
+                      "type": "string"
+                    },
+                    "prayer_ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "search_words": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "sections": {
+                      "items": {
+                        "properties": {
+                          "prayer_ids": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "prayer_ids"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "topic": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "numeral",
+                    "title",
+                    "latin_title",
+                    "search_words",
+                    "prayer_ids",
+                    "sections"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "prayers": {
+                "description": "Every prayer the book prints, each once, the Rosary's and the consecration's included. A client keeps a prayer no chapter names: an order of prayer may.",
+                "items": {
+                  "properties": {
+                    "english": {
+                      "type": "string"
+                    },
+                    "english_name": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "latin": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "latin_title": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "list_title": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "origin": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "search_words": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "english",
+                    "search_words"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a prayer_book",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "prayer_book"
             ],
             "type": "string"
           }
@@ -3135,6 +3527,53 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/api/v2/chant-library": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The Chant Library as one document. There is only ever one.",
+        "operationId": "getChantLibrary",
+        "parameters": [
+          {
+            "description": "Comma separated fields of chant_library: chants, groups, updated_at, version",
+            "explode": false,
+            "in": "query",
+            "name": "fields[chant_library]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/chant_library"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "chant_library"
+        ]
+      }
+    },
     "/api/v2/completions": {
       "post": {
         "callbacks": {},
@@ -3547,6 +3986,53 @@
         },
         "tags": [
           "mystery"
+        ]
+      }
+    },
+    "/api/v2/prayer-book": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The Prayer Book's words as one document. There is only ever one.",
+        "operationId": "getPrayerBook",
+        "parameters": [
+          {
+            "description": "Comma separated fields of prayer_book: chapters, prayers, updated_at, version",
+            "explode": false,
+            "in": "query",
+            "name": "fields[prayer_book]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/prayer_book"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "prayer_book"
         ]
       }
     },

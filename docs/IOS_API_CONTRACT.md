@@ -321,8 +321,30 @@ production.
 
 Never called by any build.
 
+### 10. GET /api/v2/prayer-book and GET /api/v2/chant-library (the build after 4.0)
+
+Callers: the Prayer Book and Chant Library stores, at launch and on
+foreground at most once a day. The bare request is decoded as `{version,
+updated_at}`; when `version` differs from the saved copy's the app asks
+for `fields[prayer_book]=version,updated_at,prayers,chapters` and
+`fields[chant_library]=version,updated_at,groups,chants` and replaces its
+copy only when the whole document decodes, so a field the app treats as
+non-optional going null loses that refresh, not the screen: the bundled
+seed or the last good copy stays. The shapes are docs/JSON_API.md, "The
+Prayer Book and the Chant Library", pinned by
+`test/lumen_viae_web/json_api/library_test.exs` and `priv/openapi/v2.json`.
+Non-optional in the app: every field the contract does not mark `| null`,
+including each chant's `audio` and every score page's `url`, `bytes` and
+`sha256`. Ids are stored on the device and must never change.
+
+The chant files themselves (`audio.url`, `score[].url`) are fetched
+outside Phoenix, below. Builds up to 4.0 bundle their chants and words
+and call neither route.
+
 ### Outside Phoenix
 
 S3 presigned narration and rosary clips (AVPlayer, or a plain GET), S3
-artwork, Missale Meum, Gutenberg, LibriVox. The one requirement on the
+artwork, the chant recordings and score pages (public, content-addressed,
+downloaded in the background and checked against `sha256`; a recording
+not yet saved streams), Missale Meum, Gutenberg, LibriVox. The one requirement on the
 API: every URL it hands out must be GET-able with no headers and no auth.

@@ -20,13 +20,13 @@ defmodule LumenViae.Curation.ChantUpload do
   `sha256`. When the result differs from the file already there, its
   `updated_at` moves to now,
   which moves the document's version; the file is checked
-  (`LumenViae.Rosary.Library.Check`) before it is written, and nothing
+  (`LumenViae.Rosary.Library.chant_library_errors/2`) before it is written, and nothing
   is written when a file is missing or an upload fails.
 
   Run by `mix lumen_viae.upload_chants`.
   """
 
-  alias LumenViae.Rosary.Library.Check
+  alias LumenViae.Rosary.Library
   alias LumenViae.Storage.S3
 
   @audio_type "audio/mp4"
@@ -183,7 +183,7 @@ defmodule LumenViae.Curation.ChantUpload do
   end
 
   defp check(document, prayer_ids) do
-    case Check.chant_library_errors(plain(document), prayer_ids) do
+    case Library.chant_library_errors(plain(document), prayer_ids) do
       [] -> :ok
       errors -> {:error, "the rewritten file would not compile:\n  " <> Enum.join(errors, "\n  ")}
     end

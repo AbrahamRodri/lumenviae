@@ -121,6 +121,10 @@ value is added to a vocabulary, never a renamed one.
 | --- | --- | --- |
 | `GET /api/v2/rosary-content` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/rosary-content?fields[rosary_content]=...` | when `version` differs from the saved copy's | every section the app uses (below) |
+| `GET /api/v2/prayer-book` | at launch and once a day | bare: `version` and `updated_at` only |
+| `GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters` | when `version` differs from the saved copy's | both sections |
+| `GET /api/v2/chant-library` | at launch and once a day | bare: `version` and `updated_at` only |
+| `GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants` | when `version` differs from the saved copy's | both sections |
 | `GET /api/v2/meditation-sets?category=<slug>` | a mysteries' page's shelf | default fields |
 | `GET /api/v2/meditation-sets/<id>?include=set_memberships.meditation.mystery&fields[meditation]=title,content,author,source,narrated_voices,narrations` | a set is opened or saved for offline | with its meditations, in prayer order, and their signed narrations |
 | `POST /api/v2/meditations/audio` | a saved set's narration links have expired, or one would not load | `{"data": {"meditation_ids": [...], "voice": "<slug>"}}`, at most 200 ids |
@@ -170,6 +174,28 @@ kept on the device and the network only refreshes it.
 - **A reading door of kind `library`** names a reading the iPhone app
   holds and this document does not serve (the Marian Library's `montfort`
   and `cana`). A client that has no such reading leaves the door out.
+
+### The Prayer Book and the Chant Library
+
+The same rules as the content document, for each document on its own
+(docs/JSON_API.md, "The Prayer Book and the Chant Library", has the
+shapes):
+
+- **Ship a copy in the app** (`assets/prayer-book.json`,
+  `assets/chant-library.json`, taken from the server's
+  `priv/library/` files, sections only), so the first launch has every
+  word with no connection.
+- **Poll the version** with the bare request at launch and at most once a
+  day, fetch both sections when it differs, and replace the saved copy
+  whole only once the whole response has arrived and decoded. A failed
+  fetch or decode keeps the old copy. Ignore keys you do not know.
+- **Ids are stable forever**: store them (saved prayers, favourite and
+  learned chants), never titles or positions.
+- **The chant files are not part of the document.** Each chant's `audio`
+  and score pages are public, unsigned, immutable URLs named by their
+  checksum, about 100 MB in all. The app does not download them until it
+  has a chant player; when it does, cache by URL, check `sha256`, fetch
+  on unmetered networks, and stream a recording not yet saved.
 
 ### Meditation sets
 

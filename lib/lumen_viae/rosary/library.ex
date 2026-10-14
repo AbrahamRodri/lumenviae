@@ -133,6 +133,20 @@ defmodule LumenViae.Rosary.Library do
         do: @documents |> Map.fetch!(document) |> Map.take([:name, :updated_at, :version])
   end
 
+  @doc """
+  The problems with a Prayer Book document's sections, `[]` when none:
+  what the compile checks. See `LumenViae.Rosary.Library.Check`.
+  """
+  @spec prayer_book_errors(map) :: [String.t()]
+  defdelegate prayer_book_errors(sections), to: Check
+
+  @doc """
+  The problems with a Chant Library document's sections, `[]` when none,
+  its chants' `prayer_ids` checked against `prayer_ids` when given.
+  """
+  @spec chant_library_errors(map, [String.t()] | nil) :: [String.t()]
+  defdelegate chant_library_errors(sections, prayer_ids \\ nil), to: Check
+
   @doc "The ids of the Prayer Book's prayers, the ids a chant may name."
   @spec prayer_ids() :: [String.t()]
   def prayer_ids, do: Enum.map(sections(:prayer_book)["prayers"], & &1["id"])

@@ -26,8 +26,9 @@ defmodule Mix.Tasks.LumenViae.UploadChants do
 
       eval "$(aws configure export-credentials --profile lumenviae-agent --format env)"
 
-  The task runs without the app, so a `chant_library.json` that does not
-  compile yet (an export with null URLs) does not stop it.
+  The task runs without the app. An export with null URLs is read from
+  `--from` and never copied into `priv/library/` by hand: the file there
+  must compile, and this task is what makes the export fit to.
   """
 
   use Mix.Task
