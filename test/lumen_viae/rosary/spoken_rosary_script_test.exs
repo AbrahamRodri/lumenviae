@@ -249,7 +249,7 @@ defmodule LumenViae.Rosary.SpokenRosaryScriptTest do
     end
   end
 
-  describe "the Rosary Said Aloud" do
+  describe "the Audio Rosary" do
     test "is the prayers alone, the same pendant and the same close" do
       for category <- @rosaries do
         whole = script(category, style: :plain)

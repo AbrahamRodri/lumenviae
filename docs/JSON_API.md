@@ -489,11 +489,11 @@ which are examples and not an index of the library.
 
 **`forms`**: the Rosary is one prayer in three forms, chosen on a
 mysteries' page: with a meditation set, as the Scriptural Rosary (a verse
-for every Hail Mary), or as the Rosary Said Aloud (every prayer aloud, no
+for every Hail Mary), or as the Audio Rosary (listen and pray along, no
 readings). `forms` names the two that have a name of their own (`scriptural`
 and `holy`) with `{name, recorded_as, kicker, subtitle, detail, about}`.
 `recorded_as` is what the Prayer Record keeps a prayer of that form under:
-the Rosary Said Aloud is still recorded as `The Rosary Aloud`, its old name,
+the Audio Rosary is still recorded as `The Rosary Aloud`, its old name,
 and a client whose history should read beside the iOS app's keeps that
 string. The third form, a meditation set, is named by the set. Two
 `choices` change how the Rosary is prayed, `audio` and `counting`, each
@@ -505,11 +505,11 @@ Scriptural Rosary; Counting is true for the beads on the screen. What a
 form's page carries depends on the Audio choice, as `offered` (the choices,
 by id) and `rows` (the rows beneath them, by id, named in `row_titles`)
 say, each as `{form, when_aloud, when_silent}`: `when_aloud` while Audio is
-the Whole Rosary, and `when_silent` otherwise. The Rosary Said Aloud is
-always aloud, and offers no choice. Counting is offered only while the
+the Whole Rosary, and `when_silent` otherwise. The Audio Rosary is
+always heard, and offers no choice. Counting is offered only while the
 voice reads the meditation alone, because with the Whole Rosary the voice
-moves the beads on the screen. `holy_audio_value` is what the Rosary Said
-Aloud's audio row says as a fact, not a choice.
+moves the beads on the screen. `holy_audio_value` is what the Audio
+Rosary's audio row says as a fact, not a choice.
 
 ## The Prayer Book and the Chant Library
 
@@ -637,7 +637,7 @@ GET /api/v2/rosary-script?category=luminous&style=plain&extras=holy_father,st_mi
 
 Every step of one Rosary, from the Sign of the Cross to the last Amen:
 the content document's `script` templates expanded by the server
-(`PrayerAudio.script/3`, which the website's "Pray aloud" also prays
+(`PrayerAudio.script/3`, which the website's "Hear the prayers" also prays
 from). A client that expands the templates itself checks its expansion
 against this; `rosary_script_test.exs` holds the two to be the same for
 every category, style and set of optional prayers.
@@ -645,7 +645,7 @@ every category, style and set of optional prayers.
 | Param | |
 | --- | --- |
 | `category` | required: `joyful`, `sorrowful`, `glorious`, `luminous`, or `seven_sorrows` (the chaplet) |
-| `style` | `meditation` (the default), `scriptural` or `plain` (the Rosary Said Aloud) |
+| `style` | `meditation` (the default), `scriptural` or `plain` (the Audio Rosary) |
 | `extras` | the optional prayers after the Rosary, comma-separated: any of `holy_father`, `memorare`, `st_michael`. Said in that order whatever order they are given in; the chaplet takes none, and its `extras` comes back empty. |
 | `orders` | the mysteries' orders in prayer order, comma-separated, for a set whose meditations do not start at the first mystery: each from 1 to the category's count (5, or 7 for the chaplet) and each at most once. Every mystery of the category when absent. |
 

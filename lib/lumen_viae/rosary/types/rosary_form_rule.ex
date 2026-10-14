@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.Types.RosaryFormRule do
       allow_nil?: false,
       constraints: [nil_items?: false],
       description:
-        "The ids, in order, while the Audio choice is the Whole Rosary. Always the case in the Rosary Said Aloud."
+        "The ids, in order, while the Audio choice is the Whole Rosary. Always the case in the Audio Rosary."
 
     field :when_silent, {:array, :string},
       allow_nil?: false,

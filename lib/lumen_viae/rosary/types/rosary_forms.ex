@@ -11,7 +11,7 @@ defmodule LumenViae.Rosary.Types.RosaryForms do
       allow_nil?: false,
       constraints: [nil_items?: false],
       description:
-        "The two forms with a name of their own: the Scriptural Rosary and the Rosary Said Aloud. The third form, a meditation set, is named by the set."
+        "The two forms with a name of their own: the Scriptural Rosary and the Audio Rosary. The third form, a meditation set, is named by the set."
 
     field :choices, {:array, Types.RosaryChoice},
       allow_nil?: false,
@@ -37,7 +37,7 @@ defmodule LumenViae.Rosary.Types.RosaryForms do
 
     field :holy_audio_value, :string,
       allow_nil?: false,
-      description: "What the Rosary Said Aloud's audio row says, as a fact rather than a choice."
+      description: "What the Audio Rosary's audio row says, as a fact rather than a choice."
   end
 
   use AshGraphql.Type

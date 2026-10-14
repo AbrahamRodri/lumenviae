@@ -70,7 +70,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
   end
 
   describe "ways to pray without a set" do
-    test "offer the Scriptural Rosary and the Rosary Said Aloud", %{conn: conn} do
+    test "offer the Scriptural Rosary and the Audio Rosary", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/sorrowful")
 
       assert has_element?(
@@ -82,7 +82,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       assert has_element?(
                view,
                ~s(a[href="/mysteries/sorrowful/pray?form=holy"]),
-               "The Rosary Said Aloud"
+               "The Audio Rosary"
              )
     end
 
@@ -267,7 +267,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
              )
 
       assert has_element?(view, "label", "Meditation only")
-      assert has_element?(view, "label", "Whole Rosary aloud")
+      assert has_element?(view, "label", "Whole Rosary read to you")
 
       assert has_element?(
                view,
@@ -292,7 +292,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       assert has_element?(view, ~s(a[href="/mysteries/joyful/pray?form=holy"]))
     end
 
-    test "the Whole Rosary aloud drops Counting, which the voice then keeps", %{
+    test "the Whole Rosary read to you drops Counting, which the voice then keeps", %{
       conn: conn,
       set: set
     } do
@@ -327,7 +327,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       choose(view, %{aloud: "true"})
 
       assert view |> element("li", "The Scriptural Rosary") |> render() =~
-               "Whole Rosary aloud · Female voice"
+               "Whole Rosary read to you · Female voice"
     end
 
     test "each change is handed to the browser to remember", %{conn: conn} do
