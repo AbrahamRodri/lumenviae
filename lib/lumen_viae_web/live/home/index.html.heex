@@ -45,25 +45,13 @@
         </picture>
       </div>
 
-      <p class="kicker mb-3 animate-rise" style="animation-delay: 120ms">
-        Lumen Viae &middot; The Light of the Way
-      </p>
-
       <h1
         id="home-hero-heading"
-        class="font-display font-semibold text-[2.5rem] leading-[1.1] sm:text-6xl md:text-7xl text-ink-light mb-4 animate-rise"
+        class="font-display font-semibold text-[2.5rem] leading-[1.1] sm:text-6xl md:text-7xl text-ink-light mb-8 animate-rise"
         style="animation-delay: 200ms"
       >
         The Rosary, Illuminated
       </h1>
-
-      <p
-        class="font-garamond text-lg md:text-xl text-ink-muted italic max-w-xl mx-auto leading-relaxed mb-8 animate-rise"
-        style="animation-delay: 300ms"
-      >
-        Pray the Holy Rosary each day with the meditations of the saints and
-        doctors of the Church.
-      </p>
 
       <!-- The week as a strand of beads, today's lit -->
       <div class="animate-rise mb-8" style="animation-delay: 400ms">
@@ -89,46 +77,14 @@
             </li>
           </ol>
         </div>
-
-        <div
-          id="mystery-schedule"
-          phx-hook="MysterySchedule"
-          data-schedule={@schedule}
-          role="group"
-          aria-label="Which schedule the week follows"
-          class="mt-4 inline-flex items-center justify-center gap-1 rounded-full border border-night-line p-0.5"
-        >
-          <button
-            :for={schedule <- LumenViae.LiturgicalCalendar.schedules()}
-            type="button"
-            phx-click="set_schedule"
-            phx-value-schedule={schedule}
-            aria-pressed={to_string(@schedule == schedule)}
-            title={schedule_detail(schedule)}
-            class={[
-              "rounded-full px-4 min-h-11 font-garamond text-base motion-safe:transition-colors",
-              if(@schedule == schedule,
-                do: "bg-gilt text-night font-semibold",
-                else: "text-ink-muted hover:text-ink-light"
-              )
-            ]}
-          >
-            {schedule_name(schedule)}
-          </button>
-        </div>
       </div>
 
       <div class="animate-rise" style="animation-delay: 500ms">
-        <p class="font-garamond text-lg text-ink-muted mb-5">
-          Today is {Calendar.strftime(@today, "%A")} &mdash;
-          <span class="text-ink-light">{@today_category.title}</span>
-        </p>
         <.gold_cta
           navigate={@today_category.path}
           id="pray-today"
-          aria-label={"Pray the Rosary: #{@today_category.title}"}
         >
-          Pray the Rosary
+          Pray the {@today_category.devotion_title}
         </.gold_cta>
       </div>
     </div>
@@ -150,6 +106,33 @@
         <p class="font-garamond text-xl text-ink-muted italic mb-6">
           {@today_category.subtitle}
         </p>
+
+        <div
+          id="mystery-schedule"
+          phx-hook="MysterySchedule"
+          data-schedule={@schedule}
+          role="group"
+          aria-label="Which schedule the week follows"
+          class="mb-6 inline-flex items-center justify-center gap-1 rounded-full border border-night-line p-0.5"
+        >
+          <button
+            :for={schedule <- LumenViae.LiturgicalCalendar.schedules()}
+            type="button"
+            phx-click="set_schedule"
+            phx-value-schedule={schedule}
+            aria-pressed={to_string(@schedule == schedule)}
+            title={schedule_detail(schedule)}
+            class={[
+              "rounded-full px-4 min-h-11 font-garamond text-base motion-safe:transition-colors",
+              if(@schedule == schedule,
+                do: "bg-gilt text-night font-semibold",
+                else: "text-ink-muted hover:text-ink-light"
+              )
+            ]}
+          >
+            {schedule_name(schedule)}
+          </button>
+        </div>
 
         <ol
           id="todays-mysteries"

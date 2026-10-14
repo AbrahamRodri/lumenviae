@@ -183,6 +183,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
         numeral: Enum.at(@numerals, Categories.position(slug)),
         name: Categories.name(slug),
         title: "The " <> Categories.devotion_title(slug),
+        devotion_title: Categories.devotion_title(slug),
         subtitle: Categories.subtitle(slug),
         days: nil,
         path: "/mysteries/#{slug}",
