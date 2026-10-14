@@ -51,6 +51,8 @@ lib/lumen_viae/
 │   ├── spoken_rosary.ex       resource with no table: the spoken Rosary manifest, for GraphQL
 │   ├── rosary_content.ex      resource with no table: the Rosary's words as one document, for the APIs
 │   ├── rosary_script.ex       resource with no table: one Rosary's script, expanded, for the APIs
+│   ├── prayer_book.ex         resource with no table: the Prayer Book's words as one document, for the APIs
+│   ├── chant_library.ex       resource with no table: the Chant Library, with its files' URLs, for the APIs
 │   ├── rosary_content/        the content document's sections, one calculation each, and current.ex: its version and date (stamp/2)
 │   ├── rosary_script/         expand.ex: a script's arguments read, refused when unknown, and expanded
 │   ├── artwork.ex             value module: licences, field lists and framing arithmetic
@@ -62,7 +64,9 @@ lib/lumen_viae/
 │   ├── voices.ex              value module: narration voices and the S3 key layout
 │   ├── prayer_audio.ex        value module: the spoken Rosary's clips and their S3 keys
 │   ├── content.ex             value module: the Rosary's words, from priv/rosary_content/
-│   └── content/script_check.ex  what script.json must hold, checked as Content compiles
+│   ├── content/script_check.ex  what script.json must hold, checked as Content compiles
+│   ├── library.ex             value module: the Prayer Book and the Chant Library, from priv/library/
+│   └── library/               check.ex (what the files must hold), current.ex and section.ex (the two resources' read and sections)
 ├── office.ex                  the Office domain (see below)
 ├── office/
 ├── ops.ex                     the Ops domain: the app looking at itself (see below)
@@ -73,6 +77,7 @@ lib/lumen_viae/
 │   ├── audio_regeneration.ex
 │   ├── narration_relocation.ex  one-time move into the voices/ layout
 │   ├── rosary_audio_generation.ex  records the spoken Rosary in every voice
+│   ├── chant_upload.ex        puts the chant recordings and scores on S3, writes their URLs
 │   └── artwork_upload.ex
 ├── audio/                     ElevenLabs narration
 │   ├── eleven_labs.ex
@@ -225,7 +230,7 @@ so an admin may do anything. Everyone else gets this, and nothing more:
 | Meditation | read one that is not archived and is in at least one set (a draft in no set is private, audio included; one in a hidden set stays readable so a set saved on a device keeps its narration); `:audio_for`, which signs the same ones |
 | Narration | read one whose meditation is not archived |
 | Mystery, Author, CategoryCard | read (a painting is served only once published) |
-| NarrationVoice, SpokenRosary, RosaryContent, RosaryScript | the reads the APIs make: `:offered` and `:retired`, `:for_voice`, `:current`, `:expand`. Their primary reads are AshAdmin's |
+| NarrationVoice, SpokenRosary, RosaryContent, RosaryScript, PrayerBook, ChantLibrary | the reads the APIs make: `:offered` and `:retired`, `:for_voice`, `:current`, `:expand`. Their primary reads are AshAdmin's |
 | Completion | `:record` and `:record_from_app` only, never read; the place lookup job may `:read` and `:add_place`, and its hourly sweep `:awaiting_place` (see below) |
 | Office.Breviary | its generic actions |
 | Ops.Maintenance | nothing; its acts are an admin's (`test/lumen_viae/ops/ops_test.exs`) |
@@ -506,7 +511,8 @@ order, which matches insertion order in a test and drifts in production.
 
 `LumenViae.Rosary.Categories`, `LumenViae.Rosary.Labels`,
 `LumenViae.Rosary.Artwork`, `LumenViae.Rosary.Voices`,
-`LumenViae.Rosary.PrayerAudio` and `LumenViae.Rosary.Content` hold
+`LumenViae.Rosary.PrayerAudio`, `LumenViae.Rosary.Content` and
+`LumenViae.Rosary.Library` hold
 controlled vocabulary, fixed content and the pure
 calculations that go with it: no state, no queries, no resource. Any layer
 may call them directly, including templates. They are the single source
@@ -601,6 +607,23 @@ they compile; the `labels` section is code, `LumenViae.Rosary.Labels`'s
 vocabulary, display names and kinds, dated in
 `LumenViae.Rosary.RosaryContent.Labels` and pinned in its test as the
 schedule's rules are. See docs/JSON_API.md, "The content document".
+
+`Library` holds the Prayer Book and the Chant Library the same way: the
+two files in `priv/library/`, read and checked as the module compiles
+(`Library.Check`: every id once, every id named exists, English and Latin
+pairing line for line, a chant's lines in order within its recording,
+every chant file with its URL, size and checksum), dated with a top-level
+`updated_at` and fingerprinted with `Content.version/1`.
+`LumenViae.Rosary.PrayerBook` and `LumenViae.Rosary.ChantLibrary`,
+resources with no table, serve them as `GET /api/v2/prayer-book` and
+`GET /api/v2/chant-library` (GraphQL `prayerBook`, `chantLibrary`). The
+words are the iOS app's export (`Tools/ContentExport`); the chant
+recordings and score pages are public files in the assets bucket at
+content-addressed keys, put there by `mix lumen_viae.upload_chants`
+(`LumenViae.Curation.ChantUpload`), which also writes their URLs into
+the file. How the apps arrange the words (orders of prayer, paintings,
+the chant shelves) stays in the apps. See docs/JSON_API.md, "The Prayer
+Book and the Chant Library".
 
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.

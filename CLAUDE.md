@@ -100,6 +100,13 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   deployed manifest names the new files at once, and until they exist
   the app says that prayer from its old copy, or skips it on a device
   that never had one
+- The Prayer Book and the Chant Library served to the apps as two
+  documents, `GET /api/v2/prayer-book` and `GET /api/v2/chant-library`,
+  from `priv/library/` (`LumenViae.Rosary.Library`), with every chant
+  recording and score page on S3 at a content-addressed URL. New words
+  come from the iOS app's export; `mix lumen_viae.upload_chants` puts the
+  files on S3 and writes their URLs. See docs/JSON_API.md, "The Prayer
+  Book and the Chant Library"
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
