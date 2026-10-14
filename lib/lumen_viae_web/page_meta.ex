@@ -69,7 +69,7 @@ defmodule LumenViaeWeb.PageMeta do
 
     * `:title` and `:description` (required). The description is cut to
       `max_description/0` characters at a word.
-    * `:image` - `plate_image/1`'s result, or `nil` for the default banner.
+    * `:image` - `plate_image/1`'s result, or `nil` for the default share image.
     * `:trail` - the page's breadcrumb below Home, as `{name, path}` pairs
       ending with the page itself; empty on the home page and on pages with
       no parent.
@@ -127,7 +127,7 @@ defmodule LumenViaeWeb.PageMeta do
   @doc "The preview image for a category's page: the woodcut its header shows."
   def category_image(category), do: plate_image(Map.get(@category_plates, category))
 
-  @doc "The banner link previews show for the home page and for any page with no woodcut."
+  @doc "The default share image: what link previews show for the home page and any page with no woodcut."
   def default_image do
     %{
       url: absolute_url(@default_image.path),

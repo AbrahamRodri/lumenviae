@@ -392,12 +392,12 @@ defmodule LumenViaeWeb.CoreComponents do
   ## Examples
 
       <.logo />
-      <.logo variant={:lockup} class="h-12 w-auto" title="Lumen Viae" />
-      <.logo variant={:compact} class="size-8" />
+      <.logo variant={:lockup} title="Lumen Viae" />
+      <.logo variant={:compact} class="h-8 w-auto" />
   """
   attr :variant, :atom, values: [:symbol, :compact, :lockup], default: :symbol
   attr :title, :string, default: nil
-  attr :class, :any, default: "h-11 md:h-12 w-auto"
+  attr :class, :any, default: "h-9 md:h-12 w-auto"
   attr :rest, :global
 
   def logo(assigns) do

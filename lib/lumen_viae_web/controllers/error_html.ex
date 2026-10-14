@@ -41,7 +41,7 @@ defmodule LumenViaeWeb.ErrorHTML do
               class="inline-flex items-center min-h-11"
               aria-label="Lumen Viae, home"
             >
-              <.logo variant={:lockup} class="h-9 md:h-12 w-auto" />
+              <.logo variant={:lockup} />
             </a>
           </div>
         </header>

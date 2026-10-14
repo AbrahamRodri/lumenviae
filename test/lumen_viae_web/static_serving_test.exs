@@ -50,7 +50,8 @@ defmodule LumenViaeWeb.StaticServingTest do
                      /apple-touch-icon.png /icon-192.png /icon-512.png /icon-maskable-512.png
                      /og-image.png /images/logo/lockup-horizontal-gold.svg
                      /images/logo/symbol-gold.svg /images/logo/symbol-compact-gold.svg) do
-        assert build_conn() |> get(path) |> response(200), "#{path} is not served"
+        conn = get(build_conn(), path)
+        assert conn.status == 200, "#{path} answered #{conn.status}"
       end
     end
 

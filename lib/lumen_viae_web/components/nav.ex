@@ -30,10 +30,13 @@ defmodule LumenViaeWeb.Components.Nav do
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-2 md:py-4 flex items-center justify-between gap-3">
         <.link
           navigate="/"
-          class="flex min-w-0 items-center min-h-11 rounded-sm hover:opacity-90 transition-opacity"
+          class="flex min-w-0 items-center gap-4 min-h-11 rounded-sm hover:opacity-90 transition-opacity"
           aria-label="Lumen Viae, home"
         >
-          <.logo variant={:lockup} class="h-9 md:h-12 w-auto" />
+          <.logo variant={:lockup} />
+          <span class="hidden lg:block font-garamond text-ink-muted text-sm italic leading-snug">
+            Meditations on the Holy Rosary
+          </span>
         </.link>
 
         <nav class="hidden md:flex items-center gap-2" aria-label="Main">

@@ -89,9 +89,6 @@ Replace its `<img src="/images/ornate-blue-gold-bg-symbols.jpg" ...>` with:
 
 ## Files kept for other reasons
 
-- `pngs/our-lady-of-sorrows-horizontal.jpg`: the share image before the
-  logo's `og-image.png` replaced it. No page names it now; a candidate for
-  deletion.
 - `pngs/queen-of-heaven-white-bg.jpg`: named only in the `<.arch_frame>`
   example in `core_components.ex`. No page shows it; a candidate for deletion
   with that example.
