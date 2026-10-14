@@ -141,7 +141,7 @@ defmodule LumenViae.MixProject do
       # libvips bindings, for the artwork display variants. Ships a
       # precompiled libvips, so the Dockerfile installs nothing for it.
       # See LumenViae.Images.Variants.
-      {:vix, "~> 0.41.0"}
+      {:vix, "~> 0.42.0"}
     ]
   end
 
