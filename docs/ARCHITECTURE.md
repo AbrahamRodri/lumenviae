@@ -1355,12 +1355,18 @@ Only Cormorant 500 and 600, EB Garamond 500 and 600 and EB Garamond italic
 500 exist: ask for no other weight or a Cormorant italic, and `strong` is
 600.
 
-**The mark.** `<.logo />` in `CoreComponents` is the Stella Maris: an
-eight-point Marian star in a thin circle, its lower ray drawn out into a
-path. One colour (`currentColor`, gilt by default), sizes `:sm` to `:xl`,
-beside the "Lumen Viae" wordmark in `font-display` 600. The same drawing
-is `priv/static/favicon.svg`, `favicon.ico` (16 and 32) and
-`apple-touch-icon.png` (180); change them together.
+**The mark.** `<.logo />` in `CoreComponents` is a gold lancet arch
+holding a four-pointed star whose long lower ray falls toward the
+threshold. It is final art in its own gold gradient, served as an `<img>`
+from `priv/static/images/logo/`: never redraw or recolour it. Variants:
+`:symbol` (the footer), `:compact` (a heavier arch for 32px and below) and
+`:lockup` (the symbol beside the LUMEN VIAE wordmark; the header). Size it
+by height through `class`. The same mark is `priv/static/favicon.svg`,
+`favicon.ico`, `favicon-16/32/48.png`, `apple-touch-icon.png` (180),
+`icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (all named by
+`site.webmanifest`) and `og-image.png` (1200x630, the default share
+image); change them together. The browser chrome's `theme-color` is the
+mark's candlelit `#0A0A15`.
 
 Shared vocabulary: `.btn-gold` / `<.gold_cta>` (the gilt capsule, one
 filled gilt shape per screen region), `.btn-outline-gold` (the gilt-ruled

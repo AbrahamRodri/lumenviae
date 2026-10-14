@@ -225,9 +225,11 @@ do what" in docs/ARCHITECTURE.md before adding an action or a policy.
   at least 44px. Cinzel, Ovo and Work Sans are admin-only. The two public
   fonts are self-hosted in `priv/static/fonts` in weights 500 and 600 only
   (and EB Garamond italic 500); see the fonts block in `app.css`.
-- The logo is the Stella Maris, `<.logo />`, beside a "Lumen Viae"
-  wordmark; `priv/static/favicon.svg` and the PNG icons are the same
-  drawing.
+- The logo is a gold lancet arch holding a four-pointed star, `<.logo />`
+  (the header shows its `:lockup` with the LUMEN VIAE wordmark, the footer
+  its `:symbol`). The art in `priv/static/images/logo/` is final: never
+  redraw or recolour it. The favicons, icons, `site.webmanifest` and
+  `og-image.png` in `priv/static` are the same mark.
 - `navy`, `gold`, `parchment`, `cream` and `brown` are the console's
   colours now; never use them on a public page.
 - Shared vocabulary: `<.gold_cta>`, `.btn-outline-gold`, `<.sacred_divider>`,

@@ -1,9 +1,11 @@
 defmodule LumenViaeWeb.Components.Footer do
   @moduledoc """
-  The public site's footer: one row of the site's links and the colophon.
+  The public site's footer: the logo symbol, one row of the site's links and
+  the colophon.
   The mysteries themselves are in the header's menu.
   """
   use Phoenix.Component
+  import LumenViaeWeb.CoreComponents, only: [logo: 1]
 
   @doc """
   Renders the site footer.
@@ -15,6 +17,8 @@ defmodule LumenViaeWeb.Components.Footer do
       class="site-footer bg-night-deep text-center border-t border-night-border"
     >
       <div class="max-w-3xl mx-auto px-4 sm:px-8 py-8">
+        <.logo class="h-12 w-auto mx-auto mb-4" />
+
         <nav aria-label="Footer">
           <ul class="flex flex-wrap justify-center gap-x-2 sm:gap-x-4">
             <li><.footer_link navigate="/">Today's Rosary</.footer_link></li>

@@ -375,48 +375,53 @@ defmodule LumenViaeWeb.CoreComponents do
   defp medallion_size_class("large"), do: "w-48 md:w-64"
 
   @doc """
-  The Stella Maris mark: an eight-point Marian star in a thin circle, its
-  lower ray drawn out into a path, the light of the way. One colour,
-  `currentColor`, gilt unless the caller says otherwise. Decorative unless
-  given a `title`.
+  The Lumen Viae mark: a gold lancet arch holding a four-pointed star whose
+  long lower ray falls toward the threshold. The art is final and drawn in
+  its own gold gradient, so it is an image rather than an inline `<svg>`:
+  never recolour it.
 
-  The same drawing is `priv/static/favicon.svg` and the PNG icons beside
-  it; change them together.
+  - `:symbol` - the arch and star alone.
+  - `:compact` - the symbol with a heavier arch and shorter ray, for 32px
+    and below.
+  - `:lockup` - the symbol beside the LUMEN VIAE wordmark.
+
+  The files are in `priv/static/images/logo/`; `priv/static/favicon.svg`,
+  the PNG icons and `og-image.png` are the same mark. Decorative unless
+  given a `title`. Size it by height through `class`.
 
   ## Examples
 
       <.logo />
-      <.logo size={:xl} class="text-gilt" />
-      <.logo size={:sm} title="Lumen Viae" />
+      <.logo variant={:lockup} class="h-12 w-auto" title="Lumen Viae" />
+      <.logo variant={:compact} class="size-8" />
   """
-  attr :size, :atom, values: [:sm, :md, :lg, :xl], default: :md
+  attr :variant, :atom, values: [:symbol, :compact, :lockup], default: :symbol
   attr :title, :string, default: nil
-  attr :class, :any, default: "text-gilt"
+  attr :class, :any, default: "h-11 md:h-12 w-auto"
   attr :rest, :global
 
   def logo(assigns) do
+    assigns = assign(assigns, :art, logo_art(assigns.variant))
+
     ~H"""
-    <svg
-      viewBox="0 0 64 64"
-      class={["shrink-0", logo_size(@size), @class]}
-      role={@title && "img"}
-      aria-hidden={if @title, do: nil, else: "true"}
+    <img
+      src={@art.src}
+      width={@art.width}
+      height={@art.height}
+      alt={@title || ""}
+      class={["shrink-0", @class]}
       {@rest}
-    >
-      <title :if={@title}>{@title}</title>
-      <circle cx="32" cy="26" r="21" fill="none" stroke="currentColor" stroke-width="1.5" />
-      <polygon
-        fill="currentColor"
-        points="32,8 33.3,22.86 38.72,19.28 35.14,24.7 50,26 35.14,27.3 38.72,32.72 33.3,29.14 32,61 30.7,29.14 25.28,32.72 28.86,27.3 14,26 28.86,24.7 25.28,19.28 30.7,22.86"
-      />
-    </svg>
+    />
     """
   end
 
-  defp logo_size(:sm), do: "size-8"
-  defp logo_size(:md), do: "size-11 md:size-12"
-  defp logo_size(:lg), do: "size-16"
-  defp logo_size(:xl), do: "size-24 md:size-28"
+  defp logo_art(:symbol), do: %{src: "/images/logo/symbol-gold.svg", width: 64, height: 100}
+
+  defp logo_art(:compact),
+    do: %{src: "/images/logo/symbol-compact-gold.svg", width: 64, height: 100}
+
+  defp logo_art(:lockup),
+    do: %{src: "/images/logo/lockup-horizontal-gold.svg", width: 966, height: 182}
 
   @doc """
   Translates an error message using gettext.
