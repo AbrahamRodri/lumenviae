@@ -135,41 +135,37 @@
   </section>
 
   <!-- Today's devotion: the mysteries, the sets for them, and the set-less forms -->
-  <section class="px-4 sm:px-8 py-14 md:py-20" aria-labelledby="todays-devotion-heading">
-    <div class="max-w-6xl mx-auto grid gap-12 lg:grid-cols-2 lg:gap-16">
+  <section class="px-4 sm:px-8 py-12 md:py-16" aria-labelledby="todays-devotion-heading">
+    <div class="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 lg:gap-16">
       <div class="min-w-0">
-        <p class="kicker mb-2">
+        <p class="section-label">
           {Calendar.strftime(@today, "%A")}'s Devotion
         </p>
         <h2
           id="todays-devotion-heading"
-          class="font-display text-4xl md:text-5xl text-ink-light leading-tight mb-2"
+          class="font-display text-4xl md:text-5xl text-ink-light leading-tight"
         >
           {@today_category.title}
         </h2>
-        <p class="font-garamond text-xl text-ink-muted italic mb-6">
+        <p class="font-garamond text-xl text-ink-muted italic mt-1 mb-5">
           {@today_category.subtitle}
         </p>
 
         <ol
           id="todays-mysteries"
-          class="border-l border-night-border"
+          class="border-t border-night-border"
           aria-label={"The #{length(@today_category.mysteries)} mysteries"}
         >
           <li
             :for={mystery <- @today_category.mysteries}
-            class="flex items-baseline gap-4 pl-5 py-3 border-b border-night-border last:border-b-0"
+            class="flex items-baseline gap-3 py-2.5 border-b border-night-border"
           >
-            <span class="font-display text-gilt text-xl w-9 shrink-0" aria-hidden="true">
-              {mystery.numeral}.
+            <span class="font-display text-gilt text-lg w-8 shrink-0" aria-hidden="true">
+              {mystery.numeral}
             </span>
-            <div class="min-w-0">
-              <p class="font-garamond text-xl text-ink-light leading-snug">{mystery.name}</p>
-              <p :if={mystery.fruit} class="font-garamond text-base text-ink-muted">
-                <span class="kicker text-xs">Fruit</span>
-                {mystery.fruit}
-              </p>
-            </div>
+            <p class="min-w-0 font-garamond text-lg text-ink-light leading-snug">
+              {mystery.name}<span :if={mystery.fruit} class="italic text-base text-ink-muted"><span aria-hidden="true"> &middot; </span><span class="sr-only">. Fruit: </span>{mystery.fruit}</span>
+            </p>
           </li>
         </ol>
       </div>
@@ -177,99 +173,97 @@
       <div class="flex min-w-0 flex-col gap-10">
         <!-- Pray with a meditation set -->
         <div id="todays-sets">
-          <h3 class="font-display text-2xl md:text-3xl text-ink-light mb-2">
-            Pray with the Saints
-          </h3>
+          <h3 class="section-label">Pray with the Saints</h3>
           <%= if @todays_sets == [] do %>
             <p class="font-garamond text-lg text-ink-muted italic">
               No meditation sets are available yet for these mysteries. Pray them
               with the Scriptures, or with the prayers alone, below.
             </p>
           <% else %>
-            <p class="font-garamond text-lg text-ink-muted mb-5">
-              Choose whose meditations to pray with today. Each opens straight
-              into the Rosary.
-            </p>
-            <ul class="space-y-2.5 mb-6">
+            <ul class="row-list">
               <li :for={set <- @todays_sets}>
-                <.link
-                  navigate={"/meditation-sets/#{set.id}/pray"}
-                  class="home-row group hairline-card flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3 min-h-12 hover:border-night-line transition-colors"
-                >
-                  <span class="flex-1 min-w-0 basis-40 font-garamond text-lg text-ink-light group-hover:text-gilt transition-colors">
-                    {set.name}
-                  </span>
-                  <span
-                    :if={has_audio?(set)}
-                    class="flex items-center gap-1.5 shrink-0 font-garamond text-sm text-sky"
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      class="w-4 h-4"
-                      aria-hidden="true"
+                <.link navigate={"/meditation-sets/#{set.id}/pray"} class="row-link home-row">
+                  <SetPortrait.set_portrait set={set} sizes="44px" class="w-11 h-14" />
+                  <span class="flex-1 min-w-0">
+                    <span class="block font-garamond text-lg font-semibold text-ink-light leading-snug">
+                      {set.name}
+                    </span>
+                    <span
+                      :if={set_detail(set)}
+                      class="block font-garamond text-base text-ink-muted leading-snug"
                     >
-                      <path d="M12 2C6.477 2 2 6.477 2 12v4a2 2 0 002 2h2a2 2 0 002-2v-3a2 2 0 00-2-2H4.062A8.001 8.001 0 0112 4a8.001 8.001 0 017.938 7H18a2 2 0 00-2 2v3a2 2 0 002 2h2a2 2 0 002-2v-4c0-5.523-4.477-10-10-10z" />
-                    </svg>
-                    Guided audio
+                      {set_detail(set)}
+                    </span>
                   </span>
-                  <span
-                    class="text-gilt shrink-0 group-hover:translate-x-0.5 transition-transform"
-                    aria-hidden="true"
-                  >
-                    &rarr;
-                  </span>
+                  <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
                 </.link>
               </li>
             </ul>
-            <button
-              type="button"
-              phx-click="providence"
-              id="divine-providence"
-              class="btn-outline-gold w-full sm:w-auto"
-              aria-describedby="divine-providence-help"
-            >
-              Divine Providence
-            </button>
-            <p
-              id="divine-providence-help"
-              class="font-garamond italic text-base text-ink-muted mt-2"
-            >
-              Let one of today's sets be chosen for you.
+            <p class="mt-2 text-center">
+              <button
+                type="button"
+                phx-click="providence"
+                id="divine-providence"
+                class="btn-text"
+              >
+                Let one be chosen for me
+              </button>
             </p>
           <% end %>
         </div>
 
         <!-- The Rosary without a set -->
         <div id="todays-forms">
-          <h3 class="font-display text-2xl md:text-3xl text-ink-light mb-4">
-            Other Ways to Pray Today
-          </h3>
-          <ul class="grid gap-2.5 sm:grid-cols-2">
-            <li class="min-w-0">
-              <.link
-                navigate={scriptural_path(@today_category.slug)}
-                class="home-row group hairline-card flex flex-col h-full px-5 py-4 hover:border-night-line transition-colors"
-              >
-                <span class="font-display text-xl font-semibold text-ink-light group-hover:text-gilt transition-colors">
-                  The Scriptural Rosary
+          <h3 class="section-label">Without a Set</h3>
+          <ul class="row-list">
+            <li>
+              <.link navigate={scriptural_path(@today_category.slug)} class="row-link home-row">
+                <span class="glyph-badge" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                  >
+                    <path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5C4.7 20 4 19.3 4 18.5v-13zM20 5.5C20 4.7 19.3 4 18.5 4H13v16h5.5c.8 0 1.5-.7 1.5-1.5v-13z" />
+                    <path d="M7 8h2M15 8h2" />
+                  </svg>
                 </span>
-                <span class="font-garamond text-base text-ink-muted">
-                  A verse of Holy Scripture before each Hail Mary.
+                <span class="flex-1 min-w-0">
+                  <span class="block font-garamond text-lg font-semibold text-ink-light leading-snug">
+                    The Scriptural Rosary
+                  </span>
+                  <span class="block font-garamond text-base text-ink-muted leading-snug">
+                    A verse of Holy Scripture before each Hail Mary
+                  </span>
                 </span>
+                <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
               </.link>
             </li>
-            <li class="min-w-0">
-              <.link
-                navigate={aloud_path(@today_category.slug)}
-                class="home-row group hairline-card flex flex-col h-full px-5 py-4 hover:border-night-line transition-colors"
-              >
-                <span class="font-display text-xl font-semibold text-ink-light group-hover:text-gilt transition-colors">
-                  The Rosary Said Aloud
+            <li>
+              <.link navigate={aloud_path(@today_category.slug)} class="row-link home-row">
+                <span class="glyph-badge" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                  >
+                    <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" />
+                    <path d="M15.5 9a4 4 0 010 6M17.8 6.5a7.5 7.5 0 010 11" />
+                  </svg>
                 </span>
-                <span class="font-garamond text-base text-ink-muted">
-                  Every prayer spoken aloud, with no meditation between.
+                <span class="flex-1 min-w-0">
+                  <span class="block font-garamond text-lg font-semibold text-ink-light leading-snug">
+                    The Rosary Said Aloud
+                  </span>
+                  <span class="block font-garamond text-base text-ink-muted leading-snug">
+                    Every prayer spoken aloud, with no meditation between
+                  </span>
                 </span>
+                <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
               </.link>
             </li>
           </ul>
@@ -280,36 +274,32 @@
 
   <!-- Every category, as the app's "all mysteries" -->
   <section
-    class="border-t border-night-border px-4 sm:px-8 py-14 md:py-20"
+    class="border-t border-night-border px-4 sm:px-8 py-12 md:py-16"
     aria-labelledby="all-mysteries-heading"
   >
     <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-10">
-        <h2
-          id="all-mysteries-heading"
-          class="font-display text-4xl md:text-5xl text-ink-light mb-3"
-        >
-          The Mysteries of the Rosary
-        </h2>
-        <p class="font-garamond text-lg md:text-xl text-ink-muted max-w-xl mx-auto">
-          Scenes from the lives of Jesus and Mary. Choose which to pray.
-        </p>
-      </div>
+      <h2 id="all-mysteries-heading" class="section-label">
+        The Mysteries of the Rosary
+      </h2>
 
+      <%!-- Two to a row on a phone, with the fifth card the width of both, so
+            no card is left alone on the last row. --%>
       <ul class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-5">
         <li
-          :for={category <- @categories}
-          class="home-card-item min-w-0"
+          :for={{category, index} <- Enum.with_index(@categories)}
+          class={[
+            "home-card-item min-w-0",
+            wide_card?(index, @categories) && "col-span-2 md:col-span-1"
+          ]}
           id={"category-#{category.slug}"}
         >
           <LumenViaeWeb.Live.Home.CategoryCard.category_card
             category={category}
             today?={category.slug == @today_category.slug}
+            wide?={wide_card?(index, @categories)}
           />
         </li>
       </ul>
-
-      <.sacred_divider class="max-w-[210px] mx-auto mt-14 mb-0" />
     </div>
   </section>
 </div>

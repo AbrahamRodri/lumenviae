@@ -140,7 +140,8 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     set = create_set("joyful", 5)
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?aloud=true")
 
-    view |> form("form[phx-change=set_voice]", %{voice: "male"}) |> render_change()
+    view |> element("button[aria-controls=prayer-settings]") |> render_click()
+    view |> element("#prayer-settings button[phx-value-voice=male]") |> render_click()
 
     assert has_element?(view, "[id^=spoken-rosary-male]")
     assert view |> script() |> Enum.all?(&String.contains?(&1["url"], "/voices/male/rosary/"))

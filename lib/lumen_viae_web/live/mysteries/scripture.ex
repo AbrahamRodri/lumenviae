@@ -64,9 +64,9 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
 
   @doc """
   One mystery on the page: its name, reference and fruit from the database,
-  the page's own summary, its passages behind a disclosure, and a link to
-  its category's page to pray it. Renders nothing for a mystery the
-  database does not have.
+  the page's own summary and its passages behind a disclosure. The link to
+  pray the category comes once, after its last mystery. Renders nothing
+  for a mystery the database does not have.
   """
   attr :mystery, :map, default: nil
   attr :category, :string, required: true
@@ -74,8 +74,6 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   slot :passage, required: true
 
   def mystery_card(assigns) do
-    assigns = assign(assigns, :pray, Enum.find(@categories, &(&1.id == assigns.category)).pray)
-
     ~H"""
     <article
       :if={@mystery}
@@ -103,26 +101,12 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
         </summary>
         {render_slot(@passage)}
       </details>
-      <p class="mt-3 border-t border-night-border pt-1 text-right">
-        <.link
-          navigate={"/mysteries/#{@category}"}
-          class="inline-flex items-center gap-2 min-h-11 font-garamond text-lg text-sky hover:text-ink-light transition-colors"
-        >
-          {@pray}
-          <svg
-            viewBox="0 0 24 24"
-            class="w-3.5 h-3.5"
-            fill="none"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </.link>
-      </p>
     </article>
     """
   end
+
+  @doc false
+  def pray_label(category_id), do: Enum.find(@categories, &(&1.id == category_id)).pray
 
   defp validate_category(category_id, default \\ "joyful") do
     case Enum.find(@categories, &(&1.id == category_id)) do

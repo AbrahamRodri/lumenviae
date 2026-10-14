@@ -46,8 +46,7 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
       >
         <%= case @screen.kind do %>
           <% :announcement -> %>
-            <PrayerText.plate key={@decade.key} />
-            <PrayerText.announcement decade={@decade} chaplet={@sequence.chaplet?} />
+            <PrayerText.decade_header decade={@decade} />
             <div :if={@decade.meditation && @sequence.form == "scriptural"} class="mt-8">
               <PageView.meditation_toggle
                 meditation={@decade.meditation}
@@ -70,6 +69,7 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
             <PrayerText.prayer
               prayer_id={@screen.prayer_id}
               title={Sequence.prayer_title(@screen.prayer_id, @language)}
+              title_shown={false}
               size={if @screen.verse, do: "quiet", else: "full"}
               language={@language}
             />

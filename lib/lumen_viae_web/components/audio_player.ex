@@ -13,7 +13,10 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
       <.audio_player audio_url={@meditation.audio_url} size="large" />
   """
   attr :audio_url, :string, default: nil, doc: "The URL of the audio file"
-  attr :size, :string, default: "normal", doc: "Size of the player: normal or large"
+
+  attr :size, :string,
+    default: "normal",
+    doc: "normal, large, or reading (on the meditation's reading page, in its colours)"
 
   def audio_player(assigns) do
     assigns = assign_button_classes(assigns)
@@ -73,6 +76,13 @@ defmodule LumenViaeWeb.Components.AudioPlayer do
             "flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-gilt ring-1 ring-gilt-light/60 ring-offset-4 ring-offset-transparent hover:bg-gilt-light transition-all shadow-gilt hover:scale-105",
             "w-10 h-10 md:w-12 md:h-12 text-night ml-1",
             "w-10 h-10 md:w-12 md:h-12 text-night"
+          }
+
+        "reading" ->
+          {
+            "reading-page__play flex items-center justify-center w-11 h-11 rounded-full transition-colors",
+            "w-5 h-5 ml-0.5",
+            "w-5 h-5"
           }
 
         _ ->

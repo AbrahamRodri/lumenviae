@@ -22,15 +22,10 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
       |> assign(:verses, Enum.filter(assigns.page.screens, & &1.verse))
 
     ~H"""
-    <section aria-labelledby={"page-title-#{@page.index}"} class="space-y-8">
-      <div>
-        <PrayerText.plate key={@decade.key} />
-        <div id={"page-title-#{@page.index}"}>
-          <PrayerText.announcement decade={@decade} chaplet={@sequence.chaplet?} />
-        </div>
+    <section aria-labelledby={"page-title-#{@page.index}"} class="space-y-6">
+      <div id={"page-title-#{@page.index}"}>
+        <PrayerText.decade_header decade={@decade} />
       </div>
-
-      <.sacred_divider class="!my-6" />
 
       <PrayerText.meditation
         :if={@decade.meditation && @sequence.form == "meditation"}
@@ -77,8 +72,9 @@ defmodule LumenViaeWeb.Live.Pray.PageView do
           </li>
         </ol>
         <details class="mt-4 group">
-          <summary class="cursor-pointer min-h-11 flex items-center kicker hover:text-gilt rounded">
-            Show the words
+          <summary class="btn-outline-gold !py-2 !px-5 w-fit cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <span class="group-open:hidden">Show the words</span>
+            <span class="hidden group-open:inline">Hide the words</span>
           </summary>
           <div class="mt-4 space-y-6">
             <PrayerText.prayer

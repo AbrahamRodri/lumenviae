@@ -1,9 +1,9 @@
 defmodule LumenViaeWeb.Live.Pray.Controls do
   @moduledoc """
   The prayer page's controls: the way to pray it (form, counting, the
-  closing prayers, the language of the prayers, the reading page, the
-  images, the text size), praying aloud and its voice, the offer
-  to continue where the reader left off, and Previous and Next.
+  voice, the closing prayers, the language of the prayers, the reading
+  page, the images, the text size), the Pray aloud switch, the offer to
+  continue where the reader left off, and Previous and Next.
   """
   use LumenViaeWeb, :html
 
@@ -27,6 +27,8 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   attr :extras, :list, required: true
   attr :chaplet, :boolean, required: true
   attr :language, :string, required: true
+  attr :voices, :list, required: true
+  attr :voice, :map, required: true
 
   def settings_panel(assigns) do
     assigns =
@@ -72,6 +74,21 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
             pressed={@count == "screen"}
             title="On the Screen"
             note="The beads are on the screen. Tap, swipe or press Space for each Hail Mary."
+          />
+        </div>
+      </fieldset>
+
+      <fieldset :if={length(@voices) > 1}>
+        <legend class={legend_class()}>Voice</legend>
+        <div class="mt-2 grid gap-2 sm:grid-cols-2">
+          <.choice
+            :for={voice <- @voices}
+            event="set_voice"
+            name="voice"
+            value={voice.slug}
+            pressed={@voice.slug == voice.slug}
+            title={voice.name}
+            note={voice.description}
           />
         </div>
       </fieldset>
@@ -213,43 +230,29 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     """
   end
 
-  attr :voices, :list, required: true
-  attr :voice, :map, required: true
   attr :pray_aloud, :boolean, required: true
 
-  def aloud_controls(assigns) do
+  @doc """
+  Praying aloud, switched in the top bar beside the settings: a speaker,
+  lit gilt while every prayer is said aloud. The voice is chosen in the
+  settings pane.
+  """
+  def aloud_button(assigns) do
     ~H"""
-    <div class="flex flex-wrap items-center justify-center gap-2">
-      <button
-        type="button"
-        phx-click="toggle_pray_aloud"
-        aria-pressed={to_string(@pray_aloud)}
-        title="Hear every prayer of the Rosary, bead by bead"
-        class={[
-          "inline-flex items-center gap-2 rounded-full border px-4 min-h-11 font-garamond text-base motion-safe:transition-colors",
-          if(@pray_aloud,
-            do: "border-gilt bg-gilt text-night",
-            else: "border-night-line text-ink-muted hover:border-gilt hover:text-gilt"
-          )
-        ]}
-      >
-        <span class="hero-speaker-wave size-4" aria-hidden="true" />
-        {if @pray_aloud, do: "Praying aloud", else: "Pray aloud"}
-      </button>
-
-      <form :if={length(@voices) > 1} id="voice-form" phx-change="set_voice" class="inline-flex">
-        <label for="narration-voice" class="sr-only">Narration voice</label>
-        <select
-          id="narration-voice"
-          name="voice"
-          class="rounded-full border border-night-line bg-night min-h-11 pl-4 pr-9 font-garamond text-base text-ink-muted focus:border-gilt focus:ring-0"
-        >
-          <option :for={voice <- @voices} value={voice.slug} selected={voice.slug == @voice.slug}>
-            {voice.name} voice
-          </option>
-        </select>
-      </form>
-    </div>
+    <button
+      type="button"
+      id="pray-aloud"
+      phx-click="toggle_pray_aloud"
+      aria-pressed={to_string(@pray_aloud)}
+      aria-label="Pray aloud"
+      title="Hear every prayer of the Rosary, bead by bead"
+      class={[
+        "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gilt motion-safe:transition-colors",
+        if(@pray_aloud, do: "text-gilt bg-gilt/15", else: "text-ink-muted")
+      ]}
+    >
+      <span class="hero-speaker-wave size-5" aria-hidden="true" />
+    </button>
     """
   end
 
@@ -386,7 +389,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       aria-label="Move through the Rosary"
       class="prayer-bottom-nav sticky bottom-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 bg-gradient-to-t from-night via-night to-night/0"
     >
-      <div class="grid grid-cols-[auto_1fr] gap-3 items-center">
+      <div class="grid grid-cols-[auto_1fr] gap-3 items-center max-w-[62ch] mx-auto">
         <button
           type="button"
           phx-click="previous"

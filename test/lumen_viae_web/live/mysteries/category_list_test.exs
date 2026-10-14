@@ -111,7 +111,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       assert card =~ "Meditations of St. Bernard"
       assert card =~ "Honey-sweet."
       assert card =~ "St. Bernard"
-      assert card =~ "1 meditation"
+      # Every set has its five, so the count is not shown.
+      refute card =~ "1 meditation"
       assert card =~ "Saints · Reflections"
       assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray"]))
     end

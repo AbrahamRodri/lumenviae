@@ -21,7 +21,15 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListMysteriesTest do
     {:ok, view, html} = live(conn, "/mysteries/joyful")
 
     assert has_element?(view, "#mysteries-heading + ol li", "The Annunciation")
-    assert html =~ "Fruit: Humility"
+
+    # The fruit follows the name; a screen reader hears it named as the fruit.
+    assert view
+           |> element("#mysteries-heading + ol li", "The Annunciation")
+           |> render()
+           |> Floki.parse_fragment!()
+           |> Floki.text()
+           |> String.replace(~r/\s+/, " ") =~ "Fruit: Humility"
+
     # A position the table has no mystery for keeps its label.
     assert html =~ "The Fifth Joyful Mystery"
   end

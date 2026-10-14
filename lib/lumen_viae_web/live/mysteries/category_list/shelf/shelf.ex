@@ -1,16 +1,15 @@
 defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
   @moduledoc """
   The category's meditation sets: the filters (each kind of meditation the
-  shelf carries, and narrated only), "Let one be chosen for me", and one
-  card per set with its painting or author's portrait, byline, number of
-  meditations, narration and kinds, each card a Pray link carrying the
-  visitor's choices.
+  shelf carries, and narrated only) in one row, "Let one be chosen for
+  me", and one card per set with its painting or author's portrait,
+  byline, kinds, narration and the start of its description, each card a
+  Pray link carrying the visitor's choices.
   """
   use LumenViaeWeb, :html
 
-  alias LumenViae.Rosary
-  alias LumenViae.Rosary.{Artwork, Labels}
-  alias LumenViaeWeb.Components.ArtworkPicture
+  alias LumenViae.Rosary.Labels
+  alias LumenViaeWeb.Components.SetPortrait
   alias LumenViaeWeb.Live.Mysteries.CategoryList.{Filtering, PrayLinks}
 
   attr :title, :string, required: true
@@ -25,7 +24,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
     ~H"""
     <section aria-labelledby="sets-heading">
-      <h2 id="sets-heading" class="category-section-label">Meditations</h2>
+      <h2 id="sets-heading" class="section-label">Meditations</h2>
 
       <%= if @sets == [] do %>
         <div class="category-card px-6 py-10 text-center">
@@ -38,45 +37,17 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
           </p>
         </div>
       <% else %>
-        <p class="font-garamond text-base text-ink-muted mb-4 max-w-[60ch]">
-          Each set contemplates the same mysteries through a different light: a
-          meditation is read before each decade.
-        </p>
-
-        <div class="category-card px-5 py-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-          <div>
-            <p class="font-display text-xl font-semibold text-ink-light">
-              Divine Providence
-            </p>
-            <p class="font-garamond text-base text-ink-muted">
-              Not sure which to pray? Let a set be chosen for you.
-            </p>
-          </div>
-          <button type="button" phx-click="providence" class="category-quiet-btn shrink-0">
-            Let one be chosen for me
-          </button>
-        </div>
-
-        <div
-          :if={@kinds_offered != [] or @any_narrated?}
-          role="group"
-          aria-labelledby="filters-label"
-          class="mb-5"
-        >
-          <p
-            id="filters-label"
-            class="font-display text-lg font-semibold text-ink-light mb-2"
-          >
-            Filter by kind
-          </p>
-          <div class="flex flex-wrap gap-2">
+        <div :if={@kinds_offered != [] or @any_narrated?} role="group" aria-labelledby="filters-label">
+          <p id="filters-label" class="sr-only">Filter by kind</p>
+          <%!-- One row that scrolls sideways on a phone, not a wrapping block. --%>
+          <div class="tab-scroller flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
             <button
               :for={kind <- @kinds_offered}
               type="button"
               phx-click="toggle_kind"
               phx-value-kind={kind}
               aria-pressed={to_string(kind in @filters.kinds)}
-              class="category-chip"
+              class="category-chip shrink-0 whitespace-nowrap"
             >
               {Labels.display_name(kind)}
             </button>
@@ -85,7 +56,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
               type="button"
               phx-click="toggle_narrated"
               aria-pressed={to_string(@filters.narrated)}
-              class="category-chip"
+              class="category-chip shrink-0 whitespace-nowrap"
             >
               Narrated only
             </button>
@@ -96,11 +67,17 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
             aria-live="polite"
           >
             Showing {length(@shown_sets)} of {length(@sets)} sets.
-            <button type="button" phx-click="clear_filters" class="category-text-btn">
+            <button type="button" phx-click="clear_filters" class="btn-text">
               Clear filters
             </button>
           </p>
         </div>
+
+        <p class="mt-1 mb-3">
+          <button type="button" phx-click="providence" class="btn-text">
+            Let one be chosen for me
+          </button>
+        </p>
 
         <%= if @shown_sets == [] do %>
           <div class="category-card px-6 py-8 text-center">
@@ -112,7 +89,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
             </button>
           </div>
         <% else %>
-          <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-1" id="meditation-sets">
+          <ul class="grid gap-3 md:grid-cols-2 lg:grid-cols-1" id="meditation-sets">
             <li :for={set <- @shown_sets} id={"set-#{set.id}"} class="min-w-0">
               <.set_card set={set} choices={@choices} />
             </li>
@@ -128,78 +105,52 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
 
   defp set_card(assigns) do
     set = assigns.set
-    artwork = Rosary.artwork_record(set)
 
     assigns =
       assigns
-      |> assign(:artwork, artwork)
       |> assign(:byline, byline(set))
-      |> assign(:count, set.meditation_count)
-      |> assign(:narrated?, Filtering.narrated?(set))
-      |> assign(:portrait_alt, artwork && artwork.image_alt)
+      |> assign(:meta, meta(set))
 
     ~H"""
-    <article class="category-card relative flex flex-wrap gap-4 p-4 sm:p-5 h-full">
-      <%!-- The frame draws the arch, not the image, so a portrait and the
-            placeholder share one shape whatever the picture's size. --%>
-      <div class="relative w-20 sm:w-24 shrink-0 self-start aspect-[4/5] overflow-hidden rounded-t-full border border-night-border bg-night">
-        <%= if @artwork do %>
-          <ArtworkPicture.artwork_picture
-            record={@artwork}
-            alt={@portrait_alt}
-            sizes="(min-width: 640px) 96px, 80px"
-            class="absolute inset-0 w-full h-full object-cover"
-            style={"object-position: #{Artwork.object_position(@artwork.image_focal_x, @artwork.image_focal_y)}"}
-          />
-        <% else %>
-          <div
-            class="absolute inset-0 flex items-center justify-center text-gilt"
-            aria-hidden="true"
-          >
-            <svg viewBox="0 0 10 14" class="w-4 h-5 fill-current">
-              <path d="M3.6 0 H6.4 V2.8 H10 V5.6 H6.4 V14 H3.6 V5.6 H0 V2.8 H3.6 Z" />
-            </svg>
-          </div>
-        <% end %>
-      </div>
+    <article class="category-card relative flex gap-4 p-4 h-full">
+      <SetPortrait.set_portrait
+        set={@set}
+        sizes="(min-width: 640px) 80px, 64px"
+        class="w-16 h-20 sm:w-20 sm:h-24 self-start"
+      />
 
-      <div class="min-w-0 flex-1 basis-40 flex flex-col">
-        <h3 class="font-display text-2xl font-semibold text-ink-light leading-snug break-words">
+      <div class="min-w-0 flex-1 flex flex-col">
+        <h3 class="font-display text-[1.375rem] font-semibold text-ink-light leading-tight break-words">
           <.link navigate={PrayLinks.set_path(@set.id, @choices)} class="category-stretched-link">
             {@set.name}
           </.link>
         </h3>
-        <p :if={@byline} class="font-garamond italic text-base text-ink-muted">{@byline}</p>
-
-        <p class="font-garamond text-sm text-ink-muted mt-1.5">
-          {@count} {if @count == 1, do: "meditation", else: "meditations"}
-          <span :if={@narrated?}>
-            <span aria-hidden="true"> &middot; </span><span class="text-sky">Narrated</span>
-          </span>
+        <p :if={@byline} class="font-garamond italic text-base text-ink-muted leading-snug">
+          {@byline}
         </p>
-        <p
-          :if={(@set.labels || []) != []}
-          class="font-garamond text-sm text-sky mt-1 break-words"
-        >
-          {Enum.map_join(@set.labels, " · ", &Labels.display_name/1)}
-        </p>
-
+        <p :if={@meta} class="font-garamond text-sm text-sky mt-1 break-words">{@meta}</p>
         <p
           :if={@set.description}
-          class="font-garamond text-base text-ink-muted leading-relaxed mt-2 line-clamp-3"
+          class="font-garamond text-base text-ink-muted leading-normal mt-1.5 line-clamp-2"
         >
           {@set.description}
         </p>
-
-        <span
-          class="font-garamond text-base font-semibold text-gilt mt-auto pt-3"
-          aria-hidden="true"
-        >
-          Pray <span class="category-arrow">&rarr;</span>
-        </span>
       </div>
+
+      <span class="hero-chevron-right size-5 row-chevron self-center" aria-hidden="true" />
     </article>
     """
+  end
+
+  # The set's kinds and whether it is narrated, in one line.
+  defp meta(set) do
+    kinds = Enum.map(set.labels || [], &Labels.display_name/1)
+    words = if Filtering.narrated?(set), do: kinds ++ ["Narrated"], else: kinds
+
+    case words do
+      [] -> nil
+      words -> Enum.join(words, " · ")
+    end
   end
 
   # The set's own byline, else its linked author's name, else the author

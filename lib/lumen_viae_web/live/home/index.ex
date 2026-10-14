@@ -22,7 +22,8 @@ defmodule LumenViaeWeb.Live.Home.Index do
   alias LumenViae.LiturgicalCalendar
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
-  alias LumenViae.Rosary.Categories
+  alias LumenViae.Rosary.{Categories, Labels}
+  alias LumenViaeWeb.Components.SetPortrait
   alias LumenViaeWeb.PageMeta
 
   @numerals ~w(I II III IV V VI VII)
@@ -230,8 +231,24 @@ defmodule LumenViaeWeb.Live.Home.Index do
   def schedule_detail(:traditional), do: "Joyful on Thursday, Glorious on Saturday"
   def schedule_detail(:modern), do: "Luminous on Thursday, Joyful on Saturday"
 
-  @doc false
-  def has_audio?(set), do: set.audio_count > 0
+  @doc """
+  The line under a set's name in today's list: its kinds, and "Text only"
+  for a set with no narration. Narration is the rule, so it is the
+  exception that is named.
+  """
+  def set_detail(set) do
+    kinds = Enum.map(set.labels || [], &Labels.display_name/1)
+    words = if set.audio_count > 0, do: kinds, else: kinds ++ ["Text only"]
+
+    case words do
+      [] -> nil
+      words -> Enum.join(words, " · ")
+    end
+  end
+
+  @doc "The last card of an odd number takes a phone's whole row."
+  def wide_card?(index, categories),
+    do: rem(length(categories), 2) == 1 and index == length(categories) - 1
 
   @doc false
   def scriptural_path(slug), do: "/mysteries/#{slug}/pray?form=scriptural"

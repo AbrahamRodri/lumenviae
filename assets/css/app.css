@@ -749,6 +749,121 @@
   scrollbar-color: rgba(217, 184, 74, 0.5) transparent;
   scroll-padding-inline: 1rem;
 }
+
+/* The one section label on every public page: tracked capitals in sky,
+   with a rule running to the end of the line. Put it on the section's
+   heading, so the label is the heading. */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-garamond);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-sky);
+}
+
+.section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--color-night-border), transparent);
+}
+
+/* The one list of choices: rows in a single raised card, divided by a
+   hairline, each row a link at least 64px tall with a gilt chevron. Used
+   for today's sets and the ways to pray without a set. */
+.row-list {
+  background: var(--color-night-raised);
+  border: 1px solid var(--color-night-border);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.row-list > li + li {
+  border-top: 1px solid var(--color-night-border);
+}
+
+.row-link {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-height: 4rem;
+  padding: 0.625rem 1rem;
+  transition: background-color 0.16s ease-out;
+}
+
+.row-link:hover {
+  background: color-mix(in srgb, var(--color-night-line) 14%, transparent);
+}
+
+.row-link:focus-visible {
+  outline: 2px solid var(--color-gilt);
+  outline-offset: -3px;
+  border-radius: 1rem;
+}
+
+.row-chevron {
+  flex-shrink: 0;
+  color: var(--color-gilt);
+  transition: transform 0.16s ease-out;
+}
+
+.row-link:hover .row-chevron {
+  transform: translateX(2px);
+}
+
+/* A round badge for a way of praying's icon. */
+.glyph-badge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-night-border);
+  color: var(--color-gilt);
+  background: var(--color-night);
+}
+
+/* A portrait in the arch every set's picture shares. The frame draws the
+   arch, so a portrait and the placeholder have one shape. */
+.arch-thumb {
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 9999px 9999px 0.375rem 0.375rem;
+  border: 1px solid var(--color-night-border);
+  background: var(--color-night);
+}
+
+/* The quietest action: underlined sky text, still 44px tall. */
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.25rem;
+  font-family: var(--font-garamond);
+  font-size: 1.0625rem;
+  color: var(--color-sky);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.btn-text:hover {
+  color: var(--color-ink-light);
+}
+
+.btn-text:focus-visible {
+  outline: 2px solid var(--color-gilt);
+  outline-offset: 2px;
+}
 }
 
 /* === home page === */
@@ -777,39 +892,29 @@
 /* === end home page === */
 
 /* === category page === */
-/* /mysteries/:category: section labels, the choice pills, filter chips,
+/* /mysteries/:category: the choice pills, filter chips,
    cards whose title link covers the whole card, and quiet buttons. */
-.category-section-label {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-  font-family: var(--font-garamond);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-sky);
-}
+/* The hero's woodcut beside the title on a phone: a slimmer mat. */
+@media (max-width: 639px) {
+  .category-plate .woodcut-plate__mount {
+    padding: 0.375rem;
+  }
 
-.category-section-label::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, var(--color-night-border), transparent);
+  .category-plate .woodcut-plate__mount::after {
+    inset: 0.2rem;
+  }
 }
 
 .category-choices {
   background: var(--color-night-raised);
   border: 1px solid var(--color-night-border);
   border-radius: 1rem;
-  padding: 1.25rem 1rem 0.5rem;
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
 }
 
 @media (min-width: 640px) {
   .category-choices {
-    padding: 1.5rem 1.5rem 0.75rem;
+    padding: 1rem 1rem 1rem 1.25rem;
   }
 }
 
@@ -909,19 +1014,6 @@
   transform: translateX(3px);
 }
 
-.category-glyph {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 9999px;
-  border: 1px solid var(--color-night-border);
-  color: var(--color-gilt);
-  background: var(--color-night);
-}
-
 .category-chip {
   min-height: 44px;
   padding: 0.5rem 1rem;
@@ -971,22 +1063,8 @@
   background: rgba(217, 184, 74, 0.12);
 }
 
-.category-text-btn {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 0.25rem;
-  font-family: var(--font-garamond);
-  font-size: 1rem;
-  color: var(--color-sky);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-
 .category-chip:focus-visible,
-.category-quiet-btn:focus-visible,
-.category-text-btn:focus-visible {
+.category-quiet-btn:focus-visible {
   outline: 2px solid var(--color-gilt);
   outline-offset: 2px;
 }
@@ -1096,6 +1174,35 @@
 .reading-page__meta {
   color: var(--color-vellum-muted);
   border-color: var(--color-vellum-border);
+}
+
+/* The meditation's play button, in the reading page's own colours:
+   vellum-gold with vellum on the page (5.6:1), gilt with night on night. */
+.reading-page__play {
+  background: var(--color-vellum-gold);
+  color: var(--color-vellum);
+}
+
+.reading-page__play:hover {
+  background: var(--color-vellum-ink);
+}
+
+html[data-reading-page="night"] .reading-page__play {
+  background: var(--color-gilt);
+  color: var(--color-night);
+}
+
+html[data-reading-page="night"] .reading-page__play:hover {
+  background: var(--color-gilt-light);
+}
+
+/* The woodcut beside a decade's name: a slimmer mat at that size. */
+.prayer-plate-mat .woodcut-plate__mount {
+  padding: 0.375rem;
+}
+
+.prayer-plate-mat .woodcut-plate__mount::after {
+  inset: 0.2rem;
 }
 
 html[data-reading-page="night"] .reading-page {
