@@ -300,6 +300,13 @@
     color: var(--color-ink-light);
   }
 
+  /* A browser without :has() still gets the night ground, flat. */
+  @supports not selector(:has(*)) {
+    body.site {
+      background-color: var(--color-night);
+    }
+  }
+
   .site :is(h1, h2, h3, h4, h5, h6) {
     font-family: var(--font-display);
     font-weight: 600;
@@ -1256,15 +1263,6 @@
   border-radius: inherit;
 }
 
-.category-arrow {
-  display: inline-block;
-  transition: transform 0.2s ease-out;
-}
-
-.category-card:hover .category-arrow {
-  transform: translateX(3px);
-}
-
 .category-chip {
   min-height: 44px;
   padding: 0.5rem 0.9375rem;
@@ -1294,31 +1292,7 @@
   color: var(--color-gilt-light);
 }
 
-.category-quiet-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0.6rem 1.25rem;
-  border-radius: 9999px;
-  border: 1px solid var(--color-night-line);
-  background: transparent;
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-gilt-light);
-  cursor: pointer;
-  transition: background-color 0.2s ease-out;
-}
-
-.category-quiet-btn:hover {
-  background: rgba(227, 188, 91, 0.1);
-}
-
-.category-chip:focus-visible,
-.category-quiet-btn:focus-visible {
+.category-chip:focus-visible {
   outline: 2px solid var(--color-gilt);
   outline-offset: 2px;
 }

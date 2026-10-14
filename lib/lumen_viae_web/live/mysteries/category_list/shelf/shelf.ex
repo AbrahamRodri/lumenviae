@@ -85,7 +85,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
             <p class="font-garamond text-lg text-ink-light italic mb-3">
               No meditations match all of those kinds.
             </p>
-            <button type="button" phx-click="clear_filters" class="category-quiet-btn">
+            <button type="button" phx-click="clear_filters" class="btn-text">
               Clear filters
             </button>
           </div>
@@ -165,14 +165,39 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
   defp byline(set) do
     case author_name(set) do
       nil -> nil
-      name -> if named_for?(set.name, name), do: nil, else: name
+      name -> if named_for_author?(set.name, name), do: nil, else: name
     end
   end
 
-  defp named_for?(set_name, author) do
-    surname = author |> String.split() |> List.last()
-    String.contains?(set_name, surname)
+  # Titles and honorifics that differ between a set's name and its
+  # byline without naming anyone else.
+  @honorifics ~w(st saint ven venerable bl blessed pope archbishop bishop
+                 cardinal father fr dom sister sr mother brother br
+                 the of)
+
+  @doc """
+  Whether a set's name already names its author, so the byline would
+  only repeat it: every word of the author's name, leaving out titles
+  ("St.", "Archbishop", "Pope") and regnal numerals ("II"), is a word of
+  the set's name, in any case. "Venerable Fulton J. Sheen" names
+  "Archbishop Fulton J. Sheen"; "Inside the Scene II" does not name
+  "Pope St. John Paul II".
+  """
+  def named_for_author?(set_name, author) do
+    case name_words(author) do
+      [] -> String.downcase(set_name) == String.downcase(author)
+      words -> MapSet.subset?(MapSet.new(words), MapSet.new(name_words(set_name)))
+    end
   end
+
+  defp name_words(text) do
+    text
+    |> String.downcase()
+    |> String.split(~r/[^\p{L}\p{N}]+/u, trim: true)
+    |> Enum.reject(&(&1 in @honorifics or roman_numeral?(&1)))
+  end
+
+  defp roman_numeral?(word), do: word =~ ~r/^[ivxlc]+$/
 
   defp author_name(set), do: LumenViaeWeb.PageMeta.set_author(set)
 end

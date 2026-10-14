@@ -42,12 +42,12 @@ defmodule LumenViaeWeb.Live.Home.CategoryCard do
       <span class="paint-tile__arrow" aria-hidden="true">
         <span class="hero-arrow-right size-3.5" />
       </span>
-      <span class="paint-tile__words">
+      <div class="paint-tile__words">
         <span :if={@today?} class="badge-capsule mb-1.5">Today</span>
         <h3 class="paint-tile__title">{@category.name}</h3>
         <span class="paint-tile__line">{if @wide?, do: @category.subtitle, else: @category.days}</span>
         <span :if={@wide?} class="paint-tile__line">{@category.days}</span>
-      </span>
+      </div>
     </.link>
     """
   end

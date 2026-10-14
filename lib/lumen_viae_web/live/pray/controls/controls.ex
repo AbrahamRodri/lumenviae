@@ -395,7 +395,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           phx-click="previous"
           disabled={@at_start}
           class="btn-text !text-ink-muted hover:!text-gilt min-h-14 !px-2 disabled:opacity-30 disabled:cursor-not-allowed"
-          aria-label={if @count == "screen", do: "Previous bead", else: "Previous"}
+          aria-label={if @count == "screen", do: "Back a bead", else: "Back"}
         >
           <span aria-hidden="true">&lsaquo;</span> Back
         </button>
