@@ -617,7 +617,7 @@ every chant file with its URL, size and checksum), dated with a top-level
 `LumenViae.Rosary.PrayerBook` and `LumenViae.Rosary.ChantLibrary`,
 resources with no table, serve them as `GET /api/v2/prayer-book` and
 `GET /api/v2/chant-library` (GraphQL `prayerBook`, `chantLibrary`). The
-words are the iOS app's export (`Tools/ContentExport`); the chant
+words are edited in `priv/library/`, first taken from the iOS app; the chant
 recordings and score pages are public files in the assets bucket at
 content-addressed keys, put there by `mix lumen_viae.upload_chants`
 (`LumenViae.Curation.ChantUpload`), which also writes their URLs into

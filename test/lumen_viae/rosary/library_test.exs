@@ -89,6 +89,31 @@ defmodule LumenViae.Rosary.LibraryTest do
       end
     end
 
+    test "every chant file is on the public assets bucket" do
+      # Moving the files is a decision: change this with the upload.
+      assert Library.asset_base() == "https://s3.us-east-2.amazonaws.com/lumenviae-images"
+
+      for chant <- Library.sections(:chant_library)["chants"],
+          file <- [chant["audio"] | chant["score"]] do
+        assert String.starts_with?(file["url"], Library.asset_base() <> "/chants/")
+      end
+    end
+
+    test "text a type would change is refused, naming its section" do
+      assert Library.cast_errors(library()) == []
+
+      [page] = hd(library()["chants"])["score"]
+      padded = update_chant(library(), "score", [%{page | "caption" => " Salve Regina"}])
+
+      assert [message] = Library.cast_errors(padded)
+      assert message =~ "chants would not be served as written"
+      assert message =~ "salve_regina_simple"
+
+      assert [message] = Library.cast_errors(update_prayer(book(), "title", "Sub tuum "))
+      assert message =~ "prayers would not be served as written"
+      assert message =~ "sub_tuum"
+    end
+
     test "a chant names only prayers the book holds" do
       prayer_ids = MapSet.new(Library.prayer_ids())
 

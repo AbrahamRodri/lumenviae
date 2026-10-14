@@ -45,7 +45,6 @@ defmodule LumenViae.Rosary.Library do
   alias LumenViae.Rosary.Content
   alias LumenViae.Rosary.Library.Check
   alias LumenViae.Rosary.Library.Section
-  alias LumenViae.Rosary.Types
 
   @dir Path.join(:code.priv_dir(:lumen_viae), "library")
 
@@ -89,34 +88,14 @@ defmodule LumenViae.Rosary.Library do
     Check.chant_library_errors(chant_library, Enum.map(prayer_book["prayers"], & &1["id"]))
   )
 
-  # Each section is cast to its type here, once, and served as cast. A type
-  # trims text and reads "" as null, so a value the cast would change fails
-  # the compile: what a request serves is what the file holds, word for
-  # word, and the version that fingerprints the file fingerprints it.
-  types = %{
-    "prayers" => Types.BookPrayer,
-    "chapters" => Types.PrayerBookChapter,
-    "groups" => Types.ChantGroup,
-    "chants" => Types.Chant
-  }
-
+  # Each section is cast to its type here, once, and served as cast; a
+  # section the cast would change fails the compile (Section.cast/2).
   cast = fn path, sections ->
     Map.new(sections, fn {name, items} ->
-      {:ok, cast} =
-        Ash.Type.cast_input({:array, Map.fetch!(types, name)}, items, nil_items?: false)
-
-      changed =
-        for {served, held} <- Enum.zip(Section.plain(cast), items),
-            served != held,
-            do: held["id"] || held["title"]
-
-      if changed != [] do
-        raise CompileError,
-          description:
-            "priv/library/#{Path.basename(path)}: #{name} would not be served as written (text with spaces at either end, or empty text): #{Enum.join(changed, ", ")}"
+      case Section.cast(name, items) do
+        {:ok, cast} -> {name, cast}
+        {:error, message} -> check.(path, [message])
       end
-
-      {name, cast}
     end)
   end
 
@@ -124,6 +103,11 @@ defmodule LumenViae.Rosary.Library do
     prayer_book: cast.(@prayer_book_path, prayer_book),
     chant_library: cast.(@chant_library_path, chant_library)
   }
+
+  @asset_base for(chant <- chant_library["chants"], do: chant["audio"]["url"])
+              |> hd()
+              |> String.split("/chants/")
+              |> hd()
 
   @documents %{
     prayer_book: %{
@@ -180,11 +164,22 @@ defmodule LumenViae.Rosary.Library do
   end
 
   @doc """
-  The problems with a Prayer Book document's sections, `[]` when none:
-  what the compile checks. See `LumenViae.Rosary.Library.Check`.
+  Where every chant file is: the one base their URLs share, before
+  `/chants/`. The compile requires one base; the test pins which, so
+  moving the files is a reviewed change.
   """
-  @spec prayer_book_errors(map) :: [String.t()]
-  defdelegate prayer_book_errors(sections), to: Check
+  @spec asset_base() :: String.t()
+  def asset_base, do: @asset_base
+
+  @doc """
+  The problems with the sections cast as they will be served, `[]` when
+  none: the text a type would change, as the compile refuses it
+  (`LumenViae.Rosary.Library.Section.cast/2`).
+  """
+  @spec cast_errors(map) :: [String.t()]
+  def cast_errors(sections) do
+    for {name, items} <- sections, {:error, message} <- [Section.cast(name, items)], do: message
+  end
 
   @doc """
   The problems with a Chant Library document's sections, `[]` when none:

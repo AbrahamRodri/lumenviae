@@ -182,9 +182,9 @@ The same rules as the content document, for each document on its own
 shapes):
 
 - **Ship a copy in the app** (`assets/prayer-book.json`,
-  `assets/chant-library.json`, taken from the server's
-  `priv/library/` files, sections only), so the first launch has every
-  word with no connection.
+  `assets/chant-library.json`: each the whole response to the
+  `?fields[...]` request above, version included), so the first launch
+  has every word with no connection.
 - **Poll the version** with the bare request at launch and at most once a
   day, fetch both sections when it differs, and replace the saved copy
   whole only once the whole response has arrived and decoded. A failed

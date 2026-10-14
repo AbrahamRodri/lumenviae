@@ -6,15 +6,23 @@ defmodule Mix.Tasks.LumenViae.UploadChants do
   and writes each one's url, bytes and sha256 into
   `priv/library/chant_library.json` (`LumenViae.Curation.ChantUpload`).
 
-      mix lumen_viae.upload_chants --source ../ios/app/Resources/Chants --dry-run
-      mix lumen_viae.upload_chants --source ../ios/app/Resources/Chants \\
-        --from ../ios/Tools/ContentExport/out/chant_library.json
+      mix lumen_viae.upload_chants --source ../ios/Tools/Chants/out \\
+        --from ../ios/Tools/Chants/out/chant_library.json --dry-run
+      mix lumen_viae.upload_chants --source ../ios/Tools/Chants/out \\
+        --from ../ios/Tools/Chants/out/chant_library.json
 
-  `--source` is the folder holding `<chant id>.m4a` and
-  `Scores/<file>.lvscore`. `--from` is a new export from the iOS app, its
-  URLs still null; without it the task re-reads the file it writes, which
-  is how a changed recording is put in place. Files already in the bucket
-  are not uploaded again, so a run is safe to repeat.
+  The prayers' and chants' words are edited in `priv/library/` directly.
+  A new chant, recording or score comes from the iOS repo's
+  `Tools/Chants/generate.py`, which stages the files and a new
+  `chant_library.json` in `Tools/Chants/out/`. `--source` is the folder
+  holding `<chant id>.m4a` and `Scores/<file>.lvscore`; `--from` is the
+  document to read, its new files' URLs still null. Without `--from` the
+  task re-reads the file it writes. Files already in the bucket are not
+  uploaded again, so a run is safe to repeat.
+
+  `--move-base` lets a run write URLs on a base other than the one the
+  file already uses. The base comes from the environment, so without it a
+  run with other AWS settings is refused rather than rewriting every URL.
 
   **Dry-run first.** The dry run reads every file and lists what a run
   would upload, asks the bucket nothing and writes nothing.
@@ -26,9 +34,9 @@ defmodule Mix.Tasks.LumenViae.UploadChants do
 
       eval "$(aws configure export-credentials --profile lumenviae-agent --format env)"
 
-  The task runs without the app. An export with null URLs is read from
+  The task runs without the app. A document with null URLs is read from
   `--from` and never copied into `priv/library/` by hand: the file there
-  must compile, and this task is what makes the export fit to.
+  must compile, and this task is what makes it fit to.
   """
 
   use Mix.Task
@@ -38,7 +46,9 @@ defmodule Mix.Tasks.LumenViae.UploadChants do
   @impl Mix.Task
   def run(args) do
     {opts, argv, invalid} =
-      OptionParser.parse(args, strict: [source: :string, from: :string, dry_run: :boolean])
+      OptionParser.parse(args,
+        strict: [source: :string, from: :string, dry_run: :boolean, move_base: :boolean]
+      )
 
     cond do
       invalid != [] -> Mix.raise("Invalid options: #{inspect(invalid)}")
@@ -52,7 +62,7 @@ defmodule Mix.Tasks.LumenViae.UploadChants do
     for app <- [:req, :ex_aws], do: {:ok, _} = Application.ensure_all_started(app)
     Mix.Task.run("app.config")
 
-    case ChantUpload.run(Keyword.take(opts, [:source, :from, :dry_run])) do
+    case ChantUpload.run(Keyword.take(opts, [:source, :from, :dry_run, :move_base])) do
       {:ok, %{uploaded: uploaded, present: present, rewritten?: rewritten?}} ->
         verb = if opts[:dry_run], do: "would be uploaded", else: "uploaded"
 

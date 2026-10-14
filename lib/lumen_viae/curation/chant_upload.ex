@@ -3,12 +3,14 @@ defmodule LumenViae.Curation.ChantUpload do
   Puts every chant recording and score page in the public assets bucket
   and writes where each one is into `priv/library/chant_library.json`.
 
-  The iOS app's export (`Tools/ContentExport`) leaves each file's URL
-  null: this is what fills it, reading the export (`:from`) and writing
-  the file the server compiles, which never holds a null URL.
+  A chant is added, or its recording or score changed, with the iOS
+  repo's `Tools/Chants/generate.py`, which stages every file and a new
+  `chant_library.json` in `Tools/Chants/out/`, each new file's URL still
+  null: this is what fills it, reading that document (`:from`) and
+  writing the file the server compiles, which never holds a null URL.
 
-  The files are the iOS app's, exactly as it bundled them:
-  `<source>/<chant id>.m4a` and `<source>/Scores/<file>.lvscore`. Each is
+  The files are `<source>/<chant id>.m4a` and
+  `<source>/Scores/<file>.lvscore`. Each is
   stored at a key named by its checksum,
   `chants/audio/<id>-<sha256 first 12>.m4a` and
   `chants/scores/<file>-<sha256 first 12>.lvscore`, with a year's
@@ -18,10 +20,11 @@ defmodule LumenViae.Curation.ChantUpload do
 
   Every chant's `audio` and score page then gets its `url`, `bytes` and
   `sha256`. When the result differs from the file already there, its
-  `updated_at` moves to now,
-  which moves the document's version; the file is checked
-  (`LumenViae.Rosary.Library.chant_library_errors/2`) before it is written, and nothing
-  is written when a file is missing or an upload fails.
+  `updated_at` moves to now, which moves the document's version. The
+  result is checked as the compile checks it
+  (`LumenViae.Rosary.Library.chant_library_errors/3` and `cast_errors/1`)
+  before anything is uploaded, and nothing is written when a file is
+  missing or an upload fails.
 
   Run by `mix lumen_viae.upload_chants`.
   """
@@ -48,12 +51,17 @@ defmodule LumenViae.Curation.ChantUpload do
       its `Scores/` (required)
     * `:file` - the document to write (default
       `priv/library/chant_library.json`)
-    * `:from` - the document to read, such as the iOS app's export with
-      its URLs still null (default `:file` itself)
+    * `:from` - the document to read, such as `generate.py`'s, its new
+      files' URLs still null (default `:file` itself)
     * `:dry_run` - upload and write nothing; report what a run would do
     * `:storage` - the module that answers `audio_exists?/2` and
       `upload_public/3` (default `LumenViae.Storage.S3`)
     * `:now` - the time a changed document is dated (default now)
+    * `:move_base` - allow writing URLs on a base other than the one the
+      file already uses. The base is the public assets bucket's URL, which
+      comes from the environment (`AWS_REGION`, `AWS_S3_PUBLIC_BUCKET`,
+      `PUBLIC_ASSET_BASE_URL`), so without this a run with other settings
+      is refused rather than quietly rewriting every URL
 
   The chants' `prayer_ids` are checked against `prayer_book.json` beside
   `:file`, read from disk rather than from the compiled
@@ -71,7 +79,8 @@ defmodule LumenViae.Curation.ChantUpload do
     current = if File.exists?(file), do: read(file)
     prayer_ids = prayer_ids(Path.join(Path.dirname(file), "prayer_book.json"))
 
-    with :ok <- named(incoming),
+    with :ok <- shaped(incoming),
+         :ok <- same_base(current, opts[:move_base]),
          {:ok, document, files} <- place(incoming, source),
          :ok <- check(document, prayer_ids),
          {:ok, uploaded, present} <- store(files, storage, opts[:dry_run]) do
@@ -171,21 +180,54 @@ defmodule LumenViae.Curation.ChantUpload do
   end
 
   # A chant id and a score's file name become a path under `source` and a
-  # bucket key, so they are checked before either is built.
-  defp named(document) do
-    names =
-      for chant <- document["chants"],
-          name <- [chant["id"] | Enum.map(chant["score"], & &1["file"])],
-          do: name
-
-    case Enum.reject(names, &(is_binary(&1) and &1 =~ ~r/\A[A-Za-z0-9_-]+\z/)) do
-      [] ->
-        :ok
-
-      bad ->
-        {:error,
-         "a chant id or score file may hold only letters, digits, _ and -: #{inspect(bad)}"}
+  # bucket key, so the chants' shape and those names are checked before
+  # either is built.
+  # The document is ordered JSON, read through Access rather than matched.
+  defp shaped(document) do
+    case document["chants"] do
+      [_ | _] = chants -> shaped_chants(chants)
+      _other -> {:error, "the document needs a list of chants"}
     end
+  end
+
+  defp shaped_chants(chants) do
+    if Enum.all?(
+         chants,
+         &(is_map(&1) and is_list(&1["score"]) and is_list(&1["lines"]) and
+             Enum.all?(&1["score"], fn part -> is_map(part) end))
+       ) do
+      names =
+        for chant <- chants,
+            name <- [chant["id"] | Enum.map(chant["score"], & &1["file"])],
+            do: name
+
+      case Enum.reject(names, &(is_binary(&1) and &1 =~ ~r/\A[A-Za-z0-9_-]+\z/)) do
+        [] ->
+          :ok
+
+        bad ->
+          {:error,
+           "a chant id or score file may hold only letters, digits, _ and -: #{inspect(bad)}"}
+      end
+    else
+      {:error, "every chant needs a list of score parts and a list of lines"}
+    end
+  end
+
+  # The file's URLs stay on the base they are on unless a run says to move
+  # them.
+  defp same_base(nil, _move?), do: :ok
+  defp same_base(_current, true), do: :ok
+
+  defp same_base(current, _move?) do
+    held =
+      current["chants"] |> hd() |> get_in(["audio", "url"]) |> String.split("/chants/") |> hd()
+
+    if held == public_base(),
+      do: :ok,
+      else:
+        {:error,
+         "the file's chant files are on #{held}, and this run would move them to #{public_base()}; check the environment, or pass --move-base to move them"}
   end
 
   defp read(path), do: path |> File.read!() |> Jason.decode!(objects: :ordered_objects)
@@ -202,7 +244,10 @@ defmodule LumenViae.Curation.ChantUpload do
   end
 
   defp check(document, prayer_ids) do
-    case Library.chant_library_errors(plain(document), prayer_ids, public_base()) do
+    sections = Map.take(plain(document), ~w(groups chants))
+
+    case Library.chant_library_errors(sections, prayer_ids, public_base()) ++
+           Library.cast_errors(sections) do
       [] -> :ok
       errors -> {:error, "the rewritten file would not compile:\n  " <> Enum.join(errors, "\n  ")}
     end

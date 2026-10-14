@@ -81,8 +81,7 @@ defmodule LumenViae.Rosary.PrayerBook do
   calculations do
     calculate :prayers,
               {:array, Types.BookPrayer},
-              {Library.Section,
-               document: :prayer_book, section: "prayers", type: Types.BookPrayer} do
+              {Library.Section, document: :prayer_book, section: "prayers"} do
       allow_nil? false
       public? true
       constraints nil_items?: false
@@ -92,8 +91,7 @@ defmodule LumenViae.Rosary.PrayerBook do
 
     calculate :chapters,
               {:array, Types.PrayerBookChapter},
-              {Library.Section,
-               document: :prayer_book, section: "chapters", type: Types.PrayerBookChapter} do
+              {Library.Section, document: :prayer_book, section: "chapters"} do
       allow_nil? false
       public? true
       constraints nil_items?: false

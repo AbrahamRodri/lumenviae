@@ -7,12 +7,48 @@ defmodule LumenViae.Rosary.Library.Section do
   use Ash.Resource.Calculation
 
   alias LumenViae.Rosary.Library
+  alias LumenViae.Rosary.Types
+
+  # Each section's type.
+  @types %{
+    "prayers" => Types.BookPrayer,
+    "chapters" => Types.PrayerBookChapter,
+    "groups" => Types.ChantGroup,
+    "chants" => Types.Chant
+  }
 
   @impl true
   def calculate(records, opts, _context) do
     value = Library.served(opts[:document], opts[:section])
 
     Enum.map(records, fn _record -> value end)
+  end
+
+  @doc """
+  A section (`"prayers"`, `"chants"`) cast to its type, as it will be
+  served. A type trims text and reads `""` as null, so a section the cast
+  would change is an error naming the section and the items it would
+  change: what a request serves must be what the file holds, word for
+  word, and the version that fingerprints the file must fingerprint it.
+  """
+  @spec cast(String.t(), [map]) :: {:ok, [struct]} | {:error, String.t()}
+  def cast(name, items) do
+    case Ash.Type.cast_input({:array, Map.fetch!(@types, name)}, items, nil_items?: false) do
+      {:ok, cast} ->
+        changed =
+          for {served, held} <- Enum.zip(plain(cast), items),
+              served != held,
+              do: held["id"] || held["title"]
+
+        if changed == [],
+          do: {:ok, cast},
+          else:
+            {:error,
+             "#{name} would not be served as written (text with spaces at either end, or empty text): #{Enum.join(changed, ", ")}"}
+
+      {:error, error} ->
+        {:error, "#{name} does not fit its type: #{inspect(error)}"}
+    end
   end
 
   @doc """

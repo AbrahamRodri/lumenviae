@@ -81,8 +81,7 @@ defmodule LumenViae.Rosary.ChantLibrary do
   calculations do
     calculate :groups,
               {:array, Types.ChantGroup},
-              {Library.Section,
-               document: :chant_library, section: "groups", type: Types.ChantGroup} do
+              {Library.Section, document: :chant_library, section: "groups"} do
       allow_nil? false
       public? true
       constraints nil_items?: false
@@ -92,7 +91,7 @@ defmodule LumenViae.Rosary.ChantLibrary do
 
     calculate :chants,
               {:array, Types.Chant},
-              {Library.Section, document: :chant_library, section: "chants", type: Types.Chant} do
+              {Library.Section, document: :chant_library, section: "chants"} do
       allow_nil? false
       public? true
       constraints nil_items?: false

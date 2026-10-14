@@ -141,6 +141,39 @@ defmodule LumenViae.Curation.ChantUploadTest do
     refute File.exists?(context.document)
   end
 
+  test "a chant with no score list is refused, not a crash", context do
+    document = put_in(export_document(), ["chants", Access.at(0), "score"], nil)
+    File.write!(context.export, Jason.encode!(document))
+
+    assert {:error, "every chant needs a list of score parts and a list of lines"} = run(context)
+  end
+
+  test "text the compile would refuse is refused before any upload", context do
+    document = put_in(export_document(), ["chants", Access.at(0), "detail"], "A chant ")
+    File.write!(context.export, Jason.encode!(document))
+
+    assert {:error, message} = run(context)
+    assert message =~ "chants would not be served as written"
+    refute_received {:uploaded, _, _, _}
+  end
+
+  test "a run on another base is refused unless it says to move the files", context do
+    {:ok, _} = run(context)
+
+    moved =
+      context.document
+      |> File.read!()
+      |> String.replace(S3.public_url("chants"), "https://cdn.example.org/chants")
+
+    File.write!(context.document, moved)
+
+    assert {:error, message} = run(context, from: context.document)
+    assert message =~ "pass --move-base"
+
+    assert {:ok, %{rewritten?: true}} = run(context, from: context.document, move_base: true)
+    assert File.read!(context.document) =~ S3.public_url("chants/audio/")
+  end
+
   test "a document that would not compile is refused", context do
     document = put_in(export_document(), ["chants", Access.at(0), "prayer_ids"], ["nowhere"])
     File.write!(context.export, Jason.encode!(document))

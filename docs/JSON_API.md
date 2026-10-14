@@ -590,18 +590,30 @@ them. About 100 MB in all, 261 files as of 14 October 2026.
 
 `mix lumen_viae.upload_chants` puts the files there and writes each one's
 `url`, `bytes` and `sha256` into `priv/library/chant_library.json`
-(`LumenViae.Curation.ChantUpload`). The iOS app's export
-(`Tools/ContentExport`) leaves the URLs null; the task reads it with
-`--from`, uploads what the bucket lacks and writes the file the server
-compiles, dated now when anything changed:
+(`LumenViae.Curation.ChantUpload`).
+
+The words of a prayer or a chant are edited in `priv/library/` directly:
+correct the text, bump the file's `updated_at` and pin its new version
+in `library_test.exs`, then refresh the apps' seed copies (the iOS repo's
+`Tools/dev library-seed`). A new chant, recording or score comes from
+the iOS repo's `Tools/Chants/generate.py`, which stages every file and a
+new `chant_library.json` in `Tools/Chants/out/`, new files' URLs null;
+the task reads that document with `--from`, uploads what the bucket
+lacks and writes the file the server compiles, dated now when anything
+changed:
 
 ```
 eval "$(aws configure export-credentials --profile lumenviae-agent --format env)"
-mix lumen_viae.upload_chants --source ../ios/app/Resources/Chants \
-  --from ../ios/Tools/ContentExport/out/chant_library.json --dry-run
-mix lumen_viae.upload_chants --source ../ios/app/Resources/Chants \
-  --from ../ios/Tools/ContentExport/out/chant_library.json
+mix lumen_viae.upload_chants --source ../ios/Tools/Chants/out \
+  --from ../ios/Tools/Chants/out/chant_library.json --dry-run
+mix lumen_viae.upload_chants --source ../ios/Tools/Chants/out \
+  --from ../ios/Tools/Chants/out/chant_library.json
 ```
+
+The task refuses to move the files to another base (the bucket's URL
+comes from `AWS_REGION`, `AWS_S3_PUBLIC_BUCKET` and
+`PUBLIC_ASSET_BASE_URL`) unless given `--move-base`, and
+`Library.asset_base/0` is pinned in the test.
 
 Upload before you deploy: the deployed document names the files at once.
 A file in `priv/library/` that repeats an id, names one that does not
