@@ -186,7 +186,7 @@ defmodule LumenViae.Rosary.RosaryContent do
       allow_nil? false
       public? true
 
-      description "The Rosary's forms (the Scriptural Rosary, the Rosary Said Aloud), the Audio and Counting choices in their words, and what each form's page offers."
+      description "The Rosary's forms (the Scriptural Rosary, the Audio Rosary), the Audio and Counting choices in their words, and what each form's page offers."
     end
   end
 end

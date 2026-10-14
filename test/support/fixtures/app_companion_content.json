@@ -198,9 +198,9 @@
     "Meditation Only",
     "On the Screen",
     "On My Rosary",
-    "Every prayer is said aloud. Pray along with the voice.",
-    "The meditation is read aloud. You say the prayers.",
-    "Every verse and prayer is said aloud.",
+    "You hear every prayer. Pray along with the voice.",
+    "You hear the meditation. You say the prayers.",
+    "You hear every verse and prayer.",
     "A verse is shown for each Hail Mary. You read and pray in silence.",
     "The beads are on the screen. Swipe for each Hail Mary.",
     "Count on your own rosary. The screen shows one mystery at a time.",
@@ -209,7 +209,7 @@
     "Voice & speed"
   ],
   "forms_pages": [
-    "Every prayer, no readings",
+    "Listen and pray along",
     "A verse for every bead",
     "A voice leads every prayer, with no readings between.",
     "One verse of Scripture for every Hail Mary.",
@@ -219,12 +219,12 @@
   "forms_listing": [
     "Ways to pray",
     "A Bible verse for every Hail Mary",
-    "Every prayer, no readings"
+    "Listen and pray along"
   ],
   "forms_names": [
     "Scriptural Rosary",
     "The Rosary Aloud",
     "The Scriptural Rosary",
-    "The Rosary Said Aloud"
+    "The Audio Rosary"
   ]
 }

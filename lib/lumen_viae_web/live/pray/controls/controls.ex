@@ -2,7 +2,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   @moduledoc """
   The prayer page's controls: the way to pray it (form, counting, the
   voice, the closing prayers, the language of the prayers, the reading
-  page, the images, the text size), the Pray aloud switch, the offer to
+  page, the images, the text size), the Hear the prayers switch, the offer to
   continue where the reader left off, and Previous and Next.
   """
   use LumenViaeWeb, :html
@@ -233,7 +233,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   attr :pray_aloud, :boolean, required: true
 
   @doc """
-  Praying aloud, switched in the top bar beside the settings: a speaker,
+  Hearing the prayers, switched in the top bar beside the settings: a speaker,
   lit gilt while every prayer is said aloud. The voice is chosen in the
   settings pane.
   """
@@ -244,7 +244,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       id="pray-aloud"
       phx-click="toggle_pray_aloud"
       aria-pressed={to_string(@pray_aloud)}
-      aria-label="Pray aloud"
+      aria-label="Hear the prayers"
       title="Hear every prayer of the Rosary, bead by bead"
       class={[
         "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gilt motion-safe:transition-colors",

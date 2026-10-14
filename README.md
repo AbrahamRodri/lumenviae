@@ -14,7 +14,7 @@ Pray it at [www.lumenviae.org](https://www.lumenviae.org), or carry it with you 
 - **Pray the whole Rosary, bead by bead** - From the Sign of the Cross to the last Amen. Count on your own rosary, a decade a page, or on the screen, a bead at a time: tap, swipe or press Space for each Hail Mary
 - **Choose how to pray it** - With a meditation from the saints for each mystery, as the Scriptural Rosary (a verse of Scripture before every Hail Mary), or with the prayers alone
 - **Pray in Latin** - Set the prayers in English or Latin; add the Pope's intentions, the Memorare or the Saint Michael Prayer at the end
-- **Pray aloud** - Every prayer and mystery announcement is said in a voice you choose, so a whole Rosary can be prayed with nothing to read
+- **Hear the prayers** - Every prayer and mystery announcement is said in a voice you choose, so a whole Rosary can be prayed with nothing to read
 - **Listen to the meditations** - Meditations can be read or listened to, in a choice of narration voices recorded through ElevenLabs
 - **Find your place again** - Your place is kept in the page's address and in your browser, so a locked phone or a reload never loses it, and "Continue where you left off" offers it for a week
 - **Keep a streak** - A finished Rosary shows the days in a row you have prayed, with the Church's milestones: a triduum, a faithful week, a novena, and on to a year

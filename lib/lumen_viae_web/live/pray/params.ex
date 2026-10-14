@@ -9,7 +9,7 @@ defmodule LumenViaeWeb.Live.Pray.Params do
   ordinary links short.
 
   How the beads are counted and whether the Rosary is said aloud default
-  by form. The Rosary Said Aloud (`holy`), as the app prays it, is the
+  by form. The Audio Rosary (`holy`), as the app prays it, is the
   whole Rosary aloud with the beads on the screen; every other form is
   silent and counted on the reader's own rosary. A URL that says otherwise
   (`aloud=false`, `count=beads`) is followed, and only a choice away from

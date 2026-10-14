@@ -125,7 +125,7 @@ Details worth knowing:
 ## The app page
 
 `/app` describes the iPhone app as it is now, in the app's own names
-(Your Rosary Today, the Rosary Said Aloud, Hours of Prayer, Today's Mass,
+(Your Rosary Today, the Audio Rosary, Hours of Prayer, Today's Mass,
 the Chant Library, the Chapel). Describe nothing the app does not do, and
 no ratings, reviews or download counts.
 

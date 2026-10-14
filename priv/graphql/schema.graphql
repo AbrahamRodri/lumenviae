@@ -244,7 +244,7 @@ type RosaryFormInfo {
   "The line under the name on the form's own page."
   subtitle: String!
 
-  "What the Prayer Record keeps a prayer of this form under. It is the old name for the Rosary Said Aloud, because the record already holds days under it; a client that wants its history readable beside the iOS app's keeps the same."
+  "What the Prayer Record keeps a prayer of this form under. It is the old name for the Audio Rosary, because the record already holds days under it; a client that wants its history readable beside the iOS app's keeps the same."
   recordedAs: String!
 
   "The form's name wherever it is shown."
@@ -253,7 +253,7 @@ type RosaryFormInfo {
   "The line over the name on the form's own page."
   kicker: String!
 
-  "`scriptural` or `holy` (the Rosary Said Aloud), the iOS app's names for the forms."
+  "`scriptural` or `holy` (the Audio Rosary), the iOS app's names for the forms."
   id: String!
 
   "The line under the name where the form is listed under Ways to Pray."
@@ -267,7 +267,7 @@ type RosaryFormRule {
   "The ids, in order, while it is not."
   whenSilent: [String!]!
 
-  "The ids, in order, while the Audio choice is the Whole Rosary. Always the case in the Rosary Said Aloud."
+  "The ids, in order, while the Audio choice is the Whole Rosary. Always the case in the Audio Rosary."
   whenAloud: [String!]!
 
   "`meditation`, `scriptural` or `holy`."
@@ -292,10 +292,10 @@ type RosaryForms {
   "Which choices a form's page offers, by choice id, while the Audio choice is Whole Rosary (`when_aloud`) and while it is not (`when_silent`)."
   offered: [RosaryFormRule!]!
 
-  "What the Rosary Said Aloud's audio row says, as a fact rather than a choice."
+  "What the Audio Rosary's audio row says, as a fact rather than a choice."
   holyAudioValue: String!
 
-  "The two forms with a name of their own: the Scriptural Rosary and the Rosary Said Aloud. The third form, a meditation set, is named by the set."
+  "The two forms with a name of their own: the Scriptural Rosary and the Audio Rosary. The third form, a meditation set, is named by the set."
   forms: [RosaryFormInfo!]!
 
   "The two choices that change how the Rosary is prayed, Audio and Counting."
@@ -654,7 +654,7 @@ type PendantPlace {
 }
 
 type RosaryScriptTemplates {
-  "The styles a Rosary is said in: `meditation`, `scriptural`, `plain` (the Rosary Said Aloud)."
+  "The styles a Rosary is said in: `meditation`, `scriptural`, `plain` (the Audio Rosary)."
   styles: [String!]!
 
   "The four Rosaries: Joyful, Sorrowful, Glorious and Luminous."
@@ -1316,7 +1316,7 @@ type RosaryContent {
   "The meditation set labels, what the app calls each and the kinds of meditation they describe."
   labels: RosaryLabels!
 
-  "The Rosary's forms (the Scriptural Rosary, the Rosary Said Aloud), the Audio and Counting choices in their words, and what each form's page offers."
+  "The Rosary's forms (the Scriptural Rosary, the Audio Rosary), the Audio and Counting choices in their words, and what each form's page offers."
   forms: RosaryForms!
 }
 
@@ -1496,7 +1496,7 @@ type RootQueryType {
     "The mysteries prayed: joyful, sorrowful, glorious, luminous or seven_sorrows (the chaplet)."
     category: String!
 
-    "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Rosary Said Aloud, the prayers alone."
+    "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Audio Rosary, the prayers alone."
     style: String
 
     "The optional prayers after the Rosary, comma-separated, any of holy_father, memorare, st_michael. Said in that order whatever order they are given in; the chaplet takes none."

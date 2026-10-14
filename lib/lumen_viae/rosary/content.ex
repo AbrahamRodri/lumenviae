@@ -402,7 +402,7 @@ defmodule LumenViae.Rosary.Content do
   if not text?.(@forms["holy_audio_value"]) do
     invalid.(
       "forms.json",
-      "holy_audio_value is the words under the Rosary Said Aloud's audio row"
+      "holy_audio_value is the words under the Audio Rosary's audio row"
     )
   end
 
