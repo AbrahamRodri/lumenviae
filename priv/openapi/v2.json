@@ -4444,6 +4444,29 @@
                 },
                 "type": "array"
               },
+              "ejaculatory_prayers": {
+                "description": "The summary page's ejaculatory prayers from the book, each in English and Latin.",
+                "items": {
+                  "properties": {
+                    "english": {
+                      "type": "string"
+                    },
+                    "latin": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "english",
+                    "latin"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
               "parts": {
                 "description": "The book's two parts in order. A chapter names its part by number; the Introduction is in neither.",
                 "items": {
@@ -4462,6 +4485,212 @@
                   "type": "object"
                 },
                 "type": "array"
+              },
+              "teaching": {
+                "description": "The summary page's shelf of short readings on the devotion (`true_devotion_teaching`): its foundations, principles, marks, false devotions, benefits and spirit.",
+                "properties": {
+                  "footnote": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "margin_label": {
+                    "type": "string"
+                  },
+                  "readings": {
+                    "items": {
+                      "properties": {
+                        "detail": {
+                          "type": "string"
+                        },
+                        "doors": {
+                          "items": {
+                            "properties": {
+                              "icon": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "note": {
+                                "type": "string"
+                              },
+                              "target": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "target",
+                              "note"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "feast": {
+                          "nullable": true,
+                          "properties": {
+                            "day": {
+                              "type": "integer"
+                            },
+                            "in_missal": {
+                              "type": "boolean"
+                            },
+                            "kept_by": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "month": {
+                              "type": "integer"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "painting": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "reading_id": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "reading_name": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "month",
+                            "day",
+                            "name",
+                            "in_missal"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "painting": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "paragraphs": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "parts": {
+                          "items": {
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "title",
+                              "text"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "quote": {
+                          "nullable": true,
+                          "properties": {
+                            "citation": {
+                              "type": "string"
+                            },
+                            "text": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "citation"
+                          ],
+                          "type": "object"
+                        },
+                        "tables": {
+                          "items": {
+                            "properties": {
+                              "rows": {
+                                "items": {
+                                  "properties": {
+                                    "label": {
+                                      "type": "string"
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "label",
+                                    "value"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "title": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "title",
+                              "rows"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "detail",
+                        "paragraphs",
+                        "doors",
+                        "parts",
+                        "tables"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "subtitle": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "subtitle",
+                  "margin_label",
+                  "icon",
+                  "readings"
+                ],
+                "type": "object"
               },
               "updated_at": {
                 "description": "When the content last changed. Field included by default.",
@@ -5353,7 +5582,7 @@
         "operationId": "getTrueDevotion",
         "parameters": [
           {
-            "description": "Comma separated fields of true_devotion: about, chapters, parts, updated_at, version",
+            "description": "Comma separated fields of true_devotion: about, chapters, ejaculatory_prayers, parts, teaching, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[true_devotion]",

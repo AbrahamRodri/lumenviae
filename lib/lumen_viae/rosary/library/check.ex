@@ -90,11 +90,24 @@ defmodule LumenViae.Rosary.Library.Check do
   numbered 1, 2 and on, every chapter once and in a part there is (or 0,
   the Introduction's), and each chapter's paragraphs numbered from 0 in
   order, each `text` or a `subheading`. A device keeps a reader's place
-  by chapter id and paragraph id, so neither may move.
+  by chapter id and paragraph id, so neither may move. The summary page's
+  `teaching` is checked as a library shelf (`prayer_ids` are the Prayer
+  Book's), and each ejaculatory prayer's English and Latin pair line for
+  line.
   """
-  @spec true_devotion_errors(map) :: [String.t()]
-  def true_devotion_errors(%{"about" => about, "parts" => parts, "chapters" => chapters})
-      when is_map(about) and is_list(parts) and is_list(chapters) do
+  @spec true_devotion_errors(map, [String.t()]) :: [String.t()]
+  def true_devotion_errors(
+        %{
+          "about" => about,
+          "parts" => parts,
+          "chapters" => chapters,
+          "teaching" => teaching,
+          "ejaculatory_prayers" => prayers
+        },
+        prayer_ids
+      )
+      when is_map(about) and is_list(parts) and is_list(chapters) and is_map(teaching) and
+             is_list(prayers) do
     numbers = for %{"number" => number} <- parts, do: number
     chapter_ids = Enum.map(chapters, &id/1)
 
@@ -105,11 +118,21 @@ defmodule LumenViae.Rosary.Library.Check do
       ) ++
       Enum.flat_map(chapters, &true_devotion_chapter_errors(&1, [0 | numbers])) ++
       repeated("chapter", chapter_ids) ++
-      unnamed("chapter id", chapter_ids)
+      unnamed("chapter id", chapter_ids) ++
+      library_shelves_errors([teaching], prayer_ids) ++
+      for(
+        prayer <- prayers,
+        error <-
+          required(prayer, ~w(title english latin)) ++
+            pairing_errors(Map.put(prayer, "id", prayer["title"])),
+        do: "ejaculatory prayer #{inspect(prayer["title"])}: #{error}"
+      )
   end
 
-  def true_devotion_errors(_document),
-    do: ["the document needs an about, and a list of parts and of chapters"]
+  def true_devotion_errors(_document, _prayer_ids),
+    do: [
+      "the document needs an about, a teaching shelf, and a list of parts, of chapters and of ejaculatory prayers"
+    ]
 
   @doc """
   The problems with St. Carlo Acutis's page: its feast on a real date,

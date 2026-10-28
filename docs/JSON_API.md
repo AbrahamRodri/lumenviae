@@ -50,7 +50,7 @@ involved.
 | `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers` and `chapters` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
 | `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers` and `feasts` when named in `fields[consecration]=`. See "The Consecration". |
-| `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts` and `chapters` when named in `fields[true_devotion]=`. See "True Devotion". |
+| `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts`, `chapters`, `teaching` and `ejaculatory_prayers` when named in `fields[true_devotion]=`. See "True Devotion". |
 | `GET /carlo-acutis` | `CarloAcutis.:current` | St. Carlo Acutis's page as one document: its `version` and `updated_at`, and `feast`, `shelves`, `timeline`, `rule`, `sayings` and `prayer` when named in `fields[carlo_acutis]=`. See "St. Carlo Acutis". |
 | `GET /marian-library` | `MarianLibrary.:current` | The Marian Library as one document: its `version` and `updated_at`, and `feasts` and `shelves` when named in `fields[marian_library]=`. See "The Marian Library". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
@@ -758,7 +758,7 @@ Chant Library's. The older consecration recordings under
 
 ```
 GET /api/v2/true-devotion
-GET /api/v2/true-devotion?fields[true_devotion]=version,updated_at,about,parts,chapters
+GET /api/v2/true-devotion?fields[true_devotion]=version,updated_at,about,parts,chapters,teaching,ejaculatory_prayers
 ```
 
 St. Louis de Montfort's True Devotion to the Blessed Virgin, the whole
@@ -784,13 +784,19 @@ Where a reader is in the book stays on the device.
   `title` and `paragraphs`, each `{id, kind, text}`: `id` counts from 0
   within the chapter, `kind` is `text` or `subheading`, and `text` is
   plain, with no markup.
+- **`teaching`**, one shelf, not a list: the summary page's short
+  readings on the devotion (`true_devotion_teaching`), shaped as the
+  Marian Library's shelves, with the library door vocabulary.
+- **`ejaculatory_prayers`**: `{title, english, latin}`, the summary
+  page's prayers from the book, the English and Latin pairing line for
+  line as in the Prayer Book.
 
 A reader's place is a chapter `id` and a paragraph `id`; both are stable
 forever. The file was made from the iOS app's
 `Resources/TrueDevotionBook.json`, word for word (its `sourceNote` is
 `source_note` here). Correct the words here and in the iOS app together.
-The app's summary page (key principles, ejaculatory prayers) is not in
-this document.
+The summary page's two sections come from `Data/TrueDevotionData.swift`
+(`teaching`) and `Data/TrueDevotionPrayers.swift`, word for word.
 
 ```json
 {

@@ -36,8 +36,9 @@ defmodule LumenViae.Rosary.Library do
   `true_devotion.json` holds St. Louis de Montfort's True Devotion as the
   iOS app bundles it (`Resources/TrueDevotionBook.json`): `about`, the
   book's title, author, translator and source; `parts`, its two parts;
-  and `chapters`, in reading order, each with its paragraphs numbered
-  from 0.
+  `chapters`, in reading order, each with its paragraphs numbered from 0;
+  and the summary page's `teaching` shelf and `ejaculatory_prayers`
+  (`Data/TrueDevotionData.swift`, `Data/TrueDevotionPrayers.swift`).
 
   `carlo_acutis.json` holds St. Carlo's page as the iOS app holds it
   (`Data/CarloAcutisData.swift`): his `feast`, two `shelves` of readings
@@ -132,9 +133,12 @@ defmodule LumenViae.Rosary.Library do
   check.(@consecration_path, Check.consecration_errors(consecration))
 
   {true_devotion, true_devotion_updated_at} =
-    read.(@true_devotion_path, ~w(about parts chapters))
+    read.(@true_devotion_path, ~w(about parts chapters teaching ejaculatory_prayers))
 
-  check.(@true_devotion_path, Check.true_devotion_errors(true_devotion))
+  check.(
+    @true_devotion_path,
+    Check.true_devotion_errors(true_devotion, Enum.map(prayer_book["prayers"], & &1["id"]))
+  )
 
   {carlo_acutis, carlo_acutis_updated_at} =
     read.(@carlo_acutis_path, ~w(feast shelves timeline rule sayings prayer))
@@ -240,7 +244,7 @@ defmodule LumenViae.Rosary.Library do
   @doc """
   A document's sections, keyed by name (`"prayers"`, `"chapters"`;
   `"groups"`, `"chants"`; `"phases"`, `"days"`, `"prayers"`, `"feasts"`;
-  `"about"`, `"parts"`, `"chapters"`; `"feast"`, `"shelves"`, `"timeline"`,
+  `"about"`, `"parts"`, `"chapters"`, `"teaching"`, `"ejaculatory_prayers"`; `"feast"`, `"shelves"`, `"timeline"`,
   `"rule"`, `"sayings"`, `"prayer"`; `"feasts"`, `"shelves"`),
   string keys throughout, as the file holds them.
   """
@@ -254,10 +258,11 @@ defmodule LumenViae.Rosary.Library do
   `Types.ConsecrationPhase`, `Types.ConsecrationDay`,
   `Types.ConsecrationPrayer`, `Types.MarianFeast`, and True Devotion's
   `Types.TrueDevotionAbout`, `Types.TrueDevotionPart`,
-  `Types.TrueDevotionChapter`; St. Carlo's `Types.LibraryFeast`,
+  `Types.TrueDevotionChapter`, `Types.LibraryShelf`,
+  `Types.TrueDevotionPrayer`; St. Carlo's `Types.LibraryFeast`,
   `Types.LibraryShelf`, `Types.CarloMoment`, `Types.CarloHabit`, strings;
   the Marian Library's `Types.LibraryFeast` and `Types.LibraryShelf`).
-  `"about"` and `"feast"` are one struct and `"prayer"` one string, not
+  `"about"`, `"teaching"` and `"feast"` are one struct and `"prayer"` one string, not
   lists.
   """
   @spec served(document, String.t()) :: [struct] | struct | [String.t()] | String.t()

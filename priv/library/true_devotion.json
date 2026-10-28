@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-28T05:30:00Z",
+  "updated_at": "2026-10-28T05:45:00Z",
   "about": {
     "title": "True Devotion to the Blessed Virgin",
     "author": "St. Louis-Marie Grignion de Montfort",
@@ -1987,6 +1987,374 @@
           "text": "“Who can receive this, let him receive it. Who is wise, he will understand these things.”"
         }
       ]
+    }
+  ],
+  "teaching": {
+    "id": "true_devotion_teaching",
+    "title": "The Devotion in Summary",
+    "subtitle": "Montfort's teaching, a part at a time",
+    "margin_label": "The\nteaching",
+    "icon": "ph-scroll",
+    "footnote": null,
+    "readings": [
+      {
+        "id": "td_foundations",
+        "title": "Foundations of the Devotion",
+        "detail": "Where the devotion begins and ends",
+        "paragraphs": [
+          "Everything in True Devotion rests on one rule: that Jesus Christ is the end of every devotion, and that Mary is the way God Himself chose to come to us, and so the surest way for us to go to Him."
+        ],
+        "quote": {
+          "citation": "True Devotion, n. 1",
+          "text": "It was through the Blessed Virgin Mary that Jesus came into the world, and it is also through her that He must reign in the world."
+        },
+        "painting": null,
+        "feast": null,
+        "doors": [
+          {
+            "icon": "ph-crown",
+            "kind": "page",
+            "note": "The book, in the Faber translation",
+            "target": "true_devotion_book",
+            "title": "True Devotion to Mary"
+          },
+          {
+            "icon": null,
+            "kind": "act",
+            "note": "The thirty-three days of preparation",
+            "target": "consecration",
+            "title": null
+          }
+        ],
+        "parts": [
+          {
+            "text": "\"Jesus Christ our Saviour, true God and true man, must be the ultimate end of all our other devotions; otherwise they would be false and misleading.\"\n\nMontfort opens True Devotion with this rule. Devotion to Mary is not a rival to devotion to Christ — it exists only to form Christ in us more perfectly. It was through Mary that Jesus came into the world, and it is through Mary that He wishes to reign in souls.",
+            "title": "It Begins and Ends with Jesus"
+          },
+          {
+            "text": "Montfort's great scriptural figure (Genesis 27): as Rebecca clothed her beloved son Jacob in the garments of his elder brother to obtain the father's blessing, so Mary clothes her children in the merits and virtues of her Son, that they may be blessed by the Father.\n\nThose who give themselves to her are dressed, cared for, and presented by her hands — and the Father, finding in them the fragrance of His Son, blesses them.",
+            "title": "The Figure of Rebecca and Jacob"
+          },
+          {
+            "text": "Montfort wrote True Devotion around 1712 and foretold that it would be hidden by the devil — the manuscript lay unknown in a trunk until 1842, and was published in 1843.\n\nSince then: St. Pius X granted an apostolic blessing to all who would read it; Pius XII canonized Montfort in 1947; and St. John Paul II took his papal motto, Totus Tuus, from Montfort's formula of consecration, calling the book \"a decisive turning point\" in his life.",
+            "title": "Tested and Approved by the Church"
+          }
+        ],
+        "tables": []
+      },
+      {
+        "id": "td_principles",
+        "title": "Key Principles of True Devotion",
+        "detail": "What the consecration gives, and how it is lived",
+        "paragraphs": [
+          "The perfect consecration is a gift of everything — body and soul, goods and merits — to Jesus through Mary, and then a life lived in it: every act done through her, with her, in her and for her."
+        ],
+        "quote": {
+          "citation": "True Devotion, n. 120",
+          "text": "The more one is consecrated to Mary, the more one is consecrated to Jesus Christ."
+        },
+        "painting": null,
+        "feast": null,
+        "doors": [
+          {
+            "icon": "ph-crown",
+            "kind": "page",
+            "note": "The book, in the Faber translation",
+            "target": "true_devotion_book",
+            "title": "True Devotion to Mary"
+          },
+          {
+            "icon": null,
+            "kind": "act",
+            "note": "The thirty-three days of preparation",
+            "target": "consecration",
+            "title": null
+          }
+        ],
+        "parts": [
+          {
+            "text": "True Devotion to Mary consists in giving oneself entirely to the Blessed Virgin in order to belong entirely to Jesus Christ through her. We must give her:\n\n• Our body with all its senses and members\n• Our soul with all its powers\n• Our exterior goods (present and future)\n• Our interior and spiritual goods (merits, virtues, and good works)\n\nThis is done without reserve, and forever.",
+            "title": "Perfect Consecration"
+          },
+          {
+            "text": "We should do all our actions through Mary, with Mary, in Mary, and for Mary, in order to do them more perfectly through Jesus, with Jesus, in Jesus, and for Jesus.\n\nThrough Mary: We employ her intercession and accept her as the Mediatrix between ourselves and Jesus.\n\nWith Mary: We unite ourselves to her as she offers herself to God.\n\nIn Mary: We enter into the interior dispositions with which she fulfills all her actions.\n\nFor Mary: We do all our actions out of love for Mary as our final end, after Jesus.",
+            "title": "Total Dependence on Mary"
+          },
+          {
+            "text": "St. Louis de Montfort calls this devotion a \"slavery of love\" — the voluntary giving of ourselves entirely to Mary, who is the Mother of God.\n\nThis slavery is:\n• The most perfect way to give ourselves to Jesus Christ\n• The surest way, since Mary will never mislead us\n• The easiest way, because Mary carries our burdens\n• The quickest way to union with Jesus\n• The most perfect way to honor God through His Mother",
+            "title": "The Slavery of Love"
+          },
+          {
+            "text": "St. Louis de Montfort teaches that Mary is the \"mold of God\" — the perfect vessel in which Jesus was formed.\n\nJust as Jesus was formed in Mary, so we too must be formed in Mary to become true images of Christ. Only in her can we be transformed into other Christs without danger of deception or pride.",
+            "title": "Mary as the Mold of God"
+          },
+          {
+            "text": "The interior practice consists in developing within ourselves a great devotion to the Blessed Virgin.\n\nThis includes:\n• Esteeming her highly as the masterpiece of grace\n• Rejoicing in her exaltation and privileges\n• Loving her as our tender Mother\n• Imitating her virtues\n• Trusting in her power and goodness\n• Having recourse to her in all our needs\n• Seeking Jesus only through Mary",
+            "title": "Interior Practice"
+          },
+          {
+            "text": "The exterior practice includes:\n• Making the act of consecration (initially and renewed often)\n• Wearing a small chain as a sign of slavery to Jesus through Mary\n• Having special devotion to the Rosary and Magnificat\n• Saying the Ave Maris Stella and other prayers to Mary\n• Making everything we do an act of consecration\n• Giving alms, fasting, and mortifying ourselves in Mary's honor",
+            "title": "Exterior Practice"
+          }
+        ],
+        "tables": []
+      },
+      {
+        "id": "td_marks",
+        "title": "Marks of True Devotion to Mary",
+        "detail": "Interior, tender, holy, constant, disinterested",
+        "paragraphs": [
+          "Montfort gives five marks by which true devotion to Our Lady can be told from its counterfeits. Each is a question a soul can put to itself."
+        ],
+        "quote": null,
+        "painting": null,
+        "feast": null,
+        "doors": [
+          {
+            "icon": "ph-crown",
+            "kind": "page",
+            "note": "The book, in the Faber translation",
+            "target": "true_devotion_book",
+            "title": "True Devotion to Mary"
+          },
+          {
+            "icon": null,
+            "kind": "act",
+            "note": "The thirty-three days of preparation",
+            "target": "consecration",
+            "title": null
+          }
+        ],
+        "parts": [
+          {
+            "text": "True devotion to Mary is interior — it comes from the mind and the heart. It flows from:\n\n• The esteem we have for her\n• The high idea we have formed of her greatness\n• The love which we have for her",
+            "title": "Interior"
+          },
+          {
+            "text": "True devotion to Mary is tender — it is full of confidence in her, like a child's confidence in a loving mother.\n\nIt makes us fly to her in all our bodily and spiritual needs with great simplicity, trust, and tenderness.",
+            "title": "Tender"
+          },
+          {
+            "text": "True devotion to Mary is holy — it leads us to avoid sin and to imitate her virtues, particularly:\n\n• Her profound humility\n• Her lively faith\n• Her continual prayer\n• Her universal mortification\n• Her divine purity\n• Her ardent charity\n• Her heroic patience\n• Her angelic sweetness\n• Her divine wisdom",
+            "title": "Holy"
+          },
+          {
+            "text": "True devotion to Mary is constant — it strengthens us in good and does not let us easily abandon our spiritual exercises.\n\nIt makes us courageous in opposing the world, the flesh, and the devil. A true child of Mary is not inconstant or scrupulous.",
+            "title": "Constant"
+          },
+          {
+            "text": "True devotion to Mary is disinterested — it inspires us to seek God alone in Mary, and not ourselves.\n\nThe true subject of Mary does not serve her for temporal or eternal reward, but solely because she has a right to be served, and God alone in her.",
+            "title": "Disinterested"
+          }
+        ],
+        "tables": []
+      },
+      {
+        "id": "td_false",
+        "title": "False Devotions to Avoid",
+        "detail": "Seven kinds of false devotee",
+        "paragraphs": [
+          "Before he teaches the true devotion, Montfort names seven false ones, so that no one mistakes a habit, a feeling or a bargain for love of the Mother of God."
+        ],
+        "quote": null,
+        "painting": null,
+        "feast": null,
+        "doors": [
+          {
+            "icon": "ph-crown",
+            "kind": "page",
+            "note": "The book, in the Faber translation",
+            "target": "true_devotion_book",
+            "title": "True Devotion to Mary"
+          },
+          {
+            "icon": null,
+            "kind": "act",
+            "note": "The thirty-three days of preparation",
+            "target": "consecration",
+            "title": null
+          }
+        ],
+        "parts": [
+          {
+            "text": "Proud scholars who question and criticize nearly every approved devotion to Our Lady — the pious practices of the simple faithful seem beneath them.\n\nMontfort answers: the Church, guided by the Holy Spirit, has approved these devotions for centuries; humility receives what pride dissects.",
+            "title": "The Critical Devotee"
+          },
+          {
+            "text": "Those who fear that honoring the Mother dishonors the Son — who avoid speaking of Mary lest they \"take away\" from Jesus.\n\nIn truth, we honor Mary only that Jesus may be more perfectly honored; we go to her only as the way that leads to Him, who is our final end.",
+            "title": "The Scrupulous Devotee"
+          },
+          {
+            "text": "Those whose devotion consists entirely in outward practices — many rosaries hurried through, medals worn, processions joined — with no interior spirit, no effort to amend their lives.",
+            "title": "The External Devotee"
+          },
+          {
+            "text": "Sinners who hide behind a cloak of devotion to Mary while remaining attached to their sins, presuming she will save them without conversion.\n\nThis presumption, Montfort warns, is a detestable abuse: true devotion to Mary is holy — it leads us away from sin, never provides cover for it.",
+            "title": "The Presumptuous Devotee"
+          },
+          {
+            "text": "Those devout by fits and starts — fervent one month, lukewarm the next; taking up practices and abandoning them at the first dryness.\n\nTrue devotion is constant: better a short rule kept faithfully than great practices soon abandoned.",
+            "title": "The Inconstant Devotee"
+          },
+          {
+            "text": "Those who cloak their sins under the mantle of the Virgin so as to pass for what they are not in the eyes of others.",
+            "title": "The Hypocritical Devotee"
+          },
+          {
+            "text": "Those who have recourse to Mary only to win a lawsuit, escape a danger, be cured of an illness, or obtain some temporal good — and otherwise never think of her.\n\nWe may certainly bring her our needs, but true devotion serves her for God's sake, not merely for our own.",
+            "title": "The Self-Interested Devotee"
+          }
+        ],
+        "tables": []
+      },
+      {
+        "id": "td_benefits",
+        "title": "Benefits of This Devotion",
+        "detail": "What the devotion works in a soul",
+        "paragraphs": [
+          "The fruits Montfort promises are not rewards for a technique; they are what happens to a soul that has given itself away and has nothing left to fear for."
+        ],
+        "quote": null,
+        "painting": null,
+        "feast": null,
+        "doors": [
+          {
+            "icon": "ph-crown",
+            "kind": "page",
+            "note": "The book, in the Faber translation",
+            "target": "true_devotion_book",
+            "title": "True Devotion to Mary"
+          },
+          {
+            "icon": null,
+            "kind": "act",
+            "note": "The thirty-three days of preparation",
+            "target": "consecration",
+            "title": null
+          }
+        ],
+        "parts": [
+          {
+            "text": "This devotion makes us free with the liberty of the children of God. Since we reduce ourselves to slavery out of love, God rewards us by:\n\n• Filling us with holy freedom\n• Delivering us from scruples\n• Taking away servile fear that might contract our hearts",
+            "title": "Freedom from Scruples and Servile Fear"
+          },
+          {
+            "text": "By consecrating ourselves thus to Jesus through Mary, we give Him, in the person of His Mother, all our good works.\n\nMary:\n• Purifies them\n• Embellishes them\n• Makes them acceptable to her Son\n• Obtains for us great graces and blessings",
+            "title": "Great Confidence in God and Mary"
+          },
+          {
+            "text": "In this consecration we:\n• Renounce Satan and the world\n• Give ourselves entirely to Jesus Christ through Mary\n• Fulfill our baptismal promises perfectly",
+            "title": "A Perfect Renewal of Baptismal Promises"
+          },
+          {
+            "text": "Consecrating ourselves to Mary means:\n• She watches over us constantly\n• She defends us against our enemies\n• She protects us as her property\n• She crushes the serpent's head in us",
+            "title": "Mary Defends Us Against Our Enemies"
+          },
+          {
+            "text": "All our actions, being done through Mary, gain in value, because she:\n• Purifies them of self-love and hidden attachment\n• Embellishes them, adorning them with her own merits\n• Presents them to Jesus with her own hands\n• Makes them more glorious to God\n• Makes them more profitable to our neighbor",
+            "title": "Greater Merit and Grace"
+          }
+        ],
+        "tables": []
+      },
+      {
+        "id": "td_spirit",
+        "title": "The Spirit of This Devotion",
+        "detail": "Humility, confidence, love, imitation",
+        "paragraphs": [
+          "The devotion is lived in a spirit before it is kept in practices: the spirit of a child toward its mother."
+        ],
+        "quote": null,
+        "painting": null,
+        "feast": null,
+        "doors": [
+          {
+            "icon": "ph-crown",
+            "kind": "page",
+            "note": "The book, in the Faber translation",
+            "target": "true_devotion_book",
+            "title": "True Devotion to Mary"
+          },
+          {
+            "icon": null,
+            "kind": "act",
+            "note": "The thirty-three days of preparation",
+            "target": "consecration",
+            "title": null
+          }
+        ],
+        "parts": [
+          {
+            "text": "• We acknowledge our nothingness and sinfulness\n• We rely entirely on Mary's intercession\n• We seek to do all through Mary, not through our own merits\n• We glory in our dependence on her as children",
+            "title": "Spirit of Humility"
+          },
+          {
+            "text": "• We trust in Mary's maternal care\n• We believe in her power as Mother of God\n• We rely on her never-failing intercession\n• We cast all our cares upon her",
+            "title": "Spirit of Confidence"
+          },
+          {
+            "text": "• We love Mary as our tender Mother\n• We seek to please her in all things\n• We imitate her virtues\n• We rejoice in her glory and happiness",
+            "title": "Spirit of Love"
+          },
+          {
+            "text": "We seek to imitate Mary's:\n• Interior life of union with God\n• Purity of intention in all actions\n• Perfect submission to God's will\n• Profound humility and self-effacement\n• Universal mortification and self-denial",
+            "title": "Spirit of Imitation"
+          }
+        ],
+        "tables": []
+      }
+    ]
+  },
+  "ejaculatory_prayers": [
+    {
+      "title": "The Little Crown (Opening Versicle)",
+      "english": "℣. Grant me to praise thee, O Sacred Virgin.\n℟. Give me strength against thine enemies.",
+      "latin": "℣. Dignare me laudare te, Virgo sacrata.\n℟. Da mihi virtutem contra hostes tuos."
+    },
+    {
+      "title": "Totus Tuus",
+      "english": "I am all Yours, and all that I have is Yours, O most loving Jesus, through Mary, Your most holy Mother.",
+      "latin": "Totus Tuus ego sum, et omnia mea Tua sunt, O amantissime Jesu, per Mariam, Matrem Tuam sanctissimam."
+    },
+    {
+      "title": "O Jesus Living in Mary",
+      "english": "O Jesus living in Mary,\nCome and live in Thy servants,\nIn the spirit of Thy holiness,\nIn the fullness of Thy might,\nIn the truth of Thy virtues,\nIn the perfection of Thy ways,\nIn the communion of Thy mysteries;\nSubdue every hostile power\nIn Thy spirit, for the glory of the Father.\nAmen.",
+      "latin": "O Jesu vivens in Maria,\nVeni et vive in famulis tuis,\nIn spiritu sanctitatis tuae,\nIn plenitudine virtutis tuae,\nIn veritate virtutum tuarum,\nIn perfectione viarum tuarum,\nIn communione mysteriorum tuorum;\nDominare omni adversae potestati\nIn Spiritu tuo, ad gloriam Patris.\nAmen."
+    },
+    {
+      "title": "Short Aspiration",
+      "english": "Mary, my Mother and my Queen, I am all thine, and all that I have is thine.",
+      "latin": "Maria, Mater mea et Regina mea, tota Tua sum, et omnia mea Tua sunt."
+    },
+    {
+      "title": "Morning Offering Through Mary",
+      "english": "O Mary, I give thee my heart; form in it the heart of Jesus.",
+      "latin": "O Maria, do tibi cor meum; forma in eo cor Jesu."
+    },
+    {
+      "title": "In Temptation",
+      "english": "O Mary, conceived without sin, pray for us who have recourse to thee.\n\nMy Mother, my confidence!",
+      "latin": "O Maria, sine labe concepta, ora pro nobis qui confugimus ad te.\n\nMater mea, fiducia mea!"
+    },
+    {
+      "title": "Throughout the Day",
+      "english": "All for thee, most Sacred Heart of Jesus, through the Immaculate Heart of Mary.\n\nJesus, Mary, Joseph, I love you; save souls!",
+      "latin": "Omnia pro te, Cor Jesu sacratissimum, per Cor Mariae Immaculatum.\n\nJesu, Maria, Joseph, vos amo; salvate animas!"
+    },
+    {
+      "title": "The Memorare (St. Bernard)",
+      "english": "Remember, O most gracious Virgin Mary, that never was it known that anyone who fled to thy protection, implored thy help, or sought thy intercession was left unaided.",
+      "latin": "Memorare, O piissima Virgo Maria, non esse auditum a saeculo, quemquam ad tua currentem praesidia, tua implorantem auxilia, tua petentem suffragia, esse derelictum."
+    },
+    {
+      "title": "Before Holy Communion",
+      "english": "O Mary, Mother of Jesus, make my heart like unto thine, that I may worthily receive thy Divine Son.",
+      "latin": "O Maria, Mater Jesu, fac cor meum simile Tuo, ut digne recipiam Filium Tuum divinum."
+    },
+    {
+      "title": "During the Rosary",
+      "english": "Hail Mary, Daughter of God the Father; Hail Mary, Mother of God the Son; Hail Mary, Spouse of God the Holy Spirit; Hail Mary, Temple of the Most Blessed Trinity.",
+      "latin": "Ave Maria, Filia Dei Patris; Ave Maria, Mater Dei Filii; Ave Maria, Sponsa Spiritus Sancti; Ave Maria, Templum Sanctissimae Trinitatis."
     }
   ]
 }

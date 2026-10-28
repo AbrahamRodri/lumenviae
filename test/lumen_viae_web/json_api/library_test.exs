@@ -20,7 +20,8 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     {"/prayer-book", "prayer_book", :prayer_book, ~w(prayers chapters)},
     {"/chant-library", "chant_library", :chant_library, ~w(groups chants)},
     {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)},
-    {"/true-devotion", "true_devotion", :true_devotion, ~w(about parts chapters)},
+    {"/true-devotion", "true_devotion", :true_devotion,
+     ~w(about parts chapters teaching ejaculatory_prayers)},
     {"/carlo-acutis", "carlo_acutis", :carlo_acutis,
      ~w(feast shelves timeline rule sayings prayer)},
     {"/marian-library", "marian_library", :marian_library, ~w(feasts shelves)}

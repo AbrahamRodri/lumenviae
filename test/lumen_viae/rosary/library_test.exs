@@ -34,7 +34,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-10-28 02:30:43Z], "fc067fd951512d2c"}
     ],
     "true_devotion.json" => [
-      {~U[2026-10-28 05:30:00Z], "3a98bd835108c60c"}
+      {~U[2026-10-28 05:30:00Z], "3a98bd835108c60c"},
+      {~U[2026-10-28 05:45:00Z], "bf7c75e8840ace57"}
     ],
     "carlo_acutis.json" => [
       {~U[2026-10-28 06:00:00Z], "61cda1b99e6bd122"}
@@ -379,7 +380,8 @@ defmodule LumenViae.Rosary.LibraryTest do
 
   describe "True Devotion's check" do
     test "the file as it is passes" do
-      assert Check.true_devotion_errors(Library.sections(:true_devotion)) == []
+      assert Check.true_devotion_errors(Library.sections(:true_devotion), Library.prayer_ids()) ==
+               []
     end
 
     test "the chapter ids are the ones the iOS app keeps a reader's progress by" do
@@ -430,12 +432,28 @@ defmodule LumenViae.Rosary.LibraryTest do
 
     test "refuses a missing about, and about without its text" do
       assert true_devotion_errors(Map.delete(true_devotion(), "about")) =~
-               "the document needs an about"
+               "the document needs an about, a teaching shelf"
 
       about = Map.delete(true_devotion()["about"], "translator")
 
       assert true_devotion_errors(%{true_devotion() | "about" => about}) =~
                "translator is required text"
+    end
+
+    test "the summary page: six teaching readings and ten ejaculatory prayers" do
+      assert %{"id" => "true_devotion_teaching", "readings" => readings} =
+               true_devotion()["teaching"]
+
+      assert length(readings) == 6
+      assert length(true_devotion()["ejaculatory_prayers"]) == 10
+    end
+
+    test "refuses an ejaculatory prayer whose Latin does not pair with its English" do
+      [prayer | rest] = true_devotion()["ejaculatory_prayers"]
+      broken = %{prayer | "latin" => prayer["latin"] <> "\nAmen."}
+
+      assert true_devotion_errors(%{true_devotion() | "ejaculatory_prayers" => [broken | rest]}) =~
+               "the two pair line for line"
     end
 
     test "refuses text a type would change, naming its section" do
@@ -705,7 +723,7 @@ defmodule LumenViae.Rosary.LibraryTest do
   defp book_errors(book), do: book |> Check.prayer_book_errors() |> Enum.join("\n")
 
   defp true_devotion_errors(document),
-    do: document |> Check.true_devotion_errors() |> Enum.join("\n")
+    do: document |> Check.true_devotion_errors(Library.prayer_ids()) |> Enum.join("\n")
 
   defp true_devotion, do: Library.sections(:true_devotion)
 

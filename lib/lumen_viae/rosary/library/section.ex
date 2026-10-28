@@ -22,7 +22,9 @@ defmodule LumenViae.Rosary.Library.Section do
     true_devotion: %{
       "about" => Types.TrueDevotionAbout,
       "parts" => Types.TrueDevotionPart,
-      "chapters" => Types.TrueDevotionChapter
+      "chapters" => Types.TrueDevotionChapter,
+      "teaching" => Types.LibraryShelf,
+      "ejaculatory_prayers" => Types.TrueDevotionPrayer
     },
     carlo_acutis: %{
       "feast" => Types.LibraryFeast,

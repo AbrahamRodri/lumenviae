@@ -5,7 +5,8 @@ defmodule LumenViae.Rosary.TrueDevotion do
   `GET /api/v2/true-devotion` and GraphQL's `trueDevotion`. The words are
   `LumenViae.Rosary.Library`'s, from `priv/library/true_devotion.json`,
   which holds the book the iOS app bundles (Fr. Faber's 1862
-  translation, public domain).
+  translation, public domain), and its summary page's teaching shelf and
+  ejaculatory prayers.
 
   It is served as the Prayer Book is: no table, one document with a
   `version` and the moment it last changed, and each section a
@@ -108,6 +109,25 @@ defmodule LumenViae.Rosary.TrueDevotion do
       constraints nil_items?: false
 
       description "Every chapter in reading order, from the Introduction to the Act of Consecration, each with its paragraphs."
+    end
+
+    calculate :teaching,
+              Types.LibraryShelf,
+              {Library.Section, document: :true_devotion, section: "teaching"} do
+      allow_nil? false
+      public? true
+
+      description "The summary page's shelf of short readings on the devotion (`true_devotion_teaching`): its foundations, principles, marks, false devotions, benefits and spirit."
+    end
+
+    calculate :ejaculatory_prayers,
+              {:array, Types.TrueDevotionPrayer},
+              {Library.Section, document: :true_devotion, section: "ejaculatory_prayers"} do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The summary page's ejaculatory prayers from the book, each in English and Latin."
     end
   end
 end

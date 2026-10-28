@@ -37,6 +37,43 @@ type CarloMoment {
   line: String!
 }
 
+type TrueDevotionPrayer {
+  "Its title (`Totus Tuus`)."
+  title: String!
+
+  "The Latin, pairing with the English line for line."
+  latin: String!
+
+  "The English, in the Prayer Book's grammar."
+  english: String!
+}
+
+type LibraryFeast {
+  "The short name its reading goes by when that is not the feast's own (`Lepanto`), or null."
+  readingName: String
+
+  "The id of the reading about it on the same document's shelves, or null."
+  readingId: String
+
+  "The painting it is shown in, by the apps' painting name (`mary_immaculate_conception`), or null where none is set."
+  painting: String
+
+  "Its name (`Our Lady of Lourdes`)."
+  name: String!
+
+  "Its month, 1 to 12."
+  month: Int!
+
+  "The place or people it is kept by when it is not universal (`the Americas`), or null."
+  keptBy: String
+
+  "Whether it is on the universal 1962 calendar, so the Missal has its Mass. False for a later or local feast, which opens no Mass."
+  inMissal: Boolean!
+
+  "Its day of the month."
+  day: Int!
+}
+
 type ReadingPart {
   "Its heading."
   title: String!
@@ -98,32 +135,6 @@ type LibraryShelf {
 
   "A closing line for a shelf that only samples a larger tradition, or null."
   footnote: String
-}
-
-type LibraryFeast {
-  "The short name its reading goes by when that is not the feast's own (`Lepanto`), or null."
-  readingName: String
-
-  "The id of the reading about it on the same document's shelves, or null."
-  readingId: String
-
-  "The painting it is shown in, by the apps' painting name (`mary_immaculate_conception`), or null where none is set."
-  painting: String
-
-  "Its name (`Our Lady of Lourdes`)."
-  name: String!
-
-  "Its month, 1 to 12."
-  month: Int!
-
-  "The place or people it is kept by when it is not universal (`the Americas`), or null."
-  keptBy: String
-
-  "Whether it is on the universal 1962 calendar, so the Missal has its Mass. False for a later or local feast, which opens no Mass."
-  inMissal: Boolean!
-
-  "Its day of the month."
-  day: Int!
 }
 
 type TrueDevotionParagraph {
@@ -1540,6 +1551,12 @@ type TrueDevotion {
 
   "Every chapter in reading order, from the Introduction to the Act of Consecration, each with its paragraphs."
   chapters: [TrueDevotionChapter!]!
+
+  "The summary page's shelf of short readings on the devotion (`true_devotion_teaching`): its foundations, principles, marks, false devotions, benefits and spirit."
+  teaching: LibraryShelf!
+
+  "The summary page's ejaculatory prayers from the book, each in English and Latin."
+  ejaculatoryPrayers: [TrueDevotionPrayer!]!
 }
 
 type Consecration {
