@@ -178,7 +178,7 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port,
       # Fly's proxy speaks HTTP/1.1 to the app, so HTTP/2 is never needed
-      # here; off, it cannot be reached by EEF-CVE-2026-105659 (see mix.exs).
+      # here, and leaving it off keeps Bandit's HTTP/2 code unreachable.
       http_2_options: [enabled: false]
     ],
     secret_key_base: secret_key_base,
