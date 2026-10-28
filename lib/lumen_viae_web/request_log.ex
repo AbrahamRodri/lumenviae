@@ -60,5 +60,5 @@ defmodule LumenViaeWeb.RequestLog do
 
   defp describe(_kind, reason), do: reason |> inspect(limit: 5) |> first_line()
 
-  defp first_line(text), do: text |> String.split("\n", parts: 2) |> hd() |> String.slice(0, 200)
+  defp first_line(text), do: LumenViae.Ops.ErrorLine.summary(text)
 end

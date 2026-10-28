@@ -6,8 +6,8 @@ defmodule LumenViae.Ops.JobLog do
 
       job_failed worker=LumenViae.Curation.Jobs.NarrateMeditation queue=elevenlabs id=42 attempt=2/5 state=failure error=...
 
-  `state` is Oban's: `failure` (it runs again while attempts remain),
-  `discard` (out of attempts) or `cancelled`. The error is its first line, cut short;
+  `state` is Oban's: `failure` (it runs again while attempts remain) or
+  `discard` (out of attempts); a cancelled job ends without an exception. The error is its first line, cut short;
   the arguments are left to Oban's own line.
   """
   require Logger
@@ -33,9 +33,9 @@ defmodule LumenViae.Ops.JobLog do
   end
 
   defp describe(exception) when is_exception(exception),
-    do: first_line(inspect(exception.__struct__) <> ": " <> Exception.message(exception))
+    do: inspect(exception.__struct__) <> ": " <> first_line(Exception.message(exception))
 
   defp describe(reason), do: reason |> inspect(limit: 5) |> first_line()
 
-  defp first_line(text), do: text |> String.split("\n", parts: 2) |> hd() |> String.slice(0, 200)
+  defp first_line(text), do: LumenViae.Ops.ErrorLine.summary(text)
 end

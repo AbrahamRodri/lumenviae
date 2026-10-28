@@ -82,7 +82,7 @@ def check(name, fn):
     except Fail as error:
         failures.append(name)
         print(f"FAIL  {name}: {error}")
-    except (KeyError, IndexError, TypeError) as error:
+    except (KeyError, IndexError, TypeError, ValueError) as error:
         failures.append(name)
         print(f"FAIL  {name}: unexpected shape ({type(error).__name__}: {error})")
 

@@ -39,4 +39,28 @@ defmodule LumenViae.Ops.JobLogTest do
 
     refute log =~ "stack"
   end
+
+  # An Ash error's message starts with a blank line and a header.
+  test "the error is its cause, not a blank line or a header" do
+    job = %Oban.Job{id: 7, worker: "W", queue: "q", attempt: 1, max_attempts: 3}
+
+    log =
+      capture_log(fn ->
+        JobLog.handle_event(
+          [:oban, :job, :exception],
+          %{},
+          %{
+            job: job,
+            state: :failure,
+            kind: :error,
+            reason: %RuntimeError{
+              message: "\nInvalid Error\n\n* attribute name is required\n  (ash) stack"
+            }
+          },
+          nil
+        )
+      end)
+
+    assert log =~ "error=RuntimeError: attribute name is required"
+  end
 end

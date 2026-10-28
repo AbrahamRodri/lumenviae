@@ -66,5 +66,5 @@ defmodule LumenViae.Ops.Status do
     }
   end
 
-  defp first_line(text), do: text |> String.split("\n", parts: 2) |> hd()
+  defp first_line(text), do: LumenViae.Ops.ErrorLine.summary(text)
 end
