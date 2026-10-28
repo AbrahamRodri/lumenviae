@@ -21,6 +21,367 @@
       }
     },
     "schemas": {
+      "carlo_acutis": {
+        "description": "A \"Resource object\" representing a carlo_acutis",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a carlo_acutis",
+            "properties": {
+              "feast": {
+                "description": "His feast, 12 October, the day he died. Not on the 1962 calendar, so it opens no Mass.",
+                "properties": {
+                  "day": {
+                    "type": "integer"
+                  },
+                  "in_missal": {
+                    "type": "boolean"
+                  },
+                  "kept_by": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "month": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "painting": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "reading_id": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "reading_name": {
+                    "nullable": true,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "month",
+                  "day",
+                  "name",
+                  "in_missal"
+                ],
+                "type": "object"
+              },
+              "prayer": {
+                "description": "A prayer for his intercession, in the Prayer Book's grammar.",
+                "type": "string"
+              },
+              "rule": {
+                "description": "His rule of life: what he did every day or every week, each with its reading and the act that does it today.",
+                "items": {
+                  "properties": {
+                    "act": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "act_title": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "often": {
+                      "type": "string"
+                    },
+                    "reading_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "icon",
+                    "name",
+                    "often",
+                    "reading_id"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "sayings": {
+                "description": "His sayings, as his mother and biographers handed them on. One a day, the same all day: the day of the year (1 to 366) modulo the count.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "shelves": {
+                "description": "His life (`carlo_life`) and his devotions (`carlo_devotions`), each a shelf of readings.",
+                "items": {
+                  "properties": {
+                    "footnote": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "margin_label": {
+                      "type": "string"
+                    },
+                    "readings": {
+                      "items": {
+                        "properties": {
+                          "detail": {
+                            "type": "string"
+                          },
+                          "doors": {
+                            "items": {
+                              "properties": {
+                                "icon": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "kind": {
+                                  "type": "string"
+                                },
+                                "note": {
+                                  "type": "string"
+                                },
+                                "target": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "nullable": true,
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "target",
+                                "note"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "feast": {
+                            "nullable": true,
+                            "properties": {
+                              "day": {
+                                "type": "integer"
+                              },
+                              "in_missal": {
+                                "type": "boolean"
+                              },
+                              "kept_by": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "month": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "painting": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "reading_id": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "reading_name": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "month",
+                              "day",
+                              "name",
+                              "in_missal"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "painting": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "paragraphs": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "parts": {
+                            "items": {
+                              "properties": {
+                                "text": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "title",
+                                "text"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "quote": {
+                            "nullable": true,
+                            "properties": {
+                              "citation": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "citation"
+                            ],
+                            "type": "object"
+                          },
+                          "tables": {
+                            "items": {
+                              "properties": {
+                                "rows": {
+                                  "items": {
+                                    "properties": {
+                                      "label": {
+                                        "type": "string"
+                                      },
+                                      "value": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "label",
+                                      "value"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "title",
+                                "rows"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "detail",
+                          "paragraphs",
+                          "doors",
+                          "parts",
+                          "tables"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "subtitle": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "subtitle",
+                    "margin_label",
+                    "icon",
+                    "readings"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "timeline": {
+                "description": "His life as a timeline, in order, each moment opening its reading.",
+                "items": {
+                  "properties": {
+                    "line": {
+                      "type": "string"
+                    },
+                    "reading_id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "year": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "year",
+                    "title",
+                    "line",
+                    "reading_id"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a carlo_acutis",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "carlo_acutis"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
       "chant_library": {
         "description": "A \"Resource object\" representing a chant_library",
         "properties": {
@@ -3852,6 +4213,53 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/api/v2/carlo-acutis": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "St. Carlo Acutis's page as one document. There is only ever one.",
+        "operationId": "getCarloAcutis",
+        "parameters": [
+          {
+            "description": "Comma separated fields of carlo_acutis: feast, prayer, rule, sayings, shelves, timeline, updated_at, version",
+            "explode": false,
+            "in": "query",
+            "name": "fields[carlo_acutis]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/carlo_acutis"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "carlo_acutis"
+        ]
+      }
+    },
     "/api/v2/chant-library": {
       "get": {
         "callbacks": {},

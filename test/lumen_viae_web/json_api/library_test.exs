@@ -20,7 +20,9 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     {"/prayer-book", "prayer_book", :prayer_book, ~w(prayers chapters)},
     {"/chant-library", "chant_library", :chant_library, ~w(groups chants)},
     {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)},
-    {"/true-devotion", "true_devotion", :true_devotion, ~w(about parts chapters)}
+    {"/true-devotion", "true_devotion", :true_devotion, ~w(about parts chapters)},
+    {"/carlo-acutis", "carlo_acutis", :carlo_acutis,
+     ~w(feast shelves timeline rule sayings prayer)}
   ]
 
   for {path, type, document, sections} <- @documents do
@@ -307,6 +309,49 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       assert Enum.map(parts, & &1["number"]) == [1, 2]
       assert %{"id" => "introduction", "part" => 0} = hd(chapters)
       assert %{"id" => "formula", "part" => 2} = List.last(chapters)
+    end
+  end
+
+  describe "St. Carlo Acutis" do
+    setup %{conn: conn} do
+      conn
+      |> get_v2("/carlo-acutis?fields[carlo_acutis]=feast,shelves,timeline,rule,sayings,prayer")
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+      |> then(&%{page: &1})
+    end
+
+    test "every item carries every field of the contract", %{page: page} do
+      assert Map.keys(page["feast"]) |> Enum.sort() ==
+               ~w(day in_missal kept_by month name painting reading_id reading_name)
+
+      for shelf <- page["shelves"] do
+        assert Map.keys(shelf) |> Enum.sort() ==
+                 ~w(footnote icon id margin_label readings subtitle title)
+
+        for reading <- shelf["readings"] do
+          assert Map.keys(reading) |> Enum.sort() ==
+                   ~w(detail doors feast id painting paragraphs parts quote tables title)
+
+          for door <- reading["doors"] do
+            assert Map.keys(door) |> Enum.sort() == ~w(icon kind note target title)
+          end
+        end
+      end
+
+      for moment <- page["timeline"],
+          do: assert(Map.keys(moment) |> Enum.sort() == ~w(line reading_id title year))
+
+      for habit <- page["rule"] do
+        assert Map.keys(habit) |> Enum.sort() == ~w(act act_title icon name often reading_id)
+      end
+    end
+
+    test "his life and his devotions, and a prayer for his intercession", %{page: page} do
+      assert Enum.map(page["shelves"], & &1["id"]) == ~w(carlo_life carlo_devotions)
+      assert %{"month" => 10, "day" => 12, "in_missal" => false} = page["feast"]
+      assert "Not I, but God." in page["sayings"]
+      assert page["prayer"] =~ "live as originals and not as copies"
     end
   end
 end

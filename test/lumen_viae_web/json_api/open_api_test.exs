@@ -38,6 +38,7 @@ defmodule LumenViaeWeb.JsonApi.OpenApiTest do
 
   # Every operation the API offers.
   @operations [
+    {"get", "/api/v2/carlo-acutis", "getCarloAcutis"},
     {"get", "/api/v2/chant-library", "getChantLibrary"},
     {"get", "/api/v2/consecration", "getConsecration"},
     {"get", "/api/v2/meditation-sets", "listMeditationSets"},

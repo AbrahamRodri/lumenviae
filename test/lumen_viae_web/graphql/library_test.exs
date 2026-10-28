@@ -15,14 +15,16 @@ defmodule LumenViaeWeb.Graphql.LibraryTest do
     assert %{"data" => data} =
              graphql(conn, """
              { prayerBook { id version updatedAt } chantLibrary { id version updatedAt }
-               consecration { id version updatedAt } trueDevotion { id version updatedAt } }
+               consecration { id version updatedAt } trueDevotion { id version updatedAt }
+               carloAcutis { id version updatedAt } }
              """)
 
     for {field, document} <- [
           {"prayerBook", :prayer_book},
           {"chantLibrary", :chant_library},
           {"consecration", :consecration},
-          {"trueDevotion", :true_devotion}
+          {"trueDevotion", :true_devotion},
+          {"carloAcutis", :carlo_acutis}
         ] do
       %{version: version, updated_at: updated_at} = Library.stamp(document)
 
@@ -105,6 +107,32 @@ defmodule LumenViaeWeb.Graphql.LibraryTest do
                file["chapters"],
                &Enum.map(&1["paragraphs"], fn paragraph -> paragraph["text"] end)
              )
+  end
+
+  test "St. Carlo's shelves with their readings and doors, his timeline, rule and prayer", %{
+    conn: conn
+  } do
+    body =
+      graphql(conn, """
+      { carloAcutis {
+          feast { month day name inMissal }
+          shelves { id marginLabel readings { id paragraphs quote { text citation }
+                    feast { name } doors { kind target note } } }
+          timeline { year readingId }
+          rule { name act actTitle }
+          sayings prayer } }
+      """)
+
+    refute body["errors"]
+
+    page = get_in(body, ["data", "carloAcutis"])
+    file = Library.sections(:carlo_acutis)
+
+    assert page["feast"]["inMissal"] == false
+    assert Enum.map(page["shelves"], & &1["id"]) == Enum.map(file["shelves"], & &1["id"])
+    assert page["sayings"] == file["sayings"]
+    assert page["prayer"] == file["prayer"]
+    assert Enum.map(page["rule"], & &1["act"]) == Enum.map(file["rule"], & &1["act"])
   end
 
   test "every chant with its recording, score and lines", %{conn: conn} do

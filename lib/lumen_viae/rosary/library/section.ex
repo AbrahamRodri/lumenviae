@@ -23,6 +23,14 @@ defmodule LumenViae.Rosary.Library.Section do
       "about" => Types.TrueDevotionAbout,
       "parts" => Types.TrueDevotionPart,
       "chapters" => Types.TrueDevotionChapter
+    },
+    carlo_acutis: %{
+      "feast" => Types.LibraryFeast,
+      "shelves" => Types.LibraryShelf,
+      "timeline" => Types.CarloMoment,
+      "rule" => Types.CarloHabit,
+      "sayings" => :string,
+      "prayer" => :string
     }
   }
 
@@ -39,12 +47,12 @@ defmodule LumenViae.Rosary.Library.Section do
   would change is an error naming the section and the items it would
   change: what a request serves must be what the file holds, word for
   word, and the version that fingerprints the file must fingerprint it.
-  A section that is one object rather than a list (True Devotion's
-  `about`) is cast as a list of one and served as the one.
+  A section that is one value rather than a list (True Devotion's
+  `about`, St. Carlo's `feast` and `prayer`) is cast as a list of one and
+  served as the one.
   """
-  @spec cast(Library.document(), String.t(), [map] | map) ::
-          {:ok, [struct] | struct} | {:error, String.t()}
-  def cast(document, name, item) when is_map(item) do
+  @spec cast(Library.document(), String.t(), term) :: {:ok, term} | {:error, String.t()}
+  def cast(document, name, item) when not is_list(item) do
     with {:ok, [cast]} <- cast(document, name, [item]), do: {:ok, cast}
   end
 
@@ -56,7 +64,7 @@ defmodule LumenViae.Rosary.Library.Section do
         changed =
           for {served, held} <- Enum.zip(plain(cast), items),
               served != held,
-              do: held["id"] || held["number"] || held["title"]
+              do: label(held)
 
         if changed == [],
           do: {:ok, cast},
@@ -68,6 +76,9 @@ defmodule LumenViae.Rosary.Library.Section do
         {:error, "#{name} does not fit its type: #{inspect(error)}"}
     end
   end
+
+  defp label(held) when is_map(held), do: held["id"] || held["number"] || held["title"]
+  defp label(held), do: inspect(held, limit: 3, printable_limit: 40)
 
   @doc """
   A cast section as plain data again, string keys throughout, to compare

@@ -51,6 +51,7 @@ involved.
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
 | `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers` and `feasts` when named in `fields[consecration]=`. See "The Consecration". |
 | `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts` and `chapters` when named in `fields[true_devotion]=`. See "True Devotion". |
+| `GET /carlo-acutis` | `CarloAcutis.:current` | St. Carlo Acutis's page as one document: its `version` and `updated_at`, and `feast`, `shelves`, `timeline`, `rule`, `sayings` and `prayer` when named in `fields[carlo_acutis]=`. See "St. Carlo Acutis". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
 
@@ -819,6 +820,57 @@ this document.
   }
 }
 ```
+
+## St. Carlo Acutis
+
+```
+GET /api/v2/carlo-acutis
+GET /api/v2/carlo-acutis?fields[carlo_acutis]=version,updated_at,feast,shelves,timeline,rule,sayings,prayer
+```
+
+St. Carlo Acutis's page as the iOS app holds it
+(`Data/CarloAcutisData.swift`): his life in five readings, his four
+devotions, his timeline, his rule of life, his sayings and a prayer for
+his intercession. A library document, kept and polled as the Prayer Book
+is; GraphQL's `carloAcutis` serves the same. The words are in
+`priv/library/carlo_acutis.json`. His photo is not served: the app
+bundles its own.
+
+- **`feast`**, one object: a `LibraryFeast`, `{month, day, name,
+  in_missal, kept_by, painting, reading_id, reading_name}`. His is 12
+  October, `in_missal` false (he was canonised in 2025), so it opens no
+  Mass; the last three are null.
+- **`shelves`**, `carlo_life` and `carlo_devotions`, each `{id, title,
+  subtitle, margin_label, icon, footnote, readings}`. A reading is `{id,
+  title, detail, paragraphs, quote, painting, feast, doors, parts,
+  tables}`: `quote` is `{text, citation}` or null, `feast` a
+  `LibraryFeast` or null, `parts` named parts after the prose (`{title,
+  text}`), `tables` two-column tables as in the How to Pray course.
+  `margin_label` breaks with `\n` where a narrow margin reads it best.
+- **`timeline`**: `{year, title, line, reading_id}`, in order, each
+  opening a reading on `carlo_life`.
+- **`rule`**: `{icon, name, often, reading_id, act, act_title}`, his
+  habits, each with its reading and, where there is one, the act that
+  does it today (`act` an act door's target, `act_title` its button).
+- **`sayings`**: strings. One a day, the same all day: the day of the
+  year counted from 1, modulo the count, as the iOS page picks it.
+- **`prayer`**: one string, in the Prayer Book's grammar.
+
+### Reading doors in the library documents
+
+A library reading's `doors` are the How to Pray course's `{kind,
+target, title, note, icon}`, with a wider vocabulary, checked when the
+file compiles (`LumenViae.Rosary.Library.Check`):
+
+| `kind` | `target` |
+| --- | --- |
+| `act` | `todays_rosary`, `mass` (the day's Mass in the 1962 Missal), `consecration` (the 33-day Consecration). `title` and `icon` are null. |
+| `reading` | A reading on the same document's shelves, by its id. |
+| `prayer` | A Prayer Book prayer, by its id. `title` and `icon` are null. |
+| `mysteries` | A category slug: the mysteries this truth is prayed in. `title` and `icon` are null. |
+| `page` | `marian_library`, `carlo_acutis`, `true_devotion` (the summary page), `true_devotion_book` (the reader), `how_to_pray`, `mysteries_in_scripture`. |
+
+Pass over a door you cannot open. A new target is added, never renamed.
 
 ## One Rosary's script
 
