@@ -23,3 +23,17 @@ defimpl AshGraphql.Error, for: LumenViae.Office.Errors.BadRequest do
     }
   end
 end
+
+defimpl AshJsonApi.ToJsonApiError, for: LumenViae.Office.Errors.BadRequest do
+  # The v1 API's 400, under v2's one code for a rejected value.
+  def to_json_api_error(error) do
+    %AshJsonApi.Error{
+      id: Ash.UUID.generate(),
+      status_code: 400,
+      code: "invalid_argument",
+      title: "InvalidArgument",
+      detail: error.message,
+      meta: %{}
+    }
+  end
+end
