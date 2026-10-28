@@ -21,15 +21,15 @@ defmodule LumenViae.Office do
 
   ## As an Ash domain
 
-  The module is also an `Ash.Domain`, so the GraphQL API can reach the
-  Office through `LumenViae.Office.Breviary`, a resource with no table
-  whose generic actions call the fetch functions below. The REST
-  controller keeps calling those functions directly. Both APIs therefore
-  share one validation, one engine client and one cache.
+  The module is also an `Ash.Domain`, so GraphQL and the v2 JSON:API can
+  reach the Office through `LumenViae.Office.Breviary`, a resource with no
+  table whose generic actions call the fetch functions below. The v1 REST
+  controller keeps calling those functions directly. All three APIs
+  therefore share one validation, one engine client and one cache.
   """
   use Ash.Domain,
     otp_app: :lumen_viae,
-    extensions: [AshGraphql.Domain]
+    extensions: [AshGraphql.Domain, AshJsonApi.Domain]
 
   require Logger
 
@@ -46,6 +46,43 @@ defmodule LumenViae.Office do
       action Breviary, :office_day, :day
       action Breviary, :office_calendar, :calendar
       action Breviary, :office_vocabulary, :vocabulary
+    end
+  end
+
+  # The same actions under /api/v2/office, for a client that calls v2 only
+  # (Android). Each answers with its value as the JSON body, not a JSON:API
+  # resource object: an office is text, not a record with an id. The
+  # version and language are query parameters, as in v1. See
+  # docs/JSON_API.md, "The Divine Office".
+  json_api do
+    prefix "/api/v2"
+
+    open_api do
+      group_by :resource
+    end
+
+    routes do
+      base_route "/office", Breviary do
+        route :get, "/vocabulary", :vocabulary do
+          name "getOfficeVocabulary"
+        end
+
+        route :get, "/calendar/:year/:month", :calendar do
+          name "getOfficeCalendar"
+        end
+
+        route :get, "/days/:date", :day do
+          name "getOfficeDay"
+        end
+
+        route :get, "/days/:date/hours", :hours do
+          name "listOfficeHours"
+        end
+
+        route :get, "/days/:date/hours/:hour", :hour do
+          name "getOfficeHour"
+        end
+      end
     end
   end
 

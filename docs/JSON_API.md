@@ -49,6 +49,7 @@ involved.
 | `GET /rosary-content` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
 | `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers` and `chapters` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
+| `GET /office/vocabulary`, `GET /office/calendar/:year/:month`, `GET /office/days/:date`, `GET /office/days/:date/hours`, `GET /office/days/:date/hours/:hour` | `Office.Breviary`'s actions | The Divine Office, as GraphQL's `office*` queries and v1's `/api/office` serve it. See "The Divine Office". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
 
@@ -133,6 +134,7 @@ title, detail, source}]}`, with the HTTP status of the first:
 | 404 | `not_found` | No such set, or one the public may not see. |
 | 429 | `rate_limited` | `POST /completions` only: too many completions from this address this hour (an IPv6 caller counts by its /64), counted with v1, GraphQL and the website. Carries `Retry-After`, in whole seconds, until the hour ends. Drop it, or retry after that. |
 | 503 | `audio_unavailable` | Recordings exist but could not be signed: the server's storage credentials are missing or broken. Retry later. |
+| 503 | `office_unavailable` | `/office` only: the Divine Office engine could not be reached. Retry later. |
 
 A recording that cannot be signed fails the whole request for the spoken
 Rosary and for `POST /meditations/audio`, and nulls a meditation's
@@ -667,6 +669,38 @@ and `pause_ms`. `mystery` and `decade` are null on the pendant, where the
 iOS app's own script gives the opening the first decade and its key and
 the close the last's. A meditation step is the set's own narration, which a
 client finds in the set by its decade.
+
+## The Divine Office
+
+```
+GET /api/v2/office/vocabulary
+GET /api/v2/office/calendar/1962/8
+GET /api/v2/office/days/2026-08-24
+GET /api/v2/office/days/2026-08-24/hours
+GET /api/v2/office/days/2026-08-24/hours/laudes?version=rubrics-1960&language=english
+```
+
+The pre-Vatican II breviary, from the `LumenViae.Office` domain, for a
+client that calls v2 only. The same actions as GraphQL's `officeHour`,
+`officeHours`, `officeDay`, `officeCalendar` and `officeVocabulary`, and
+the same answers as v1's `/api/office` (docs/OFFICE_API.md has the
+shapes, the engine and the cache): one validation, one engine, one
+cache. `/hours` answers all eight hours of a date, in liturgical order.
+
+Unlike every other v2 route, each answers with its value as the JSON
+body (`{"date": ..., "hour": ..., "sections": [...], "source": {...}}`),
+not a JSON:API resource object: an office is text, not a record with an
+id. The OpenAPI document types each body. `version` and `language` are
+query parameters on every content route, as in v1; the vocabulary route
+lists their slugs and defaults. Every hour carries `source`, the credit
+to the Divinum Officium Project; keep it on screen.
+
+Errors are v2's: an unknown hour, version or language, a date outside
+1600 to 2200, or a month that is not 1 to 12 is a 400
+`invalid_argument` whose `detail` names the valid values; the engine
+unreachable is a 503 `office_unavailable`, which a client retries later.
+Responses are `private, no-store` like the rest of v2, so a client keeps
+its own copy of an office it has read (an office never changes).
 
 ## Fresh meditation audio
 
