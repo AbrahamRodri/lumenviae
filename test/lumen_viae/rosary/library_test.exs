@@ -1,6 +1,7 @@
 defmodule LumenViae.Rosary.LibraryTest do
   @moduledoc """
-  The Prayer Book, the Chant Library and the Consecration as
+  The Prayer Book, the Chant Library, the Consecration, True Devotion, St.
+  Carlo Acutis's page and the Marian Library as
   `LumenViae.Rosary.Library` holds them: each file dated and versioned as its history records, and
   what `LumenViae.Rosary.Library.Check` refuses.
   """
@@ -24,13 +25,24 @@ defmodule LumenViae.Rosary.LibraryTest do
   @history %{
     "prayer_book.json" => [
       {~U[2026-10-14 02:51:54Z], "63167a494d1c4b44"},
-      {~U[2026-10-14 03:14:56Z], "f16e6e8bb9b60649"}
+      {~U[2026-10-14 03:14:56Z], "f16e6e8bb9b60649"},
+      {~U[2026-10-28 16:30:00Z], "ec0e0d5a60a76890"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"}
     ],
     "consecration.json" => [
       {~U[2026-10-28 02:30:43Z], "fc067fd951512d2c"}
+    ],
+    "true_devotion.json" => [
+      {~U[2026-10-28 05:30:00Z], "3a98bd835108c60c"},
+      {~U[2026-10-28 05:45:00Z], "bf7c75e8840ace57"}
+    ],
+    "carlo_acutis.json" => [
+      {~U[2026-10-28 06:00:00Z], "61cda1b99e6bd122"}
+    ],
+    "marian_library.json" => [
+      {~U[2026-10-28 06:30:00Z], "20566a4a5a5c600f"}
     ]
   }
 
@@ -82,10 +94,24 @@ defmodule LumenViae.Rosary.LibraryTest do
       refute Content.version(changed) == version
     end
 
-    test "the files hold what the apps have printed: 18 chapters, 104 chants, 34 days" do
+    test "the files hold what the apps have printed: 18 chapters, 104 chants, 34 days, 13 chapters" do
       assert length(Library.sections(:prayer_book)["chapters"]) == 18
       assert length(Library.sections(:chant_library)["chants"]) == 104
       assert length(Library.sections(:consecration)["days"]) == 34
+
+      true_devotion = Library.sections(:true_devotion)
+      assert length(true_devotion["chapters"]) == 13
+      assert length(Enum.flat_map(true_devotion["chapters"], & &1["paragraphs"])) == 376
+
+      carlo = Library.sections(:carlo_acutis)
+      assert Enum.map(carlo["shelves"], &length(&1["readings"])) == [5, 4]
+
+      marian = Library.sections(:marian_library)
+      assert length(marian["feasts"]) == 17
+      assert Enum.map(marian["shelves"], &length(&1["readings"])) |> Enum.sum() == 33
+
+      assert {length(carlo["timeline"]), length(carlo["rule"]), length(carlo["sayings"])} ==
+               {7, 5, 8}
     end
 
     test "every section is served exactly as its file holds it" do
@@ -195,6 +221,31 @@ defmodule LumenViae.Rosary.LibraryTest do
       book = %{book | "chapters" => book["chapters"] ++ book["chapters"]}
 
       assert book_errors(book) =~ ~s(the chapter id "our_lady" is repeated)
+    end
+
+    test "refuses an order naming a prayer or a chapter that does not exist" do
+      book = Library.sections(:prayer_book)
+      [first | rest] = book["orders"]
+      broken = %{first | "prayer_ids" => ["nowhere"], "chapter_id" => "attic"}
+
+      errors = book_errors(%{book | "orders" => [broken | rest]})
+      assert errors =~ ~s(the order morning: names the prayer "nowhere")
+      assert errors =~ ~s(the order morning: names the chapter "attic")
+    end
+
+    test "refuses a repeated order, and two songs to Mary for one season" do
+      book = Library.sections(:prayer_book)
+      [song | songs] = book["marian_antiphons"]
+
+      errors =
+        book_errors(%{
+          book
+          | "orders" => book["orders"] ++ [hd(book["orders"])],
+            "marian_antiphons" => [song, %{hd(songs) | "begins" => song["begins"]} | tl(songs)]
+        })
+
+      assert errors =~ ~s(the order id "morning" is repeated)
+      assert errors =~ "two songs to Mary begin on advent_eve"
     end
 
     test "refuses an id that is not letters, digits, _ and -" do
@@ -353,6 +404,230 @@ defmodule LumenViae.Rosary.LibraryTest do
     end
   end
 
+  describe "True Devotion's check" do
+    test "the file as it is passes" do
+      assert Check.true_devotion_errors(Library.sections(:true_devotion), Library.prayer_ids()) ==
+               []
+    end
+
+    test "the chapter ids are the ones the iOS app keeps a reader's progress by" do
+      assert Enum.map(Library.sections(:true_devotion)["chapters"], & &1["id"]) ==
+               ~w(introduction necessity discernment false-devotions characters preliminary
+                  consists motives figure effects practices communion formula)
+    end
+
+    test "refuses parts out of order, and a chapter in no part there is" do
+      [first, second] = true_devotion()["parts"]
+
+      assert true_devotion_errors(%{true_devotion() | "parts" => [second, first]}) =~
+               "the parts are numbered 1, 2 and on, in order"
+
+      assert true_devotion_errors(update_td_chapter(true_devotion(), "part", 3)) =~
+               "chapter introduction: its part is not one of the parts"
+    end
+
+    test "refuses paragraphs out of order, of no kind, or with no text" do
+      [first, second | _] = hd(true_devotion()["chapters"])["paragraphs"]
+
+      assert true_devotion_errors(
+               update_td_chapter(true_devotion(), "paragraphs", [second, first])
+             ) =~
+               "chapter introduction: its paragraphs are numbered 0, 1, 2 and on, in order"
+
+      assert true_devotion_errors(
+               update_td_chapter(true_devotion(), "paragraphs", [%{first | "kind" => "verse"}])
+             ) =~ "chapter introduction: paragraph 0 is neither text nor a subheading"
+
+      assert true_devotion_errors(
+               update_td_chapter(true_devotion(), "paragraphs", [%{first | "text" => " "}])
+             ) =~ "chapter introduction: paragraph 0: text is required text"
+
+      assert true_devotion_errors(update_td_chapter(true_devotion(), "paragraphs", [])) =~
+               "chapter introduction: it has no paragraphs"
+    end
+
+    test "refuses a repeated chapter id, and one that is not letters, digits, _ and -" do
+      [first | rest] = true_devotion()["chapters"]
+
+      assert true_devotion_errors(%{true_devotion() | "chapters" => [first, first | rest]}) =~
+               ~s(the chapter id "introduction" is repeated)
+
+      assert true_devotion_errors(update_td_chapter(true_devotion(), "id", "the intro")) =~
+               ~s(the chapter id "the intro" may hold only letters, digits, _ and -)
+    end
+
+    test "refuses a missing about, and about without its text" do
+      assert true_devotion_errors(Map.delete(true_devotion(), "about")) =~
+               "the document needs an about, a teaching shelf"
+
+      about = Map.delete(true_devotion()["about"], "translator")
+
+      assert true_devotion_errors(%{true_devotion() | "about" => about}) =~
+               "translator is required text"
+    end
+
+    test "the summary page: six teaching readings and ten ejaculatory prayers" do
+      assert %{"id" => "true_devotion_teaching", "readings" => readings} =
+               true_devotion()["teaching"]
+
+      assert length(readings) == 6
+      assert length(true_devotion()["ejaculatory_prayers"]) == 10
+    end
+
+    test "refuses an ejaculatory prayer whose Latin does not pair with its English" do
+      [prayer | rest] = true_devotion()["ejaculatory_prayers"]
+      broken = %{prayer | "latin" => prayer["latin"] <> "\nAmen."}
+
+      assert true_devotion_errors(%{true_devotion() | "ejaculatory_prayers" => [broken | rest]}) =~
+               "the two pair line for line"
+    end
+
+    test "refuses text a type would change, naming its section" do
+      assert Library.cast_errors(:true_devotion, true_devotion()) == []
+
+      assert [message] =
+               Library.cast_errors(
+                 :true_devotion,
+                 update_td_chapter(true_devotion(), "title", "Introduction ")
+               )
+
+      assert message =~ "chapters would not be served as written"
+      assert message =~ "introduction"
+    end
+  end
+
+  describe "St. Carlo's check" do
+    test "the file as it is passes" do
+      assert Check.carlo_acutis_errors(carlo(), Library.prayer_ids()) == []
+    end
+
+    test "refuses a door that opens nothing there is" do
+      bad = %{
+        "kind" => "page",
+        "target" => "chapel",
+        "title" => "x",
+        "note" => "y",
+        "icon" => nil
+      }
+
+      assert carlo_errors(update_carlo_reading(carlo(), "doors", [bad])) =~
+               "the reading carlo_boy has a door page:chapel, which opens nothing there is"
+
+      prayer = %{bad | "kind" => "prayer", "target" => "no_such_prayer"}
+
+      assert carlo_errors(update_carlo_reading(carlo(), "doors", [prayer])) =~
+               "door prayer:no_such_prayer"
+    end
+
+    test "allows a door to a reading on its shelves, a prayer, a category and a page" do
+      doors =
+        for {kind, target} <- [
+              {"reading", "carlo_saint"},
+              {"prayer", "ave_maris_stella"},
+              {"mysteries", "seven_sorrows"},
+              {"page", "marian_library"},
+              {"act", "mass"}
+            ],
+            do: %{
+              "kind" => kind,
+              "target" => target,
+              "title" => nil,
+              "note" => "n",
+              "icon" => nil
+            }
+
+      assert carlo_errors(update_carlo_reading(carlo(), "doors", doors)) == ""
+    end
+
+    test "refuses a timeline moment or a habit naming a reading not on a shelf" do
+      [moment | rest] = carlo()["timeline"]
+      moved = %{carlo() | "timeline" => [%{moment | "reading_id" => "carlo_gone"} | rest]}
+
+      assert carlo_errors(moved) =~
+               ~s(Born in London names the reading "carlo_gone", which is not on a shelf)
+    end
+
+    test "refuses a habit whose act no door may name" do
+      [habit | rest] = carlo()["rule"]
+
+      assert carlo_errors(%{carlo() | "rule" => [%{habit | "act" => "office"} | rest]}) =~
+               ~s(the habit Holy Mass has the act "office", which no door may name)
+    end
+
+    test "refuses a repeated reading id and a feast on no date" do
+      [shelf | rest] = carlo()["shelves"]
+      [reading | _] = shelf["readings"]
+
+      doubled = %{
+        carlo()
+        | "shelves" => [%{shelf | "readings" => [reading | shelf["readings"]]} | rest]
+      }
+
+      assert carlo_errors(doubled) =~ ~s(the reading id "carlo_boy" is repeated)
+
+      assert carlo_errors(%{carlo() | "feast" => %{carlo()["feast"] | "day" => 32}}) =~
+               "on 10/32 is not a date"
+    end
+
+    test "the one-value sections are served as one value" do
+      assert %LumenViae.Rosary.Types.LibraryFeast{month: 10, day: 12, in_missal: false} =
+               Library.served(:carlo_acutis, "feast")
+
+      assert Library.served(:carlo_acutis, "prayer") =~ "St. Carlo Acutis, ℟. pray for us."
+      assert Library.served(:carlo_acutis, "sayings") == carlo()["sayings"]
+    end
+  end
+
+  describe "the Marian Library's check" do
+    test "the file as it is passes" do
+      assert Check.marian_library_errors(marian(), Library.prayer_ids()) == []
+    end
+
+    test "holds the readings the How to Pray course's library doors name" do
+      ids = for shelf <- marian()["shelves"], reading <- shelf["readings"], do: reading["id"]
+
+      assert "montfort" in ids
+      assert "cana" in ids
+    end
+
+    test "refuses feasts out of the year's order, and one naming a reading not on a shelf" do
+      [first, second | rest] = marian()["feasts"]
+
+      assert marian_errors(%{marian() | "feasts" => [second, first | rest]}) =~
+               "the feasts are in calendar order"
+
+      lost = %{first | "reading_id" => "nowhere"}
+
+      assert marian_errors(%{marian() | "feasts" => [lost, second | rest]}) =~
+               ~s(the feast The Purification names the reading "nowhere", which is not on a shelf)
+    end
+
+    test "refuses a feast with no painting" do
+      [first | rest] = marian()["feasts"]
+
+      assert marian_errors(%{marian() | "feasts" => [%{first | "painting" => nil} | rest]}) =~
+               "The Purification: painting is required text"
+    end
+
+    test "refuses a door that opens nothing there is" do
+      [shelf | shelves] = marian()["shelves"]
+      [reading | readings] = shelf["readings"]
+
+      door = %{
+        "kind" => "reading",
+        "target" => "nowhere",
+        "title" => "x",
+        "note" => "y",
+        "icon" => nil
+      }
+
+      shelf = %{shelf | "readings" => [%{reading | "doors" => [door]} | readings]}
+
+      assert marian_errors(%{marian() | "shelves" => [shelf | shelves]}) =~
+               "door reading:nowhere, which opens nothing there is"
+    end
+  end
+
   describe "the Chant Library's check" do
     test "the file as it is passes" do
       assert Check.chant_library_errors(Library.sections(:chant_library), Library.prayer_ids()) ==
@@ -472,6 +747,33 @@ defmodule LumenViae.Rosary.LibraryTest do
   end
 
   defp book_errors(book), do: book |> Check.prayer_book_errors() |> Enum.join("\n")
+
+  defp true_devotion_errors(document),
+    do: document |> Check.true_devotion_errors(Library.prayer_ids()) |> Enum.join("\n")
+
+  defp true_devotion, do: Library.sections(:true_devotion)
+
+  defp carlo, do: Library.sections(:carlo_acutis)
+
+  defp marian, do: Library.sections(:marian_library)
+
+  defp marian_errors(document),
+    do: document |> Check.marian_library_errors(Library.prayer_ids()) |> Enum.join("\n")
+
+  defp carlo_errors(document),
+    do: document |> Check.carlo_acutis_errors(Library.prayer_ids()) |> Enum.join("\n")
+
+  defp update_carlo_reading(document, key, value) do
+    [shelf | shelves] = document["shelves"]
+    [reading | readings] = shelf["readings"]
+    shelf = %{shelf | "readings" => [Map.put(reading, key, value) | readings]}
+    %{document | "shelves" => [shelf | shelves]}
+  end
+
+  defp update_td_chapter(document, key, value) do
+    [first | rest] = document["chapters"]
+    %{document | "chapters" => [Map.put(first, key, value) | rest]}
+  end
 
   defp consecration_errors(document),
     do: document |> Check.consecration_errors() |> Enum.join("\n")

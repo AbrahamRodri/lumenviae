@@ -11,14 +11,35 @@ defmodule LumenViae.Rosary.Library.Section do
 
   # Each section's type, by document.
   @types %{
-    prayer_book: %{"prayers" => Types.BookPrayer, "chapters" => Types.PrayerBookChapter},
+    prayer_book: %{
+      "prayers" => Types.BookPrayer,
+      "chapters" => Types.PrayerBookChapter,
+      "orders" => Types.PrayerOrder,
+      "marian_antiphons" => Types.MarianAntiphon
+    },
     chant_library: %{"groups" => Types.ChantGroup, "chants" => Types.Chant},
     consecration: %{
       "phases" => Types.ConsecrationPhase,
       "days" => Types.ConsecrationDay,
       "prayers" => Types.ConsecrationPrayer,
       "feasts" => Types.MarianFeast
-    }
+    },
+    true_devotion: %{
+      "about" => Types.TrueDevotionAbout,
+      "parts" => Types.TrueDevotionPart,
+      "chapters" => Types.TrueDevotionChapter,
+      "teaching" => Types.LibraryShelf,
+      "ejaculatory_prayers" => Types.TrueDevotionPrayer
+    },
+    carlo_acutis: %{
+      "feast" => Types.LibraryFeast,
+      "shelves" => Types.LibraryShelf,
+      "timeline" => Types.CarloMoment,
+      "rule" => Types.CarloHabit,
+      "sayings" => :string,
+      "prayer" => :string
+    },
+    marian_library: %{"feasts" => Types.LibraryFeast, "shelves" => Types.LibraryShelf}
   }
 
   @impl true
@@ -34,8 +55,15 @@ defmodule LumenViae.Rosary.Library.Section do
   would change is an error naming the section and the items it would
   change: what a request serves must be what the file holds, word for
   word, and the version that fingerprints the file must fingerprint it.
+  A section that is one value rather than a list (True Devotion's
+  `about`, St. Carlo's `feast` and `prayer`) is cast as a list of one and
+  served as the one.
   """
-  @spec cast(Library.document(), String.t(), [map]) :: {:ok, [struct]} | {:error, String.t()}
+  @spec cast(Library.document(), String.t(), term) :: {:ok, term} | {:error, String.t()}
+  def cast(document, name, item) when not is_list(item) do
+    with {:ok, [cast]} <- cast(document, name, [item]), do: {:ok, cast}
+  end
+
   def cast(document, name, items) do
     type = @types |> Map.fetch!(document) |> Map.fetch!(name)
 
@@ -44,7 +72,7 @@ defmodule LumenViae.Rosary.Library.Section do
         changed =
           for {served, held} <- Enum.zip(plain(cast), items),
               served != held,
-              do: held["id"] || held["number"] || held["title"]
+              do: label(held)
 
         if changed == [],
           do: {:ok, cast},
@@ -56,6 +84,9 @@ defmodule LumenViae.Rosary.Library.Section do
         {:error, "#{name} does not fit its type: #{inspect(error)}"}
     end
   end
+
+  defp label(held) when is_map(held), do: held["id"] || held["number"] || held["title"]
+  defp label(held), do: inspect(held, limit: 3, printable_limit: 40)
 
   @doc """
   A cast section as plain data again, string keys throughout, to compare

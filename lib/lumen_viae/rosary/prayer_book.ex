@@ -98,5 +98,25 @@ defmodule LumenViae.Rosary.PrayerBook do
 
       description "The book's chapters in order, each with its sub-headings and the prayers under them."
     end
+
+    calculate :orders,
+              {:array, Types.PrayerOrder},
+              {Library.Section, document: :prayer_book, section: "orders"} do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The orders of prayer, a few prayers said together (Morning Prayers, Before Mass), in the app's order: the three of the day first, then those for an occasion."
+    end
+
+    calculate :marian_antiphons,
+              {:array, Types.MarianAntiphon},
+              {Library.Section, document: :prayer_book, section: "marian_antiphons"} do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The four songs to Mary through the year, in the order their seasons begin from Advent. An order that closes with the season's song ends on the one whose season holds the day."
+    end
   end
 end

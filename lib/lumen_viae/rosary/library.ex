@@ -1,11 +1,13 @@
 defmodule LumenViae.Rosary.Library do
   @moduledoc """
-  The Prayer Book, the Chant Library and the Consecration: what
-  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library` and
-  `GET /api/v2/consecration` serve, and what the apps keep an offline
-  copy of.
+  The Prayer Book, the Chant Library, the Consecration, True Devotion, St.
+  Carlo Acutis's page and the Marian Library: what
+  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library`,
+  `GET /api/v2/consecration`, `GET /api/v2/true-devotion`,
+  `GET /api/v2/carlo-acutis` and `GET /api/v2/marian-library` serve, and
+  what the apps keep an offline copy of.
 
-  A value module. The content is three files in `priv/library/`, read when
+  A value module. The content is six files in `priv/library/`, read when
   this module compiles, so a new or corrected prayer or chant is a deploy
   rather than an edit in the admin: no query, no state.
 
@@ -30,6 +32,23 @@ defmodule LumenViae.Rosary.Library do
   each of them; `days`, 1 to 34, each with its readings and journal
   prompt; `prayers`, the Consecration's own words for each prayer a phase
   names; and `feasts`, the feasts of Mary it may end on.
+
+  `true_devotion.json` holds St. Louis de Montfort's True Devotion as the
+  iOS app bundles it (`Resources/TrueDevotionBook.json`): `about`, the
+  book's title, author, translator and source; `parts`, its two parts;
+  `chapters`, in reading order, each with its paragraphs numbered from 0;
+  and the summary page's `teaching` shelf and `ejaculatory_prayers`
+  (`Data/TrueDevotionData.swift`, `Data/TrueDevotionPrayers.swift`).
+
+  `carlo_acutis.json` holds St. Carlo's page as the iOS app holds it
+  (`Data/CarloAcutisData.swift`): his `feast`, two `shelves` of readings
+  (his life, his devotions), his `timeline` and `rule` of life, each
+  naming a reading, his `sayings` and a `prayer`.
+
+  `marian_library.json` holds the Marian Library as the iOS app holds it
+  (`Data/MarianLibraryData.swift`): the `feasts` of Our Lady in the order
+  of the year, each with its painting and reading, and six `shelves` of
+  readings.
 
   The shapes are the contract in docs/JSON_API.md, "The Prayer Book and
   the Chant Library" and "The Consecration". The ids are stable forever:
@@ -65,6 +84,15 @@ defmodule LumenViae.Rosary.Library do
   @consecration_path Path.join(@dir, "consecration.json")
   @external_resource @consecration_path
 
+  @true_devotion_path Path.join(@dir, "true_devotion.json")
+  @external_resource @true_devotion_path
+
+  @carlo_acutis_path Path.join(@dir, "carlo_acutis.json")
+  @external_resource @carlo_acutis_path
+
+  @marian_library_path Path.join(@dir, "marian_library.json")
+  @external_resource @marian_library_path
+
   read = fn path, sections ->
     file = path |> File.read!() |> Jason.decode!()
     name = "priv/library/#{Path.basename(path)}"
@@ -89,7 +117,9 @@ defmodule LumenViae.Rosary.Library do
     end
   end
 
-  {prayer_book, prayer_book_updated_at} = read.(@prayer_book_path, ~w(prayers chapters))
+  {prayer_book, prayer_book_updated_at} =
+    read.(@prayer_book_path, ~w(prayers chapters orders marian_antiphons))
+
   check.(@prayer_book_path, Check.prayer_book_errors(prayer_book))
 
   {chant_library, chant_library_updated_at} = read.(@chant_library_path, ~w(groups chants))
@@ -103,6 +133,30 @@ defmodule LumenViae.Rosary.Library do
     read.(@consecration_path, ~w(phases days prayers feasts))
 
   check.(@consecration_path, Check.consecration_errors(consecration))
+
+  {true_devotion, true_devotion_updated_at} =
+    read.(@true_devotion_path, ~w(about parts chapters teaching ejaculatory_prayers))
+
+  check.(
+    @true_devotion_path,
+    Check.true_devotion_errors(true_devotion, Enum.map(prayer_book["prayers"], & &1["id"]))
+  )
+
+  {carlo_acutis, carlo_acutis_updated_at} =
+    read.(@carlo_acutis_path, ~w(feast shelves timeline rule sayings prayer))
+
+  # A door may name a Prayer Book prayer.
+  check.(
+    @carlo_acutis_path,
+    Check.carlo_acutis_errors(carlo_acutis, Enum.map(prayer_book["prayers"], & &1["id"]))
+  )
+
+  {marian_library, marian_library_updated_at} = read.(@marian_library_path, ~w(feasts shelves))
+
+  check.(
+    @marian_library_path,
+    Check.marian_library_errors(marian_library, Enum.map(prayer_book["prayers"], & &1["id"]))
+  )
 
   # Each section is cast to its type here, once, and served as cast; a
   # section the cast would change fails the compile (Section.cast/3).
@@ -118,7 +172,10 @@ defmodule LumenViae.Rosary.Library do
   @served %{
     prayer_book: cast.(@prayer_book_path, :prayer_book, prayer_book),
     chant_library: cast.(@chant_library_path, :chant_library, chant_library),
-    consecration: cast.(@consecration_path, :consecration, consecration)
+    consecration: cast.(@consecration_path, :consecration, consecration),
+    true_devotion: cast.(@true_devotion_path, :true_devotion, true_devotion),
+    carlo_acutis: cast.(@carlo_acutis_path, :carlo_acutis, carlo_acutis),
+    marian_library: cast.(@marian_library_path, :marian_library, marian_library)
   }
 
   @asset_base for(chant <- chant_library["chants"], do: chant["audio"]["url"])
@@ -144,19 +201,53 @@ defmodule LumenViae.Rosary.Library do
       sections: consecration,
       updated_at: consecration_updated_at,
       version: Content.version(consecration)
+    },
+    true_devotion: %{
+      name: "true_devotion.json",
+      sections: true_devotion,
+      updated_at: true_devotion_updated_at,
+      version: Content.version(true_devotion)
+    },
+    carlo_acutis: %{
+      name: "carlo_acutis.json",
+      sections: carlo_acutis,
+      updated_at: carlo_acutis_updated_at,
+      version: Content.version(carlo_acutis)
+    },
+    marian_library: %{
+      name: "marian_library.json",
+      sections: marian_library,
+      updated_at: marian_library_updated_at,
+      version: Content.version(marian_library)
     }
   }
 
-  @typedoc "One of the three documents."
-  @type document :: :prayer_book | :chant_library | :consecration
+  @typedoc "One of the six documents."
+  @type document ::
+          :prayer_book
+          | :chant_library
+          | :consecration
+          | :true_devotion
+          | :carlo_acutis
+          | :marian_library
 
-  @doc "The three documents' names."
+  @doc "The six documents' names."
   @spec documents() :: [document]
-  def documents, do: [:prayer_book, :chant_library, :consecration]
+  def documents,
+    do: [
+      :prayer_book,
+      :chant_library,
+      :consecration,
+      :true_devotion,
+      :carlo_acutis,
+      :marian_library
+    ]
 
   @doc """
   A document's sections, keyed by name (`"prayers"`, `"chapters"`;
-  `"groups"`, `"chants"`; `"phases"`, `"days"`, `"prayers"`, `"feasts"`),
+  `"groups"`, `"chants"`; `"phases"`, `"days"`, `"prayers"`, `"feasts"`;
+  `"about"`, `"parts"`, `"chapters"`, `"teaching"`, `"ejaculatory_prayers"`; `"feast"`, `"shelves"`, `"timeline"`,
+  `"rule"`, `"sayings"`, `"prayer"`; `"feasts"`, `"shelves"`),
   string keys throughout, as the file holds them.
   """
   @spec sections(document) :: map
@@ -167,9 +258,16 @@ defmodule LumenViae.Rosary.Library do
   module compiled (`Types.BookPrayer`, `Types.PrayerBookChapter`,
   `Types.ChantGroup`, `Types.Chant`, and the Consecration's
   `Types.ConsecrationPhase`, `Types.ConsecrationDay`,
-  `Types.ConsecrationPrayer`, `Types.MarianFeast`).
+  `Types.ConsecrationPrayer`, `Types.MarianFeast`, and True Devotion's
+  `Types.TrueDevotionAbout`, `Types.TrueDevotionPart`,
+  `Types.TrueDevotionChapter`, `Types.LibraryShelf`,
+  `Types.TrueDevotionPrayer`; St. Carlo's `Types.LibraryFeast`,
+  `Types.LibraryShelf`, `Types.CarloMoment`, `Types.CarloHabit`, strings;
+  the Marian Library's `Types.LibraryFeast` and `Types.LibraryShelf`).
+  `"about"`, `"teaching"` and `"feast"` are one struct and `"prayer"` one string, not
+  lists.
   """
-  @spec served(document, String.t()) :: [struct]
+  @spec served(document, String.t()) :: [struct] | struct | [String.t()] | String.t()
   def served(document, section), do: @served |> Map.fetch!(document) |> Map.fetch!(section)
 
   @doc """
