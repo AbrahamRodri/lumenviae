@@ -839,7 +839,7 @@ bundles its own.
 - **`feast`**, one object: a `LibraryFeast`, `{month, day, name,
   in_missal, kept_by, painting, reading_id, reading_name}`. His is 12
   October, `in_missal` false (he was canonised in 2025), so it opens no
-  Mass; the last three are null.
+  Mass; the last four are null.
 - **`shelves`**, `carlo_life` and `carlo_devotions`, each `{id, title,
   subtitle, margin_label, icon, footnote, readings}`. A reading is `{id,
   title, detail, paragraphs, quote, painting, feast, doors, parts,
