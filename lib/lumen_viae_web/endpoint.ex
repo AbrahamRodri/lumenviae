@@ -101,10 +101,9 @@ defmodule LumenViaeWeb.Endpoint do
   plug LumenViaeWeb.Router
 
   @doc """
-  The request log's level for `conn`: none for `GET /healthz`, which a
-  monitor asks every few seconds and would bury every other line; the
-  default for everything else.
+  Phoenix's own request lines ("GET /x", "Sent 200 in 5ms"): none.
+  `LumenViaeWeb.RequestLog` writes one structured line per request in
+  their place, and leaves `/healthz` out unless it fails.
   """
-  def log_level(%{path_info: ["healthz"]}), do: false
-  def log_level(_conn), do: :info
+  def log_level(_conn), do: false
 end

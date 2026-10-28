@@ -61,6 +61,12 @@ config :lumen_viae,
 # secret.
 config :lumen_viae, eleven_labs_api_key: System.get_env("ELEVEN_LABS_API_KEY")
 
+# The token GET /ops/status asks for (bearer). Unset, the route answers 404.
+# Tests set their own.
+config :lumen_viae,
+       :ops_status_token,
+       if(config_env() == :test, do: nil, else: System.get_env("OPS_STATUS_TOKEN"))
+
 # Optional override for the narration pause inserted at paragraph breaks
 # (seconds, e.g. "1.5"; ElevenLabs caps break tags at 3s).
 case Float.parse(System.get_env("TTS_PARAGRAPH_BREAK_SECONDS") || "") do

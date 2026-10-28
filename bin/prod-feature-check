@@ -1,0 +1,282 @@
+#!/usr/bin/env python3
+"""Checks that the main features work in production, the way the apps use them.
+
+Usage: bin/prod-feature-check [base_url]   (default https://www.lumenviae.org)
+
+Read-only: GETs only, plus a one-byte ranged GET of one signed audio file,
+one artwork image and one chant recording, to prove the links really open.
+Nothing is written, recorded or generated: the completions POST has no dry
+run, so it is skipped and said so. Prints one line per feature, "ok" or
+"FAIL <why>", and exits non-zero if any failed.
+
+Optional environment:
+  EXPECT_COMMIT       /healthz must report this commit (the deploy sets it)
+  OPS_STATUS_TOKEN    also read /ops/status (DB, S3 signing, job queues, the
+                      Office engine); skipped when unset
+
+The feature list and what to do on a failure are in docs/DEPLOY_WATCH.md.
+Standard library only, so it runs on a CI runner and on a Mac alike.
+"""
+import datetime
+import json
+import os
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+
+BASE = (sys.argv[1] if len(sys.argv) > 1 else "https://www.lumenviae.org").rstrip("/")
+TIMEOUT = 30
+failures = []
+
+
+class Fail(Exception):
+    pass
+
+
+def request(path_or_url, headers=None):
+    url = path_or_url if path_or_url.startswith("http") else BASE + path_or_url
+    req = urllib.request.Request(url, headers={"user-agent": "lumenviae-feature-check", **(headers or {})})
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+            return resp.status, resp.headers, resp.read()
+    except urllib.error.HTTPError as error:
+        return error.code, error.headers, error.read()
+    except (urllib.error.URLError, TimeoutError) as error:
+        raise Fail(f"no answer from {url.split('?')[0]}: {error}")
+
+
+def get_json(path, status=200):
+    code, _headers, body = request(path)
+    if code != status:
+        raise Fail(f"{path.split('?')[0]} answered {code}, not {status}")
+    try:
+        return json.loads(body)
+    except ValueError:
+        raise Fail(f"{path.split('?')[0]} did not answer JSON")
+
+
+def attributes(path):
+    return get_json(path)["data"]["attributes"]
+
+
+def opens(url, kind):
+    """A one-byte ranged GET: the link works and serves the right kind of file."""
+    code, headers, _body = request(url, {"range": "bytes=0-0"})
+    content_type = headers.get("content-type", "")
+    if code not in (200, 206):
+        raise Fail(f"{kind} link answered {code}")
+    if not content_type.startswith(kind):
+        raise Fail(f"{kind} link served {content_type or 'no content type'}")
+
+
+def expect(condition, why):
+    if not condition:
+        raise Fail(why)
+
+
+def check(name, fn):
+    try:
+        note = fn()
+        print(f"ok    {name}" + (f" ({note})" if note else ""))
+    except Fail as error:
+        failures.append(name)
+        print(f"FAIL  {name}: {error}")
+    except (KeyError, IndexError, TypeError) as error:
+        failures.append(name)
+        print(f"FAIL  {name}: unexpected shape ({type(error).__name__}: {error})")
+
+
+# --- The features -----------------------------------------------------------
+
+def health():
+    body = get_json("/healthz")
+    expect(body.get("status") == "ok" and body.get("db") == "ok", f"status {body}")
+    want = os.environ.get("EXPECT_COMMIT")
+    if want:
+        expect(body.get("commit") == want, f"serving {body.get('commit')}, not {want}")
+    return f"commit {body.get('commit', 'unknown')[:7]}"
+
+
+def rosary_content():
+    fields = "version,updated_at,prayers,schedule,mysteries,categories,milestones"
+    a = attributes(f"/api/v2/rosary-content?fields[rosary_content]={fields}")
+    expect(a["schedule"]["default"] and a["schedule"]["schedules"], "no schedule")
+    expect(len(a["mysteries"]) >= 20, f"{len(a['mysteries'])} mysteries")
+    slugs = {c.get("slug") or c.get("id") for c in a["categories"]}
+    expect({"joyful", "sorrowful", "glorious", "luminous"} <= slugs, f"categories {sorted(slugs)}")
+    expect(len(a["milestones"]) >= 12, f"{len(a['milestones'])} milestones")
+    expect(a["prayers"], "no prayers")
+    return f"{len(a['mysteries'])} mysteries, {len(a['milestones'])} milestones"
+
+
+state = {}
+
+
+def sets_v1():
+    counts = []
+    for category in ("joyful", "sorrowful", "glorious", "luminous"):
+        sets = get_json(f"/api/meditation-sets?category={category}")["data"]
+        expect(sets, f"no {category} sets")
+        expect(all("id" in s and "name" in s for s in sets), "a set without id or name")
+        counts.append(len(sets))
+        state.setdefault("set_id", sets[0]["id"])
+        state.setdefault("artwork", next((s["image_url"] for s in sets if s.get("image_url")), None))
+    return "sets per category " + "/".join(map(str, counts))
+
+
+def set_detail_v1():
+    detail = get_json(f"/api/meditation-sets/{state['set_id']}")["data"]
+    meditations = detail["meditations"]
+    expect(meditations, "a set with no meditations")
+    voiced = [m for m in meditations if m.get("audio_url")]
+    expect(voiced, "no meditation carries a signed audio link")
+    state["meditation_id"] = voiced[0]["id"]
+    opens(voiced[0]["audio_url"], "audio")
+    return f"set {state['set_id']}, {len(meditations)} meditations, audio opens"
+
+
+def meditation_audio_v1():
+    body = get_json(f"/api/meditations/{state['meditation_id']}/audio")
+    url = (body.get("data") or body).get("audio_url")
+    expect(url, "no audio_url")
+    opens(url, "audio")
+
+
+def set_detail_v2():
+    fields = "title,content,narrations"
+    a = get_json(
+        f"/api/v2/meditation-sets/{state['set_id']}"
+        f"?include=set_memberships.meditation.mystery&fields[meditation]={fields}"
+    )
+    meditations = [i for i in a.get("included", []) if i["type"] == "meditation"]
+    expect(meditations, "no meditations included")
+    narrated = [m for m in meditations if m["attributes"].get("narrations")]
+    expect(narrated, "no signed narrations")
+    opens(narrated[0]["attributes"]["narrations"][0]["audio"]["url"], "audio")
+    return f"{len(meditations)} meditations, narration opens"
+
+
+def artwork():
+    expect(state.get("artwork"), "no set has artwork")
+    opens(state["artwork"], "image")
+
+
+def voices():
+    v2 = get_json("/api/v2/voices")["data"]
+    v1 = get_json("/api/voices")
+    expect(v2 and any(v["attributes"]["default"] for v in v2), "no default voice")
+    state["voice"] = next(v["id"] for v in v2 if v["attributes"]["default"])
+    expect(v1, "v1 voices empty")
+    return f"{len(v2)} voices, default {state['voice']}"
+
+
+def spoken_rosary():
+    a = attributes(
+        f"/api/v2/rosary-audio?voice={state['voice']}&fields[spoken_rosary]=version,expires_at,prayers"
+    )
+    expect(a["prayers"], "no prayer clips")
+    first = a["prayers"][0]
+    url = first.get("audio_url") or (first.get("audio") or {}).get("url")
+    expect(url, "a clip without a link")
+    opens(url, "audio")
+    return f"{len(a['prayers'])} prayer clips, one opens"
+
+
+def prayer_book():
+    a = attributes(
+        "/api/v2/prayer-book?fields[prayer_book]=version,prayers,chapters,orders,marian_antiphons"
+    )
+    expect(len(a["prayers"]) >= 100, f"{len(a['prayers'])} prayers")
+    expect(a["chapters"], "no chapters")
+    expect(len(a["orders"]) >= 11, f"{len(a['orders'])} orders")
+    expect(len(a["marian_antiphons"]) == 4, f"{len(a['marian_antiphons'])} songs to Mary")
+    ids = {p["id"] for p in a["prayers"]}
+    expect(all(set(o["prayer_ids"]) <= ids for o in a["orders"]), "an order names a missing prayer")
+    return f"{len(a['prayers'])} prayers, {len(a['orders'])} orders"
+
+
+def chant_library():
+    a = attributes("/api/v2/chant-library?fields[chant_library]=version,groups,chants")
+    expect(a["groups"] and a["chants"], "no chants")
+    opens(a["chants"][0]["audio"]["url"], "audio")
+    return f"{len(a['chants'])} chants, one opens"
+
+
+def library(path, type_, sections, test):
+    def run():
+        a = attributes(f"{path}?fields[{type_}]=version," + ",".join(sections))
+        for section in sections:
+            expect(a.get(section) not in (None, [], {}), f"{section} is empty")
+        return test(a)
+    return run
+
+
+def office():
+    today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    vocabulary = get_json("/api/v2/office/vocabulary")
+    expect(vocabulary["hours"], "no hours")
+    day = get_json(f"/api/v2/office/days/{today}")
+    expect(day, "no day")
+    hour = get_json(f"/api/v2/office/days/{today}/hours/laudes")
+    expect(json.dumps(hour).count('"') > 20, "Lauds came back empty")
+    code, _h, _b = request(f"/api/office/{today}")
+    expect(code == 200, f"v1 /api/office answered {code}")
+    return f"{today}, Lauds"
+
+
+def admin_login():
+    code, _headers, body = request("/admin/login")
+    expect(code == 200, f"answered {code}")
+    expect(b"password" in body.lower(), "no password field")
+
+
+def website():
+    code, _headers, body = request("/")
+    expect(code == 200 and b"<html" in body.lower(), f"home answered {code}")
+
+
+def ops_status():
+    token = os.environ["OPS_STATUS_TOKEN"]
+    code, _headers, body = request("/ops/status", {"authorization": f"Bearer {token}"})
+    expect(code == 200, f"answered {code}")
+    status = json.loads(body)
+    bad = [name for name, part in status["checks"].items() if part["status"] == "error"]
+    expect(not bad, "failing: " + ", ".join(bad))
+    queues = status["jobs"]
+    stuck = {q["queue"]: q["retryable"] + q["discarded"] for q in queues if q["retryable"] or q["discarded"]}
+    return "jobs retrying or failed: " + (json.dumps(stuck) if stuck else "none")
+
+
+check("health", health)
+check("today's mysteries, schedule, milestones (v2 content)", rosary_content)
+check("meditation sets by category (iPhone)", sets_v1)
+check("a set's meditations and signed audio (iPhone)", set_detail_v1)
+check("refresh one meditation's audio link (iPhone)", meditation_audio_v1)
+check("a set's meditations and narrations (Android)", set_detail_v2)
+check("artwork image", artwork)
+check("narration voices", voices)
+check("the spoken Rosary's audio", spoken_rosary)
+check("Prayer Book with orders of prayer", prayer_book)
+check("Chant Library", chant_library)
+check("Consecration", library("/api/v2/consecration", "consecration", ["phases", "days", "prayers", "feasts"],
+                              lambda a: (expect(len(a["days"]) == 34, f"{len(a['days'])} days"), "34 days")[1]))
+check("True Devotion", library("/api/v2/true-devotion", "true_devotion", ["about", "parts", "chapters"],
+                               lambda a: f"{len(a['chapters'])} chapters"))
+check("St. Carlo Acutis", library("/api/v2/carlo-acutis", "carlo_acutis", ["feast", "shelves", "prayer"],
+                                  lambda a: None))
+check("Marian Library", library("/api/v2/marian-library", "marian_library", ["feasts", "shelves"],
+                                lambda a: f"{len(a['feasts'])} feasts"))
+check("Divine Office today", office)
+check("admin sign-in page", admin_login)
+check("website home", website)
+print("skip  completions POST: it has no dry run, and a check must not record a Rosary")
+if os.environ.get("OPS_STATUS_TOKEN"):
+    check("ops status (database, S3 signing, jobs, Office engine)", ops_status)
+else:
+    print("skip  ops status: OPS_STATUS_TOKEN is not set")
+
+if failures:
+    print(f"\n{len(failures)} feature(s) failing against {BASE}: " + "; ".join(failures))
+    sys.exit(1)
+print(f"\nall features answered against {BASE}")

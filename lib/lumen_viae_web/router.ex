@@ -222,6 +222,10 @@ defmodule LumenViaeWeb.Router do
     pipe_through :api
 
     get "/healthz", HealthController, :show, log: false
+
+    # Deeper than /healthz, behind a token: 404 without one. See
+    # OpsStatusController and docs/DEPLOY_WATCH.md.
+    get "/ops/status", OpsStatusController, :show
   end
 
   # JSON API for iOS app

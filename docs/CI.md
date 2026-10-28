@@ -10,7 +10,9 @@ job is skipped, and the checks run when it is marked ready for review, then
 again on each push after that. Build a batch up as a draft, merge
 `origin/main` into it, and mark it ready (`gh pr ready <n>`) when it is
 done. Branch protection on `main` reads that run, the pull request's own,
-on its latest commit. A run started by hand from the Actions tab
+on its latest commit. Wait for it to finish, its jobs actually run,
+before merging: the draft's skipped checks count as passing, so a PR
+merged the moment it is marked ready could go in unchecked. A run started by hand from the Actions tab
 (`gh workflow run ci.yml --ref <branch>`) still works for a quick look, but
 GitHub does not count it for a pull request, so it cannot unblock a merge.
 After the deploy, watch production as docs/DEPLOY_WATCH.md says.

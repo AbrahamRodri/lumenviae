@@ -14,6 +14,9 @@ defmodule LumenViae.Application do
     # Arguments are logged too, which is safe because nothing goes in them
     # that could not be stored on a row (docs/ARCHITECTURE.md).
     Oban.Telemetry.attach_default_logger(level: :info, events: [:job], encode: false)
+    # And an error line for each failed attempt, and one line per request.
+    LumenViae.Ops.JobLog.attach()
+    LumenViaeWeb.RequestLog.attach()
 
     children = [
       LumenViaeWeb.Telemetry,
