@@ -408,21 +408,37 @@ defmodule LumenViae.Storage.S3 do
   # otherwise hand out a broken link.
   defp encode_key(key), do: URI.encode(key, &(URI.char_unreserved?(&1) or &1 == ?/))
 
-  # Private helper to validate AWS configuration
-  defp validate_aws_config do
+  @doc """
+  Whether this machine has AWS keys. Production always does; a dev checkout
+  or an agent's seat may not, and then nothing is signed, uploaded or asked
+  of S3: callers get `{:error, :missing_credentials}` and serve no audio URL.
+  """
+  def credentials? do
     config = ExAws.Config.new(:s3)
+    not blank?(config.access_key_id) and not blank?(config.secret_access_key)
+  end
 
-    cond do
-      is_nil(config.access_key_id) or config.access_key_id == "" ->
-        Logger.warning("AWS_ACCESS_KEY_ID is not configured")
-        {:error, :missing_credentials}
+  defp blank?(value), do: value in [nil, ""]
 
-      is_nil(config.secret_access_key) or config.secret_access_key == "" ->
-        Logger.warning("AWS_SECRET_ACCESS_KEY is not configured")
-        {:error, :missing_credentials}
+  # Without keys every presign and HEAD lands here, one per meditation in a
+  # set, so the warning is said once per boot rather than once per call.
+  defp validate_aws_config do
+    if credentials?() do
+      :ok
+    else
+      warn_once_about_credentials()
+      {:error, :missing_credentials}
+    end
+  end
 
-      true ->
-        :ok
+  defp warn_once_about_credentials do
+    unless :persistent_term.get({__MODULE__, :warned}, false) do
+      :persistent_term.put({__MODULE__, :warned}, true)
+
+      Logger.warning(
+        "No AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY): audio is " <>
+          "served without URLs and nothing reaches S3. Said once per boot."
+      )
     end
   end
 end

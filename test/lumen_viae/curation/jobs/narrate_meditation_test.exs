@@ -275,6 +275,36 @@ defmodule LumenViae.Curation.Jobs.NarrateMeditationTest do
     assert paid_count() == 0
   end
 
+  # A seat or a fresh checkout with no keys: one clear failure, no retries
+  # piling up, and ElevenLabs never asked.
+  test "a machine with no AWS keys cancels the job before asking ElevenLabs", %{
+    meditation: meditation,
+    voice: voice
+  } do
+    put_env([{:ex_aws, :access_key_id, nil}, {:ex_aws, :secret_access_key, nil}])
+
+    enqueue(meditation, voice)
+    assert %{cancelled: 1} = run()
+    assert paid_count() == 0
+
+    [job] = Oban.Job |> LumenViae.Repo.all()
+    assert hd(job.errors)["error"] =~ "no AWS credentials"
+  end
+
+  test "a machine with no ElevenLabs key cancels the job instead of retrying", %{
+    meditation: meditation,
+    voice: voice
+  } do
+    put_env([{:lumen_viae, :eleven_labs_api_key, nil}])
+
+    enqueue(meditation, voice)
+    assert %{cancelled: 1} = run()
+    assert paid_count() == 0
+
+    [job] = Oban.Job |> LumenViae.Repo.all()
+    assert hd(job.errors)["error"] =~ "API key not configured"
+  end
+
   test "a finished job is broadcast on its batch", %{meditation: meditation, voice: voice} do
     AudioJobs.subscribe("watched-batch")
     enqueue(meditation, voice, batch: "watched-batch")

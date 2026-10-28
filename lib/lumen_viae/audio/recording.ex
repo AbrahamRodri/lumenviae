@@ -106,6 +106,10 @@ defmodule LumenViae.Audio.Recording do
             synthesize_and_upload(text, voice, key, meta)
         end
 
+      # Retrying cannot grow keys; nothing has been asked of ElevenLabs yet.
+      {:error, :missing_credentials} ->
+        {:cancel, "no AWS credentials on this machine: nothing recorded, nothing spent"}
+
       {:error, reason} ->
         {:retry, "could not check #{key}: #{inspect(reason)}"}
     end

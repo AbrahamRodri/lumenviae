@@ -125,6 +125,8 @@ value is added to a vocabulary, never a renamed one.
 | `GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters` | when `version` differs from the saved copy's | both sections |
 | `GET /api/v2/chant-library` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants` | when `version` differs from the saved copy's | both sections |
+| `GET /api/v2/consecration` | at launch and once a day | bare: `version` and `updated_at` only |
+| `GET /api/v2/consecration?fields[consecration]=version,updated_at,phases,days,prayers,feasts` | when `version` differs from the saved copy's | all four sections |
 | `GET /api/v2/meditation-sets?category=<slug>` | a mysteries' page's shelf | default fields |
 | `GET /api/v2/meditation-sets/<id>?include=set_memberships.meditation.mystery&fields[meditation]=title,content,author,source,narrated_voices,narrations` | a set is opened or saved for offline | with its meditations, in prayer order, and their signed narrations |
 | `POST /api/v2/meditations/audio` | a saved set's narration links have expired, or one would not load | `{"data": {"meditation_ids": [...], "voice": "<slug>"}}`, at most 200 ids |
@@ -175,22 +177,24 @@ kept on the device and the network only refreshes it.
   holds and this document does not serve (the Marian Library's `montfort`
   and `cana`). A client that has no such reading leaves the door out.
 
-### The Prayer Book and the Chant Library
+### The Prayer Book, the Chant Library and the Consecration
 
 The same rules as the content document, for each document on its own
-(docs/JSON_API.md, "The Prayer Book and the Chant Library", has the
-shapes):
+(docs/JSON_API.md, "The Prayer Book and the Chant Library" and "The
+Consecration", has the shapes):
 
 - **Ship a copy in the app** (`assets/prayer-book.json`,
-  `assets/chant-library.json`: each the whole response to the
+  `assets/chant-library.json`, `assets/consecration.json`: each the whole
+  response to the
   `?fields[...]` request above, version included), so the first launch
   has every word with no connection.
 - **Poll the version** with the bare request at launch and at most once a
-  day, fetch both sections when it differs, and replace the saved copy
+  day, fetch its sections when it differs, and replace the saved copy
   whole only once the whole response has arrived and decoded. A failed
   fetch or decode keeps the old copy. Ignore keys you do not know.
 - **Ids are stable forever**: store them (saved prayers, favourite and
-  learned chants), never titles or positions.
+  learned chants, the feast a consecration ends on), never titles or
+  positions. A consecration day is stored by its `number`.
 - **The chant files are not part of the document.** Each chant's `audio`
   and score pages are public, unsigned, immutable URLs named by their
   checksum, about 100 MB in all. The app does not download them until it
@@ -347,6 +351,15 @@ Paths are under the iOS repository's `app/`.
   kept as a blank line, a line whose partner is blank, or the same word in
   both ("Amen."), stands alone. Were the counts ever to differ, the two
   languages are shown as two blocks, never misaligned.
+- **A consecration is the reader's own** (`Models/ConsecrationProgress.swift`,
+  `Models/MarianFeastDay.swift`). The device keeps the day it began, the
+  feast it ends on, the days completed and the journal; none of it is
+  sent. Day 1 is 33 days before the chosen feast. A prayer of the day
+  that is sung plays the first Chant Library chant whose `prayer_ids`
+  names its id. The chooser offers
+  every feast in the `feasts` section at its next preparation whose Day 1
+  is today or later, this year's or next, soonest first. "Day 7 of 33", "Consecration Day" for
+  day 34 and "Seventh Day" are made from a day's `number`.
 - **The order a Rosary is said in** comes from the `script` section and is
   expanded on the device; how is in docs/SPOKEN_ROSARY.md, "The
   templates". The quotes' rotation and the reminders' weekly choice are

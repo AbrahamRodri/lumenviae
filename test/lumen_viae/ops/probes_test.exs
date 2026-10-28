@@ -37,9 +37,10 @@ defmodule LumenViae.Ops.ProbesTest do
       assert_received {:aws_request, :head, _url, _body}
     end
 
-    test "fails without credentials" do
+    test "is off, not failing, on a machine with no credentials" do
       put_env(:ex_aws, :access_key_id, nil)
-      assert %{status: :error} = Probes.run(:s3)
+      assert %{status: :off, detail: detail} = Probes.run(:s3)
+      assert detail =~ "no credentials"
     end
   end
 

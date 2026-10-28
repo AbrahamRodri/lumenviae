@@ -1,7 +1,7 @@
 defmodule LumenViae.Rosary.LibraryTest do
   @moduledoc """
-  The Prayer Book and the Chant Library as `LumenViae.Rosary.Library`
-  holds them: each file dated and versioned as its history records, and
+  The Prayer Book, the Chant Library and the Consecration as
+  `LumenViae.Rosary.Library` holds them: each file dated and versioned as its history records, and
   what `LumenViae.Rosary.Library.Check` refuses.
   """
   use ExUnit.Case, async: true
@@ -28,6 +28,9 @@ defmodule LumenViae.Rosary.LibraryTest do
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"}
+    ],
+    "consecration.json" => [
+      {~U[2026-10-28 02:30:43Z], "fc067fd951512d2c"}
     ]
   }
 
@@ -79,9 +82,10 @@ defmodule LumenViae.Rosary.LibraryTest do
       refute Content.version(changed) == version
     end
 
-    test "the files hold what the apps have printed: 18 chapters, 104 chants" do
+    test "the files hold what the apps have printed: 18 chapters, 104 chants, 34 days" do
       assert length(Library.sections(:prayer_book)["chapters"]) == 18
       assert length(Library.sections(:chant_library)["chants"]) == 104
+      assert length(Library.sections(:consecration)["days"]) == 34
     end
 
     test "every section is served exactly as its file holds it" do
@@ -101,16 +105,18 @@ defmodule LumenViae.Rosary.LibraryTest do
     end
 
     test "text a type would change is refused, naming its section" do
-      assert Library.cast_errors(library()) == []
+      assert Library.cast_errors(:chant_library, library()) == []
 
       [page] = hd(library()["chants"])["score"]
       padded = update_chant(library(), "score", [%{page | "caption" => " Salve Regina"}])
 
-      assert [message] = Library.cast_errors(padded)
+      assert [message] = Library.cast_errors(:chant_library, padded)
       assert message =~ "chants would not be served as written"
       assert message =~ "salve_regina_simple"
 
-      assert [message] = Library.cast_errors(update_prayer(book(), "title", "Sub tuum "))
+      assert [message] =
+               Library.cast_errors(:prayer_book, update_prayer(book(), "title", "Sub tuum "))
+
       assert message =~ "prayers would not be served as written"
       assert message =~ "sub_tuum"
     end
@@ -196,6 +202,154 @@ defmodule LumenViae.Rosary.LibraryTest do
 
       assert book_errors(book) =~ ~s(the prayer id "../sub tuum" may hold only)
       assert book_errors(book) =~ ~s(the chapter id "our lady" may hold only)
+    end
+  end
+
+  describe "the Consecration's check" do
+    test "the file as it is passes" do
+      assert Check.consecration_errors(Library.sections(:consecration)) == []
+    end
+
+    test "refuses phases with a gap between them" do
+      [first, second] = consecration()["phases"]
+      gapped = %{consecration() | "phases" => [first, %{second | "first_day" => 4}]}
+
+      assert consecration_errors(gapped) =~ "the phases run from day 1 without a gap"
+    end
+
+    test "refuses a phase with no prayers, or ending before it begins" do
+      assert consecration_errors(update_phase(consecration(), "prayer_ids", [])) =~
+               "the phase preparatory: it needs prayers"
+
+      assert consecration_errors(update_phase(consecration(), "last_day", 0)) =~
+               "the phase preparatory: its first_day and last_day are whole numbers, the first no later than the last"
+    end
+
+    test "refuses a phase or a day that is not a map, without crashing the check" do
+      [_first | rest] = consecration()["phases"]
+
+      assert consecration_errors(%{consecration() | "phases" => ["preparatory" | rest]}) =~
+               ~s(a phase needs an id: "preparatory")
+
+      assert consecration_errors(%{consecration() | "days" => [1]}) =~
+               "a day needs a number: 1"
+    end
+
+    test "refuses a last day that is not a whole number, without crashing the check" do
+      [first, last] = consecration()["phases"]
+      document = %{consecration() | "phases" => [first, %{last | "last_day" => "3"}]}
+
+      assert consecration_errors(document) =~ "the phase week_one: its first_day and last_day"
+      assert consecration_errors(document) =~ "the days are numbered 1 to the last phase's"
+    end
+
+    test "refuses repeated ids, and ids that are not letters, digits, _ and -" do
+      document = consecration()
+
+      repeated = %{
+        document
+        | "prayers" => document["prayers"] ++ document["prayers"],
+          "feasts" => document["feasts"] ++ document["feasts"]
+      }
+
+      assert consecration_errors(repeated) =~ ~s(the prayer id "veni_creator" is repeated)
+      assert consecration_errors(repeated) =~ ~s(the feast id "lourdes" is repeated)
+
+      [first, second] = document["phases"]
+      twice = %{document | "phases" => [first, %{second | "id" => "preparatory"}]}
+
+      assert consecration_errors(twice) =~ ~s(the phase id "preparatory" is repeated)
+
+      assert consecration_errors(update_phase(document, "id", "week one")) =~
+               ~s(the phase id "week one" may hold only)
+    end
+
+    test "refuses missing text, and a field that is neither text nor null" do
+      assert consecration_errors(update_day(consecration(), "journal_prompt", "")) =~
+               "the day 1: journal_prompt is required text"
+
+      [reading] = hd(consecration()["days"])["readings"]
+
+      assert consecration_errors(
+               update_day(consecration(), "readings", [%{reading | "source" => 3}])
+             ) =~ "the day 1: source is text or null"
+
+      [prayer | rest] = consecration()["prayers"]
+      document = %{consecration() | "prayers" => [%{prayer | "english" => nil} | rest]}
+
+      assert consecration_errors(document) =~ "the prayer veni_creator: english is required text"
+    end
+
+    test "refuses a day missing, or outside its phase" do
+      [one, _two, three] = consecration()["days"]
+
+      assert consecration_errors(%{consecration() | "days" => [one, three]}) =~
+               "the days are numbered 1 to the last phase's last day"
+
+      assert consecration_errors(update_day(consecration(), "phase_id", "week_one")) =~
+               "the day 1: it falls outside its phase week_one"
+
+      assert consecration_errors(update_day(consecration(), "phase_id", "nowhere")) =~
+               ~s(the day 1: names the phase "nowhere")
+    end
+
+    test "refuses a day with no readings, or readings out of order" do
+      [reading] = hd(consecration()["days"])["readings"]
+
+      assert consecration_errors(update_day(consecration(), "readings", [])) =~
+               "the day 1: it needs readings"
+
+      assert consecration_errors(
+               update_day(consecration(), "readings", [%{reading | "order" => 2}])
+             ) =~ "its readings are in order, numbered from 1"
+    end
+
+    test "refuses a phase naming a missing prayer, and a prayer no phase names" do
+      [first | rest] = consecration()["phases"]
+      document = %{consecration() | "phases" => [%{first | "prayer_ids" => ["nowhere"]} | rest]}
+
+      assert consecration_errors(document) =~
+               ~s(the phase preparatory: names the prayer "nowhere")
+
+      assert consecration_errors(document) =~ "the prayer veni_creator is in no phase"
+    end
+
+    test "refuses Latin that does not pair with the English line for line" do
+      [prayer | rest] = consecration()["prayers"]
+      document = %{consecration() | "prayers" => [%{prayer | "latin" => "Una"} | rest]}
+
+      assert consecration_errors(document) =~ "veni_creator has 2 English lines and 1 Latin"
+    end
+
+    test "refuses a feast on a date that does not exist, or with no date" do
+      [feast] = consecration()["feasts"]
+
+      assert consecration_errors(%{consecration() | "feasts" => [%{feast | "day" => 30}]}) =~
+               "the feast lourdes: 2/30 is not a date"
+
+      assert consecration_errors(%{consecration() | "feasts" => [Map.delete(feast, "month")]}) =~
+               "the feast lourdes: it needs a month and a day"
+    end
+
+    test "refuses feasts out of calendar order" do
+      [lourdes] = consecration()["feasts"]
+      guadalupe = %{lourdes | "id" => "guadalupe", "month" => 12, "day" => 12}
+
+      assert consecration_errors(%{consecration() | "feasts" => [guadalupe, lourdes]}) =~
+               "the feasts are in calendar order"
+
+      assert Check.consecration_errors(%{consecration() | "feasts" => [lourdes, guadalupe]}) ==
+               []
+    end
+
+    test "refuses text a type would change, naming its section" do
+      assert Library.cast_errors(:consecration, consecration()) == []
+
+      assert [message] =
+               Library.cast_errors(:consecration, update_day(consecration(), "title", "Day "))
+
+      assert message =~ "days would not be served as written"
+      assert message =~ ~r/: 1\z/
     end
   end
 
@@ -318,6 +472,84 @@ defmodule LumenViae.Rosary.LibraryTest do
   end
 
   defp book_errors(book), do: book |> Check.prayer_book_errors() |> Enum.join("\n")
+
+  defp consecration_errors(document),
+    do: document |> Check.consecration_errors() |> Enum.join("\n")
+
+  # Two phases of three days, the second's prayer said in English alone.
+  defp consecration do
+    %{
+      "phases" => [
+        phase("preparatory", 1, 2, ["veni_creator"]),
+        phase("week_one", 3, 3, ["act_of_consecration"])
+      ],
+      "days" => [day(1, "preparatory"), day(2, "preparatory"), day(3, "week_one")],
+      "prayers" => [
+        %{
+          "id" => "veni_creator",
+          "title" => "Come, Creator Spirit",
+          "latin_title" => "Veni Creator Spiritus",
+          "english" => "Come, Holy Ghost,\nCreator blest.",
+          "latin" => "Veni, Creator Spiritus,\nmentes tuorum visita."
+        },
+        %{
+          "id" => "act_of_consecration",
+          "title" => "Act of Consecration",
+          "latin_title" => nil,
+          "english" => "O Eternal and Incarnate Wisdom!",
+          "latin" => nil
+        }
+      ],
+      "feasts" => [
+        %{
+          "id" => "lourdes",
+          "name" => "Our Lady of Lourdes",
+          "month" => 2,
+          "day" => 11,
+          "description" => "Apparition of the Immaculate Virgin Mary at Lourdes"
+        }
+      ]
+    }
+  end
+
+  defp phase(id, first_day, last_day, prayer_ids) do
+    %{
+      "id" => id,
+      "name" => id,
+      "subtitle" => "Letting Go of the World",
+      "first_day" => first_day,
+      "last_day" => last_day,
+      "painting" => "luminous_baptism",
+      "prayer_ids" => prayer_ids
+    }
+  end
+
+  defp day(number, phase_id) do
+    %{
+      "number" => number,
+      "phase_id" => phase_id,
+      "title" => "The Spirit of the World",
+      "readings" => [
+        %{
+          "order" => 1,
+          "title" => "Matthew 5:1-19",
+          "text" => "And seeing the multitudes, he went up into a mountain.",
+          "source" => "Douay-Rheims Bible"
+        }
+      ],
+      "journal_prompt" => "What must you release?"
+    }
+  end
+
+  defp update_phase(document, key, value) do
+    [first | rest] = document["phases"]
+    %{document | "phases" => [Map.put(first, key, value) | rest]}
+  end
+
+  defp update_day(document, key, value) do
+    [first | rest] = document["days"]
+    %{document | "days" => [Map.put(first, key, value) | rest]}
+  end
 
   defp errors(library, prayer_ids \\ nil),
     do: library |> Check.chant_library_errors(prayer_ids) |> Enum.join("\n")

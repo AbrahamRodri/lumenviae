@@ -58,8 +58,14 @@ defmodule LumenViae.Ops.Probes do
     bucket = Application.get_env(:lumen_viae, :aws_s3_bucket)
 
     case S3.audio_exists?(@probe_key) do
-      {:ok, _exists} -> %{status: :ok, detail: "#{bucket} reachable"}
-      {:error, reason} -> %{status: :error, detail: "#{bucket}: #{describe(reason)}"}
+      {:ok, _exists} ->
+        %{status: :ok, detail: "#{bucket} reachable"}
+
+      {:error, :missing_credentials} ->
+        %{status: :off, detail: "no credentials: audio is not signed or uploaded here"}
+
+      {:error, reason} ->
+        %{status: :error, detail: "#{bucket}: #{describe(reason)}"}
     end
   end
 
