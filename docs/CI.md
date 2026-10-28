@@ -1,19 +1,31 @@
 # CI and the deploy gate
 
-Every pull request, and every push to `main`, runs
-`.github/workflows/ci.yml`. A push to `main` that passes the blocking checks
-then deploys to Fly from the same run. Nothing else deploys: there is no
-second workflow to race it.
+Every push to `main` runs `.github/workflows/ci.yml`. A push that passes the
+blocking checks then deploys to Fly from the same run and checks production
+with `bin/post-deploy-check`. Nothing else deploys: there is no second
+workflow to race it.
+
+On a pull request CI runs **on demand**, once per batch rather than on every
+push: start "CI" on the PR's branch from the Actions tab, or
+
+```
+gh workflow run ci.yml --ref <branch>
+```
+
+Its checks land on the branch's head commit, which is what the branch
+protection on `main` reads, so a PR merges only after a green run on its
+latest commit. Push again and the checks must be run again. After the
+deploy, watch production as docs/DEPLOY_WATCH.md says.
 
 ## What runs
 
-| Job | PR | Push to main | Gates the deploy | Catches |
+| Job | PR (on demand) | Push to main | Gates the deploy | Catches |
 | --- | --- | --- | --- | --- |
 | Test | yes | yes | yes | Compile warnings, `mix.lock` drift or unused entries, resources out of step with migrations and snapshots, any failing test (including the GraphQL schema pin and the architecture rules) |
 | Assets build | yes | yes | yes | A broken Tailwind or esbuild build |
 | Release build (docker) | yes | yes | yes | A break only the production build shows: `docker build .` runs the Dockerfile, which compiles with `MIX_ENV=prod`, builds the assets and assembles the release |
 | Dependency audit | yes | yes | no | Retired Hex packages and known-vulnerable dependencies |
-| Format (changed files) | yes | no | no | Files the PR touched that are not formatted |
+| Format (changed files) | yes | no | no | Files the branch changed against `main` that are not formatted |
 | Credo, Sobelow | yes | yes | no | Report only: counts in the run summary, never a failure |
 
 Versions come from the `Dockerfile` (`ELIXIR_VERSION`, `OTP_VERSION`), so CI
@@ -95,8 +107,8 @@ log, `mix test --seed <n>`.
 
 ## Re-running
 
-- A flaky or infrastructure failure on a pull request: open the run and
-  choose "Re-run failed jobs".
+- A flaky or infrastructure failure on a pull request's run: open the run
+  and choose "Re-run failed jobs".
 - A flaky failure on a run for `main`: re-run it only while that run's commit
   is still the tip of `main`. Then "Re-run failed jobs" re-evaluates `deploy`,
   and a retry that passes deploys without a new commit. If `main` has moved
@@ -146,8 +158,8 @@ are fixed.
 dependencies (the Ash and Phoenix families grouped, minor and patch only) and
 for GitHub Actions, including the local `setup-elixir` action. Actions are
 pinned to a commit SHA with a `# vX.Y.Z` comment, and Dependabot updates both
-together, so review its action PRs like any dependency change. They run the
-same CI as any PR. Merging one to `main` deploys it, like any other merge.
+together, so review its action PRs like any dependency change. Their CI is
+on demand like any PR's: start it on the Dependabot branch before merging. Merging one to `main` deploys it, like any other merge.
 
 ## Not done yet
 
