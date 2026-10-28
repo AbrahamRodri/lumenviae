@@ -49,6 +49,10 @@ involved.
 | `GET /rosary-content` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
 | `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers` and `chapters` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
+| `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers` and `feasts` when named in `fields[consecration]=`. See "The Consecration". |
+| `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts`, `chapters`, `teaching` and `ejaculatory_prayers` when named in `fields[true_devotion]=`. See "True Devotion". |
+| `GET /carlo-acutis` | `CarloAcutis.:current` | St. Carlo Acutis's page as one document: its `version` and `updated_at`, and `feast`, `shelves`, `timeline`, `rule`, `sayings` and `prayer` when named in `fields[carlo_acutis]=`. See "St. Carlo Acutis". |
+| `GET /marian-library` | `MarianLibrary.:current` | The Marian Library as one document: its `version` and `updated_at`, and `feasts` and `shelves` when named in `fields[marian_library]=`. See "The Marian Library". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
 
@@ -368,7 +372,7 @@ checked when the file compiles):
 | --- | --- |
 | `act` | `todays_rosary`: begin today's Rosary. `title` and `icon` are null; the client names it. |
 | `reading` | A reading on these shelves, by its id. |
-| `library` | `montfort`, `cana`: a reading the iOS app holds (the Marian Library's) that this document does not serve. A client that has no such reading leaves the door out. |
+| `library` | `montfort`, `cana`: a reading on the Marian Library's shelves (`GET /api/v2/marian-library`), not in this document. A client that has no such reading leaves the door out. |
 | `prayer` | An id in the `prayers` section. |
 | `page` | `mysteries_in_scripture`: the mysteries with their Gospel passages. |
 
@@ -626,6 +630,282 @@ The sections are cast to their types once, as the module compiles, so a
 request serves exactly the file's words and does no work to do it. Each file carries a top-level `updated_at`, and
 `test/lumen_viae/rosary/library_test.exs` pins each file's dates and
 versions: a change to the words is a new date and a new entry there.
+
+## The Consecration
+
+```
+GET /api/v2/consecration
+GET /api/v2/consecration?fields[consecration]=version,updated_at,phases,days,prayers,feasts
+```
+
+St. Louis de Montfort's 33-day Total Consecration to Jesus through Mary,
+as the iOS app bundles it: twelve preparatory days, three weeks, and
+Consecration Day, day 34, which falls on a feast of Mary. It is a third
+library document, kept and polled as the Prayer Book is: one resource
+with id `current`, the bare request answers with `version` and
+`updated_at` only, and the sections come when named in
+`fields[consecration]=`. GraphQL's `consecration` serves the same
+document. The words are in `priv/library/consecration.json`; the rules a
+file must keep, its `updated_at` and its pinned history are the Prayer
+Book's.
+
+Where a reader is in the 33 days, the day they began, the feast they
+chose and their journal stay on the device. The server holds no
+progress.
+
+### `consecration`
+
+- **`phases`**, in order: `id` (`preparatory`, `knowledge_of_self`,
+  `knowledge_of_mary`, `knowledge_of_jesus`, `consecration_day`), `name`
+  (`Days 1–12`, `Week 1`), `subtitle` (`Knowing Yourself`), `first_day`
+  and `last_day` (the phases run 1 to 34 without a gap), `painting` (the
+  app's painting that heads the phase's days, `luminous_baptism`, named
+  as both apps' bundles name it) and `prayer_ids`, the prayers said on
+  each of its days, in order.
+- **`days`**, 1 to 34 in order: `number`, `phase_id`, `title` (the day's
+  theme), `readings` (in order, each `{order, title, text, source}`:
+  `title` is the citation, `source` the work it comes from or null) and
+  `journal_prompt`. A reading's `text` is in the app's ReadingText
+  grammar: paragraphs parted by a blank line, a paragraph starting `# `
+  a heading. A day has no prayers of its own: they are its phase's.
+- **`prayers`**: every prayer a phase names, each once: `id`, `title`,
+  `latin_title` (or null), `english` and `latin` (null for a prayer said
+  in English alone: Montfort's prayers, the Litany of the Holy Ghost, the
+  Act of Consecration, the Rosary's rubric). The grammar and the line for
+  line pairing are the Prayer Book's. An id is the Prayer Book's where the
+  book has the prayer, but the words are the Consecration's own: its Glory
+  Be is the chanted setting, not the book's. A prayer that is sung has its
+  chant in the Chant Library: the first chant, in the catalog's order,
+  whose `prayer_ids` names the prayer's id, as the iOS day plays it
+  (`ChantCatalog.chants(forPrayer:)`). Six of the twelve have one today.
+- **`feasts`**, in calendar order: `id`, `name`, `month`, `day` and
+  `description`. Day 1 is 33 days before the feast; the date arithmetic
+  is the device's.
+
+Labels such as "Day 7 of 33", "Consecration Day" and "Seventh Day" are
+made from `number` on the device, as the iOS app makes them.
+
+A shortened response:
+
+```json
+{
+  "data": {
+    "type": "consecration",
+    "id": "current",
+    "attributes": {
+      "version": "fc067fd951512d2c",
+      "updated_at": "2026-10-28T02:30:43Z",
+      "phases": [
+        {
+          "id": "preparatory",
+          "name": "Days 1–12",
+          "subtitle": "Letting Go of the World",
+          "first_day": 1,
+          "last_day": 12,
+          "painting": "luminous_baptism",
+          "prayer_ids": ["veni_creator", "ave_maris_stella", "magnificat", "glory_be"]
+        }
+      ],
+      "days": [
+        {
+          "number": 1,
+          "phase_id": "preparatory",
+          "title": "The Spirit of the World",
+          "readings": [
+            {
+              "order": 1,
+              "title": "Matthew 5:1-19",
+              "text": "And seeing the multitudes, he went up into a mountain...",
+              "source": "Douay-Rheims Bible"
+            }
+          ],
+          "journal_prompt": "What worldly attachments or attitudes do you need to release to follow Christ more fully?"
+        }
+      ],
+      "prayers": [
+        {
+          "id": "veni_creator",
+          "title": "Come, Creator Spirit",
+          "latin_title": "Veni Creator Spiritus",
+          "english": "Come, Holy Ghost, Creator blest,\n...",
+          "latin": "Veni, Creátor Spíritus,\n..."
+        }
+      ],
+      "feasts": [
+        {
+          "id": "lourdes",
+          "name": "Our Lady of Lourdes",
+          "month": 2,
+          "day": 11,
+          "description": "Apparition of the Immaculate Virgin Mary at Lourdes"
+        }
+      ]
+    }
+  }
+}
+```
+
+The file was made from the iOS app's `Data/ConsecrationData.swift`,
+`Data/BilingualConsecrationPrayers.swift`, `Models/ConsecrationPhase.swift`
+and `Models/MarianFeastDay.swift`, word for word. Correct the words in
+`priv/library/consecration.json` and in the iOS app together until the
+app reads this document; date the file and pin its new version as for
+the Prayer Book. This document carries no audio: the sung prayers are the
+Chant Library's. The older consecration recordings under
+`GET /api/prayers/:id/audio` had no licence and stay withdrawn (410).
+
+## True Devotion
+
+```
+GET /api/v2/true-devotion
+GET /api/v2/true-devotion?fields[true_devotion]=version,updated_at,about,parts,chapters,teaching,ejaculatory_prayers
+```
+
+St. Louis de Montfort's True Devotion to the Blessed Virgin, the whole
+book, in Fr. Faber's 1862 translation (public domain), as the iOS app's
+reader bundles it. A fourth library document, kept and polled as the
+Prayer Book is: id `current`, the bare request answers with `version`
+and `updated_at` only, and the sections come when named in
+`fields[true_devotion]=`. GraphQL's `trueDevotion` serves the same
+document. The words are in `priv/library/true_devotion.json`; its
+`updated_at` and pinned history are the Prayer Book's. About 290 KB.
+
+Where a reader is in the book stays on the device.
+
+### `true_devotion`
+
+- **`about`**, one object, not a list: `title`, `author`, `translator`
+  and `source_note` (the edition the text is taken from, and that it is
+  in the public domain).
+- **`parts`**, in order: `number` (1, 2) and `title`.
+- **`chapters`**, in reading order, the Introduction to the Act of
+  Consecration: `id` (`introduction`, `motives`, `formula`), `part` (a
+  part's `number`, or 0 for the Introduction, which is in neither),
+  `title` and `paragraphs`, each `{id, kind, text}`: `id` counts from 0
+  within the chapter, `kind` is `text` or `subheading`, and `text` is
+  plain, with no markup.
+- **`teaching`**, one shelf, not a list: the summary page's short
+  readings on the devotion (`true_devotion_teaching`), shaped as the
+  Marian Library's shelves, with the library door vocabulary.
+- **`ejaculatory_prayers`**: `{title, english, latin}`, the summary
+  page's prayers from the book, the English and Latin pairing line for
+  line as in the Prayer Book.
+
+A reader's place is a chapter `id` and a paragraph `id`; both are stable
+forever. The file was made from the iOS app's
+`Resources/TrueDevotionBook.json`, word for word (its `sourceNote` is
+`source_note` here). Correct the words here and in the iOS app together.
+The summary page's two sections come from `Data/TrueDevotionData.swift`
+(`teaching`) and `Data/TrueDevotionPrayers.swift`, word for word.
+
+```json
+{
+  "data": {
+    "type": "true_devotion",
+    "id": "current",
+    "attributes": {
+      "version": "3a98bd835108c60c",
+      "updated_at": "2026-10-28T05:30:00Z",
+      "about": {
+        "title": "True Devotion to the Blessed Virgin",
+        "author": "St. Louis-Marie Grignion de Montfort",
+        "translator": "Translated by Fr. Frederick William Faber, D.D. (1862)",
+        "source_note": "From the twelfth London edition of 1904. This translation is in the public domain."
+      },
+      "parts": [{"number": 1, "title": "Part I — On Devotion to Our Lady in General"}],
+      "chapters": [
+        {
+          "id": "introduction",
+          "part": 0,
+          "title": "Introduction",
+          "paragraphs": [
+            {"id": 0, "kind": "text", "text": "It is by the most holy Virgin Mary that Jesus has come into the world..."}
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+## St. Carlo Acutis
+
+```
+GET /api/v2/carlo-acutis
+GET /api/v2/carlo-acutis?fields[carlo_acutis]=version,updated_at,feast,shelves,timeline,rule,sayings,prayer
+```
+
+St. Carlo Acutis's page as the iOS app holds it
+(`Data/CarloAcutisData.swift`): his life in five readings, his four
+devotions, his timeline, his rule of life, his sayings and a prayer for
+his intercession. A library document, kept and polled as the Prayer Book
+is; GraphQL's `carloAcutis` serves the same. The words are in
+`priv/library/carlo_acutis.json`. His photo is not served: the app
+bundles its own.
+
+- **`feast`**, one object: a `LibraryFeast`, `{month, day, name,
+  in_missal, kept_by, painting, reading_id, reading_name}`. His is 12
+  October, `in_missal` false (he was canonised in 2025), so it opens no
+  Mass; the last four are null.
+- **`shelves`**, `carlo_life` and `carlo_devotions`, each `{id, title,
+  subtitle, margin_label, icon, footnote, readings}`. A reading is `{id,
+  title, detail, paragraphs, quote, painting, feast, doors, parts,
+  tables}`: `quote` is `{text, citation}` or null, `feast` a
+  `LibraryFeast` or null, `parts` named parts after the prose (`{title,
+  text}`), `tables` two-column tables as in the How to Pray course.
+  `margin_label` breaks with `\n` where a narrow margin reads it best.
+- **`timeline`**: `{year, title, line, reading_id}`, in order, each
+  opening a reading on `carlo_life`.
+- **`rule`**: `{icon, name, often, reading_id, act, act_title}`, his
+  habits, each with its reading and, where there is one, the act that
+  does it today (`act` an act door's target, `act_title` its button).
+- **`sayings`**: strings. One a day, the same all day: the day of the
+  year counted from 1, modulo the count, as the iOS page picks it.
+- **`prayer`**: one string, in the Prayer Book's grammar.
+
+## The Marian Library
+
+```
+GET /api/v2/marian-library
+GET /api/v2/marian-library?fields[marian_library]=version,updated_at,feasts,shelves
+```
+
+The Marian Library as the iOS app holds it
+(`Data/MarianLibraryData.swift`): six shelves of short readings on Our
+Lady and the Marian feasts of the 1962 calendar. A library document,
+kept and polled as the Prayer Book is; GraphQL's `marianLibrary` serves
+the same. The words are in `priv/library/marian_library.json`.
+
+- **`feasts`**, in the order of the year: `LibraryFeast`s. The sixteen on
+  the universal 1962 calendar have `in_missal` true; Our Lady of
+  Guadalupe has it false and `kept_by` `the Americas`. Each has the
+  `painting` it is shown in, by the apps' painting name, and, where the
+  library has a reading about it, its `reading_id` and the short
+  `reading_name` that reading goes by when it is not the feast's own
+  (`Lepanto` for the Most Holy Rosary). The feast kept today, or else the
+  next to come, is the device's arithmetic.
+- **`shelves`**: `dogmas`, `scripture`, `apparitions`, `saints`,
+  `rosary_history`, `titles`, each as St. Carlo's shelves are, 33
+  readings in all. Their doors are the library vocabulary below.
+
+The How to Pray course's `library` doors (`montfort`, `cana`) name
+readings on these shelves.
+
+### Reading doors in the library documents
+
+A library reading's `doors` are the How to Pray course's `{kind,
+target, title, note, icon}`, with a wider vocabulary, checked when the
+file compiles (`LumenViae.Rosary.Library.Check`):
+
+| `kind` | `target` |
+| --- | --- |
+| `act` | `todays_rosary`, `mass` (the day's Mass in the 1962 Missal), `consecration` (the 33-day Consecration). `title` and `icon` are null. |
+| `reading` | A reading on the same document's shelves, by its id. |
+| `prayer` | A Prayer Book prayer, by its id. `title` and `icon` are null. |
+| `mysteries` | A category slug: the mysteries this truth is prayed in. `title` and `icon` are null. |
+| `page` | `marian_library`, `carlo_acutis`, `true_devotion` (the summary page), `true_devotion_book` (the reader), `how_to_pray`, `mysteries_in_scripture`. |
+
+Pass over a door you cannot open. A new target is added, never renamed.
 
 ## One Rosary's script
 
