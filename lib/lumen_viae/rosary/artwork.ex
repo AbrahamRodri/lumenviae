@@ -15,10 +15,10 @@ defmodule LumenViae.Rosary.Artwork do
 
   ## Why there are two field lists
 
-  Four of the columns are *managed*: `image_key`, `image_width`,
-  `image_height` and `image_updated_at` are written only by
-  `LumenViae.Curation.ArtworkUpload`, which has just proved the object
-  exists in S3 and measured it. The rest are *editable*: a curator types
+  Five of the columns are *managed*: `image_key`, `image_width`,
+  `image_height`, `image_updated_at` and `image_variant_widths` are written
+  only by `LumenViae.Curation.ArtworkUpload`, which has just proved the
+  objects exist in S3 and measured the original. The rest are *editable*: a curator types
   them into the admin form. If one action accepted both, a crafted form post
   could point a set at an arbitrary S3 key, or desync the dimensions the
   iOS hero uses to reserve its crop from the image actually stored.
@@ -46,7 +46,7 @@ defmodule LumenViae.Rosary.Artwork do
   @license_slugs Enum.map(@licenses, fn {_label, slug} -> slug end)
 
   # Written only by ArtworkUpload, after the object is in S3.
-  @managed_fields ~w(image_key image_width image_height image_updated_at)a
+  @managed_fields ~w(image_key image_width image_height image_updated_at image_variant_widths)a
 
   # Written by the admin form.
   @editable_fields ~w(image_focal_x image_focal_y image_alt image_title

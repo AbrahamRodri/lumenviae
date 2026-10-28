@@ -43,6 +43,6 @@ defmodule LumenViae.Ops.Runtime do
         {{_class, reason}, node} -> {node, {:error, reason}}
       end)
 
-    %{machines: machines, last_warm: Jobs.last_run(LumenViae.Office.Jobs.WarmCache)}
+    %{machines: machines, last_warm: Jobs.last_run(LumenViae.Office.warm_cache_worker())}
   end
 end

@@ -1,0 +1,176 @@
+// The prayer page's surface: the keys and swipes that move through the
+// Rosary, the text size, and keeping the screen awake while praying.
+//
+// Escape closes the settings pane, from wherever the focus is in it.
+//
+// Keys: counting on the screen, Space, Enter, ArrowDown and ArrowRight
+// move a bead on and ArrowUp and ArrowLeft move one back; counting on a
+// rosary, only the left and right arrows turn the page, so Space and the
+// up and down arrows still scroll a long meditation. A key pressed on a
+// button, link or field is that control's, never the page's.
+//
+// The text size is this browser's alone, kept in localStorage, and set as
+// a CSS variable on <html> so a LiveView patch never takes it away. The
+// reading page and the images are kept the same way (display_choices.js).
+
+import { applyDisplay, clearDisplay } from "./display_choices"
+
+const ADVANCE = ["ArrowRight", "ArrowDown", " ", "Spacebar", "Enter"]
+const BACK = ["ArrowLeft", "ArrowUp"]
+const SCALES = [0.9, 1, 1.12, 1.25, 1.4, 1.6]
+const SIZE_KEY = "lv:pray:text-size"
+const SWIPE_DISTANCE = 50
+
+const storage = {
+  get(key) {
+    try {
+      return window.localStorage.getItem(key)
+    } catch (_blocked) {
+      return null
+    }
+  },
+  set(key, value) {
+    try {
+      window.localStorage.setItem(key, value)
+    } catch (_blocked) {
+      // Private windows and blocked storage: the size lasts the visit.
+    }
+  }
+}
+
+export default {
+  mounted() {
+    // Nothing saved reads as null, and Number(null) is 0, the smallest
+    // size: only a saved index counts.
+    const saved = storage.get(SIZE_KEY)
+    const index = saved === null ? NaN : Number(saved)
+    this.sizeIndex = Number.isInteger(index) && SCALES[index] ? index : 1
+    this.applySize()
+    applyDisplay()
+
+    this.onKey = (event) => this.key(event)
+    window.addEventListener("keydown", this.onKey)
+
+    this.onClick = (event) => {
+      const button = event.target.closest("[data-text-size]")
+      if (!button) return
+      const next = this.sizeIndex + Number(button.dataset.textSize)
+      this.sizeIndex = Math.min(Math.max(next, 0), SCALES.length - 1)
+      storage.set(SIZE_KEY, String(this.sizeIndex))
+      this.applySize()
+    }
+    this.el.addEventListener("click", this.onClick)
+
+    this.onTouchStart = (event) => {
+      const touch = event.changedTouches[0]
+      this.touch = { x: touch.clientX, y: touch.clientY }
+    }
+    this.onTouchEnd = (event) => this.swipe(event)
+    this.el.addEventListener("touchstart", this.onTouchStart, { passive: true })
+    this.el.addEventListener("touchend", this.onTouchEnd, { passive: true })
+
+    this.handleEvent("prayer:top", () => {
+      const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" })
+    })
+
+    this.onVisibility = () => {
+      if (document.visibilityState === "visible") this.keepAwake()
+    }
+    document.addEventListener("visibilitychange", this.onVisibility)
+    this.keepAwake()
+  },
+
+  destroyed() {
+    this.dead = true
+    window.removeEventListener("keydown", this.onKey)
+    document.removeEventListener("visibilitychange", this.onVisibility)
+    document.documentElement.style.removeProperty("--prayer-text-scale")
+    clearDisplay()
+    this.release()
+  },
+
+  counting() {
+    return this.el.dataset.count
+  },
+
+  key(event) {
+    if (event.key === "Escape" && this.closeSettings()) {
+      event.preventDefault()
+      return
+    }
+
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+    const target = event.target
+    if (target.closest && target.closest("button, a, input, select, textarea, summary, [contenteditable]")) return
+
+    const screen = this.counting() === "screen"
+    const moves = screen
+      ? ADVANCE.includes(event.key) || BACK.includes(event.key)
+      : event.key === "ArrowRight" || event.key === "ArrowLeft"
+    if (!moves) return
+
+    event.preventDefault()
+    this.pushEvent("key_nav", { key: event.key })
+  },
+
+  // The settings pane is open when its button says so; closing it is the
+  // button's own event, and the focus goes back to the button.
+  closeSettings() {
+    const button = this.el.querySelector('[aria-controls="prayer-settings"][aria-expanded="true"]')
+    if (!button) return false
+    button.click()
+    button.focus()
+    return true
+  },
+
+  // Counting on the screen, a swipe left is the next bead and a swipe right
+  // the one before; a mostly vertical drag is a scroll and is left alone.
+  swipe(event) {
+    if (!this.touch || this.counting() !== "screen") return
+    const touch = event.changedTouches[0]
+    const dx = touch.clientX - this.touch.x
+    const dy = touch.clientY - this.touch.y
+    this.touch = null
+    if (Math.abs(dx) < SWIPE_DISTANCE || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    if (event.target.closest && event.target.closest("button, a, input, select, textarea")) return
+    this.pushEvent("key_nav", { key: dx < 0 ? "ArrowRight" : "ArrowLeft" })
+  },
+
+  applySize() {
+    document.documentElement.style.setProperty("--prayer-text-scale", String(SCALES[this.sizeIndex]))
+  },
+
+  // The Screen Wake Lock API, where there is one. The browser lets go of
+  // the lock whenever the page is hidden, so it is asked for again on the
+  // way back. Unsupported or refused, the screen sleeps as it always did.
+  //
+  // The request is asynchronous, so one is never started while another is
+  // pending, and a lock granted after the page was left is let go at once
+  // rather than keeping the next page awake.
+  async keepAwake() {
+    if (!("wakeLock" in navigator) || this.lock || this.requesting || this.dead) return
+    this.requesting = true
+    try {
+      const sentinel = await navigator.wakeLock.request("screen")
+      if (this.dead) {
+        sentinel.release().catch(() => {})
+        return
+      }
+      this.lock = sentinel
+      sentinel.addEventListener("release", () => {
+        if (this.lock === sentinel) this.lock = null
+      })
+    } catch (_refused) {
+      this.lock = null
+    } finally {
+      this.requesting = false
+    }
+  },
+
+  release() {
+    if (!this.lock) return
+    this.lock.release().catch(() => {})
+    this.lock = null
+  }
+}

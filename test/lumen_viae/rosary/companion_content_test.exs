@@ -253,7 +253,7 @@ defmodule LumenViae.Rosary.CompanionContentTest do
     test "name the two forms that have a name, as the app records them", %{forms: forms} do
       assert Enum.map(forms["forms"], &{&1["id"], &1["name"], &1["recorded_as"]}) == [
                {"scriptural", "The Scriptural Rosary", "Scriptural Rosary"},
-               {"holy", "The Rosary Said Aloud", "The Rosary Aloud"}
+               {"holy", "The Audio Rosary", "The Rosary Aloud"}
              ]
     end
 
@@ -280,7 +280,7 @@ defmodule LumenViae.Rosary.CompanionContentTest do
 
       assert offered["meditation"] == {["audio"], ["audio", "counting"]}
       assert offered["scriptural"] == {["audio"], ["audio", "counting"]}
-      # The Rosary Said Aloud is always aloud and its beads move with the voice.
+      # The Audio Rosary is always heard and its beads move with the voice.
       assert offered["holy"] == {[], []}
 
       rows = Map.new(forms["rows"], &{&1["form"], {&1["when_aloud"], &1["when_silent"]}})

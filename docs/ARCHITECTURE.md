@@ -14,11 +14,12 @@ this before adding a module, a query, or a page.
 7. [The Office domain](#the-office-domain)
 8. [The Ops domain](#the-ops-domain)
 9. [The web layer](#the-web-layer)
-10. [Components](#components)
-11. [Templates and partials](#templates-and-partials)
-12. [Where does this go?](#where-does-this-go)
-13. [Design tokens](#design-tokens)
-14. [The admin console](#the-admin-console)
+10. [The prayer page](#the-prayer-page)
+11. [Components](#components)
+12. [Templates and partials](#templates-and-partials)
+13. [Where does this go?](#where-does-this-go)
+14. [Design tokens](#design-tokens)
+15. [The admin console](#the-admin-console)
 
 ---
 
@@ -50,6 +51,8 @@ lib/lumen_viae/
 │   ├── spoken_rosary.ex       resource with no table: the spoken Rosary manifest, for GraphQL
 │   ├── rosary_content.ex      resource with no table: the Rosary's words as one document, for the APIs
 │   ├── rosary_script.ex       resource with no table: one Rosary's script, expanded, for the APIs
+│   ├── prayer_book.ex         resource with no table: the Prayer Book's words as one document, for the APIs
+│   ├── chant_library.ex       resource with no table: the Chant Library, with its files' URLs, for the APIs
 │   ├── rosary_content/        the content document's sections, one calculation each, and current.ex: its version and date (stamp/2)
 │   ├── rosary_script/         expand.ex: a script's arguments read, refused when unknown, and expanded
 │   ├── artwork.ex             value module: licences, field lists and framing arithmetic
@@ -61,7 +64,9 @@ lib/lumen_viae/
 │   ├── voices.ex              value module: narration voices and the S3 key layout
 │   ├── prayer_audio.ex        value module: the spoken Rosary's clips and their S3 keys
 │   ├── content.ex             value module: the Rosary's words, from priv/rosary_content/
-│   └── content/script_check.ex  what script.json must hold, checked as Content compiles
+│   ├── content/script_check.ex  what script.json must hold, checked as Content compiles
+│   ├── library.ex             value module: the Prayer Book and the Chant Library, from priv/library/
+│   └── library/               check.ex (what the files must hold), current.ex and section.ex (the two resources' read and sections)
 ├── office.ex                  the Office domain (see below)
 ├── office/
 ├── ops.ex                     the Ops domain: the app looking at itself (see below)
@@ -72,6 +77,7 @@ lib/lumen_viae/
 │   ├── audio_regeneration.ex
 │   ├── narration_relocation.ex  one-time move into the voices/ layout
 │   ├── rosary_audio_generation.ex  records the spoken Rosary in every voice
+│   ├── chant_upload.ex        puts the chant recordings and scores on S3, writes their URLs
 │   └── artwork_upload.ex
 ├── audio/                     ElevenLabs narration
 │   ├── eleven_labs.ex
@@ -172,16 +178,41 @@ can express: signing narration URLs, the artwork a set actually shows
 
 ### These rules are tested
 
-`test/lumen_viae/rosary/context_rules_test.exs` reads the source tree and
-fails the build when something outside the domain names a resource (Rosary
-or Accounts), calls
-`Ash` on one or builds an Ash form for one directly; when anything but the
-Repo module, `release.ex` and the two completion tallies uses `Repo.`,
-`Ecto.Query` or imports Ecto;
-when a resource composes with a hand-written join instead of a
-relationship; and when the web layer names any domain module other than
-`LumenViae.Rosary` and the value modules. A rule that is only written down
-survives as long as everyone remembers it; this one fails the build.
+`test/lumen_viae/rosary/context_rules_test.exs` reads the source tree
+(`lib/` and `priv/repo/seeds.exs`) and fails the build when:
+
+- anything outside `lib/lumen_viae/rosary/` names a module beneath
+  `LumenViae.Rosary` other than the value modules: a resource, a module
+  beneath one (`Completion.RateLimit`, `Meditation.Version`), an error, a
+  type. A module counts as named in any of its three forms: the full name,
+  a brace alias (`alias LumenViae.Rosary.{Meditation, Voices}`) and the
+  short form after `alias LumenViae.Rosary` (`Rosary.Meditation`);
+- anything outside a domain (Rosary, Office, Accounts, Ops) calls any
+  function under `Ash`, names `Ash.Query`, `Ash.Changeset` or
+  `Ash.ActionInput`, or builds an `AshPhoenix.Form` itself. `Ash.Error`,
+  `Ash.PlugHelpers` and `Ash.UUID` may be called anywhere; two calls are
+  allowed by name, the dev-only `Ash.Resource.put_metadata` in
+  `plugs/require_admin.ex` and the `Ash.Resource.Info` reads with which
+  `json_api/open_api.ex` corrects the generated OpenAPI document;
+- anything but the Repo module, `release.ex`, the two completion tallies
+  inside the resource, the Office and Ops domains and
+  `curation/audio_jobs.ex` uses `Repo.`, `Ecto.Query` or imports Ecto, or
+  `audio_jobs.ex` queries anything but `Oban.Job`;
+- a resource composes with a hand-written join instead of a relationship;
+- anything outside `lib/lumen_viae/office/` names an Office module
+  (`application.ex`, which starts the cache, excepted), or anything
+  outside `lib/lumen_viae/accounts/` names an Accounts resource (the
+  router's `auth_routes` and the content resources' `belongs_to_actor`
+  excepted);
+- the resources in the tree and the list in the test differ.
+
+Documentation does not count: `@moduledoc`, `@doc`, `@typedoc` and
+`@shortdoc` strings and whole-line comments are stripped before a file is
+read, so a doc may name the internal module it describes. Each check is a
+function from a source string to its offenders, and the test proves on
+short snippets that every form above is caught. A rule that is only
+written down survives as long as everyone remembers it; this one fails the
+build.
 
 ### Who may do what
 
@@ -199,7 +230,7 @@ so an admin may do anything. Everyone else gets this, and nothing more:
 | Meditation | read one that is not archived and is in at least one set (a draft in no set is private, audio included; one in a hidden set stays readable so a set saved on a device keeps its narration); `:audio_for`, which signs the same ones |
 | Narration | read one whose meditation is not archived |
 | Mystery, Author, CategoryCard | read (a painting is served only once published) |
-| NarrationVoice, SpokenRosary, RosaryContent, RosaryScript | the reads the APIs make: `:offered` and `:retired`, `:for_voice`, `:current`, `:expand`. Their primary reads are AshAdmin's |
+| NarrationVoice, SpokenRosary, RosaryContent, RosaryScript, PrayerBook, ChantLibrary | the reads the APIs make: `:offered` and `:retired`, `:for_voice`, `:current`, `:expand`. Their primary reads are AshAdmin's |
 | Completion | `:record` and `:record_from_app` only, never read; the place lookup job may `:read` and `:add_place`, and its hourly sweep `:awaiting_place` (see below) |
 | Office.Breviary | its generic actions |
 | Ops.Maintenance | nothing; its acts are an admin's (`test/lumen_viae/ops/ops_test.exs`) |
@@ -480,7 +511,8 @@ order, which matches insertion order in a test and drifts in production.
 
 `LumenViae.Rosary.Categories`, `LumenViae.Rosary.Labels`,
 `LumenViae.Rosary.Artwork`, `LumenViae.Rosary.Voices`,
-`LumenViae.Rosary.PrayerAudio` and `LumenViae.Rosary.Content` hold
+`LumenViae.Rosary.PrayerAudio`, `LumenViae.Rosary.Content` and
+`LumenViae.Rosary.Library` hold
 controlled vocabulary, fixed content and the pure
 calculations that go with it: no state, no queries, no resource. Any layer
 may call them directly, including templates. They are the single source
@@ -501,16 +533,21 @@ have actually recorded a meditation is data, and lives on the `Narration`
 resource.
 
 `Artwork` holds the licence vocabulary, the framing arithmetic, and the
-two field lists that matter: four *managed* columns (`image_key`, the
-dimensions, `image_updated_at`) written only by
-`LumenViae.Curation.ArtworkUpload` after it has proved the object is in S3,
+two field lists that matter: five *managed* columns (`image_key`, the
+dimensions, `image_updated_at`, `image_variant_widths`) written only by
+`LumenViae.Curation.ArtworkUpload` after it has proved the objects are in S3,
 and the *editable* columns a curator types. The columns themselves and the
-two actions that write them, `:record_artwork` for a proved upload and
-`:update_artwork_metadata` for what the curator typed, are
+actions that write them, `:record_artwork` for a proved upload,
+`:update_artwork_metadata` for what the curator typed and
+`:record_artwork_variants` for display variants made later, are
 `LumenViae.Rosary.Artwork.Fragment`, a Spark fragment that `MeditationSet`,
 `Author`, `Mystery` and `CategoryCard` take, so a set's painting, an
 author's portrait, a mystery's painting and a category card's are the same
-thirteen columns written through the same two doors. A mystery's and a
+fourteen columns written through the same doors. Beside each original,
+`ArtworkUpload` stores WebP display variants (`LumenViae.Images.Variants`,
+libvips through `vix`) and records their widths; the public site draws
+from those through `Components.ArtworkPicture`, and the APIs keep serving
+the original (docs/MYSTERY_PAINTINGS.md, "Display variants"). A mystery's and a
 card's are served by `Artwork.Published`, the publish gate (alt text and a
 licence) and the API's artwork shape in one calculation, which a set's
 own calculation shares, adding its author's portrait as a fallback. A
@@ -570,6 +607,23 @@ they compile; the `labels` section is code, `LumenViae.Rosary.Labels`'s
 vocabulary, display names and kinds, dated in
 `LumenViae.Rosary.RosaryContent.Labels` and pinned in its test as the
 schedule's rules are. See docs/JSON_API.md, "The content document".
+
+`Library` holds the Prayer Book and the Chant Library the same way: the
+two files in `priv/library/`, read and checked as the module compiles
+(`Library.Check`: every id once, every id named exists, English and Latin
+pairing line for line, a chant's lines in order within its recording,
+every chant file with its URL, size and checksum), dated with a top-level
+`updated_at` and fingerprinted with `Content.version/1`.
+`LumenViae.Rosary.PrayerBook` and `LumenViae.Rosary.ChantLibrary`,
+resources with no table, serve them as `GET /api/v2/prayer-book` and
+`GET /api/v2/chant-library` (GraphQL `prayerBook`, `chantLibrary`). The
+words are edited in `priv/library/`, first taken from the iOS app; the chant
+recordings and score pages are public files in the assets bucket at
+content-addressed keys, put there by `mix lumen_viae.upload_chants`
+(`LumenViae.Curation.ChantUpload`), which also writes their URLs into
+the file. How the apps arrange the words (orders of prayer, paintings,
+the chant shelves) stays in the apps. See docs/JSON_API.md, "The Prayer
+Book and the Chant Library".
 
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.
@@ -761,11 +815,12 @@ connections. Oban's defaults assume a database with room to spare, so each
 standing cost is set deliberately (`config/config.exs`):
 
 - **One queue per third party, sized to what it allows.** Both queues run
-  one job at a time per machine. A queue's limit is per node and
-  production runs two clustered machines, so each is two at once in
-  production. For `geolocation` that is well inside ipapi.co's rate. For
+  one job at a time per machine. A queue's limit is per node, and
+  production runs one machine, so each is one at once in production (two
+  for the minute of a bluegreen deploy, when the old and new machines
+  overlap). For `geolocation` that is well inside ipapi.co's rate. For
   `elevenlabs`, ElevenLabs counts concurrent requests across the account,
-  so it is two at once against an account that has run three.
+  so it is at most two at once against an account that has run three.
   `ELEVENLABS_CONCURRENCY` raises it in production without a code change,
   and a 429 from going over is retried, not paid for. A queue's concurrency
   is also the most connections its jobs can hold at once, and no job holds
@@ -951,20 +1006,44 @@ LiveViews are grouped by **area of the site**, not by resource:
 
 | Directory | Contents |
 | --- | --- |
-| `live/home/` | public informational pages (home, methods, true devotion, saint carlo, feedback, app) |
-| `live/mysteries/` | public mystery browsing, plus admin mystery CRUD and a category card's painting (`card/`) |
-| `live/dashboard/` | the prayer dashboard, where a set is chosen |
-| `live/pray/` | the prayer experience itself |
+| `live/home/` | the home page, the daily hub: today's mysteries on either schedule, the sets for them, the Rosary without a set, and a card per category (`category_card/`); and the iPhone app's page (`app/`, its screenshots drawn by `app/phone_screen.ex`) |
+| `live/mysteries/` | public: the mysteries in Scripture (`scripture.ex`, its sections in `_partials/`) and the category page (`category_list/`). Admin: mystery CRUD and a category card's painting (`card/`) |
+| `live/pray/` | the prayer page: see [The prayer page](#the-prayer-page) |
+| `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
-| `live/privacy_policy/` | App Store privacy policy |
+
+The public site is only the Rosary: home, the mysteries, their sets and
+the prayer page, with the iPhone app's page and the privacy policy beside
+them, seven routes in all (`docs/PUBLIC_SITE.md` lists them, the prayer
+page's link and where each setting is kept). Pages retired from it (the
+dashboard, How to Pray, True Devotion, St. Carlo, Feedback) are in
+`archive/`, outside the build; each old path answers a
+`301` to `/` through `LumenViaeWeb.RedirectController`, and
+`archive/README.md` says how to bring one back. Archived pages are not
+maintained: do not update them when a shared component changes.
+
+The category page is the model for a public page with sub-components, each
+in its own directory beside the LiveView:
+
+```
+live/mysteries/category_list/
+├── category_list.ex             LumenViaeWeb.Live.Mysteries.CategoryList
+├── category_list.html.heex
+├── filtering.ex                 filters the shelf of sets (presentation only)
+├── pray_links.ex                the "Your Rosary Today" choices, and the links that carry them
+├── header/header.ex             LumenViaeWeb.Live.Mysteries.CategoryList.Header
+├── choices/choices.ex           ...Choices
+├── ways_to_pray/ways_to_pray.ex ...WaysToPray
+└── shelf/shelf.ex               ...Shelf
+```
 
 ### Module names match file paths
 
 - `LumenViaeWeb.Live.Meditations.Sets.List` is
   `live/meditations/sets/list/list.ex`
-- `LumenViaeWeb.Live.Home.TrueDevotion.Index` is
-  `live/home/true_devotion/index.ex`
+- `LumenViaeWeb.Live.Mysteries.CategoryList` is
+  `live/mysteries/category_list/category_list.ex`
 
 A LiveView with sub-components gets a directory per component:
 
@@ -991,6 +1070,99 @@ domain, and lives in `LumenViae.Rosary`.
 
 ---
 
+## The prayer page
+
+`LumenViaeWeb.Live.Pray.Index` prays the whole Rosary, from the Sign of the
+Cross to the last Amen, bead by bead. Two routes reach it, and both mount
+the same LiveView:
+
+- `/meditation-sets/:set_id/pray` prays a set, with its meditations or as the
+  Scriptural Rosary. A set that is missing or hidden is a 404.
+- `/mysteries/:category/pray` prays a category without a set, as the
+  Scriptural Rosary or with the prayers alone.
+
+The reader counts on their own rosary (`count=beads`, a decade a page) or on
+the screen (`count=screen`, a bead a screen).
+
+### The modules
+
+```
+live/pray/
+├── index.ex, index.html.heex   the LiveView: mounts, events, completion
+├── params.ex                   Params: the URL, read and written
+├── sequence.ex                 Sequence: the order of prayers, pages and screens
+├── page_view/page_view.ex      PageView: counting on a rosary, a page at a time
+├── bead_screen/bead_screen.ex  BeadScreen: counting on the screen, a bead at a time
+├── strand/strand.ex            Strand: the Rosary drawn as a strand, and the way to each page
+├── prayer_text/prayer_text.ex  PrayerText: a prayer, a verse, an announcement, a meditation
+├── controls/controls.ex        Controls: the settings, the aloud controls, the resume offer, Previous and Next
+└── completion/completion.ex    Completion: the Amen, the streak and the milestones
+```
+
+Apart from `Index`, each is a function component under
+`LumenViaeWeb.Live.Pray`. The LiveView owns the state and passes it down.
+
+**`Sequence`** builds the Rosary as a list of pages: the opening prayers, one
+page per decade, the closing prayers. A page is a list of screens, one per
+bead counted on the screen. It is built from the same script the spoken
+Rosary plays (`LumenViae.Rosary.PrayerAudio.script/3`), so what is read and
+what is heard are one order. It is presentation only: it reads the value
+modules and the records the LiveView already loaded, and never queries.
+
+**`Params`** is the URL contract. Everything the reader chose rides in the
+query string, and a default is left out:
+
+| Parameter | Values |
+| --- | --- |
+| `mystery` | `opening`, a decade number from `0`, or `closing` |
+| `step` | the bead on that page, used with `count=screen` |
+| `form` | a set: `meditation` (default) or `scriptural`. A category: `scriptural` (default) or `holy` |
+| `count` | `beads` (default) or `screen` |
+| `aloud` | `true` |
+| `voice` | a narration voice's slug |
+
+Change the contract in `Params` and in `docs/PUBLIC_SITE.md` together.
+Links made before the page worked on phones carry `mobile`, which is
+accepted and ignored.
+
+### What the browser keeps
+
+Nothing about a visitor is stored on the server. The page's hooks keep a few
+things in `localStorage`, under these keys:
+
+| Key | Holds | Hook |
+| --- | --- | --- |
+| `lumenviae:rosary-choices` | the category page's "Your Rosary Today" choices | `RosaryChoices` |
+| `lv:schedule` | traditional or modern weekly schedule, on the home page | `MysterySchedule` |
+| `lv:pray:<key>:<form>` | the place in a Rosary, `{mystery, step, count, at}`, for "Continue where you left off". `<key>` is `set:<id>` or `mysteries:<category>` | `PrayerMemory` |
+| `lv:pray:extras` | the closing prayers chosen | `PrayerMemory` |
+| `lv:pray:language` | the prayers' language, English or Latin | `PrayerMemory` |
+| `lv:pray:text-size` | the text size | `PrayerSurface` |
+| `lv:pray:streak` | the days in a row | `PrayerStreak` |
+| `lv:pray:swipe-hint-seen` | that the swipe hint has been shown | `SwipeHint` |
+
+A hook that cannot read or write storage leaves the page on its defaults.
+The hooks are in `assets/js/hooks/`; `PrayerSurface` also turns the keys and
+swipes into moves through the Rosary.
+
+### Completions
+
+A completion is recorded only when the reader presses Complete on a set's
+page. A Rosary prayed without a set records none, because a completion
+belongs to a meditation set; see `docs/UPCOMING_FEATURES.md`.
+
+### Checking a public page in a browser
+
+`scripts/e2e/` holds a Playwright smoke test of the public site at a phone
+and a desktop width: the pages load, each has an `h1`, nothing logs a
+console error or scrolls sideways, a Pray link leads to a prayer page that
+answers ArrowRight, and the archived paths redirect to `/`. It is not part
+of CI, so run it against your own server and a copy of the dev database
+before handing in a change to a public page. `docs/PUBLIC_SITE.md` has the
+steps.
+
+---
+
 ## Components
 
 Everything in this codebase is a **function component**. There are currently
@@ -1012,7 +1184,17 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.MeditationFilters` | shared filter controls | no, called fully qualified |
 | `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
 | `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
+| `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
+| `Components.MysteryPainting` | the app's painting for a mystery or a category's card, from `priv/static/images/paintings/manifest.json`; an uploaded painting wins | no, called fully qualified |
+| `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json`; no longer shown on any page or preview | no, imported where used |
+| `Components.MetaTags` | the description, canonical link, link previews and structured data a page put in `LumenViaeWeb.PageMeta` | no, used by the root layout |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
+
+The flash has two looks: the console's by default, and the public site's
+with `<Layouts.flash_group flash={@flash} variant={:public} />`, rendered
+inside a public LiveView's own template. The root layout owns the page's
+only `<main id="main-content">`, so a page template never renders
+another.
 
 If you add a component that most pages will use, add it to
 `html_helpers/0`. Otherwise leave it fully qualified at the call site -
@@ -1053,7 +1235,7 @@ live/pray/index.html.heex
 function component named after itself:
 
 ```elixir
-defmodule LumenViaeWeb.Live.Home.TrueDevotion.Index do
+defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   use LumenViaeWeb, :live_view
 
   embed_templates "_partials/*"
@@ -1061,13 +1243,12 @@ end
 ```
 
 ```heex
-<.devotion_comparison devotion_tab={@devotion_tab} true_marks={@true_marks} />
+<.joyful />
 ```
 
 Partials receive everything they need as assigns - they read `@assigns`
-passed at the call site, not the LiveView's socket. The learn pages
-(`home/methods/`, `home/true_devotion/`, `home/saint_carlo/`,
-`mysteries/`) all use this pattern.
+passed at the call site, not the LiveView's socket. The mysteries in
+Scripture page (`mysteries/_partials/`) uses this pattern.
 
 ---
 
@@ -1120,37 +1301,122 @@ instead.
 Defined in `assets/css/app.css` and consumed as Tailwind v4 utilities.
 Never hardcode a hex value in a template.
 
-The public site follows the iOS app's design language ("the sanctuary"),
-adapted to light backgrounds: two type families only, gold hairlines for
-structure, and the app's motifs (lancet arch frames, ornament dividers,
-gold capsule CTAs, Roman numerals, colophon quotes).
+The public site is **Candlelit**: the iOS app's default theme, "a dark
+chapel lit by warm gold", drawn the way the app draws it
+(`ios/app/DesignSystem/`; the measured write-up of 14 October 2026 is
+`app-style.md` in the website-polish run). Every page is night on a
+gradient darker at the top and foot, with light ink and gold for every
+label, accent and action. Cinzel for every heading, label and button; EB
+Garamond for reading, its italic for every quiet line. Lists are ruled
+ledgers, not cards; pictures are the app's old-master paintings, on
+painted tiles. The app's motifs: lancet arches, the diamond-and-cross
+ornament, Roman numerals, colophon quotes.
 
-**Colors**
+**Colors** (contrast is against `night` unless the Use column says so)
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `navy` / `navy-dark` / `navy-light` | `#003b5c` / `#002840` / `#004d75` | headings ink; hero and at most one accent band per page |
-| `gold` / `gold-light` / `gold-dark` | `#b18b49` / `#c9a96b` / `#7f6132` | rules and borders (`gold`), gold text on light (`gold-dark`) |
-| `parchment` | `#fdfaf4` | the almost-white default page ground |
-| `cream` / `cream-dark` | `#faf2e6` / `#f0e5d0` | alternating section backgrounds, inset panels |
-| `brown` / `brown-light` | `#4a3f33` / `#6f6353` | body copy, captions |
-| `rubric` | `#8b2f23` | admin status accents only; public kickers are gold |
+| `night` | `#0A0A15` | the page ground (the middle of the page gradient on `<html>`) |
+| `night-deep` | `#050509` | the top and foot of the gradient, the header, the footer, a hero band |
+| `night-raised` | `#151521` | cards, panels, the settings pane |
+| `night-elevated` | `#1E1E2E` | the chosen segment of a choice or chip |
+| `night-border` | `#352E23` | decorative hairlines only: the app's gold at 20% (1.5:1) |
+| `night-line` | `#8C753F` | a border that marks a control: chips, fields, outlines; the app's gold at 60% (4.4:1; 4.1:1 on raised) |
+| `ink-light` | `#F6F1E4` | primary text (17.5:1) |
+| `ink-muted` | `#8B8BA5` | secondary text, italic lines, captions (5.9:1; 5.5:1 on raised, 5.0:1 on elevated) |
+| `gilt` / `gilt-light` | `#E3BC5B` / `#F3D89A` | the accent (10.9:1 / 14.2:1): labels and kickers, numerals, the gold button with `night` text, quiet actions, the lit bead, the focus ring; `gilt-light` for section headings and chosen segments |
+| `sky` | `#C9B98F` | the app's soft accent: links and a set's kinds (10.1:1) |
+| `vellum` | `#F6F0E2` | the reading page |
+| `vellum-ink` / `vellum-muted` | `#2A211C` / `#6A5B4E` | text on vellum (13.9:1 / 5.7:1) |
+| `vellum-gold` | `#7A5A1E` | small rubrics on vellum: verse numbers, references, list markers (5.6:1) |
+| `vellum-border` | `#E3D7BF` | rules on vellum |
+
+Hairlines and rims are the app's gold at opacity, written as
+`rgba(227, 188, 91, a)` in `app.css`: 0.15 between ledger rows, 0.2 to
+0.3 on card and tile rims, 0.4 on a section label's rule.
+
+`gilt`, `sky` and the `ink-*` tokens never go on vellum (they fail), and
+the `vellum-*` text tokens never go on night.
+
+`navy`, `gold`, `parchment`, `cream`, `brown` and `rubric` are the palette
+the whole site had before the redesign. Only the admin console uses them
+now; no public template may.
+
+**Where vellum goes.** The Scripture passages on `/mysteries` and the
+privacy policy body (`.reading-vellum`), and the prayer page's meditation
+when the reader chooses it ("Reading page" in the settings pane). The
+meditation is on night by default, as the app's reader is. Everything else
+is night.
 
 **Fonts**
 
 | Utility | Family | Use |
 | --- | --- | --- |
-| `font-cinzel` | Cinzel | all headings, tracked-caps kickers and labels, numerals, buttons |
-| `font-garamond` | EB Garamond | all body, reading, and quotation text |
-| `font-cinzel-decorative` | Cinzel Decorative | the LUMEN VIAE wordmark only |
-| `font-ovo` / `font-work-sans` | Ovo / Work Sans | legacy, admin surfaces only |
-| `font-roman-uncial` | Roman Uncial Modern | retired from pages |
+| `font-display` | Cinzel 400-600 | every heading, title, label and button, as the app's `titleFont`, `headlineFont` and `labelFont`. Headings are written in title case and never uppercased (Cinzel's lowercase is its small capitals); labels and buttons are uppercase and tracked |
+| `font-garamond` | EB Garamond 500/600, italic 500 | all body, reading and quotation text; the italic for every quiet line (a subtitle, a fruit, a note) |
+| `.kicker` | Cinzel, 12px tracked caps, `gilt` | the label above a heading or group; never below 12px |
+| `font-cinzel-decorative` / `font-ovo` / `font-work-sans` | Cinzel Decorative / Ovo / Work Sans | admin surfaces only |
 
-Shared vocabulary: `.btn-gold` / `<.gold_cta>` (gold capsule CTA, one filled
-gold shape per screen region), `<.sacred_divider>` (hairlines, diamonds,
-Latin cross), `<.arch_frame>` (lancet-arch image frame for devotional art),
-`.hairline-card`, `.ornate-corners`, `.drop-cap`. Quotes are set as centered
-colophons between dividers, never as filled bordered panels.
+Reading text is at least 17px on a phone; the body is 19px.
+
+The fonts are self-hosted (`priv/static/fonts`, Latin subset woff2) and
+declared in the fonts block at the top of `app.css`, each with a fallback
+face on Times New Roman sized to match, so the swap does not move the page.
+Only Cinzel 400 to 600, EB Garamond 500 and 600 and EB Garamond italic 500
+exist: ask for no other weight, and `strong` is 600.
+
+**The mark.** `<.logo />` in `CoreComponents` is a gold lancet arch
+holding a four-pointed star whose long lower ray falls toward the
+threshold. It is final art in its own gold gradient, served as an `<img>`
+from `priv/static/images/logo/`: never redraw or recolour it. Variants:
+`:symbol` (the footer), `:compact` (a heavier arch for 32px and below) and
+`:lockup` (the symbol beside the LUMEN VIAE wordmark; the header). Size it
+by height through `class`. The same mark is `priv/static/favicon.svg`,
+`favicon.ico`, `favicon-16/32/48.png`, `apple-touch-icon.png` (180),
+`icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (all named by
+`site.webmanifest`) and `og-image.png` (1200x630, the default share
+image); change them together. The browser chrome's `theme-color` is the
+mark's candlelit `#0A0A15`.
+
+Shared vocabulary, each the public twin of an app component:
+
+- `.btn-gold` / `<.gold_cta>`: the app's `GoldCTAButton`, a pill of gold
+  brightening to the right with night Cinzel capitals and a soft gold
+  halo. One per screen.
+- `.btn-text`: the app's `QuietGoldButton`, bare gilt Cinzel capitals.
+  Every other action.
+- `.btn-outline-gold`: an outlined capsule, for the few secondary actions
+  that need a shape.
+- `.section-label` (Cinzel capitals in gilt with a gold rule) and
+  `.section-heading` (Cinzel in `gilt-light`, an italic line under it);
+  `.rule-label` centres a word between two fading rules.
+- `.row-list` / `.row-link` / `.row-title` / `.row-fact`: the ruled
+  ledger, rows on the page with gold hairlines between, a rounded picture
+  (`.arch-thumb`, `<SetPortrait.set_portrait>`) or an arched icon frame
+  (`.glyph-badge`), a Cinzel title, a tracked fact, a quiet chevron.
+- `.mystery-ledger`: a category's mysteries, a gilt numeral, the name and
+  the fruit in italic.
+- `.paint-tile`: the app's mystery card and set tile, the picture
+  full-bleed under a dark fall-off, the name in Cinzel on it, a gold rim.
+- `.lancet-hero`: the home hero, the app's `ArchHero`: today's painting
+  in a pointed arch with two gold rims and a halo, dissolving into the
+  page under the words.
+- `.painting-frame` (a painting beside a title) and `.mystery-thumb` (the
+  small arch beside a mystery in a list).
+- `.badge-capsule`: the app's hero badge.
+- `<.sacred_divider>`: the app's ornament, rules, diamonds, Latin cross.
+- `<.arch_frame>` (lancet-arch frame for a devotional painting),
+  `.hairline-card` (a raised card with a gold rim), `.reading-vellum`,
+  `.kicker`.
+
+Pictures of the mysteries are the app's paintings
+(`LumenViaeWeb.Components.MysteryPainting`), never inverted or recoloured;
+an uploaded painting wins. Quotes are set as centered colophons between
+dividers, never as filled bordered panels.
+
+The focus ring is `gilt` on night and `vellum-ink` on vellum (the
+`--focus-ring` variable in the site shell). Every control is at least 44px
+tall and no public text is below 12px.
 
 Long passages are set upright, not italic - italics are for short asides,
 citations and captions. Keep body measure around 60-65 characters
@@ -1163,8 +1429,8 @@ citations and captions. Keep body measure around 60-65 characters
 Everything under `/admin` is a **console**, and it deliberately does not look
 like the site.
 
-The public pages are parchment, Cinzel and EB Garamond, with gold rules
-around every panel. That is right for a page someone reads a paragraph of at
+The public pages are night, Cinzel and EB Garamond, with vellum for
+some reading. That is right for a page someone prays or reads a paragraph of at
 a time. A console is scanned, not read: it wants density, alignment, one type
 family with tabular figures, and colour reserved for status so that an amber
 cell means something. Every gold rule that only decorates is a rule the eye
@@ -1385,10 +1651,11 @@ The rate limit on the completion actions caps completions per address per
 hour, and is the part that still holds when the agent string is a lie. It
 is keyed on the caller's address, not the stored prefix, because telling
 neighbours apart is the whole job; for IPv6 that address is the /64 (see
-"Rate limits"). It is per-machine ETS, and production
-runs two machines, so the real ceiling is twice the configured number. That
-is fine for what the limit is for - stopping a script, not metering - but it
-is not a precise quota. Making it exact needs a shared store, not a smaller
+"Rate limits"). It is per-machine ETS. Production runs one machine, so
+the ceiling is the configured number, but the counters reset on every
+deploy, and with more machines the real ceiling would be that many times
+the number. That is fine for what the limit is for - stopping a script, not
+metering - but it is not a precise quota. Making it exact needs a shared store, not a smaller
 number. See "Rate limits" under the domain.
 
 `LumenViaeWeb.ClientIP` finds the address, and reads only `Fly-Client-IP`

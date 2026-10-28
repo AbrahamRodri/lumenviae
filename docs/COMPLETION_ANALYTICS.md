@@ -241,9 +241,10 @@ fly secrets set GEOLOCATION_ENABLED=false
 `ipapi.co` is the default because it answers over **HTTPS** without an API
 key, on a free tier of 1,000 lookups a day. Answers are cached by prefix
 for 24 hours, so somebody praying a novena from the same sofa costs one
-lookup rather than nine. The cache is per-machine, so with two machines a
-prefix can be looked up twice - still far inside the daily allowance at
-this volume. The hourly sweep adds at most 25 lookups an hour, 600 a day,
+lookup rather than nine. The cache is per-machine and is emptied by a deploy,
+so a prefix can be looked up again after one (or once per machine, if
+production ever runs more than one) - still far inside the daily allowance
+at this volume. The hourly sweep adds at most 25 lookups an hour, 600 a day,
 and usually close to none: it finds only rows whose lookup failed or that
 the provider could not place, and a prefix the provider could not place is
 answered from that machine's cache for a day, so it costs at most one

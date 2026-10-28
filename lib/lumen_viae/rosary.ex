@@ -21,15 +21,17 @@ defmodule LumenViae.Rosary do
     * `LumenViae.Rosary.Author`
     * `LumenViae.Rosary.Completion`
 
-  plus four with no table, `LumenViae.Rosary.NarrationVoice`,
-  `LumenViae.Rosary.SpokenRosary`, `LumenViae.Rosary.RosaryContent` and
-  `LumenViae.Rosary.RosaryScript`, which give the APIs the configured
-  voices, the spoken Rosary, the Rosary's words and one Rosary's script.
+  plus six with no table, `LumenViae.Rosary.NarrationVoice`,
+  `LumenViae.Rosary.SpokenRosary`, `LumenViae.Rosary.RosaryContent`,
+  `LumenViae.Rosary.RosaryScript`, `LumenViae.Rosary.PrayerBook` and
+  `LumenViae.Rosary.ChantLibrary`, which give the APIs the configured
+  voices, the spoken Rosary, the Rosary's words, one Rosary's script, the
+  Prayer Book and the Chant Library.
 
   Nothing outside `lib/lumen_viae/rosary/` names a resource, calls `Ash`
   on one, or touches the Repo for Rosary data; `test/lumen_viae/rosary/context_rules_test.exs`
   fails the build if something does. The value modules (`Categories`,
-  `Labels`, `Artwork`, `Voices`, `PrayerAudio`, `Content`) hold vocabulary and pure
+  `Labels`, `Artwork`, `Voices`, `PrayerAudio`, `Content`, `Library`) hold vocabulary and pure
   calculation and may be called from any layer.
 
   ## What is a function here, and what is an action
@@ -84,6 +86,8 @@ defmodule LumenViae.Rosary do
       read_one LumenViae.Rosary.SpokenRosary, :rosary_audio, :for_voice, allow_nil?: true
       read_one LumenViae.Rosary.RosaryContent, :rosary_content, :current, allow_nil?: false
       read_one LumenViae.Rosary.RosaryScript, :rosary_script, :expand, allow_nil?: true
+      read_one LumenViae.Rosary.PrayerBook, :prayer_book, :current, allow_nil?: false
+      read_one LumenViae.Rosary.ChantLibrary, :chant_library, :current, allow_nil?: false
       action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
 
       # The sets the public may see. Both read through :visible, so a set
@@ -205,6 +209,26 @@ defmodule LumenViae.Rosary do
         end
       end
 
+      # The Prayer Book and the Chant Library, for a client that keeps them
+      # offline. As with the Rosary's words, the bare request is the version
+      # and the date; the sections are named in fields[prayer_book]= and
+      # fields[chant_library]=.
+      base_route "/prayer-book", LumenViae.Rosary.PrayerBook do
+        get :current do
+          route "/"
+          name "getPrayerBook"
+          derive_sort? false
+        end
+      end
+
+      base_route "/chant-library", LumenViae.Rosary.ChantLibrary do
+        get :current do
+          route "/"
+          name "getChantLibrary"
+          derive_sort? false
+        end
+      end
+
       # The one write, through the same action as GraphQL's
       # recordCompletion, so the same stamp and checks apply.
       base_route "/completions", LumenViae.Rosary.Completion do
@@ -262,6 +286,7 @@ defmodule LumenViae.Rosary do
       define :delete_mystery, action: :destroy, default_options: [return_destroyed?: true]
       define :update_mystery_artwork, action: :record_artwork
       define :update_mystery_artwork_metadata, action: :update_artwork_metadata
+      define :record_mystery_artwork_variants, action: :record_artwork_variants
     end
 
     resource LumenViae.Rosary.CategoryCard do
@@ -270,6 +295,7 @@ defmodule LumenViae.Rosary do
       define :create_category_card, action: :create, args: [:slug]
       define :update_category_card_artwork, action: :record_artwork
       define :update_category_card_artwork_metadata, action: :update_artwork_metadata
+      define :record_category_card_artwork_variants, action: :record_artwork_variants
     end
 
     resource LumenViae.Rosary.Meditation do
@@ -310,6 +336,22 @@ defmodule LumenViae.Rosary do
         default_options: [load: [:meditations | @set_context]],
         functions: @read
 
+      # The same sets without their meditations, for a page that lists them
+      # and says how many meditations each has and whether any is narrated.
+      # `meditation_count` and `audio_count` answer those in the query, so
+      # the text of every meditation is neither read from the database nor
+      # kept in the page's process.
+      define :list_visible_meditation_set_summaries,
+        action: :visible,
+        default_options: [load: [:meditation_count, :audio_count | @set_context]],
+        functions: @read
+
+      define :list_visible_meditation_set_summaries_by_category,
+        action: :visible,
+        args: [:category],
+        default_options: [load: [:meditation_count, :audio_count | @set_context]],
+        functions: @read
+
       define :get_meditation_set,
         action: :read,
         get_by: [:id],
@@ -324,6 +366,7 @@ defmodule LumenViae.Rosary do
 
       define :update_meditation_set_artwork, action: :record_artwork
       define :update_meditation_set_artwork_metadata, action: :update_artwork_metadata
+      define :record_meditation_set_artwork_variants, action: :record_artwork_variants
     end
 
     resource LumenViae.Rosary.SetMembership do
@@ -342,17 +385,20 @@ defmodule LumenViae.Rosary do
       define :delete_author, action: :destroy, default_options: [return_destroyed?: true]
       define :update_author_artwork, action: :record_artwork
       define :update_author_artwork_metadata, action: :update_artwork_metadata
+      define :record_author_artwork_variants, action: :record_artwork_variants
     end
 
     resource LumenViae.Rosary.Narration
 
     # No tables: the APIs' view of the narration voices, the spoken Rosary
-    # and the Rosary's words, all of which are configuration or fixed
-    # content rather than data.
+    # the Rosary's words, the Prayer Book and the Chant Library, all of
+    # which are configuration or fixed content rather than data.
     resource LumenViae.Rosary.NarrationVoice
     resource LumenViae.Rosary.SpokenRosary
     resource LumenViae.Rosary.RosaryContent
     resource LumenViae.Rosary.RosaryScript
+    resource LumenViae.Rosary.PrayerBook
+    resource LumenViae.Rosary.ChantLibrary
   end
 
   require Ash.Query
@@ -371,6 +417,7 @@ defmodule LumenViae.Rosary do
   alias LumenViae.Rosary.Narration
   alias LumenViae.Rosary.SetMembership
   alias LumenViae.Rosary.Voices
+  alias LumenViae.Images.Variants
   alias LumenViae.Storage.S3
 
   ## Mysteries
@@ -753,6 +800,24 @@ defmodule LumenViae.Rosary do
   def artwork_url(_record), do: nil
 
   @doc """
+  The WebP display variants of a record's painting that are known to be in
+  S3, as `[{width, url}]` narrowest first: only the widths recorded in
+  `image_variant_widths`, never ones inferred from the original's size, so
+  a page that offers them cannot point at an object that is not there. An
+  empty list means "draw the original". Pure string work, like
+  `artwork_url/1`.
+  """
+  @spec artwork_variant_urls(map | nil) :: [{pos_integer, String.t()}]
+  def artwork_variant_urls(%{image_key: key, image_variant_widths: widths})
+      when is_binary(key) and key != "" and is_list(widths) do
+    widths
+    |> Enum.sort()
+    |> Enum.map(&{&1, S3.public_url(Variants.key(key, &1))})
+  end
+
+  def artwork_variant_urls(_record), do: []
+
+  @doc """
   A category's card, created the first time it is needed: the console
   calls this when a curator first saves a card's painting, so no row
   exists until one is wanted.
@@ -833,6 +898,9 @@ defmodule LumenViae.Rosary do
   #   * list_visible_meditation_sets!/0
   #   * list_visible_meditation_sets_with_meditations!/0
   #   * list_visible_meditation_sets_by_category!/1 (with meditations)
+  #   * list_visible_meditation_set_summaries!/0 and
+  #     list_visible_meditation_set_summaries_by_category!/1 (with the counts
+  #     of meditations and narrated meditations instead of the meditations)
   #
   # Each set comes with its linked author and its derived byline.
 

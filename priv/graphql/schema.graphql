@@ -3,6 +3,186 @@ schema {
   query: RootQueryType
 }
 
+type ChantAudio {
+  "A public, unsigned URL that never changes what it serves: a new recording is a new URL. Cache by it."
+  url: String!
+
+  "The file's SHA-256, lowercase hex, to check a download against."
+  sha256: String!
+
+  "The file's size."
+  bytes: Int!
+}
+
+type ChantLine {
+  "When it begins, in seconds."
+  start: Float!
+
+  "The score page it is sung from (an index into the chant's `score`, counting from 0), or null when the chant does not say."
+  part: Int
+
+  "The Latin, as sung."
+  latin: String!
+
+  "The English beside it."
+  english: String!
+
+  "When it ends, in seconds."
+  end: Float!
+}
+
+type ChantScorePart {
+  "A public, unsigned URL that never changes what it serves: a new drawing is a new URL. Cache by it."
+  url: String!
+
+  "The file's SHA-256, lowercase hex, to check a download against."
+  sha256: String!
+
+  "The score's name (`chant-salve-regina-simple`). Chants share some (`chant-vers-alt-ora-pro-nobis`)."
+  file: String!
+
+  "What the page holds."
+  caption: String!
+
+  "The file's size."
+  bytes: Int!
+
+  "Width over height, to lay out the page before it is drawn."
+  aspectRatio: Float!
+}
+
+type Chant {
+  "Where the recording and score were published (Verbum Gloriae)."
+  sourceUrl: String!
+
+  "Which melody, where there is more than one (`Simple melody`), or null."
+  setting: String
+
+  "The sheet music, page by page in order."
+  score: [ChantScorePart!]!
+
+  "The prayers it sings. A client takes the first chant listed for a prayer."
+  prayerIds: [String!]!
+
+  "The words as sung, timed to the recording, in order. Empty when not timed."
+  lines: [ChantLine!]!
+
+  "Its Latin title."
+  latinTitle: String!
+
+  "The chant's id. Stable forever: a device stores it for favourites."
+  id: String!
+
+  "The group it belongs to."
+  groupId: String!
+
+  "Its English title."
+  englishTitle: String!
+
+  "The recording's length in seconds."
+  duration: Float!
+
+  "When it is sung, in one line."
+  detail: String!
+
+  "The recording."
+  audio: ChantAudio!
+}
+
+type ChantGroupPart {
+  "The part's heading (`Advent`), or null."
+  title: String
+
+  "When it is sung, or null."
+  note: String
+
+  "Its chants in order, each one of the document's chants."
+  chantIds: [String!]!
+}
+
+type ChantGroup {
+  "Its title."
+  title: String!
+
+  "Its parts in order."
+  parts: [ChantGroupPart!]!
+
+  "What it holds, in one line, or null."
+  note: String
+
+  "The group's id. Stable forever."
+  id: String!
+}
+
+type PrayerBookSection {
+  "The sub-heading."
+  title: String!
+
+  "The prayers under it, in order, each one of the document's prayers. A prayer may stand under two sub-headings."
+  prayerIds: [String!]!
+}
+
+type PrayerBookChapter {
+  "What it is about, in a few words, or null."
+  topic: String
+
+  "Its title."
+  title: String!
+
+  "Its sub-headings in order, each with its prayers."
+  sections: [PrayerBookSection!]!
+
+  "Other words it is looked for by. Empty when none."
+  searchWords: [String!]!
+
+  "Its prayers in the chapter's order, each once: the union of its sections' prayers. Every id is one of the document's prayers."
+  prayerIds: [String!]!
+
+  "Its Roman numeral (`IV`)."
+  numeral: String!
+
+  "The chapter's one italic line, or null."
+  note: String
+
+  "Its Latin title."
+  latinTitle: String!
+
+  "The chapter's id. Stable forever."
+  id: String!
+}
+
+type BookPrayer {
+  "The prayer's title on its own page."
+  title: String!
+
+  "Other names it is looked for by, beside its titles. Empty when none."
+  searchWords: [String!]!
+
+  "Who wrote it and when, as a prayer book's small print, or null."
+  origin: String
+
+  "When or how it is said, in one plain sentence, or null."
+  note: String
+
+  "Its name in a list (`Hail Mary`), or null to use the title."
+  listTitle: String
+
+  "Its name in the Church's own tongue (`Sub tuum praesidium`), or null for a prayer composed in English."
+  latinTitle: String
+
+  "The Latin, or null when the prayer has none. It pairs with the English line for line, blank lines included."
+  latin: String
+
+  "The prayer's id (`sub_tuum`). Stable forever: a device stores it for saved prayers."
+  id: String!
+
+  "The English name set small beneath a prayer known by its Latin one (`Memorare`), or null."
+  englishName: String
+
+  "The words, in the app's PrayerText grammar: one line per paragraph, versicles and responses marked, a rubric in square brackets."
+  english: String!
+}
+
 type ScriptStep {
   "Where on the pendant it is said; null in a decade."
   place: String
@@ -64,7 +244,7 @@ type RosaryFormInfo {
   "The line under the name on the form's own page."
   subtitle: String!
 
-  "What the Prayer Record keeps a prayer of this form under. It is the old name for the Rosary Said Aloud, because the record already holds days under it; a client that wants its history readable beside the iOS app's keeps the same."
+  "What the Prayer Record keeps a prayer of this form under. It is the old name for the Audio Rosary, because the record already holds days under it; a client that wants its history readable beside the iOS app's keeps the same."
   recordedAs: String!
 
   "The form's name wherever it is shown."
@@ -73,7 +253,7 @@ type RosaryFormInfo {
   "The line over the name on the form's own page."
   kicker: String!
 
-  "`scriptural` or `holy` (the Rosary Said Aloud), the iOS app's names for the forms."
+  "`scriptural` or `holy` (the Audio Rosary), the iOS app's names for the forms."
   id: String!
 
   "The line under the name where the form is listed under Ways to Pray."
@@ -87,7 +267,7 @@ type RosaryFormRule {
   "The ids, in order, while it is not."
   whenSilent: [String!]!
 
-  "The ids, in order, while the Audio choice is the Whole Rosary. Always the case in the Rosary Said Aloud."
+  "The ids, in order, while the Audio choice is the Whole Rosary. Always the case in the Audio Rosary."
   whenAloud: [String!]!
 
   "`meditation`, `scriptural` or `holy`."
@@ -112,10 +292,10 @@ type RosaryForms {
   "Which choices a form's page offers, by choice id, while the Audio choice is Whole Rosary (`when_aloud`) and while it is not (`when_silent`)."
   offered: [RosaryFormRule!]!
 
-  "What the Rosary Said Aloud's audio row says, as a fact rather than a choice."
+  "What the Audio Rosary's audio row says, as a fact rather than a choice."
   holyAudioValue: String!
 
-  "The two forms with a name of their own: the Scriptural Rosary and the Rosary Said Aloud. The third form, a meditation set, is named by the set."
+  "The two forms with a name of their own: the Scriptural Rosary and the Audio Rosary. The third form, a meditation set, is named by the set."
   forms: [RosaryFormInfo!]!
 
   "The two choices that change how the Rosary is prayed, Audio and Counting."
@@ -474,7 +654,7 @@ type PendantPlace {
 }
 
 type RosaryScriptTemplates {
-  "The styles a Rosary is said in: `meditation`, `scriptural`, `plain` (the Rosary Said Aloud)."
+  "The styles a Rosary is said in: `meditation`, `scriptural`, `plain` (the Audio Rosary)."
   styles: [String!]!
 
   "The four Rosaries: Joyful, Sorrowful, Glorious and Luminous."
@@ -1038,6 +1218,40 @@ type MutationError {
   path: [String!]
 }
 
+type ChantLibrary {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves, the chant files' URLs included: a device whose copy has the same version holds the current library. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "The library's groups in the Parish Book of Chant's order, each naming its chants."
+  groups: [ChantGroup!]!
+
+  "Every chant, in the catalog's order: a client takes the first chant listed for a prayer."
+  chants: [Chant!]!
+}
+
+type PrayerBook {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "Every prayer the book prints, each once, the Rosary's and the consecration's included. A client keeps a prayer no chapter names: an order of prayer may."
+  prayers: [BookPrayer!]!
+
+  "The book's chapters in order, each with its sub-headings and the prayers under them."
+  chapters: [PrayerBookChapter!]!
+}
+
 type RosaryScript {
   "The Rosary described: its category, style, extras and orders, separated by colons."
   id: String!
@@ -1102,7 +1316,7 @@ type RosaryContent {
   "The meditation set labels, what the app calls each and the kinds of meditation they describe."
   labels: RosaryLabels!
 
-  "The Rosary's forms (the Scriptural Rosary, the Rosary Said Aloud), the Audio and Counting choices in their words, and what each form's page offers."
+  "The Rosary's forms (the Scriptural Rosary, the Audio Rosary), the Audio and Counting choices in their words, and what each form's page offers."
   forms: RosaryForms!
 }
 
@@ -1282,7 +1496,7 @@ type RootQueryType {
     "The mysteries prayed: joyful, sorrowful, glorious, luminous or seven_sorrows (the chaplet)."
     category: String!
 
-    "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Rosary Said Aloud, the prayers alone."
+    "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Audio Rosary, the prayers alone."
     style: String
 
     "The optional prayers after the Rosary, comma-separated, any of holy_father, memorare, st_michael. Said in that order whatever order they are given in; the chaplet takes none."
@@ -1291,6 +1505,12 @@ type RootQueryType {
     "The mysteries' orders in prayer order, comma-separated (3,4,5), for a set whose meditations do not run from the first. Every mystery of the category when absent."
     orders: String
   ): RosaryScript
+
+  "The Prayer Book's words as one document. There is only ever one."
+  prayerBook: PrayerBook!
+
+  "The Chant Library as one document. There is only ever one."
+  chantLibrary: ChantLibrary!
 
   "The full text of one canonical hour on one date."
   officeHour(

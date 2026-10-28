@@ -52,3 +52,4 @@ npm-debug.log
 # Locally generated narration takes (see priv/narration_scripts)
 /narration_out/
 /voice-tests/
+/scripts/e2e/out/

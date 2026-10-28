@@ -1,18 +1,18 @@
 defmodule LumenViae.Rosary.Artwork.Fragment do
   @moduledoc """
   Everything a resource needs in order to carry artwork: the columns, the
-  two actions that write them, and the validations both actions share.
+  actions that write them, and the validations they share.
 
   A resource takes it with `use Ash.Resource, fragments: [...]`, so a
-  meditation set's painting and an author's portrait are the same thirteen
-  columns, written through the same two doors, and cannot drift apart.
+  meditation set's painting and an author's portrait are the same fourteen
+  columns, written through the same doors, and cannot drift apart.
 
-  ## Why there are two actions
+  ## Why there are separate actions
 
-  Four of the columns are *managed*: `image_key`, `image_width`,
-  `image_height` and `image_updated_at` are written only by
-  `LumenViae.Curation.ArtworkUpload`, which has just proved the object
-  exists in S3 and measured it. The rest are *editable*: a curator types
+  Five of the columns are *managed*: `image_key`, `image_width`,
+  `image_height`, `image_updated_at` and `image_variant_widths` are written
+  only by `LumenViae.Curation.ArtworkUpload`, which has just proved the
+  objects exist in S3 and measured the original. The rest are *editable*: a curator types
   them into the admin form. If one action accepted both, a crafted form
   post could point a record at an arbitrary S3 key, or desync the
   dimensions the iOS hero uses to reserve its crop from the image actually
@@ -22,6 +22,9 @@ defmodule LumenViae.Rosary.Artwork.Fragment do
       plus any metadata supplied in the same breath.
     * `:update_artwork_metadata` records what the curator typed. The key
       and the dimensions are not among its inputs at any price.
+    * `:record_artwork_variants` records variants made later for the
+      painting already stored (the backfill), and is refused if the key
+      it was made from is no longer the record's.
 
   Neither list is accepted by a resource's ordinary create or update.
 
@@ -40,11 +43,33 @@ defmodule LumenViae.Rosary.Artwork.Fragment do
     update :record_artwork do
       description "Records a completed upload: the key and dimensions just proved, plus any metadata."
       accept Artwork.managed_fields() ++ Artwork.editable_fields()
+
+      # Variants are named after the key they were made from, so a new key
+      # recorded without widths of its own must not inherit the old one's.
+      change LumenViae.Rosary.Artwork.ResetVariantWidths
     end
 
     update :update_artwork_metadata do
       description "Records the artwork details a curator typed. Cannot touch the key or the dimensions."
       accept Artwork.editable_fields()
+    end
+
+    update :record_artwork_variants do
+      description "Records the display variants made for the painting already stored, and the size it is shown at, read from that painting."
+
+      # The size is here for the backfill, which reads it from the original
+      # it resized: a painting recorded sideways, before the upload read
+      # the Exif orientation, is corrected with its variants.
+      accept [:image_variant_widths, :image_width, :image_height]
+      require_atomic? false
+
+      argument :for_image_key, :string do
+        allow_nil? false
+
+        description "The key the variants were made from; refused if the painting has changed since."
+      end
+
+      change LumenViae.Rosary.Artwork.SameImageKey
     end
   end
 
@@ -136,5 +161,14 @@ defmodule LumenViae.Rosary.Artwork.Fragment do
     end
 
     attribute :image_updated_at, :utc_datetime
+
+    # The widths of the WebP display variants stored beside the original
+    # (`LumenViae.Images.Variants.key/2`), written only once each object is
+    # in S3. A page offers only these, so an original without variants is
+    # simply drawn as it is, never as a broken image.
+    attribute :image_variant_widths, {:array, :integer} do
+      allow_nil? false
+      default []
+    end
   end
 end

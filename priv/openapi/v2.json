@@ -21,6 +21,234 @@
       }
     },
     "schemas": {
+      "chant_library": {
+        "description": "A \"Resource object\" representing a chant_library",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a chant_library",
+            "properties": {
+              "chants": {
+                "description": "Every chant, in the catalog's order: a client takes the first chant listed for a prayer.",
+                "items": {
+                  "properties": {
+                    "audio": {
+                      "properties": {
+                        "bytes": {
+                          "type": "integer"
+                        },
+                        "sha256": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "bytes",
+                        "sha256"
+                      ],
+                      "type": "object"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "duration": {
+                      "format": "float",
+                      "type": "number"
+                    },
+                    "english_title": {
+                      "type": "string"
+                    },
+                    "group_id": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "latin_title": {
+                      "type": "string"
+                    },
+                    "lines": {
+                      "items": {
+                        "properties": {
+                          "end": {
+                            "format": "float",
+                            "type": "number"
+                          },
+                          "english": {
+                            "type": "string"
+                          },
+                          "latin": {
+                            "type": "string"
+                          },
+                          "part": {
+                            "nullable": true,
+                            "type": "integer"
+                          },
+                          "start": {
+                            "format": "float",
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "latin",
+                          "english",
+                          "start",
+                          "end"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "prayer_ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "score": {
+                      "items": {
+                        "properties": {
+                          "aspect_ratio": {
+                            "format": "float",
+                            "type": "number"
+                          },
+                          "bytes": {
+                            "type": "integer"
+                          },
+                          "caption": {
+                            "type": "string"
+                          },
+                          "file": {
+                            "type": "string"
+                          },
+                          "sha256": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "file",
+                          "caption",
+                          "aspect_ratio",
+                          "url",
+                          "bytes",
+                          "sha256"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "setting": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "source_url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "group_id",
+                    "latin_title",
+                    "english_title",
+                    "detail",
+                    "prayer_ids",
+                    "duration",
+                    "source_url",
+                    "audio",
+                    "score",
+                    "lines"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "groups": {
+                "description": "The library's groups in the Parish Book of Chant's order, each naming its chants.",
+                "items": {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "parts": {
+                      "items": {
+                        "properties": {
+                          "chant_ids": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "note": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "title": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "chant_ids"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "parts"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves, the chant files' URLs included: a device whose copy has the same version holds the current library. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a chant_library",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "chant_library"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
       "completion": {
         "description": "A \"Resource object\" representing a completion",
         "properties": {
@@ -207,7 +435,6 @@
                 "items": {
                   "type": "string"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "narrations": {
@@ -548,7 +775,6 @@
               },
               "key": {
                 "description": "The app's key for the mystery, `<category>_<order>`: `joyful_1`. Every section of the Rosary's content that is keyed by a mystery uses it; the id is the server's and differs between databases. Field included by default.",
-                "nullable": true,
                 "type": "string"
               },
               "key_verse": {
@@ -640,6 +866,170 @@
           "type": {
             "enum": [
               "narration_voice"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "prayer_book": {
+        "description": "A \"Resource object\" representing a prayer_book",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a prayer_book",
+            "properties": {
+              "chapters": {
+                "description": "The book's chapters in order, each with its sub-headings and the prayers under them.",
+                "items": {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "latin_title": {
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "numeral": {
+                      "type": "string"
+                    },
+                    "prayer_ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "search_words": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "sections": {
+                      "items": {
+                        "properties": {
+                          "prayer_ids": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "prayer_ids"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "topic": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "numeral",
+                    "title",
+                    "latin_title",
+                    "search_words",
+                    "prayer_ids",
+                    "sections"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "prayers": {
+                "description": "Every prayer the book prints, each once, the Rosary's and the consecration's included. A client keeps a prayer no chapter names: an order of prayer may.",
+                "items": {
+                  "properties": {
+                    "english": {
+                      "type": "string"
+                    },
+                    "english_name": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "latin": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "latin_title": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "list_title": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "origin": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "search_words": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "english",
+                    "search_words"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a prayer_book",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "prayer_book"
             ],
             "type": "string"
           }
@@ -783,12 +1173,10 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "forms": {
-                "description": "The Rosary's forms (the Scriptural Rosary, the Rosary Said Aloud), the Audio and Counting choices in their words, and what each form's page offers.",
-                "nullable": true,
+                "description": "The Rosary's forms (the Scriptural Rosary, the Audio Rosary), the Audio and Counting choices in their words, and what each form's page offers.",
                 "properties": {
                   "choices": {
                     "items": {
@@ -967,7 +1355,6 @@
               },
               "guided_rosary": {
                 "description": "\"Your First Rosary\": the Rosary a step at a time for each of the four sets, every step tied to the bead under the fingers, with the parts of a rosary as a beginner learns them.",
-                "nullable": true,
                 "properties": {
                   "anatomy": {
                     "items": {
@@ -1078,7 +1465,6 @@
               },
               "labels": {
                 "description": "The meditation set labels, what the app calls each and the kinds of meditation they describe.",
-                "nullable": true,
                 "properties": {
                   "kinds": {
                     "items": {
@@ -1133,7 +1519,6 @@
               },
               "learn": {
                 "description": "The How to Pray course: three lessons, then \"Your First Rosary\", with the steps of the Rosary and the prayers said at each, how often each prayer comes round, Montfort's counsel and the questions beginners ask.",
-                "nullable": true,
                 "properties": {
                   "first_rosary": {
                     "properties": {
@@ -1543,7 +1928,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "mysteries": {
@@ -1661,7 +2045,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "prayers": {
@@ -1719,12 +2102,10 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "quotes": {
                 "description": "The daily quotations on the Rosary, and the rule that chooses one for a day: the home screen's, and a second one for after praying, half the catalogue away.",
-                "nullable": true,
                 "properties": {
                   "items": {
                     "items": {
@@ -1772,7 +2153,6 @@
               },
               "reminders": {
                 "description": "The daily reminders' messages in their groups, what each intention draws from, and the numbers of the rule that picks a week of them.",
-                "nullable": true,
                 "properties": {
                   "fallback_group": {
                     "type": "string"
@@ -1857,7 +2237,6 @@
               },
               "schedule": {
                 "description": "Which mysteries a day calls for, on both weekly schedules, as rules to apply offline: each weekday's set, Sunday's by season, every Lent and Advent from last year to three years ahead, the home grid's order and the days each set is prayed in words. The day is the device's calendar day, turning at midnight, not the prayer day that turns at four in the morning.",
-                "nullable": true,
                 "properties": {
                   "default": {
                     "type": "string"
@@ -2002,7 +2381,6 @@
               },
               "script": {
                 "description": "The order a Rosary is said in, as templates a client expands offline: the Rosary's and the chaplet's steps, the optional prayers after the Rosary and the strand's beads. GET /api/v2/rosary-script expands them.",
-                "nullable": true,
                 "properties": {
                   "chaplet": {
                     "properties": {
@@ -2738,7 +3116,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "version": {
@@ -2972,7 +3349,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "book": {
@@ -3013,7 +3389,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "expires_at": {
@@ -3059,7 +3434,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "verses": {
@@ -3115,7 +3489,6 @@
                   ],
                   "type": "object"
                 },
-                "nullable": true,
                 "type": "array"
               },
               "version": {
@@ -3154,6 +3527,53 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/api/v2/chant-library": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The Chant Library as one document. There is only ever one.",
+        "operationId": "getChantLibrary",
+        "parameters": [
+          {
+            "description": "Comma separated fields of chant_library: chants, groups, updated_at, version",
+            "explode": false,
+            "in": "query",
+            "name": "fields[chant_library]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/chant_library"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "chant_library"
+        ]
+      }
+    },
     "/api/v2/completions": {
       "post": {
         "callbacks": {},
@@ -3161,18 +3581,6 @@
         "description": "Records a finished Rosary reported by the app over the public write API. The client says which set and whether it was prayed aloud, and nothing else: the surface is always the app, and the set must be one the public can see.",
         "operationId": "recordCompletion",
         "parameters": [
-          {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
           {
             "description": "Comma separated fields of completion: completed_at, meditation_set_id",
             "explode": false,
@@ -3396,15 +3804,6 @@
               "type": "string"
             },
             "style": "form"
-          },
-          {
-            "in": "query",
-            "name": "category",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "style": "form"
           }
         ],
         "responses": {
@@ -3461,6 +3860,7 @@
                         "items": {
                           "type": "integer"
                         },
+                        "maxItems": 200,
                         "type": "array"
                       },
                       "voice": {
@@ -3545,18 +3945,6 @@
         "operationId": "listMysteries",
         "parameters": [
           {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
-          {
             "description": "Comma separated fields of mystery: artwork, category, description, fruit, key, key_verse, key_verse_reference, name, order, scripture_reference",
             "explode": false,
             "in": "query",
@@ -3601,6 +3989,53 @@
         ]
       }
     },
+    "/api/v2/prayer-book": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The Prayer Book's words as one document. There is only ever one.",
+        "operationId": "getPrayerBook",
+        "parameters": [
+          {
+            "description": "Comma separated fields of prayer_book: chapters, prayers, updated_at, version",
+            "explode": false,
+            "in": "query",
+            "name": "fields[prayer_book]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/prayer_book"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "prayer_book"
+        ]
+      }
+    },
     "/api/v2/rosary-audio": {
       "get": {
         "callbacks": {},
@@ -3608,18 +4043,6 @@
         "description": "One voice's spoken Rosary. Without a voice, the default voice's.",
         "operationId": "getRosaryAudio",
         "parameters": [
-          {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
           {
             "description": "Comma separated fields of spoken_rosary: announcements, book, expires_at, prayers, verses, version",
             "explode": false,
@@ -3678,18 +4101,6 @@
         "operationId": "getRosaryContent",
         "parameters": [
           {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
-          {
             "description": "Comma separated fields of rosary_content: categories, forms, guided_rosary, labels, learn, milestones, mysteries, prayers, quotes, reminders, schedule, script, updated_at, verses, version",
             "explode": false,
             "in": "query",
@@ -3737,18 +4148,6 @@
         "operationId": "getRosaryScript",
         "parameters": [
           {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
-          {
             "description": "Comma separated fields of rosary_script: category, extras, orders, steps, style",
             "explode": false,
             "in": "query",
@@ -3770,7 +4169,7 @@
             "style": "form"
           },
           {
-            "description": "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Rosary Said Aloud, the prayers alone.",
+            "description": "meditation (the default): the set's meditation after each announcement. scriptural: a verse before every Hail Mary. plain: the Audio Rosary, the prayers alone.",
             "in": "query",
             "name": "style",
             "required": false,
@@ -3836,18 +4235,6 @@
         "operationId": "listVoices",
         "parameters": [
           {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
-          {
             "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
             "explode": false,
             "in": "query",
@@ -3899,18 +4286,6 @@
         "description": "Voices no longer offered, each with the voice that now answers for it.",
         "operationId": "listRetiredVoices",
         "parameters": [
-          {
-            "description": "Relationship paths to include in the response",
-            "explode": false,
-            "in": "query",
-            "name": "include",
-            "required": false,
-            "schema": {
-              "pattern": "^()(,())*$",
-              "type": "string"
-            },
-            "style": "form"
-          },
           {
             "description": "Comma separated fields of narration_voice: default, description, name, replaced_by, retired",
             "explode": false,

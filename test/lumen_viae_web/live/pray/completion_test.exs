@@ -45,45 +45,51 @@ defmodule LumenViaeWeb.Live.Pray.CompletionTest do
     set
   end
 
-  test "walking to the last mystery records nothing", %{conn: conn} do
+  test "walking to the closing prayers records nothing", %{conn: conn} do
     set = create_set()
     before = Rosary.count_total_completions(actor: admin())
 
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
-    for _ <- 1..4, do: view |> element("button[phx-click=next]") |> render_click()
+    for _ <- 1..6, do: view |> element("button[phx-click=next]") |> render_click()
 
     assert Rosary.count_total_completions(actor: admin()) == before
   end
 
-  test "jumping straight to the last mystery by URL records nothing", %{conn: conn} do
+  test "jumping straight to the closing prayers by URL records nothing", %{conn: conn} do
     set = create_set()
     before = Rosary.count_total_completions(actor: admin())
 
-    {:ok, _view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=4")
+    {:ok, _view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=closing")
 
     assert Rosary.count_total_completions(actor: admin()) == before
   end
 
-  test "jumping to the last mystery by bead records nothing", %{conn: conn} do
+  test "jumping to the closing prayers by the strand records nothing", %{conn: conn} do
     set = create_set()
     before = Rosary.count_total_completions(actor: admin())
 
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
-    view |> element("button[phx-click=go_to][phx-value-index='4']") |> render_click()
+    view |> element("button[phx-click=go_to][phx-value-page='6']") |> render_click()
 
     assert Rosary.count_total_completions(actor: admin()) == before
   end
 
-  test "pressing Complete records one, and sends the reader back to the category", %{conn: conn} do
+  test "pressing Complete records one, and shows the Rosary offered", %{conn: conn} do
     set = create_set()
     before = Rosary.count_total_completions(actor: admin())
 
-    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=4")
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=closing")
 
-    assert {:error, {:live_redirect, %{to: "/mysteries/joyful"}}} =
-             view |> element("button[phx-click=complete]") |> render_click()
+    html = view |> element("button[phx-click=complete]") |> render_click()
+
+    assert html =~ "The Rosary is offered"
+    assert html =~ "Amen"
+    assert has_element?(view, "#prayer-complete[phx-hook=PrayerStreak]")
+    assert has_element?(view, ~s(a[href="/mysteries/joyful"]), "Back to the Joyful Mysteries")
+    assert has_element?(view, ~s(a[href="/"]))
+    refute has_element?(view, "button[phx-click=complete]")
 
     assert Rosary.count_total_completions(actor: admin()) == before + 1
 
@@ -93,13 +99,27 @@ defmodule LumenViaeWeb.Live.Pray.CompletionTest do
     assert id == set.id
   end
 
-  test "the Complete button is only offered on the last mystery", %{conn: conn} do
+  test "pressing it twice still records one", %{conn: conn} do
+    set = create_set()
+    before = Rosary.count_total_completions(actor: admin())
+
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=closing")
+    render_click(view, "complete", %{})
+    render_click(view, "complete", %{})
+
+    assert Rosary.count_total_completions(actor: admin()) == before + 1
+  end
+
+  test "the Complete button is only offered on the closing prayers", %{conn: conn} do
     set = create_set()
 
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
     refute has_element?(view, "button[phx-click=complete]")
 
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=4")
+    refute has_element?(view, "button[phx-click=complete]")
+
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=closing")
     assert has_element?(view, "button[phx-click=complete]")
   end
 end

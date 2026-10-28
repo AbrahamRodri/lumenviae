@@ -9,10 +9,21 @@
 # .env is loaded with `set -a; source`, so values may hold spaces and
 # quotes. Without it the AWS keys are missing and the audio players
 # silently vanish, which is why this script exists. DEV_DATABASE picks a
-# copy of the dev database (see CLAUDE.md, "Local Development").
+# copy of the dev database (see CLAUDE.md, "Local Development"). In a
+# worktree set up by the workspace manager, .wt.env sets PORT,
+# DEV_DATABASE and MIX_TEST_PARTITION for that worktree; it loads first so
+# variables already in the environment still win.
 set -euo pipefail
 
 cd "$(dirname "$0")"
+
+if [ -f .wt.env ]; then
+  while IFS='=' read -r key value; do
+    case "$key" in '' | \#*) continue ;; esac
+    [ -n "${!key:-}" ] || export "$key=$value"
+  done < .wt.env
+  echo "Loaded .wt.env (port ${PORT:-8080}, database ${DEV_DATABASE:-lumen_viae_dev})"
+fi
 
 if [ -f .env ]; then
   set -a

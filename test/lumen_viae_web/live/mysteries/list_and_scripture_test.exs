@@ -4,7 +4,10 @@ defmodule LumenViaeWeb.Live.Mysteries.ListAndScriptureTest do
   `AdminTest` does not drive, and the public Scripture page's choice of
   category, by link and by tab.
   """
-  use LumenViaeWeb.ConnCase, async: true
+  # Not async: the Scripture page's tests need the real mysteries, whose
+  # fixed (category, order) keys deadlock against another module inserting
+  # them.
+  use LumenViaeWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
 
@@ -151,6 +154,11 @@ defmodule LumenViaeWeb.Live.Mysteries.ListAndScriptureTest do
   end
 
   describe "the Scripture page (/mysteries)" do
+    setup do
+      LumenViae.Test.Mysteries.seed_app_mysteries()
+      :ok
+    end
+
     defp selected_tab(view) do
       view
       |> render()
@@ -169,7 +177,7 @@ defmodule LumenViaeWeb.Live.Mysteries.ListAndScriptureTest do
       {:ok, view, html} = live(conn, "/mysteries?category=sorrowful")
 
       assert selected_tab(view) == ["sorrowful"]
-      assert html =~ "Fruit of the Mystery: Contrition for Sin"
+      assert html =~ "Fruit of the Mystery: Sorrow for Sin"
     end
 
     test "an unknown category in the link falls back to Joyful", %{conn: conn} do

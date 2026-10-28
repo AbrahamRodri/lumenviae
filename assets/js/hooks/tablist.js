@@ -1,4 +1,4 @@
-// Arrow-key navigation for the `role="tablist"` widgets on the learn pages.
+// Arrow-key navigation for the `role="tablist"` widget on /mysteries.
 //
 // ARIA asks a tablist to behave as a single stop in the tab order: Tab moves
 // into and out of the whole group, and the arrow keys move between the tabs
@@ -42,6 +42,25 @@ export default {
     }
 
     this.el.addEventListener("keydown", this.onKeyDown)
+    this.revealSelected()
+  },
+
+  // On a phone the tablist scrolls sideways; keep the selected tab in view.
+  updated() {
+    this.revealSelected()
+  },
+
+  revealSelected() {
+    const selected = this.el.querySelector('[role="tab"][aria-selected="true"]')
+    if (!selected || this.el.scrollWidth <= this.el.clientWidth) return
+
+    const list = this.el.getBoundingClientRect()
+    const tab = selected.getBoundingClientRect()
+    if (tab.left < list.left) {
+      this.el.scrollLeft -= list.left - tab.left + 16
+    } else if (tab.right > list.right) {
+      this.el.scrollLeft += tab.right - list.right + 16
+    }
   },
 
   destroyed() {

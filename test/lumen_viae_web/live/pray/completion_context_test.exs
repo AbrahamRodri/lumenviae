@@ -50,7 +50,7 @@ defmodule LumenViaeWeb.Live.Pray.CompletionContextTest do
   defp last_completion, do: Repo.one(from c in Completion, order_by: [desc: c.id], limit: 1)
 
   defp press_complete(conn, set) do
-    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=4")
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=closing")
 
     view |> element("button[phx-click=complete]") |> render_click()
   end

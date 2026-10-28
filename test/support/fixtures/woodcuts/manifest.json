@@ -1,0 +1,34 @@
+{
+  "plates": [
+    {
+      "file": "annunciation-durer.jpg",
+      "key": "joyful_1",
+      "title": "The Annunciation",
+      "artist": "Albrecht Durer",
+      "year": "c. 1503",
+      "series": "Life of the Virgin",
+      "alt": "The angel Gabriel greets the Virgin Mary as she kneels at prayer in her room",
+      "width": 800,
+      "height": 1121,
+      "source": "https://commons.wikimedia.org/wiki/File:Durer_annunciation.jpg",
+      "licence": "PD-old-100"
+    },
+    {
+      "file": "baptism-dore.jpg",
+      "key": "luminous_1",
+      "title": "The Baptism of Jesus",
+      "artist": "Gustave Dore",
+      "year": "1866",
+      "series": "La Grande Bible de Tours",
+      "alt": "John baptizes Jesus in the river Jordan as the Holy Ghost descends as a dove",
+      "width": 800,
+      "height": 1014,
+      "source": "https://commons.wikimedia.org/wiki/File:Dore_baptism.jpg",
+      "licence": "PD-old-100",
+      "webp": {
+        "640": "baptism-dore-640.webp",
+        "1200": "baptism-dore-1200.webp"
+      }
+    }
+  ]
+}

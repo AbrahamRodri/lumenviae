@@ -7,10 +7,15 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 
-# AWS S3 Configuration for all environments
+# AWS S3 Configuration for all environments. Tests never see real keys,
+# even when .env has been loaded into the shell (./dev.sh mix test): a
+# test that reached S3 with them would write to the production bucket.
+# Tests that need credentials put fake ones in place themselves.
+aws_env = fn name -> if config_env() == :test, do: nil, else: System.get_env(name) end
+
 config :ex_aws,
-  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+  access_key_id: aws_env.("AWS_ACCESS_KEY_ID"),
+  secret_access_key: aws_env.("AWS_SECRET_ACCESS_KEY"),
   region: System.get_env("AWS_REGION") || "us-east-2",
   json_codec: Jason
 
@@ -171,7 +176,10 @@ if config_env() == :prod do
       # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port
+      port: port,
+      # Fly's proxy speaks HTTP/1.1 to the app, so HTTP/2 is never needed
+      # here, and leaving it off keeps Bandit's HTTP/2 code unreachable.
+      http_2_options: [enabled: false]
     ],
     secret_key_base: secret_key_base,
     check_origin: [

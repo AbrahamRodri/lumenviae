@@ -27,12 +27,12 @@ defmodule LumenViae.Images.InspectorTest do
   describe "inspect/1 on real files" do
     test "reads a JPEG written by a real encoder, walking past its EXIF segment" do
       assert {:ok, info} = Inspector.inspect(File.read!(@real_jpeg))
-      assert info == %{format: :jpeg, width: 390, height: 510, components: 3}
+      assert info == %{format: :jpeg, width: 390, height: 510, components: 3, orientation: 1}
     end
 
     test "reads a PNG written by a real encoder" do
       assert {:ok, info} = Inspector.inspect(File.read!(@real_png))
-      assert info == %{format: :png, width: 474, height: 266, components: 4}
+      assert info == %{format: :png, width: 474, height: 266, components: 4, orientation: 1}
     end
   end
 
@@ -41,7 +41,7 @@ defmodule LumenViae.Images.InspectorTest do
       binary = jpeg([segment(0xE0, "JFIF\0"), frame(0xC0, 1600, 2400, 3)])
 
       assert Inspector.inspect(binary) ==
-               {:ok, %{format: :jpeg, width: 1600, height: 2400, components: 3}}
+               {:ok, %{format: :jpeg, width: 1600, height: 2400, components: 3, orientation: 1}}
     end
 
     test "reads dimensions from a progressive frame header" do
@@ -70,7 +70,7 @@ defmodule LumenViae.Images.InspectorTest do
         binary = jpeg([segment(unquote(marker), decoy), frame(0xC0, 1600, 2400, 3)])
 
         assert Inspector.inspect(binary) ==
-                 {:ok, %{format: :jpeg, width: 1600, height: 2400, components: 3}}
+                 {:ok, %{format: :jpeg, width: 1600, height: 2400, components: 3, orientation: 1}}
       end
     end
 
@@ -137,7 +137,7 @@ defmodule LumenViae.Images.InspectorTest do
 
     test "reads dimensions from IHDR" do
       assert Inspector.inspect(png(1600, 2400, 2)) ==
-               {:ok, %{format: :png, width: 1600, height: 2400, components: 3}}
+               {:ok, %{format: :png, width: 1600, height: 2400, components: 3, orientation: 1}}
     end
 
     test "maps each colour type to its channel count" do
@@ -154,6 +154,64 @@ defmodule LumenViae.Images.InspectorTest do
       binary = <<137, 80, 78, 71, 13, 10, 26, 10, 13::32>> <> "IEND"
 
       assert Inspector.inspect(binary) == {:error, :malformed}
+    end
+  end
+
+  describe "inspect/1 and the Exif orientation" do
+    # Stored 1700x1200 and tagged orientation 6 (a quarter turn clockwise),
+    # as a phone writes a portrait photograph; written by libvips.
+    @rotated "test/support/fixtures/orientation_6.jpg"
+
+    # An APP1 Exif segment whose first directory holds one entry, the
+    # orientation, in the byte order given.
+    defp exif(orientation, :little) do
+      tiff =
+        <<"II", 42, 0, 8::little-32, 1::little-16, 0x0112::little-16, 3::little-16, 1::little-32,
+          orientation::little-16, 0::16, 0::32>>
+
+      segment(0xE1, "Exif" <> <<0, 0>> <> tiff)
+    end
+
+    defp exif(orientation, :big) do
+      tiff =
+        <<"MM", 0, 42, 8::32, 1::16, 0x0112::16, 3::16, 1::32, orientation::16, 0::16, 0::32>>
+
+      segment(0xE1, "Exif" <> <<0, 0>> <> tiff)
+    end
+
+    test "reports a quarter-turned JPEG as it is shown, not as it is stored" do
+      assert Inspector.inspect(File.read!(@rotated)) ==
+               {:ok, %{format: :jpeg, width: 1200, height: 1700, components: 3, orientation: 6}}
+    end
+
+    test "swaps the dimensions for every quarter turn, in either byte order" do
+      for orientation <- 5..8, order <- [:little, :big] do
+        binary = jpeg([exif(orientation, order), frame(0xC0, 1700, 1200, 3)])
+
+        assert {:ok, %{width: 1200, height: 1700, orientation: ^orientation}} =
+                 Inspector.inspect(binary)
+      end
+    end
+
+    test "leaves upright and mirrored pictures as they are stored" do
+      for orientation <- 1..4 do
+        binary = jpeg([exif(orientation, :big), frame(0xC0, 1700, 1200, 3)])
+
+        assert {:ok, %{width: 1700, height: 1200, orientation: ^orientation}} =
+                 Inspector.inspect(binary)
+      end
+    end
+
+    test "an Exif block it cannot read is no orientation, not a bad image" do
+      for app1 <- [
+            segment(0xE1, "Exif" <> <<0, 0>> <> "XX"),
+            segment(0xE1, "Exif" <> <<0, 0, "II", 42, 0, 200::little-32>>),
+            segment(0xE1, "http://ns.adobe.com/xap/1.0/" <> <<0>>),
+            exif(9, :little)
+          ] do
+        assert {:ok, %{width: 1700, height: 1200, orientation: 1}} =
+                 Inspector.inspect(jpeg([app1, frame(0xC0, 1700, 1200, 3)]))
+      end
     end
   end
 

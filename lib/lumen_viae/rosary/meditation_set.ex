@@ -163,6 +163,10 @@ defmodule LumenViae.Rosary.MeditationSet do
     change_tracking_mode :snapshot
     store_action_name? true
     ignore_attributes [:inserted_at, :updated_at]
+
+    # Display variants are a derived copy of a painting already recorded,
+    # not an edit, so making them leaves the History panel alone.
+    ignore_actions [:record_artwork_variants]
     reference_source? false
 
     # Which admin made the change: the actor of the action, when it is one.

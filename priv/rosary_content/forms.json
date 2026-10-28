@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-04T02:40:00Z",
+  "updated_at": "2026-10-14T16:00:00Z",
   "forms": {
     "forms": [
       {
@@ -13,11 +13,11 @@
       },
       {
         "id": "holy",
-        "name": "The Rosary Said Aloud",
+        "name": "The Audio Rosary",
         "recorded_as": "The Rosary Aloud",
-        "kicker": "Every prayer, no readings",
+        "kicker": "Listen and pray along",
         "subtitle": "A voice leads every prayer, with no readings between.",
-        "detail": "Every prayer, no readings",
+        "detail": "Listen and pray along",
         "about": "The beads move with the voice — for praying with the phone put away, or for learning the prayers by ear. Each mystery, a scene from the lives of Jesus and Mary, is announced, and each prayer is shown on the screen as it is said. Pause the voice to pray quietly for a while."
       }
     ],
@@ -31,13 +31,13 @@
             "form": "meditation",
             "value": false,
             "name": "Meditation Only",
-            "note": "The meditation is read aloud. You say the prayers."
+            "note": "You hear the meditation. You say the prayers."
           },
           {
             "form": "meditation",
             "value": true,
             "name": "Whole Rosary",
-            "note": "Every prayer is said aloud. Pray along with the voice."
+            "note": "You hear every prayer. Pray along with the voice."
           },
           {
             "form": "scriptural",
@@ -49,7 +49,7 @@
             "form": "scriptural",
             "value": true,
             "name": "Whole Rosary",
-            "note": "Every verse and prayer is said aloud."
+            "note": "You hear every verse and prayer."
           }
         ]
       },

@@ -72,7 +72,7 @@ defmodule LumenViae.Curation.ArtworkUploadTest do
     test "returns the dimensions the header reported" do
       assert {:ok, %{info: info}} = ArtworkUpload.prepare(jpeg(1600, 2400), :set, 27)
 
-      assert info == %{format: :jpeg, width: 1600, height: 2400, components: 3}
+      assert info == %{format: :jpeg, width: 1600, height: 2400, components: 3, orientation: 1}
     end
 
     test "accepts a landscape painting" do

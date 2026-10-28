@@ -1,7 +1,7 @@
 # Lumen Viae
 #
 # Search engines are welcome on the content pages: the mystery listings and
-# the written pages are what anyone looking for a Rosary should be able to
+# the Scripture page are what anyone looking for a Rosary should be able to
 # find. What is closed off below is the prayer flow itself, the console, and
 # the API.
 #

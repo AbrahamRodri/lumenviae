@@ -25,9 +25,43 @@ flyctl auth login
 
 Verify with `fly auth whoami`.
 
-Machines do not auto-stop (`auto_stop_machines = 'off'`,
-`min_machines_running = 1` in fly.toml), so a machine is always available
-to ssh into.
+The app runs one machine, and it does not auto-stop
+(`auto_stop_machines = 'off'`, `min_machines_running = 1` in fly.toml), so
+it is always available to ssh into.
+
+## Hosting cost
+
+What runs on Fly for Lumen Viae, as of October 2026:
+
+| Fly app | What runs | About USD a month |
+|---|---|---|
+| `lumenviae` | 1 x shared-cpu-1x, 1GB, always on | 5.70 |
+| `lumenviae-db` | 1 x shared-cpu-1x, 256MB, and a 1GB volume | 2.10 |
+| `lumenviae-office` | 1 x 1GB, suspended when idle (docs/OFFICE_API.md) | under 1 |
+
+The organisation also holds `carlosassist` and `weddpix`, which are not
+Lumen Viae: stopped, with a 1GB volume each (about 0.60 a month together).
+
+**One app machine.** The app ran two machines from 22 August to October
+2026, which doubled the largest line of the bill. Traffic is a few
+completions a day, which one machine carries easily, so it went back to
+one. It stays at 1GB (512MB ran out of memory in November 2025) and always
+on (`auto_stop_machines = 'off'`), because a cold start is slow for the
+app. Deploys are `bluegreen` in fly.toml: the new machine boots beside the
+old one and takes the traffic once it passes the service check, so one
+machine costs no downtime on a deploy. What one machine does give up: a
+crash or a host failure is downtime until Fly restarts it, rather than half
+the capacity.
+
+The machine count is not in fly.toml; it is set once with the CLI (it needs
+a token that can change the app, not the read-only one):
+
+```
+fly scale count 1 -a lumenviae
+```
+
+`fly machine list -a lumenviae` shows what is running. To go back to two,
+`fly scale count 2 -a lumenviae`; nothing in the code assumes either.
 
 ## Opening the shell
 
@@ -185,7 +219,7 @@ fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.r
 
 A reset signs that admin out everywhere: it revokes every token they hold
 and, because it runs with `rpc` inside the running app, closes the console
-tabs they already have open, on both machines. Under `eval` the tokens are
+tabs they already have open, on every machine. Under `eval` the tokens are
 still revoked, but open tabs keep working until they next load a page, so
 use `rpc`. Both run with `authorize?: false`,
 because before the first admin exists there is nobody to act as, and

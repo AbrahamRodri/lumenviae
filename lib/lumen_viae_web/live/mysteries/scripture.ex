@@ -1,17 +1,27 @@
 defmodule LumenViaeWeb.Live.Mysteries.Scripture do
   @moduledoc """
-  LiveView for displaying all 20 mysteries of the Rosary with their Biblical references
+  The mysteries in Scripture: every mystery of the Rosary and the Seven
+  Sorrows, with its Douay-Rheims passages.
+
+  Each mystery's name, fruit and scripture reference come from the
+  database, which is what the iOS app shows; the partials own only what is
+  this page's: a one-line summary of each mystery and its passages.
   """
   use LumenViaeWeb, :live_view
+
+  alias LumenViae.Rosary
+  alias LumenViaeWeb.PageMeta
+
+  alias LumenViaeWeb.Components.MysteryPainting
 
   embed_templates "_partials/*"
 
   @categories [
-    %{id: "joyful", name: "Joyful"},
-    %{id: "sorrowful", name: "Sorrowful"},
-    %{id: "glorious", name: "Glorious"},
-    %{id: "luminous", name: "Luminous"},
-    %{id: "seven_sorrows", name: "Seven Sorrows"}
+    %{id: "joyful", name: "Joyful", pray: "Pray the Joyful Mysteries"},
+    %{id: "sorrowful", name: "Sorrowful", pray: "Pray the Sorrowful Mysteries"},
+    %{id: "glorious", name: "Glorious", pray: "Pray the Glorious Mysteries"},
+    %{id: "luminous", name: "Luminous", pray: "Pray the Luminous Mysteries"},
+    %{id: "seven_sorrows", name: "Seven Sorrows", pray: "Pray the Seven Sorrows"}
   ]
 
   @impl true
@@ -23,12 +33,13 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
 
     socket =
       socket
-      |> assign(page_title: "Finding the Mysteries in Scripture")
-      |> assign(
-        meta_description:
-          "Read the scriptural accounts behind every mystery of the Holy Rosary and the Seven Sorrows of Mary, with Douay-Rheims passages and the traditional fruit of each mystery."
+      |> PageMeta.put("/mysteries",
+        title: "Finding the Mysteries in Scripture",
+        description:
+          "Read the scriptural accounts behind every mystery of the Holy Rosary and the Seven Sorrows of Mary, with Douay-Rheims passages and the fruit of each mystery."
       )
       |> assign(categories: @categories, selected_category: selected_category)
+      |> assign(mysteries: mysteries_by_category(socket.assigns.current_admin))
 
     {:ok, socket}
   end
@@ -39,6 +50,63 @@ defmodule LumenViaeWeb.Live.Mysteries.Scripture do
 
     {:noreply, assign(socket, :selected_category, selected_category)}
   end
+
+  def handle_event("select-category", _params, socket), do: {:noreply, socket}
+
+  # %{"joyful" => %{1 => %Mystery{}, ...}, ...}: a partial looks its
+  # mysteries up by their place in the category.
+  defp mysteries_by_category(actor) do
+    [actor: actor]
+    |> Rosary.list_mysteries!()
+    |> Enum.group_by(& &1.category)
+    |> Map.new(fn {category, mysteries} -> {category, Map.new(mysteries, &{&1.order, &1})} end)
+  end
+
+  @doc """
+  One mystery on the page: its name, reference and fruit from the database,
+  the page's own summary and its passages behind a disclosure. The link to
+  pray the category comes once, after its last mystery. Renders nothing
+  for a mystery the database does not have.
+  """
+  attr :mystery, :map, default: nil
+  attr :category, :string, required: true
+  slot :summary, required: true
+  slot :passage, required: true
+
+  def mystery_card(assigns) do
+    ~H"""
+    <article
+      :if={@mystery}
+      id={"mystery-#{@category}-#{@mystery.order}"}
+      class="hairline-card p-5 md:p-7 transition-colors duration-300 hover:border-night-line"
+    >
+      <h3 class="font-display font-semibold text-ink-light text-2xl lg:text-3xl mb-1 md:mb-2">
+        {@mystery.order}. {@mystery.name}
+      </h3>
+      <p class="font-garamond text-ink-muted italic leading-relaxed text-lg md:text-xl mb-3 max-w-[65ch]">
+        {render_slot(@summary)}
+      </p>
+      <p
+        :if={@mystery.fruit}
+        class="kicker"
+      >
+        Fruit of the Mystery: {@mystery.fruit}
+      </p>
+      <p :if={@mystery.scripture_reference} class="font-garamond text-ink-muted italic">
+        {@mystery.scripture_reference}
+      </p>
+      <details class="mt-1">
+        <summary class="min-h-11 flex items-center font-garamond text-lg text-gilt cursor-pointer hover:text-gilt-light transition-colors duration-300">
+          Read the Scripture
+        </summary>
+        {render_slot(@passage)}
+      </details>
+    </article>
+    """
+  end
+
+  @doc false
+  def pray_label(category_id), do: Enum.find(@categories, &(&1.id == category_id)).pray
 
   defp validate_category(category_id, default \\ "joyful") do
     case Enum.find(@categories, &(&1.id == category_id)) do

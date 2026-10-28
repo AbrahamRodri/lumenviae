@@ -3,6 +3,9 @@ defmodule LumenViae.Release do
   Used for executing DB release tasks when run in production without Mix
   installed.
   """
+
+  require Logger
+
   @app :lumen_viae
 
   # The tasks here run from an operator's shell, which already holds the
@@ -181,6 +184,42 @@ defmodule LumenViae.Release do
     end
 
     :ok
+  end
+
+  @doc """
+  Makes the WebP display variants of every stored painting that is missing
+  some, leaving the originals untouched (see
+  `LumenViae.Curation.ArtworkVariants`). Takes `dry_run: true`, which reads
+  the database and lists what would be made without downloading,
+  uploading or writing anything. Idempotent, so a run cut short can be
+  repeated. Always dry-run first:
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants(dry_run: true)'
+      /app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants()'
+
+  Returns `LumenViae.Curation.ArtworkVariants.summarize/1`'s counts
+  (`succeeded`, `warnings`, `failed`, `failures`), and logs each failure.
+  """
+  def artwork_variants(opts \\ []) do
+    load_app()
+    start_audio_clients()
+
+    results =
+      Enum.flat_map(repos(), fn repo ->
+        {:ok, results, _} =
+          Ecto.Migrator.with_repo(repo, fn _repo ->
+            LumenViae.Curation.ArtworkVariants.run(
+              [dry_run: Keyword.get(opts, :dry_run, false), progress: &print_progress/1] ++
+                @operator
+            )
+          end)
+
+        results
+      end)
+
+    summary = LumenViae.Curation.ArtworkVariants.summarize(results)
+    for failure <- summary.failures, do: Logger.error("Artwork variants: #{failure}")
+    summary
   end
 
   @doc """

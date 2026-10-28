@@ -16,12 +16,23 @@ defmodule LumenViae.Curation.ArtworkUpload do
   the old URL that has not fetched it yet would 404 and drop to the bundled
   painting. Orphans are a few megabytes, and there is no sweep task.
 
-  Nothing here resizes or re-encodes: the production image carries no image
-  library (see `LumenViae.Images.Inspector`), so the rules below are the
-  only lever, and a painting that fails them has to be fixed before upload.
+  The original is stored exactly as uploaded, and is what the APIs and the
+  console serve. Beside it go the WebP display variants the public site
+  draws (`LumenViae.Images.Variants`), written after the original and
+  recorded in `image_variant_widths` only once each is in S3, so a page
+  never offers one that is not there. A variant that cannot be made is
+  logged and left out: the painting is still uploaded, and the site draws
+  the original until `mix lumen_viae.artwork_variants` makes it.
+
+  The rules below are still the only lever on the original itself, which
+  is never resized: a painting that fails them has to be fixed before
+  upload.
   """
 
+  require Logger
+
   alias LumenViae.Images.Inspector
+  alias LumenViae.Images.Variants
   alias LumenViae.Storage.S3
 
   @max_bytes 12 * 1024 * 1024
@@ -35,7 +46,8 @@ defmodule LumenViae.Curation.ArtworkUpload do
   managed changeset writes.
 
   Returns `{:ok, %{"image_key" => key, "image_width" => w,
-  "image_height" => h, "image_updated_at" => ts}}` - string keys, so the
+  "image_height" => h, "image_updated_at" => ts,
+  "image_variant_widths" => widths}}` - string keys, so the
   result drops straight into an Ecto changeset beside form params - or
   `{:error, message}` with a message written for the curator looking at the
   admin form, not for a log.
@@ -44,9 +56,48 @@ defmodule LumenViae.Curation.ArtworkUpload do
   def upload(binary, scope, id) do
     with {:ok, %{key: key, info: info}} <- prepare(binary, scope, id) do
       case S3.upload_public(binary, key) do
-        {:ok, key} -> {:ok, managed_fields(key, info)}
-        {:error, reason} -> {:error, "The image could not be uploaded: #{describe(reason)}."}
+        {:ok, key} ->
+          {:ok, widths} = store_variants(binary, key)
+          {:ok, managed_fields(key, info, widths)}
+
+        {:error, reason} ->
+          {:error, "The image could not be uploaded: #{describe(reason)}."}
       end
+    end
+  end
+
+  @doc """
+  Makes the display variants of the original `binary` stored at `key` and
+  puts each beside it, returning `{:ok, widths}`: the widths now in S3,
+  narrowest first, which may be fewer than `Variants.widths_for/1` asked
+  for when one could not be made or stored. Every failure is logged.
+
+  Shared by `upload/3` and the backfill
+  (`LumenViae.Curation.ArtworkVariants`), so both name and encode the
+  variants the same way.
+  """
+  @spec store_variants(binary, String.t()) :: {:ok, [pos_integer]}
+  def store_variants(binary, key) when is_binary(binary) and is_binary(key) do
+    case Variants.generate(binary) do
+      {:ok, variants} ->
+        {:ok, Enum.flat_map(variants, &store_variant(&1, key))}
+
+      {:error, reason} ->
+        Logger.warning("Could not make display variants of #{key}: #{inspect(reason)}")
+        {:ok, []}
+    end
+  end
+
+  defp store_variant({width, webp}, key) do
+    variant_key = Variants.key(key, width)
+
+    case S3.upload_public(webp, variant_key, content_type: "image/webp") do
+      {:ok, ^variant_key} ->
+        [width]
+
+      {:error, reason} ->
+        Logger.warning("Could not store #{variant_key}: #{inspect(reason)}")
+        []
     end
   end
 
@@ -164,12 +215,13 @@ defmodule LumenViae.Curation.ArtworkUpload do
   defp prefix(:mystery), do: "mysteries"
   defp prefix(:category_card), do: "category_cards"
 
-  defp managed_fields(key, info) do
+  defp managed_fields(key, info, variant_widths) do
     %{
       "image_key" => key,
       "image_width" => info.width,
       "image_height" => info.height,
-      "image_updated_at" => DateTime.utc_now() |> DateTime.truncate(:second)
+      "image_updated_at" => DateTime.utc_now() |> DateTime.truncate(:second),
+      "image_variant_widths" => variant_widths
     }
   end
 

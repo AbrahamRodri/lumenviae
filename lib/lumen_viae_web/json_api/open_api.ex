@@ -70,6 +70,22 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
       array of resources, which a Kotlin generator reads as a `Set`. A set's
       meditations are in prayer order and a set has no order.
 
+    * **A calculation that is never null is not `nullable`.** Generated
+      with every field outside `required` marked nullable, and a
+      calculation is never in `required`, so a mystery's `key` and every
+      section of the content document read as nullable though the
+      resource says `allow_nil? false`. A field that is not asked for is
+      left out, never null.
+    * **A list argument's `max_length` is its `maxItems`.** Generated
+      without it, so `POST /meditations/audio` did not say that it takes
+      at most 200 ids.
+    * **No `include` where nothing can be included.** Generated on every
+      operation, with a pattern that matches only the empty string; any
+      path named there is a 400.
+    * **No input a route does not offer.** A set by id is not narrowed by
+      a category: `:visible`'s `category` argument is the list's, and
+      GraphQL hides it on the get the same way.
+
   One change follows the API rather than correcting AshJsonApi: the list
   of sets takes no `include` (`LumenViaeWeb.JsonApi.QueryParams` refuses
   one), so its operation has no `include` parameter and its response no
@@ -93,10 +109,11 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
   @doc """
   The `modify_open_api` callback: `spec` corrected as described above.
   """
-  def modify(%OpenApi{} = spec, _conn, _opts) do
+  def modify(%OpenApi{} = spec, _conn, opts) do
+    routes = Enum.flat_map(opts[:domains], &AshJsonApi.Domain.Info.routes/1)
     spec = %{spec | security: [], components: Map.delete(spec.components, :securitySchemes)}
     %{components: %{schemas: schemas} = components} = spec = normalize(spec)
-    schemas = Map.new(schemas, &pin_type/1)
+    schemas = Map.new(schemas, &(&1 |> pin_type() |> never_null(routes)))
     responses = Map.new(components.responses, &wrap_errors/1)
     no_includes = Enum.map(QueryParams.lists_without_includes(), &("/api/v2" <> &1))
     included = included_variants(spec.paths)
@@ -104,12 +121,141 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
     paths =
       Map.new(spec.paths, fn {path, item} ->
         item = if path in no_includes, do: without_includes(item), else: item
+
+        item =
+          item
+          |> map_operations(&drop_unused_include/1)
+          |> map_operations(&drop_hidden_inputs/1)
+          |> map_operations(&limit_lists(&1, routes))
+
         {path, describe_types(item, schemas)}
       end)
 
     schemas = Map.merge(schemas, included_schemas(included))
     %{spec | components: %{components | schemas: schemas, responses: responses}, paths: paths}
   end
+
+  defp map_operations(%PathItem{} = item, fun) do
+    Enum.reduce([:get, :post, :patch, :delete], item, fn verb, item ->
+      case Map.fetch!(item, verb) do
+        %Operation{} = operation -> Map.put(item, verb, fun.(operation))
+        nil -> item
+      end
+    end)
+  end
+
+  # An operation whose responses can include nothing offers no `include`.
+  defp drop_unused_include(%Operation{} = operation) do
+    if Enum.any?(Map.values(operation.responses), &included_schema/1) do
+      operation
+    else
+      %{
+        operation
+        | parameters: Enum.reject(operation.parameters, &(to_string(&1.name) == "include"))
+      }
+    end
+  end
+
+  # Inputs an action takes that its route does not offer, by operation.
+  @hidden_inputs %{"getMeditationSet" => ["category"]}
+
+  defp drop_hidden_inputs(%Operation{operationId: id} = operation) do
+    hidden = Map.get(@hidden_inputs, id, [])
+    %{operation | parameters: Enum.reject(operation.parameters, &(to_string(&1.name) in hidden))}
+  end
+
+  # A request body's list argument says how many items it takes.
+  defp limit_lists(%Operation{requestBody: %{content: content} = body} = operation, routes) do
+    case route_action(routes, operation.operationId) do
+      nil ->
+        operation
+
+      action ->
+        limits =
+          for %{type: {:array, _}, constraints: constraints} = argument <- action.arguments,
+              max = constraints[:max_length],
+              into: %{},
+              do: {to_string(argument.name), max}
+
+        content =
+          Map.new(content, fn {type, media} ->
+            {type, %{media | schema: limit_body(media.schema, limits)}}
+          end)
+
+        %{operation | requestBody: %{body | content: content}}
+    end
+  end
+
+  defp limit_lists(operation, _routes), do: operation
+
+  defp route_action(routes, name) do
+    case Enum.find(routes, &(&1.name == name)) do
+      nil -> nil
+      route -> Ash.Resource.Info.action(route.resource, route.action)
+    end
+  end
+
+  # A generic action's arguments are the body's `data`; a create's are in
+  # `data.attributes`.
+  defp limit_body(%Schema{properties: %{data: %Schema{} = data}} = schema, limits) do
+    data =
+      case data.properties do
+        %{attributes: %Schema{} = attributes} ->
+          put_in(data.properties.attributes, limit_properties(attributes, limits))
+
+        _other ->
+          limit_properties(data, limits)
+      end
+
+    put_in(schema.properties.data, data)
+  end
+
+  defp limit_body(schema, _limits), do: schema
+
+  defp limit_properties(%Schema{properties: properties} = schema, limits) do
+    properties =
+      Map.new(properties, fn {name, property} ->
+        key = to_string(name)
+
+        case limits do
+          %{^key => max} -> {name, %{property | maxItems: max}}
+          _none -> {name, property}
+        end
+      end)
+
+    %{schema | properties: properties}
+  end
+
+  # A resource's calculations that are never null are not nullable.
+  defp never_null(
+         {name, %Schema{properties: %{attributes: %Schema{} = attributes}} = schema},
+         routes
+       ) do
+    case Enum.find(routes, &(AshJsonApi.Resource.Info.type(&1.resource) == name)) do
+      nil ->
+        {name, schema}
+
+      route ->
+        not_null =
+          for calculation <- Ash.Resource.Info.public_calculations(route.resource),
+              not calculation.allow_nil?,
+              do: to_string(calculation.name)
+
+        properties =
+          Map.new(attributes.properties, fn {field, property} ->
+            if to_string(field) in not_null,
+              do: {field, not_nullable(property)},
+              else: {field, property}
+          end)
+
+        {name, put_in(schema.properties.attributes, %{attributes | properties: properties})}
+    end
+  end
+
+  defp never_null(entry, _routes), do: entry
+
+  defp not_nullable(%Schema{} = schema), do: %{schema | nullable: nil}
+  defp not_nullable(%{} = map), do: Map.drop(map, ["nullable", :nullable])
 
   # A list that takes no `include`: no parameter for it, and no `included`
   # in what it answers.
@@ -179,14 +325,8 @@ defmodule LumenViaeWeb.JsonApi.OpenApi do
 
   defp pin_type(entry), do: entry
 
-  defp describe_types(%PathItem{} = item, schemas) do
-    Enum.reduce([:get, :post, :patch, :delete], item, fn verb, item ->
-      case Map.fetch!(item, verb) do
-        %Operation{} = operation -> Map.put(item, verb, describe_types(operation, schemas))
-        nil -> item
-      end
-    end)
-  end
+  defp describe_types(%PathItem{} = item, schemas),
+    do: map_operations(item, &describe_types(&1, schemas))
 
   defp describe_types(%Operation{} = operation, schemas) do
     included = included_types(operation)
