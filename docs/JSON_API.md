@@ -425,12 +425,16 @@ at midnight in the device's own calendar: not the prayer day), then:
 Everyone praying on one day sees the same line at home, steady through the
 day, because the choice has no randomness.
 
-**`milestones`**: seven `{days, meaning, icon, blessing}`, by days
-ascending: 3, 7, 9, 33, 54, 100 and 365. `meaning` is what the Church calls
-a run of this length (`a novena`) and is null for 33 and 100. `icon` is the
-iOS app's glyph name (`ph-number-circle-nine`, `ch-consecration`,
-`lv-rosary`, `lv-wheat`, `ch-chi-rho`), as the app has it; a client draws
-its own for each name. A milestone is shown as:
+**`milestones`**: twelve `{days, meaning, icon, blessing}`, by days
+ascending: 3, 7, 9, 33, 40, 50, 54, 100, 150, 365, 500 and 1000, as the iOS
+app's `StreakMilestone` has them. `meaning` is what the Church calls a run
+of this length (`a novena`) and is null for 3, 33, 100, 500 and 1000.
+`icon` is the iOS app's glyph name (`ph-number-circle-nine`,
+`ch-consecration`, `lv-crown-of-thorns`, `ch-dove`, `lv-rosary`,
+`lv-wheat`, `ch-lily`, `ch-chi-rho`, `ch-candle`, `lv-hourglass`), as the
+app has it; a client draws its own for each name. Until 28 October 2026
+the section served seven (3, 7, 9, 33, 54, 100 and 365) with older
+wording; the shape did not change. A milestone is shown as:
 
 - its **name**, `"{days} days"` (`9 days`), and under it the **blessing**;
 - its **title**, where a line has no blessing to explain it, `"{days} days

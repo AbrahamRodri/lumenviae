@@ -1,17 +1,17 @@
 {
-  "updated_at": "2026-10-04T02:40:00Z",
+  "updated_at": "2026-10-28T04:30:00Z",
   "milestones": [
     {
       "days": 3,
-      "meaning": "a triduum",
+      "meaning": null,
       "icon": "ph-number-circle-three",
-      "blessing": "Three days in a row: a triduum, the Church's ancient three days of prayer."
+      "blessing": "Three days in a row: what the Church calls a triduum, three days of prayer before a feast."
     },
     {
       "days": 7,
       "meaning": "a faithful week",
       "icon": "ph-number-circle-seven",
-      "blessing": "Seven days — every mystery of the week visited in prayer."
+      "blessing": "Seven days in a row: a whole week of the Rosary."
     },
     {
       "days": 9,
@@ -26,10 +26,22 @@
       "blessing": "Thirty-three days, as long as St. Louis de Montfort's Consecration to Mary."
     },
     {
+      "days": 40,
+      "meaning": "the length of Lent",
+      "icon": "lv-crown-of-thorns",
+      "blessing": "Forty days in a row: the length of Lent, and of the Lord's fast in the desert."
+    },
+    {
+      "days": 50,
+      "meaning": "Easter to Pentecost",
+      "icon": "ch-dove",
+      "blessing": "Fifty days in a row: from Easter to Pentecost, when the Holy Ghost came down on the Apostles."
+    },
+    {
       "days": 54,
       "meaning": "a Rosary novena",
       "icon": "lv-rosary",
-      "blessing": "The great Rosary novena complete: 27 days asking, and 27 giving thanks."
+      "blessing": "54 days in a row, as long as the Rosary novena: 27 days asking, then 27 giving thanks."
     },
     {
       "days": 100,
@@ -38,10 +50,28 @@
       "blessing": "Some seed fell on good soil and brought forth fruit a hundredfold."
     },
     {
+      "days": 150,
+      "meaning": "Our Lady's Psalter",
+      "icon": "ch-lily",
+      "blessing": "A hundred and fifty days in a row: one for each Hail Mary of the full Rosary, Our Lady's Psalter."
+    },
+    {
       "days": 365,
       "meaning": "a year of grace",
       "icon": "ch-chi-rho",
       "blessing": "A full year of daily prayer, for the greater glory of God."
+    },
+    {
+      "days": 500,
+      "meaning": null,
+      "icon": "ch-candle",
+      "blessing": "Five hundred days in a row: a candle kept burning before her, day after day."
+    },
+    {
+      "days": 1000,
+      "meaning": null,
+      "icon": "lv-hourglass",
+      "blessing": "A thousand days in a row. A thousand years in His sight are as yesterday, which is past."
     }
   ]
 }

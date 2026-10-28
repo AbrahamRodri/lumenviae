@@ -20,7 +20,7 @@ defmodule LumenViaeWeb.Live.Pray.MilestonesTest do
     cards = Floki.find(doc, "#prayer-milestones [data-milestone]")
 
     assert Enum.map(cards, &(&1 |> Floki.attribute("data-milestone") |> hd())) ==
-             ~w(3 7 9 33 54 100 365)
+             ~w(3 7 9 33 40 50 54 100 150 365 500 1000)
 
     for card <- cards, do: assert(Floki.attribute(card, "hidden") != [])
   end
@@ -38,7 +38,7 @@ defmodule LumenViaeWeb.Live.Pray.MilestonesTest do
              "Thirty-three days, as long as St. Louis de Montfort&#39;s Consecration to Mary."
 
     assert html =~
-             "The great Rosary novena complete: 27 days asking, and 27 giving thanks."
+             "54 days in a row, as long as the Rosary novena: 27 days asking, then 27 giving thanks."
 
     assert html =~ "A full year of daily prayer, for the greater glory of God."
   end
