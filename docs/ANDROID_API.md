@@ -139,6 +139,7 @@ value is added to a vocabulary, never a renamed one.
 | `GET /api/v2/voices` | the voice picker | default fields |
 | `GET /api/v2/voices/retired` | a stored voice is no longer offered | default fields |
 | `GET /api/v2/rosary-audio?voice=<slug>&fields[spoken_rosary]=version,expires_at,prayers,announcements,verses` | before a Rosary is said aloud, or saved for offline | only the kinds needed (below) |
+| `GET /api/v2/office/days/<date>/hours/<hour>?version=<slug>&language=<slug>` | an hour of the Divine Office is opened | the hour's text; `/office/days/<date>`, `/office/calendar/<y>/<m>` and `/office/vocabulary` as the screen needs (docs/JSON_API.md, "The Divine Office") |
 | `POST /api/v2/completions` | a meditation set's Rosary is finished | `{"data": {"type": "completion", "attributes": {"meditation_set_id": 42, "prayed_aloud": true}}}` |
 
 The sections of the content document the Rosary needs are `prayers`,

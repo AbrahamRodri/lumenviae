@@ -1,7 +1,7 @@
 defmodule LumenViae.Office.Breviary do
   @moduledoc """
-  The Office as GraphQL sees it: one resource with no table and no data
-  layer, whose generic actions read the breviary.
+  The Office as GraphQL and the v2 JSON:API see it: one resource with no
+  table and no data layer, whose generic actions read the breviary.
 
   Each action is a thin adapter over the domain's own functions
   (`LumenViae.Office.fetch_hour/3` and its siblings), which the REST
@@ -25,13 +25,17 @@ defmodule LumenViae.Office.Breviary do
   use Ash.Resource,
     domain: LumenViae.Office,
     authorizers: [Ash.Policy.Authorizer],
-    extensions: [AshGraphql.Resource]
+    extensions: [AshGraphql.Resource, AshJsonApi.Resource]
 
   alias LumenViae.Office.Breviary.Read
   alias LumenViae.Office.Types
 
   graphql do
     generate_object? false
+  end
+
+  json_api do
+    type "office"
   end
 
   actions do

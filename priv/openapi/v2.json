@@ -1725,6 +1725,57 @@
         ],
         "type": "object"
       },
+      "office": {
+        "description": "A \"Resource object\" representing a office",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a office",
+            "properties": {},
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a office",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "office"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "office-filter": {
+        "description": "Filters the query to results matching the given filter object",
+        "example": "",
+        "properties": {
+          "and": {
+            "items": {
+              "$ref": "#/components/schemas/office-filter"
+            },
+            "type": "array"
+          },
+          "not": {
+            "$ref": "#/components/schemas/office-filter"
+          },
+          "or": {
+            "items": {
+              "$ref": "#/components/schemas/office-filter"
+            },
+            "type": "array"
+          }
+        },
+        "type": "deepObject"
+      },
       "prayer_book": {
         "description": "A \"Resource object\" representing a prayer_book",
         "properties": {
@@ -5333,6 +5384,689 @@
         },
         "tags": [
           "mystery"
+        ]
+      }
+    },
+    "/api/v2/office/calendar/{year}/{month}": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "One month of the liturgical calendar, its days in date order.",
+        "operationId": "getOfficeCalendar",
+        "parameters": [
+          {
+            "explode": false,
+            "in": "path",
+            "name": "month",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "style": "simple"
+          },
+          {
+            "explode": false,
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "A version slug; see officeVocabulary.",
+            "in": "query",
+            "name": "version",
+            "required": false,
+            "schema": {
+              "description": "A version slug; see officeVocabulary.",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "days": {
+                      "items": {
+                        "properties": {
+                          "celebration": {
+                            "nullable": true,
+                            "properties": {
+                              "rank": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "title"
+                            ],
+                            "type": "object"
+                          },
+                          "date": {
+                            "format": "date",
+                            "type": "string"
+                          },
+                          "detail": {
+                            "nullable": true,
+                            "properties": {
+                              "label": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "text": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "letter": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "note": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "date"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "month": {
+                      "type": "integer"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "year": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "year",
+                    "month",
+                    "version",
+                    "days"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "office"
+        ]
+      }
+    },
+    "/api/v2/office/days/{date}": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "One day's place in the calendar: its celebration, season and rubric note.",
+        "operationId": "getOfficeDay",
+        "parameters": [
+          {
+            "explode": false,
+            "in": "path",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "A version slug; see officeVocabulary.",
+            "in": "query",
+            "name": "version",
+            "required": false,
+            "schema": {
+              "description": "A version slug; see officeVocabulary.",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "celebration": {
+                      "nullable": true,
+                      "properties": {
+                        "rank": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "title"
+                      ],
+                      "type": "object"
+                    },
+                    "date": {
+                      "format": "date",
+                      "type": "string"
+                    },
+                    "detail": {
+                      "nullable": true,
+                      "properties": {
+                        "label": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "text": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "letter": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "date"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "office"
+        ]
+      }
+    },
+    "/api/v2/office/days/{date}/hours": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "All eight hours of one date, Matins to Compline, in that order.",
+        "operationId": "listOfficeHours",
+        "parameters": [
+          {
+            "explode": false,
+            "in": "path",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "A language slug; see officeVocabulary.",
+            "in": "query",
+            "name": "language",
+            "required": false,
+            "schema": {
+              "description": "A language slug; see officeVocabulary.",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "A version slug; see officeVocabulary.",
+            "in": "query",
+            "name": "version",
+            "required": false,
+            "schema": {
+              "description": "A version slug; see officeVocabulary.",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "items": {
+                    "properties": {
+                      "celebration": {
+                        "nullable": true,
+                        "properties": {
+                          "rank": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "title"
+                        ],
+                        "type": "object"
+                      },
+                      "date": {
+                        "format": "date",
+                        "type": "string"
+                      },
+                      "hour": {
+                        "type": "string"
+                      },
+                      "language": {
+                        "type": "string"
+                      },
+                      "sections": {
+                        "items": {
+                          "properties": {
+                            "latin": {
+                              "nullable": true,
+                              "properties": {
+                                "lines": {
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "type": "array"
+                                },
+                                "note": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "nullable": true,
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "lines"
+                              ],
+                              "type": "object"
+                            },
+                            "vernacular": {
+                              "nullable": true,
+                              "properties": {
+                                "lines": {
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "type": "array"
+                                },
+                                "note": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "nullable": true,
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "lines"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "source": {
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "url"
+                        ],
+                        "type": "object"
+                      },
+                      "tempora": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "date",
+                      "hour",
+                      "version",
+                      "language",
+                      "sections",
+                      "source"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "office"
+        ]
+      }
+    },
+    "/api/v2/office/days/{date}/hours/{hour}": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The full text of one canonical hour on one date.",
+        "operationId": "getOfficeHour",
+        "parameters": [
+          {
+            "description": "An hour slug, such as laudes; see officeVocabulary.",
+            "explode": false,
+            "in": "path",
+            "name": "hour",
+            "required": true,
+            "schema": {
+              "description": "An hour slug, such as laudes; see officeVocabulary.",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "explode": false,
+            "in": "path",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "A language slug; see officeVocabulary.",
+            "in": "query",
+            "name": "language",
+            "required": false,
+            "schema": {
+              "description": "A language slug; see officeVocabulary.",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "A version slug; see officeVocabulary.",
+            "in": "query",
+            "name": "version",
+            "required": false,
+            "schema": {
+              "description": "A version slug; see officeVocabulary.",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "celebration": {
+                      "nullable": true,
+                      "properties": {
+                        "rank": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "title"
+                      ],
+                      "type": "object"
+                    },
+                    "date": {
+                      "format": "date",
+                      "type": "string"
+                    },
+                    "hour": {
+                      "type": "string"
+                    },
+                    "language": {
+                      "type": "string"
+                    },
+                    "sections": {
+                      "items": {
+                        "properties": {
+                          "latin": {
+                            "nullable": true,
+                            "properties": {
+                              "lines": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "note": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "title": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "lines"
+                            ],
+                            "type": "object"
+                          },
+                          "vernacular": {
+                            "nullable": true,
+                            "properties": {
+                              "lines": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "note": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "title": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "lines"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "source": {
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "url"
+                      ],
+                      "type": "object"
+                    },
+                    "tempora": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "date",
+                    "hour",
+                    "version",
+                    "language",
+                    "sections",
+                    "source"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "office"
+        ]
+      }
+    },
+    "/api/v2/office/vocabulary": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The version, hour and language slugs the Office accepts, and its defaults.",
+        "operationId": "getOfficeVocabulary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "default_language": {
+                      "type": "string"
+                    },
+                    "default_version": {
+                      "type": "string"
+                    },
+                    "hours": {
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "slug",
+                          "label"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "languages": {
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "slug",
+                          "label"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "versions": {
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "slug",
+                          "label"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "versions",
+                    "hours",
+                    "languages",
+                    "default_version",
+                    "default_language"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "office"
         ]
       }
     },

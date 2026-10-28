@@ -61,11 +61,11 @@ defmodule LumenViae.Rosary.CompanionContentTest do
   end
 
   describe "milestones" do
-    test "are the app's seven, word for word, ascending" do
+    test "are the app's twelve, word for word, ascending" do
       milestones = Content.milestones()
 
       assert Enum.map(milestones, & &1["days"]) == @fixture["milestone_days"]
-      assert @fixture["milestone_days"] == [3, 7, 9, 33, 54, 100, 365]
+      assert @fixture["milestone_days"] == [3, 7, 9, 33, 40, 50, 54, 100, 150, 365, 500, 1000]
 
       served = Enum.flat_map(milestones, &present([&1["meaning"], &1["icon"], &1["blessing"]]))
       assert served == @fixture["milestones"]
@@ -73,19 +73,24 @@ defmodule LumenViae.Rosary.CompanionContentTest do
 
     test "keep the icon names as the app has them" do
       assert Enum.map(Content.milestones(), & &1["icon"]) ==
-               ~w(ph-number-circle-three ph-number-circle-seven ph-number-circle-nine ch-consecration lv-rosary lv-wheat ch-chi-rho)
+               ~w(ph-number-circle-three ph-number-circle-seven ph-number-circle-nine ch-consecration lv-crown-of-thorns ch-dove lv-rosary lv-wheat ch-lily ch-chi-rho ch-candle lv-hourglass)
     end
 
     test "name a run only some have a name for" do
       assert Enum.map(Content.milestones(), & &1["meaning"]) ==
                [
-                 "a triduum",
+                 nil,
                  "a faithful week",
                  "a novena",
                  nil,
+                 "the length of Lent",
+                 "Easter to Pentecost",
                  "a Rosary novena",
                  nil,
-                 "a year of grace"
+                 "Our Lady's Psalter",
+                 "a year of grace",
+                 nil,
+                 nil
                ]
     end
 
