@@ -12,8 +12,6 @@ defmodule LumenViae.Rosary.SpokenRosary.Clips do
   """
   use Ash.Resource.Calculation
 
-  require Logger
-
   alias LumenViae.Rosary.Errors.AudioUnavailable
   alias LumenViae.Rosary.PrayerAudio
   alias LumenViae.Rosary.Types
@@ -45,7 +43,7 @@ defmodule LumenViae.Rosary.SpokenRosary.Clips do
           {:cont, {:ok, [{clip, file, audio} | signed]}}
 
         :error ->
-          Logger.error("Failed to sign rosary audio #{key}")
+          Types.SignedAudio.log_unsigned("Failed to sign rosary audio #{key}")
           {:halt, :error}
       end
     end)

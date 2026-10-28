@@ -27,8 +27,6 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
 
   require Ash.Query
 
-  require Logger
-
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Errors.AudioUnavailable
   alias LumenViae.Rosary.Meditation
@@ -73,7 +71,7 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
             {:ok, %MeditationNarration{meditation_id: id, voice: voice.slug, audio: audio}}
 
           :error ->
-            Logger.error("Failed to sign narration #{s3_key} of meditation #{id}")
+            SignedAudio.log_unsigned("Failed to sign narration #{s3_key} of meditation #{id}")
             :unsignable
         end
     end

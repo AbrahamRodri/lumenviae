@@ -14,8 +14,6 @@ defmodule LumenViae.Rosary.Meditation.SignedNarrations do
   """
   use Ash.Resource.Calculation
 
-  require Logger
-
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Types.SignedAudio
   alias LumenViae.Rosary.Types.SignedNarration
@@ -40,7 +38,10 @@ defmodule LumenViae.Rosary.Meditation.SignedNarrations do
           {:cont, [%SignedNarration{voice: voice.slug, audio: audio} | signed]}
 
         :error ->
-          Logger.error("Failed to sign narration #{s3_key} of meditation #{meditation.id}")
+          SignedAudio.log_unsigned(
+            "Failed to sign narration #{s3_key} of meditation #{meditation.id}"
+          )
+
           {:halt, :error}
       end
     end)
