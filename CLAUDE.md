@@ -122,6 +122,10 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   and prayer) as a library document, `GET /api/v2/carlo-acutis`, from
   `priv/library/carlo_acutis.json`. See docs/JSON_API.md, "St. Carlo
   Acutis"
+- The Marian Library (six shelves of readings on Our Lady and her feasts
+  of the year) as a library document, `GET /api/v2/marian-library`, from
+  `priv/library/marian_library.json`. See docs/JSON_API.md, "The Marian
+  Library"
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same

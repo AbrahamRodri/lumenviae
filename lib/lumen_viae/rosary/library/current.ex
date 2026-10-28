@@ -1,8 +1,8 @@
 defmodule LumenViae.Rosary.Library.Current do
   @moduledoc """
   Answers a `LumenViae.Rosary.PrayerBook`, `LumenViae.Rosary.ChantLibrary`,
-  `LumenViae.Rosary.Consecration`, `LumenViae.Rosary.TrueDevotion` or
-  `LumenViae.Rosary.CarloAcutis` read
+  `LumenViae.Rosary.Consecration`, `LumenViae.Rosary.TrueDevotion`,
+  `LumenViae.Rosary.CarloAcutis` or `LumenViae.Rosary.MarianLibrary` read
   with the one document there is, stamped with its version and the
   moment it last changed (`LumenViae.Rosary.Library.stamp/1`). `document`
   names which.

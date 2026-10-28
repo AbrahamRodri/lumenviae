@@ -41,6 +41,7 @@ defmodule LumenViaeWeb.JsonApi.OpenApiTest do
     {"get", "/api/v2/carlo-acutis", "getCarloAcutis"},
     {"get", "/api/v2/chant-library", "getChantLibrary"},
     {"get", "/api/v2/consecration", "getConsecration"},
+    {"get", "/api/v2/marian-library", "getMarianLibrary"},
     {"get", "/api/v2/meditation-sets", "listMeditationSets"},
     {"get", "/api/v2/meditation-sets/{id}", "getMeditationSet"},
     {"get", "/api/v2/mysteries", "listMysteries"},

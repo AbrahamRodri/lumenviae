@@ -22,7 +22,8 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)},
     {"/true-devotion", "true_devotion", :true_devotion, ~w(about parts chapters)},
     {"/carlo-acutis", "carlo_acutis", :carlo_acutis,
-     ~w(feast shelves timeline rule sayings prayer)}
+     ~w(feast shelves timeline rule sayings prayer)},
+    {"/marian-library", "marian_library", :marian_library, ~w(feasts shelves)}
   ]
 
   for {path, type, document, sections} <- @documents do
@@ -352,6 +353,36 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       assert %{"month" => 10, "day" => 12, "in_missal" => false} = page["feast"]
       assert "Not I, but God." in page["sayings"]
       assert page["prayer"] =~ "live as originals and not as copies"
+    end
+  end
+
+  describe "the Marian Library" do
+    setup %{conn: conn} do
+      conn
+      |> get_v2("/marian-library?fields[marian_library]=feasts,shelves")
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+      |> then(&%{feasts: &1["feasts"], shelves: &1["shelves"]})
+    end
+
+    test "six shelves, and the feasts of the year with their paintings", %{
+      feasts: feasts,
+      shelves: shelves
+    } do
+      assert Enum.map(shelves, & &1["id"]) ==
+               ~w(dogmas scripture apparitions saints rosary_history titles)
+
+      assert %{
+               "name" => "Our Lady of Guadalupe",
+               "in_missal" => false,
+               "kept_by" => "the Americas"
+             } =
+               List.last(feasts)
+
+      assert Enum.all?(feasts, &is_binary(&1["painting"]))
+
+      lepanto = Enum.find(feasts, &(&1["name"] == "The Most Holy Rosary"))
+      assert %{"reading_id" => "lepanto", "reading_name" => "Lepanto"} = lepanto
     end
   end
 end

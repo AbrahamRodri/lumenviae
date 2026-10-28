@@ -973,6 +973,297 @@
         },
         "type": "object"
       },
+      "marian_library": {
+        "description": "A \"Resource object\" representing a marian_library",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a marian_library",
+            "properties": {
+              "feasts": {
+                "description": "The feasts of Our Lady on the universal 1962 calendar in the order of the year, and Guadalupe, kept in the Americas; each with its painting and, where the library has one, its reading.",
+                "items": {
+                  "properties": {
+                    "day": {
+                      "type": "integer"
+                    },
+                    "in_missal": {
+                      "type": "boolean"
+                    },
+                    "kept_by": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "month": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "painting": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "reading_id": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "reading_name": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "month",
+                    "day",
+                    "name",
+                    "in_missal"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "shelves": {
+                "description": "The six shelves in order, each with its readings.",
+                "items": {
+                  "properties": {
+                    "footnote": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "margin_label": {
+                      "type": "string"
+                    },
+                    "readings": {
+                      "items": {
+                        "properties": {
+                          "detail": {
+                            "type": "string"
+                          },
+                          "doors": {
+                            "items": {
+                              "properties": {
+                                "icon": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "kind": {
+                                  "type": "string"
+                                },
+                                "note": {
+                                  "type": "string"
+                                },
+                                "target": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "nullable": true,
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "target",
+                                "note"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "feast": {
+                            "nullable": true,
+                            "properties": {
+                              "day": {
+                                "type": "integer"
+                              },
+                              "in_missal": {
+                                "type": "boolean"
+                              },
+                              "kept_by": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "month": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "painting": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "reading_id": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "reading_name": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "month",
+                              "day",
+                              "name",
+                              "in_missal"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "painting": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "paragraphs": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "parts": {
+                            "items": {
+                              "properties": {
+                                "text": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "title",
+                                "text"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "quote": {
+                            "nullable": true,
+                            "properties": {
+                              "citation": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "citation"
+                            ],
+                            "type": "object"
+                          },
+                          "tables": {
+                            "items": {
+                              "properties": {
+                                "rows": {
+                                  "items": {
+                                    "properties": {
+                                      "label": {
+                                        "type": "string"
+                                      },
+                                      "value": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "label",
+                                      "value"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "title",
+                                "rows"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "detail",
+                          "paragraphs",
+                          "doors",
+                          "parts",
+                          "tables"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "subtitle": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "subtitle",
+                    "margin_label",
+                    "icon",
+                    "readings"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a marian_library",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "marian_library"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
       "meditation": {
         "description": "A \"Resource object\" representing a meditation",
         "properties": {
@@ -4448,6 +4739,53 @@
         },
         "tags": [
           "consecration"
+        ]
+      }
+    },
+    "/api/v2/marian-library": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The Marian Library as one document. There is only ever one.",
+        "operationId": "getMarianLibrary",
+        "parameters": [
+          {
+            "description": "Comma separated fields of marian_library: feasts, shelves, updated_at, version",
+            "explode": false,
+            "in": "query",
+            "name": "fields[marian_library]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/marian_library"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "marian_library"
         ]
       }
     },

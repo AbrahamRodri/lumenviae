@@ -1,7 +1,7 @@
 defmodule LumenViae.Rosary.LibraryTest do
   @moduledoc """
-  The Prayer Book, the Chant Library, the Consecration, True Devotion and
-  St. Carlo Acutis's page as
+  The Prayer Book, the Chant Library, the Consecration, True Devotion, St.
+  Carlo Acutis's page and the Marian Library as
   `LumenViae.Rosary.Library` holds them: each file dated and versioned as its history records, and
   what `LumenViae.Rosary.Library.Check` refuses.
   """
@@ -38,6 +38,9 @@ defmodule LumenViae.Rosary.LibraryTest do
     ],
     "carlo_acutis.json" => [
       {~U[2026-10-28 06:00:00Z], "61cda1b99e6bd122"}
+    ],
+    "marian_library.json" => [
+      {~U[2026-10-28 06:30:00Z], "20566a4a5a5c600f"}
     ]
   }
 
@@ -100,6 +103,10 @@ defmodule LumenViae.Rosary.LibraryTest do
 
       carlo = Library.sections(:carlo_acutis)
       assert Enum.map(carlo["shelves"], &length(&1["readings"])) == [5, 4]
+
+      marian = Library.sections(:marian_library)
+      assert length(marian["feasts"]) == 17
+      assert Enum.map(marian["shelves"], &length(&1["readings"])) |> Enum.sum() == 33
 
       assert {length(carlo["timeline"]), length(carlo["rule"]), length(carlo["sayings"])} ==
                {7, 5, 8}
@@ -527,6 +534,56 @@ defmodule LumenViae.Rosary.LibraryTest do
     end
   end
 
+  describe "the Marian Library's check" do
+    test "the file as it is passes" do
+      assert Check.marian_library_errors(marian(), Library.prayer_ids()) == []
+    end
+
+    test "holds the readings the How to Pray course's library doors name" do
+      ids = for shelf <- marian()["shelves"], reading <- shelf["readings"], do: reading["id"]
+
+      assert "montfort" in ids
+      assert "cana" in ids
+    end
+
+    test "refuses feasts out of the year's order, and one naming a reading not on a shelf" do
+      [first, second | rest] = marian()["feasts"]
+
+      assert marian_errors(%{marian() | "feasts" => [second, first | rest]}) =~
+               "the feasts are in calendar order"
+
+      lost = %{first | "reading_id" => "nowhere"}
+
+      assert marian_errors(%{marian() | "feasts" => [lost, second | rest]}) =~
+               ~s(the feast The Purification names the reading "nowhere", which is not on a shelf)
+    end
+
+    test "refuses a feast with no painting" do
+      [first | rest] = marian()["feasts"]
+
+      assert marian_errors(%{marian() | "feasts" => [%{first | "painting" => nil} | rest]}) =~
+               "The Purification: painting is required text"
+    end
+
+    test "refuses a door that opens nothing there is" do
+      [shelf | shelves] = marian()["shelves"]
+      [reading | readings] = shelf["readings"]
+
+      door = %{
+        "kind" => "reading",
+        "target" => "nowhere",
+        "title" => "x",
+        "note" => "y",
+        "icon" => nil
+      }
+
+      shelf = %{shelf | "readings" => [%{reading | "doors" => [door]} | readings]}
+
+      assert marian_errors(%{marian() | "shelves" => [shelf | shelves]}) =~
+               "door reading:nowhere, which opens nothing there is"
+    end
+  end
+
   describe "the Chant Library's check" do
     test "the file as it is passes" do
       assert Check.chant_library_errors(Library.sections(:chant_library), Library.prayer_ids()) ==
@@ -653,6 +710,11 @@ defmodule LumenViae.Rosary.LibraryTest do
   defp true_devotion, do: Library.sections(:true_devotion)
 
   defp carlo, do: Library.sections(:carlo_acutis)
+
+  defp marian, do: Library.sections(:marian_library)
+
+  defp marian_errors(document),
+    do: document |> Check.marian_library_errors(Library.prayer_ids()) |> Enum.join("\n")
 
   defp carlo_errors(document),
     do: document |> Check.carlo_acutis_errors(Library.prayer_ids()) |> Enum.join("\n")

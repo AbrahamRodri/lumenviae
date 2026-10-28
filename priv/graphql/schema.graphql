@@ -1476,6 +1476,23 @@ type MutationError {
   path: [String!]
 }
 
+type MarianLibrary {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "The feasts of Our Lady on the universal 1962 calendar in the order of the year, and Guadalupe, kept in the Americas; each with its painting and, where the library has one, its reading."
+  feasts: [LibraryFeast!]!
+
+  "The six shelves in order, each with its readings."
+  shelves: [LibraryShelf!]!
+}
+
 type CarloAcutis {
   "Always `current`: there is one document."
   id: String!
@@ -1850,6 +1867,9 @@ type RootQueryType {
 
   "St. Carlo Acutis's page as one document. There is only ever one."
   carloAcutis: CarloAcutis!
+
+  "The Marian Library as one document. There is only ever one."
+  marianLibrary: MarianLibrary!
 
   "The full text of one canonical hour on one date."
   officeHour(

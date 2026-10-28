@@ -1,8 +1,9 @@
 defmodule LumenViae.Rosary.Library.Check do
   @moduledoc """
   What `priv/library/prayer_book.json`, `priv/library/chant_library.json`,
-  `priv/library/consecration.json`, `priv/library/true_devotion.json` and
-  `priv/library/carlo_acutis.json` must hold, checked as `LumenViae.Rosary.Library` compiles and again by
+  `priv/library/consecration.json`, `priv/library/true_devotion.json`,
+  `priv/library/carlo_acutis.json` and `priv/library/marian_library.json`
+  must hold, checked as `LumenViae.Rosary.Library` compiles and again by
   `LumenViae.Curation.ChantUpload` before it rewrites a file.
 
   Each function takes a file's sections (string keys, as decoded) and
@@ -153,6 +154,35 @@ defmodule LumenViae.Rosary.Library.Check do
     do: [
       "the document needs a feast, a list of shelves, of timeline moments, of rule habits and of sayings, and a prayer"
     ]
+
+  @doc """
+  The problems with the Marian Library: its shelves as St. Carlo's are
+  checked, and its feasts on real dates in the order of the year, each
+  with a painting and naming, where it names one, a reading on its shelves.
+  """
+  @spec marian_library_errors(map, [String.t()]) :: [String.t()]
+  def marian_library_errors(%{"feasts" => feasts, "shelves" => shelves}, prayer_ids)
+      when is_list(feasts) and is_list(shelves) do
+    reading_ids = for shelf <- shelves, reading <- list(shelf["readings"]), do: id(reading)
+
+    library_shelves_errors(shelves, prayer_ids) ++
+      Enum.flat_map(feasts, &library_feast_errors/1) ++
+      feast_order_errors(feasts) ++
+      for(
+        feast <- feasts,
+        error <- required(feast, ~w(name painting)),
+        do: "#{feast["name"]}: #{error}"
+      ) ++
+      for(
+        %{"reading_id" => reading_id} = feast <- feasts,
+        reading_id != nil and reading_id not in reading_ids,
+        do:
+          "the feast #{feast["name"]} names the reading #{inspect(reading_id)}, which is not on a shelf"
+      )
+  end
+
+  def marian_library_errors(_document, _prayer_ids),
+    do: ["the document needs a list of feasts and of shelves"]
 
   # Shelves of library readings: each shelf and reading id once and safe
   # to store, every door opening something there is, every feast a date.

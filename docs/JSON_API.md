@@ -52,6 +52,7 @@ involved.
 | `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers` and `feasts` when named in `fields[consecration]=`. See "The Consecration". |
 | `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts` and `chapters` when named in `fields[true_devotion]=`. See "True Devotion". |
 | `GET /carlo-acutis` | `CarloAcutis.:current` | St. Carlo Acutis's page as one document: its `version` and `updated_at`, and `feast`, `shelves`, `timeline`, `rule`, `sayings` and `prayer` when named in `fields[carlo_acutis]=`. See "St. Carlo Acutis". |
+| `GET /marian-library` | `MarianLibrary.:current` | The Marian Library as one document: its `version` and `updated_at`, and `feasts` and `shelves` when named in `fields[marian_library]=`. See "The Marian Library". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
 
@@ -371,7 +372,7 @@ checked when the file compiles):
 | --- | --- |
 | `act` | `todays_rosary`: begin today's Rosary. `title` and `icon` are null; the client names it. |
 | `reading` | A reading on these shelves, by its id. |
-| `library` | `montfort`, `cana`: a reading the iOS app holds (the Marian Library's) that this document does not serve. A client that has no such reading leaves the door out. |
+| `library` | `montfort`, `cana`: a reading on the Marian Library's shelves (`GET /api/v2/marian-library`), not in this document. A client that has no such reading leaves the door out. |
 | `prayer` | An id in the `prayers` section. |
 | `page` | `mysteries_in_scripture`: the mysteries with their Gospel passages. |
 
@@ -855,6 +856,34 @@ bundles its own.
 - **`sayings`**: strings. One a day, the same all day: the day of the
   year counted from 1, modulo the count, as the iOS page picks it.
 - **`prayer`**: one string, in the Prayer Book's grammar.
+
+## The Marian Library
+
+```
+GET /api/v2/marian-library
+GET /api/v2/marian-library?fields[marian_library]=version,updated_at,feasts,shelves
+```
+
+The Marian Library as the iOS app holds it
+(`Data/MarianLibraryData.swift`): six shelves of short readings on Our
+Lady and the Marian feasts of the 1962 calendar. A library document,
+kept and polled as the Prayer Book is; GraphQL's `marianLibrary` serves
+the same. The words are in `priv/library/marian_library.json`.
+
+- **`feasts`**, in the order of the year: `LibraryFeast`s. The sixteen on
+  the universal 1962 calendar have `in_missal` true; Our Lady of
+  Guadalupe has it false and `kept_by` `the Americas`. Each has the
+  `painting` it is shown in, by the apps' painting name, and, where the
+  library has a reading about it, its `reading_id` and the short
+  `reading_name` that reading goes by when it is not the feast's own
+  (`Lepanto` for the Most Holy Rosary). The feast kept today, or else the
+  next to come, is the device's arithmetic.
+- **`shelves`**: `dogmas`, `scripture`, `apparitions`, `saints`,
+  `rosary_history`, `titles`, each as St. Carlo's shelves are, 33
+  readings in all. Their doors are the library vocabulary below.
+
+The How to Pray course's `library` doors (`montfort`, `cana`) name
+readings on these shelves.
 
 ### Reading doors in the library documents
 
