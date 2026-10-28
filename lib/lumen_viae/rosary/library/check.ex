@@ -1,7 +1,9 @@
 defmodule LumenViae.Rosary.Library.Check do
   @moduledoc """
-  What `priv/library/prayer_book.json`, `priv/library/chant_library.json`
-  and `priv/library/consecration.json` must hold, checked as `LumenViae.Rosary.Library` compiles and again by
+  What `priv/library/prayer_book.json`, `priv/library/chant_library.json`,
+  `priv/library/consecration.json`, `priv/library/true_devotion.json`,
+  `priv/library/carlo_acutis.json` and `priv/library/marian_library.json`
+  must hold, checked as `LumenViae.Rosary.Library` compiles and again by
   `LumenViae.Curation.ChantUpload` before it rewrites a file.
 
   Each function takes a file's sections (string keys, as decoded) and
@@ -16,6 +18,13 @@ defmodule LumenViae.Rosary.Library.Check do
   """
 
   @sha256 ~r/\A[0-9a-f]{64}\z/
+
+  # What a library reading's door may open, beyond its own document's
+  # readings, a Prayer Book prayer and a category's mysteries: the acts
+  # and the pages both apps have. docs/JSON_API.md, "Reading doors".
+  @door_acts ~w(todays_rosary mass consecration)
+  @door_pages ~w(marian_library carlo_acutis true_devotion true_devotion_book how_to_pray
+                 mysteries_in_scripture)
   @name ~r/\A[A-Za-z0-9_-]+\z/
 
   @doc "The problems with a Prayer Book document's sections."
@@ -75,6 +84,177 @@ defmodule LumenViae.Rosary.Library.Check do
 
   def consecration_errors(_document),
     do: ["the document needs a list of phases, of days, of prayers and of feasts"]
+
+  @doc """
+  The problems with a True Devotion document's sections: its parts
+  numbered 1, 2 and on, every chapter once and in a part there is (or 0,
+  the Introduction's), and each chapter's paragraphs numbered from 0 in
+  order, each `text` or a `subheading`. A device keeps a reader's place
+  by chapter id and paragraph id, so neither may move. The summary page's
+  `teaching` is checked as a library shelf (`prayer_ids` are the Prayer
+  Book's), and each ejaculatory prayer's English and Latin pair line for
+  line.
+  """
+  @spec true_devotion_errors(map, [String.t()]) :: [String.t()]
+  def true_devotion_errors(
+        %{
+          "about" => about,
+          "parts" => parts,
+          "chapters" => chapters,
+          "teaching" => teaching,
+          "ejaculatory_prayers" => prayers
+        },
+        prayer_ids
+      )
+      when is_map(about) and is_list(parts) and is_list(chapters) and is_map(teaching) and
+             is_list(prayers) do
+    numbers = for %{"number" => number} <- parts, do: number
+    chapter_ids = Enum.map(chapters, &id/1)
+
+    required(about, ~w(title author translator source_note)) ++
+      if(numbers == Enum.to_list(1..length(parts)//1),
+        do: [],
+        else: ["the parts are numbered 1, 2 and on, in order"]
+      ) ++
+      Enum.flat_map(chapters, &true_devotion_chapter_errors(&1, [0 | numbers])) ++
+      repeated("chapter", chapter_ids) ++
+      unnamed("chapter id", chapter_ids) ++
+      library_shelves_errors([teaching], prayer_ids) ++
+      for(
+        prayer <- prayers,
+        error <-
+          required(prayer, ~w(title english latin)) ++
+            pairing_errors(Map.put(prayer, "id", prayer["title"])),
+        do: "ejaculatory prayer #{inspect(prayer["title"])}: #{error}"
+      )
+  end
+
+  def true_devotion_errors(_document, _prayer_ids),
+    do: [
+      "the document needs an about, a teaching shelf, and a list of parts, of chapters and of ejaculatory prayers"
+    ]
+
+  @doc """
+  The problems with St. Carlo Acutis's page: its feast on a real date,
+  its shelves' readings each once with every door opening something
+  there is (`prayer_ids` are the Prayer Book's), and every moment of the
+  timeline and habit of the rule naming a reading of the page, a habit's
+  act being one an act door may name.
+  """
+  @spec carlo_acutis_errors(map, [String.t()]) :: [String.t()]
+  def carlo_acutis_errors(
+        %{
+          "feast" => feast,
+          "shelves" => shelves,
+          "timeline" => timeline,
+          "rule" => rule,
+          "sayings" => sayings,
+          "prayer" => prayer
+        },
+        prayer_ids
+      )
+      when is_map(feast) and is_list(shelves) and is_list(timeline) and is_list(rule) and
+             is_list(sayings) and is_binary(prayer) do
+    reading_ids = for shelf <- shelves, reading <- list(shelf["readings"]), do: id(reading)
+
+    library_feast_errors(feast) ++
+      library_shelves_errors(shelves, prayer_ids) ++
+      for(
+        %{"reading_id" => reading_id} = item <- timeline ++ rule,
+        reading_id not in reading_ids,
+        do:
+          "#{item["title"] || item["name"]} names the reading #{inspect(reading_id)}, which is not on a shelf"
+      ) ++
+      for(
+        %{"act" => act} = habit <- rule,
+        act != nil and act not in @door_acts,
+        do: "the habit #{habit["name"]} has the act #{inspect(act)}, which no door may name"
+      ) ++
+      for(saying <- sayings, not is_binary(saying) or saying == "", do: "a saying is empty")
+  end
+
+  def carlo_acutis_errors(_document, _prayer_ids),
+    do: [
+      "the document needs a feast, a list of shelves, of timeline moments, of rule habits and of sayings, and a prayer"
+    ]
+
+  @doc """
+  The problems with the Marian Library: its shelves as St. Carlo's are
+  checked, and its feasts on real dates in the order of the year, each
+  with a painting and naming, where it names one, a reading on its shelves.
+  """
+  @spec marian_library_errors(map, [String.t()]) :: [String.t()]
+  def marian_library_errors(%{"feasts" => feasts, "shelves" => shelves}, prayer_ids)
+      when is_list(feasts) and is_list(shelves) do
+    reading_ids = for shelf <- shelves, reading <- list(shelf["readings"]), do: id(reading)
+
+    library_shelves_errors(shelves, prayer_ids) ++
+      Enum.flat_map(feasts, &library_feast_errors/1) ++
+      feast_order_errors(feasts) ++
+      for(
+        feast <- feasts,
+        error <- required(feast, ~w(name painting)),
+        do: "#{feast["name"]}: #{error}"
+      ) ++
+      for(
+        %{"reading_id" => reading_id} = feast <- feasts,
+        reading_id != nil and reading_id not in reading_ids,
+        do:
+          "the feast #{feast["name"]} names the reading #{inspect(reading_id)}, which is not on a shelf"
+      )
+  end
+
+  def marian_library_errors(_document, _prayer_ids),
+    do: ["the document needs a list of feasts and of shelves"]
+
+  # Shelves of library readings: each shelf and reading id once and safe
+  # to store, every door opening something there is, every feast a date.
+  defp library_shelves_errors(shelves, prayer_ids) do
+    readings = for shelf <- shelves, reading <- list(shelf["readings"]), do: reading
+    shelf_ids = Enum.map(shelves, &id/1)
+    reading_ids = Enum.map(readings, &id/1)
+
+    targets = %{
+      "act" => @door_acts,
+      "page" => @door_pages,
+      "reading" => reading_ids,
+      "prayer" => prayer_ids,
+      "mysteries" => LumenViae.Rosary.Categories.slugs()
+    }
+
+    for(
+      shelf <- shelves,
+      list(shelf["readings"]) == [],
+      do: "the shelf #{id(shelf)} has no readings"
+    ) ++
+      repeated("shelf", shelf_ids) ++
+      unnamed("shelf id", shelf_ids) ++
+      repeated("reading", reading_ids) ++
+      unnamed("reading id", reading_ids) ++
+      for(
+        reading <- readings,
+        %{"kind" => kind, "target" => target} <- list(reading["doors"]),
+        target not in Map.get(targets, kind, []),
+        do:
+          "the reading #{id(reading)} has a door #{kind}:#{target}, which opens nothing there is"
+      ) ++
+      for(
+        reading <- readings,
+        is_map(reading["feast"]),
+        error <- library_feast_errors(reading["feast"]),
+        do: "the reading #{id(reading)}: #{error}"
+      )
+  end
+
+  defp library_feast_errors(%{"month" => month, "day" => day} = feast)
+       when is_integer(month) and is_integer(day) do
+    # A leap year, so 29 February is a date.
+    if match?({:ok, _date}, Date.new(2024, month, day)),
+      do: [],
+      else: ["the feast #{feast["name"]} on #{month}/#{day} is not a date"]
+  end
+
+  defp library_feast_errors(feast), do: ["the feast #{inspect(feast)} needs a month and a day"]
 
   @doc """
   The problems with a Chant Library document's sections. `prayer_ids`,
@@ -460,6 +640,34 @@ defmodule LumenViae.Rosary.Library.Check do
   end
 
   defp pairing_errors(_prayer), do: []
+
+  defp true_devotion_chapter_errors(%{"id" => id} = chapter, parts) when is_binary(id) do
+    paragraphs = list(chapter["paragraphs"])
+
+    errors =
+      required(chapter, ~w(title)) ++
+        if(chapter["part"] in parts, do: [], else: ["its part is not one of the parts"]) ++
+        if(paragraphs == [], do: ["it has no paragraphs"], else: []) ++
+        if(Enum.map(paragraphs, &id/1) == Enum.to_list(0..(length(paragraphs) - 1)//1),
+          do: [],
+          else: ["its paragraphs are numbered 0, 1, 2 and on, in order"]
+        ) ++
+        for(
+          paragraph <- paragraphs,
+          paragraph["kind"] not in ~w(text subheading),
+          do: "paragraph #{inspect(id(paragraph))} is neither text nor a subheading"
+        ) ++
+        for(
+          paragraph <- paragraphs,
+          error <- required(paragraph, ~w(text)),
+          do: "paragraph #{inspect(id(paragraph))}: #{error}"
+        )
+
+    for error <- errors, do: "chapter #{id}: #{error}"
+  end
+
+  defp true_devotion_chapter_errors(chapter, _parts),
+    do: ["a chapter needs an id: #{inspect(chapter, limit: 3)}"]
 
   defp id(%{"id" => id}), do: id
   defp id(_other), do: nil

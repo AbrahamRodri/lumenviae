@@ -1,8 +1,9 @@
 defmodule LumenViaeWeb.JsonApi.LibraryTest do
   @moduledoc """
-  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library` and
-  `GET /api/v2/consecration`: the Prayer Book, the Chant Library and the
-  33-day Consecration, each one document. The bare request is the
+  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library`,
+  `GET /api/v2/consecration` and `GET /api/v2/true-devotion`: the Prayer
+  Book, the Chant Library, the 33-day Consecration and the book True
+  Devotion, each one document. The bare request is the
   version and the date, which is how a device asks whether its saved copy
   is current; the sections come when named in `fields[<type>]=`.
   """
@@ -18,7 +19,12 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
   @documents [
     {"/prayer-book", "prayer_book", :prayer_book, ~w(prayers chapters)},
     {"/chant-library", "chant_library", :chant_library, ~w(groups chants)},
-    {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)}
+    {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)},
+    {"/true-devotion", "true_devotion", :true_devotion,
+     ~w(about parts chapters teaching ejaculatory_prayers)},
+    {"/carlo-acutis", "carlo_acutis", :carlo_acutis,
+     ~w(feast shelves timeline rule sayings prayer)},
+    {"/marian-library", "marian_library", :marian_library, ~w(feasts shelves)}
   ]
 
   for {path, type, document, sections} <- @documents do
@@ -265,6 +271,119 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       for chant <- chants do
         assert chant["id"] in Map.fetch!(parts, chant["group_id"])
       end
+    end
+  end
+
+  describe "True Devotion" do
+    setup %{conn: conn} do
+      conn
+      |> get_v2("/true-devotion?fields[true_devotion]=about,parts,chapters")
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+      |> then(&%{about: &1["about"], parts: &1["parts"], chapters: &1["chapters"]})
+    end
+
+    test "every item carries every field of the contract", %{
+      about: about,
+      parts: parts,
+      chapters: chapters
+    } do
+      assert Map.keys(about) |> Enum.sort() == ~w(author source_note title translator)
+
+      for part <- parts, do: assert(Map.keys(part) |> Enum.sort() == ~w(number title))
+
+      for chapter <- chapters do
+        assert Map.keys(chapter) |> Enum.sort() == ~w(id paragraphs part title)
+
+        for paragraph <- chapter["paragraphs"] do
+          assert Map.keys(paragraph) |> Enum.sort() == ~w(id kind text)
+        end
+      end
+    end
+
+    test "the whole book: an Introduction and two parts, the Act of Consecration last", %{
+      about: about,
+      parts: parts,
+      chapters: chapters
+    } do
+      assert about["title"] == "True Devotion to the Blessed Virgin"
+      assert about["source_note"] =~ "public domain"
+      assert Enum.map(parts, & &1["number"]) == [1, 2]
+      assert %{"id" => "introduction", "part" => 0} = hd(chapters)
+      assert %{"id" => "formula", "part" => 2} = List.last(chapters)
+    end
+  end
+
+  describe "St. Carlo Acutis" do
+    setup %{conn: conn} do
+      conn
+      |> get_v2("/carlo-acutis?fields[carlo_acutis]=feast,shelves,timeline,rule,sayings,prayer")
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+      |> then(&%{page: &1})
+    end
+
+    test "every item carries every field of the contract", %{page: page} do
+      assert Map.keys(page["feast"]) |> Enum.sort() ==
+               ~w(day in_missal kept_by month name painting reading_id reading_name)
+
+      for shelf <- page["shelves"] do
+        assert Map.keys(shelf) |> Enum.sort() ==
+                 ~w(footnote icon id margin_label readings subtitle title)
+
+        for reading <- shelf["readings"] do
+          assert Map.keys(reading) |> Enum.sort() ==
+                   ~w(detail doors feast id painting paragraphs parts quote tables title)
+
+          for door <- reading["doors"] do
+            assert Map.keys(door) |> Enum.sort() == ~w(icon kind note target title)
+          end
+        end
+      end
+
+      for moment <- page["timeline"],
+          do: assert(Map.keys(moment) |> Enum.sort() == ~w(line reading_id title year))
+
+      for habit <- page["rule"] do
+        assert Map.keys(habit) |> Enum.sort() == ~w(act act_title icon name often reading_id)
+      end
+    end
+
+    test "his life and his devotions, and a prayer for his intercession", %{page: page} do
+      assert Enum.map(page["shelves"], & &1["id"]) == ~w(carlo_life carlo_devotions)
+      assert %{"month" => 10, "day" => 12, "in_missal" => false} = page["feast"]
+      assert "Not I, but God." in page["sayings"]
+      assert page["prayer"] =~ "live as originals and not as copies"
+    end
+  end
+
+  describe "the Marian Library" do
+    setup %{conn: conn} do
+      conn
+      |> get_v2("/marian-library?fields[marian_library]=feasts,shelves")
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+      |> then(&%{feasts: &1["feasts"], shelves: &1["shelves"]})
+    end
+
+    test "six shelves, and the feasts of the year with their paintings", %{
+      feasts: feasts,
+      shelves: shelves
+    } do
+      assert Enum.map(shelves, & &1["id"]) ==
+               ~w(dogmas scripture apparitions saints rosary_history titles)
+
+      assert %{
+               "name" => "Our Lady of Guadalupe",
+               "in_missal" => false,
+               "kept_by" => "the Americas"
+             } =
+               List.last(feasts)
+
+      assert Enum.all?(feasts, &is_binary(&1["painting"]))
+
+      lepanto = Enum.find(feasts, &(&1["name"] == "The Most Holy Rosary"))
+      assert %{"reading_id" => "lepanto", "reading_name" => "Lepanto"} = lepanto
     end
   end
 end

@@ -233,6 +233,9 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 | `prayerBook` | `PrayerBook!`: `id version updatedAt prayers chapters`. The same document as `GET /api/v2/prayer-book`; a chapter's `sections` are its sub-headings. |
 | `chantLibrary` | `ChantLibrary!`: `id version updatedAt groups chants`, each chant with its `audio`, `score` and `lines`. The same document as `GET /api/v2/chant-library`. |
 | `consecration` | `Consecration!`: `id version updatedAt phases days prayers feasts`, each day with its `readings`. The same document as `GET /api/v2/consecration`. |
+| `trueDevotion` | `TrueDevotion!`: `id version updatedAt about parts chapters teaching ejaculatoryPrayers`, each chapter with its `paragraphs`. The same document as `GET /api/v2/true-devotion`. |
+| `carloAcutis` | `CarloAcutis!`: `id version updatedAt feast shelves timeline rule sayings prayer`, each shelf with its `readings` and their `doors`. The same document as `GET /api/v2/carlo-acutis`. |
+| `marianLibrary` | `MarianLibrary!`: `id version updatedAt feasts shelves`, each shelf with its `readings`. The same document as `GET /api/v2/marian-library`. |
 
 Everything a client needs to show and say the Rosary offline, as one
 document: selecting only `version updatedAt` is how a device asks whether

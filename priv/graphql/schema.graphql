@@ -3,6 +3,187 @@ schema {
   query: RootQueryType
 }
 
+type CarloHabit {
+  "The reading on the `devotions` shelf that tells of it."
+  readingId: String!
+
+  "How often (`Daily`, `Weekly`)."
+  often: String!
+
+  "The habit (`Holy Mass`)."
+  name: String!
+
+  "The iOS app's glyph name for it, for reference."
+  icon: String!
+
+  "The act's button (`Pray it`), or null when there is no act."
+  actTitle: String
+
+  "The act that does it today, a door `act` target (`mass`, `todays_rosary`), or null."
+  act: String
+}
+
+type CarloMoment {
+  "The year (`1998`)."
+  year: String!
+
+  "What happened (`First Communion`)."
+  title: String!
+
+  "The reading on the `life` shelf it opens."
+  readingId: String!
+
+  "One line more."
+  line: String!
+}
+
+type TrueDevotionPrayer {
+  "Its title (`Totus Tuus`)."
+  title: String!
+
+  "The Latin, pairing with the English line for line."
+  latin: String!
+
+  "The English, in the Prayer Book's grammar."
+  english: String!
+}
+
+type LibraryFeast {
+  "The short name its reading goes by when that is not the feast's own (`Lepanto`), or null."
+  readingName: String
+
+  "The id of the reading about it on the same document's shelves, or null."
+  readingId: String
+
+  "The painting it is shown in, by the apps' painting name (`mary_immaculate_conception`), or null where none is set."
+  painting: String
+
+  "Its name (`Our Lady of Lourdes`)."
+  name: String!
+
+  "Its month, 1 to 12."
+  month: Int!
+
+  "The place or people it is kept by when it is not universal (`the Americas`), or null."
+  keptBy: String
+
+  "Whether it is on the universal 1962 calendar, so the Missal has its Mass. False for a later or local feast, which opens no Mass."
+  inMissal: Boolean!
+
+  "Its day of the month."
+  day: Int!
+}
+
+type ReadingPart {
+  "Its heading."
+  title: String!
+
+  "Its prose."
+  text: String!
+}
+
+type LibraryReading {
+  "Its title."
+  title: String!
+
+  "Two-column tables after the prose; often empty."
+  tables: [ReadingTable!]!
+
+  "A saying set apart, or null."
+  quote: ReadingQuote
+
+  "Named parts after the prose, each under its heading; often empty."
+  parts: [ReadingPart!]!
+
+  "Its prose, a paragraph to an item."
+  paragraphs: [String!]!
+
+  "The painting it is hung in, by the apps' painting name, or null."
+  painting: String
+
+  "The reading's id, unique across the app's shelves: a door of kind `reading` names it. Stable forever."
+  id: String!
+
+  "The feast it is kept on, or null."
+  feast: LibraryFeast
+
+  "Where the reading leads, in order; often empty."
+  doors: [ReadingDoor!]!
+
+  "One line under the title: the date, council, place or witness."
+  detail: String!
+}
+
+type LibraryShelf {
+  "Its name."
+  title: String!
+
+  "One line under the name."
+  subtitle: String!
+
+  "Its readings in order. A reading's place is shown as a Roman numeral."
+  readings: [LibraryReading!]!
+
+  "Its name for a narrow margin, with a line break (`\\n`) where it reads best."
+  marginLabel: String!
+
+  "The shelf's id. Stable forever."
+  id: String!
+
+  "The iOS app's glyph name for it (`ch-lily`), for reference."
+  icon: String!
+
+  "A closing line for a shelf that only samples a larger tradition, or null."
+  footnote: String
+}
+
+type TrueDevotionParagraph {
+  "The words, as printed. No markup."
+  text: String!
+
+  "`text`, a paragraph of the book, or `subheading`, a heading inside the chapter."
+  kind: String!
+
+  "Its place in the chapter, counting from 0. Stable forever with the chapter's id: a device keeps a reader's place by the two."
+  id: Int!
+}
+
+type TrueDevotionChapter {
+  "The chapter's title (`Motives for This Devotion`)."
+  title: String!
+
+  "The part it belongs to, a `number` in `parts`, or 0 for the Introduction, which is in none."
+  part: Int!
+
+  "Its paragraphs in reading order, their ids 0, 1, 2 and on."
+  paragraphs: [TrueDevotionParagraph!]!
+
+  "The chapter's id (`introduction`, `motives`). Stable forever: a device keeps a reader's progress by it."
+  id: String!
+}
+
+type TrueDevotionPart {
+  "Its heading (`Part I — On Devotion to Our Lady in General`)."
+  title: String!
+
+  "The part, 1 or 2, as a chapter's `part` names it."
+  number: Int!
+}
+
+type TrueDevotionAbout {
+  "The translation, as the title page credits it."
+  translator: String!
+
+  "The book's title (`True Devotion to the Blessed Virgin`)."
+  title: String!
+
+  "The edition the text is taken from, and that it is in the public domain."
+  sourceNote: String!
+
+  "Who wrote it (`St. Louis-Marie Grignion de Montfort`)."
+  author: String!
+}
+
 type MarianFeast {
   "Its name (`The Assumption`)."
   name: String!
@@ -1018,7 +1199,7 @@ type ReadingDoor {
   "The line under it."
   note: String!
 
-  "`act`, `reading`, `library`, `prayer` or `page`."
+  "`act`, `reading`, `library`, `prayer`, `mysteries` or `page`."
   kind: String!
 
   "The iOS app's glyph name for it, for reference; null for an `act`."
@@ -1304,6 +1485,78 @@ type MutationError {
 
   "The path to the field that produced the error"
   path: [String!]
+}
+
+type MarianLibrary {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "The feasts of Our Lady on the universal 1962 calendar in the order of the year, and Guadalupe, kept in the Americas; each with its painting and, where the library has one, its reading."
+  feasts: [LibraryFeast!]!
+
+  "The six shelves in order, each with its readings."
+  shelves: [LibraryShelf!]!
+}
+
+type CarloAcutis {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "His feast, 12 October, the day he died. Not on the 1962 calendar, so it opens no Mass."
+  feast: LibraryFeast!
+
+  "His life (`carlo_life`) and his devotions (`carlo_devotions`), each a shelf of readings."
+  shelves: [LibraryShelf!]!
+
+  "His life as a timeline, in order, each moment opening its reading."
+  timeline: [CarloMoment!]!
+
+  "His rule of life: what he did every day or every week, each with its reading and the act that does it today."
+  rule: [CarloHabit!]!
+
+  "His sayings, as his mother and biographers handed them on. One a day, the same all day: the day of the year (1 to 366) modulo the count."
+  sayings: [String!]!
+
+  "A prayer for his intercession, in the Prayer Book's grammar."
+  prayer: String!
+}
+
+type TrueDevotion {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "The book's title, author and translator, and the edition its text is taken from."
+  about: TrueDevotionAbout!
+
+  "The book's two parts in order. A chapter names its part by number; the Introduction is in neither."
+  parts: [TrueDevotionPart!]!
+
+  "Every chapter in reading order, from the Introduction to the Act of Consecration, each with its paragraphs."
+  chapters: [TrueDevotionChapter!]!
+
+  "The summary page's shelf of short readings on the devotion (`true_devotion_teaching`): its foundations, principles, marks, false devotions, benefits and spirit."
+  teaching: LibraryShelf!
+
+  "The summary page's ejaculatory prayers from the book, each in English and Latin."
+  ejaculatoryPrayers: [TrueDevotionPrayer!]!
 }
 
 type Consecration {
@@ -1625,6 +1878,15 @@ type RootQueryType {
 
   "The 33-day Consecration as one document. There is only ever one."
   consecration: Consecration!
+
+  "True Devotion, the whole book, as one document. There is only ever one."
+  trueDevotion: TrueDevotion!
+
+  "St. Carlo Acutis's page as one document. There is only ever one."
+  carloAcutis: CarloAcutis!
+
+  "The Marian Library as one document. There is only ever one."
+  marianLibrary: MarianLibrary!
 
   "The full text of one canonical hour on one date."
   officeHour(
