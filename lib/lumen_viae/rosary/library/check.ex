@@ -1,7 +1,7 @@
 defmodule LumenViae.Rosary.Library.Check do
   @moduledoc """
-  What `priv/library/prayer_book.json` and `priv/library/chant_library.json`
-  must hold, checked as `LumenViae.Rosary.Library` compiles and again by
+  What `priv/library/prayer_book.json`, `priv/library/chant_library.json`
+  and `priv/library/consecration.json` must hold, checked as `LumenViae.Rosary.Library` compiles and again by
   `LumenViae.Curation.ChantUpload` before it rewrites a file.
 
   Each function takes a file's sections (string keys, as decoded) and
@@ -35,6 +35,46 @@ defmodule LumenViae.Rosary.Library.Check do
   end
 
   def prayer_book_errors(_document), do: ["the document needs a list of prayers and of chapters"]
+
+  @doc """
+  The problems with a Consecration document's sections: phases that run
+  from day 1 without a gap, every day once and in order within its
+  phase, every prayer a phase names and every prayer named, and feasts
+  on dates that exist, in calendar order.
+  """
+  @spec consecration_errors(map) :: [String.t()]
+  def consecration_errors(%{
+        "phases" => phases,
+        "days" => days,
+        "prayers" => prayers,
+        "feasts" => feasts
+      })
+      when is_list(phases) and is_list(days) and is_list(prayers) and is_list(feasts) do
+    phase_ids = Enum.map(phases, &id/1)
+    prayer_ids = Enum.map(prayers, &id/1)
+    feast_ids = Enum.map(feasts, &id/1)
+    # The rules across phases read only the phases that are maps; the
+    # others are refused one by one, as "a phase needs an id".
+    mapped = Enum.filter(phases, &is_map/1)
+    named = for phase <- mapped, id <- list(phase["prayer_ids"]), do: id
+
+    Enum.flat_map(phases, &phase_errors(&1, MapSet.new(prayer_ids))) ++
+      repeated("phase", phase_ids) ++
+      unnamed("phase id", phase_ids) ++
+      phase_span_errors(mapped) ++
+      days_errors(days, mapped) ++
+      Enum.flat_map(prayers, &consecration_prayer_errors/1) ++
+      repeated("prayer", prayer_ids) ++
+      unnamed("prayer id", prayer_ids) ++
+      for(id <- prayer_ids, is_binary(id), id not in named, do: "the prayer #{id} is in no phase") ++
+      Enum.flat_map(feasts, &feast_errors/1) ++
+      feast_order_errors(feasts) ++
+      repeated("feast", feast_ids) ++
+      unnamed("feast id", feast_ids)
+  end
+
+  def consecration_errors(_document),
+    do: ["the document needs a list of phases, of days, of prayers and of feasts"]
 
   @doc """
   The problems with a Chant Library document's sections. `prayer_ids`,
@@ -77,24 +117,7 @@ defmodule LumenViae.Rosary.Library.Check do
         optional(prayer, ~w(latin_title origin note latin list_title english_name)) ++
         words(prayer, "search_words")
 
-    errors = Enum.map(errors, &"the prayer #{id}: #{&1}")
-
-    case prayer do
-      %{"english" => english, "latin" => latin} when is_binary(english) and is_binary(latin) ->
-        english_lines = english |> String.split("\n") |> length()
-        latin_lines = latin |> String.split("\n") |> length()
-
-        if english_lines == latin_lines,
-          do: errors,
-          else:
-            errors ++
-              [
-                "the prayer #{id} has #{english_lines} English lines and #{latin_lines} Latin; the two pair line for line, blank lines included"
-              ]
-
-      _other ->
-        errors
-    end
+    Enum.map(errors, &"the prayer #{id}: #{&1}") ++ pairing_errors(prayer)
   end
 
   defp prayer_errors(prayer), do: ["a prayer needs an id: #{inspect(prayer)}"]
@@ -296,7 +319,147 @@ defmodule LumenViae.Rosary.Library.Check do
     end
   end
 
+  # The Consecration
+
+  defp phase_errors(%{"id" => id} = phase, prayer_ids) when is_binary(id) do
+    errors =
+      required(phase, ~w(name subtitle painting)) ++
+        words(phase, "prayer_ids") ++
+        unknown("prayer", list(phase["prayer_ids"]), prayer_ids) ++
+        phase_prayers_errors(phase) ++
+        phase_days_errors(phase)
+
+    Enum.map(errors, &"the phase #{id}: #{&1}")
+  end
+
+  defp phase_errors(phase, _prayer_ids), do: ["a phase needs an id: #{inspect(phase)}"]
+
+  defp phase_prayers_errors(%{"prayer_ids" => [_ | _]}), do: []
+  defp phase_prayers_errors(_phase), do: ["it needs prayers"]
+
+  defp phase_days_errors(%{"first_day" => first, "last_day" => last})
+       when is_integer(first) and is_integer(last) and first <= last,
+       do: []
+
+  defp phase_days_errors(_phase),
+    do: ["its first_day and last_day are whole numbers, the first no later than the last"]
+
+  # The phases run from day 1, each starting the day after the last ends.
+  defp phase_span_errors(phases) do
+    starts = Enum.map(phases, & &1["first_day"])
+
+    after_each =
+      Enum.map(Enum.drop(phases, -1), &(is_integer(&1["last_day"]) and &1["last_day"] + 1))
+
+    if starts == [1 | after_each],
+      do: [],
+      else: ["the phases run from day 1 without a gap or an overlap, in order"]
+  end
+
+  defp days_errors(days, phases) do
+    ranges = Map.new(phases, &{&1["id"], {&1["first_day"], &1["last_day"]}})
+
+    last =
+      case List.last(phases) do
+        %{"last_day" => last} when is_integer(last) -> last
+        _other -> 0
+      end
+
+    numbers =
+      if Enum.map(days, &(is_map(&1) && &1["number"])) == Enum.to_list(1..last//1),
+        do: [],
+        else: ["the days are numbered 1 to the last phase's last day, each once, in order"]
+
+    numbers ++ Enum.flat_map(days, &day_errors(&1, ranges))
+  end
+
+  defp day_errors(%{"number" => number} = day, ranges) when is_integer(number) do
+    errors =
+      required(day, ~w(title journal_prompt)) ++
+        case Map.fetch(ranges, day["phase_id"]) do
+          {:ok, {first, last}} when is_integer(first) and is_integer(last) ->
+            if number in first..last//1,
+              do: [],
+              else: ["it falls outside its phase #{day["phase_id"]}"]
+
+          _other ->
+            ["names the phase #{inspect(day["phase_id"])}, which does not exist"]
+        end ++ readings_errors(day["readings"])
+
+    Enum.map(errors, &"the day #{number}: #{&1}")
+  end
+
+  defp day_errors(day, _ranges), do: ["a day needs a number: #{inspect(day)}"]
+
+  defp readings_errors([_ | _] = readings) do
+    orders = Enum.map(readings, &(is_map(&1) && &1["order"]))
+
+    Enum.flat_map(readings, fn
+      reading when is_map(reading) ->
+        required(reading, ~w(title text)) ++ optional(reading, ~w(source))
+
+      reading ->
+        ["a reading is a map: #{inspect(reading)}"]
+    end) ++
+      if orders == Enum.to_list(1..length(readings)),
+        do: [],
+        else: ["its readings are in order, numbered from 1"]
+  end
+
+  defp readings_errors(_readings), do: ["it needs readings"]
+
+  defp consecration_prayer_errors(%{"id" => id} = prayer) when is_binary(id) do
+    errors = required(prayer, ~w(title english)) ++ optional(prayer, ~w(latin_title latin))
+
+    Enum.map(errors, &"the prayer #{id}: #{&1}") ++ pairing_errors(prayer)
+  end
+
+  defp consecration_prayer_errors(prayer), do: ["a prayer needs an id: #{inspect(prayer)}"]
+
+  defp feast_errors(%{"id" => id} = feast) when is_binary(id) do
+    errors =
+      required(feast, ~w(name description)) ++
+        case feast do
+          # A leap year, so 29 February is a date.
+          %{"month" => month, "day" => day} when is_integer(month) and is_integer(day) ->
+            if match?({:ok, _date}, Date.new(2024, month, day)),
+              do: [],
+              else: ["#{month}/#{day} is not a date"]
+
+          _other ->
+            ["it needs a month and a day"]
+        end
+
+    Enum.map(errors, &"the feast #{id}: #{&1}")
+  end
+
+  defp feast_errors(feast), do: ["a feast needs an id: #{inspect(feast)}"]
+
+  # A chooser lists the feasts in the order they fall in the year.
+  defp feast_order_errors(feasts) do
+    dates = for %{"month" => month, "day" => day} <- feasts, do: {month, day}
+
+    if dates == Enum.sort(dates),
+      do: [],
+      else: ["the feasts are in calendar order"]
+  end
+
   # Shared
+
+  # A prayer's English and Latin pair line for line, blank lines included.
+  defp pairing_errors(%{"id" => id, "english" => english, "latin" => latin})
+       when is_binary(english) and is_binary(latin) do
+    english_lines = english |> String.split("\n") |> length()
+    latin_lines = latin |> String.split("\n") |> length()
+
+    if english_lines == latin_lines,
+      do: [],
+      else: [
+        "the prayer #{id} has #{english_lines} English lines and #{latin_lines} Latin; the two pair line for line, blank lines included"
+      ]
+  end
+
+  defp pairing_errors(_prayer), do: []
 
   defp id(%{"id" => id}), do: id
   defp id(_other), do: nil

@@ -288,6 +288,203 @@
         ],
         "type": "object"
       },
+      "consecration": {
+        "description": "A \"Resource object\" representing a consecration",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a consecration",
+            "properties": {
+              "days": {
+                "description": "Every day in order, 1 to 34, each with its theme, its readings and its journal prompt. Day 34 is Consecration Day.",
+                "items": {
+                  "properties": {
+                    "journal_prompt": {
+                      "type": "string"
+                    },
+                    "number": {
+                      "type": "integer"
+                    },
+                    "phase_id": {
+                      "type": "string"
+                    },
+                    "readings": {
+                      "items": {
+                        "properties": {
+                          "order": {
+                            "type": "integer"
+                          },
+                          "source": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "order",
+                          "title",
+                          "text"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "number",
+                    "phase_id",
+                    "title",
+                    "readings",
+                    "journal_prompt"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "feasts": {
+                "description": "The feasts of Mary a Consecration may end on, in calendar order. Day 1 is 33 days before the feast.",
+                "items": {
+                  "properties": {
+                    "day": {
+                      "type": "integer"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "month": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "month",
+                    "day",
+                    "description"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "phases": {
+                "description": "The phases in order, from the twelve preparatory days to Consecration Day, each with its days' span and the prayers said on each of them.",
+                "items": {
+                  "properties": {
+                    "first_day": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "last_day": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "painting": {
+                      "type": "string"
+                    },
+                    "prayer_ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "subtitle": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "subtitle",
+                    "first_day",
+                    "last_day",
+                    "painting",
+                    "prayer_ids"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "prayers": {
+                "description": "Every prayer a phase names, each once, in the Consecration's own words.",
+                "items": {
+                  "properties": {
+                    "english": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "latin": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "latin_title": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "english"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a consecration",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "consecration"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
       "error": {
         "properties": {
           "code": {
@@ -3668,6 +3865,53 @@
         },
         "tags": [
           "completion"
+        ]
+      }
+    },
+    "/api/v2/consecration": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The 33-day Consecration as one document. There is only ever one.",
+        "operationId": "getConsecration",
+        "parameters": [
+          {
+            "description": "Comma separated fields of consecration: days, feasts, phases, prayers, updated_at, version",
+            "explode": false,
+            "in": "query",
+            "name": "fields[consecration]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/consecration"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "consecration"
         ]
       }
     },

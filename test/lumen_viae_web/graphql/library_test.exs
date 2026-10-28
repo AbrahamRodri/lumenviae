@@ -1,8 +1,8 @@
 defmodule LumenViaeWeb.Graphql.LibraryTest do
   @moduledoc """
-  GraphQL's `prayerBook` and `chantLibrary`: the same documents as
-  `GET /api/v2/prayer-book` and `GET /api/v2/chant-library`, their
-  sections chosen by the selection set.
+  GraphQL's `prayerBook`, `chantLibrary` and `consecration`: the same
+  documents as `GET /api/v2/prayer-book`, `GET /api/v2/chant-library` and
+  `GET /api/v2/consecration`, their sections chosen by the selection set.
   """
   use LumenViaeWeb.ConnCase, async: true
 
@@ -13,10 +13,15 @@ defmodule LumenViaeWeb.Graphql.LibraryTest do
   test "the version and the date alone", %{conn: conn} do
     assert %{"data" => data} =
              graphql(conn, """
-             { prayerBook { id version updatedAt } chantLibrary { id version updatedAt } }
+             { prayerBook { id version updatedAt } chantLibrary { id version updatedAt }
+               consecration { id version updatedAt } }
              """)
 
-    for {field, document} <- [{"prayerBook", :prayer_book}, {"chantLibrary", :chant_library}] do
+    for {field, document} <- [
+          {"prayerBook", :prayer_book},
+          {"chantLibrary", :chant_library},
+          {"consecration", :consecration}
+        ] do
       %{version: version, updated_at: updated_at} = Library.stamp(document)
 
       assert data[field] == %{
@@ -42,6 +47,35 @@ defmodule LumenViaeWeb.Graphql.LibraryTest do
 
     assert length(prayers) == length(Library.sections(:prayer_book)["prayers"])
     assert Enum.all?(chapters, &(&1["sections"] != []))
+  end
+
+  test "the Consecration's days with their readings, its phases, prayers and feasts", %{
+    conn: conn
+  } do
+    body =
+      graphql(conn, """
+      { consecration {
+          phases { id name subtitle firstDay lastDay painting prayerIds }
+          days { number phaseId title journalPrompt readings { order title text source } }
+          prayers { id title latinTitle english latin }
+          feasts { id name month day description } } }
+      """)
+
+    refute body["errors"]
+
+    %{"days" => days, "phases" => phases, "prayers" => prayers, "feasts" => feasts} =
+      get_in(body, ["data", "consecration"])
+
+    file = Library.sections(:consecration)
+
+    assert Enum.map(days, & &1["number"]) == Enum.map(file["days"], & &1["number"])
+
+    assert Enum.map(days, &Enum.map(&1["readings"], fn reading -> reading["text"] end)) ==
+             Enum.map(file["days"], &Enum.map(&1["readings"], fn reading -> reading["text"] end))
+
+    assert Enum.map(phases, & &1["prayerIds"]) == Enum.map(file["phases"], & &1["prayer_ids"])
+    assert Enum.map(prayers, & &1["latin"]) == Enum.map(file["prayers"], & &1["latin"])
+    assert length(feasts) == length(file["feasts"])
   end
 
   test "every chant with its recording, score and lines", %{conn: conn} do

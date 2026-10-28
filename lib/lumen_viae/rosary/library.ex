@@ -1,10 +1,11 @@
 defmodule LumenViae.Rosary.Library do
   @moduledoc """
-  The Prayer Book and the Chant Library: what `GET /api/v2/prayer-book`
-  and `GET /api/v2/chant-library` serve, and what the iOS and Android apps
-  keep an offline copy of.
+  The Prayer Book, the Chant Library and the Consecration: what
+  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library` and
+  `GET /api/v2/consecration` serve, and what the apps keep an offline
+  copy of.
 
-  A value module. The content is two files in `priv/library/`, read when
+  A value module. The content is three files in `priv/library/`, read when
   this module compiles, so a new or corrected prayer or chant is a deploy
   rather than an edit in the admin: no query, no state.
 
@@ -24,8 +25,15 @@ defmodule LumenViae.Rosary.Library do
   a new URL. `mix lumen_viae.upload_chants` puts them there and writes
   their url, bytes and sha256 into the file.
 
+  `consecration.json` holds the 33-day Consecration as the iOS app
+  bundles it: `phases`, each with its days' span and the prayers said on
+  each of them; `days`, 1 to 34, each with its readings and journal
+  prompt; `prayers`, the Consecration's own words for each prayer a phase
+  names; and `feasts`, the feasts of Mary it may end on.
+
   The shapes are the contract in docs/JSON_API.md, "The Prayer Book and
-  the Chant Library". The ids are stable forever: devices store them.
+  the Chant Library" and "The Consecration". The ids are stable forever:
+  devices store them.
 
   ## Every file is dated
 
@@ -53,6 +61,9 @@ defmodule LumenViae.Rosary.Library do
 
   @chant_library_path Path.join(@dir, "chant_library.json")
   @external_resource @chant_library_path
+
+  @consecration_path Path.join(@dir, "consecration.json")
+  @external_resource @consecration_path
 
   read = fn path, sections ->
     file = path |> File.read!() |> Jason.decode!()
@@ -88,11 +99,16 @@ defmodule LumenViae.Rosary.Library do
     Check.chant_library_errors(chant_library, Enum.map(prayer_book["prayers"], & &1["id"]))
   )
 
+  {consecration, consecration_updated_at} =
+    read.(@consecration_path, ~w(phases days prayers feasts))
+
+  check.(@consecration_path, Check.consecration_errors(consecration))
+
   # Each section is cast to its type here, once, and served as cast; a
-  # section the cast would change fails the compile (Section.cast/2).
-  cast = fn path, sections ->
+  # section the cast would change fails the compile (Section.cast/3).
+  cast = fn path, document, sections ->
     Map.new(sections, fn {name, items} ->
-      case Section.cast(name, items) do
+      case Section.cast(document, name, items) do
         {:ok, cast} -> {name, cast}
         {:error, message} -> check.(path, [message])
       end
@@ -100,8 +116,9 @@ defmodule LumenViae.Rosary.Library do
   end
 
   @served %{
-    prayer_book: cast.(@prayer_book_path, prayer_book),
-    chant_library: cast.(@chant_library_path, chant_library)
+    prayer_book: cast.(@prayer_book_path, :prayer_book, prayer_book),
+    chant_library: cast.(@chant_library_path, :chant_library, chant_library),
+    consecration: cast.(@consecration_path, :consecration, consecration)
   }
 
   @asset_base for(chant <- chant_library["chants"], do: chant["audio"]["url"])
@@ -121,19 +138,26 @@ defmodule LumenViae.Rosary.Library do
       sections: chant_library,
       updated_at: chant_library_updated_at,
       version: Content.version(chant_library)
+    },
+    consecration: %{
+      name: "consecration.json",
+      sections: consecration,
+      updated_at: consecration_updated_at,
+      version: Content.version(consecration)
     }
   }
 
-  @typedoc "One of the two documents."
-  @type document :: :prayer_book | :chant_library
+  @typedoc "One of the three documents."
+  @type document :: :prayer_book | :chant_library | :consecration
 
-  @doc "The two documents' names."
+  @doc "The three documents' names."
   @spec documents() :: [document]
-  def documents, do: [:prayer_book, :chant_library]
+  def documents, do: [:prayer_book, :chant_library, :consecration]
 
   @doc """
   A document's sections, keyed by name (`"prayers"`, `"chapters"`;
-  `"groups"`, `"chants"`), string keys throughout, as the file holds them.
+  `"groups"`, `"chants"`; `"phases"`, `"days"`, `"prayers"`, `"feasts"`),
+  string keys throughout, as the file holds them.
   """
   @spec sections(document) :: map
   def sections(document), do: @documents |> Map.fetch!(document) |> Map.fetch!(:sections)
@@ -141,7 +165,9 @@ defmodule LumenViae.Rosary.Library do
   @doc """
   A section as the APIs serve it: the file's, cast to its type when this
   module compiled (`Types.BookPrayer`, `Types.PrayerBookChapter`,
-  `Types.ChantGroup`, `Types.Chant`).
+  `Types.ChantGroup`, `Types.Chant`, and the Consecration's
+  `Types.ConsecrationPhase`, `Types.ConsecrationDay`,
+  `Types.ConsecrationPrayer`, `Types.MarianFeast`).
   """
   @spec served(document, String.t()) :: [struct]
   def served(document, section), do: @served |> Map.fetch!(document) |> Map.fetch!(section)
@@ -172,13 +198,15 @@ defmodule LumenViae.Rosary.Library do
   def asset_base, do: @asset_base
 
   @doc """
-  The problems with the sections cast as they will be served, `[]` when
-  none: the text a type would change, as the compile refuses it
-  (`LumenViae.Rosary.Library.Section.cast/2`).
+  The problems with a document's sections cast as they will be served,
+  `[]` when none: the text a type would change, as the compile refuses it
+  (`LumenViae.Rosary.Library.Section.cast/3`).
   """
-  @spec cast_errors(map) :: [String.t()]
-  def cast_errors(sections) do
-    for {name, items} <- sections, {:error, message} <- [Section.cast(name, items)], do: message
+  @spec cast_errors(document, map) :: [String.t()]
+  def cast_errors(document, sections) do
+    for {name, items} <- sections,
+        {:error, message} <- [Section.cast(document, name, items)],
+        do: message
   end
 
   @doc """

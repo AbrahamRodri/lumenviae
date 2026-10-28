@@ -49,6 +49,7 @@ involved.
 | `GET /rosary-content` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
 | `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers` and `chapters` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
+| `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers` and `feasts` when named in `fields[consecration]=`. See "The Consecration". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
 
@@ -626,6 +627,129 @@ The sections are cast to their types once, as the module compiles, so a
 request serves exactly the file's words and does no work to do it. Each file carries a top-level `updated_at`, and
 `test/lumen_viae/rosary/library_test.exs` pins each file's dates and
 versions: a change to the words is a new date and a new entry there.
+
+## The Consecration
+
+```
+GET /api/v2/consecration
+GET /api/v2/consecration?fields[consecration]=version,updated_at,phases,days,prayers,feasts
+```
+
+St. Louis de Montfort's 33-day Total Consecration to Jesus through Mary,
+as the iOS app bundles it: twelve preparatory days, three weeks, and
+Consecration Day, day 34, which falls on a feast of Mary. It is a third
+library document, kept and polled as the Prayer Book is: one resource
+with id `current`, the bare request answers with `version` and
+`updated_at` only, and the sections come when named in
+`fields[consecration]=`. GraphQL's `consecration` serves the same
+document. The words are in `priv/library/consecration.json`; the rules a
+file must keep, its `updated_at` and its pinned history are the Prayer
+Book's.
+
+Where a reader is in the 33 days, the day they began, the feast they
+chose and their journal stay on the device. The server holds no
+progress.
+
+### `consecration`
+
+- **`phases`**, in order: `id` (`preparatory`, `knowledge_of_self`,
+  `knowledge_of_mary`, `knowledge_of_jesus`, `consecration_day`), `name`
+  (`Days 1–12`, `Week 1`), `subtitle` (`Knowing Yourself`), `first_day`
+  and `last_day` (the phases run 1 to 34 without a gap), `painting` (the
+  app's painting that heads the phase's days, `luminous_baptism`, named
+  as both apps' bundles name it) and `prayer_ids`, the prayers said on
+  each of its days, in order.
+- **`days`**, 1 to 34 in order: `number`, `phase_id`, `title` (the day's
+  theme), `readings` (in order, each `{order, title, text, source}`:
+  `title` is the citation, `source` the work it comes from or null) and
+  `journal_prompt`. A reading's `text` is in the app's ReadingText
+  grammar: paragraphs parted by a blank line, a paragraph starting `# `
+  a heading. A day has no prayers of its own: they are its phase's.
+- **`prayers`**: every prayer a phase names, each once: `id`, `title`,
+  `latin_title` (or null), `english` and `latin` (null for a prayer said
+  in English alone: Montfort's prayers, the Litany of the Holy Ghost, the
+  Act of Consecration, the Rosary's rubric). The grammar and the line for
+  line pairing are the Prayer Book's. An id is the Prayer Book's where the
+  book has the prayer, but the words are the Consecration's own: its Glory
+  Be is the chanted setting, not the book's. A prayer that is sung has its
+  chant in the Chant Library: the first chant, in the catalog's order,
+  whose `prayer_ids` names the prayer's id, as the iOS day plays it
+  (`ChantCatalog.chants(forPrayer:)`). Six of the twelve have one today.
+- **`feasts`**, in calendar order: `id`, `name`, `month`, `day` and
+  `description`. Day 1 is 33 days before the feast; the date arithmetic
+  is the device's.
+
+Labels such as "Day 7 of 33", "Consecration Day" and "Seventh Day" are
+made from `number` on the device, as the iOS app makes them.
+
+A shortened response:
+
+```json
+{
+  "data": {
+    "type": "consecration",
+    "id": "current",
+    "attributes": {
+      "version": "fc067fd951512d2c",
+      "updated_at": "2026-10-28T02:30:43Z",
+      "phases": [
+        {
+          "id": "preparatory",
+          "name": "Days 1–12",
+          "subtitle": "Letting Go of the World",
+          "first_day": 1,
+          "last_day": 12,
+          "painting": "luminous_baptism",
+          "prayer_ids": ["veni_creator", "ave_maris_stella", "magnificat", "glory_be"]
+        }
+      ],
+      "days": [
+        {
+          "number": 1,
+          "phase_id": "preparatory",
+          "title": "The Spirit of the World",
+          "readings": [
+            {
+              "order": 1,
+              "title": "Matthew 5:1-19",
+              "text": "And seeing the multitudes, he went up into a mountain...",
+              "source": "Douay-Rheims Bible"
+            }
+          ],
+          "journal_prompt": "What worldly attachments or attitudes do you need to release to follow Christ more fully?"
+        }
+      ],
+      "prayers": [
+        {
+          "id": "veni_creator",
+          "title": "Come, Creator Spirit",
+          "latin_title": "Veni Creator Spiritus",
+          "english": "Come, Holy Ghost, Creator blest,\n...",
+          "latin": "Veni, Creátor Spíritus,\n..."
+        }
+      ],
+      "feasts": [
+        {
+          "id": "lourdes",
+          "name": "Our Lady of Lourdes",
+          "month": 2,
+          "day": 11,
+          "description": "Apparition of the Immaculate Virgin Mary at Lourdes"
+        }
+      ]
+    }
+  }
+}
+```
+
+The file was made from the iOS app's `Data/ConsecrationData.swift`,
+`Data/BilingualConsecrationPrayers.swift`, `Models/ConsecrationPhase.swift`
+and `Models/MarianFeastDay.swift`, word for word. Correct the words in
+`priv/library/consecration.json` and in the iOS app together until the
+app reads this document; date the file and pin its new version as for
+the Prayer Book. This document carries no audio: the sung prayers are the
+Chant Library's. The older consecration recordings under
+`GET /api/prayers/:id/audio` had no licence and stay withdrawn (410).
 
 ## One Rosary's script
 

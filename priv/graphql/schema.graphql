@@ -3,6 +3,94 @@ schema {
   query: RootQueryType
 }
 
+type MarianFeast {
+  "Its name (`The Assumption`)."
+  name: String!
+
+  "Its month, from 1 to 12."
+  month: Int!
+
+  "The feast's id (`assumption`). Stable forever: a device stores it."
+  id: String!
+
+  "What it celebrates, in a few words."
+  description: String!
+
+  "Its day of the month."
+  day: Int!
+}
+
+type ConsecrationPrayer {
+  "Its English title."
+  title: String!
+
+  "Its Latin title (`Veni Creator Spiritus`), or null."
+  latinTitle: String
+
+  "The Latin, or null for a prayer said in English alone. It pairs with the English line for line, blank lines included."
+  latin: String
+
+  "The prayer's id (`veni_creator`). Stable forever."
+  id: String!
+
+  "The words, in the app's PrayerText grammar: one line per paragraph, versicles and responses marked, a rubric in square brackets."
+  english: String!
+}
+
+type ConsecrationReading {
+  "Its citation (`Matthew 5:1-19`, `True Devotion, paragraph 227`)."
+  title: String!
+
+  "The reading, in the app's ReadingText grammar: paragraphs parted by a blank line, a paragraph starting `# ` a heading."
+  text: String!
+
+  "The work it comes from (`Douay-Rheims Bible`, `Thomas à Kempis`, `St. Louis de Montfort`), or null."
+  source: String
+
+  "Its place in the day, counting from 1."
+  order: Int!
+}
+
+type ConsecrationDay {
+  "The day's theme (`The Spirit of the World`)."
+  title: String!
+
+  "The day's readings, in the order they are read."
+  readings: [ConsecrationReading!]!
+
+  "The phase it belongs to, one of the document's phases."
+  phaseId: String!
+
+  "The day, from 1 to 34. Day 34 is Consecration Day, the feast itself."
+  number: Int!
+
+  "The question the day leaves for the journal."
+  journalPrompt: String!
+}
+
+type ConsecrationPhase {
+  "What the phase is for (`Knowing Yourself`)."
+  subtitle: String!
+
+  "The prayers said on each of its days, in order. Every id is one of the document's prayers."
+  prayerIds: [String!]!
+
+  "The app's painting that heads the phase's days (`luminous_baptism`), the same name in both apps' bundles."
+  painting: String!
+
+  "What the phase is called on screen (`Days 1–12`, `Week 1`)."
+  name: String!
+
+  "Its last day."
+  lastDay: Int!
+
+  "The phase's id (`knowledge_of_self`). Stable forever."
+  id: String!
+
+  "Its first day, counting from 1."
+  firstDay: Int!
+}
+
 type ChantAudio {
   "A public, unsigned URL that never changes what it serves: a new recording is a new URL. Cache by it."
   url: String!
@@ -1218,6 +1306,29 @@ type MutationError {
   path: [String!]
 }
 
+type Consecration {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "The phases in order, from the twelve preparatory days to Consecration Day, each with its days' span and the prayers said on each of them."
+  phases: [ConsecrationPhase!]!
+
+  "Every day in order, 1 to 34, each with its theme, its readings and its journal prompt. Day 34 is Consecration Day."
+  days: [ConsecrationDay!]!
+
+  "Every prayer a phase names, each once, in the Consecration's own words."
+  prayers: [ConsecrationPrayer!]!
+
+  "The feasts of Mary a Consecration may end on, in calendar order. Day 1 is 33 days before the feast."
+  feasts: [MarianFeast!]!
+}
+
 type ChantLibrary {
   "Always `current`: there is one document."
   id: String!
@@ -1511,6 +1622,9 @@ type RootQueryType {
 
   "The Chant Library as one document. There is only ever one."
   chantLibrary: ChantLibrary!
+
+  "The 33-day Consecration as one document. There is only ever one."
+  consecration: Consecration!
 
   "The full text of one canonical hour on one date."
   officeHour(
