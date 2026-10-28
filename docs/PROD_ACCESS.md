@@ -165,7 +165,7 @@ fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.r
 cancelled as "may be billed" needs its S3 key checked by a person first
 (docs/ARCHITECTURE.md, "Paying ElevenLabs once").
 
-`GET https://www.lumenviae.org/healthz` answers `{"status", "version", "db"}`,
+`GET https://www.lumenviae.org/healthz` answers `{"status", "version", "commit", "db"}`,
 200 or 503, for an uptime monitor.
 
 ## Edits

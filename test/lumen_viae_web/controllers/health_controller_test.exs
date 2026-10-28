@@ -1,7 +1,7 @@
 defmodule LumenViaeWeb.HealthControllerTest do
   @moduledoc """
   `GET /healthz` is public, so the test that matters most is the one that
-  says what it does not say: three keys and nothing more.
+  says what it does not say: four keys and nothing more.
   """
   use LumenViaeWeb.ConnCase, async: true
 
@@ -11,6 +11,7 @@ defmodule LumenViaeWeb.HealthControllerTest do
     assert json_response(conn, 200) == %{
              "status" => "ok",
              "version" => to_string(Application.spec(:lumen_viae, :vsn)),
+             "commit" => "unknown",
              "db" => "ok"
            }
 

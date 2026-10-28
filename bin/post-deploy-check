@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Checks production right after a deploy: is it up, which release is it, and
-# do the calls the iPhone and Android apps make at launch still answer.
+# Checks production right after a deploy: is it up, and do the calls the iPhone and Android apps make at launch still answer.
 #
 # Usage: bin/post-deploy-check [base_url]   (default https://www.lumenviae.org)
+#
+# With EXPECT_COMMIT=<sha> (the CI deploy sets it), /healthz must report that
+# commit, so the check fails while the old release is still the one serving.
 #
 # Plain curl, no secrets, read-only GETs. Exits non-zero on the first failure.
 # The CI deploy job runs it after `flyctl deploy`; anyone can run it by hand.
@@ -33,10 +35,16 @@ check() {
   return 1
 }
 
-# Up, the database answers, and the release's version.
+# Up, the database answers, and which commit is serving.
 check /healthz '"status":"ok"'
-version="$(curl -sS --max-time 15 "$base/healthz" | sed -n 's/.*"version":"\([^"]*\)".*/\1/p')"
-echo "release version: ${version:-unknown}"
+if [ -n "${EXPECT_COMMIT:-}" ]; then
+  check /healthz "\"commit\":\"$EXPECT_COMMIT\""
+fi
+commit="$(curl -sS --max-time 15 "$base/healthz" | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p')" || {
+  echo "FAIL  /healthz did not answer a second time" >&2
+  exit 1
+}
+echo "serving commit: ${commit:-not reported (a release from before RELEASE_COMMIT)}"
 
 # iPhone app (v1, docs/IOS_API_CONTRACT.md).
 check '/api/meditation-sets?category=joyful' '"data"'

@@ -1,7 +1,7 @@
 defmodule LumenViae.Ops.Health do
   @moduledoc """
-  The answer `GET /healthz` gives: is this machine up, which release is it,
-  and can it reach its database.
+  The answer `GET /healthz` gives: is this machine up, which release and
+  commit is it, and can it reach its database.
 
   Deliberately nothing more. The endpoint is public and unauthenticated, so
   it names no node, no environment and no count. Anything worth knowing
@@ -17,18 +17,26 @@ defmodule LumenViae.Ops.Health do
   @default_timeout 1_000
 
   @doc """
-  `%{status: "ok" | "error", version: String.t(), db: "ok" | "error"}`.
+  `%{status: "ok" | "error", version: String.t(), commit: String.t(), db: "ok" | "error"}`.
   `status` is "ok" only when the database answered.
   """
   def check(opts \\ []) do
     db =
       if database_answers?(Keyword.get(opts, :timeout, @default_timeout)), do: "ok", else: "error"
 
-    %{status: db, version: version(), db: db}
+    %{status: db, version: version(), commit: commit(), db: db}
   end
 
   @doc "The release's version, as `mix.exs` names it."
   def version, do: :lumen_viae |> Application.spec(:vsn) |> to_string()
+
+  @doc """
+  The git commit this release was deployed from, or "unknown". The CI deploy
+  sets `RELEASE_COMMIT` (`flyctl deploy --env`), so `bin/post-deploy-check`
+  can tell the new release from the old one; `mix.exs`'s version never
+  changes.
+  """
+  def commit, do: System.get_env("RELEASE_COMMIT") || "unknown"
 
   defp database_answers?(timeout) do
     task =

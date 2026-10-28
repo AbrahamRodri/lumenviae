@@ -14,7 +14,9 @@ gh workflow run ci.yml --ref <branch>
 
 Its checks land on the branch's head commit, which is what the branch
 protection on `main` reads, so a PR merges only after a green run on its
-latest commit. Push again and the checks must be run again. After the
+latest commit. Push again and the checks must be run again. The run tests
+the branch as it is, not merged into `main` (protection is not strict), so
+merge `origin/main` into the branch first when `main` has moved. After the
 deploy, watch production as docs/DEPLOY_WATCH.md says.
 
 ## What runs

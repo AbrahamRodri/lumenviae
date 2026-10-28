@@ -4,10 +4,16 @@ Every merge to `main` deploys to production (docs/CI.md). Work ships in
 batches, and each batch is watched until it is known not to be broken
 before the next one starts.
 
+## Before merging
+
+Merge `origin/main` into the batch branch, then start CI on it (docs/CI.md):
+the run tests the branch as it is, and branch protection does not ask for
+it to be up to date with `main`.
+
 ## Right after the deploy
 
 The CI run's last step, "Check production", runs `bin/post-deploy-check`:
-`/healthz` (up, database answering, release version), two calls the iPhone
+`/healthz` (up, database answering, and serving the commit just merged), two calls the iPhone
 app makes (`/api/meditation-sets?category=joyful`, `/api/voices`) and the
 Android app's daily document polls (`/api/v2/rosary-content`,
 `/api/v2/prayer-book`, `/api/v2/consecration`). It retries each for about a
