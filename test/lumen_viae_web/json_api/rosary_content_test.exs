@@ -194,7 +194,7 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
         |> get_in(["data", "attributes"])
 
       assert length(attributes["quotes"]["items"]) == 21
-      assert length(attributes["milestones"]) == 7
+      assert length(attributes["milestones"]) == 12
 
       assert Enum.map(attributes["reminders"]["groups"], &length(&1["messages"])) == [
                7,

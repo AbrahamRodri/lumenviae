@@ -42,7 +42,9 @@ read; keep it that way.
 
 All under the existing `/api` scope. No versioned prefix, per the API
 contract policy in `contract_test.exs`: keys may be added, never removed
-or retyped.
+or retyped. The same answers are under `/api/v2/office` for a client
+that calls v2 only (docs/JSON_API.md, "The Divine Office"), and in
+GraphQL's `office*` queries.
 
 ### GET /api/office/versions
 

@@ -10,7 +10,8 @@ defmodule LumenViae.Office.Errors.Unavailable do
   classes and replaces every other one with "something went wrong", which
   is right for a crash and wrong for a known condition the client should
   retry. The class decides nothing else here: the REST API never sees this
-  error, and its 503 comes from `LumenViae.Office` directly.
+  error, and its 503 comes from `LumenViae.Office` directly; v2 maps it
+  to the same 503 below.
   """
   use Splode.Error, fields: [], class: :invalid
 
@@ -30,6 +31,21 @@ defimpl AshGraphql.Error, for: LumenViae.Office.Errors.Unavailable do
       code: "office_unavailable",
       vars: %{},
       fields: []
+    }
+  end
+end
+
+defimpl AshJsonApi.ToJsonApiError, for: LumenViae.Office.Errors.Unavailable do
+  # The v1 API's 503, with the same code. The fixed text, for the reason
+  # given above.
+  def to_json_api_error(_error) do
+    %AshJsonApi.Error{
+      id: Ash.UUID.generate(),
+      status_code: 503,
+      code: "office_unavailable",
+      title: "OfficeUnavailable",
+      detail: "Divine Office temporarily unavailable",
+      meta: %{}
     }
   end
 end
