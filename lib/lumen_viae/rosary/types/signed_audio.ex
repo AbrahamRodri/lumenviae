@@ -16,6 +16,8 @@ defmodule LumenViae.Rosary.Types.SignedAudio do
 
   alias LumenViae.Storage.S3
 
+  require Logger
+
   typed_struct do
     field :url, :string, allow_nil?: false
     field :expires_at, :utc_datetime, allow_nil?: false
@@ -38,6 +40,15 @@ defmodule LumenViae.Rosary.Types.SignedAudio do
       {:ok, url} -> {:ok, %__MODULE__{url: url, expires_at: expiry(ttl)}}
       {:error, _reason} -> :error
     end
+  end
+
+  @doc """
+  Logs a recording that could not be signed. Silent on a machine with no
+  AWS keys, which `LumenViae.Storage.S3` has already said once: there every
+  recording is unsigned, and an error per meditation would bury the log.
+  """
+  def log_unsigned(message) do
+    if S3.credentials?(), do: Logger.error(message), else: :ok
   end
 
   @doc """

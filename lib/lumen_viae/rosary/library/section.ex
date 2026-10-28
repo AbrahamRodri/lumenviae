@@ -11,7 +11,12 @@ defmodule LumenViae.Rosary.Library.Section do
 
   # Each section's type, by document.
   @types %{
-    prayer_book: %{"prayers" => Types.BookPrayer, "chapters" => Types.PrayerBookChapter},
+    prayer_book: %{
+      "prayers" => Types.BookPrayer,
+      "chapters" => Types.PrayerBookChapter,
+      "orders" => Types.PrayerOrder,
+      "marian_antiphons" => Types.MarianAntiphon
+    },
     chant_library: %{"groups" => Types.ChantGroup, "chants" => Types.Chant},
     consecration: %{
       "phases" => Types.ConsecrationPhase,

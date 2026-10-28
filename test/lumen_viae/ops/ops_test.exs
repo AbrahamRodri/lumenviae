@@ -29,7 +29,7 @@ defmodule LumenViae.OpsTest do
     test "is ok when the database answers, and says no more than that" do
       assert %{status: "ok", db: "ok", version: version} = Ops.health()
       assert version == to_string(Application.spec(:lumen_viae, :vsn))
-      assert Ops.health() |> Map.keys() |> Enum.sort() == [:db, :status, :version]
+      assert Ops.health() |> Map.keys() |> Enum.sort() == [:commit, :db, :status, :version]
     end
   end
 

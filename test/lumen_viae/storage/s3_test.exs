@@ -1,8 +1,8 @@
 defmodule LumenViae.Storage.S3Test do
   @moduledoc """
-  Covers `public_url/1` only. It is the one function here that signs nothing
-  and calls nothing, so it can be checked exactly; everything else in the
-  module is a round trip to AWS.
+  Covers `public_url/1`, the one function here that signs nothing and calls
+  nothing, and what the module does on a machine with no AWS keys (the test
+  environment has none). Everything else is a round trip to AWS.
   """
   use ExUnit.Case, async: false
 
@@ -97,6 +97,37 @@ defmodule LumenViae.Storage.S3Test do
     test "declines rather than attempting an unauthenticated PUT" do
       assert S3.upload_public("bytes", "sets/27/painting.jpg") ==
                {:error, :missing_credentials}
+    end
+  end
+
+  # A dev checkout or an agent's seat with no keys serves audio without URLs.
+  describe "a machine with no credentials" do
+    setup do
+      :persistent_term.erase({S3, :warned})
+      :ok
+    end
+
+    test "has none, and signs nothing" do
+      refute S3.credentials?()
+      assert S3.generate_presigned_url("voices/female/a.mp3") == {:error, :missing_credentials}
+    end
+
+    test "says so once, not once per recording" do
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          for n <- 1..5, do: S3.generate_presigned_url("voices/female/#{n}.mp3")
+        end)
+
+      assert length(String.split(log, "No AWS credentials")) == 2
+    end
+
+    test "logs no error per unsigned recording" do
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          LumenViae.Rosary.Types.SignedAudio.log_unsigned("Failed to sign narration x")
+        end)
+
+      refute log =~ "Failed to sign"
     end
   end
 end

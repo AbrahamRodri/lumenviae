@@ -47,7 +47,7 @@ involved.
 | `GET /rosary-audio?voice=` | `SpokenRosary.:for_voice` | One voice's spoken Rosary; the same recordings, keys and files as `GET /api/rosary/audio`. |
 | `GET /rosary-script?category=&style=&extras=&orders=` | `RosaryScript.:expand` | One Rosary's script, every step in order: the reference expansion of the content document's `script` templates. See "One Rosary's script". |
 | `GET /rosary-content` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
-| `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers` and `chapters` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
+| `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers`, `chapters`, `orders` and `marian_antiphons` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
 | `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers` and `feasts` when named in `fields[consecration]=`. See "The Consecration". |
 | `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts`, `chapters`, `teaching` and `ejaculatory_prayers` when named in `fields[true_devotion]=`. See "True Devotion". |
@@ -525,7 +525,7 @@ Rosary's audio row says as a fact, not a choice.
 
 ```
 GET /api/v2/prayer-book
-GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters
+GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters,orders,marian_antiphons
 GET /api/v2/chant-library
 GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants
 ```
@@ -555,14 +555,35 @@ chants.
   (one line per paragraph; versicles, responses and crosses marked; a
   rubric in square brackets), and where there is Latin the two pair line
   for line, blank lines included. A prayer no chapter names is still
-  kept: the app's orders of prayer (Morning Prayers, the Angelus) name
-  prayers too, and those orders stay in the app.
+  kept: an order of prayer may name it.
 - **`chapters`**: the book's chapters in order: `id`, `numeral`, `title`,
   `latin_title`, `note` (the chapter's one italic line, or null), `topic`
   (or null), `search_words`, `sections` (its sub-headings in order, each
   `{title, prayer_ids}`; a prayer may stand under two) and `prayer_ids`,
   the sections' prayers each once, in the order they first stand. Every
   id a chapter names is one of `prayers`.
+- **`orders`**: the orders of prayer, a few prayers said together, as the
+  iPhone app holds them (`PrayerBook.orders`): the three of the day
+  (`morning`, `angelus`, `night`) first, then those for an occasion. Each
+  is `id`, `title`, `latin_title`, `occasion` (a short kicker, "On
+  waking"), `detail` (one sentence), `chapter_id` (the chapter it is shown
+  in, or null), `search_words`, `prayer_ids` (said in that order),
+  `in_eastertide` and `closes_with_marian_antiphon`. Two change with the
+  season:
+  - `in_eastertide` is `{title, prayer_ids}` for an order that becomes
+    something else from Easter Sunday to the Saturday after Pentecost, and
+    null for the rest. Only the Angelus has one: Queen of Heaven
+    (`regina_caeli`).
+  - `closes_with_marian_antiphon` is true for an order that ends on the
+    season's song to Mary after its `prayer_ids`. Only Night Prayers do.
+- **`marian_antiphons`**: the four songs to Mary, in the order their
+  seasons begin from Advent: `prayer_id` (one of `prayers`), `title`,
+  `latin_title`, `season` (as the app prints it, "Pentecost to Advent")
+  and `begins`, the day its season starts, sung until the next one starts:
+  `advent_eve` (the day before the First Sunday of Advent), `february_2`,
+  `easter` (Easter Sunday) and `pentecost_saturday` (the Saturday after
+  Pentecost, 55 days after Easter). Before February 2 the song is still
+  Advent's, from the year before.
 
 ### `chant_library`
 

@@ -122,7 +122,7 @@ value is added to a vocabulary, never a renamed one.
 | `GET /api/v2/rosary-content` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/rosary-content?fields[rosary_content]=...` | when `version` differs from the saved copy's | every section the app uses (below) |
 | `GET /api/v2/prayer-book` | at launch and once a day | bare: `version` and `updated_at` only |
-| `GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters` | when `version` differs from the saved copy's | both sections |
+| `GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters,orders,marian_antiphons` | when `version` differs from the saved copy's | all four sections (the orders of prayer and the songs to Mary need the prayers) |
 | `GET /api/v2/chant-library` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants` | when `version` differs from the saved copy's | both sections |
 | `GET /api/v2/consecration` | at launch and once a day | bare: `version` and `updated_at` only |

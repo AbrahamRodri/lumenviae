@@ -982,7 +982,8 @@ suspended engine. Geolocation and ElevenLabs are reported from their
 configuration, because the only questions they answer cost a lookup or a
 character.
 
-**`GET /healthz`** answers `{"status", "version", "db"}`, 200 when a
+**`GET /healthz`** answers `{"status", "version", "commit", "db"}` (`commit`
+is the deployed git commit, set by the CI deploy), 200 when a
 `SELECT 1` comes back within a second and 503 when it does not. It is
 public, so it says nothing else: no node, no environment, no counts. It sits
 at the root, not under `/api`, whose v1 is a contract with installed iOS

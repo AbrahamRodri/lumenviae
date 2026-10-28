@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-14T03:14:56Z",
+  "updated_at": "2026-10-28T16:30:00Z",
   "chapters": [
     {
       "id": "first",
@@ -2982,6 +2982,253 @@
       "origin": "St Teresa of Ávila · 16th century",
       "search_words": [],
       "title": "Let Nothing Disturb Thee"
+    }
+  ],
+  "orders": [
+    {
+      "chapter_id": "day",
+      "closes_with_marian_antiphon": false,
+      "detail": "A few short prayers on waking, giving the day to God.",
+      "id": "morning",
+      "in_eastertide": null,
+      "latin_title": "Preces Matutinæ",
+      "occasion": "On waking",
+      "prayer_ids": [
+        "sign_of_cross",
+        "morning_offering",
+        "our_father",
+        "hail_mary",
+        "glory_be",
+        "act_of_faith",
+        "act_of_hope",
+        "act_of_charity",
+        "angele_dei"
+      ],
+      "search_words": [],
+      "title": "Morning Prayers"
+    },
+    {
+      "chapter_id": "day",
+      "closes_with_marian_antiphon": false,
+      "detail": "Remembering how God's Son became man, said three times a day when the church bell rings.",
+      "id": "angelus",
+      "in_eastertide": {
+        "title": "Queen of Heaven",
+        "prayer_ids": [
+          "regina_caeli"
+        ]
+      },
+      "latin_title": "Angelus Domini",
+      "occasion": "6 AM, noon and 6 PM",
+      "prayer_ids": [
+        "angelus"
+      ],
+      "search_words": [],
+      "title": "The Angelus"
+    },
+    {
+      "chapter_id": "day",
+      "closes_with_marian_antiphon": true,
+      "detail": "Look back on the day, ask God's forgiveness, and end with a song to Mary.",
+      "id": "night",
+      "in_eastertide": null,
+      "latin_title": "Preces Vespertinæ",
+      "occasion": "At bedtime",
+      "prayer_ids": [
+        "sign_of_cross",
+        "examen",
+        "act_of_contrition",
+        "in_manus_tuas",
+        "visita_quaesumus"
+      ],
+      "search_words": [],
+      "title": "Night Prayers"
+    },
+    {
+      "chapter_id": "day",
+      "closes_with_marian_antiphon": false,
+      "detail": "Grace before the meal, and thanks when it is done.",
+      "id": "table",
+      "in_eastertide": null,
+      "latin_title": "Benedictio Mensæ",
+      "occasion": "Before and after meals",
+      "prayer_ids": [
+        "grace_before",
+        "grace_after"
+      ],
+      "search_words": [
+        "grace",
+        "meals",
+        "at table"
+      ],
+      "title": "At Meals"
+    },
+    {
+      "chapter_id": "mass",
+      "closes_with_marian_antiphon": false,
+      "detail": "Prayers to get ready for Mass: for light, a ready heart, and faith, hope and love.",
+      "id": "before_mass",
+      "in_eastertide": null,
+      "latin_title": "Præparatio ad Missam",
+      "occasion": "In the pew",
+      "prayer_ids": [
+        "sign_of_cross",
+        "come_holy_ghost",
+        "aquinas_before_mass",
+        "act_of_faith",
+        "act_of_hope",
+        "act_of_charity"
+      ],
+      "search_words": [],
+      "title": "Before Mass"
+    },
+    {
+      "chapter_id": "mass",
+      "closes_with_marian_antiphon": false,
+      "detail": "Prayers of thanks for the minutes after you receive Communion.",
+      "id": "after_mass",
+      "in_eastertide": null,
+      "latin_title": "Gratiarum Actio",
+      "occasion": "After Mass",
+      "prayer_ids": [
+        "anima_christi",
+        "en_ego",
+        "aquinas_after_mass",
+        "mary_after_communion",
+        "suscipe"
+      ],
+      "search_words": [],
+      "title": "After Communion"
+    },
+    {
+      "chapter_id": "penance",
+      "closes_with_marian_antiphon": false,
+      "detail": "Ask for light, go through the Ten Commandments, and be sorry for your sins.",
+      "id": "before_confession",
+      "in_eastertide": null,
+      "latin_title": "Ante Confessionem",
+      "occasion": "Before going in",
+      "prayer_ids": [
+        "sign_of_cross",
+        "come_holy_ghost",
+        "before_confession",
+        "examination_of_conscience",
+        "act_of_contrition",
+        "the_confession"
+      ],
+      "search_words": [],
+      "title": "Before Confession"
+    },
+    {
+      "chapter_id": "penance",
+      "closes_with_marian_antiphon": false,
+      "detail": "Say the prayers the priest gave you (your penance), then thank God for His mercy.",
+      "id": "after_confession",
+      "in_eastertide": null,
+      "latin_title": "Post Confessionem",
+      "occasion": "Kneeling afterwards",
+      "prayer_ids": [
+        "after_confession",
+        "beati_quorum",
+        "hail_mary"
+      ],
+      "search_words": [],
+      "title": "After Confession"
+    },
+    {
+      "chapter_id": "sacrament",
+      "closes_with_marian_antiphon": false,
+      "detail": "A few minutes with Jesus in the tabernacle, where the Host is kept in church, or in spirit from anywhere.",
+      "id": "visit",
+      "in_eastertide": null,
+      "latin_title": "Visitatio",
+      "occasion": "In church, or from anywhere",
+      "prayer_ids": [
+        "adoro_te",
+        "spiritual_communion",
+        "o_sacrum_convivium",
+        "tantum_ergo",
+        "divine_praises"
+      ],
+      "search_words": [
+        "blessed sacrament",
+        "visit to the blessed sacrament",
+        "adoration",
+        "tabernacle"
+      ],
+      "title": "Visiting Jesus in Church"
+    },
+    {
+      "chapter_id": "departed",
+      "closes_with_marian_antiphon": false,
+      "detail": "Prayers asking God to give rest and peace to those who have died.",
+      "id": "holy_souls",
+      "in_eastertide": null,
+      "latin_title": "Pro Defunctis",
+      "occasion": "At a death, or any day",
+      "prayer_ids": [
+        "de_profundis",
+        "requiem_aeternam",
+        "fidelium_deus"
+      ],
+      "search_words": [
+        "purgatory",
+        "the dead",
+        "for the dead",
+        "holy souls",
+        "for the holy souls"
+      ],
+      "title": "For Those Who Have Died"
+    },
+    {
+      "chapter_id": "needs",
+      "closes_with_marian_antiphon": false,
+      "detail": "Prayers for help and protection, to Mary and to St Michael.",
+      "id": "trouble",
+      "in_eastertide": null,
+      "latin_title": "In Tribulatione",
+      "occasion": "When you need help",
+      "prayer_ids": [
+        "sub_tuum",
+        "memorare",
+        "perpetual_help",
+        "st_michael_prayer"
+      ],
+      "search_words": [
+        "help",
+        "danger"
+      ],
+      "title": "In Time of Trouble"
+    }
+  ],
+  "marian_antiphons": [
+    {
+      "begins": "advent_eve",
+      "latin_title": "Alma Redemptoris Mater",
+      "prayer_id": "alma_redemptoris",
+      "season": "Advent to February 2",
+      "title": "Loving Mother of the Redeemer"
+    },
+    {
+      "begins": "february_2",
+      "latin_title": "Ave Regina Cælorum",
+      "prayer_id": "ave_regina_caelorum",
+      "season": "February 2 to Holy Week",
+      "title": "Hail, Queen of Heaven"
+    },
+    {
+      "begins": "easter",
+      "latin_title": "Regina Cæli",
+      "prayer_id": "regina_caeli",
+      "season": "Easter to Pentecost",
+      "title": "Queen of Heaven"
+    },
+    {
+      "begins": "pentecost_saturday",
+      "latin_title": "Salve Regina",
+      "prayer_id": "hail_holy_queen",
+      "season": "Pentecost to Advent",
+      "title": "Hail, Holy Queen"
     }
   ]
 }

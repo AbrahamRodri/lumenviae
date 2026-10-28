@@ -84,6 +84,10 @@ defmodule LumenViaeWeb.API.RosaryAudioController do
           entry = %{clip: clip, file: PrayerAudio.served_filename(voice, clip), audio_url: url}
           {:cont, {:ok, [entry | acc]}}
 
+        # No keys on this machine: S3 has said so once already.
+        {:error, :missing_credentials} ->
+          {:halt, {:error, :audio_unavailable}}
+
         {:error, reason} ->
           Logger.error("Failed to sign rosary audio #{key}: #{inspect(reason)}")
           {:halt, {:error, :audio_unavailable}}
