@@ -128,7 +128,7 @@ value is added to a vocabulary, never a renamed one.
 | `GET /api/v2/consecration` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/consecration?fields[consecration]=version,updated_at,phases,days,prayers,feasts` | when `version` differs from the saved copy's | all four sections |
 | `GET /api/v2/true-devotion` | at launch and once a day | bare: `version` and `updated_at` only |
-| `GET /api/v2/true-devotion?fields[true_devotion]=version,updated_at,about,parts,chapters,teaching,ejaculatory_prayers` | when `version` differs from the saved copy's | all five sections |
+| `GET /api/v2/true-devotion?fields[true_devotion]=version,updated_at,about,parts,chapters` | when `version` differs from the saved copy's | the three sections the reader needs; `teaching` and `ejaculatory_prayers` are there to name when a screen needs them |
 | `GET /api/v2/carlo-acutis` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/carlo-acutis?fields[carlo_acutis]=version,updated_at,feast,shelves,timeline,rule,sayings,prayer` | when `version` differs from the saved copy's | all six sections |
 | `GET /api/v2/marian-library` | at launch and once a day | bare: `version` and `updated_at` only |
