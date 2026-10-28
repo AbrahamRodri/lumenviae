@@ -6,9 +6,10 @@ before the next one starts.
 
 ## Before merging
 
-Merge `origin/main` into the batch branch, then start CI on it (docs/CI.md):
-the run tests the branch as it is, and branch protection does not ask for
-it to be up to date with `main`.
+Merge `origin/main` into the batch branch, then mark the PR ready for
+review, which runs CI on it (docs/CI.md). The run tests the branch as it
+is, and branch protection does not ask for it to be up to date with
+`main`, so merge `main` in first.
 
 ## Right after the deploy
 

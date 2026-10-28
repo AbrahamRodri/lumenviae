@@ -5,23 +5,19 @@ blocking checks then deploys to Fly from the same run and checks production
 with `bin/post-deploy-check`. Nothing else deploys: there is no second
 workflow to race it.
 
-On a pull request CI runs **on demand**, once per batch rather than on every
-push: start "CI" on the PR's branch from the Actions tab, or
-
-```
-gh workflow run ci.yml --ref <branch>
-```
-
-Its checks land on the branch's head commit, which is what the branch
-protection on `main` reads, so a PR merges only after a green run on its
-latest commit. Push again and the checks must be run again. The run tests
-the branch as it is, not merged into `main` (protection is not strict), so
-merge `origin/main` into the branch first when `main` has moved. After the
-deploy, watch production as docs/DEPLOY_WATCH.md says.
+On a pull request CI runs **once per batch**: while the PR is a draft every
+job is skipped, and the checks run when it is marked ready for review, then
+again on each push after that. Build a batch up as a draft, merge
+`origin/main` into it, and mark it ready (`gh pr ready <n>`) when it is
+done. Branch protection on `main` reads that run, the pull request's own,
+on its latest commit. A run started by hand from the Actions tab
+(`gh workflow run ci.yml --ref <branch>`) still works for a quick look, but
+GitHub does not count it for a pull request, so it cannot unblock a merge.
+After the deploy, watch production as docs/DEPLOY_WATCH.md says.
 
 ## What runs
 
-| Job | PR (on demand) | Push to main | Gates the deploy | Catches |
+| Job | PR (ready, not draft) | Push to main | Gates the deploy | Catches |
 | --- | --- | --- | --- | --- |
 | Test | yes | yes | yes | Compile warnings, `mix.lock` drift or unused entries, resources out of step with migrations and snapshots, any failing test (including the GraphQL schema pin and the architecture rules) |
 | Assets build | yes | yes | yes | A broken Tailwind or esbuild build |
@@ -160,8 +156,8 @@ are fixed.
 dependencies (the Ash and Phoenix families grouped, minor and patch only) and
 for GitHub Actions, including the local `setup-elixir` action. Actions are
 pinned to a commit SHA with a `# vX.Y.Z` comment, and Dependabot updates both
-together, so review its action PRs like any dependency change. Their CI is
-on demand like any PR's: start it on the Dependabot branch before merging. Merging one to `main` deploys it, like any other merge.
+together, so review its action PRs like any dependency change. They open ready
+for review, so their CI runs at once, as before. Merging one to `main` deploys it, like any other merge.
 
 ## Not done yet
 

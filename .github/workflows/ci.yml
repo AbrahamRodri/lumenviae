@@ -1,16 +1,19 @@
 # CI, and the deploy that waits for it. See docs/CI.md.
 #
 # A push to main runs every check and then, only if the blocking ones pass,
-# deploys to Fly and checks production (bin/post-deploy-check). On a pull
-# request the checks run on demand: start "CI" from the Actions tab (or
-# `gh workflow run ci.yml --ref <branch>`) once per batch, before merging. Its
-# checks land on the branch's head commit, which is what branch protection
-# asks for. Deploy lives in this file, as
+# deploys to Fly and checks production (bin/post-deploy-check). A pull
+# request runs them once it is ready for review, and again on each push
+# after that; while it is a draft every job is skipped, so a batch built up
+# as a draft costs one run, when it is marked ready. Branch protection reads
+# the pull request's own run: a run started by hand (workflow_dispatch) is
+# not counted for a PR. Deploy lives in this file, as
 # a job with `needs`, so one run holds the whole story and a failing check
 # leaves the deploy job skipped rather than merely racing it.
 name: CI
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
   push:
     branches:
@@ -33,6 +36,7 @@ jobs:
   # (which includes the GraphQL schema pin and the architecture rules).
   test:
     name: Test
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
@@ -77,6 +81,7 @@ jobs:
   # deploy.
   assets:
     name: Assets build
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -95,6 +100,7 @@ jobs:
   # unrelated hotfix. Dependabot's PRs are how a finding gets fixed.
   audit:
     name: Dependency audit
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -111,7 +117,7 @@ jobs:
   # `mix format --check-formatted` once the one-time format commit has landed.
   format:
     name: Format (changed files)
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/main' && github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -142,6 +148,7 @@ jobs:
   # PR for a prod-only break instead of the deploy.
   docker:
     name: Release build (docker)
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -172,6 +179,7 @@ jobs:
   # deploy; the counts land in each job's summary.
   credo:
     name: Credo (report only)
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     continue-on-error: true
@@ -192,6 +200,7 @@ jobs:
 
   sobelow:
     name: Sobelow (report only)
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     continue-on-error: true
