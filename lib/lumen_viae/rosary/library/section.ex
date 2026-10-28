@@ -18,6 +18,11 @@ defmodule LumenViae.Rosary.Library.Section do
       "days" => Types.ConsecrationDay,
       "prayers" => Types.ConsecrationPrayer,
       "feasts" => Types.MarianFeast
+    },
+    true_devotion: %{
+      "about" => Types.TrueDevotionAbout,
+      "parts" => Types.TrueDevotionPart,
+      "chapters" => Types.TrueDevotionChapter
     }
   }
 
@@ -34,8 +39,15 @@ defmodule LumenViae.Rosary.Library.Section do
   would change is an error naming the section and the items it would
   change: what a request serves must be what the file holds, word for
   word, and the version that fingerprints the file must fingerprint it.
+  A section that is one object rather than a list (True Devotion's
+  `about`) is cast as a list of one and served as the one.
   """
-  @spec cast(Library.document(), String.t(), [map]) :: {:ok, [struct]} | {:error, String.t()}
+  @spec cast(Library.document(), String.t(), [map] | map) ::
+          {:ok, [struct] | struct} | {:error, String.t()}
+  def cast(document, name, item) when is_map(item) do
+    with {:ok, [cast]} <- cast(document, name, [item]), do: {:ok, cast}
+  end
+
   def cast(document, name, items) do
     type = @types |> Map.fetch!(document) |> Map.fetch!(name)
 

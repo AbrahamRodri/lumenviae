@@ -21,13 +21,14 @@ defmodule LumenViae.Rosary do
     * `LumenViae.Rosary.Author`
     * `LumenViae.Rosary.Completion`
 
-  plus seven with no table, `LumenViae.Rosary.NarrationVoice`,
+  plus eight with no table, `LumenViae.Rosary.NarrationVoice`,
   `LumenViae.Rosary.SpokenRosary`, `LumenViae.Rosary.RosaryContent`,
   `LumenViae.Rosary.RosaryScript`, `LumenViae.Rosary.PrayerBook`,
-  `LumenViae.Rosary.ChantLibrary` and `LumenViae.Rosary.Consecration`,
-  which give the APIs the configured voices, the spoken Rosary, the
-  Rosary's words, one Rosary's script, the Prayer Book, the Chant Library
-  and the 33-day Consecration.
+  `LumenViae.Rosary.ChantLibrary`, `LumenViae.Rosary.Consecration` and
+  `LumenViae.Rosary.TrueDevotion`, which give the APIs the configured
+  voices, the spoken Rosary, the Rosary's words, one Rosary's script, the
+  Prayer Book, the Chant Library, the 33-day Consecration and the book
+  True Devotion.
 
   Nothing outside `lib/lumen_viae/rosary/` names a resource, calls `Ash`
   on one, or touches the Repo for Rosary data; `test/lumen_viae/rosary/context_rules_test.exs`
@@ -90,6 +91,7 @@ defmodule LumenViae.Rosary do
       read_one LumenViae.Rosary.PrayerBook, :prayer_book, :current, allow_nil?: false
       read_one LumenViae.Rosary.ChantLibrary, :chant_library, :current, allow_nil?: false
       read_one LumenViae.Rosary.Consecration, :consecration, :current, allow_nil?: false
+      read_one LumenViae.Rosary.TrueDevotion, :true_devotion, :current, allow_nil?: false
       action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
 
       # The sets the public may see. Both read through :visible, so a set
@@ -238,6 +240,16 @@ defmodule LumenViae.Rosary do
         get :current do
           route "/"
           name "getConsecration"
+          derive_sort? false
+        end
+      end
+
+      # True Devotion, the whole book, kept offline the same way: the
+      # sections come when named in fields[true_devotion]=.
+      base_route "/true-devotion", LumenViae.Rosary.TrueDevotion do
+        get :current do
+          route "/"
+          name "getTrueDevotion"
           derive_sort? false
         end
       end
@@ -404,9 +416,9 @@ defmodule LumenViae.Rosary do
     resource LumenViae.Rosary.Narration
 
     # No tables: the APIs' view of the narration voices, the spoken Rosary
-    # the Rosary's words, the Prayer Book, the Chant Library and the
-    # Consecration, all of which are configuration or fixed content rather
-    # than data.
+    # the Rosary's words, the Prayer Book, the Chant Library, the
+    # Consecration and True Devotion, all of which are configuration or
+    # fixed content rather than data.
     resource LumenViae.Rosary.NarrationVoice
     resource LumenViae.Rosary.SpokenRosary
     resource LumenViae.Rosary.RosaryContent
@@ -414,6 +426,7 @@ defmodule LumenViae.Rosary do
     resource LumenViae.Rosary.PrayerBook
     resource LumenViae.Rosary.ChantLibrary
     resource LumenViae.Rosary.Consecration
+    resource LumenViae.Rosary.TrueDevotion
   end
 
   require Ash.Query

@@ -114,6 +114,10 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   journal prompts, its prayers in English and Latin and the feasts of
   Mary it may end on. A reader's progress and journal stay on the
   device. See docs/JSON_API.md, "The Consecration"
+- St. Louis de Montfort's True Devotion, the whole book (Faber's
+  translation), as a fourth library document, `GET /api/v2/true-devotion`,
+  from `priv/library/true_devotion.json`. See docs/JSON_API.md, "True
+  Devotion"
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same

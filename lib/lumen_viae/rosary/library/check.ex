@@ -1,7 +1,8 @@
 defmodule LumenViae.Rosary.Library.Check do
   @moduledoc """
-  What `priv/library/prayer_book.json`, `priv/library/chant_library.json`
-  and `priv/library/consecration.json` must hold, checked as `LumenViae.Rosary.Library` compiles and again by
+  What `priv/library/prayer_book.json`, `priv/library/chant_library.json`,
+  `priv/library/consecration.json` and `priv/library/true_devotion.json`
+  must hold, checked as `LumenViae.Rosary.Library` compiles and again by
   `LumenViae.Curation.ChantUpload` before it rewrites a file.
 
   Each function takes a file's sections (string keys, as decoded) and
@@ -75,6 +76,32 @@ defmodule LumenViae.Rosary.Library.Check do
 
   def consecration_errors(_document),
     do: ["the document needs a list of phases, of days, of prayers and of feasts"]
+
+  @doc """
+  The problems with a True Devotion document's sections: its parts
+  numbered 1, 2 and on, every chapter once and in a part there is (or 0,
+  the Introduction's), and each chapter's paragraphs numbered from 0 in
+  order, each `text` or a `subheading`. A device keeps a reader's place
+  by chapter id and paragraph id, so neither may move.
+  """
+  @spec true_devotion_errors(map) :: [String.t()]
+  def true_devotion_errors(%{"about" => about, "parts" => parts, "chapters" => chapters})
+      when is_map(about) and is_list(parts) and is_list(chapters) do
+    numbers = for %{"number" => number} <- parts, do: number
+    chapter_ids = Enum.map(chapters, &id/1)
+
+    required(about, ~w(title author translator source_note)) ++
+      if(numbers == Enum.to_list(1..length(parts)//1),
+        do: [],
+        else: ["the parts are numbered 1, 2 and on, in order"]
+      ) ++
+      Enum.flat_map(chapters, &true_devotion_chapter_errors(&1, [0 | numbers])) ++
+      repeated("chapter", chapter_ids) ++
+      unnamed("chapter id", chapter_ids)
+  end
+
+  def true_devotion_errors(_document),
+    do: ["the document needs an about, and a list of parts and of chapters"]
 
   @doc """
   The problems with a Chant Library document's sections. `prayer_ids`,
@@ -460,6 +487,34 @@ defmodule LumenViae.Rosary.Library.Check do
   end
 
   defp pairing_errors(_prayer), do: []
+
+  defp true_devotion_chapter_errors(%{"id" => id} = chapter, parts) when is_binary(id) do
+    paragraphs = list(chapter["paragraphs"])
+
+    errors =
+      required(chapter, ~w(title)) ++
+        if(chapter["part"] in parts, do: [], else: ["its part is not one of the parts"]) ++
+        if(paragraphs == [], do: ["it has no paragraphs"], else: []) ++
+        if(Enum.map(paragraphs, &id/1) == Enum.to_list(0..(length(paragraphs) - 1)//1),
+          do: [],
+          else: ["its paragraphs are numbered 0, 1, 2 and on, in order"]
+        ) ++
+        for(
+          paragraph <- paragraphs,
+          paragraph["kind"] not in ~w(text subheading),
+          do: "paragraph #{inspect(id(paragraph))} is neither text nor a subheading"
+        ) ++
+        for(
+          paragraph <- paragraphs,
+          error <- required(paragraph, ~w(text)),
+          do: "paragraph #{inspect(id(paragraph))}: #{error}"
+        )
+
+    for error <- errors, do: "chapter #{id}: #{error}"
+  end
+
+  defp true_devotion_chapter_errors(chapter, _parts),
+    do: ["a chapter needs an id: #{inspect(chapter, limit: 3)}"]
 
   defp id(%{"id" => id}), do: id
   defp id(_other), do: nil

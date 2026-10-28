@@ -1,11 +1,11 @@
 defmodule LumenViae.Rosary.Library do
   @moduledoc """
-  The Prayer Book, the Chant Library and the Consecration: what
-  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library` and
-  `GET /api/v2/consecration` serve, and what the apps keep an offline
-  copy of.
+  The Prayer Book, the Chant Library, the Consecration and True Devotion:
+  what `GET /api/v2/prayer-book`, `GET /api/v2/chant-library`,
+  `GET /api/v2/consecration` and `GET /api/v2/true-devotion` serve, and
+  what the apps keep an offline copy of.
 
-  A value module. The content is three files in `priv/library/`, read when
+  A value module. The content is four files in `priv/library/`, read when
   this module compiles, so a new or corrected prayer or chant is a deploy
   rather than an edit in the admin: no query, no state.
 
@@ -30,6 +30,12 @@ defmodule LumenViae.Rosary.Library do
   each of them; `days`, 1 to 34, each with its readings and journal
   prompt; `prayers`, the Consecration's own words for each prayer a phase
   names; and `feasts`, the feasts of Mary it may end on.
+
+  `true_devotion.json` holds St. Louis de Montfort's True Devotion as the
+  iOS app bundles it (`Resources/TrueDevotionBook.json`): `about`, the
+  book's title, author, translator and source; `parts`, its two parts;
+  and `chapters`, in reading order, each with its paragraphs numbered
+  from 0.
 
   The shapes are the contract in docs/JSON_API.md, "The Prayer Book and
   the Chant Library" and "The Consecration". The ids are stable forever:
@@ -64,6 +70,9 @@ defmodule LumenViae.Rosary.Library do
 
   @consecration_path Path.join(@dir, "consecration.json")
   @external_resource @consecration_path
+
+  @true_devotion_path Path.join(@dir, "true_devotion.json")
+  @external_resource @true_devotion_path
 
   read = fn path, sections ->
     file = path |> File.read!() |> Jason.decode!()
@@ -104,6 +113,11 @@ defmodule LumenViae.Rosary.Library do
 
   check.(@consecration_path, Check.consecration_errors(consecration))
 
+  {true_devotion, true_devotion_updated_at} =
+    read.(@true_devotion_path, ~w(about parts chapters))
+
+  check.(@true_devotion_path, Check.true_devotion_errors(true_devotion))
+
   # Each section is cast to its type here, once, and served as cast; a
   # section the cast would change fails the compile (Section.cast/3).
   cast = fn path, document, sections ->
@@ -118,7 +132,8 @@ defmodule LumenViae.Rosary.Library do
   @served %{
     prayer_book: cast.(@prayer_book_path, :prayer_book, prayer_book),
     chant_library: cast.(@chant_library_path, :chant_library, chant_library),
-    consecration: cast.(@consecration_path, :consecration, consecration)
+    consecration: cast.(@consecration_path, :consecration, consecration),
+    true_devotion: cast.(@true_devotion_path, :true_devotion, true_devotion)
   }
 
   @asset_base for(chant <- chant_library["chants"], do: chant["audio"]["url"])
@@ -144,19 +159,26 @@ defmodule LumenViae.Rosary.Library do
       sections: consecration,
       updated_at: consecration_updated_at,
       version: Content.version(consecration)
+    },
+    true_devotion: %{
+      name: "true_devotion.json",
+      sections: true_devotion,
+      updated_at: true_devotion_updated_at,
+      version: Content.version(true_devotion)
     }
   }
 
-  @typedoc "One of the three documents."
-  @type document :: :prayer_book | :chant_library | :consecration
+  @typedoc "One of the four documents."
+  @type document :: :prayer_book | :chant_library | :consecration | :true_devotion
 
-  @doc "The three documents' names."
+  @doc "The four documents' names."
   @spec documents() :: [document]
-  def documents, do: [:prayer_book, :chant_library, :consecration]
+  def documents, do: [:prayer_book, :chant_library, :consecration, :true_devotion]
 
   @doc """
   A document's sections, keyed by name (`"prayers"`, `"chapters"`;
-  `"groups"`, `"chants"`; `"phases"`, `"days"`, `"prayers"`, `"feasts"`),
+  `"groups"`, `"chants"`; `"phases"`, `"days"`, `"prayers"`, `"feasts"`;
+  `"about"`, `"parts"`, `"chapters"`),
   string keys throughout, as the file holds them.
   """
   @spec sections(document) :: map
@@ -167,9 +189,11 @@ defmodule LumenViae.Rosary.Library do
   module compiled (`Types.BookPrayer`, `Types.PrayerBookChapter`,
   `Types.ChantGroup`, `Types.Chant`, and the Consecration's
   `Types.ConsecrationPhase`, `Types.ConsecrationDay`,
-  `Types.ConsecrationPrayer`, `Types.MarianFeast`).
+  `Types.ConsecrationPrayer`, `Types.MarianFeast`, and True Devotion's
+  `Types.TrueDevotionAbout`, `Types.TrueDevotionPart`,
+  `Types.TrueDevotionChapter`). `"about"` is one struct, not a list.
   """
-  @spec served(document, String.t()) :: [struct]
+  @spec served(document, String.t()) :: [struct] | struct
   def served(document, section), do: @served |> Map.fetch!(document) |> Map.fetch!(section)
 
   @doc """

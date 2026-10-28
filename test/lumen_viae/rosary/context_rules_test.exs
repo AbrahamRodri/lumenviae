@@ -49,7 +49,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   @resources ~w(
     mystery meditation meditation_set set_membership completion author
     narration narration_voice spoken_rosary category_card rosary_content
-    rosary_script prayer_book chant_library consecration
+    rosary_script prayer_book chant_library consecration true_devotion
   )
 
   # The resources AshPaperTrail versions. Each has a generated

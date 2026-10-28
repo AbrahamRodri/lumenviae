@@ -50,6 +50,7 @@ involved.
 | `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers` and `chapters` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
 | `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers` and `feasts` when named in `fields[consecration]=`. See "The Consecration". |
+| `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts` and `chapters` when named in `fields[true_devotion]=`. See "True Devotion". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
 
@@ -750,6 +751,74 @@ app reads this document; date the file and pin its new version as for
 the Prayer Book. This document carries no audio: the sung prayers are the
 Chant Library's. The older consecration recordings under
 `GET /api/prayers/:id/audio` had no licence and stay withdrawn (410).
+
+## True Devotion
+
+```
+GET /api/v2/true-devotion
+GET /api/v2/true-devotion?fields[true_devotion]=version,updated_at,about,parts,chapters
+```
+
+St. Louis de Montfort's True Devotion to the Blessed Virgin, the whole
+book, in Fr. Faber's 1862 translation (public domain), as the iOS app's
+reader bundles it. A fourth library document, kept and polled as the
+Prayer Book is: id `current`, the bare request answers with `version`
+and `updated_at` only, and the sections come when named in
+`fields[true_devotion]=`. GraphQL's `trueDevotion` serves the same
+document. The words are in `priv/library/true_devotion.json`; its
+`updated_at` and pinned history are the Prayer Book's. About 290 KB.
+
+Where a reader is in the book stays on the device.
+
+### `true_devotion`
+
+- **`about`**, one object, not a list: `title`, `author`, `translator`
+  and `source_note` (the edition the text is taken from, and that it is
+  in the public domain).
+- **`parts`**, in order: `number` (1, 2) and `title`.
+- **`chapters`**, in reading order, the Introduction to the Act of
+  Consecration: `id` (`introduction`, `motives`, `formula`), `part` (a
+  part's `number`, or 0 for the Introduction, which is in neither),
+  `title` and `paragraphs`, each `{id, kind, text}`: `id` counts from 0
+  within the chapter, `kind` is `text` or `subheading`, and `text` is
+  plain, with no markup.
+
+A reader's place is a chapter `id` and a paragraph `id`; both are stable
+forever. The file was made from the iOS app's
+`Resources/TrueDevotionBook.json`, word for word (its `sourceNote` is
+`source_note` here). Correct the words here and in the iOS app together.
+The app's summary page (key principles, ejaculatory prayers) is not in
+this document.
+
+```json
+{
+  "data": {
+    "type": "true_devotion",
+    "id": "current",
+    "attributes": {
+      "version": "3a98bd835108c60c",
+      "updated_at": "2026-10-28T05:30:00Z",
+      "about": {
+        "title": "True Devotion to the Blessed Virgin",
+        "author": "St. Louis-Marie Grignion de Montfort",
+        "translator": "Translated by Fr. Frederick William Faber, D.D. (1862)",
+        "source_note": "From the twelfth London edition of 1904. This translation is in the public domain."
+      },
+      "parts": [{"number": 1, "title": "Part I — On Devotion to Our Lady in General"}],
+      "chapters": [
+        {
+          "id": "introduction",
+          "part": 0,
+          "title": "Introduction",
+          "paragraphs": [
+            {"id": 0, "kind": "text", "text": "It is by the most holy Virgin Mary that Jesus has come into the world..."}
+          ]
+        }
+      ]
+    }
+  }
+}
+```
 
 ## One Rosary's script
 

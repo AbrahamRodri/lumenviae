@@ -3715,6 +3715,134 @@
           "id"
         ],
         "type": "object"
+      },
+      "true_devotion": {
+        "description": "A \"Resource object\" representing a true_devotion",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a true_devotion",
+            "properties": {
+              "about": {
+                "description": "The book's title, author and translator, and the edition its text is taken from.",
+                "properties": {
+                  "author": {
+                    "type": "string"
+                  },
+                  "source_note": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "translator": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "author",
+                  "translator",
+                  "source_note"
+                ],
+                "type": "object"
+              },
+              "chapters": {
+                "description": "Every chapter in reading order, from the Introduction to the Act of Consecration, each with its paragraphs.",
+                "items": {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "paragraphs": {
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "kind",
+                          "text"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "part": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "part",
+                    "title",
+                    "paragraphs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "parts": {
+                "description": "The book's two parts in order. A chapter names its part by number; the Introduction is in neither.",
+                "items": {
+                  "properties": {
+                    "number": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "number",
+                    "title"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a true_devotion",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "true_devotion"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
       }
     }
   },
@@ -4468,6 +4596,53 @@
         },
         "tags": [
           "rosary_script"
+        ]
+      }
+    },
+    "/api/v2/true-devotion": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "True Devotion, the whole book, as one document. There is only ever one.",
+        "operationId": "getTrueDevotion",
+        "parameters": [
+          {
+            "description": "Comma separated fields of true_devotion: about, chapters, parts, updated_at, version",
+            "explode": false,
+            "in": "query",
+            "name": "fields[true_devotion]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/true_devotion"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "true_devotion"
         ]
       }
     },

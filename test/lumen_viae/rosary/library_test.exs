@@ -1,6 +1,6 @@
 defmodule LumenViae.Rosary.LibraryTest do
   @moduledoc """
-  The Prayer Book, the Chant Library and the Consecration as
+  The Prayer Book, the Chant Library, the Consecration and True Devotion as
   `LumenViae.Rosary.Library` holds them: each file dated and versioned as its history records, and
   what `LumenViae.Rosary.Library.Check` refuses.
   """
@@ -31,6 +31,9 @@ defmodule LumenViae.Rosary.LibraryTest do
     ],
     "consecration.json" => [
       {~U[2026-10-28 02:30:43Z], "fc067fd951512d2c"}
+    ],
+    "true_devotion.json" => [
+      {~U[2026-10-28 05:30:00Z], "3a98bd835108c60c"}
     ]
   }
 
@@ -82,10 +85,14 @@ defmodule LumenViae.Rosary.LibraryTest do
       refute Content.version(changed) == version
     end
 
-    test "the files hold what the apps have printed: 18 chapters, 104 chants, 34 days" do
+    test "the files hold what the apps have printed: 18 chapters, 104 chants, 34 days, 13 chapters" do
       assert length(Library.sections(:prayer_book)["chapters"]) == 18
       assert length(Library.sections(:chant_library)["chants"]) == 104
       assert length(Library.sections(:consecration)["days"]) == 34
+
+      true_devotion = Library.sections(:true_devotion)
+      assert length(true_devotion["chapters"]) == 13
+      assert length(Enum.flat_map(true_devotion["chapters"], & &1["paragraphs"])) == 376
     end
 
     test "every section is served exactly as its file holds it" do
@@ -353,6 +360,81 @@ defmodule LumenViae.Rosary.LibraryTest do
     end
   end
 
+  describe "True Devotion's check" do
+    test "the file as it is passes" do
+      assert Check.true_devotion_errors(Library.sections(:true_devotion)) == []
+    end
+
+    test "the chapter ids are the ones the iOS app keeps a reader's progress by" do
+      assert Enum.map(Library.sections(:true_devotion)["chapters"], & &1["id"]) ==
+               ~w(introduction necessity discernment false-devotions characters preliminary
+                  consists motives figure effects practices communion formula)
+    end
+
+    test "refuses parts out of order, and a chapter in no part there is" do
+      [first, second] = true_devotion()["parts"]
+
+      assert true_devotion_errors(%{true_devotion() | "parts" => [second, first]}) =~
+               "the parts are numbered 1, 2 and on, in order"
+
+      assert true_devotion_errors(update_td_chapter(true_devotion(), "part", 3)) =~
+               "chapter introduction: its part is not one of the parts"
+    end
+
+    test "refuses paragraphs out of order, of no kind, or with no text" do
+      [first, second | _] = hd(true_devotion()["chapters"])["paragraphs"]
+
+      assert true_devotion_errors(
+               update_td_chapter(true_devotion(), "paragraphs", [second, first])
+             ) =~
+               "chapter introduction: its paragraphs are numbered 0, 1, 2 and on, in order"
+
+      assert true_devotion_errors(
+               update_td_chapter(true_devotion(), "paragraphs", [%{first | "kind" => "verse"}])
+             ) =~ "chapter introduction: paragraph 0 is neither text nor a subheading"
+
+      assert true_devotion_errors(
+               update_td_chapter(true_devotion(), "paragraphs", [%{first | "text" => " "}])
+             ) =~ "chapter introduction: paragraph 0: text is required text"
+
+      assert true_devotion_errors(update_td_chapter(true_devotion(), "paragraphs", [])) =~
+               "chapter introduction: it has no paragraphs"
+    end
+
+    test "refuses a repeated chapter id, and one that is not letters, digits, _ and -" do
+      [first | rest] = true_devotion()["chapters"]
+
+      assert true_devotion_errors(%{true_devotion() | "chapters" => [first, first | rest]}) =~
+               ~s(the chapter id "introduction" is repeated)
+
+      assert true_devotion_errors(update_td_chapter(true_devotion(), "id", "the intro")) =~
+               ~s(the chapter id "the intro" may hold only letters, digits, _ and -)
+    end
+
+    test "refuses a missing about, and about without its text" do
+      assert true_devotion_errors(Map.delete(true_devotion(), "about")) =~
+               "the document needs an about"
+
+      about = Map.delete(true_devotion()["about"], "translator")
+
+      assert true_devotion_errors(%{true_devotion() | "about" => about}) =~
+               "translator is required text"
+    end
+
+    test "refuses text a type would change, naming its section" do
+      assert Library.cast_errors(:true_devotion, true_devotion()) == []
+
+      assert [message] =
+               Library.cast_errors(
+                 :true_devotion,
+                 update_td_chapter(true_devotion(), "title", "Introduction ")
+               )
+
+      assert message =~ "chapters would not be served as written"
+      assert message =~ "introduction"
+    end
+  end
+
   describe "the Chant Library's check" do
     test "the file as it is passes" do
       assert Check.chant_library_errors(Library.sections(:chant_library), Library.prayer_ids()) ==
@@ -472,6 +554,16 @@ defmodule LumenViae.Rosary.LibraryTest do
   end
 
   defp book_errors(book), do: book |> Check.prayer_book_errors() |> Enum.join("\n")
+
+  defp true_devotion_errors(document),
+    do: document |> Check.true_devotion_errors() |> Enum.join("\n")
+
+  defp true_devotion, do: Library.sections(:true_devotion)
+
+  defp update_td_chapter(document, key, value) do
+    [first | rest] = document["chapters"]
+    %{document | "chapters" => [Map.put(first, key, value) | rest]}
+  end
 
   defp consecration_errors(document),
     do: document |> Check.consecration_errors() |> Enum.join("\n")

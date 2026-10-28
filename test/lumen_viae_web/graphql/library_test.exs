@@ -1,8 +1,9 @@
 defmodule LumenViaeWeb.Graphql.LibraryTest do
   @moduledoc """
-  GraphQL's `prayerBook`, `chantLibrary` and `consecration`: the same
-  documents as `GET /api/v2/prayer-book`, `GET /api/v2/chant-library` and
-  `GET /api/v2/consecration`, their sections chosen by the selection set.
+  GraphQL's `prayerBook`, `chantLibrary`, `consecration` and
+  `trueDevotion`: the same documents as `GET /api/v2/prayer-book`,
+  `GET /api/v2/chant-library`, `GET /api/v2/consecration` and
+  `GET /api/v2/true-devotion`, their sections chosen by the selection set.
   """
   use LumenViaeWeb.ConnCase, async: true
 
@@ -14,13 +15,14 @@ defmodule LumenViaeWeb.Graphql.LibraryTest do
     assert %{"data" => data} =
              graphql(conn, """
              { prayerBook { id version updatedAt } chantLibrary { id version updatedAt }
-               consecration { id version updatedAt } }
+               consecration { id version updatedAt } trueDevotion { id version updatedAt } }
              """)
 
     for {field, document} <- [
           {"prayerBook", :prayer_book},
           {"chantLibrary", :chant_library},
-          {"consecration", :consecration}
+          {"consecration", :consecration},
+          {"trueDevotion", :true_devotion}
         ] do
       %{version: version, updated_at: updated_at} = Library.stamp(document)
 
@@ -76,6 +78,33 @@ defmodule LumenViaeWeb.Graphql.LibraryTest do
     assert Enum.map(phases, & &1["prayerIds"]) == Enum.map(file["phases"], & &1["prayer_ids"])
     assert Enum.map(prayers, & &1["latin"]) == Enum.map(file["prayers"], & &1["latin"])
     assert length(feasts) == length(file["feasts"])
+  end
+
+  test "True Devotion's chapters with their paragraphs, its parts and about", %{conn: conn} do
+    body =
+      graphql(conn, """
+      { trueDevotion {
+          about { title author translator sourceNote }
+          parts { number title }
+          chapters { id part title paragraphs { id kind text } } } }
+      """)
+
+    refute body["errors"]
+
+    %{"about" => about, "parts" => parts, "chapters" => chapters} =
+      get_in(body, ["data", "trueDevotion"])
+
+    file = Library.sections(:true_devotion)
+
+    assert about["sourceNote"] == file["about"]["source_note"]
+    assert Enum.map(parts, & &1["title"]) == Enum.map(file["parts"], & &1["title"])
+    assert Enum.map(chapters, & &1["id"]) == Enum.map(file["chapters"], & &1["id"])
+
+    assert Enum.map(chapters, &Enum.map(&1["paragraphs"], fn paragraph -> paragraph["text"] end)) ==
+             Enum.map(
+               file["chapters"],
+               &Enum.map(&1["paragraphs"], fn paragraph -> paragraph["text"] end)
+             )
   end
 
   test "every chant with its recording, score and lines", %{conn: conn} do

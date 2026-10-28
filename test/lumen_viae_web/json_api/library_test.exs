@@ -1,8 +1,9 @@
 defmodule LumenViaeWeb.JsonApi.LibraryTest do
   @moduledoc """
-  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library` and
-  `GET /api/v2/consecration`: the Prayer Book, the Chant Library and the
-  33-day Consecration, each one document. The bare request is the
+  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library`,
+  `GET /api/v2/consecration` and `GET /api/v2/true-devotion`: the Prayer
+  Book, the Chant Library, the 33-day Consecration and the book True
+  Devotion, each one document. The bare request is the
   version and the date, which is how a device asks whether its saved copy
   is current; the sections come when named in `fields[<type>]=`.
   """
@@ -18,7 +19,8 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
   @documents [
     {"/prayer-book", "prayer_book", :prayer_book, ~w(prayers chapters)},
     {"/chant-library", "chant_library", :chant_library, ~w(groups chants)},
-    {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)}
+    {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)},
+    {"/true-devotion", "true_devotion", :true_devotion, ~w(about parts chapters)}
   ]
 
   for {path, type, document, sections} <- @documents do
@@ -265,6 +267,46 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       for chant <- chants do
         assert chant["id"] in Map.fetch!(parts, chant["group_id"])
       end
+    end
+  end
+
+  describe "True Devotion" do
+    setup %{conn: conn} do
+      conn
+      |> get_v2("/true-devotion?fields[true_devotion]=about,parts,chapters")
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+      |> then(&%{about: &1["about"], parts: &1["parts"], chapters: &1["chapters"]})
+    end
+
+    test "every item carries every field of the contract", %{
+      about: about,
+      parts: parts,
+      chapters: chapters
+    } do
+      assert Map.keys(about) |> Enum.sort() == ~w(author source_note title translator)
+
+      for part <- parts, do: assert(Map.keys(part) |> Enum.sort() == ~w(number title))
+
+      for chapter <- chapters do
+        assert Map.keys(chapter) |> Enum.sort() == ~w(id paragraphs part title)
+
+        for paragraph <- chapter["paragraphs"] do
+          assert Map.keys(paragraph) |> Enum.sort() == ~w(id kind text)
+        end
+      end
+    end
+
+    test "the whole book: an Introduction and two parts, the Act of Consecration last", %{
+      about: about,
+      parts: parts,
+      chapters: chapters
+    } do
+      assert about["title"] == "True Devotion to the Blessed Virgin"
+      assert about["source_note"] =~ "public domain"
+      assert Enum.map(parts, & &1["number"]) == [1, 2]
+      assert %{"id" => "introduction", "part" => 0} = hd(chapters)
+      assert %{"id" => "formula", "part" => 2} = List.last(chapters)
     end
   end
 end

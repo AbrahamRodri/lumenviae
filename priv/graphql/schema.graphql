@@ -3,6 +3,53 @@ schema {
   query: RootQueryType
 }
 
+type TrueDevotionParagraph {
+  "The words, as printed. No markup."
+  text: String!
+
+  "`text`, a paragraph of the book, or `subheading`, a heading inside the chapter."
+  kind: String!
+
+  "Its place in the chapter, counting from 0. Stable forever with the chapter's id: a device keeps a reader's place by the two."
+  id: Int!
+}
+
+type TrueDevotionChapter {
+  "The chapter's title (`Motives for This Devotion`)."
+  title: String!
+
+  "The part it belongs to, a `number` in `parts`, or 0 for the Introduction, which is in none."
+  part: Int!
+
+  "Its paragraphs in reading order, their ids 0, 1, 2 and on."
+  paragraphs: [TrueDevotionParagraph!]!
+
+  "The chapter's id (`introduction`, `motives`). Stable forever: a device keeps a reader's progress by it."
+  id: String!
+}
+
+type TrueDevotionPart {
+  "Its heading (`Part I — On Devotion to Our Lady in General`)."
+  title: String!
+
+  "The part, 1 or 2, as a chapter's `part` names it."
+  number: Int!
+}
+
+type TrueDevotionAbout {
+  "The translation, as the title page credits it."
+  translator: String!
+
+  "The book's title (`True Devotion to the Blessed Virgin`)."
+  title: String!
+
+  "The edition the text is taken from, and that it is in the public domain."
+  sourceNote: String!
+
+  "Who wrote it (`St. Louis-Marie Grignion de Montfort`)."
+  author: String!
+}
+
 type MarianFeast {
   "Its name (`The Assumption`)."
   name: String!
@@ -1306,6 +1353,26 @@ type MutationError {
   path: [String!]
 }
 
+type TrueDevotion {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "The book's title, author and translator, and the edition its text is taken from."
+  about: TrueDevotionAbout!
+
+  "The book's two parts in order. A chapter names its part by number; the Introduction is in neither."
+  parts: [TrueDevotionPart!]!
+
+  "Every chapter in reading order, from the Introduction to the Act of Consecration, each with its paragraphs."
+  chapters: [TrueDevotionChapter!]!
+}
+
 type Consecration {
   "Always `current`: there is one document."
   id: String!
@@ -1625,6 +1692,9 @@ type RootQueryType {
 
   "The 33-day Consecration as one document. There is only ever one."
   consecration: Consecration!
+
+  "True Devotion, the whole book, as one document. There is only ever one."
+  trueDevotion: TrueDevotion!
 
   "The full text of one canonical hour on one date."
   officeHour(
