@@ -53,6 +53,7 @@ involved.
 | `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts`, `chapters`, `teaching` and `ejaculatory_prayers` when named in `fields[true_devotion]=`. See "True Devotion". |
 | `GET /carlo-acutis` | `CarloAcutis.:current` | St. Carlo Acutis's page as one document: its `version` and `updated_at`, and `feast`, `shelves`, `timeline`, `rule`, `sayings` and `prayer` when named in `fields[carlo_acutis]=`. See "St. Carlo Acutis". |
 | `GET /marian-library` | `MarianLibrary.:current` | The Marian Library as one document: its `version` and `updated_at`, and `feasts` and `shelves` when named in `fields[marian_library]=`. See "The Marian Library". |
+| `GET /office/vocabulary`, `GET /office/calendar/:year/:month`, `GET /office/days/:date`, `GET /office/days/:date/hours`, `GET /office/days/:date/hours/:hour` | `Office.Breviary`'s actions | The Divine Office, as GraphQL's `office*` queries and v1's `/api/office` serve it. See "The Divine Office". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
 
@@ -137,6 +138,7 @@ title, detail, source}]}`, with the HTTP status of the first:
 | 404 | `not_found` | No such set, or one the public may not see. |
 | 429 | `rate_limited` | `POST /completions` only: too many completions from this address this hour (an IPv6 caller counts by its /64), counted with v1, GraphQL and the website. Carries `Retry-After`, in whole seconds, until the hour ends. Drop it, or retry after that. |
 | 503 | `audio_unavailable` | Recordings exist but could not be signed: the server's storage credentials are missing or broken. Retry later. |
+| 503 | `office_unavailable` | `/office` only: the Divine Office engine could not be reached. Retry later. |
 
 A recording that cannot be signed fails the whole request for the spoken
 Rosary and for `POST /meditations/audio`, and nulls a meditation's
@@ -429,12 +431,16 @@ at midnight in the device's own calendar: not the prayer day), then:
 Everyone praying on one day sees the same line at home, steady through the
 day, because the choice has no randomness.
 
-**`milestones`**: seven `{days, meaning, icon, blessing}`, by days
-ascending: 3, 7, 9, 33, 54, 100 and 365. `meaning` is what the Church calls
-a run of this length (`a novena`) and is null for 33 and 100. `icon` is the
-iOS app's glyph name (`ph-number-circle-nine`, `ch-consecration`,
-`lv-rosary`, `lv-wheat`, `ch-chi-rho`), as the app has it; a client draws
-its own for each name. A milestone is shown as:
+**`milestones`**: twelve `{days, meaning, icon, blessing}`, by days
+ascending: 3, 7, 9, 33, 40, 50, 54, 100, 150, 365, 500 and 1000, as the iOS
+app's `StreakMilestone` has them. `meaning` is what the Church calls a run
+of this length (`a novena`) and is null for 3, 33, 100, 500 and 1000.
+`icon` is the iOS app's glyph name (`ph-number-circle-nine`,
+`ch-consecration`, `lv-crown-of-thorns`, `ch-dove`, `lv-rosary`,
+`lv-wheat`, `ch-lily`, `ch-chi-rho`, `ch-candle`, `lv-hourglass`), as the
+app has it; a client draws its own for each name. Until 28 October 2026
+the section served seven (3, 7, 9, 33, 54, 100 and 365) with older
+wording; the shape did not change. A milestone is shown as:
 
 - its **name**, `"{days} days"` (`9 days`), and under it the **blessing**;
 - its **title**, where a line has no blessing to explain it, `"{days} days
@@ -947,6 +953,38 @@ and `pause_ms`. `mystery` and `decade` are null on the pendant, where the
 iOS app's own script gives the opening the first decade and its key and
 the close the last's. A meditation step is the set's own narration, which a
 client finds in the set by its decade.
+
+## The Divine Office
+
+```
+GET /api/v2/office/vocabulary
+GET /api/v2/office/calendar/1962/8
+GET /api/v2/office/days/2026-08-24
+GET /api/v2/office/days/2026-08-24/hours
+GET /api/v2/office/days/2026-08-24/hours/laudes?version=rubrics-1960&language=english
+```
+
+The pre-Vatican II breviary, from the `LumenViae.Office` domain, for a
+client that calls v2 only. The same actions as GraphQL's `officeHour`,
+`officeHours`, `officeDay`, `officeCalendar` and `officeVocabulary`, and
+the same answers as v1's `/api/office` (docs/OFFICE_API.md has the
+shapes, the engine and the cache): one validation, one engine, one
+cache. `/hours` answers all eight hours of a date, in liturgical order.
+
+Unlike every other v2 route, each answers with its value as the JSON
+body (`{"date": ..., "hour": ..., "sections": [...], "source": {...}}`),
+not a JSON:API resource object: an office is text, not a record with an
+id. The OpenAPI document types each body. `version` and `language` are
+query parameters on every content route, as in v1; the vocabulary route
+lists their slugs and defaults. Every hour carries `source`, the credit
+to the Divinum Officium Project; keep it on screen.
+
+Errors are v2's: an unknown hour, version or language, a date outside
+1600 to 2200, or a month that is not 1 to 12 is a 400
+`invalid_argument` whose `detail` names the valid values; the engine
+unreachable is a 503 `office_unavailable`, which a client retries later.
+Responses are `private, no-store` like the rest of v2, so a client keeps
+its own copy of an office it has read (an office never changes).
 
 ## Fresh meditation audio
 
