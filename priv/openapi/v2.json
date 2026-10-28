@@ -1802,6 +1802,109 @@
                 },
                 "type": "array"
               },
+              "marian_antiphons": {
+                "description": "The four songs to Mary through the year, in the order their seasons begin from Advent. An order that closes with the season's song ends on the one whose season holds the day.",
+                "items": {
+                  "properties": {
+                    "begins": {
+                      "type": "string"
+                    },
+                    "latin_title": {
+                      "type": "string"
+                    },
+                    "prayer_id": {
+                      "type": "string"
+                    },
+                    "season": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "prayer_id",
+                    "title",
+                    "latin_title",
+                    "season",
+                    "begins"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "orders": {
+                "description": "The orders of prayer, a few prayers said together (Morning Prayers, Before Mass), in the app's order: the three of the day first, then those for an occasion.",
+                "items": {
+                  "properties": {
+                    "chapter_id": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "closes_with_marian_antiphon": {
+                      "type": "boolean"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "in_eastertide": {
+                      "nullable": true,
+                      "properties": {
+                        "prayer_ids": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "prayer_ids"
+                      ],
+                      "type": "object"
+                    },
+                    "latin_title": {
+                      "type": "string"
+                    },
+                    "occasion": {
+                      "type": "string"
+                    },
+                    "prayer_ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "search_words": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "latin_title",
+                    "occasion",
+                    "detail",
+                    "search_words",
+                    "prayer_ids",
+                    "closes_with_marian_antiphon"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
               "prayers": {
                 "description": "Every prayer the book prints, each once, the Rosary's and the consecration's included. A client keeps a prayer no chapter names: an order of prayer may.",
                 "items": {
@@ -5344,7 +5447,7 @@
         "operationId": "getPrayerBook",
         "parameters": [
           {
-            "description": "Comma separated fields of prayer_book: chapters, prayers, updated_at, version",
+            "description": "Comma separated fields of prayer_book: chapters, marian_antiphons, orders, prayers, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[prayer_book]",

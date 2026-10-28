@@ -383,6 +383,63 @@ type ChantGroup {
   id: String!
 }
 
+type MarianAntiphon {
+  "Its English name."
+  title: String!
+
+  "When it is sung, as the app prints it (`Pentecost to Advent`)."
+  season: String!
+
+  "The song, one of the document's prayers (`hail_holy_queen`)."
+  prayerId: String!
+
+  "Its Latin name."
+  latinTitle: String!
+
+  "The day its season begins: `advent_eve` (the day before the First Sunday of Advent), `february_2`, `easter` (Easter Sunday) or `pentecost_saturday` (the Saturday after Pentecost). Each is sung until the next one begins."
+  begins: String!
+}
+
+type PrayerOrderVariant {
+  "Its name in the season."
+  title: String!
+
+  "Its prayers in the season, each one of the document's prayers."
+  prayerIds: [String!]!
+}
+
+type PrayerOrder {
+  "Its name (`Morning Prayers`)."
+  title: String!
+
+  "Other names it is looked for by, beside its titles. Empty when none."
+  searchWords: [String!]!
+
+  "Its prayers in the order they are said, each one of the document's prayers. Outside Eastertide, and before the closing song to Mary."
+  prayerIds: [String!]!
+
+  "When it is prayed, as a short kicker (`On waking`)."
+  occasion: String!
+
+  "Its Latin name."
+  latinTitle: String!
+
+  "What the order becomes from Easter Sunday to the Saturday after Pentecost (the Angelus gives way to Queen of Heaven), or null when it does not change."
+  inEastertide: PrayerOrderVariant
+
+  "The order's id (`morning`). Stable forever: a device stores it."
+  id: String!
+
+  "What it is, in one plain sentence."
+  detail: String!
+
+  "Whether the order ends on the season's song to Mary, one of `marian_antiphons` (Night Prayers do)."
+  closesWithMarianAntiphon: Boolean!
+
+  "The chapter it is shown in, one of the document's chapters, or null."
+  chapterId: String
+}
+
 type PrayerBookSection {
   "The sub-heading."
   title: String!
@@ -1614,6 +1671,12 @@ type PrayerBook {
 
   "The book's chapters in order, each with its sub-headings and the prayers under them."
   chapters: [PrayerBookChapter!]!
+
+  "The orders of prayer, a few prayers said together (Morning Prayers, Before Mass), in the app's order: the three of the day first, then those for an occasion."
+  orders: [PrayerOrder!]!
+
+  "The four songs to Mary through the year, in the order their seasons begin from Advent. An order that closes with the season's song ends on the one whose season holds the day."
+  marianAntiphons: [MarianAntiphon!]!
 }
 
 type RosaryScript {

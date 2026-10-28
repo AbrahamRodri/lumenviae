@@ -117,7 +117,9 @@ defmodule LumenViae.Rosary.Library do
     end
   end
 
-  {prayer_book, prayer_book_updated_at} = read.(@prayer_book_path, ~w(prayers chapters))
+  {prayer_book, prayer_book_updated_at} =
+    read.(@prayer_book_path, ~w(prayers chapters orders marian_antiphons))
+
   check.(@prayer_book_path, Check.prayer_book_errors(prayer_book))
 
   {chant_library, chant_library_updated_at} = read.(@chant_library_path, ~w(groups chants))

@@ -17,7 +17,7 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
   @instant ~r/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
 
   @documents [
-    {"/prayer-book", "prayer_book", :prayer_book, ~w(prayers chapters)},
+    {"/prayer-book", "prayer_book", :prayer_book, ~w(prayers chapters orders marian_antiphons)},
     {"/chant-library", "chant_library", :chant_library, ~w(groups chants)},
     {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)},
     {"/true-devotion", "true_devotion", :true_devotion,
@@ -82,11 +82,16 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     setup %{conn: conn} do
       attributes =
         conn
-        |> get_v2("/prayer-book?fields[prayer_book]=prayers,chapters")
+        |> get_v2("/prayer-book?fields[prayer_book]=prayers,chapters,orders,marian_antiphons")
         |> v2_response(200)
         |> get_in(["data", "attributes"])
 
-      %{prayers: attributes["prayers"], chapters: attributes["chapters"]}
+      %{
+        prayers: attributes["prayers"],
+        chapters: attributes["chapters"],
+        orders: attributes["orders"],
+        antiphons: attributes["marian_antiphons"]
+      }
     end
 
     test "every prayer carries every field of the contract", %{prayers: prayers} do
@@ -118,6 +123,67 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       for %{"latin" => latin, "english" => english} <- prayers, latin do
         assert length(String.split(latin, "\n")) == length(String.split(english, "\n"))
       end
+    end
+
+    # The iPhone app's orders (PrayerBook.orders), for Android to pray.
+    test "the eleven orders of prayer, the three of the day first", %{orders: orders} do
+      assert Enum.map(orders, & &1["id"]) ==
+               ~w(morning angelus night table before_mass after_mass before_confession
+                  after_confession visit holy_souls trouble)
+
+      for order <- orders do
+        assert Map.keys(order) |> Enum.sort() ==
+                 ~w(chapter_id closes_with_marian_antiphon detail id in_eastertide latin_title
+                    occasion prayer_ids search_words title)
+      end
+    end
+
+    test "every order names only the book's prayers and chapters", %{
+      prayers: prayers,
+      chapters: chapters,
+      orders: orders
+    } do
+      prayer_ids = MapSet.new(prayers, & &1["id"])
+      chapter_ids = MapSet.new(chapters, & &1["id"])
+
+      for order <- orders do
+        named = order["prayer_ids"] ++ ((order["in_eastertide"] || %{})["prayer_ids"] || [])
+        assert order["prayer_ids"] != []
+        assert Enum.all?(named, &MapSet.member?(prayer_ids, &1)), order["id"]
+        assert is_nil(order["chapter_id"]) or MapSet.member?(chapter_ids, order["chapter_id"])
+      end
+    end
+
+    test "the Angelus is Queen of Heaven in Eastertide, and Night Prayers close on Mary's song",
+         %{orders: orders} do
+      orders = Map.new(orders, &{&1["id"], &1})
+
+      assert orders["angelus"]["prayer_ids"] == ["angelus"]
+
+      assert orders["angelus"]["in_eastertide"] == %{
+               "title" => "Queen of Heaven",
+               "prayer_ids" => ["regina_caeli"]
+             }
+
+      assert orders["night"]["closes_with_marian_antiphon"]
+      assert Enum.count(orders, fn {_id, order} -> order["closes_with_marian_antiphon"] end) == 1
+      assert Enum.count(orders, fn {_id, order} -> order["in_eastertide"] end) == 1
+    end
+
+    test "the four songs to Mary, in the order their seasons begin", %{
+      prayers: prayers,
+      antiphons: antiphons
+    } do
+      prayer_ids = MapSet.new(prayers, & &1["id"])
+
+      assert Enum.map(antiphons, &{&1["prayer_id"], &1["begins"]}) == [
+               {"alma_redemptoris", "advent_eve"},
+               {"ave_regina_caelorum", "february_2"},
+               {"regina_caeli", "easter"},
+               {"hail_holy_queen", "pentecost_saturday"}
+             ]
+
+      assert Enum.all?(antiphons, &MapSet.member?(prayer_ids, &1["prayer_id"]))
     end
   end
 

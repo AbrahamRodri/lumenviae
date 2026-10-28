@@ -29,7 +29,7 @@ defmodule LumenViae.Rosary.Library.Check do
 
   @doc "The problems with a Prayer Book document's sections."
   @spec prayer_book_errors(map) :: [String.t()]
-  def prayer_book_errors(%{"prayers" => prayers, "chapters" => chapters})
+  def prayer_book_errors(%{"prayers" => prayers, "chapters" => chapters} = book)
       when is_list(prayers) and is_list(chapters) do
     prayer_ids = Enum.map(prayers, &id/1)
 
@@ -40,7 +40,9 @@ defmodule LumenViae.Rosary.Library.Check do
       unnamed("prayer id", prayer_ids) ++
       Enum.flat_map(chapters, &chapter_errors(&1, MapSet.new(prayer_ids))) ++
       repeated("chapter", chapter_ids) ++
-      unnamed("chapter id", chapter_ids)
+      unnamed("chapter id", chapter_ids) ++
+      orders_errors(list(book["orders"]), MapSet.new(prayer_ids), MapSet.new(chapter_ids)) ++
+      antiphons_errors(list(book["marian_antiphons"]), MapSet.new(prayer_ids))
   end
 
   def prayer_book_errors(_document), do: ["the document needs a list of prayers and of chapters"]
@@ -316,6 +318,44 @@ defmodule LumenViae.Rosary.Library.Check do
   end
 
   defp chapter_errors(chapter, _prayer_ids), do: ["a chapter needs an id: #{inspect(chapter)}"]
+
+  # An order names only the book's prayers and chapters, each order once.
+  # Only the ids are checked here; the type checks the rest.
+  defp orders_errors(orders, prayer_ids, chapter_ids) do
+    ids = Enum.map(orders, &id/1)
+
+    Enum.flat_map(orders, &order_errors(&1, prayer_ids, chapter_ids)) ++
+      repeated("order", ids) ++
+      unnamed("order id", ids)
+  end
+
+  defp order_errors(%{"id" => id} = order, prayer_ids, chapter_ids) when is_binary(id) do
+    eastertide = order["in_eastertide"] || %{}
+    chapter = order["chapter_id"]
+
+    errors =
+      words(order, "prayer_ids") ++
+        unknown("prayer", list(order["prayer_ids"]), prayer_ids) ++
+        unknown("prayer", list(eastertide["prayer_ids"]), prayer_ids) ++
+        if(is_nil(chapter), do: [], else: unknown("chapter", [chapter], chapter_ids))
+
+    Enum.map(errors, &"the order #{id}: #{&1}")
+  end
+
+  defp order_errors(order, _prayer_ids, _chapter_ids),
+    do: ["an order needs an id: #{inspect(order)}"]
+
+  # The four songs, each a prayer of the book, each season once.
+  defp antiphons_errors(antiphons, prayer_ids) do
+    named = for %{"prayer_id" => id} <- antiphons, do: id
+    seasons = for %{"begins" => begins} <- antiphons, do: begins
+
+    unknown("prayer", named, prayer_ids) ++
+      repeated("song to Mary", named) ++
+      for {begins, count} <- Enum.frequencies(seasons),
+          count > 1,
+          do: "two songs to Mary begin on #{begins}"
+  end
 
   # A chapter's sub-headings, in order. A prayer may stand under two, and
   # the chapter's own prayer_ids is their union, each prayer once, in the

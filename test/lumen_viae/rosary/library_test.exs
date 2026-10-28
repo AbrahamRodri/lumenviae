@@ -25,7 +25,8 @@ defmodule LumenViae.Rosary.LibraryTest do
   @history %{
     "prayer_book.json" => [
       {~U[2026-10-14 02:51:54Z], "63167a494d1c4b44"},
-      {~U[2026-10-14 03:14:56Z], "f16e6e8bb9b60649"}
+      {~U[2026-10-14 03:14:56Z], "f16e6e8bb9b60649"},
+      {~U[2026-10-28 16:30:00Z], "ec0e0d5a60a76890"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"}
@@ -220,6 +221,31 @@ defmodule LumenViae.Rosary.LibraryTest do
       book = %{book | "chapters" => book["chapters"] ++ book["chapters"]}
 
       assert book_errors(book) =~ ~s(the chapter id "our_lady" is repeated)
+    end
+
+    test "refuses an order naming a prayer or a chapter that does not exist" do
+      book = Library.sections(:prayer_book)
+      [first | rest] = book["orders"]
+      broken = %{first | "prayer_ids" => ["nowhere"], "chapter_id" => "attic"}
+
+      errors = book_errors(%{book | "orders" => [broken | rest]})
+      assert errors =~ ~s(the order morning: names the prayer "nowhere")
+      assert errors =~ ~s(the order morning: names the chapter "attic")
+    end
+
+    test "refuses a repeated order, and two songs to Mary for one season" do
+      book = Library.sections(:prayer_book)
+      [song | songs] = book["marian_antiphons"]
+
+      errors =
+        book_errors(%{
+          book
+          | "orders" => book["orders"] ++ [hd(book["orders"])],
+            "marian_antiphons" => [song, %{hd(songs) | "begins" => song["begins"]} | tl(songs)]
+        })
+
+      assert errors =~ ~s(the order id "morning" is repeated)
+      assert errors =~ "two songs to Mary begin on advent_eve"
     end
 
     test "refuses an id that is not letters, digits, _ and -" do
