@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-04T02:00:00Z",
+  "updated_at": "2026-10-28T21:30:00Z",
   "learn": {
     "intro": "If you have never prayed the Rosary, begin here. You need no beads — your fingers will do — and nothing by heart. Three short lessons, and then your first Rosary, with every word in front of you.",
     "lessons": [
@@ -9,7 +9,7 @@
         "title": "The Beads and the Order",
         "summary": "What a rosary is, each part of it, and what is said where.",
         "paragraphs": [
-          "The Rosary is a prayer of the Gospel. It is prayed in five decades — sets of ten Hail Marys. For each decade we call to mind one scene from the life of Jesus and His Mother — a mystery — and while we think about it, we pray: an Our Father, ten Hail Marys, a Glory Be, and the Fatima Prayer.",
+          "The Rosary is a prayer drawn from the Gospels. It is prayed in five decades — sets of ten Hail Marys. For each decade we call to mind one scene from the life of Jesus and His Mother — a mystery — and while we think about it, we pray: an Our Father, ten Hail Marys, a Glory Be, and the Fatima Prayer.",
           "The words are simple and the same each time, and that is the point. They become a quiet rhythm under the heart, leaving the mind free to look at Christ. The beads keep the count, so you do not have to."
         ],
         "sections": [
@@ -63,7 +63,7 @@
         "title": "The Mysteries",
         "summary": "The scenes from the Gospel you think about while you pray, and which to pray each day.",
         "paragraphs": [
-          "A mystery is a moment in the life of Jesus and Mary — His birth, His agony in the garden, His rising. There are twenty, in four sets of five, and one set is prayed each day. While your lips say the Hail Marys of a decade, your mind stays with its mystery."
+          "A mystery is a moment in the life of Jesus and Mary — His birth, His agony in the garden, His rising. There are twenty, in four sets of five. Each day has its own set, and the Luminous can be prayed any day you choose. While your lips say the Hail Marys of a decade, your mind stays with its mystery."
         ],
         "sections": [
           {
@@ -128,7 +128,7 @@
       {
         "number": 1,
         "title": "Make the Sign of the Cross",
-        "detail": "Holding the crucifix, sign yourself from forehead to breast, and shoulder to shoulder.",
+        "detail": "Holding the crucifix, touch your forehead, your chest, your left shoulder and then your right.",
         "prayer_ids": [
           "sign_of_cross"
         ]
@@ -136,7 +136,7 @@
       {
         "number": 2,
         "title": "Pray the Apostles' Creed",
-        "detail": "Still holding the crucifix, profess the faith of the Church.",
+        "detail": "Still holding the crucifix, say what the Church believes.",
         "prayer_ids": [
           "apostles_creed"
         ]
@@ -184,7 +184,7 @@
       {
         "number": 8,
         "title": "Close the decade",
-        "detail": "On the next large bead, before its Our Father: the Glory Be, then the Fatima Prayer, which Our Lady asked for at Fatima.",
+        "detail": "On the next large bead, before its Our Father: the Glory Be, then the Fatima Prayer ('O my Jesus, forgive us our sins...'), which Our Lady taught at Fatima in 1917.",
         "prayer_ids": [
           "glory_be",
           "fatima_prayer"
@@ -243,7 +243,7 @@
     "shelves": [
       {
         "id": "montfort_methods",
-        "title": "Montfort's Counsel",
+        "title": "St. Louis de Montfort's Counsel",
         "subtitle": "From St. Louis de Montfort's The Secret of the Rosary",
         "margin_label": "Praying\nit well",
         "icon": "lv-rosary",
@@ -251,14 +251,14 @@
           {
             "id": "montfort_offering",
             "title": "Offer Each Decade",
-            "detail": "His first method",
+            "detail": "Montfort's first method",
             "paragraphs": [
-              "St. Louis de Montfort, the great apostle of the Rosary, left several methods for praying it more fruitfully. Each uses the same beads and the same prayers; what changes is how deeply the mystery enters them. In the first, each decade is offered to Our Lord before it is prayed, in honour of its mystery, with a request through Mary for the grace that mystery teaches.",
+              "St. Louis de Montfort, the great apostle of the Rosary, left several methods for praying it more fruitfully. Each uses the same beads and the same prayers; what changes is how deeply the mystery enters them. In the first, each decade is offered to Our Lord before it is prayed, in honor of its mystery, with a request through Mary for the grace that mystery teaches.",
               "After the decade, ask for that grace again: “May the grace of the mystery of the Incarnation come down into our souls. Amen.” He wrote the method for the fifteen traditional mysteries; the same spirit carries naturally into the Luminous."
             ],
             "quote": {
               "citation": "The offering of the first Joyful Mystery",
-              "text": "We offer Thee, O Lord Jesus, this first decade in honour of Thy Incarnation, and we ask of Thee, through this mystery and through the intercession of Thy most holy Mother, a profound humility. Amen."
+              "text": "We offer Thee, O Lord Jesus, this first decade in honor of Thy Incarnation, and we ask of Thee, through this mystery and through the intercession of Thy most holy Mother, a profound humility. Amen."
             },
             "tables": [
               {
@@ -350,7 +350,7 @@
           {
             "id": "montfort_clauses",
             "title": "A Word Within Each Hail Mary",
-            "detail": "His shorter method",
+            "detail": "Montfort's shorter method",
             "paragraphs": [
               "The second method keeps the mystery present through every bead. After the name of Jesus in each Hail Mary of the decade, add a few words that recall the mystery — “and blessed is the fruit of thy womb, Jesus, becoming man” — and go on with the prayer.",
               "It is the simplest way to keep the mind from wandering, because the mystery is spoken ten times in the decade and the Hail Mary becomes a meditation of its own. The clause for each mystery:"
@@ -449,13 +449,13 @@
           {
             "id": "montfort_well",
             "title": "Saying It Well",
-            "detail": "His counsel for every Rosary",
+            "detail": "Montfort's counsel for every Rosary",
             "paragraphs": [
-              "Begin with purity of intention. Offer the Rosary for a definite grace or intention, in union with Jesus praying in you, and remember whom you are speaking to.",
+              "Begin with a clear intention. Offer the Rosary for a definite grace or intention, in union with Jesus praying in you, and remember whom you are speaking to.",
               "Picture the scene. Before each decade, pause and place the mystery before your mind's eye — the stable, the garden, the empty tomb — and stay in it while you pray. The words are the beads' work; the heart's work is to look.",
               "Pray without rushing. Montfort asks for small pauses within the prayers themselves, and says that one Rosary said slowly and attentively is worth more than several hurried ones.",
               "Fight distractions gently. They will come, and they are not a failure. Each time you notice you have wandered, return to the mystery without fuss; that quiet return is itself a prayer.",
-              "Persevere in dryness. The Rosary prayed faithfully when it feels dry and unrewarding is especially pleasing to God. Fidelity, not feeling, is the measure."
+              "Keep going when it feels dry. The Rosary prayed faithfully when it feels dry and unrewarding is especially pleasing to God. Fidelity, not feeling, is the measure."
             ],
             "quote": {
               "citation": "St. Louis de Montfort, The Secret of the Rosary",
@@ -498,7 +498,7 @@
             "title": "Do I have to know the prayers by heart?",
             "detail": "No — read them",
             "paragraphs": [
-              "Read them from the page as you go; your first Rosary, the last step of the course, shows every word. After a few times you will find you know them, without ever having sat down to memorise anything.",
+              "Read them from the page as you go; your first Rosary, the last step of the course, shows every word. After a few times you will find you know them, without ever having sat down to memorize anything.",
               "Start with the Hail Mary, since it is said fifty-three times in a Rosary. The first half is the angel Gabriel's greeting and St. Elizabeth's words from the Gospel of Luke; the second half is a request for Mary's prayers."
             ],
             "quote": null,
@@ -508,7 +508,7 @@
                 "kind": "prayer",
                 "target": "hail_mary",
                 "title": "The Hail Mary",
-                "note": "The words, on a page of their own",
+                "note": "The words, to pray along with",
                 "icon": "ch-praying-hands"
               }
             ]
@@ -567,11 +567,11 @@
             "detail": "It is praying with her",
             "paragraphs": [
               "Every mystery of the Rosary is about Jesus: His birth, His suffering, His rising. We ask Mary to pray for us, as we might ask a friend, and she does what she has always done — she points to her Son.",
-              "Most of the Hail Mary is Scripture: the angel's words, “Hail, full of grace, the Lord is with thee,” and Elizabeth's, “Blessed art thou among women, and blessed is the fruit of thy womb.” Its centre is the name of Jesus.",
+              "Most of the Hail Mary is Scripture: the angel's words, “Hail, full of grace, the Lord is with thee,” and Elizabeth's, “Blessed art thou among women, and blessed is the fruit of thy womb.” Its center is the name of Jesus.",
               "The Rosary begins with the Creed and the Our Father and ends with a prayer to God. Mary is the one who walks beside us through it."
             ],
             "quote": {
-              "citation": "St. John Paul II, Rosarium Virginis Mariae, n. 3",
+              "citation": "St. John Paul II, Rosarium Virginis Mariae, paragraph 3",
               "text": "To recite the Rosary is nothing other than to contemplate with Mary the face of Christ."
             },
             "tables": [],
@@ -590,7 +590,7 @@
             "title": "Can I pray just one decade?",
             "detail": "Yes — it is a good beginning",
             "paragraphs": [
-              "A single decade — an Our Father, ten Hail Marys and a Glory Be, on one mystery — is a real prayer, and many people begin with one a day. The whole Rosary is five decades.",
+              "A single decade — an Our Father, ten Hail Marys, a Glory Be and the Fatima Prayer, on one mystery — is a real prayer, and many people begin with one a day. The whole Rosary is five decades.",
               "You can also divide a Rosary through the day: a decade in the morning, one on the way to work, the rest in the evening."
             ],
             "quote": null,
@@ -620,6 +620,127 @@
             "quote": null,
             "tables": [],
             "doors": []
+          },
+          {
+            "id": "q_origin",
+            "title": "Where did the Rosary come from?",
+            "detail": "From the Psalms, by way of the monks",
+            "paragraphs": [
+              "Monks have always prayed the hundred and fifty Psalms. In the early Middle Ages the lay brothers who could not read said a hundred and fifty Our Fathers in their place, and counted them on a string of beads. By the twelfth century the Hail Mary was being counted the same way, and a hundred and fifty of them came to be called Our Lady's Psalter.",
+              "Tradition holds that Our Lady gave the Rosary to St. Dominic, who preached it against the heresies of his day, and his Order carried it across Europe. In the fifteenth century the Dominican Bl. Alan de la Roche gave it the shape it has now, fifteen mysteries in three sets, and founded the first Rosary confraternities.",
+              "In 1571 St. Pius V, himself a Dominican, asked the whole Church to pray the Rosary while a Christian fleet met the Turks at Lepanto. He credited the victory to Our Lady and kept the day, October 7, as her feast. It is still the feast of Our Lady of the Rosary, and October is still the Rosary's month."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": []
+          },
+          {
+            "id": "q_psalter",
+            "title": "Why a hundred and fifty Hail Marys?",
+            "detail": "Our Lady's Psalter",
+            "paragraphs": [
+              "There are a hundred and fifty Psalms, and the first rosaries counted a hundred and fifty prayers in their place. That is why the full Rosary has fifteen decades of ten Hail Marys: five Joyful, five Sorrowful, five Glorious. Said together they are Our Lady's Psalter, and a string of fifteen decades is still called a psalter rosary.",
+              "Hardly anyone prays all fifteen at once. The everyday Rosary is one set of five, fifty Hail Marys, prayed on the five-decade beads most people own, and the sets are spread across the week. The Luminous Mysteries, added in 2002, make a fourth set of five for those who pray them.",
+              "The count is not the point. The Hail Marys are the music; the mystery is what you look at while it plays."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": [
+              {
+                "kind": "prayer_book",
+                "target": "hail_mary",
+                "title": null,
+                "note": "The prayer said fifty times",
+                "icon": null
+              }
+            ]
+          },
+          {
+            "id": "q_which_day",
+            "title": "Which mysteries on which day?",
+            "detail": "The app knows, but here is the rule",
+            "paragraphs": [
+              "The custom is to pray the Joyful Mysteries on Monday and Thursday, the Sorrowful on Tuesday and Friday, and the Glorious on Wednesday and Saturday. Sunday follows the season: the Joyful in Advent, the Sorrowful in Lent, and the Glorious the rest of the year.",
+              "A newer schedule, given with the Luminous Mysteries in 2002, prays the Luminous on Thursday and moves the Joyful to Saturday. The app follows the older custom unless you choose the newer one in Settings, under Devotion.",
+              "Either way, the schedule is a help and not a law. Any set may be prayed on any day, and the home page's grid always offers them all."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": [
+              {
+                "kind": "page",
+                "target": "settings",
+                "title": "Daily Mysteries",
+                "note": "Choose the schedule in Settings, under Devotion",
+                "icon": "ph-faders"
+              }
+            ]
+          },
+          {
+            "id": "q_for_dead",
+            "title": "Can I pray it for the dead?",
+            "detail": "Yes, and the Church asks you to",
+            "paragraphs": [
+              "Any Rosary can be offered for someone, living or dead. Say whom it is for before the Sign of the Cross, and the whole prayer is theirs. Catholics have prayed the Rosary at wakes and gravesides for centuries, usually the Glorious Mysteries, which end in heaven.",
+              "Praying for the dead is one of the works of mercy. The Church teaches that the souls in purgatory are helped by the prayers of the living, and St. Alphonsus writes that Mary comes to the aid of her servants there. A Rosary for a parent, a friend, or someone no one else remembers is never wasted.",
+              "It is customary to add the short prayer for the dead, Eternal rest, after the Rosary, or a decade can be given to them within it."
+            ],
+            "quote": {
+              "citation": "St. Alphonsus Liguori, The Glories of Mary",
+              "text": "Too happy are the servants of this most kind mother, since not only in this world they are aided by her, but also in purgatory they are assisted and consoled by her protection."
+            },
+            "tables": [],
+            "doors": [
+              {
+                "kind": "prayer_book",
+                "target": "requiem_aeternam",
+                "title": null,
+                "note": "Eternal rest grant unto them, O Lord",
+                "icon": null
+              }
+            ]
+          },
+          {
+            "id": "q_sorrows",
+            "title": "What is the Seven Sorrows chaplet?",
+            "detail": "Mary's seven griefs, seven Hail Marys each",
+            "paragraphs": [
+              "A chaplet is a prayer counted on beads that is not the Rosary. The chaplet of the Seven Sorrows walks through seven griefs of Mary's life: Simeon's prophecy, the flight into Egypt, the three days Jesus was lost, meeting Him on the way to Calvary, His death, His body taken down, and His burial.",
+              "For each sorrow you say an Our Father and seven Hail Marys, so the chaplet has its own beads, seven groups of seven, and takes about as long as a Rosary. It comes from the Servite Order, founded in the thirteenth century to honour Our Lady of Sorrows, whose feast is September 15.",
+              "In this app it stands beside the four sets of mysteries. Many people pray it on Fridays, or when they have a grief of their own to bring to her."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": [
+              {
+                "kind": "mysteries",
+                "target": "seven_sorrows",
+                "title": null,
+                "note": "The seven sorrows, with a meditation on each",
+                "icon": null
+              }
+            ]
+          },
+          {
+            "id": "q_bible",
+            "title": "Is the Rosary in the Bible?",
+            "detail": "Its words are; its beads are not",
+            "paragraphs": [
+              "Nearly every word of the Rosary is Scripture. The Our Father is the prayer Jesus taught (Matthew 6). The first half of the Hail Mary is the angel's greeting and Elizabeth's (Luke 1). The Creed and the Glory Be are the Church's oldest summaries of what the Bible teaches.",
+              "The mysteries are Gospel scenes: the angel at Nazareth, the birth at Bethlehem, the agony in the garden, the empty tomb, the coming of the Holy Ghost in the Acts of the Apostles. The last two Glorious Mysteries, the Assumption and the Coronation, are the Church's reading of the Bible's own images, the woman clothed with the sun of the Apocalypse and the queen at the King's right hand of the Psalms.",
+              "The beads are only a way of counting. The Scriptural Rosary goes further and gives a verse of the Bible to every Hail Mary, so the whole prayer is read out of the Gospel."
+            ],
+            "quote": null,
+            "tables": [],
+            "doors": [
+              {
+                "kind": "act",
+                "target": "scriptural_rosary",
+                "title": null,
+                "note": "A verse of Scripture for every bead",
+                "icon": null
+              }
+            ]
           }
         ]
       }

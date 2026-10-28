@@ -138,7 +138,7 @@ defmodule LumenViae.Rosary.RosaryContent.LearnTest do
                learn["shelves"]
 
       assert Enum.map(counsel, & &1["id"]) == ~w(montfort_offering montfort_clauses montfort_well)
-      assert length(questions) == 9
+      assert length(questions) == 15
 
       for reading <- Enum.take(counsel, 2) do
         assert Enum.map(reading["tables"], &length(&1["rows"])) == [5, 5, 5], reading["id"]
@@ -154,7 +154,7 @@ defmodule LumenViae.Rosary.RosaryContent.LearnTest do
             door <- reading["doors"],
             do: door
 
-      assert length(doors) == 6
+      assert length(doors) == 11
 
       for %{"kind" => kind, "target" => target} <- doors do
         assert target in Map.fetch!(targets, kind), "#{kind}:#{target}"
@@ -165,12 +165,23 @@ defmodule LumenViae.Rosary.RosaryContent.LearnTest do
 
       assert targets["reading"] == reading_ids
       assert targets["prayer"] == Content.prayer_ids()
+      assert targets["mysteries"] == LumenViae.Rosary.Categories.slugs()
 
-      # The one kind whose targets the document does not hold
+      # The two kinds whose targets the document does not hold
       assert targets["library"] == ~w(montfort cana)
 
+      assert targets["prayer_book"] ==
+               LumenViae.Rosary.Library.prayer_ids()
+
       assert Enum.frequencies_by(doors, & &1["kind"]) ==
-               %{"act" => 2, "library" => 2, "prayer" => 1, "page" => 1}
+               %{
+                 "act" => 3,
+                 "library" => 2,
+                 "prayer" => 1,
+                 "prayer_book" => 2,
+                 "mysteries" => 1,
+                 "page" => 2
+               }
     end
 
     test "every section a lesson shows is one a client is told of" do

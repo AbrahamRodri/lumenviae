@@ -372,13 +372,16 @@ checked when the file compiles):
 
 | `kind` | `target` |
 | --- | --- |
-| `act` | `todays_rosary`: begin today's Rosary. `title` and `icon` are null; the client names it. |
+| `act` | `todays_rosary`: begin today's Rosary; `scriptural_rosary`: begin it in the Scriptural form, a verse for every bead. `title` and `icon` are null; the client names it. |
 | `reading` | A reading on these shelves, by its id. |
 | `library` | `montfort`, `cana`: a reading on the Marian Library's shelves (`GET /api/v2/marian-library`), not in this document. A client that has no such reading leaves the door out. |
 | `prayer` | An id in the `prayers` section. |
-| `page` | `mysteries_in_scripture`: the mysteries with their Gospel passages. |
+| `prayer_book` | A Prayer Book prayer, by its id (`GET /api/v2/prayer-book`), such as `requiem_aeternam`. `title` and `icon` are null. |
+| `mysteries` | A category slug: that category's mysteries (`seven_sorrows`). `title` and `icon` are null. |
+| `page` | `mysteries_in_scripture`: the mysteries with their Gospel passages; `settings`: the settings where the daily mysteries' schedule is chosen. |
 
-Every target resolves inside the document but a `library` door's. Pass
+Every target resolves inside the document but a `library` or
+`prayer_book` door's. Pass
 over a door you cannot open. A new kind or target is added to the
 vocabulary, never a renamed one.
 
