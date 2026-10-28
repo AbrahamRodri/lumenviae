@@ -22,7 +22,7 @@ defmodule LumenViae.Curation.ChantUpload do
   `sha256`. When the result differs from the file already there, its
   `updated_at` moves to now, which moves the document's version. The
   result is checked as the compile checks it
-  (`LumenViae.Rosary.Library.chant_library_errors/3` and `cast_errors/1`)
+  (`LumenViae.Rosary.Library.chant_library_errors/3` and `cast_errors/2`)
   before anything is uploaded, and nothing is written when a file is
   missing or an upload fails.
 
@@ -247,7 +247,7 @@ defmodule LumenViae.Curation.ChantUpload do
     sections = Map.take(plain(document), ~w(groups chants))
 
     case Library.chant_library_errors(sections, prayer_ids, public_base()) ++
-           Library.cast_errors(sections) do
+           Library.cast_errors(:chant_library, sections) do
       [] -> :ok
       errors -> {:error, "the rewritten file would not compile:\n  " <> Enum.join(errors, "\n  ")}
     end

@@ -9,12 +9,16 @@ defmodule LumenViae.Rosary.Library.Section do
   alias LumenViae.Rosary.Library
   alias LumenViae.Rosary.Types
 
-  # Each section's type.
+  # Each section's type, by document.
   @types %{
-    "prayers" => Types.BookPrayer,
-    "chapters" => Types.PrayerBookChapter,
-    "groups" => Types.ChantGroup,
-    "chants" => Types.Chant
+    prayer_book: %{"prayers" => Types.BookPrayer, "chapters" => Types.PrayerBookChapter},
+    chant_library: %{"groups" => Types.ChantGroup, "chants" => Types.Chant},
+    consecration: %{
+      "phases" => Types.ConsecrationPhase,
+      "days" => Types.ConsecrationDay,
+      "prayers" => Types.ConsecrationPrayer,
+      "feasts" => Types.MarianFeast
+    }
   }
 
   @impl true
@@ -25,20 +29,22 @@ defmodule LumenViae.Rosary.Library.Section do
   end
 
   @doc """
-  A section (`"prayers"`, `"chants"`) cast to its type, as it will be
-  served. A type trims text and reads `""` as null, so a section the cast
+  A document's section (`:prayer_book`, `"prayers"`) cast to its type, as
+  it will be served. A type trims text and reads `""` as null, so a section the cast
   would change is an error naming the section and the items it would
   change: what a request serves must be what the file holds, word for
   word, and the version that fingerprints the file must fingerprint it.
   """
-  @spec cast(String.t(), [map]) :: {:ok, [struct]} | {:error, String.t()}
-  def cast(name, items) do
-    case Ash.Type.cast_input({:array, Map.fetch!(@types, name)}, items, nil_items?: false) do
+  @spec cast(Library.document(), String.t(), [map]) :: {:ok, [struct]} | {:error, String.t()}
+  def cast(document, name, items) do
+    type = @types |> Map.fetch!(document) |> Map.fetch!(name)
+
+    case Ash.Type.cast_input({:array, type}, items, nil_items?: false) do
       {:ok, cast} ->
         changed =
           for {served, held} <- Enum.zip(plain(cast), items),
               served != held,
-              do: held["id"] || held["title"]
+              do: held["id"] || held["number"] || held["title"]
 
         if changed == [],
           do: {:ok, cast},

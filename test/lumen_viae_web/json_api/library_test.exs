@@ -1,7 +1,8 @@
 defmodule LumenViaeWeb.JsonApi.LibraryTest do
   @moduledoc """
-  `GET /api/v2/prayer-book` and `GET /api/v2/chant-library`: the Prayer
-  Book and the Chant Library, each one document. The bare request is the
+  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library` and
+  `GET /api/v2/consecration`: the Prayer Book, the Chant Library and the
+  33-day Consecration, each one document. The bare request is the
   version and the date, which is how a device asks whether its saved copy
   is current; the sections come when named in `fields[<type>]=`.
   """
@@ -16,7 +17,8 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
 
   @documents [
     {"/prayer-book", "prayer_book", :prayer_book, ~w(prayers chapters)},
-    {"/chant-library", "chant_library", :chant_library, ~w(groups chants)}
+    {"/chant-library", "chant_library", :chant_library, ~w(groups chants)},
+    {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)}
   ]
 
   for {path, type, document, sections} <- @documents do
@@ -109,6 +111,89 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     test "a prayer with Latin pairs it with the English line for line", %{prayers: prayers} do
       for %{"latin" => latin, "english" => english} <- prayers, latin do
         assert length(String.split(latin, "\n")) == length(String.split(english, "\n"))
+      end
+    end
+  end
+
+  describe "the Consecration" do
+    setup %{conn: conn} do
+      conn
+      |> get_v2("/consecration?fields[consecration]=phases,days,prayers,feasts")
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+      |> then(
+        &%{phases: &1["phases"], days: &1["days"], prayers: &1["prayers"], feasts: &1["feasts"]}
+      )
+    end
+
+    test "every item carries every field of the contract", %{
+      phases: phases,
+      days: days,
+      prayers: prayers,
+      feasts: feasts
+    } do
+      for phase <- phases do
+        assert Map.keys(phase) |> Enum.sort() ==
+                 ~w(first_day id last_day name painting prayer_ids subtitle)
+      end
+
+      for day <- days do
+        assert Map.keys(day) |> Enum.sort() == ~w(journal_prompt number phase_id readings title)
+
+        for reading <- day["readings"] do
+          assert Map.keys(reading) |> Enum.sort() == ~w(order source text title)
+        end
+      end
+
+      for prayer <- prayers do
+        assert Map.keys(prayer) |> Enum.sort() == ~w(english id latin latin_title title)
+      end
+
+      for feast <- feasts do
+        assert Map.keys(feast) |> Enum.sort() == ~w(day description id month name)
+      end
+    end
+
+    test "the 33 days and Consecration Day, in five phases", %{phases: phases, days: days} do
+      assert Enum.map(phases, & &1["id"]) ==
+               ~w(preparatory knowledge_of_self knowledge_of_mary knowledge_of_jesus consecration_day)
+
+      assert Enum.map(phases, &{&1["first_day"], &1["last_day"]}) ==
+               [{1, 12}, {13, 19}, {20, 26}, {27, 33}, {34, 34}]
+
+      assert Enum.map(days, & &1["number"]) == Enum.to_list(1..34)
+
+      for day <- days do
+        phase = Enum.find(phases, &(&1["id"] == day["phase_id"]))
+        assert day["number"] in phase["first_day"]..phase["last_day"]
+        assert day["readings"] != []
+      end
+    end
+
+    test "every prayer a phase names is served, in English and where it has one, Latin", %{
+      phases: phases,
+      prayers: prayers
+    } do
+      by_id = Map.new(prayers, &{&1["id"], &1})
+
+      for phase <- phases, id <- phase["prayer_ids"] do
+        assert %{"english" => english} = Map.fetch!(by_id, id)
+        assert english != ""
+      end
+
+      assert by_id["act_of_consecration"]["latin"] == nil
+      assert by_id["veni_creator"]["latin_title"] == "Veni Creator Spiritus"
+
+      for %{"latin" => latin, "english" => english} <- prayers, latin do
+        assert length(String.split(latin, "\n")) == length(String.split(english, "\n"))
+      end
+    end
+
+    test "the feasts it may end on are real dates", %{feasts: feasts} do
+      assert length(feasts) == 9
+
+      for %{"month" => month, "day" => day} <- feasts do
+        assert {:ok, _date} = Date.new(2024, month, day)
       end
     end
   end

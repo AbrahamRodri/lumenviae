@@ -108,6 +108,12 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   `Tools/Chants/generate.py`, and `mix lumen_viae.upload_chants` puts them
   on S3 and writes their URLs. See docs/JSON_API.md, "The Prayer
   Book and the Chant Library"
+- The 33-day Consecration served to the apps as a third library
+  document, `GET /api/v2/consecration`, from
+  `priv/library/consecration.json`: its phases, 34 days of readings and
+  journal prompts, its prayers in English and Latin and the feasts of
+  Mary it may end on. A reader's progress and journal stay on the
+  device. See docs/JSON_API.md, "The Consecration"
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
