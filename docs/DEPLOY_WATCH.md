@@ -71,10 +71,12 @@ It answers only `authorization: Bearer <OPS_STATUS_TOKEN>`; without the
 variable set, or with a wrong token, it is a 404. Seats cannot set Fly
 secrets, so Abraham sets it once, and the same value for the scheduled
 check. `fly secrets set` restarts the app on a new release, so run it when
-a restart is fine (or add `--stage`, and the next deploy picks it up):
+a restart is fine (or add `--stage`, and the next deploy picks it up).
+The `gh` half runs as the personal account, since the active one cannot
+reach this repo:
 
 ```
-TOKEN=$(openssl rand -hex 32); fly secrets set OPS_STATUS_TOKEN=$TOKEN --app lumenviae && gh secret set OPS_STATUS_TOKEN --repo AbrahamRodri/lumenviae --body "$TOKEN"
+TOKEN=$(openssl rand -hex 32); fly secrets set OPS_STATUS_TOKEN=$TOKEN --app lumenviae && GH_TOKEN="$(gh auth token --user AbrahamRodri)" gh secret set OPS_STATUS_TOKEN --repo AbrahamRodri/lumenviae --body "$TOKEN"
 ```
 
 `bin/prod-feature-check` reads it when `OPS_STATUS_TOKEN` is in its
