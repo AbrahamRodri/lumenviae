@@ -12,16 +12,8 @@ defmodule LumenViae.MixProject do
       deps: deps(),
       usage_rules: usage_rules(),
       listeners: [Phoenix.CodeReloader],
-      consolidate_protocols: Mix.env() != :dev,
-      hex: hex()
+      consolidate_protocols: Mix.env() != :dev
     ]
-  end
-
-  # EEF-CVE-2026-105659 is in Bandit's HTTP/2, which production switches off
-  # (config/runtime.exs), and no fixed Bandit has been released. Remove the
-  # entry when Bandit ships the fix and Dependabot bumps it.
-  defp hex do
-    [ignore_advisories: ["EEF-CVE-2026-105659"]]
   end
 
   # `mix check` compiles and tests, so it runs in the test environment, as
