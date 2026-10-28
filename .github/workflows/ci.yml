@@ -221,7 +221,7 @@ jobs:
 
   # Only a push to main deploys, and only after test, assets and the release
   # build pass. If any fails this job is skipped, so a red build cannot be
-  # deployed by this workflow. The secret is read here and nowhere else.
+  # deployed by this workflow. The Fly token is read here and nowhere else.
   #
   # Re-running an older run of main must not put its commit over a newer one,
   # so the job deploys only if its commit is still the tip of main; otherwise
@@ -251,3 +251,10 @@ jobs:
         run: bin/post-deploy-check
         env:
           EXPECT_COMMIT: ${{ github.sha }}
+      # Every feature the apps depend on, read-only (docs/DEPLOY_WATCH.md).
+      - name: Check every feature
+        if: steps.tip.outputs.is_tip == 'true'
+        run: bin/prod-feature-check
+        env:
+          EXPECT_COMMIT: ${{ github.sha }}
+          OPS_STATUS_TOKEN: ${{ secrets.OPS_STATUS_TOKEN }}

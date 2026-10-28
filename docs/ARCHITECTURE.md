@@ -987,8 +987,15 @@ is the deployed git commit, set by the CI deploy), 200 when a
 `SELECT 1` comes back within a second and 503 when it does not. It is
 public, so it says nothing else: no node, no environment, no counts. It sits
 at the root, not under `/api`, whose v1 is a contract with installed iOS
-builds, and out of the request log (`LumenViaeWeb.Endpoint.log_level/1`),
-which a monitor asking every few seconds would fill.
+builds, and out of the request log (`LumenViaeWeb.RequestLog`) unless it
+fails, which a monitor asking every few seconds would fill.
+
+**`GET /ops/status`** (`LumenViae.Ops.status/0`) is the deeper look: the
+checks the System screen probes, the job queues and the recent failures,
+for whoever holds `OPS_STATUS_TOKEN`, and a 404 for everybody else. Every
+request is one structured log line (`LumenViaeWeb.RequestLog`) and every
+failed job attempt an error line (`LumenViae.Ops.JobLog`). What to read
+after a deploy is docs/DEPLOY_WATCH.md.
 
 ---
 

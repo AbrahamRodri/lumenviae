@@ -1,0 +1,24 @@
+# Production, checked three times a day: every feature the apps depend on,
+# read-only (bin/prod-feature-check, docs/DEPLOY_WATCH.md). A failure fails
+# the run, and GitHub emails the repository's owner. Start it by hand from
+# the Actions tab at any time.
+name: Production check
+
+on:
+  schedule:
+    - cron: "0 6,12,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check every feature
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: bin/prod-feature-check
+        env:
+          OPS_STATUS_TOKEN: ${{ secrets.OPS_STATUS_TOKEN }}
