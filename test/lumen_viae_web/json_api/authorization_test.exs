@@ -33,7 +33,7 @@ defmodule LumenViaeWeb.JsonApi.AuthorizationTest do
     LumenViae.Test.Sets.with_meditation(set)
   end
 
-  test "the only routes that write are the completion and the audio refresh, which writes nothing" do
+  test "the only POSTs are the completion, its check and the audio refresh, the last two writing nothing" do
     routes =
       LumenViaeWeb.JsonApiRouter
       |> AshJsonApi.Router.formatted_routes()
@@ -41,7 +41,11 @@ defmodule LumenViaeWeb.JsonApi.AuthorizationTest do
       |> Enum.map(&{&1.verb, &1.path})
       |> Enum.sort()
 
-    assert routes == [{:post, "/completions"}, {:post, "/meditations/audio"}]
+    assert routes == [
+             {:post, "/completions"},
+             {:post, "/completions/check"},
+             {:post, "/meditations/audio"}
+           ]
   end
 
   test "a write the API does not offer is not routed", %{conn: conn} do

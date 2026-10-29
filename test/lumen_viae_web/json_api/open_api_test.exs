@@ -59,6 +59,7 @@ defmodule LumenViaeWeb.JsonApi.OpenApiTest do
     {"get", "/api/v2/voices", "listVoices"},
     {"get", "/api/v2/voices/retired", "listRetiredVoices"},
     {"post", "/api/v2/completions", "recordCompletion"},
+    {"post", "/api/v2/completions/check", "checkCompletion"},
     {"post", "/api/v2/meditations/audio", "getMeditationAudio"}
   ]
 

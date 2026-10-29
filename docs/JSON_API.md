@@ -57,6 +57,7 @@ involved.
 | `GET /office/vocabulary`, `GET /office/calendar/:year/:month`, `GET /office/days/:date`, `GET /office/days/:date/hours`, `GET /office/days/:date/hours/:hour` | `Office.Breviary`'s actions | The Divine Office, as GraphQL's `office*` queries and v1's `/api/office` serve it. See "The Divine Office". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
+| `POST /completions/check` | `Completion.:check_record_from_app` | The same checks, nothing recorded: for the production feature check. See "Recording a completion". |
 
 ## Conventions
 
@@ -1134,6 +1135,22 @@ limit is on the action too (`Completion.RateLimit`), on one budget shared
 with v1, GraphQL and the website: over it, `429 rate_limited`, "Too many completions
 from this address", with a `Retry-After` header, and nothing is written. A crawler's refusal and a read
 spend none of it.
+
+### Checking without recording
+
+```
+POST /api/v2/completions/check
+{"data": {"meditation_set_id": 42, "prayed_aloud": true}}
+```
+
+runs the write's own checks (`Completion.:check_record_from_app` builds
+the very changeset `:record_from_app` would submit): a crawler is
+`403 automated_client`, a set the public cannot see is `400
+invalid_argument` on `meditation_set_id`, and otherwise it answers `201`
+with what would be recorded, `{meditation_set_id, prayed_aloud, source}`.
+Nothing is written: no row, no place lookup, nothing spent from the
+hourly limit. It exists for `bin/prod-feature-check`, which must not
+record a Rosary nobody prayed; the apps never call it.
 
 A client must not send its HTTP library's default user agent (OkHttp's `okhttp/<version>` is refused as scripted): the Android app sends `LumenViae-Android/<versionName> (Android <release>; <model>)`, from which the server records the completion as Android's (docs/COMPLETION_ANALYTICS.md).
 

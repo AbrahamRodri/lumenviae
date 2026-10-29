@@ -312,6 +312,18 @@ defmodule LumenViae.Rosary.Completion do
       change Stamp
     end
 
+    action :check_record_from_app, LumenViae.Rosary.Types.CompletionCheck do
+      description "Checks a completion as :record_from_app would record it and answers what it would record, writing nothing: no row, no place lookup, nothing spent from the hourly limit. For the production feature check; the apps never call it."
+
+      argument :meditation_set_id, :integer do
+        allow_nil? false
+      end
+
+      argument :prayed_aloud, :boolean
+
+      run LumenViae.Rosary.Completion.CheckRecord
+    end
+
     update :place do
       description "Attaches a looked-up place to a completion that has already been written."
       accept [:city, :region, :country, :country_code]
@@ -327,14 +339,15 @@ defmodule LumenViae.Rosary.Completion do
   # Anybody may record that they finished a Rosary - the website and REST
   # through :record, GraphQL through :record_from_app - behind the crawler
   # check the web layer puts in front of both, and the rate limit both
-  # carry. Reading the rows back is the admin analytics' alone; so is
-  # everything else.
+  # carry. Anybody may also check one without recording it
+  # (:check_record_from_app), which writes nothing. Reading the rows back is
+  # the admin analytics' alone; so is everything else.
   policies do
     bypass LumenViae.Accounts.Checks.ActorIsAdmin do
       authorize_if always()
     end
 
-    policy action([:record, :record_from_app]) do
+    policy action([:record, :record_from_app, :check_record_from_app]) do
       authorize_if always()
     end
 

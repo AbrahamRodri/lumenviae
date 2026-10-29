@@ -3,11 +3,12 @@
 
 Usage: bin/prod-feature-check [base_url]   (default https://www.lumenviae.org)
 
-Read-only: GETs only, plus a one-byte ranged GET of one signed audio file,
-one artwork image and one chant recording, to prove the links really open.
-Nothing is written, recorded or generated: the completions POST has no dry
-run, so it is skipped and said so. Prints one line per feature, "ok" or
-"FAIL <why>", and exits non-zero if any failed.
+Read-only: GETs, plus a one-byte ranged GET of one signed audio file, one
+artwork image and one chant recording, to prove the links really open, and
+one POST to /api/v2/completions/check, which runs the completion write's
+checks and records nothing. Nothing is written, recorded or generated.
+Prints one line per feature, "ok" or "FAIL <why>", and exits non-zero if any
+failed.
 
 Optional environment:
   EXPECT_COMMIT       /healthz must report this commit (the deploy sets it)
@@ -34,9 +35,9 @@ class Fail(Exception):
     pass
 
 
-def request(path_or_url, headers=None):
+def request(path_or_url, headers=None, data=None):
     url = path_or_url if path_or_url.startswith("http") else BASE + path_or_url
-    req = urllib.request.Request(url, headers={"user-agent": "lumenviae-feature-check", **(headers or {})})
+    req = urllib.request.Request(url, data=data, headers={"user-agent": "lumenviae-feature-check", **(headers or {})})
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
             return resp.status, resp.headers, resp.read()
@@ -155,6 +156,18 @@ def set_detail_v2():
     expect(narrated, "no signed narrations")
     opens(narrated[0]["attributes"]["narrations"][0]["audio"]["url"], "audio")
     return f"{len(meditations)} meditations, narration opens"
+
+
+def completion_check():
+    """The completion write's checks, nothing recorded (POST .../completions/check)."""
+    body = json.dumps({"data": {"meditation_set_id": state["set_id"], "prayed_aloud": False}}).encode()
+    code, _headers, answer = request("/api/v2/completions/check",
+                                     {"content-type": "application/vnd.api+json",
+                                      "accept": "application/vnd.api+json"}, body)
+    expect(code == 201, f"answered {code}: {answer[:200]!r}")
+    would = json.loads(answer)
+    expect(would["meditation_set_id"] == state["set_id"], "answered another set")
+    return f"set {state['set_id']} would record as {would['source']}, nothing written"
 
 
 def artwork():
@@ -278,7 +291,7 @@ check("Spiritual Reading catalogue", library("/api/v2/spiritual-reading", "spiri
 check("Divine Office today", office)
 check("admin sign-in page", admin_login)
 check("website home", website)
-print("skip  completions POST: it has no dry run, and a check must not record a Rosary")
+check("recording a finished Rosary (checked, not recorded)", completion_check)
 if os.environ.get("OPS_STATUS_TOKEN"):
     check("ops status (database, S3 signing, jobs, Office engine)", ops_status)
 else:

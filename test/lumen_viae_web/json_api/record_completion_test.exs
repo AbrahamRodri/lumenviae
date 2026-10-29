@@ -10,6 +10,7 @@ defmodule LumenViaeWeb.JsonApi.RecordCompletionTest do
   """
   use LumenViaeWeb.ConnCase, async: false
 
+  import Ecto.Query
   import LumenViaeWeb.JsonApiHelpers
 
   alias LumenViae.Repo
@@ -267,6 +268,82 @@ defmodule LumenViaeWeb.JsonApi.RecordCompletionTest do
       for _ <- 1..(@limit + 2) do
         crawler |> record(%{meditation_set_id: set.id}) |> v2_response(403)
         conn |> get_v2("/meditation-sets/#{set.id}") |> v2_response(200)
+      end
+
+      conn |> record(%{meditation_set_id: set.id}) |> v2_response(201)
+    end
+  end
+
+  describe "the check, which records nothing" do
+    defp check(conn, attributes) do
+      post_v2(conn, "/completions/check", %{data: attributes})
+    end
+
+    defp enqueued_lookups,
+      do: Repo.aggregate(from(j in Oban.Job, where: j.queue == "geolocation"), :count)
+
+    test "answers what would be recorded, and writes no row and queues no lookup", %{set: set} do
+      # Lookups on, from an address they would be made for, so the write
+      # beside it does queue one.
+      LumenViae.Test.EnvStub.put_env([
+        {:lumen_viae, :geolocation,
+         enabled: true,
+         provider: :ipapi_co,
+         req_options: [plug: {Req.Test, LumenViae.Services.Geolocation}]}
+      ])
+
+      n = System.unique_integer([:positive])
+
+      conn =
+        build_conn()
+        |> put_req_header("fly-client-ip", "198.51.#{rem(n, 250)}.#{rem(div(n, 250), 250) + 1}")
+        |> put_req_header("user-agent", "LumenViae-Android/1.0.0 (Android 14; Pixel 8)")
+
+      before = Rosary.count_total_completions(actor: admin())
+      lookups = enqueued_lookups()
+
+      body = conn |> check(%{meditation_set_id: set.id, prayed_aloud: true}) |> v2_response(201)
+
+      assert body == %{
+               "meditation_set_id" => set.id,
+               "prayed_aloud" => true,
+               "source" => "android"
+             }
+
+      assert Rosary.count_total_completions(actor: admin()) == before
+      assert enqueued_lookups() == lookups
+
+      conn |> record(%{meditation_set_id: set.id}) |> v2_response(201)
+      assert Rosary.count_total_completions(actor: admin()) == before + 1
+      assert enqueued_lookups() == lookups + 1
+    end
+
+    test "refuses what the write refuses: a hidden or missing set, and a crawler", %{
+      conn: conn,
+      set: set
+    } do
+      [error] =
+        conn
+        |> check(%{meditation_set_id: 999_999_999})
+        |> v2_response(400)
+        |> Map.fetch!("errors")
+
+      assert %{"source" => %{"pointer" => "/data/attributes/meditation_set_id"}} = error
+
+      body =
+        conn
+        |> put_req_header("user-agent", "curl/8.7.1")
+        |> check(%{meditation_set_id: set.id})
+        |> v2_response(403)
+
+      assert [%{"code" => "automated_client"}] = body["errors"]
+    end
+
+    test "spends nothing from the hourly limit", %{conn: conn, set: set} do
+      LumenViae.Test.EnvStub.put_env(:lumen_viae, :completions_per_hour, 1)
+
+      for _ <- 1..3 do
+        conn |> check(%{meditation_set_id: set.id}) |> v2_response(201)
       end
 
       conn |> record(%{meditation_set_id: set.id}) |> v2_response(201)
