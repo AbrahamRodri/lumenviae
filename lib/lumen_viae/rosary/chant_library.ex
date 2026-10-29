@@ -98,5 +98,35 @@ defmodule LumenViae.Rosary.ChantLibrary do
 
       description "Every chant, in the catalog's order: a client takes the first chant listed for a prayer."
     end
+
+    calculate :feasts,
+              {:array, Types.ChantFeast},
+              {Library.Section, document: :chant_library, section: "feasts"} do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The days the library sings a chant for, in the order of the year, each with the rule that finds its date."
+    end
+
+    calculate :months,
+              {:array, Types.ChantMonth},
+              {Library.Section, document: :chant_library, section: "months"} do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The months' traditional dedications, January to December, and what is sung for each."
+    end
+
+    calculate :occasions,
+              {:array, Types.ChantOccasion},
+              {Library.Section, document: :chant_library, section: "occasions"} do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The sung sets, each its chants in the order they are sung."
+    end
   end
 end

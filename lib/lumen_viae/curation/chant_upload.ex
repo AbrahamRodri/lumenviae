@@ -75,8 +75,8 @@ defmodule LumenViae.Curation.ChantUpload do
     from = Keyword.get(opts, :from, file)
     storage = Keyword.get(opts, :storage, S3)
 
-    incoming = read(from)
     current = if File.exists?(file), do: read(file)
+    incoming = from |> read() |> carried(current)
     prayer_ids = prayer_ids(Path.join(Path.dirname(file), "prayer_book.json"))
 
     with :ok <- shaped(incoming),
@@ -232,6 +232,28 @@ defmodule LumenViae.Curation.ChantUpload do
 
   defp read(path), do: path |> File.read!() |> Jason.decode!(objects: :ordered_objects)
 
+  # The sections this task does not make (the feasts, months and sung
+  # sets, which are edited in the file by hand), kept from the file when
+  # an export from the iOS repo does not carry them.
+  @kept ~w(feasts months occasions)
+
+  defp carried(incoming, nil), do: incoming
+
+  defp carried(%Jason.OrderedObject{values: values} = incoming, %Jason.OrderedObject{} = current) do
+    present = MapSet.new(values, fn {key, _value} -> key end)
+
+    case for(
+           key <- @kept,
+           key not in present,
+           value = current[key],
+           value != nil,
+           do: {key, value}
+         ) do
+      [] -> incoming
+      kept -> Jason.OrderedObject.new(values ++ kept)
+    end
+  end
+
   defp prayer_ids(path) do
     path |> File.read!() |> Jason.decode!() |> Map.fetch!("prayers") |> Enum.map(& &1["id"])
   end
@@ -244,7 +266,7 @@ defmodule LumenViae.Curation.ChantUpload do
   end
 
   defp check(document, prayer_ids) do
-    sections = Map.take(plain(document), ~w(groups chants))
+    sections = Map.take(plain(document), ~w(groups chants feasts months occasions))
 
     case Library.chant_library_errors(sections, prayer_ids, public_base()) ++
            Library.cast_errors(:chant_library, sections) do

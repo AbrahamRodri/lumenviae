@@ -17,7 +17,13 @@ defmodule LumenViae.Rosary.Library.Section do
       "orders" => Types.PrayerOrder,
       "marian_antiphons" => Types.MarianAntiphon
     },
-    chant_library: %{"groups" => Types.ChantGroup, "chants" => Types.Chant},
+    chant_library: %{
+      "groups" => Types.ChantGroup,
+      "chants" => Types.Chant,
+      "feasts" => Types.ChantFeast,
+      "months" => Types.ChantMonth,
+      "occasions" => Types.ChantOccasion
+    },
     consecration: %{
       "phases" => Types.ConsecrationPhase,
       "days" => Types.ConsecrationDay,

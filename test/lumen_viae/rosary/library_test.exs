@@ -29,7 +29,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-10-28 16:30:00Z], "ec0e0d5a60a76890"}
     ],
     "chant_library.json" => [
-      {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"}
+      {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
+      {~U[2026-10-29 03:30:00Z], "3cbbfba3dd7ef0b7"}
     ],
     "consecration.json" => [
       {~U[2026-10-28 02:30:43Z], "fc067fd951512d2c"}
@@ -100,6 +101,12 @@ defmodule LumenViae.Rosary.LibraryTest do
     test "the files hold what the apps have printed: 18 chapters, 104 chants, 34 days, 13 chapters" do
       assert length(Library.sections(:prayer_book)["chapters"]) == 18
       assert length(Library.sections(:chant_library)["chants"]) == 104
+
+      chants = Library.sections(:chant_library)
+
+      assert {length(chants["feasts"]), length(chants["months"]), length(chants["occasions"])} ==
+               {29, 11, 6}
+
       assert length(Library.sections(:consecration)["days"]) == 34
 
       true_devotion = Library.sections(:true_devotion)
@@ -681,6 +688,50 @@ defmodule LumenViae.Rosary.LibraryTest do
     test "the file as it is passes" do
       assert Check.chant_library_errors(Library.sections(:chant_library), Library.prayer_ids()) ==
                []
+    end
+
+    test "refuses a sung set, a month or a feast naming what is not there" do
+      library = Library.sections(:chant_library)
+      [occasion | occasions] = library["occasions"]
+      [block | blocks] = occasion["blocks"]
+      [step | steps] = block["steps"]
+      lost = %{step | "chant_id" => "nowhere"}
+      occasion = %{occasion | "blocks" => [%{block | "steps" => [lost | steps]} | blocks]}
+
+      assert errors(%{library | "occasions" => [occasion | occasions]}) =~
+               ~s(the occasion benediction: names the chant "nowhere")
+
+      [month | months] = library["months"]
+
+      assert errors(%{library | "months" => [%{month | "feast_id" => "nowhere"} | months]}) =~
+               ~s(month 1: names the feast "nowhere")
+
+      assert errors(%{library | "months" => [month, month | months]}) =~
+               "month 1 is listed more than once"
+
+      [feast | feasts] = library["feasts"]
+      unknown = put_in(feast, ["rule", "kind"], "full_moon")
+
+      assert errors(%{library | "feasts" => [unknown | feasts]}) =~
+               "the feast holy_name: its rule is one of"
+    end
+
+    test "refuses a step sung no times and a fixed feast on a day that is not a date" do
+      library = Library.sections(:chant_library)
+      [occasion | occasions] = library["occasions"]
+      [block | blocks] = occasion["blocks"]
+      [step | steps] = block["steps"]
+      none = %{step | "times" => 0}
+      occasion = %{occasion | "blocks" => [%{block | "steps" => [none | steps]} | blocks]}
+
+      assert errors(%{library | "occasions" => [occasion | occasions]}) =~
+               "a step's times is a whole number from 1"
+
+      joseph = Enum.find(library["feasts"], &(&1["id"] == "st_joseph"))
+      feb = put_in(joseph, ["rule"], %{"kind" => "fixed", "month" => 2, "day" => 30})
+      feasts = Enum.map(library["feasts"], &if(&1["id"] == "st_joseph", do: feb, else: &1))
+
+      assert errors(%{library | "feasts" => feasts}) =~ "the feast st_joseph: 2/30 is not a date"
     end
 
     test "refuses a chant in no group's parts, and a part naming no chant" do

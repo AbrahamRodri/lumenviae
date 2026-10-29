@@ -528,6 +528,57 @@
                 },
                 "type": "array"
               },
+              "feasts": {
+                "description": "The days the library sings a chant for, in the order of the year, each with the rule that finds its date.",
+                "items": {
+                  "properties": {
+                    "chant_id": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "painting": {
+                      "type": "string"
+                    },
+                    "rule": {
+                      "properties": {
+                        "day": {
+                          "nullable": true,
+                          "type": "integer"
+                        },
+                        "days_from_easter": {
+                          "nullable": true,
+                          "type": "integer"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "month": {
+                          "nullable": true,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "rule",
+                    "chant_id",
+                    "painting"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
               "groups": {
                 "description": "The library's groups in the Parish Book of Chant's order, each naming its chants.",
                 "items": {
@@ -572,6 +623,109 @@
                     "id",
                     "title",
                     "parts"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "months": {
+                "description": "The months' traditional dedications, January to December, and what is sung for each.",
+                "items": {
+                  "properties": {
+                    "chant_ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "feast_id": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "month": {
+                      "type": "integer"
+                    },
+                    "occasion_id": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "month",
+                    "title",
+                    "chant_ids"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "occasions": {
+                "description": "The sung sets, each its chants in the order they are sung.",
+                "items": {
+                  "properties": {
+                    "blocks": {
+                      "items": {
+                        "properties": {
+                          "rounds": {
+                            "type": "integer"
+                          },
+                          "rubric": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "steps": {
+                            "items": {
+                              "properties": {
+                                "chant_id": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "kind": {
+                                  "type": "string"
+                                },
+                                "times": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "times"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "steps",
+                          "rounds"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "note": {
+                      "type": "string"
+                    },
+                    "painting": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "note",
+                    "painting",
+                    "blocks"
                   ],
                   "type": "object"
                 },
@@ -5118,7 +5272,7 @@
         "operationId": "getChantLibrary",
         "parameters": [
           {
-            "description": "Comma separated fields of chant_library: chants, groups, updated_at, version",
+            "description": "Comma separated fields of chant_library: chants, feasts, groups, months, occasions, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[chant_library]",

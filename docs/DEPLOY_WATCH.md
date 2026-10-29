@@ -21,7 +21,7 @@ proves each one, the way the apps call it:
 | Narration voices | `/api/v2/voices` (a default voice) and `/api/voices` |
 | The spoken Rosary | `/api/v2/rosary-audio?voice=`, and a clip opens |
 | The Prayer Book with its orders of prayer | `/api/v2/prayer-book`: 100+ prayers, 11 orders, 4 songs to Mary, every order's prayers present |
-| The Chant Library | `/api/v2/chant-library`, and a recording opens |
+| The Chant Library | `/api/v2/chant-library`, a recording opens, and the sung sets name only chants it holds |
 | The Consecration, True Devotion, St. Carlo Acutis, the Marian Library, Spiritual Reading | each document with its sections non-empty (34 Consecration days; every book has a Gutenberg number and a chapter pattern) |
 | The Divine Office | today's day and Lauds in v2, and v1 `/api/office/<today>` |
 | The admin console | `/admin/login` answers with a password field |
