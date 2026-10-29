@@ -17,7 +17,8 @@ defmodule LumenViaeWeb.Graphql.LibraryTest do
              { prayerBook { id version updatedAt } chantLibrary { id version updatedAt }
                consecration { id version updatedAt } trueDevotion { id version updatedAt }
                carloAcutis { id version updatedAt }
-               marianLibrary { id version updatedAt } }
+               marianLibrary { id version updatedAt }
+               spiritualReading { id version updatedAt } }
              """)
 
     for {field, document} <- [
@@ -26,7 +27,8 @@ defmodule LumenViaeWeb.Graphql.LibraryTest do
           {"consecration", :consecration},
           {"trueDevotion", :true_devotion},
           {"carloAcutis", :carlo_acutis},
-          {"marianLibrary", :marian_library}
+          {"marianLibrary", :marian_library},
+          {"spiritualReading", :spiritual_reading}
         ] do
       %{version: version, updated_at: updated_at} = Library.stamp(document)
 

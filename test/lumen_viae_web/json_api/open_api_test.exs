@@ -54,6 +54,7 @@ defmodule LumenViaeWeb.JsonApi.OpenApiTest do
     {"get", "/api/v2/rosary-audio", "getRosaryAudio"},
     {"get", "/api/v2/rosary-content", "getRosaryContent"},
     {"get", "/api/v2/rosary-script", "getRosaryScript"},
+    {"get", "/api/v2/spiritual-reading", "getSpiritualReading"},
     {"get", "/api/v2/true-devotion", "getTrueDevotion"},
     {"get", "/api/v2/voices", "listVoices"},
     {"get", "/api/v2/voices/retired", "listRetiredVoices"},

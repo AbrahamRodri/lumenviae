@@ -39,7 +39,8 @@ defmodule LumenViae.Rosary.Library.Section do
       "sayings" => :string,
       "prayer" => :string
     },
-    marian_library: %{"feasts" => Types.LibraryFeast, "shelves" => Types.LibraryShelf}
+    marian_library: %{"feasts" => Types.LibraryFeast, "shelves" => Types.LibraryShelf},
+    spiritual_reading: %{"books" => Types.SpiritualBook}
   }
 
   @impl true

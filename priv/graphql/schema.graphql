@@ -3,6 +3,92 @@ schema {
   query: RootQueryType
 }
 
+type SpiritualBookHeading {
+  "The heading shown instead."
+  heading: String!
+
+  "The chapter, by index from 0."
+  chapter: Int!
+}
+
+type SpiritualBookParsing {
+  "Whether a chapter's title may run over blocks separated by a single blank line, rather than stopping at the first block."
+  titleRunsToBlankGap: Boolean!
+
+  "The line the book ends before, once its body has begun (an appendix, the footnotes), or null."
+  stopPattern: String
+
+  "The line the book starts at; everything above it (the contents, a preface) is skipped. Null: the first chapter line."
+  startPattern: String
+
+  "A line that opens a part holding chapters (`^THE (FIRST|SECOND|THIRD|FOURTH) BOOK$`), or null."
+  partPattern: String
+
+  "A footnote or citation marker in the prose (`\\(\\d+\\)`), taken out of a quoted paragraph, or null."
+  notePattern: String
+
+  "Characters a chapter must hold to count, so a contents page's line does not open a chapter. 500 unless set."
+  minimumChapterLength: Int!
+
+  "The longest a chapter's title may be, in characters. 140 unless set."
+  maximumTitleLength: Int!
+
+  "Lines left out wherever they stand (printer's half-titles), or null."
+  dropPattern: String
+
+  "A line that opens a chapter (`^CHAPTER [IVXLC]+$`)."
+  chapterPattern: String!
+}
+
+type SpiritualBookTrackMapping {
+  "For `sequential`: chapters, by index from 0, the recording passes over (read into another chapter's track); the count carries on past them. Empty otherwise."
+  unread: [Int!]!
+
+  "For `sequential`: added to a chapter's index to give its track. Positive for front-matter tracks the text does not have; negative for chapters the text opens with that have no track (Brother Lawrence's preface). Null otherwise."
+  offset: Int
+
+  "`none` (no recording, or one whose tracks cannot be tied to the chapters), `sequential` (track `chapter + offset` reads the chapter, one for one; tracks titled `... Part 1`, `... Part 2` count as one), `book_chapter_ranges` (a track's title names a part and a span of chapters, `Book 3 - Chapters 21-30`; a chapter plays the track that holds it, from its start) or `book_spans` (a chapter is a whole book read over several tracks; it plays from the first track that names it)."
+  kind: String!
+}
+
+type SpiritualBook {
+  "The translator of this edition's English, or null."
+  translator: String
+
+  "How the recording's tracks line up with the chapters."
+  trackMapping: SpiritualBookTrackMapping!
+
+  "Its title."
+  title: String!
+
+  "The playback rate the recording opens at (1.5 for a slow reader)."
+  preferredRate: Float!
+
+  "How the Gutenberg text is cut into chapters."
+  parsing: SpiritualBookParsing!
+
+  "The LibriVox audiobook read from this same translation, or null when none is offered (a recording of another English is never offered as this text's)."
+  librivoxId: Int
+
+  "Stable forever (`imitation-of-christ`): devices store a reader's place by it."
+  id: String!
+
+  "Chapters whose printed heading is replaced, by their index from 0. Usually empty."
+  headingOverrides: [SpiritualBookHeading]!
+
+  "Its Project Gutenberg ebook number. The text is `https:\/\/www.gutenberg.org\/cache\/epub\/<id>\/pg<id>.txt`."
+  gutenbergId: Int!
+
+  "A title for each chapter, in order, for an edition that prints none (the Confessions' books), or null. A printed title wins over these."
+  chapterTitles: [String!]
+
+  "One line saying what it is."
+  blurb: String!
+
+  "Its author (`Thomas à Kempis`)."
+  author: String!
+}
+
 type CarloHabit {
   "The reading on the `devotions` shelf that tells of it."
   readingId: String!
@@ -1544,6 +1630,20 @@ type MutationError {
   path: [String!]
 }
 
+type SpiritualReading {
+  "Always `current`: there is one document."
+  id: String!
+
+  "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it."
+  version: String!
+
+  "When the content last changed."
+  updatedAt: DateTime!
+
+  "The shelf's books in order, each with its sources and the rules for its edition."
+  books: [SpiritualBook!]!
+}
+
 type MarianLibrary {
   "Always `current`: there is one document."
   id: String!
@@ -1950,6 +2050,9 @@ type RootQueryType {
 
   "The Marian Library as one document. There is only ever one."
   marianLibrary: MarianLibrary!
+
+  "The Spiritual Reading catalogue as one document. There is only ever one."
+  spiritualReading: SpiritualReading!
 
   "The full text of one canonical hour on one date."
   officeHour(

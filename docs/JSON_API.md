@@ -53,6 +53,7 @@ involved.
 | `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts`, `chapters`, `teaching` and `ejaculatory_prayers` when named in `fields[true_devotion]=`. See "True Devotion". |
 | `GET /carlo-acutis` | `CarloAcutis.:current` | St. Carlo Acutis's page as one document: its `version` and `updated_at`, and `feast`, `shelves`, `timeline`, `rule`, `sayings` and `prayer` when named in `fields[carlo_acutis]=`. See "St. Carlo Acutis". |
 | `GET /marian-library` | `MarianLibrary.:current` | The Marian Library as one document: its `version` and `updated_at`, and `feasts` and `shelves` when named in `fields[marian_library]=`. See "The Marian Library". |
+| `GET /spiritual-reading` | `SpiritualReading.:current` | The Spiritual Reading catalogue as one document: its `version` and `updated_at`, and `books` when named in `fields[spiritual_reading]=`. See "Spiritual Reading". |
 | `GET /office/vocabulary`, `GET /office/calendar/:year/:month`, `GET /office/days/:date`, `GET /office/days/:date/hours`, `GET /office/days/:date/hours/:hour` | `Office.Breviary`'s actions | The Divine Office, as GraphQL's `office*` queries and v1's `/api/office` serve it. See "The Divine Office". |
 | `POST /meditations/audio` | `Meditation.:audio_for` | Fresh narration URLs for up to 200 meditations, in the order asked. |
 | `POST /completions` | `Completion.:record_from_app` | Records a finished Rosary. |
@@ -920,6 +921,56 @@ the same. The words are in `priv/library/marian_library.json`.
 
 The How to Pray course's `library` doors (`montfort`, `cana`) name
 readings on these shelves.
+
+## Spiritual Reading
+
+```
+GET /api/v2/spiritual-reading
+GET /api/v2/spiritual-reading?fields[spiritual_reading]=version,updated_at,books
+```
+
+The Spiritual Reading shelf's catalogue as the iOS app holds it
+(`Data/LibraryCatalog.swift`): five public-domain books and, for each,
+where its text and recording come from and how to cut and align them. A
+library document, kept and polled as the Prayer Book is; GraphQL's
+`spiritualReading` serves the same. The words and rules are in
+`priv/library/spiritual_reading.json`.
+
+**The books themselves are not served.** A device downloads the text from
+Project Gutenberg (`https://www.gutenberg.org/cache/epub/<gutenberg_id>/pg<gutenberg_id>.txt`),
+streams the recording from LibriVox (audiobook `librivox_id`), and caches
+both. Serving the rules means a book whose edition changes shape is fixed
+here, with a new `version`, instead of in an app release.
+
+- **`books`**, in shelf order: `SpiritualBook`s, each with:
+  - `id` (stable forever: a reader's place is stored by it), `title`,
+    `author`, `translator` (or null), `blurb`;
+  - `gutenberg_id`; `librivox_id`, or null when no recording is offered
+    (the Imitation: its only recording puts ten chapters in a file);
+  - `preferred_rate`: the rate the recording opens at (1.5 for the slow
+    reading of The Story of a Soul);
+  - `parsing`: `chapter_pattern` (required), `part_pattern`,
+    `start_pattern`, `stop_pattern`, `note_pattern`, `drop_pattern` (each
+    a regular expression or null), `title_runs_to_blank_gap`,
+    `minimum_chapter_length` (500) and `maximum_title_length` (140). The
+    patterns are ICU syntax, read the same by `java.util.regex`, each
+    matched against one line at a time with its surrounding spaces
+    trimmed. The cutting itself is the iOS app's `LibraryBookParser`;
+  - `track_mapping`: `kind` is `none`, `sequential` (track
+    `chapter + offset` reads the chapter; `unread` lists chapters the
+    recording passes over; tracks titled `... Part 1`, `... Part 2` are
+    one reading), `book_chapter_ranges` (a track names a part and a span
+    of chapters, `Book 3 - Chapters 21-30`) or `book_spans` (a chapter is
+    a whole book over several tracks). `offset` is set only for
+    `sequential`. The aligning is the iOS app's `LibraryTrackMap`;
+  - `chapter_titles`: a title per chapter for an edition that prints none
+    (the Confessions' thirteen books), or null; a printed title wins;
+  - `heading_overrides`: `{chapter, heading}` pairs, chapter by index from
+    0, replacing a printed heading (the Glories of Mary's chapter 54).
+    Usually empty.
+
+A changed rule changes the `version`, so a device that kept a parsed book
+should cut it again when a book's entry differs from the one it parsed.
 
 ### Reading doors in the library documents
 

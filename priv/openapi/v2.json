@@ -4308,6 +4308,182 @@
         ],
         "type": "object"
       },
+      "spiritual_reading": {
+        "description": "A \"Resource object\" representing a spiritual_reading",
+        "properties": {
+          "attributes": {
+            "description": "An attributes object for a spiritual_reading",
+            "properties": {
+              "books": {
+                "description": "The shelf's books in order, each with its sources and the rules for its edition.",
+                "items": {
+                  "properties": {
+                    "author": {
+                      "type": "string"
+                    },
+                    "blurb": {
+                      "type": "string"
+                    },
+                    "chapter_titles": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true,
+                      "type": "array"
+                    },
+                    "gutenberg_id": {
+                      "type": "integer"
+                    },
+                    "heading_overrides": {
+                      "items": {
+                        "properties": {
+                          "chapter": {
+                            "type": "integer"
+                          },
+                          "heading": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "chapter",
+                          "heading"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "librivox_id": {
+                      "nullable": true,
+                      "type": "integer"
+                    },
+                    "parsing": {
+                      "properties": {
+                        "chapter_pattern": {
+                          "type": "string"
+                        },
+                        "drop_pattern": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "maximum_title_length": {
+                          "type": "integer"
+                        },
+                        "minimum_chapter_length": {
+                          "type": "integer"
+                        },
+                        "note_pattern": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "part_pattern": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "start_pattern": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "stop_pattern": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "title_runs_to_blank_gap": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "chapter_pattern",
+                        "title_runs_to_blank_gap",
+                        "minimum_chapter_length",
+                        "maximum_title_length"
+                      ],
+                      "type": "object"
+                    },
+                    "preferred_rate": {
+                      "format": "float",
+                      "type": "number"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "track_mapping": {
+                      "properties": {
+                        "kind": {
+                          "type": "string"
+                        },
+                        "offset": {
+                          "nullable": true,
+                          "type": "integer"
+                        },
+                        "unread": {
+                          "items": {
+                            "type": "integer"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "unread"
+                      ],
+                      "type": "object"
+                    },
+                    "translator": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "author",
+                    "blurb",
+                    "gutenberg_id",
+                    "track_mapping",
+                    "preferred_rate",
+                    "parsing",
+                    "heading_overrides"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "updated_at": {
+                "description": "When the content last changed. Field included by default.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "version": {
+                "description": "Fingerprints everything the document serves: a device whose copy has the same version holds every current word. Compare it; do not parse it. Field included by default.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "relationships": {
+            "description": "A relationships object for a spiritual_reading",
+            "properties": {},
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "spiritual_reading"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
       "spoken_rosary": {
         "description": "A \"Resource object\" representing a spoken_rosary",
         "properties": {
@@ -6408,6 +6584,53 @@
         },
         "tags": [
           "rosary_script"
+        ]
+      }
+    },
+    "/api/v2/spiritual-reading": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "The Spiritual Reading catalogue as one document. There is only ever one.",
+        "operationId": "getSpiritualReading",
+        "parameters": [
+          {
+            "description": "Comma separated fields of spiritual_reading: books, updated_at, version",
+            "explode": false,
+            "in": "query",
+            "name": "fields[spiritual_reading]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/spiritual_reading"
+                    },
+                    "meta": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "spiritual_reading"
         ]
       }
     },

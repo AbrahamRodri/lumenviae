@@ -1,13 +1,14 @@
 defmodule LumenViae.Rosary.Library do
   @moduledoc """
   The Prayer Book, the Chant Library, the Consecration, True Devotion, St.
-  Carlo Acutis's page and the Marian Library: what
-  `GET /api/v2/prayer-book`, `GET /api/v2/chant-library`,
+  Carlo Acutis's page, the Marian Library and the Spiritual Reading
+  catalogue: what `GET /api/v2/prayer-book`, `GET /api/v2/chant-library`,
   `GET /api/v2/consecration`, `GET /api/v2/true-devotion`,
-  `GET /api/v2/carlo-acutis` and `GET /api/v2/marian-library` serve, and
+  `GET /api/v2/carlo-acutis`, `GET /api/v2/marian-library` and
+  `GET /api/v2/spiritual-reading` serve, and
   what the apps keep an offline copy of.
 
-  A value module. The content is six files in `priv/library/`, read when
+  A value module. The content is seven files in `priv/library/`, read when
   this module compiles, so a new or corrected prayer or chant is a deploy
   rather than an edit in the admin: no query, no state.
 
@@ -49,6 +50,13 @@ defmodule LumenViae.Rosary.Library do
   (`Data/MarianLibraryData.swift`): the `feasts` of Our Lady in the order
   of the year, each with its painting and reading, and six `shelves` of
   readings.
+
+  `spiritual_reading.json` holds the Spiritual Reading shelf's catalogue
+  as the iOS app holds it (`Data/LibraryCatalog.swift`): its `books`, each
+  with its Gutenberg and LibriVox numbers, the rules that cut its edition
+  into chapters (`parsing`), how its recording lines up with them
+  (`track_mapping`), and its chapter titles and heading overrides. The
+  books' text and recordings are not here: a device fetches them.
 
   The shapes are the contract in docs/JSON_API.md, "The Prayer Book and
   the Chant Library" and "The Consecration". The ids are stable forever:
@@ -92,6 +100,9 @@ defmodule LumenViae.Rosary.Library do
 
   @marian_library_path Path.join(@dir, "marian_library.json")
   @external_resource @marian_library_path
+
+  @spiritual_reading_path Path.join(@dir, "spiritual_reading.json")
+  @external_resource @spiritual_reading_path
 
   read = fn path, sections ->
     file = path |> File.read!() |> Jason.decode!()
@@ -158,6 +169,10 @@ defmodule LumenViae.Rosary.Library do
     Check.marian_library_errors(marian_library, Enum.map(prayer_book["prayers"], & &1["id"]))
   )
 
+  {spiritual_reading, spiritual_reading_updated_at} = read.(@spiritual_reading_path, ~w(books))
+
+  check.(@spiritual_reading_path, Check.spiritual_reading_errors(spiritual_reading))
+
   # Each section is cast to its type here, once, and served as cast; a
   # section the cast would change fails the compile (Section.cast/3).
   cast = fn path, document, sections ->
@@ -175,7 +190,8 @@ defmodule LumenViae.Rosary.Library do
     consecration: cast.(@consecration_path, :consecration, consecration),
     true_devotion: cast.(@true_devotion_path, :true_devotion, true_devotion),
     carlo_acutis: cast.(@carlo_acutis_path, :carlo_acutis, carlo_acutis),
-    marian_library: cast.(@marian_library_path, :marian_library, marian_library)
+    marian_library: cast.(@marian_library_path, :marian_library, marian_library),
+    spiritual_reading: cast.(@spiritual_reading_path, :spiritual_reading, spiritual_reading)
   }
 
   @asset_base for(chant <- chant_library["chants"], do: chant["audio"]["url"])
@@ -219,10 +235,16 @@ defmodule LumenViae.Rosary.Library do
       sections: marian_library,
       updated_at: marian_library_updated_at,
       version: Content.version(marian_library)
+    },
+    spiritual_reading: %{
+      name: "spiritual_reading.json",
+      sections: spiritual_reading,
+      updated_at: spiritual_reading_updated_at,
+      version: Content.version(spiritual_reading)
     }
   }
 
-  @typedoc "One of the six documents."
+  @typedoc "One of the seven documents."
   @type document ::
           :prayer_book
           | :chant_library
@@ -230,8 +252,9 @@ defmodule LumenViae.Rosary.Library do
           | :true_devotion
           | :carlo_acutis
           | :marian_library
+          | :spiritual_reading
 
-  @doc "The six documents' names."
+  @doc "The seven documents' names."
   @spec documents() :: [document]
   def documents,
     do: [
@@ -240,14 +263,15 @@ defmodule LumenViae.Rosary.Library do
       :consecration,
       :true_devotion,
       :carlo_acutis,
-      :marian_library
+      :marian_library,
+      :spiritual_reading
     ]
 
   @doc """
   A document's sections, keyed by name (`"prayers"`, `"chapters"`;
   `"groups"`, `"chants"`; `"phases"`, `"days"`, `"prayers"`, `"feasts"`;
   `"about"`, `"parts"`, `"chapters"`, `"teaching"`, `"ejaculatory_prayers"`; `"feast"`, `"shelves"`, `"timeline"`,
-  `"rule"`, `"sayings"`, `"prayer"`; `"feasts"`, `"shelves"`),
+  `"rule"`, `"sayings"`, `"prayer"`; `"feasts"`, `"shelves"`; `"books"`),
   string keys throughout, as the file holds them.
   """
   @spec sections(document) :: map
@@ -263,7 +287,8 @@ defmodule LumenViae.Rosary.Library do
   `Types.TrueDevotionChapter`, `Types.LibraryShelf`,
   `Types.TrueDevotionPrayer`; St. Carlo's `Types.LibraryFeast`,
   `Types.LibraryShelf`, `Types.CarloMoment`, `Types.CarloHabit`, strings;
-  the Marian Library's `Types.LibraryFeast` and `Types.LibraryShelf`).
+  the Marian Library's `Types.LibraryFeast` and `Types.LibraryShelf`;
+  the Spiritual Reading catalogue's `Types.SpiritualBook`).
   `"about"`, `"teaching"` and `"feast"` are one struct and `"prayer"` one string, not
   lists.
   """

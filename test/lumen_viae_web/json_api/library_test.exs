@@ -24,7 +24,8 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
      ~w(about parts chapters teaching ejaculatory_prayers)},
     {"/carlo-acutis", "carlo_acutis", :carlo_acutis,
      ~w(feast shelves timeline rule sayings prayer)},
-    {"/marian-library", "marian_library", :marian_library, ~w(feasts shelves)}
+    {"/marian-library", "marian_library", :marian_library, ~w(feasts shelves)},
+    {"/spiritual-reading", "spiritual_reading", :spiritual_reading, ~w(books)}
   ]
 
   for {path, type, document, sections} <- @documents do
@@ -450,6 +451,50 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
 
       lepanto = Enum.find(feasts, &(&1["name"] == "The Most Holy Rosary"))
       assert %{"reading_id" => "lepanto", "reading_name" => "Lepanto"} = lepanto
+    end
+  end
+
+  describe "the Spiritual Reading catalogue" do
+    setup %{conn: conn} do
+      conn
+      |> get_v2("/spiritual-reading?fields[spiritual_reading]=books")
+      |> v2_response(200)
+      |> get_in(["data", "attributes", "books"])
+      |> then(&%{books: &1})
+    end
+
+    test "five books, each with its sources, its edition's rules and its recording's alignment",
+         %{books: books} do
+      assert Enum.map(books, & &1["id"]) ==
+               ~w(imitation-of-christ story-of-a-soul confessions-of-st-augustine glories-of-mary practice-of-the-presence-of-god)
+
+      soul = Enum.find(books, &(&1["id"] == "story-of-a-soul"))
+
+      assert %{
+               "gutenberg_id" => 16772,
+               "librivox_id" => 8021,
+               "preferred_rate" => 1.5,
+               "track_mapping" => %{"kind" => "sequential", "offset" => 1, "unread" => []},
+               "parsing" => %{
+                 "start_pattern" => "^PROLOGUE: THE PARENTAGE",
+                 "minimum_chapter_length" => 500,
+                 "maximum_title_length" => 140,
+                 "title_runs_to_blank_gap" => false
+               }
+             } = soul
+
+      glories = Enum.find(books, &(&1["id"] == "glories-of-mary"))
+      assert glories["track_mapping"]["unread"] == [40]
+
+      assert glories["heading_overrides"] == [
+               %{"chapter" => 54, "heading" => "Meditations for the Feasts of Mary"}
+             ]
+
+      confessions = Enum.find(books, &(&1["id"] == "confessions-of-st-augustine"))
+      assert length(confessions["chapter_titles"]) == 13
+
+      imitation = Enum.find(books, &(&1["id"] == "imitation-of-christ"))
+      assert %{"librivox_id" => nil, "chapter_titles" => nil} = imitation
     end
   end
 end

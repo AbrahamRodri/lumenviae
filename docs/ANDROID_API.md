@@ -133,6 +133,8 @@ value is added to a vocabulary, never a renamed one.
 | `GET /api/v2/carlo-acutis?fields[carlo_acutis]=version,updated_at,feast,shelves,timeline,rule,sayings,prayer` | when `version` differs from the saved copy's | all six sections |
 | `GET /api/v2/marian-library` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/marian-library?fields[marian_library]=version,updated_at,feasts,shelves` | when `version` differs from the saved copy's | both sections |
+| `GET /api/v2/spiritual-reading` | at launch and once a day | bare: `version` and `updated_at` only |
+| `GET /api/v2/spiritual-reading?fields[spiritual_reading]=version,updated_at,books` | when `version` differs from the saved copy's | the books, with their Gutenberg and LibriVox numbers and rules; the app fetches each book's text and recording from those sites itself |
 | `GET /api/v2/meditation-sets?category=<slug>` | a mysteries' page's shelf | default fields |
 | `GET /api/v2/meditation-sets/<id>?include=set_memberships.meditation.mystery&fields[meditation]=title,content,author,source,narrated_voices,narrations` | a set is opened or saved for offline | with its meditations, in prayer order, and their signed narrations |
 | `POST /api/v2/meditations/audio` | a saved set's narration links have expired, or one would not load | `{"data": {"meditation_ids": [...], "voice": "<slug>"}}`, at most 200 ids |
@@ -188,13 +190,13 @@ kept on the device and the network only refreshes it.
 
 The same rules as the content document, for each document on its own
 (docs/JSON_API.md, "The Prayer Book and the Chant Library", "The
-Consecration", "True Devotion", "St. Carlo Acutis" and "The Marian
-Library", has the shapes):
+Consecration", "True Devotion", "St. Carlo Acutis", "The Marian
+Library" and "Spiritual Reading", has the shapes):
 
 - **Ship a copy in the app** (`assets/prayer-book.json`,
   `assets/chant-library.json`, `assets/consecration.json`,
   `assets/true-devotion.json`, `assets/carlo-acutis.json`,
-  `assets/marian-library.json`: each the whole
+  `assets/marian-library.json`, `assets/spiritual-reading.json`: each the whole
   response to the
   `?fields[...]` request above, version included), so the first launch
   has every word with no connection.

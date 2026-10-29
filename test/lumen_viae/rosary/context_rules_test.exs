@@ -50,7 +50,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
     mystery meditation meditation_set set_membership completion author
     narration narration_voice spoken_rosary category_card rosary_content
     rosary_script prayer_book chant_library consecration true_devotion carlo_acutis
-    marian_library
+    marian_library spiritual_reading
   )
 
   # The resources AshPaperTrail versions. Each has a generated

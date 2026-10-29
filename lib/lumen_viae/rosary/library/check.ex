@@ -2,8 +2,8 @@ defmodule LumenViae.Rosary.Library.Check do
   @moduledoc """
   What `priv/library/prayer_book.json`, `priv/library/chant_library.json`,
   `priv/library/consecration.json`, `priv/library/true_devotion.json`,
-  `priv/library/carlo_acutis.json` and `priv/library/marian_library.json`
-  must hold, checked as `LumenViae.Rosary.Library` compiles and again by
+  `priv/library/carlo_acutis.json`, `priv/library/marian_library.json` and
+  `priv/library/spiritual_reading.json` must hold, checked as `LumenViae.Rosary.Library` compiles and again by
   `LumenViae.Curation.ChantUpload` before it rewrites a file.
 
   Each function takes a file's sections (string keys, as decoded) and
@@ -208,6 +208,86 @@ defmodule LumenViae.Rosary.Library.Check do
 
   def marian_library_errors(_document, _prayer_ids),
     do: ["the document needs a list of feasts and of shelves"]
+
+  @doc """
+  The problems with the Spiritual Reading catalogue: every book id once
+  and safe to store, its Gutenberg number, a track mapping the apps know
+  (an `offset` exactly when it is `sequential`), every pattern a regular
+  expression, and heading overrides on distinct chapters.
+  """
+  @spec spiritual_reading_errors(map) :: [String.t()]
+  def spiritual_reading_errors(%{"books" => books}) when is_list(books) and books != [] do
+    ids = Enum.map(books, &id/1)
+
+    repeated("book", ids) ++ unnamed("book id", ids) ++ Enum.flat_map(books, &book_errors/1)
+  end
+
+  def spiritual_reading_errors(_document), do: ["the document needs a list of books"]
+
+  defp book_errors(book) do
+    parsing = book["parsing"] || %{}
+    track = book["track_mapping"] || %{}
+    overrides = list(book["heading_overrides"])
+
+    errors =
+      required(book, ~w(id title author blurb)) ++
+        optional(book, ~w(translator)) ++
+        if(positive?(book["gutenberg_id"]), do: [], else: ["gutenberg_id is a whole number"]) ++
+        if(is_nil(book["librivox_id"]) or positive?(book["librivox_id"]),
+          do: [],
+          else: ["librivox_id is a whole number or null"]
+        ) ++
+        track_errors(track) ++
+        required(parsing, ~w(chapter_pattern)) ++
+        optional(parsing, ~w(part_pattern start_pattern stop_pattern note_pattern drop_pattern)) ++
+        for(
+          key <-
+            ~w(chapter_pattern part_pattern start_pattern stop_pattern note_pattern drop_pattern),
+          is_binary(parsing[key]),
+          match?({:error, _}, Regex.compile(parsing[key], "u")),
+          do: "#{key} is not a regular expression"
+        ) ++
+        if(is_nil(book["chapter_titles"]), do: [], else: words(book, "chapter_titles")) ++
+        for(
+          override <- overrides,
+          not (is_integer(override["chapter"]) and override["chapter"] >= 0),
+          do: "a heading override needs a chapter index from 0"
+        ) ++
+        for(override <- overrides, error <- required(override, ~w(heading)), do: error) ++
+        for(
+          {chapter, count} <- Enum.frequencies(Enum.map(overrides, & &1["chapter"])),
+          count > 1,
+          do: "chapter #{inspect(chapter)} has more than one heading override"
+        )
+
+    for error <- errors, do: "#{book["id"]}: #{error}"
+  end
+
+  @track_kinds ~w(none sequential book_chapter_ranges book_spans)
+
+  defp track_errors(%{"kind" => "sequential", "offset" => offset} = track)
+       when is_integer(offset),
+       do: unread_errors(track)
+
+  defp track_errors(%{"kind" => "sequential"}),
+    do: ["a sequential track mapping needs a whole-number offset"]
+
+  defp track_errors(%{"kind" => kind} = track) when kind in @track_kinds do
+    if is_nil(track["offset"]) and list(track["unread"]) == [],
+      do: unread_errors(track),
+      else: ["only a sequential track mapping has an offset or unread chapters"]
+  end
+
+  defp track_errors(_track),
+    do: ["track_mapping.kind is one of #{Enum.join(@track_kinds, ", ")}"]
+
+  defp unread_errors(track) do
+    if is_list(track["unread"]) and Enum.all?(track["unread"], &(is_integer(&1) and &1 >= 0)),
+      do: [],
+      else: ["track_mapping.unread is a list of chapter indexes from 0"]
+  end
+
+  defp positive?(value), do: is_integer(value) and value > 0
 
   # Shelves of library readings: each shelf and reading id once and safe
   # to store, every door opening something there is, every feast a date.
