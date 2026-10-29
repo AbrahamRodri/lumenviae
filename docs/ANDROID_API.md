@@ -140,7 +140,7 @@ value is added to a vocabulary, never a renamed one.
 | `POST /api/v2/meditations/audio` | a saved set's narration links have expired, or one would not load | `{"data": {"meditation_ids": [...], "voice": "<slug>"}}`, at most 200 ids |
 | `GET /api/v2/voices` | the voice picker | default fields |
 | `GET /api/v2/voices/retired` | a stored voice is no longer offered | default fields |
-| `GET /api/v2/rosary-audio?voice=<slug>&fields[spoken_rosary]=version,expires_at,prayers,announcements,verses` | before a Rosary is said aloud, or saved for offline | only the kinds needed (below) |
+| `GET /api/v2/rosary-audio?voice=<slug>&fields[spoken_rosary]=version,expires_at,prayers,announcements,verses,book` | before a Rosary or a Prayer Book prayer is said aloud, or saved for offline | only the kinds needed (below) |
 | `GET /api/v2/office/days/<date>/hours/<hour>?version=<slug>&language=<slug>` | an hour of the Divine Office is opened | the hour's text; `/office/days/<date>`, `/office/calendar/<y>/<m>` and `/office/vocabulary` as the screen needs (docs/JSON_API.md, "The Divine Office") |
 | `POST /api/v2/completions` | a meditation set's Rosary is finished | `{"data": {"type": "completion", "attributes": {"meditation_set_id": 42, "prayed_aloud": true}}}` |
 
@@ -236,9 +236,12 @@ Library" and "Spiritual Reading", has the shapes):
 As the iPhone app keeps them (`Services/RosaryAudioPack.swift`), one voice
 at a time:
 
-- **Ask for the kinds the Rosary needs** in `fields[spoken_rosary]`:
-  `prayers` and `announcements` always, `verses` for the Scriptural
-  Rosary. (`book` is the Prayer Book's, which is not in this programme.)
+- **Ask for the kinds needed** in `fields[spoken_rosary]`: `prayers` and
+  `announcements` always, `verses` for the Scriptural Rosary, and `book`
+  for the Prayer Book said aloud: one clip per Prayer Book prayer, keyed
+  by its id. A prayer the Rosary also says (the Our Father, the Memorare)
+  has no `book` clip; play its `prayers` clip (docs/SPOKEN_ROSARY.md,
+  "The Prayer Book").
   The bare request (`version`, `expires_at`) is how to ask whether a saved
   set of recordings is current.
 - **A recording's `file` is its cache key.** It is `<name>-<hash>.mp3`,
