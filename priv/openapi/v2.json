@@ -5408,6 +5408,82 @@
         ]
       }
     },
+    "/api/v2/completions/check": {
+      "post": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Checks a completion as :record_from_app would record it and answers what it would record, writing nothing: no row, no place lookup, nothing spent from the hourly limit. For the production feature check; the apps never call it.",
+        "operationId": "checkCompletion",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "data": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "meditation_set_id": {
+                        "type": "integer"
+                      },
+                      "prayed_aloud": {
+                        "nullable": true,
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "meditation_set_id"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "data"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "description": "Request body for the checkCompletion operation on completion resource",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "properties": {
+                    "meditation_set_id": {
+                      "type": "integer"
+                    },
+                    "prayed_aloud": {
+                      "nullable": true,
+                      "type": "boolean"
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "meditation_set_id",
+                    "source"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/components/responses/errors"
+          }
+        },
+        "tags": [
+          "completion"
+        ]
+      }
+    },
     "/api/v2/consecration": {
       "get": {
         "callbacks": {},

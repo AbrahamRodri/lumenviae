@@ -296,6 +296,12 @@ defmodule LumenViae.Rosary do
         post :record_from_app do
           name "recordCompletion"
         end
+
+        # The same checks, nothing written: what bin/prod-feature-check
+        # calls, so it can test the write without recording a Rosary.
+        route :post, "/check", :check_record_from_app do
+          name "checkCompletion"
+        end
       end
     end
   end

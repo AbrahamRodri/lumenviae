@@ -26,7 +26,7 @@ proves each one, the way the apps call it:
 | The Divine Office | today's day and Lauds in v2, and v1 `/api/office/<today>` |
 | The admin console | `/admin/login` answers with a password field |
 | The website | `/` answers |
-| Recording a finished Rosary | **not checked**: `POST /api/v2/completions` has no dry run, and a check must not record one |
+| Recording a finished Rosary | `POST /api/v2/completions/check`: the write's own checks on a visible set, answered `201` with nothing recorded |
 
 It only reads: GETs, and a one-byte ranged GET of one audio file, one
 image and one chant to prove the links open. It never writes, records or
