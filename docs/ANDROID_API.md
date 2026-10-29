@@ -238,10 +238,12 @@ at a time:
 
 - **Ask for the kinds needed** in `fields[spoken_rosary]`: `prayers` and
   `announcements` always, `verses` for the Scriptural Rosary, and `book`
-  for the Prayer Book said aloud: one clip per Prayer Book prayer, keyed
-  by its id. A prayer the Rosary also says (the Our Father, the Memorare)
-  has no `book` clip; play its `prayers` clip (docs/SPOKEN_ROSARY.md,
-  "The Prayer Book").
+  for the Prayer Book said aloud: a clip per recorded Prayer Book prayer,
+  keyed by its id. Not every prayer has one. Of the 152 (29 October 2026),
+  72 have a `book` clip; 12 are prayers the Rosary also says (the Our
+  Father, the Memorare), which play their `prayers` clip; the other 68
+  have no recording, so offer no play control for them
+  (docs/SPOKEN_ROSARY.md, "The Prayer Book").
   The bare request (`version`, `expires_at`) is how to ask whether a saved
   set of recordings is current.
 - **A recording's `file` is its cache key.** It is `<name>-<hash>.mp3`,
