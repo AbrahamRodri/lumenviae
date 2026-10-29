@@ -531,7 +531,7 @@ Rosary's audio row says as a fact, not a choice.
 GET /api/v2/prayer-book
 GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters,orders,marian_antiphons
 GET /api/v2/chant-library
-GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants
+GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants,feasts,months,occasions
 ```
 
 Two more documents, kept and polled exactly as the content document is:
@@ -604,6 +604,34 @@ chants.
   in order and within the recording; `part` is the score page it is sung
   from, counting from 0, or null; `lines` is empty for a chant not yet
   timed).
+- **`feasts`**: the days the library sings a chant for, in the order of
+  the year (the iOS app's `ChantLibraryData.feasts`): `id`, `name`,
+  `chant_id`, `painting` and `rule`, `{kind, month, day,
+  days_from_easter}`. `kind` is `fixed` (`month` and `day`), `easter`
+  (`days_from_easter` after Easter Sunday: Pentecost 49, Good Friday -2),
+  `last_sunday_of_october` (Christ the King) or `holy_name` (the Sunday
+  between 2 and 5 January, else 2 January); the fields a kind does not use
+  are null. Finding the date is the device's arithmetic. Seven are
+  Advent's O antiphon days, 17 to 23 December.
+- **`months`**: the months' dedications, January to December, February
+  left out (it has no chant of its own): `month`, `title`, `chant_ids`
+  (may be empty), `occasion_id` (a sung set for it, or null) and
+  `feast_id` (its feast in `feasts`, or null).
+- **`occasions`**: the sung sets, Benediction (`benediction`), a visit
+  (`visit`), a sung Rosary (`sung_rosary`), before bed, before work and
+  for the dead: `id`, `title`, `note`, `painting` and `blocks`, in
+  order. A block is `{rubric, steps, rounds}`: the rubric (in red, or
+  null), then its steps sung `rounds` times over (the Rosary's decades
+  are one block of 5 rounds). A step is `{kind, chant_id, times}`:
+  `kind` `chant` names `chant_id`; `antiphon_of_the_season` is tonight's
+  song to Mary, the first chant whose `prayer_ids` hold the Prayer Book's
+  antiphon for that day (`marian_antiphons`), with `chant_id` null.
+  `times` is how often it is sung (the Ave Maria 10 times in a decade).
+  A reader's own sets stay on the device.
+
+Every chant, occasion and feast these name is in the document, checked
+when it compiles. The sections were added on 29 October 2026; a client
+that does not name them is sent nothing new.
 
 ### The chant files
 
@@ -625,7 +653,8 @@ them. About 100 MB in all, 261 files as of 14 October 2026.
 
 `mix lumen_viae.upload_chants` puts the files there and writes each one's
 `url`, `bytes` and `sha256` into `priv/library/chant_library.json`
-(`LumenViae.Curation.ChantUpload`).
+(`LumenViae.Curation.ChantUpload`). An export that carries no `feasts`,
+`months` or `occasions` keeps the file's: those are edited here by hand.
 
 The words of a prayer or a chant are edited in `priv/library/` directly:
 correct the text, bump the file's `updated_at` and pin its new version

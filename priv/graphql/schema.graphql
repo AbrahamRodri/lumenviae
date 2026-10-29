@@ -358,6 +358,93 @@ type ConsecrationPhase {
   firstDay: Int!
 }
 
+type ChantOccasionStep {
+  "How many times it is sung, 1 or more."
+  times: Int!
+
+  "`chant` (the chant `chant_id`) or `antiphon_of_the_season`: tonight's song to Mary, the first chant whose `prayer_ids` hold the Prayer Book's antiphon of the season (`marian_antiphons`) on that day."
+  kind: String!
+
+  "For `chant`: the chant. Null otherwise."
+  chantId: String
+}
+
+type ChantOccasionBlock {
+  "Its chants, in order."
+  steps: [ChantOccasionStep]!
+
+  "What happens before its chants, or null."
+  rubric: String
+
+  "How many times the steps are sung through: 5 for the Rosary's decades, else 1."
+  rounds: Int!
+}
+
+type ChantOccasion {
+  "Its title (`Adoration and Blessing`)."
+  title: String!
+
+  "The painting it is shown in, by the apps' painting name."
+  painting: String!
+
+  "One line under the title."
+  note: String!
+
+  "Stable (`benediction`); a month names it, and devices store it."
+  id: String!
+
+  "What happens, in order: each a rubric and the chants it leads to."
+  blocks: [ChantOccasionBlock]!
+}
+
+type ChantMonth {
+  "Its dedication (`The Month of the Holy Rosary`)."
+  title: String!
+
+  "An occasion sung for it (`sung_rosary` in October), or null."
+  occasionId: String
+
+  "The month, 1 to 12."
+  month: Int!
+
+  "The month's own feast in `feasts`, or null."
+  feastId: String
+
+  "The chants sung for it, in order. May be empty."
+  chantIds: [String!]!
+}
+
+type ChantFeastRule {
+  "For `fixed`: its month, 1 to 12. Null otherwise."
+  month: Int
+
+  "`fixed` (the same `month` and `day` every year), `easter` (`days_from_easter` after Easter Sunday: Pentecost is 49, Good Friday -2), `last_sunday_of_october` (Christ the King) or `holy_name` (the Sunday between 2 and 5 January, else 2 January)."
+  kind: String!
+
+  "For `easter`: days after Easter Sunday, negative before it. Null otherwise."
+  daysFromEaster: Int
+
+  "For `fixed`: its day of the month. Null otherwise."
+  day: Int
+}
+
+type ChantFeast {
+  "How its date is found in a given year."
+  rule: ChantFeastRule!
+
+  "The painting it is shown in, by the apps' painting name."
+  painting: String!
+
+  "Its name (`The Holy Name of Jesus`)."
+  name: String!
+
+  "Stable (`holy_name`); a month names it."
+  id: String!
+
+  "The chant sung for it."
+  chantId: String!
+}
+
 type ChantAudio {
   "A public, unsigned URL that never changes what it serves: a new recording is a new URL. Cache by it."
   url: String!
@@ -1754,6 +1841,15 @@ type ChantLibrary {
 
   "Every chant, in the catalog's order: a client takes the first chant listed for a prayer."
   chants: [Chant!]!
+
+  "The days the library sings a chant for, in the order of the year, each with the rule that finds its date."
+  feasts: [ChantFeast!]!
+
+  "The months' traditional dedications, January to December, and what is sung for each."
+  months: [ChantMonth!]!
+
+  "The sung sets, each its chants in the order they are sung."
+  occasions: [ChantOccasion!]!
 }
 
 type PrayerBook {

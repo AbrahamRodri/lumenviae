@@ -197,10 +197,14 @@ def prayer_book():
 
 
 def chant_library():
-    a = attributes("/api/v2/chant-library?fields[chant_library]=version,groups,chants")
+    a = attributes("/api/v2/chant-library?fields[chant_library]=version,groups,chants,occasions,months")
     expect(a["groups"] and a["chants"], "no chants")
     opens(a["chants"][0]["audio"]["url"], "audio")
-    return f"{len(a['chants'])} chants, one opens"
+    ids = {c["id"] for c in a["chants"]}
+    expect(a["occasions"] and a["months"], "no sung sets or months")
+    named = {s["chant_id"] for o in a["occasions"] for b in o["blocks"] for s in b["steps"] if s["chant_id"]}
+    expect(named <= ids, "a sung set names a missing chant")
+    return f"{len(a['chants'])} chants, one opens, {len(a['occasions'])} sung sets"
 
 
 def library(path, type_, sections, test):

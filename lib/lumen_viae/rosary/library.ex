@@ -26,7 +26,11 @@ defmodule LumenViae.Rosary.Library do
   their name and checksum (`chants/audio/<id>-<sha256 first 12>.m4a`,
   `chants/scores/<file>-<sha256 first 12>.lvscore`), so a changed file is
   a new URL. `mix lumen_viae.upload_chants` puts them there and writes
-  their url, bytes and sha256 into the file.
+  their url, bytes and sha256 into the file. Beside them, as the iOS app
+  holds them (`Data/ChantLibraryData.swift`): `feasts`, the days the
+  library sings a chant for, each with its date rule; `months`, the
+  months' dedications; and `occasions`, the sung sets (Benediction, a
+  visit, a sung Rosary and the rest), each its chants in the order sung.
 
   `consecration.json` holds the 33-day Consecration as the iOS app
   bundles it: `phases`, each with its days' span and the prayers said on
@@ -133,7 +137,9 @@ defmodule LumenViae.Rosary.Library do
 
   check.(@prayer_book_path, Check.prayer_book_errors(prayer_book))
 
-  {chant_library, chant_library_updated_at} = read.(@chant_library_path, ~w(groups chants))
+  {chant_library, chant_library_updated_at} =
+    read.(@chant_library_path, ~w(groups chants feasts months occasions))
+
   # A chant's prayer_ids name the book's prayers.
   check.(
     @chant_library_path,
@@ -269,7 +275,7 @@ defmodule LumenViae.Rosary.Library do
 
   @doc """
   A document's sections, keyed by name (`"prayers"`, `"chapters"`;
-  `"groups"`, `"chants"`; `"phases"`, `"days"`, `"prayers"`, `"feasts"`;
+  `"groups"`, `"chants"`, `"feasts"`, `"months"`, `"occasions"`; `"phases"`, `"days"`, `"prayers"`, `"feasts"`;
   `"about"`, `"parts"`, `"chapters"`, `"teaching"`, `"ejaculatory_prayers"`; `"feast"`, `"shelves"`, `"timeline"`,
   `"rule"`, `"sayings"`, `"prayer"`; `"feasts"`, `"shelves"`; `"books"`),
   string keys throughout, as the file holds them.
@@ -280,7 +286,8 @@ defmodule LumenViae.Rosary.Library do
   @doc """
   A section as the APIs serve it: the file's, cast to its type when this
   module compiled (`Types.BookPrayer`, `Types.PrayerBookChapter`,
-  `Types.ChantGroup`, `Types.Chant`, and the Consecration's
+  `Types.ChantGroup`, `Types.Chant`, `Types.ChantFeast`, `Types.ChantMonth`,
+  `Types.ChantOccasion`, and the Consecration's
   `Types.ConsecrationPhase`, `Types.ConsecrationDay`,
   `Types.ConsecrationPrayer`, `Types.MarianFeast`, and True Devotion's
   `Types.TrueDevotionAbout`, `Types.TrueDevotionPart`,

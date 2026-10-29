@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-14T02:17:43Z",
+  "updated_at": "2026-10-29T03:30:00Z",
   "chants": [
     {
       "audio": {
@@ -25967,6 +25967,356 @@
       "source_url": "https://www.verbumgloriae.es/project/misa-xi-orbis-factor/"
     }
   ],
+  "feasts": [
+    {
+      "chant_id": "jesu_dulcis_memoria",
+      "id": "holy_name",
+      "name": "The Holy Name of Jesus",
+      "painting": "jesus_holy_name",
+      "rule": {
+        "day": null,
+        "days_from_easter": null,
+        "kind": "holy_name",
+        "month": null
+      }
+    },
+    {
+      "chant_id": "te_joseph",
+      "id": "st_joseph",
+      "name": "St Joseph",
+      "painting": "devotion_st_joseph",
+      "rule": {
+        "day": 19,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 3
+      }
+    },
+    {
+      "chant_id": "ave_maria_antiphon",
+      "id": "annunciation",
+      "name": "The Annunciation",
+      "painting": "feast_annunciation",
+      "rule": {
+        "day": 25,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 3
+      }
+    },
+    {
+      "chant_id": "pange_lingua",
+      "id": "holy_thursday",
+      "name": "Holy Thursday",
+      "painting": "luminous_eucharist",
+      "rule": {
+        "day": null,
+        "days_from_easter": -3,
+        "kind": "easter",
+        "month": null
+      }
+    },
+    {
+      "chant_id": "vexilla_regis",
+      "id": "good_friday",
+      "name": "Good Friday",
+      "painting": "sorrowful_crucifixion",
+      "rule": {
+        "day": null,
+        "days_from_easter": -2,
+        "kind": "easter",
+        "month": null
+      }
+    },
+    {
+      "chant_id": "victimae_paschali",
+      "id": "easter",
+      "name": "Easter Sunday",
+      "painting": "easter_noli_me_tangere",
+      "rule": {
+        "day": null,
+        "days_from_easter": 0,
+        "kind": "easter",
+        "month": null
+      }
+    },
+    {
+      "chant_id": "jesu_nostra_redemptio",
+      "id": "ascension",
+      "name": "The Ascension",
+      "painting": "glorious_ascension",
+      "rule": {
+        "day": null,
+        "days_from_easter": 39,
+        "kind": "easter",
+        "month": null
+      }
+    },
+    {
+      "chant_id": "veni_sancte_spiritus",
+      "id": "pentecost",
+      "name": "Pentecost",
+      "painting": "glorious_pentecost",
+      "rule": {
+        "day": null,
+        "days_from_easter": 49,
+        "kind": "easter",
+        "month": null
+      }
+    },
+    {
+      "chant_id": "lauda_sion",
+      "id": "corpus_christi",
+      "name": "Corpus Christi (the Body of Christ)",
+      "painting": "topic_blessed_sacrament",
+      "rule": {
+        "day": null,
+        "days_from_easter": 60,
+        "kind": "easter",
+        "month": null
+      }
+    },
+    {
+      "chant_id": "litany_sacred_heart",
+      "id": "sacred_heart",
+      "name": "The Sacred Heart",
+      "painting": "topic_our_lord",
+      "rule": {
+        "day": null,
+        "days_from_easter": 68,
+        "kind": "easter",
+        "month": null
+      }
+    },
+    {
+      "chant_id": "ut_queant_laxis",
+      "id": "st_john_baptist",
+      "name": "The Birth of St John the Baptist",
+      "painting": "saint_john_baptist_birth",
+      "rule": {
+        "day": 24,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 6
+      }
+    },
+    {
+      "chant_id": "salvete_christi_vulnera",
+      "id": "precious_blood",
+      "name": "The Precious Blood",
+      "painting": "jesus_precious_blood",
+      "rule": {
+        "day": 1,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 7
+      }
+    },
+    {
+      "chant_id": "flos_carmeli",
+      "id": "mount_carmel",
+      "name": "Our Lady of Mount Carmel",
+      "painting": "mary_mount_carmel",
+      "rule": {
+        "day": 16,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 7
+      }
+    },
+    {
+      "chant_id": "ave_maris_stella_feasts",
+      "id": "assumption",
+      "name": "The Assumption",
+      "painting": "glorious_assumption",
+      "rule": {
+        "day": 15,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 8
+      }
+    },
+    {
+      "chant_id": "stabat_mater",
+      "id": "seven_sorrows",
+      "name": "Our Lady of Sorrows",
+      "painting": "mary_mater_dolorosa",
+      "rule": {
+        "day": 15,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 9
+      }
+    },
+    {
+      "chant_id": "sancte_michael",
+      "id": "st_michael",
+      "name": "St Michael",
+      "painting": "saint_michael",
+      "rule": {
+        "day": 29,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 9
+      }
+    },
+    {
+      "chant_id": "litany_loreto",
+      "id": "rosary",
+      "name": "Our Lady of the Rosary",
+      "painting": "feast_our_lady_of_the_rosary",
+      "rule": {
+        "day": 7,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 10
+      }
+    },
+    {
+      "chant_id": "christus_vincit",
+      "id": "christ_the_king",
+      "name": "Christ the King",
+      "painting": "feast_christ_the_king",
+      "rule": {
+        "day": null,
+        "days_from_easter": null,
+        "kind": "last_sunday_of_october",
+        "month": null
+      }
+    },
+    {
+      "chant_id": "litany_saints",
+      "id": "all_saints",
+      "name": "All Saints",
+      "painting": "feast_all_saints",
+      "rule": {
+        "day": 1,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 11
+      }
+    },
+    {
+      "chant_id": "dies_irae",
+      "id": "all_souls",
+      "name": "All Souls",
+      "painting": "devotion_holy_souls",
+      "rule": {
+        "day": 2,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 11
+      }
+    },
+    {
+      "chant_id": "tota_pulchra",
+      "id": "immaculate_conception",
+      "name": "The Immaculate Conception",
+      "painting": "mary_immaculate_conception",
+      "rule": {
+        "day": 8,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 12
+      }
+    },
+    {
+      "chant_id": "o_sapientia_magnificat",
+      "id": "o_sapientia",
+      "name": "Advent's “O Wisdom”",
+      "painting": "advent_isaiah",
+      "rule": {
+        "day": 17,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 12
+      }
+    },
+    {
+      "chant_id": "o_adonai_magnificat",
+      "id": "o_adonai",
+      "name": "Advent's “O Lord and Ruler”",
+      "painting": "advent_isaiah",
+      "rule": {
+        "day": 18,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 12
+      }
+    },
+    {
+      "chant_id": "o_radix_magnificat",
+      "id": "o_radix",
+      "name": "Advent's “O Root of Jesse”",
+      "painting": "advent_isaiah",
+      "rule": {
+        "day": 19,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 12
+      }
+    },
+    {
+      "chant_id": "o_clavis_magnificat",
+      "id": "o_clavis",
+      "name": "Advent's “O Key of David”",
+      "painting": "advent_isaiah",
+      "rule": {
+        "day": 20,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 12
+      }
+    },
+    {
+      "chant_id": "o_oriens_magnificat",
+      "id": "o_oriens",
+      "name": "Advent's “O Morning Star”",
+      "painting": "advent_isaiah",
+      "rule": {
+        "day": 21,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 12
+      }
+    },
+    {
+      "chant_id": "o_rex_magnificat",
+      "id": "o_rex",
+      "name": "Advent's “O King of the Nations”",
+      "painting": "advent_isaiah",
+      "rule": {
+        "day": 22,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 12
+      }
+    },
+    {
+      "chant_id": "o_emmanuel_magnificat",
+      "id": "o_emmanuel",
+      "name": "Advent's “O Emmanuel”",
+      "painting": "advent_isaiah",
+      "rule": {
+        "day": 23,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 12
+      }
+    },
+    {
+      "chant_id": "adeste_fideles",
+      "id": "christmas",
+      "name": "Christmas Day",
+      "painting": "christmas_shepherds",
+      "rule": {
+        "day": 25,
+        "days_from_easter": null,
+        "kind": "fixed",
+        "month": 12
+      }
+    }
+  ],
   "groups": [
     {
       "id": "asperges",
@@ -26269,6 +26619,380 @@
         }
       ],
       "title": "The Rosary in Latin"
+    }
+  ],
+  "months": [
+    {
+      "chant_ids": [
+        "jesu_dulcis_memoria",
+        "litany_holy_name"
+      ],
+      "feast_id": "holy_name",
+      "month": 1,
+      "occasion_id": null,
+      "title": "The Month of the Holy Name"
+    },
+    {
+      "chant_ids": [
+        "te_joseph",
+        "litany_st_joseph"
+      ],
+      "feast_id": "st_joseph",
+      "month": 3,
+      "occasion_id": null,
+      "title": "The Month of St Joseph"
+    },
+    {
+      "chant_ids": [
+        "adoro_te",
+        "ave_verum"
+      ],
+      "feast_id": null,
+      "month": 4,
+      "occasion_id": "visit",
+      "title": "The Month of the Blessed Sacrament"
+    },
+    {
+      "chant_ids": [
+        "ave_maris_stella_feasts",
+        "litany_loreto"
+      ],
+      "feast_id": null,
+      "month": 5,
+      "occasion_id": "sung_rosary",
+      "title": "The Month of Mary"
+    },
+    {
+      "chant_ids": [
+        "litany_sacred_heart",
+        "cor_jesu"
+      ],
+      "feast_id": "sacred_heart",
+      "month": 6,
+      "occasion_id": null,
+      "title": "The Month of the Sacred Heart"
+    },
+    {
+      "chant_ids": [
+        "salvete_christi_vulnera",
+        "anima_christi"
+      ],
+      "feast_id": "precious_blood",
+      "month": 7,
+      "occasion_id": null,
+      "title": "The Month of the Precious Blood"
+    },
+    {
+      "chant_ids": [
+        "inviolata",
+        "salve_mater"
+      ],
+      "feast_id": "assumption",
+      "month": 8,
+      "occasion_id": null,
+      "title": "The Month of the Immaculate Heart"
+    },
+    {
+      "chant_ids": [
+        "stabat_mater"
+      ],
+      "feast_id": "seven_sorrows",
+      "month": 9,
+      "occasion_id": null,
+      "title": "The Month of Our Lady of Sorrows"
+    },
+    {
+      "chant_ids": [],
+      "feast_id": "rosary",
+      "month": 10,
+      "occasion_id": "sung_rosary",
+      "title": "The Month of the Holy Rosary"
+    },
+    {
+      "chant_ids": [],
+      "feast_id": "all_souls",
+      "month": 11,
+      "occasion_id": "for_the_dead",
+      "title": "The Month for Those Who Have Died"
+    },
+    {
+      "chant_ids": [],
+      "feast_id": "immaculate_conception",
+      "month": 12,
+      "occasion_id": null,
+      "title": "The Month of the Immaculate Conception"
+    }
+  ],
+  "occasions": [
+    {
+      "blocks": [
+        {
+          "rounds": 1,
+          "rubric": "The Host is placed on the altar for all to see. Kneel.",
+          "steps": [
+            {
+              "chant_id": "o_salutaris",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "The priest offers incense.",
+          "steps": [
+            {
+              "chant_id": "tantum_ergo",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "The priest blesses everyone with the Host. Then pray together:",
+          "steps": [
+            {
+              "chant_id": "divine_praises",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "The Host is put back in the tabernacle, where it is kept in church.",
+          "steps": [
+            {
+              "chant_id": "adoremus",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        }
+      ],
+      "id": "benediction",
+      "note": "Benediction: hymns before the Host, then the priest's blessing",
+      "painting": "topic_blessed_sacrament",
+      "title": "Adoration and Blessing"
+    },
+    {
+      "blocks": [
+        {
+          "rounds": 1,
+          "rubric": "Kneel before the tabernacle, where the Host is kept.",
+          "steps": [
+            {
+              "chant_id": "adoro_te",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "Greet Our Lord, hidden there.",
+          "steps": [
+            {
+              "chant_id": "ave_verum",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "Before you go, give thanks.",
+          "steps": [
+            {
+              "chant_id": "o_sacrum_convivium",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        }
+      ],
+      "id": "visit",
+      "note": "Quiet time with Jesus, present in the Host",
+      "painting": "jesus_eucharist_saviour",
+      "title": "A Visit to Jesus in Church"
+    },
+    {
+      "blocks": [
+        {
+          "rounds": 1,
+          "rubric": "On the crucifix: make the Sign of the Cross, then sing the Creed.",
+          "steps": [
+            {
+              "chant_id": "in_nomine_patris",
+              "kind": "chant",
+              "times": 1
+            },
+            {
+              "chant_id": "credo_in_deum",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "On the large bead, then the three small beads, for faith, hope and charity.",
+          "steps": [
+            {
+              "chant_id": "pater_noster",
+              "kind": "chant",
+              "times": 1
+            },
+            {
+              "chant_id": "ave_maria",
+              "kind": "chant",
+              "times": 3
+            },
+            {
+              "chant_id": "gloria_patri",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 5,
+          "rubric": "Name each mystery, then pray its decade of ten Hail Marys. Five times.",
+          "steps": [
+            {
+              "chant_id": "pater_noster",
+              "kind": "chant",
+              "times": 1
+            },
+            {
+              "chant_id": "ave_maria",
+              "kind": "chant",
+              "times": 10
+            },
+            {
+              "chant_id": "gloria_patri",
+              "kind": "chant",
+              "times": 1
+            },
+            {
+              "chant_id": "o_mi_jesu",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "After the fifth decade.",
+          "steps": [
+            {
+              "chant_id": "salve_regina_simple",
+              "kind": "chant",
+              "times": 1
+            },
+            {
+              "chant_id": "in_nomine_patris",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        }
+      ],
+      "id": "sung_rosary",
+      "note": "Every prayer of the Rosary, sung in Latin",
+      "painting": "feast_our_lady_of_the_rosary",
+      "title": "A Sung Rosary"
+    },
+    {
+      "blocks": [
+        {
+          "rounds": 1,
+          "rubric": "Put yourself under her protection for the night.",
+          "steps": [
+            {
+              "chant_id": "sub_tuum",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "Then tonight's song to Mary.",
+          "steps": [
+            {
+              "chant_id": null,
+              "kind": "antiphon_of_the_season",
+              "times": 1
+            }
+          ]
+        }
+      ],
+      "id": "before_bed",
+      "note": "End the day with Mary",
+      "painting": "hour_night",
+      "title": "Before Bed"
+    },
+    {
+      "blocks": [
+        {
+          "rounds": 1,
+          "rubric": "Before you begin, ask the Holy Spirit to come.",
+          "steps": [
+            {
+              "chant_id": "veni_sancte_reple",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "Then the hymn sung at the start of any work.",
+          "steps": [
+            {
+              "chant_id": "veni_creator",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        }
+      ],
+      "id": "before_work",
+      "note": "Ask for help before you start",
+      "painting": "saint_joseph_carpenter",
+      "title": "Before Work or Study"
+    },
+    {
+      "blocks": [
+        {
+          "rounds": 1,
+          "rubric": "The poem sung at the funeral Mass.",
+          "steps": [
+            {
+              "chant_id": "dies_irae",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "rounds": 1,
+          "rubric": "Then ask all the saints to pray for them.",
+          "steps": [
+            {
+              "chant_id": "litany_saints",
+              "kind": "chant",
+              "times": 1
+            }
+          ]
+        }
+      ],
+      "id": "for_the_dead",
+      "note": "At a funeral, or any time in November",
+      "painting": "devotion_holy_souls",
+      "title": "For Those Who Have Died"
     }
   ]
 }

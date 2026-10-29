@@ -109,6 +109,59 @@ defmodule LumenViae.Curation.ChantUploadTest do
              "2026-10-15T12:00:00Z"
   end
 
+  test "keeps the file's sung sets, months and feasts when the export has none", context do
+    {:ok, _} = run(context)
+
+    sung = %{
+      "feasts" => [
+        %{
+          "id" => "evening",
+          "name" => "Evening",
+          "rule" => %{"kind" => "fixed", "month" => 1, "day" => 1, "days_from_easter" => nil},
+          "chant_id" => "sub_tuum",
+          "painting" => "hour_night"
+        }
+      ],
+      "months" => [
+        %{
+          "month" => 1,
+          "title" => "January",
+          "chant_ids" => ["sub_tuum"],
+          "occasion_id" => "before_bed",
+          "feast_id" => "evening"
+        }
+      ],
+      "occasions" => [
+        %{
+          "id" => "before_bed",
+          "title" => "Before Bed",
+          "note" => "End the day with Mary",
+          "painting" => "hour_night",
+          "blocks" => [
+            %{
+              "rubric" => nil,
+              "rounds" => 1,
+              "steps" => [%{"kind" => "chant", "chant_id" => "sub_tuum", "times" => 1}]
+            }
+          ]
+        }
+      ]
+    }
+
+    written = context.document |> File.read!() |> Jason.decode!()
+    File.write!(context.document, Jason.encode!(Map.merge(written, sung), pretty: true))
+
+    File.write!(
+      context.export,
+      Jason.encode!(update_in(export_document()["chants"], &Enum.reverse/1))
+    )
+
+    assert {:ok, %{rewritten?: true}} = run(context)
+
+    rewritten = context.document |> File.read!() |> Jason.decode!()
+    assert Map.take(rewritten, ~w(feasts months occasions)) == sung
+  end
+
   test "a dry run asks the bucket nothing and writes nothing", context do
     assert {:ok, %{uploaded: uploaded, rewritten?: true}} =
              run(context, dry_run: true, storage: BrokenBucket)

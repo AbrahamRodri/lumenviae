@@ -18,7 +18,8 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
 
   @documents [
     {"/prayer-book", "prayer_book", :prayer_book, ~w(prayers chapters orders marian_antiphons)},
-    {"/chant-library", "chant_library", :chant_library, ~w(groups chants)},
+    {"/chant-library", "chant_library", :chant_library,
+     ~w(groups chants feasts months occasions)},
     {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)},
     {"/true-devotion", "true_devotion", :true_devotion,
      ~w(about parts chapters teaching ejaculatory_prayers)},
@@ -495,6 +496,54 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
 
       imitation = Enum.find(books, &(&1["id"] == "imitation-of-christ"))
       assert %{"librivox_id" => nil, "chapter_titles" => nil} = imitation
+    end
+  end
+
+  describe "the Chant Library's sung sets" do
+    setup %{conn: conn} do
+      conn
+      |> get_v2("/chant-library?fields[chant_library]=feasts,months,occasions")
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+      |> then(&%{feasts: &1["feasts"], months: &1["months"], occasions: &1["occasions"]})
+    end
+
+    test "the six occasions, a sung Rosary's five decades and tonight's song to Mary", %{
+      occasions: occasions
+    } do
+      assert Enum.map(occasions, & &1["id"]) ==
+               ~w(benediction visit sung_rosary before_bed before_work for_the_dead)
+
+      rosary = Enum.find(occasions, &(&1["id"] == "sung_rosary"))
+      decades = Enum.at(rosary["blocks"], 2)
+      assert decades["rounds"] == 5
+
+      assert %{"kind" => "chant", "chant_id" => "ave_maria", "times" => 10} =
+               Enum.at(decades["steps"], 1)
+
+      bed = Enum.find(occasions, &(&1["id"] == "before_bed"))
+
+      assert [%{"kind" => "antiphon_of_the_season", "chant_id" => nil}] =
+               List.last(bed["blocks"])["steps"]
+    end
+
+    test "the months name their feasts and occasions, and February is left out", %{
+      months: months,
+      feasts: feasts
+    } do
+      assert Enum.map(months, & &1["month"]) == [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+      october = Enum.find(months, &(&1["month"] == 10))
+      assert %{"occasion_id" => "sung_rosary", "feast_id" => "rosary"} = october
+
+      pentecost = Enum.find(feasts, &(&1["id"] == "pentecost"))
+
+      assert pentecost["rule"] == %{
+               "kind" => "easter",
+               "days_from_easter" => 49,
+               "month" => nil,
+               "day" => nil
+             }
     end
   end
 end

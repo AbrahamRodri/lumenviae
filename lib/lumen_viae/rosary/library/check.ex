@@ -347,7 +347,7 @@ defmodule LumenViae.Rosary.Library.Check do
   @spec chant_library_errors(map, [String.t()] | nil, String.t() | nil) :: [String.t()]
   def chant_library_errors(document, prayer_ids \\ nil, base \\ nil)
 
-  def chant_library_errors(%{"groups" => groups, "chants" => chants}, prayer_ids, base)
+  def chant_library_errors(%{"groups" => groups, "chants" => chants} = document, prayer_ids, base)
       when is_list(groups) and is_list(chants) do
     group_ids = Enum.map(groups, &id/1)
     chant_ids = Enum.map(chants, &id/1)
@@ -365,11 +365,115 @@ defmodule LumenViae.Rosary.Library.Check do
       unnamed("chant id", chant_ids) ++
       unnamed("score file", for(chant <- chants, part <- list(chant["score"]), do: part["file"])) ++
       for(id <- chant_ids, id not in placed, do: "the chant #{id} is in no group's parts") ++
-      base_errors(chants, base)
+      base_errors(chants, base) ++
+      sung_errors(document, known_chants)
   end
 
   def chant_library_errors(_document, _prayer_ids, _base),
     do: ["the document needs a list of groups and of chants"]
+
+  # The feasts, months and occasions, where the document has them (the
+  # chant upload checks a file's chants alone): each id once, every chant,
+  # occasion and feast named one there is, each month once, each feast's
+  # rule one the apps know.
+  @feast_rules ~w(fixed easter last_sunday_of_october holy_name)
+  @step_kinds ~w(chant antiphon_of_the_season)
+
+  defp sung_errors(document, known_chants) do
+    feasts = list(document["feasts"])
+    occasions = list(document["occasions"])
+    months = list(document["months"])
+    feast_ids = Enum.map(feasts, &id/1)
+    occasion_ids = Enum.map(occasions, &id/1)
+
+    repeated("feast", feast_ids) ++
+      unnamed("feast id", feast_ids) ++
+      repeated("occasion", occasion_ids) ++
+      unnamed("occasion id", occasion_ids) ++
+      Enum.flat_map(feasts, &chant_feast_errors(&1, known_chants)) ++
+      Enum.flat_map(occasions, &occasion_errors(&1, known_chants)) ++
+      Enum.flat_map(months, &month_errors(&1, known_chants, occasion_ids, feast_ids)) ++
+      for(
+        {month, count} <- Enum.frequencies(Enum.map(months, & &1["month"])),
+        count > 1,
+        do: "month #{inspect(month)} is listed more than once"
+      )
+  end
+
+  defp chant_feast_errors(feast, known_chants) do
+    rule = feast["rule"] || %{}
+
+    errors =
+      required(feast, ~w(name chant_id painting)) ++
+        unknown("chant", [feast["chant_id"]], known_chants) ++
+        case rule["kind"] do
+          "fixed" -> fixed_date_errors(rule["month"], rule["day"])
+          "easter" -> easter_errors(rule["days_from_easter"])
+          kind when kind in @feast_rules -> []
+          _other -> ["its rule is one of #{Enum.join(@feast_rules, ", ")}"]
+        end
+
+    for error <- errors, do: "the feast #{feast["id"]}: #{error}"
+  end
+
+  defp easter_errors(days) when is_integer(days), do: []
+  defp easter_errors(_days), do: ["an easter rule needs days_from_easter"]
+
+  # A leap year, so 29 February is a date.
+  defp fixed_date_errors(month, day) when is_integer(month) and is_integer(day) do
+    if match?({:ok, _date}, Date.new(2024, month, day)),
+      do: [],
+      else: ["#{month}/#{day} is not a date"]
+  end
+
+  defp fixed_date_errors(_month, _day), do: ["a fixed rule needs a month and a day"]
+
+  defp occasion_errors(occasion, known_chants) do
+    blocks = list(occasion["blocks"])
+    steps = for block <- blocks, step <- list(block["steps"]), do: step
+
+    errors =
+      required(occasion, ~w(title note painting)) ++
+        if(blocks == [], do: ["it has no blocks"], else: []) ++
+        for(block <- blocks, list(block["steps"]) == [], do: "a block has no steps") ++
+        for(
+          block <- blocks,
+          not (is_integer(block["rounds"]) and block["rounds"] >= 1),
+          do: "a block's rounds is a whole number from 1"
+        ) ++
+        for(
+          step <- steps,
+          step["kind"] not in @step_kinds,
+          do: "a step's kind is chant or antiphon_of_the_season"
+        ) ++
+        for(
+          step <- steps,
+          not (is_integer(step["times"]) and step["times"] >= 1),
+          do: "a step's times is a whole number from 1"
+        ) ++
+        unknown(
+          "chant",
+          for(%{"kind" => "chant"} = step <- steps, do: step["chant_id"]),
+          known_chants
+        )
+
+    for error <- errors, do: "the occasion #{occasion["id"]}: #{error}"
+  end
+
+  defp month_errors(month, known_chants, occasion_ids, feast_ids) do
+    errors =
+      if(month["month"] in 1..12, do: [], else: ["month is 1 to 12"]) ++
+        required(month, ~w(title)) ++
+        unknown("chant", list(month["chant_ids"]), known_chants) ++
+        unknown(
+          "occasion",
+          Enum.reject([month["occasion_id"]], &is_nil/1),
+          MapSet.new(occasion_ids)
+        ) ++
+        unknown("feast", Enum.reject([month["feast_id"]], &is_nil/1), MapSet.new(feast_ids))
+
+    for error <- errors, do: "month #{inspect(month["month"])}: #{error}"
+  end
 
   # The Prayer Book
 
