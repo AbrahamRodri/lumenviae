@@ -126,6 +126,11 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   of the year) as a library document, `GET /api/v2/marian-library`, from
   `priv/library/marian_library.json`. See docs/JSON_API.md, "The Marian
   Library"
+- The Spiritual Reading catalogue (five public-domain books, their
+  Gutenberg and LibriVox numbers and the rules that cut and align each
+  edition) as a library document, `GET /api/v2/spiritual-reading`, from
+  `priv/library/spiritual_reading.json`; the apps fetch the books
+  themselves. See docs/JSON_API.md, "Spiritual Reading"
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same

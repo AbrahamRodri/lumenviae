@@ -267,6 +267,10 @@ check("St. Carlo Acutis", library("/api/v2/carlo-acutis", "carlo_acutis", ["feas
                                   lambda a: None))
 check("Marian Library", library("/api/v2/marian-library", "marian_library", ["feasts", "shelves"],
                                 lambda a: f"{len(a['feasts'])} feasts"))
+check("Spiritual Reading catalogue", library("/api/v2/spiritual-reading", "spiritual_reading", ["books"],
+                                             lambda a: (expect(all(b["gutenberg_id"] and b["parsing"]["chapter_pattern"]
+                                                                   for b in a["books"]), "a book has no source or rules"),
+                                                        f"{len(a['books'])} books")[1]))
 check("Divine Office today", office)
 check("admin sign-in page", admin_login)
 check("website home", website)

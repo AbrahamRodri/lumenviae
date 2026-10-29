@@ -21,15 +21,16 @@ defmodule LumenViae.Rosary do
     * `LumenViae.Rosary.Author`
     * `LumenViae.Rosary.Completion`
 
-  plus ten with no table, `LumenViae.Rosary.NarrationVoice`,
+  plus eleven with no table, `LumenViae.Rosary.NarrationVoice`,
   `LumenViae.Rosary.SpokenRosary`, `LumenViae.Rosary.RosaryContent`,
   `LumenViae.Rosary.RosaryScript`, `LumenViae.Rosary.PrayerBook`,
   `LumenViae.Rosary.ChantLibrary`, `LumenViae.Rosary.Consecration`,
-  `LumenViae.Rosary.TrueDevotion`, `LumenViae.Rosary.CarloAcutis` and
-  `LumenViae.Rosary.MarianLibrary`, which give the APIs the configured
-  voices, the spoken Rosary, the Rosary's words, one Rosary's script, the
-  Prayer Book, the Chant Library, the 33-day Consecration, the book True
-  Devotion, St. Carlo Acutis's page and the Marian Library.
+  `LumenViae.Rosary.TrueDevotion`, `LumenViae.Rosary.CarloAcutis`,
+  `LumenViae.Rosary.MarianLibrary` and `LumenViae.Rosary.SpiritualReading`,
+  which give the APIs the configured voices, the spoken Rosary, the
+  Rosary's words, one Rosary's script, the Prayer Book, the Chant Library,
+  the 33-day Consecration, the book True Devotion, St. Carlo Acutis's page,
+  the Marian Library and the Spiritual Reading catalogue.
 
   Nothing outside `lib/lumen_viae/rosary/` names a resource, calls `Ash`
   on one, or touches the Repo for Rosary data; `test/lumen_viae/rosary/context_rules_test.exs`
@@ -95,6 +96,8 @@ defmodule LumenViae.Rosary do
       read_one LumenViae.Rosary.TrueDevotion, :true_devotion, :current, allow_nil?: false
       read_one LumenViae.Rosary.CarloAcutis, :carlo_acutis, :current, allow_nil?: false
       read_one LumenViae.Rosary.MarianLibrary, :marian_library, :current, allow_nil?: false
+
+      read_one LumenViae.Rosary.SpiritualReading, :spiritual_reading, :current, allow_nil?: false
       action LumenViae.Rosary.Meditation, :meditation_audio, :audio_for
 
       # The sets the public may see. Both read through :visible, so a set
@@ -277,6 +280,16 @@ defmodule LumenViae.Rosary do
         end
       end
 
+      # The Spiritual Reading catalogue, kept offline the same way: the
+      # books come when named in fields[spiritual_reading]=.
+      base_route "/spiritual-reading", LumenViae.Rosary.SpiritualReading do
+        get :current do
+          route "/"
+          name "getSpiritualReading"
+          derive_sort? false
+        end
+      end
+
       # The one write, through the same action as GraphQL's
       # recordCompletion, so the same stamp and checks apply.
       base_route "/completions", LumenViae.Rosary.Completion do
@@ -440,8 +453,9 @@ defmodule LumenViae.Rosary do
 
     # No tables: the APIs' view of the narration voices, the spoken Rosary
     # the Rosary's words, the Prayer Book, the Chant Library, the
-    # Consecration, True Devotion, St. Carlo's page and the Marian Library,
-    # all of which are configuration or fixed content rather than data.
+    # Consecration, True Devotion, St. Carlo's page, the Marian Library and
+    # the Spiritual Reading catalogue, all of which are configuration or
+    # fixed content rather than data.
     resource LumenViae.Rosary.NarrationVoice
     resource LumenViae.Rosary.SpokenRosary
     resource LumenViae.Rosary.RosaryContent
@@ -452,6 +466,7 @@ defmodule LumenViae.Rosary do
     resource LumenViae.Rosary.TrueDevotion
     resource LumenViae.Rosary.CarloAcutis
     resource LumenViae.Rosary.MarianLibrary
+    resource LumenViae.Rosary.SpiritualReading
   end
 
   require Ash.Query

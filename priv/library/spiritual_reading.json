@@ -1,0 +1,166 @@
+{
+  "updated_at": "2026-10-29T01:00:00Z",
+  "books": [
+    {
+      "id": "imitation-of-christ",
+      "title": "The Imitation of Christ",
+      "author": "Thomas à Kempis",
+      "translator": "William Benham",
+      "blurb": "Four books on following Christ, read daily by the faithful for six hundred years.",
+      "gutenberg_id": 1653,
+      "librivox_id": null,
+      "track_mapping": {
+        "kind": "book_chapter_ranges",
+        "offset": null,
+        "unread": []
+      },
+      "preferred_rate": 1.0,
+      "parsing": {
+        "chapter_pattern": "^CHAPTER [IVXLC]+$",
+        "part_pattern": "^THE (FIRST|SECOND|THIRD|FOURTH) BOOK$",
+        "start_pattern": null,
+        "stop_pattern": null,
+        "note_pattern": "\\(\\d+\\)",
+        "drop_pattern": null,
+        "title_runs_to_blank_gap": false,
+        "minimum_chapter_length": 500,
+        "maximum_title_length": 140
+      },
+      "chapter_titles": null,
+      "heading_overrides": []
+    },
+    {
+      "id": "story-of-a-soul",
+      "title": "The Story of a Soul",
+      "author": "St. Thérèse of Lisieux",
+      "translator": "Thomas N. Taylor",
+      "blurb": "St. Thérèse of Lisieux tells her own life, and her simple way of trusting God.",
+      "gutenberg_id": 16772,
+      "librivox_id": 8021,
+      "track_mapping": {
+        "kind": "sequential",
+        "offset": 1,
+        "unread": []
+      },
+      "preferred_rate": 1.5,
+      "parsing": {
+        "chapter_pattern": "^(PROLOGUE|CHAPTER [IVXLC]+|EPILOGUE)\\b.*$",
+        "part_pattern": null,
+        "start_pattern": "^PROLOGUE: THE PARENTAGE",
+        "stop_pattern": "^COUNSELS AND REMINISCENCES",
+        "note_pattern": "\\[\\d+\\]",
+        "drop_pattern": "^(END OF THE AUTOBIOGRAPHY|THE AUTOBIOGRAPHY OF SOEUR THÉRÈSE|HERSELF: \"THE STORY OF THE SPRINGTIME)",
+        "title_runs_to_blank_gap": false,
+        "minimum_chapter_length": 500,
+        "maximum_title_length": 140
+      },
+      "chapter_titles": null,
+      "heading_overrides": []
+    },
+    {
+      "id": "confessions-of-st-augustine",
+      "title": "The Confessions",
+      "author": "St. Augustine of Hippo",
+      "translator": "E. B. Pusey",
+      "blurb": "Thirteen books of prayer — the restless heart's long road home to God.",
+      "gutenberg_id": 3296,
+      "librivox_id": 2601,
+      "track_mapping": {
+        "kind": "book_spans",
+        "offset": null,
+        "unread": []
+      },
+      "preferred_rate": 1.0,
+      "parsing": {
+        "chapter_pattern": "^BOOK [IVXLC]+$",
+        "part_pattern": null,
+        "start_pattern": null,
+        "stop_pattern": null,
+        "note_pattern": null,
+        "drop_pattern": null,
+        "title_runs_to_blank_gap": false,
+        "minimum_chapter_length": 500,
+        "maximum_title_length": 140
+      },
+      "chapter_titles": [
+        "Infancy and boyhood",
+        "The sixteenth year",
+        "Carthage, and the Manichees",
+        "Nine years astray",
+        "Rome, Milan, and Ambrose",
+        "Monica, and the wavering will",
+        "God sought, and the Platonists",
+        "The garden, and the conversion",
+        "Cassiciacum, baptism, and Monica's death",
+        "Memory, and the search for happiness",
+        "Time, eternity, and the beginning",
+        "Heaven and earth unformed",
+        "The Spirit, and the seventh day"
+      ],
+      "heading_overrides": []
+    },
+    {
+      "id": "glories-of-mary",
+      "title": "The Glories of Mary",
+      "author": "St. Alphonsus Liguori",
+      "translator": null,
+      "blurb": "Every title of the Hail, Holy Queen explained, with her feasts and her seven sorrows: the saints' case for trusting Mary.",
+      "gutenberg_id": 72411,
+      "librivox_id": 8533,
+      "track_mapping": {
+        "kind": "sequential",
+        "offset": 0,
+        "unread": [
+          40
+        ]
+      },
+      "preferred_rate": 1.0,
+      "parsing": {
+        "chapter_pattern": "^(INTRODUCTION|SECTION [IVXLC]+\\.|CHAPTER (IX|X)\\.|SOME DEVOUT PRAYERS OF VARIOUS SAINTS TO THE HOLY MOTHER\\.|DISCOURSE [IVXLC]+\\.|ON THE (FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH|SEVENTH) DOLOR\\.|VARIOUS PRACTICES OF DEVOTION TO THE DIVINE MOTHER\\.|VARIOUS ADDITIONAL EXAMPLES APPERTAINING TO THE MOST HOLY MARY\\.|NOVENA OF MEDITATIONS|_For the day of the Purification of Mary and the Presentation of Jesus\\._|PRAYERS TO THE DIVINE MOTHER|LITTLE ROSARY OF THE SEVEN DOLORS OF MARY\\.|VARIOUS PRAYERS TO MARY\\.)$",
+        "part_pattern": "^(PART (FIRST|SECOND):.*|OF THE VIRTUES OF THE MOST HOLY MARY\\.)$",
+        "start_pattern": "^INTRODUCTION$",
+        "stop_pattern": "^FOOTNOTES$",
+        "note_pattern": null,
+        "drop_pattern": "^MEDITATION$",
+        "title_runs_to_blank_gap": false,
+        "minimum_chapter_length": 500,
+        "maximum_title_length": 140
+      },
+      "chapter_titles": null,
+      "heading_overrides": [
+        {
+          "chapter": 54,
+          "heading": "Meditations for the Feasts of Mary"
+        }
+      ]
+    },
+    {
+      "id": "practice-of-the-presence-of-god",
+      "title": "The Practice of the Presence of God",
+      "author": "Brother Lawrence",
+      "translator": null,
+      "blurb": "A monastery cook's way of praying while he worked: a few conversations and letters, short enough to keep for life.",
+      "gutenberg_id": 13871,
+      "librivox_id": 564,
+      "track_mapping": {
+        "kind": "sequential",
+        "offset": -1,
+        "unread": []
+      },
+      "preferred_rate": 1.0,
+      "parsing": {
+        "chapter_pattern": "^(PREFACE|(FIRST|SECOND|THIRD|FOURTH) CONVERSATION|(FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH|SEVENTH|EIGHTH|NINTH|TENTH|ELEVENTH|TWELFTH|THIRTEENTH|FOURTEENTH|FIFTEENTH) LETTER)\\.$",
+        "part_pattern": "^(CONVERSATIONS|LETTERS)\\.$",
+        "start_pattern": "^PREFACE\\.$",
+        "stop_pattern": null,
+        "note_pattern": null,
+        "drop_pattern": null,
+        "title_runs_to_blank_gap": false,
+        "minimum_chapter_length": 500,
+        "maximum_title_length": 140
+      },
+      "chapter_titles": null,
+      "heading_overrides": []
+    }
+  ]
+}

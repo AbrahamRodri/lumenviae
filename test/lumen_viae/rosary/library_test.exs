@@ -43,6 +43,9 @@ defmodule LumenViae.Rosary.LibraryTest do
     ],
     "marian_library.json" => [
       {~U[2026-10-28 06:30:00Z], "20566a4a5a5c600f"}
+    ],
+    "spiritual_reading.json" => [
+      {~U[2026-10-29 01:00:00Z], "f30d1197ef8ce10d"}
     ]
   }
 
@@ -109,6 +112,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       marian = Library.sections(:marian_library)
       assert length(marian["feasts"]) == 17
       assert Enum.map(marian["shelves"], &length(&1["readings"])) |> Enum.sum() == 33
+
+      assert length(Library.sections(:spiritual_reading)["books"]) == 5
 
       assert {length(carlo["timeline"]), length(carlo["rule"]), length(carlo["sayings"])} ==
                {7, 5, 8}
@@ -578,6 +583,50 @@ defmodule LumenViae.Rosary.LibraryTest do
     end
   end
 
+  describe "the Spiritual Reading catalogue's check" do
+    test "the file as it is passes" do
+      assert Check.spiritual_reading_errors(spiritual()) == []
+    end
+
+    test "refuses a repeated book, a track mapping the apps do not know and an offset off sequential" do
+      [first, second | rest] = spiritual()["books"]
+
+      assert spiritual_errors(%{"books" => [first, first, second | rest]}) =~
+               ~s(the book id "imitation-of-christ" is repeated)
+
+      unknown = put_in(first, ["track_mapping", "kind"], "by_title")
+      assert spiritual_errors(%{"books" => [unknown | rest]}) =~ "track_mapping.kind is one of"
+
+      shifted = put_in(first, ["track_mapping", "offset"], 2)
+
+      assert spiritual_errors(%{"books" => [shifted | rest]}) =~
+               "only a sequential track mapping has an offset"
+
+      unshifted = put_in(second, ["track_mapping", "offset"], nil)
+
+      assert spiritual_errors(%{"books" => [unshifted | rest]}) =~
+               "a sequential track mapping needs a whole-number offset"
+    end
+
+    test "refuses a pattern that is not a regular expression" do
+      [first | rest] = spiritual()["books"]
+      broken = put_in(first, ["parsing", "chapter_pattern"], "^CHAPTER [IVX")
+
+      assert spiritual_errors(%{"books" => [broken | rest]}) =~
+               "imitation-of-christ: chapter_pattern is not a regular expression"
+    end
+
+    test "refuses two heading overrides on one chapter" do
+      books = spiritual()["books"]
+      glories = Enum.find(books, &(&1["id"] == "glories-of-mary"))
+      [override] = glories["heading_overrides"]
+      twice = %{glories | "heading_overrides" => [override, override]}
+
+      assert spiritual_errors(%{"books" => [twice]}) =~
+               "chapter 54 has more than one heading override"
+    end
+  end
+
   describe "the Marian Library's check" do
     test "the file as it is passes" do
       assert Check.marian_library_errors(marian(), Library.prayer_ids()) == []
@@ -756,6 +805,11 @@ defmodule LumenViae.Rosary.LibraryTest do
   defp carlo, do: Library.sections(:carlo_acutis)
 
   defp marian, do: Library.sections(:marian_library)
+
+  defp spiritual, do: Library.sections(:spiritual_reading)
+
+  defp spiritual_errors(document),
+    do: document |> Check.spiritual_reading_errors() |> Enum.join("\n")
 
   defp marian_errors(document),
     do: document |> Check.marian_library_errors(Library.prayer_ids()) |> Enum.join("\n")

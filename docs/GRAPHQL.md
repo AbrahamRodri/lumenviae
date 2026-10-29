@@ -236,6 +236,7 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 | `trueDevotion` | `TrueDevotion!`: `id version updatedAt about parts chapters teaching ejaculatoryPrayers`, each chapter with its `paragraphs`. The same document as `GET /api/v2/true-devotion`. |
 | `carloAcutis` | `CarloAcutis!`: `id version updatedAt feast shelves timeline rule sayings prayer`, each shelf with its `readings` and their `doors`. The same document as `GET /api/v2/carlo-acutis`. |
 | `marianLibrary` | `MarianLibrary!`: `id version updatedAt feasts shelves`, each shelf with its `readings`. The same document as `GET /api/v2/marian-library`. |
+| `spiritualReading` | `SpiritualReading!`: `id version updatedAt books`, each book with its `parsing` and `trackMapping`. The same document as `GET /api/v2/spiritual-reading`. |
 
 Everything a client needs to show and say the Rosary offline, as one
 document: selecting only `version updatedAt` is how a device asks whether
