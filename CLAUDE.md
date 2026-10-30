@@ -268,8 +268,8 @@ Start the server with `./dev.sh`, not `mix phx.server` - it loads `.env`
 first, and without the AWS credentials the audio players silently vanish.
 The dev server listens on port 8080.
 
-A worktree made by the workspace manager (`.claude/manager/setup.sh`) has
-its own environment in `.wt.env`: `PORT` (8081 and up), `DEV_DATABASE` (a
+A worktree set up with `wt-env up api <worktree>` (the workspace
+`CLAUDE.md`) has its own environment in `.wt.env`: `PORT` (8081 and up), `DEV_DATABASE` (a
 copy of `lumen_viae_dev` it can migrate freely) and `MIX_TEST_PARTITION`
 (its own test database). `_build` and `deps` are cloned from `api/`, so the
 first compile is incremental. `./dev.sh` loads `.wt.env`, and worker
