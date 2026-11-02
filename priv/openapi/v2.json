@@ -3230,7 +3230,7 @@
                 "type": "array"
               },
               "prayers": {
-                "description": "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin.",
+                "description": "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin, and in Spanish when asked for with `lang=es`.",
                 "items": {
                   "properties": {
                     "group": {
@@ -3245,6 +3245,13 @@
                           "items": {
                             "type": "string"
                           },
+                          "type": "array"
+                        },
+                        "es": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true,
                           "type": "array"
                         },
                         "la": {
@@ -3263,6 +3270,10 @@
                     "title": {
                       "properties": {
                         "en": {
+                          "type": "string"
+                        },
+                        "es": {
+                          "nullable": true,
                           "type": "string"
                         },
                         "la": {
@@ -6745,6 +6756,16 @@
             "explode": false,
             "in": "query",
             "name": "fields[rosary_content]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The language of the prayers: `es` adds Spanish beside the English and Latin, with the English wherever there is no Spanish yet. Missing, `en` or a language not served: the document in English and Latin.",
+            "in": "query",
+            "name": "lang",
             "required": false,
             "schema": {
               "type": "string"

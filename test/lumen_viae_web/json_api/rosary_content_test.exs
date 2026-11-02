@@ -270,4 +270,71 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
              }
     end
   end
+
+  describe "lang" do
+    @sections "version,updated_at,prayers,learn,guided_rosary,schedule,script,mysteries,categories,verses,quotes,milestones,reminders,labels,forms"
+
+    defp attributes(conn, query) do
+      conn
+      |> get_v2("/rosary-content?fields[rosary_content]=#{@sections}" <> query)
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+    end
+
+    test "missing, en or a language not served: the English document, word for word",
+         %{conn: conn} do
+      english = attributes(conn, "")
+
+      for query <- ["&lang=en", "&lang=EN", "&lang=fr", "&lang=", "&lang=spanish"] do
+        assert attributes(build_conn(), query) == english, query
+      end
+
+      for prayer <- english["prayers"] do
+        assert Map.keys(prayer["title"]) |> Enum.sort() == ["en", "la"]
+        assert Map.keys(prayer["text"]) |> Enum.sort() == ["en", "la"]
+      end
+
+      assert english["version"] == Current.stamp().version
+    end
+
+    test "es: every prayer in Spanish beside the English and Latin", %{conn: conn} do
+      spanish = attributes(conn, "&lang=es")
+      english = attributes(build_conn(), "")
+
+      assert spanish["prayers"] == Content.prayers("es")
+
+      assert %{
+               "id" => "hail_mary",
+               "title" => %{"es" => "Ave María"},
+               "text" => %{
+                 "es" => ["Dios te salve, María, llena eres de gracia; el Señor es contigo." | _]
+               }
+             } = Enum.find(spanish["prayers"], &(&1["id"] == "hail_mary"))
+
+      # Only the prayers are in Spanish so far; every other section is the English.
+      assert Map.drop(spanish, ~w(prayers version updated_at)) ==
+               Map.drop(english, ~w(prayers version updated_at))
+    end
+
+    test "es has a version and a date of its own, and a region reads as es", %{conn: conn} do
+      spanish = attributes(conn, "&lang=es")
+      english = attributes(build_conn(), "")
+
+      refute spanish["version"] == english["version"]
+      assert spanish["version"] == Current.stamp(Schedule.current_year(), [], "es").version
+      assert spanish["updated_at"] == DateTime.to_iso8601(Content.updated_at("es"))
+      assert attributes(build_conn(), "&lang=es-MX") == spanish
+    end
+
+    test "the bare request with es is the Spanish version and date alone", %{conn: conn} do
+      attributes =
+        conn
+        |> get_v2("/rosary-content?lang=es")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      assert Map.keys(attributes) |> Enum.sort() == ["updated_at", "version"]
+      assert attributes["version"] == Current.stamp(Schedule.current_year(), [], "es").version
+    end
+  end
 end

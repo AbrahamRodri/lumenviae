@@ -186,8 +186,9 @@ serves the same document, its sections chosen by the selection set.
   chaplet, in the order they are said: `id` (the app's prayer id, the key
   the spoken Rosary's recordings use), `group` (`rosary`, `chaplet` or
   `after`, the optional prayers after the Rosary; keep a prayer whose
-  group you do not know), and `title` and `text`, each `{en, la}`. A text
-  is a list of lines, and the two languages have the same number of lines,
+  group you do not know), and `title` and `text`, each `{en, la}`, and
+  `{en, la, es}` with `lang=es` (below, "The Rosary in Spanish"). A text
+  is a list of lines, and English and Latin have the same number of lines,
   so they pair line for line. A line in square brackets is a rubric
   (`[Let us pray.]`), shown and not said as written.
 - **`schedule`**: which mysteries a day calls for, as rules a client
@@ -534,6 +535,38 @@ always heard, and offers no choice. Counting is offered only while the
 voice reads the meditation alone, because with the Whole Rosary the voice
 moves the beads on the screen. `holy_audio_value` is what the Audio
 Rosary's audio row says as a fact, not a choice.
+
+### The Rosary in Spanish
+
+```
+GET /api/v2/rosary-content?lang=es
+GET /api/v2/rosary-content?lang=es&fields[rosary_content]=version,updated_at,prayers
+```
+
+GraphQL: `rosaryContent(lang: "es")`.
+
+- **No `lang`, `lang=en`, or a language not served** (`fr`, empty): the
+  document as it was before Spanish, byte for byte, with the same
+  `version` and `updated_at`. No `es` key appears anywhere in it.
+- **`lang=es`**, or any `es-` region (`es-MX`, `es_419`): each prayer's
+  `title` and `text` carry `es` beside `en` and `la`. `es` is never
+  null: a prayer with no Spanish text yet carries its English there
+  (today the Seven Sorrows closing prayer). Spanish lines need not pair
+  with the Latin. Every other section is the English one for now.
+- **Its own `version` and `updated_at`.** A Spanish document's version
+  differs from the English one's and moves when a Spanish word changes,
+  so a device keeps one copy per language and polls with the same
+  `lang` it fetched with.
+- **The words** are copied from official Church sources, never
+  translated by us: the Compendium of the Catechism (vatican.va), Vatican
+  News and the Shrine of Fatima. `priv/rosary_content/SOURCES.md` lists
+  the source of each prayer and every change made to it (line breaks, a
+  final period). They live in `priv/rosary_content/es/prayers.json`.
+- **Never narrated.** The spoken Rosary says the English; no Spanish
+  word is sent to a narrator.
+
+The prayer book, the script's captions and the labels are English only
+for now and take no `lang`.
 
 ## The Prayer Book and the Chant Library
 
