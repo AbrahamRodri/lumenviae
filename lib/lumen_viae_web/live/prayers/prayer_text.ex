@@ -40,13 +40,13 @@ defmodule LumenViaeWeb.Live.Prayers.PrayerText do
 
   @doc """
   The text as the page sets it in `language`: the English, the Latin, or
-  in `"both"` the Latin with its English line by line (`|||` between). A
+  in `"both"` the English with its Latin line by line (`|||` between). A
   prayer with no Latin is English in every language.
   """
   def formatted(english, nil, _language), do: english
   def formatted(english, _latin, "english"), do: english
   def formatted(_english, latin, "latin"), do: latin
-  def formatted(english, latin, "both"), do: paired(latin, english)
+  def formatted(english, latin, "both"), do: paired(english, latin)
   def formatted(english, _latin, _language), do: english
 
   @doc """

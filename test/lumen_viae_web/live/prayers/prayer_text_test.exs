@@ -78,16 +78,16 @@ defmodule LumenViaeWeb.Live.Prayers.PrayerTextTest do
   end
 
   describe "Both" do
-    test "pairs the Latin with its English line by line, Latin first" do
+    test "pairs the English with its Latin line by line, English first" do
       [%{lines: [first, second]}] =
         PrayerText.stanzas("Hail Mary,\nfull of grace.", "Ave Maria,\ngratia plena.", "both")
 
       assert first == %{
-               primary: {:text, [{:text, "Ave Maria,"}]},
-               secondary: {:text, [{:text, "Hail Mary,"}]}
+               primary: {:text, [{:text, "Hail Mary,"}]},
+               secondary: {:text, [{:text, "Ave Maria,"}]}
              }
 
-      assert second.secondary == {:text, [{:text, "full of grace."}]}
+      assert second.secondary == {:text, [{:text, "gratia plena."}]}
     end
 
     test "a line the same in both languages stands alone" do
@@ -103,17 +103,17 @@ defmodule LumenViaeWeb.Live.Prayers.PrayerTextTest do
       assert Enum.all?(stanzas, fn %{lines: [line]} -> line.secondary end)
     end
 
-    test "unequal line counts stand as two blocks, Latin then English" do
+    test "unequal line counts stand as two blocks, English then Latin" do
       stanzas = PrayerText.stanzas("One.\nTwo.", "Unum.", "both")
 
       assert [
-               %{lines: [%{primary: {:text, [{:text, "Unum."}]}, secondary: nil}]},
                %{
                  lines: [
                    %{primary: {:text, [{:text, "One."}]}},
                    %{primary: {:text, [{:text, "Two."}]}}
                  ]
-               }
+               },
+               %{lines: [%{primary: {:text, [{:text, "Unum."}]}, secondary: nil}]}
              ] = stanzas
     end
   end

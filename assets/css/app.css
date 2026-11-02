@@ -76,6 +76,13 @@
 }
 /* === end fonts === */
 
+/* EB Garamond's Latin forms (its locl feature) set u as v ("Angelvs
+   Domini nvntiavit"). The app prints the Latin as written, so text marked
+   lang="la" keeps its letters. */
+:lang(la) {
+  font-feature-settings: "locl" 0;
+}
+
 /* Lumen Viae theme. Two sets of colours live here: the public site's
    "Candlelit" palette (night, ink, gilt, sky, vellum) and the admin
    console's (navy, gold, parchment, cream, brown, and the admin-* tokens).
@@ -1964,7 +1971,7 @@ html[data-prayer-images="off"] .prayer-plate {
     font-style: italic;
   }
 
-  /* Both, on a phone: each Latin line with its English beneath, smaller
+  /* Both, on a phone: each English line with its Latin beneath, smaller
      and muted. */
   .prayer-line--paired + .prayer-line--paired {
     margin-top: 0.5em;

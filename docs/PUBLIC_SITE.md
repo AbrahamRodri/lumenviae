@@ -111,9 +111,9 @@ written.
 | `/prayers` | `q` | the search, as typed | no search: the shelves |
 | `/prayers/:prayer_id` | `lang` | `latin` or `both` (only on a prayer with Latin) | English |
 
-In Both the Latin leads and the English pairs with it line by line: two
-columns from 768px, the English beneath each Latin line, smaller and
-muted, on a phone. The words, the chapters and the songs to Mary are the
+In Both the English leads and the Latin pairs with it line by line, as the
+app's Prayer Book sets it (English with Latin): two columns from 768px,
+the Latin beneath each English line, smaller and muted, on a phone. The words, the chapters and the songs to Mary are the
 domain's (`LumenViae.Rosary.get_prayer_book!/1`, from
 `priv/library/prayer_book.json`); how the pages arrange them (which
 prayers open the page, the paintings, the search's ranking) is

@@ -126,12 +126,12 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       refute text =~ "Remember, O most gracious Virgin Mary,"
     end
 
-    test "?lang=both pairs the Latin with its English", %{conn: conn} do
+    test "?lang=both pairs the English with its Latin", %{conn: conn} do
       {:ok, view, html} = live(conn, "/prayers/memorare?lang=both")
 
       assert html =~ "O piissima Virgo Maria"
       assert html =~ "Remember, O most gracious Virgin Mary,"
-      assert has_element?(view, ".prayer-line--paired .prayer-line__secondary[lang=en]")
+      assert has_element?(view, ".prayer-line--paired .prayer-line__secondary[lang=la]")
       assert has_element?(view, ~s([data-role=language] a[aria-current]), "Both")
     end
 

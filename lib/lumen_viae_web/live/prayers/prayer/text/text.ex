@@ -4,9 +4,9 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
   stanzas of lines, rubrics in red italic, ℣ ℟ ✠ in red, a litany's
   response after its red ℟., a pointed verse's mediant as a red star.
 
-  In Both each line is the Latin with its English: two columns on a wide
-  screen, lined up line by line, and the English beneath the Latin,
-  smaller and muted, on a phone (`.prayer-text--both` in `app.css`).
+  In Both each line is the English with its Latin, as the app's Prayer
+  Book sets it: two columns on a wide screen, lined up line by line, and
+  the Latin beneath the English, smaller and muted, on a phone (`.prayer-text--both` in `app.css`).
   """
   use LumenViaeWeb, :html
 
@@ -29,10 +29,10 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
           :if={stanza.kind != :rule}
           class={["prayer-line", line.secondary && "prayer-line--paired"]}
         >
-          <span class="prayer-line__primary" lang={line.secondary && "la"}>
+          <span class="prayer-line__primary">
             <.part part={line.primary} />
           </span>
-          <span :if={line.secondary} class="prayer-line__secondary" lang="en">
+          <span :if={line.secondary} class="prayer-line__secondary" lang="la">
             <.part part={line.secondary} />
           </span>
         </p>

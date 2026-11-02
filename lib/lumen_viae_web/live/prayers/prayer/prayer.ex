@@ -9,9 +9,10 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
   is a 404.
 
   The language rides in the link as `?lang=latin` or `?lang=both`;
-  English, the default, is never written. In Both the Latin leads and the
-  English pairs with it line by line: two columns on a wide screen, the
-  English beneath each Latin line on a phone.
+  English, the default, is never written. In Both the English leads and
+  the Latin pairs with it line by line, as the app's Prayer Book sets it
+  (English with Latin): two columns on a wide screen, the Latin beneath
+  each English line on a phone.
   """
   use LumenViaeWeb, :live_view
 
