@@ -85,6 +85,14 @@ config :lumen_viae, :client_ip_header, System.get_env("CLIENT_IP_HEADER", "fly-c
 # Off unless exactly "true".
 config :lumen_viae, :client_ip_cloudflare, System.get_env("CLIENT_IP_CLOUDFLARE") == "true"
 
+# Lets Cloudflare's edge hold the seven library documents for this many
+# seconds (s-maxage), with an ETag and 304 for clients
+# (LumenViaeWeb.Plugs.LibraryCache). Unset, they stay private, no-store.
+case Integer.parse(System.get_env("LIBRARY_EDGE_CACHE_SECONDS") || "") do
+  {seconds, ""} when seconds > 0 -> config :lumen_viae, :library_edge_cache_seconds, seconds
+  _unset -> :ok
+end
+
 # Optional override for the narration pause inserted at paragraph breaks
 # (seconds, e.g. "1.5"; ElevenLabs caps break tags at 3s).
 case Float.parse(System.get_env("TTS_PARAGRAPH_BREAK_SECONDS") || "") do
