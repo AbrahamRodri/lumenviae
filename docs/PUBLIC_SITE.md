@@ -4,8 +4,9 @@ Read this before you touch a public page. It says what the pages are, what
 is in a prayer link, where each setting is kept, how to check your work in
 a browser, and which pages nobody maintains.
 
-The public site is only the Rosary. The console (`/admin`), the APIs
-(`/api`) and `/healthz` are not part of it.
+The public site is the Rosary and the Prayer Book: the first of the iOS
+app's tabs to come to the website as its desktop version. The console
+(`/admin`), the APIs (`/api`) and `/healthz` are not part of it.
 
 ## The pages
 
@@ -18,12 +19,20 @@ The public site is only the Rosary. The console (`/admin`), the APIs
 | `/mysteries/:category/pray` | `LumenViaeWeb.Live.Pray.Index` | The same page, praying a category without a set. |
 | `/app` | `LumenViaeWeb.Live.Home.App.Index` | The iPhone app's page: real screenshots of the app in CSS-drawn phones, what it holds in the app's own names, and the App Store link. |
 | `/privacy-policy` | `LumenViaeWeb.Live.PrivacyPolicy.Index` | The privacy policy the App Store listing links to. |
+| `/prayers` | `LumenViaeWeb.Live.Prayers.Index` | The Prayer Book, as the app's Prayers tab: the number of prayers, the search (`?q=`), Everyday Prayers, Prayers to Mary (the season's song first) and All Topics under the book's five parts, as shelves of square painted cards (sideways on a phone, wrapping from 640px). |
+| `/prayers/topics/:chapter_id` | `LumenViaeWeb.Live.Prayers.Chapter` | One topic, as the app's topic page: its painting with the title and line over it, its prayers (a small arched painting and the title each) under its sections where it has more than one, the next topic as a painted card and a line back to the one before. |
+| `/prayers/:prayer_id` | `LumenViaeWeb.Live.Prayers.Prayer` | One prayer, as the app opens a prayer alone: its second name as a gold label over the title where the app shows one, English, Latin or Both (`?lang=`), the words, and a link back to its topic. |
 
-All seven are in the `:public` live session in `router.ex`. A set that does
-not exist, or is hidden, answers 404, and so does an unknown category.
+All ten are in the `:public` live session in `router.ex`. A set that does
+not exist, or is hidden, answers 404, and so do an unknown category, an
+unknown chapter and an unknown prayer.
 
 `priv/static/sitemap.xml` lists `/`, `/mysteries`, the five category pages,
-`/app` and `/privacy-policy`. The prayer pages are not in it, and `robots.txt`
+`/prayers` and every chapter's page, `/app` and `/privacy-policy`. The
+prayers themselves are not listed: every one is linked from its chapter,
+and a list of 150 pages would drift from the book. When a chapter is added
+to `priv/library/prayer_book.json`, add its page; the Prayers tests check
+every chapter is there. The prayer pages are not in it, and `robots.txt`
 asks crawlers to stay out of `/meditation-sets/`. A crawler that walked the
 prayer flow once pressed Complete often enough to leave Rosaries nobody had
 prayed; see `docs/COMPLETION_ANALYTICS.md`.
@@ -91,6 +100,36 @@ Examples:
 
 `LumenViaeWeb.Live.Mysteries.CategoryList.PrayLinks` builds the links on the
 category and home pages, carrying "Your Rosary Today" choices.
+
+## The Prayer Book's links
+
+The Prayers pages keep their state in the link too, and a default is never
+written.
+
+| Page | Parameter | Values | Default |
+| --- | --- | --- | --- |
+| `/prayers` | `q` | the search, as typed | no search: the shelves |
+| `/prayers/:prayer_id` | `lang` | `latin` or `both` (only on a prayer with Latin) | English |
+
+In Both the English leads and the Latin pairs with it line by line, as the
+app's Prayer Book sets it (English with Latin), the Latin in quiet
+italic: two columns from 768px, the Latin beneath each English line,
+stepped in, on a phone. A psalm verse breaks at its mediant (a red star,
+the second half hung in), and a long prose prayer opens on a gilt versal.
+The origin and the "when it is said" note the book carries are not shown,
+as the app no longer shows them. The words, the chapters and the songs to Mary are the
+domain's (`LumenViae.Rosary.get_prayer_book!/1`, from
+`priv/library/prayer_book.json`); how the pages arrange them (which
+prayers open the page, the paintings, the search's ranking) is
+`LumenViaeWeb.Live.Prayers.Book`, the app's rules, and the text's grammar
+is `LumenViaeWeb.Live.Prayers.PrayerText`. The season's song to Mary is
+`LumenViae.LiturgicalCalendar.marian_antiphon_season/1` on the visitor's
+date (the `UserTimezone` hook, as home), the server's until it connects.
+The paintings are the app's (`PrayerBookPaintings.swift`); the site has
+only the mysteries' paintings, so an asset it lacks hangs the nearest
+mystery (`Book.stand_ins/0`), and a prayer whose scene has neither hangs
+its topic's. Not here yet, as the app has them: the Now card, the order
+shortcuts, For an Occasion, Saved, Learn by Heart and praying aloud.
 
 ## Where each setting lives
 
@@ -212,11 +251,12 @@ tokens and the shared vocabulary are in the "Design tokens" section of
 
 The smoke test in `scripts/e2e/` drives the real site in Chrome at a phone
 width (390 px) and a desktop width (1280 px). It loads `/`, `/mysteries`,
-`/mysteries/joyful`, `/mysteries/seven_sorrows`, `/privacy-policy` and
-`/app`, and checks each one answers 200, has an `h1`, logs no console
-errors and does not scroll sideways. It follows the first Pray link on
-`/mysteries/joyful` and presses ArrowRight, checks every App Store link
-and screenshot on `/app`, and checks that the five archived paths redirect
+`/mysteries/joyful`, `/mysteries/seven_sorrows`, `/privacy-policy`,
+`/app` and the Prayers pages, and checks each one answers 200, has an
+`h1`, logs no console errors and does not scroll sideways. It follows the
+first Pray link on `/mysteries/joyful` and presses ArrowRight, checks every
+App Store link and screenshot on `/app`, searches the Prayer Book and
+chooses Both on a prayer, and checks that the five archived paths redirect
 to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 gitignored.
 

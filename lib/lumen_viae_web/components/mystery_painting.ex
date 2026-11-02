@@ -73,14 +73,19 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
   @doc "The painting on a category's card, or nil."
   def for_category(slug), do: @paintings[@cards[slug]]
 
+  @doc "A painting by its own name (`\"joyful_nativity\"`, the app's asset name), or nil."
+  def for_name(name), do: @paintings[name]
+
   @doc """
   A painting as a `<picture>`: WebP at two widths, the small JPEG as the
-  fallback. Give `key` (a mystery) or `category`; `class` sets the crop.
+  fallback. Give `key` (a mystery), `category`, or `name` (a painting by
+  its asset name, as the Prayers page names them); `class` sets the crop.
   Give `record` (the mystery or card) too where it is at hand: a painting
   uploaded and published on it wins, drawn from its own variants.
   """
   attr :key, :string, default: nil
   attr :category, :string, default: nil
+  attr :name, :string, default: nil, doc: "a painting by its asset name"
   attr :record, :any, default: nil, doc: "the mystery or category card, for an uploaded painting"
   attr :sizes, :string, required: true
   attr :class, :any, default: nil
@@ -105,7 +110,13 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
   end
 
   def picture(assigns) do
-    painting = if assigns.key, do: for_mystery(assigns.key), else: for_category(assigns.category)
+    painting =
+      cond do
+        assigns.name -> for_name(assigns.name)
+        assigns.key -> for_mystery(assigns.key)
+        true -> for_category(assigns.category)
+      end
+
     assigns = assign(assigns, :painting, painting)
 
     ~H"""

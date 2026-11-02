@@ -23,6 +23,11 @@ const PAGES = [
   { path: "/mysteries/seven_sorrows", slug: "mysteries-seven-sorrows" },
   { path: "/privacy-policy", slug: "privacy-policy" },
   { path: "/app", slug: "app" },
+  { path: "/prayers", slug: "prayers" },
+  { path: "/prayers?q=memorare", slug: "prayers-search" },
+  { path: "/prayers/topics/our_lady", slug: "prayers-topic" },
+  { path: "/prayers/memorare", slug: "prayer" },
+  { path: "/prayers/litany_loreto?lang=both", slug: "prayer-both" },
 ];
 
 const APP_STORE = "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749";
@@ -191,6 +196,38 @@ async function checkAppPage(page, vp) {
     [...document.querySelectorAll("main img")].filter((img) => !img.naturalWidth).map((img) => img.currentSrc || img.src)
   );
   check(broken.length === 0, `${label}: every screenshot loads`, broken.join(" "));
+}
+
+// The Prayer Book: typing in the search puts it in the link and finds the
+// Memorare; its page offers the languages and Both rides in the link; an
+// unknown prayer or topic is a 404.
+async function checkPrayers(browser, vp) {
+  const label = `${vp.name} prayers`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+
+  await page.goto(BASE_URL + "/prayers");
+  await settle(page);
+  await page.getByRole("searchbox", { name: /search prayers/i }).fill("memorare");
+  const searched = await eventually(() => new URL(page.url()).searchParams.get("q") === "memorare");
+  check(searched, `${label}: the search rides in the link`, page.url());
+  const found = await eventually(async () => (await page.locator('a[href="/prayers/memorare"]').count()) > 0);
+  check(found, `${label}: the search finds the Memorare`);
+
+  await page.locator('a[href="/prayers/memorare"]').first().click();
+  await eventually(() => new URL(page.url()).pathname === "/prayers/memorare");
+  await page.getByRole("navigation", { name: "Language" }).getByRole("link", { name: "Both" }).click();
+  const both = await eventually(() => new URL(page.url()).searchParams.get("lang") === "both");
+  check(both, `${label}: Both rides in the link`, page.url());
+  await noHorizontalScroll(page, `${label} (both)`);
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+
+  for (const unknown of ["/prayers/not-a-prayer", "/prayers/topics/nowhere"]) {
+    const response = await page.goto(BASE_URL + unknown);
+    check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
+  }
+  await context.close();
 }
 
 async function checkRedirects(page, vp) {
@@ -492,6 +529,7 @@ async function checkCompletion(browser, vp) {
     await checkPrayerScreen(browser, vp);
     await checkScriptural(browser, vp);
     await checkSetlessAndUnknown(browser, vp);
+    await checkPrayers(browser, vp);
   }
 
   // Once only: it writes a completion row to the server's database.

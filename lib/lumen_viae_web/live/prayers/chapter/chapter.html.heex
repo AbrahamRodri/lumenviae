@@ -1,0 +1,91 @@
+<div class="prayers-page min-h-screen pb-16" id="prayers-topic" phx-hook="UserTimezone">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <section class="book-hero" aria-labelledby="chapter-heading">
+    <span class="book-hero__painting" aria-hidden="true">
+      <.painting painting={@painting} sizes="100vw" loading="eager" />
+    </span>
+    <div class="book-hero__inner">
+      <.link navigate="/prayers" class="book-back" data-role="back">
+        <span class="hero-chevron-left size-4" aria-hidden="true" /> Prayers
+      </.link>
+      <div class="book-hero__words">
+        <h1 id="chapter-heading" class="book-hero__title">{@chapter.title}</h1>
+        <p :if={@chapter.note} class="book-hero__note" data-role="chapter-note">
+          {@chapter.note}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-8">
+    <div class={[
+      "grid gap-x-16",
+      @headed? && "lg:grid-cols-2"
+    ]}>
+      <section
+        :for={{section, i} <- Enum.with_index(@sections)}
+        class={["min-w-0", !@headed? && "pt-4"]}
+        aria-labelledby={@headed? && "section-#{i}"}
+      >
+        <h2 :if={@headed?} id={"section-#{i}"} class="section-label !mb-1 pt-8">
+          {section.title}
+        </h2>
+        <ul class="row-list">
+          <li :for={%{prayer: prayer, painting: painting} <- section.rows}>
+            <.link
+              navigate={Book.prayer_path(prayer.id)}
+              class="row-link book-row"
+              data-role="chapter-prayer"
+            >
+              <span class="book-row__card" aria-hidden="true">
+                <.painting painting={painting} sizes="34px" />
+              </span>
+              <span class="book-row__title">{prayer.title}</span>
+              <span :if={prayer.id == @seasonal_id} class="book-row__mark" data-role="this-season">
+                This season
+              </span>
+              <span class="hero-chevron-right size-4 row-chevron" aria-hidden="true" />
+            </.link>
+          </li>
+        </ul>
+      </section>
+    </div>
+
+    <nav class="max-w-3xl mx-auto mt-12 space-y-3" aria-label="Topics">
+      <.link
+        :if={@next}
+        navigate={Book.chapter_path(@next.id)}
+        class="book-next"
+        data-role="next-topic"
+        aria-label={"Next topic, #{@next.title}"}
+      >
+        <span class="book-next__painting" aria-hidden="true">
+          <.painting
+            painting={Book.topic_painting(@next.id)}
+            sizes="(min-width: 768px) 720px, 100vw"
+          />
+        </span>
+        <span class="book-next__words">
+          <span class="book-next__kicker">Next topic</span>
+          <span class="book-next__title">
+            {@next.title}
+            <span class="hero-chevron-right size-4 text-gilt" aria-hidden="true" />
+          </span>
+        </span>
+      </.link>
+      <div :if={!@next} class="py-2" aria-hidden="true">
+        <.sacred_divider class="max-w-[150px] mx-auto" />
+      </div>
+      <.link
+        :if={@previous}
+        navigate={Book.chapter_path(@previous.id)}
+        class="book-back-line"
+        data-role="previous-topic"
+        aria-label={"Topic before, #{@previous.title}"}
+      >
+        or back to <span class="text-gilt-light">{@previous.title}</span>
+      </.link>
+    </nav>
+  </div>
+</div>

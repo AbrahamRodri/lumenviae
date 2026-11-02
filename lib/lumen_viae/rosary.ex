@@ -466,7 +466,13 @@ defmodule LumenViae.Rosary do
     resource LumenViae.Rosary.SpokenRosary
     resource LumenViae.Rosary.RosaryContent
     resource LumenViae.Rosary.RosaryScript
-    resource LumenViae.Rosary.PrayerBook
+
+    resource LumenViae.Rosary.PrayerBook do
+      # The website's Prayers pages read the whole book at once, naming the
+      # sections they draw in `load:`.
+      define :get_prayer_book, action: :current, functions: @read
+    end
+
     resource LumenViae.Rosary.ChantLibrary
     resource LumenViae.Rosary.Consecration
     resource LumenViae.Rosary.TrueDevotion

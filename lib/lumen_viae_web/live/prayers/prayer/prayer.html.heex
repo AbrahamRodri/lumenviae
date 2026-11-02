@@ -1,0 +1,59 @@
+<div class="prayers-page min-h-screen pb-16">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <article aria-labelledby="prayer-heading">
+    <header class={[
+      "mx-auto px-4 sm:px-8 pt-6 md:pt-10",
+      if(@language == "both", do: "max-w-5xl", else: "max-w-3xl")
+    ]}>
+      <.link
+        :if={@chapter}
+        navigate={Book.chapter_path(@chapter.id)}
+        class="btn-text !text-ink-muted hover:!text-gilt-light -ml-1"
+        data-role="home-chapter"
+      >
+        <span class="hero-chevron-left size-3.5" aria-hidden="true" /> {@chapter.title}
+      </.link>
+      <div class="mt-4 md:mt-6 space-y-2.5">
+        <p
+          :if={Book.second_title(@prayer)}
+          class="kicker"
+          lang={if(Book.second_title_latin?(@prayer), do: "la")}
+          data-role="second-title"
+        >
+          {Book.second_title(@prayer)}
+        </p>
+        <h1
+          id="prayer-heading"
+          class="font-display text-[1.75rem] md:text-5xl text-ink-light leading-[1.2]"
+        >
+          {@prayer.title}
+        </h1>
+      </div>
+
+      <nav
+        :if={@prayer.latin}
+        class="prayers-language mt-6"
+        aria-label="Language"
+        data-role="language"
+      >
+        <.link
+          :for={{value, label} <- @languages}
+          patch={language_path(@prayer.id, value)}
+          replace
+          class="prayers-language__option"
+          aria-current={if(value == @language, do: "true")}
+        >
+          {label}
+        </.link>
+      </nav>
+    </header>
+
+    <div class={[
+      "mx-auto px-4 sm:px-8 mt-8 md:mt-10",
+      if(@language == "both", do: "max-w-5xl", else: "max-w-3xl")
+    ]}>
+      <.prayer_text stanzas={@stanzas} language={@language} />
+    </div>
+  </article>
+</div>

@@ -29,7 +29,9 @@ function closeAll(except = null) {
 function markCurrent() {
   const path = window.location.pathname
   document.querySelectorAll("[data-nav-link]").forEach((link) => {
-    if (link.getAttribute("href") === path) {
+    const href = link.getAttribute("href")
+    const section = link.hasAttribute("data-nav-section") && path.startsWith(href + "/")
+    if (href === path || section) {
       link.setAttribute("aria-current", "page")
     } else {
       link.removeAttribute("aria-current")

@@ -254,4 +254,36 @@ defmodule LumenViae.LiturgicalCalendarTest do
       end)
     end
   end
+
+  describe "marian_antiphon_season/1" do
+    # 2026: Easter is 5 April, so the Saturday after Pentecost is 30 May;
+    # the First Sunday of Advent is 29 November, its eve the 28th.
+    for {date, season} <- [
+          {~D[2026-01-15], :advent_eve},
+          {~D[2026-02-01], :advent_eve},
+          {~D[2026-02-02], :february_2},
+          {~D[2026-04-04], :february_2},
+          {~D[2026-04-05], :easter},
+          {~D[2026-05-24], :easter},
+          {~D[2026-05-29], :easter},
+          {~D[2026-05-30], :pentecost_saturday},
+          {~D[2026-08-15], :pentecost_saturday},
+          {~D[2026-11-27], :pentecost_saturday},
+          {~D[2026-11-28], :advent_eve},
+          {~D[2026-12-25], :advent_eve}
+        ] do
+      test "#{date} sings the song whose season begins on #{season}" do
+        assert LiturgicalCalendar.marian_antiphon_season(unquote(Macro.escape(date))) ==
+                 unquote(season)
+      end
+    end
+
+    test "Easter's song begins on Easter Sunday every year" do
+      for year <- 2024..2032 do
+        easter = LiturgicalCalendar.easter(year)
+        assert LiturgicalCalendar.marian_antiphon_season(easter) == :easter
+        assert LiturgicalCalendar.marian_antiphon_season(Date.add(easter, -1)) == :february_2
+      end
+    end
+  end
 end
