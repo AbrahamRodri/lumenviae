@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Check Arabella's meditative scripts before anything is recorded.
+"""Check the meditative scripts before anything is recorded.
 
-    python3 priv/narration_scripts/check_female_scripts.py
+    python3 priv/narration_scripts/check_female_scripts.py          # Arabella, female/
+    python3 priv/narration_scripts/check_female_scripts.py --male   # frederick_meditative/
 
-Reads every meditation in female_v3_meditations.csv from the public API
-(read only; no keys, no ElevenLabs) and its script in female/<id>.txt, and
-fails unless, for each one:
+Reads every meditation in female_v3_meditations.csv and
+female_v4_dramatic_meditations.csv from the public API (read only; no keys,
+no ElevenLabs) and its script in female/<id>.txt (frederick_meditative/<id>.txt
+with --male), and fails unless, for each one:
 
   * the script exists, and no script exists for a meditation not on the list;
   * with the tags and any added "..." taken out, the text is the live
@@ -21,6 +23,12 @@ set the cost (eleven_v4 bills about one credit per character sent).
 import csv, json, os, re, sys, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# Both folders hold a script for every meditation: Arabella's 75 still on v3
+# and her 46 recorded on v4 from Frederick's dramatic scripts, which are also
+# every meditation Frederick has. --male checks frederick_meditative/.
+MALE = "--male" in sys.argv
+FOLDER = "frederick_meditative" if MALE else "female"
+LISTS = ["female_v3_meditations.csv", "female_v4_dramatic_meditations.csv"]
 API = "https://www.lumenviae.org/api/meditation-sets/"
 TAG = re.compile(r"\[([^\]]*)\]")
 TONE = {"thoughtful", "softly", "gently", "warmly", "tenderly", "sad", "reverently",
@@ -66,14 +74,14 @@ def check(mid, script, content):
 
 
 def main():
-    rows = list(csv.DictReader(open(os.path.join(HERE, "female_v3_meditations.csv"))))
+    rows = [r for name in LISTS for r in csv.DictReader(open(os.path.join(HERE, name)))]
     listed = {r["meditation_id"] for r in rows}
     live = {}
     for set_id in sorted({r["set_id"] for r in rows}):
         for m in json.load(urllib.request.urlopen(API + set_id))["data"]["meditations"]:
             live[str(m["id"])] = m["content"]
     failures, chars_text, chars_script = 0, 0, 0
-    folder = os.path.join(HERE, "female")
+    folder = os.path.join(HERE, FOLDER)
     for name in sorted(os.listdir(folder)):
         if name.endswith(".txt") and name[:-4] not in listed:
             print(f"#{name[:-4]}: script for a meditation not on the list"); failures += 1
