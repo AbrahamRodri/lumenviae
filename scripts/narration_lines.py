@@ -9,7 +9,8 @@ the phrases in it (silences, from its loudness), asks a local Whisper model
 what is heard in each, aligns that with the meditation's stored text word by
 word, and cuts the text into lines: a sentence, or several when the narrator
 did not pause between them, each starting and ending where the recording falls
-silent. Writes priv/narration_lines/female.json.
+silent; a line under a second (a closing "Amen.") joins the one before it.
+Writes priv/narration_lines/female.json.
 
 A recording gets lines only when it passes every check: the MP3 is the one
 live in S3 (same MD5 as its ETag; skipped with --no-etag), at least 90% of the
@@ -162,11 +163,18 @@ def lines_for(content, spans, heard, total):
             span_of[a + k] = heard_span[b + k]; matched[a + k] = True
     if sum(matched) < HEARD_ALL * len(text_words):
         return None, f"only {sum(matched)} of {len(text_words)} words heard"
-    # an unheard word belongs to the phrase of the heard word before it
-    last = 0
-    for i in range(len(span_of)):
-        if span_of[i] is None: span_of[i] = last
-        last = span_of[i] = max(span_of[i], last)
+    # An unheard word ("O" heard as "Oh", "five thousand" as "5,000") lies
+    # between the phrases of the heard words around it: a line may begin no
+    # earlier than the next heard word's phrase and end no later than the
+    # last heard word's.
+    first_span, last_span, last = [0] * len(span_of), [0] * len(span_of), 0
+    for i, s in enumerate(span_of):
+        last = s if s is not None else last
+        last_span[i] = last
+    after = len(spans) - 1
+    for i in range(len(span_of) - 1, -1, -1):
+        after = span_of[i] if span_of[i] is not None else after
+        first_span[i] = after
     starts = [s for _, s, _ in text_words]
     def first_word(offset): return next(i for i, s in enumerate(starts) if s >= offset)
     sentences, begin = [], 0
@@ -178,13 +186,22 @@ def lines_for(content, spans, heard, total):
     for n, (b, e, wa, wz) in enumerate(sentences):
         group = (group[0], e, group[2], wz) if group else (b, e, wa, wz)
         nxt = sentences[n + 1] if n + 1 < len(sentences) else None
-        if nxt is None or span_of[nxt[2]] > span_of[wz]:
+        if nxt is None or first_span[nxt[2]] > last_span[wz]:
             lines.append(group); group = None
+    # A line too short to follow (a closing "Amen.") joins the line before it.
+    def span(line): return spans[last_span[line[3]]][1] - spans[first_span[line[2]]][0]
+    joined = []
+    for line in lines:
+        if joined and span(line) < MIN_LINE:
+            b, _, wa, _ = joined.pop(); joined.append((b, line[1], wa, line[3]))
+        else:
+            joined.append(line)
+    lines = joined
     out, prev_end = [], 0.0
     for b, e, wa, wz in lines:
         text = re.sub(r"\s+", " ", content[b:e]).strip()
-        start = max(prev_end, spans[span_of[wa]][0] - LEAD)
-        end = min(total, spans[span_of[wz]][1] + TAIL)
+        start = max(prev_end, spans[first_span[wa]][0] - LEAD)
+        end = min(total, spans[last_span[wz]][1] + TAIL)
         length = end - start
         heard_here = sum(matched[wa:wz + 1]) / (wz - wa + 1)
         if heard_here < HEARD_LINE:

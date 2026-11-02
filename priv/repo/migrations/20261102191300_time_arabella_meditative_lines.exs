@@ -12,11 +12,13 @@ defmodule LumenViae.Repo.Migrations.TimeArabellaMeditativeLines do
   """
   use Ecto.Migration
 
+  # Unlogged: each statement carries a whole meditation's text.
   def up do
     for {meditation_id, voice, s3_key, lines} <- timings() do
       repo().query!(
         "UPDATE meditation_narrations SET lines = $1 WHERE meditation_id = $2 AND voice = $3 AND s3_key = $4",
-        [lines, meditation_id, voice, s3_key]
+        [lines, meditation_id, voice, s3_key],
+        log: false
       )
     end
   end
@@ -25,7 +27,8 @@ defmodule LumenViae.Repo.Migrations.TimeArabellaMeditativeLines do
     for {meditation_id, voice, s3_key, _lines} <- timings() do
       repo().query!(
         "UPDATE meditation_narrations SET lines = NULL WHERE meditation_id = $1 AND voice = $2 AND s3_key = $3",
-        [meditation_id, voice, s3_key]
+        [meditation_id, voice, s3_key],
+        log: false
       )
     end
   end

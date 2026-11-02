@@ -171,6 +171,8 @@ the builds that still decode it.)
   play for a listener who prefers a voice (see "A voice is a preference").
   Null when nothing is recorded or it cannot be signed just now;
   `narratedVoices` tells the two apart.
+- `SignedNarration` and `MeditationNarration` carry `lines { text start
+  end }`: `lines` is the meditation line by line in that recording, each `text start end` (seconds), the Chant Library's lines for the spoken word; null when that recording has not been timed. Only the recordings named in `priv/narration_lines/` are timed, and a new recording of a meditation clears its lines until it is timed again.
 
 ## Meditation audio
 
