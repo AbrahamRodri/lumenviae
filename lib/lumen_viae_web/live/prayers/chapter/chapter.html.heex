@@ -19,6 +19,38 @@
   </section>
 
   <div class="max-w-5xl mx-auto px-4 sm:px-8">
+    <section
+      :if={@orders != []}
+      class="book-together"
+      aria-labelledby="together-heading"
+      data-role="pray-together"
+    >
+      <div class="book-together__band">
+        <span class="book-together__painting" aria-hidden="true">
+          <.painting
+            painting={Orders.painting(hd(@orders), @today)}
+            sizes="(min-width: 768px) 720px, 100vw"
+          />
+        </span>
+        <h2 id="together-heading" class="book-together__title">Pray together</h2>
+      </div>
+      <ul class="book-together__rows">
+        <li :for={order <- @orders}>
+          <.link
+            navigate={Orders.order_path(order.id)}
+            class="book-together__row"
+            data-role="topic-order"
+          >
+            <span class="flex-1 min-w-0">
+              <span class="book-together__name">{Orders.title(order, @today)}</span>
+              <span class="book-together__occasion">{order.occasion}</span>
+            </span>
+            <span class="hero-chevron-right size-3.5 row-chevron" aria-hidden="true" />
+          </.link>
+        </li>
+      </ul>
+    </section>
+
     <div class={[
       "grid gap-x-16",
       @headed? && "lg:grid-cols-2"

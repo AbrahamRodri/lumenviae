@@ -1,0 +1,48 @@
+<div id="order-page" class="prayers-page min-h-screen" phx-hook="UserTimezone">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <article aria-labelledby="order-heading">
+    <div class="order-hero" aria-hidden="true">
+      <.painting painting={@painting} sizes="100vw" loading="eager" />
+    </div>
+
+    <div class="order-column">
+      <.link navigate="/prayers" class="book-back order-back" data-role="back">
+        <span class="hero-chevron-left size-4" aria-hidden="true" /> Prayers
+      </.link>
+
+      <header class="order-head">
+        <p class="order-head__occasion" data-role="occasion">{@order.occasion}</p>
+        <h1 id="order-heading" class="order-head__title">{@title}</h1>
+      </header>
+
+      <ol class="order-prayers" aria-label={"The prayers of #{@title}"}>
+        <li :for={{prayer, i} <- Enum.with_index(@prayers, 1)}>
+          <.link
+            navigate={Orders.pray_path(@order.id, i)}
+            class="order-prayer"
+            data-role="order-prayer"
+            aria-label={"#{i}, #{prayer.title}: pray from here"}
+          >
+            <span class="order-prayer__number" aria-hidden="true">{i}</span>
+            <span class="order-prayer__title">{prayer.title}</span>
+            <span class="hero-chevron-right size-3.5 order-prayer__caret" aria-hidden="true" />
+          </.link>
+        </li>
+      </ol>
+
+      <p :if={@season_note} class="order-season" data-role="season-note">{@season_note}</p>
+
+      <div class="order-foot">
+        <.gold_cta
+          navigate={Orders.pray_path(@order.id)}
+          class="order-foot__pray"
+          aria-label={"Pray #{@title}"}
+          data-role="order-pray"
+        >
+          <span class="hero-play-solid size-4" aria-hidden="true" /> Pray
+        </.gold_cta>
+      </div>
+    </div>
+  </article>
+</div>

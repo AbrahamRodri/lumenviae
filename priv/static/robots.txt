@@ -19,6 +19,9 @@ Disallow: /api/
 # not already give it, and used to walk far enough to trip the Complete
 # button and leave a Rosary nobody prayed.
 Disallow: /meditation-sets/
+# Praying an order of prayer, a page a prayer: the order's own page and
+# each prayer's page already carry every word.
+Disallow: /prayers/orders/*/pray
 # Hours of Prayer's dated pages. /hours is today's and is welcome; every
 # other day, hour and month is assembled by the Divinum Officium engine on
 # first asking, across six centuries of dates, and a crawler following the

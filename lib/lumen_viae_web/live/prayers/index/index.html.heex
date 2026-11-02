@@ -30,14 +30,20 @@
       query={@query}
       hits={@hits}
       topics={@topics}
+      orders={@orders}
+      today={@today}
       seasonal_id={@seasonal_id}
     />
 
     <div :if={@query == ""} class="space-y-12">
-      <div class="grid gap-10 lg:grid-cols-2 lg:gap-16 items-start">
+      <.shortcuts orders={@shortcuts} today={@today} />
+
+      <div class="grid gap-12 lg:grid-cols-2 lg:gap-16 items-start">
+        <.now_card order={@now_order} today={@today} hour={@hour} />
         <.everyday rows={@everyday} />
-        <.prayers_to_mary cards={@marian} />
       </div>
+
+      <.prayers_to_mary cards={@marian} />
 
       <.all_topics parts={@parts} />
     </div>

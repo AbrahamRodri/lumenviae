@@ -16,8 +16,13 @@ built around those three.
 
 1. **The Droplet** (recipe steps 1 to 3): Basic 1 GB, SFO3, Ubuntu 24.04,
    IPv6 and Monitoring on, weekly backups on, `deploy/vm/cloud-init.yaml`
-   as user data, the Cloud Firewall from the recipe. Check:
-   `ssh admin@<ip> cloud-init status --wait` says `done`, `swapon --show`
+   as user data. Then the Cloud Firewall (Networking, Firewalls): inbound
+   SSH, HTTP and HTTPS, each from All IPv4 and All IPv6, applied to the
+   Droplet. SSH stays open to all because CI's deploys come from GitHub's
+   runners; it takes keys only. A Droplet made without the firewall is
+   still covered by ufw for SSH, but Docker's published ports (80 and
+   443) bypass ufw, so the firewall is what limits them. Check:
+   `ssh abraham@<ip> cloud-init status --wait` says `done`, `swapon --show`
    lists `/swapfile`, `docker compose version` answers.
    - Made without the cloud-init (root with Abraham's key only): run its
      steps by hand as root before anything else. The recipe's file is the
@@ -72,7 +77,7 @@ built around those three.
      Droplet, in `/srv/lumenviae`: `export IMAGE=lumenviae:<commit>
      RELEASE_COMMIT=<commit>` (compose refuses to start without IMAGE, and
      `/healthz` reports RELEASE_COMMIT), `docker compose up -d db`, then
-     `docker compose exec -T db pg_restore --no-owner -U lumen_viae -d lumen_viae < lv.dump`.
+     `docker compose exec -T db pg_restore --no-owner --no-acl -U lumen_viae -d lumen_viae < lv.dump`.
    - Migrate, then start the stack: `docker compose run --rm app /app/bin/migrate`,
      `docker compose up -d --wait`.
      Caddy gets the certificates for `lumenviae.org` and
@@ -143,7 +148,7 @@ the Droplet with him (logs, `docker stats`, a failed check), that is his
 decision, and it needs:
 
 - **Which seat:** `api-build@lumenviae`.
-- **As which user:** `deploy`, never `admin` or root.
+- **As which user:** `deploy`, never `abraham` or root.
 - **What Abraham does:** the seat makes its own key pair and gives him only
   the public half. He adds it to `/home/deploy/.ssh/authorized_keys`, and
   removes the line when the session is over.
