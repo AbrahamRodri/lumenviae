@@ -6,8 +6,9 @@
 Scores every script in frederick/ (what his live recordings were made from)
 against meditative_enhance_prompt.md and writes frederick_ranked.csv, worst
 first, with the characters of its replacement in frederick_meditative/ (what
-a re-recording sends, about one eleven_v4 credit per character) and a running
-total in characters; `generate_frederick.py --ranked` records in this order.
+a re-recording sends), those of Arabella's script for the 46 she re-records
+beside him (female_v4_dramatic_meditations.csv), and a running total of both,
+in characters; `generate_frederick.py --ranked` records in this order.
 Read only:
 the public API for the live text, no keys, no ElevenLabs.
 
@@ -97,6 +98,9 @@ def score(script, content):
 
 def main():
     live = live_meditations()
+    # Arabella's 46 re-recorded right after Frederick's in the ranked run.
+    female_too = {r["meditation_id"] for r in
+                  csv.DictReader(open(os.path.join(HERE, "female_v4_dramatic_meditations.csv")))}
     rows = []
     for name in os.listdir(os.path.join(HERE, "frederick")):
         if not name.endswith(".txt"): continue
@@ -106,20 +110,22 @@ def main():
         new = open(new_path).read().strip() if os.path.exists(new_path) else ""
         content = live[mid]["content"]
         points, notes = score(old, content)
+        female = (len(open(os.path.join(HERE, "female", name)).read().strip())
+                  if mid in female_too else 0)
         rows.append(dict(meditation_id=mid, set_id=live[mid]["set_id"], set=live[mid]["set"],
                          points=points,
                          per_1000=round(points * 1000 / len(content), 2),
-                         breaks=notes, characters=len(new)))
+                         breaks=notes, characters=len(new), female_characters=female))
     rows.sort(key=lambda r: (-r["per_1000"], -r["points"], int(r["meditation_id"])))
     total = 0
     with open(os.path.join(HERE, "frederick_ranked.csv"), "w", newline="") as f:
         cols = ["rank", "meditation_id", "set_id", "set", "per_1000", "points", "breaks",
-                "characters", "running_total"]
+                "characters", "female_characters", "running_total"]
         w = csv.DictWriter(f, fieldnames=cols); w.writeheader()
         for i, r in enumerate(rows, 1):
-            total += r["characters"]
+            total += r["characters"] + r["female_characters"]
             w.writerow(dict(r, rank=i, running_total=total))
-    print(f"{len(rows)} meditations ranked, {total} characters to re-record them all")
+    print(f"{len(rows)} meditations ranked, {total} characters to re-record both voices")
 
 
 if __name__ == "__main__":
