@@ -1,8 +1,8 @@
 defmodule LumenViaeWeb.Components.Nav do
   @moduledoc """
   The public site's header: the logo lockup (the mark and the wordmark), Today's
-  Rosary, and a Mysteries menu of the five categories and the Scripture
-  page.
+  Rosary, a Mysteries menu of the five categories and the Scripture
+  page, the Prayer Book and the app's page.
 
   The header lives in the root layout, outside every LiveView, so its menus
   are driven by `assets/js/site_nav.js` rather than by LiveView JS commands:
@@ -87,6 +87,10 @@ defmodule LumenViaeWeb.Components.Nav do
             </ul>
           </div>
 
+          <.nav_link navigate="/prayers" current_path={@current_path} section>
+            Prayers
+          </.nav_link>
+
           <.nav_link navigate="/app" current_path={@current_path}>
             The App
           </.nav_link>
@@ -164,6 +168,12 @@ defmodule LumenViaeWeb.Components.Nav do
           </li>
 
           <li class="pt-3 mt-3 border-t border-night-border">
+            <.nav_link navigate="/prayers" current_path={@current_path} section mobile>
+              Prayers
+            </.nav_link>
+          </li>
+
+          <li>
             <.nav_link navigate="/app" current_path={@current_path} mobile>
               The App
             </.nav_link>
@@ -202,13 +212,24 @@ defmodule LumenViaeWeb.Components.Nav do
   end
 
   # The prayer page belongs to its category, so a set's prayer page marks
-  # nothing: its path is not one the header links to.
+  # nothing: its path is not one the header links to. A section's link
+  # (Prayers) is current on every page beneath it too, as site_nav.js
+  # marks it after live navigation.
   defp current(path, path), do: "page"
   defp current(_path, _current_path), do: nil
+
+  defp current(path, current_path, true) when is_binary(current_path) do
+    if String.starts_with?(current_path, path <> "/"),
+      do: "page",
+      else: current(path, current_path)
+  end
+
+  defp current(path, current_path, _section), do: current(path, current_path)
 
   attr :navigate, :string, required: true
   attr :current_path, :string, default: nil
   attr :mobile, :boolean, default: false
+  attr :section, :boolean, default: false, doc: "current on the pages beneath the path too"
   slot :inner_block, required: true
 
   defp nav_link(assigns) do
@@ -216,7 +237,8 @@ defmodule LumenViaeWeb.Components.Nav do
     <.link
       navigate={@navigate}
       data-nav-link
-      aria-current={current(@navigate, @current_path)}
+      data-nav-section={@section}
+      aria-current={current(@navigate, @current_path, @section)}
       class={[
         "transition-colors",
         if(@mobile,

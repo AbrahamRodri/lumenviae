@@ -1,0 +1,105 @@
+<div class="prayers-page min-h-screen pb-16">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <article aria-labelledby="prayer-heading">
+    <header class="max-w-3xl mx-auto px-4 sm:px-8 pt-8 md:pt-14 text-center">
+      <.link
+        :if={@chapter}
+        navigate={Book.chapter_path(@chapter.id)}
+        class="kicker inline-flex items-center min-h-11 hover:text-gilt-light"
+        data-role="home-chapter"
+      >
+        {@chapter.numeral} · {@chapter.title}
+      </.link>
+      <div class="my-4" aria-hidden="true">
+        <.sacred_divider class="max-w-[150px] mx-auto" />
+      </div>
+      <h1
+        id="prayer-heading"
+        class="font-display text-[2rem] md:text-5xl text-ink-light leading-[1.2]"
+      >
+        {@prayer.title}
+      </h1>
+      <p
+        :if={Book.second_title(@prayer)}
+        class="font-garamond italic text-lg md:text-xl text-ink-muted mt-2"
+        lang={if(@prayer.english_name, do: nil, else: "la")}
+      >
+        {Book.second_title(@prayer)}
+      </p>
+      <p :if={@prayer.origin} class="row-fact mt-3" data-role="origin">
+        {@prayer.origin}
+      </p>
+
+      <nav
+        :if={@prayer.latin}
+        class="prayers-language mx-auto mt-7"
+        aria-label="Language"
+        data-role="language"
+      >
+        <.link
+          :for={{value, label} <- @languages}
+          patch={language_path(@prayer.id, value)}
+          replace
+          class="prayers-language__option"
+          aria-current={if(value == @language, do: "true")}
+        >
+          {label}
+        </.link>
+      </nav>
+    </header>
+
+    <div class={[
+      "mx-auto px-4 sm:px-8 mt-8 md:mt-10",
+      if(@language == "both", do: "max-w-5xl", else: "max-w-3xl")
+    ]}>
+      <.prayer_text stanzas={@stanzas} language={@language} />
+    </div>
+
+    <section
+      :if={@prayer.note}
+      class="max-w-3xl mx-auto px-4 sm:px-8 mt-10"
+      aria-labelledby="note-heading"
+    >
+      <h2 id="note-heading" class="section-label">When It Is Said</h2>
+      <p class="font-garamond italic text-lg text-ink-light/80 max-w-[60ch]" data-role="note">
+        {@prayer.note}
+      </p>
+    </section>
+  </article>
+
+  <nav
+    :if={@chapter}
+    class="max-w-3xl mx-auto px-4 sm:px-8 mt-14"
+    aria-label={"Prayers in #{@chapter.title}"}
+  >
+    <div class="prayers-turner">
+      <.link
+        :if={@previous}
+        navigate={Book.prayer_path(@previous.id)}
+        class="prayers-turner__link"
+        rel="prev"
+      >
+        <span class="kicker"><span aria-hidden="true">&lsaquo;</span> Previous</span>
+        <span class="prayers-turner__title">{@previous.title}</span>
+      </.link>
+      <span :if={!@previous}></span>
+      <.link
+        :if={@next}
+        navigate={Book.prayer_path(@next.id)}
+        class="prayers-turner__link prayers-turner__link--next"
+        rel="next"
+      >
+        <span class="kicker">Next <span aria-hidden="true">&rsaquo;</span></span>
+        <span class="prayers-turner__title">{@next.title}</span>
+      </.link>
+    </div>
+
+    <div class="mt-8 text-center">
+      <.link navigate={Book.chapter_path(@chapter.id)} class="btn-text">
+        All {length(@chapter.prayer_ids)} {@chapter.topic}
+        <span class="hero-chevron-right size-3.5" aria-hidden="true" />
+      </.link>
+    </div>
+  </nav>
+</div>

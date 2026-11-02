@@ -1017,14 +1017,16 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/home/` | the home page, the daily hub: today's mysteries on either schedule, the sets for them, the Rosary without a set, and a card per category (`category_card/`); and the iPhone app's page (`app/`, its screenshots drawn by `app/phone_screen.ex`) |
 | `live/mysteries/` | public: the mysteries in Scripture (`scripture.ex`, its sections in `_partials/`) and the category page (`category_list/`). Admin: mystery CRUD and a category card's painting (`card/`) |
 | `live/pray/` | the prayer page: see [The prayer page](#the-prayer-page) |
+| `live/prayers/` | the Prayer Book, as the app's Prayers tab: the shelves and the search (`index/`, with `shelves/` and `search/`), a chapter (`chapter/`) and a prayer (`prayer/`, its words drawn by `prayer/text/`). `book.ex` is the book as the pages read it (the app's shelves, paintings and search ranking, over `Rosary.get_prayer_book!/1`) and `prayer_text.ex` the text's grammar; both are presentation and never query |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
-The public site is only the Rosary: home, the mysteries, their sets and
-the prayer page, with the iPhone app's page and the privacy policy beside
-them, seven routes in all (`docs/PUBLIC_SITE.md` lists them, the prayer
-page's link and where each setting is kept). Pages retired from it (the
+The public site is the Rosary and the Prayer Book: home, the mysteries,
+their sets and the prayer page, the Prayer Book's three pages, with the
+iPhone app's page and the privacy policy beside them, ten routes in all
+(`docs/PUBLIC_SITE.md` lists them, the links' parameters and where each
+setting is kept). Pages retired from it (the
 dashboard, How to Pray, True Devotion, St. Carlo, Feedback) are in
 `archive/`, outside the build; each old path answers a
 `301` to `/` through `LumenViaeWeb.RedirectController`, and
@@ -1193,7 +1195,7 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
 | `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
 | `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
-| `Components.MysteryPainting` | the app's painting for a mystery or a category's card, from `priv/static/images/paintings/manifest.json`; an uploaded painting wins | no, called fully qualified |
+| `Components.MysteryPainting` | the app's painting for a mystery, a category's card or a painting named by its asset name (the Prayers page's), from `priv/static/images/paintings/manifest.json`; an uploaded painting wins | no, called fully qualified |
 | `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json`; no longer shown on any page or preview | no, imported where used |
 | `Components.MetaTags` | the description, canonical link, link previews and structured data a page put in `LumenViaeWeb.PageMeta` | no, used by the root layout |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |
@@ -1334,6 +1336,7 @@ ornament, Roman numerals, colophon quotes.
 | `ink-muted` | `#8B8BA5` | secondary text, italic lines, captions (5.9:1; 5.5:1 on raised, 5.0:1 on elevated) |
 | `gilt` / `gilt-light` | `#E3BC5B` / `#F3D89A` | the accent (10.9:1 / 14.2:1): labels and kickers, numerals, the gold button with `night` text, quiet actions, the lit bead, the focus ring; `gilt-light` for section headings and chosen segments |
 | `sky` | `#C9B98F` | the app's soft accent: links and a set's kinds (10.1:1) |
+| `night-rubric` | `#D07A6E` | the app's rubric text: a prayer's directions and the marks ℣ ℟ ✠ on the Prayer Book's pages, nothing else (6.3:1; 5.8:1 on raised) |
 | `vellum` | `#F6F0E2` | the reading page |
 | `vellum-ink` / `vellum-muted` | `#2A211C` / `#6A5B4E` | text on vellum (13.9:1 / 5.7:1) |
 | `vellum-gold` | `#7A5A1E` | small rubrics on vellum: verse numbers, references, list markers (5.6:1) |

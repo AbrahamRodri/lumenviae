@@ -225,6 +225,30 @@ defmodule LumenViae.LiturgicalCalendar do
   end
 
   @doc """
+  Which of the four songs to Mary the Church sings on `date`, named by the
+  day its season begins, as the Prayer Book's `marian_antiphons` name
+  them: `:advent_eve` (the Alma Redemptoris Mater, from the eve of the
+  First Sunday of Advent to February 1), `:february_2` (the Ave Regina
+  Caelorum, from the Purification to Holy Saturday), `:easter` (the Regina
+  Caeli, from Easter to the Saturday before Trinity Sunday) and
+  `:pentecost_saturday` (the Salve Regina, the rest of the year). The iOS
+  app's rule (`PrayerBook.antiphon(on:)`), on the calendar day.
+  """
+  @spec marian_antiphon_season(Date.t()) ::
+          :advent_eve | :february_2 | :easter | :pentecost_saturday
+  def marian_antiphon_season(%Date{year: year} = date) do
+    easter = easter(year)
+
+    cond do
+      Date.compare(date, Date.add(advent_start(year), -1)) != :lt -> :advent_eve
+      Date.compare(date, Date.new!(year, 2, 2)) == :lt -> :advent_eve
+      Date.compare(date, easter) == :lt -> :february_2
+      Date.compare(date, Date.add(easter, 55)) == :lt -> :easter
+      true -> :pentecost_saturday
+    end
+  end
+
+  @doc """
   Ash Wednesday for the given year (46 days before Easter).
   """
   @spec ash_wednesday(integer()) :: Date.t()

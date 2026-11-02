@@ -117,6 +117,11 @@
   --color-gilt-light: #F3D89A;
   --color-sky: #C9B98F;
 
+  /* The rubric red on night, the app's rubric text colour (Rubric.text):
+     a prayer's directions and the marks ℣ ℟ ✠ (6.3:1 on night, 5.8:1 on
+     raised). Never on vellum, and never for anything but a rubric. */
+  --color-night-rubric: #D07A6E;
+
   /* The vellum reading page. vellum-ink 13.9:1, vellum-muted 5.7:1,
      vellum-gold 5.6:1 for small rubrics (verse numbers, references).
      gilt, sky and ink-* never go on vellum: they fail. */
@@ -1771,3 +1776,227 @@ html[data-prayer-images="off"] .prayer-plate {
   }
 }
 /* === end the app page's phones === */
+
+/* === the Prayer Book (/prayers) ===
+   The Prayers pages as the app's Prayers tab draws them: the search
+   field, the painted cards for Mary, a chapter's numeral, the turner
+   between chapters and prayers, the language chooser, and a prayer's
+   words in the book's grammar (LumenViaeWeb.Live.Prayers.PrayerText). */
+@layer components {
+  .prayers-numeral {
+    flex-shrink: 0;
+    width: 2.75rem;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    color: var(--color-gilt);
+  }
+
+  .prayers-card {
+    min-height: 11rem;
+    height: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .prayers-card {
+      min-height: 13rem;
+    }
+  }
+
+  .prayers-search {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 3rem;
+    padding: 0 1rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-night-line);
+    background: var(--color-night-raised);
+  }
+
+  .prayers-search:focus-within {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .prayers-search__field {
+    flex: 1;
+    min-width: 0;
+    min-height: 2.75rem;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    font-family: var(--font-garamond);
+    font-size: 1.125rem;
+    color: var(--color-ink-light);
+  }
+
+  .prayers-search__field::placeholder {
+    color: var(--color-ink-muted);
+    font-style: italic;
+  }
+
+  .prayers-search__field:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .prayers-topic-card {
+    display: block;
+    padding: 1rem 1.25rem;
+    min-height: 44px;
+    transition: border-color 0.18s ease-out;
+  }
+
+  .prayers-topic-card:hover {
+    border-color: rgba(227, 188, 91, 0.7);
+  }
+
+  /* Previous and next, as the app's turner: a hairline, then a door each
+     side, its label in tracked gold and the title in Garamond. */
+  .prayers-turner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(227, 188, 91, 0.15);
+  }
+
+  .prayers-turner__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    max-width: 16rem;
+    min-height: 44px;
+    border-radius: 0.5rem;
+  }
+
+  .prayers-turner__link--next {
+    align-items: flex-end;
+    text-align: right;
+    margin-left: auto;
+  }
+
+  .prayers-turner__title {
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    line-height: 1.3;
+    color: var(--color-ink-light);
+    transition: color 0.18s ease-out;
+  }
+
+  .prayers-turner__link:hover .prayers-turner__title {
+    color: var(--color-gilt-light);
+  }
+
+  /* English, Latin, Both: the app's language chips, links here. */
+  .prayers-language {
+    display: flex;
+    max-width: 20rem;
+    padding: 3px;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.18);
+  }
+
+  .prayers-language__option {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    transition: color 0.16s ease-out;
+  }
+
+  .prayers-language__option:hover {
+    color: var(--color-ink-light);
+  }
+
+  .prayers-language__option[aria-current] {
+    background: var(--color-night-elevated);
+    border-color: rgba(227, 188, 91, 0.7);
+    color: var(--color-gilt-light);
+  }
+
+  /* A prayer's words: EB Garamond at the reading size, a stanza a block,
+     a long line hanging from its first word. */
+  .prayer-text {
+    max-width: 62ch;
+    font-family: var(--font-garamond);
+    font-size: 1.1875rem;
+    line-height: 1.6;
+    color: var(--color-ink-light);
+  }
+
+  .prayer-stanza + .prayer-stanza {
+    margin-top: 1.1em;
+  }
+
+  .prayer-line__primary,
+  .prayer-line__secondary {
+    display: block;
+    padding-left: 1em;
+    text-indent: -1em;
+  }
+
+  .prayer-stanza--prose .prayer-line__primary {
+    padding-left: 0;
+    text-indent: 0;
+  }
+
+  .prayer-rubric {
+    font-style: italic;
+    font-size: 0.9em;
+    color: var(--color-night-rubric);
+  }
+
+  .prayer-glyph {
+    color: var(--color-night-rubric);
+  }
+
+  .prayer-litany-response {
+    font-style: italic;
+  }
+
+  /* Both, on a phone: each Latin line with its English beneath, smaller
+     and muted. */
+  .prayer-line--paired + .prayer-line--paired {
+    margin-top: 0.5em;
+  }
+
+  .prayer-line--paired .prayer-line__secondary {
+    font-size: 0.875em;
+    color: var(--color-ink-muted);
+  }
+
+  /* Both, on a wide screen: the Latin and the English in two columns,
+     line by line. */
+  @media (min-width: 768px) {
+    .prayer-text--both {
+      max-width: none;
+    }
+
+    .prayer-text--both .prayer-line--paired {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 3rem;
+    }
+
+    .prayer-line--paired + .prayer-line--paired {
+      margin-top: 0.15em;
+    }
+
+    .prayer-text--both .prayer-line--paired .prayer-line__secondary {
+      font-size: 1em;
+      color: var(--color-ink-light);
+      opacity: 0.85;
+    }
+  }
+}
+/* === end the Prayer Book === */

@@ -7,8 +7,9 @@ Playwright through `npx`.
 At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
 
 - loads `/`, `/mysteries`, `/mysteries/joyful`, `/mysteries/seven_sorrows`,
-  `/privacy-policy` and `/app`, and checks each answers 200 with an h1 and no
-  console errors;
+  `/privacy-policy`, `/app`, `/prayers` (and a search), a topic of the
+  Prayer Book and two prayers (one in Both), and checks each answers 200
+  with an h1 and no console errors;
 - checks no page scrolls sideways (`scrollWidth <= innerWidth`);
 - follows the first Pray link on `/mysteries/joyful` to
   `/meditation-sets/:id/pray` and presses ArrowRight;
@@ -28,6 +29,10 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   verse shows before the first counted Hail Mary;
 - loads the set-less holy form, and checks an unknown category and an
   unknown set answer 404;
+- on `/prayers`, types "memorare" in the search (the link gains
+  `?q=memorare` and the Memorare is found), opens it, chooses Both (the link
+  gains `lang=both`), and checks an unknown prayer and an unknown topic
+  answer 404;
 - jumps to `mystery=closing`, presses Complete and checks the completion
   screen shows (once, at the mobile width);
 - saves a full-page screenshot of the main pages to `scripts/e2e/out/`

@@ -110,6 +110,12 @@ defmodule LumenViaeWeb.Router do
       # All 20 mysteries of the Rosary
       live "/mysteries", Live.Mysteries.Scripture
 
+      # The Prayer Book, as the app's Prayers tab: the shelves and the
+      # search, a chapter, and a prayer
+      live "/prayers", Live.Prayers.Index
+      live "/prayers/topics/:chapter_id", Live.Prayers.Chapter
+      live "/prayers/:prayer_id", Live.Prayers.Prayer
+
       # The iPhone app's landing page
       live "/app", Live.Home.App.Index
 

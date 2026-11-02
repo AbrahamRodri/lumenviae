@@ -1,0 +1,98 @@
+<div class="prayers-page min-h-screen pb-16">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <section
+    class="border-b border-[rgba(227,188,91,0.15)]"
+    aria-labelledby="chapter-heading"
+  >
+    <div class="max-w-3xl mx-auto px-4 sm:px-8 pt-8 pb-8 md:pt-14 md:pb-12 text-center">
+      <p class="kicker" data-role="chapter-numeral">Chapter {@chapter.numeral}</p>
+      <h1
+        id="chapter-heading"
+        class="font-display text-[2rem] md:text-5xl text-ink-light leading-[1.15] mt-3"
+      >
+        {@chapter.title}
+      </h1>
+      <p class="font-garamond italic text-lg md:text-xl text-ink-muted mt-2" lang="la">
+        {@chapter.latin_title}
+      </p>
+      <div class="my-5" aria-hidden="true">
+        <.sacred_divider class="max-w-[150px] mx-auto" />
+      </div>
+      <p
+        :if={@chapter.note}
+        class="font-garamond italic text-lg text-ink-light/80 max-w-[60ch] mx-auto"
+      >
+        {@chapter.note}
+      </p>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-8 pt-8 md:pt-12">
+    <div class={[
+      "grid gap-x-16 gap-y-10",
+      length(@sections) > 1 && "lg:grid-cols-2"
+    ]}>
+      <section
+        :for={{section, i} <- Enum.with_index(@sections)}
+        class="min-w-0"
+        aria-labelledby={"section-#{i}"}
+      >
+        <h2 id={"section-#{i}"} class="section-label">{section.title}</h2>
+        <ul class="row-list">
+          <li :for={prayer <- section.prayers}>
+            <.link
+              navigate={Book.prayer_path(prayer.id)}
+              class="row-link"
+              data-role="chapter-prayer"
+            >
+              <span class="flex-1 min-w-0">
+                <span class="row-title">{Book.list_name(prayer)}</span>
+                <span
+                  :if={Book.second_title(prayer)}
+                  class="block italic text-base text-ink-muted leading-snug"
+                >
+                  {Book.second_title(prayer)}
+                </span>
+                <span :if={prayer.id == @seasonal_id} class="badge-capsule mt-1.5">
+                  This season
+                </span>
+              </span>
+              <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
+            </.link>
+          </li>
+        </ul>
+      </section>
+    </div>
+
+    <nav class="prayers-turner mt-14" aria-label="Chapters">
+      <.link
+        :if={@previous}
+        navigate={Book.chapter_path(@previous.id)}
+        class="prayers-turner__link"
+      >
+        <span class="kicker">
+          <span aria-hidden="true">&lsaquo;</span> Chapter {@previous.numeral}
+        </span>
+        <span class="prayers-turner__title">{@previous.title}</span>
+      </.link>
+      <span :if={!@previous}></span>
+      <.link
+        :if={@next}
+        navigate={Book.chapter_path(@next.id)}
+        class="prayers-turner__link prayers-turner__link--next"
+      >
+        <span class="kicker">
+          Chapter {@next.numeral} <span aria-hidden="true">&rsaquo;</span>
+        </span>
+        <span class="prayers-turner__title">{@next.title}</span>
+      </.link>
+    </nav>
+
+    <div class="mt-10 text-center">
+      <.link navigate="/prayers" class="btn-text !text-ink-muted hover:!text-gilt">
+        <span aria-hidden="true">&lsaquo;</span> All prayers
+      </.link>
+    </div>
+  </div>
+</div>

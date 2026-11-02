@@ -1,0 +1,48 @@
+<div class="prayers-page min-h-screen pb-16">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <section
+    class="border-b border-[rgba(227,188,91,0.15)]"
+    aria-labelledby="prayers-heading"
+  >
+    <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-8 pb-6 md:pt-14 md:pb-10 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] md:gap-12 md:items-end">
+      <div class="min-w-0">
+        <p class="kicker mb-1">The Prayer Book</p>
+        <h1
+          id="prayers-heading"
+          class="font-display text-4xl md:text-6xl text-ink-light leading-[1.1]"
+        >
+          Prayers
+        </h1>
+        <p class="font-garamond italic text-lg text-ink-muted mt-1" data-role="prayer-count">
+          {@prayer_count} prayers
+        </p>
+      </div>
+
+      <.search_form query={@query} />
+    </div>
+  </section>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-8 md:pt-12">
+    <.search_results
+      :if={@query != ""}
+      book={@book}
+      query={@query}
+      hits={@hits}
+      topics={@topics}
+      seasonal_id={@seasonal_id}
+    />
+
+    <div
+      :if={@query == ""}
+      class="grid gap-10 lg:grid-cols-2 lg:gap-16 items-start"
+    >
+      <div class="min-w-0 space-y-10">
+        <.everyday prayers={@everyday} />
+        <.prayers_to_mary cards={@marian} />
+      </div>
+
+      <.all_topics chapters={@book.chapters} />
+    </div>
+  </div>
+</div>
