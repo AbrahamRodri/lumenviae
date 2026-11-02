@@ -159,5 +159,21 @@ class TheTtsCall(unittest.TestCase):
         self.assertEqual(call.call_count, 1)
 
 
+class TheS3Endpoint(unittest.TestCase):
+    """The client follows the app's endpoint settings (config/runtime.exs)."""
+    KEYS = {"AWS_ACCESS_KEY_ID": "k", "AWS_SECRET_ACCESS_KEY": "s", "AWS_REGION": "us-east-2"}
+
+    def test_unset_it_is_aws_s3_in_the_aws_region(self):
+        options = recording.s3_options(dict(self.KEYS))
+        self.assertEqual(options["region_name"], "us-east-2")
+        self.assertNotIn("endpoint_url", options)
+
+    def test_an_r2_host_and_region_are_used(self):
+        options = recording.s3_options(dict(self.KEYS, S3_HOST="abc.r2.cloudflarestorage.com",
+                                            S3_REGION="auto"))
+        self.assertEqual(options["endpoint_url"], "https://abc.r2.cloudflarestorage.com")
+        self.assertEqual(options["region_name"], "auto")
+
+
 if __name__ == "__main__":
     unittest.main()

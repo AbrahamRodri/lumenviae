@@ -46,6 +46,7 @@ defmodule LumenViaeWeb.Router do
   # cover every API at once. See docs/JSON_API.md.
   pipeline :json_api do
     plug :put_private_cache_control
+    plug LumenViaeWeb.Plugs.LibraryCache
     plug LumenViaeWeb.JsonApi.QueryParams
     plug LumenViaeWeb.Graphql.PutRequestContext
   end
@@ -220,6 +221,13 @@ defmodule LumenViaeWeb.Router do
       on_mount: [{LumenViaeWeb.UserAuth, :require_admin}],
       metrics: LumenViaeWeb.Telemetry,
       ecto_repos: [LumenViae.Repo]
+  end
+
+  # RFC 9116's security.txt: a 404 until SECURITY_CONTACT is set. Plain
+  # text, no pipeline: no session and no Accept check. See
+  # SecurityTxtController.
+  scope "/", LumenViaeWeb do
+    get "/.well-known/security.txt", SecurityTxtController, :show
   end
 
   # Liveness and the database, for whatever watches the app. Off the

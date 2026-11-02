@@ -53,6 +53,22 @@ if os.path.exists(os.path.join(ROOT, ".env")):
         if "=" in line and not line.lstrip().startswith("#"):
             k, v = line.split("=", 1); env[k.strip()] = v.strip().strip('"\'')
 
+def s3_options(env):
+    """boto3's S3 client options from .env, the same settings the app reads
+    in config/runtime.exs: AWS S3 in AWS_REGION unless S3_HOST names another
+    S3-compatible store (Cloudflare R2: S3_HOST=<account>.r2.cloudflarestorage.com,
+    S3_REGION=auto), so new recordings land where the app signs links."""
+    options = {"aws_access_key_id": env["AWS_ACCESS_KEY_ID"],
+               "aws_secret_access_key": env["AWS_SECRET_ACCESS_KEY"],
+               "region_name": env.get("S3_REGION") or env["AWS_REGION"]}
+    if env.get("S3_HOST"):
+        options["endpoint_url"] = (env.get("S3_SCHEME") or "https://") + env["S3_HOST"]
+    return options
+
+def s3_client():
+    import boto3
+    return boto3.client("s3", **s3_options(env))
+
 def head_etag(s3, bucket, key, missing_on_403=False):
     """The object's ETag, or None when it does not exist; any other S3 error
     stops the run, since reading it as "missing" could pay for a recording
@@ -125,10 +141,7 @@ def ranked():
     here = os.path.join(ROOT, "priv/narration_scripts")
     rows = list(csv.DictReader(open(os.path.join(here, "frederick_ranked.csv"))))
     s3 = None; bucket = env["AWS_S3_BUCKET"]
-    if upload:
-        import boto3
-        s3 = boto3.client("s3", aws_access_key_id=env["AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=env["AWS_SECRET_ACCESS_KEY"], region_name=env["AWS_REGION"])
+    if upload: s3 = s3_client()
     def live_and_archive(key, archive):
         """The live file's ETag (a 403 here stops the run: these credentials
         cannot read the tree) and then the archive's (a 403 now means absent)."""
@@ -206,10 +219,7 @@ def main():
     s = json.load(urllib.request.urlopen(API + set_id))["data"]
     outdir = os.path.join(ROOT, "narration_out", voice); os.makedirs(outdir, exist_ok=True)
     s3 = None; bucket = env["AWS_S3_BUCKET"]
-    if upload:
-        import boto3
-        s3 = boto3.client("s3", aws_access_key_id=env["AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=env["AWS_SECRET_ACCESS_KEY"], region_name=env["AWS_REGION"])
+    if upload: s3 = s3_client()
     def exists(key):
         try: s3.head_object(Bucket=bucket, Key=key); return True
         except Exception: return False

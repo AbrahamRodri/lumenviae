@@ -34,15 +34,43 @@ defmodule LumenViaeWeb.ClientIP do
   be `cf-connecting-ip`. Name only a header the proxy overwrites: one it
   passes through is the caller's to choose. Without the right header every
   request is attributed to the peer, which behind a proxy is the proxy.
+
+  Behind Cloudflare's proxy that address is Cloudflare's edge, and the
+  visitor is in `CF-Connecting-IP`. With `CLIENT_IP_CLOUDFLARE=true` the
+  header is read, but only when the address found above is one of
+  Cloudflare's published ranges (`LumenViaeWeb.ClientIP.Cloudflare`), so a
+  caller who reaches the origin directly cannot choose their own address.
+  Off by default.
   """
+
+  alias LumenViaeWeb.ClientIP.Cloudflare
 
   @doc """
   The client address for a `Plug.Conn`, as a string, or `nil`.
   """
   def from_conn(%Plug.Conn{} = conn) do
-    case Plug.Conn.get_req_header(conn, header()) do
-      [value | _] -> presence(value) || peer_address(conn.remote_ip)
-      [] -> peer_address(conn.remote_ip)
+    seen =
+      case Plug.Conn.get_req_header(conn, header()) do
+        [value | _] -> presence(value) || peer_address(conn.remote_ip)
+        [] -> peer_address(conn.remote_ip)
+      end
+
+    behind_cloudflare(conn, seen)
+  end
+
+  # With `CLIENT_IP_CLOUDFLARE=true`, a request that reached us from one of
+  # Cloudflare's edge servers is Cloudflare's, and `CF-Connecting-IP` is the
+  # visitor it carried. From any other address that header is a caller's
+  # claim and is ignored: on Fly the app can be reached directly, around
+  # Cloudflare. Off by default, which leaves the address above untouched.
+  defp behind_cloudflare(conn, seen) do
+    with true <- Application.get_env(:lumen_viae, :client_ip_cloudflare, false),
+         true <- Cloudflare.edge?(seen),
+         [value | _] <- Plug.Conn.get_req_header(conn, "cf-connecting-ip"),
+         visitor when is_binary(visitor) <- presence(value) do
+      visitor
+    else
+      _ -> seen
     end
   end
 
