@@ -1,0 +1,68 @@
+#!/bin/sh
+# Proves the backups restore: takes the newest dump from R2, restores it into
+# a scratch database beside the live one, checks it, and drops it. Run by
+# systemd/restore-test.timer once a week, and by hand after the first backup
+# (docs/HOSTING_RECIPE.md). Reads the same ./backup.env as bin/backup.
+#
+# The check is generic to any Ecto app: the dump must restore without an
+# error, and hold as many schema_migrations rows as the live database (the
+# live one may be one deploy ahead between a backup and a migration, which
+# fails the check loudly rather than hiding it). It prints the largest
+# tables' row counts for a person to compare.
+set -eu
+
+cd "$(dirname "$0")/.."
+# shellcheck disable=SC1091
+. ./backup.env
+
+endpoint=${BACKUP_ENDPOINT:-https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com}
+scratch=restore_test
+
+aws() {
+  docker run --rm \
+    -e AWS_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID" \
+    -e AWS_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY" \
+    -e AWS_DEFAULT_REGION=auto \
+    amazon/aws-cli:2.22.0 --endpoint-url "$endpoint" "$@"
+}
+
+# psql inside the db container, as the stack's own user, reading SQL from
+# stdin. $1 is the database; "\$POSTGRES_DB" names the live one.
+sql() {
+  docker compose exec -T db sh -c "psql -v ON_ERROR_STOP=1 -X -q -t -A -U \"\$POSTGRES_USER\" -d $1"
+}
+
+latest=$(aws s3api list-objects-v2 --bucket "$R2_BUCKET" --prefix "$BACKUP_PREFIX/" \
+  --query 'sort_by(Contents, &Key)[-1].Key' --output text)
+case "$latest" in
+  "" | None) echo "restore-test: no dump under $BACKUP_PREFIX/" >&2; exit 1 ;;
+esac
+echo "restore-test: $latest"
+
+trap 'docker compose exec -T db sh -c "dropdb --if-exists -U \"\$POSTGRES_USER\" $scratch"' EXIT
+docker compose exec -T db sh -c "dropdb --if-exists -U \"\$POSTGRES_USER\" $scratch && createdb -U \"\$POSTGRES_USER\" $scratch"
+
+aws s3 cp --only-show-errors "s3://$R2_BUCKET/$latest" - \
+  | docker compose exec -T db sh -c "pg_restore --no-owner --exit-on-error -U \"\$POSTGRES_USER\" -d $scratch"
+
+restored=$(echo 'SELECT count(*) FROM schema_migrations' | sql "$scratch")
+live=$(echo 'SELECT count(*) FROM schema_migrations' | sql '"$POSTGRES_DB"')
+echo "restore-test: schema_migrations restored $restored, live $live"
+
+counts=$(cat <<'SQL'
+SELECT table_name || ' ' || (xpath('/row/c/text()',
+  query_to_xml(format('SELECT count(*) AS c FROM %I.%I', table_schema, table_name), false, true, '')))[1]::text
+FROM information_schema.tables
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+ORDER BY (xpath('/row/c/text()',
+  query_to_xml(format('SELECT count(*) AS c FROM %I.%I', table_schema, table_name), false, true, '')))[1]::text::bigint DESC
+LIMIT 8
+SQL
+)
+printf '%s\n' "$counts" | sql "$scratch" | sed 's/^/restore-test:   /'
+
+[ "$restored" -gt 0 ] && [ "$restored" = "$live" ] || {
+  echo "restore-test: FAILED, the restored schema does not match the live one" >&2
+  exit 1
+}
+echo "restore-test: ok"
