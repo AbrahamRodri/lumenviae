@@ -92,5 +92,18 @@ class TheFirstRunWithEmptyArchives(unittest.TestCase):
         self.assertTrue(recording.already_replaced(live, old))
 
 
+class TheArchiveMustBeReadable(unittest.TestCase):
+    """After copying the live file to its archive the run reads the archive
+    back strictly: a policy that hides the archive prefix stops the run on
+    the first item, before any upload, instead of letting a rerun copy new
+    takes over the backups."""
+    def test_a_hidden_archive_prefix_stops_the_run(self):
+        with self.assertRaises(S3Error):
+            recording.head_etag(StubS3({ARCHIVE: "error:403"}), "b", ARCHIVE)
+
+    def test_a_readable_archive_lets_the_run_go_on(self):
+        self.assertEqual(recording.head_etag(StubS3({ARCHIVE: '"copy"'}), "b", ARCHIVE), '"copy"')
+
+
 if __name__ == "__main__":
     unittest.main()

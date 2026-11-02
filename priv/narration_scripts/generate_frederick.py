@@ -162,6 +162,11 @@ def ranked():
                 live, old = live_and_archive(key, archive)
                 if live is not None and old is None:
                     s3.copy_object(Bucket=bucket, Key=archive, CopySource={"Bucket": bucket, "Key": key})
+                    # Read the copy back strictly before replacing the live file:
+                    # if these credentials cannot read the archive prefix, every
+                    # 403 above was a hidden archive, not a missing one, and a
+                    # rerun would copy new takes over the backups. Stop here.
+                    head_etag(s3, bucket, archive)
                 s3.upload_file(out, bucket, key, ExtraArgs={"ContentType": "audio/mpeg"})
                 status = f"replaced live {voice} (old copy archived)"
             print(f"{label} {fn} {cost} characters · {status} · total {spent}", flush=True)
