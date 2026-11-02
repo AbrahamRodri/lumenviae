@@ -44,9 +44,29 @@ SETTINGS = {"stability": 0.5, "similarity_boost": 0.75}
 API = "https://www.lumenviae.org/api/meditation-sets/"
 
 env = {}
-for line in open(os.path.join(ROOT, ".env")):
-    if "=" in line and not line.lstrip().startswith("#"):
-        k, v = line.split("=", 1); env[k.strip()] = v.strip().strip('"\'')
+# Read when present, so the S3 checks below can be tested without keys.
+if os.path.exists(os.path.join(ROOT, ".env")):
+    for line in open(os.path.join(ROOT, ".env")):
+        if "=" in line and not line.lstrip().startswith("#"):
+            k, v = line.split("=", 1); env[k.strip()] = v.strip().strip('"\'')
+
+def head_etag(s3, bucket, key, missing_on_403=False):
+    """The object's ETag, or None when it does not exist; any other S3 error
+    stops the run, since reading it as "missing" could pay for a recording
+    again or replace a live file without archiving it.
+
+    Without s3:ListBucket (the upload user has none) S3 answers a missing key
+    with 403, not 404. So a 403 reads as missing only with missing_on_403,
+    which a caller passes after it has just read another key of the same
+    voices/ tree (the live file): that read proves the credentials work, so
+    the 403 can only mean the key is absent."""
+    try:
+        return s3.head_object(Bucket=bucket, Key=key)["ETag"]
+    except Exception as e:
+        code = str(getattr(e, "response", {}).get("Error", {}).get("Code", ""))
+        if code in ("404", "NoSuchKey", "NotFound"): return None
+        if missing_on_403 and code in ("403", "Forbidden", "AccessDenied"): return None
+        raise
 
 def words(s): return re.findall(r"[A-Za-z']+", s.lower())
 def opt(name, default=None):
@@ -58,6 +78,12 @@ def tts(vid, script):
         data=json.dumps({"text": script, "model_id": MODEL, "voice_settings": SETTINGS}).encode(),
         headers={"xi-api-key": env["ELEVEN_LABS_API_KEY"], "Content-Type": "application/json", "Accept": "audio/mpeg"})
     with urllib.request.urlopen(req, timeout=150) as r: return r.read()
+
+def already_replaced(live, archived):
+    """A ranked recording is done when its archive exists and the live file is
+    no longer that archived one. An archive beside an unchanged live file is
+    an upload that failed, which the run retries."""
+    return archived is not None and live not in (None, archived)
 
 def remaining_credits():
     req = urllib.request.Request("https://api.elevenlabs.io/v1/user/subscription",
@@ -80,16 +106,11 @@ def ranked():
         import boto3
         s3 = boto3.client("s3", aws_access_key_id=env["AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=env["AWS_SECRET_ACCESS_KEY"], region_name=env["AWS_REGION"])
-    def etag(key):
-        """The object's ETag, or None when it does not exist. Any other S3
-        error stops the run: read as "missing" it would pay for a recording
-        again or replace a live file without archiving it."""
-        from botocore.exceptions import ClientError
-        try: return s3.head_object(Bucket=bucket, Key=key)["ETag"]
-        except ClientError as e:
-            if e.response.get("Error", {}).get("Code") in ("404", "NoSuchKey", "NotFound"): return None
-            raise
-    def exists(key): return etag(key) is not None
+    def live_and_archive(key, archive):
+        """The live file's ETag (a 403 here stops the run: these credentials
+        cannot read the tree) and then the archive's (a 403 now means absent)."""
+        live = head_etag(s3, bucket, key)
+        return live, head_etag(s3, bucket, archive, missing_on_403=live is not None)
     # Arabella's meditations recorded on v4 from Frederick's dramatic
     # scripts (29 Sep): re-recorded beside his, from female/<id>.txt.
     female_too = {r["meditation_id"] for r in
@@ -112,8 +133,8 @@ def ranked():
             # beside an unchanged live file is an upload that failed: carry on,
             # and a recording already saved locally is uploaded without paying.
             if s3 and not force:
-                old = etag(archive)
-                if old is not None and etag(key) not in (None, old):
+                live, old = live_and_archive(key, archive)
+                if already_replaced(live, old):
                     print(f"{label}: already re-recorded, skipped", flush=True); continue
             path = os.path.join(here, folder, f"{mid}.txt")
             script = open(path).read().strip()
@@ -138,7 +159,8 @@ def ranked():
             if s3:
                 # voices/<voice>_pre_meditative/, never female_pre_v4/ (which
                 # holds Arabella's v3 originals)
-                if exists(key) and not exists(archive):
+                live, old = live_and_archive(key, archive)
+                if live is not None and old is None:
                     s3.copy_object(Bucket=bucket, Key=archive, CopySource={"Bucket": bucket, "Key": key})
                 s3.upload_file(out, bucket, key, ExtraArgs={"ContentType": "audio/mpeg"})
                 status = f"replaced live {voice} (old copy archived)"
