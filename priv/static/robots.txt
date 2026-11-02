@@ -22,6 +22,11 @@ Disallow: /meditation-sets/
 # Praying an order of prayer, a page a prayer: the order's own page and
 # each prayer's page already carry every word.
 Disallow: /prayers/orders/*/pray
+# Hours of Prayer's dated pages. /hours is today's and is welcome; every
+# other day, hour and month is assembled by the Divinum Officium engine on
+# first asking, across six centuries of dates, and a crawler following the
+# calendar's arrows would ask for all of them.
+Disallow: /hours/
 
 # Crawlers that gather text for model training. Nothing here is stopping
 # them by force; they are simply asked, in the terms they publish, not to

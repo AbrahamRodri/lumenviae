@@ -1,0 +1,112 @@
+<div class="hours-page min-h-screen pb-16" id="hours-page" phx-hook="UserTimezone">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <section class="hours-hero" aria-labelledby="hours-heading">
+    <span :if={@present} class="hours-hero__painting" aria-hidden="true">
+      <.painting painting={@present.painting} sizes="100vw" loading="eager" />
+    </span>
+    <div class="hours-hero__inner">
+      <div class="hours-hero__bar">
+        <h1 id="hours-heading" class="kicker hours-lifted">Hours of Prayer</h1>
+        <.link
+          navigate={CanonicalHours.calendar_path(@date)}
+          class="book-back"
+          data-role="calendar-link"
+        >
+          <span class="hero-calendar-days size-4" aria-hidden="true" /> Choose a day
+        </.link>
+      </div>
+
+      <div
+        :if={!@clock_known?}
+        class="hours-now hours-now--waiting"
+        data-role="now-waiting"
+        aria-hidden="true"
+      >
+      </div>
+      <div :if={@clock_known?} class="hours-now" data-role="hour-now">
+        <p :if={@today?} class="hours-now__kicker hours-lifted">
+          <span class="hours-lit" aria-hidden="true"></span> Now · {@lapses}
+        </p>
+        <p :if={!@today?} class="hours-now__kicker hours-lifted" data-role="other-day">
+          {CanonicalHours.long_date(@date)}
+        </p>
+        <h2 class="hours-now__title">{@present.plain}</h2>
+        <p class="hours-now__label">{@present.label}</p>
+        <.link
+          navigate={CanonicalHours.hour_path(@date, @present.slug)}
+          class="btn-gold mt-4"
+          aria-label={"Pray #{@present.plain}"}
+          data-role="pray"
+        >
+          <span class="hero-play-solid size-4" aria-hidden="true" /> Pray
+        </.link>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-16 lg:items-start">
+    <div class="pt-6 lg:pt-10" aria-live="polite" data-role="feast">
+      <p :if={@clock_known? or @fixed_date?} class="kicker !text-ink-muted" data-role="day-date">
+        {if @today?, do: "Today · ", else: ""}{CanonicalHours.long_date(@date)}
+      </p>
+      <p :if={!@clock_known? and !@fixed_date?} class="kicker" aria-hidden="true">&nbsp;</p>
+      <div :if={@day_state == :ready} class="mt-2 space-y-1.5" data-role="feast-plate">
+        <p :if={@day.celebration} class="hours-feast" lang="la">{@day.celebration.title}</p>
+        <p :if={class_line(@day)} class="hours-class" data-role="day-class">
+          {class_line(@day)}
+        </p>
+      </div>
+      <p :if={@day_state == :loading} class="hours-quiet mt-2" data-role="feast-loading">
+        Finding the day's feast…
+      </p>
+      <div :if={@day_state == :failed} class="mt-2" data-role="feast-failed">
+        <p class="hours-quiet">The day's feast could not be reached.</p>
+        <button type="button" phx-click="retry" class="btn-text" data-role="retry">
+          <span class="hero-arrow-path size-3.5" aria-hidden="true" /> Try again
+        </button>
+      </div>
+      <.link
+        :if={!@today? and @fixed_date?}
+        navigate="/hours"
+        class="btn-text mt-4"
+        data-role="today-link"
+      >
+        <span class="hero-chevron-left size-3.5" aria-hidden="true" /> Today
+      </.link>
+    </div>
+
+    <nav class="pt-2 lg:pt-6" aria-label="The eight hours">
+      <section :for={{heading, hours} <- @groups} aria-label={heading}>
+        <h2 class="hours-group">{heading}</h2>
+        <ul class="hours-strand">
+          <li :for={hour <- hours}>
+            <.link
+              navigate={CanonicalHours.hour_path(@date, hour.slug)}
+              class="hours-row"
+              data-role="hour-row"
+              data-hour={hour.slug}
+              aria-current={if(@today? and hour.slug == @present.slug, do: "time")}
+            >
+              <span class={["hours-bead", "hours-bead--#{hour.slug}"]} aria-hidden="true"></span>
+              <span class="flex-1 min-w-0">
+                <span class="hours-row__name">{hour.plain}</span>
+                <span class="hours-row__label">{hour.label}</span>
+              </span>
+              <span
+                :if={@today? and hour.slug == @present.slug}
+                class="hours-row__now"
+                data-role="now-mark"
+              >
+                Now
+              </span>
+              <span class="hero-chevron-right size-4 row-chevron" aria-hidden="true" />
+            </.link>
+          </li>
+        </ul>
+      </section>
+    </nav>
+  </div>
+
+  <p class="hours-credit mt-12 px-4">{@credit}</p>
+</div>
