@@ -39,7 +39,8 @@
       <.shortcuts orders={@shortcuts} today={@today} />
 
       <div class="grid gap-12 lg:grid-cols-2 lg:gap-16 items-start">
-        <.now_card order={@now_order} today={@today} hour={@hour} />
+        <.now_card :if={@offset && @now_order} order={@now_order} today={@today} hour={@hour} />
+        <.now_waiting :if={!@offset} />
         <.everyday rows={@everyday} />
       </div>
 

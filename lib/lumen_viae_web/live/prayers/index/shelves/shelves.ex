@@ -46,16 +46,19 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Shelves do
     """
   end
 
-  attr :order, :map, required: true
+  attr :order, :map, required: true, doc: "the hour's order; nil draws nothing"
   attr :today, Date, required: true
   attr :hour, :integer, required: true
 
   @doc """
   Now (PrayersNowCard): the order for the hour it is as one wide card, its
   painting, NOW and the hour's name, its title and its line; the card
-  opens the order's page, and PRAY, over its foot, prays it. The website
-  keeps nothing of what was prayed, so it never says PRAYED.
+  opens the order's page, and PRAY, over its foot, prays it (and its Done
+  comes back here, `?from=prayers`). The website keeps nothing of what
+  was prayed, so it never says PRAYED. A nil order draws nothing.
   """
+  def now_card(%{order: nil} = assigns), do: ~H""
+
   def now_card(assigns) do
     assigns =
       assign(assigns,
@@ -82,7 +85,7 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Shelves do
           </span>
         </.link>
         <.link
-          navigate={Orders.pray_path(@order.id)}
+          navigate={Orders.pray_path(@order.id, 1, "english", "prayers")}
           class="prayers-now__pray"
           aria-label={"Pray #{@title}"}
           data-role="now-pray"
@@ -93,6 +96,19 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Shelves do
           Pray
         </.link>
       </div>
+    </section>
+    """
+  end
+
+  @doc """
+  Now before the visitor's clock is known: the card's frame, empty, so the
+  page does not move when it comes and no one is shown the wrong hour.
+  """
+  def now_waiting(assigns) do
+    ~H"""
+    <section aria-labelledby="now-heading" class="min-w-0">
+      <h2 id="now-heading" class="section-label">Now</h2>
+      <div class="prayers-now prayers-now--waiting" data-role="now-waiting" aria-hidden="true"></div>
     </section>
     """
   end

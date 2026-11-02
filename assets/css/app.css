@@ -2334,25 +2334,19 @@ html[data-prayer-images="off"] .prayer-plate {
      (PrayerOrderView) and praying it (PrayAlongView). */
 
   /* The shortcuts: a painting at the leading edge and a name, on the card
-     ground; two to a row on a phone, the fifth across both; five in a row
-     from 1024px. */
+     ground; every tile the same size, two to a row on a phone as the
+     app's grid sets them (the fifth, where the app's Saved would make
+     six, keeps the left column, as the app's grid would leave it), three
+     from 640px and five in a row from 1024px. */
   .prayers-shortcuts {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.625rem;
   }
 
-  .prayers-shortcuts > li:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
-
   @media (min-width: 640px) {
     .prayers-shortcuts {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .prayers-shortcuts > li:last-child:nth-child(odd) {
-      grid-column: auto;
     }
   }
 
@@ -2444,6 +2438,10 @@ html[data-prayer-images="off"] .prayer-plate {
 
   .prayers-now__face {
     display: flex;
+    min-height: 11.25rem;
+  }
+
+  .prayers-now--waiting {
     min-height: 11.25rem;
   }
 
@@ -3069,6 +3067,16 @@ html[data-prayer-images="off"] .prayer-plate {
       rgba(10, 10, 21, 0.62) calc(100% - 4.5rem),
       rgba(10, 10, 21, 0) 100%
     );
+  }
+
+  /* The Angelus's bell over its title (PrayAlongView, lv-bell), still:
+     on the site it never rings. */
+  .pray-along__bell {
+    display: block;
+    width: 1.625rem;
+    height: 1.625rem;
+    margin-bottom: 0.875rem;
+    color: var(--color-gilt);
   }
 
   .pray-along__second {

@@ -162,6 +162,19 @@ defmodule LumenViaeWeb.Live.Prayers.OrdersTest do
       end
     end
 
+    test "the orders hang the app's own paintings", %{book: book} do
+      day = ~D[2026-11-02]
+      name = fn id -> book |> Orders.order(id) |> Orders.painting(day) |> elem(0) end
+
+      assert name.("morning") == "hour_morning"
+      assert name.("night") == "hour_night"
+      assert name.("before_confession") == "saint_peter_tears"
+      assert name.("visit") == "jesus_eucharist_saviour"
+      assert name.("holy_souls") == "order_raising_of_lazarus"
+      assert name.("trouble") == "jesus_good_shepherd"
+      assert name.("table") == "prayer_supper_emmaus"
+    end
+
     test "Night Prayers' page hangs its painting from the top", %{book: book} do
       {_name, _x, y} = Orders.page_painting(Orders.order(book, "night"), ~D[2026-11-02])
       assert y == 0.0

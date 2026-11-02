@@ -91,11 +91,22 @@ defmodule LumenViaeWeb.Live.Prayers.BookTest do
     paintings =
       Enum.map(book.chapters, &Book.topic_painting(&1.id)) ++
         Enum.map(Map.keys(book.prayers), &Book.prayer_painting(book, &1)) ++
-        Enum.map(~w(advent_eve february_2 easter pentecost_saturday), &Book.antiphon_painting/1) ++
-        Map.values(Book.stand_ins())
+        Enum.map(~w(advent_eve february_2 easter pentecost_saturday), &Book.antiphon_painting/1)
 
     for {name, _x, _y} <- paintings do
       assert MysteryPainting.for_name(name), "no painting named #{name}"
+    end
+  end
+
+  test "the topics hang the app's own paintings, not a mystery in their place" do
+    assert Book.topic_painting("mass") == {"topic_holy_mass", 0.5, 0.5}
+    assert Book.topic_painting("our_lady") == {"season_advent", 0.5, 0.25}
+    assert Book.antiphon_painting("easter") == {"easter_appears_to_mary", 0.5, 0.55}
+
+    for chapter <- ~w(first day short mass penance sacrament holy_ghost our_lord st_joseph
+                      saints seasons thanks litanies church sick departed needs) do
+      {name, _x, _y} = Book.topic_painting(chapter)
+      refute name =~ ~r/^(joyful|sorrowful|glorious|luminous|seven_sorrows)_/, chapter
     end
   end
 end

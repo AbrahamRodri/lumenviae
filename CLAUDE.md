@@ -6,8 +6,6 @@
 
 This is a strict project requirement. Keep all text professional and emoji-free.
 
-NEVER when making PR descriptions on git commits add CO-Author by Claude
-
 ## Architecture
 
 **IMPORTANT:** Before making any architectural decisions or creating new LiveViews, components, or modules, **always reference [ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the project's architectural standards and patterns.
