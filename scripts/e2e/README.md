@@ -10,8 +10,9 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   `/privacy-policy`, `/app`, `/prayers` (and a search), a topic of the
   Prayer Book, two prayers (one in Both), an order of prayer and a step
   of praying it in Both, `/chant` (and a search), a section's shelf and
-  a chant's page, and checks each answers 200
-  with an h1 and no console errors;
+  a chant's page, `/hours`, today's Vespers in Both and this month's
+  Hours calendar, and checks each answers 200 with an h1 and no console
+  errors;
 - checks no page scrolls sideways (`scrollWidth <= innerWidth`);
 - follows the first Pray link on `/mysteries/joyful` to
   `/meditation-sets/:id/pray` and presses ArrowRight;
@@ -43,6 +44,11 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   a line after the first to light (this fetches the recording, so it needs
   a network), chooses English (the link gains `words=english`); and checks
   an unknown chant and section answer 404;
+- on `/hours`, follows Pray to the hour now, chooses Both (the link gains
+  `lang=both`) and waits for the hour's text or its "could not be reached"
+  state: the Divinum Officium engine may not answer a dev machine, so
+  either passes and the log says which it was (and what the day's feast
+  was); an unknown hour, a bad date and month 13 answer 404;
 - jumps to `mystery=closing`, presses Complete and checks the completion
   screen shows (once, at the mobile width);
 - saves a full-page screenshot of the main pages to `scripts/e2e/out/`

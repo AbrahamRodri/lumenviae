@@ -934,6 +934,12 @@ lib/lumen_viae/office/
                                   about to be asked for, on a schedule
 ```
 
+The website's Hours of Prayer (`live/hours/`, see the web layer) calls
+the same public functions, never a module beneath them, so its pages
+share the APIs' validation, engine client and cache; `Office.serves?/1`
+lets a page answer 404 for a date outside the engine's years before
+asking it anything.
+
 The REST surface is `LumenViaeWeb.API.OfficeController` + `OfficeJSON`
 under the existing unversioned `/api` scope, with `office_unavailable` in
 the fallback controller for upstream trouble. See `docs/OFFICE_API.md`
@@ -1019,14 +1025,16 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/pray/` | the prayer page: see [The prayer page](#the-prayer-page) |
 | `live/prayers/` | the Prayer Book, as the app's Prayers tab: the shelves, the shortcuts, Now and the search (`index/`, with `shelves/` and `search/`), a chapter (`chapter/`), an order of prayer (`order/`) and praying it in silence (`order/pray/`), and a prayer (`prayer/`, its words drawn by `prayer/text/`). `book.ex` is the book as the pages read it (the app's shelves, the five parts, second names, paintings and search ranking, over `Rosary.get_prayer_book!/1`), `orders.ex` the orders of prayer as the app reads them (the hour's order, Eastertide, the closing song to Mary, their paintings and search), `prayer_text.ex` the text's grammar and `painting.ex` a painting drawn about its subject; all are presentation and never query. Their CSS is the `book-*` and `prayers-*` classes, apart from the Rosary page's `.prayer-text` |
 | `live/chants/` | the Chant Library, as the app's Chant tab: the tab (`index/`), a section's shelf or the Mass of the Angels' (`section/`) and a chant (`chant/`). `library.ex` is the library as the pages read it (the songs to Mary, the sections' names, the paintings, numbered shelves, the rows' second lines and the search, over `Rosary.get_chant_library!/1`) and `parts.ex` the rows, cards and play discs the pages share; both are presentation and never query. The recordings play through the `ChantPlayer` hook. Their CSS is the `chant-*` classes |
+| `live/hours/` | Hours of Prayer, the Divine Office as the app's: the landing for today or another day (`index/`), an hour read (`hour/`, a section drawn by `hour/section/`) and the month's calendar (`calendar/`). `canonical_hours.ex` is the eight hours as the app names and orders them (plain names, clock times, paintings) with the pages' dates and paths, `day_rank.ex` a day's class in plain words, `office_text.ex` an hour's sections set for a language; all are presentation and fetch nothing. The pages reach the Office only through `LumenViae.Office`'s public functions, after they connect (`start_async`). Their CSS is the `hours-*` classes and the Prayer Book's `book-*` reading classes; the rail is the `OfficeRail` hook |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
-The public site is the Rosary, the Prayer Book and the Chant Library:
-home, the mysteries, their sets and the prayer page, the Prayer Book's
-five pages and the Chant Library's three, with the iPhone app's page and
-the privacy policy beside them, fifteen routes in all
+The public site is the Rosary, the Prayer Book, the Chant Library and
+Hours of Prayer: home, the mysteries, their sets and the prayer page, the
+Prayer Book's five pages, the Chant Library's three and the Hours' four,
+with the iPhone app's page and the privacy policy beside them, nineteen
+routes in all
 (`docs/PUBLIC_SITE.md` lists them, the links' parameters and where each
 setting is kept). Pages retired from it (the
 dashboard, How to Pray, True Devotion, St. Carlo, Feedback) are in

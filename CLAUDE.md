@@ -133,7 +133,7 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
   change as any code that widens what is collected
-- The public website is the Rosary and the Prayer Book: home (today's mysteries and
+- The public website is the Rosary, the Prayer Book and Hours of Prayer: home (today's mysteries and
   today's sets), `/mysteries` (the mysteries in Scripture), each category
   page with "Your Rosary Today" (audio, counting and voice choices), the
   prayer page (the whole Rosary bead by bead, in meditation, scriptural or
@@ -143,7 +143,10 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   page at `/app` (real app screenshots; see "The app page" in
   docs/PUBLIC_SITE.md), and the privacy policy; and the Prayer Book, the
   app's Prayers tab as its first page on the web (`/prayers`, a chapter at
-  `/prayers/topics/:id`, a prayer at `/prayers/:id`). Read
+  `/prayers/topics/:id`, a prayer at `/prayers/:id`); and Hours of
+  Prayer, the Divine Office as the app's (`/hours`, another day at
+  `/hours/:date`, an hour at `/hours/:date/:hour`, a month at
+  `/hours/calendar/:year/:month`), read through `LumenViae.Office`. Read
   docs/PUBLIC_SITE.md before touching a public page
 - Retired pages (dashboard, How to Pray, True Devotion, St. Carlo,
   Feedback) live in `archive/`, outside the build, and their addresses
