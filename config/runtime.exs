@@ -72,6 +72,10 @@ config :lumen_viae,
 # otherwise. The VM in deploy/vm/ sets x-real-ip, which its Caddy writes.
 config :lumen_viae, :client_ip_header, System.get_env("CLIENT_IP_HEADER", "fly-client-ip")
 
+# Who to tell about a security problem, served at
+# /.well-known/security.txt (SecurityTxtController). Unset, that is a 404.
+config :lumen_viae, :security_contact, System.get_env("SECURITY_CONTACT")
+
 # Optional override for the narration pause inserted at paragraph breaks
 # (seconds, e.g. "1.5"; ElevenLabs caps break tags at 3s).
 case Float.parse(System.get_env("TTS_PARAGRAPH_BREAK_SECONDS") || "") do
