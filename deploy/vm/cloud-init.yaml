@@ -1,10 +1,11 @@
 #cloud-config
 # Server setup for one site on one DigitalOcean Droplet (Ubuntu 24.04 LTS),
 # pasted into "User data" when the Droplet is created. The recipe is
-# docs/HOSTING_RECIPE.md. Per site, change only the two SSH keys and the
-# folder name in runcmd (/srv/lumenviae).
+# docs/HOSTING_RECIPE.md. Per site, change only the person's user name
+# (abraham, in two places), the two SSH keys and the folder name in runcmd
+# (/srv/lumenviae).
 #
-# What it does: two users (admin for a person, deploy for CI), SSH by key
+# What it does: two users (the owner's, for a person, and deploy, for CI), SSH by key
 # only, automatic security upgrades with a 04:00 UTC reboot when one needs
 # it, a 2GB swap file (a 1GB Droplet runs the app and Postgres together),
 # Docker with bounded logs, and ufw. Docker's published ports bypass
@@ -12,19 +13,23 @@
 # Cloud Firewall in front of the Droplet (the recipe says which rules).
 
 users:
-  # A person: sudo, for setup and repairs.
-  - name: admin
-    groups: [sudo, docker]
+  # A person: sudo, for setup and repairs. The users are made before any
+  # package is installed, so they cannot name the docker group here:
+  # useradd refuses a group that does not exist yet, cloud-init then makes
+  # no user, and no key works (the first Droplet, 2 Nov 2026). Both join
+  # the docker group in runcmd, once Docker has made it. The name is the
+  # person's own rather than "admin", the name that failed there.
+  - name: abraham
+    groups: [sudo]
     shell: /bin/bash
     sudo: "ALL=(ALL) NOPASSWD:ALL"
     lock_passwd: true
     ssh_authorized_keys:
-      - "ssh-ed25519 REPLACE-with-the-owner's-public-key admin"
+      - "ssh-ed25519 REPLACE-with-the-owner's-public-key abraham"
   # CI's deploy (the deploy-vm job): Docker only, no sudo. Docker access is
   # root-equivalent all the same, so its key is a repository secret and
   # nowhere else.
   - name: deploy
-    groups: [docker]
     shell: /bin/bash
     lock_passwd: true
     ssh_authorized_keys:
@@ -79,4 +84,6 @@ runcmd:
   - systemctl restart ssh
   - systemctl enable --now docker
   - systemctl restart docker
+  - usermod -aG docker abraham
+  - usermod -aG docker deploy
   - install -d -o deploy -g deploy -m 750 /srv/lumenviae

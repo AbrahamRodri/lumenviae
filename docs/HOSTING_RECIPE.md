@@ -22,7 +22,7 @@ Everything is in `deploy/vm/` and is copied unchanged apart from names:
 
 | File | What it is |
 |---|---|
-| `cloud-init.yaml` | Server setup, pasted in when the server is made: Ubuntu 24.04 LTS, users `admin` (a person, sudo) and `deploy` (CI, Docker only), SSH by key only, automatic security upgrades with a 04:00 UTC reboot when needed, Docker with capped logs, ufw |
+| `cloud-init.yaml` | Server setup, pasted in when the server is made: Ubuntu 24.04 LTS, users for the owner (a person, sudo; `abraham` for Lumen Viae) and `deploy` (CI, Docker only), SSH by key only, automatic security upgrades with a 04:00 UTC reboot when needed, Docker with capped logs, ufw |
 | `compose.yml` | The services: the app's release image (`/app/bin/server`), Postgres 17, Caddy (Lumen Viae also runs the Office engine) |
 | `Caddyfile`, `caddy/Dockerfile` | HTTPS for the site's names, certificates by DNS-01 through Cloudflare, `X-Real-IP` set to the real peer |
 | `env.example` | The names in the app's `.env` |
@@ -47,6 +47,7 @@ deploys go where they went before.
 | Domains | `lumenviae.org, www.lumenviae.org` | `Caddyfile`, `PHX_HOST` in `compose.yml` |
 | Image | `ghcr.io/abrahamrodri/lumenviae` | `ci.yml` (`IMAGE`) |
 | Backup folder | `db/lumenviae` | `backup.env` (`BACKUP_PREFIX`) |
+| The person's user | `abraham` (the person's own name, not `admin`) | `cloud-init.yaml` (`users` and `runcmd`) |
 | SSH keys | the owner's and the CI deploy key | `cloud-init.yaml` |
 
 Leave out what the site does not have: the `office` service is Lumen
@@ -74,7 +75,7 @@ rehearsal uses a test name.
    alert policy at 90% memory that emails the owner), the firewall above,
    and `cloud-init.yaml` (with the two keys put in) as its user data. Pick
    any SSH key at creation; cloud-init turns root login off. A few minutes
-   after it boots: `ssh admin@<ip> cloud-init status --wait` says `done`.
+   after it boots: `ssh <owner>@<ip> cloud-init status --wait` says `done`.
 4. **The stack** (as `deploy`, in `/srv/<name>`): `.env` from
    `env.example`, mode 600. The first `docker compose up -d` comes from the
    rehearsal in the switch-day runbook, then every deploy from CI.
@@ -90,7 +91,7 @@ rehearsal uses a test name.
      a backup that fails quietly for 30 days leaves nothing to restore.
    - On the server, `/srv/<name>/backup.env` from `backup.env.example`,
      mode 600, owner `deploy`.
-   - As `admin`, once (each deploy copies `deploy/vm/` to the server, so the
+   - As the owner's user, once (each deploy copies `deploy/vm/` to the server, so the
      units are in `/srv/<name>/systemd/`; before the first deploy, copy that
      folder by hand):
      `sudo cp /srv/<name>/systemd/* /etc/systemd/system/`,
