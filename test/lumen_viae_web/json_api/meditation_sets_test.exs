@@ -309,6 +309,26 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetsTest do
       assert Enum.map(ordered, &elem(&1, 1)["id"]) == Enum.map(rest, &to_string(&1["id"]))
     end
 
+    test "a timed narration carries its lines; an untimed one says null", %{
+      conn: conn,
+      set: set,
+      first: first
+    } do
+      {:ok, _} =
+        Rosary.time_narration(first.id, "female", [%{text: "First", start: 0.0, end: 1.5}],
+          actor: admin()
+        )
+
+      [_, {_, meditation}, _] =
+        conn
+        |> detail(set, @in_prayer_order <> "&fields[meditation]=content,narrations")
+        |> in_prayer_order()
+
+      by_voice = Map.new(meditation["attributes"]["narrations"], &{&1["voice"], &1["lines"]})
+      assert by_voice["female"] == [%{"text" => "First", "start" => 0.0, "end" => 1.5}]
+      assert by_voice["male"] == nil
+    end
+
     test "signs every narration it is asked for, default voice first, each with its own expiry",
          %{conn: conn, set: set} do
       body =

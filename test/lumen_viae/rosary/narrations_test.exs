@@ -157,6 +157,54 @@ defmodule LumenViae.Rosary.NarrationsTest do
     assert Rosary.narration_counts_by_voice(actor: admin()) == %{}
   end
 
+  describe "line timings" do
+    @lines [
+      %{text: "Hail, full of grace.", start: 0.0, end: 2.4},
+      %{text: "The Lord is with thee.", start: 3.1, end: 5.0}
+    ]
+
+    test "a recording starts untimed and keeps the lines it is given", %{meditation: m} do
+      {:ok, m} = Rosary.record_narration(m, "female", "voices/female/clip.mp3", actor: admin())
+      assert [%{lines: nil}] = Rosary.meditation_narrations(m)
+
+      assert {:ok, _} = Rosary.time_narration(m.id, "female", @lines, actor: admin())
+
+      assert [%{lines: [first, second]}] = Rosary.meditation_narrations(%{id: m.id})
+      assert {first.text, first.start, first.end} == {"Hail, full of grace.", 0.0, 2.4}
+      assert second.text == "The Lord is with thee."
+    end
+
+    test "recording the voice again clears its lines, which belonged to the old file", %{
+      meditation: m
+    } do
+      {:ok, m} = Rosary.record_narration(m, "female", "voices/female/clip.mp3", actor: admin())
+      {:ok, _} = Rosary.time_narration(m.id, "female", @lines, actor: admin())
+
+      {:ok, m} = Rosary.record_narration(m, "female", "voices/female/new.mp3", actor: admin())
+
+      assert [%{s3_key: "voices/female/new.mp3", lines: nil}] = Rosary.meditation_narrations(m)
+    end
+
+    test "a voice with no recording cannot be timed", %{meditation: m} do
+      assert {:error, :not_recorded} =
+               Rosary.time_narration(m.id, "female", @lines, actor: admin())
+    end
+
+    test "the public cannot time a recording", %{meditation: m} do
+      {:ok, m} = Rosary.record_narration(m, "female", "voices/female/clip.mp3", actor: admin())
+
+      assert {:error, %Ash.Error.Forbidden{}} =
+               Rosary.time_narration(m.id, "female", @lines, actor: nil)
+    end
+
+    test "a line without its times is refused", %{meditation: m} do
+      {:ok, m} = Rosary.record_narration(m, "female", "voices/female/clip.mp3", actor: admin())
+
+      assert {:error, %Ash.Error.Invalid{}} =
+               Rosary.time_narration(m.id, "female", [%{text: "No times"}], actor: admin())
+    end
+  end
+
   describe "signing" do
     test "the legacy URL is the default voice, or the first voice that exists", %{
       meditation: meditation

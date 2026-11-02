@@ -626,6 +626,25 @@ defmodule LumenViae.Rosary do
     end
   end
 
+  @doc """
+  Stores `voice`'s recording of a meditation line by line, each line a map
+  with `text`, `start` and `end` (seconds into that recording). Returns the
+  narration, or `{:error, :not_recorded}` when the voice has no recording
+  of it. A later `record_narration/4` for the pair clears them.
+  """
+  def time_narration(meditation_id, voice_slug, lines, opts \\ [])
+      when is_binary(voice_slug) and is_list(lines) do
+    case Enum.find(narrations_of(meditation_id, opts), &(&1.voice == voice_slug)) do
+      nil ->
+        {:error, :not_recorded}
+
+      narration ->
+        narration
+        |> Ash.Changeset.for_update(:time_lines, %{lines: lines})
+        |> Ash.update(AshOpts.take(opts))
+    end
+  end
+
   defp narrations_of(meditation_id, opts) do
     Narration
     |> Ash.Query.for_read(:for_meditation, %{meditation_id: meditation_id})
@@ -634,7 +653,8 @@ defmodule LumenViae.Rosary do
 
   @doc """
   The voices a meditation can be heard in, default first, each with the S3
-  key of its recording: `[%{voice: %Voice{}, s3_key: key}]`.
+  key of its recording and its line timings (nil when untimed or not
+  loaded): `[%{voice: %Voice{}, s3_key: key, lines: lines}]`.
 
   Only configured voices count. A row for a voice that has since been
   removed from config is a file nobody can be offered, so it is left out
@@ -649,16 +669,20 @@ defmodule LumenViae.Rosary do
         _not_loaded -> narrations_of(meditation_id, opts)
       end
 
-    by_voice = Map.new(rows, &{&1.voice, &1.s3_key})
+    by_voice = Map.new(rows, &{&1.voice, &1})
 
     Voices.list()
     |> Enum.flat_map(fn voice ->
       case Map.fetch(by_voice, voice.slug) do
-        {:ok, s3_key} -> [%{voice: voice, s3_key: s3_key}]
+        {:ok, row} -> [%{voice: voice, s3_key: row.s3_key, lines: lines_of(row)}]
         :error -> []
       end
     end)
   end
+
+  # A narration loaded without its lines reads as untimed.
+  defp lines_of(%{lines: lines}) when is_list(lines), do: lines
+  defp lines_of(_row), do: nil
 
   @doc """
   Every narration of a meditation as a presigned URL, default voice first:

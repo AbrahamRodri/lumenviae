@@ -22,7 +22,7 @@ defmodule LumenViae.Rosary.Meditation.SignedNarrations do
   # primary key selected unless it asks for more, and a narration without
   # its voice and key is no recording at all.
   @impl true
-  def load(_query, _opts, _context), do: [narrations: [:voice, :s3_key]]
+  def load(_query, _opts, _context), do: [narrations: [:voice, :s3_key, :lines]]
 
   @impl true
   def calculate(meditations, _opts, _context) do
@@ -32,10 +32,10 @@ defmodule LumenViae.Rosary.Meditation.SignedNarrations do
   defp sign_all(meditation) do
     meditation
     |> Rosary.meditation_narrations()
-    |> Enum.reduce_while([], fn %{voice: voice, s3_key: s3_key}, signed ->
+    |> Enum.reduce_while([], fn %{voice: voice, s3_key: s3_key, lines: lines}, signed ->
       case SignedAudio.sign(s3_key) do
         {:ok, audio} ->
-          {:cont, [%SignedNarration{voice: voice.slug, audio: audio} | signed]}
+          {:cont, [%SignedNarration{voice: voice.slug, audio: audio, lines: lines} | signed]}
 
         :error ->
           SignedAudio.log_unsigned(

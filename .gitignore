@@ -55,3 +55,6 @@ npm-debug.log
 /priv/narration_scripts/frederick_ranked.csv
 /voice-tests/
 /scripts/e2e/out/
+
+# Python bytecode from the narration and alignment scripts
+__pycache__/

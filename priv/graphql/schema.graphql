@@ -1598,7 +1598,12 @@ type RosaryClip {
 
 type MeditationNarration {
   voice: String!
+
   meditationId: ID!
+
+  "The meditation line by line with each line's start and end in this recording, for following along; null when this recording has not been timed."
+  lines: [NarrationLine]
+
   audio: SignedAudio!
 }
 
@@ -1607,8 +1612,23 @@ type SignedAudio {
   expiresAt: DateTime!
 }
 
+type NarrationLine {
+  "The words, as the meditation's text has them."
+  text: String!
+
+  "When it begins, in seconds."
+  start: Float!
+
+  "When it ends, in seconds."
+  end: Float!
+}
+
 type SignedNarration {
   voice: String!
+
+  "The meditation line by line with each line's start and end in this recording, for following along; null when this recording has not been timed."
+  lines: [NarrationLine]
+
   audio: SignedAudio!
 }
 

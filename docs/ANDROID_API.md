@@ -220,10 +220,15 @@ Library" and "Spiritual Reading", has the shapes):
   refreshed when the page is shown with a connection.
 - A set opened or saved is cached as the whole detail response. Its
   narrations are `narrations`, every voice, the default first, each
-  `{voice, audio: {url, expires_at}}`; an empty list means nothing is
-  recorded, and null means recordings exist but could not be signed just
-  now. Play the listener's voice when the meditation has it, else the
+  `{voice, audio: {url, expires_at}, lines}`; an empty list means nothing
+  is recorded, and null means recordings exist but could not be signed
+  just now. Play the listener's voice when the meditation has it, else the
   default.
+- `lines` (added 2 Nov 2026) is that recording line by line, each
+  `{text, start, end}` in seconds, for following along as the Chant
+  Library does; null when the recording has not been timed, which is most
+  of them. Decode it as optional, and drop a saved copy's lines when the
+  narration is fetched again without them: they belong to one recording.
 - A narration file is cached under the meditation's id and the voice. When
   a set's links have passed `expires_at`, or a load fails, ask
   `POST /meditations/audio` for that set's ids and voice; an id with

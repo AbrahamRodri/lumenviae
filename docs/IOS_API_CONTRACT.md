@@ -337,6 +337,13 @@ Non-optional in the app: every field the contract does not mark `| null`,
 including each chant's `audio` and every score page's `url`, `bytes` and
 `sha256`. Ids are stored on the device and must never change.
 
+A meditation's narrations in v2 and GraphQL (`narrations`,
+`narration(preferring:)`, `POST /api/v2/meditations/audio`,
+`meditationAudio`) gained an optional `lines` on 2 Nov 2026: the recording
+line by line, `{text, start, end}` in seconds, null when not timed. No
+build reads it yet; a build that does decodes it as optional. The v1 REST
+narrations (section 3) do not carry it.
+
 The chant files themselves (`audio.url`, `score[].url`) are fetched
 outside Phoenix, below. Builds up to 4.0 bundle their chants and words
 and call neither route.

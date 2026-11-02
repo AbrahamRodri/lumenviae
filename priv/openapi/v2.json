@@ -1460,6 +1460,31 @@
                       ],
                       "type": "object"
                     },
+                    "lines": {
+                      "items": {
+                        "properties": {
+                          "end": {
+                            "format": "float",
+                            "type": "number"
+                          },
+                          "start": {
+                            "format": "float",
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "start",
+                          "end"
+                        ],
+                        "type": "object"
+                      },
+                      "nullable": true,
+                      "type": "array"
+                    },
                     "voice": {
                       "type": "string"
                     }
@@ -5814,6 +5839,31 @@
                           "expires_at"
                         ],
                         "type": "object"
+                      },
+                      "lines": {
+                        "items": {
+                          "properties": {
+                            "end": {
+                              "format": "float",
+                              "type": "number"
+                            },
+                            "start": {
+                              "format": "float",
+                              "type": "number"
+                            },
+                            "text": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "start",
+                            "end"
+                          ],
+                          "type": "object"
+                        },
+                        "nullable": true,
+                        "type": "array"
                       },
                       "meditation_id": {
                         "type": "integer"

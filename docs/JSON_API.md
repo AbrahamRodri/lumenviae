@@ -72,6 +72,10 @@ GraphQL renames are renamed the same way here (a set's `author` and
 `source` are its byline, a meditation's `narrations` are its signed
 recordings).
 
+**A narration can carry its lines.** Each of a meditation's `narrations`,
+and each answer of `POST /meditations/audio`, is `{voice, audio, lines}`.
+`lines` is the meditation line by line in that recording, each `{text, start, end}` (seconds), the Chant Library's lines for the spoken word; null when that recording has not been timed. Only the recordings named in `priv/narration_lines/` are timed, and a new recording of a meditation clears its lines until it is timed again.
+
 **A set's meditations come through `include`.** In prayer order they are
 `?include=set_memberships.meditation.mystery`: the set's
 `relationships.set_memberships.data` lists its memberships in prayer
