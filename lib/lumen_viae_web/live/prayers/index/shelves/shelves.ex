@@ -1,42 +1,41 @@
 defmodule LumenViaeWeb.Live.Prayers.Index.Shelves do
   @moduledoc """
   The Prayers page's shelves, as the app's Prayers tab draws them:
-  Everyday Prayers as rows with a painting, Prayers to Mary as painted
-  cards (a grid here, where the app scrolls them sideways), and All
-  Topics as a ruled ledger, each chapter with its line and its count.
+  Everyday Prayers as rows with a painting, then Prayers to Mary and All
+  Topics as shelves of square painted cards, a name and a line under each
+  (`PrayersSquareCard`). All Topics is a shelf for each of the book's five
+  parts. On a phone a shelf scrolls sideways inside itself, as in the app;
+  from 640px its cards wrap.
   """
   use LumenViaeWeb, :html
 
-  alias LumenViaeWeb.Components.MysteryPainting
   alias LumenViaeWeb.Live.Prayers.Book
 
-  attr :prayers, :list, required: true
+  import LumenViaeWeb.Live.Prayers.Painting
+
+  attr :rows, :list, required: true, doc: "`%{prayer:, painting:}`"
 
   def everyday(assigns) do
     ~H"""
-    <section aria-labelledby="everyday-heading">
+    <section aria-labelledby="everyday-heading" class="min-w-0">
       <.shelf_heading
         id="everyday-heading"
         title="Everyday Prayers"
         to={Book.chapter_path(Book.first_chapter_id())}
       />
       <ul class="row-list">
-        <li :for={prayer <- @prayers}>
+        <li :for={%{prayer: prayer, painting: painting} <- @rows}>
           <.link navigate={Book.prayer_path(prayer.id)} class="row-link" data-role="everyday-row">
             <span class="arch-thumb w-14 h-14" aria-hidden="true">
-              <.painting
-                painting={Book.prayer_painting(prayer.id)}
-                sizes="56px"
-                class="w-full h-full object-cover"
-              />
+              <.painting painting={painting} sizes="56px" class="w-full h-full object-cover" />
             </span>
             <span class="flex-1 min-w-0">
               <span class="row-title">{Book.list_name(prayer)}</span>
               <span
-                :if={Book.second_title(prayer)}
+                :if={prayer.english_name}
                 class="block italic text-base text-ink-muted leading-snug"
               >
-                {Book.second_title(prayer)}
+                {prayer.english_name}
               </span>
             </span>
             <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
@@ -51,61 +50,74 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Shelves do
 
   def prayers_to_mary(assigns) do
     ~H"""
-    <section aria-labelledby="mary-heading">
+    <section aria-labelledby="mary-heading" class="min-w-0">
       <.shelf_heading
         id="mary-heading"
         title="Prayers to Mary"
         to={Book.chapter_path(Book.our_lady_chapter_id())}
       />
-      <ul class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-        <li :for={card <- @cards} class={card.seasonal? && "col-span-2 sm:col-span-1"}>
-          <.link
-            navigate={Book.prayer_path(card.prayer.id)}
-            class={["paint-tile prayers-card", card.seasonal? && "paint-tile--today"]}
-            data-role={if card.seasonal?, do: "seasonal-card", else: "marian-card"}
-          >
-            <.painting
-              painting={card.painting}
-              sizes="(min-width: 1024px) 180px, (min-width: 640px) 30vw, 46vw"
-              class="paint-tile__image"
-            />
-            <span class="paint-tile__words">
-              <h3 class="paint-tile__title">{Book.list_name(card.prayer)}</h3>
-              <span class="paint-tile__line">{card.note}</span>
-            </span>
-          </.link>
+      <ul class="book-shelf mt-3">
+        <li :for={card <- @cards}>
+          <.square_card
+            to={Book.prayer_path(card.prayer.id)}
+            title={Book.list_name(card.prayer)}
+            note={card.note}
+            painting={card.painting}
+            role={if card.seasonal?, do: "seasonal-card", else: "marian-card"}
+          />
         </li>
       </ul>
     </section>
     """
   end
 
-  attr :chapters, :list, required: true
+  attr :parts, :list, required: true
 
   def all_topics(assigns) do
     ~H"""
     <section aria-labelledby="topics-heading" class="min-w-0">
-      <%!-- As tall as the other shelves' headings, which carry a link. --%>
-      <h2 id="topics-heading" class="section-label min-h-11 !mb-1">All Topics</h2>
-      <ol class="row-list">
-        <li :for={chapter <- @chapters}>
-          <.link navigate={Book.chapter_path(chapter.id)} class="row-link" data-role="topic-row">
-            <span class="prayers-numeral" aria-hidden="true">{chapter.numeral}</span>
-            <span class="flex-1 min-w-0">
-              <span class="row-title">{chapter.title}</span>
-              <span
-                :if={Book.chapter_note(chapter)}
-                class="block italic text-base text-ink-muted leading-snug"
-              >
-                {Book.chapter_note(chapter)}
-              </span>
-              <span class="row-fact">{Book.count_label(length(chapter.prayer_ids))}</span>
-            </span>
-            <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
-          </.link>
-        </li>
-      </ol>
+      <h2 id="topics-heading" class="section-label">All Topics</h2>
+      <div class="space-y-7 mt-4">
+        <section
+          :for={{part, i} <- Enum.with_index(@parts)}
+          :if={part.chapters != []}
+          aria-labelledby={"part-#{i}"}
+          data-role="book-part"
+        >
+          <h3 id={"part-#{i}"} class="kicker mb-3">{part.title}</h3>
+          <ul class="book-shelf">
+            <li :for={chapter <- part.chapters}>
+              <.square_card
+                to={Book.chapter_path(chapter.id)}
+                title={chapter.title}
+                note={Book.count_label(length(chapter.prayer_ids))}
+                painting={Book.topic_painting(chapter.id)}
+                role="topic-tile"
+              />
+            </li>
+          </ul>
+        </section>
+      </div>
     </section>
+    """
+  end
+
+  @doc "A square painting with a name and a line under it, the whole card a link."
+  attr :to, :string, required: true
+  attr :title, :string, required: true
+  attr :note, :string, default: nil
+  attr :painting, :any, required: true
+  attr :role, :string, required: true
+
+  def square_card(assigns) do
+    ~H"""
+    <.link navigate={@to} class="book-card" data-role={@role}>
+      <span class="book-card__painting" aria-hidden="true">
+        <.painting painting={@painting} sizes="(min-width: 640px) 160px, 138px" />
+      </span>
+      <span class="book-card__title">{@title}</span>
+      <span :if={@note} class="book-card__note">{@note}</span>
+    </.link>
     """
   end
 
@@ -122,22 +134,6 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Shelves do
         See all <span class="hero-chevron-right size-3.5" aria-hidden="true" />
       </.link>
     </div>
-    """
-  end
-
-  @doc "A painting from the Prayers page's list, framed about its subject."
-  attr :painting, :any, required: true, doc: "`{name, focal y}`"
-  attr :sizes, :string, required: true
-  attr :class, :any, default: nil
-
-  def painting(assigns) do
-    {name, focal_y} = assigns.painting
-
-    assigns =
-      assign(assigns, name: name, position: "object-position: 50% #{round(focal_y * 100)}%")
-
-    ~H"""
-    <MysteryPainting.picture name={@name} sizes={@sizes} alt="" class={@class} style={@position} />
     """
   end
 end

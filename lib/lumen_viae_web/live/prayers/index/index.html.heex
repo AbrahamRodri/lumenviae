@@ -1,4 +1,4 @@
-<div class="prayers-page min-h-screen pb-16">
+<div class="prayers-page min-h-screen pb-16" id="prayers-page" phx-hook="UserTimezone">
   <Layouts.flash_group flash={@flash} variant={:public} />
 
   <section
@@ -33,16 +33,13 @@
       seasonal_id={@seasonal_id}
     />
 
-    <div
-      :if={@query == ""}
-      class="grid gap-10 lg:grid-cols-2 lg:gap-16 items-start"
-    >
-      <div class="min-w-0 space-y-10">
-        <.everyday prayers={@everyday} />
+    <div :if={@query == ""} class="space-y-12">
+      <div class="grid gap-10 lg:grid-cols-2 lg:gap-16 items-start">
+        <.everyday rows={@everyday} />
         <.prayers_to_mary cards={@marian} />
       </div>
 
-      <.all_topics chapters={@book.chapters} />
+      <.all_topics parts={@parts} />
     </div>
   </div>
 </div>

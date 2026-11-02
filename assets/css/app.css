@@ -1786,29 +1786,12 @@ html[data-prayer-images="off"] .prayer-plate {
 
 /* === the Prayer Book (/prayers) ===
    The Prayers pages as the app's Prayers tab draws them: the search
-   field, the painted cards for Mary, a chapter's numeral, the turner
-   between chapters and prayers, the language chooser, and a prayer's
-   words in the book's grammar (LumenViaeWeb.Live.Prayers.PrayerText). */
+   field, the shelves of square painted cards (PrayersSquareCard), a
+   topic's painted head, its rows with a small arched painting and its
+   Next topic card (PrayerBookChapterView), the language chooser, and a
+   prayer's words in the book's grammar (ReadingText). Every class is
+   `book-*` or `prayers-*`, apart from the Rosary page's `.prayer-text`. */
 @layer components {
-  .prayers-numeral {
-    flex-shrink: 0;
-    width: 2.75rem;
-    font-family: var(--font-display);
-    font-size: 0.875rem;
-    color: var(--color-gilt);
-  }
-
-  .prayers-card {
-    min-height: 11rem;
-    height: 100%;
-  }
-
-  @media (min-width: 640px) {
-    .prayers-card {
-      min-height: 13rem;
-    }
-  }
-
   .prayers-search {
     display: flex;
     align-items: center;
@@ -1858,45 +1841,344 @@ html[data-prayer-images="off"] .prayer-plate {
     border-color: rgba(227, 188, 91, 0.7);
   }
 
-  /* Previous and next, as the app's turner: a hairline, then a door each
-     side, its label in tracked gold and the title in Garamond. */
-  .prayers-turner {
+  /* A shelf of square cards. On a phone it scrolls sideways inside
+     itself, as the app's shelves do, running to the screen's edges; from
+     640px the cards wrap and nothing scrolls. */
+  .book-shelf {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(227, 188, 91, 0.15);
+    gap: 0.875rem;
+    margin: 0 -1rem;
+    padding: 0 1rem 0.25rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
   }
 
-  .prayers-turner__link {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-    max-width: 16rem;
-    min-height: 44px;
-    border-radius: 0.5rem;
+  .book-shelf::-webkit-scrollbar {
+    display: none;
   }
 
-  .prayers-turner__link--next {
-    align-items: flex-end;
-    text-align: right;
-    margin-left: auto;
+  .book-shelf > li {
+    flex: 0 0 8.625rem;
+    scroll-snap-align: start;
   }
 
-  .prayers-turner__title {
+  @media (min-width: 640px) {
+    .book-shelf {
+      flex-wrap: wrap;
+      gap: 1.5rem 1rem;
+      margin: 0;
+      padding: 0;
+      overflow-x: visible;
+    }
+
+    .book-shelf > li {
+      flex-basis: 10rem;
+    }
+  }
+
+  /* The card: a square painting with a gold hairline, its name in
+     Garamond and its line in italic under it. */
+  .book-card {
+    display: block;
+    border-radius: 0.75rem;
+  }
+
+  .book-card:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 3px;
+  }
+
+  .book-card__painting {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(227, 188, 91, 0.24);
+    background: var(--color-night-raised);
+  }
+
+  /* The <picture> around each painting fills its frame. */
+  .book-card__painting picture,
+  .book-hero__painting picture,
+  .book-row__card picture,
+  .book-next__painting picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .book-card__painting img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease-out;
+  }
+
+  .book-card:hover .book-card__painting img {
+    transform: scale(1.03);
+  }
+
+  .book-card__title {
+    display: -webkit-box;
+    margin-top: 0.5rem;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     font-family: var(--font-garamond);
     font-size: 1.0625rem;
+    line-height: 1.25;
+    color: var(--color-ink-light);
+    transition: color 0.18s ease-out;
+  }
+
+  .book-card:hover .book-card__title {
+    color: var(--color-gilt-light);
+  }
+
+  .book-card__note {
+    display: -webkit-box;
+    margin-top: 0.125rem;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    line-height: 1.3;
+    color: var(--color-ink-muted);
+  }
+
+  /* A topic's head: its painting about half the screen, dissolving into
+     the page at its foot, the title and its line over a scrim. */
+  .book-hero {
+    position: relative;
+    display: flex;
+    min-height: 47vh;
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .book-hero {
+      min-height: min(56vh, 32rem);
+    }
+  }
+
+  .book-hero__painting {
+    position: absolute;
+    inset: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgba(0, 0, 0, 0.4) 85%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgba(0, 0, 0, 0.4) 85%, transparent 100%);
+  }
+
+  .book-hero__painting img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .book-hero__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 1rem 1rem 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .book-hero__inner {
+      padding: 1.5rem 2rem 2rem;
+    }
+  }
+
+  .book-hero__words {
+    position: relative;
+    isolation: isolate;
+    max-width: 40rem;
+  }
+
+  .book-hero__words::before {
+    content: "";
+    position: absolute;
+    inset: -5.5rem -100vw -2rem;
+    z-index: -1;
+    background: linear-gradient(to bottom, rgba(10, 10, 21, 0), rgba(10, 10, 21, 0.72) 45%, rgba(10, 10, 21, 0.92));
+  }
+
+  .book-hero__title {
+    font-family: var(--font-display);
+    font-size: 1.875rem;
+    line-height: 1.15;
+    color: var(--color-ink-light);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  }
+
+  @media (min-width: 768px) {
+    .book-hero__title {
+      font-size: 3rem;
+    }
+  }
+
+  .book-hero__note {
+    margin-top: 0.5rem;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1.125rem;
+    line-height: 1.4;
+    color: rgba(246, 241, 228, 0.78);
+  }
+
+  /* The way back over the painting, as the app's Back capsule. */
+  .book-back {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 44px;
+    padding: 0 1rem 0 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.3);
+    background: rgba(5, 5, 9, 0.55);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-gilt-light);
+  }
+
+  .book-back:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  /* A topic's prayer: its painting in a small arch, its title. */
+  .book-row {
+    min-height: 3.5rem;
+    padding: 0.5625rem 0;
+  }
+
+  .book-row__card {
+    flex-shrink: 0;
+    width: 34px;
+    height: 44px;
+    overflow: hidden;
+    border-radius: 17px 17px 4px 4px;
+    border: 1px solid rgba(227, 188, 91, 0.35);
+    background: var(--color-night-raised);
+  }
+
+  .book-row__card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .book-row__title {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--font-garamond);
+    font-size: 1.125rem;
     line-height: 1.3;
     color: var(--color-ink-light);
     transition: color 0.18s ease-out;
   }
 
-  .prayers-turner__link:hover .prayers-turner__title {
+  .book-row:hover .book-row__title {
     color: var(--color-gilt-light);
   }
 
-  /* English, Latin, Both: the app's language chips, links here. */
+  .book-row__mark {
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  /* The next topic, a painted card darkening toward its words. */
+  .book-next {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 150px;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid rgba(227, 188, 91, 0.2);
+  }
+
+  .book-next:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 3px;
+  }
+
+  .book-next__painting {
+    position: absolute;
+    inset: 0;
+  }
+
+  .book-next__painting img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .book-next__painting::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(10, 10, 21, 0.92), rgba(10, 10, 21, 0.55) 55%, rgba(10, 10, 21, 0.1));
+  }
+
+  .book-next__words {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 1.125rem;
+  }
+
+  .book-next__kicker {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: rgba(246, 241, 228, 0.78);
+  }
+
+  .book-next__title {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    line-height: 1.2;
+    color: var(--color-ink-light);
+  }
+
+  .book-back-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1rem;
+    text-align: center;
+    color: var(--color-ink-muted);
+  }
+
+  .book-back-line:hover {
+    color: var(--color-ink-light);
+  }
+
+  /* English, Latin, Both: the app's language choice, links here. */
   .prayers-language {
     display: flex;
     max-width: 20rem;
@@ -1933,7 +2215,7 @@ html[data-prayer-images="off"] .prayer-plate {
 
   /* A prayer's words: EB Garamond at the reading size, a stanza a block,
      a long line hanging from its first word. */
-  .prayer-text {
+  .book-text {
     max-width: 62ch;
     font-family: var(--font-garamond);
     font-size: 1.1875rem;
@@ -1941,68 +2223,108 @@ html[data-prayer-images="off"] .prayer-plate {
     color: var(--color-ink-light);
   }
 
-  .prayer-stanza + .prayer-stanza {
+  @media (min-width: 768px) {
+    .book-text {
+      font-size: 1.25rem;
+    }
+  }
+
+  .book-stanza + .book-stanza {
     margin-top: 1.1em;
   }
 
-  .prayer-line__primary,
-  .prayer-line__secondary {
+  .book-line__primary,
+  .book-line__secondary {
     display: block;
     padding-left: 1em;
     text-indent: -1em;
   }
 
-  .prayer-stanza--prose .prayer-line__primary {
+  .book-stanza--prose .book-line__primary {
     padding-left: 0;
     text-indent: 0;
   }
 
-  .prayer-rubric {
+  /* The app's versal on a long opening paragraph: the first letter in
+     Cinzel, gilt, half as large again, on the first line. */
+  .book-stanza--versal .book-line__primary::first-letter {
+    font-family: var(--font-display);
+    font-size: 1.6em;
+    line-height: 1;
+    color: var(--color-gilt);
+  }
+
+  /* A psalm verse at its mediant: the first half ends on the red star,
+     the second hangs in by an em and a half on its own line. */
+  .book-stanza--pointed .book-line__primary,
+  .book-stanza--pointed .book-line__secondary {
+    padding-left: 0;
+    text-indent: 0;
+  }
+
+  .book-verse {
+    display: block;
+    padding-left: 1em;
+    text-indent: -1em;
+  }
+
+  .book-verse--second {
+    padding-left: 2.5em;
+  }
+
+  .book-rubric {
     font-style: italic;
     font-size: 0.9em;
     color: var(--color-night-rubric);
   }
 
-  .prayer-glyph {
+  .book-glyph {
     color: var(--color-night-rubric);
   }
 
-  .prayer-litany-response {
+  .book-litany-response {
     font-style: italic;
+    color: rgba(246, 241, 228, 0.74);
   }
 
-  /* Both, on a phone: each English line with its Latin beneath, smaller
-     and muted. */
-  .prayer-line--paired + .prayer-line--paired {
+  /* Both: the Latin in quiet italic, a little smaller, in the app's soft
+     accent. On a phone it stands beneath each English line, stepped in. */
+  .book-line--paired + .book-line--paired {
     margin-top: 0.5em;
   }
 
-  .prayer-line--paired .prayer-line__secondary {
-    font-size: 0.875em;
-    color: var(--color-ink-muted);
+  .book-line--paired .book-line__secondary {
+    margin-top: 0.15em;
+    margin-left: 1rem;
+    font-style: italic;
+    font-size: 0.89em;
+    color: var(--color-sky);
   }
 
-  /* Both, on a wide screen: the Latin and the English in two columns,
-     line by line. */
+  .book-line--paired .book-line__secondary .book-litany-response {
+    color: inherit;
+  }
+
+  /* Both, on a wide screen: the English and the Latin side by side, line
+     by line. */
   @media (min-width: 768px) {
-    .prayer-text--both {
+    .book-text--both {
       max-width: none;
     }
 
-    .prayer-text--both .prayer-line--paired {
+    .book-text--both .book-line--paired {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       column-gap: 3rem;
     }
 
-    .prayer-line--paired + .prayer-line--paired {
+    .book-line--paired + .book-line--paired {
       margin-top: 0.15em;
     }
 
-    .prayer-text--both .prayer-line--paired .prayer-line__secondary {
-      font-size: 1em;
-      color: var(--color-ink-light);
-      opacity: 0.85;
+    .book-text--both .book-line--paired .book-line__secondary {
+      margin-top: 0;
+      margin-left: 0;
     }
   }
 }

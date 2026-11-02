@@ -19,9 +19,9 @@ app's tabs to come to the website as its desktop version. The console
 | `/mysteries/:category/pray` | `LumenViaeWeb.Live.Pray.Index` | The same page, praying a category without a set. |
 | `/app` | `LumenViaeWeb.Live.Home.App.Index` | The iPhone app's page: real screenshots of the app in CSS-drawn phones, what it holds in the app's own names, and the App Store link. |
 | `/privacy-policy` | `LumenViaeWeb.Live.PrivacyPolicy.Index` | The privacy policy the App Store listing links to. |
-| `/prayers` | `LumenViaeWeb.Live.Prayers.Index` | The Prayer Book, as the app's Prayers tab: the number of prayers, the search (`?q=`), Everyday Prayers, Prayers to Mary (the season's song first) and All Topics. |
-| `/prayers/topics/:chapter_id` | `LumenViaeWeb.Live.Prayers.Chapter` | One chapter of the book: its numeral, title, Latin title and note, its prayers under its sections, the chapters either side. |
-| `/prayers/:prayer_id` | `LumenViaeWeb.Live.Prayers.Prayer` | One prayer: its names and origin, English, Latin or Both (`?lang=`), when it is said, the prayers either side in its chapter. |
+| `/prayers` | `LumenViaeWeb.Live.Prayers.Index` | The Prayer Book, as the app's Prayers tab: the number of prayers, the search (`?q=`), Everyday Prayers, Prayers to Mary (the season's song first) and All Topics under the book's five parts, as shelves of square painted cards (sideways on a phone, wrapping from 640px). |
+| `/prayers/topics/:chapter_id` | `LumenViaeWeb.Live.Prayers.Chapter` | One topic, as the app's topic page: its painting with the title and line over it, its prayers (a small arched painting and the title each) under its sections where it has more than one, the next topic as a painted card and a line back to the one before. |
+| `/prayers/:prayer_id` | `LumenViaeWeb.Live.Prayers.Prayer` | One prayer, as the app opens a prayer alone: its second name as a gold label over the title where the app shows one, English, Latin or Both (`?lang=`), the words, and a link back to its topic. |
 
 All ten are in the `:public` live session in `router.ex`. A set that does
 not exist, or is hidden, answers 404, and so do an unknown category, an
@@ -112,15 +112,23 @@ written.
 | `/prayers/:prayer_id` | `lang` | `latin` or `both` (only on a prayer with Latin) | English |
 
 In Both the English leads and the Latin pairs with it line by line, as the
-app's Prayer Book sets it (English with Latin): two columns from 768px,
-the Latin beneath each English line, smaller and muted, on a phone. The words, the chapters and the songs to Mary are the
+app's Prayer Book sets it (English with Latin), the Latin in quiet
+italic: two columns from 768px, the Latin beneath each English line,
+stepped in, on a phone. A psalm verse breaks at its mediant (a red star,
+the second half hung in), and a long prose prayer opens on a gilt versal.
+The origin and the "when it is said" note the book carries are not shown,
+as the app no longer shows them. The words, the chapters and the songs to Mary are the
 domain's (`LumenViae.Rosary.get_prayer_book!/1`, from
 `priv/library/prayer_book.json`); how the pages arrange them (which
 prayers open the page, the paintings, the search's ranking) is
 `LumenViaeWeb.Live.Prayers.Book`, the app's rules, and the text's grammar
 is `LumenViaeWeb.Live.Prayers.PrayerText`. The season's song to Mary is
-`LumenViae.LiturgicalCalendar.marian_antiphon_season/1` on the server's
-date. Not here yet, as the app has them: the Now card, the order
+`LumenViae.LiturgicalCalendar.marian_antiphon_season/1` on the visitor's
+date (the `UserTimezone` hook, as home), the server's until it connects.
+The paintings are the app's (`PrayerBookPaintings.swift`); the site has
+only the mysteries' paintings, so an asset it lacks hangs the nearest
+mystery (`Book.stand_ins/0`), and a prayer whose scene has neither hangs
+its topic's. Not here yet, as the app has them: the Now card, the order
 shortcuts, For an Occasion, Saved, Learn by Heart and praying aloud.
 
 ## Where each setting lives

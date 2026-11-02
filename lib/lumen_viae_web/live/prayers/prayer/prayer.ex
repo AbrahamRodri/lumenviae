@@ -1,18 +1,21 @@
 defmodule LumenViaeWeb.Live.Prayers.Prayer do
   @moduledoc """
-  `/prayers/:prayer_id`: one prayer of the Prayer Book, as the app's
-  prayer page sets it. Its chapter above it, its title and its Latin or
-  English name, where it comes from, the language chooser (only for a
-  prayer with Latin), the words in the book's grammar
-  (`LumenViaeWeb.Live.Prayers.PrayerText`), when it is said, and the
-  prayers either side of it in its chapter. An id the book does not have
-  is a 404.
+  `/prayers/:prayer_id`: one prayer of the Prayer Book, as the app opens
+  a prayer alone (`PrayAlongView`'s head): its second name as a small
+  gold label over the title where the app shows one
+  (`Book.second_title/1`), the title, the language (the app's ··· menu
+  choice, made visible here as a chooser, only for a prayer with Latin),
+  and the words in the book's grammar
+  (`LumenViaeWeb.Live.Prayers.PrayerText`). A quiet link above leads back
+  to the prayer's topic. Opened alone, the app does not step to other
+  prayers, so neither does this page. An id the book does not have is a
+  404.
 
   The language rides in the link as `?lang=latin` or `?lang=both`;
   English, the default, is never written. In Both the English leads and
   the Latin pairs with it line by line, as the app's Prayer Book sets it
-  (English with Latin): two columns on a wide screen, the Latin beneath
-  each English line on a phone.
+  (English with Latin, the Latin in quiet italic): two columns on a wide
+  screen, the Latin beneath each English line, stepped in, on a phone.
   """
   use LumenViaeWeb, :live_view
 
@@ -33,11 +36,6 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
 
     chapter = Book.home_chapter(book, id)
 
-    {previous, next} =
-      if chapter,
-        do: Book.neighbours(Book.prayers(book, chapter.prayer_ids), prayer),
-        else: {nil, nil}
-
     {:ok,
      socket
      |> PageMeta.put(Book.prayer_path(id),
@@ -47,8 +45,6 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
      )
      |> assign(:prayer, prayer)
      |> assign(:chapter, chapter)
-     |> assign(:previous, previous)
-     |> assign(:next, next)
      |> assign(:languages, @language_labels)}
   end
 

@@ -1,98 +1,91 @@
-<div class="prayers-page min-h-screen pb-16">
+<div class="prayers-page min-h-screen pb-16" id="prayers-topic" phx-hook="UserTimezone">
   <Layouts.flash_group flash={@flash} variant={:public} />
 
-  <section
-    class="border-b border-[rgba(227,188,91,0.15)]"
-    aria-labelledby="chapter-heading"
-  >
-    <div class="max-w-3xl mx-auto px-4 sm:px-8 pt-8 pb-8 md:pt-14 md:pb-12 text-center">
-      <p class="kicker" data-role="chapter-numeral">Chapter {@chapter.numeral}</p>
-      <h1
-        id="chapter-heading"
-        class="font-display text-[2rem] md:text-5xl text-ink-light leading-[1.15] mt-3"
-      >
-        {@chapter.title}
-      </h1>
-      <p class="font-garamond italic text-lg md:text-xl text-ink-muted mt-2" lang="la">
-        {@chapter.latin_title}
-      </p>
-      <div class="my-5" aria-hidden="true">
-        <.sacred_divider class="max-w-[150px] mx-auto" />
+  <section class="book-hero" aria-labelledby="chapter-heading">
+    <span class="book-hero__painting" aria-hidden="true">
+      <.painting painting={@painting} sizes="100vw" loading="eager" />
+    </span>
+    <div class="book-hero__inner">
+      <.link navigate="/prayers" class="book-back" data-role="back">
+        <span class="hero-chevron-left size-4" aria-hidden="true" /> Prayers
+      </.link>
+      <div class="book-hero__words">
+        <h1 id="chapter-heading" class="book-hero__title">{@chapter.title}</h1>
+        <p :if={@chapter.note} class="book-hero__note" data-role="chapter-note">
+          {@chapter.note}
+        </p>
       </div>
-      <p
-        :if={@chapter.note}
-        class="font-garamond italic text-lg text-ink-light/80 max-w-[60ch] mx-auto"
-      >
-        {@chapter.note}
-      </p>
     </div>
   </section>
 
-  <div class="max-w-5xl mx-auto px-4 sm:px-8 pt-8 md:pt-12">
+  <div class="max-w-5xl mx-auto px-4 sm:px-8">
     <div class={[
-      "grid gap-x-16 gap-y-10",
-      length(@sections) > 1 && "lg:grid-cols-2"
+      "grid gap-x-16",
+      @headed? && "lg:grid-cols-2"
     ]}>
       <section
         :for={{section, i} <- Enum.with_index(@sections)}
-        class="min-w-0"
-        aria-labelledby={"section-#{i}"}
+        class={["min-w-0", !@headed? && "pt-4"]}
+        aria-labelledby={@headed? && "section-#{i}"}
       >
-        <h2 id={"section-#{i}"} class="section-label">{section.title}</h2>
+        <h2 :if={@headed?} id={"section-#{i}"} class="section-label !mb-1 pt-8">
+          {section.title}
+        </h2>
         <ul class="row-list">
-          <li :for={prayer <- section.prayers}>
+          <li :for={%{prayer: prayer, painting: painting} <- section.rows}>
             <.link
               navigate={Book.prayer_path(prayer.id)}
-              class="row-link"
+              class="row-link book-row"
               data-role="chapter-prayer"
             >
-              <span class="flex-1 min-w-0">
-                <span class="row-title">{Book.list_name(prayer)}</span>
-                <span
-                  :if={Book.second_title(prayer)}
-                  class="block italic text-base text-ink-muted leading-snug"
-                >
-                  {Book.second_title(prayer)}
-                </span>
-                <span :if={prayer.id == @seasonal_id} class="badge-capsule mt-1.5">
-                  This season
-                </span>
+              <span class="book-row__card" aria-hidden="true">
+                <.painting painting={painting} sizes="34px" />
               </span>
-              <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
+              <span class="book-row__title">{prayer.title}</span>
+              <span :if={prayer.id == @seasonal_id} class="book-row__mark" data-role="this-season">
+                This season
+              </span>
+              <span class="hero-chevron-right size-4 row-chevron" aria-hidden="true" />
             </.link>
           </li>
         </ul>
       </section>
     </div>
 
-    <nav class="prayers-turner mt-14" aria-label="Chapters">
-      <.link
-        :if={@previous}
-        navigate={Book.chapter_path(@previous.id)}
-        class="prayers-turner__link"
-      >
-        <span class="kicker">
-          <span aria-hidden="true">&lsaquo;</span> Chapter {@previous.numeral}
-        </span>
-        <span class="prayers-turner__title">{@previous.title}</span>
-      </.link>
-      <span :if={!@previous}></span>
+    <nav class="max-w-3xl mx-auto mt-12 space-y-3" aria-label="Topics">
       <.link
         :if={@next}
         navigate={Book.chapter_path(@next.id)}
-        class="prayers-turner__link prayers-turner__link--next"
+        class="book-next"
+        data-role="next-topic"
+        aria-label={"Next topic, #{@next.title}"}
       >
-        <span class="kicker">
-          Chapter {@next.numeral} <span aria-hidden="true">&rsaquo;</span>
+        <span class="book-next__painting" aria-hidden="true">
+          <.painting
+            painting={Book.topic_painting(@next.id)}
+            sizes="(min-width: 768px) 720px, 100vw"
+          />
         </span>
-        <span class="prayers-turner__title">{@next.title}</span>
+        <span class="book-next__words">
+          <span class="book-next__kicker">Next topic</span>
+          <span class="book-next__title">
+            {@next.title}
+            <span class="hero-chevron-right size-4 text-gilt" aria-hidden="true" />
+          </span>
+        </span>
+      </.link>
+      <div :if={!@next} class="py-2" aria-hidden="true">
+        <.sacred_divider class="max-w-[150px] mx-auto" />
+      </div>
+      <.link
+        :if={@previous}
+        navigate={Book.chapter_path(@previous.id)}
+        class="book-back-line"
+        data-role="previous-topic"
+        aria-label={"Topic before, #{@previous.title}"}
+      >
+        or back to <span class="text-gilt-light">{@previous.title}</span>
       </.link>
     </nav>
-
-    <div class="mt-10 text-center">
-      <.link navigate="/prayers" class="btn-text !text-ink-muted hover:!text-gilt">
-        <span aria-hidden="true">&lsaquo;</span> All prayers
-      </.link>
-    </div>
   </div>
 </div>

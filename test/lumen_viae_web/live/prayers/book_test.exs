@@ -61,4 +61,41 @@ defmodule LumenViaeWeb.Live.Prayers.BookTest do
     assert "memorare" in Enum.map(rest, & &1.prayer.id)
     refute "hail_mary" in Enum.map(rest, & &1.prayer.id)
   end
+
+  test "a prayer's Latin name shows only where the app knows it by it", %{book: book} do
+    assert Book.second_title(Book.prayer(book, "our_father")) == "Pater Noster"
+    assert Book.second_title(Book.prayer(book, "memorare")) =~ "Remember"
+    assert Book.second_title(Book.prayer(book, "act_of_faith")) == nil
+    assert Book.second_title(Book.prayer(book, "magnificat")) == "Magnificat"
+  end
+
+  test "a prayer the app homes elsewhere is headed by that topic", %{book: book} do
+    assert Book.home_chapter(book, "hail_holy_queen").id == "our_lady"
+    assert Book.home_chapter(book, "te_deum").id == "thanks"
+  end
+
+  test "the five parts hold every topic once, in the book's order", %{book: book} do
+    parts = Book.parts(book)
+
+    assert length(parts) == 5
+
+    assert parts |> Enum.flat_map(& &1.chapters) |> Enum.sort_by(& &1.id) ==
+             Enum.sort_by(book.chapters, & &1.id)
+
+    assert hd(parts).chapters |> Enum.map(& &1.id) == ~w(first day short)
+  end
+
+  test "every painting the pages hang is one the website has", %{book: book} do
+    alias LumenViaeWeb.Components.MysteryPainting
+
+    paintings =
+      Enum.map(book.chapters, &Book.topic_painting(&1.id)) ++
+        Enum.map(Map.keys(book.prayers), &Book.prayer_painting(book, &1)) ++
+        Enum.map(~w(advent_eve february_2 easter pentecost_saturday), &Book.antiphon_painting/1) ++
+        Map.values(Book.stand_ins())
+
+    for {name, _x, _y} <- paintings do
+      assert MysteryPainting.for_name(name), "no painting named #{name}"
+    end
+  end
 end

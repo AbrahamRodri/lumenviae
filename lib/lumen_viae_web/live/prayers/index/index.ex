@@ -3,7 +3,11 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
   `/prayers`: the Prayer Book, as the iOS app's Prayers tab opens it. The
   heading and the number of prayers, the search, and the shelves in the
   app's order: Everyday Prayers, Prayers to Mary (the season's song
-  first) and All Topics.
+  first) and All Topics under the book's five parts.
+
+  "Today", for the season's song, is the visitor's: the `UserTimezone`
+  hook sends the browser's offset once connected (`set_timezone`); until
+  then it is the server's date.
 
   The search rides in the link as `?q=`, so a reload, a shared link and
   the back button keep it; it is ranked as the app ranks it
@@ -18,7 +22,7 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
   import LumenViaeWeb.Live.Prayers.Index.Shelves
   import LumenViaeWeb.Live.Prayers.Index.Search
 
-  @description "The Lumen Viae Prayer Book: the everyday prayers, the songs to Mary through the year and every topic, in English and Latin, with a note on when each is said."
+  @description "The Lumen Viae Prayer Book: the everyday prayers, the songs to Mary through the year and every topic, in English and Latin."
 
   @impl true
   def mount(_params, _session, socket) do
@@ -34,14 +38,14 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
      )
      |> assign(:book, book)
      |> assign(:prayer_count, Book.prayer_count(book))
-     |> assign(:everyday, Book.prayers(book, Book.everyday_ids()))
-     |> assign(:marian, Book.marian_shelf(book, today))
-     |> assign(:seasonal_id, seasonal_id(book, today))}
+     |> assign(:everyday, everyday_rows(book))
+     |> assign(:parts, Book.parts(book))
+     |> assign_today(today)}
   end
 
   @impl true
   def handle_params(params, _uri, socket) do
-    query = params |> Map.get("q", "") |> to_string() |> String.trim()
+    query = if is_binary(params["q"]), do: String.trim(params["q"]), else: ""
     book = socket.assigns.book
 
     {:noreply,
@@ -52,11 +56,35 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
   end
 
   @impl true
-  def handle_event("search", %{"q" => query}, socket) do
+  def handle_event("search", %{"q" => query}, socket) when is_binary(query) do
     {:noreply, push_patch(socket, to: path(query), replace: true)}
   end
 
   def handle_event("search", _params, socket), do: {:noreply, socket}
+
+  def handle_event("set_timezone", %{"offset" => offset}, socket) do
+    case Book.local_date(offset) do
+      {:ok, date} -> {:noreply, assign_today(socket, date)}
+      :error -> {:noreply, socket}
+    end
+  end
+
+  def handle_event("set_timezone", _params, socket), do: {:noreply, socket}
+
+  defp assign_today(socket, today) do
+    book = socket.assigns.book
+
+    socket
+    |> assign(:marian, Book.marian_shelf(book, today))
+    |> assign(:seasonal_id, seasonal_id(book, today))
+  end
+
+  # Each everyday prayer with its painting.
+  defp everyday_rows(book) do
+    for prayer <- Book.prayers(book, Book.everyday_ids()) do
+      %{prayer: prayer, painting: Book.prayer_painting(book, prayer.id)}
+    end
+  end
 
   defp path(query) do
     case String.trim(query) do
