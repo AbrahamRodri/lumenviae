@@ -8,12 +8,9 @@ defmodule LumenViae.Rosary.RosaryContent.SpanishNamesTest do
   # been served at, oldest first. Change a word: bump the file's updated_at
   # and add the new pair at the end.
   @history [
-    {~U[2026-11-03 00:00:00Z], "b0ed7117b22bd8b1"}
+    {~U[2026-11-03 00:00:00Z], "b0ed7117b22bd8b1"},
+    {~U[2026-11-03 00:10:00Z], "e5625f395a38d398"}
   ]
-
-  # The Seven Sorrows set keeps its English names: the file names the four
-  # sets of the Rosary only.
-  @spanish_sets ~w(joyful luminous sorrowful glorious)
 
   test "the file is dated and versioned as its history last records it" do
     {pinned_at, pinned_version} = List.last(@history)
@@ -31,14 +28,16 @@ defmodule LumenViae.Rosary.RosaryContent.SpanishNamesTest do
     end
   end
 
-  test "the four sets of the Rosary have Spanish names, and nothing else does" do
+  test "every set has a Spanish name and devotion title" do
     for slug <- Categories.slugs() do
-      if slug in @spanish_sets do
-        assert %{name: _, devotion_title: "Misterios " <> _} = SpanishNames.category(slug)
-      else
-        assert SpanishNames.category(slug) == nil
-      end
+      assert %{name: name, devotion_title: title} = SpanishNames.category(slug), slug
+      assert String.trim(name) != "" and String.trim(title) != "", slug
     end
+
+    assert SpanishNames.category("seven_sorrows") == %{
+             name: "Siete Dolores",
+             devotion_title: "Los siete dolores de María"
+           }
   end
 
   test "an unknown key has no Spanish" do

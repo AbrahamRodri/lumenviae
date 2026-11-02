@@ -62,7 +62,7 @@ defmodule LumenViae.Rosary.RosaryContent do
       description "The Rosary's words as one document. There is only ever one."
 
       argument :lang, :string do
-        description "The document's language. `es`: each prayer adds Spanish beside the English and Latin, and the mysteries' names and fruits and the four sets' names are in Spanish, with the English wherever there is no Spanish yet. Missing, `en` or a language not served: the document in English and Latin."
+        description "The document's language. `es`: each prayer adds Spanish beside the English and Latin, and the mysteries' names and fruits and the sets' names are in Spanish, with the English wherever there is no Spanish yet. Missing, `en` or a language not served: the document in English and Latin."
       end
 
       prepare Current
@@ -159,7 +159,7 @@ defmodule LumenViae.Rosary.RosaryContent do
       public? true
       constraints nil_items?: false
 
-      description "The five categories of mysteries, in the order the app presents them: names, the label of each mystery by position, Hail Marys per decade, whether the Fatima Prayer is said, and the Seven Sorrows' graces. With `lang=es`, the four sets' names and devotion titles in Spanish."
+      description "The five categories of mysteries, in the order the app presents them: names, the label of each mystery by position, Hail Marys per decade, whether the Fatima Prayer is said, and the Seven Sorrows' graces. With `lang=es`, the sets' names and devotion titles in Spanish."
     end
 
     calculate :verses, {:array, Types.RosaryVerses}, Verses do

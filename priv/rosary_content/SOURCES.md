@@ -60,11 +60,10 @@ All three were read on 2 November 2026.
 # Sources of the mysteries' names and fruits
 
 `es/mysteries.json` holds the Spanish names of the mysteries, their
-fruits, and the names of the four sets. `lang=es` serves them in the
+fruits, and the names of the five sets. `lang=es` serves them in the
 `mysteries` and `categories` sections. Anything the file does not hold
 stays English: each mystery's description, key verse and spoken
-announcement, the Seven Sorrows set's names, and every set's other
-labels.
+announcement, and every set's other labels.
 
 ## Names: copied from official sources
 
@@ -79,6 +78,11 @@ labels.
   the name. The third is "Los tres días de angustia cuando el niño se
   quedó en el templo", from his "esos tres días de angustia cuando el
   niño se quedó en el templo".
+- The Seven Sorrows set: [4] gives no title for the devotion. Its names
+  are built from the homily's own words, "los “siete dolores”" and
+  "los dolores de María": "Siete Dolores" (`name`) and "Los siete
+  dolores de María" (`devotion_title`, for the English "Seven Sorrows of
+  Mary").
 
 4. Pope Francis, morning meditation in the chapel of the Domus Sanctae
    Marthae, 3 April 2020, "La Dolorosa, discípula y madre", on

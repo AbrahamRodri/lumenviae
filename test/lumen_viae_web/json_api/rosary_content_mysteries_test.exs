@@ -184,15 +184,15 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentMysteriesTest do
       refute spanish["version"] == english["version"]
     end
 
-    test "es: the four sets' names in Spanish; the Seven Sorrows and every other field as before" do
+    test "es: every set's name and devotion title in Spanish; every other field as before" do
       spanish = sections("&lang=es")["categories"]
       english = sections("")["categories"]
 
       assert %{"name" => "Gozosos", "devotion_title" => "Misterios gozosos"} =
                Enum.find(spanish, &(&1["slug"] == "joyful"))
 
-      assert Enum.find(spanish, &(&1["slug"] == "seven_sorrows")) ==
-               Enum.find(english, &(&1["slug"] == "seven_sorrows"))
+      assert %{"name" => "Siete Dolores", "devotion_title" => "Los siete dolores de María"} =
+               Enum.find(spanish, &(&1["slug"] == "seven_sorrows"))
 
       for {es, en} <- Enum.zip(spanish, english) do
         assert Map.drop(es, ~w(name devotion_title)) == Map.drop(en, ~w(name devotion_title))

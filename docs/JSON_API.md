@@ -557,10 +557,10 @@ GraphQL: `rosaryContent(lang: "es")`.
   Spanish, in the same fields. Everything else in a mystery stays
   English: `description`, `key_verse` and the `announcement` the spoken
   Rosary says.
-- **`categories`** with `lang=es`: the four sets of the Rosary have
-  Spanish `name` and `devotion_title` ("Gozosos", "Misterios gozosos").
-  The Seven Sorrows and every other field (`subtitle`, `mystery_labels`,
-  `graces`) stay English.
+- **`categories`** with `lang=es`: all five sets have Spanish `name` and
+  `devotion_title` ("Gozosos", "Misterios gozosos"; "Siete Dolores",
+  "Los siete dolores de María"). Every other field (`subtitle`,
+  `mystery_labels`, `graces`) stays English.
 - Every other section is the English one for now.
 - **Its own `version` and `updated_at`.** A Spanish document's version
   differs from the English one's and moves when a Spanish word changes,

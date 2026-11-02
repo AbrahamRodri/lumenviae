@@ -1,10 +1,11 @@
 {
-  "updated_at": "2026-11-03T00:00:00Z",
+  "updated_at": "2026-11-03T00:10:00Z",
   "categories": {
     "joyful": {"name": "Gozosos", "devotion_title": "Misterios gozosos"},
     "luminous": {"name": "Luminosos", "devotion_title": "Misterios luminosos"},
     "sorrowful": {"name": "Dolorosos", "devotion_title": "Misterios dolorosos"},
-    "glorious": {"name": "Gloriosos", "devotion_title": "Misterios gloriosos"}
+    "glorious": {"name": "Gloriosos", "devotion_title": "Misterios gloriosos"},
+    "seven_sorrows": {"name": "Siete Dolores", "devotion_title": "Los siete dolores de María"}
   },
   "mysteries": {
     "joyful_1": {"name": "La encarnación del Hijo de Dios", "fruit": "Humildad"},

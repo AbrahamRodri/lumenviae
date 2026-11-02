@@ -1,6 +1,6 @@
 defmodule LumenViae.Rosary.RosaryContent.SpanishNames do
   @moduledoc """
-  The mysteries' names and fruits, and the four sets' names, in Spanish:
+  The mysteries' names and fruits, and the sets' names, in Spanish:
   what `GET /api/v2/rosary-content?lang=es` serves in its `mysteries` and
   `categories` sections in place of the English.
 
