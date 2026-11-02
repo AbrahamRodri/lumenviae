@@ -64,7 +64,8 @@ rehearsal uses a test name.
    sits in front of Docker, which bypasses ufw for its published ports):
    - TCP 22 from anywhere (SSH takes keys only, and GitHub's runners have
      no fixed addresses);
-   - TCP 80 and 443 from anywhere while the DNS is DNS-only (grey cloud);
+   - TCP 80 and 443 from All IPv4 and All IPv6 while the DNS is DNS-only
+     (grey cloud);
      once Cloudflare's proxy is on, from Cloudflare's ranges only, which
      are in `priv/cloudflare/ips-v4.txt` and `ips-v6.txt`;
    - ICMP from anywhere.

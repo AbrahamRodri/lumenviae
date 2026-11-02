@@ -50,6 +50,8 @@ built around those three.
    `docker buildx build --platform linux/amd64 -t lumenviae:<commit> --load .`
    at main's commit, then
    `docker save lumenviae:<commit> | gzip | ssh deploy@<ip> 'gunzip | docker load'`.
+   On an Apple Silicon Mac, if the build crashes (a `beam.smp` segfault),
+   turn on Rosetta in Docker Desktop's settings and build again.
    `IMAGE=lumenviae:<commit>` below means that image.
 5. **Backups:** recipe step 5. It needs R2 enabled on Abraham's Cloudflare
    account. Until it is, the weekly Droplet backup is the only backup:
@@ -71,14 +73,20 @@ built around those three.
      RELEASE_COMMIT=<commit>` (compose refuses to start without IMAGE, and
      `/healthz` reports RELEASE_COMMIT), `docker compose up -d db`, then
      `docker compose exec -T db pg_restore --no-owner -U lumen_viae -d lumen_viae < lv.dump`.
-   - Start the stack: `docker compose up -d --wait`.
+   - Migrate, then start the stack: `docker compose run --rm app /app/bin/migrate`,
+     `docker compose up -d --wait`.
      Caddy gets the certificates for `lumenviae.org` and
      `www.lumenviae.org` while DNS still points at Fly.
    - On the Mac, point both names at the Droplet in `/etc/hosts`, run
      `EXPECT_COMMIT=<main's commit> bin/prod-feature-check` (every feature
      ok), open the site and `/admin`, then remove the hosts lines.
+   - Over IPv6 too (the Cloud Firewall must allow 80 and 443 from All
+     IPv6 as well as All IPv4):
+     `curl -6 --resolve 'www.lumenviae.org:443:[<droplet IPv6>]' https://www.lumenviae.org/healthz`.
    - `docker stats --no-stream`: note memory. Above about 85% of 1 GB with
      swap busy: resize to 2 GB before going on.
+   - `docker compose stop app`, so the rehearsal's copy takes no jobs or
+     writes before the day.
 8. **The cutover:**
    - **Freeze:** no merges to main, no console edits. Note the time.
    - **Fresh dump** from Fly as in step 7; note
@@ -89,15 +97,21 @@ built around those three.
      `rosary_completions`, `meditations`, `meditation_sets` with Fly's, and
      move the completion ids clear of Fly's:
      `SELECT setval(pg_get_serial_sequence('rosary_completions','id'), <max at dump> + 1000);`
-   - `docker compose up -d --wait`, then the `/etc/hosts` check again.
+   - `docker compose run --rm app /app/bin/migrate` (it should find nothing),
+     `docker compose up -d --wait`, then the `/etc/hosts` and IPv6 checks
+     again.
    - **DNS** in Cloudflare: `@` and `www` A to the Droplet's IPv4, AAAA to
      its IPv6. Keep them DNS-only (grey cloud) for now.
    - **Deploys:** in the repository's settings, add the secrets `VM_HOST`,
      `VM_SSH_KEY`, `VM_SSH_KNOWN_HOSTS` (recipe step 6) and set the variable
      `HOSTING=vm`.
-   - **Catch up:** completions taken on Fly since the dump:
+   - **Catch up**, and again after 15 minutes, that evening and the next
+     morning (stale DNS keeps sending a few visitors to Fly for a while):
      `COPY (SELECT * FROM rosary_completions WHERE id > <max at dump>) TO STDOUT`
-     on Fly, `COPY rosary_completions FROM STDIN` on the Droplet.
+     on Fly, then on the Droplet copy that into a temp table
+     (`CREATE TEMP TABLE c (LIKE rosary_completions)`, `COPY c FROM STDIN`)
+     and `INSERT INTO rosary_completions SELECT * FROM c ON CONFLICT (id) DO NOTHING`,
+     so a row already copied is skipped, not an error.
 9. **The watch:** `bin/prod-feature-check` with `EXPECT_COMMIT` right after
    the switch, after 15 minutes and that evening; `/ops/status` with the
    token (database, office engine, queues); on the Droplet,
