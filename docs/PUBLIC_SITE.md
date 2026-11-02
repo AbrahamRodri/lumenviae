@@ -222,6 +222,10 @@ row still count, in the browser. See `docs/UPCOMING_FEATURES.md`.
 
 ## Meta tags and images
 
+- Every public page carries Apple's Smart App Banner
+  (`<meta name="apple-itunes-app" content="app-id=6760320749">`, in the root
+  layout): Safari on an iPhone or iPad offers Open or Get above the page. The
+  console's layout leaves it out.
 - A public page calls `LumenViaeWeb.PageMeta.put/3` from `mount/3`. The root
   layout turns the result into the description, canonical link, link
   previews and structured data, in the first server-rendered response.
