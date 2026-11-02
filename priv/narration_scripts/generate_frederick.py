@@ -4,11 +4,13 @@
     python3 -u priv/narration_scripts/generate_frederick.py SET_ID [--voice frederick|female]
         [--ids 228,251] [--no-upload] [--force]
 
-Scripts: priv/narration_scripts/frederick/<meditation_id>.txt (direction tags live only
-there, never in stored content; the same tagged script serves every voice). Each
-script's words are checked against the live content, or against
-priv/narration_scripts/pending_text_fixes.json when a text fix for that id is waiting
-to be applied to the database.
+Scripts: priv/narration_scripts/frederick/<meditation_id>.txt for frederick, and
+priv/narration_scripts/female/<meditation_id>.txt for female, tagged in the calmer style of
+meditative_enhance_prompt.md and checked by check_female_scripts.py (direction tags live
+only there, never in stored content). With --voice female a meditation without a female/
+script is skipped. Each script's words are checked against the live content, or
+against priv/narration_scripts/pending_text_fixes.json when a text fix for that id is
+waiting to be applied to the database.
 
 frederick: saves narration_out/frederick/<filename>, uploads voices/frederick/<filename>
   (skips existing keys unless --force). No database writes.
@@ -55,7 +57,13 @@ def main():
     for m in s["meditations"]:
         if ids and str(m["id"]) not in ids: continue
         fn = m["audio_url"].split("?")[0].rsplit("/", 1)[-1]
-        path = os.path.join(ROOT, "priv/narration_scripts/frederick", f"{m['id']}.txt")
+        # female reads her own meditative scripts (female/<id>.txt) and skips a
+        # meditation without one, so a whole set never re-records her v4 files
+        # from Frederick's dramatic tags.
+        folder = "female" if voice == "female" else "frederick"
+        path = os.path.join(ROOT, "priv/narration_scripts", folder, f"{m['id']}.txt")
+        if voice == "female" and not os.path.exists(path):
+            print(f"#{m['id']}: no female/ script, skipped", flush=True); continue
         script = open(path).read().strip()
         content = fixes.get(str(m["id"]), m["content"])
         if words(re.sub(r"\[[^\]]*\]", "", script)) != words(content):
