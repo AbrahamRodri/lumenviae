@@ -21,24 +21,26 @@ defmodule LumenViaeWeb.ClientIP do
   this module has no reliable way to hold. So it reads the two things that
   are unambiguous:
 
-    * `Fly-Client-IP`, which Fly sets itself and overwrites on the way in,
-      so a caller cannot forge it; and
+    * the one header the proxy in front sets itself and overwrites on the
+      way in, so a caller cannot forge it: `Fly-Client-IP` on Fly, the
+      default; and
     * the socket peer, which is correct when nothing is in front of the
       application at all.
 
-  **If this app ever moves off Fly, or gains a CDN in front of it, this
-  module needs revisiting** - `Fly-Client-IP` would stop arriving and every
-  request would be attributed to the peer, which behind a proxy is the
-  proxy.
+  The header is a setting, `CLIENT_IP_HEADER` (`config :lumen_viae,
+  :client_ip_header`), for a host other than Fly: on the VM in
+  `deploy/vm/`, Caddy replaces `X-Real-IP` with the peer it saw, so the
+  VM sets `CLIENT_IP_HEADER=x-real-ip`; behind Cloudflare's proxy it would
+  be `cf-connecting-ip`. Name only a header the proxy overwrites: one it
+  passes through is the caller's to choose. Without the right header every
+  request is attributed to the peer, which behind a proxy is the proxy.
   """
-
-  @header "fly-client-ip"
 
   @doc """
   The client address for a `Plug.Conn`, as a string, or `nil`.
   """
   def from_conn(%Plug.Conn{} = conn) do
-    case Plug.Conn.get_req_header(conn, @header) do
+    case Plug.Conn.get_req_header(conn, header()) do
       [value | _] -> presence(value) || peer_address(conn.remote_ip)
       [] -> peer_address(conn.remote_ip)
     end
@@ -56,6 +58,11 @@ defmodule LumenViaeWeb.ClientIP do
   """
   def from_session(%{"client_ip" => ip}) when is_binary(ip), do: presence(ip)
   def from_session(_session), do: nil
+
+  # Lowercase, as Plug holds request headers.
+  defp header,
+    do:
+      :lumen_viae |> Application.get_env(:client_ip_header, "fly-client-ip") |> String.downcase()
 
   defp peer_address(address) when is_tuple(address) do
     address |> :inet.ntoa() |> to_string()

@@ -1,0 +1,17 @@
+# HTTPS for both names, certificates by DNS-01 through Cloudflare, so they
+# are issued before the DNS points here (no window of certificate errors,
+# which HSTS would make unclickable). The token is limited to editing
+# lumenviae.org's DNS records. The app redirects lumenviae.org to www.
+lumenviae.org, www.lumenviae.org {
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+	}
+
+	encode zstd gzip
+
+	reverse_proxy app:8080 {
+		# Replaced, never appended: a caller's own X-Real-IP is dropped, so
+		# LumenViaeWeb.ClientIP (CLIENT_IP_HEADER=x-real-ip) reads the real peer.
+		header_up X-Real-IP {remote_host}
+	}
+}
