@@ -249,6 +249,18 @@ defmodule LumenViae.LiturgicalCalendar do
   end
 
   @doc """
+  Whether `date` falls in Eastertide as the Prayer Book keeps it: from
+  Easter Sunday to the Saturday after Pentecost, the eve of Trinity Sunday.
+  The Regina Caeli is said in the Angelus's place then. The iOS app's rule
+  (`PrayerBook.isEastertide`), on the calendar day.
+  """
+  @spec eastertide?(Date.t()) :: boolean()
+  def eastertide?(%Date{year: year} = date) do
+    easter = easter(year)
+    Date.compare(date, easter) != :lt and Date.compare(date, Date.add(easter, 56)) == :lt
+  end
+
+  @doc """
   Ash Wednesday for the given year (46 days before Easter).
   """
   @spec ash_wednesday(integer()) :: Date.t()

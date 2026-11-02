@@ -1017,14 +1017,14 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/home/` | the home page, the daily hub: today's mysteries on either schedule, the sets for them, the Rosary without a set, and a card per category (`category_card/`); and the iPhone app's page (`app/`, its screenshots drawn by `app/phone_screen.ex`) |
 | `live/mysteries/` | public: the mysteries in Scripture (`scripture.ex`, its sections in `_partials/`) and the category page (`category_list/`). Admin: mystery CRUD and a category card's painting (`card/`) |
 | `live/pray/` | the prayer page: see [The prayer page](#the-prayer-page) |
-| `live/prayers/` | the Prayer Book, as the app's Prayers tab: the shelves and the search (`index/`, with `shelves/` and `search/`), a chapter (`chapter/`) and a prayer (`prayer/`, its words drawn by `prayer/text/`). `book.ex` is the book as the pages read it (the app's shelves, the five parts, second names, paintings with their stand-ins and search ranking, over `Rosary.get_prayer_book!/1`), `prayer_text.ex` the text's grammar and `painting.ex` a painting drawn about its subject; all are presentation and never query. Their CSS is the `book-*` and `prayers-*` classes, apart from the Rosary page's `.prayer-text` |
+| `live/prayers/` | the Prayer Book, as the app's Prayers tab: the shelves, the shortcuts, Now and the search (`index/`, with `shelves/` and `search/`), a chapter (`chapter/`), an order of prayer (`order/`) and praying it in silence (`order/pray/`), and a prayer (`prayer/`, its words drawn by `prayer/text/`). `book.ex` is the book as the pages read it (the app's shelves, the five parts, second names, paintings with their stand-ins and search ranking, over `Rosary.get_prayer_book!/1`), `orders.ex` the orders of prayer as the app reads them (the hour's order, Eastertide, the closing song to Mary, their paintings and search), `prayer_text.ex` the text's grammar and `painting.ex` a painting drawn about its subject; all are presentation and never query. Their CSS is the `book-*` and `prayers-*` classes, apart from the Rosary page's `.prayer-text` |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
 The public site is the Rosary and the Prayer Book: home, the mysteries,
-their sets and the prayer page, the Prayer Book's three pages, with the
-iPhone app's page and the privacy policy beside them, ten routes in all
+their sets and the prayer page, the Prayer Book's five pages, with the
+iPhone app's page and the privacy policy beside them, twelve routes in all
 (`docs/PUBLIC_SITE.md` lists them, the links' parameters and where each
 setting is kept). Pages retired from it (the
 dashboard, How to Pray, True Devotion, St. Carlo, Feedback) are in

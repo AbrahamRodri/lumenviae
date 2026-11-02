@@ -111,9 +111,11 @@ defmodule LumenViaeWeb.Router do
       live "/mysteries", Live.Mysteries.Scripture
 
       # The Prayer Book, as the app's Prayers tab: the shelves and the
-      # search, a chapter, and a prayer
+      # search, a chapter, an order of prayer and praying it, and a prayer
       live "/prayers", Live.Prayers.Index
       live "/prayers/topics/:chapter_id", Live.Prayers.Chapter
+      live "/prayers/orders/:order_id", Live.Prayers.Order
+      live "/prayers/orders/:order_id/pray", Live.Prayers.Order.Pray
       live "/prayers/:prayer_id", Live.Prayers.Prayer
 
       # The iPhone app's landing page

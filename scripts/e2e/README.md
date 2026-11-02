@@ -8,7 +8,8 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
 
 - loads `/`, `/mysteries`, `/mysteries/joyful`, `/mysteries/seven_sorrows`,
   `/privacy-policy`, `/app`, `/prayers` (and a search), a topic of the
-  Prayer Book and two prayers (one in Both), and checks each answers 200
+  Prayer Book, two prayers (one in Both), an order of prayer and a step
+  of praying it in Both, and checks each answers 200
   with an h1 and no console errors;
 - checks no page scrolls sideways (`scrollWidth <= innerWidth`);
 - follows the first Pray link on `/mysteries/joyful` to
@@ -31,8 +32,9 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   unknown set answer 404;
 - on `/prayers`, types "memorare" in the search (the link gains
   `?q=memorare` and the Memorare is found), opens it, chooses Both (the link
-  gains `lang=both`), and checks an unknown prayer and an unknown topic
-  answer 404;
+  gains `lang=both`); on `/prayers/orders/morning` presses Pray (the
+  first prayer opens) and Next (the link gains `step=2`); and checks an
+  unknown prayer, topic and order answer 404;
 - jumps to `mystery=closing`, presses Complete and checks the completion
   screen shows (once, at the mobile width);
 - saves a full-page screenshot of the main pages to `scripts/e2e/out/`

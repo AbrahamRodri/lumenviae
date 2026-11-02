@@ -4,11 +4,15 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Search do
   The form is a plain GET to `/prayers`, so it works before the page
   connects; once it has, every keystroke patches `?q=` in place. The
   results say how many prayers match, show up to two topics the words name
-  as cards, then the prayers, each with the chapter it belongs to.
+  as cards and up to three orders of prayer as rows with their painting
+  and when they are said (the app's search, "Prayers said together"), then
+  the prayers, each with the chapter it belongs to.
   """
   use LumenViaeWeb, :html
 
-  alias LumenViaeWeb.Live.Prayers.Book
+  alias LumenViaeWeb.Live.Prayers.{Book, Orders}
+
+  import LumenViaeWeb.Live.Prayers.Painting
 
   @hint ~s(Type a prayer's name or a word from it: "Memorare", "Joseph", "mercy".)
   @no_match ~s(No prayer by that name. Try a word from it — "mercy", "Joseph", "light".)
@@ -55,6 +59,8 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Search do
   attr :query, :string, required: true
   attr :hits, :list, required: true
   attr :topics, :list, required: true
+  attr :orders, :list, default: []
+  attr :today, Date, required: true
   attr :seasonal_id, :string, default: nil
 
   def search_results(assigns) do
@@ -70,7 +76,7 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Search do
       <h2 id="results-heading" class="section-label">Results</h2>
 
       <p
-        :if={@hits == [] and @topics == []}
+        :if={@hits == [] and @topics == [] and @orders == []}
         class="italic text-lg text-ink-muted"
         data-role="no-match"
       >
@@ -91,6 +97,28 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Search do
             <span class="kicker block">Topic</span>
             <span class="row-title">{chapter.topic}</span>
             <span class="row-fact">{Book.count_label(length(chapter.prayer_ids))}</span>
+          </.link>
+        </li>
+      </ul>
+
+      <ul :if={@orders != []} class="row-list mb-4" aria-label="Prayers said together">
+        <li :for={order <- @orders}>
+          <.link
+            navigate={Orders.order_path(order.id)}
+            class="row-link"
+            data-role="order-result"
+          >
+            <span class="prayers-result-painting" aria-hidden="true">
+              <.painting painting={Orders.page_painting(order, @today)} sizes="44px" />
+            </span>
+            <span class="flex-1 min-w-0">
+              <span class="kicker block !mb-0">Prayers said together</span>
+              <span class="row-title">{Orders.title(order, @today)}</span>
+              <span class="block italic text-base text-ink-muted leading-snug">
+                {order.occasion}
+              </span>
+            </span>
+            <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
           </.link>
         </li>
       </ul>

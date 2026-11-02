@@ -19,6 +19,9 @@ Disallow: /api/
 # not already give it, and used to walk far enough to trip the Complete
 # button and leave a Rosary nobody prayed.
 Disallow: /meditation-sets/
+# Praying an order of prayer, a page a prayer: the order's own page and
+# each prayer's page already carry every word.
+Disallow: /prayers/orders/*/pray
 
 # Crawlers that gather text for model training. Nothing here is stopping
 # them by force; they are simply asked, in the terms they publish, not to

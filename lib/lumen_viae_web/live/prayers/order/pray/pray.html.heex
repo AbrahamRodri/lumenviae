@@ -1,0 +1,168 @@
+<div
+  id="pray-order"
+  class="pray-along"
+  data-layout="focused"
+  phx-hook="UserTimezone"
+>
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <div :if={@step != :amen} class="pray-along__ground" aria-hidden="true">
+    <.painting painting={@painting} sizes="100vw" loading="eager" />
+  </div>
+
+  <div
+    :if={@step != :amen}
+    class={["pray-along__layout", @shown_language == "both" && "pray-along__layout--both"]}
+  >
+    <nav class="pray-along__rail" aria-label={"The prayers of #{@title}"} data-role="rail">
+      <p class="kicker mb-3">{@title}</p>
+      <ol>
+        <li :for={{prayer, i} <- Enum.with_index(@prayers, 1)}>
+          <.link
+            patch={Orders.pray_path(@order.id, i, @language)}
+            replace
+            class={["pray-along__rail-link", i < @step && "is-prayed"]}
+            aria-current={if(i == @step, do: "step")}
+          >
+            <span class="pray-along__rail-bead" aria-hidden="true"></span>
+            <span class="min-w-0">{prayer.title}</span>
+          </.link>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="pray-along__column">
+      <header class="pray-along__head">
+        <div class="pray-along__bar">
+          <.link
+            navigate={Orders.order_path(@order.id)}
+            class="pray-along__close"
+            aria-label={"Close, back to #{@title}"}
+            data-role="close"
+          >
+            <span class="hero-x-mark size-5" aria-hidden="true" />
+          </.link>
+          <p class="pray-along__kicker" data-role="order-title">{@kicker}</p>
+          <span class="w-11 shrink-0" aria-hidden="true"></span>
+        </div>
+
+        <div :if={@count > 1} class="pray-along__beads-row">
+          <ol class="pray-along__beads" aria-label="Prayers">
+            <li :for={{prayer, i} <- Enum.with_index(@prayers, 1)}>
+              <.link
+                patch={Orders.pray_path(@order.id, i, @language)}
+                replace
+                class={[
+                  "pray-along__bead",
+                  i < @step && "is-prayed",
+                  i == @step && "is-now"
+                ]}
+                aria-label={"#{i} of #{@count}, #{prayer.title}"}
+                aria-current={if(i == @step, do: "step")}
+              >
+                <span aria-hidden="true"></span>
+              </.link>
+            </li>
+          </ol>
+          <p class="pray-along__count" data-role="step-count" aria-live="polite">
+            {@step} of {@count}
+          </p>
+        </div>
+      </header>
+
+      <article class="pray-along__page" aria-labelledby="prayer-heading">
+        <div class="pray-along__words">
+          <p :if={Book.second_title(@prayer)} class="pray-along__second" data-role="second-title">
+            {Book.second_title(@prayer)}
+          </p>
+          <h1 id="prayer-heading" class="pray-along__title">{@prayer.title}</h1>
+
+          <nav
+            :if={@prayer.latin}
+            class="prayers-language mt-5"
+            aria-label="Language"
+            data-role="language"
+          >
+            <.link
+              :for={{value, label} <- @languages}
+              patch={Orders.pray_path(@order.id, @step, value)}
+              replace
+              class="prayers-language__option"
+              aria-current={if(value == @shown_language, do: "true")}
+            >
+              {label}
+            </.link>
+          </nav>
+
+          <div class="mt-6 md:mt-8">
+            <.prayer_text stanzas={@stanzas} language={@shown_language} />
+          </div>
+        </div>
+      </article>
+
+      <nav class="pray-along__foot" aria-label="Turn the page">
+        <.link
+          :if={@previous}
+          patch={Orders.pray_path(@order.id, @step - 1, @language)}
+          class="pray-along__back"
+          rel="prev"
+          data-role="previous"
+          aria-label={"Previous prayer, #{@previous.title}"}
+        >
+          <span class="hero-chevron-left size-5" aria-hidden="true" />
+        </.link>
+
+        <.link
+          :if={@next}
+          patch={Orders.pray_path(@order.id, @step + 1, @language)}
+          class="pray-along__next"
+          rel="next"
+          data-role="next"
+          aria-label={"Next prayer, #{@next.title}"}
+        >
+          <span class="flex-1 min-w-0">
+            <span class="pray-along__next-label">Next</span>
+            <span class="pray-along__next-title">{@next.title}</span>
+          </span>
+          <span class="hero-chevron-right size-4 text-gilt shrink-0" aria-hidden="true" />
+        </.link>
+
+        <.link
+          :if={!@next}
+          patch={Orders.pray_path(@order.id, :amen, @language)}
+          class="btn-gold pray-along__amen"
+          data-role="amen"
+        >
+          Amen <span class="hero-check size-4" aria-hidden="true" />
+        </.link>
+      </nav>
+    </div>
+  </div>
+
+  <section
+    :if={@step == :amen}
+    class="pray-along__closing"
+    aria-labelledby="amen-heading"
+    data-role="closing"
+  >
+    <div class="pray-along__closing-painting" aria-hidden="true">
+      <.painting painting={@painting} sizes="100vw" loading="eager" />
+    </div>
+    <div class="pray-along__closing-words">
+      <p class="pray-along__prayed">{@title} · Prayed</p>
+      <h1 id="amen-heading" class="pray-along__amen-title">Amen.</h1>
+      <div class="mt-6 flex flex-col items-center gap-1">
+        <.gold_cta navigate={Orders.order_path(@order.id)} class="min-w-[10rem]" data-role="done">
+          Done
+        </.gold_cta>
+        <.link
+          patch={Orders.pray_path(@order.id, 1, @language)}
+          class="btn-text"
+          data-role="pray-again"
+        >
+          <span class="hero-arrow-path size-4" aria-hidden="true" /> Pray again
+        </.link>
+      </div>
+    </div>
+  </section>
+</div>

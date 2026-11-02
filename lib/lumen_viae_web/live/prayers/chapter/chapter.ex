@@ -5,6 +5,10 @@ defmodule LumenViaeWeb.Live.Prayers.Chapter do
   head with the title and the topic's line over its foot, then its
   prayers, a row each with a small arched painting and the prayer's
   title, under the book's sub-headings only where it has more than one.
+  Where the topic holds orders of prayer said together (Before Mass and
+  After Communion under Holy Mass and Communion), one painted card, Pray
+  together, stands first with a row for each, as the app's does; the
+  app's Prayers tab once listed them as For an Occasion.
   At the foot the next topic as a painted card and a quiet line back to
   the one before. An id the book does not have is a 404.
 
@@ -13,7 +17,7 @@ defmodule LumenViaeWeb.Live.Prayers.Chapter do
   """
   use LumenViaeWeb, :live_view
 
-  alias LumenViaeWeb.Live.Prayers.Book
+  alias LumenViaeWeb.Live.Prayers.{Book, Orders}
   alias LumenViaeWeb.PageMeta
 
   import LumenViaeWeb.Live.Prayers.Painting
@@ -40,6 +44,7 @@ defmodule LumenViaeWeb.Live.Prayers.Chapter do
      |> assign(:painting, Book.topic_painting(chapter.id))
      |> assign(:sections, sections(book, chapter))
      |> assign(:headed?, length(chapter.sections) > 1)
+     |> assign(:orders, Orders.chapter_orders(book, chapter.id))
      |> assign(:previous, previous)
      |> assign(:next, next)
      |> assign_today(Date.utc_today())}
@@ -58,7 +63,10 @@ defmodule LumenViaeWeb.Live.Prayers.Chapter do
   defp assign_today(socket, today) do
     %{book: book, chapter: chapter} = socket.assigns
     seasonal = chapter.id == Book.our_lady_chapter_id() && Book.antiphon(book, today)
-    assign(socket, :seasonal_id, seasonal && seasonal.prayer_id)
+
+    socket
+    |> assign(:today, today)
+    |> assign(:seasonal_id, seasonal && seasonal.prayer_id)
   end
 
   defp sections(book, chapter) do

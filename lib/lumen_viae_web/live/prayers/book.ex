@@ -16,9 +16,14 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   alias LumenViae.Rosary
   alias LumenViaeWeb.Components.MysteryPainting
 
-  defstruct chapters: [], prayers: %{}, antiphons: []
+  defstruct chapters: [], prayers: %{}, antiphons: [], orders: []
 
-  @type t :: %__MODULE__{chapters: [map()], prayers: %{String.t() => map()}, antiphons: [map()]}
+  @type t :: %__MODULE__{
+          chapters: [map()],
+          prayers: %{String.t() => map()},
+          antiphons: [map()],
+          orders: [map()]
+        }
 
   # The first prayers, a row each under Everyday Prayers.
   @everyday_ids ~w(our_father hail_mary glory_be apostles_creed)
@@ -85,16 +90,17 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
 
   @doc "The whole book, read through the domain as `actor`."
   def load(actor) do
-    Rosary.get_prayer_book!(actor: actor, load: [:chapters, :prayers, :marian_antiphons])
+    Rosary.get_prayer_book!(actor: actor, load: [:chapters, :prayers, :marian_antiphons, :orders])
     |> new()
   end
 
-  @doc "The index over a book the domain served."
-  def new(%{chapters: chapters, prayers: prayers, marian_antiphons: antiphons}) do
+  @doc "The index over a book the domain served; its orders of prayer when loaded."
+  def new(%{chapters: chapters, prayers: prayers, marian_antiphons: antiphons} = book) do
     %__MODULE__{
       chapters: chapters,
       prayers: Map.new(prayers, &{&1.id, &1}),
-      antiphons: antiphons
+      antiphons: antiphons,
+      orders: if(is_list(Map.get(book, :orders)), do: book.orders, else: [])
     }
   end
 
@@ -672,7 +678,17 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
       String.contains?(fold(prayer.latin || ""), phrase)
   end
 
-  defp name_answers?(wanted, name) do
+  @doc """
+  The words a search asks for, as `search/2` reads them: folded, the
+  small words let go unless they are all there is.
+  """
+  def search_terms(needle), do: search_words(needle, false)
+
+  @doc """
+  Whether a name answers the words searched (`search_terms/1`): every word
+  begins one of the name's words, "st" and "saint" one word.
+  """
+  def name_answers?(wanted, name) do
     words = search_words(name, true)
 
     words != [] and

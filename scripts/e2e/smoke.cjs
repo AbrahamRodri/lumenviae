@@ -28,6 +28,8 @@ const PAGES = [
   { path: "/prayers/topics/our_lady", slug: "prayers-topic" },
   { path: "/prayers/memorare", slug: "prayer" },
   { path: "/prayers/litany_loreto?lang=both", slug: "prayer-both" },
+  { path: "/prayers/orders/morning", slug: "prayer-order" },
+  { path: "/prayers/orders/morning/pray?step=3&lang=both", slug: "prayer-order-pray" },
 ];
 
 const APP_STORE = "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749";
@@ -200,7 +202,8 @@ async function checkAppPage(page, vp) {
 
 // The Prayer Book: typing in the search puts it in the link and finds the
 // Memorare; its page offers the languages and Both rides in the link; an
-// unknown prayer or topic is a 404.
+// order of prayer's Pray and Next step through it in the link; an unknown
+// prayer, topic or order is a 404.
 async function checkPrayers(browser, vp) {
   const label = `${vp.name} prayers`;
   console.log(label);
@@ -223,7 +226,26 @@ async function checkPrayers(browser, vp) {
   await noHorizontalScroll(page, `${label} (both)`);
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
 
-  for (const unknown of ["/prayers/not-a-prayer", "/prayers/topics/nowhere"]) {
+  // An order of prayer: Pray opens its first prayer, and Next turns to
+  // the second in the link.
+  await page.goto(BASE_URL + "/prayers/orders/morning");
+  await settle(page);
+  // The dev server's Tidewave toolbar sits over the foot at a phone's
+  // width; it is not on the site.
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  await page.locator("[data-role=order-pray]").click();
+  const praying = await eventually(() => new URL(page.url()).pathname === "/prayers/orders/morning/pray");
+  check(praying, `${label}: Pray opens the order's first prayer`, page.url());
+  await settle(page);
+  await page.locator("[data-role=next]").click();
+  const stepped = await eventually(() => new URL(page.url()).searchParams.get("step") === "2");
+  check(stepped, `${label}: Next turns to the second prayer in the link`, page.url());
+  const heading = await eventually(async () => (await page.locator("h1").textContent()).includes("Morning Offering"));
+  check(heading, `${label}: the second prayer is on the page`);
+  await noHorizontalScroll(page, `${label} (order)`);
+  check(errors.length === 0, `${label}: no console errors after praying`, errors.join(" | "));
+
+  for (const unknown of ["/prayers/not-a-prayer", "/prayers/topics/nowhere", "/prayers/orders/nowhere"]) {
     const response = await page.goto(BASE_URL + unknown);
     check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
   }
