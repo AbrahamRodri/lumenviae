@@ -54,10 +54,11 @@ services:
       timeout: 5s
       retries: 10
 
-  # The same image and command as deploy/divinum-officium/fly.toml.
+  # The same image as deploy/divinum-officium/fly.toml, with 2 workers
+  # instead of 4: it shares a 1GB Droplet, and its traffic never fills 2.
   office:
     image: ghcr.io/divinumofficium/divinum-officium@sha256:c09dc81f7627e62d3faf245063e3daa639f41f95c8a3a8d6b4c6e8529726d256
-    command: starman --port 8080 --host 0.0.0.0 --workers 4 --preload-app --user www-data --group www-data /var/www/app.psgi
+    command: starman --port 8080 --host 0.0.0.0 --workers 2 --preload-app --user www-data --group www-data /var/www/app.psgi
     restart: unless-stopped
 
   caddy:

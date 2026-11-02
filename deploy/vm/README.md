@@ -1,9 +1,10 @@
 # Lumen Viae on one VM (not in use)
 
 Production runs on Fly (`fly.toml`). This folder is the prepared
-alternative from the hosting plan, `reports/rig/hosting-migration.md` in
+alternative from the hosting plan (a DigitalOcean Droplet, Abraham's
+choice on 2 November 2026), `reports/rig/hosting-migration.md` in
 the workspace: one small VM running the app, Postgres 17, the Divine
-Office engine and Caddy, about $5 a month. Nothing here runs until
+Office engine and Caddy, about $6 a month. Nothing here runs until
 Abraham switches, and the switch is his to start.
 
 ## What is here
@@ -16,6 +17,14 @@ Abraham switches, and the switch is his to start.
 - `caddy/Dockerfile`: Caddy with the Cloudflare DNS module.
 - `env.example`: the names the VM's `.env` holds. No values, and no
   ElevenLabs key.
+- `cloud-init.yaml`: the server's setup (users, SSH by key only, automatic
+  security upgrades, Docker, ufw).
+- `bin/backup`, `bin/restore-test`, `systemd/`, `backup.env.example`: the
+  nightly `pg_dump` to R2 and the weekly restore test.
+
+This folder is also the shared recipe Tornado Diet and ClipperHandz copy:
+`docs/HOSTING_RECIPE.md` says how to set a server up and which names to
+change.
 
 ## How it is switched on
 

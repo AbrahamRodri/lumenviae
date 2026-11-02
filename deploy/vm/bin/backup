@@ -1,0 +1,61 @@
+#!/bin/sh
+# Nightly backup: dump the stack's Postgres and put the dump in an R2 bucket.
+# Run by systemd/backup.timer from the stack's folder on the server
+# (/srv/<app>/bin/backup); docs/HOSTING_RECIPE.md is the recipe.
+#
+# Reads ./backup.env (mode 600, shell syntax, kept apart from the app's .env
+# so the app's AWS keys and these never mix):
+#   R2_ACCOUNT_ID, R2_BUCKET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+#   BACKUP_PREFIX    the folder in the bucket, such as db/lumenviae
+#   BACKUP_ENDPOINT  optional; defaults to the account's R2 endpoint
+#   BACKUP_PING_URL  required; fetched after each good backup. A dead man's
+#                    switch (healthchecks.io's free plan) emails when a
+#                    night's ping does not come, so a failing backup is
+#                    noticed long before the lifecycle rule empties the
+#                    folder. It refuses to run without one.
+#
+# It never deletes: old dumps go by the bucket's lifecycle rule (delete
+# after 30 days under BACKUP_PREFIX), and a bucket lock rule on the same
+# prefix stops anything deleting them sooner, this token included. The R2
+# token is Object Read & Write, scoped to that one bucket; bin/restore-test
+# uses the same one.
+set -eu
+
+cd "$(dirname "$0")/.."
+# shellcheck disable=SC1091
+. ./backup.env
+[ -n "${BACKUP_PING_URL:-}" ] || {
+  echo "backup: set BACKUP_PING_URL in backup.env, or a failing backup goes unnoticed" >&2
+  exit 1
+}
+
+endpoint=${BACKUP_ENDPOINT:-https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com}
+key="$BACKUP_PREFIX/$(date -u +%Y-%m-%dT%H%MZ).dump"
+dump=$(mktemp /var/tmp/backup.XXXXXX)
+trap 'rm -f "$dump"' EXIT
+
+# Custom format, compressed; the database's own name and user, from inside
+# the container, so nothing here names them.
+docker compose exec -T db sh -c 'pg_dump -Fc -U "$POSTGRES_USER" "$POSTGRES_DB"' > "$dump"
+size=$(wc -c < "$dump" | tr -d ' ')
+[ "$size" -gt 0 ] || { echo "backup: pg_dump wrote nothing" >&2; exit 1; }
+
+# aws-cli 2.22 predates the default checksum headers that R2 refused for a
+# while; pinned so an upgrade cannot break the nightly run unnoticed.
+aws() {
+  # Keys passed by name, so their values never appear in the process list.
+  AWS_ACCESS_KEY_ID=$R2_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$R2_SECRET_ACCESS_KEY \
+    docker run --rm \
+    -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY \
+    -e AWS_DEFAULT_REGION=auto \
+    -v "$dump:/dump:ro" \
+    amazon/aws-cli:2.22.0 --endpoint-url "$endpoint" "$@"
+}
+
+aws s3 cp --only-show-errors /dump "s3://$R2_BUCKET/$key"
+
+stored=$(aws s3api head-object --bucket "$R2_BUCKET" --key "$key" --query ContentLength --output text)
+[ "$stored" = "$size" ] || { echo "backup: sent $size bytes, R2 holds $stored" >&2; exit 1; }
+
+echo "backup: $key, $size bytes"
+curl -fsS -m 10 --retry 3 "$BACKUP_PING_URL" > /dev/null

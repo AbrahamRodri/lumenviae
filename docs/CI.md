@@ -67,8 +67,10 @@ The repository variable `HOSTING` picks the deploy job. Unset, as today,
 `Deploy to Fly` runs and `Deploy to the VM` is skipped. Set to `vm`, the
 reverse: the release image goes to GHCR and the VM in `deploy/vm/`
 restarts on it, with the same tip check and the same two production
-checks. Setting it is part of the hosting switch (`deploy/vm/README.md`),
-never a step on its own.
+checks. Each VM deploy also copies `deploy/vm/bin/` and
+`deploy/vm/systemd/` (the nightly backup to R2 and its restore test) to
+the server. Setting it is part of the hosting switch (`deploy/vm/README.md`,
+`docs/HOSTING_RECIPE.md`), never a step on its own.
 
 ### Repository settings the workflow cannot set
 

@@ -1,0 +1,12 @@
+# Every night at about 03:30 UTC; a run missed while the server was off runs
+# at the next boot.
+[Unit]
+Description=Nightly backup of /srv/%i
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 UTC
+RandomizedDelaySec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

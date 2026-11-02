@@ -1,0 +1,11 @@
+# Once a week, Sunday at about 04:30 UTC, after that night's backup.
+[Unit]
+Description=Weekly restore test of /srv/%i
+
+[Timer]
+OnCalendar=Sun *-*-* 04:30:00 UTC
+RandomizedDelaySec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

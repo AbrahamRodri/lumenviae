@@ -310,7 +310,7 @@ jobs:
           VM: deploy@${{ secrets.VM_HOST }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          scp -i ~/.ssh/vm -r deploy/vm/compose.yml deploy/vm/Caddyfile deploy/vm/caddy "$VM:/srv/lumenviae/"
+          scp -i ~/.ssh/vm -r deploy/vm/compose.yml deploy/vm/Caddyfile deploy/vm/caddy deploy/vm/bin deploy/vm/systemd "$VM:/srv/lumenviae/"
           # Logged in for the pull only, and out again, so the job's token is
           # not left in the VM user's Docker config.
           echo "$GHCR_TOKEN" | ssh -i ~/.ssh/vm "$VM" \

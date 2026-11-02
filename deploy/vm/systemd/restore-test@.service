@@ -1,0 +1,12 @@
+# Restores the newest backup of /srv/<name> into a scratch database and
+# checks it (deploy/vm/bin/restore-test).
+[Unit]
+Description=Restore test of the backups of /srv/%i
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=deploy
+WorkingDirectory=/srv/%i
+ExecStart=/srv/%i/bin/restore-test
