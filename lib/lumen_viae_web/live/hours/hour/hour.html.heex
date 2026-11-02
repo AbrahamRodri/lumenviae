@@ -1,0 +1,137 @@
+<div class="hours-page min-h-screen pb-16" id="hours-hour">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <article aria-labelledby="hour-heading">
+    <header class="hours-hero hours-hero--hour">
+      <span class="hours-hero__painting" aria-hidden="true">
+        <.painting painting={@hour.painting} sizes="100vw" loading="eager" />
+      </span>
+      <div class="hours-hero__inner">
+        <div class="hours-hero__bar">
+          <.link navigate={CanonicalHours.day_path(@date)} class="book-back" data-role="back">
+            <span class="hero-chevron-left size-4" aria-hidden="true" /> Hours of Prayer
+          </.link>
+        </div>
+        <div class="hours-now hours-now--hour">
+          <h1 id="hour-heading" class="hours-now__title">{@hour.plain}</h1>
+          <p class="hours-now__label">{@hour.label}</p>
+          <p class="hours-day-line hours-lifted" data-role="day-line">
+            {day_line(@date, @office)}
+          </p>
+          <p
+            :if={@office && @office.celebration}
+            class="hours-hour-feast hours-lifted"
+            lang="la"
+            data-role="feast"
+          >
+            {@office.celebration.title}
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <div class={[
+      "mx-auto px-4 sm:px-8",
+      if(@language == "both", do: "max-w-6xl", else: "max-w-5xl")
+    ]}>
+      <nav
+        class="prayers-language hours-language mt-6"
+        aria-label="Language"
+        data-role="language"
+      >
+        <.link
+          :for={{value, label} <- @languages}
+          patch={language_path(@date, @hour.slug, value)}
+          replace
+          class="prayers-language__option"
+          aria-current={if(value == @language, do: "true")}
+        >
+          {label}
+        </.link>
+      </nav>
+
+      <div :if={@state == :loading} class="hours-quiet py-16 text-center" data-role="loading">
+        Opening {@hour.plain}…
+      </div>
+
+      <div
+        :if={@state == :failed}
+        class="py-16 text-center space-y-3"
+        role="alert"
+        data-role="hour-failed"
+      >
+        <p class="hours-quiet">
+          {@hour.plain} could not be reached. Try again in a moment.
+        </p>
+        <button type="button" phx-click="retry" class="btn-text" data-role="retry">
+          <span class="hero-arrow-path size-3.5" aria-hidden="true" /> Try again
+        </button>
+      </div>
+
+      <div :if={@state == :ready} class="hours-reader" id="hours-reader" phx-hook="OfficeRail">
+        <details :if={OfficeText.named(@sections) != []} class="hours-jump" data-role="jump-list">
+          <summary class="hours-jump__summary">Parts of this prayer</summary>
+          <ol class="hours-jump__list">
+            <li :for={section <- OfficeText.named(@sections)}>
+              <a href={"##{section.id}"} class="hours-jump__link">{section.rail_name}</a>
+            </li>
+          </ol>
+        </details>
+
+        <nav
+          :if={OfficeText.named(@sections) != []}
+          class="hours-rail"
+          aria-label="Parts of this prayer"
+          data-role="rail"
+        >
+          <p class="hours-rail__kicker">In this prayer</p>
+          <ol>
+            <li :for={section <- OfficeText.named(@sections)}>
+              <a href={"##{section.id}"} class="hours-rail__link" data-rail-link={section.id}>
+                {section.rail_name}
+              </a>
+            </li>
+          </ol>
+        </nav>
+
+        <div class="hours-reader__text min-w-0" data-role="office-text">
+          <.office_section :for={section <- @sections} section={section} />
+
+          <footer class="hours-colophon">
+            <p class="hours-colophon__explicit">{CanonicalHours.explicit(@hour)}</p>
+            <div class="hours-colophon__ways">
+              <.link
+                :if={@previous}
+                navigate={CanonicalHours.hour_path(@date, @previous.slug, @language)}
+                class="btn-text"
+                data-role="previous-hour"
+              >
+                <span class="hero-chevron-left size-3.5" aria-hidden="true" /> {@previous.plain}
+              </.link>
+              <span :if={!@previous}></span>
+              <.link
+                :if={@next}
+                navigate={CanonicalHours.hour_path(@date, @next.slug, @language)}
+                class="btn-text"
+                data-role="next-hour"
+              >
+                {@next.plain} <span class="hero-chevron-right size-3.5" aria-hidden="true" />
+              </.link>
+            </div>
+            <p class="hours-credit">
+              <a
+                href={@office.source_url}
+                class="hours-credit__link"
+                rel="noopener"
+                target="_blank"
+                data-role="credit"
+              >
+                {@credit}
+              </a>
+            </p>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </article>
+</div>

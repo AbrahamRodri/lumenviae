@@ -9,7 +9,12 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
 
   "Now", for the hour's order and the season's names and song, is the
   visitor's: the `UserTimezone` hook sends the browser's offset once
-  connected (`set_timezone`); until then it is the server's clock.
+  connected (`set_timezone`). Until it does, the shortcuts and the songs
+  go by the server's date, and the Now card is an empty frame of its
+  size, so no visitor (or crawler) is shown the hour in UTC. While the
+  page is open the card turns when the book's hour does
+  (`Orders.next_turn_in/1`: four, eleven, three and eight o'clock on the
+  visitor's clock).
 
   The search rides in the link as `?q=`, so a reload, a shared link and
   the back button keep it; it is ranked as the app ranks it
@@ -43,6 +48,7 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
      |> assign(:everyday, everyday_rows(book))
      |> assign(:parts, Book.parts(book))
      |> assign(:query, "")
+     |> assign(offset: nil, turn: nil)
      |> assign_now(NaiveDateTime.utc_now())}
   end
 
@@ -62,12 +68,29 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
 
   def handle_event("set_timezone", %{"offset" => offset}, socket) do
     case Orders.local_now(offset) do
-      {:ok, now} -> {:noreply, socket |> assign_now(now) |> assign_search()}
+      {:ok, now} -> {:noreply, socket |> assign(:offset, offset) |> keep_time(now)}
       :error -> {:noreply, socket}
     end
   end
 
   def handle_event("set_timezone", _params, socket), do: {:noreply, socket}
+
+  @impl true
+  def handle_info(:turn, %{assigns: %{offset: offset}} = socket) when is_integer(offset) do
+    {:ok, now} = Orders.local_now(offset)
+    {:noreply, keep_time(socket, now)}
+  end
+
+  def handle_info(:turn, socket), do: {:noreply, socket}
+
+  # The page at the visitor's `now`, and a wake for the hour's next turn
+  # (PrayerBook.nextTurn), a second after it so the clock has passed it.
+  defp keep_time(socket, now) do
+    if socket.assigns.turn, do: Process.cancel_timer(socket.assigns.turn)
+    turn = Process.send_after(self(), :turn, Orders.next_turn_in(now) + 1000)
+
+    socket |> assign(:turn, turn) |> assign_now(now) |> assign_search()
+  end
 
   # The page as it stands at the visitor's `now`: the shortcuts' names and
   # paintings, the hour's order, and the season's song to Mary.

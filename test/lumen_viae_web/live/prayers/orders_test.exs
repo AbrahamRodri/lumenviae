@@ -85,7 +85,7 @@ defmodule LumenViaeWeb.Live.Prayers.OrdersTest do
 
       assert Orders.hour_painting(angelus, ~D[2026-11-02]) == {"joyful_annunciation", 0.5, 0.18}
       {easter, _x, _y} = Orders.hour_painting(angelus, ~D[2026-04-20])
-      assert easter == "glorious_resurrection"
+      assert easter == "easter_appears_to_mary"
     end
 
     test "the calendar keeps Eastertide from Easter Sunday to the Saturday before Trinity" do
@@ -158,6 +158,19 @@ defmodule LumenViaeWeb.Live.Prayers.OrdersTest do
           assert MysteryPainting.for_name(name), "#{order.id}: #{name}"
         end
       end
+    end
+
+    test "the orders hang the app's own paintings", %{book: book} do
+      day = ~D[2026-11-02]
+      name = fn id -> book |> Orders.order(id) |> Orders.painting(day) |> elem(0) end
+
+      assert name.("morning") == "hour_morning"
+      assert name.("night") == "hour_night"
+      assert name.("before_confession") == "saint_peter_tears"
+      assert name.("visit") == "jesus_eucharist_saviour"
+      assert name.("holy_souls") == "order_raising_of_lazarus"
+      assert name.("trouble") == "jesus_good_shepherd"
+      assert name.("table") == "prayer_supper_emmaus"
     end
 
     test "Night Prayers' page hangs its painting from the top", %{book: book} do

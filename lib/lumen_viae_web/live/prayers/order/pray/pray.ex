@@ -7,7 +7,9 @@ defmodule LumenViaeWeb.Live.Prayers.Order.Pray do
   second name over its title and its words in the chosen language; and the
   foot is one way on, the next prayer named, or Amen on the last. Amen
   closes on the order's painting, "MORNING PRAYERS · PRAYED", Done (back
-  to the order) and Pray again. A way back to the prayer before stands
+  where the prayer was begun: the order's page, or `?from=prayers` or
+  `?from=topic:<id>`, see `Orders.from/2`) and Pray again. The Angelus and
+  Queen of Heaven hang the app's gold bell, still, over the title. A way back to the prayer before stands
   beside Next, where the app turns back with a swipe. On a wide screen a
   rail beside the words lists the order's prayers.
 
@@ -39,14 +41,18 @@ defmodule LumenViaeWeb.Live.Prayers.Order.Pray do
       Orders.order(book, id) ||
         raise LumenViaeWeb.NotFoundError, message: "unknown order of prayer: #{id}"
 
+    # The day's name (Queen of Heaven in Eastertide), on the server's
+    # date: the head is written before the visitor's clock is known.
+    title = Orders.title(order, Date.utc_today())
+
     {:ok,
      socket
      |> PageMeta.put(Orders.pray_path(id),
-       title: "Pray #{order.title}",
-       description: "#{order.title}, prayed one prayer after another: #{order.detail}",
+       title: "Pray #{title}",
+       description: "#{title}, prayed one prayer after another: #{order.detail}",
        trail: [
          {"Prayers", "/prayers"},
-         {order.title, Orders.order_path(id)},
+         {title, Orders.order_path(id)},
          {"Pray", Orders.pray_path(id)}
        ]
      )
@@ -62,6 +68,7 @@ defmodule LumenViaeWeb.Live.Prayers.Order.Pray do
      socket
      |> assign(:step_param, params["step"])
      |> assign(:language, PrayerText.language(params["lang"]))
+     |> assign(:from, Orders.from(socket.assigns.book, params["from"]))
      |> assign_page()}
   end
 
@@ -80,8 +87,13 @@ defmodule LumenViaeWeb.Live.Prayers.Order.Pray do
     title = Orders.title(order, date)
     prayers = Orders.prayers(book, order, date)
 
+    {back, back_name} = Orders.back(book, order, socket.assigns.from, title)
+
     socket
     |> assign(:title, title)
+    |> assign(:back, back)
+    |> assign(:back_name, back_name)
+    |> assign(:bell?, angelus?(order, prayers))
     |> assign(:kicker, Orders.kicker(title, prayers))
     |> assign(:prayers, prayers)
     |> assign(:count, length(prayers))
@@ -114,6 +126,12 @@ defmodule LumenViaeWeb.Live.Prayers.Order.Pray do
     |> assign(:previous, if(step > 1, do: Enum.at(prayers, step - 2)))
     |> assign(:next, Enum.at(prayers, step))
   end
+
+  # The Angelus, or Queen of Heaven in its place, rings a bell over its
+  # title (PrayAlongView.isAngelus); on the website it hangs still.
+  defp angelus?(%{id: "angelus"}, _prayers), do: true
+  defp angelus?(_order, [%{id: id}]), do: id in ~w(angelus regina_caeli)
+  defp angelus?(_order, _prayers), do: false
 
   @doc """
   The step a link names: `:amen` for the close, else a whole number held

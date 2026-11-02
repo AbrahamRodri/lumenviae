@@ -119,6 +119,13 @@ defmodule LumenViaeWeb.Router do
       live "/prayers/orders/:order_id/pray", Live.Prayers.Order.Pray
       live "/prayers/:prayer_id", Live.Prayers.Prayer
 
+      # Hours of Prayer, the Divine Office as the app's: today's hours, a
+      # month's calendar, another day's hours, and one hour read
+      live "/hours", Live.Hours.Index, :today
+      live "/hours/calendar/:year/:month", Live.Hours.Calendar
+      live "/hours/:date", Live.Hours.Index, :day
+      live "/hours/:date/:hour", Live.Hours.Hour
+
       # The iPhone app's landing page
       live "/app", Live.Home.App.Index
 
