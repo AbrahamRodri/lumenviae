@@ -31,14 +31,15 @@ defmodule LumenViaeWeb.Live.Prayers.Order do
         raise LumenViaeWeb.NotFoundError, message: "unknown order of prayer: #{id}"
 
     chapter = order.chapter_id && Book.chapter(book, order.chapter_id)
+    # The day's name (Queen of Heaven in Eastertide), on the server's date.
+    title = Orders.title(order, Date.utc_today())
 
     {:ok,
      socket
      |> PageMeta.put(Orders.order_path(id),
-       title: order.title,
-       description:
-         "#{order.title} (#{order.latin_title}), #{lower(order.occasion)}: #{order.detail}",
-       trail: trail(order, chapter)
+       title: title,
+       description: "#{title} (#{order.latin_title}), #{lower(order.occasion)}: #{order.detail}",
+       trail: trail(order, chapter, title)
      )
      |> assign(:book, book)
      |> assign(:order, order)
@@ -65,14 +66,14 @@ defmodule LumenViaeWeb.Live.Prayers.Order do
     |> assign(:painting, Orders.page_painting(order, date))
   end
 
-  defp trail(order, nil),
-    do: [{"Prayers", "/prayers"}, {order.title, Orders.order_path(order.id)}]
+  defp trail(order, nil, title),
+    do: [{"Prayers", "/prayers"}, {title, Orders.order_path(order.id)}]
 
-  defp trail(order, chapter) do
+  defp trail(order, chapter, title) do
     [
       {"Prayers", "/prayers"},
       {chapter.title, Book.chapter_path(chapter.id)},
-      {order.title, Orders.order_path(order.id)}
+      {title, Orders.order_path(order.id)}
     ]
   end
 

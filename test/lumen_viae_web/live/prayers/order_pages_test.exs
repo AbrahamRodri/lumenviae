@@ -192,6 +192,64 @@ defmodule LumenViaeWeb.Live.Prayers.OrderPagesTest do
       assert Plug.Exception.status(error) == 404
     end
 
+    test "the Angelus hangs its still gold bell over the title, and no other order", %{
+      conn: conn
+    } do
+      {:ok, view, _html} = live(conn, "/prayers/orders/angelus/pray")
+      assert has_element?(view, ".pray-along__words [data-role=bell]")
+
+      {:ok, view, _html} = live(conn, "/prayers/orders/morning/pray")
+      refute has_element?(view, "[data-role=bell]")
+    end
+
+    test "Pray again turns back with one counter-clockwise arrow", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/prayers/orders/table/pray?step=amen")
+
+      again = view |> element("[data-role=pray-again]") |> render()
+      assert again =~ ~s(data-role="pray-again-icon")
+      refute again =~ "hero-arrow-path"
+    end
+
+    test "Done and the close go back where the prayer was begun", %{conn: conn} do
+      back = fn query ->
+        {:ok, view, _html} = live(conn, "/prayers/orders/table/pray?" <> query)
+
+        [href] =
+          view
+          |> render()
+          |> Floki.parse_document!()
+          |> Floki.attribute("[data-role=done]", "href")
+
+        href
+      end
+
+      assert back.("step=amen&from=prayers") == "/prayers"
+      assert back.("step=amen&from=topic%3Amass") == "/prayers/topics/mass"
+      assert back.("step=amen") == "/prayers/orders/table"
+      assert back.("step=amen&from=topic%3Anowhere") == "/prayers/orders/table"
+      assert back.("step=amen&from=elsewhere") == "/prayers/orders/table"
+      assert back.("step=amen&from[]=prayers") == "/prayers/orders/table"
+
+      {:ok, view, _html} = live(conn, "/prayers/orders/table/pray?from=prayers")
+
+      assert view |> element("[data-role=close]") |> render() =~ ~s(href="/prayers")
+      assert view |> element("[data-role=close]") |> render() =~ "Close, back to Prayers"
+
+      view |> element("[data-role=next]") |> render_click()
+      assert_patched(view, "/prayers/orders/table/pray?step=2&from=prayers")
+    end
+
+    test "the head names the order as the day does", %{conn: conn} do
+      angelus = Orders.order(Book.load(nil), "angelus")
+      title = Orders.title(angelus, Date.utc_today())
+
+      html = conn |> get("/prayers/orders/angelus/pray") |> html_response(200)
+      assert html =~ ~s(<meta property="og:title" content="Pray #{title}">)
+
+      html = conn |> get("/prayers/orders/angelus") |> html_response(200)
+      assert html =~ ~s(<meta property="og:title" content="#{title}">)
+    end
+
     test "Pray.step reads only whole numbers and amen" do
       alias LumenViaeWeb.Live.Prayers.Order.Pray
 
@@ -228,28 +286,82 @@ defmodule LumenViaeWeb.Live.Prayers.OrderPagesTest do
 
       # 14 hours west of UTC, then 14 east: the server's clock decides
       # which order each is, by Orders.day_order_id/1.
+      # The hour is read on either side of the render, so a run that
+      # crosses a turn still agrees with one of them.
       for offset <- [-840, 0, 840] do
+        {:ok, before} = Orders.local_now(offset)
         html = render_hook(view, "set_timezone", %{"offset" => offset})
-        {:ok, now} = Orders.local_now(offset)
-        id = Orders.day_order_id(now.hour)
+        {:ok, later} = Orders.local_now(offset)
 
         [card] = html |> Floki.parse_document!() |> Floki.find("[data-role=now-card]")
-        assert Floki.attribute(card, "data-order") == [id]
+        [id] = Floki.attribute(card, "data-order")
+        assert id in [Orders.day_order_id(before.hour), Orders.day_order_id(later.hour)]
 
         assert card |> Floki.find("[data-role=now-pray]") |> Floki.attribute("href") ==
-                 ["/prayers/orders/#{id}/pray"]
+                 ["/prayers/orders/#{id}/pray?from=prayers"]
 
         assert Floki.text(card) =~ "Now ·"
       end
     end
 
     test "Now sits before Everyday Prayers, the shortcuts before both", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/prayers")
+      {:ok, view, _html} = live(conn, "/prayers")
+      html = render_hook(view, "set_timezone", %{"offset" => 0})
 
       {shortcuts, _} = :binary.match(html, "data-role=\"shortcut\"")
       {now, _} = :binary.match(html, "data-role=\"now-card\"")
       {everyday, _} = :binary.match(html, "data-role=\"everyday-row\"")
       assert shortcuts < now and now < everyday
+    end
+
+    test "Now waits for the visitor's clock rather than show the hour in UTC", %{conn: conn} do
+      html = conn |> get("/prayers") |> html_response(200)
+      assert html =~ ~s(data-role="now-waiting")
+      refute html =~ ~s(data-role="now-card")
+
+      {:ok, view, _html} = live(conn, "/prayers")
+      assert has_element?(view, "[data-role=now-waiting]")
+
+      render_hook(view, "set_timezone", %{"offset" => -60})
+      assert has_element?(view, "[data-role=now-card]")
+      refute has_element?(view, "[data-role=now-waiting]")
+
+      # Nonsense never stands for a clock.
+      {:ok, view, _html} = live(conn, "/prayers")
+      render_hook(view, "set_timezone", %{"offset" => "x"})
+      assert has_element?(view, "[data-role=now-waiting]")
+    end
+
+    test "Now turns with the hour while the page is open", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/prayers")
+
+      # A turn before the clock is known changes nothing.
+      send(view.pid, :turn)
+      assert has_element?(view, "[data-role=now-waiting]")
+
+      render_hook(view, "set_timezone", %{"offset" => 0})
+      send(view.pid, :turn)
+      assert has_element?(view, "[data-role=now-card]")
+    end
+
+    test "the book's hour turns at four, eleven, three and eight" do
+      at = fn time -> Orders.next_turn_in(NaiveDateTime.new!(~D[2026-11-02], time)) end
+
+      assert at.(~T[10:59:30]) == 30_000
+      assert at.(~T[11:00:00]) == :timer.hours(4)
+      assert at.(~T[15:30:00]) == :timer.minutes(270)
+      assert at.(~T[20:00:00]) == :timer.hours(8)
+      assert at.(~T[23:00:00]) == :timer.hours(5)
+      assert at.(~T[03:59:59]) == 1_000
+    end
+
+    test "a book without the day's order draws no Now card" do
+      alias LumenViaeWeb.Live.Prayers.Index.Shelves
+
+      assert Orders.day_order(%Book{orders: []}, ~N[2026-11-02 09:00:00]) == nil
+
+      assert render_component(&Shelves.now_card/1, order: nil, today: ~D[2026-11-02], hour: 9) ==
+               ""
     end
 
     test "a search finds orders of prayer before the prayers", %{conn: conn} do

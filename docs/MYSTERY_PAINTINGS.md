@@ -92,7 +92,20 @@ the full width, when narrower), a 480 pixel `<name>.jpg` and, for link
 previews, `<name>-preview.jpg` (at most 800 pixels), with each
 painting's title, artist, date and licence in its `manifest.json`, taken
 from the iOS repository's `Tools/ContentSourcing/manifest.json`.
-`LumenViaeWeb.Components.MysteryPainting` draws them. An uploaded,
+`LumenViaeWeb.Components.MysteryPainting` draws them.
+
+Since 2 November 2026 the same folder also holds the Prayer Book's
+paintings, the 77 the app hangs on its Prayers pages (the topics, the
+prayers' scenes, the hours and the orders of prayer:
+`PrayerBookPaintings.swift`), made the same way from the app's
+`Assets.xcassets` (WebP at quality 85, the JPEGs at quality 60) and
+credited in `manifest.json` from the same sourcing manifest
+(`new_paintings`; each is Public domain or CC0 there).
+`LumenViaeWeb.Live.Prayers.Book` and `Orders` name them as iOS does, so
+none of the Prayer Book's pages hangs a mystery in an asset's place any
+more. A painting the folder lacks falls back as on iOS: a prayer's scene
+to its topic's painting, Morning Prayers to the Presentation, any other
+order to the Coronation. An uploaded,
 published painting on a mystery or a card still wins wherever the page has
 its record. The app has since replaced several paintings listed above
 (the third and fifth sorrows have their own now); the manifest is the

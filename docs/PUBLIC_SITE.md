@@ -116,11 +116,14 @@ written.
 | `/prayers/:prayer_id` | `lang` | `latin` or `both` (only on a prayer with Latin) | English |
 | `/prayers/orders/:order_id/pray` | `step` | the prayer, counted from `1`, or `amen` for the close | `1` |
 | `/prayers/orders/:order_id/pray` | `lang` | `latin` or `both`, carried from prayer to prayer; a prayer with no Latin is set in English | English |
+| `/prayers/orders/:order_id/pray` | `from` | where the prayer was begun, for Done and the close: `prayers` (the Now card) or `topic:<id>` (a topic of the book); carried from prayer to prayer | the order's page |
 
 A `step` past either end is the nearest prayer, and anything else (a
 list, `2.5`, a word) is the first; a `lang` that is not one of the three
-is English. Examples: `/prayers/orders/night/pray?step=3&lang=both`,
-`/prayers/orders/table/pray?step=amen`.
+is English; a `from` that is not one of those (or names no topic) is the
+order's page. Examples: `/prayers/orders/night/pray?step=3&lang=both`,
+`/prayers/orders/table/pray?step=amen`,
+`/prayers/orders/angelus/pray?from=prayers`.
 
 In Both the English leads and the Latin pairs with it line by line, as the
 app's Prayer Book sets it (English with Latin), the Latin in quiet
@@ -136,10 +139,10 @@ prayers open the page, the paintings, the search's ranking) is
 is `LumenViaeWeb.Live.Prayers.PrayerText`. The season's song to Mary is
 `LumenViae.LiturgicalCalendar.marian_antiphon_season/1` on the visitor's
 date (the `UserTimezone` hook, as home), the server's until it connects.
-The paintings are the app's (`PrayerBookPaintings.swift`); the site has
-only the mysteries' paintings, so an asset it lacks hangs the nearest
-mystery (`Book.stand_ins/0`), and a prayer whose scene has neither hangs
-its topic's.
+The paintings are the app's (`PrayerBookPaintings.swift`), each the very
+file the app bundles, served beside the mysteries' paintings (see
+docs/MYSTERY_PAINTINGS.md); a prayer whose scene the site lacks hangs its
+topic's, as the app does.
 
 The orders of prayer (Morning Prayers, Before Confession) are the
 book's `orders`; how the pages read them is
@@ -148,11 +151,20 @@ book's `orders`; how the pages read them is
 visitor's clock from the `UserTimezone` hook), the shortcuts, the
 Angelus as Queen of Heaven from Easter to the eve of Trinity Sunday
 (`LumenViae.LiturgicalCalendar.eastertide?/1`), Night Prayers closing on
-the season's song to Mary, the paintings (the site's mysteries standing
-in for the app's assets it lacks, `Orders.stand_ins/0`) and the search.
-The app marks an order PRAYED TODAY from what the phone kept; the site
-keeps nothing of what a visitor prayed, so it never does, and Now always
-offers Pray. The app's For an Occasion is now Pray together at the head
+the season's song to Mary, the paintings (the app's own, Morning's
+falling back to the Presentation as on iOS, any other to the Coronation)
+and the search.
+Until the visitor's clock is known the Now card is an empty frame of its
+size (a crawler, or a browser without JavaScript, never sees the hour in
+UTC), and while the page is open it turns at the book's turns, four,
+eleven, three and eight o'clock (`Orders.next_turn_in/1`, iOS's
+`nextTurn`). The Angelus and Queen of Heaven hang the app's gold bell
+over the title, still, since the site makes no sound. The page titles
+name the order as the day does (Queen of Heaven in Eastertide, on the
+server's date). The app marks an order PRAYED TODAY from what the phone
+kept; the site keeps nothing of what a visitor prayed, so it never does,
+and Now always offers Pray; nor does its pray-along head say SILENT, as
+the site is silent only. The app's For an Occasion is now Pray together at the head
 of a topic, here as there.
 
 Not here yet, as the app has them: Saved, Learn by Heart, the app's own
@@ -235,7 +247,8 @@ row still count, in the browser. See `docs/UPCOMING_FEATURES.md`.
   `/mysteries`. They are the files the iOS app bundles, served from
   `priv/static/images/paintings/` with their credits in its
   `manifest.json` (see docs/MYSTERY_PAINTINGS.md), and drawn with
-  `LumenViaeWeb.Components.MysteryPainting`. A painting uploaded on a
+  `LumenViaeWeb.Components.MysteryPainting`. The Prayer Book's paintings
+  (its topics, scenes and orders) are the app's too, from the same folder. A painting uploaded on a
   mystery or a card in the console wins over the static one.
 - Link previews show the same paintings, from each one's
   `<name>-preview.jpg` (a JPEG, at most 800 pixels wide), because not every

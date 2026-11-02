@@ -19,7 +19,7 @@
       <ol>
         <li :for={{prayer, i} <- Enum.with_index(@prayers, 1)}>
           <.link
-            patch={Orders.pray_path(@order.id, i, @language)}
+            patch={Orders.pray_path(@order.id, i, @language, @from)}
             replace
             class={["pray-along__rail-link", i < @step && "is-prayed"]}
             aria-current={if(i == @step, do: "step")}
@@ -35,9 +35,9 @@
       <header class="pray-along__head">
         <div class="pray-along__bar">
           <.link
-            navigate={Orders.order_path(@order.id)}
+            navigate={@back}
             class="pray-along__close"
-            aria-label={"Close, back to #{@title}"}
+            aria-label={"Close, back to #{@back_name}"}
             data-role="close"
           >
             <span class="hero-x-mark size-5" aria-hidden="true" />
@@ -50,7 +50,7 @@
           <ol class="pray-along__beads" aria-label="Prayers">
             <li :for={{prayer, i} <- Enum.with_index(@prayers, 1)}>
               <.link
-                patch={Orders.pray_path(@order.id, i, @language)}
+                patch={Orders.pray_path(@order.id, i, @language, @from)}
                 replace
                 class={[
                   "pray-along__bead",
@@ -72,6 +72,22 @@
 
       <article class="pray-along__page" aria-labelledby="prayer-heading">
         <div class="pray-along__words">
+          <svg
+            :if={@bell?}
+            class="pray-along__bell"
+            data-role="bell"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5.5 3.3H18.5M12 3.3V5.2" />
+            <path d="M8.5 8.5C8.5 6.6 10 5.2 12 5.2C14 5.2 15.5 6.6 15.5 8.5C15.5 12 16 14.3 17.6 16C18.4 16.8 19 17.4 19.3 18.2H4.7C5 17.4 5.6 16.8 6.4 16C8 14.3 8.5 12 8.5 8.5Z" />
+            <circle cx="12" cy="20.3" r="1.1" />
+          </svg>
           <p :if={Book.second_title(@prayer)} class="pray-along__second" data-role="second-title">
             {Book.second_title(@prayer)}
           </p>
@@ -85,7 +101,7 @@
           >
             <.link
               :for={{value, label} <- @languages}
-              patch={Orders.pray_path(@order.id, @step, value)}
+              patch={Orders.pray_path(@order.id, @step, value, @from)}
               replace
               class="prayers-language__option"
               aria-current={if(value == @shown_language, do: "true")}
@@ -103,7 +119,7 @@
       <nav class="pray-along__foot" aria-label="Turn the page">
         <.link
           :if={@previous}
-          patch={Orders.pray_path(@order.id, @step - 1, @language)}
+          patch={Orders.pray_path(@order.id, @step - 1, @language, @from)}
           class="pray-along__back"
           rel="prev"
           data-role="previous"
@@ -114,7 +130,7 @@
 
         <.link
           :if={@next}
-          patch={Orders.pray_path(@order.id, @step + 1, @language)}
+          patch={Orders.pray_path(@order.id, @step + 1, @language, @from)}
           class="pray-along__next"
           rel="next"
           data-role="next"
@@ -129,7 +145,7 @@
 
         <.link
           :if={!@next}
-          patch={Orders.pray_path(@order.id, :amen, @language)}
+          patch={Orders.pray_path(@order.id, :amen, @language, @from)}
           class="btn-gold pray-along__amen"
           data-role="amen"
         >
@@ -152,15 +168,24 @@
       <p class="pray-along__prayed">{@title} · Prayed</p>
       <h1 id="amen-heading" class="pray-along__amen-title">Amen.</h1>
       <div class="mt-6 flex flex-col items-center gap-1">
-        <.gold_cta navigate={Orders.order_path(@order.id)} class="min-w-[10rem]" data-role="done">
+        <.gold_cta navigate={@back} class="min-w-[10rem]" data-role="done">
           Done
         </.gold_cta>
         <.link
-          patch={Orders.pray_path(@order.id, 1, @language)}
+          patch={Orders.pray_path(@order.id, 1, @language, @from)}
           class="btn-text"
           data-role="pray-again"
         >
-          <span class="hero-arrow-path size-4" aria-hidden="true" /> Pray again
+          <svg
+            class="size-4"
+            viewBox="0 0 256 256"
+            fill="currentColor"
+            aria-hidden="true"
+            data-role="pray-again-icon"
+          >
+            <path d="M222,128a94,94,0,0,1-92.74,94H128a93.43,93.43,0,0,1-64.5-25.65,6,6,0,1,1,8.24-8.72A82,82,0,1,0,70,70l-.19.19L39.44,98H72a6,6,0,0,1,0,12H24a6,6,0,0,1-6-6V56a6,6,0,0,1,12,0V90.34L61.63,61.4A94,94,0,0,1,222,128Z" />
+          </svg>
+          Pray again
         </.link>
       </div>
     </div>
