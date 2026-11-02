@@ -90,6 +90,9 @@ defmodule LumenViae.Rosary.Narration do
     update :time_lines do
       description "Stores the recording's line timings, measured against the recording this row names."
       accept [:lines]
+      # The voice-slug validation reads the row, which an atomic update
+      # cannot; the voice does not change here.
+      require_atomic? false
     end
   end
 
