@@ -1,0 +1,81 @@
+# Lumen Viae on one VM: the app, Postgres, the Office engine and Caddy.
+# Not used while the repository variable HOSTING is unset: production is
+# Fly (fly.toml). The switch is reports/rig/hosting-migration.md's runbook
+# and deploy/vm/README.md.
+#
+# On the VM this folder is /srv/lumenviae, beside its .env (mode 600; the
+# names are in env.example). The deploy sets IMAGE (the release image built
+# from main's commit) and RELEASE_COMMIT, then runs
+#   docker compose run --rm app /app/bin/migrate
+#   docker compose up -d --wait
+name: lumenviae
+
+services:
+  app:
+    image: ${IMAGE:?set IMAGE to the release image}
+    command: /app/bin/server
+    env_file: .env
+    environment:
+      RELEASE_COMMIT: ${RELEASE_COMMIT:-unknown}
+      DIVINUM_OFFICIUM_BASE_URL: http://office:8080
+      # Caddy replaces X-Real-IP with the peer it saw (Caddyfile).
+      CLIENT_IP_HEADER: x-real-ip
+      PHX_HOST: www.lumenviae.org
+      PORT: "8080"
+      POOL_SIZE: "5"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    # No published port: only Caddy reaches it, so X-Real-IP is always
+    # Caddy's.
+    # The release image has no curl (the Dockerfile is Fly's too, left as
+    # it is): ask the running release whether its endpoint is up. The
+    # deploy's post-deploy checks then test it over HTTPS.
+    healthcheck:
+      test: ["CMD", "/app/bin/lumen_viae", "rpc", "LumenViaeWeb.Endpoint.url()"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: lumen_viae
+      POSTGRES_USER: lumen_viae
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lumen_viae -d lumen_viae"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # The same image and command as deploy/divinum-officium/fly.toml.
+  office:
+    image: ghcr.io/divinumofficium/divinum-officium@sha256:c09dc81f7627e62d3faf245063e3daa639f41f95c8a3a8d6b4c6e8529726d256
+    command: starman --port 8080 --host 0.0.0.0 --workers 4 --preload-app --user www-data --group www-data /var/www/app.psgi
+    restart: unless-stopped
+
+  caddy:
+    build: ./caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:?set CLOUDFLARE_API_TOKEN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

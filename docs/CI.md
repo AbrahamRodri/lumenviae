@@ -61,6 +61,15 @@ newer run owns the deploy.
 The job has a 20 minute timeout, and every action, including
 `setup-flyctl`, is pinned to a full commit SHA with its version in a comment.
 
+### Where it deploys: HOSTING
+
+The repository variable `HOSTING` picks the deploy job. Unset, as today,
+`Deploy to Fly` runs and `Deploy to the VM` is skipped. Set to `vm`, the
+reverse: the release image goes to GHCR and the VM in `deploy/vm/`
+restarts on it, with the same tip check and the same two production
+checks. Setting it is part of the hosting switch (`deploy/vm/README.md`),
+never a step on its own.
+
 ### Repository settings the workflow cannot set
 
 The gate stops a red `main` from deploying. To stop a red PR from reaching

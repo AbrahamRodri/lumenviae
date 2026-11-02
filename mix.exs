@@ -72,6 +72,11 @@ defmodule LumenViae.MixProject do
       # Admin accounts: email and password sign-in for the console. See
       # docs/ARCHITECTURE.md, "Who may do what".
       {:ash_authentication, "~> 4.15"},
+      # ash_authentication 4.x pins assent below 0.3, and the fix for
+      # EEF-CVE-2026-117656 is 0.3.2 (only ash_authentication 5.0, still a
+      # release candidate, allows it). The app signs in by password only;
+      # assent is the OAuth half. Overridden until 5.0 is out.
+      {:assent, "~> 0.3.2", override: true},
       {:ash_authentication_phoenix, "~> 2.17"},
       {:bcrypt_elixir, "~> 3.3"},
       # The SAT solver Ash's policy authorizer needs.

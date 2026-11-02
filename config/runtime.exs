@@ -67,6 +67,11 @@ config :lumen_viae,
        :ops_status_token,
        if(config_env() == :test, do: nil, else: System.get_env("OPS_STATUS_TOKEN"))
 
+# The header the proxy in front sets to the caller's address and overwrites
+# on the way in (LumenViaeWeb.ClientIP): Fly's own unless a host says
+# otherwise. The VM in deploy/vm/ sets x-real-ip, which its Caddy writes.
+config :lumen_viae, :client_ip_header, System.get_env("CLIENT_IP_HEADER", "fly-client-ip")
+
 # Optional override for the narration pause inserted at paragraph breaks
 # (seconds, e.g. "1.5"; ElevenLabs caps break tags at 3s).
 case Float.parse(System.get_env("TTS_PARAGRAPH_BREAK_SECONDS") || "") do

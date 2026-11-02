@@ -226,10 +226,14 @@ jobs:
   # Re-running an older run of main must not put its commit over a newer one,
   # so the job deploys only if its commit is still the tip of main; otherwise
   # it logs why and does nothing (see .github/scripts/is-main-tip.sh).
+  #
+  # HOSTING, a repository variable, says where production is: unset (today)
+  # is Fly, and this job runs exactly as it always has; `vm` hands the
+  # deploy to deploy-vm below instead (deploy/vm/README.md).
   deploy:
     name: Deploy to Fly
     needs: [test, assets, docker]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.HOSTING != 'vm'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     concurrency: deploy-group # one deploy at a time; a queued one waits
@@ -252,6 +256,74 @@ jobs:
         env:
           EXPECT_COMMIT: ${{ github.sha }}
       # Every feature the apps depend on, read-only (docs/DEPLOY_WATCH.md).
+      - name: Check every feature
+        if: steps.tip.outputs.is_tip == 'true'
+        run: bin/prod-feature-check
+        env:
+          EXPECT_COMMIT: ${{ github.sha }}
+          OPS_STATUS_TOKEN: ${{ secrets.OPS_STATUS_TOKEN }}
+
+  # The same deploy on the VM in deploy/vm/, for after the switch
+  # (reports/rig/hosting-migration.md). Skipped unless HOSTING is `vm`, so
+  # until then it never runs and its secrets (VM_HOST, VM_SSH_KEY,
+  # VM_SSH_KNOWN_HOSTS) need not exist. Builds the release image from this
+  # commit, pushes it to GHCR, and on the VM migrates and restarts the
+  # stack with RELEASE_COMMIT set, then runs the same checks as Fly's.
+  deploy-vm:
+    name: Deploy to the VM
+    needs: [test, assets, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.HOSTING == 'vm'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    concurrency: deploy-group
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/abrahamrodri/lumenviae:${{ github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Is this commit still the tip of main?
+        id: tip
+        run: .github/scripts/is-main-tip.sh "$GITHUB_SHA"
+      - name: Build and push the release image
+        if: steps.tip.outputs.is_tip == 'true'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker build --progress=plain --build-arg REGISTRY=mirror.gcr.io --tag "$IMAGE" .
+          docker push "$IMAGE"
+      - name: Reach the VM
+        if: steps.tip.outputs.is_tip == 'true'
+        env:
+          VM_SSH_KEY: ${{ secrets.VM_SSH_KEY }}
+          VM_SSH_KNOWN_HOSTS: ${{ secrets.VM_SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VM_SSH_KEY" > ~/.ssh/vm
+          chmod 600 ~/.ssh/vm
+          printf '%s\n' "$VM_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Migrate and restart on the VM
+        if: steps.tip.outputs.is_tip == 'true'
+        env:
+          VM: deploy@${{ secrets.VM_HOST }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          scp -i ~/.ssh/vm -r deploy/vm/compose.yml deploy/vm/Caddyfile deploy/vm/caddy "$VM:/srv/lumenviae/"
+          # Logged in for the pull only, and out again, so the job's token is
+          # not left in the VM user's Docker config.
+          echo "$GHCR_TOKEN" | ssh -i ~/.ssh/vm "$VM" \
+            "docker login ghcr.io -u '$GITHUB_ACTOR' --password-stdin"
+          ssh -i ~/.ssh/vm "$VM" "cd /srv/lumenviae && export IMAGE='$IMAGE' RELEASE_COMMIT='$GITHUB_SHA' \
+            && docker compose pull app; status=\$?; docker logout ghcr.io; [ \$status -eq 0 ] \
+            && docker compose run --rm app /app/bin/migrate \
+            && docker compose up -d --build --wait"
+      - name: Check production
+        if: steps.tip.outputs.is_tip == 'true'
+        run: bin/post-deploy-check
+        env:
+          EXPECT_COMMIT: ${{ github.sha }}
       - name: Check every feature
         if: steps.tip.outputs.is_tip == 'true'
         run: bin/prod-feature-check
