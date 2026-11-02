@@ -28,7 +28,7 @@ first of the iOS app's tabs to come to the website as its desktop version. The c
 | `/chant/sections/:section_id` | `LumenViaeWeb.Live.Chants.Section` | A section's shelf (`hymns`, `ourLady`), or the Mass of the Angels' (`mass_of_the_angels`): its painting with the name, when it is sung, how many chants and how long, Play all, the strip of its parts where it has them, and its chants, numbered where they share the shelf's painting, each with its own painting otherwise. |
 | `/chant/sets` | `LumenViaeWeb.Live.Chants.Sets` | Sets of Chants, as the app's `ChantSetsPage`: the six sung sets as wide painted cards, each with what it is for and how many chants and how long. |
 | `/chant/sets/:occasion_id` | `LumenViaeWeb.Live.Chants.Set` | A sung set (`benediction`, `sung_rosary`, `before_bed`), as the app's `ChantSetPage`: its painting with the name, its line, how many chants and how long, Play all (then Pause, Resume, Play next), Pause Between Chants, and its order: the notes in red over the chants they lead to, each chant numbered with how often it is sung and a Play from Here. |
-| `/chant/:chant_id` | `LumenViaeWeb.Live.Chants.Chant` | One chant, as the app's `ChantView`: its painting, its Latin and English names and when it is sung; the recording with the scrubber, back and on a line, the gold play, Repeat this line and three-quarter speed; the line being sung; the Words (`?words=`), every line lit as it is sung and a click playing from it; the prayer it sings, its other settings and the singers' credit. |
+| `/chant/:chant_id` | `LumenViaeWeb.Live.Chants.Chant` | One chant, as the app's `ChantView`: its painting and its Latin and English names; the recording with the scrubber, back and on a line (greyed until it has played), the gold play, Repeat this line (which starts it) and three-quarter speed; the line being sung, or when it is sung for a chant with no timed lines; the Words (`?words=`), every line lit as it is sung and a click playing from it; the prayer it sings, its other settings and the singers' credit. |
 
 All seventeen are in the `:public` live session in `router.ex`. A set that
 does not exist, or is hidden, answers 404, and so do an unknown category,
@@ -209,7 +209,9 @@ every chant as often as it sounds, and lights the step sounding, a row's
 Play from Here sings it from that step, and with Pause Between Chants (a
 switch on the set's page, kept nowhere) the next chant waits at its start
 for Play next; and a chant's page follows the recording line by line. The hook
-keeps nothing and sends nothing. Leaving the page stops it: there is no
+keeps nothing and sends nothing. A recording that will not play is
+said only once play was pressed; on a list, Play all passes over it to
+the next chant and a quiet line says so. Leaving the page stops it: there is no
 player at the foot of every page yet. The site's Content-Security-Policy
 (`base-uri` and `frame-ancestors` only) does not limit media, so nothing
 needed widening.

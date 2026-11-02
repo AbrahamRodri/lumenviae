@@ -54,11 +54,16 @@ export default {
     this.waiting = false // the next chant waits for a tap (Pause Between Chants)
     this.repeat = false
     this.raf = null
+    this.pressed = false // whether play was pressed: no error is shown before
+    this.started = false // whether the chant's page has played: back and on wait for it
 
     this.onClick = (event) => this.click(event)
     this.el.addEventListener("click", this.onClick)
 
-    this.audio.addEventListener("play", () => this.paint())
+    this.audio.addEventListener("play", () => {
+      this.started = true
+      this.paint()
+    })
     this.audio.addEventListener("pause", () => this.paint())
     this.audio.addEventListener("ended", () => this.ended())
     this.audio.addEventListener("error", () => this.failed())
@@ -99,6 +104,9 @@ export default {
     this.scrub = this.player.querySelector("[data-role=scrub]")
     this.scrub?.addEventListener("input", () => {
       this.audio.currentTime = parseFloat(this.scrub.value)
+      // The line under the new place, so Repeat holds that one, not the
+      // line the scrub left
+      this.lineIndex = this.lineAt(this.audio.currentTime)
       this.tick(true)
     })
     this.current = this.el.dataset.chant
@@ -132,6 +140,9 @@ export default {
           return this.on()
         case "repeat":
           this.repeat = !this.repeat
+          // Repeat this line starts the chant, as the app's does; Repeat
+          // the chant only switches on
+          if (this.repeat && this.hasLines && !this.started) this.start()
           return this.paint()
         case "speed":
           this.audio.playbackRate = this.audio.playbackRate < 1 ? 1 : 0.75
@@ -141,6 +152,7 @@ export default {
   },
 
   start() {
+    this.pressed = true
     this.hideError()
     const playing = this.audio.play()
     if (playing && playing.catch) playing.catch((err) => err.name !== "AbortError" && this.failed())
@@ -262,10 +274,25 @@ export default {
     this.paint()
   },
 
+  // A recording that will not play. The chant's page says so once play
+  // was pressed (its metadata may fail before, unasked). A list says so
+  // and goes on to the next chant of what it sings, so one missing file
+  // never stops Play all.
   failed() {
-    if (!this.audio.getAttribute("src")) return
+    if (!this.audio.getAttribute("src") || !this.pressed) return
     const error = this.el.querySelector("[data-role=error]")
     if (error) error.hidden = false
+    if (!this.player && this.queued && this.queue && this.queue.length > 0) {
+      const next = this.queue.shift()
+      return this.load(next.id, next.src, next.origin ?? null)
+    }
+    if (!this.player) {
+      this.queued = false
+      this.queue = null
+      this.setId = null
+      this.origin = null
+      this.waiting = false
+    }
     this.paint()
   },
 
@@ -434,6 +461,9 @@ export default {
     }
 
     if (this.player) {
+      this.player.querySelectorAll("[data-act=back], [data-act=on]").forEach((step) => {
+        step.disabled = !this.started
+      })
       const play = this.player.querySelector("[data-act=toggle]")
       if (play) {
         play.setAttribute("aria-pressed", playing ? "true" : "false")

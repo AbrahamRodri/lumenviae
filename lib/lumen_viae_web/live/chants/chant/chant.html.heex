@@ -24,7 +24,6 @@
         <div class="book-hero__words chant-hero__words chant-hero__words--center">
           <h1 id="chant-heading" class="book-hero__title" lang="la">{@chant.latin_title}</h1>
           <p class="chant-hero__english" data-role="subtitle">{Library.subtitle(@chant)}</p>
-          <p class="chant-hero__detail" data-role="detail">{@chant.detail}</p>
         </div>
       </div>
     </section>
@@ -82,6 +81,8 @@
                 type="button"
                 class="chant-step"
                 data-act="back"
+                data-role="back-step"
+                disabled
                 aria-label={if @chant.lines != [], do: "Previous line", else: "Back ten seconds"}
               >
                 <span
@@ -109,6 +110,8 @@
                 type="button"
                 class="chant-step"
                 data-act="on"
+                data-role="on-step"
+                disabled
                 aria-label={if @chant.lines != [], do: "Next line", else: "Forward ten seconds"}
               >
                 <span

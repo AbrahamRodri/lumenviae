@@ -150,7 +150,10 @@ defmodule LumenViaeWeb.Live.Chants.ChantsTest do
       assert view |> element("[data-role=subtitle]") |> render() =~
                "Hail, Holy Queen · simple melody"
 
-      assert view |> element("[data-role=detail]") |> render() =~ "Trinity Sunday to Advent"
+      # The title is the two names alone, as the app's; when it is sung is
+      # said only for a chant with no timed lines, in the now line.
+      refute has_element?(view, "[data-role=detail]")
+      refute view |> element("article") |> render() =~ "Trinity Sunday to Advent"
       assert has_element?(view, ~s(audio#chant-audio[src="#{chant.audio.url}"]))
 
       doc = Floki.parse_document!(html)
@@ -180,6 +183,33 @@ defmodule LumenViaeWeb.Live.Chants.ChantsTest do
 
       {:ok, view, _html} = live(conn, "/chant/salve_regina_simple?words[x]=1")
       assert has_element?(view, ~s(#chant-view[data-words=both]))
+    end
+
+    test "back and on wait for the chant to play; the error waits for a press", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/chant/salve_regina_simple")
+
+      assert has_element?(view, "[data-role=back-step][disabled]")
+      assert has_element?(view, "[data-role=on-step][disabled]")
+      refute has_element?(view, "[data-role=play][disabled]")
+      assert has_element?(view, "[data-role=player] [data-role=error][hidden]")
+    end
+
+    test "a chant with no timed lines says when it is sung in its now line", %{conn: conn} do
+      chant = Enum.find(Library.load(nil).chants, &(&1.lines == []))
+
+      if chant do
+        {:ok, view, _html} = live(conn, Library.chant_path(chant.id))
+        assert view |> element("[data-now=latin]") |> render() =~ chant.detail
+        refute has_element?(view, "[data-role=line-count]")
+      end
+    end
+
+    test "the list pages carry a quiet line for a recording that will not play",
+         %{conn: conn} do
+      for path <- ["/chant", "/chant/sections/mass", "/chant/sets/benediction"] do
+        {:ok, view, _html} = live(conn, path)
+        assert has_element?(view, "[data-role=error][hidden]"), path
+      end
     end
 
     test "an unknown chant is a 404", %{conn: conn} do

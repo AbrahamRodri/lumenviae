@@ -3652,14 +3652,6 @@ html[data-prayer-images="off"] .prayer-plate {
     color: rgba(246, 241, 228, 0.78);
   }
 
-  .chant-hero__detail {
-    margin-top: 0.5rem;
-    font-family: var(--font-garamond);
-    font-style: italic;
-    font-size: 1rem;
-    line-height: 1.4;
-    color: var(--color-ink-muted);
-  }
 
   .chant-play-all {
     margin-top: 1rem;
@@ -3921,6 +3913,21 @@ html[data-prayer-images="off"] .prayer-plate {
 
   .chant-step:hover {
     color: var(--color-gilt-light);
+  }
+
+  /* Back and on wait until the chant has played, as the app greys them. */
+  .chant-step:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .chant-step:disabled:hover {
+    color: var(--color-gilt);
+  }
+
+  .chant-error--list {
+    margin-top: 1.5rem;
+    text-align: center;
   }
 
   .chant-step:focus-visible,
