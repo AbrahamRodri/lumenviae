@@ -21,7 +21,7 @@ defmodule LumenViae.Rosary.Meditation.PreferredNarration do
   # primary key selected unless it asks for more, and a narration without
   # its voice and key is no recording at all.
   @impl true
-  def load(_query, _opts, _context), do: [narrations: [:voice, :s3_key]]
+  def load(_query, _opts, _context), do: [narrations: [:voice, :s3_key, :lines]]
 
   @impl true
   def calculate(meditations, _opts, context) do
@@ -33,9 +33,9 @@ defmodule LumenViae.Rosary.Meditation.PreferredNarration do
       chosen =
         Enum.find(narrations, &(&1.voice.slug == preferred)) || List.first(narrations)
 
-      with %{voice: voice, s3_key: s3_key} <- chosen,
+      with %{voice: voice, s3_key: s3_key, lines: lines} <- chosen,
            {:ok, audio} <- SignedAudio.sign(s3_key) do
-        %SignedNarration{voice: voice.slug, audio: audio}
+        %SignedNarration{voice: voice.slug, audio: audio, lines: lines}
       else
         _nothing -> nil
       end

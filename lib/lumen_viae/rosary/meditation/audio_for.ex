@@ -65,10 +65,16 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
       nil ->
         :nothing_to_play
 
-      %{voice: voice, s3_key: s3_key} ->
+      %{voice: voice, s3_key: s3_key, lines: lines} ->
         case SignedAudio.sign(s3_key) do
           {:ok, audio} ->
-            {:ok, %MeditationNarration{meditation_id: id, voice: voice.slug, audio: audio}}
+            {:ok,
+             %MeditationNarration{
+               meditation_id: id,
+               voice: voice.slug,
+               audio: audio,
+               lines: lines
+             }}
 
           :error ->
             SignedAudio.log_unsigned("Failed to sign narration #{s3_key} of meditation #{id}")
@@ -91,7 +97,7 @@ defmodule LumenViae.Rosary.Meditation.AudioFor do
   defp playable(ids, context) do
     Meditation
     |> Ash.Query.filter(id in ^ids and is_nil(archived_at))
-    |> Ash.Query.load(narrations: [:voice, :s3_key])
+    |> Ash.Query.load(narrations: [:voice, :s3_key, :lines])
     |> Ash.read(Ash.Context.to_opts(context))
   end
 end

@@ -80,9 +80,16 @@ defmodule LumenViae.Rosary.Narration do
 
       upsert? true
       upsert_identity :unique_voice_per_meditation
-      upsert_fields [:s3_key, :generated_at, :updated_at]
+      upsert_fields [:s3_key, :generated_at, :lines, :updated_at]
 
       change set_attribute(:generated_at, &DateTime.utc_now/0)
+      # Line timings belong to the recording they were measured on.
+      change set_attribute(:lines, nil)
+    end
+
+    update :time_lines do
+      description "Stores the recording's line timings, measured against the recording this row names."
+      accept [:lines]
     end
   end
 
@@ -121,6 +128,15 @@ defmodule LumenViae.Rosary.Narration do
     attribute :generated_at, :utc_datetime do
       allow_nil? false
       public? true
+    end
+
+    # Timed against this recording, so a new recording clears them
+    # (:record). Null for a recording nobody has timed.
+    attribute :lines, {:array, LumenViae.Rosary.Types.NarrationLine} do
+      public? true
+      constraints nil_items?: false
+
+      description "The meditation line by line with each line's start and end in this recording, or null when it has not been timed."
     end
 
     create_timestamp :inserted_at, type: :naive_datetime

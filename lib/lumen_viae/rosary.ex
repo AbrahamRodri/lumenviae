@@ -455,7 +455,9 @@ defmodule LumenViae.Rosary do
       define :record_author_artwork_variants, action: :record_artwork_variants
     end
 
-    resource LumenViae.Rosary.Narration
+    resource LumenViae.Rosary.Narration do
+      define :time_narration_lines, action: :time_lines, args: [:lines]
+    end
 
     # No tables: the APIs' view of the narration voices, the spoken Rosary
     # the Rosary's words, the Prayer Book, the Chant Library, the
@@ -634,7 +636,8 @@ defmodule LumenViae.Rosary do
 
   @doc """
   The voices a meditation can be heard in, default first, each with the S3
-  key of its recording: `[%{voice: %Voice{}, s3_key: key}]`.
+  key of its recording and its line timings (nil when untimed or not
+  loaded): `[%{voice: %Voice{}, s3_key: key, lines: lines}]`.
 
   Only configured voices count. A row for a voice that has since been
   removed from config is a file nobody can be offered, so it is left out
@@ -649,16 +652,20 @@ defmodule LumenViae.Rosary do
         _not_loaded -> narrations_of(meditation_id, opts)
       end
 
-    by_voice = Map.new(rows, &{&1.voice, &1.s3_key})
+    by_voice = Map.new(rows, &{&1.voice, &1})
 
     Voices.list()
     |> Enum.flat_map(fn voice ->
       case Map.fetch(by_voice, voice.slug) do
-        {:ok, s3_key} -> [%{voice: voice, s3_key: s3_key}]
+        {:ok, row} -> [%{voice: voice, s3_key: row.s3_key, lines: lines_of(row)}]
         :error -> []
       end
     end)
   end
+
+  # A narration loaded without its lines reads as untimed.
+  defp lines_of(%{lines: lines}) when is_list(lines), do: lines
+  defp lines_of(_row), do: nil
 
   @doc """
   Every narration of a meditation as a presigned URL, default voice first:

@@ -8,6 +8,10 @@ defmodule LumenViae.Rosary.Types.SignedNarration do
   typed_struct do
     field :voice, :string, allow_nil?: false
     field :audio, LumenViae.Rosary.Types.SignedAudio, allow_nil?: false
+
+    field :lines, {:array, LumenViae.Rosary.Types.NarrationLine},
+      description:
+        "The meditation line by line with each line's start and end in this recording, for following along; null when this recording has not been timed."
   end
 
   use AshGraphql.Type
