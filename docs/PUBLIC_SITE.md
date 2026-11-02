@@ -19,21 +19,25 @@ app's tabs to come to the website as its desktop version. The console
 | `/mysteries/:category/pray` | `LumenViaeWeb.Live.Pray.Index` | The same page, praying a category without a set. |
 | `/app` | `LumenViaeWeb.Live.Home.App.Index` | The iPhone app's page: real screenshots of the app in CSS-drawn phones, what it holds in the app's own names, and the App Store link. |
 | `/privacy-policy` | `LumenViaeWeb.Live.PrivacyPolicy.Index` | The privacy policy the App Store listing links to. |
-| `/prayers` | `LumenViaeWeb.Live.Prayers.Index` | The Prayer Book, as the app's Prayers tab: the number of prayers, the search (`?q=`), Everyday Prayers, Prayers to Mary (the season's song first) and All Topics under the book's five parts, as shelves of square painted cards (sideways on a phone, wrapping from 640px). |
-| `/prayers/topics/:chapter_id` | `LumenViaeWeb.Live.Prayers.Chapter` | One topic, as the app's topic page: its painting with the title and line over it, its prayers (a small arched painting and the title each) under its sections where it has more than one, the next topic as a painted card and a line back to the one before. |
+| `/prayers` | `LumenViaeWeb.Live.Prayers.Index` | The Prayer Book, as the app's Prayers tab: the number of prayers, the search (`?q=`; topics, then up to three orders of prayer, then the prayers), the shortcuts to Morning Prayers, the Angelus, Night Prayers, Before Mass and Before Confession, Now (the order for the visitor's hour, with Pray), Everyday Prayers, Prayers to Mary (the season's song first) and All Topics under the book's five parts, as shelves of square painted cards (sideways on a phone, wrapping from 640px). |
+| `/prayers/topics/:chapter_id` | `LumenViaeWeb.Live.Prayers.Chapter` | One topic, as the app's topic page: its painting with the title and line over it, Pray together (the topic's orders of prayer, a row each) where it has any, its prayers (a small arched painting and the title each) under its sections where it has more than one, the next topic as a painted card and a line back to the one before. |
+| `/prayers/orders/:order_id` | `LumenViaeWeb.Live.Prayers.Order` | An order of prayer, as the app's `PrayerOrderView`: its painting, when it is said and its name for the day, its prayers numbered (each begins praying there), the Eastertide line on the Angelus, and Pray. |
+| `/prayers/orders/:order_id/pray` | `LumenViaeWeb.Live.Prayers.Order.Pray` | Praying an order in silence, a prayer a page, as the app's `PrayAlongView`: the way back, the order's name, its beads and "2 of 9", the prayer in English, Latin or Both, the way back a prayer and Next, Amen on the last and the close (Done, Pray again). From 1024px a rail of its prayers. Nothing is recorded. |
 | `/prayers/:prayer_id` | `LumenViaeWeb.Live.Prayers.Prayer` | One prayer, as the app opens a prayer alone: its second name as a gold label over the title where the app shows one, English, Latin or Both (`?lang=`), the words, and a link back to its topic. |
 
-All ten are in the `:public` live session in `router.ex`. A set that does
-not exist, or is hidden, answers 404, and so do an unknown category, an
-unknown chapter and an unknown prayer.
+All twelve are in the `:public` live session in `router.ex`. A set that
+does not exist, or is hidden, answers 404, and so do an unknown category,
+an unknown chapter, an unknown order and an unknown prayer.
 
 `priv/static/sitemap.xml` lists `/`, `/mysteries`, the five category pages,
-`/prayers` and every chapter's page, `/app` and `/privacy-policy`. The
+`/prayers`, every chapter's page and every order of prayer's page, `/app`
+and `/privacy-policy`. The
 prayers themselves are not listed: every one is linked from its chapter,
-and a list of 150 pages would drift from the book. When a chapter is added
+and a list of 150 pages would drift from the book. When a chapter or an order is added
 to `priv/library/prayer_book.json`, add its page; the Prayers tests check
-every chapter is there. The prayer pages are not in it, and `robots.txt`
-asks crawlers to stay out of `/meditation-sets/`. A crawler that walked the
+every chapter and order is there. The prayer pages and the steps of
+praying an order are not in it, and `robots.txt` asks crawlers to stay out
+of `/meditation-sets/` and `/prayers/orders/*/pray`. A crawler that walked the
 prayer flow once pressed Complete often enough to leave Rosaries nobody had
 prayed; see `docs/COMPLETION_ANALYTICS.md`.
 
@@ -110,6 +114,13 @@ written.
 | --- | --- | --- | --- |
 | `/prayers` | `q` | the search, as typed | no search: the shelves |
 | `/prayers/:prayer_id` | `lang` | `latin` or `both` (only on a prayer with Latin) | English |
+| `/prayers/orders/:order_id/pray` | `step` | the prayer, counted from `1`, or `amen` for the close | `1` |
+| `/prayers/orders/:order_id/pray` | `lang` | `latin` or `both`, carried from prayer to prayer; a prayer with no Latin is set in English | English |
+
+A `step` past either end is the nearest prayer, and anything else (a
+list, `2.5`, a word) is the first; a `lang` that is not one of the three
+is English. Examples: `/prayers/orders/night/pray?step=3&lang=both`,
+`/prayers/orders/table/pray?step=amen`.
 
 In Both the English leads and the Latin pairs with it line by line, as the
 app's Prayer Book sets it (English with Latin), the Latin in quiet
@@ -128,8 +139,24 @@ date (the `UserTimezone` hook, as home), the server's until it connects.
 The paintings are the app's (`PrayerBookPaintings.swift`); the site has
 only the mysteries' paintings, so an asset it lacks hangs the nearest
 mystery (`Book.stand_ins/0`), and a prayer whose scene has neither hangs
-its topic's. Not here yet, as the app has them: the Now card, the order
-shortcuts, For an Occasion, Saved, Learn by Heart and praying aloud.
+its topic's.
+
+The orders of prayer (Morning Prayers, Before Confession) are the
+book's `orders`; how the pages read them is
+`LumenViaeWeb.Live.Prayers.Orders`, the app's rules: the hour's order
+(morning from 4 until 11, the Angelus until 20, night after, on the
+visitor's clock from the `UserTimezone` hook), the shortcuts, the
+Angelus as Queen of Heaven from Easter to the eve of Trinity Sunday
+(`LumenViae.LiturgicalCalendar.eastertide?/1`), Night Prayers closing on
+the season's song to Mary, the paintings (the site's mysteries standing
+in for the app's assets it lacks, `Orders.stand_ins/0`) and the search.
+The app marks an order PRAYED TODAY from what the phone kept; the site
+keeps nothing of what a visitor prayed, so it never does, and Now always
+offers Pray. The app's For an Occasion is now Pray together at the head
+of a topic, here as there.
+
+Not here yet, as the app has them: Saved, Learn by Heart, the app's own
+playlists and praying aloud.
 
 ## Where each setting lives
 
