@@ -360,6 +360,43 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsTest do
       assert second["narration"] == nil
     end
 
+    test "a timed recording carries its lines; an untimed one says null", %{
+      conn: conn,
+      set: set,
+      first: first
+    } do
+      {:ok, _} =
+        Rosary.time_narration(first.id, "female", [%{text: "First", start: 0.0, end: 1.5}],
+          actor: admin()
+        )
+
+      query = """
+      query Set($id: ID!) {
+        meditationSet(id: $id) {
+          setMemberships {
+            meditation {
+              content
+              narrations { voice lines { text start end } }
+              narration(preferring: "female") { voice lines { text start end } }
+            }
+          }
+        }
+      }
+      """
+
+      %{"data" => %{"meditationSet" => detail}} = graphql(conn, query, %{id: to_string(set.id)})
+
+      timed =
+        Enum.find_value(detail["setMemberships"], fn %{"meditation" => m} ->
+          m["content"] == "First" && m
+        end)
+
+      by_voice = Map.new(timed["narrations"], &{&1["voice"], &1["lines"]})
+      assert by_voice["female"] == [%{"text" => "First", "start" => 0.0, "end" => 1.5}]
+      assert by_voice["male"] == nil
+      assert timed["narration"]["lines"] == by_voice["female"]
+    end
+
     test "recordings that cannot be signed are null, never a shorter list", %{
       conn: conn,
       set: set

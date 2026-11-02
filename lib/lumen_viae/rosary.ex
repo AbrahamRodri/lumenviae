@@ -455,9 +455,7 @@ defmodule LumenViae.Rosary do
       define :record_author_artwork_variants, action: :record_artwork_variants
     end
 
-    resource LumenViae.Rosary.Narration do
-      define :time_narration_lines, action: :time_lines, args: [:lines]
-    end
+    resource LumenViae.Rosary.Narration
 
     # No tables: the APIs' view of the narration voices, the spoken Rosary
     # the Rosary's words, the Prayer Book, the Chant Library, the
@@ -625,6 +623,25 @@ defmodule LumenViae.Rosary do
            })
            |> Ash.create(AshOpts.take(opts)) do
       {:ok, %{meditation | narrations: narrations_of(meditation_id, opts)}}
+    end
+  end
+
+  @doc """
+  Stores `voice`'s recording of a meditation line by line, each line a map
+  with `text`, `start` and `end` (seconds into that recording). Returns the
+  narration, or `{:error, :not_recorded}` when the voice has no recording
+  of it. A later `record_narration/4` for the pair clears them.
+  """
+  def time_narration(meditation_id, voice_slug, lines, opts \\ [])
+      when is_binary(voice_slug) and is_list(lines) do
+    case Enum.find(narrations_of(meditation_id, opts), &(&1.voice == voice_slug)) do
+      nil ->
+        {:error, :not_recorded}
+
+      narration ->
+        narration
+        |> Ash.Changeset.for_update(:time_lines, %{lines: lines})
+        |> Ash.update(AshOpts.take(opts))
     end
   end
 
