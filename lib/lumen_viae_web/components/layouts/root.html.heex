@@ -7,6 +7,10 @@
           chrome on a phone runs into the mark. --%>
     <meta name="theme-color" content="#0A0A15" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <%!-- Safari on an iPhone or iPad shows Apple's Smart App Banner: Open
+          when the app is installed, else Get from the App Store. Every public
+          page carries it; the console's layout does not. --%>
+    <meta name="apple-itunes-app" content="app-id=6760320749" />
     <.live_title default="Lumen Viae" suffix=" | Lumen Viae">
       {assigns[:page_title] || "Meditations on the Holy Rosary"}
     </.live_title>
