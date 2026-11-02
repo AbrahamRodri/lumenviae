@@ -254,11 +254,9 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   ## Paintings (PrayerBookPaintings.swift)
 
   # Every painting is `{name, focal x, focal y}`: the iOS asset and where
-  # its subject sits. The website has only the mysteries' paintings
-  # (priv/static/images/paintings), so an asset it lacks hangs the nearest
-  # mystery in its place (@stand_ins). A prayer whose scene has neither
-  # hangs its topic's painting, as iOS hangs a topic's painting on a
-  # prayer with no scene of its own.
+  # its subject sits, served from priv/static/images/paintings as the app
+  # bundles it. A scene the website lacks hangs its topic's painting, as
+  # iOS hangs a topic's painting on a prayer with no scene of its own.
 
   # A topic's painting, on its card in All Topics and at the head of its page.
   @topics %{
@@ -280,61 +278,6 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
     "sick" => {"topic_sick_dying", 0.5, 0.55},
     "departed" => {"devotion_holy_souls", 0.5, 0.4},
     "needs" => {"topic_needs", 0.5, 0.35}
-  }
-
-  # The iOS assets the website does not have, each with the mystery that
-  # stands in for it.
-  @stand_ins %{
-    # St Anne teaching the Virgin: the Child teaching in the Temple
-    "topic_first_prayers" => {"joyful_finding", 0.5, 0.3},
-    # Millet's Angelus: the Annunciation it remembers
-    "topic_daily_prayers" => {"joyful_annunciation", 0.5, 0.18},
-    # St Francis in meditation
-    "topic_short_prayers" => {"luminous_baptism", 0.5, 0.3},
-    # The Mass at Bolsena: the Sacrifice it makes present
-    "topic_holy_mass" => {"sorrowful_crucifixion", 0.5, 0.3},
-    # The Prodigal Son: the call to repent
-    "topic_confession" => {"luminous_proclamation", 0.5, 0.3},
-    # The Disputation of the Holy Sacrament
-    "topic_blessed_sacrament" => {"luminous_eucharist", 0.5, 0.35},
-    # The Holy Trinity
-    "topic_holy_trinity" => {"glorious_pentecost", 0.5, 0.3},
-    # The Sacred Heart: Christ in glory
-    "topic_our_lord" => {"luminous_transfiguration", 0.5, 0.25},
-    # The Immaculate Conception
-    "season_advent" => {"glorious_assumption", 0.5, 0.3},
-    # St Joseph and the Christ Child: Joseph leading them into Egypt
-    "devotion_st_joseph" => {"seven_sorrows_flight", 0.5, 0.3},
-    # The Guardian Angel: the angel who strengthened Christ
-    "devotion_guardian_angels" => {"sorrowful_agony", 0.5, 0.3},
-    # The Adoration of the Magi
-    "topic_feasts_seasons" => {"joyful_nativity", 0.5, 0.35},
-    # The Madonna of the Magnificat: the Visitation, where it was sung
-    "topic_thanksgiving" => {"joyful_visitation", 0.5, 0.3},
-    # The Adoration of the Trinity: heaven and its saints
-    "feast_all_saints" => {"glorious_coronation", 0.5, 0.12},
-    # The Delivery of the Keys: the Church sent out
-    "topic_for_the_living" => {"glorious_ascension", 0.5, 0.3},
-    # The Death of St Joseph
-    "topic_sick_dying" => {"sorrowful_carrying", 0.5, 0.3},
-    # The Day of the Dead
-    "devotion_holy_souls" => {"seven_sorrows_burial", 0.5, 0.3},
-    # Christ in the storm: Mary asking in a need
-    "topic_needs" => {"luminous_cana", 0.5, 0.3},
-    # The Holy Trinity, over the Sign of the Cross and the Glory Be
-    "devotion_holy_trinity" => {"luminous_baptism", 0.5, 0.3},
-    "feast_our_lady_of_the_rosary" => {"glorious_coronation", 0.5, 0.12},
-    # The Sistine Madonna: Our Lady holding the Child
-    "mary_sistine_madonna" => {"joyful_presentation", 0.5, 0.3},
-    "mary_mater_dolorosa" => {"seven_sorrows_pieta", 0.5, 0.35},
-    # The Regina Caeli's Christ appearing to His Mother
-    "easter_appears_to_mary" => {"glorious_resurrection", 0.5, 0.2},
-    # iOS's own stand-in for Morning Prayers
-    "hour_morning" => {"joyful_presentation", 0.5, 0.3},
-    "feast_annunciation" => {"joyful_annunciation", 0.5, 0.18},
-    "pentecost_maino" => {"glorious_pentecost", 0.5, 0.3},
-    "last_supper_juanes" => {"luminous_eucharist", 0.5, 0.35},
-    "communion_of_apostles" => {"luminous_eucharist", 0.5, 0.35}
   }
 
   # Over a prayer with no topic, as iOS hangs Our Lady at prayer.
@@ -565,7 +508,7 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
 
   @doc """
   A prayer's painting on a row, a shelf or its page: its scene where the
-  website has it (or a mystery standing in), else its topic's painting.
+  website has it, else its topic's painting.
   """
   def prayer_painting(%__MODULE__{} = book, prayer_id) do
     with scene when not is_nil(scene) <- @scenes[prayer_id],
@@ -586,16 +529,9 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   def antiphon_painting("easter"), do: resolve({"easter_appears_to_mary", 0.5, 0.55})
   def antiphon_painting(_begins), do: {"glorious_coronation", 0.5, 0.12}
 
-  @doc "The iOS assets the website hangs a mystery in place of, for the docs and tests."
-  def stand_ins, do: @stand_ins
-
-  # The asset itself where the website has it, else its stand-in, else nil.
+  # The asset itself where the website has it, else nil.
   defp resolve({asset, _x, _y} = painting) do
-    cond do
-      MysteryPainting.for_name(asset) -> painting
-      stand_in = @stand_ins[asset] -> stand_in
-      true -> nil
-    end
+    if MysteryPainting.for_name(asset), do: painting
   end
 
   ## Search (PrayerBook.search, PrayerBook.topics(matching:))

@@ -38,23 +38,6 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
   # A browser's offset from UTC, in minutes, as Book.local_date/1 takes it.
   @max_offset 24 * 60
 
-  # The app's paintings the website does not have, each with the mystery
-  # hung in its place, beside those `Book.stand_ins/0` already names.
-  @stand_ins %{
-    # La Tour's Penitent Magdalen by her flame: Christ's night in the garden
-    "hour_night" => {"sorrowful_agony", 0.5, 0.3},
-    # St Peter in tears: the call to repent, as Confession's topic hangs
-    "saint_peter_tears" => {"luminous_proclamation", 0.5, 0.3},
-    # The Saviour with the Host
-    "jesus_eucharist_saviour" => {"luminous_eucharist", 0.5, 0.35},
-    # The Raising of Lazarus: the Resurrection it foretells
-    "order_raising_of_lazarus" => {"glorious_resurrection", 0.5, 0.2},
-    # The Child Jesus as the Good Shepherd: the Holy Family kept from harm
-    "jesus_good_shepherd" => {"seven_sorrows_flight", 0.5, 0.3},
-    # The Supper at Emmaus: the feast at Cana
-    "prayer_supper_emmaus" => {"luminous_cana", 0.5, 0.3}
-  }
-
   ## Paths
 
   @doc "An order's page."
@@ -219,7 +202,9 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
   (PrayerBookPainting.hour): Morning's and Night's own, the Annunciation
   for the Angelus and the risen Christ with His Mother for Queen of Heaven.
   """
-  def hour_painting(%{id: @morning}, _date), do: resolve({"hour_morning", 0.5, 0.2})
+  def hour_painting(%{id: @morning}, _date),
+    do: resolve({"hour_morning", 0.5, 0.2}, {"joyful_presentation", 0.5, 0.2})
+
   def hour_painting(%{id: @night}, _date), do: resolve({"hour_night", 0.5, 0.3})
 
   def hour_painting(_angelus, date) do
@@ -269,19 +254,12 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
     end
   end
 
-  # The asset itself where the website has it, else its stand-in, else the
-  # Coronation, which every page has.
-  defp resolve({asset, _x, _y} = painting) do
-    cond do
-      MysteryPainting.for_name(asset) -> painting
-      stand_in = @stand_ins[asset] -> stand_in
-      stand_in = Book.stand_ins()[asset] -> stand_in
-      true -> {"glorious_coronation", 0.5, 0.12}
-    end
+  # The asset itself where the website has it, else its fallback: iOS's
+  # own where it names one (Morning's Presentation), else the Coronation,
+  # which every page has.
+  defp resolve({asset, _x, _y} = painting, fallback \\ {"glorious_coronation", 0.5, 0.12}) do
+    if MysteryPainting.for_name(asset), do: painting, else: fallback
   end
-
-  @doc "The app's paintings the orders hang a mystery in place of, for the docs and tests."
-  def stand_ins, do: @stand_ins
 
   ## Search (PrayerBook.searchOrders, AppSearch.orderHits)
 
