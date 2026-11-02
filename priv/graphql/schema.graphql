@@ -1544,6 +1544,9 @@ type PrayerText {
   "In Latin, line by line."
   la: [String!]!
 
+  "In Spanish, line by line. Only with `lang=es`, and then always present: the English where there is no Spanish yet. Its lines need not pair with the Latin."
+  es: [String!]
+
   "In English, line by line."
   en: [String!]!
 }
@@ -1551,6 +1554,9 @@ type PrayerText {
 type PrayerTitle {
   "In Latin."
   la: String!
+
+  "In Spanish. Only with `lang=es`, and then always present: the English where there is no Spanish yet. An English document has no `es` at all."
+  es: String
 
   "In English."
   en: String!
@@ -1923,7 +1929,7 @@ type RosaryContent {
   "When the content last changed."
   updatedAt: DateTime!
 
-  "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin."
+  "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin, and in Spanish when asked for with `lang=es`."
   prayers: [RosaryPrayer!]!
 
   "The How to Pray course: three lessons, then \"Your First Rosary\", with the steps of the Rosary and the prayers said at each, how often each prayer comes round, Montfort's counsel and the questions beginners ask."
@@ -2132,7 +2138,10 @@ type RootQueryType {
   ): SpokenRosary
 
   "The Rosary's words as one document. There is only ever one."
-  rosaryContent: RosaryContent!
+  rosaryContent(
+    "The language of the prayers: `es` adds Spanish beside the English and Latin, with the English wherever there is no Spanish yet. Missing, `en` or a language not served: the document in English and Latin."
+    lang: String
+  ): RosaryContent!
 
   "One Rosary's script, every step in order: a category's mysteries in a style, with any optional prayers after it."
   rosaryScript(

@@ -1,0 +1,135 @@
+{
+  "updated_at": "2026-11-02T23:00:00Z",
+  "prayers": {
+    "sign_of_cross": {
+      "title": "Señal de la Cruz",
+      "text": [
+        "En el nombre del Padre y del Hijo y del Espíritu Santo. Amén."
+      ]
+    },
+    "apostles_creed": {
+      "title": "Símbolo de los Apóstoles",
+      "text": [
+        "Creo en Dios, Padre Todopoderoso, Creador del cielo y de la tierra.",
+        "Creo en Jesucristo, su único Hijo, Nuestro Señor,",
+        "que fue concebido por obra y gracia del Espíritu Santo,",
+        "nació de Santa María Virgen,",
+        "padeció bajo el poder de Poncio Pilato,",
+        "fue crucificado, muerto y sepultado,",
+        "descendió a los infiernos,",
+        "al tercer día resucitó de entre los muertos,",
+        "subió a los cielos y está sentado a la derecha de Dios, Padre todopoderoso.",
+        "Desde allí ha de venir a juzgar a vivos y muertos.",
+        "Creo en el Espíritu Santo,",
+        "la santa Iglesia católica, la comunión de los santos,",
+        "el perdón de los pecados, la resurrección de la carne",
+        "y la vida eterna. Amén."
+      ]
+    },
+    "our_father": {
+      "title": "Padre nuestro",
+      "text": [
+        "Padre nuestro que estás en el cielo,",
+        "santificado sea tu Nombre;",
+        "venga a nosotros tu Reino;",
+        "hágase tu voluntad en la tierra como en el cielo.",
+        "Danos hoy nuestro pan de cada día;",
+        "perdona nuestras ofensas,",
+        "como también nosotros perdonamos a los que nos ofenden;",
+        "no nos dejes caer en la tentación,",
+        "y líbranos del mal. Amén."
+      ]
+    },
+    "hail_mary": {
+      "title": "Ave María",
+      "text": [
+        "Dios te salve, María, llena eres de gracia; el Señor es contigo.",
+        "Bendita Tú eres entre todas las mujeres,",
+        "y bendito es el fruto de tu vientre, Jesús.",
+        "Santa María, Madre de Dios,",
+        "ruega por nosotros, pecadores,",
+        "ahora y en la hora de nuestra muerte. Amén."
+      ]
+    },
+    "glory_be": {
+      "title": "Gloria al Padre",
+      "text": [
+        "Gloria al Padre y al Hijo y al Espíritu Santo.",
+        "Como era en el principio, ahora y siempre,",
+        "por los siglos de los siglos. Amén."
+      ]
+    },
+    "fatima_prayer": {
+      "title": "Oración de Fátima",
+      "text": [
+        "Oh Jesús mío, perdónanos, líbranos del fuego del infierno;",
+        "lleva al cielo a todas las almas, especialmente a las más necesitadas."
+      ]
+    },
+    "hail_holy_queen": {
+      "title": "Salve Regina",
+      "text": [
+        "Dios te salve, Reina y Madre de misericordia,",
+        "vida, dulzura y esperanza nuestra; Dios te salve.",
+        "A ti llamamos los desterrados hijos de Eva;",
+        "a ti suspiramos, gimiendo y llorando",
+        "en este valle de lágrimas.",
+        "Ea, pues, Señora, abogada nuestra,",
+        "vuelve a nosotros esos tus ojos misericordiosos;",
+        "y después de este destierro, muéstranos a Jesús, fruto bendito de tu vientre.",
+        "¡Oh, clementísima, oh piadosa, oh dulce Virgen María!",
+        "Ruega por nosotros, Santa Madre de Dios,",
+        "para que seamos dignos de alcanzar las promesas de Nuestro Señor Jesucristo."
+      ]
+    },
+    "rosary_closing_prayer": {
+      "title": "Oración final del Rosario",
+      "text": [
+        "[Oremos.]",
+        "Oh Dios, cuyo Hijo",
+        "por medio de su vida, muerte y resurrección,",
+        "nos otorgó los premios de la vida eterna,",
+        "te rogamos",
+        "que venerando humildemente los misterios del Rosario de la Santísima Virgen María,",
+        "imitemos lo que contienen",
+        "y consigamos lo que nos prometen.",
+        "Por Jesucristo, nuestro Señor. Amén."
+      ]
+    },
+    "act_of_contrition": {
+      "title": "Acto de Contrición",
+      "text": [
+        "Dios mío, me arrepiento de todo corazón de todos mis pecados y los aborrezco,",
+        "porque al pecar, no sólo merezco las penas establecidas por ti justamente,",
+        "sino principalmente porque te ofendí,",
+        "a ti sumo Bien y digno de amor por encima de todas las cosas.",
+        "Por eso propongo firmemente, con ayuda de tu gracia,",
+        "no pecar más en adelante",
+        "y huir de toda ocasión de pecado. Amén."
+      ]
+    },
+    "memorare": {
+      "title": "Acordaos",
+      "text": [
+        "Acordaos, oh piadosísima Virgen María,",
+        "que jamás se ha oído decir que ninguno de los que han acudido a tu protección,",
+        "implorando tu asistencia y reclamando tu socorro, haya sido abandonado de ti.",
+        "Animado con esta confianza, a ti también acudo, oh Madre, Virgen de las vírgenes,",
+        "y aunque gimiendo bajo el peso de mis pecados, me atrevo a comparecer ante tu presencia soberana.",
+        "No deseches mis humildes súplicas, oh Madre del Verbo divino,",
+        "antes bien, escúchalas y acógelas benignamente. Amén."
+      ]
+    },
+    "st_michael_prayer": {
+      "title": "San Miguel Arcángel",
+      "text": [
+        "San Miguel Arcángel, defiéndenos en la lucha.",
+        "Sé nuestro amparo contra la perversidad y asechanzas del demonio.",
+        "Que Dios manifieste sobre él su poder, es nuestra humilde súplica.",
+        "Y tú, oh Príncipe de la Milicia Celestial, con el poder que Dios te ha conferido,",
+        "arroja al infierno a Satanás, y a los demás espíritus malignos que vagan por el mundo",
+        "para la perdición de las almas. Amén."
+      ]
+    }
+  }
+}

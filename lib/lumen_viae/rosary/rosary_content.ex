@@ -14,7 +14,11 @@ defmodule LumenViae.Rosary.RosaryContent do
   saved copy is current, and a client names the sections it wants in
   `fields[rosary_content]=` (GraphQL: the selection set).
   """
+  # The one read takes an optional `lang`, so Ash's warning that a primary
+  # read should take no arguments is off: nothing loads this resource
+  # through a relationship, which is what that warning protects.
   use Ash.Resource,
+    primary_read_warning?: false,
     domain: LumenViae.Rosary,
     authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshJsonApi.Resource]
@@ -56,6 +60,11 @@ defmodule LumenViae.Rosary.RosaryContent do
       primary? true
       get? true
       description "The Rosary's words as one document. There is only ever one."
+
+      argument :lang, :string do
+        description "The language of the prayers: `es` adds Spanish beside the English and Latin, with the English wherever there is no Spanish yet. Missing, `en` or a language not served: the document in English and Latin."
+      end
+
       prepare Current
     end
   end
@@ -90,6 +99,14 @@ defmodule LumenViae.Rosary.RosaryContent do
       public? true
       description "When the content last changed."
     end
+
+    # The language the read asked for (`Content.language/1`), for the
+    # sections that serve one. Not served itself.
+    attribute :lang, :string do
+      allow_nil? false
+      default "en"
+      public? false
+    end
   end
 
   calculations do
@@ -98,7 +115,7 @@ defmodule LumenViae.Rosary.RosaryContent do
       public? true
       constraints nil_items?: false
 
-      description "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin."
+      description "The twelve prayers of the Rosary and the Seven Sorrows chaplet, in the order they are said, in English and Latin, and in Spanish when asked for with `lang=es`."
     end
 
     calculate :learn, Types.RosaryLearn, {Learn, section: :learn} do

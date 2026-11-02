@@ -15,6 +15,11 @@ defmodule LumenViae.Rosary.Types.PrayerText do
       allow_nil?: false,
       constraints: [nil_items?: false],
       description: "In Latin, line by line."
+
+    field :es, {:array, :string},
+      constraints: [nil_items?: false],
+      description:
+        "In Spanish, line by line. Only with `lang=es`, and then always present: the English where there is no Spanish yet. Its lines need not pair with the Latin."
   end
 
   use AshGraphql.Type

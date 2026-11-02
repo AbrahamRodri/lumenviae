@@ -23,14 +23,19 @@ defmodule LumenViaeWeb.Graphql.AuthorizationTest do
     assert mutations == [:record_completion]
   end
 
-  test "the content document takes no argument, so no input can change what it serves" do
+  test "the content document takes only lang, which chooses a language and nothing else" do
     field =
       LumenViaeWeb.GraphqlSchema
       |> Absinthe.Schema.lookup_type(:query)
       |> Map.fetch!(:fields)
       |> Map.fetch!(:rosary_content)
 
-    assert field.args == %{}
+    assert Map.keys(field.args) == [:lang]
+
+    # Any value is read as one of the two languages served (Content.language/1).
+    for lang <- ["es", "en", "x' OR 1=1", String.duplicate("a", 10_000)] do
+      assert LumenViae.Rosary.Content.language(lang) in ["en", "es"]
+    end
   end
 
   test "a write the schema does not offer is refused before anything runs", %{conn: conn} do

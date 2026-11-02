@@ -195,4 +195,28 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
     assert Enum.map(content["forms"]["offered"], &{&1["form"], &1["whenAloud"], &1["whenSilent"]}) ==
              Enum.map(forms["offered"], &{&1["form"], &1["when_aloud"], &1["when_silent"]})
   end
+
+  test "lang: es adds the Spanish, and English stays as it was", %{conn: conn} do
+    query = fn args ->
+      graphql(build_conn(), """
+      { rosaryContent#{args} { version prayers { id group title { en la es } text { en la es } } } }
+      """)
+    end
+
+    spanish = query.(~s|(lang: "es")|)
+    refute spanish["errors"]
+
+    assert get_in(spanish, ["data", "rosaryContent", "prayers"]) == Content.prayers("es")
+
+    english = get_in(query.(""), ["data", "rosaryContent"])
+    assert english == get_in(query.(~s|(lang: "en")|), ["data", "rosaryContent"])
+    assert english["version"] == Current.stamp().version
+
+    for prayer <- english["prayers"] do
+      assert prayer["title"]["es"] == nil and prayer["text"]["es"] == nil
+    end
+
+    refute get_in(spanish, ["data", "rosaryContent", "version"]) == english["version"]
+    _ = conn
+  end
 end

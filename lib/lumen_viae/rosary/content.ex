@@ -38,6 +38,17 @@ defmodule LumenViae.Rosary.Content do
   shapes are `Types.RosaryLearn` and `Types.GuidedRosary`, documented in
   docs/JSON_API.md, "The How to Pray course".
 
+  ## In Spanish
+
+  `es/prayers.json` holds the prayers in Spanish, each a title and its
+  lines, copied from official Church sources (listed, with what was
+  changed, in `priv/rosary_content/SOURCES.md`); a prayer with none found
+  is left out and served in English. It is a file of its own, outside
+  `files/0`, so the English document is unchanged by it, word, version
+  and date. A request with `lang=es` gets each prayer with `es` beside
+  `en` and `la` (`prayers/1`, `document/1`, `updated_at/1`); a Spanish
+  prayer is never narrated.
+
   ## Every file is dated
 
   Each file carries a top-level `updated_at`, an ISO 8601 UTC timestamp:
@@ -146,6 +157,37 @@ defmodule LumenViae.Rosary.Content do
 
   if Enum.uniq(@prayer_ids) != @prayer_ids do
     raise CompileError, description: "priv/rosary_content/prayers.json repeats a prayer id"
+  end
+
+  # The prayers in Spanish: a file of their own, so the English document,
+  # its version and its date stay exactly as they were. Each prayer it
+  # holds is one prayers.json holds, with a title and lines of its own;
+  # its line count need not match the Latin. A prayer it does not hold is
+  # served in English.
+  @spanish_prayers_path Path.join([@dir, "es", "prayers.json"])
+  @external_resource @spanish_prayers_path
+
+  {spanish_prayers_file, spanish_prayers_updated_at} = read.(@spanish_prayers_path)
+
+  @spanish_prayers Map.fetch!(spanish_prayers_file, "prayers")
+  @spanish_prayers_updated_at spanish_prayers_updated_at
+
+  for {id, prayer} <- @spanish_prayers do
+    if id not in @prayer_ids do
+      raise CompileError,
+        description:
+          "priv/rosary_content/es/prayers.json holds #{inspect(id)}, which prayers.json does not"
+    end
+
+    with %{"title" => title, "text" => [_ | _] = lines} when is_binary(title) <- prayer,
+         true <- Enum.all?(lines, &is_binary/1) do
+      :ok
+    else
+      _ ->
+        raise CompileError,
+          description:
+            "priv/rosary_content/es/prayers.json: #{id} needs a title and its text as a non-empty list of lines"
+    end
   end
 
   @script_path Path.join(@dir, "script.json")
@@ -492,6 +534,74 @@ defmodule LumenViae.Rosary.Content do
   """
   @spec forms() :: map
   def forms, do: @forms
+
+  @doc """
+  The language a request asks for, from its `lang` parameter: `"es"` for
+  Spanish (`es`, `es-MX`, any `es-` region), `"en"` for anything else,
+  missing or unknown included.
+  """
+  @spec language(term) :: String.t()
+  def language(lang) when is_binary(lang) do
+    if lang |> String.downcase() |> String.replace("_", "-") |> String.split("-") |> hd() == "es",
+      do: "es",
+      else: "en"
+  end
+
+  def language(_lang), do: "en"
+
+  @doc """
+  The twelve prayers in a language. `"en"` is `prayers/0`, as it is
+  served today. `"es"` adds `"es"` beside `"en"` and `"la"` in each
+  prayer's title and text, from `priv/rosary_content/es/prayers.json`,
+  and the English where that file holds no Spanish, so it is never
+  missing.
+  """
+  @spec prayers(String.t()) :: [map]
+  def prayers("es") do
+    for %{"id" => id, "title" => title, "text" => text} = prayer <- @prayers do
+      spanish = Map.get(@spanish_prayers, id, %{"title" => title["en"], "text" => text["en"]})
+
+      %{
+        prayer
+        | "title" => Map.put(title, "es", spanish["title"]),
+          "text" => Map.put(text, "es", spanish["text"])
+      }
+    end
+  end
+
+  def prayers(_lang), do: @prayers
+
+  @doc """
+  `document/0` in a language: for `"es"`, its prayers are `prayers("es")`,
+  so its `version/1` is its own and a Spanish word changed moves it.
+  """
+  @spec document(String.t()) :: map
+  def document("es"), do: Map.put(@document, "prayers", prayers("es"))
+  def document(_lang), do: @document
+
+  @doc """
+  `updated_at/0` in a language: for `"es"`, the later of it and the
+  Spanish file's date.
+  """
+  @spec updated_at(String.t()) :: DateTime.t()
+  def updated_at("es"), do: Enum.max([@updated_at, @spanish_prayers_updated_at], DateTime)
+  def updated_at(_lang), do: @updated_at
+
+  @doc """
+  The Spanish file, dated and versioned as `files/0` lists the English
+  ones, for the test that pins it. It is not one of `files/0`: the
+  English document's date is the latest of those alone.
+  """
+  @spec spanish_files() :: [%{name: String.t(), updated_at: DateTime.t(), version: String.t()}]
+  def spanish_files do
+    [
+      %{
+        name: "es/prayers.json",
+        updated_at: @spanish_prayers_updated_at,
+        version: version(%{"prayers" => @spanish_prayers})
+      }
+    ]
+  end
 
   @doc "One prayer by its id, or `nil`."
   @spec prayer(String.t()) :: map | nil

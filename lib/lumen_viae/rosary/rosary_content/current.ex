@@ -16,10 +16,13 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
 
   @impl true
   def prepare(query, _opts, context) do
-    %{version: version, updated_at: updated_at} =
-      stamp(Schedule.current_year(), Ash.Context.to_opts(context))
+    lang = query |> Ash.Query.get_argument(:lang) |> Content.language()
 
-    record = struct(RosaryContent, %{id: "current", version: version, updated_at: updated_at})
+    %{version: version, updated_at: updated_at} =
+      stamp(Schedule.current_year(), Ash.Context.to_opts(context), lang)
+
+    record =
+      struct(RosaryContent, %{id: "current", version: version, updated_at: updated_at, lang: lang})
 
     Simple.set_data(query, [record])
   end
@@ -43,13 +46,17 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
   The `mysteries` section is the one read from the database (`opts` are
   the caller's, for that read); `categories` and `verses` are code, dated
   in their own modules.
+
+  `lang` is the document's language (`Content.language/1`): in Spanish the
+  content is `Content.document("es")`, so its version and date are its
+  own, and the English ones are what they were.
   """
-  @spec stamp(integer, keyword) :: %{version: String.t(), updated_at: DateTime.t()}
-  def stamp(year \\ Schedule.current_year(), opts \\ []) do
+  @spec stamp(integer, keyword, String.t()) :: %{version: String.t(), updated_at: DateTime.t()}
+  def stamp(year \\ Schedule.current_year(), opts \\ [], lang \\ "en") do
     mysteries = Mysteries.rows(opts)
 
     sections = [
-      {"content", Content.document(), Content.updated_at()},
+      {"content", Content.document(lang), Content.updated_at(lang)},
       {"schedule", Schedule.section(year), Schedule.updated_at(year)},
       {"categories", Categories.all(opts),
        Enum.max(

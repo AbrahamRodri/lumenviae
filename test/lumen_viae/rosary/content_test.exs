@@ -37,6 +37,15 @@ defmodule LumenViae.Rosary.ContentTest do
     ]
   }
 
+  # The Spanish file, outside @history because it is outside
+  # Content.files/0: the English document's date is the latest of those
+  # alone. Change es/prayers.json the same way.
+  @spanish_history %{
+    "es/prayers.json" => [
+      {~U[2026-11-02 23:00:00Z], "c5fc5ae325922a61"}
+    ]
+  }
+
   @prayer_ids ~w(sign_of_cross apostles_creed our_father hail_mary glory_be fatima_prayer hail_holy_queen rosary_closing_prayer act_of_contrition sorrows_closing_prayer memorare st_michael_prayer)
 
   describe "the content files" do
@@ -119,6 +128,90 @@ defmodule LumenViae.Rosary.ContentTest do
                Content.prayer("hail_mary")
 
       assert Content.prayer("ave_regina") == nil
+    end
+  end
+
+  describe "in Spanish" do
+    test "the Spanish file is dated and versioned as its history last records it" do
+      assert Enum.map(Content.spanish_files(), & &1.name) == Map.keys(@spanish_history)
+
+      for %{name: name, updated_at: updated_at, version: version} <- Content.spanish_files() do
+        assert {updated_at, version} == List.last(@spanish_history[name]), """
+        priv/rosary_content/#{name} changed (now #{DateTime.to_iso8601(updated_at)}, #{version}).
+        Bump its updated_at and add
+          {~U[#{Calendar.strftime(updated_at, "%Y-%m-%d %H:%M:%SZ")}], "#{version}"}
+        at the end of its @spanish_history list.
+        """
+      end
+    end
+
+    test "lang reads es and its regions as Spanish, and anything else as English" do
+      for lang <- ["es", "ES", "es-MX", "es_419", "es-ES"],
+          do: assert(Content.language(lang) == "es")
+
+      for lang <- [nil, "", "en", "en-US", "fr", "spanish", "e", 7],
+          do: assert(Content.language(lang) == "en")
+    end
+
+    test "English is the document as it was, with no Spanish in it" do
+      assert Content.prayers("en") == Content.prayers()
+      assert Content.document("en") == Content.document()
+      assert Content.updated_at("en") == Content.updated_at()
+
+      for %{"title" => title, "text" => text} <- Content.prayers() do
+        assert Map.keys(title) |> Enum.sort() == ["en", "la"]
+        assert Map.keys(text) |> Enum.sort() == ["en", "la"]
+      end
+    end
+
+    # No official Spanish text was found for these (priv/rosary_content/SOURCES.md).
+    @english_only ~w(sorrows_closing_prayer)
+
+    test "a prayer with no Spanish text is served with its English as the es" do
+      for %{"id" => id, "title" => title, "text" => text} <- Content.prayers("es"),
+          id in @english_only do
+        assert title["es"] == title["en"]
+        assert text["es"] == text["en"]
+      end
+    end
+
+    test "every other prayer has its own Spanish beside the English and Latin, unchanged" do
+      spanish = Content.prayers("es")
+
+      assert Enum.map(spanish, & &1["id"]) == @prayer_ids
+
+      for {es, en} <- Enum.zip(spanish, Content.prayers()) do
+        assert Map.delete(es["title"], "es") == en["title"]
+        assert Map.delete(es["text"], "es") == en["text"]
+      end
+
+      for {es, en} <- Enum.zip(spanish, Content.prayers()), es["id"] not in @english_only do
+        assert es["title"]["es"] != en["title"]["en"], "#{es["id"]} has no Spanish title"
+        assert es["text"]["es"] != en["text"]["en"], "#{es["id"]} has no Spanish text"
+
+        assert Enum.all?(es["text"]["es"], &(is_binary(&1) and String.trim(&1) != "")),
+               "#{es["id"]} has a blank Spanish line"
+      end
+    end
+
+    test "the Spanish document has a version and a date of its own" do
+      refute Content.version(Content.document("es")) == Content.version()
+      [%{updated_at: spanish_file_at}] = Content.spanish_files()
+
+      assert Content.updated_at("es") ==
+               Enum.max([Content.updated_at(), spanish_file_at], DateTime)
+    end
+
+    test "the spoken Rosary records no Spanish: its prayer clips say the English" do
+      spanish_words =
+        for p <- Content.prayers("es"),
+            p["id"] not in @english_only,
+            line <- p["text"]["es"],
+            do: line
+
+      for clip <- PrayerAudio.clips([:prayer]) do
+        refute Enum.any?(spanish_words, &String.contains?(clip.text, &1)), "#{clip.name}"
+      end
     end
   end
 

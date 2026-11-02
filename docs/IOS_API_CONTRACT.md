@@ -348,6 +348,16 @@ The chant files themselves (`audio.url`, `score[].url`) are fetched
 outside Phoenix, below. Builds up to 4.0 bundle their chants and words
 and call neither route.
 
+### 11. GET /api/v2/rosary-content?lang=es (not yet called)
+
+No build sends `lang` yet. A build that does gets each prayer's `title`
+and `text` with `es` beside `en` and `la`, never null (the English where
+there is no Spanish), and a `version` of its own, so it keeps its Spanish
+copy apart from the English one. Without `lang`, or with `lang=en`, the
+document is exactly what every shipped build reads today, version and
+date included, pinned by `test/lumen_viae_web/json_api/rosary_content_test.exs`
+("lang"). The shapes are docs/JSON_API.md, "The Rosary in Spanish".
+
 ### Outside Phoenix
 
 S3 presigned narration and rosary clips (AVPlayer, or a plain GET), S3
