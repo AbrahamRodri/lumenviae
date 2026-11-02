@@ -1,0 +1,76 @@
+meditation_id,set_id,set,category,audio_file,characters
+121,26,Blessed Fulton J. Sheen,joyful,Joyful-Fulton-1.mp3,1136
+122,26,Blessed Fulton J. Sheen,joyful,Joyful-Fulton-2.mp3,1635
+123,26,Blessed Fulton J. Sheen,joyful,Joyful-Fulton-3.mp3,1014
+124,26,Blessed Fulton J. Sheen,joyful,Joyful-Fulton-4.mp3,985
+125,26,Blessed Fulton J. Sheen,joyful,Joyful-Fulton-5.mp3,941
+126,27,Blessed Fulton J. Sheen,sorrowful,Sorrowful-Fulton-1.mp3,1653
+129,27,Blessed Fulton J. Sheen,sorrowful,Sorrowful-Fulton-4.mp3,1255
+131,25,Blessed Fulton J. Sheen,glorious,Glorious-Fulton-1.mp3,1625
+134,25,Blessed Fulton J. Sheen,glorious,Glorious-Fulton-4.mp3,1262
+135,25,Blessed Fulton J. Sheen,glorious,Glorious-Fulton-5.mp3,1348
+141,30,St. Alphonsus Liguori,sorrowful,Sorrowful-Alphonsus-1.mp3,528
+142,30,St. Alphonsus Liguori,sorrowful,Sorrowful-Alphonsus-2.mp3,461
+149,28,St. Alphonsus Liguori,glorious,Glorious-Alphonsus-4.mp3,558
+150,28,St. Alphonsus Liguori,glorious,Glorious-Alphonsus-5.mp3,616
+227,42,Blessed Anne Catherine Emmerich,joyful,joyful_emmerich_1.mp3,518
+229,42,Blessed Anne Catherine Emmerich,joyful,joyful_emmerich_3.mp3,1772
+230,42,Blessed Anne Catherine Emmerich,joyful,joyful_emmerich_4.mp3,445
+231,42,Blessed Anne Catherine Emmerich,joyful,joyful_emmerich_5.mp3,1091
+246,46,Blessed Anne Catherine Emmerich,glorious,glorious_emmerich_1.mp3,596
+247,46,Blessed Anne Catherine Emmerich,glorious,glorious_emmerich_2.mp3,1983
+248,46,Blessed Anne Catherine Emmerich,glorious,glorious_emmerich_3.mp3,2784
+249,46,Blessed Anne Catherine Emmerich,glorious,glorious_emmerich_4.mp3,1594
+250,46,Blessed Anne Catherine Emmerich,glorious,glorious_emmerich_5.mp3,1219
+253,45,Blessed Anne Catherine Emmerich,sorrowful,sorrowful_emmerich_3.mp3,2677
+262,48,St. Ignatius of Loyola,joyful,joyful_ignatius_2.mp3,529
+263,48,St. Ignatius of Loyola,joyful,joyful_ignatius_3.mp3,420
+264,48,St. Ignatius of Loyola,joyful,joyful_ignatius_4.mp3,424
+265,48,St. Ignatius of Loyola,joyful,joyful_ignatius_5.mp3,422
+298,52,St. John Henry Newman,glorious,glorious_newman_3.mp3,1234
+300,52,St. John Henry Newman,glorious,glorious_newman_5.mp3,1904
+302,53,Blessed Anne Catherine Emmerich,luminous,luminous_emmerich_2.mp3,752
+303,53,Blessed Anne Catherine Emmerich,luminous,luminous_emmerich_3.mp3,846
+304,53,Blessed Anne Catherine Emmerich,luminous,luminous_emmerich_4.mp3,1594
+307,54,St. Augustine,luminous,luminous_augustine_2.mp3,1328
+309,54,St. Augustine,luminous,luminous_augustine_4.mp3,611
+310,54,St. Augustine,luminous,luminous_augustine_5.mp3,1661
+311,55,St. John Chrysostom,luminous,luminous_chrysostom_1.mp3,601
+314,55,St. John Chrysostom,luminous,luminous_chrysostom_4.mp3,688
+315,55,St. John Chrysostom,luminous,luminous_chrysostom_5.mp3,1800
+317,56,St. Thomas Aquinas,luminous,luminous_aquinas_2.mp3,1057
+326,58,Venerable Mary of Agreda,joyful,joyful_agreda_1.mp3,955
+327,58,Venerable Mary of Agreda,joyful,joyful_agreda_2.mp3,914
+328,58,Venerable Mary of Agreda,joyful,joyful_agreda_3.mp3,1124
+329,58,Venerable Mary of Agreda,joyful,joyful_agreda_4.mp3,646
+330,58,Venerable Mary of Agreda,joyful,joyful_agreda_5.mp3,994
+331,59,Father Frederick William Faber,joyful,joyful_faber_1.mp3,1041
+332,59,Father Frederick William Faber,joyful,joyful_faber_2.mp3,999
+333,59,Father Frederick William Faber,joyful,joyful_faber_3.mp3,1197
+334,59,Father Frederick William Faber,joyful,joyful_faber_4.mp3,919
+336,60,Venerable Mary of Agreda,seven_sorrows,seven_sorrows_agreda_1.mp3,1008
+338,60,Venerable Mary of Agreda,seven_sorrows,seven_sorrows_agreda_3.mp3,1304
+339,60,Venerable Mary of Agreda,seven_sorrows,seven_sorrows_agreda_4.mp3,1392
+341,60,Venerable Mary of Agreda,seven_sorrows,seven_sorrows_agreda_6.mp3,1011
+342,60,Venerable Mary of Agreda,seven_sorrows,seven_sorrows_agreda_7.mp3,1054
+343,61,St. Alphonsus Liguori,seven_sorrows,seven_sorrows_liguori_1.mp3,1110
+344,61,St. Alphonsus Liguori,seven_sorrows,seven_sorrows_liguori_2.mp3,1499
+345,61,St. Alphonsus Liguori,seven_sorrows,seven_sorrows_liguori_3.mp3,985
+347,61,St. Alphonsus Liguori,seven_sorrows,seven_sorrows_liguori_5.mp3,930
+349,61,St. Alphonsus Liguori,seven_sorrows,seven_sorrows_liguori_7.mp3,1673
+350,55,St. John Chrysostom,luminous,luminous_chrysostom_3.mp3,935
+351,62,St. John Chrysostom,sorrowful,sorrowful_chrysostom_1.mp3,658
+352,62,St. John Chrysostom,sorrowful,sorrowful_chrysostom_2.mp3,1110
+353,62,St. John Chrysostom,sorrowful,sorrowful_chrysostom_3.mp3,1043
+354,62,St. John Chrysostom,sorrowful,sorrowful_chrysostom_4.mp3,640
+355,62,St. John Chrysostom,sorrowful,sorrowful_chrysostom_5.mp3,529
+356,63,Dom Prosper Guéranger,glorious,glorious_gueranger_1.mp3,2004
+357,63,Dom Prosper Guéranger,glorious,glorious_gueranger_2.mp3,734
+358,63,Dom Prosper Guéranger,glorious,glorious_gueranger_3.mp3,1914
+359,63,Dom Prosper Guéranger,glorious,glorious_gueranger_4.mp3,1774
+360,63,Dom Prosper Guéranger,glorious,glorious_gueranger_5.mp3,612
+361,64,Dom Prosper Guéranger,sorrowful,sorrowful_gueranger_1.mp3,2154
+362,64,Dom Prosper Guéranger,sorrowful,sorrowful_gueranger_2.mp3,902
+367,65,Father Frederick William Faber,seven_sorrows,seven_sorrows_faber_2.mp3,658
+371,65,Father Frederick William Faber,seven_sorrows,seven_sorrows_faber_6.mp3,1095
+372,65,Father Frederick William Faber,seven_sorrows,seven_sorrows_faber_7.mp3,861
