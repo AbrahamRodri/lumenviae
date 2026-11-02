@@ -4,8 +4,8 @@ One recipe for Lumen Viae, Tornado Diet and ClipperHandz (Abraham, 2 November
 2026: "lets do hetzner for all three"). Each site runs on one small Hetzner
 Cloud server in its owner's Hetzner account: the Phoenix release, its
 Postgres, and Caddy for HTTPS, as Docker Compose services. Its database is
-dumped to a Cloudflare R2 bucket every night, and a restore of the newest
-dump is tested every week. About $5 to $6 a month a site (check
+dumped to a Cloudflare R2 bucket every night (kept 30 days, a missed night
+emailed), and a restore of the newest dump is tested every week. About $5 to $6 a month a site (check
 hetzner.com/cloud on the day).
 
 Nothing here is switched on. Creating a server, an account or a bucket,
@@ -25,7 +25,7 @@ Everything is in `deploy/vm/` and is copied unchanged apart from names:
 | `Caddyfile`, `caddy/Dockerfile` | HTTPS for the site's names, certificates by DNS-01 through Cloudflare, `X-Real-IP` set to the real peer |
 | `env.example` | The names in the app's `.env` |
 | `backup.env.example` | The names in `backup.env`: the R2 bucket, its token, the site's folder |
-| `bin/backup` | `pg_dump` to R2, then checks R2 holds every byte; never deletes |
+| `bin/backup` | `pg_dump` to R2, then checks R2 holds every byte and pings the dead man's switch; never deletes |
 | `bin/restore-test` | Restores the newest dump into a scratch database, checks its `schema_migrations` against the live one, prints the biggest tables, drops it |
 | `systemd/` | `backup@.timer` (nightly, 03:30 UTC) and `restore-test@.timer` (Sundays, 04:30 UTC), one instance per folder under `/srv` |
 
@@ -77,8 +77,13 @@ rehearsal uses a test name.
 5. **Backups:**
    - In Cloudflare (the owner's account, R2 enabled): a bucket (one bucket
      can hold every site the owner has, each under its own folder); a
-     lifecycle rule on it that deletes objects under `db/` after 7 days; an
-     R2 API token, Object Read & Write, for that bucket only.
+     lifecycle rule that deletes objects under `db/` after 30 days; a bucket
+     lock rule on `db/` for 7 days, so nothing (the token included) can
+     delete a recent dump; an R2 API token, Object Read & Write, for that
+     bucket only.
+   - A check at healthchecks.io (free), expecting a ping every day; its URL
+     is `BACKUP_PING_URL`. `bin/backup` refuses to run without one, because
+     a backup that fails quietly for 30 days leaves nothing to restore.
    - On the server, `/srv/<name>/backup.env` from `backup.env.example`,
      mode 600, owner `deploy`.
    - As `admin`, once (each deploy copies `deploy/vm/` to the server, so the
@@ -102,9 +107,9 @@ rehearsal uses a test name.
 - **A console on the release:** `docker compose exec app /app/bin/<app> remote`
   (Lumen Viae: `/app/bin/lumen_viae`).
 - **Backups:** `systemctl list-timers` shows the next runs;
-  `journalctl -u backup@<name>` the last ones. A failed run exits non-zero
-  and shows as failed in `systemctl status`; with `BACKUP_PING_URL` set, a
-  missed night also sends an email.
+  `journalctl -u backup@<name>` the last ones. A failed run exits non-zero,
+  shows as failed in `systemctl status`, and sends no ping, so
+  healthchecks.io emails.
 - **Restoring for real:** stop the app (`docker compose stop app`), then
   pipe the chosen dump into the live database the way `bin/restore-test`
   pipes it into the scratch one, with `pg_restore --clean --if-exists`, and

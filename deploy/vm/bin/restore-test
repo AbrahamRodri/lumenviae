@@ -19,9 +19,9 @@ endpoint=${BACKUP_ENDPOINT:-https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com}
 scratch=restore_test
 
 aws() {
-  docker run --rm \
-    -e AWS_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID" \
-    -e AWS_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY" \
+  AWS_ACCESS_KEY_ID=$R2_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$R2_SECRET_ACCESS_KEY \
+    docker run --rm \
+    -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY \
     -e AWS_DEFAULT_REGION=auto \
     amazon/aws-cli:2.22.0 --endpoint-url "$endpoint" "$@"
 }
@@ -63,6 +63,7 @@ printf '%s\n' "$counts" | sql "$scratch" | sed 's/^/restore-test:   /'
 
 [ "$restored" -gt 0 ] && [ "$restored" = "$live" ] || {
   echo "restore-test: FAILED, the restored schema does not match the live one" >&2
+  echo "restore-test: (a deploy that migrated since last night's backup also does this; run bin/backup, then this again)" >&2
   exit 1
 }
 echo "restore-test: ok"
