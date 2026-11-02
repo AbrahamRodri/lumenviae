@@ -31,6 +31,11 @@ defmodule LumenViae.Rosary.RosaryContent.Prayers do
     %Types.RosaryPrayer{id: id, group: group, title: languages(title), text: languages(text)}
   end
 
-  defp languages(value),
-    do: Map.new(value, fn {lang, words} -> {String.to_existing_atom(lang), words} end)
+  # Only the languages served, so a stray key in a content file never
+  # reaches a document.
+  defp languages(value) do
+    value
+    |> Map.take(["en", "la", "es"])
+    |> Map.new(fn {lang, words} -> {String.to_existing_atom(lang), words} end)
+  end
 end

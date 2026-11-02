@@ -322,7 +322,13 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
 
       refute spanish["version"] == english["version"]
       assert spanish["version"] == Current.stamp(Schedule.current_year(), [], "es").version
-      assert spanish["updated_at"] == DateTime.to_iso8601(Content.updated_at("es"))
+      # The document's date is the latest of every section's, the schedule's
+      # included, and never earlier than the Spanish file's.
+      stamp = Current.stamp(Schedule.current_year(), [], "es")
+      assert spanish["updated_at"] == DateTime.to_iso8601(stamp.updated_at)
+
+      [%{updated_at: spanish_file_at}] = Content.spanish_files()
+      refute DateTime.compare(stamp.updated_at, spanish_file_at) == :lt
       assert attributes(build_conn(), "&lang=es-MX") == spanish
     end
 

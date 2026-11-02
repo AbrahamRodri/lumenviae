@@ -42,7 +42,8 @@ All three were read on 2 November 2026.
 - `rosary_closing_prayer`: the source's "Oremos" is written `[Oremos.]`,
   the way the English and Latin mark a rubric.
 - `fatima_prayer`: the stray comma in the source's "Oh Jesús, mío" is
-  removed, and its two lines are joined by a line break instead of "/".
+  removed, and its two lines are joined by a line break instead of "/",
+  so the second line's "Lleva" is lowercase ("lleva").
   The source has no "Amén", so neither does the text.
 
 ## Not found

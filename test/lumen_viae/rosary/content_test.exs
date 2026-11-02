@@ -196,7 +196,10 @@ defmodule LumenViae.Rosary.ContentTest do
 
     test "the Spanish document has a version and a date of its own" do
       refute Content.version(Content.document("es")) == Content.version()
-      assert DateTime.compare(Content.updated_at("es"), Content.updated_at()) in [:gt, :eq]
+      [%{updated_at: spanish_file_at}] = Content.spanish_files()
+
+      assert Content.updated_at("es") ==
+               Enum.max([Content.updated_at(), spanish_file_at], DateTime)
     end
 
     test "the spoken Rosary records no Spanish: its prayer clips say the English" do
