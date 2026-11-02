@@ -21,13 +21,17 @@ defmodule LumenViae.Storage.CopyTest do
     def puts(pid), do: Agent.get(pid, &Enum.reverse(&1.puts))
 
     @impl true
+    # `multipart: true` lists ETags the way S3 does for a multipart upload,
+    # which are not the MD5 of the bytes.
     def list(pid, prefix) do
-      pid
-      |> objects()
+      %{objects: objects, opts: opts} = Agent.get(pid, & &1)
+      suffix = if opts[:multipart], do: "-2", else: ""
+
+      objects
       |> Enum.filter(fn {key, _} -> String.starts_with?(key, prefix) end)
       |> Enum.sort()
       |> Enum.map(fn {key, object} ->
-        %{key: key, size: byte_size(object.body), etag: md5(object.body)}
+        %{key: key, size: byte_size(object.body), etag: ~s("#{md5(object.body)}#{suffix}")}
       end)
     end
 
@@ -152,6 +156,27 @@ defmodule LumenViae.Storage.CopyTest do
 
       assert MemoryStore.objects(destination)["voices/old.mp3"].body == "old"
       assert map_size(MemoryStore.objects(source)) == 4
+    end
+
+    test "copies an object of the same size whose bytes differ", %{source: source} do
+      destination = MemoryStore.start(%{"voices/frederick/a.mp3" => object("zzzz")})
+
+      result =
+        Copy.run({MemoryStore, source}, {MemoryStore, destination}, prefix: "voices/frederick/a")
+
+      assert result.present == 0
+      assert result.copied == 1
+      assert MemoryStore.objects(destination)["voices/frederick/a.mp3"].body == "aaaa"
+    end
+
+    test "against a multipart ETag, which is no MD5, the size alone decides" do
+      source = MemoryStore.start(%{"voices/big.mp3" => object("aaaa")}, multipart: true)
+      destination = MemoryStore.start(%{"voices/big.mp3" => object("zzzz")})
+
+      result = Copy.run({MemoryStore, source}, {MemoryStore, destination})
+
+      assert result.present == 1
+      assert MemoryStore.puts(destination) == []
     end
 
     test "a second run copies nothing", %{source: source} do

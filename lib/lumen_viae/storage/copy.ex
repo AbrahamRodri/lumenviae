@@ -4,7 +4,7 @@ defmodule LumenViae.Storage.Copy do
   to Cloudflare R2, for `mix lumen_viae.copy_storage`), and never deletes.
 
   For each source object it copies only what the destination is missing, or
-  holds with a different size, keeping the object's content type and cache
+  holds with a different size or MD5, keeping the object's content type and cache
   control, and then reads the copy back: the size must match and the
   destination's ETag must be the MD5 of the bytes sent. A copy that fails
   that check is reported, not retried, and the run goes on. With `dry_run:
@@ -56,9 +56,9 @@ defmodule LumenViae.Storage.Copy do
     acc = %{copied: 0, copied_bytes: 0, present: 0, to_copy: 0, to_copy_bytes: 0, failed: []}
 
     src.list(src_state, prefix)
-    |> Enum.reduce(acc, fn %{key: key, size: size}, acc ->
+    |> Enum.reduce(acc, fn %{key: key, size: size} = object, acc ->
       cond do
-        present?(dst.head(dst_state, key), size) ->
+        present?(dst.head(dst_state, key), object) ->
           report.({:present, key, size})
           %{acc | present: acc.present + 1}
 
@@ -84,8 +84,18 @@ defmodule LumenViae.Storage.Copy do
     %{acc | failed: acc.failed ++ [{key, why}]}
   end
 
-  defp present?({:ok, %{size: size}}, size), do: true
-  defp present?(_head, _size), do: false
+  # The same size, and the same bytes when both ETags are plain MD5s. A
+  # multipart upload's ETag ("<md5>-<parts>") is not the MD5 of the bytes,
+  # so for one of those the size is all that can be compared.
+  defp present?({:ok, %{size: size, etag: copy}}, %{size: size, etag: original}) do
+    copy = unquote_etag(copy)
+    original = unquote_etag(original)
+    not (md5?(copy) and md5?(original)) or copy == original
+  end
+
+  defp present?(_head, _object), do: false
+
+  defp md5?(etag), do: etag =~ ~r/\A[0-9a-f]{32}\z/
 
   defp copy_one({src, src_state}, {dst, dst_state}, key) do
     {:ok, body, meta} = src.get(src_state, key)

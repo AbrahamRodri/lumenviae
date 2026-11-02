@@ -8,7 +8,7 @@ defmodule Mix.Tasks.LumenViae.CopyStorage do
       mix lumen_viae.copy_storage --from s3 --to r2 --prefix voices/ --dry-run
       mix lumen_viae.copy_storage --from s3 --to r2 --prefix voices/
 
-  It copies only what R2 is missing or holds with a different size, keeps
+  It copies only what R2 is missing or holds with a different size or MD5, keeps
   each object's content type and cache control, and checks every copy's
   size and MD5 after it lands. It never deletes, on either side, so a run
   is safe to repeat and to stop halfway.
