@@ -17,9 +17,14 @@ defmodule LumenViaeWeb.Live.Chants.Library do
   alias LumenViaeWeb.Components.MysteryPainting
   alias LumenViaeWeb.Live.Prayers.Book
 
-  defstruct groups: [], chants: [], by_id: %{}
+  defstruct groups: [], chants: [], occasions: [], by_id: %{}
 
-  @type t :: %__MODULE__{groups: [map()], chants: [map()], by_id: %{String.t() => map()}}
+  @type t :: %__MODULE__{
+          groups: [map()],
+          chants: [map()],
+          occasions: [map()],
+          by_id: %{String.t() => map()}
+        }
 
   # The Chant page's shelf of songs to Mary, in its own order
   # (ChantLibraryData.songsToMary).
@@ -183,13 +188,24 @@ defmodule LumenViaeWeb.Live.Chants.Library do
 
   @doc "The whole library, read through the domain as `actor`."
   def load(actor) do
-    Rosary.get_chant_library!(actor: actor, load: [:groups, :chants])
+    Rosary.get_chant_library!(actor: actor, load: [:groups, :chants, :occasions])
     |> new()
   end
 
-  @doc "The index over a library the domain served."
-  def new(%{groups: groups, chants: chants}) do
-    %__MODULE__{groups: groups, chants: chants, by_id: Map.new(chants, &{&1.id, &1})}
+  @doc "The index over a library the domain served; its sung sets where it was read with them."
+  def new(%{groups: groups, chants: chants} = library) do
+    occasions =
+      case Map.get(library, :occasions) do
+        occasions when is_list(occasions) -> occasions
+        _ -> []
+      end
+
+    %__MODULE__{
+      groups: groups,
+      chants: chants,
+      occasions: occasions,
+      by_id: Map.new(chants, &{&1.id, &1})
+    }
   end
 
   def credit, do: @credit
@@ -301,6 +317,9 @@ defmodule LumenViaeWeb.Live.Chants.Library do
   def hero({"feast_all_saints", _x, _y} = painting), do: painting
   def hero({name, x, y}), do: {name, x, min(y, 0.3)}
 
+  @doc "A painting by its name with its focal point; one the site does not have hangs the fallback."
+  def named_painting(name), do: framed(name)
+
   @doc "The Mass of the Angels' tile."
   def mass_tile_painting, do: framed(@mass_tile_painting)
 
@@ -336,9 +355,11 @@ defmodule LumenViaeWeb.Live.Chants.Library do
 
   @doc "\"6 chants · 9 min\": the length of the recordings, never under a minute."
   def summary(chants) do
-    seconds = chants |> Enum.map(& &1.duration) |> Enum.sum()
-    "#{chant_count(length(chants))} · #{max(1, round(seconds / 60))} min"
+    summary(length(chants), chants |> Enum.map(& &1.duration) |> Enum.sum())
   end
+
+  @doc "\"7 chants · 53 min\": so many chants, so many seconds, never under a minute."
+  def summary(count, seconds), do: "#{chant_count(count)} · #{max(1, round(seconds / 60))} min"
 
   @doc "\"4:08\", rounded: a recording's length."
   def duration_label(seconds) do

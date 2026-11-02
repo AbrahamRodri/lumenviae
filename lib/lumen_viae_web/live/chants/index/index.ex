@@ -2,15 +2,21 @@ defmodule LumenViaeWeb.Live.Chants.Index do
   @moduledoc """
   `/chant`: the Chant Library, as the iOS app's Chant tab opens it
   (`ChantLibraryView`): the name over the number of recordings and the
-  search; the Mass of the Angels' tile; Songs to Mary as square cards,
-  each with its length and its own play; and All Chants, the book's twelve
-  sections as painted cards, each opening its shelf; the singers' credit
-  at the foot.
+  search; the tiles, A Sung Rosary and Adoration and Blessing, the Mass
+  of the Angels, Before Bed; Songs to Mary as square cards, each with its
+  length and its own play; Sets of chants, the six sung sets as cards
+  whose disc sings the whole set, the shelf's name opening Sets of
+  Chants; and All Chants, the book's twelve sections as painted cards,
+  each opening its shelf; the singers' credit at the foot.
 
   The app's other tiles and shelves open what the phone keeps (the chant
   last sung, Learned, Your favourites, Played lately, the reader's own
-  sets) or the sung sets, which come later; the website keeps nothing of
-  what a visitor played, so they are not here.
+  sets and Make your own set); the website keeps nothing of what a
+  visitor played, so they are not here.
+
+  The sets are unrolled for the visitor's day, since Before Bed sings
+  tonight's song to Mary: the server's date until the `UserTimezone` hook
+  says the browser's.
 
   The search rides in the link as `?q=` and lists the chants it finds as
   the app's search lists them from the Chant tab
@@ -23,11 +29,11 @@ defmodule LumenViaeWeb.Live.Chants.Index do
   use LumenViaeWeb, :live_view
 
   alias LumenViaeWeb.Live.Chants.Library
+  alias LumenViaeWeb.Live.Chants.Occasions
   alias LumenViaeWeb.Live.Prayers.Book
   alias LumenViaeWeb.PageMeta
 
   import LumenViaeWeb.Live.Chants.Parts
-  import LumenViaeWeb.Live.Prayers.Painting
 
   @description "The Lumen Viae Chant Library: the Church's own songs in Gregorian chant, each recording with its Latin and English words line by line, the Mass of the Angels and the songs to Mary among them."
 
@@ -46,6 +52,7 @@ defmodule LumenViaeWeb.Live.Chants.Index do
      |> assign(:count, Library.count(library))
      |> assign(:songs, Library.songs_to_mary(library))
      |> assign(:sections, sections(library))
+     |> assign_day(Date.utc_today())
      |> assign(:prayer_names, nil)
      |> assign(:query, "")
      |> assign(:hits, [])}
@@ -64,6 +71,25 @@ defmodule LumenViaeWeb.Live.Chants.Index do
   end
 
   def handle_event("search", _params, socket), do: {:noreply, socket}
+
+  def handle_event("set_timezone", %{"offset" => offset}, socket) do
+    case Book.local_date(offset) do
+      {:ok, date} -> {:noreply, assign_day(socket, date)}
+      :error -> {:noreply, socket}
+    end
+  end
+
+  def handle_event("set_timezone", _params, socket), do: {:noreply, socket}
+
+  defp assign_day(socket, date) do
+    library = socket.assigns.library
+    {before_mass, after_mass} = Occasions.tiles(library)
+
+    socket
+    |> assign(:tiles_before, before_mass)
+    |> assign(:tiles_after, after_mass)
+    |> assign(:sets, Enum.map(Occasions.all(library), &Occasions.unroll(&1, library, date)))
+  end
 
   defp assign_search(%{assigns: %{query: ""}} = socket), do: assign(socket, :hits, [])
 

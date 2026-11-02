@@ -9,8 +9,8 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
 - loads `/`, `/mysteries`, `/mysteries/joyful`, `/mysteries/seven_sorrows`,
   `/privacy-policy`, `/app`, `/prayers` (and a search), a topic of the
   Prayer Book, two prayers (one in Both), an order of prayer and a step
-  of praying it in Both, `/chant` (and a search), a section's shelf and
-  a chant's page, and checks each answers 200
+  of praying it in Both, `/chant` (and a search), a section's shelf,
+  a chant's page, Sets of Chants and a sung set, and checks each answers 200
   with an h1 and no console errors;
 - checks no page scrolls sideways (`scrollWidth <= innerWidth`);
 - follows the first Pray link on `/mysteries/joyful` to
@@ -41,8 +41,10 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   all and the rows; on `/chant/salve_regina_simple` checks the recording's
   address on the site's bucket and the lines, presses play and waits for
   a line after the first to light (this fetches the recording, so it needs
-  a network), chooses English (the link gains `words=english`); and checks
-  an unknown chant and section answer 404;
+  a network), chooses English (the link gains `words=english`); on `/chant/sets`
+  checks the six sets; on `/chant/sets/benediction` checks the notes in
+  red, presses Play all and waits for the first chant to sound and its row
+  to light; and checks an unknown chant, section and set answer 404;
 - jumps to `mystery=closing`, presses Complete and checks the completion
   screen shows (once, at the mobile width);
 - saves a full-page screenshot of the main pages to `scripts/e2e/out/`

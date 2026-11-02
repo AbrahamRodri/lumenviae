@@ -1,0 +1,29 @@
+<div class="prayers-page min-h-screen pb-16" id="chant-sets" phx-hook="UserTimezone">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <section class="border-b border-[rgba(227,188,91,0.15)]" aria-labelledby="sets-heading">
+    <div class="max-w-5xl mx-auto px-4 sm:px-8 pt-6 pb-6 md:pt-10 md:pb-10">
+      <.link navigate="/chant" class="book-back" data-role="back">
+        <span class="hero-chevron-left size-4" aria-hidden="true" /> Chant
+      </.link>
+      <p class="kicker mt-6 mb-1">The Chant Library</p>
+      <h1 id="sets-heading" class="font-display text-4xl md:text-6xl text-ink-light leading-[1.1]">
+        Sets of Chants
+      </h1>
+      <p
+        class="font-garamond italic text-lg md:text-xl text-ink-muted mt-2"
+        data-role="sets-intro"
+      >
+        Chants sung one after another, for a time of prayer.
+      </p>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-8 pt-8 md:pt-12">
+    <ul class="chant-wide-sets">
+      <li :for={set <- @sets}>
+        <.wide_set_card set={set} />
+      </li>
+    </ul>
+  </div>
+</div>

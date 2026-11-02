@@ -119,11 +119,14 @@ defmodule LumenViaeWeb.Router do
       live "/prayers/orders/:order_id/pray", Live.Prayers.Order.Pray
       live "/prayers/:prayer_id", Live.Prayers.Prayer
 
-      # The Chant Library, as the app's Chant tab: the sections and songs
-      # to Mary with the search, a section's shelf (or the Mass of the
-      # Angels'), and a chant with its recording and words
+      # The Chant Library, as the app's Chant tab: the sections, songs to
+      # Mary and sung sets with the search, a section's shelf (or the Mass
+      # of the Angels'), Sets of Chants and a sung set's page, and a chant
+      # with its recording and words
       live "/chant", Live.Chants.Index
       live "/chant/sections/:section_id", Live.Chants.Section
+      live "/chant/sets", Live.Chants.Sets
+      live "/chant/sets/:occasion_id", Live.Chants.Set
       live "/chant/:chant_id", Live.Chants.Chant
 
       # The iPhone app's landing page

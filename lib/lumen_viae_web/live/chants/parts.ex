@@ -15,6 +15,7 @@ defmodule LumenViaeWeb.Live.Chants.Parts do
   use LumenViaeWeb, :html
 
   alias LumenViaeWeb.Live.Chants.Library
+  alias LumenViaeWeb.Live.Chants.Occasions
 
   import LumenViaeWeb.Live.Prayers.Painting
 
@@ -146,6 +147,100 @@ defmodule LumenViaeWeb.Live.Chants.Parts do
       </span>
       <span class="chant-section-card__title">{@title}</span>
       <span class="book-card__note">{@note}</span>
+    </.link>
+    """
+  end
+
+  attr :id, :string, required: true
+  attr :title, :string, required: true
+  attr :painting, :any, required: true
+  attr :href, :string, required: true
+  attr :role, :string, default: "tile"
+
+  @doc "A quick way in on the Chant page: a square of painting and a name (ChantLibraryView.tile)."
+  def tile(assigns) do
+    ~H"""
+    <.link navigate={@href} class="chant-tile" data-role={@role} data-set-tile={@id}>
+      <span class="chant-tile__painting" aria-hidden="true">
+        <.painting painting={@painting} sizes="56px" />
+      </span>
+      <span class="chant-tile__title">{@title}</span>
+      <.sounding_bars />
+    </.link>
+    """
+  end
+
+  attr :set, :map, required: true, doc: "a sung set unrolled for the day (Occasions.unroll/3)"
+
+  @doc """
+  A sung set as a card (ChantSetCard): its painting, its name, how many
+  chants and how long, its disc, which plays the whole set, and its first
+  chants listed in order with their lengths. The name opens the set; a
+  chant listed opens that chant.
+  """
+  def set_card(assigns) do
+    assigns =
+      assigns
+      |> assign(:listed, Enum.take(assigns.set.chants, Occasions.listed()))
+      |> assign(:more, length(assigns.set.chants) - Occasions.listed())
+
+    ~H"""
+    <div
+      class="chant-set-card"
+      data-set={@set.id}
+      data-entries={Occasions.entries_json(@set)}
+      data-role="set-card"
+    >
+      <div class="chant-set-card__head">
+        <.link navigate={Occasions.set_path(@set.id)} class="chant-set-card__open">
+          <span class="chant-set-card__thumb" aria-hidden="true">
+            <.painting painting={@set.painting} sizes="76px" />
+          </span>
+          <span class="chant-set-card__names">
+            <span class="chant-set-card__title">{@set.title}</span>
+            <span class="chant-set-card__summary">{Occasions.summary(@set)}</span>
+          </span>
+        </.link>
+        <button
+          type="button"
+          class="chant-disc"
+          data-play-set
+          data-label={@set.title}
+          aria-label={"Play #{@set.title}"}
+          aria-pressed="false"
+        >
+          <span class="hero-play-solid size-3 chant-disc__play" aria-hidden="true" />
+          <span class="hero-pause-solid size-3 chant-disc__pause" aria-hidden="true" />
+        </button>
+      </div>
+      <ol class="chant-set-card__list">
+        <li :for={{chant, n} <- Enum.with_index(@listed, 1)}>
+          <.link navigate={Library.chant_path(chant.id)} class="chant-set-card__chant">
+            <span class="chant-set-card__number" aria-hidden="true">{n}</span>
+            <span class="chant-set-card__latin" lang="la">{chant.latin_title}</span>
+            <span class="chant-set-card__length">{Library.duration_label(chant.duration)}</span>
+          </.link>
+        </li>
+      </ol>
+      <p :if={@more > 0} class="chant-set-card__more">and {@more} more</p>
+    </div>
+    """
+  end
+
+  attr :set, :map, required: true, doc: "a sung set unrolled for the day (Occasions.unroll/3)"
+
+  @doc "A sung set as a wide card (ChantSetsPage): its painting, its name, what it is for, how many and how long."
+  def wide_set_card(assigns) do
+    ~H"""
+    <.link navigate={Occasions.set_path(@set.id)} class="chant-wide-set" data-role="wide-set-card">
+      <span class="chant-wide-set__painting" aria-hidden="true">
+        <.painting painting={@set.painting} sizes="112px" />
+      </span>
+      <span class="chant-wide-set__words">
+        <span class="chant-wide-set__title">{@set.title}</span>
+        <span class="chant-wide-set__note">{@set.note}</span>
+        <span class="chant-wide-set__summary">{Occasions.summary(@set)}</span>
+      </span>
     </.link>
     """
   end
