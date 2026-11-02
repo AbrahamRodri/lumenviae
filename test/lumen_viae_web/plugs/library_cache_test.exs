@@ -73,6 +73,21 @@ defmodule LumenViaeWeb.Plugs.LibraryCacheTest do
       assert get_resp_header(revalidated, "etag") == [etag]
     end
 
+    test "a weak copy of the ETag, as Cloudflare sends after compressing, also gets 304", %{
+      conn: conn
+    } do
+      [etag] = conn |> get_v2("/consecration") |> get_resp_header("etag")
+
+      for tag <- ["W/" <> etag, "*"] do
+        revalidated =
+          build_conn()
+          |> put_req_header("if-none-match", tag)
+          |> get_v2("/consecration")
+
+        assert revalidated.status == 304, tag
+      end
+    end
+
     test "a stale If-None-Match gets the document", %{conn: conn} do
       conn =
         conn

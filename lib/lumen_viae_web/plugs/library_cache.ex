@@ -60,17 +60,22 @@ defmodule LumenViaeWeb.Plugs.LibraryCache do
       )
       |> put_resp_header("etag", etag)
 
-    if etag in if_none_match(conn),
+    tags = if_none_match(conn)
+
+    if etag in tags or "*" in tags,
       do: %{conn | status: 304, resp_body: ""},
       else: conn
   end
 
   defp shareable(conn, _seconds), do: conn
 
+  # If-None-Match compares weakly (RFC 9110, 13.1.2): a W/ tag names the
+  # same version, and Cloudflare weakens an ETag when it compresses the
+  # response. `*` matches whatever is there.
   defp if_none_match(conn) do
     conn
     |> get_req_header("if-none-match")
     |> Enum.flat_map(&String.split(&1, ","))
-    |> Enum.map(&String.trim/1)
+    |> Enum.map(fn tag -> tag |> String.trim() |> String.replace_prefix("W/", "") end)
   end
 end
