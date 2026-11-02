@@ -3,6 +3,8 @@
 
     python3 -u priv/narration_scripts/generate_frederick.py SET_ID [--voice frederick|female]
         [--ids 228,251] [--no-upload] [--force]
+    python3 -u priv/narration_scripts/generate_frederick.py --ranked --budget CREDITS
+        [--no-upload] [--force]
 
 Scripts: priv/narration_scripts/frederick/<meditation_id>.txt for frederick, and
 priv/narration_scripts/female/<meditation_id>.txt for female, tagged in the calmer style of
@@ -17,8 +19,15 @@ frederick: saves narration_out/frederick/<filename>, uploads voices/frederick/<f
 female: saves narration_out/female/<filename>; before overwriting the live
   voices/female/<filename> it copies the current object to
   voices/female_pre_v4/<filename> (once). Use --ids to limit to changed meditations.
+--ranked: re-records Frederick from frederick_meditative/<id>.txt, worst first in
+  frederick_ranked.csv (rank_frederick.py), and stops before the characters sent
+  (about one eleven_v4 credit each) would pass --budget. A meditation already
+  re-recorded (its old file is in voices/frederick_pre_meditative/) is skipped, and
+  one saved locally in narration_out/frederick_meditative/ costs nothing, so a second
+  run goes on where the first stopped. Before replacing voices/frederick/<filename>
+  it copies the live file to voices/frederick_pre_meditative/<filename> (once).
 """
-import json, os, re, sys, urllib.request
+import csv, json, os, re, sys, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 VOICES = {
     "frederick": "j9jfwdrw7BRfcR43Qohk",   # Frederick Surrey
@@ -37,7 +46,67 @@ def words(s): return re.findall(r"[A-Za-z']+", s.lower())
 def opt(name, default=None):
     return sys.argv[sys.argv.index(name) + 1] if name in sys.argv else default
 
+def tts(vid, script):
+    req = urllib.request.Request(
+        f"https://api.elevenlabs.io/v1/text-to-speech/{vid}?output_format=mp3_44100_128",
+        data=json.dumps({"text": script, "model_id": MODEL, "voice_settings": SETTINGS}).encode(),
+        headers={"xi-api-key": env["ELEVEN_LABS_API_KEY"], "Content-Type": "application/json", "Accept": "audio/mpeg"})
+    with urllib.request.urlopen(req, timeout=150) as r: return r.read()
+
+def ranked():
+    budget = opt("--budget")
+    if not budget or not budget.isdigit():
+        sys.exit("--ranked needs --budget CREDITS (about one per character sent)")
+    budget = int(budget); vid = VOICES["frederick"]
+    upload = "--no-upload" not in sys.argv; force = "--force" in sys.argv
+    here = os.path.join(ROOT, "priv/narration_scripts")
+    rows = list(csv.DictReader(open(os.path.join(here, "frederick_ranked.csv"))))
+    outdir = os.path.join(ROOT, "narration_out", "frederick_meditative"); os.makedirs(outdir, exist_ok=True)
+    s3 = None; bucket = env["AWS_S3_BUCKET"]
+    if upload:
+        import boto3
+        s3 = boto3.client("s3", aws_access_key_id=env["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=env["AWS_SECRET_ACCESS_KEY"], region_name=env["AWS_REGION"])
+    def exists(key):
+        try: s3.head_object(Bucket=bucket, Key=key); return True
+        except Exception: return False
+    sets, spent = {}, 0
+    for r in rows:
+        mid = r["meditation_id"]
+        if r["set_id"] not in sets:
+            sets[r["set_id"]] = {str(m["id"]): m for m in
+                json.load(urllib.request.urlopen(API + r["set_id"]))["data"]["meditations"]}
+        m = sets[r["set_id"]].get(mid)
+        if not m: sys.exit(f"#{mid}: not in set {r['set_id']}; run rank_frederick.py again")
+        fn = m["audio_url"].split("?")[0].rsplit("/", 1)[-1]
+        key, archive = f"voices/frederick/{fn}", f"voices/frederick_pre_meditative/{fn}"
+        if s3 and not force and exists(archive):
+            print(f"#{mid} rank {r['rank']}: already re-recorded, skipped", flush=True); continue
+        path = os.path.join(here, "frederick_meditative", f"{mid}.txt")
+        script = open(path).read().strip()
+        if words(re.sub(r"\[[^\]]*\]", "", script)) != words(m["content"]):
+            sys.exit(f"#{mid}: script words differ from the content; fix {path}")
+        out = os.path.join(outdir, fn)
+        cost = len(script) if force or not os.path.exists(out) else 0
+        if spent + cost > budget:
+            print(f"Stopped at rank {r['rank']} (#{mid}, {cost} characters): {spent} of {budget} spent", flush=True)
+            break
+        if cost:
+            audio = tts(vid, script)
+            if len(audio) < 1000: sys.exit(f"#{mid}: empty audio")
+            open(out + ".part", "wb").write(audio); os.replace(out + ".part", out)
+            spent += cost
+        status = "saved"
+        if s3:
+            if exists(key) and not exists(archive):
+                s3.copy_object(Bucket=bucket, Key=archive, CopySource={"Bucket": bucket, "Key": key})
+            s3.upload_file(out, bucket, key, ExtraArgs={"ContentType": "audio/mpeg"})
+            status = "replaced live frederick (old copy archived)"
+        print(f"#{mid} rank {r['rank']} {fn} {cost} characters · {status} · total {spent}", flush=True)
+    print(f"Done: {spent} characters sent of a {budget} budget", flush=True)
+
 def main():
+    if "--ranked" in sys.argv: return ranked()
     set_id = sys.argv[1]
     voice = opt("--voice", "frederick"); vid = VOICES[voice]
     ids = set(opt("--ids", "").split(",")) - {""}
@@ -70,11 +139,7 @@ def main():
             sys.exit(f"#{m['id']}: script words differ from the content; fix {path}")
         out = os.path.join(outdir, fn)
         if force or not os.path.exists(out):
-            req = urllib.request.Request(
-                f"https://api.elevenlabs.io/v1/text-to-speech/{vid}?output_format=mp3_44100_128",
-                data=json.dumps({"text": script, "model_id": MODEL, "voice_settings": SETTINGS}).encode(),
-                headers={"xi-api-key": env["ELEVEN_LABS_API_KEY"], "Content-Type": "application/json", "Accept": "audio/mpeg"})
-            with urllib.request.urlopen(req, timeout=150) as r: audio = r.read()
+            audio = tts(vid, script)
             if len(audio) < 1000: sys.exit(f"#{m['id']}: empty audio")
             open(out + ".part", "wb").write(audio); os.replace(out + ".part", out)
         key = f"voices/{voice}/{fn}"; status = "saved"
