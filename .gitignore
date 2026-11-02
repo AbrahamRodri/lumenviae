@@ -51,5 +51,7 @@ npm-debug.log
 
 # Locally generated narration takes (see priv/narration_scripts)
 /narration_out/
+# Written by rank_frederick.py on the machine that records; never committed
+/priv/narration_scripts/frederick_ranked.csv
 /voice-tests/
 /scripts/e2e/out/
