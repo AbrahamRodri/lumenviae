@@ -20,14 +20,17 @@ female: saves narration_out/female/<filename>; before overwriting the live
   voices/female/<filename> it copies the current object to
   voices/female_pre_v4/<filename> (once). Use --ids to limit to changed meditations.
 --ranked: re-records Frederick from frederick_meditative/<id>.txt, worst first in
-  frederick_ranked.csv (rank_frederick.py). Before each one it asks the account how
+  frederick_ranked.csv (write it first with rank_frederick.py), and right after each
+  of Arabella's 46 in female_v4_dramatic_meditations.csv (recorded on v4 from his
+  dramatic scripts) her recording from female/<id>.txt. Before each one it asks the account how
   many credits remain and stops when recording it would leave fewer than --keep
   (2,000 by default), pricing a character at the dearest rate measured on the run
-  (1 credit until the first is measured; 0.46 was seen on 2 Nov). A meditation already
-  re-recorded (its old file is in voices/frederick_pre_meditative/) is skipped, and
-  one saved locally in narration_out/frederick_meditative/ costs nothing, so a second
-  run goes on where the first stopped. Before replacing voices/frederick/<filename>
-  it copies the live file to voices/frederick_pre_meditative/<filename> (once).
+  (1 credit until the first is measured; 0.46 was seen on 2 Nov). A recording already
+  replaced (its old file is in voices/<voice>_pre_meditative/) is skipped, and one
+  saved locally in narration_out/<voice>_meditative/ costs nothing, so a second run
+  goes on where the first stopped. Before replacing voices/<voice>/<filename>
+  it copies the live file to voices/<voice>_pre_meditative/<filename> (once);
+  voices/female_pre_v4/ is never written here.
 """
 import csv, json, os, re, sys, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -64,14 +67,13 @@ def remaining_credits():
 def ranked():
     keep = opt("--keep", "2000")
     if not keep.isdigit(): sys.exit("--keep takes a whole number of credits")
-    keep = int(keep); vid = VOICES["frederick"]
+    keep = int(keep)
     # Credits per character sent: start at 1 (the dearest it has been) and
     # use the dearest rate measured on this run once one is measured.
     rate, measured = 1.0, None
     upload = "--no-upload" not in sys.argv; force = "--force" in sys.argv
     here = os.path.join(ROOT, "priv/narration_scripts")
     rows = list(csv.DictReader(open(os.path.join(here, "frederick_ranked.csv"))))
-    outdir = os.path.join(ROOT, "narration_out", "frederick_meditative"); os.makedirs(outdir, exist_ok=True)
     s3 = None; bucket = env["AWS_S3_BUCKET"]
     if upload:
         import boto3
@@ -80,7 +82,11 @@ def ranked():
     def exists(key):
         try: s3.head_object(Bucket=bucket, Key=key); return True
         except Exception: return False
-    sets, spent = {}, 0
+    # Arabella's meditations recorded on v4 from Frederick's dramatic
+    # scripts (29 Sep): re-recorded beside his, from female/<id>.txt.
+    female_too = {r["meditation_id"] for r in
+        csv.DictReader(open(os.path.join(here, "female_v4_dramatic_meditations.csv")))}
+    sets, spent, stopped = {}, 0, False
     for r in rows:
         mid = r["meditation_id"]
         if r["set_id"] not in sets:
@@ -89,34 +95,42 @@ def ranked():
         m = sets[r["set_id"]].get(mid)
         if not m: sys.exit(f"#{mid}: not in set {r['set_id']}; run rank_frederick.py again")
         fn = m["audio_url"].split("?")[0].rsplit("/", 1)[-1]
-        key, archive = f"voices/frederick/{fn}", f"voices/frederick_pre_meditative/{fn}"
-        if s3 and not force and exists(archive):
-            print(f"#{mid} rank {r['rank']}: already re-recorded, skipped", flush=True); continue
-        path = os.path.join(here, "frederick_meditative", f"{mid}.txt")
-        script = open(path).read().strip()
-        if words(re.sub(r"\[[^\]]*\]", "", script)) != words(m["content"]):
-            sys.exit(f"#{mid}: script words differ from the content; fix {path}")
-        out = os.path.join(outdir, fn)
-        cost = len(script) if force or not os.path.exists(out) else 0
-        if cost:
-            left = remaining_credits()
-            if left - cost * rate < keep:
-                print(f"Stopped at rank {r['rank']} (#{mid}, {cost} characters): {left} credits "
-                      f"left, keeping {keep}; {spent} characters sent", flush=True)
-                break
-            audio = tts(vid, script)
-            if len(audio) < 1000: sys.exit(f"#{mid}: empty audio")
-            open(out + ".part", "wb").write(audio); os.replace(out + ".part", out)
-            spent += cost
-            used = left - remaining_credits()
-            if used > 0: measured = max(measured or 0, used / cost); rate = measured
-        status = "saved"
-        if s3:
-            if exists(key) and not exists(archive):
-                s3.copy_object(Bucket=bucket, Key=archive, CopySource={"Bucket": bucket, "Key": key})
-            s3.upload_file(out, bucket, key, ExtraArgs={"ContentType": "audio/mpeg"})
-            status = "replaced live frederick (old copy archived)"
-        print(f"#{mid} rank {r['rank']} {fn} {cost} characters · {status} · total {spent}", flush=True)
+        jobs = [("frederick", "frederick_meditative")]
+        if mid in female_too: jobs.append(("female", "female"))
+        for voice, folder in jobs:
+            key, archive = f"voices/{voice}/{fn}", f"voices/{voice}_pre_meditative/{fn}"
+            label = f"#{mid} {voice} rank {r['rank']}"
+            if s3 and not force and exists(archive):
+                print(f"{label}: already re-recorded, skipped", flush=True); continue
+            path = os.path.join(here, folder, f"{mid}.txt")
+            script = open(path).read().strip()
+            if words(re.sub(r"\[[^\]]*\]", "", script)) != words(m["content"]):
+                sys.exit(f"#{mid}: script words differ from the content; fix {path}")
+            outdir = os.path.join(ROOT, "narration_out", f"{voice}_meditative"); os.makedirs(outdir, exist_ok=True)
+            out = os.path.join(outdir, fn)
+            cost = len(script) if force or not os.path.exists(out) else 0
+            if cost:
+                left = remaining_credits()
+                if left - cost * rate < keep:
+                    print(f"Stopped at {label} ({cost} characters): {left} credits left, "
+                          f"keeping {keep}; {spent} characters sent", flush=True)
+                    stopped = True; break
+                audio = tts(VOICES[voice], script)
+                if len(audio) < 1000: sys.exit(f"{label}: empty audio")
+                open(out + ".part", "wb").write(audio); os.replace(out + ".part", out)
+                spent += cost
+                used = left - remaining_credits()
+                if used > 0: measured = max(measured or 0, used / cost); rate = measured
+            status = "saved"
+            if s3:
+                # voices/<voice>_pre_meditative/, never female_pre_v4/ (which
+                # holds Arabella's v3 originals)
+                if exists(key) and not exists(archive):
+                    s3.copy_object(Bucket=bucket, Key=archive, CopySource={"Bucket": bucket, "Key": key})
+                s3.upload_file(out, bucket, key, ExtraArgs={"ContentType": "audio/mpeg"})
+                status = f"replaced live {voice} (old copy archived)"
+            print(f"{label} {fn} {cost} characters · {status} · total {spent}", flush=True)
+        if stopped: break
     print(f"Done: {spent} characters sent, about {rate:.2f} credits per character", flush=True)
 
 def main():

@@ -4,9 +4,10 @@
     python3 priv/narration_scripts/check_female_scripts.py          # Arabella, female/
     python3 priv/narration_scripts/check_female_scripts.py --male   # frederick_meditative/
 
-Reads every meditation in female_v3_meditations.csv from the public API
-(read only; no keys, no ElevenLabs) and its script in female/<id>.txt, and
-fails unless, for each one:
+Reads every meditation in female_v3_meditations.csv and
+female_v4_dramatic_meditations.csv from the public API (read only; no keys,
+no ElevenLabs) and its script in female/<id>.txt (frederick_meditative/<id>.txt
+with --male), and fails unless, for each one:
 
   * the script exists, and no script exists for a meditation not on the list;
   * with the tags and any added "..." taken out, the text is the live
@@ -22,11 +23,12 @@ set the cost (eleven_v4 bills about one credit per character sent).
 import csv, json, os, re, sys, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# --male checks Frederick's meditative scripts (frederick_meditative/, listed in
-# frederick_ranked.csv) by the same rules.
+# Both folders hold a script for every meditation: Arabella's 75 still on v3
+# and her 46 recorded on v4 from Frederick's dramatic scripts, which are also
+# every meditation Frederick has. --male checks frederick_meditative/.
 MALE = "--male" in sys.argv
 FOLDER = "frederick_meditative" if MALE else "female"
-LIST = "frederick_ranked.csv" if MALE else "female_v3_meditations.csv"
+LISTS = ["female_v3_meditations.csv", "female_v4_dramatic_meditations.csv"]
 API = "https://www.lumenviae.org/api/meditation-sets/"
 TAG = re.compile(r"\[([^\]]*)\]")
 TONE = {"thoughtful", "softly", "gently", "warmly", "tenderly", "sad", "reverently",
@@ -72,7 +74,7 @@ def check(mid, script, content):
 
 
 def main():
-    rows = list(csv.DictReader(open(os.path.join(HERE, LIST))))
+    rows = [r for name in LISTS for r in csv.DictReader(open(os.path.join(HERE, name)))]
     listed = {r["meditation_id"] for r in rows}
     live = {}
     for set_id in sorted({r["set_id"] for r in rows}):
