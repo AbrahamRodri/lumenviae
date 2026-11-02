@@ -19,10 +19,18 @@ config :ex_aws,
   region: System.get_env("AWS_REGION") || "us-east-2",
   json_codec: Jason
 
+# Where S3 requests and presigned links go. Unset, AWS S3 in AWS_REGION as
+# always. S3_HOST, S3_REGION and S3_SCHEME point them at another
+# S3-compatible store: Cloudflare R2 is S3_HOST=<account>.r2.cloudflarestorage.com
+# and S3_REGION=auto. Presigned links name the host they were signed for, so
+# switching is one deploy, after the objects are copied (reports/rig/cloudflare-plan.md).
+s3_region = System.get_env("S3_REGION") || System.get_env("AWS_REGION") || "us-east-2"
+
 config :ex_aws, :s3,
-  scheme: "https://",
-  host: "s3.#{System.get_env("AWS_REGION") || "us-east-2"}.amazonaws.com",
-  region: System.get_env("AWS_REGION") || "us-east-2"
+  scheme: System.get_env("S3_SCHEME") || "https://",
+  host:
+    System.get_env("S3_HOST") || "s3.#{System.get_env("AWS_REGION") || "us-east-2"}.amazonaws.com",
+  region: s3_region
 
 config :lumen_viae, :aws_s3_bucket, System.get_env("AWS_S3_BUCKET") || "lumenviae-audio"
 

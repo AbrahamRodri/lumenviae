@@ -100,6 +100,50 @@ defmodule LumenViae.Storage.S3Test do
     end
   end
 
+  # Piece B of reports/rig/cloudflare-plan.md: the endpoint is settings.
+  describe "the S3 endpoint" do
+    test "unset, as today, is AWS S3 in us-east-2" do
+      config = Application.get_env(:ex_aws, :s3)
+
+      assert {config[:scheme], config[:host], config[:region]} ==
+               {"https://", "s3.us-east-2.amazonaws.com", "us-east-2"}
+    end
+
+    test "an R2-shaped endpoint signs links for that host, in region auto" do
+      config =
+        ExAws.Config.new(:s3,
+          host: "abc123.r2.cloudflarestorage.com",
+          region: "auto",
+          scheme: "https://",
+          access_key_id: "AKIATESTTESTTESTTEST",
+          secret_access_key: "test-secret-not-a-real-key"
+        )
+
+      {:ok, url} = ExAws.S3.presigned_url(config, :get, "lumenviae-audio", "voices/female/a.mp3")
+
+      assert String.starts_with?(
+               url,
+               "https://abc123.r2.cloudflarestorage.com/lumenviae-audio/voices/female/a.mp3?"
+             )
+
+      assert url =~ "%2Fauto%2Fs3%2Faws4_request"
+    end
+
+    test "public URLs follow the configured host too, when no CDN base is set" do
+      original = Application.get_env(:ex_aws, :s3)
+      on_exit(fn -> Application.put_env(:ex_aws, :s3, original) end)
+
+      Application.put_env(
+        :ex_aws,
+        :s3,
+        Keyword.merge(original, host: "abc123.r2.cloudflarestorage.com", region: "auto")
+      )
+
+      assert S3.public_url("sets/27/a.jpg") ==
+               "https://abc123.r2.cloudflarestorage.com/lumenviae-images/sets/27/a.jpg"
+    end
+  end
+
   # A dev checkout or an agent's seat with no keys serves audio without URLs.
   describe "a machine with no credentials" do
     setup do
