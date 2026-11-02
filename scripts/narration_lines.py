@@ -2,15 +2,18 @@
 """Line-by-line timings for meditation recordings, the way the Chant Library has them.
 
     python3 scripts/narration_lines.py --audio DIR [--ids 121,122] [--cache DIR]
+        [--list CSV --voice VOICE --out JSON]
 
-For each meditation in priv/narration_scripts/female_v3_meditations.csv (the
-75 Arabella recordings re-recorded on 2 Nov 2026), reads the MP3 in DIR, finds
+For each meditation in the list (by default
+priv/narration_scripts/female_v3_meditations.csv, the 75 Arabella recordings
+re-recorded on 2 Nov 2026, voice female, into priv/narration_lines/female.json;
+the list needs meditation_id, set_id and audio_file), reads the MP3 in DIR, finds
 the phrases in it (silences, from its loudness), asks a local Whisper model
 what is heard in each, aligns that with the meditation's stored text word by
 word, and cuts the text into lines: a sentence, or several when the narrator
 did not pause between them, each starting and ending where the recording falls
 silent; a line under a second (a closing "Amen.") joins the one before it.
-Writes priv/narration_lines/female.json.
+Writes the --out file.
 
 A recording gets lines only when it passes every check: the MP3 is the one
 live in S3 (same MD5 as its ETag; skipped with --no-etag), at least 90% of the
@@ -31,6 +34,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 LIST = ROOT / "priv/narration_scripts/female_v3_meditations.csv"
 OUT = ROOT / "priv/narration_lines/female.json"
+VOICE = "female"
 API = "https://www.lumenviae.org/api/meditation-sets/"
 BUCKET = "lumenviae-audio"
 WHISPER = Path(os.environ.get("WHISPER_DIR", Path.home() /
@@ -232,19 +236,22 @@ def main():
     audio_dir = Path(opt("--audio") or sys.exit("--audio DIR (the recordings) is required"))
     cache = Path(opt("--cache", os.path.join(os.environ.get("TMPDIR", "/tmp"), "narration_lines")))
     only = set(opt("--ids", "").split(",")) - {""}
-    rows = [r for r in csv.DictReader(open(LIST)) if not only or r["meditation_id"] in only]
+    listed = Path(opt("--list", LIST))
+    out = Path(opt("--out", OUT)).resolve()
+    voice = opt("--voice", VOICE)
+    rows = [r for r in csv.DictReader(open(listed)) if not only or r["meditation_id"] in only]
     live = {}
     for set_id in sorted({r["set_id"] for r in rows}):
         for m in json.load(urllib.request.urlopen(API + set_id))["data"]["meditations"]:
             live[str(m["id"])] = m["content"]
-    result = json.loads(OUT.read_text()) if OUT.exists() else {}
+    result = json.loads(out.read_text()) if out.exists() else {}
     failures = []
     for r in rows:
         mid, mp3 = r["meditation_id"], audio_dir / r["audio_file"]
         if not mp3.exists():
             failures.append((mid, "no recording")); continue
         if "--no-etag" not in sys.argv:
-            ok, why = etag_matches(mp3, f"voices/female/{r['audio_file']}")
+            ok, why = etag_matches(mp3, f"voices/{voice}/{r['audio_file']}")
             if not ok:
                 failures.append((mid, f"recording {why}")); result.pop(mid, None); continue
         wav = wav_of(mp3, cache)
@@ -258,12 +265,12 @@ def main():
             failures.append((mid, why)); result.pop(mid, None); continue
         result[mid] = {"audio_file": r["audio_file"], "lines": lines}
         print(f"#{mid} {r['audio_file']}: {len(lines)} lines over {total:.0f}s", flush=True)
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(dict(sorted(result.items(), key=lambda kv: int(kv[0]))),
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(dict(sorted(result.items(), key=lambda kv: int(kv[0]))),
                               ensure_ascii=False, indent=1) + "\n")
     for mid, why in failures:
         print(f"#{mid}: FAILED, {why}", flush=True)
-    print(f"{len(rows) - len(failures)} of {len(rows)} written to {OUT.relative_to(ROOT)}")
+    print(f"{len(rows) - len(failures)} of {len(rows)} written to {out.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
