@@ -3,7 +3,7 @@
 
     python3 -u priv/narration_scripts/generate_frederick.py SET_ID [--voice frederick|female]
         [--ids 228,251] [--no-upload] [--force]
-    python3 -u priv/narration_scripts/generate_frederick.py --ranked --budget CREDITS
+    python3 -u priv/narration_scripts/generate_frederick.py --ranked [--keep 2000]
         [--no-upload] [--force]
 
 Scripts: priv/narration_scripts/frederick/<meditation_id>.txt for frederick, and
@@ -20,8 +20,10 @@ female: saves narration_out/female/<filename>; before overwriting the live
   voices/female/<filename> it copies the current object to
   voices/female_pre_v4/<filename> (once). Use --ids to limit to changed meditations.
 --ranked: re-records Frederick from frederick_meditative/<id>.txt, worst first in
-  frederick_ranked.csv (rank_frederick.py), and stops before the characters sent
-  (about one eleven_v4 credit each) would pass --budget. A meditation already
+  frederick_ranked.csv (rank_frederick.py). Before each one it asks the account how
+  many credits remain and stops when recording it would leave fewer than --keep
+  (2,000 by default), pricing a character at the dearest rate measured on the run
+  (1 credit until the first is measured; 0.46 was seen on 2 Nov). A meditation already
   re-recorded (its old file is in voices/frederick_pre_meditative/) is skipped, and
   one saved locally in narration_out/frederick_meditative/ costs nothing, so a second
   run goes on where the first stopped. Before replacing voices/frederick/<filename>
@@ -53,11 +55,19 @@ def tts(vid, script):
         headers={"xi-api-key": env["ELEVEN_LABS_API_KEY"], "Content-Type": "application/json", "Accept": "audio/mpeg"})
     with urllib.request.urlopen(req, timeout=150) as r: return r.read()
 
+def remaining_credits():
+    req = urllib.request.Request("https://api.elevenlabs.io/v1/user/subscription",
+        headers={"xi-api-key": env["ELEVEN_LABS_API_KEY"], "Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=30) as r: sub = json.load(r)
+    return sub["character_limit"] - sub["character_count"]
+
 def ranked():
-    budget = opt("--budget")
-    if not budget or not budget.isdigit():
-        sys.exit("--ranked needs --budget CREDITS (about one per character sent)")
-    budget = int(budget); vid = VOICES["frederick"]
+    keep = opt("--keep", "2000")
+    if not keep.isdigit(): sys.exit("--keep takes a whole number of credits")
+    keep = int(keep); vid = VOICES["frederick"]
+    # Credits per character sent: start at 1 (the dearest it has been) and
+    # use the dearest rate measured on this run once one is measured.
+    rate, measured = 1.0, None
     upload = "--no-upload" not in sys.argv; force = "--force" in sys.argv
     here = os.path.join(ROOT, "priv/narration_scripts")
     rows = list(csv.DictReader(open(os.path.join(here, "frederick_ranked.csv"))))
@@ -88,14 +98,18 @@ def ranked():
             sys.exit(f"#{mid}: script words differ from the content; fix {path}")
         out = os.path.join(outdir, fn)
         cost = len(script) if force or not os.path.exists(out) else 0
-        if spent + cost > budget:
-            print(f"Stopped at rank {r['rank']} (#{mid}, {cost} characters): {spent} of {budget} spent", flush=True)
-            break
         if cost:
+            left = remaining_credits()
+            if left - cost * rate < keep:
+                print(f"Stopped at rank {r['rank']} (#{mid}, {cost} characters): {left} credits "
+                      f"left, keeping {keep}; {spent} characters sent", flush=True)
+                break
             audio = tts(vid, script)
             if len(audio) < 1000: sys.exit(f"#{mid}: empty audio")
             open(out + ".part", "wb").write(audio); os.replace(out + ".part", out)
             spent += cost
+            used = left - remaining_credits()
+            if used > 0: measured = max(measured or 0, used / cost); rate = measured
         status = "saved"
         if s3:
             if exists(key) and not exists(archive):
@@ -103,7 +117,7 @@ def ranked():
             s3.upload_file(out, bucket, key, ExtraArgs={"ContentType": "audio/mpeg"})
             status = "replaced live frederick (old copy archived)"
         print(f"#{mid} rank {r['rank']} {fn} {cost} characters · {status} · total {spent}", flush=True)
-    print(f"Done: {spent} characters sent of a {budget} budget", flush=True)
+    print(f"Done: {spent} characters sent, about {rate:.2f} credits per character", flush=True)
 
 def main():
     if "--ranked" in sys.argv: return ranked()

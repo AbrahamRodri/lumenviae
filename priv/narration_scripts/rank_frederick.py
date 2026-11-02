@@ -7,7 +7,8 @@ Scores every script in frederick/ (what his live recordings were made from)
 against meditative_enhance_prompt.md and writes frederick_ranked.csv, worst
 first, with the characters of its replacement in frederick_meditative/ (what
 a re-recording sends, about one eleven_v4 credit per character) and a running
-total, which `generate_frederick.py --ranked --budget N` reads. Read only:
+total in characters; `generate_frederick.py --ranked` records in this order.
+Read only:
 the public API for the live text, no keys, no ElevenLabs.
 
 Points per script:
@@ -20,7 +21,7 @@ Points per script:
   1  each change of tone, after the first, without softly or gently
   1  each change of tone beyond one in a paragraph
 
-The rank is points per 1,000 characters of text, so a budget buys the
+The rank is points per 1,000 characters of text, so the credits left buy the
 meditations that sound most dramatic for their length first; the raw points
 are in the file too.
 """
