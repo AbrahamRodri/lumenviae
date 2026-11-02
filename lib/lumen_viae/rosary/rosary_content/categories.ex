@@ -16,30 +16,50 @@ defmodule LumenViae.Rosary.RosaryContent.Categories do
   alias LumenViae.Rosary.Artwork.Published
   alias LumenViae.Rosary.Categories
   alias LumenViae.Rosary.CategoryCard
+  alias LumenViae.Rosary.Content
+  alias LumenViae.Rosary.RosaryContent.SpanishNames
   alias LumenViae.Rosary.Types
 
   @updated_at ~U[2026-10-04 03:00:00Z]
 
+  # GraphQL selects only the fields a query names, so the language is
+  # asked for here or it would arrive empty.
+  @impl true
+  def load(_query, _opts, _context), do: [:lang]
+
   @impl true
   def calculate(records, _opts, context) do
-    categories = context |> Ash.Context.to_opts() |> all()
+    opts = Ash.Context.to_opts(context)
 
-    Enum.map(records, fn _record -> categories end)
+    Enum.map(records, fn record -> all(opts, Content.language(record.lang)) end)
   end
 
   @doc """
   Every category, in the order the app presents them, with each card's own
   painting where one is published. `opts` are the caller's, for the read.
+  In `"es"` a set's `name` and `devotion_title` are
+  `SpanishNames.category/1`'s where it has them, and the rest is English.
   """
-  @spec all(keyword) :: [Types.RosaryCategory.t()]
-  def all(opts \\ []) do
+  @spec all(keyword, String.t()) :: [Types.RosaryCategory.t()]
+  def all(opts \\ [], lang \\ "en") do
     cards = opts |> cards() |> Map.new(&{&1.slug, &1})
 
     Enum.map(fixed(), fn category ->
       card = Map.get(cards, category.slug)
+
       %{category | card_artwork: if(Artwork.publishable?(card), do: Published.shape(card))}
+      |> in_language(lang)
     end)
   end
+
+  defp in_language(%Types.RosaryCategory{slug: slug} = category, "es") do
+    case SpanishNames.category(slug) do
+      nil -> category
+      spanish -> %{category | name: spanish.name, devotion_title: spanish.devotion_title}
+    end
+  end
+
+  defp in_language(category, _lang), do: category
 
   @doc "The categories as code alone gives them: no card painting."
   @spec fixed() :: [Types.RosaryCategory.t()]

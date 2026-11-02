@@ -1,0 +1,38 @@
+{
+  "updated_at": "2026-11-03T00:00:00Z",
+  "categories": {
+    "joyful": {"name": "Gozosos", "devotion_title": "Misterios gozosos"},
+    "luminous": {"name": "Luminosos", "devotion_title": "Misterios luminosos"},
+    "sorrowful": {"name": "Dolorosos", "devotion_title": "Misterios dolorosos"},
+    "glorious": {"name": "Gloriosos", "devotion_title": "Misterios gloriosos"}
+  },
+  "mysteries": {
+    "joyful_1": {"name": "La encarnación del Hijo de Dios", "fruit": "Humildad"},
+    "joyful_2": {"name": "La visitación de Nuestra Señora a su prima Santa Isabel", "fruit": "Amor al prójimo"},
+    "joyful_3": {"name": "El nacimiento del Hijo de Dios", "fruit": "Pobreza de espíritu"},
+    "joyful_4": {"name": "La Presentación de Jesús en el templo", "fruit": "Obediencia"},
+    "joyful_5": {"name": "El Niño Jesús perdido y hallado en el templo", "fruit": "Alegría de encontrar a Jesús"},
+    "luminous_1": {"name": "El Bautismo de Jesús en el Jordán", "fruit": "Apertura al Espíritu Santo"},
+    "luminous_2": {"name": "La autorrevelación de Jesús en las bodas de Caná", "fruit": "A Jesús por María"},
+    "luminous_3": {"name": "El anuncio del Reino de Dios invitando a la conversión", "fruit": "Conversión y confianza en Dios"},
+    "luminous_4": {"name": "La Transfiguración", "fruit": "Deseo de santidad"},
+    "luminous_5": {"name": "La Institución de la Eucaristía", "fruit": "Adoración eucarística"},
+    "sorrowful_1": {"name": "La Oración de Jesús en el Huerto", "fruit": "Dolor de los pecados"},
+    "sorrowful_2": {"name": "La Flagelación del Señor", "fruit": "Pureza"},
+    "sorrowful_3": {"name": "La Coronación de espinas", "fruit": "Valor moral"},
+    "sorrowful_4": {"name": "Jesús con la Cruz a cuestas camino del Calvario", "fruit": "Paciencia"},
+    "sorrowful_5": {"name": "La Crucifixión y Muerte de Nuestro Señor", "fruit": "Perseverancia"},
+    "glorious_1": {"name": "La Resurrección del Hijo de Dios", "fruit": "Fe"},
+    "glorious_2": {"name": "La Ascensión del Señor a los Cielos", "fruit": "Esperanza"},
+    "glorious_3": {"name": "La Venida del Espíritu Santo sobre los Apóstoles", "fruit": "Amor a Dios"},
+    "glorious_4": {"name": "La Asunción de Nuestra Señora a los Cielos", "fruit": "La gracia de una buena muerte"},
+    "glorious_5": {"name": "La Coronación de la Santísima Virgen como Reina de Cielos y Tierra", "fruit": "Confianza en la intercesión de María"},
+    "seven_sorrows_1": {"name": "La profecía de Simeón", "fruit": "Abandono en la voluntad de Dios"},
+    "seven_sorrows_2": {"name": "La huida a Egipto", "fruit": "Confianza en la Providencia de Dios"},
+    "seven_sorrows_3": {"name": "Los tres días de angustia cuando el niño se quedó en el templo", "fruit": "Buscar a Jesús sobre todas las cosas"},
+    "seven_sorrows_4": {"name": "Nuestra Señora se encuentra con Jesús en el camino al Calvario", "fruit": "Compasión por Cristo"},
+    "seven_sorrows_5": {"name": "La muerte de Jesús", "fruit": "Fidelidad al pie de la cruz"},
+    "seven_sorrows_6": {"name": "El descenso de Jesús de la cruz", "fruit": "Recibir a Cristo en nuestro corazón"},
+    "seven_sorrows_7": {"name": "El entierro de Jesús", "fruit": "Esperanza en la resurrección"}
+  }
+}

@@ -121,7 +121,7 @@ value is added to a vocabulary, never a renamed one.
 | --- | --- | --- |
 | `GET /api/v2/rosary-content` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/rosary-content?fields[rosary_content]=...` | when `version` differs from the saved copy's | every section the app uses (below) |
-| `GET /api/v2/rosary-content?lang=es` and `?lang=es&fields[rosary_content]=...` | as the two above, when the app is in Spanish | the same, with each prayer's `es` beside `en` and `la`, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Rosary in Spanish") |
+| `GET /api/v2/rosary-content?lang=es` and `?lang=es&fields[rosary_content]=...` | as the two above, when the app is in Spanish | the same, with each prayer's `es` beside `en` and `la`, the mysteries' names and fruits and the four sets' names in Spanish, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Rosary in Spanish") |
 | `GET /api/v2/prayer-book` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters,orders,marian_antiphons` | when `version` differs from the saved copy's | all four sections (the orders of prayer and the songs to Mary need the prayers) |
 | `GET /api/v2/chant-library` | at launch and once a day | bare: `version` and `updated_at` only |

@@ -1944,10 +1944,10 @@ type RosaryContent {
   "The order a Rosary is said in, as templates a client expands offline: the Rosary's and the chaplet's steps, the optional prayers after the Rosary and the strand's beads. GET \/api\/v2\/rosary-script expands them."
   script: RosaryScriptTemplates!
 
-  "The 27 mysteries in the order they are prayed, by category (Joyful, Sorrowful, Glorious, Luminous, the Seven Sorrows) and then by place, each keyed `<category>_<order>`, with its fruit, key verse and the spoken Rosary's announcement."
+  "The 27 mysteries in the order they are prayed, by category (Joyful, Sorrowful, Glorious, Luminous, the Seven Sorrows) and then by place, each keyed `<category>_<order>`, with its fruit, key verse and the spoken Rosary's announcement. With `lang=es`, each name and fruit in Spanish where there is one."
   mysteries: [RosaryMystery!]!
 
-  "The five categories of mysteries, in the order the app presents them: names, the label of each mystery by position, Hail Marys per decade, whether the Fatima Prayer is said, and the Seven Sorrows' graces."
+  "The five categories of mysteries, in the order the app presents them: names, the label of each mystery by position, Hail Marys per decade, whether the Fatima Prayer is said, and the Seven Sorrows' graces. With `lang=es`, the four sets' names and devotion titles in Spanish."
   categories: [RosaryCategory!]!
 
   "The Scriptural Rosary's verses as text, each mystery's in bead order: ten to a mystery, seven to a sorrow. The words the spoken Rosary says."
@@ -2139,7 +2139,7 @@ type RootQueryType {
 
   "The Rosary's words as one document. There is only ever one."
   rosaryContent(
-    "The language of the prayers: `es` adds Spanish beside the English and Latin, with the English wherever there is no Spanish yet. Missing, `en` or a language not served: the document in English and Latin."
+    "The document's language. `es`: each prayer adds Spanish beside the English and Latin, and the mysteries' names and fruits and the four sets' names are in Spanish, with the English wherever there is no Spanish yet. Missing, `en` or a language not served: the document in English and Latin."
     lang: String
   ): RosaryContent!
 

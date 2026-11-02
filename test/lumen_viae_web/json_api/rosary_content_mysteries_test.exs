@@ -144,4 +144,79 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentMysteriesTest do
     assert length(content["categories"]) == 5
     assert content["verses"] |> Enum.flat_map(& &1["verses"]) |> length() == 249
   end
+
+  describe "lang" do
+    @sections "fields[rosary_content]=version,mysteries,categories"
+
+    defp sections(query) do
+      build_conn()
+      |> get_v2("/rosary-content?" <> @sections <> query)
+      |> v2_response(200)
+      |> get_in(["data", "attributes"])
+    end
+
+    test "missing, en or unknown: the English names and fruits, as before" do
+      english = sections("")
+
+      for query <- ["&lang=en", "&lang=fr"], do: assert(sections(query) == english, query)
+
+      assert [%{"name" => "The Annunciation", "fruit" => "Humility"}] = english["mysteries"]
+      assert %{"name" => "Joyful"} = Enum.find(english["categories"], &(&1["slug"] == "joyful"))
+    end
+
+    test "es: the Spanish name and fruit, and the rest of the mystery in English" do
+      spanish = sections("&lang=es")
+      english = sections("")
+
+      assert [
+               %{
+                 "key" => "joyful_1",
+                 "name" => "La encarnación del Hijo de Dios",
+                 "fruit" => "Humildad",
+                 "announcement" => "The First Joyful Mystery: The Annunciation",
+                 "key_verse_reference" => "Luke 1:31"
+               } = mystery
+             ] = spanish["mysteries"]
+
+      [english_mystery] = english["mysteries"]
+      assert Map.drop(mystery, ~w(name fruit)) == Map.drop(english_mystery, ~w(name fruit))
+
+      refute spanish["version"] == english["version"]
+    end
+
+    test "es: the four sets' names in Spanish; the Seven Sorrows and every other field as before" do
+      spanish = sections("&lang=es")["categories"]
+      english = sections("")["categories"]
+
+      assert %{"name" => "Gozosos", "devotion_title" => "Misterios gozosos"} =
+               Enum.find(spanish, &(&1["slug"] == "joyful"))
+
+      assert Enum.find(spanish, &(&1["slug"] == "seven_sorrows")) ==
+               Enum.find(english, &(&1["slug"] == "seven_sorrows"))
+
+      for {es, en} <- Enum.zip(spanish, english) do
+        assert Map.drop(es, ~w(name devotion_title)) == Map.drop(en, ~w(name devotion_title))
+      end
+    end
+
+    test "GraphQL: rosaryContent(lang: \"es\") names the mysteries and sets in Spanish", %{
+      conn: conn
+    } do
+      body =
+        LumenViaeWeb.GraphqlHelpers.graphql(conn, """
+        { rosaryContent(lang: "es") {
+            mysteries { key name fruit }
+            categories { slug name devotionTitle }
+        } }
+        """)
+
+      refute body["errors"]
+      content = get_in(body, ["data", "rosaryContent"])
+
+      assert [%{"name" => "La encarnación del Hijo de Dios", "fruit" => "Humildad"}] =
+               content["mysteries"]
+
+      assert %{"name" => "Gozosos"} = Enum.find(content["categories"], &(&1["slug"] == "joyful"))
+    end
+  end
 end
