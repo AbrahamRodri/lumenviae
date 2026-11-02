@@ -93,6 +93,10 @@ case Integer.parse(System.get_env("LIBRARY_EDGE_CACHE_SECONDS") || "") do
   _unset -> :ok
 end
 
+# Who to tell about a security problem, served at
+# /.well-known/security.txt (SecurityTxtController). Unset, that is a 404.
+config :lumen_viae, :security_contact, System.get_env("SECURITY_CONTACT")
+
 # Optional override for the narration pause inserted at paragraph breaks
 # (seconds, e.g. "1.5"; ElevenLabs caps break tags at 3s).
 case Float.parse(System.get_env("TTS_PARAGRAPH_BREAK_SECONDS") || "") do

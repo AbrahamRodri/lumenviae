@@ -215,6 +215,13 @@ defmodule LumenViaeWeb.Router do
       ecto_repos: [LumenViae.Repo]
   end
 
+  # RFC 9116's security.txt: a 404 until SECURITY_CONTACT is set. Plain
+  # text, no pipeline: no session and no Accept check. See
+  # SecurityTxtController.
+  scope "/", LumenViaeWeb do
+    get "/.well-known/security.txt", SecurityTxtController, :show
+  end
+
   # Liveness and the database, for whatever watches the app. Off the
   # browser pipeline (no session, no canonical-host redirect, which a check
   # against a machine's own address would trip) and out of the request log,
