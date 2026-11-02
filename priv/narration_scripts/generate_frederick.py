@@ -8,10 +8,9 @@ Scripts: priv/narration_scripts/frederick/<meditation_id>.txt for frederick, and
 priv/narration_scripts/female/<meditation_id>.txt for female, tagged in the calmer style of
 meditative_enhance_prompt.md and checked by check_female_scripts.py (direction tags live
 only there, never in stored content). With --voice female a meditation without a female/
-script is skipped. Each
-script's words are checked against the live content, or against
-priv/narration_scripts/pending_text_fixes.json when a text fix for that id is waiting
-to be applied to the database.
+script is skipped. Each script's words are checked against the live content, or
+against priv/narration_scripts/pending_text_fixes.json when a text fix for that id is
+waiting to be applied to the database.
 
 frederick: saves narration_out/frederick/<filename>, uploads voices/frederick/<filename>
   (skips existing keys unless --force). No database writes.
