@@ -1,14 +1,15 @@
 #cloud-config
-# Server setup for one site on one Hetzner Cloud server (Ubuntu 24.04 LTS),
-# pasted into "Cloud config" when the server is created. The recipe is
+# Server setup for one site on one DigitalOcean Droplet (Ubuntu 24.04 LTS),
+# pasted into "User data" when the Droplet is created. The recipe is
 # docs/HOSTING_RECIPE.md. Per site, change only the two SSH keys and the
 # folder name in runcmd (/srv/lumenviae).
 #
 # What it does: two users (admin for a person, deploy for CI), SSH by key
 # only, automatic security upgrades with a 04:00 UTC reboot when one needs
-# it, Docker with bounded logs, and ufw. Docker's published ports bypass
-# ufw, so the firewall that matters for 80 and 443 is the Hetzner Cloud
-# Firewall in front of the server (the recipe says which rules).
+# it, a 2GB swap file (a 1GB Droplet runs the app and Postgres together),
+# Docker with bounded logs, and ufw. Docker's published ports bypass
+# ufw, so the firewall that matters for 80 and 443 is the DigitalOcean
+# Cloud Firewall in front of the Droplet (the recipe says which rules).
 
 users:
   # A person: sudo, for setup and repairs.
@@ -59,8 +60,16 @@ write_files:
   - path: /etc/docker/daemon.json
     content: |
       {"log-driver": "local"}
+  # Swap used only under pressure, so it catches a spike rather than slowing
+  # every request.
+  - path: /etc/sysctl.d/60-recipe-swap.conf
+    content: |
+      vm.swappiness = 10
 
 runcmd:
+  - fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+  - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  - sysctl --system
   - ufw default deny incoming
   - ufw default allow outgoing
   - ufw allow OpenSSH

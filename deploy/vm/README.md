@@ -1,10 +1,10 @@
 # Lumen Viae on one VM (not in use)
 
 Production runs on Fly (`fly.toml`). This folder is the prepared
-alternative from the hosting plan (Hetzner, Abraham's choice on 2 November
-2026), `reports/rig/hosting-migration.md` in
+alternative from the hosting plan (a DigitalOcean Droplet, Abraham's
+choice on 2 November 2026), `reports/rig/hosting-migration.md` in
 the workspace: one small VM running the app, Postgres 17, the Divine
-Office engine and Caddy, about $5 a month. Nothing here runs until
+Office engine and Caddy, about $6 a month. Nothing here runs until
 Abraham switches, and the switch is his to start.
 
 ## What is here
