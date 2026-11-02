@@ -132,7 +132,12 @@ AshJsonApi sees them, because AshJsonApi 1.7 would honour `sort_included`
 
 **Responses are never cached.** Every response carries `cache-control:
 private, no-store`, as GraphQL's do, because a request may select presigned
-URLs.
+URLs. The one exception is switched off by default: with
+`LIBRARY_EDGE_CACHE_SECONDS` set, the seven library documents (public words
+and public file URLs only) carry `public, max-age=0, must-revalidate,
+s-maxage=<n>` and a strong `ETag`, and a matching `If-None-Match` gets `304`
+(`LumenViaeWeb.Plugs.LibraryCache`), so Cloudflare's edge can hold them while
+a device still asks every time.
 
 **Errors** are a JSON:API error document, `{"errors": [{status, code,
 title, detail, source}]}`, with the HTTP status of the first:
