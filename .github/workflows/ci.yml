@@ -288,27 +288,35 @@ jobs:
         run: .github/scripts/is-main-tip.sh "$GITHUB_SHA"
       - name: Build and push the release image
         if: steps.tip.outputs.is_tip == 'true'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
           docker build --progress=plain --build-arg REGISTRY=mirror.gcr.io --tag "$IMAGE" .
           docker push "$IMAGE"
       - name: Reach the VM
         if: steps.tip.outputs.is_tip == 'true'
+        env:
+          VM_SSH_KEY: ${{ secrets.VM_SSH_KEY }}
+          VM_SSH_KNOWN_HOSTS: ${{ secrets.VM_SSH_KNOWN_HOSTS }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/vm
+          printf '%s\n' "$VM_SSH_KEY" > ~/.ssh/vm
           chmod 600 ~/.ssh/vm
-          echo "${{ secrets.VM_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          printf '%s\n' "$VM_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
       - name: Migrate and restart on the VM
         if: steps.tip.outputs.is_tip == 'true'
         env:
           VM: deploy@${{ secrets.VM_HOST }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           scp -i ~/.ssh/vm -r deploy/vm/compose.yml deploy/vm/Caddyfile deploy/vm/caddy "$VM:/srv/lumenviae/"
-          echo "${{ secrets.GITHUB_TOKEN }}" | ssh -i ~/.ssh/vm "$VM" \
-            "docker login ghcr.io -u '${{ github.actor }}' --password-stdin"
+          # Logged in for the pull only, and out again, so the job's token is
+          # not left in the VM user's Docker config.
+          echo "$GHCR_TOKEN" | ssh -i ~/.ssh/vm "$VM" \
+            "docker login ghcr.io -u '$GITHUB_ACTOR' --password-stdin"
           ssh -i ~/.ssh/vm "$VM" "cd /srv/lumenviae && export IMAGE='$IMAGE' RELEASE_COMMIT='$GITHUB_SHA' \
-            && docker compose pull app \
+            && docker compose pull app; status=\$?; docker logout ghcr.io; [ \$status -eq 0 ] \
             && docker compose run --rm app /app/bin/migrate \
             && docker compose up -d --build --wait"
       - name: Check production
