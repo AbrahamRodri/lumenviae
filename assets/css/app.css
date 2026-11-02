@@ -3327,6 +3327,17 @@ html[data-prayer-images="off"] .prayer-plate {
     background: linear-gradient(to bottom, rgba(10, 10, 21, 0), rgba(10, 10, 21, 0.7) 50%, rgba(10, 10, 21, 0.92));
   }
 
+  /* The hour now before the visitor's clock is known: its frame, empty. */
+  .hours-now--waiting {
+    min-height: 9.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .hours-now--waiting {
+      min-height: 11rem;
+    }
+  }
+
   .hours-now--hour {
     align-items: center;
     text-align: center;

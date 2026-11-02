@@ -8,11 +8,16 @@ defmodule LumenViaeWeb.Live.Hours.Index do
   the eight hours on a strand of light in a breviary's three groups, each
   bead the colour of its time of day, and the credit.
 
-  `/hours` is today, the visitor's (the `UserTimezone` hook's offset, the
-  server's until it connects). `/hours/:date` is another day, reached from
-  the month's calendar: its date stands where NOW stands, and the hour the
-  clock gives is offered for it. A date that is not one, or that the Office
-  does not serve, is a 404.
+  `/hours` is today, the visitor's: the `UserTimezone` hook's offset.
+  Until it comes, the hour now and the date stand as an empty frame of
+  their size and the day is not fetched, so a visitor in an American
+  evening is never shown tomorrow in UTC (as `/prayers` waits for its Now
+  card). The strand links the server's date meanwhile, which serves a
+  page without JavaScript. `/hours/:date` is another day, reached from the
+  month's calendar: its date stands where NOW stands, and the hour the
+  clock gives is offered for it once the clock is known. A date that is
+  not one, or that the Office does not serve, is a 404; a `?date=` on
+  `/hours` is ignored.
 
   The hours need nothing fetched. Only the day's feast travels, through
   `LumenViae.Office.fetch_day/2` and its cache, after the page is shown
@@ -34,50 +39,40 @@ defmodule LumenViaeWeb.Live.Hours.Index do
 
   @impl true
   def mount(params, _session, socket) do
-    now = CanonicalHours.server_now()
+    fixed_date? = socket.assigns.live_action == :day
 
     {date, path, title} =
-      case params do
-        %{"date" => value} ->
-          date = parse_date!(value)
+      if fixed_date? do
+        date = parse_date!(params["date"])
 
-          {date, CanonicalHours.day_path(date),
-           "Hours of Prayer, " <> CanonicalHours.long_date(date)}
-
-        _today ->
-          {NaiveDateTime.to_date(now), "/hours", "Hours of Prayer"}
+        {date, CanonicalHours.day_path(date),
+         "Hours of Prayer, " <> CanonicalHours.long_date(date)}
+      else
+        {NaiveDateTime.to_date(CanonicalHours.server_now()), "/hours", "Hours of Prayer"}
       end
 
-    {:ok,
-     socket
-     |> PageMeta.put(path,
-       title: title,
-       description: @description,
-       trail: trail(params, path, title)
-     )
-     |> assign(:fixed_date?, Map.has_key?(params, "date"))
-     |> assign(:groups, CanonicalHours.groups())
-     |> assign(:credit, CanonicalHours.credit())
-     |> assign(:date, date)
-     |> assign_clock(now)
-     |> load_day()}
+    socket =
+      socket
+      |> PageMeta.put(path,
+        title: title,
+        description: @description,
+        trail: trail(fixed_date?, path, title)
+      )
+      |> assign(:fixed_date?, fixed_date?)
+      |> assign(:groups, CanonicalHours.groups())
+      |> assign(:credit, CanonicalHours.credit())
+      |> assign(:date, date)
+      |> assign(clock_known?: false, present: nil, today?: false, lapses: nil)
+      |> assign(day: nil, day_state: :waiting)
+
+    {:ok, if(fixed_date?, do: load_day(socket), else: socket)}
   end
 
   @impl true
   def handle_event("set_timezone", %{"offset" => offset}, socket) do
     case CanonicalHours.local_now(offset) do
-      {:ok, now} ->
-        today = NaiveDateTime.to_date(now)
-        socket = assign_clock(socket, now)
-
-        if socket.assigns.fixed_date? or today == socket.assigns.date do
-          {:noreply, socket}
-        else
-          {:noreply, socket |> assign(:date, today) |> assign_clock(now) |> load_day()}
-        end
-
-      :error ->
-        {:noreply, socket}
+      {:ok, now} -> {:noreply, set_clock(socket, now)}
+      :error -> {:noreply, socket}
     end
   end
 
@@ -92,25 +87,50 @@ defmodule LumenViaeWeb.Live.Hours.Index do
       else: {:noreply, socket}
   end
 
+  # The month's data has no such day: nothing to say, and nothing to retry.
+  def handle_async(:day, {:ok, {:error, :not_found}}, socket),
+    do: {:noreply, assign(socket, day: nil, day_state: :none)}
+
   def handle_async(:day, _failed, socket), do: {:noreply, assign(socket, :day_state, :failed)}
+
+  # The visitor's clock: today's page moves to the visitor's date and
+  # fetches its day the first time, or when the date has turned.
+  defp set_clock(%{assigns: %{fixed_date?: true}} = socket, now), do: assign_clock(socket, now)
+
+  defp set_clock(socket, now) do
+    today = NaiveDateTime.to_date(now)
+
+    if today == socket.assigns.date and socket.assigns.day_state != :waiting do
+      assign_clock(socket, now)
+    else
+      socket |> assign(:date, today) |> assign_clock(now) |> load_day()
+    end
+  end
 
   # The hour now, and whether the page's day is the visitor's today.
   defp assign_clock(socket, now) do
     present = CanonicalHours.present(now.hour)
 
     socket
+    |> assign(:clock_known?, true)
     |> assign(:present, present)
     |> assign(:today?, NaiveDateTime.to_date(now) == socket.assigns.date)
     |> assign(:lapses, CanonicalHours.lapses(present))
   end
 
+  # A fetch still on its way for an earlier date is cancelled, so quick
+  # changes never pile requests on the engine.
   defp load_day(socket) do
     date = Date.to_iso8601(socket.assigns.date)
     socket = assign(socket, day: nil, day_state: :loading)
 
-    if connected?(socket),
-      do: start_async(socket, :day, fn -> Office.fetch_day(date) end),
-      else: socket
+    if connected?(socket) do
+      socket
+      |> cancel_async(:day)
+      |> start_async(:day, fn -> Office.fetch_day(date) end)
+    else
+      socket
+    end
   end
 
   defp parse_date!(value) do
@@ -120,10 +140,8 @@ defmodule LumenViaeWeb.Live.Hours.Index do
     end
   end
 
-  defp trail(%{"date" => _}, path, title),
-    do: [{"Hours of Prayer", "/hours"}, {title, path}]
-
-  defp trail(_params, path, title), do: [{title, path}]
+  defp trail(true, path, title), do: [{"Hours of Prayer", "/hours"}, {title, path}]
+  defp trail(false, path, title), do: [{title, path}]
 
   @doc false
   def class_line(day), do: DayRank.plain_for(day)

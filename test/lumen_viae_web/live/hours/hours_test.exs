@@ -40,6 +40,14 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
       assert html =~ "<h1"
       assert html =~ "Hours of Prayer"
 
+      # Nothing is said of the hour or the day before the visitor's clock.
+      assert has_element?(view, "[data-role=now-waiting]")
+      refute has_element?(view, "[data-role=hour-now]")
+      refute has_element?(view, "[data-role=day-date]")
+      refute has_element?(view, "[data-role=now-mark]")
+      render_hook(view, "set_timezone", %{"offset" => 0})
+      refute has_element?(view, "[data-role=now-waiting]")
+
       rows = view |> render() |> Floki.parse_document!() |> Floki.find("[data-role=hour-row]")
       assert Enum.map(rows, &(Floki.attribute(&1, "data-hour") |> hd())) == CanonicalHours.slugs()
 
@@ -91,6 +99,91 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
       assert render_hook(view, "set_timezone", %{}) =~ "Hours of Prayer"
     end
 
+    test "the first view waits for the visitor's clock, so an evening is never tomorrow",
+         %{conn: conn} do
+      html = conn |> get("/hours") |> html_response(200)
+      assert html =~ ~s(data-role="now-waiting")
+      refute html =~ ~s(data-role="hour-now")
+      refute html =~ ~s(data-role="day-date")
+
+      # Nonsense never stands for a clock, and nothing is fetched meanwhile.
+      stub_down()
+      {:ok, view, _html} = live(conn, "/hours")
+      render_hook(view, "set_timezone", %{"offset" => "x"})
+      assert has_element?(view, "[data-role=now-waiting]")
+      refute has_element?(view, "[data-role=feast-loading]")
+      refute has_element?(view, "[data-role=feast-failed]")
+    end
+
+    test "a day fetched for the server's date is dropped once the clock moves the day",
+         %{conn: conn} do
+      stub_page("kalendar_2026-08.html")
+      {:ok, view, _html} = live(conn, "/hours")
+
+      # Fourteen hours ahead, then fourteen behind: the page ends on the
+      # second date, whatever the first fetch answered.
+      render_hook(view, "set_timezone", %{"offset" => -14 * 60})
+      render_hook(view, "set_timezone", %{"offset" => 12 * 60})
+      local = NaiveDateTime.add(NaiveDateTime.utc_now(), -12 * 3600)
+      date = NaiveDateTime.to_date(local)
+
+      render_async(view, 2000)
+      assert has_element?(view, ~s([data-role=hour-row][href^="/hours/#{date}/"]))
+      assert has_element?(view, "[data-role=day-date]", CanonicalHours.long_date(date))
+    end
+
+    test "a ?date= on today's page is ignored, not a 404", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/hours?date=foo")
+      assert has_element?(view, "[data-role=now-waiting]")
+    end
+
+    test "a day missing from the month's data says nothing, and offers no Try again",
+         %{conn: conn} do
+      # The saved August page without its 24th.
+      html =
+        @fixtures
+        |> Path.join("kalendar_2026-08.html")
+        |> File.read!()
+        |> String.replace(~r{<TR><TD[^\n]*callbrevi\('08-24-2026'\)[^\n]*</TR>}, "")
+
+      refute html =~ "callbrevi('08-24-2026')"
+
+      Req.Test.stub(DivinumOfficium, &Req.Test.html(&1, html))
+      {:ok, view, _html} = live(conn, "/hours/1956-08-24")
+      render_async(view, 2000)
+
+      refute has_element?(view, "[data-role=feast-failed]")
+      refute has_element?(view, "[data-role=retry]")
+      refute has_element?(view, "[data-role=feast-loading]")
+    end
+
+    test "a fetch that raises is said as one that failed", %{conn: conn} do
+      Req.Test.stub(DivinumOfficium, fn _conn -> raise "the engine broke" end)
+      {:ok, view, _html} = live(conn, "/hours/1951-03-10")
+      render_async(view, 2000)
+
+      assert has_element?(view, "[data-role=feast-failed]")
+    end
+
+    test "the engine's text is escaped, never markup", %{conn: conn} do
+      html =
+        @fixtures
+        |> Path.join("kalendar_2026-08.html")
+        |> File.read!()
+        |> String.replace(
+          "S. Bartholomæi Apostoli",
+          "&lt;script&gt;alert(1)&lt;/script&gt;"
+        )
+
+      Req.Test.stub(DivinumOfficium, &Req.Test.html(&1, html))
+      {:ok, view, _html} = live(conn, "/hours/1955-08-24")
+      render_async(view, 2000)
+
+      page = render(view)
+      assert page =~ "&lt;script&gt;alert(1)&lt;/script&gt;"
+      refute page =~ "<script>alert(1)"
+    end
+
     test "an engine that cannot be reached is said quietly, and Try again tries", %{conn: conn} do
       stub_down()
       {:ok, view, _html} = live(conn, "/hours/1951-08-24")
@@ -113,6 +206,7 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
       stub_page("kalendar_2026-08.html")
 
       {:ok, view, _html} = live(conn, "/hours/1952-08-24")
+      render_hook(view, "set_timezone", %{"offset" => 0})
 
       assert has_element?(view, "[data-role=other-day]", "Sunday, 24 August 1952")
       refute has_element?(view, "[data-role=now-mark]")
@@ -299,6 +393,20 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
       assert has_element?(view, ~s([data-role=day-cell][data-date="1954-09-30"]))
     end
 
+    test "today is marked by the visitor's date, never the server's", %{conn: conn} do
+      stub_page("kalendar_2026-08.html")
+      today = Date.utc_today()
+      {:ok, view, _html} = live(conn, "/hours/calendar/#{today.year}/#{today.month}")
+
+      refute has_element?(view, "[data-role=day-cell][aria-current]")
+      render_hook(view, "set_timezone", %{"offset" => 0})
+
+      assert has_element?(
+               view,
+               ~s([data-role=day-cell][aria-current="date"][data-date="#{today}"])
+             )
+    end
+
     test "a month that cannot be reached still links every day", %{conn: conn} do
       stub_down()
       {:ok, view, _html} = live(conn, "/hours/calendar/1954/10")
@@ -373,6 +481,85 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
       assert DayRank.plain("I. classis", "In Octava Nativitatis") == "Great Feast"
       assert DayRank.mark(nil) == nil
       assert DayRank.mark("I. classis") == :first
+    end
+
+    # The calendar's own titles, ranks and season lines, as
+    # /api/office/calendar answered them for these months, and the class
+    # the iOS app says for each day.
+    @season_days [
+      # Advent, December 2026
+      {"Feria III infra Hebd I Adventus", "III. classis", nil, "Advent Weekday"},
+      {"S. Bibianæ Virginis et Martyris", "III. classis", "Feria IV infra Hebd I Adventus",
+       "Lesser Feast"},
+      {"Sabbato infra Hebd I Adventus", "III. classis", "S. Sabbæ Abbatis", "Advent Weekday"},
+      {"Dominica II Adventus", "I. classis", nil, "Great Feast"},
+      {"In Conceptione Immaculata Beatæ Mariæ Virginis", "I. classis",
+       "Feria III infra Hebd II Adventus", "Great Feast"},
+      {"Feria IV Quattuor Temporum Adventus", "II. classis", "S. Eusebii Episcopi et Martyris",
+       "Advent Weekday"},
+      {"Feria V infra Hebd III Adventus", "II. classis", nil, "Advent Weekday"},
+      {"Sabbato Quattuor Temporum Adventus", "II. classis", nil, "Advent Weekday"},
+      {"In Vigilia Nativitatis Domini", "I. classis", "Feria V infra Hebd IV Adventus",
+       "Great Feast"},
+      {"In Nativitate Domini", "I. classis", nil, "Great Feast"},
+      {"Diei V infra Octavam Nativitatis", "II. classis", nil, "Feast"},
+      # Lent, February to March 2027
+      {"Feria IV Cinerum", "I. classis", nil, "Lenten Weekday"},
+      {"Sabbato post Cineres", "III. classis", nil, "Lenten Weekday"},
+      {"Feria Quarta Quattuor Temporum Quadragesimæ", "II. classis", nil, "Lenten Weekday"},
+      {"Feria Secunda infra Hebd III in Quadr", "III. classis", nil, "Lenten Weekday"},
+      {"Feria Secunda infra Hebdomadam III in Quadragesima", "III. classis", nil,
+       "Lenten Weekday"},
+      {"Sabbato infra Hebd III in Quadr", "III. classis", "Ss. Perpetuæ et Felicitatis Martyrum",
+       "Lenten Weekday"},
+      {"Dominica IV in Quadr", "I. classis", nil, "Great Feast"},
+      {"Feria Tertia infra Hebd Passionis", "III. classis", nil, "Lenten Weekday"},
+      {"Sabbato infra Hebd Passionis", "III. classis", nil, "Lenten Weekday"},
+      {"S. Joseph Sponsi B.M.V. Confessoris", "I. classis", "Feria Sexta infra Hebd Passionis",
+       "Great Feast"},
+      # Holy Week and the Easter Octave, March and April 2027
+      {"Dominica II Passionis seu in Palmis", "I. classis", nil, "Great Feast"},
+      {"Feria Secunda Hebdomadæ Sanctæ", "I. classis", nil, "Lenten Weekday"},
+      {"Feria Quarta Hebdomadæ Sanctæ", "I. classis", nil, "Lenten Weekday"},
+      {"Feria Quinta in Cena Domini", "I. classis", "In Annuntiatione Beatæ Mariæ Virginis",
+       "Great Feast"},
+      {"Feria Sexta in Passione et Morte Domini", "I. classis", nil, "Great Feast"},
+      {"Sabbato Sancto", "I. classis", nil, "Great Feast"},
+      {"Dominica Resurrectionis", "I. classis", nil, "Great Feast"},
+      {"Die II infra octavam Paschæ", "Dies Octavæ I. classis", nil, nil},
+      {"Sabbato in Albis", "Dies Octavæ I. classis", nil, nil},
+      {"Dominica in Albis in Octava Paschæ", "I. classis", nil, "Great Feast"},
+      {"Feria Tertia infra Hebd I post Octavam Paschæ", "IV. classis", nil, "Weekday"},
+      {"Sanctæ Mariæ Sabbato", "IV. classis", nil, "Weekday"},
+      {"S. Hermenegildi Martyris", "III. classis",
+       "Feria Tertia infra Hebd II post Octavam Paschæ", "Lesser Feast"},
+      # Pentecost's octave, May 2027, and an Ember day of September 2026
+      {"Feria Quarta Quattuor Temporum Pentecostes", "Dies Octavæ I. classis", nil, nil},
+      {"Feria Quarta Quattuor Temporum Septembris", "II. classis", nil, "Weekday"}
+    ]
+
+    test "the class in plain words through Advent, Lent, Holy Week and Easter, as iOS says it" do
+      for {title, rank, season, plain} <- @season_days do
+        assert {title, DayRank.plain(rank, title, season)} == {title, plain}
+      end
+    end
+
+    test "a Lent day says the same on /hours, the calendar and its hour page" do
+      calendar = %{
+        celebration: %{title: "Feria Secunda infra Hebd III in Quadr", rank: "III. classis"},
+        detail: nil
+      }
+
+      hour = %{
+        celebration: %{
+          title: "Feria Secunda infra Hebdomadam III in Quadragesima",
+          rank: "III. classis"
+        },
+        tempora: nil
+      }
+
+      assert DayRank.plain_for(calendar) == "Lenten Weekday"
+      assert DayRank.plain_for(hour) == "Lenten Weekday"
     end
 
     test "an hour's lines are cleaned as the app cleans them" do

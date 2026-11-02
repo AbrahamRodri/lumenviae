@@ -81,13 +81,12 @@
     </div>
 
     <div
-      :if={@today.year == @year and @today.month == @month and @days[@today]}
+      :if={today_shown?(@today, @year, @month, @days)}
       class="hours-today-line md:hidden"
       data-role="today-line"
     >
       <p class="kicker !text-[0.75rem] opacity-80">{CanonicalHours.long_date(@today)}</p>
       <p class="hours-feast !text-lg" lang="la">{day_title(@days[@today])}</p>
-      <p :if={class_line(@days[@today])} class="hours-class">{class_line(@days[@today])}</p>
     </div>
 
     <p class="hours-credit mt-10">{CanonicalHours.credit()}</p>

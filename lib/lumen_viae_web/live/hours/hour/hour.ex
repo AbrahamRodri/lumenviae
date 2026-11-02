@@ -91,9 +91,13 @@ defmodule LumenViaeWeb.Live.Hours.Hour do
     date = Date.to_iso8601(date)
     socket = assign(socket, :state, :loading)
 
-    if connected?(socket),
-      do: start_async(socket, :office, fn -> Office.fetch_hour(date, hour.slug) end),
-      else: socket
+    if connected?(socket) do
+      socket
+      |> cancel_async(:office)
+      |> start_async(:office, fn -> Office.fetch_hour(date, hour.slug) end)
+    else
+      socket
+    end
   end
 
   defp assign_sections(%{assigns: %{office: nil}} = socket), do: socket

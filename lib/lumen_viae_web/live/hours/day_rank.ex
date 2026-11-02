@@ -6,16 +6,36 @@ defmodule LumenViaeWeb.Live.Hours.DayRank do
   Feast, Weekday (Advent Weekday, Lenten Weekday). The engine answers in
   Latin, and Latin belongs in the prayer text, not in the chrome above it.
 
-  The app reads the plain words off the Missal's English title; the site
-  has only the Office's Latin title, so the day's season line (the
-  calendar's detail, the hour's tempora) is read with it, which is where
-  the Latin names Lent ("Quadragesimæ") and Advent ("Adventus").
+  The app reads the plain words off the Missal's English title ("Saturday
+  of the Third Week of Lent", "Holy Thursday"); the site has only the
+  Office's Latin title, so the same rules are kept in both tongues: a day
+  is a weekday by "Feria", "Sabbato" or "Quattuor Temporum" as by
+  "Saturday" or "Ember", and Lent is "Quadragesima" (the calendar shortens
+  it to "in Quadr"), "Passionis", "Cineres" and "Hebdomadæ Sanctæ". The
+  day's season line (the calendar's detail, the hour's tempora) is read
+  with the title. The Triduum, the vigils and the days within an octave
+  are named by weekday too, and are not weekdays; a day the engine ranks
+  "Dies Octavæ" has no class to say, as on the app.
 
   Also the mark the month's calendar gives a day: brighter for the
   greater feasts, none at all on a feria.
   """
 
-  @not_weekdays ["octave", "supper", "good friday", "holy saturday", "vigil"]
+  # Named by weekday, but not weekdays: the octaves, the Triduum and the
+  # vigils, in the Missal's English and the Office's Latin.
+  @not_weekdays [
+    "octave",
+    "infra octav",
+    "in albis",
+    "supper",
+    "cena domini",
+    "good friday",
+    "passione et morte",
+    "parasceve",
+    "holy saturday",
+    "sabbato sancto",
+    "vigil"
+  ]
 
   @doc "1 to 4 from the engine's rank, nil for a feria or no rank."
   def class(rank) when is_binary(rank) do
@@ -40,7 +60,7 @@ defmodule LumenViaeWeb.Live.Hours.DayRank do
     words = String.downcase("#{title} #{season}")
 
     cond do
-      weekday?(title) -> weekday(words)
+      weekday?(title, rank) -> weekday(words)
       number == 1 -> "Great Feast"
       number == 2 -> "Feast"
       number == 3 -> "Lesser Feast"
@@ -72,29 +92,41 @@ defmodule LumenViaeWeb.Live.Hours.DayRank do
 
   # A feria by its title, or a weekday named for its week; the days of an
   # octave and of the Triduum are named by weekday too, and are not weekdays.
-  defp weekday?(title) do
+  defp weekday?(title, rank) do
     t = String.downcase(title || "")
 
     cond do
       Enum.any?(@not_weekdays, &String.contains?(t, &1)) -> false
-      String.contains?(t, "feria") -> true
-      String.contains?(t, "ember ") -> true
+      in_octave?(rank) -> false
+      String.contains?(t, ["feria", "ember ", "quattuor temporum"]) -> true
       String.starts_with?(t, "ash wednesday") -> true
-      Regex.match?(~r/^(monday|tuesday|wednesday|thursday|friday|saturday)\b/, t) -> true
+      Regex.match?(~r/^(monday|tuesday|wednesday|thursday|friday|saturday|sabbato)\b/u, t) -> true
       true -> false
     end
   end
+
+  # "Dies Octavæ I. classis": a day within the octaves of Easter and
+  # Pentecost, whatever its title says.
+  defp in_octave?(rank) when is_binary(rank),
+    do: rank |> String.downcase() |> String.contains?("octav")
+
+  defp in_octave?(_rank), do: false
 
   defp weekday(words) do
     cond do
       String.contains?(words, "advent") ->
         "Advent Weekday"
 
-      String.contains?(words, "holy week") or String.contains?(words, "ash wednesday") ->
+      String.contains?(words, ["holy week", "hebdomadæ sanctæ", "hebdomada sancta"]) ->
         "Lenten Weekday"
 
-      Regex.match?(~r/\blent\b/, words) or String.contains?(words, "quadrages") or
-          String.contains?(words, "passion") ->
+      String.contains?(words, ["ash wednesday", "cinerum", "cineres"]) ->
+        "Lenten Weekday"
+
+      # "Lent" as a word, so a Valentine is not Lenten; the Latin says
+      # "Quadragesimæ", or "in Quadr" in the calendar, and "Passionis".
+      Regex.match?(~r/\blent\b|\bquadr\b/u, words) or
+          String.contains?(words, ["quadrages", "passion"]) ->
         "Lenten Weekday"
 
       true ->

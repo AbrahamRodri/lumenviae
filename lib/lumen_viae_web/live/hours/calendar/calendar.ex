@@ -13,7 +13,10 @@ defmodule LumenViaeWeb.Live.Hours.Calendar do
   The month is `LumenViae.Office.fetch_calendar/3`, through its cache,
   fetched after the page is shown; when it cannot be reached the grid
   still links every day and says so, with a Try again. The app's offline
-  row (Save the month) has no place on a website and is left out. A month
+  row (Save the month) has no place on a website and is left out. Today
+  is marked once the `UserTimezone` hook gives the visitor's date, never
+  the server's. A fetch still on its way when the arrows move on is
+  cancelled. A month
   that is not one, or that the Office does not serve, is a 404.
   """
   use LumenViaeWeb, :live_view
@@ -29,7 +32,7 @@ defmodule LumenViaeWeb.Live.Hours.Calendar do
     {:ok,
      socket
      |> assign(:weekdays, @weekdays)
-     |> assign(:today, Date.utc_today())}
+     |> assign(:today, nil)}
   end
 
   @impl true
@@ -85,9 +88,13 @@ defmodule LumenViaeWeb.Live.Hours.Calendar do
     %{year: year, month: month} = socket.assigns
     socket = assign(socket, days: %{}, state: :loading)
 
-    if connected?(socket),
-      do: start_async(socket, :month, fn -> Office.fetch_calendar(year, month) end),
-      else: socket
+    if connected?(socket) do
+      socket
+      |> cancel_async(:month)
+      |> start_async(:month, fn -> Office.fetch_calendar(year, month) end)
+    else
+      socket
+    end
   end
 
   # The month padded to whole weeks from Sunday: nil for a blank cell.
@@ -124,12 +131,16 @@ defmodule LumenViaeWeb.Live.Hours.Calendar do
   defp present?(text), do: is_binary(text) and String.trim(text) != ""
 
   @doc false
-  def mark(nil), do: nil
-  def mark(day), do: DayRank.mark(day.celebration && day.celebration.rank)
+  # The phone's line for today, once the visitor's date is known and its
+  # day has come.
+  def today_shown?(%Date{year: year, month: month} = today, year, month, days),
+    do: Map.has_key?(days, today)
+
+  def today_shown?(_today, _year, _month, _days), do: false
 
   @doc false
-  def class_line(nil), do: nil
-  def class_line(day), do: DayRank.plain_for(day)
+  def mark(nil), do: nil
+  def mark(day), do: DayRank.mark(day.celebration && day.celebration.rank)
 
   @doc false
   def spoken(date, day) do

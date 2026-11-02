@@ -2,7 +2,7 @@
   <Layouts.flash_group flash={@flash} variant={:public} />
 
   <section class="hours-hero" aria-labelledby="hours-heading">
-    <span class="hours-hero__painting" aria-hidden="true">
+    <span :if={@present} class="hours-hero__painting" aria-hidden="true">
       <.painting painting={@present.painting} sizes="100vw" loading="eager" />
     </span>
     <div class="hours-hero__inner">
@@ -17,7 +17,14 @@
         </.link>
       </div>
 
-      <div class="hours-now" data-role="hour-now">
+      <div
+        :if={!@clock_known?}
+        class="hours-now hours-now--waiting"
+        data-role="now-waiting"
+        aria-hidden="true"
+      >
+      </div>
+      <div :if={@clock_known?} class="hours-now" data-role="hour-now">
         <p :if={@today?} class="hours-now__kicker hours-lifted">
           <span class="hours-lit" aria-hidden="true"></span> Now · {@lapses}
         </p>
@@ -40,9 +47,10 @@
 
   <div class="max-w-5xl mx-auto px-4 sm:px-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-16 lg:items-start">
     <div class="pt-6 lg:pt-10" aria-live="polite" data-role="feast">
-      <p class="kicker !text-ink-muted" data-role="day-date">
+      <p :if={@clock_known? or @fixed_date?} class="kicker !text-ink-muted" data-role="day-date">
         {if @today?, do: "Today · ", else: ""}{CanonicalHours.long_date(@date)}
       </p>
+      <p :if={!@clock_known? and !@fixed_date?} class="kicker" aria-hidden="true">&nbsp;</p>
       <div :if={@day_state == :ready} class="mt-2 space-y-1.5" data-role="feast-plate">
         <p :if={@day.celebration} class="hours-feast" lang="la">{@day.celebration.title}</p>
         <p :if={class_line(@day)} class="hours-class" data-role="day-class">

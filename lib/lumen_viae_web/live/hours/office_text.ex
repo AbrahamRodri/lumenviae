@@ -132,6 +132,8 @@ defmodule LumenViaeWeb.Live.Hours.OfficeText do
     |> Enum.map(&runs/1)
   end
 
+  defp lines(_cell, _side), do: []
+
   # The marks apart in red, and a rubric in braces ("Incipit{omittitur}")
   # out of its braces as a `{:note, text}` run, set in red italic as a
   # printed breviary sets it.
@@ -151,8 +153,6 @@ defmodule LumenViaeWeb.Live.Hours.OfficeText do
         [glyph]
     end)
   end
-
-  defp lines(_cell, _side), do: []
 
   @doc """
   One line as the app sets it: "Ant." said as "Antiphon:", the Latin's
