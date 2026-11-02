@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""The recording script's S3 checks, against a stubbed S3: no network, no keys.
+"""The recording script's money checks (S3, the budget, the cost header), with
+S3 and HTTP stubbed: no network, no keys.
 
     python3 priv/narration_scripts/test_s3_checks.py
 
@@ -8,6 +9,7 @@ an S3 error was read as "not there", and a live file must never be replaced
 before it is archived.
 """
 import importlib.util, os, unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("recording", os.path.join(HERE, "generate_frederick.py"))
@@ -103,6 +105,58 @@ class TheArchiveMustBeReadable(unittest.TestCase):
 
     def test_a_readable_archive_lets_the_run_go_on(self):
         self.assertEqual(recording.head_etag(StubS3({ARCHIVE: '"copy"'}), "b", ARCHIVE), '"copy"')
+
+
+class Charged(unittest.TestCase):
+    def test_the_cost_header_is_the_cost(self):
+        self.assertEqual(recording.charged({"Character-Cost": "512"}, 1100), 512.0)
+
+    def test_the_older_header_name_also_counts(self):
+        self.assertEqual(recording.charged({"x-character-count": "480"}, 1100), 480.0)
+
+    def test_no_usable_header_costs_one_credit_per_character(self):
+        self.assertEqual(recording.charged({}, 1100), 1100.0)
+        self.assertEqual(recording.charged({"character-cost": "n/a"}, 1100), 1100.0)
+
+
+class TheBudget(unittest.TestCase):
+    def test_it_stops_before_a_recording_would_go_under_the_reserve(self):
+        budget = recording.Budget(10_000, 2_000)
+        self.assertTrue(budget.affords(8_000))
+        self.assertFalse(budget.affords(8_001))
+
+    def test_without_headers_every_character_is_a_credit(self):
+        budget = recording.Budget(10_000, 2_000)
+        self.assertEqual(budget.charge(3_000, {}), 3_000)
+        self.assertEqual((budget.spent, budget.balance), (3_000, 7_000))
+        self.assertTrue(budget.affords(5_000))
+        self.assertFalse(budget.affords(5_001))
+
+    def test_a_measured_rate_prices_the_next_recording_at_the_dearest_seen(self):
+        budget = recording.Budget(10_000, 2_000)
+        budget.charge(1_000, {"character-cost": "460"})
+        budget.charge(1_000, {"character-cost": "500"})
+        self.assertAlmostEqual(budget.balance, 9_040)
+        # 9,040 - 14,080 * 0.5 = 2,000: just affordable; one more character is not
+        self.assertTrue(budget.affords(14_080))
+        self.assertFalse(budget.affords(14_082))
+
+
+class TheTtsCall(unittest.TestCase):
+    """tts() hands back the audio and the response's headers, so the run can
+    read what the recording cost; urlopen is stubbed, nothing is sent."""
+    def test_it_returns_the_audio_and_the_headers(self):
+        class Response:
+            headers = {"character-cost": "321", "request-id": "r1"}
+            def read(self): return b"mp3" * 400
+            def __enter__(self): return self
+            def __exit__(self, *_): return False
+        with mock.patch.object(recording, "env", {"ELEVEN_LABS_API_KEY": "test"}), \
+             mock.patch.object(recording.urllib.request, "urlopen", return_value=Response()) as call:
+            audio, headers = recording.tts("voice", "Hail, full of grace.")
+        self.assertEqual(len(audio), 1200)
+        self.assertEqual(recording.charged(headers, 20), 321.0)
+        self.assertEqual(call.call_count, 1)
 
 
 if __name__ == "__main__":
