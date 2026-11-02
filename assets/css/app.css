@@ -3218,3 +3218,916 @@ html[data-prayer-images="off"] .prayer-plate {
   }
 }
 /* === end the Prayer Book === */
+
+/* === the Chant Library (/chant) ===
+   The Chant pages as the app's Chant tab draws them (ChantLibraryView,
+   ChantLibraryPages, ChantView): the Mass of the Angels' tile, the square
+   song cards with their length and play disc, the sections as painted
+   cards, a shelf's rows (painted or numbered), the play disc lit through
+   a gold rim, the gold play of a chant's page, its scrubber and tools,
+   the line sounding and the Words. Every class is `chant-*`; the hero,
+   the search field and the Words' chooser are the Prayer Book's. */
+@layer components {
+  .chant-tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
+  }
+
+  @media (min-width: 768px) {
+    .chant-tiles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .chant-tile {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    height: 3.5rem;
+    padding-right: 0.625rem;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(227, 188, 91, 0.16);
+    background: var(--color-night-raised);
+    transition: border-color 0.18s ease-out;
+  }
+
+  .chant-tile:hover {
+    border-color: rgba(227, 188, 91, 0.5);
+  }
+
+  .chant-tile:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .chant-tile__painting {
+    flex: 0 0 3.5rem;
+    height: 3.5rem;
+  }
+
+  .chant-tile__painting picture,
+  .chant-row__thumb picture,
+  .chant-card__picture picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .chant-tile__painting img,
+  .chant-row__thumb img,
+  .chant-card__picture img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .chant-tile__title {
+    font-family: var(--font-garamond);
+    font-size: 1rem;
+    line-height: 1.2;
+    color: var(--color-ink-light);
+  }
+
+  /* The sections: two across on a phone, as the app's grid, more on a
+     wider screen. */
+  .chant-sections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .chant-sections {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.75rem 1.25rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .chant-sections {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .chant-section-card__title {
+    display: block;
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    line-height: 1.3;
+    color: var(--color-ink-light);
+    transition: color 0.18s ease-out;
+  }
+
+  .book-card:hover .chant-section-card__title {
+    color: var(--color-gilt-light);
+  }
+
+  /* A song card: the square painting, its length on a dark capsule at
+     the foot, the disc beside it, the names beneath. */
+  .chant-shelf > li {
+    flex: 0 0 8.875rem;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .chant-shelf > li {
+      flex-basis: 9.5rem;
+    }
+  }
+
+  .chant-card__painting {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(227, 188, 91, 0.24);
+    background: var(--color-night-raised);
+  }
+
+  .chant-card__picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .chant-card__length {
+    position: absolute;
+    left: 0.5rem;
+    bottom: 0.5rem;
+    padding: 0.125rem 0.4375rem;
+    border-radius: 9999px;
+    background: rgba(10, 10, 21, 0.78);
+    font-family: var(--font-garamond);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-light);
+    pointer-events: none;
+  }
+
+  .chant-card__names {
+    display: block;
+    margin-top: 0.375rem;
+  }
+
+  .chant-card__latin {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    line-height: 1.25;
+    color: var(--color-ink-light);
+    transition: color 0.18s ease-out;
+  }
+
+  .chant-card__english {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.875rem;
+    line-height: 1.3;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-card__names:hover .chant-card__latin,
+  .chant-card[data-sounding] .chant-card__latin {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-card__names:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  /* The play disc: dark, lit through a gold rim, a 44px touch whatever
+     its drawn size. Pressed, it shows pause. */
+  .chant-disc {
+    position: relative;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    color: var(--color-gilt-light);
+  }
+
+  .chant-disc::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border-radius: 9999px;
+    background: var(--color-night-raised);
+    border: 1px solid var(--color-gilt-light);
+    box-shadow: 0 0 6px rgba(227, 188, 91, 0.3);
+    transition: transform 0.16s ease-out;
+  }
+
+  .chant-disc:hover::before {
+    transform: scale(1.06);
+  }
+
+  .chant-disc:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 0;
+  }
+
+  .chant-disc__play,
+  .chant-disc__pause {
+    position: relative;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .chant-disc__pause,
+  .chant-disc[aria-pressed="true"] .chant-disc__play {
+    display: none !important;
+  }
+
+  .chant-disc[aria-pressed="true"] .chant-disc__pause {
+    display: block !important;
+  }
+
+  .chant-disc--card {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+
+  .chant-disc--over {
+    position: absolute;
+    inset: 1px;
+    width: auto;
+    height: auto;
+  }
+
+  .chant-disc--over::before {
+    inset: 10px;
+  }
+
+  /* A shelf's rows: a hairline under each, the names and the length, the
+     Latin lit while it sounds and the length turned to moving bars. */
+  .chant-rows > li {
+    border-bottom: 1px solid rgba(227, 188, 91, 0.12);
+  }
+
+  .chant-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.5rem;
+  }
+
+  .chant-row__painting {
+    position: relative;
+    flex: 0 0 2.875rem;
+    height: 2.875rem;
+  }
+
+  .chant-row__thumb {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(227, 188, 91, 0.24);
+  }
+
+  .chant-row__face {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.5rem;
+    padding: 0.5625rem 0;
+  }
+
+  .chant-row__face:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+
+  .chant-row__number {
+    flex: 0 0 1.5rem;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-row__names {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .chant-row__latin {
+    display: block;
+    font-family: var(--font-garamond);
+    font-size: 1.125rem;
+    line-height: 1.25;
+    color: var(--color-ink-light);
+    transition: color 0.18s ease-out;
+  }
+
+  .chant-row__english {
+    display: block;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    line-height: 1.3;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-row__face:hover .chant-row__latin,
+  .row-link:hover .chant-row__latin,
+  .chant-row[data-sounding] .chant-row__latin,
+  .chant-row[data-sounding] .chant-row__number {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-row__length {
+    flex-shrink: 0;
+    font-family: var(--font-garamond);
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-bars {
+    display: none;
+    flex-shrink: 0;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+  }
+
+  .chant-bars > span {
+    width: 3px;
+    border-radius: 1px;
+    background: var(--color-gilt);
+    animation: chant-bar 0.96s ease-in-out infinite;
+  }
+
+  .chant-bars > span:nth-child(1) { height: 6px; }
+  .chant-bars > span:nth-child(2) { height: 12px; animation-delay: -0.32s; }
+  .chant-bars > span:nth-child(3) { height: 8px; animation-delay: -0.64s; }
+
+  @keyframes chant-bar {
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1); }
+  }
+
+  .chant-bars > span {
+    transform-origin: bottom;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chant-bars > span {
+      animation: none;
+    }
+  }
+
+  .chant-row[data-sounding] .chant-row__length {
+    display: none;
+  }
+
+  .chant-row[data-sounding] .chant-bars {
+    display: inline-flex;
+  }
+
+  /* A shelf's head and a chant's: the hero's words centred and the
+     summary, PLAY ALL outlined, as the app keeps no filled gold act on
+     the library's pages. */
+  .chant-hero {
+    min-height: 22rem;
+  }
+
+  @media (min-width: 768px) {
+    .chant-hero {
+      min-height: min(52vh, 28rem);
+    }
+  }
+
+  .chant-hero__words {
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .chant-hero__summary {
+    margin-top: 0.375rem;
+    font-family: var(--font-garamond);
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-hero__english {
+    margin-top: 0.375rem;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1.1875rem;
+    line-height: 1.35;
+    color: rgba(246, 241, 228, 0.78);
+  }
+
+  .chant-hero__detail {
+    margin-top: 0.5rem;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-play-all {
+    margin-top: 1rem;
+    min-height: 2.875rem;
+    padding: 0.75rem 1.75rem;
+  }
+
+  .chant-play-all__pause,
+  .chant-play-all[aria-pressed="true"] .chant-play-all__play {
+    display: none !important;
+  }
+
+  .chant-play-all[aria-pressed="true"] .chant-play-all__pause {
+    display: inline-block !important;
+  }
+
+  /* The strip of a shelf's parts, each a capsule that goes to its part. */
+  .chant-strip {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1.5rem -1rem 0;
+    padding: 0 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chant-strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .chant-strip {
+      flex-wrap: wrap;
+      margin: 1.5rem 0 0;
+      padding: 0;
+    }
+  }
+
+  .chant-strip__part {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 0.875rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.32);
+    font-family: var(--font-garamond);
+    font-size: 0.9375rem;
+    color: rgba(246, 241, 228, 0.88);
+    white-space: nowrap;
+  }
+
+  .chant-strip__part:hover {
+    border-color: rgba(227, 188, 91, 0.7);
+  }
+
+  .chant-part {
+    padding-top: 1.25rem;
+    scroll-margin-top: 5rem;
+  }
+
+  .chant-part--headed {
+    padding-top: 2rem;
+  }
+
+  .chant-part__head {
+    margin-bottom: 0.25rem;
+  }
+
+  .site .chant-part__title,
+  .chant-part__title {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  .chant-part__title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(227, 188, 91, 0.24);
+  }
+
+  .chant-part__note {
+    margin-top: 0.25rem;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-note-quiet {
+    margin-top: 2rem;
+    text-align: center;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* A chant's page: the player beside the Words from 1024px, the player
+     held in view while the Words scroll. */
+  .chant-page__grid {
+    display: grid;
+    gap: 2.5rem;
+    margin-top: 0.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .chant-page__grid {
+      grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .chant-page__player {
+      position: sticky;
+      top: 5.5rem;
+    }
+  }
+
+  .chant-player {
+    max-width: 28rem;
+    margin: 0 auto;
+  }
+
+  .chant-now {
+    min-height: 5rem;
+    text-align: center;
+  }
+
+  .chant-now__latin {
+    font-family: var(--font-garamond);
+    font-size: 1.375rem;
+    line-height: 1.35;
+    color: var(--color-gilt-light);
+  }
+
+  .chant-now__english {
+    margin-top: 0.3125rem;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    color: rgba(246, 241, 228, 0.72);
+  }
+
+  [data-words="english"] .chant-now__latin,
+  [data-words="english"] .chant-line__latin,
+  [data-words="latin"] .chant-now__english,
+  [data-words="latin"] .chant-line__english {
+    display: none;
+  }
+
+  [data-words="english"] .chant-now__english {
+    margin-top: 0;
+    font-style: normal;
+    font-size: 1.25rem;
+    color: var(--color-gilt-light);
+  }
+
+  .chant-transport {
+    margin-top: 1rem;
+  }
+
+  /* The scrubber: a gold hairline filling to where the recording is. */
+  .chant-scrub {
+    --progress: 0%;
+    display: block;
+    width: 100%;
+    height: 24px;
+    margin: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .chant-scrub::-webkit-slider-runnable-track {
+    height: 3px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, var(--color-gilt) var(--progress), rgba(246, 241, 228, 0.14) var(--progress));
+  }
+
+  .chant-scrub::-moz-range-track {
+    height: 3px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, var(--color-gilt) var(--progress), rgba(246, 241, 228, 0.14) var(--progress));
+  }
+
+  .chant-scrub::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 11px;
+    height: 11px;
+    margin-top: -4px;
+    border-radius: 9999px;
+    background: var(--color-gilt-light);
+  }
+
+  .chant-scrub::-moz-range-thumb {
+    width: 11px;
+    height: 11px;
+    border: 0;
+    border-radius: 9999px;
+    background: var(--color-gilt-light);
+  }
+
+  .chant-scrub:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .chant-clock {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-clock__line {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    letter-spacing: 0;
+  }
+
+  .chant-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2.125rem;
+    margin-top: 1rem;
+  }
+
+  .chant-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 9999px;
+    color: var(--color-gilt);
+  }
+
+  .chant-step > span {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .chant-step:hover {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-step:focus-visible,
+  .chant-gold-play:focus-visible,
+  .chant-tool:focus-visible,
+  .chant-line:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  /* The page's one gold act: a gold disc, the glyph dark on it, haloed. */
+  .chant-gold-play {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.25rem;
+    height: 4.25rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, var(--color-gilt-light), var(--color-gilt));
+    color: var(--color-night);
+    box-shadow: 0 0 10px rgba(227, 188, 91, 0.28), 0 0 22px rgba(227, 188, 91, 0.14);
+    transition: transform 0.16s ease-out;
+  }
+
+  .chant-gold-play:active {
+    transform: scale(0.96);
+  }
+
+  .chant-gold-play > span {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .chant-gold-play__play {
+    margin-left: 3px;
+  }
+
+  .chant-gold-play__pause,
+  .chant-gold-play[aria-pressed="true"] .chant-gold-play__play {
+    display: none !important;
+  }
+
+  .chant-gold-play[aria-pressed="true"] .chant-gold-play__pause {
+    display: block !important;
+  }
+
+  /* The tools used less, in one quiet capsule; a tool that is on is lit
+     on a wash of gold, never filled. */
+  .chant-tools {
+    display: flex;
+    width: max-content;
+    gap: 2px;
+    margin: 1.25rem auto 0;
+    padding: 3px;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.22);
+  }
+
+  .chant-tool {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    min-height: 44px;
+    padding: 0 0.5rem;
+    border-radius: 9999px;
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    color: var(--color-gilt);
+    transition: background-color 0.16s ease-out;
+  }
+
+  .chant-tool[aria-pressed="true"] {
+    background: rgba(227, 188, 91, 0.15);
+    color: var(--color-gilt-light);
+  }
+
+  .chant-error {
+    margin-top: 0.75rem;
+    text-align: center;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* The Words: every line, Latin over English, the one sounding lit; a
+     line is a button that plays from it. */
+  .chant-words__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .chant-words__head .section-label {
+    flex: 1 1 100%;
+  }
+
+  .chant-words__head .prayers-language {
+    flex: 0 1 20rem;
+  }
+
+  .chant-lines {
+    margin: 0 -0.75rem;
+  }
+
+  .chant-line {
+    display: block;
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.5rem;
+    text-align: left;
+    transition: background-color 0.2s ease-out;
+  }
+
+  .chant-line:hover {
+    background: rgba(227, 188, 91, 0.05);
+  }
+
+  .chant-line[aria-current] {
+    background: rgba(227, 188, 91, 0.08);
+  }
+
+  .chant-line__latin {
+    display: block;
+    font-family: var(--font-garamond);
+    font-size: 1.1875rem;
+    line-height: 1.4;
+    color: var(--color-ink-light);
+    transition: color 0.2s ease-out;
+  }
+
+  .chant-line__english {
+    display: block;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: rgba(246, 241, 228, 0.7);
+  }
+
+  .chant-line[aria-current] .chant-line__latin {
+    color: var(--color-gilt-light);
+  }
+
+  [data-words="english"] .chant-line__english {
+    font-style: normal;
+    font-size: 1.1875rem;
+    color: var(--color-ink-light);
+  }
+
+  [data-words="english"] .chant-line[aria-current] .chant-line__english {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-prayer__glyph {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.5rem;
+    border-color: rgba(227, 188, 91, 0.24);
+  }
+
+  /* The credit the recordings carry, centred at the foot. */
+  .chant-credit {
+    text-align: center;
+  }
+
+  .chant-credit__line {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1rem;
+    color: rgba(246, 241, 228, 0.75);
+  }
+
+  a.chant-credit__line {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: underline;
+    text-decoration-color: rgba(227, 188, 91, 0.5);
+    text-underline-offset: 3px;
+  }
+
+  .chant-credit__note {
+    max-width: 34rem;
+    margin: 0.5rem auto 0;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-credit__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 1.25rem;
+  }
+
+  .chant-credit__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  .chant-credit__links a:hover {
+    color: var(--color-gilt-light);
+  }
+}
+/* === end the Chant Library === */

@@ -1,0 +1,232 @@
+<div
+  class="prayers-page min-h-screen pb-16"
+  id="chant-view"
+  phx-hook="ChantPlayer"
+  data-chant={@chant.id}
+  data-words={@words}
+>
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <article aria-labelledby="chant-heading">
+    <section class="book-hero chant-hero chant-hero--chant">
+      <span class="book-hero__painting" aria-hidden="true">
+        <.painting painting={@painting} sizes="100vw" loading="eager" />
+      </span>
+      <div class="book-hero__inner">
+        <.link
+          navigate={if @group, do: Library.section_path(@group.id), else: "/chant"}
+          class="book-back"
+          data-role="back"
+        >
+          <span class="hero-chevron-left size-4" aria-hidden="true" />
+          {if @group, do: Library.card_title(@group), else: "Chant"}
+        </.link>
+        <div class="book-hero__words chant-hero__words chant-hero__words--center">
+          <h1 id="chant-heading" class="book-hero__title" lang="la">{@chant.latin_title}</h1>
+          <p class="chant-hero__english" data-role="subtitle">{Library.subtitle(@chant)}</p>
+          <p class="chant-hero__detail" data-role="detail">{@chant.detail}</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-8 chant-page__grid">
+      <div class="chant-page__player">
+        <div
+          id="chant-player"
+          phx-update="ignore"
+          class="chant-player"
+          data-has-lines={to_string(@chant.lines != [])}
+          data-role="player"
+        >
+          <audio
+            id="chant-audio"
+            src={@chant.audio.url}
+            preload="metadata"
+            data-play-src={@chant.audio.url}
+            data-role="audio"
+          ></audio>
+
+          <div
+            class="chant-now"
+            aria-live="polite"
+            data-role="now-line"
+          >
+            <p class="chant-now__latin" lang="la" data-now="latin">
+              {(List.first(@chant.lines) || %{latin: @chant.detail}).latin}
+            </p>
+            <p class="chant-now__english" data-now="english">
+              {(List.first(@chant.lines) || %{english: ""}).english}
+            </p>
+          </div>
+
+          <div class="chant-transport">
+            <input
+              type="range"
+              class="chant-scrub"
+              min="0"
+              max={@chant.duration}
+              step="0.1"
+              value="0"
+              aria-label="Position in the chant"
+              data-role="scrub"
+            />
+            <div class="chant-clock" aria-hidden="true">
+              <span data-role="elapsed">0:00</span>
+              <span :if={@chant.lines != []} class="chant-clock__line" data-role="line-count">
+                Line 1 of {length(@chant.lines)}
+              </span>
+              <span data-role="total">{Library.duration_label(@chant.duration)}</span>
+            </div>
+            <div class="chant-controls">
+              <button
+                type="button"
+                class="chant-step"
+                data-act="back"
+                aria-label={if @chant.lines != [], do: "Previous line", else: "Back ten seconds"}
+              >
+                <span
+                  class={
+                    if @chant.lines != [],
+                      do: "hero-backward-solid size-6",
+                      else: "hero-arrow-uturn-left size-6"
+                  }
+                  aria-hidden="true"
+                />
+              </button>
+              <button
+                type="button"
+                class="chant-gold-play"
+                data-act="toggle"
+                data-role="play"
+                aria-label={"Play #{@chant.latin_title}, #{@chant.english_title}"}
+                aria-pressed="false"
+                data-label={"#{@chant.latin_title}, #{@chant.english_title}"}
+              >
+                <span class="hero-play-solid size-6 chant-gold-play__play" aria-hidden="true" />
+                <span class="hero-pause-solid size-6 chant-gold-play__pause" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                class="chant-step"
+                data-act="on"
+                aria-label={if @chant.lines != [], do: "Next line", else: "Forward ten seconds"}
+              >
+                <span
+                  class={
+                    if @chant.lines != [],
+                      do: "hero-forward-solid size-6",
+                      else: "hero-arrow-uturn-right size-6"
+                  }
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+            <div class="chant-tools" role="group" aria-label="Tools">
+              <button
+                type="button"
+                class="chant-tool"
+                data-act="repeat"
+                aria-pressed="false"
+                data-role="repeat"
+              >
+                <span class="hero-arrow-path size-5" aria-hidden="true" />
+                <span class="sr-only">
+                  {if @chant.lines != [], do: "Repeat this line", else: "Repeat the chant"}
+                </span>
+              </button>
+              <button
+                type="button"
+                class="chant-tool"
+                data-act="speed"
+                aria-pressed="false"
+                aria-label="Three-quarter speed, for learning"
+                data-role="speed"
+              >
+                <span data-role="speed-label" aria-hidden="true">1×</span>
+              </button>
+            </div>
+            <p class="chant-error" data-role="error" hidden>
+              The recording could not be played. Check the connection and try again.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <section :if={@chant.lines != []} class="chant-words" aria-labelledby="words-heading">
+        <div class="chant-words__head">
+          <h2 id="words-heading" class="section-label !mb-0 flex-1 min-w-0">The Words</h2>
+          <nav class="prayers-language" aria-label="Words" data-role="words-choice">
+            <.link
+              :for={{value, label} <- @words_choices}
+              patch={words_path(@chant.id, value)}
+              replace
+              class="prayers-language__option"
+              aria-current={if(value == @words, do: "true")}
+            >
+              {label}
+            </.link>
+          </nav>
+        </div>
+        <ol id="chant-lines" class="chant-lines" phx-update="ignore" data-role="lines">
+          <li :for={{line, i} <- Enum.with_index(@chant.lines)}>
+            <button
+              type="button"
+              class="chant-line"
+              data-line={i}
+              data-start={line.start}
+              data-end={line.end}
+              data-role="line"
+            >
+              <span class="chant-line__latin" lang="la">{line.latin}</span>
+              <span class="chant-line__english">{line.english}</span>
+            </button>
+          </li>
+        </ol>
+      </section>
+    </div>
+
+    <div class="max-w-3xl mx-auto px-4 sm:px-8">
+      <section :if={@prayers != []} class="mt-12" aria-labelledby="prayer-heading">
+        <h2 id="prayer-heading" class="section-label">The Prayer It Sings</h2>
+        <ul class="row-list">
+          <li :for={prayer <- @prayers}>
+            <.link
+              navigate={Book.prayer_path(prayer.id)}
+              class="row-link"
+              data-role="chant-prayer"
+            >
+              <span class="glyph-badge chant-prayer__glyph" aria-hidden="true">
+                <span class="hero-book-open size-5" />
+              </span>
+              <span class="flex-1 min-w-0">
+                <span class="chant-row__latin">{prayer.title}</span>
+                <span :if={Book.second_title(prayer)} class="chant-row__english">
+                  {Book.second_title(prayer)}
+                </span>
+              </span>
+              <span class="hero-chevron-right size-4 row-chevron" aria-hidden="true" />
+            </.link>
+          </li>
+        </ul>
+      </section>
+
+      <section :if={@others != []} class="mt-12" aria-labelledby="also-heading">
+        <h2 id="also-heading" class="section-label">Also Sung</h2>
+        <ul class="chant-rows" data-role="also-sung">
+          <li :for={other <- @others}>
+            <.painted_row chant={other} disc={false} />
+          </li>
+        </ul>
+      </section>
+
+      <div class="mt-14">
+        <.credit />
+        <p class="chant-credit__links mt-1">
+          <a href={@chant.source_url} rel="noopener" target="_blank" data-role="source">
+            Open on Verbum Gloriae's site
+          </a>
+        </p>
+      </div>
+    </div>
+  </article>
+</div>

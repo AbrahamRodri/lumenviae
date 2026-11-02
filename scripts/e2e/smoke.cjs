@@ -30,6 +30,10 @@ const PAGES = [
   { path: "/prayers/litany_loreto?lang=both", slug: "prayer-both" },
   { path: "/prayers/orders/morning", slug: "prayer-order" },
   { path: "/prayers/orders/morning/pray?step=3&lang=both", slug: "prayer-order-pray" },
+  { path: "/chant", slug: "chant" },
+  { path: "/chant?q=salve", slug: "chant-search" },
+  { path: "/chant/sections/mass", slug: "chant-section" },
+  { path: "/chant/salve_regina_simple", slug: "chant-page" },
 ];
 
 const APP_STORE = "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749";
@@ -246,6 +250,57 @@ async function checkPrayers(browser, vp) {
   check(errors.length === 0, `${label}: no console errors after praying`, errors.join(" | "));
 
   for (const unknown of ["/prayers/not-a-prayer", "/prayers/topics/nowhere", "/prayers/orders/nowhere"]) {
+    const response = await page.goto(BASE_URL + unknown);
+    check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
+  }
+  await context.close();
+}
+
+// The Chant Library: the search rides in the link and finds the Salve
+// Regina; a section's shelf offers Play all and its chants; a chant's
+// page carries the recording and its lines, and pressing play lights a
+// line once the recording reaches it (the chant is fetched from the
+// site's bucket, so this needs a network); an unknown section or chant
+// is a 404.
+async function checkChant(browser, vp) {
+  const label = `${vp.name} chant`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+
+  await page.goto(BASE_URL + "/chant");
+  await settle(page);
+  await page.getByRole("searchbox", { name: /search chants/i }).fill("salve regina");
+  const searched = await eventually(() => new URL(page.url()).searchParams.get("q") === "salve regina");
+  check(searched, `${label}: the search rides in the link`, page.url());
+  const found = await eventually(async () => (await page.locator('[data-role=results] a[href="/chant/salve_regina_simple"]').count()) > 0);
+  check(found, `${label}: the search finds the Salve Regina`);
+
+  await page.goto(BASE_URL + "/chant/sections/mass");
+  await settle(page);
+  check((await page.locator("[data-role=play-all]").count()) === 1, `${label}: the shelf offers Play all`);
+  check((await page.locator("[data-role=chant-row]").count()) >= 8, `${label}: the shelf lists its chants`);
+
+  await page.goto(BASE_URL + "/chant/salve_regina_simple");
+  await settle(page);
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  const src = await page.locator("audio#chant-audio").getAttribute("src");
+  check(/^https:\/\/s3\.us-east-2\.amazonaws\.com\/lumenviae-images\/chants\/audio\//.test(src || ""), `${label}: the page carries the recording`, src);
+  check((await page.locator("[data-role=line]").count()) > 1, `${label}: the page lists the lines`);
+  await page.locator("[data-role=play]").click();
+  const lit = await eventually(async () => {
+    const line = await page.locator("[data-role=line][aria-current]").getAttribute("data-line").catch(() => null);
+    return line !== null && Number(line) >= 1;
+  }, 30000);
+  check(lit, `${label}: playing lights the line being sung`);
+  await page.locator("[data-role=play]").click();
+  await page.getByRole("navigation", { name: "Words" }).getByRole("link", { name: "English" }).click();
+  const english = await eventually(() => new URL(page.url()).searchParams.get("words") === "english");
+  check(english, `${label}: the Words ride in the link`, page.url());
+  await noHorizontalScroll(page, `${label} (playing)`);
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+
+  for (const unknown of ["/chant/nowhere", "/chant/sections/nowhere"]) {
     const response = await page.goto(BASE_URL + unknown);
     check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
   }
@@ -552,6 +607,7 @@ async function checkCompletion(browser, vp) {
     await checkScriptural(browser, vp);
     await checkSetlessAndUnknown(browser, vp);
     await checkPrayers(browser, vp);
+    await checkChant(browser, vp);
   }
 
   // Once only: it writes a completion row to the server's database.

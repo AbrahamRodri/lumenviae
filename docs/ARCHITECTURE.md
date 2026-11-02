@@ -1018,13 +1018,15 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/mysteries/` | public: the mysteries in Scripture (`scripture.ex`, its sections in `_partials/`) and the category page (`category_list/`). Admin: mystery CRUD and a category card's painting (`card/`) |
 | `live/pray/` | the prayer page: see [The prayer page](#the-prayer-page) |
 | `live/prayers/` | the Prayer Book, as the app's Prayers tab: the shelves, the shortcuts, Now and the search (`index/`, with `shelves/` and `search/`), a chapter (`chapter/`), an order of prayer (`order/`) and praying it in silence (`order/pray/`), and a prayer (`prayer/`, its words drawn by `prayer/text/`). `book.ex` is the book as the pages read it (the app's shelves, the five parts, second names, paintings with their stand-ins and search ranking, over `Rosary.get_prayer_book!/1`), `orders.ex` the orders of prayer as the app reads them (the hour's order, Eastertide, the closing song to Mary, their paintings and search), `prayer_text.ex` the text's grammar and `painting.ex` a painting drawn about its subject; all are presentation and never query. Their CSS is the `book-*` and `prayers-*` classes, apart from the Rosary page's `.prayer-text` |
+| `live/chants/` | the Chant Library, as the app's Chant tab: the tab (`index/`), a section's shelf or the Mass of the Angels' (`section/`) and a chant (`chant/`). `library.ex` is the library as the pages read it (the songs to Mary, the sections' names, the paintings, numbered shelves, the rows' second lines and the search, over `Rosary.get_chant_library!/1`) and `parts.ex` the rows, cards and play discs the pages share; both are presentation and never query. The recordings play through the `ChantPlayer` hook. Their CSS is the `chant-*` classes |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
-The public site is the Rosary and the Prayer Book: home, the mysteries,
-their sets and the prayer page, the Prayer Book's five pages, with the
-iPhone app's page and the privacy policy beside them, twelve routes in all
+The public site is the Rosary, the Prayer Book and the Chant Library:
+home, the mysteries, their sets and the prayer page, the Prayer Book's
+five pages and the Chant Library's three, with the iPhone app's page and
+the privacy policy beside them, fifteen routes in all
 (`docs/PUBLIC_SITE.md` lists them, the links' parameters and where each
 setting is kept). Pages retired from it (the
 dashboard, How to Pray, True Devotion, St. Carlo, Feedback) are in
@@ -1195,7 +1197,7 @@ called bare (`<.nav />`); the rest are called by their full module name.
 | `Components.ArtworkSection` | artwork upload, framing and provenance | no, called fully qualified |
 | `Components.History` | the History panel on the console's edit pages | no, called fully qualified |
 | `Components.ArtworkPicture` | an uploaded painting on the public site, from its WebP variants | no, called fully qualified |
-| `Components.MysteryPainting` | the app's painting for a mystery, a category's card or a painting named by its asset name (the Prayers page's), from `priv/static/images/paintings/manifest.json`; an uploaded painting wins | no, called fully qualified |
+| `Components.MysteryPainting` | the app's painting for a mystery, a category's card or a painting named by its asset name (the Prayers and Chant pages'), from `priv/static/images/paintings/manifest.json`; an uploaded painting wins | no, called fully qualified |
 | `Components.WoodcutPlate` | a public-domain woodcut or engraving for one mystery, from `priv/static/images/woodcuts/manifest.json`; no longer shown on any page or preview | no, imported where used |
 | `Components.MetaTags` | the description, canonical link, link previews and structured data a page put in `LumenViaeWeb.PageMeta` | no, used by the root layout |
 | `LumenViaeWeb.Layouts` | root and app layouts | aliased |

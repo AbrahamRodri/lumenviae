@@ -1,5 +1,5 @@
 {
-  "_about": "The iOS app's paintings for the mysteries and the Seven Sorrows' card, as static WebP for the website (from ios app/Assets.xcassets; credits from ios Tools/ContentSourcing/manifest.json). An uploaded painting on the mystery or card wins over these. See docs/MYSTERY_PAINTINGS.md. Each painting also has a JPEG `<name>-preview.jpg` (at most 800 pixels wide) for link previews, which not every crawler reads as WebP.",
+  "_about": "The iOS app's paintings for the mysteries, the Seven Sorrows' card and the Chant Library's sections and chants, as static WebP for the website (from ios app/Assets.xcassets; credits from ios Tools/ContentSourcing/manifest.json). An uploaded painting on the mystery or card wins over these. See docs/MYSTERY_PAINTINGS.md. Each painting also has a JPEG `<name>-preview.jpg` (at most 800 pixels wide) for link previews, which not every crawler reads as WebP.",
   "mysteries": {
     "joyful_1": "joyful_annunciation",
     "joyful_2": "joyful_visitation",
@@ -679,6 +679,742 @@
       "preview": [
         800,
         1145
+      ]
+    },
+    {
+      "name": "advent_isaiah",
+      "title": "The Prophet Isaiah (Sistine Chapel ceiling)",
+      "artist": "Michelangelo",
+      "date": "1508–12",
+      "collection": "Sistine Chapel, Vatican",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Michelangelo_Buonarroti_028.jpg",
+      "widths": [
+        [
+          480,
+          661
+        ],
+        [
+          960,
+          1322
+        ]
+      ],
+      "preview": [
+        800,
+        1102
+      ]
+    },
+    {
+      "name": "christmas_shepherds",
+      "title": "The Adoration of the Shepherds",
+      "artist": "Gerard van Honthorst",
+      "date": "1622",
+      "collection": "Wallraf-Richartz-Museum, Cologne",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Adoration_of_the_shepherds,_by_Gerard_van_Honthorst.jpg",
+      "widths": [
+        [
+          480,
+          364
+        ],
+        [
+          960,
+          728
+        ]
+      ],
+      "preview": [
+        800,
+        607
+      ]
+    },
+    {
+      "name": "devotion_holy_souls",
+      "title": "The Day of the Dead (Le Jour des morts)",
+      "artist": "William-Adolphe Bouguereau",
+      "date": "1859",
+      "collection": "Musée des Beaux-Arts de Bordeaux",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:William-Adolphe_Bouguereau_(1825-1905)_-_The_Day_of_the_Dead_(1859).jpg",
+      "widths": [
+        [
+          480,
+          619
+        ],
+        [
+          960,
+          1238
+        ]
+      ],
+      "preview": [
+        800,
+        1031
+      ]
+    },
+    {
+      "name": "devotion_holy_trinity",
+      "title": "The Holy Trinity",
+      "artist": "Jusepe de Ribera",
+      "date": "c. 1635",
+      "collection": "Real Monasterio de San Lorenzo de El Escorial (a variant of the Prado's picture)",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:La_Sant%C3%ADsima_Trinidad,_Jos%C3%A9_de_Ribera.jpg",
+      "widths": [
+        [
+          480,
+          681
+        ],
+        [
+          960,
+          1363
+        ]
+      ],
+      "preview": [
+        800,
+        1136
+      ]
+    },
+    {
+      "name": "devotion_st_joseph",
+      "title": "Saint Joseph and the Christ Child",
+      "artist": "Guido Reni",
+      "date": "c. 1640",
+      "collection": "Museum of Fine Arts, Houston",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Guido_Reni_-_Saint_Joseph_and_the_Christ_Child_-_96.1565_-_Museum_of_Fine_Arts.jpg",
+      "widths": [
+        [
+          480,
+          578
+        ],
+        [
+          960,
+          1156
+        ]
+      ],
+      "preview": [
+        800,
+        963
+      ]
+    },
+    {
+      "name": "easter_appears_to_mary",
+      "title": "Christ Appearing to His Mother",
+      "artist": "Juan de Flandes",
+      "date": "c. 1496",
+      "collection": "The Metropolitan Museum of Art, New York",
+      "licence": "CC0",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Christ_Appearing_to_His_Mother_MET_DT2649.jpg",
+      "widths": [
+        [
+          480,
+          836
+        ],
+        [
+          919,
+          1600
+        ]
+      ],
+      "preview": [
+        800,
+        1393
+      ]
+    },
+    {
+      "name": "easter_holy_women",
+      "title": "The Holy Women at the Tomb",
+      "artist": "William-Adolphe Bouguereau",
+      "date": "1890",
+      "collection": "Royal Museum of Fine Arts, Antwerp",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:William-Adolphe_Bouguereau_(1825-1905)_-_Le_saintes_femmes_au_tombeau_(1890)_img_2.jpg",
+      "widths": [
+        [
+          480,
+          777
+        ],
+        [
+          960,
+          1555
+        ]
+      ],
+      "preview": [
+        800,
+        1296
+      ]
+    },
+    {
+      "name": "easter_noli_me_tangere",
+      "title": "Noli Me Tangere",
+      "artist": "Correggio",
+      "date": "c. 1525",
+      "collection": "Museo del Prado, Madrid",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Correggio_Noli_Me_Tangere.jpg",
+      "widths": [
+        [
+          480,
+          614
+        ],
+        [
+          960,
+          1229
+        ]
+      ],
+      "preview": [
+        800,
+        1024
+      ]
+    },
+    {
+      "name": "easter_saint_thomas",
+      "title": "The Incredulity of Saint Thomas",
+      "artist": "Caravaggio",
+      "date": "1601–02",
+      "collection": "Sanssouci Picture Gallery, Potsdam",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:The_Incredulity_of_Saint_Thomas-Caravaggio_(1601-2).jpg",
+      "widths": [
+        [
+          480,
+          355
+        ],
+        [
+          960,
+          710
+        ]
+      ],
+      "preview": [
+        800,
+        592
+      ]
+    },
+    {
+      "name": "feast_all_saints",
+      "title": "Adoration of the Trinity (The Landauer Altarpiece)",
+      "artist": "Albrecht Dürer",
+      "date": "1511",
+      "collection": "Kunsthistorisches Museum, Vienna",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer_-_Adoration_of_the_Trinity_(Landauer_Altar)_-_Google_Art_Project.jpg",
+      "widths": [
+        [
+          480,
+          525
+        ],
+        [
+          960,
+          1050
+        ]
+      ],
+      "preview": [
+        800,
+        875
+      ]
+    },
+    {
+      "name": "feast_annunciation",
+      "title": "The Annunciation",
+      "artist": "Fra Angelico",
+      "date": "1425–26",
+      "collection": "Museo del Prado, Madrid",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:La_Anunciaci%C3%B3n_(Fra_Angelico-Prado).jpg",
+      "widths": [
+        [
+          480,
+          384
+        ],
+        [
+          960,
+          768
+        ]
+      ],
+      "preview": [
+        800,
+        640
+      ]
+    },
+    {
+      "name": "feast_christ_the_king",
+      "title": "Christ Triumphant over Sin and Death",
+      "artist": "Peter Paul Rubens",
+      "date": "c. 1615–22",
+      "collection": "Rubens workshop picture, of which there are several versions (Rubenshuis, Antwerp among them)",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Rubens_-_Christ_triumphant_over_sin_and_death,_GE_270.jpg",
+      "widths": [
+        [
+          480,
+          346
+        ],
+        [
+          960,
+          692
+        ]
+      ],
+      "preview": [
+        800,
+        576
+      ]
+    },
+    {
+      "name": "feast_our_lady_of_the_rosary",
+      "title": "Madonna of the Rosary",
+      "artist": "Caravaggio",
+      "date": "1607",
+      "collection": "Kunsthistorisches Museum, Vienna",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Michelangelo_Merisi,_gen._Caravaggio,_,_Kunsthistorisches_Museum_Wien,_Gem%C3%A4ldegalerie_-_Rosenkranzmadonna_-_GG_147_-_Kunsthistorisches_Museum.jpg",
+      "widths": [
+        [
+          480,
+          709
+        ],
+        [
+          960,
+          1418
+        ]
+      ],
+      "preview": [
+        800,
+        1182
+      ]
+    },
+    {
+      "name": "jesus_anima_christi",
+      "title": "Christ Embracing St Bernard",
+      "artist": "Francisco Ribalta",
+      "date": "1625–27",
+      "collection": "Museo del Prado, Madrid",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Francisco_Ribalta_001.jpg",
+      "widths": [
+        [
+          480,
+          681
+        ],
+        [
+          960,
+          1363
+        ]
+      ],
+      "preview": [
+        800,
+        1136
+      ]
+    },
+    {
+      "name": "jesus_eucharist_saviour",
+      "title": "The Saviour",
+      "artist": "Juan de Juanes",
+      "date": "c. 1545–50",
+      "collection": "Museo del Prado, Madrid",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:El_Salvador,_de_Juan_de_Juanes_(Museo_del_Prado).jpg",
+      "widths": [
+        [
+          480,
+          642
+        ],
+        [
+          960,
+          1284
+        ]
+      ],
+      "preview": [
+        800,
+        1070
+      ]
+    },
+    {
+      "name": "jesus_holy_name",
+      "title": "The Adoration of the Name of Jesus",
+      "artist": "El Greco",
+      "date": "1578–80",
+      "collection": "The National Gallery, London",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:El_Greco_-_The_Adoration_of_the_Name_of_Jesus_-_WGA10433.jpg",
+      "widths": [
+        [
+          480,
+          841
+        ],
+        [
+          913,
+          1600
+        ]
+      ],
+      "preview": [
+        800,
+        1402
+      ]
+    },
+    {
+      "name": "jesus_precious_blood",
+      "title": "The Blood of the Redeemer",
+      "artist": "Giovanni Bellini",
+      "date": "c. 1465",
+      "collection": "The National Gallery, London",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:1465_Bellini_The_Blood_of_the_Redeemer_The_National_Gallery_London_anagoria.jpg",
+      "widths": [
+        [
+          480,
+          667
+        ],
+        [
+          960,
+          1334
+        ]
+      ],
+      "preview": [
+        800,
+        1112
+      ]
+    },
+    {
+      "name": "last_judgment",
+      "title": "The Last Judgement",
+      "artist": "Fra Angelico",
+      "date": "1435–40",
+      "collection": "Gemäldegalerie, Berlin",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Fra_Angelico_-_The_Last_Judgement_(Winged_Altar)_-_Google_Art_Project.jpg",
+      "widths": [
+        [
+          480,
+          397
+        ],
+        [
+          960,
+          794
+        ]
+      ],
+      "preview": [
+        800,
+        662
+      ]
+    },
+    {
+      "name": "mary_immaculate_conception",
+      "title": "The Immaculate Conception",
+      "artist": "Giovanni Battista Tiepolo",
+      "date": "1767–69",
+      "collection": "Museo del Prado, Madrid",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:The_Immaculate_Conception,_by_Giovanni_Battista_Tiepolo,_from_Prado_in_Google_Earth.jpg",
+      "widths": [
+        [
+          480,
+          882
+        ],
+        [
+          871,
+          1600
+        ]
+      ],
+      "preview": [
+        800,
+        1470
+      ]
+    },
+    {
+      "name": "mary_mother_of_mercy",
+      "title": "Madonna della Misericordia (Polyptych of the Misericordia)",
+      "artist": "Piero della Francesca",
+      "date": "1445–62",
+      "collection": "Museo Civico, Sansepolcro",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Piero_della_francesca,_madonna_della_misericordia.jpg",
+      "widths": [
+        [
+          480,
+          743
+        ],
+        [
+          960,
+          1485
+        ]
+      ],
+      "preview": [
+        800,
+        1238
+      ]
+    },
+    {
+      "name": "mary_mount_carmel",
+      "title": "Madonna del Carmine Giving the Scapular to St Simon Stock",
+      "artist": "Painter in the manner of Arcangelo Salimbeni",
+      "date": "1535",
+      "collection": "Pieve della Santissima Annunziata, Montisi",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Maniera_di_Arcangelo_Salimbeni,_Madonna_del_Carmine_consegna_lo_scapolare_a_san_Simone_Stock_(1535).jpg",
+      "widths": [
+        [
+          480,
+          691
+        ],
+        [
+          960,
+          1383
+        ]
+      ],
+      "preview": [
+        800,
+        1152
+      ]
+    },
+    {
+      "name": "mary_sistine_madonna",
+      "title": "The Sistine Madonna",
+      "artist": "Raphael",
+      "date": "1512–13",
+      "collection": "Gemäldegalerie Alte Meister, Dresden",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Raphael_-_The_Sistine_Madonna_-_Google_Arts_%26_Culture.jpg",
+      "widths": [
+        [
+          480,
+          652
+        ],
+        [
+          960,
+          1304
+        ]
+      ],
+      "preview": [
+        800,
+        1087
+      ]
+    },
+    {
+      "name": "mass_lamb_of_god",
+      "title": "The Adoration of the Mystic Lamb (Ghent Altarpiece, central panel)",
+      "artist": "Hubert and Jan van Eyck",
+      "date": "1432",
+      "collection": "St Bavo's Cathedral, Ghent",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Ghent_Altarpiece_D_-_Adoration_of_the_Lamb_2.jpg",
+      "widths": [
+        [
+          480,
+          664
+        ],
+        [
+          960,
+          1329
+        ]
+      ],
+      "preview": [
+        800,
+        1107
+      ]
+    },
+    {
+      "name": "psalm_king_david",
+      "title": "King David Playing the Harp",
+      "artist": "Gerard van Honthorst",
+      "date": "1622",
+      "collection": "Centraal Museum, Utrecht",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Gerard_van_Honthorst_-_King_David_Playing_the_Harp_-_Google_Art_Project.jpg",
+      "widths": [
+        [
+          480,
+          600
+        ],
+        [
+          960,
+          1199
+        ]
+      ],
+      "preview": [
+        800,
+        999
+      ]
+    },
+    {
+      "name": "saint_john_baptist_birth",
+      "title": "The Birth of St John the Baptist",
+      "artist": "Artemisia Gentileschi",
+      "date": "c. 1635",
+      "collection": "Museo del Prado, Madrid",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Nacimiento_de_San_Juan_Bautista_(Artemisia_Gentileschi).jpg",
+      "widths": [
+        [
+          480,
+          338
+        ],
+        [
+          960,
+          676
+        ]
+      ],
+      "preview": [
+        800,
+        564
+      ]
+    },
+    {
+      "name": "saint_michael",
+      "title": "Saint Michael Vanquishing Satan (Le Grand Saint Michel)",
+      "artist": "Raphael",
+      "date": "1518",
+      "collection": "Musée du Louvre, Paris",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Le_Grand_Saint_Michel,_by_Raffaello_Sanzio,_from_C2RMF_retouched.jpg",
+      "widths": [
+        [
+          480,
+          811
+        ],
+        [
+          947,
+          1600
+        ]
+      ],
+      "preview": [
+        800,
+        1352
+      ]
+    },
+    {
+      "name": "season_lent",
+      "title": "Christ in the Wilderness",
+      "artist": "Moretto da Brescia",
+      "date": "c. 1515–20",
+      "collection": "The Metropolitan Museum of Art, New York",
+      "licence": "CC0",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Christ_in_the_Wilderness_MET_DT200983.jpg",
+      "widths": [
+        [
+          480,
+          398
+        ],
+        [
+          960,
+          797
+        ]
+      ],
+      "preview": [
+        800,
+        664
+      ]
+    },
+    {
+      "name": "topic_blessed_sacrament",
+      "title": "The Disputation of the Holy Sacrament",
+      "artist": "Raphael",
+      "date": "1509–10",
+      "collection": "Stanza della Segnatura, Vatican",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Raphael1a.jpg",
+      "widths": [
+        [
+          480,
+          263
+        ],
+        [
+          960,
+          526
+        ]
+      ],
+      "preview": [
+        800,
+        438
+      ]
+    },
+    {
+      "name": "topic_for_the_living",
+      "title": "The Delivery of the Keys",
+      "artist": "Pietro Perugino",
+      "date": "1481–82",
+      "collection": "Sistine Chapel, Vatican",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Entrega_de_las_llaves_a_San_Pedro_(Perugino).jpg",
+      "widths": [
+        [
+          480,
+          290
+        ],
+        [
+          960,
+          579
+        ]
+      ],
+      "preview": [
+        800,
+        482
+      ]
+    },
+    {
+      "name": "topic_holy_trinity",
+      "title": "The Holy Trinity",
+      "artist": "El Greco",
+      "date": "1577–79",
+      "collection": "Museo del Prado, Madrid",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:La_Trinidad_(El_Greco,_1577-1579).jpg",
+      "widths": [
+        [
+          480,
+          833
+        ],
+        [
+          922,
+          1600
+        ]
+      ],
+      "preview": [
+        800,
+        1388
+      ]
+    },
+    {
+      "name": "topic_our_lord",
+      "title": "The Sacred Heart of Jesus",
+      "artist": "Pompeo Batoni",
+      "date": "1767",
+      "collection": "Church of the Gesù, Rome",
+      "licence": "CC0",
+      "source_page": "https://commons.wikimedia.org/wiki/File:SacredHeartBatoni.jpg",
+      "widths": [
+        [
+          480,
+          669
+        ],
+        [
+          960,
+          1338
+        ]
+      ],
+      "preview": [
+        800,
+        1115
+      ]
+    },
+    {
+      "name": "topic_thanksgiving",
+      "title": "Madonna of the Magnificat",
+      "artist": "Sandro Botticelli",
+      "date": "c. 1483",
+      "collection": "Uffizi, Florence",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Sandro_Botticelli_-_Madonna_del_Magnificat_-_Google_Art_Project.jpg",
+      "widths": [
+        [
+          480,
+          480
+        ],
+        [
+          960,
+          960
+        ]
+      ],
+      "preview": [
+        800,
+        800
       ]
     }
   ]

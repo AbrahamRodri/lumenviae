@@ -98,6 +98,12 @@ its record. The app has since replaced several paintings listed above
 (the third and fifth sorrows have their own now); the manifest is the
 current list.
 
+Since 2 November 2026 the same directory also holds the 32 paintings the
+Chant Library hangs that no mystery does (the sections' and the chants'
+own, `ChantLibraryData.swift`), from the same assets and with credits
+from the same sourcing manifest, each one recorded there as verified and
+Public domain or CC0. `LumenViaeWeb.Live.Chants.Library` names them.
+
 ## How to upload
 
 In the production console, signed in as an admin:

@@ -1,0 +1,348 @@
+// ChantPlayer: plays the Chant Library's recordings on the Chant pages,
+// as the app's ChantPlayer does, with one <audio> per page.
+//
+// It keeps nothing: no storage, no cookie, nothing sent to the server.
+// The recordings are the public files on the site's own bucket, named in
+// the page (a disc's data-src, the chant page's <audio src>). Leaving the
+// page stops what it plays; the site has no player at the foot of every
+// page yet.
+//
+// Two shapes of page:
+//
+// - A list (/chant, a section's shelf): every [data-play] disc plays its
+//   chant where it stands, and a second press pauses it. [data-play-all]
+//   sings the discs inside [data-queue] one after another, then Pause and
+//   Resume, as the app's PLAY ALL does. The row or card that sounds is
+//   marked data-sounding, its disc aria-pressed.
+//
+// - A chant's page ([data-role=player]): the gold play, back and on a
+//   line (ten seconds for a chant with no timed lines), the scrubber, the
+//   clock and "Line 3 of 12", Repeat this line (or the chant), and
+//   three-quarter speed. The line sounding is lit in the Words
+//   ([data-line], with data-start and data-end) and written into the now
+//   line; a click on a line plays from it.
+
+const clock = (seconds) => {
+  const whole = Math.max(0, Math.floor(seconds || 0))
+  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`
+}
+
+export default {
+  mounted() {
+    this.player = this.el.querySelector("[data-role=player]")
+    this.audio = this.el.querySelector("audio")
+    if (!this.audio) return
+
+    this.current = null // the chant id sounding (list pages)
+    this.queue = null // ids left to sing after the current one
+    this.queued = false // whether Play all is under way
+    this.repeat = false
+    this.raf = null
+
+    this.onClick = (event) => this.click(event)
+    this.el.addEventListener("click", this.onClick)
+
+    this.audio.addEventListener("play", () => this.paint())
+    this.audio.addEventListener("pause", () => this.paint())
+    this.audio.addEventListener("ended", () => this.ended())
+    this.audio.addEventListener("error", () => this.failed())
+    this.audio.addEventListener("loadedmetadata", () => this.tick())
+    this.audio.addEventListener("timeupdate", () => this.tick())
+
+    if (this.player) this.mountChant()
+  },
+
+  updated() {
+    // A patch (the Words chosen, a search typed) redraws what the hook
+    // marked; mark it again.
+    this.paint()
+    if (this.player) this.tick(true)
+  },
+
+  destroyed() {
+    if (this.audio) {
+      this.audio.pause()
+      this.audio.removeAttribute("src")
+      this.audio.load()
+    }
+    cancelAnimationFrame(this.raf)
+  },
+
+  // ---- A chant's page
+
+  mountChant() {
+    this.lines = Array.from(this.el.querySelectorAll("[data-line]")).map((el) => ({
+      el,
+      start: parseFloat(el.dataset.start),
+      end: parseFloat(el.dataset.end),
+      latin: el.querySelector(".chant-line__latin")?.textContent || "",
+      english: el.querySelector(".chant-line__english")?.textContent || "",
+    }))
+    this.hasLines = this.lines.length > 0
+    this.lineIndex = this.hasLines ? 0 : null
+    this.scrub = this.player.querySelector("[data-role=scrub]")
+    this.scrub?.addEventListener("input", () => {
+      this.audio.currentTime = parseFloat(this.scrub.value)
+      this.tick(true)
+    })
+    this.current = this.el.dataset.chant
+  },
+
+  // ---- Presses
+
+  click(event) {
+    const disc = event.target.closest("[data-play]")
+    if (disc && this.el.contains(disc)) return this.toggleChant(disc.dataset.play, disc.dataset.src)
+
+    if (event.target.closest("[data-play-all]")) return this.playAll()
+
+    const line = event.target.closest("[data-line]")
+    if (line && this.player) return this.playFromLine(parseInt(line.dataset.line, 10))
+
+    const act = event.target.closest("[data-act]")
+    if (act && this.player) {
+      switch (act.dataset.act) {
+        case "toggle":
+          return this.audio.paused ? this.start() : this.audio.pause()
+        case "back":
+          return this.back()
+        case "on":
+          return this.on()
+        case "repeat":
+          this.repeat = !this.repeat
+          return this.paint()
+        case "speed":
+          this.audio.playbackRate = this.audio.playbackRate < 1 ? 1 : 0.75
+          return this.paint()
+      }
+    }
+  },
+
+  start() {
+    this.hideError()
+    const playing = this.audio.play()
+    if (playing && playing.catch) playing.catch((err) => err.name !== "AbortError" && this.failed())
+  },
+
+  toggleChant(id, src) {
+    if (this.current === id && this.audio.getAttribute("src")) {
+      if (this.audio.paused) this.start()
+      else this.audio.pause()
+      return
+    }
+    // A disc pressed while a shelf is sung puts the shelf down.
+    this.queued = false
+    this.queue = null
+    this.load(id, src)
+  },
+
+  load(id, src) {
+    this.current = id
+    this.audio.src = src
+    this.audio.currentTime = 0
+    this.start()
+    this.paint()
+  },
+
+  discs() {
+    const seen = new Set()
+    return Array.from(this.el.querySelectorAll("[data-queue] [data-play]")).filter((disc) => {
+      if (seen.has(disc.dataset.play)) return false
+      seen.add(disc.dataset.play)
+      return true
+    })
+  },
+
+  playAll() {
+    if (this.queued) {
+      if (this.audio.paused) this.start()
+      else this.audio.pause()
+      return
+    }
+    const discs = this.discs()
+    if (discs.length === 0) return
+    this.queued = true
+    this.queue = discs.slice(1).map((d) => ({ id: d.dataset.play, src: d.dataset.src }))
+    this.load(discs[0].dataset.play, discs[0].dataset.src)
+  },
+
+  ended() {
+    if (this.player) {
+      if (this.repeat && !this.hasLines) {
+        this.audio.currentTime = 0
+        return this.start()
+      }
+      return this.paint()
+    }
+    if (this.queued && this.queue && this.queue.length > 0) {
+      const next = this.queue.shift()
+      return this.load(next.id, next.src)
+    }
+    this.queued = false
+    this.queue = null
+    this.current = null
+    this.paint()
+  },
+
+  failed() {
+    if (!this.audio.getAttribute("src")) return
+    const error = this.el.querySelector("[data-role=error]")
+    if (error) error.hidden = false
+    this.paint()
+  },
+
+  hideError() {
+    const error = this.el.querySelector("[data-role=error]")
+    if (error) error.hidden = true
+  },
+
+  // ---- Lines
+
+  // The line sounding at a time, or the one just sung while the
+  // recording rests between two (Chant.lineIndex).
+  lineAt(time) {
+    if (!this.hasLines) return null
+    let index = 0
+    this.lines.forEach((line, i) => {
+      if (line.start <= time + 0.05) index = i
+    })
+    return index
+  },
+
+  seekToLine(index) {
+    if (!this.hasLines) return
+    const i = Math.max(0, Math.min(this.lines.length - 1, index))
+    this.audio.currentTime = this.lines[i].start
+    this.lineIndex = i
+    this.tick(true)
+  },
+
+  playFromLine(index) {
+    this.seekToLine(index)
+    if (this.audio.paused) this.start()
+  },
+
+  // Within the first two seconds of a line, the line before; later, this
+  // line from its start, as a track's back button does.
+  back() {
+    if (this.hasLines) {
+      const i = this.lineIndex ?? 0
+      const into = this.audio.currentTime - this.lines[i].start
+      this.seekToLine(into > 2 ? i : i - 1)
+    } else {
+      this.audio.currentTime = Math.max(0, this.audio.currentTime - 10)
+      this.tick(true)
+    }
+  },
+
+  on() {
+    if (this.hasLines) {
+      const i = (this.lineIndex ?? -1) + 1
+      if (i < this.lines.length) this.seekToLine(i)
+    } else {
+      const end = (this.audio.duration || 0) - 0.5
+      this.audio.currentTime = Math.min(Math.max(0, end), this.audio.currentTime + 10)
+      this.tick(true)
+    }
+  },
+
+  // ---- What the page shows
+
+  tick(force) {
+    if (!this.player) return
+    const time = this.audio.currentTime || 0
+
+    // Repeat this line: at its end, back to its start.
+    if (this.repeat && this.hasLines && !this.audio.paused && this.lineIndex != null) {
+      const line = this.lines[this.lineIndex]
+      const next = this.lines[this.lineIndex + 1]
+      const end = next ? Math.min(line.end, next.start) : line.end
+      if (time >= end - 0.05) {
+        this.audio.currentTime = line.start
+        return
+      }
+    }
+
+    const index = this.lineAt(time)
+    if (force || index !== this.shownLine) {
+      this.lineIndex = index
+      this.showLine(index)
+    }
+
+    const elapsed = this.player.querySelector("[data-role=elapsed]")
+    if (elapsed) elapsed.textContent = clock(time)
+    if (this.audio.duration && isFinite(this.audio.duration)) {
+      const total = this.player.querySelector("[data-role=total]")
+      if (total) total.textContent = clock(Math.round(this.audio.duration))
+      if (this.scrub) this.scrub.max = String(this.audio.duration)
+    }
+    if (this.scrub && document.activeElement !== this.scrub) this.scrub.value = String(time)
+    if (this.scrub) {
+      const max = parseFloat(this.scrub.max) || 1
+      this.scrub.style.setProperty("--progress", `${Math.min(100, (time / max) * 100)}%`)
+      this.scrub.setAttribute("aria-valuetext", `${clock(time)} of ${clock(max)}`)
+    }
+  },
+
+  showLine(index) {
+    this.shownLine = index
+    if (index == null) return
+    this.lines.forEach((line, i) => {
+      if (i === index) line.el.setAttribute("aria-current", "true")
+      else line.el.removeAttribute("aria-current")
+    })
+    const line = this.lines[index]
+    const latin = this.player.querySelector("[data-now=latin]")
+    const english = this.player.querySelector("[data-now=english]")
+    if (latin) latin.textContent = line.latin
+    if (english) english.textContent = line.english
+    const count = this.player.querySelector("[data-role=line-count]")
+    if (count) count.textContent = `Line ${index + 1} of ${this.lines.length}`
+  },
+
+  frame() {
+    cancelAnimationFrame(this.raf)
+    if (this.audio.paused) return
+    this.tick()
+    this.raf = requestAnimationFrame(() => this.frame())
+  },
+
+  paint() {
+    const playing = !this.audio.paused && !this.audio.ended
+
+    this.el.querySelectorAll("[data-chant-row]").forEach((row) => {
+      if (row.dataset.chantRow === this.current && playing) row.setAttribute("data-sounding", "")
+      else row.removeAttribute("data-sounding")
+    })
+    this.el.querySelectorAll("[data-play]").forEach((disc) => {
+      const on = disc.dataset.play === this.current && playing
+      disc.setAttribute("aria-pressed", on ? "true" : "false")
+      disc.setAttribute("aria-label", `${on ? "Pause" : "Play"} ${disc.dataset.label}`)
+    })
+
+    const all = this.el.querySelector("[data-play-all]")
+    if (all) {
+      const word = all.querySelector("[data-play-all-word]")
+      const label = !this.queued ? "Play all" : playing ? "Pause" : "Resume"
+      if (word) word.textContent = label
+      all.setAttribute("aria-pressed", this.queued && playing ? "true" : "false")
+    }
+
+    if (this.player) {
+      const play = this.player.querySelector("[data-act=toggle]")
+      if (play) {
+        play.setAttribute("aria-pressed", playing ? "true" : "false")
+        play.setAttribute("aria-label", `${playing ? "Pause" : "Play"} ${play.dataset.label}`)
+      }
+      const repeat = this.player.querySelector("[data-act=repeat]")
+      if (repeat) repeat.setAttribute("aria-pressed", this.repeat ? "true" : "false")
+      const speed = this.player.querySelector("[data-act=speed]")
+      const slow = this.audio.playbackRate < 1
+      if (speed) speed.setAttribute("aria-pressed", slow ? "true" : "false")
+      const label = this.player.querySelector("[data-role=speed-label]")
+      if (label) label.textContent = slow ? "¾×" : "1×"
+      this.el.toggleAttribute("data-playing", playing)
+      if (playing) this.frame()
+    }
+  },
+}
