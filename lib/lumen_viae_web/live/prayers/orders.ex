@@ -35,6 +35,11 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
   # The hour the book's day begins (PrayerBook.dayBeginsAtHour).
   @day_begins 4
 
+  # The hours the book's hour turns (PrayerBook.nextTurn): the day's
+  # order, or the moment it names, gives way at four, eleven, three and
+  # eight o'clock.
+  @turns [@day_begins, 11, 15, 20]
+
   # A browser's offset from UTC, in minutes, as Book.local_date/1 takes it.
   @max_offset 24 * 60
 
@@ -45,10 +50,11 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
 
   @doc """
   Praying an order: `step` counts its prayers from 1, or is `:amen` for
-  its close; the language is carried. The defaults (the first prayer,
-  English) are never written.
+  its close; the language is carried, and so is where the prayer was
+  begun from (`from/2`), for Done and the close. The defaults (the first
+  prayer, English, the order's page) are never written.
   """
-  def pray_path(id, step \\ 1, language \\ "english") do
+  def pray_path(id, step \\ 1, language \\ "english", from \\ nil) do
     query =
       [
         step:
@@ -57,7 +63,8 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
             1 -> nil
             n -> n
           end,
-        lang: if(language != "english", do: language)
+        lang: if(language != "english", do: language),
+        from: from
       ]
       |> Enum.reject(fn {_key, value} -> is_nil(value) end)
 
@@ -65,6 +72,31 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
       [] -> order_path(id) <> "/pray"
       query -> order_path(id) <> "/pray?" <> URI.encode_query(query)
     end
+  end
+
+  @doc """
+  Where a prayer was begun from, as a link's `?from=` names it: `"prayers"`
+  (the Now card) or `"topic:<id>"` (a topic of the book), else nil, the
+  order's own page. Nothing else is taken.
+  """
+  def from(_book, "prayers"), do: "prayers"
+
+  def from(book, "topic:" <> id = from) do
+    if Book.chapter(book, id), do: from
+  end
+
+  def from(_book, _param), do: nil
+
+  @doc """
+  Where Done and the close go back to (the app's `router.pop()`): the
+  page the prayer was begun from, `{path, name}`.
+  """
+  def back(_book, order, nil, title), do: {order_path(order.id), title}
+  def back(_book, _order, "prayers", _title), do: {"/prayers", "Prayers"}
+
+  def back(book, _order, "topic:" <> id, _title) do
+    chapter = Book.chapter(book, id)
+    {Book.chapter_path(id), chapter.title}
   end
 
   ## The visitor's clock
@@ -79,6 +111,23 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
     do: {:ok, NaiveDateTime.utc_now() |> NaiveDateTime.add(-offset * 60, :second)}
 
   def local_now(_offset), do: :error
+
+  @doc """
+  How long from `now` until the book's hour next turns
+  (PrayerBook.nextTurn), in milliseconds: at four, eleven, three or eight
+  o'clock, whichever comes first.
+  """
+  def next_turn_in(%NaiveDateTime{} = now) do
+    today = NaiveDateTime.to_date(now)
+
+    turn =
+      case Enum.find(@turns, &(&1 > now.hour)) do
+        nil -> NaiveDateTime.new!(Date.add(today, 1), Time.new!(hd(@turns), 0, 0))
+        hour -> NaiveDateTime.new!(today, Time.new!(hour, 0, 0))
+      end
+
+    NaiveDateTime.diff(turn, now, :millisecond)
+  end
 
   ## Which orders
 
