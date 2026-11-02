@@ -46,6 +46,7 @@ defmodule LumenViaeWeb.Router do
   # cover every API at once. See docs/JSON_API.md.
   pipeline :json_api do
     plug :put_private_cache_control
+    plug LumenViaeWeb.Plugs.LibraryCache
     plug LumenViaeWeb.JsonApi.QueryParams
     plug LumenViaeWeb.Graphql.PutRequestContext
   end

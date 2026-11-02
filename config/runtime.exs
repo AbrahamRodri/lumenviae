@@ -72,6 +72,19 @@ config :lumen_viae,
 # otherwise. The VM in deploy/vm/ sets x-real-ip, which its Caddy writes.
 config :lumen_viae, :client_ip_header, System.get_env("CLIENT_IP_HEADER", "fly-client-ip")
 
+# Behind Cloudflare's proxy: read CF-Connecting-IP, but only on requests
+# from Cloudflare's published ranges (LumenViaeWeb.ClientIP.Cloudflare).
+# Off unless exactly "true".
+config :lumen_viae, :client_ip_cloudflare, System.get_env("CLIENT_IP_CLOUDFLARE") == "true"
+
+# Lets Cloudflare's edge hold the seven library documents for this many
+# seconds (s-maxage), with an ETag and 304 for clients
+# (LumenViaeWeb.Plugs.LibraryCache). Unset, they stay private, no-store.
+case Integer.parse(System.get_env("LIBRARY_EDGE_CACHE_SECONDS") || "") do
+  {seconds, ""} when seconds > 0 -> config :lumen_viae, :library_edge_cache_seconds, seconds
+  _unset -> :ok
+end
+
 # Who to tell about a security problem, served at
 # /.well-known/security.txt (SecurityTxtController). Unset, that is a 404.
 config :lumen_viae, :security_contact, System.get_env("SECURITY_CONTACT")
