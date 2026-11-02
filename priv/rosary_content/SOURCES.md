@@ -78,24 +78,28 @@ announcement, and every set's other labels.
   the name. The third is "Los tres días de angustia cuando el niño se
   quedó en el templo", from his "esos tres días de angustia cuando el
   niño se quedó en el templo".
-- The Seven Sorrows set: [4] gives no title for the devotion. Its names
-  are built from the homily's own words, "los “siete dolores”" and
-  "los dolores de María": "Siete Dolores" (`name`) and "Los siete
-  dolores de María" (`devotion_title`, for the English "Seven Sorrows of
-  Mary").
-
 4. Pope Francis, morning meditation in the chapel of the Domus Sanctae
    Marthae, 3 April 2020, "La Dolorosa, discípula y madre", on
    [vatican.va](https://www.vatican.va/content/francesco/es/cotidie/2020/documents/papa-francesco-cotidie_20200403_l-addolorata-discepola-emadre.html),
    read on 2 November 2026.
 
-## Fruits: the team's translation
+## The team's translations
+
+### The Seven Sorrows set's names
+
+"Siete Dolores" (`name`) and "Los siete dolores de María"
+(`devotion_title`, for the English "Seven Sorrows of Mary") are the
+team's translation. [4] names the devotion ("los “siete dolores”", "los
+dolores de María") but gives it no title.
+
+### Fruits
 
 No official Church list of the mysteries' fruits was found; the fruits
 are a devotional custom, not a liturgical text. All 27 Spanish fruits
 are the team's own translation of the English fruits, in the usual
 words of Spanish prayer books ("Humildad", "Amor al prójimo", "Dolor de
-los pecados"). They are covered by the app's notice that some words are
+los pecados"; "Fortaleza", the traditional word, for "Moral Courage").
+They are covered by the app's notice that some words are
 translated with AI.
 
 ## Not in this file

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-03T00:10:00Z",
+  "updated_at": "2026-11-03T00:20:00Z",
   "categories": {
     "joyful": {"name": "Gozosos", "devotion_title": "Misterios gozosos"},
     "luminous": {"name": "Luminosos", "devotion_title": "Misterios luminosos"},
@@ -20,7 +20,7 @@
     "luminous_5": {"name": "La Institución de la Eucaristía", "fruit": "Adoración eucarística"},
     "sorrowful_1": {"name": "La Oración de Jesús en el Huerto", "fruit": "Dolor de los pecados"},
     "sorrowful_2": {"name": "La Flagelación del Señor", "fruit": "Pureza"},
-    "sorrowful_3": {"name": "La Coronación de espinas", "fruit": "Valor moral"},
+    "sorrowful_3": {"name": "La Coronación de espinas", "fruit": "Fortaleza"},
     "sorrowful_4": {"name": "Jesús con la Cruz a cuestas camino del Calvario", "fruit": "Paciencia"},
     "sorrowful_5": {"name": "La Crucifixión y Muerte de Nuestro Señor", "fruit": "Perseverancia"},
     "glorious_1": {"name": "La Resurrección del Hijo de Dios", "fruit": "Fe"},

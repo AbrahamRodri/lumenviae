@@ -9,7 +9,8 @@ defmodule LumenViae.Rosary.RosaryContent.SpanishNamesTest do
   # and add the new pair at the end.
   @history [
     {~U[2026-11-03 00:00:00Z], "b0ed7117b22bd8b1"},
-    {~U[2026-11-03 00:10:00Z], "e5625f395a38d398"}
+    {~U[2026-11-03 00:10:00Z], "e5625f395a38d398"},
+    {~U[2026-11-03 00:20:00Z], "8a9be722a4277004"}
   ]
 
   test "the file is dated and versioned as its history last records it" do
