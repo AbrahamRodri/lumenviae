@@ -2329,3 +2329,679 @@ html[data-prayer-images="off"] .prayer-plate {
   }
 }
 /* === end the Prayer Book === */
+
+/* === Hours of Prayer (/hours) ===
+   The Divine Office's pages as the app's Hours of Prayer draws them
+   (DivineOfficeView, OfficeHourView, OfficeCalendarSheet): the hour now
+   under its painting, the eight hours on a strand of light with a bead the
+   colour of each one's time of day, an hour read with its parts beside it,
+   and the month marked by the days' classes. An hour's words are set in
+   the Prayer Book's `book-*` reading classes. Every class here is
+   `hours-*`. */
+@layer components {
+  /* The head: the hour's painting dissolving into the page, the words at
+     its foot over a scrim. */
+  .hours-hero {
+    position: relative;
+    display: flex;
+    min-height: 25rem;
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .hours-hero {
+      min-height: min(60vh, 32rem);
+    }
+  }
+
+  .hours-hero--hour {
+    min-height: 20rem;
+  }
+
+  @media (min-width: 768px) {
+    .hours-hero--hour {
+      min-height: 24rem;
+    }
+  }
+
+  .hours-hero__painting {
+    position: absolute;
+    inset: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 50%, rgba(0, 0, 0, 0.35) 80%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 50%, rgba(0, 0, 0, 0.35) 80%, transparent 100%);
+  }
+
+  /* A veil under the bar's words, as the app lays one under its bar. */
+  .hours-hero__painting::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 7rem;
+    background: linear-gradient(to bottom, rgba(10, 10, 21, 0.6), rgba(10, 10, 21, 0));
+  }
+
+  .hours-hero__painting picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hours-hero__painting img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hours-hero__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    width: 100%;
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 1rem 1rem 0.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .hours-hero__inner {
+      padding: 1.5rem 2rem 0.75rem;
+    }
+  }
+
+  .hours-hero__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .hours-lifted {
+    text-shadow: 0 0 12px rgba(10, 10, 21, 0.9), 0 1px 3px rgba(10, 10, 21, 0.8);
+  }
+
+  .hours-now {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .hours-now::before {
+    content: "";
+    position: absolute;
+    inset: -5rem -100vw -1rem;
+    z-index: -1;
+    background: linear-gradient(to bottom, rgba(10, 10, 21, 0), rgba(10, 10, 21, 0.7) 50%, rgba(10, 10, 21, 0.92));
+  }
+
+  .hours-now--hour {
+    align-items: center;
+    text-align: center;
+  }
+
+  .hours-now__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  /* The disc that marks the hour being prayed now: the theme's gold, held
+     apart from the eight sky colours (LitHourMark). */
+  .hours-lit {
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: var(--color-gilt);
+    box-shadow: 0 0 6px 1px rgba(227, 188, 91, 0.6);
+  }
+
+  .hours-now__title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 1.15;
+    color: var(--color-ink-light);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  }
+
+  @media (min-width: 768px) {
+    .hours-now__title {
+      font-size: 3rem;
+    }
+  }
+
+  .hours-now__label {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1.125rem;
+    color: rgba(246, 241, 228, 0.6);
+  }
+
+  .hours-day-line {
+    margin-top: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  .hours-hour-feast {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1.125rem;
+    line-height: 1.35;
+    color: rgba(246, 241, 228, 0.85);
+  }
+
+  /* The day's feast plate. */
+  .hours-feast {
+    font-family: var(--font-garamond);
+    font-size: 1.375rem;
+    line-height: 1.3;
+    color: rgba(246, 241, 228, 0.92);
+  }
+
+  .hours-class {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .hours-quiet {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* The eight hours: a breviary's three groups, each a strand of light
+     the beads hang on, stopping short of the first and last. */
+  .hours-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 0 0.25rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .hours-group::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(227, 188, 91, 0.2), rgba(227, 188, 91, 0));
+  }
+
+  .hours-strand {
+    position: relative;
+  }
+
+  .hours-strand::before {
+    content: "";
+    position: absolute;
+    top: 1.75rem;
+    bottom: 1.75rem;
+    left: 8.5px;
+    width: 1px;
+    background: rgba(227, 188, 91, 0.14);
+  }
+
+  .hours-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.5rem;
+    padding: 0.625rem 0;
+    border-radius: 0.5rem;
+  }
+
+  .hours-row:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .hours-row__name {
+    display: block;
+    font-family: var(--font-garamond);
+    font-size: 1.25rem;
+    line-height: 1.25;
+    color: rgba(246, 241, 228, 0.92);
+    transition: color 0.18s ease-out;
+  }
+
+  .hours-row:hover .hours-row__name {
+    color: var(--color-gilt-light);
+  }
+
+  .hours-row__label {
+    display: block;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--color-ink-muted);
+  }
+
+  .hours-row__now {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(227, 188, 91, 0.85);
+  }
+
+  /* Each hour's place in the day, said as a colour (the app's skyColor),
+     punching a hole in the strand; ringed and lit for the hour now. */
+  .hours-bead {
+    position: relative;
+    flex: 0 0 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+  }
+
+  .hours-bead::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 9999px;
+    background: var(--bead);
+    box-shadow: 0 0 0 3px var(--color-night);
+  }
+
+  .hours-row[aria-current] .hours-bead::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    border: 1px solid var(--color-gilt-light);
+    box-shadow: 0 0 5px rgba(227, 188, 91, 0.5);
+  }
+
+  .hours-bead--matutinum { --bead: #454568; }
+  .hours-bead--laudes { --bead: #a06b7a; }
+  .hours-bead--prima { --bead: #c99a5e; }
+  .hours-bead--tertia { --bead: #d9b96a; }
+  .hours-bead--sexta { --bead: #e3cf8a; }
+  .hours-bead--nona { --bead: #c98d56; }
+  .hours-bead--vesperae { --bead: #8a6b9e; }
+  .hours-bead--completorium { --bead: #3a3a5e; }
+
+  .hours-credit {
+    font-family: var(--font-garamond);
+    font-size: 0.9375rem;
+    text-align: center;
+    color: var(--color-ink-muted);
+  }
+
+  .hours-credit__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: underline;
+    text-decoration-color: rgba(139, 139, 165, 0.4);
+    text-underline-offset: 3px;
+  }
+
+  .hours-credit__link:hover {
+    color: var(--color-ink-light);
+  }
+
+  /* An hour read: the parts in a rail beside the text on a wide screen,
+     in a jump list above it on a phone. */
+  .hours-reader {
+    margin-top: 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .hours-reader {
+      display: grid;
+      grid-template-columns: 11rem minmax(0, 1fr);
+      gap: 3.5rem;
+      align-items: start;
+      margin-top: 2.5rem;
+    }
+  }
+
+  .hours-jump {
+    margin-bottom: 1.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(227, 188, 91, 0.2);
+  }
+
+  @media (min-width: 1024px) {
+    .hours-jump {
+      display: none;
+    }
+  }
+
+  .hours-jump__summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 1rem;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  .hours-jump__list {
+    padding: 0 1rem 0.5rem;
+    columns: 2;
+    column-gap: 1rem;
+  }
+
+  .hours-jump__link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    color: var(--color-ink-light);
+  }
+
+  .hours-rail {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .hours-rail {
+      display: block;
+      position: sticky;
+      top: 1.5rem;
+      max-height: calc(100vh - 3rem);
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+  }
+
+  .hours-rail__kicker {
+    margin-bottom: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .hours-rail__link {
+    display: flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0.3125rem 0 0.3125rem 0.875rem;
+    border-left: 1px solid rgba(227, 188, 91, 0.14);
+    font-family: var(--font-garamond);
+    font-size: 1rem;
+    line-height: 1.25;
+    color: var(--color-ink-muted);
+    transition: color 0.2s ease-out, border-color 0.2s ease-out;
+  }
+
+  .hours-rail__link:hover {
+    color: var(--color-ink-light);
+  }
+
+  .hours-rail__link[aria-current] {
+    border-left-color: var(--color-gilt);
+    color: var(--color-gilt);
+  }
+
+  .hours-section {
+    scroll-margin-top: 5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .hours-section {
+      scroll-margin-top: 1.5rem;
+    }
+  }
+
+  .hours-section + .hours-section {
+    margin-top: 2.25rem;
+  }
+
+  .hours-section__name {
+    margin-bottom: 0.625rem;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(227, 188, 91, 0.85);
+  }
+
+  .hours-section__note {
+    display: block;
+    margin-bottom: 0.625rem;
+  }
+
+  .hours-text .book-line:not(.book-line--paired) + .book-line {
+    margin-top: 0.3em;
+  }
+
+  /* Two sides that do not pair line for line: two blocks, side by side
+     from 768px. */
+  .hours-blocks {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .hours-blocks {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 3rem;
+    }
+  }
+
+  .hours-text--secondary {
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--color-sky);
+  }
+
+  .hours-colophon {
+    margin-top: 3.5rem;
+    text-align: center;
+  }
+
+  .hours-colophon__explicit {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(227, 188, 91, 0.6);
+  }
+
+  .hours-colophon__ways {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  /* The month: the days by their class. */
+  .hours-month-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 36rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hours-month-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--color-gilt);
+  }
+
+  @media (min-width: 768px) {
+    .hours-month-title {
+      font-size: 1.75rem;
+    }
+  }
+
+  .hours-month-step {
+    flex: 0 0 44px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    color: var(--color-gilt-light);
+  }
+
+  a.hours-month-step {
+    border: 1px solid rgba(227, 188, 91, 0.3);
+  }
+
+  a.hours-month-step:hover {
+    background: var(--color-night-raised);
+  }
+
+  .hours-month {
+    max-width: 36rem;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .hours-month {
+      max-width: none;
+    }
+  }
+
+  .hours-month__week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+  }
+
+  @media (min-width: 768px) {
+    .hours-month__week {
+      gap: 0.375rem;
+    }
+
+    .hours-month__week + .hours-month__week {
+      margin-top: 0.375rem;
+    }
+  }
+
+  .hours-month__weekday {
+    padding-bottom: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+    color: var(--color-ink-muted);
+  }
+
+  .hours-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 2.875rem;
+    padding: 0.375rem 0;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: background-color 0.16s ease-out;
+  }
+
+  .hours-day:hover {
+    background: var(--color-night-raised);
+  }
+
+  .hours-day:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .hours-day[aria-current] {
+    background: rgba(227, 188, 91, 0.09);
+    border-color: rgba(227, 188, 91, 0.55);
+  }
+
+  .hours-day__number {
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    line-height: 1.2;
+    color: var(--color-ink-light);
+  }
+
+  .hours-day[aria-current] .hours-day__number {
+    font-weight: 600;
+    color: var(--color-gilt);
+  }
+
+  /* A feria carries no mark: an unlit dot on every ordinary day is just
+     noise across the month. */
+  .hours-day__mark {
+    width: 4px;
+    height: 4px;
+    border-radius: 9999px;
+    background: var(--color-gilt);
+    opacity: 0;
+  }
+
+  .hours-day__mark--first { width: 5.5px; height: 5.5px; opacity: 0.95; }
+  .hours-day__mark--second { width: 5px; height: 5px; opacity: 0.62; }
+  .hours-day__mark--third { opacity: 0.34; }
+  .hours-day__mark--fourth { opacity: 0.2; }
+
+  .hours-day__title {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .hours-day {
+      align-items: flex-start;
+      min-height: 6.75rem;
+      padding: 0.5rem 0.625rem;
+      border-color: rgba(227, 188, 91, 0.1);
+      background: rgba(21, 21, 33, 0.5);
+    }
+
+    .hours-day__number {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hours-day__title {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-family: var(--font-garamond);
+      font-size: 0.875rem;
+      line-height: 1.25;
+      color: var(--color-ink-muted);
+    }
+  }
+
+  .hours-today-line {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+}
+/* === end Hours of Prayer === */

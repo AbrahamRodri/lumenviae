@@ -10,6 +10,7 @@ import RosaryChoices from "./rosary_choices"
 import SwipeHint from "./swipe_hint"
 import MysterySchedule from "./mystery_schedule"
 import DisplayChoices from "./display_choices"
+import OfficeRail from "./office_rail"
 
 export default {
   UserTimezone,
@@ -23,5 +24,6 @@ export default {
   RosaryChoices,
   SwipeHint,
   MysterySchedule,
-  DisplayChoices
+  DisplayChoices,
+  OfficeRail
 }

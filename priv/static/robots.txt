@@ -19,6 +19,11 @@ Disallow: /api/
 # not already give it, and used to walk far enough to trip the Complete
 # button and leave a Rosary nobody prayed.
 Disallow: /meditation-sets/
+# Hours of Prayer's dated pages. /hours is today's and is welcome; every
+# other day, hour and month is assembled by the Divinum Officium engine on
+# first asking, across six centuries of dates, and a crawler following the
+# calendar's arrows would ask for all of them.
+Disallow: /hours/
 
 # Crawlers that gather text for model training. Nothing here is stopping
 # them by force; they are simply asked, in the terms they publish, not to

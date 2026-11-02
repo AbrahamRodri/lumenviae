@@ -4,8 +4,9 @@ Read this before you touch a public page. It says what the pages are, what
 is in a prayer link, where each setting is kept, how to check your work in
 a browser, and which pages nobody maintains.
 
-The public site is the Rosary and the Prayer Book: the first of the iOS
-app's tabs to come to the website as its desktop version. The console
+The public site is the Rosary, the Prayer Book and Hours of Prayer: the
+iOS app's tabs coming to the website, one at a time, as its desktop
+version. The console
 (`/admin`), the APIs (`/api`) and `/healthz` are not part of it.
 
 ## The pages
@@ -22,15 +23,27 @@ app's tabs to come to the website as its desktop version. The console
 | `/prayers` | `LumenViaeWeb.Live.Prayers.Index` | The Prayer Book, as the app's Prayers tab: the number of prayers, the search (`?q=`), Everyday Prayers, Prayers to Mary (the season's song first) and All Topics under the book's five parts, as shelves of square painted cards (sideways on a phone, wrapping from 640px). |
 | `/prayers/topics/:chapter_id` | `LumenViaeWeb.Live.Prayers.Chapter` | One topic, as the app's topic page: its painting with the title and line over it, its prayers (a small arched painting and the title each) under its sections where it has more than one, the next topic as a painted card and a line back to the one before. |
 | `/prayers/:prayer_id` | `LumenViaeWeb.Live.Prayers.Prayer` | One prayer, as the app opens a prayer alone: its second name as a gold label over the title where the app shows one, English, Latin or Both (`?lang=`), the words, and a link back to its topic. |
+| `/hours` | `LumenViaeWeb.Live.Hours.Index` | Hours of Prayer, the Divine Office as the app's landing opens it, for the visitor's today: the hour now under its painting (NOW and when it lapses) with a gold Pray, the day's feast and class in plain words, the eight hours on a strand in a breviary's three groups, and a link to the month. |
+| `/hours/:date` | `LumenViaeWeb.Live.Hours.Index` | The same for another day (`YYYY-MM-DD`): its date where NOW stands, and a link back to today. |
+| `/hours/:date/:hour` | `LumenViaeWeb.Live.Hours.Hour` | One hour read in full: its painting and name, the day and its feast, Latin, English or Both (`?lang=`), the parts of the hour (a rail beside the text from 1024px, a jump list above it on a phone), the hours either side and the Divinum Officium credit linked to the engine's page for the hour. `:hour` is the Office's slug (`matutinum` to `completorium`). |
+| `/hours/calendar/:year/:month` | `LumenViaeWeb.Live.Hours.Calendar` | The month by the days' classes, a gold mark brighter for the greater feasts; each day links to its hours, and from 768px each cell carries the day's title. |
 
-All ten are in the `:public` live session in `router.ex`. A set that does
-not exist, or is hidden, answers 404, and so do an unknown category, an
-unknown chapter and an unknown prayer.
+All fourteen are in the `:public` live session in `router.ex`. A set that
+does not exist, or is hidden, answers 404, and so do an unknown category,
+an unknown chapter and an unknown prayer, and on the Hours pages a date
+that is not one or that the Office does not serve (1600 to 2200,
+`LumenViae.Office.serves?/1`), an unknown hour and a month that is not
+one.
 
 `priv/static/sitemap.xml` lists `/`, `/mysteries`, the five category pages,
-`/prayers` and every chapter's page, `/app` and `/privacy-policy`. The
+`/prayers` and every chapter's page, `/hours`, `/app` and `/privacy-policy`. The
 prayers themselves are not listed: every one is linked from its chapter,
-and a list of 150 pages would drift from the book. When a chapter is added
+and a list of 150 pages would drift from the book. Nor are the Hours'
+dated pages, and `robots.txt` asks crawlers to stay out of `/hours/`
+(`/hours` itself is welcome): each day, hour and month is assembled by the
+Divinum Officium engine the first time it is asked for, across six
+centuries of dates, and the calendar's arrows would walk a crawler
+through all of them. When a chapter is added
 to `priv/library/prayer_book.json`, add its page; the Prayers tests check
 every chapter is there. The prayer pages are not in it, and `robots.txt`
 asks crawlers to stay out of `/meditation-sets/`. A crawler that walked the
@@ -130,6 +143,46 @@ only the mysteries' paintings, so an asset it lacks hangs the nearest
 mystery (`Book.stand_ins/0`), and a prayer whose scene has neither hangs
 its topic's. Not here yet, as the app has them: the Now card, the order
 shortcuts, For an Occasion, Saved, Learn by Heart and praying aloud.
+
+## Hours of Prayer
+
+The pages follow the iOS app's `DivineOfficeView`, `OfficeHourView` and
+`OfficeCalendarSheet` on main (the Android app's `ui/office` reads them
+line for line). The texts are the Office domain's
+(`LumenViae.Office.fetch_day/2`, `fetch_hour/3` and `fetch_calendar/3`),
+assembled by the Divinum Officium engine on the server and held in the
+Office's cache, the same answers `/api/office` gives the apps; the browser
+never calls the engine. Each page shows at once and fetches what it needs
+after it connects (`start_async`): the landing's hours need nothing, only
+the day's feast travels; an hour or a month that cannot be reached says
+so quietly with a Try again, and every hour and day stays a link.
+
+| Page | Parameter | Values | Default |
+| --- | --- | --- | --- |
+| `/hours/:date/:hour` | `lang` | `latin` or `both` | English |
+
+In Both the Latin leads and the English pairs with it line by line, as
+the Office is printed: side by side from 768px, the English beneath each
+Latin line in quiet italic on a phone; two sides with different numbers
+of lines stand as two blocks. Lines are cleaned as the app cleans them (an
+antiphon's "Ant." said as "Antiphon:", the Latin's server marks as the
+English's, the cross as ✠), and ℣ ℟ ✠ and the rubric notes are red. The
+day's class is said in the app's plain words (Great Feast, Feast, Lesser
+Feast, Weekday) from the engine's Latin rank
+(`LumenViaeWeb.Live.Hours.DayRank`).
+
+"Today" and the hour now are the visitor's (the `UserTimezone` hook, as
+home), the server's until it connects; the hour now is read from fixed
+clock times (Matins from midnight, Lauds from five, Prime from seven,
+Terce from nine, Sext from noon, Nones from two, Vespers from four,
+Compline from seven), as the app reads them.
+
+Left out, as the app has them: the day's English feast name and vestment
+colour, which iOS takes from the Missal (Missale Meum), because this site
+calls no third party (the feast is the Office's own Latin title, and there
+is no colour, until the Missal comes to the site); the text size and the
+"line by line" or "side by side" choice (the width decides); and the
+calendar's offline row.
 
 ## Where each setting lives
 
@@ -252,12 +305,12 @@ tokens and the shared vocabulary are in the "Design tokens" section of
 The smoke test in `scripts/e2e/` drives the real site in Chrome at a phone
 width (390 px) and a desktop width (1280 px). It loads `/`, `/mysteries`,
 `/mysteries/joyful`, `/mysteries/seven_sorrows`, `/privacy-policy`,
-`/app` and the Prayers pages, and checks each one answers 200, has an
+`/app`, the Prayers pages and Hours of Prayer, and checks each one answers 200, has an
 `h1`, logs no console errors and does not scroll sideways. It follows the
 first Pray link on `/mysteries/joyful` and presses ArrowRight, checks every
 App Store link and screenshot on `/app`, searches the Prayer Book and
-chooses Both on a prayer, and checks that the five archived paths redirect
-to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
+chooses Both on a prayer, opens an hour of the Office in Both, and checks
+that the five archived paths redirect to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 gitignored.
 
 It is not part of CI. Run it before you hand in a change to a public page.
