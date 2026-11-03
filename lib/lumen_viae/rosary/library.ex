@@ -300,13 +300,31 @@ defmodule LumenViae.Rosary.Library do
   lists.
   """
   @spec served(document, String.t()) :: [struct] | struct | [String.t()] | String.t()
+  def served(:chant_library, section) do
+    case moved_chants() do
+      nil -> @served |> Map.fetch!(:chant_library) |> Map.fetch!(section)
+      moved -> moved |> Map.fetch!(:served) |> Map.fetch!(section)
+    end
+  end
+
   def served(document, section), do: @served |> Map.fetch!(document) |> Map.fetch!(section)
 
   @doc """
   A document's `version` (a fingerprint of every section: it changes when,
   and only when, the content does) and `updated_at` (when it last changed).
+  The Chant Library's version is of the URLs as served, so moving its files
+  (`chant_asset_base/0`) gives it a new one and the apps fetch the new copy.
   """
   @spec stamp(document) :: %{version: String.t(), updated_at: DateTime.t()}
+  def stamp(:chant_library) do
+    stamp = @documents |> Map.fetch!(:chant_library) |> Map.take([:version, :updated_at])
+
+    case moved_chants() do
+      nil -> stamp
+      moved -> %{stamp | version: moved.version}
+    end
+  end
+
   def stamp(document), do: @documents |> Map.fetch!(document) |> Map.take([:version, :updated_at])
 
   @doc """
@@ -326,6 +344,72 @@ defmodule LumenViae.Rosary.Library do
   """
   @spec asset_base() :: String.t()
   def asset_base, do: @asset_base
+
+  @doc """
+  Where the chant files are served from: the `:chant_asset_base_url`
+  setting (`CHANT_ASSET_BASE_URL`) when it is set, otherwise
+  `asset_base/0`, the base the file's URLs name. Every chant URL is served
+  with the file's base swapped for this one, so the files can move (to
+  another bucket, or behind a CDN) by a setting rather than an edit of the
+  file. A trailing slash is ignored.
+  """
+  @spec chant_asset_base() :: String.t()
+  def chant_asset_base do
+    case Application.get_env(:lumen_viae, :chant_asset_base_url) do
+      base when is_binary(base) and base != "" -> String.trim_trailing(base, "/")
+      _ -> @asset_base
+    end
+  end
+
+  # The Chant Library on chant_asset_base/0, cast and fingerprinted once per
+  # base and kept, so a request only hands it over; nil while the base is
+  # the file's own, so the file's document is served untouched.
+  defp moved_chants do
+    case chant_asset_base() do
+      @asset_base ->
+        nil
+
+      base ->
+        key = {__MODULE__, :moved_chants, base}
+
+        case :persistent_term.get(key, nil) do
+          nil ->
+            moved = move_chants(base)
+            :persistent_term.put(key, moved)
+            moved
+
+          moved ->
+            moved
+        end
+    end
+  end
+
+  defp move_chants(base) do
+    sections =
+      rebase(@documents.chant_library.sections, @asset_base <> "/chants/", base <> "/chants/")
+
+    served =
+      Map.new(sections, fn {name, items} ->
+        {:ok, cast} = Section.cast(:chant_library, name, items)
+        {name, cast}
+      end)
+
+    %{served: served, version: Content.version(sections)}
+  end
+
+  defp rebase(map, from, to) when is_map(map),
+    do: Map.new(map, fn {key, value} -> {key, rebase(value, from, to)} end)
+
+  defp rebase(list, from, to) when is_list(list), do: Enum.map(list, &rebase(&1, from, to))
+
+  defp rebase(string, from, to) when is_binary(string) do
+    case string do
+      ^from <> rest -> to <> rest
+      _ -> string
+    end
+  end
+
+  defp rebase(value, _from, _to), do: value
 
   @doc """
   The problems with a document's sections cast as they will be served,
