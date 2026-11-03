@@ -6,15 +6,15 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
   Two sources, one each per prayer:
 
   - `priv/library/es/prayer_book.json`, keyed by prayer id, each a Spanish
-    `title` and `text` in the book's `PrayerText` grammar, copied from an
-    official Church source (`priv/library/es/SOURCES.md` says which, and
-    every change made);
+    `title` and `text` in the book's `PrayerText` grammar: copied from a
+    Church source or a good unofficial version, or else the team's own
+    translation, marked `ai_translated` (`priv/library/es/SOURCES.md`
+    says which, and every change made);
   - the Rosary's prayers the book also prints, whose Spanish is
     `LumenViae.Rosary.Content.prayers("es")`'s, so the two documents never
     disagree. The file may not hold those ids.
 
-  A prayer in neither keeps its English: it has no translation. A text
-  that is partly the team's own translation is marked `ai_translated`.
+  A prayer in neither keeps its English: it has no translation.
   Nothing here is narrated: the spoken Prayer Book says the English.
 
   The file is dated and pinned in

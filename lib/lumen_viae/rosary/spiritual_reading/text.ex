@@ -20,7 +20,8 @@ defmodule LumenViae.Rosary.SpiritualReading.Text do
   ends. A caller that goes away (a tab closed, a page that stops waiting)
   takes nothing with it: the download goes on and the book is stored for
   the next visitor. The whole download has a deadline (`@deadline_ms`),
-  past which the task is stopped and the book counts as unreachable.
+  past which the task is stopped and the book counts as unreachable,
+  unless it was stored a moment before, when the callers get it.
 
   A failure is remembered, so Gutenberg is not asked again by every
   visitor: unreachable for a minute (it may come back soon), unreadable
@@ -356,11 +357,21 @@ defmodule LumenViae.Rosary.SpiritualReading.Text do
     }
   end
 
+  # The task may have stored the book a moment before its deadline (or
+  # before it died): then the callers get it, and no failure is written
+  # over it.
   defp fail(state, ref) do
     key = state.tasks[ref]
-    %{info: info} = state.loading[key]
-    remember_failure(info.id, fingerprint(info), :unreachable)
-    finish(state, ref, {:error, :unreachable})
+
+    case lookup(key) do
+      {:ok, _contents} ->
+        finish(state, ref, :ok)
+
+      _missing ->
+        %{info: info} = state.loading[key]
+        remember_failure(info.id, fingerprint(info), :unreachable)
+        finish(state, ref, {:error, :unreachable})
+    end
   end
 
   defp finish(state, ref, result) do

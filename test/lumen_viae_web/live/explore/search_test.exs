@@ -9,6 +9,7 @@ defmodule LumenViaeWeb.Live.Explore.SearchTest do
   alias LumenViaeWeb.Live.Chants.Library
   alias LumenViaeWeb.Live.Explore.Search
   alias LumenViaeWeb.Live.Prayers.Book
+  alias LumenViaeWeb.Live.SpiritualReading.Shelf
 
   @date ~D[2026-11-02]
 
@@ -23,7 +24,7 @@ defmodule LumenViaeWeb.Live.Explore.SearchTest do
         prayer_names: Library.prayer_names(book),
         mysteries: [],
         sets: [],
-        pages: Search.pages(@date)
+        pages: Search.pages(@date, Shelf.books(nil))
       }
     }
   end
@@ -61,6 +62,40 @@ defmodule LumenViaeWeb.Live.Explore.SearchTest do
 
       assert results.best == nil
       assert [%{kind: :pages, hits: [{:page, %{id: "office"}}]}] = results.sections
+    end
+
+    test "the Missal is a door, found by its words", %{sources: sources} do
+      results = Search.results("missal", sources, @date)
+
+      assert results.best == nil
+
+      assert [%{kind: :pages, hits: [{:page, %{id: "missal", path: "/missal"}}]}] =
+               results.sections
+
+      assert {:page, %{id: "missal"}} = Search.results("today's mass", sources, @date).best
+    end
+
+    test "a book of the shelf is a door after the shelf's, by its author or its title",
+         %{sources: sources} do
+      results = Search.results("Kempis", sources, @date)
+
+      assert [%{kind: :pages, hits: hits}] = results.sections
+
+      assert Enum.map(hits, &Search.id/1) == [
+               "page:spiritualReading",
+               "page:book:imitation-of-christ"
+             ]
+
+      assert {:page,
+              %{path: "/spiritual-reading/story-of-a-soul", note: "St. Thérèse of Lisieux"}} =
+               Search.results("story of a soul", sources, @date).best
+
+      # Accents aside, as every word is folded
+      assert {:page, %{id: "book:story-of-a-soul"}} =
+               Search.results("therese", sources, @date).sections
+               |> hd()
+               |> Map.fetch!(:hits)
+               |> Enum.find(&match?({:page, %{id: "book:" <> _}}, &1))
     end
 
     test "the best match leaves its own section, and its chip stands first", %{sources: sources} do

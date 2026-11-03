@@ -60,7 +60,13 @@
   <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-8 md:pt-12">
     <.results :if={@query != ""} results={@results} book={@book} />
 
-    <.browse :if={@query == ""} orders={@occasions} chant_count={@chant_count} date={@date} />
+    <.browse
+      :if={@query == ""}
+      orders={@occasions}
+      chant_count={@chant_count}
+      books={@books}
+      date={@date}
+    />
 
     <p class="chant-error chant-error--list" data-role="error" role="status" hidden>
       A recording could not be played. Check the connection and try again.

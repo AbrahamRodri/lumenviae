@@ -4,15 +4,16 @@ defmodule LumenViaeWeb.Live.Explore.Index.Browse do
   before a word is typed: the five devotions, each with its painting in a
   small lancet arch and what it is about; Prayers, the Prayer Book's
   orders kept for an occasion as a shelf of paintings, with All prayers;
-  Chant, the library's ways in as painted tiles, with Chant Library; Hours
-  of Prayer; and Spiritual Reading, the books, each cover opening its
-  book. Nothing on it turns with the hour or the day.
+  Chant, the library's ways in as painted tiles, with Chant Library; Mass
+  & Hours, the Daily Missal and Hours of Prayer as two tiles; and
+  Spiritual Reading, with All books: True Devotion's cover, then the
+  shelf's books in their own cloth, each opening its book, the marker
+  ribbon on those this browser is reading (the `SpiritualReadingPlace`
+  hook, as on the shelf). Nothing on it turns with the hour or the day.
 
-  What the website does not have is left out: the Mass (the Daily Missal),
-  the Spiritual Reading shelf's other books, and the app's Learn More,
-  whose guides are archived on iOS too. The app's shelves give way to what
-  the reader prayed and sang lately; the website keeps nothing of that, so
-  they hold their defaults.
+  The app's Learn More is left out, as its guides are archived on iOS
+  too. The app's shelves give way to what the reader prayed and sang
+  lately; the website keeps nothing of that, so they hold their defaults.
   """
   use LumenViaeWeb, :html
 
@@ -20,8 +21,10 @@ defmodule LumenViaeWeb.Live.Explore.Index.Browse do
   alias LumenViaeWeb.Components.MysteryPainting
   alias LumenViaeWeb.Live.Chants.Library
   alias LumenViaeWeb.Live.Prayers.Orders
+  alias LumenViaeWeb.Live.SpiritualReading.Shelf
 
   import LumenViaeWeb.Live.Prayers.Painting
+  import LumenViaeWeb.Live.SpiritualReading.Cover
 
   # The occasion orders, most needed first (ExploreShelves.prayerDefaults).
   @occasion_ids ~w(before_mass before_confession after_mass after_confession visit table holy_souls trouble)
@@ -33,6 +36,7 @@ defmodule LumenViaeWeb.Live.Explore.Index.Browse do
 
   attr :orders, :list, required: true
   attr :chant_count, :integer, required: true
+  attr :books, :list, required: true, doc: "the Spiritual Reading shelf's (`Shelf.books/1`)"
   attr :date, Date, required: true
 
   def browse(assigns) do
@@ -129,40 +133,74 @@ defmodule LumenViaeWeb.Live.Explore.Index.Browse do
         </ul>
       </section>
 
-      <div class="explore-browse__pair">
-        <section aria-labelledby="explore-browse-hours">
-          <.shelf_head id="explore-browse-hours" title="Hours of Prayer" />
-          <ul class="explore-tiles explore-tiles--one">
-            <li>
-              <.tile
-                title="Hours of Prayer"
-                note="Divine Office"
-                href="/hours"
-                painting={{"hour_morning", 0.5, 0.35}}
-              />
-            </li>
-          </ul>
-        </section>
+      <section
+        aria-labelledby="explore-browse-liturgy"
+        class="explore-browse__wide explore-browse__liturgy"
+      >
+        <.shelf_head id="explore-browse-liturgy" title="Mass & Hours" />
+        <ul class="explore-tiles">
+          <li>
+            <.tile
+              title="The Mass"
+              note="Daily Missal"
+              href="/missal"
+              painting={{"luminous_eucharist", 0.5, 0.35}}
+            />
+          </li>
+          <li>
+            <.tile
+              title="Hours of Prayer"
+              note="Divine Office"
+              href="/hours"
+              painting={{"hour_morning", 0.5, 0.35}}
+            />
+          </li>
+        </ul>
+      </section>
 
-        <section aria-labelledby="explore-browse-reading">
-          <.shelf_head id="explore-browse-reading" title="Spiritual Reading" />
-          <.link
-            navigate="/true-devotion"
-            class="explore-book"
-            aria-label="True Devotion to Mary, St. Louis de Montfort"
-            data-role="book"
-          >
-            <span class="td-cover explore-book__cover" aria-hidden="true">
-              <span class="td-cover__frame"></span>
-              <span class="td-cover__gilt"></span>
-              <span class="td-cover__title">True Devotion to Mary</span>
-              <span class="td-cover__lozenge"></span>
-              <span class="td-cover__author">St. Louis de Montfort</span>
-              <span class="td-cover__gilt"></span>
-            </span>
-          </.link>
-        </section>
-      </div>
+      <section
+        id="explore-browse-reading-shelf"
+        aria-labelledby="explore-browse-reading"
+        class="explore-browse__wide explore-browse__reading"
+        phx-hook="SpiritualReadingPlace"
+        data-page="shelf"
+      >
+        <.shelf_head
+          id="explore-browse-reading"
+          title="Spiritual Reading"
+          link={{"All books", Shelf.path()}}
+        />
+        <ul class="explore-reading">
+          <li>
+            <.link
+              navigate="/true-devotion"
+              class="explore-book"
+              aria-label="True Devotion to Mary, St. Louis de Montfort"
+              data-role="book"
+            >
+              <span class="td-cover sr-cover" aria-hidden="true">
+                <span class="td-cover__frame"></span>
+                <span class="td-cover__gilt"></span>
+                <span class="td-cover__title">True Devotion to Mary</span>
+                <span class="td-cover__lozenge"></span>
+                <span class="td-cover__author">St. Louis de Montfort</span>
+                <span class="td-cover__gilt"></span>
+              </span>
+            </.link>
+          </li>
+          <li :for={book <- @books}>
+            <.link
+              navigate={Shelf.book_path(book.id)}
+              class="explore-book"
+              aria-label={"#{book.title}, #{book.author}"}
+              data-role="book"
+              data-book={book.id}
+            >
+              <.cover book={book} />
+            </.link>
+          </li>
+        </ul>
+      </section>
     </div>
     """
   end
