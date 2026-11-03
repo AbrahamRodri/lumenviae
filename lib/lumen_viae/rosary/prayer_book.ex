@@ -133,7 +133,7 @@ defmodule LumenViae.Rosary.PrayerBook do
       public? true
       constraints nil_items?: false
 
-      description "With `lang=es`, every prayer the book prints that has a Spanish text, by id, in book order: its title and words in Spanish, from official Church sources. A prayer not listed has no Spanish yet; show its English. Empty in English."
+      description "With `lang=es`, every prayer the book prints, by id, in book order: its title and words in Spanish, from Church sources where they exist. `ai_translated` marks the team's own translation. A prayer not listed has no Spanish; show its English. Empty in English."
     end
 
     calculate :marian_antiphons,
