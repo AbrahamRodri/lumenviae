@@ -250,6 +250,13 @@ defmodule LumenViaeWeb.Live.Chants.Library do
   @doc "A chant's page."
   def chant_path(id), do: "/chant/#{id}"
 
+  @doc """
+  Where the site serves a page of a chant's score, by the bucket's own
+  file name: the bucket sends no CORS headers, so the full score's hook
+  reads it from the site (`LumenViaeWeb.ChantScoreController`).
+  """
+  def score_page_path(%{url: url}), do: "/chant/scores/" <> Rosary.chant_score_page_name(url)
+
   @doc "A section's shelf, or the Mass of the Angels'."
   def section_path(id), do: "/chant/sections/#{id}"
 

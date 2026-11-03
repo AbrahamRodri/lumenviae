@@ -279,6 +279,14 @@ defmodule LumenViaeWeb.Router do
     get "/.well-known/security.txt", SecurityTxtController, :show
   end
 
+  # A page of a chant's sheet music for the full score on a chant's page:
+  # the bucket's file, fetched by the server because the bucket sends no
+  # CORS headers. Bytes, not a page: no pipeline, no session. See
+  # ChantScoreController.
+  scope "/", LumenViaeWeb do
+    get "/chant/scores/:file", ChantScoreController, :show
+  end
+
   # Liveness and the database, for whatever watches the app. Off the
   # browser pipeline (no session, no canonical-host redirect, which a check
   # against a machine's own address would trip) and out of the request log,

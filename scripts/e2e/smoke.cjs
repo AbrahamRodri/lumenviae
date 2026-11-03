@@ -593,7 +593,7 @@ async function checkChant(browser, vp) {
 
   await page.goto(BASE_URL + "/chant/salve_regina_simple");
   await settle(page);
-  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root], #live-debugger { display: none !important; }" });
   const src = await page.locator("audio#chant-audio").getAttribute("src");
   check(/^https:\/\/s3\.us-east-2\.amazonaws\.com\/lumenviae-images\/chants\/audio\//.test(src || ""), `${label}: the page carries the recording`, src);
   check((await page.locator("[data-role=line]").count()) > 1, `${label}: the page lists the lines`);
@@ -609,6 +609,36 @@ async function checkChant(browser, vp) {
   check(english, `${label}: the Words ride in the link`, page.url());
   await noHorizontalScroll(page, `${label} (playing)`);
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+
+  // The full score: The Sheet Music opens it over the page in the link,
+  // every page drawn from the site's copy of the bucket's file, a
+  // double-click and the + button bring it closer within its own frame,
+  // and Escape goes back to the page.
+  await page.locator("[data-role=score-open]").click();
+  const opened = await eventually(() => new URL(page.url()).searchParams.get("score") === "full");
+  check(opened, `${label}: the full score rides in the link`, page.url());
+  check(await page.getByRole("dialog", { name: /salve regina/i }).isVisible(), `${label}: the full score opens over the page`);
+  const parts = await page.locator("[data-role=score-drawing]").count();
+  const drawn = await eventually(
+    async () => (await page.locator("[data-role=score-drawing][data-drawn=drawn] svg path").count()) > 100 &&
+      (await page.locator("[data-role=score-drawing][data-drawn=drawn]").count()) === parts,
+    20000,
+  );
+  check(parts >= 1 && drawn, `${label}: every page of the score is drawn`, `${parts} pages`);
+  const glass = page.locator("[data-role=score-glass]");
+  const width = () => page.locator(".chant-score__sheet").evaluate((el) => el.getBoundingClientRect().width);
+  const before = await width();
+  await glass.dblclick({ position: { x: 60, y: 60 } });
+  const doubled = await eventually(async () => Math.abs((await width()) - 2 * before) < 2);
+  check(doubled, `${label}: a double-click brings the score to twice the width`, `${before} -> ${await width()}`);
+  await page.getByRole("button", { name: "Zoom in" }).click();
+  check((await width()) > 2.5 * before, `${label}: Zoom in brings it closer still`);
+  check(await glass.evaluate((g) => g.scrollWidth > g.clientWidth), `${label}: the zoomed score scrolls in its own frame`);
+  await noHorizontalScroll(page, `${label} (full score zoomed)`);
+  await page.keyboard.press("Escape");
+  const closed = await eventually(async () => (await page.locator("[data-role=score]").count()) === 0 && !new URL(page.url()).searchParams.has("score"));
+  check(closed, `${label}: Escape closes the full score back to the page`, page.url());
+  check(errors.length === 0, `${label}: no console errors on the full score`, errors.join(" | "));
 
   // Sets of Chants lists the six; a set's Play all sings its first chant
   // and lights its row.
