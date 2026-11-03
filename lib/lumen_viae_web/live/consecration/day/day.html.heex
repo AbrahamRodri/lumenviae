@@ -1,0 +1,47 @@
+<div
+  id="consecration-day"
+  class={["cons-page", @step && "pray-along cons-flow"]}
+  phx-hook="ConsecrationPlan"
+  data-layout={@step && "focused"}
+>
+  <Layouts.flash_group flash={@flash} variant={:public} />
+  <.ground phase={@phase} />
+
+  <.overview
+    :if={!@step}
+    doc={@doc}
+    number={@number}
+    day={@day}
+    phase={@phase}
+    prayers={@prayers}
+    readings={@readings}
+    language={@language}
+    plan={@plan}
+    done={@done}
+    today={@today}
+    today_day={@today_day}
+    today?={@today?}
+    done?={@done?}
+    feast={@feast}
+    until_feast={@until_feast}
+    shown_phase={@shown_phase}
+  />
+
+  <.flow
+    :if={@step}
+    number={@number}
+    day={@day}
+    phase={@phase}
+    steps={@steps}
+    step={@step}
+    entry={@entry}
+    count={@count}
+    previous={@previous}
+    next={@next}
+    language={@language}
+    shown_language={@shown_language}
+    stanzas={@stanzas}
+    chant={@chant}
+    today_day={@today_day}
+  />
+</div>
