@@ -516,6 +516,35 @@ async function checkMissal(browser, vp) {
   const feast = outcome === "text" ? (await page.locator("[data-role=feast]").innerText()).trim() : "";
   console.log(`        today's Mass: ${outcome === "text" ? `text from Missale Meum (${feast})` : outcome || "neither"}`);
 
+  // With the Ordinary: the Whole Mass by default, as the app reads it;
+  // Today's texts only takes the Ordinary out and is remembered by this
+  // browser; Sung adds the incense. The Order of Mass is fetched beside
+  // the day and may not answer either, so the Ordinary's parts are
+  // checked only when they came.
+  const pressed = (value) => page.locator(`[data-role=contents] [data-contents=${value}][aria-pressed=true]`);
+  check((await pressed("whole").count()) === 1, `${label}: Whole Mass is the default`);
+  check((await page.locator("[data-role=sung] [data-sung=false][aria-pressed=true]").count()) === 1, `${label}: the Mass is spoken by default`);
+  const kyrie = page.locator("[data-rail-link]", { hasText: "Lord, Have Mercy" });
+  const woven = outcome === "text" && (await eventually(async () => (await kyrie.count()) > 0, 10000));
+  console.log(`        with the Ordinary: ${woven ? "woven in" : "not shown (no text or no Order of Mass)"}`);
+  await page.locator("[data-role=contents] [data-contents=propers]").click();
+  check(await eventually(async () => (await pressed("propers").count()) === 1), `${label}: Today's texts only is chosen`);
+  check((await page.locator("[data-role=sung]").count()) === 0, `${label}: Spoken or Sung only with the Whole Mass`);
+  if (woven) check(await eventually(async () => (await kyrie.count()) === 0), `${label}: Today's texts only leaves the Ordinary out`);
+  await page.reload();
+  await settle(page);
+  check(await eventually(async () => (await pressed("propers").count()) === 1), `${label}: the choice is remembered by this browser`);
+  await page.locator("[data-role=contents] [data-contents=whole]").click();
+  check(await eventually(async () => (await pressed("whole").count()) === 1), `${label}: Whole Mass again`);
+  await page.locator("[data-role=sung] [data-sung=true]").click();
+  check(await eventually(async () => (await page.locator("[data-role=sung] [data-sung=true][aria-pressed=true]").count()) === 1), `${label}: Sung is chosen`);
+  if (woven) {
+    const incense = page.locator("[data-rail-link]", { hasText: "Incensing" });
+    check(await eventually(async () => (await incense.count()) === 1, 10000), `${label}: a sung Mass adds the incense`);
+  }
+  await noHorizontalScroll(page, `${label} (with the Ordinary)`);
+  await page.locator("[data-role=sung] [data-sung=false]").click();
+
   await page.getByRole("navigation", { name: "Language" }).getByRole("link", { name: "Both" }).click();
   check(
     await eventually(() => new URL(page.url()).searchParams.get("lang") === "both"),

@@ -32,7 +32,11 @@
           {Days.remembered(@mass)}
         </p>
       </div>
-      <p :if={@state == :loading} class="hours-quiet" data-role="mass-loading">
+      <p
+        :if={@state == :loading or ordo_waiting?(assigns)}
+        class="hours-quiet"
+        data-role="mass-loading"
+      >
         Finding the day's Mass…
       </p>
       <p :if={@state == :ready and @masses == []} class="hours-quiet" data-role="mass-none">
@@ -101,17 +105,68 @@
     "mx-auto px-4 sm:px-8",
     if(@language == "both", do: "max-w-6xl", else: "max-w-5xl")
   ]}>
-    <nav class="prayers-language hours-language mt-6" aria-label="Language" data-role="language">
-      <.link
-        :for={{value, label} <- @languages}
-        patch={page_path(@date, @fixed_date?, value, @mass_number)}
-        replace
-        class="prayers-language__option"
-        aria-current={if(value == @language, do: "true")}
+    <div
+      id="missal-reading"
+      class="missal-choices mt-6"
+      phx-hook="MissalReading"
+      data-contents={if(@whole?, do: "whole", else: "propers")}
+      data-sung={to_string(@sung?)}
+    >
+      <nav class="prayers-language hours-language" aria-label="Language" data-role="language">
+        <.link
+          :for={{value, label} <- @languages}
+          patch={page_path(@date, @fixed_date?, value, @mass_number)}
+          replace
+          class="prayers-language__option"
+          aria-current={if(value == @language, do: "true")}
+        >
+          {label}
+        </.link>
+      </nav>
+
+      <div
+        class="prayers-language missal-choice"
+        role="group"
+        aria-label="Contents"
+        data-role="contents"
       >
-        {label}
-      </.link>
-    </nav>
+        <button
+          :for={{value, label} <- [{"propers", "Today's texts only"}, {"whole", "Whole Mass"}]}
+          type="button"
+          phx-click="set_contents"
+          phx-value-contents={value}
+          class="prayers-language__option"
+          aria-pressed={to_string(@whole? == (value == "whole"))}
+          data-contents={value}
+        >
+          {label}
+        </button>
+      </div>
+
+      <div
+        :if={@whole?}
+        class="prayers-language missal-choice missal-choice--short"
+        role="group"
+        aria-label="Sung Mass"
+        aria-describedby="missal-sung-detail"
+        data-role="sung"
+      >
+        <button
+          :for={{value, label} <- [{"false", "Spoken"}, {"true", "Sung"}]}
+          type="button"
+          phx-click="set_sung"
+          phx-value-sung={value}
+          class="prayers-language__option"
+          aria-pressed={to_string(to_string(@sung?) == value)}
+          data-sung={value}
+        >
+          {label}
+        </button>
+      </div>
+    </div>
+    <p :if={@whole?} id="missal-sung-detail" class="missal-choices__note" data-role="sung-detail">
+      Sung: adds the sprinkling with holy water and the incense; the prayers after Mass belong to the spoken Mass.
+    </p>
 
     <details
       :if={is_list(@masses) and length(@masses) > 1}

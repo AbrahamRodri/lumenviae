@@ -17,6 +17,7 @@ import TrueDevotionPlace from "./true_devotion_place"
 import SpiritualReadingPlace from "./spiritual_reading_place"
 import BookPlayer from "./book_player"
 import ConsecrationPlan from "./consecration_plan"
+import MissalReading from "./missal_reading"
 
 export default {
   UserTimezone,
@@ -37,5 +38,6 @@ export default {
   TrueDevotionPlace,
   SpiritualReadingPlace,
   BookPlayer,
-  ConsecrationPlan
+  ConsecrationPlan,
+  MissalReading
 }

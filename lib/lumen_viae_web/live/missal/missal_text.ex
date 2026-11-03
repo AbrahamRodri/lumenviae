@@ -96,10 +96,30 @@ defmodule LumenViaeWeb.Live.Missal.MissalText do
   parts opens on the gilt versal, as a printed missal's Introit does.
   """
   def day_sections(sections, language) do
+    sections
+    |> Enum.with_index()
+    |> Enum.map(fn {section, index} -> {:proper, index, section} end)
+    |> mass_sections(language)
+  end
+
+  @doc """
+  The day's Mass as `LumenViaeWeb.Live.Missal.Ordinary.weave/4` lays it
+  out, in the same shape: a part of the Ordinary named plainly with its
+  Latin name beside it, its posture and no diamond, set one with the
+  day's own. The versal still opens the first of the day's own parts
+  (the Introit), never the prayers before it.
+  """
+  def mass_sections(entries, language) do
     sections =
-      sections
+      entries
       |> Enum.with_index()
-      |> Enum.map(fn {section, index} -> day_section(section, index, language) end)
+      |> Enum.map(fn
+        {{:proper, index, section}, _position} ->
+          day_section(section, index, language)
+
+        {{:ordinary, part}, position} ->
+          ordinary_section(part, position, language)
+      end)
 
     case Enum.find_index(sections, & &1.proper?) do
       nil -> sections
@@ -124,6 +144,18 @@ defmodule LumenViaeWeb.Live.Missal.MissalText do
         passages: Enum.map(section.body, &passage(&1, language))
       }
     end)
+  end
+
+  defp ordinary_section(part, position, language) do
+    %{
+      id: "missal-ordo-#{position}-#{slug(part.name)}",
+      name: part.name,
+      latin: if(String.downcase(part.latin) != String.downcase(part.name), do: part.latin),
+      rail_name: part.name,
+      proper?: false,
+      posture: @postures[part.posture],
+      passages: Enum.map(part.body, &passage(&1, language))
+    }
   end
 
   defp day_section(section, index, language) do
