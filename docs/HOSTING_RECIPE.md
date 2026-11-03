@@ -48,7 +48,11 @@ that from showing as errors:
   answer once the new app listens (`Caddyfile`). A POST is not held: when
   Caddy resends one, the app gets it with the body missing, even with
   `request_buffers`. So a POST in those seconds still gets 502, and the
-  app never sees half a request. An app should retry a failed POST.
+  app never sees half a request. Neither phone app retries a failed
+  completion, so a Rosary finished during a deploy goes unrecorded. Closing
+  that would mean starting the new app before stopping the old one, about
+  340 MB more for a few seconds on a Droplet that already uses swap; not
+  done, given a few Rosaries a day.
 - **Caddy itself is not restarted.** The deploy runs `docker compose up`
   without `--build` and then `caddy reload`, which loads a changed
   Caddyfile without dropping a connection. With `--build`, Compose 2.40
