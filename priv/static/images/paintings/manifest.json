@@ -1,5 +1,5 @@
 {
-  "_about": "The iOS app's paintings for the mysteries, the Seven Sorrows' card and the Prayer Book's pages, as static WebP for the website (from ios app/Assets.xcassets; credits from ios Tools/ContentSourcing/manifest.json). An uploaded painting on the mystery or card wins over these. See docs/MYSTERY_PAINTINGS.md. Each painting also has a JPEG `<name>-preview.jpg` (at most 800 pixels wide) for link previews, which not every crawler reads as WebP.",
+  "_about": "The iOS app's paintings for the mysteries, the Seven Sorrows' card, the Prayer Book's pages and the Chant Library's sections and chants, as static WebP for the website (from ios app/Assets.xcassets; credits from ios Tools/ContentSourcing/manifest.json). An uploaded painting on the mystery or card wins over these. See docs/MYSTERY_PAINTINGS.md. Each painting also has a JPEG `<name>-preview.jpg` (at most 800 pixels wide) for link previews, which not every crawler reads as WebP.",
   "mysteries": {
     "joyful_1": "joyful_annunciation",
     "joyful_2": "joyful_visitation",
@@ -2450,6 +2450,121 @@
       "preview": [
         736,
         1600
+      ]
+    },
+    {
+      "name": "advent_isaiah",
+      "title": "The Prophet Isaiah (Sistine Chapel ceiling)",
+      "artist": "Michelangelo",
+      "date": "1508–12",
+      "collection": "Sistine Chapel, Vatican",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Michelangelo_Buonarroti_028.jpg",
+      "widths": [
+        [
+          480,
+          661
+        ],
+        [
+          960,
+          1322
+        ]
+      ],
+      "preview": [
+        800,
+        1102
+      ]
+    },
+    {
+      "name": "christmas_shepherds",
+      "title": "The Adoration of the Shepherds",
+      "artist": "Gerard van Honthorst",
+      "date": "1622",
+      "collection": "Wallraf-Richartz-Museum, Cologne",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Adoration_of_the_shepherds,_by_Gerard_van_Honthorst.jpg",
+      "widths": [
+        [
+          480,
+          364
+        ],
+        [
+          960,
+          728
+        ]
+      ],
+      "preview": [
+        800,
+        607
+      ]
+    },
+    {
+      "name": "easter_holy_women",
+      "title": "The Holy Women at the Tomb",
+      "artist": "William-Adolphe Bouguereau",
+      "date": "1890",
+      "collection": "Royal Museum of Fine Arts, Antwerp",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:William-Adolphe_Bouguereau_(1825-1905)_-_Le_saintes_femmes_au_tombeau_(1890)_img_2.jpg",
+      "widths": [
+        [
+          480,
+          777
+        ],
+        [
+          960,
+          1555
+        ]
+      ],
+      "preview": [
+        800,
+        1296
+      ]
+    },
+    {
+      "name": "easter_noli_me_tangere",
+      "title": "Noli Me Tangere",
+      "artist": "Correggio",
+      "date": "c. 1525",
+      "collection": "Museo del Prado, Madrid",
+      "licence": "Public domain",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Correggio_Noli_Me_Tangere.jpg",
+      "widths": [
+        [
+          480,
+          614
+        ],
+        [
+          960,
+          1229
+        ]
+      ],
+      "preview": [
+        800,
+        1024
+      ]
+    },
+    {
+      "name": "season_lent",
+      "title": "Christ in the Wilderness",
+      "artist": "Moretto da Brescia",
+      "date": "c. 1515–20",
+      "collection": "The Metropolitan Museum of Art, New York",
+      "licence": "CC0",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Christ_in_the_Wilderness_MET_DT200983.jpg",
+      "widths": [
+        [
+          480,
+          398
+        ],
+        [
+          960,
+          797
+        ]
+      ],
+      "preview": [
+        800,
+        664
       ]
     }
   ]

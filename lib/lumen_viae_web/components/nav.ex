@@ -91,6 +91,9 @@ defmodule LumenViaeWeb.Components.Nav do
             Prayers
           </.nav_link>
 
+          <.nav_link navigate="/chant" current_path={@current_path} section>
+            Chant
+          </.nav_link>
           <.nav_link navigate="/hours" current_path={@current_path} section>
             Hours
           </.nav_link>
@@ -174,6 +177,12 @@ defmodule LumenViaeWeb.Components.Nav do
           <li class="pt-3 mt-3 border-t border-night-border">
             <.nav_link navigate="/prayers" current_path={@current_path} section mobile>
               Prayers
+            </.nav_link>
+          </li>
+
+          <li>
+            <.nav_link navigate="/chant" current_path={@current_path} section mobile>
+              Chant
             </.nav_link>
           </li>
 

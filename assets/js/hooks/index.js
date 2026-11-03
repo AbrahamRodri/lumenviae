@@ -11,6 +11,7 @@ import SwipeHint from "./swipe_hint"
 import MysterySchedule from "./mystery_schedule"
 import DisplayChoices from "./display_choices"
 import OfficeRail from "./office_rail"
+import ChantPlayer from "./chant_player"
 
 export default {
   UserTimezone,
@@ -25,5 +26,6 @@ export default {
   SwipeHint,
   MysterySchedule,
   DisplayChoices,
-  OfficeRail
+  OfficeRail,
+  ChantPlayer
 }

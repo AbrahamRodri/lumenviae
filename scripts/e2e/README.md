@@ -9,9 +9,10 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
 - loads `/`, `/mysteries`, `/mysteries/joyful`, `/mysteries/seven_sorrows`,
   `/privacy-policy`, `/app`, `/prayers` (and a search), a topic of the
   Prayer Book, two prayers (one in Both), an order of prayer and a step
-  of praying it in Both, `/hours`, today's Vespers in Both and this
-  month's Hours calendar, and checks each answers 200 with an h1 and no
-  console errors;
+  of praying it in Both, `/chant` (and a search), a section's shelf and
+  a chant's page, `/hours`, today's Vespers in Both and this month's
+  Hours calendar, and checks each answers 200 with an h1 and no console
+  errors;
 - checks no page scrolls sideways (`scrollWidth <= innerWidth`);
 - follows the first Pray link on `/mysteries/joyful` to
   `/meditation-sets/:id/pray` and presses ArrowRight;
@@ -36,6 +37,13 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   gains `lang=both`); on `/prayers/orders/morning` presses Pray (the
   first prayer opens) and Next (the link gains `step=2`); and checks an
   unknown prayer, topic and order answer 404;
+- on `/chant`, types "salve regina" in the search (the link gains `q=`
+  and the Salve Regina is found); on `/chant/sections/mass` checks Play
+  all and the rows; on `/chant/salve_regina_simple` checks the recording's
+  address on the site's bucket and the lines, presses play and waits for
+  a line after the first to light (this fetches the recording, so it needs
+  a network), chooses English (the link gains `words=english`); and checks
+  an unknown chant and section answer 404;
 - on `/hours`, follows Pray to the hour now, chooses Both (the link gains
   `lang=both`) and waits for the hour's text or its "could not be reached"
   state: the Divinum Officium engine may not answer a dev machine, so

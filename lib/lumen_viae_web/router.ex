@@ -119,6 +119,13 @@ defmodule LumenViaeWeb.Router do
       live "/prayers/orders/:order_id/pray", Live.Prayers.Order.Pray
       live "/prayers/:prayer_id", Live.Prayers.Prayer
 
+      # The Chant Library, as the app's Chant tab: the sections and songs
+      # to Mary with the search, a section's shelf (or the Mass of the
+      # Angels'), and a chant with its recording and words
+      live "/chant", Live.Chants.Index
+      live "/chant/sections/:section_id", Live.Chants.Section
+      live "/chant/:chant_id", Live.Chants.Chant
+
       # Hours of Prayer, the Divine Office as the app's: today's hours, a
       # month's calendar, another day's hours, and one hour read
       live "/hours", Live.Hours.Index, :today
