@@ -111,6 +111,14 @@ defmodule LumenViaeWeb.Router do
       # All 20 mysteries of the Rosary
       live "/mysteries", Live.Mysteries.Scripture
 
+      # The 33-day Consecration, as the app's Consecration tab: the
+      # introduction, the feast chooser and the waiting page (the plan is
+      # the browser's), a day and its prayers and readings stepped through,
+      # and the Act made
+      live "/consecration", Live.Consecration.Index
+      live "/consecration/act", Live.Consecration.Act
+      live "/consecration/days/:n", Live.Consecration.Day
+
       # The Prayer Book, as the app's Prayers tab: the shelves and the
       # search, a chapter, an order of prayer and praying it, and a prayer
       live "/prayers", Live.Prayers.Index

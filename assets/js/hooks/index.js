@@ -12,6 +12,7 @@ import MysterySchedule from "./mystery_schedule"
 import DisplayChoices from "./display_choices"
 import OfficeRail from "./office_rail"
 import ChantPlayer from "./chant_player"
+import ConsecrationPlan from "./consecration_plan"
 
 export default {
   UserTimezone,
@@ -27,5 +28,6 @@ export default {
   MysterySchedule,
   DisplayChoices,
   OfficeRail,
-  ChantPlayer
+  ChantPlayer,
+  ConsecrationPlan
 }

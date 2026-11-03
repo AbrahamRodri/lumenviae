@@ -103,6 +103,9 @@ defmodule LumenViaeWeb.PageMeta do
   @doc "The preview image for a category's page: the painting its head shows."
   def category_image(category), do: preview(MysteryPainting.for_category(category))
 
+  @doc "The preview image for a painting named by its asset name (`\"glorious_coronation\"`)."
+  def named_image(name), do: preview(MysteryPainting.for_name(name))
+
   defp preview(nil), do: nil
 
   defp preview(painting) do

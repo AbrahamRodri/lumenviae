@@ -479,7 +479,12 @@ defmodule LumenViae.Rosary do
       define :get_chant_library, action: :current, functions: @read
     end
 
-    resource LumenViae.Rosary.Consecration
+    resource LumenViae.Rosary.Consecration do
+      # The website's Consecration pages read the whole document at once,
+      # naming the sections they draw in `load:`.
+      define :get_consecration, action: :current, functions: @read
+    end
+
     resource LumenViae.Rosary.TrueDevotion
     resource LumenViae.Rosary.CarloAcutis
     resource LumenViae.Rosary.MarianLibrary

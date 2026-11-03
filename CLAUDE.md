@@ -146,7 +146,10 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   `/prayers/topics/:id`, a prayer at `/prayers/:id`); and Hours of
   Prayer, the Divine Office as the app's (`/hours`, another day at
   `/hours/:date`, an hour at `/hours/:date/:hour`, a month at
-  `/hours/calendar/:year/:month`), read through `LumenViae.Office`. Read
+  `/hours/calendar/:year/:month`), read through `LumenViae.Office`; and
+  the 33-day Consecration as the app's tab (`/consecration`, a day at
+  `/consecration/days/:n`, the Act made at `/consecration/act`), its
+  plan kept in the browser alone. Read
   docs/PUBLIC_SITE.md before touching a public page
 - Retired pages (dashboard, How to Pray, True Devotion, St. Carlo,
   Feedback) live in `archive/`, outside the build, and their addresses

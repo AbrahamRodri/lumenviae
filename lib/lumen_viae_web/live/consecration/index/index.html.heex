@@ -1,0 +1,43 @@
+<div id="consecration" class="cons-page" phx-hook="ConsecrationPlan">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+  <.ground />
+
+  <div
+    class={["cons-stage", !@known? && "is-waiting"]}
+    data-role="stage"
+    data-known={to_string(@known?)}
+  >
+    <%= case @status do %>
+      <% {:scheduled, start} -> %>
+        <.scheduled start={start} today={@today} feasts={@doc.feasts} />
+      <% _status -> %>
+        <.intro_bar step={@step} steps={@steps} />
+        <%= case @step do %>
+          <% "devotion" -> %>
+            <.devotion />
+          <% "day" -> %>
+            <.each_day doc={@doc} />
+          <% "journey" -> %>
+            <.journey doc={@doc} />
+          <% "choose" -> %>
+            <.chooser
+              preparations={@preparations}
+              selected={@selected}
+              today={@today}
+              more?={@more?}
+              any?={@any?}
+              any_day={@any_day}
+              any_phase={@any_phase}
+              completed?={@status == :completed}
+            />
+          <% _welcome -> %>
+            <.welcome completed?={@status == :completed} />
+        <% end %>
+    <% end %>
+  </div>
+  <noscript>
+    <style>
+      .cons-stage.is-waiting { opacity: 1; }
+    </style>
+  </noscript>
+</div>
