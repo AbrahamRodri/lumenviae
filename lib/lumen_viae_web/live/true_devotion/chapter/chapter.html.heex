@@ -16,7 +16,15 @@
   <div class="mx-auto max-w-6xl px-4 sm:px-8">
     <div class="td-reader">
       <nav class="td-rail" aria-label="Contents" data-role="rail">
-        <p class="td-rail__kicker">Contents</p>
+        <div class="td-rail__head">
+          <div class="min-w-0">
+            <p class="td-rail__kicker">{@book.about.title}</p>
+            <p class="td-rail__title">Contents</p>
+          </div>
+          <p class="td-rail__place" aria-label={"Chapter #{@index + 1} of #{@count}"}>
+            {@index + 1} of {@count}
+          </p>
+        </div>
         <.contents id="rail" book={@book} chapter={@chapter} free={@free} parts={@parts} />
       </nav>
 
@@ -33,7 +41,7 @@
             </span>
           </p>
           <h1 id="chapter-heading" class="td-chapter__title">{@chapter.title}</h1>
-          <.sacred_divider class="!justify-start max-w-[180px] !my-5" />
+          <.sacred_divider cross={false} class="!justify-start max-w-[180px] !my-5" />
         </header>
 
         <details class="td-jump" data-role="jump-list">
