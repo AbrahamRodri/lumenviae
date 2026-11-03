@@ -529,6 +529,18 @@ defmodule LumenViae.Rosary do
   """
   def spiritual_reading_text, do: LumenViae.Rosary.SpiritualReading.Text
 
+  @doc """
+  A page of a chant's sheet music, the packed drawing the apps draw, by
+  its name in the assets bucket (`chant-salve-regina-simple-8748a1058c7c.lvscore`),
+  fetched from there for the website's full score:
+  `{:ok, bytes}`, `{:error, :not_found}` for a page the Chant Library does
+  not name, or `{:error, :upstream_unreachable}`.
+  """
+  def fetch_chant_score_page(name), do: LumenViae.Rosary.ChantScore.fetch(name)
+
+  @doc "A score page's name, from its URL in the Chant Library."
+  def chant_score_page_name(url), do: LumenViae.Rosary.ChantScore.name(url)
+
   ## Mysteries
   #
   # list_mysteries!/0, list_mysteries_by_category!/1, get_mystery!/1,

@@ -129,6 +129,10 @@
      raised). Never on vellum, and never for anything but a rubric. */
   --color-night-rubric: #D07A6E;
 
+  /* The rubric red of a score's marks and initials (Rubric.red), drawn
+     as engraving, never as text. Only the full score's red ink. */
+  --color-night-rubric-mark: #A0473F;
+
   /* True Devotion's cloth, the app's Marian blue (AppColors.marianBlue):
      the book's cover and the halo behind it on /true-devotion, nothing
      else. Never text. */
@@ -5749,6 +5753,318 @@ html[data-prayer-images="off"] .prayer-plate {
 
   .chant-from__icon {
     position: relative;
+  }
+
+  /* The Sheet Music, under the player: the way into the full score, a
+     quiet capsule as the app's own enlarge mark. */
+  .chant-score-open {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .chant-score-open__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0 1.125rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.22);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+    transition: background-color 0.16s ease-out, color 0.16s ease-out;
+  }
+
+  .chant-score-open__link:hover {
+    background: rgba(227, 188, 91, 0.1);
+    color: var(--color-gilt-light);
+  }
+
+  .chant-score-open__link:focus-visible,
+  .chant-score__done:focus-visible,
+  .chant-score__zoom-button:focus-visible,
+  .chant-score__glass:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .chant-score__glass:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* The full score (ChantScoreSheet): over the whole window, the
+     painting with the names and DONE at its head, the score in a glass
+     of its own beneath, which scrolls both ways once it is brought
+     closer, and the small player floating at its foot. */
+  .chant-score {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    overscroll-behavior: contain;
+    background: var(--color-night);
+  }
+
+  .chant-score__head {
+    position: relative;
+    flex-shrink: 0;
+    padding: 5.25rem 1rem 0.25rem;
+    text-align: center;
+  }
+
+  .chant-score__painting {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, rgba(0, 0, 0, 0.35) 72%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 40%, rgba(0, 0, 0, 0.35) 72%, transparent 100%);
+  }
+
+  .chant-score__painting picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .chant-score__painting img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The library's shade under a title: dark at the top for DONE, darker
+     under the names. */
+  .chant-score__painting::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.1) 35%, rgba(0, 0, 0, 0.45) 80%);
+  }
+
+  .chant-score__names {
+    position: relative;
+    max-width: 40rem;
+    margin: 0 auto;
+  }
+
+  .chant-score__title {
+    font-family: var(--font-display);
+    font-size: 1.625rem;
+    line-height: 1.2;
+    color: var(--color-ink-light);
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+  }
+
+  .chant-score__english {
+    margin-top: 0.25rem;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.35;
+    color: rgba(246, 241, 228, 0.8);
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+  }
+
+  .chant-score__done {
+    position: absolute;
+    top: 0.875rem;
+    right: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 1rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.22);
+    background: rgba(10, 10, 21, 0.6);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  .chant-score__done:hover {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-score__glass {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 0.875rem 1rem 9rem;
+    touch-action: manipulation;
+  }
+
+  .chant-score__glass[data-zoomed] {
+    cursor: zoom-out;
+  }
+
+  .chant-score__glass:not([data-zoomed]) {
+    cursor: zoom-in;
+  }
+
+  /* At the width of the glass (a page's width at most on a wide screen),
+     times the zoom. */
+  .chant-score__sheet {
+    --score-zoom: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.875rem;
+    width: calc(min(100%, 60rem) * var(--score-zoom));
+    margin: 0 auto;
+  }
+
+  .chant-score__caption {
+    margin-bottom: 0.625rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(227, 188, 91, 0.75);
+  }
+
+  .chant-score__drawing {
+    position: relative;
+    width: 100%;
+  }
+
+  .chant-score__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* The engraving in the page's colours: the notes in cream, the
+     initials in the rubric red; an erase is the glass showing through. */
+  .chant-score__svg .score-ink {
+    fill: rgba(246, 241, 228, 0.94);
+  }
+
+  .chant-score__svg .score-red {
+    fill: var(--color-night-rubric-mark);
+  }
+
+  .chant-score__svg .score-erase {
+    fill: var(--color-night);
+  }
+
+  .chant-score__svg .score-line {
+    fill: none;
+    stroke: rgba(246, 241, 228, 0.94);
+  }
+
+  .chant-score__svg .score-line--red {
+    stroke: var(--color-night-rubric-mark);
+  }
+
+  .chant-score__unavailable {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+    text-align: center;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* The foot: the score fading into the ground beneath the small
+     player, and the zoom beside it. */
+  .chant-score__foot {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 3.5rem 1rem 0.625rem;
+    background: linear-gradient(to bottom, rgba(10, 10, 21, 0), rgba(10, 10, 21, 0.85) 45%, var(--color-night));
+    pointer-events: none;
+  }
+
+  .chant-score__pill,
+  .chant-score__zoom {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    height: 52px;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.22);
+    background: var(--color-night-raised);
+  }
+
+  .chant-score__pill {
+    flex: 1 1 auto;
+    gap: 0.75rem;
+    min-width: 0;
+    max-width: 20rem;
+    padding: 0 1.125rem 0 0.25rem;
+  }
+
+  .chant-score__scrub {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .chant-score__time {
+    min-width: 2.25rem;
+    text-align: right;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-score__zoom {
+    flex-shrink: 0;
+    padding: 0 0.125rem;
+  }
+
+  .chant-score__zoom-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    color: var(--color-gilt);
+  }
+
+  .chant-score__zoom-button:hover {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-score__zoom-button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  @media (min-width: 768px) {
+    .chant-score__head {
+      padding: 5.5rem 2rem 0.5rem;
+    }
+
+    .chant-score__title {
+      font-size: 2rem;
+    }
+
+    .chant-score__glass {
+      padding: 1.25rem 2rem 9rem;
+    }
   }
 }
 /* === end the Chant Library === */

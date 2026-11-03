@@ -212,6 +212,67 @@ defmodule LumenViaeWeb.Live.Chants.ChantsTest do
       end
     end
 
+    test "The Sheet Music opens the full score over the page, in the link", %{conn: conn} do
+      chant = Library.chant(Library.load(nil), "salve_regina_simple")
+      {:ok, view, _html} = live(conn, "/chant/salve_regina_simple")
+      refute has_element?(view, "[data-role=score]")
+
+      view |> element("[data-role=score-open]") |> render_click()
+      assert_patch(view, "/chant/salve_regina_simple?score=full")
+
+      assert has_element?(
+               view,
+               ~s(#chant-score[role=dialog][aria-modal=true][phx-hook=ChantScore])
+             )
+
+      assert view |> element("#chant-score-heading") |> render() =~ "Salve Regina"
+      assert view |> element("[data-role=score-done]") |> render() =~ "Done"
+
+      # Every page of the score in order, each named, each from the site.
+      drawings =
+        view |> render() |> Floki.parse_document!() |> Floki.find("[data-role=score-drawing]")
+
+      assert length(drawings) == length(chant.score)
+
+      for {drawing, part} <- Enum.zip(drawings, chant.score) do
+        [src] = Floki.attribute(drawing, "data-src")
+        assert src == "/chant/scores/" <> Path.basename(part.url)
+        assert Floki.attribute(drawing, "aria-label") == ["Sheet music: #{part.caption}"]
+      end
+
+      assert view |> element(".chant-score__caption", "Ora pro nobis") |> has_element?()
+
+      # The small player drives the page's own recording; the zoom is a pair of buttons.
+      assert has_element?(view, "#chant-score [data-act=toggle][aria-pressed=false]")
+      assert has_element?(view, "#chant-score [data-role=score-scrub]")
+      assert has_element?(view, ~s(#chant-score [data-zoom=in][aria-label="Zoom in"]))
+      assert has_element?(view, ~s(#chant-score [data-zoom=out][aria-label="Zoom out"]))
+
+      view |> element("[data-role=score-done]") |> render_click()
+      assert_patch(view, "/chant/salve_regina_simple")
+      refute has_element?(view, "[data-role=score]")
+    end
+
+    test "the full score keeps the Words, and opens from a link", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/chant/salve_regina_simple?words=latin")
+
+      assert has_element?(
+               view,
+               ~s([data-role=score-open][href="/chant/salve_regina_simple?words=latin&score=full"])
+             )
+
+      {:ok, view, _html} = live(conn, "/chant/salve_regina_simple?words=latin&score=full")
+      assert has_element?(view, "[data-role=score]")
+
+      assert has_element?(
+               view,
+               ~s([data-role=score-done][href="/chant/salve_regina_simple?words=latin"])
+             )
+
+      {:ok, view, _html} = live(conn, "/chant/salve_regina_simple?score=nonsense")
+      refute has_element?(view, "[data-role=score]")
+    end
+
     test "an unknown chant is a 404", %{conn: conn} do
       error = assert_raise LumenViaeWeb.NotFoundError, fn -> live(conn, "/chant/nowhere") end
       assert Plug.Exception.status(error) == 404

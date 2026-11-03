@@ -13,9 +13,17 @@ defmodule LumenViaeWeb.Live.Chants.Chant do
   the Prayer Book, its other settings and the singers' credit.
 
   The recording is the app's own, the public file on the site's bucket,
-  played by an `<audio>` the `ChantPlayer` hook drives. The app's score,
+  played by an `<audio>` the `ChantPlayer` hook drives. The app's score window,
   learning, favourites, sets, Take turns and sleep timer are not here.
   An id the library does not have is a 404.
+
+  The Sheet Music opens the whole score over the page (`?score=full`), as
+  the app's `ChantScoreSheet`: the painting with the names and DONE at
+  its head, every page of the score in order, each named where there is
+  more than one, drawn by the `ChantScore` hook from the apps' own packed
+  drawings (served through `/chant/scores/:file`), brought closer by a
+  double-click or the zoom buttons, and a small player at its foot that
+  drives the page's own recording. Back, DONE or Escape close it.
   """
   use LumenViaeWeb, :live_view
 
@@ -65,7 +73,10 @@ defmodule LumenViaeWeb.Live.Chants.Chant do
 
   @impl true
   def handle_params(params, _uri, socket) do
-    {:noreply, assign(socket, :words, words(params["words"]))}
+    {:noreply,
+     socket
+     |> assign(:words, words(params["words"]))
+     |> assign(:score, params["score"] == "full" and socket.assigns.chant.score != [])}
   end
 
   @doc "The words chosen in the link: Latin, English, or Both (the default, never written)."
@@ -74,6 +85,12 @@ defmodule LumenViaeWeb.Live.Chants.Chant do
 
   defp words_path(id, "both"), do: Library.chant_path(id)
   defp words_path(id, words), do: Library.chant_path(id) <> "?" <> URI.encode_query(words: words)
+
+  # The full score over the page, the Words kept in the link.
+  defp score_path(id, "both"), do: Library.chant_path(id) <> "?score=full"
+
+  defp score_path(id, words),
+    do: Library.chant_path(id) <> "?" <> URI.encode_query(words: words, score: "full")
 
   defp description(chant) do
     first = chant.lines |> Enum.take(2) |> Enum.map_join(" ", & &1.english)
