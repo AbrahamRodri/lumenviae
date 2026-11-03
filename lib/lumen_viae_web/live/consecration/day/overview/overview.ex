@@ -197,7 +197,7 @@ defmodule LumenViaeWeb.Live.Consecration.Day.Overview do
           data-consecration-restart
           data-role="restart-confirm"
         >
-          Erase progress and start over
+          Erase Progress and Start Over
         </button>
       </div>
     </details>

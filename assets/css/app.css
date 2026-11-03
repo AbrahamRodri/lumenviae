@@ -6136,13 +6136,37 @@ html[data-prayer-images="off"] .prayer-plate {
   }
 
   /* Until the browser says whether it holds a plan, the introduction
-     stands still and unseen, so a plan under way never flashes it. */
+     stands still and unseen, so a plan under way never flashes it. It
+     can't be pressed meanwhile, and if the browser never speaks (the
+     socket blocked or failing) it shows itself after a moment anyway. */
   .cons-stage {
     transition: opacity 0.35s ease-out;
   }
 
   .cons-stage.is-waiting {
     opacity: 0;
+    pointer-events: none;
+    animation: cons-stage-unheard 0.35s ease-out 1.8s forwards;
+  }
+
+  @keyframes cons-stage-unheard {
+    to {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cons-stage {
+      transition: none;
+    }
+
+    /* No fade, but still the wait: the global reduced-motion rule zeroes
+       every delay, and a layered !important outranks it. */
+    .cons-stage.is-waiting {
+      animation-duration: 1ms !important;
+      animation-delay: 1.8s !important;
+    }
   }
 
   .cons-kicker {

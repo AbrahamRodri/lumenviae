@@ -14,15 +14,20 @@
 //   hasSeenConsecrationOnboarding does.
 //
 // On mount it pushes "consecration_state" with what it holds and the
-// browser's own date (the visitor's today). Presses it answers, marked in
-// the page:
+// browser's own date (the visitor's today), and again at the next local
+// midnight, so a page left open overnight turns to the new day. Presses
+// it answers, marked in the page:
 //
 // - [data-consecration-begin] with data-start (and data-feast): a plan
 //   begins, the days prayed are cleared, and the page is told.
-// - [data-consecration-restart]: the plan and the days prayed are cleared.
+// - [data-consecration-restart]: the plan and the days prayed are cleared,
+//   and the page is told it was a restart ("restarted": true).
 // - [data-consecration-amen] with data-day: the day is kept as prayed
-//   (only under a plan), and Consecration Day's completes the plan. The
-//   press is a link the page then follows, so this runs first.
+//   only under a plan and only on that day or after (today's day counted
+//   from plan.start as the server counts it, held at 34), and Consecration
+//   Day's completes the plan only when today is Consecration Day. A day
+//   ahead is open to read; its Amen keeps nothing. The press is a link the
+//   page then follows, so this runs first.
 //
 // Every read and write is in try/catch: a browser that refuses storage
 // simply has no plan, and every page still draws.
@@ -58,9 +63,35 @@ const remove = (key) => {
 
 const pad = (n) => String(n).padStart(2, "0")
 
-const today = () => {
-  const now = new Date()
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+const localDate = (date) =>
+  `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+
+const today = () => localDate(new Date())
+
+const LAST_DAY = 34
+
+// Whole days from one "YYYY-MM-DD" to another, NaN if either is not one.
+const daysBetween = (from, to) => {
+  const utc = (iso) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "")
+    return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN
+  }
+  return Math.round((utc(to) - utc(from)) / 86400000)
+}
+
+// Today's day of a plan, as Plan.current_day/2: from 1, held at 34; null
+// before Day 1 or for a start that is not a date.
+const currentDay = (plan, on) => {
+  const diff = daysBetween(plan.start, on)
+  if (!(diff >= 0)) return null
+  return Math.min(diff + 1, LAST_DAY)
+}
+
+// The local date a plan was completed on, or null.
+const completedOn = (plan) => {
+  if (!plan || typeof plan.completed_at !== "string") return null
+  const date = new Date(plan.completed_at)
+  return isNaN(date.getTime()) ? null : localDate(date)
 }
 
 export default {
@@ -73,16 +104,29 @@ export default {
 
   destroyed() {
     this.el.removeEventListener("click", this.onClick)
+    clearTimeout(this.midnight)
   },
 
-  send() {
+  send(extra = {}) {
     const done = read(DONE)
+    const plan = read(PLAN)
     this.pushEvent("consecration_state", {
-      plan: read(PLAN),
+      plan,
       done: Array.isArray(done) ? done : [],
       intro_seen: read(INTRO) === "1",
       today: today(),
+      completed_on: completedOn(plan),
+      ...extra,
     })
+    this.atMidnight()
+  },
+
+  // Tell the page the date again just after the next local midnight.
+  atMidnight() {
+    clearTimeout(this.midnight)
+    const now = new Date()
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5)
+    this.midnight = setTimeout(() => this.send(), next - now)
   },
 
   click(event) {
@@ -103,19 +147,23 @@ export default {
     if (restart && this.el.contains(restart)) {
       remove(PLAN)
       remove(DONE)
-      return this.send()
+      return this.send({ restarted: true })
     }
 
     const amen = event.target.closest("[data-consecration-amen]")
     if (amen && this.el.contains(amen)) {
       const day = parseInt(amen.dataset.day, 10)
       const plan = read(PLAN)
-      if (!plan || plan.completed_at || !(day >= 1 && day <= 34)) return
+      if (!plan || plan.completed_at || !(day >= 1 && day <= LAST_DAY)) return
+      const current = currentDay(plan, today())
+      if (current == null || day > current) return
       const done = read(DONE)
       const days = Array.isArray(done) ? done.filter((d) => d !== day) : []
       days.push(day)
       write(DONE, days.sort((a, b) => a - b))
-      if (day === 34) write(PLAN, { ...plan, completed_at: new Date().toISOString() })
+      if (day === LAST_DAY && current === LAST_DAY) {
+        write(PLAN, { ...plan, completed_at: new Date().toISOString() })
+      }
     }
   },
 }

@@ -337,6 +337,32 @@ async function checkConsecration(browser, vp) {
     `${label}: the day is kept as prayed`
   );
 
+  // A day ahead is open to read, but its Amen keeps nothing: on Day 1,
+  // Consecration Day's Amen neither marks it prayed nor completes the plan.
+  await page.evaluate(() => {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const start = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    localStorage.setItem("lv:consecration:plan", JSON.stringify({ start, feast_id: null, started_at: now.toISOString(), completed_at: null }));
+    localStorage.removeItem("lv:consecration:done");
+  });
+  await page.goto(BASE_URL + "/consecration/days/34?step=99");
+  await settle(page);
+  check(
+    await eventually(async () => (await page.locator("[data-role=amen]").getAttribute("href")) === "/consecration/days/34"),
+    `${label}: a day ahead's Amen returns to it`
+  );
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  await page.locator("[data-role=amen]").click();
+  await eventually(() => new URL(page.url()).pathname === "/consecration/days/34" && !page.url().includes("step"));
+  const kept = await page.evaluate(() => ({
+    plan: JSON.parse(localStorage.getItem("lv:consecration:plan") || "null"),
+    done: JSON.parse(localStorage.getItem("lv:consecration:done") || "[]"),
+  }));
+  check(kept.plan && kept.plan.completed_at == null && kept.done.length === 0, `${label}: a day ahead's Amen keeps nothing`, JSON.stringify(kept));
+  await page.goto(BASE_URL + "/consecration");
+  check(await eventually(() => new URL(page.url()).pathname === "/consecration/days/1"), `${label}: the Consecration still opens Day 1`, page.url());
+
   await page.goto(BASE_URL + "/consecration/act");
   await settle(page);
   check((await page.locator("h1").textContent()).includes("I am all yours"), `${label}: the Act's page`);

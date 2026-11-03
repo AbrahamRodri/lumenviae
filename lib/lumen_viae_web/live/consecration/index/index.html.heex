@@ -29,6 +29,7 @@
               any_day={@any_day}
               any_phase={@any_phase}
               completed?={@status == :completed}
+              completed_on={@completed_on}
             />
           <% _welcome -> %>
             <.welcome completed?={@status == :completed} />

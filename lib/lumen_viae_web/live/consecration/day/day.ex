@@ -14,8 +14,10 @@ defmodule LumenViaeWeb.Live.Consecration.Day do
   `PrayerText` with the chant it is sung to where the Chant Library has
   one (the `ChantPlayer` hook), then each reading. Amen on the last keeps
   the day as prayed in this browser (the `ConsecrationPlan` hook, only
-  under a plan) and returns to the day, or on Consecration Day goes on to
-  the Act made, `/consecration/act`. The app's reflection, written in its
+  under a plan, and only on its day or after) and returns to today's day,
+  or on Consecration Day, when it is today or without a plan, goes on to
+  the Act made, `/consecration/act`. A day ahead stays open to read; its
+  Amen keeps nothing and returns to it. The app's reflection, written in its
   journal, is not on the website.
 
   Every day is open to anyone, with or without a plan. A day that is not
@@ -79,7 +81,12 @@ defmodule LumenViaeWeb.Live.Consecration.Day do
     {:noreply, assign(socket, :language, language) |> assign_flow_language()}
   end
 
+  # Restart from a day's page returns to the Consecration, which opens on
+  # the feast chooser for a returning reader, as the app's tab does.
   @impl true
+  def handle_event("consecration_state", %{"restarted" => true}, socket),
+    do: {:noreply, push_navigate(socket, to: Days.path())}
+
   def handle_event("consecration_state", params, socket) do
     {:noreply,
      socket
@@ -135,6 +142,9 @@ defmodule LumenViaeWeb.Live.Consecration.Day do
 
       {:reading, _reading} ->
         socket |> assign(:shown_language, "english") |> assign(:chant, nil)
+
+      nil ->
+        socket |> assign(:shown_language, "english") |> assign(stanzas: [], chant: nil)
     end
   end
 
