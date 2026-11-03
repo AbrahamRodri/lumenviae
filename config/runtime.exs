@@ -50,6 +50,15 @@ config :lumen_viae,
 # CDN in front later is this one variable and no data migration.
 config :lumen_viae, :public_asset_base_url, System.get_env("PUBLIC_ASSET_BASE_URL")
 
+# Where the Chant Library's recordings and score pages are served from.
+# priv/library/chant_library.json holds whole URLs on the public assets
+# bucket (LumenViae.Rosary.Library.asset_base/0); set this, with no
+# trailing slash, and every one of them is served on this base instead,
+# with a new document version so the apps fetch the new copy. Unset, the
+# file's URLs are served as they are. Copy the files to the new base first
+# (mix lumen_viae.copy_storage): the apps fetch them from here.
+config :lumen_viae, :chant_asset_base_url, System.get_env("CHANT_ASSET_BASE_URL")
+
 # How long a presigned audio URL stays valid.
 #
 # One hour was too short for the iOS offline download, which collects a

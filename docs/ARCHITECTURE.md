@@ -1051,17 +1051,19 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/chants/` | the Chant Library, as the app's Chant tab: the tab (`index/`), a section's shelf or the Mass of the Angels' (`section/`), Sets of Chants (`sets/`), a sung set (`set/`) and a chant (`chant/`). `occasions.ex` is the sung sets' rules (tonight's song to Mary, the order unrolled, the rows and the queue the player reads). `library.ex` is the library as the pages read it (the songs to Mary, the sections' names, the paintings, numbered shelves, the rows' second lines and the search, over `Rosary.get_chant_library!/1`) and `parts.ex` the rows, cards and play discs the pages share; both are presentation and never query. The recordings play through the `ChantPlayer` hook. Their CSS is the `chant-*` classes |
 | `live/hours/` | Hours of Prayer, the Divine Office as the app's: the landing for today or another day (`index/`), an hour read (`hour/`, a section drawn by `hour/section/`) and the month's calendar (`calendar/`). `canonical_hours.ex` is the eight hours as the app names and orders them (plain names, clock times, paintings) with the pages' dates and paths, `day_rank.ex` a day's class in plain words, `office_text.ex` an hour's sections set for a language; all are presentation and fetch nothing. The pages reach the Office only through `LumenViae.Office`'s public functions, after they connect (`start_async`). Their CSS is the `hours-*` classes and the Prayer Book's `book-*` reading classes; the rail is the `OfficeRail` hook |
 | `live/true_devotion/` | True Devotion, St. Louis de Montfort's book, as the app's reader: the title page (`index/`, the binding drawn by `cover/`) and a chapter read in place (`chapter/`). `book.ex` is the book as the pages read it (the contents' order, the short part names, a chapter's numbered paragraphs and versal, the shared citation, over `Rosary.get_true_devotion!/1`); presentation only, it never queries. The reader's place, the chapters read and the bookmarks are the browser's, kept by the `TrueDevotionPlace` hook, never sent. Their CSS is the `td-*` classes |
+| `live/explore/` | Explore, as the app's: the page (`index/`), its directory at rest (`index/browse/`) and what the search found (`index/results/`). `search.ex` is the one search as the app's `AppSearch` runs it (the mysteries, the site's doors and the sets found here, the Prayer Book and the chants by the `prayers/` and `chants/` searches, the best match and the sections' order); presentation only, it never queries. Their CSS is the `explore-*` classes |
 | `live/spiritual_reading/` | Spiritual Reading, the app's shelf of public-domain books: the shelf (`index/`), a book's page (`book/`) and a chapter read in place (`chapter/`), the covers drawn by `cover.ex` and the loading and unavailable states by `states.ex`. `shelf.ex` is the shelf as the pages read it (the runs under parts, a row's numeral and title, the short place on Continue, the kicker, the footnote markers, over `Rosary.get_spiritual_reading!/1` and `Rosary.read_spiritual_book!/2`); presentation only. A book the server does not hold yet is fetched after the page connects (`start_async`). The place and the chapters read are the browser's, kept by the `SpiritualReadingPlace` hook, never sent. Their CSS is the `sr-*` classes over True Devotion's `td-*` |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
 The public site is the Rosary, the Consecration, the Prayer Book, the
-Chant Library, Hours of Prayer, True Devotion and Spiritual Reading: home,
-the mysteries, their sets and the prayer page, the Consecration's three
-pages, the Prayer Book's five, the Chant Library's five, the Hours' four,
-True Devotion's two and Spiritual Reading's three, with the iPhone app's
-page and the privacy policy beside them, twenty-nine routes in all
+Chant Library, Hours of Prayer, True Devotion, Explore and Spiritual
+Reading: home, the mysteries, their sets and the prayer page, the
+Consecration's three pages, the Prayer Book's five, the Chant Library's
+five, the Hours' four, True Devotion's two, Explore and Spiritual
+Reading's three, with the iPhone app's page and the privacy policy
+beside them, thirty routes in all
 (`docs/PUBLIC_SITE.md` lists them, the links' parameters and where each
 setting is kept). Pages retired from it (the
 dashboard, How to Pray, True Devotion's summary page, St. Carlo, Feedback)

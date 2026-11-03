@@ -1,9 +1,9 @@
 # Sources of the Spanish prayers
 
 `es/prayers.json` holds the Rosary's prayers in Spanish. Each text is
-copied from an official Church source, not translated by us. When no
-official Spanish text could be found, the prayer is left out of the file
-and served in English.
+copied from an official Church source, not translated by us, except the
+one Abraham supplied (below). When no Spanish text could be found, the
+prayer is left out of the file and served in English.
 
 | Prayer (`id`) | Source |
 |---|---|
@@ -18,7 +18,7 @@ and served in English.
 | `act_of_contrition` | [1] "Acto de Contrición", the first form (the one that pairs with the Latin "Deus meus, ex toto corde"), not the "tradición española" form |
 | `memorare` | [1] "Acordaos" |
 | `st_michael_prayer` | [2] |
-| `sorrows_closing_prayer` | None found. Served in English. |
+| `sorrows_closing_prayer` | Supplied by Abraham, 3 Nov 2026, with the opening versicle and one phrase translated by the team (below). |
 
 1. *Compendio del Catecismo de la Iglesia Católica*, Apéndice A, "Oraciones
    comunes" (Libreria Editrice Vaticana, 2005), on
@@ -46,13 +46,31 @@ All three were read on 2 November 2026.
   so the second line's "Lleva" is lowercase ("lleva").
   The source has no "Amén", so neither does the text.
 
+## Supplied by Abraham, completed by the team
+
+- `sorrows_closing_prayer`: Abraham supplied the prayer's text on 3 Nov
+  2026 ("this is what i found"; the same text is on rezarconfe.com,
+  credited there to devocionario.com). No Spanish text from the Servite
+  Order, the Holy See or a bishops' conference had been found.
+  - Lines 4 to 9 are his text word for word, except the phrase "ahora y
+    en la hora de nuestra muerte," at the end of line 4. Line breaks are
+    ours, and a final period is added after "Amén".
+  - Translated by the team (AI), because Abraham asked that the Spanish
+    "Match the English": the opening versicle (lines 1 to 3, "Ruega por
+    nosotros, Virgen dolorosísima, / para que seamos dignos de alcanzar
+    las promesas de Cristo. / [Oremos.]") and "ahora y en la hora de
+    nuestra muerte,". They follow the official wording in [1]: the Salve
+    Regina's versicle ("Ruega por nosotros, Santa Madre de Dios, para que
+    seamos dignos de alcanzar las promesas...") and the Ave María
+    ("ahora y en la hora de nuestra muerte"). The versicle was checked
+    against the Latin ("Ora pro nobis, Virgo dolorosissima, ut digni
+    efficiamur promissionibus Christi").
+  - Title: no official source names the prayer in Spanish, so "Oración
+    final de los Siete Dolores" is the team's wording, after the English
+    "Closing Prayer of the Seven Sorrows".
+
 ## Not found
 
-- `sorrows_closing_prayer` (the Seven Sorrows chaplet's closing prayer,
-  "Pray for us, O most sorrowful Virgin..." with "Lord Jesus, we now
-  implore..."): no Spanish text from the Servite Order, the Holy See or a
-  bishops' conference was found. Devotional sites print several different
-  Spanish versions, none with a Church source.
 - The longer Spanish custom of the Sign of the Cross ("Por la señal de la
   Santa Cruz, de nuestros enemigos líbranos, Señor, Dios nuestro") is not
   in the Compendium, so only "En el nombre del Padre..." is used.

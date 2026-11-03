@@ -8566,3 +8566,560 @@ html[data-prayer-images="off"] .prayer-plate {
   }
 }
 /* === end the Consecration === */
+
+/* === Explore (/explore) ===
+   Explore as the app's ExploreView and AppSearchResultsView draw it: the
+   field with its clear, the kinds found as chips that jump to their
+   sections, the best match as a painted card with its own act, the found
+   rows (a 44px painting, the name in Garamond, a quiet line, a caret),
+   and at rest the directory: the devotions' ledger, the Prayers shelf,
+   the Chant and Hours tiles and the books. Every class is `explore-*`;
+   the Prayer Book's `book-*` shelf and the Chant Library's rows and disc
+   are reused as they are. */
+@layer components {
+  .explore-search__clear {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-right: -0.75rem;
+    border-radius: 9999px;
+    color: var(--color-ink-muted);
+    transition: color 0.18s ease-out;
+  }
+
+  .explore-search__clear:hover {
+    color: var(--color-gilt);
+  }
+
+  .explore-search__clear:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: -4px;
+  }
+
+  /* The chips: a capsule each, its word and its count, scrolling sideways
+     inside themselves on a phone rather than the page. */
+  .explore-chips {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem -1rem 0;
+    padding: 0 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .explore-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .explore-chips {
+      flex-wrap: wrap;
+      margin: 1rem 0 0;
+      padding: 0;
+      overflow-x: visible;
+    }
+  }
+
+  .explore-chip {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 44px;
+    padding: 0 0.875rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.3);
+    transition:
+      border-color 0.18s ease-out,
+      background-color 0.18s ease-out;
+  }
+
+  .explore-chip:hover {
+    border-color: rgba(227, 188, 91, 0.9);
+    background: rgba(227, 188, 91, 0.12);
+  }
+
+  .explore-chip:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .explore-chip__word {
+    font-family: var(--font-garamond);
+    font-size: 1rem;
+    color: var(--color-ink-light);
+  }
+
+  .explore-chip__count {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-gilt);
+  }
+
+  .explore-results {
+    display: flex;
+    flex-direction: column;
+    gap: 2.25rem;
+    max-width: 48rem;
+  }
+
+  .explore-section {
+    scroll-margin-top: 1.5rem;
+  }
+
+  /* The best match: the painting at its leading edge, the kind in small
+     gold capitals, the name in Cinzel, a line in italic; its act (Pray,
+     Listen) standing over the foot, in room the door keeps for it. */
+  .explore-best {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.125rem;
+    border: 1px solid rgba(227, 188, 91, 0.24);
+    background: var(--color-night-raised);
+    scroll-margin-top: 1.5rem;
+  }
+
+  .explore-best__door {
+    display: flex;
+    min-height: 8.75rem;
+    transition: background-color 0.18s ease-out;
+  }
+
+  .explore-best__door:hover {
+    background: var(--color-night-elevated);
+  }
+
+  .explore-best__door:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: -2px;
+    border-radius: 1.125rem;
+  }
+
+  .explore-best__picture {
+    position: relative;
+    flex: 0 0 7.375rem;
+    overflow: hidden;
+    background: var(--color-night-deep);
+  }
+
+  @media (min-width: 640px) {
+    .explore-best__picture {
+      flex-basis: 10rem;
+    }
+  }
+
+  .explore-best__picture picture {
+    position: absolute;
+    inset: 0;
+  }
+
+  .explore-best__picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .explore-best__glyph {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gilt);
+  }
+
+  .explore-best__words {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .explore-best__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  .explore-best__title {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    line-height: 1.2;
+    color: var(--color-ink-light);
+    overflow-wrap: anywhere;
+  }
+
+  .explore-best__line {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.3;
+    color: var(--color-ink-muted);
+  }
+
+  .explore-best__room {
+    display: block;
+    height: 2.875rem;
+  }
+
+  .explore-best__act {
+    position: absolute;
+    bottom: 0.625rem;
+    left: calc(7.375rem + 1rem);
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  @media (min-width: 640px) {
+    .explore-best__act {
+      left: calc(10rem + 1rem);
+    }
+  }
+
+  .explore-best__act:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+    border-radius: 9999px;
+  }
+
+  /* PRAY in an outlined capsule, 34px drawn in a 44px target. */
+  .explore-best__pray {
+    padding: 0 1rem;
+  }
+
+  .explore-best__pray::before {
+    content: "";
+    position: absolute;
+    inset: 5px 0;
+    border-radius: 9999px;
+    border: 1px solid var(--color-gilt);
+    transition: background-color 0.18s ease-out;
+  }
+
+  .explore-best__pray:hover::before {
+    background: rgba(227, 188, 91, 0.12);
+  }
+
+  /* The chant library's disc with LISTEN, or PAUSE while it sounds. */
+  .explore-best__listen {
+    gap: 0.375rem;
+    padding-right: 0.25rem;
+    cursor: pointer;
+  }
+
+  .explore-best__disc {
+    margin-left: -0.375rem;
+  }
+
+  .explore-best__listen:hover .chant-disc::before {
+    transform: scale(1.06);
+  }
+
+  .explore-best__listen[aria-pressed="true"] .chant-disc__play,
+  .explore-best__pause-word,
+  .explore-best__listen[aria-pressed="true"] .explore-best__listen-word {
+    display: none !important;
+  }
+
+  .explore-best__listen[aria-pressed="true"] .chant-disc__pause,
+  .explore-best__listen[aria-pressed="true"] .explore-best__pause-word {
+    display: inline !important;
+  }
+
+  .explore-best[data-sounding] .explore-best__title {
+    color: var(--color-gilt-light);
+  }
+
+  /* A found row (AppSearchPictureRow): the picture, the name in Garamond,
+     a quiet line, a caret. */
+  .explore-row {
+    min-height: 3.75rem;
+    padding: 0.5rem 0;
+    gap: 0.8125rem;
+  }
+
+  .explore-rows > li + li {
+    border-top-color: rgba(227, 188, 91, 0.12);
+  }
+
+  .explore-row__picture {
+    position: relative;
+    flex: 0 0 2.75rem;
+    height: 2.75rem;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(227, 188, 91, 0.24);
+    background: var(--color-night-raised);
+  }
+
+  .explore-row__picture picture {
+    position: absolute;
+    inset: 0;
+  }
+
+  .explore-row__picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .explore-row__glyph {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .explore-row__title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: var(--font-garamond);
+    font-size: 1.125rem;
+    line-height: 1.25;
+    color: var(--color-ink-light);
+    transition: color 0.18s ease-out;
+  }
+
+  .row-link:hover .explore-row__title {
+    color: var(--color-gilt-light);
+  }
+
+  .explore-row__note {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    line-height: 1.3;
+    color: var(--color-ink-muted);
+  }
+
+  .explore-more {
+    margin-top: 0.5rem;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--color-ink-muted);
+  }
+
+  .explore-nothing {
+    max-width: 30rem;
+    margin: 2.5rem auto 0;
+    text-align: center;
+  }
+
+  .explore-nothing__title {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    color: var(--color-ink-light);
+  }
+
+  .explore-nothing__line {
+    margin-top: 0.5rem;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* At rest: the directory. One column on a phone; from 1024px the
+     devotions stand beside the Chant tiles, the Prayers shelf runs the
+     whole width, and Hours and the books share a row. */
+  .explore-browse {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .explore-browse {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 3.5rem;
+      row-gap: 3rem;
+      align-items: start;
+    }
+
+    .explore-browse__wide,
+    .explore-browse__pair {
+      grid-column: 1 / -1;
+    }
+
+    .explore-browse__wide {
+      order: 3;
+    }
+
+    .explore-browse__pair {
+      order: 4;
+    }
+  }
+
+  .explore-browse__pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .explore-browse__pair {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 3.5rem;
+    }
+  }
+
+  .explore-shelf-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 44px;
+    margin-bottom: 0.5rem;
+  }
+
+  .explore-devotion {
+    min-height: 4.25rem;
+    padding: 0.5rem 0;
+  }
+
+  .explore-devotion .explore-row__note {
+    white-space: normal;
+  }
+
+  /* A painting run to a small card's edges, its name on a scrim along the
+     foot (ExploreView.paintedTile). Two by two. */
+  .explore-tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
+  }
+
+  .explore-tiles--one {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .explore-tile {
+    position: relative;
+    display: block;
+    height: 5.75rem;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(227, 188, 91, 0.2);
+    background: var(--color-night-raised);
+    transition: border-color 0.18s ease-out;
+  }
+
+  @media (min-width: 768px) {
+    .explore-tile {
+      height: 7.5rem;
+    }
+  }
+
+  .explore-tile:hover {
+    border-color: rgba(227, 188, 91, 0.7);
+  }
+
+  .explore-tile:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .explore-tile__painting,
+  .explore-tile__painting picture {
+    position: absolute;
+    inset: 0;
+  }
+
+  .explore-tile__painting img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease-out;
+  }
+
+  .explore-tile:hover .explore-tile__painting img {
+    transform: scale(1.03);
+  }
+
+  .explore-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(5, 5, 9, 0) 20%,
+      rgba(5, 5, 9, 0.9) 100%
+    );
+  }
+
+  .explore-tile__words {
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.5625rem;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .explore-tile__title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    line-height: 1.25;
+    color: var(--color-ink-light);
+  }
+
+  .explore-tile__note {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* A book standing on the shelf: True Devotion's binding, small. */
+  .explore-book {
+    display: inline-block;
+    padding: 0.375rem 0;
+    border-radius: 6px;
+  }
+
+  .explore-book:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 3px;
+  }
+
+  .explore-book .explore-book__cover {
+    width: 106px;
+    transition: transform 0.18s ease-out;
+  }
+
+  .explore-book:hover .explore-book__cover {
+    transform: translateY(-2px);
+  }
+
+  .explore-book .td-cover__title {
+    padding: 0 10px;
+    font-size: 0.75rem;
+  }
+
+  .explore-book .td-cover__author {
+    padding: 0 8px;
+  }
+}
+/* === end Explore === */

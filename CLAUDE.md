@@ -135,7 +135,7 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
   change as any code that widens what is collected
-- The public website is the Rosary, the Prayer Book, Hours of Prayer, True Devotion and Spiritual Reading: home (today's mysteries and
+- The public website is the Rosary, the Prayer Book, Hours of Prayer, True Devotion, Explore and Spiritual Reading: home (today's mysteries and
   today's sets), `/mysteries` (the mysteries in Scripture), each category
   page with "Your Rosary Today" (audio, counting and voice choices), the
   prayer page (the whole Rosary bead by bead, in meditation, scriptural or
@@ -154,7 +154,9 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   bookmarks kept in the browser only); and the 33-day Consecration as
   the app's tab (`/consecration`, a day at `/consecration/days/:n`, the
   Act made at `/consecration/act`), its plan kept in the browser alone;
-  and Spiritual Reading, the app's shelf (`/spiritual-reading`, a book at
+  and Explore (`/explore`), the app's directory and its one search over
+  the mysteries, the Prayer Book, the chants and the meditation sets, in
+  `?q=`, and Spiritual Reading, the app's shelf (`/spiritual-reading`, a book at
   `/spiritual-reading/:book_id`, a chapter at
   `/spiritual-reading/:book_id/:chapter`, counted from 1), the text fetched
   from Project Gutenberg by the server, the reader's place kept in the

@@ -150,6 +150,10 @@ defmodule LumenViaeWeb.Router do
       live "/true-devotion", Live.TrueDevotion.Index
       live "/true-devotion/:chapter_id", Live.TrueDevotion.Chapter
 
+      # Explore, as the app's: the site's directory, and one search over
+      # the mysteries, the Prayer Book, the chants and the meditation sets
+      live "/explore", Live.Explore.Index
+
       # Spiritual Reading, the app's shelf of public-domain books: the
       # shelf, a book's page and a chapter read in place (from 1), the text
       # fetched from Project Gutenberg by the server

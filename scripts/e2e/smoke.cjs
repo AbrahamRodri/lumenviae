@@ -51,6 +51,8 @@ const PAGES = [
   { path: "/consecration/days/15", slug: "consecration-day" },
   { path: "/consecration/days/15?step=1&lang=both", slug: "consecration-flow" },
   { path: "/consecration/act", slug: "consecration-act" },
+  { path: "/explore", slug: "explore" },
+  { path: "/explore?q=salve", slug: "explore-search" },
 ];
 
 const APP_STORE = "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749";
@@ -554,6 +556,52 @@ async function checkChant(browser, vp) {
   await context.close();
 }
 
+// Explore: the directory at rest, the header's link to it, and the one
+// search riding in the link. "Salve", "ave maria" and "Pater" find a
+// prayer and a chant, accents and case aside; "annunciation" finds a
+// mystery and opens its devotion's page.
+async function checkExplore(browser, vp) {
+  const label = `${vp.name} explore`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+
+  await page.goto(BASE_URL + "/explore");
+  await settle(page);
+  check((await page.locator("[data-role=devotion]").count()) === 5, `${label}: the five devotions`);
+  check((await page.locator('#site-header a[href="/explore"]').count()) >= 1, `${label}: the header links Explore`);
+
+  await page.getByRole("searchbox", { name: /search/i }).fill("Salve");
+  const searched = await eventually(() => new URL(page.url()).searchParams.get("q") === "Salve");
+  check(searched, `${label}: the search rides in the link`, page.url());
+  const salve = await eventually(async () =>
+    (await page.locator('#explore-results a[href="/chant/salve_regina_simple"]').count()) > 0 &&
+    (await page.locator('#explore-results a[href="/prayers/hail_holy_queen"]').count()) > 0);
+  check(salve, `${label}: "Salve" finds the Salve Regina, prayer and chant`);
+  await noHorizontalScroll(page, `${label} (results)`);
+
+  for (const [query, prayer, chant] of [["ave maria", "hail_mary", "ave_maria"], ["PÂTER", "our_father", "pater_noster"]]) {
+    await page.goto(BASE_URL + "/explore?" + new URLSearchParams({ q: query }));
+    await settle(page);
+    const prayerFound = (await page.locator(`#explore-results a[href="/prayers/${prayer}"]`).count()) > 0;
+    const chantFound = (await page.locator(`#explore-results a[href="/chant/${chant}"]`).count()) > 0;
+    check(prayerFound && chantFound, `${label}: "${query}" finds the prayer and the chant`);
+  }
+
+  await page.goto(BASE_URL + "/explore?q=annunciation");
+  await settle(page);
+  const best = page.locator('[data-role=best] a[href="/mysteries/joyful"]');
+  check((await best.count()) === 1, `${label}: "annunciation" finds the mystery`);
+  if ((await best.count()) === 1) {
+    await best.click();
+    const opened = await eventually(() => new URL(page.url()).pathname === "/mysteries/joyful");
+    check(opened, `${label}: the mystery opens its devotion's page`, page.url());
+  }
+
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+  await context.close();
+}
+
 // Spiritual Reading: the shelf lists the five books; a book's text comes
 // from Project Gutenberg through the server, which may not reach it from a
 // dev machine, so the book's page either shows its contents or says the
@@ -1002,6 +1050,7 @@ async function checkCompletion(browser, vp) {
     await checkChant(browser, vp);
     await checkConsecration(browser, vp);
     await checkTodaysPrayer(browser, vp);
+    await checkExplore(browser, vp);
   }
 
   // Once only: it writes a completion row to the server's database.
