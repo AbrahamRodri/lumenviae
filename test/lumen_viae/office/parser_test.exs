@@ -1,9 +1,9 @@
 defmodule LumenViae.Office.ParserTest do
   @moduledoc """
-  The parser against real pages saved from divinumofficium.com, so the
-  expectations encode the engine's actual markup rather than a guess at
-  it. If the engine reshapes its output, these fixtures are where the
-  breakage shows first.
+  The parser against real pages saved from the pinned engine image
+  (`bin/record-office-fixtures`), so the expectations encode the engine's
+  actual markup rather than a guess at it. If the engine reshapes its
+  output, these fixtures are where the breakage shows first.
   """
   use ExUnit.Case, async: true
 

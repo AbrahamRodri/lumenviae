@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Saves the Divine Office parser's test pages again from a running engine.
+#
+# Usage: bin/record-office-fixtures [base_url]   (default http://127.0.0.1:18090)
+#
+# Start the pinned engine image first (docs/OFFICE_API.md, "Updating the
+# engine"). The pages and their query strings are the ones the tests were
+# written against; after recording, run the office tests and read the diff.
+set -euo pipefail
+
+base="${1:-http://127.0.0.1:18090}"
+out="$(cd "$(dirname "$0")/.." && pwd)/test/support/fixtures/divinum_officium"
+
+# Same query strings as LumenViae.Office.DivinumOfficium.
+record() {
+  local name="$1" path="$2"
+  curl -sSf --max-time 60 -o "$out/$name" "$base$path"
+  echo "saved $name"
+}
+
+hour="/cgi-bin/horas/officium.pl?date1=08-24-2026&version=Rubrics+1960+-+1960&lang2=English&command=pray"
+record laudes_2026-08-24.html "${hour}Laudes"
+record matutinum_2026-08-24.html "${hour}Matutinum"
+record vesperae_2026-08-24.html "${hour}Vesperae"
+record completorium_latin_divino_afflatu.html \
+  "/cgi-bin/horas/officium.pl?date1=08-24-2026&version=Divino+Afflatu+-+1954&lang2=Latin&command=prayCompletorium"
+record kalendar_2026-08.html "/cgi-bin/horas/kalendar.pl?kmonth=8&kyear=2026&version=Rubrics+1960+-+1960"

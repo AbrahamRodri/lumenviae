@@ -14,16 +14,21 @@
 #   fly deploy -c deploy/divinum-officium/fly.toml
 #
 # The image is pinned by digest so the HTML shape LumenViae.Office.Parser
-# was written against cannot move under it. To take an upstream update:
-#   docker manifest inspect -v ghcr.io/divinumofficium/divinum-officium:master
-# for the new digest, deploy, and run the office tests against the result.
+# was written against cannot move under it. To take an upstream update, or
+# when GHCR drops the pinned digest (it keeps only the `master` and
+# `nightly` tags, and older digests can disappear):
+#   docker buildx imagetools inspect ghcr.io/divinumofficium/divinum-officium:master
+# for the new digest, pin it here and in deploy/vm/compose.yml, re-record
+# the parser fixtures from it (docs/OFFICE_API.md, "Updating the engine")
+# and run the office tests.
 
 app = 'lumenviae-office'
 primary_region = 'dfw'
 
 [build]
-  # ghcr.io/divinumofficium/divinum-officium:master as of 8 Sept 2026
-  image = 'ghcr.io/divinumofficium/divinum-officium@sha256:c09dc81f7627e62d3faf245063e3daa639f41f95c8a3a8d6b4c6e8529726d256'
+  # ghcr.io/divinumofficium/divinum-officium:master as of 2 Nov 2026
+  # (upstream commit daabc4d)
+  image = 'ghcr.io/divinumofficium/divinum-officium@sha256:ef674f7973adc8b1029c4a5d2275d76c1fe222f810f0dfd4369c2930964d3aa7'
 
 # The image's own CMD runs cron and a warmer that pre-generates the
 # full-year Ordo for every rubrical version, then Starman with

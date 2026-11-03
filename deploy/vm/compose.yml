@@ -23,6 +23,10 @@ services:
       PHX_HOST: www.lumenviae.org
       PORT: "8080"
       POOL_SIZE: "5"
+      # rel/env.sh.eex names the node after the hostname, which here is the
+      # container id. Distribution refuses that as a long name, so the rpc
+      # healthcheck below fails and `up --wait` never sees the app healthy.
+      RELEASE_NODE: lumen_viae@127.0.0.1
     depends_on:
       db:
         condition: service_healthy
@@ -56,8 +60,10 @@ services:
 
   # The same image as deploy/divinum-officium/fly.toml, with 2 workers
   # instead of 4: it shares a 1GB Droplet, and its traffic never fills 2.
+  # If the digest no longer pulls, docs/OFFICE_API.md ("Updating the
+  # engine") says how to pin a current one.
   office:
-    image: ghcr.io/divinumofficium/divinum-officium@sha256:c09dc81f7627e62d3faf245063e3daa639f41f95c8a3a8d6b4c6e8529726d256
+    image: ghcr.io/divinumofficium/divinum-officium@sha256:ef674f7973adc8b1029c4a5d2275d76c1fe222f810f0dfd4369c2930964d3aa7
     command: starman --port 8080 --host 0.0.0.0 --workers 2 --preload-app --user www-data --group www-data /var/www/app.psgi
     restart: unless-stopped
 
