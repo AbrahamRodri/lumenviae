@@ -31,6 +31,12 @@
 // back and on fifteen seconds, play and pause, the scrubber and clock, the
 // previous and next readings, and the speed.
 
+import {
+  relinquish as putAwayChant,
+  session as chantSession,
+  subscribe as onChant
+} from "../chant_session"
+
 const LISTENING = "lv:spiritual-reading-listening:"
 const RATE = "lv:spiritual-reading-rate:"
 const RATES = [0.75, 1, 1.25, 1.5, 2]
@@ -115,6 +121,16 @@ const session = {
       audio.addEventListener(event, () => this.render())
     }
     audio.addEventListener("pause", () => this.persist(true))
+    // One voice at a time, as the app's one player: a reading puts the
+    // chant away, and a chant pauses the reading (this <audio> is held
+    // here, not in the page, so the chant's page-wide listener can't hear
+    // it).
+    audio.addEventListener("play", () => {
+      if (chantSession.active) putAwayChant()
+    })
+    onChant((kind) => {
+      if (kind === "play" && !audio.paused) audio.pause()
+    })
     // A reading runs on into the next, as the app's onFinish steps.
     audio.addEventListener("ended", () => this.step(1))
     audio.addEventListener("error", () => {

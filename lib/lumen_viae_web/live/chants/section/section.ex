@@ -9,10 +9,10 @@ defmodule LumenViaeWeb.Live.Chants.Section do
   its chants in order: a row with its own painting where they hang
   paintings of their own, numbered where every chant shares the shelf's.
 
-  Play all sings the shelf's chants one after another in this page
-  (`ChantPlayer`); leaving the page stops it, since the website has no
-  player at the foot of every page yet. An id the library does not have
-  is a 404.
+  Play all sings the shelf's chants one after another (`ChantPlayer`),
+  and goes on with the mini player at the foot of the site
+  (`ChantMiniPlayer`) when the reader leaves the page. An id the library
+  does not have is a 404.
   """
   use LumenViaeWeb, :live_view
 

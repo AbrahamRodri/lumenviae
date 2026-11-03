@@ -12,13 +12,17 @@ defmodule LumenViaeWeb.Live.Consecration.Day do
   `?step=` walks the day as `ConsecrationDayFlowView` does, a page a step
   (counted from 1): each prayer of the phase, set by the Prayer Book's
   `PrayerText` with the chant it is sung to where the Chant Library has
-  one (the `ChantPlayer` hook), then each reading. Amen on the last keeps
+  one (the `ChantGuest` hook), then each reading. Amen on the last keeps
   the day as prayed in this browser (the `ConsecrationPlan` hook, only
   under a plan, and only on its day or after) and returns to today's day,
   or on Consecration Day, when it is today or without a plan, goes on to
   the Act made, `/consecration/act`. A day ahead stays open to read; its
   Amen keeps nothing and returns to it. The app's reflection, written in its
   journal, is not on the website.
+
+  The chant mini player stands aside on a day's page, except on today's
+  day of a plan under way before its flow begins, which is the app's
+  Consecration tab's root (`ConsecrationTabView`), where it shows.
 
   Every day is open to anyone, with or without a plan. A day that is not
   one (`0`, `35`, `2.5`, a word) is a 404; a `step` past either end is the

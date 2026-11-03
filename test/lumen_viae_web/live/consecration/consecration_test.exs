@@ -265,7 +265,7 @@ defmodule LumenViaeWeb.Live.Consecration.ConsecrationTest do
       assert view |> element("[data-role=step-title]") |> render() =~ "Come, Creator Spirit"
       assert view |> element("[data-role=second-title]") |> render() =~ "Veni Creator"
       assert view |> element("[data-role=step-count]") |> render() =~ "1 of 6"
-      assert has_element?(view, "[data-role=chant][phx-hook=ChantPlayer] audio[src]")
+      assert has_element?(view, "[data-role=chant][phx-hook=ChantGuest] audio[src]")
       assert has_element?(view, "#consecration-day[data-layout=focused]")
       refute has_element?(view, "[data-role=previous]")
       assert view |> element("[data-role=next]") |> render() =~ "Hail, Star of the Sea"

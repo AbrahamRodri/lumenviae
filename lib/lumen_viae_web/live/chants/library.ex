@@ -356,6 +356,32 @@ defmodule LumenViaeWeb.Live.Chants.Library do
   def hero({"feast_all_saints", _x, _y} = painting), do: painting
   def hero({name, x, y}), do: {name, x, min(y, 0.3)}
 
+  @doc """
+  What the mini player at the foot of the site shows of a chant
+  (`ChantMiniPlayer`): the Latin and English names, the chant's page, and
+  its painting's small WebP with the focal point it is cut about.
+  """
+  def player_facts(chant) do
+    {name, x, y} = painting(chant)
+
+    thumb =
+      case MysteryPainting.for_name(name) do
+        %{srcset: srcset} -> srcset |> String.split(" ") |> hd()
+        nil -> nil
+      end
+
+    %{
+      latin: chant.latin_title,
+      english: chant.english_title,
+      href: chant_path(chant.id),
+      thumb: thumb,
+      position: "#{round(x * 100)}% #{round(y * 100)}%"
+    }
+  end
+
+  @doc "`player_facts/1` as JSON, for a disc or a chant's player to hand the mini player."
+  def player_facts_json(chant), do: Jason.encode!(player_facts(chant))
+
   @doc "A painting by its name with its focal point; one the site does not have hangs the fallback."
   def named_painting(name), do: framed(name)
 

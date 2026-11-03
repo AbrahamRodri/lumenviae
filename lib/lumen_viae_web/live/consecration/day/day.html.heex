@@ -3,6 +3,7 @@
   class={["cons-page", @step && "pray-along cons-flow"]}
   phx-hook="ConsecrationPlan"
   data-layout={@step && "focused"}
+  data-hides-chant-player={!(@today? && is_nil(@step))}
 >
   <Layouts.flash_group flash={@flash} variant={:public} />
   <.ground phase={@phase} />

@@ -22,7 +22,8 @@ defmodule LumenViaeWeb.Live.Explore.Index do
   The orders of prayer go by the visitor's day (Queen of Heaven for the
   Angelus in Eastertide): the server's date until the `UserTimezone` hook
   says the browser's. A chant's disc, and the best card's Listen, play it
-  where it stands through the `ChantPlayer` hook; leaving the page stops it.
+  where it stands through the `ChantPlayer` hook; leaving the page leaves it
+  singing, with the mini player at the foot of the site (`ChantMiniPlayer`).
   The Spiritual Reading shelf's covers wear the marker ribbon where this
   browser has a reading under way (the `SpiritualReadingPlace` hook).
   """

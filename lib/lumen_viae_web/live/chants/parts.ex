@@ -9,8 +9,10 @@ defmodule LumenViaeWeb.Live.Chants.Parts do
 
   A tap on a chant's names opens its page; only the disc plays it, where
   it stands (`ChantTap`). The disc carries the recording's address, and
-  the page's `ChantPlayer` hook plays it, marking the row or card that
-  sounds with `data-sounding`.
+  the page's `ChantPlayer` hook hands it to the site's one chant player,
+  marking the row or card that sounds with `data-sounding`; the chant
+  sings on, with the mini player (`ChantMiniPlayer`), when the reader
+  leaves the page.
   """
   use LumenViaeWeb, :html
 
@@ -33,6 +35,7 @@ defmodule LumenViaeWeb.Live.Chants.Parts do
       class={["chant-disc", @class]}
       data-play={@chant.id}
       data-src={@chant.audio.url}
+      data-facts={Library.player_facts_json(@chant)}
       data-label={@label}
       aria-label={"Play #{@label}"}
       aria-pressed="false"
@@ -189,6 +192,8 @@ defmodule LumenViaeWeb.Live.Chants.Parts do
       class="chant-set-card"
       data-set={@set.id}
       data-entries={Occasions.entries_json(@set)}
+      data-chants={Occasions.chants_json(@set)}
+      data-title={@set.title}
       data-role="set-card"
     >
       <div class="chant-set-card__head">

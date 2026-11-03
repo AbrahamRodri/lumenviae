@@ -75,6 +75,11 @@
       {@inner_content}
     </main>
 
+    <%!-- What the Chant Library is singing, at the foot of every page that
+          has no transport of its own; outside the LiveView, so it sings on
+          across live navigation. See ChantMiniPlayer. --%>
+    <LumenViaeWeb.Components.ChantMiniPlayer.mini_player />
+
     <LumenViaeWeb.Components.Footer.footer />
   </body>
 </html>

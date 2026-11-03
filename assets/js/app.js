@@ -25,6 +25,8 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Hooks from "./hooks"
 import {initSiteNav} from "./site_nav"
+import {initChantSession} from "./chant_session"
+import {initChantMiniPlayer} from "./chant_mini_player"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
@@ -40,6 +42,11 @@ window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
 // The public header's menus live outside every LiveView. See site_nav.js.
 initSiteNav()
+
+// The chant player and its mini player stand in the root layout too, so a
+// chant goes on singing across live navigation. See chant_session.js.
+initChantSession()
+initChantMiniPlayer()
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()

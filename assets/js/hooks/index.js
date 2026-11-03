@@ -12,6 +12,7 @@ import MysterySchedule from "./mystery_schedule"
 import DisplayChoices from "./display_choices"
 import OfficeRail from "./office_rail"
 import ChantPlayer from "./chant_player"
+import ChantGuest from "./chant_guest"
 import ChantScore from "./chant_score"
 import TrueDevotionPlace from "./true_devotion_place"
 import SpiritualReadingPlace from "./spiritual_reading_place"
@@ -34,6 +35,7 @@ export default {
   DisplayChoices,
   OfficeRail,
   ChantPlayer,
+  ChantGuest,
   ChantScore,
   TrueDevotionPlace,
   SpiritualReadingPlace,

@@ -1,9 +1,14 @@
 <div class="prayers-page min-h-screen pb-16" id="chant-set" phx-hook="ChantPlayer">
   <Layouts.flash_group flash={@flash} variant={:public} />
-  <audio id="chant-set-audio" preload="none" phx-update="ignore"></audio>
   <div id="chant-set-day" phx-hook="UserTimezone" hidden></div>
 
-  <div data-set={@set.id} data-entries={Occasions.entries_json(@set)} data-role="set">
+  <div
+    data-set={@set.id}
+    data-entries={Occasions.entries_json(@set)}
+    data-chants={Occasions.chants_json(@set)}
+    data-title={@set.title}
+    data-role="set"
+  >
     <section class="book-hero chant-hero" aria-labelledby="set-heading">
       <span class="book-hero__painting" aria-hidden="true">
         <.painting painting={Library.hero(@set.painting)} sizes="100vw" loading="eager" />
@@ -91,7 +96,7 @@
         A recording could not be played, so it was passed over. Check the connection and try again.
       </p>
       <p class="chant-note-quiet" data-role="queue-note">
-        Play all sings the set in order while this page is open. Each chant's page has its words.
+        Play all sings the set in order, and goes on while you move about the site. Each chant's page has its words.
       </p>
       <.credit compact />
     </div>

@@ -183,6 +183,7 @@ defmodule LumenViaeWeb.Live.Explore.Index.Results do
       class="explore-best__act explore-best__listen"
       data-play={@chant.id}
       data-src={@chant.audio.url}
+      data-facts={Library.player_facts_json(@chant)}
       data-label={@label}
       aria-label={"Play #{@label}"}
       aria-pressed="false"
