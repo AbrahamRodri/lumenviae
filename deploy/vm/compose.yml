@@ -23,6 +23,10 @@ services:
       PHX_HOST: www.lumenviae.org
       PORT: "8080"
       POOL_SIZE: "5"
+      # rel/env.sh.eex names the node after the hostname, which here is the
+      # container id. Distribution refuses that as a long name, so the rpc
+      # healthcheck below fails and `up --wait` never sees the app healthy.
+      RELEASE_NODE: lumen_viae@127.0.0.1
     depends_on:
       db:
         condition: service_healthy
