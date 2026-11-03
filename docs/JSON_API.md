@@ -552,16 +552,28 @@ GraphQL: `rosaryContent(lang: "es")`.
   `title` and `text` carry `es` beside `en` and `la`. `es` is never
   null: a prayer with no Spanish text yet carries its English there
   (today the Seven Sorrows closing prayer). Spanish lines need not pair
-  with the Latin. Every other section is the English one for now.
+  with the Latin.
+- **`mysteries`** with `lang=es`: each mystery's `name` and `fruit` are
+  Spanish, in the same fields. Everything else in a mystery stays
+  English: `description`, `key_verse` and the `announcement` the spoken
+  Rosary says.
+- **`categories`** with `lang=es`: all five sets have Spanish `name` and
+  `devotion_title` ("Gozosos", "Misterios gozosos"; "Siete Dolores",
+  "Los siete dolores de María"). Every other field (`subtitle`,
+  `mystery_labels`, `graces`) stays English.
+- Every other section is the English one for now.
 - **Its own `version` and `updated_at`.** A Spanish document's version
   differs from the English one's and moves when a Spanish word changes,
   so a device keeps one copy per language and polls with the same
   `lang` it fetched with.
-- **The words** are copied from official Church sources, never
-  translated by us: the Compendium of the Catechism (vatican.va), Vatican
-  News and the Shrine of Fatima. `priv/rosary_content/SOURCES.md` lists
+- **The words** of the prayers and the mysteries' names are copied from
+  official Church sources: the Compendium of the Catechism (vatican.va),
+  Vatican News, the Shrine of Fatima and a homily of Pope Francis for the
+  Seven Sorrows. The fruits are the team's translation, with no official
+  list to copy. `priv/rosary_content/SOURCES.md` lists
   the source of each prayer and every change made to it (line breaks, a
-  final period). They live in `priv/rosary_content/es/prayers.json`.
+  final period). They live in `priv/rosary_content/es/prayers.json` and
+  `priv/rosary_content/es/mysteries.json`.
 - **Never narrated.** The spoken Rosary says the English; no Spanish
   word is sent to a narrator.
 

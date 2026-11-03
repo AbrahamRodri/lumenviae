@@ -56,3 +56,56 @@ All three were read on 2 November 2026.
 - The longer Spanish custom of the Sign of the Cross ("Por la señal de la
   Santa Cruz, de nuestros enemigos líbranos, Señor, Dios nuestro") is not
   in the Compendium, so only "En el nombre del Padre..." is used.
+
+# Sources of the mysteries' names and fruits
+
+`es/mysteries.json` holds the Spanish names of the mysteries, their
+fruits, and the names of the five sets. `lang=es` serves them in the
+`mysteries` and `categories` sections. Anything the file does not hold
+stays English: each mystery's description, key verse and spoken
+announcement, and every set's other labels.
+
+## Names: copied from official sources
+
+- The 20 mysteries of the Joyful, Luminous, Sorrowful and Glorious sets,
+  and the sets' titles ("Misterios gozosos" and the rest): [1] "Rosario",
+  word for word. The list's numbers and final periods are left out.
+- The sets' short names ("Gozosos", "Luminosos", "Dolorosos",
+  "Gloriosos") are the second word of those titles, capitalized because
+  they stand alone.
+- The Seven Sorrows: [4], where Pope Francis names the seven sorrows one
+  by one. Each name is his phrase, with an article added where it starts
+  the name. The third is "Los tres días de angustia cuando el niño se
+  quedó en el templo", from his "esos tres días de angustia cuando el
+  niño se quedó en el templo".
+4. Pope Francis, morning meditation in the chapel of the Domus Sanctae
+   Marthae, 3 April 2020, "La Dolorosa, discípula y madre", on
+   [vatican.va](https://www.vatican.va/content/francesco/es/cotidie/2020/documents/papa-francesco-cotidie_20200403_l-addolorata-discepola-emadre.html),
+   read on 2 November 2026.
+
+## The team's translations
+
+### The Seven Sorrows set's names
+
+"Siete Dolores" (`name`) and "Los siete dolores de María"
+(`devotion_title`, for the English "Seven Sorrows of Mary") are the
+team's translation. [4] names the devotion ("los “siete dolores”", "los
+dolores de María") but gives it no title.
+
+### Fruits
+
+No official Church list of the mysteries' fruits was found; the fruits
+are a devotional custom, not a liturgical text. All 27 Spanish fruits
+are the team's own translation of the English fruits, in the usual
+words of Spanish prayer books ("Humildad", "Amor al prójimo", "Dolor de
+los pecados"; "Fortaleza", the traditional word, for "Moral Courage").
+They are covered by the app's notice that some words are
+translated with AI.
+
+## Not in this file
+
+- Descriptions: the team would have to write them, so they wait for
+  Abraham's decision.
+- Key verses: a Spanish Bible translation is needed. Torres Amat (1825)
+  and Scío are in the public domain; any modern translation needs its
+  publisher's licence.
