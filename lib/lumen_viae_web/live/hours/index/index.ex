@@ -22,15 +22,19 @@ defmodule LumenViaeWeb.Live.Hours.Index do
   The hours need nothing fetched. Only the day's feast travels, through
   `LumenViae.Office.fetch_day/2` and its cache, after the page is shown
   (`start_async`); when it cannot be reached the page says so quietly with
-  a Try again, and every hour stays a link. iOS names the day in English
-  and gives its vestment colour from the Missal (Missale Meum); this site
-  makes no third-party call, so the feast is the Office's own Latin title
-  and there is no colour.
+  a Try again, and every hour stays a link. As iOS does, the day is
+  named in English with its vestment colour from the Missal
+  (`LumenViae.Office.fetch_mass/1`, fetched by the server from Missale
+  Meum) once it arrives; until then, or when Missale Meum cannot be
+  reached, the feast is the Office's own Latin title and there is no
+  colour. The Missal's name stands even when the Office's day could not
+  be reached, as on iOS.
   """
   use LumenViaeWeb, :live_view
 
   alias LumenViae.Office
   alias LumenViaeWeb.Live.Hours.{CanonicalHours, DayRank}
+  alias LumenViaeWeb.Live.Missal.Days, as: MissalDays
   alias LumenViaeWeb.PageMeta
 
   import LumenViaeWeb.Live.Prayers.Painting
@@ -64,7 +68,7 @@ defmodule LumenViaeWeb.Live.Hours.Index do
       |> assign(:credit, CanonicalHours.credit())
       |> assign(:date, date)
       |> assign(clock_known?: false, present: nil, today?: false, lapses: nil)
-      |> assign(day: nil, day_state: :waiting)
+      |> assign(day: nil, day_state: :waiting, missal_day: nil)
 
     {:ok, if(fixed_date?, do: load_day(socket), else: socket)}
   end
@@ -94,6 +98,15 @@ defmodule LumenViaeWeb.Live.Hours.Index do
 
   def handle_async(:day, _failed, socket), do: {:noreply, assign(socket, :day_state, :failed)}
 
+  # The Missal's name and colour for the day; nothing said when it fails.
+  def handle_async(:missal_day, {:ok, {date, {:ok, [mass | _others]}}}, socket) do
+    if date == socket.assigns.date,
+      do: {:noreply, assign(socket, :missal_day, mass)},
+      else: {:noreply, socket}
+  end
+
+  def handle_async(:missal_day, _no_mass, socket), do: {:noreply, socket}
+
   # The visitor's clock: today's page moves to the visitor's date and
   # fetches its day the first time, or when the date has turned.
   defp set_clock(%{assigns: %{fixed_date?: true}} = socket, now), do: assign_clock(socket, now)
@@ -122,13 +135,16 @@ defmodule LumenViaeWeb.Live.Hours.Index do
   # A fetch still on its way for an earlier date is cancelled, so quick
   # changes never pile requests on the engine.
   defp load_day(socket) do
-    date = Date.to_iso8601(socket.assigns.date)
-    socket = assign(socket, day: nil, day_state: :loading)
+    day = socket.assigns.date
+    date = Date.to_iso8601(day)
+    socket = assign(socket, day: nil, day_state: :loading, missal_day: nil)
 
     if connected?(socket) do
       socket
       |> cancel_async(:day)
       |> start_async(:day, fn -> Office.fetch_day(date) end)
+      |> cancel_async(:missal_day)
+      |> start_async(:missal_day, fn -> {day, Office.fetch_mass(day)} end)
     else
       socket
     end
@@ -151,5 +167,17 @@ defmodule LumenViaeWeb.Live.Hours.Index do
   defp trail(false, path, title), do: [{title, path}]
 
   @doc false
-  def class_line(day), do: DayRank.plain_for(day)
+  # "Lesser Feast · White vestments", the colour once the Missal has it,
+  # and the class from the Missal too where the Office could not be reached.
+  def class_line(day, missal_day \\ nil) do
+    [
+      DayRank.plain_for(day) || MissalDays.class(missal_day),
+      MissalDays.vestment(missal_day) && MissalDays.vestment(missal_day).plain
+    ]
+    |> Enum.reject(&is_nil/1)
+    |> case do
+      [] -> nil
+      parts -> Enum.join(parts, " · ")
+    end
+  end
 end

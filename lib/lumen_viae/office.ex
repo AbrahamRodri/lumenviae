@@ -19,6 +19,12 @@ defmodule LumenViae.Office do
   retryable answer for the client, with the distinction preserved in the
   server log.
 
+  The website's Daily Missal reads the 1962 Missal through this domain
+  too (`fetch_mass/1`, `fetch_missal_calendar/1`, `fetch_order_of_mass/0`):
+  Missale Meum fetched by the server and held in the same cache, through
+  `LumenViae.Office.Missal`. No API serves it; the apps call Missale Meum
+  themselves.
+
   ## As an Ash domain
 
   The module is also an `Ash.Domain`, so GraphQL and the v2 JSON:API can
@@ -36,6 +42,7 @@ defmodule LumenViae.Office do
   alias LumenViae.Office.Breviary
   alias LumenViae.Office.Cache
   alias LumenViae.Office.DivinumOfficium
+  alias LumenViae.Office.Missal
   alias LumenViae.Office.Parser
   alias LumenViae.Office.Versions
 
@@ -141,6 +148,32 @@ defmodule LumenViae.Office do
       {:ok, %{year: year, month: month, version: version.slug, days: days}}
     end
   end
+
+  # -- The Daily Missal ----------------------------------------------------
+
+  @doc """
+  Every Mass said on `date` under the 1962 Missal, from Missale Meum
+  through this machine's cache: `{:ok, [mass]}` (usually one, three on
+  Christmas and All Souls, none for a day it has no texts for) or
+  `{:error, :missal_unavailable}`, a failure held a minute. Each mass is
+  `%{id:, title:, description:, rank:, colors:, tempora:, commemorations:,
+  sections:}`, each section `%{id:, label:, body:}` and each passage of a
+  body `[english, latin]`. For the website's Missal; the apps call Missale
+  Meum themselves. See `LumenViae.Office.Missal`.
+  """
+  def fetch_mass(%Date{} = date), do: Missal.propers(date)
+
+  @doc """
+  The Missal's calendar for `year`, `{:ok, %{date => %{title:, rank:,
+  colors:, commemorations:}}}`, or `{:error, :missal_unavailable}`.
+  """
+  def fetch_missal_calendar(year) when is_integer(year), do: Missal.calendar(year)
+
+  @doc """
+  The Order of Mass, every Mass's fixed parts, `{:ok, [section]}` (a
+  passage of a rubric is a single text), or `{:error, :missal_unavailable}`.
+  """
+  def fetch_order_of_mass, do: Missal.ordo()
 
   @doc """
   Whether `date` falls in the years the Office serves, so a page can

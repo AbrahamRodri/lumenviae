@@ -72,6 +72,9 @@ config :lumen_viae, :spiritual_reading,
   req_options: [plug: {Req.Test, LumenViae.Rosary.SpiritualReading.Gutenberg}],
   minimum_bytes: 20_000
 
+# The same for the Daily Missal's texts from Missale Meum.
+config :lumen_viae, :missal, req_options: [plug: {Req.Test, LumenViae.Office.MissaleMeum}]
+
 # The suite's own two narration voices, fixed here so the tests of the
 # voice mechanics do not move every time the production line-up in
 # config.exs does. test/lumen_viae/rosary/voices_config_test.exs reads

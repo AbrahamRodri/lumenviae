@@ -40,6 +40,10 @@ const PAGES = [
   { path: "/hours", slug: "hours" },
   { path: `/hours/${TODAY}/vesperae?lang=both`, slug: "hour-both" },
   { path: `/hours/calendar/${TODAY.slice(0, 4)}/${Number(TODAY.slice(5, 7))}`, slug: "hours-calendar" },
+  { path: "/missal", slug: "missal" },
+  { path: `/missal/${TODAY}?lang=both`, slug: "missal-both" },
+  { path: "/missal/order-of-mass", slug: "missal-ordo" },
+  { path: `/missal/calendar/${TODAY.slice(0, 4)}/${Number(TODAY.slice(5, 7))}`, slug: "missal-calendar" },
   { path: "/chant", slug: "chant" },
   { path: "/chant?q=salve", slug: "chant-search" },
   { path: "/chant/sections/mass", slug: "chant-section" },
@@ -312,10 +316,12 @@ async function checkTodaysPrayer(browser, vp) {
   check((await row("consecration").innerText()).includes("Give yourself to Jesus through Mary"), `${label}: the Consecration's line`);
   check(/^\/prayers\/orders\/(morning|angelus|night)$/.test(await row("hour_order").getAttribute("href")), `${label}: the hour's order`);
   check((await row("office").innerText()).toUpperCase().includes("NOW"), `${label}: the Hours of Prayer's hour now`);
+  check((await row("mass").getAttribute("href")) === "/missal", `${label}: Today's Mass opens the Missal`);
   await noHorizontalScroll(page, label);
 
   await follows("hour_order", /^\/prayers\/orders\/(morning|angelus|night)$/, "the hour's order");
   await follows("office", /^\/hours$/, "the Hours of Prayer");
+  await follows("mass", /^\/missal$/, "Today's Mass");
   await follows("consecration", /^\/consecration$/, "the Consecration");
 
   await page.evaluate(() => {
@@ -479,6 +485,81 @@ async function checkHours(browser, vp) {
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
 
   for (const unknown of ["/hours/not-a-date", `/hours/${TODAY}/midnight`, "/hours/calendar/2026/13"]) {
+    const response = await page.goto(BASE_URL + unknown);
+    check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
+  }
+  await context.close();
+}
+
+// The Daily Missal: today's Mass arrives or the page says Missale Meum
+// could not be reached (the server fetches it, and it may not answer a dev
+// machine, so either passes and the log says which); Both rides in the
+// link and across the day's arrows; the day's foot opens the Order of
+// Mass; the date pill opens the month; a bad date and month 13 are 404s.
+async function checkMissal(browser, vp) {
+  const label = `${vp.name} missal`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+
+  await page.goto(BASE_URL + "/missal");
+  await settle(page);
+  const pill = page.locator("[data-role=date-pill]");
+  check(await eventually(async () => (await pill.count()) > 0), `${label}: the date pill once the clock is known`);
+  const outcome = await eventually(async () => {
+    if ((await page.locator("[data-role=missal-text]").count()) > 0) return "text";
+    if ((await page.locator("[data-role=mass-failed]").count()) > 0) return "unreachable";
+    if ((await page.locator("[data-role=mass-none]").count()) > 0) return "none";
+    return false;
+  }, 30000);
+  check(Boolean(outcome), `${label}: the Mass arrives or says it could not be reached`);
+  const feast = outcome === "text" ? (await page.locator("[data-role=feast]").innerText()).trim() : "";
+  console.log(`        today's Mass: ${outcome === "text" ? `text from Missale Meum (${feast})` : outcome || "neither"}`);
+
+  await page.getByRole("navigation", { name: "Language" }).getByRole("link", { name: "Both" }).click();
+  check(
+    await eventually(() => new URL(page.url()).searchParams.get("lang") === "both"),
+    `${label}: Both rides in the link`,
+    page.url()
+  );
+  await page.locator("[data-role=next-day]").click();
+  check(
+    await eventually(() => /^\/missal\/\d{4}-\d{2}-\d{2}$/.test(new URL(page.url()).pathname) && new URL(page.url()).searchParams.get("lang") === "both"),
+    `${label}: the next day keeps Both`,
+    page.url()
+  );
+  await settle(page);
+  await noHorizontalScroll(page, `${label} (next day, both)`);
+
+  const ordo = page.locator("[data-role=ordo-link]");
+  if (await eventually(async () => (await ordo.count()) > 0, 20000)) {
+    await ordo.click();
+    check(await eventually(() => new URL(page.url()).pathname === "/missal/order-of-mass"), `${label}: the day's foot opens the Order of Mass`, page.url());
+  } else {
+    await page.goto(BASE_URL + "/missal/order-of-mass?lang=both");
+  }
+  await settle(page);
+  const ordoOutcome = await eventually(async () => {
+    if ((await page.locator("[data-role=ordo-text]").count()) > 0) return "text";
+    if ((await page.locator("[data-role=ordo-failed]").count()) > 0) return "unreachable";
+    return false;
+  }, 30000);
+  check(Boolean(ordoOutcome), `${label}: the Order of Mass arrives or says it could not be reached`);
+  console.log(`        the Order of Mass: ${ordoOutcome || "neither"}`);
+  await noHorizontalScroll(page, `${label} (order of mass)`);
+
+  await page.goto(BASE_URL + "/missal");
+  await settle(page);
+  await eventually(async () => (await pill.count()) > 0);
+  await pill.click();
+  check(
+    await eventually(() => /^\/missal\/calendar\/\d{4}\/\d{1,2}$/.test(new URL(page.url()).pathname)),
+    `${label}: the date pill opens the month`,
+    page.url()
+  );
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+
+  for (const unknown of ["/missal/not-a-date", "/missal/calendar/2026/13"]) {
     const response = await page.goto(BASE_URL + unknown);
     check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
   }
@@ -1045,6 +1126,7 @@ async function checkCompletion(browser, vp) {
     await checkSetlessAndUnknown(browser, vp);
     await checkPrayers(browser, vp);
     await checkHours(browser, vp);
+    await checkMissal(browser, vp);
     await checkTrueDevotion(browser, vp);
     await checkSpiritualReading(browser, vp);
     await checkChant(browser, vp);

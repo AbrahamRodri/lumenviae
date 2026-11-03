@@ -953,6 +953,12 @@ lib/lumen_viae/office/
 │                                 text lines, Latin and translation
 ├── cache.ex                      supervised ETS, month TTL, same recipe as
 │                                 the geolocation cache
+├── missale_meum.ex               Req client for the 1962 Missal (Missale
+│                                 Meum); no redirects, a 2 MB cap
+├── missal.ex                     the website's Daily Missal: reads the
+│                                 JSON, owns the fetches (a GenServer with
+│                                 its own Task.Supervisor), caches, holds
+│                                 failures
 └── jobs/warm_cache.ex            fills every machine's cache with the days
                                   about to be asked for, on a schedule
 ```
@@ -962,6 +968,24 @@ the same public functions, never a module beneath them, so its pages
 share the APIs' validation, engine client and cache; `Office.serves?/1`
 lets a page answer 404 for a date outside the engine's years before
 asking it anything.
+
+The website's Daily Missal (`live/missal/`) reads the 1962 Missal through
+the same domain: `fetch_mass/1`, `fetch_missal_calendar/1` and
+`fetch_order_of_mass/0` (`Office.Missal`). The apps call Missale Meum
+themselves; the website's server calls it instead, so a visitor's browser
+never calls a third party, and none of it is an API route. A miss is
+fetched in a task under `Office.MissalTasks`, owned by the `Office.Missal`
+process rather than the page that asked, so a closed tab never aborts a
+shared fetch, and concurrent misses wait for one fetch; the task stores
+the answer in `Office.Cache` (a month; an hour for a date more than six
+weeks off) or holds the failure (five minutes for the key; one minute for
+every key only when Missale Meum itself fails: unreachable, past the
+20-second deadline, or a 5xx). At most 4 fetches run at once and 60 start
+a minute (`LumenViae.Hammer`); past that a page is told the Missal is
+unavailable, with nothing held.
+Anything that is not the JSON the Missal reads (a block page, a redirect,
+a body past 2 MB) is a failure. See docs/PUBLIC_SITE.md, "The Daily
+Missal".
 
 The REST surface is `LumenViaeWeb.API.OfficeController` + `OfficeJSON`
 under the existing unversioned `/api` scope, with `office_unavailable` in
@@ -1050,6 +1074,7 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/prayers/` | the Prayer Book, as the app's Prayers tab: the shelves, the shortcuts, Now and the search (`index/`, with `shelves/` and `search/`), a chapter (`chapter/`), an order of prayer (`order/`) and praying it in silence (`order/pray/`), and a prayer (`prayer/`, its words drawn by `prayer/text/`). `book.ex` is the book as the pages read it (the app's shelves, the five parts, second names, paintings and search ranking, over `Rosary.get_prayer_book!/1`), `orders.ex` the orders of prayer as the app reads them (the hour's order, Eastertide, the closing song to Mary, their paintings and search), `prayer_text.ex` the text's grammar and `painting.ex` a painting drawn about its subject; all are presentation and never query. Their CSS is the `book-*` and `prayers-*` classes, apart from the Rosary page's `.prayer-text` |
 | `live/chants/` | the Chant Library, as the app's Chant tab: the tab (`index/`), a section's shelf or the Mass of the Angels' (`section/`), Sets of Chants (`sets/`), a sung set (`set/`) and a chant (`chant/`). `occasions.ex` is the sung sets' rules (tonight's song to Mary, the order unrolled, the rows and the queue the player reads). `library.ex` is the library as the pages read it (the songs to Mary, the sections' names, the paintings, numbered shelves, the rows' second lines and the search, over `Rosary.get_chant_library!/1`) and `parts.ex` the rows, cards and play discs the pages share; both are presentation and never query. The recordings play through the `ChantPlayer` hook. Their CSS is the `chant-*` classes |
 | `live/hours/` | Hours of Prayer, the Divine Office as the app's: the landing for today or another day (`index/`), an hour read (`hour/`, a section drawn by `hour/section/`) and the month's calendar (`calendar/`). `canonical_hours.ex` is the eight hours as the app names and orders them (plain names, clock times, paintings) with the pages' dates and paths, `day_rank.ex` a day's class in plain words, `office_text.ex` an hour's sections set for a language; all are presentation and fetch nothing. The pages reach the Office only through `LumenViae.Office`'s public functions, after they connect (`start_async`). Their CSS is the `hours-*` classes and the Prayer Book's `book-*` reading classes; the rail is the `OfficeRail` hook |
+| `live/missal/` | The Daily Missal, the 1962 Mass as the app's: a day's Mass for today or another day (`index/`), the Order of Mass (`ordo/`) and the month's calendar by vestment colour (`calendar/`). `days.ex` is the dates, paths, vestment colours and plain classes, `missal_text.ex` a day's or the Order of Mass's sections set for a language (plain names, posture, the propers' diamond, citations, rubrics), `section.ex` one part drawn; all are presentation and fetch nothing. The pages reach the Missal only through `LumenViae.Office`'s public functions, after they connect (`start_async`), and share Hours of Prayer's parts rail (`hours/parts_rail.ex`, the `OfficeRail` hook) and month grid. Their own CSS is the `missal-*` classes |
 | `live/true_devotion/` | True Devotion, St. Louis de Montfort's book, as the app's reader: the title page (`index/`, the binding drawn by `cover/`) and a chapter read in place (`chapter/`). `book.ex` is the book as the pages read it (the contents' order, the short part names, a chapter's numbered paragraphs and versal, the shared citation, over `Rosary.get_true_devotion!/1`); presentation only, it never queries. The reader's place, the chapters read and the bookmarks are the browser's, kept by the `TrueDevotionPlace` hook, never sent. Their CSS is the `td-*` classes |
 | `live/explore/` | Explore, as the app's: the page (`index/`), its directory at rest (`index/browse/`) and what the search found (`index/results/`). `search.ex` is the one search as the app's `AppSearch` runs it (the mysteries, the site's doors and the sets found here, the Prayer Book and the chants by the `prayers/` and `chants/` searches, the best match and the sections' order); presentation only, it never queries. Their CSS is the `explore-*` classes |
 | `live/spiritual_reading/` | Spiritual Reading, the app's shelf of public-domain books: the shelf (`index/`), a book's page (`book/`) and a chapter read in place (`chapter/`), the covers drawn by `cover.ex` and the loading and unavailable states by `states.ex`. `shelf.ex` is the shelf as the pages read it (the runs under parts, a row's numeral and title, the short place on Continue, the kicker, the footnote markers, over `Rosary.get_spiritual_reading!/1` and `Rosary.read_spiritual_book!/2`); presentation only. A book the server does not hold yet is fetched after the page connects (`start_async`). The place and the chapters read are the browser's, kept by the `SpiritualReadingPlace` hook, never sent. Their CSS is the `sr-*` classes over True Devotion's `td-*` |
@@ -1058,12 +1083,12 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
 The public site is the Rosary, the Consecration, the Prayer Book, the
-Chant Library, Hours of Prayer, True Devotion, Explore and Spiritual
-Reading: home, the mysteries, their sets and the prayer page, the
-Consecration's three pages, the Prayer Book's five, the Chant Library's
-five, the Hours' four, True Devotion's two, Explore and Spiritual
-Reading's three, with the iPhone app's page and the privacy policy
-beside them, thirty routes in all
+Chant Library, Hours of Prayer, the Daily Missal, True Devotion, Explore
+and Spiritual Reading: home, the mysteries, their sets and the prayer
+page, the Consecration's three pages, the Prayer Book's five, the Chant
+Library's five, the Hours' four, the Missal's four, True Devotion's two,
+Explore and Spiritual Reading's three, with the iPhone app's page and the
+privacy policy beside them, thirty-four routes in all
 (`docs/PUBLIC_SITE.md` lists them, the links' parameters and where each
 setting is kept). Pages retired from it (the
 dashboard, How to Pray, True Devotion's summary page, St. Carlo, Feedback)

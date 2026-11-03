@@ -30,6 +30,12 @@ Disallow: /consecration/days/*?step=
 # first asking, across six centuries of dates, and a crawler following the
 # calendar's arrows would ask for all of them.
 Disallow: /hours/
+# The Daily Missal's dated pages. /missal is today's and the Order of Mass
+# is one fixed page, both welcome; every other day and month is fetched
+# from Missale Meum on first asking, across six centuries of dates, and a
+# crawler following the day's arrows would ask for all of them.
+Allow: /missal/order-of-mass
+Disallow: /missal/
 
 # Crawlers that gather text for model training. Nothing here is stopping
 # them by force; they are simply asked, in the terms they publish, not to

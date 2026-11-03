@@ -12,8 +12,9 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   of praying it in Both, `/chant` (and a search), a section's shelf,
   a chant's page, Sets of Chants and a sung set, `/true-devotion` and a
   chapter, `/spiritual-reading` and a book's page, `/hours`, today's
-  Vespers in Both, this month's Hours calendar, `/explore` and a search
-  there, and checks each
+  Vespers in Both, this month's Hours calendar, `/missal`, a day's
+  Mass in Both, the Order of Mass and this month's Missal calendar,
+  `/explore` and a search there, and checks each
   answers 200 with an h1 and no console errors;
 - checks no page scrolls sideways (`scrollWidth <= innerWidth`);
 - follows the first Pray link on `/mysteries/joyful` to
@@ -71,9 +72,16 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   state: the Divinum Officium engine may not answer a dev machine, so
   either passes and the log says which it was (and what the day's feast
   was); an unknown hour, a bad date and month 13 answer 404;
-- on `/`, checks Today's Prayer shows its three rows once the browser has
-  spoken (the Consecration inviting a plan, the hour's order of prayer, the
-  Hours of Prayer's hour now), follows each row's link to its page, then
+- on `/missal`, waits for today's Mass or its "could not be reached from
+  Missale Meum" state (the server fetches it, and Missale Meum may not
+  answer a dev machine, so either passes and the log says which, and the
+  feast), chooses Both (the link gains `lang=both`), steps to the next day
+  (`/missal/<date>?lang=both`), opens the Order of Mass from the day's
+  foot when the text came (or by its address), and the month from the
+  date pill; a bad date and month 13 answer 404;
+- on `/`, checks Today's Prayer shows its four rows once the browser has
+  spoken (the Consecration inviting a plan, the hour's order of prayer,
+  Today's Mass, the Hours of Prayer's hour now), follows each row's link to its page, then
   keeps a plan begun four days ago in localStorage and checks the
   Consecration's row opens Day 5, marked prayed;
 - jumps to `mystery=closing`, presses Complete and checks the completion

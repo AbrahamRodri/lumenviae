@@ -5,7 +5,7 @@ is in a prayer link, where each setting is kept, how to check your work in
 a browser, and which pages nobody maintains.
 
 The public site is the Rosary, the Consecration, the Prayer Book, the
-Chant Library, Hours of Prayer, True Devotion, Explore and Spiritual Reading: the iOS app's tabs and books coming to the
+Chant Library, Hours of Prayer, the Daily Missal, True Devotion, Explore and Spiritual Reading: the iOS app's tabs and books coming to the
 website, one at a
 time, as its desktop version. The console
 (`/admin`), the APIs (`/api`) and `/healthz` are not part of it.
@@ -14,7 +14,7 @@ time, as its desktop version. The console
 
 | Path | Module | What it is |
 | --- | --- | --- |
-| `/` | `LumenViaeWeb.Live.Home.Index` | The daily hub. Today's mysteries, on the traditional weekly schedule or the modern one, in the visitor's own time zone. The five mysteries and their fruits, the meditation sets for today, the Rosary without a set, a card for every category, and Today's Prayer (the Consecration's day, the hour's order of prayer and the Hours of Prayer; see below). |
+| `/` | `LumenViaeWeb.Live.Home.Index` | The daily hub. Today's mysteries, on the traditional weekly schedule or the modern one, in the visitor's own time zone. The five mysteries and their fruits, the meditation sets for today, the Rosary without a set, a card for every category, and Today's Prayer (the Consecration's day, the hour's order of prayer, Today's Mass and the Hours of Prayer; see below). |
 | `/mysteries` | `LumenViaeWeb.Live.Mysteries.Scripture` | "Finding the Mysteries in Scripture". Every mystery, with its Douay-Rheims passages, and a note on the Traditional and Modern schedules. |
 | `/mysteries/:category` | `LumenViaeWeb.Live.Mysteries.CategoryList` | One category: `joyful`, `sorrowful`, `glorious`, `luminous` or `seven_sorrows`. Its mysteries, "Your Rosary Today" choices, the two ways to pray without a set, and the shelf of meditation sets. |
 | `/meditation-sets/:set_id/pray` | `LumenViaeWeb.Live.Pray.Index` | The prayer page, praying one set. |
@@ -38,6 +38,10 @@ time, as its desktop version. The console
 | `/hours/:date` | `LumenViaeWeb.Live.Hours.Index` | The same for another day (`YYYY-MM-DD`): its date where NOW stands, and a link back to today. |
 | `/hours/:date/:hour` | `LumenViaeWeb.Live.Hours.Hour` | One hour read in full: its painting and name, the day and its feast, Latin, English or Both (`?lang=`), the parts of the hour (a rail beside the text from 1024px, a jump list above it on a phone), the hours either side and the Divinum Officium credit linked to the engine's page for the hour. `:hour` is the Office's slug (`matutinum` to `completorium`). |
 | `/hours/calendar/:year/:month` | `LumenViaeWeb.Live.Hours.Calendar` | The month by the days' classes, a gold mark brighter for the greater feasts; each day links to its hours, and from 768px each cell carries the day's title. |
+| `/missal` | `LumenViaeWeb.Live.Missal.Index` | The Daily Missal, the app's `DailyMissalView`, for the visitor's today: the date pill (opening the month), the feast with what else is remembered, the day's arrows around its vestment colour and class, Latin, English or Both (`?lang=`), a choice where the day has several Masses (`?mass=`), About This Day where there is something to say, the parts of the Mass (a rail beside the text from 1024px, a jump list above it on a phone), each with its posture, the propers' diamond and its Latin name, and the Mass's close: THE MASS IS ENDED, the Order of Mass and the credit. The plate waits, as an empty frame, for the browser's clock. |
+| `/missal/:date` | `LumenViaeWeb.Live.Missal.Index` | The same for another day (`YYYY-MM-DD`), with Return to today once the visitor's today is known to be another. |
+| `/missal/order-of-mass` | `LumenViaeWeb.Live.Missal.Ordo` | The Order of Mass, the app's `OrdoMissaeView`: EVERY MASS, the fixed parts of every traditional Latin Mass from the Asperges to the Prayers after Mass, in the same language choice (`?lang=`), the priest's rubrics in quiet italic, with the parts' rail and the credit. |
+| `/missal/calendar/:year/:month` | `LumenViaeWeb.Live.Missal.Calendar` | Choose a day: the month of the 1962 calendar, each day's vestment colour as a dot (and from 768px its title in the cell), each day opening its Mass. |
 | `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open; the chapter last opened marked while it is unfinished, its part open, and a folded part holding it marked on its header), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
 | `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head, each its chapter's title over the passage's opening words (the rail carries the contents sheet's head: the book's title, Contents and "8 of 13"). `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
 | `/explore` | `LumenViaeWeb.Live.Explore.Index` | Explore, as the app's `ExploreView`: at rest a directory (the five devotions, the Prayers shelf of occasion orders with All prayers, the Chant tiles with Chant Library, Hours of Prayer, and True Devotion on the Spiritual Reading shelf); typed into (`?q=`), the one search over the mysteries, the site's doors, the Prayer Book's topics, orders and prayers, the chants and every meditation set: the kinds found as chips, the best match as a painted card (Pray on an order, Listen on a chant), then a section per kind, twelve rows each before "And 3 more". |
@@ -45,7 +49,7 @@ time, as its desktop version. The console
 | `/spiritual-reading/:book_id` | `LumenViaeWeb.Live.SpiritualReading.Book` | A book, as the app's `LibraryBookView`: its cover beside the title and author, Begin reading (or "Continue · III.V" where this browser left off), the contents ("Contents · 115 chapters") with each part's name pinned over its chapters and the parts' numerals down the edge, the chapter being read lit, the ones read dimmed and those more than two before it folded into "N earlier chapters", and the Gutenberg credit. From 1024px the head stands in a column beside the contents. `:book_id` is the catalogue's (`imitation-of-christ`). |
 | `/spiritual-reading/:book_id/:chapter` | `LumenViaeWeb.Live.SpiritualReading.Chapter` | A chapter read in place, as the app's `LibraryChapterReaderView`: the place in the book as a hairline, the part and heading over the title with "8 of 115", the text on night with the versal, the edition's footnote markers linked to the notes at the foot, the chapters either side by their headings, and the contents (a rail from 1024px, a list above the text on a phone). `:chapter` counts from 1. |
 
-All thirty are in the `:public` live session in `router.ex`. A set
+All thirty-four are in the `:public` live session in `router.ex`. A set
 that does not exist, or is hidden, answers 404, and so do an unknown
 category, an unknown chapter, an unknown order, an unknown prayer, an
 unknown chant section, an unknown sung set, an unknown chant and an
@@ -55,12 +59,14 @@ text is held, does not have), a Consecration day that is not a whole
 number from 1 to 34, and on
 the Hours pages a date that is not one or that the Office does not serve
 (1600 to 2200, `LumenViae.Office.serves?/1`), an unknown hour and a
-month that is not one.
+month that is not one; and on the Missal's pages a date or a month that
+is not one, or that it does not serve (the Office's years, 1600 to 2200).
 
 `priv/static/sitemap.xml` lists `/`, `/mysteries`, the five category pages,
 `/consecration`, `/consecration/act` and the 34 days' pages, `/prayers`, every chapter's page and every order of prayer's page,
 `/chant`, every chant section's shelf (and the Mass of the Angels'),
 `/chant/sets` and every sung set's page, every chant's page, `/hours`,
+`/missal`, `/missal/order-of-mass`,
 `/true-devotion` and each of its thirteen chapters, `/explore` (never a
 search), `/spiritual-reading`,
 each of its five books and every chapter of each (219, as the catalogue's
@@ -78,7 +84,11 @@ dated pages, and `robots.txt` asks crawlers to stay out of `/hours/`
 (`/hours` itself is welcome): each day, hour and month is assembled by the
 Divinum Officium engine the first time it is asked for, across six
 centuries of dates, and the calendar's arrows would walk a crawler
-through all of them. When a chapter or an order is added
+through all of them. The Missal's dated pages are kept out the same way
+(`Disallow: /missal/`; `/missal` and, by `Allow: /missal/order-of-mass`,
+the Order of Mass are welcome): each day is fetched from Missale Meum on
+first asking, and the day's arrows would walk a crawler through six
+centuries of them. When a chapter or an order is added
 to `priv/library/prayer_book.json`, add its page; the Prayers tests check
 every chapter and order is there. The prayer pages and the steps of
 praying an order are not in it, and `robots.txt` asks crawlers to stay out
@@ -328,16 +338,17 @@ The home page closes on the iOS app's `TodaysPrayerSection` (Home, after
 the mysteries; the Android app's `domain/TodaysPrayer.kt` reads it line
 for line): "Today's Prayer" with the visitor's date beside it ("MON 2
 NOV"), then a row each for the Consecration to Mary, the hour's order of
-prayer and the Hours of Prayer, each a painting, its name, a line and its
-fact in small capitals. The rules are
+prayer, Today's Mass and the Hours of Prayer, each a painting, its name,
+a line and its fact in small capitals. The rules are
 `LumenViaeWeb.Live.Home.TodaysPrayer`, the drawing
 `LumenViaeWeb.Live.Home.TodaysPrayer.Section`; a ruled list on a phone,
-three columns from 1024px.
+two columns from 1024px.
 
 | Row | Says | Opens |
 | --- | --- | --- |
 | Consecration to Mary | No plan: "Give yourself to Jesus through Mary", BEGIN. Chosen ahead: BEGINS NOV 21. Under way: the day's title, DAY 15 OF 33 (THE DAY OF CONSECRATION on Day 34, READY TO CONSECRATE past it), the phase's painting, the seal once the day is prayed. Made today: CONSECRATED TODAY with the seal; made earlier, BEGIN again | today's day, `/consecration/days/:n`, under a plan; `/consecration` otherwise |
 | The hour's order | Morning Prayers, the Angelus (Queen of Heaven in Eastertide) or Night Prayers by the book's hours, its line as the Prayers page's Now card, and ON WAKING, AT NOON, AT 6 PM or AT BEDTIME | the order's page, `/prayers/orders/:id` |
+| Today's Mass | the day's feast, "St. Charles Borromeo", and LESSER FEAST · WHITE after the vestment's silk; until the Mass is known (or when Missale Meum cannot be reached), "Prayers and readings for today" and no fact | `/missal` |
 | Hours of Prayer | the hour now, "Mid-Morning Prayer (Terce)", with the lit hour and NOW · UNTIL NOON | `/hours` |
 
 All of it is the visitor's. The Consecration's row reads the plan the
@@ -349,9 +360,9 @@ is an empty frame of its size until its source has spoken, so a crawler
 or a browser without JavaScript never sees the hour in UTC or a plan
 that is not theirs; while the page is open the rows turn on the hour.
 
-Left out: the app's Today's Mass row, until the Daily Missal comes to the
-site (it reads Missale Meum, and this site calls no third party). The
-hour's order is never marked PRAYED, as the Prayers page's Now card never
+Today's Mass is fetched by the server for the visitor's date once the
+clock is known (`LumenViae.Office.fetch_mass/1`, the Missal's cache), as
+the Missal's page is. Left out: the hour's order is never marked PRAYED, as the Prayers page's Now card never
 is: the website keeps nothing about what was prayed there. The row opens
 the order's own page rather than the Prayer Book's front, which the app
 opens.
@@ -389,12 +400,99 @@ clock times (Matins from midnight, Lauds from five, Prime from seven,
 Terce from nine, Sext from noon, Nones from two, Vespers from four,
 Compline from seven), as the app reads them.
 
-Left out, as the app has them: the day's English feast name and vestment
-colour, which iOS takes from the Missal (Missale Meum), because this site
-calls no third party (the feast is the Office's own Latin title, and there
-is no colour, until the Missal comes to the site); the text size and the
+On the landing the day is named in English with its vestment colour
+from the Missal, as iOS names it, once the Missal's answer comes (the
+server fetches it; see the Daily Missal, below); until then, or when
+Missale Meum cannot be reached, the feast is the Office's own Latin
+title. An hour's own page keeps the Latin title.
+
+Left out, as the app has them: the text size and the
 "line by line" or "side by side" choice (the width decides); and the
 calendar's offline row.
+
+## The Daily Missal
+
+The pages follow the iOS app's `DailyMissalView`, `MissalReaderSectionView`,
+`OrdoMissaeView` and `MissalCalendarSheet` on main (the Android app's
+`ui/missal` and `domain/MissalText.kt` read them line for line). The texts
+are Missale Meum's 1962 Missal (missalemeum.com, MIT), which the apps call
+directly. On the website the **server** fetches them, never the
+visitor's browser: `LumenViae.Office.fetch_mass/1`,
+`fetch_missal_calendar/1` and `fetch_order_of_mass/0`
+(`LumenViae.Office.Missal`, through `LumenViae.Office.MissaleMeum`). Each
+page shows at once and waits for its text after it connects
+(`start_async`); a Mass, a month or the Order of Mass that cannot be
+reached says so with a Try again, which asks again only after a failure.
+
+How the server keeps from hammering Missale Meum:
+
+- Every answer is held in the Office's cache for a month (the propers of
+  a date never change), per machine.
+- A miss is fetched in a task of the Office's own supervisor, owned by no
+  page: a visitor who closes the tab never aborts a fetch others share,
+  and every caller asking for the same key meanwhile waits for that one
+  fetch. The task stores what it read before it answers.
+- A fetch follows no redirect, reads at most 2 MB, and has 20 seconds in
+  all.
+- At most 4 fetches run at once and at most 60 start a minute on a
+  machine (`LumenViae.Hammer`); past either the page says Missale Meum
+  could not be reached, and nothing is held.
+- A Mass more than six weeks from today, or a calendar of a year other
+  than this one and those either side, is kept an hour, not a month, so a
+  walk through the centuries cannot fill memory.
+- Anything but the JSON the Missal reads (down, slow, a non-200, a
+  redirect, an HTML block page with a 200, JSON of another shape) is a
+  failure, held: that key is not asked for again for five minutes. Only
+  Missale Meum itself failing (unreachable, past the deadline, a 5xx)
+  closes every key, for a minute.
+
+| Page | Parameter | Values | Default |
+| --- | --- | --- | --- |
+| `/missal`, `/missal/:date` | `lang` | `latin` or `both` | English |
+| `/missal`, `/missal/:date` | `mass` | the Mass of a day with several, from `1` | `1` |
+| `/missal/order-of-mass` | `lang` | `latin` or `both` | English |
+| `/missal/order-of-mass`, `/missal/calendar/:year/:month` | `day` | the day it was opened from, for the way back | today, `/missal` |
+| `/missal/calendar/:year/:month` | `lang` | `latin` or `both`, carried to every day it opens | English |
+
+A day's parts are named plainly ("Entrance Chant", "Prayer over the
+Gifts"), with the Latin name beside them small and dim; the day's own
+texts carry a gold diamond (the Preface travels with them but is the
+Ordinary's), and each part the posture kept through it (Stand, Sit,
+Kneel), between two fading rules. A line wholly in asterisks is a
+citation, set apart in small engraved capitals; the first of the day's
+own texts opens on the gilt versal. In Both the Latin leads and the
+English pairs with it line by line, side by side from 768px, as Hours of
+Prayer sets it (the lines cleaned the same way: "Ant.", the Latin's "S."
+and "M.", the cross as ✠, ℣ ℟ ✠ in red); sides with different numbers of
+lines stand as two blocks. A passage with one side only is a rubric of
+the Order of Mass, set once in quiet italic, and so are its "– Introit
+in today Mass –" placeholders. The day's class is the app's plain words
+(`LumenViaeWeb.Live.Hours.DayRank`, from the Missal's number), the
+vestment colour a dot in the app's muted swatch, said in words to a
+screen reader ("Lesser Feast, white vestments"). The rules are
+`LumenViaeWeb.Live.Missal.MissalText` and `Missal.Days`; the parts' rail
+and jump list are Hours of Prayer's (`Hours.PartsRail`, the `OfficeRail`
+hook).
+
+"Today" is the visitor's (the `UserTimezone` hook): `/missal` waits, as
+an empty frame, until the browser's clock is known, and fetches nothing
+until then.
+
+Left out, as the app has them: the app's default "With the Ordinary"
+reading, which lets the Order of Mass into the day's page between the
+propers (the day's page sets the day's own texts, as the Android app
+does, and the Order of Mass is its own page a link away), with the High
+or Low Mass choice that goes with it; the text size, the posture switch
+and the first-open "line by line or side by side" question (the width
+decides; posture is always shown); the collapsing header and its
+progress hair (the page scrolls, and the rail lights the part being
+read); the week kept for offline and the calendar's Save the month.
+Missale Meum's English descriptions were empty on every day checked, so
+About This Day shows only where one is served.
+
+There is no link in the header (its eight links fill it): the Missal is
+reached from Today's Prayer on Home, by its address and the sitemap.
+Explore, where the app keeps The Mass, is not on the site yet.
 
 ## True Devotion
 
@@ -647,11 +745,14 @@ from Start at any day, steps through a day and says its Amen, checks
 that Consecration Day's Amen on Day 1 keeps nothing, opens the
 Act's page and a day that is not one, and checks that the five archived paths redirect
 to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
-`/app`, the Prayers pages, Hours of Prayer, True Devotion and Explore, and checks each one answers 200, has an
+`/app`, the Prayers pages, Hours of Prayer, the Daily Missal, True Devotion and Explore, and checks each one answers 200, has an
 `h1`, logs no console errors and does not scroll sideways. It follows the
 first Pray link on `/mysteries/joyful` and presses ArrowRight, checks every
 App Store link and screenshot on `/app`, searches the Prayer Book and
-chooses Both on a prayer, opens an hour of the Office in Both, reads True
+chooses Both on a prayer, opens an hour of the Office in Both, opens
+today's Mass (its text, or the line saying Missale Meum could not be
+reached), chooses Both, steps a day and opens the Order of Mass and the
+month, reads True
 Devotion (Begin reading, Next chapter, a bookmark, then Continue reading
 on the title page), searches Explore ("Salve", "ave maria", "PÂTER",
 "annunciation"), and checks that the four archived paths that still

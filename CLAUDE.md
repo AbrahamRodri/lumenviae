@@ -135,7 +135,7 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
   change as any code that widens what is collected
-- The public website is the Rosary, the Prayer Book, Hours of Prayer, True Devotion, Explore and Spiritual Reading: home (today's mysteries and
+- The public website is the Rosary, the Prayer Book, Hours of Prayer, the Daily Missal, True Devotion, Explore and Spiritual Reading: home (today's mysteries and
   today's sets), `/mysteries` (the mysteries in Scripture), each category
   page with "Your Rosary Today" (audio, counting and voice choices), the
   prayer page (the whole Rosary bead by bead, in meditation, scriptural or
@@ -149,6 +149,11 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   Prayer, the Divine Office as the app's (`/hours`, another day at
   `/hours/:date`, an hour at `/hours/:date/:hour`, a month at
   `/hours/calendar/:year/:month`), read through `LumenViae.Office`; and
+  the Daily Missal, the 1962 Mass as the app's (`/missal`, another day at
+  `/missal/:date`, the Order of Mass at `/missal/order-of-mass`, a month
+  at `/missal/calendar/:year/:month`), its texts fetched from Missale Meum
+  (`www.missalemeum.com`) by the server, never the visitor's browser, and
+  cached through `LumenViae.Office`; and
   True Devotion, the book read as the app reads it (`/true-devotion`, a
   chapter at `/true-devotion/:chapter_id`, the reader's place and
   bookmarks kept in the browser only); and the 33-day Consecration as
@@ -188,6 +193,11 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - The pre-Vatican II Divine Office under `/api/office`, assembled by the
   open-source Divinum Officium engine and cached - see docs/OFFICE_API.md
   and the Office domain section of docs/ARCHITECTURE.md
+- The website's Daily Missal reads Missale Meum's API
+  (`https://www.missalemeum.com/en/api/v5`) from the server, as Hours of
+  Prayer reads Divinum Officium; no visitor's browser calls it. One fetch per cold key in a task no page owns, cached a month,
+  failures held, no redirects, a 2 MB cap (`LumenViae.Office.Missal`).
+  Keep the privacy policy's paragraph on it current
 - Traditional Latin Mass aesthetic (Navy/Gold color scheme)
 
 ### Database Structure

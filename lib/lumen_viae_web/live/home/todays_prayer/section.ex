@@ -2,10 +2,11 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer.Section do
   @moduledoc """
   "Today's Prayer" as the home page draws it, the app's
   `TodaysPrayerRowView`: the heading with the visitor's date beside it,
-  then the rows as a ruled list (three columns from 1024px), each a link
+  then the rows as a ruled list (two columns from 1024px), each a link
   with its painting cut square on a gold hairline, its name, its line and
-  its fact, a seal on the painting once prayed and the lit hour before the
-  Office's fact.
+  its fact, a seal on the painting once prayed, the lit hour before the
+  Office's fact and the day's silk, in its vestment colour, before the
+  Mass's.
 
   A row whose source has not spoken yet (the browser's plan, the
   browser's clock) is an empty frame of its size, so nobody is shown the
@@ -80,7 +81,12 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer.Section do
         <span class="todays-prayer__line">{@row.subtitle}</span>
         <span class="todays-prayer__fact">
           <span :if={@row.mark == :lit_hour} class="todays-prayer__lit"></span>
-          {@row.fact}
+          <span
+            :if={match?({:silk, _letter}, @row.mark)}
+            class={["missal-silk", "missal-silk--#{elem(@row.mark, 1)}"]}
+            data-role="silk"
+          ></span>
+          {@row.fact || raw("&nbsp;")}
         </span>
       </span>
       <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />

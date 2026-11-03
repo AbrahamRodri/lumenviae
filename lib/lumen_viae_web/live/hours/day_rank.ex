@@ -37,7 +37,12 @@ defmodule LumenViaeWeb.Live.Hours.DayRank do
     "vigil"
   ]
 
-  @doc "1 to 4 from the engine's rank, nil for a feria or no rank."
+  @doc """
+  1 to 4 from the engine's rank, nil for a feria or no rank. The Missal's
+  class is already a number (Missale Meum's `rank`), and is taken as it is.
+  """
+  def class(rank) when is_integer(rank) and rank in 1..4, do: rank
+
   def class(rank) when is_binary(rank) do
     text = rank |> String.trim() |> String.upcase()
 
@@ -67,6 +72,20 @@ defmodule LumenViaeWeb.Live.Hours.DayRank do
       number == 4 -> weekday(words)
       true -> nil
     end
+  end
+
+  @doc """
+  The Missal's day in plain words, as iOS's `DayRank.plainLabel` reads
+  Missale Meum's number: a weekday by its title whatever its class, else
+  the class; nil for a day Missale Meum sends with no class, unless its
+  title names a weekday.
+  """
+  def plain_missal(rank, title, season \\ nil)
+
+  def plain_missal(rank, title, season) when is_integer(rank), do: plain(rank, title, season)
+
+  def plain_missal(_no_rank, title, season) do
+    if weekday?(title, nil), do: weekday(String.downcase("#{title} #{season}"))
   end
 
   @doc "A day's plain class from an Office day or hour map."

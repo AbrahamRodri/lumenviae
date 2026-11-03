@@ -137,9 +137,12 @@ defmodule LumenViae.Office.Cache do
     defp namespaced(key), do: {nil, key}
   end
 
-  def fetch(key) do
-    key = namespaced(key)
+  def fetch(key), do: lookup(namespaced(key))
 
+  @doc "`fetch/1` under a namespace `namespace/0` gave, from any process."
+  def fetch_in_namespace(namespace, key), do: lookup({namespace, key})
+
+  defp lookup(key) do
     case :ets.lookup(@table, key) do
       [{^key, value, expires_at}] ->
         if System.monotonic_time(:millisecond) < expires_at, do: {:ok, value}, else: :miss
@@ -151,9 +154,25 @@ defmodule LumenViae.Office.Cache do
     ArgumentError -> :miss
   end
 
-  def put(key, value) do
-    expires_at = System.monotonic_time(:millisecond) + @ttl_ms
-    :ets.insert(@table, {namespaced(key), value, expires_at})
+  @doc """
+  Stores `value` under `key` for `ttl_ms`, a month unless told otherwise
+  (the Missal holds a failure for a few minutes this way).
+  """
+  def put(key, value, ttl_ms \\ @ttl_ms), do: insert(namespaced(key), value, ttl_ms)
+
+  @doc """
+  The calling process's namespace (always nil outside the tests), for a
+  process that stores on another's behalf with `put_in_namespace/4`.
+  """
+  def namespace, do: elem(namespaced(nil), 0)
+
+  @doc "`put/3` under a namespace `namespace/0` gave, from any process."
+  def put_in_namespace(namespace, key, value, ttl_ms \\ @ttl_ms),
+    do: insert({namespace, key}, value, ttl_ms)
+
+  defp insert(namespaced_key, value, ttl_ms) do
+    expires_at = System.monotonic_time(:millisecond) + ttl_ms
+    :ets.insert(@table, {namespaced_key, value, expires_at})
     :ok
   rescue
     ArgumentError -> :ok

@@ -239,6 +239,11 @@ config :lumen_viae, :office, base_url: "https://www.divinumofficium.com"
 # See LumenViae.Rosary.SpiritualReading.Gutenberg.
 config :lumen_viae, :spiritual_reading, base_url: "https://www.gutenberg.org"
 
+# Where the Daily Missal's texts come from: Missale Meum's API (the 1962
+# Missal), fetched by the server, never by a visitor's browser. See
+# LumenViae.Office.MissaleMeum.
+config :lumen_viae, :missal, base_url: "https://www.missalemeum.com"
+
 # Configures the endpoint
 config :lumen_viae, LumenViaeWeb.Endpoint,
   url: [host: "localhost"],
