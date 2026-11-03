@@ -5,7 +5,7 @@ is in a prayer link, where each setting is kept, how to check your work in
 a browser, and which pages nobody maintains.
 
 The public site is the Rosary, the Consecration, the Prayer Book, the
-Chant Library, Hours of Prayer, True Devotion and Explore: the iOS app's tabs and books coming to the
+Chant Library, Hours of Prayer, True Devotion, Explore and Spiritual Reading: the iOS app's tabs and books coming to the
 website, one at a
 time, as its desktop version. The console
 (`/admin`), the APIs (`/api`) and `/healthz` are not part of it.
@@ -38,15 +38,20 @@ time, as its desktop version. The console
 | `/hours/:date` | `LumenViaeWeb.Live.Hours.Index` | The same for another day (`YYYY-MM-DD`): its date where NOW stands, and a link back to today. |
 | `/hours/:date/:hour` | `LumenViaeWeb.Live.Hours.Hour` | One hour read in full: its painting and name, the day and its feast, Latin, English or Both (`?lang=`), the parts of the hour (a rail beside the text from 1024px, a jump list above it on a phone), the hours either side and the Divinum Officium credit linked to the engine's page for the hour. `:hour` is the Office's slug (`matutinum` to `completorium`). |
 | `/hours/calendar/:year/:month` | `LumenViaeWeb.Live.Hours.Calendar` | The month by the days' classes, a gold mark brighter for the greater feasts; each day links to its hours, and from 768px each cell carries the day's title. |
-| `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open, the part being read open), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
-| `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head. `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
+| `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open; the chapter last opened marked while it is unfinished, its part open, and a folded part holding it marked on its header), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
+| `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head, each its chapter's title over the passage's opening words (the rail carries the contents sheet's head: the book's title, Contents and "8 of 13"). `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
 | `/explore` | `LumenViaeWeb.Live.Explore.Index` | Explore, as the app's `ExploreView`: at rest a directory (the five devotions, the Prayers shelf of occasion orders with All prayers, the Chant tiles with Chant Library, Hours of Prayer, and True Devotion on the Spiritual Reading shelf); typed into (`?q=`), the one search over the mysteries, the site's doors, the Prayer Book's topics, orders and prayers, the chants and every meditation set: the kinds found as chips, the best match as a painted card (Pray on an order, Listen on a chant), then a section per kind, twelve rows each before "And 3 more". |
+| `/spiritual-reading` | `LumenViaeWeb.Live.SpiritualReading.Index` | The Spiritual Reading shelf, as the app's `SpiritualReadingView`: the open book, the shelf's name, "Classic Catholic books to read", Augustine's "Take up and read", the five books as covers in their own cloth (two across on a phone, five on a wide screen; the ribbon on a book with a reading under way in this browser), and the credit. Fetches no text. |
+| `/spiritual-reading/:book_id` | `LumenViaeWeb.Live.SpiritualReading.Book` | A book, as the app's `LibraryBookView`: its cover beside the title and author, Begin reading (or "Continue · III.V" where this browser left off), the contents ("Contents · 115 chapters") with each part's name pinned over its chapters and the parts' numerals down the edge, the chapter being read lit, the ones read dimmed and those more than two before it folded into "N earlier chapters", and the Gutenberg credit. From 1024px the head stands in a column beside the contents. `:book_id` is the catalogue's (`imitation-of-christ`). |
+| `/spiritual-reading/:book_id/:chapter` | `LumenViaeWeb.Live.SpiritualReading.Chapter` | A chapter read in place, as the app's `LibraryChapterReaderView`: the place in the book as a hairline, the part and heading over the title with "8 of 115", the text on night with the versal, the edition's footnote markers linked to the notes at the foot, the chapters either side by their headings, and the contents (a rail from 1024px, a list above the text on a phone). `:chapter` counts from 1. |
 
-All twenty-seven are in the `:public` live session in `router.ex`. A set
+All thirty are in the `:public` live session in `router.ex`. A set
 that does not exist, or is hidden, answers 404, and so do an unknown
 category, an unknown chapter, an unknown order, an unknown prayer, an
 unknown chant section, an unknown sung set, an unknown chant and an
-unknown True Devotion chapter, a Consecration day that is not a whole
+unknown True Devotion chapter, an unknown Spiritual Reading book or a
+chapter that is not a whole number from 1 (or that the book, once its
+text is held, does not have), a Consecration day that is not a whole
 number from 1 to 34, and on
 the Hours pages a date that is not one or that the Office does not serve
 (1600 to 2200, `LumenViae.Office.serves?/1`), an unknown hour and a
@@ -57,8 +62,14 @@ month that is not one.
 `/chant`, every chant section's shelf (and the Mass of the Angels'),
 `/chant/sets` and every sung set's page, every chant's page, `/hours`,
 `/true-devotion` and each of its thirteen chapters, `/explore` (never a
-search), `/app` and
-`/privacy-policy`. When a chant, a section or a sung set is
+search), `/spiritual-reading`,
+each of its five books and every chapter of each (219, as the catalogue's
+rules cut Gutenberg's editions in November 2026), `/app` and
+`/privacy-policy`. When a book is added to
+`priv/library/spiritual_reading.json`, or its rules change how many
+chapters it cuts into, add or remove its pages; the Spiritual Reading
+tests check every book is there and Brother Lawrence's twenty chapters
+(the one whole edition in the fixtures). When a chant, a section or a sung set is
 added to `priv/library/chant_library.json`, add its page; the
 Chant tests check every one is there. The
 prayers themselves are not listed: every one is linked from its chapter,
@@ -430,50 +441,67 @@ prayers, his sayings), archived on iOS; the day's reading goal; a note on
 a passage kept in the Journal; the text size (the site's reading size is
 fixed here); and the reader's chrome that withdraws as it scrolls.
 
-## Explore
+## Spiritual Reading
 
-The page follows the iOS app's `ExploreView`, `AppSearch` and
-`AppSearchResultsView` on main (Android's `domain/AppSearch.kt` reads them
-line for line). The search rides in the link as `?q=` (a `q` that is not
-text is no search) and runs on the server over what the page loaded;
-nothing about a search is kept or logged beyond the ordinary request log.
-`LumenViaeWeb.Live.Explore.Search` gathers, orders and picks the best as
-the app does; the finding is each area's own (the Prayers page's
-`Book.search/2`, `Book.topics/2` and `Orders.search/3`, the Chant
-Library's `Library.search/3`), so the three searches agree. Words fold as
-the app folds them (case, accents, æ and œ, "coel" as "cael"). The
-sections stand in Explore's order (Rosary Mysteries, Pages, Prayers,
-Chants, Meditations); the best match is the closest name of every kind
-(the name itself, then its start, then a word's start, then anywhere), a
-tie going to the kind and the hit that stands first, and a hit found only
-by its words is never the best. The mysteries, the meditation sets and
-the Prayer Book's names for the chants' prayers are read the first time
-anything is searched.
+The pages follow the iOS app's `app/Views/Library` on main
+(`SpiritualReadingView`, `LibraryBookView`, `LibraryContentsView`,
+`LibraryChapterReaderView`; Android's `ui/library` reads them line for
+line). The catalogue, the five books with their Gutenberg numbers and the
+rules that cut each edition, is the domain's
+(`LumenViae.Rosary.get_spiritual_reading!/1`, from
+`priv/library/spiritual_reading.json`), and so is the text
+(`LumenViae.Rosary.read_spiritual_book!/2`): the server fetches each
+book's plain text from Project Gutenberg
+(`https://www.gutenberg.org/cache/epub/<id>/pg<id>.txt`, the file the apps
+fetch), cuts it into chapters with a line-for-line port of the app's
+`LibraryBookParser`, and holds it in memory on each machine for a month
+(`LumenViae.Rosary.SpiritualReading.Text`), so a book is fetched once per
+machine and a visitor's browser never calls Gutenberg. The download is
+the server's own (a supervised task with a deadline, which a closed tab
+never aborts), and Try again answers only on a page that failed. An
+unreachable Gutenberg is remembered for a minute and an edition that
+cannot be cut for an hour, so neither is asked again by every visitor; a
+block or rate-limit page (anything not plain text of at least 50,000
+bytes) counts as unreachable. In production the five books are fetched a
+while after boot, so the first visitor after a deploy finds them held. How the pages arrange a book (the runs under their parts, a
+row's numeral and title, "III.V", the kicker, the footnote markers) is
+`LumenViaeWeb.Live.SpiritualReading.Shelf`, the app's rules.
 
-What differs from the app, and why:
+A book or chapter this machine already holds is drawn whole in the first
+response, for a crawler too. One it has not fetched yet shows "Fetching
+the text from Project Gutenberg." and fetches after the page connects
+(`start_async`). When Gutenberg cannot be reached the page says "Couldn't
+reach the library" with Try again; an edition that no longer cuts into
+chapters says "This edition can't be opened", with no Try again, as the
+app does. The covers are True Devotion's binding (`td-cover`) in each
+book's cloth, the app's `bindingColor` (`--color-cloth-*`); the chapter's
+head, text, rail and foot are True Devotion's reader (`td-*`).
 
-- The app's Readings kind, and the Pages its search knows that the site
-  does not have (Today's Mass, Spiritual Reading, How to Pray, The
-  Devotion in Summary, the Marian Library, St. Carlo, Prayer Record,
-  Journal), are left out; so are the Mass tile and the other books at
-  rest. In Scripture, archived on iOS, stays a door here (`/mysteries`),
-  as the site keeps that page.
-- The Consecration is a door the search finds by name and words
-  ("Consecration to Mary", "33 days total consecration de montfort"), as
-  Android's search has it. iOS's Explore and search have no entry for it
-  (it is a tab there, as it is in the site's header), so the page at rest
-  does not list it either.
-- A meditation set opens its prayer page, as the site has no page of a
-  set alone; a mystery opens its devotion's page, as the app's does.
-- The Scriptural Rosary and the Audio Rosary open the day's mysteries on
-  the traditional schedule (the app reads the reader's chosen schedule,
-  which the site keeps in the browser).
-- A prayer as the best match has no Pray: the site has no pray-along for
-  a single prayer, so the card is the door alone.
-- The chips are links to their sections; none is lit as the page scrolls.
-- The devotions at rest are a ruled ledger, not the app's category
-  gradients, which the site has no tokens for; and the shelves hold their
-  defaults, as the site keeps nothing of what was prayed or sung lately.
+The place is this browser's (below), read and written by the
+`SpiritualReadingPlace` hook: opening a chapter makes it the place, the
+paragraph at the top of the screen is kept as the reader scrolls (and
+resumed when the chapter is opened again, unless the address names a
+paragraph, `#p-3`), and reaching a chapter's foot or pressing the next
+chapter marks it read. A place is kept against the edition's cut (the
+app's `editionFingerprint`, the page's `data-edition`), so a change to a
+book's rules lets go of places kept against the old cut, as the app does.
+
+As on the shelf and True Devotion, there is no link to it in the header
+or the footer: the app reaches the shelf from Explore, which is not on the
+site yet. True Devotion is not on the shelf, as it is not on the app's.
+
+Left out, as the app has them: the LibriVox recording (Hear this read,
+the listen chips, Save for offline, the player and the sleep timer),
+which is the next piece of work; the search inside a book; the daily
+reading goal; bookmarks (MARK), notes kept in the Journal (NOTE) and
+Share on a passage; the text size; Home's reading shelf; and the reader's
+chrome that withdraws as it scrolls. The shelf's line says "Classic
+Catholic books to read" where the app adds "or to listen to", and the
+credit leaves out the recordings, until the recordings come. The app's
+"Once opened, this book reads offline" is left out: the site does not
+keep the text in the browser. A footnote marker links to its note at the
+chapter's foot (its words in the link's title), where the app raises the
+note in a sheet.
 
 ## Where each setting lives
 
@@ -500,6 +528,7 @@ starts from the defaults. The one thing the server writes is a completion.
 | True Devotion: the place, for Continue Reading | `lv:true-devotion:place`, holding `{chapter, paragraph, at}` (the paragraph's number in the chapter, 0 for its top) | the `TrueDevotionPlace` hook |
 | True Devotion: the chapters read | `lv:true-devotion:read`, a list of chapter ids | `TrueDevotionPlace` |
 | True Devotion: bookmarks | `lv:true-devotion:marks`, a list of `{chapter, paragraph, words, at}` (the paragraph's first 90 characters, for the contents), at most 200 | `TrueDevotionPlace` |
+| Spiritual Reading: the place in a book and the chapters read | `lv:spiritual-reading:<book id>`, holding `{edition, chapter, paragraph, read, at}` (the chapter's index from 0, the paragraph from 1 or 0 for the top, `read` a list of chapter indexes) | the `SpiritualReadingPlace` hook |
 
 Details worth knowing:
 
@@ -626,6 +655,11 @@ chooses Both on a prayer, opens an hour of the Office in Both, reads True
 Devotion (Begin reading, Next chapter, a bookmark, then Continue reading
 on the title page), searches Explore ("Salve", "ave maria", "PÂTER",
 "annunciation"), and checks that the four archived paths that still
+
+on the title page), opens the Spiritual Reading shelf and a book (its text
+from Gutenberg or the "couldn't reach" state, either passing and the log
+saying which; with the text, Begin reading, the next chapter and Continue),
+and checks that the four archived paths that still
 redirect go to `/` while `/true-devotion` answers 200. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 gitignored.
 

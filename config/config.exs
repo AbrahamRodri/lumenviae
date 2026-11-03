@@ -234,6 +234,11 @@ config :oban_met,
 # See LumenViae.Office.DivinumOfficium.
 config :lumen_viae, :office, base_url: "https://www.divinumofficium.com"
 
+# Where the Spiritual Reading books' text comes from: Project Gutenberg's
+# plain-text editions, fetched by the server, never by a visitor's browser.
+# See LumenViae.Rosary.SpiritualReading.Gutenberg.
+config :lumen_viae, :spiritual_reading, base_url: "https://www.gutenberg.org"
+
 # Configures the endpoint
 config :lumen_viae, LumenViaeWeb.Endpoint,
   url: [host: "localhost"],

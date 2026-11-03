@@ -29,6 +29,8 @@ defmodule LumenViae.Application do
       LumenViae.Services.Geolocation,
       # Owns the parsed Divine Office cache.
       LumenViae.Office.Cache,
+      # Owns the Spiritual Reading books' text, fetched from Gutenberg and cut.
+      LumenViae.Rosary.spiritual_reading_text(),
       # AshAuthentication's own processes: chiefly the expunger, which
       # deletes expired rows from `admin_tokens` (revocations included)
       # every twelve hours. Without it that table only grows.

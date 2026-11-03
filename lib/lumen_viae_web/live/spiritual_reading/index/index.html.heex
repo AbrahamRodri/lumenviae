@@ -1,0 +1,36 @@
+<div
+  class="sr-page min-h-screen pb-16"
+  id="spiritual-reading"
+  phx-hook="SpiritualReadingPlace"
+  data-page="shelf"
+>
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <div class="mx-auto max-w-5xl px-4 sm:px-8">
+    <header class="sr-shelf__head">
+      <span class="hero-book-open size-9 text-gilt" aria-hidden="true" />
+      <h1 class="sr-shelf__title">Spiritual Reading</h1>
+      <p class="sr-shelf__line">Classic Catholic books to read</p>
+      <p class="sr-shelf__motto">Take up and read (St. Augustine's ‘Tolle, lege’)</p>
+      <.sacred_divider class="max-w-[260px] mx-auto" />
+    </header>
+
+    <ul class="sr-shelf" aria-label="The books">
+      <li :for={book <- @books}>
+        <.link
+          navigate={Shelf.book_path(book.id)}
+          class="sr-shelf__book"
+          data-role="book"
+          data-book={book.id}
+          aria-label={"#{book.title}, #{Shelf.author_line(book)}. #{book.blurb}"}
+        >
+          <.cover book={book} />
+        </.link>
+      </li>
+    </ul>
+
+    <p class="sr-credit sr-credit--shelf">
+      Texts from Project Gutenberg. All in the public domain.
+    </p>
+  </div>
+</div>

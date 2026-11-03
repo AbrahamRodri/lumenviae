@@ -493,7 +493,15 @@ defmodule LumenViae.Rosary do
 
     resource LumenViae.Rosary.CarloAcutis
     resource LumenViae.Rosary.MarianLibrary
-    resource LumenViae.Rosary.SpiritualReading
+
+    resource LumenViae.Rosary.SpiritualReading do
+      # The website's Spiritual Reading pages: the catalogue (`load:
+      # [:books]`), and a book's text fetched from Gutenberg and cut, with
+      # one chapter when its index is given (`%{chapter: 0}`; `cached_only:
+      # true` answers `:cold` instead of fetching).
+      define :get_spiritual_reading, action: :current, functions: @read
+      define :read_spiritual_book, action: :book, args: [:book_id]
+    end
   end
 
   require Ash.Query
@@ -514,6 +522,12 @@ defmodule LumenViae.Rosary do
   alias LumenViae.Rosary.Voices
   alias LumenViae.Images.Variants
   alias LumenViae.Storage.S3
+
+  @doc """
+  The process that holds the Spiritual Reading books' text on this machine
+  (fetched from Project Gutenberg and cut), for the application to start.
+  """
+  def spiritual_reading_text, do: LumenViae.Rosary.SpiritualReading.Text
 
   ## Mysteries
   #

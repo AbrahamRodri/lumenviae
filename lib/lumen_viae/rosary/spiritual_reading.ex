@@ -9,7 +9,9 @@ defmodule LumenViae.Rosary.SpiritualReading do
   from `priv/library/spiritual_reading.json`.
 
   The books themselves are not served: a device fetches the text from
-  Gutenberg and streams the recording from LibriVox. Serving the rules
+  Gutenberg and streams the recording from LibriVox. The website reads
+  them through the `:book` action, which fetches and cuts the text on the
+  server (`LumenViae.Rosary.SpiritualReading.Text`). Serving the rules
   means a book that changes shape is fixed with a deploy, not an app
   release.
 
@@ -48,6 +50,20 @@ defmodule LumenViae.Rosary.SpiritualReading do
       description "The Spiritual Reading catalogue as one document. There is only ever one."
       prepare {Library.Current, document: :spiritual_reading}
     end
+
+    # The website's Spiritual Reading pages: a book's text, which the
+    # server fetches from Project Gutenberg and cuts as the apps do. Not
+    # served by any API (no route names it): the apps fetch the text
+    # themselves.
+    action :book, :map do
+      description "A book of the shelf with its text fetched from Project Gutenberg and cut into chapters, and one chapter in full when asked for. The answer's status is ok, not_found, unreachable, unreadable, or cold (only when cached_only is set and this machine has not fetched the book yet)."
+
+      argument :book_id, :string, allow_nil?: false
+      argument :chapter, :integer, constraints: [min: 0]
+      argument :cached_only, :boolean, default: false
+
+      run LumenViae.Rosary.SpiritualReading.ReadBook
+    end
   end
 
   policies do
@@ -55,7 +71,7 @@ defmodule LumenViae.Rosary.SpiritualReading do
       authorize_if always()
     end
 
-    policy action(:current) do
+    policy action([:current, :book]) do
       authorize_if always()
     end
   end

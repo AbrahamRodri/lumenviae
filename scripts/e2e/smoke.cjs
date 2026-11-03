@@ -35,6 +35,8 @@ const PAGES = [
   { path: "/prayers/orders/morning/pray?step=3&lang=both", slug: "prayer-order-pray" },
   { path: "/true-devotion", slug: "true-devotion" },
   { path: "/true-devotion/motives", slug: "true-devotion-chapter" },
+  { path: "/spiritual-reading", slug: "spiritual-reading" },
+  { path: "/spiritual-reading/practice-of-the-presence-of-god", slug: "spiritual-reading-book" },
   { path: "/hours", slug: "hours" },
   { path: `/hours/${TODAY}/vesperae?lang=both`, slug: "hour-both" },
   { path: `/hours/calendar/${TODAY.slice(0, 4)}/${Number(TODAY.slice(5, 7))}`, slug: "hours-calendar" },
@@ -600,6 +602,68 @@ async function checkExplore(browser, vp) {
   await context.close();
 }
 
+// Spiritual Reading: the shelf lists the five books; a book's text comes
+// from Project Gutenberg through the server, which may not reach it from a
+// dev machine, so the book's page either shows its contents or says the
+// library could not be reached, and the log says which. With the text,
+// Begin reading opens the first chapter, the chapter after it steps on,
+// and the book's page then offers Continue with the earlier chapter read.
+// An unknown book and a chapter that is not a number are 404s.
+async function checkSpiritualReading(browser, vp) {
+  const label = `${vp.name} spiritual reading`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+
+  await page.goto(BASE_URL + "/spiritual-reading");
+  await settle(page);
+  check((await page.locator("[data-role=book]").count()) === 5, `${label}: the shelf holds five books`);
+  await page.locator('[data-role=book][data-book="practice-of-the-presence-of-god"]').click();
+  await eventually(() => new URL(page.url()).pathname === "/spiritual-reading/practice-of-the-presence-of-god");
+
+  const outcome = await eventually(async () => {
+    if ((await page.locator("[data-role=contents]").count()) > 0) return "text";
+    if ((await page.locator("[data-role=unavailable]").count()) > 0) return "unreachable";
+    return false;
+  }, 40000);
+  check(Boolean(outcome), `${label}: the book arrives or says it could not be reached`);
+  console.log(`        the book: ${outcome === "text" ? "text from Project Gutenberg" : outcome || "neither"}`);
+  await noHorizontalScroll(page, `${label} (book)`);
+
+  if (outcome === "text") {
+    const act = page.locator("[data-role=read-act]");
+    check((await act.innerText()).trim().toUpperCase().startsWith("BEGIN READING"), `${label}: a first visit offers Begin reading`);
+    await act.click();
+    check(
+      await eventually(() => new URL(page.url()).pathname === "/spiritual-reading/practice-of-the-presence-of-god/1"),
+      `${label}: Begin reading opens the first chapter`,
+      page.url()
+    );
+    check(await eventually(async () => (await page.locator("[data-role=chapter-text] [data-p]").count()) > 0), `${label}: the chapter has its text`);
+    await noHorizontalScroll(page, `${label} (chapter)`);
+    await fullPageShot(page, `${vp.name}-spiritual-reading-chapter`);
+    await page.locator("[data-role=next-chapter]").click();
+    check(
+      await eventually(() => new URL(page.url()).pathname === "/spiritual-reading/practice-of-the-presence-of-god/2"),
+      `${label}: the chapter after steps on`,
+      page.url()
+    );
+    await eventually(async () => (await page.locator("[data-role=chapter-text]").count()) > 0);
+    await page.goto(BASE_URL + "/spiritual-reading/practice-of-the-presence-of-god");
+    await settle(page);
+    const continued = await eventually(async () => /^CONTINUE/.test((await act.innerText()).trim().toUpperCase()));
+    check(continued, `${label}: the book offers Continue where this browser left off`);
+    check((await page.locator("[data-role=chapter-row][data-read]").count()) >= 1, `${label}: the chapter stepped past is read`);
+  }
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+
+  for (const unknown of ["/spiritual-reading/nowhere", "/spiritual-reading/imitation-of-christ/zero"]) {
+    const response = await page.goto(BASE_URL + unknown);
+    check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
+  }
+  await context.close();
+}
+
 // True Devotion: the old address opens the book rather than redirecting
 // home, Begin reading opens the first chapter, Next chapter steps on, and
 // the place kept in this browser turns the act into Continue reading. A
@@ -982,6 +1046,7 @@ async function checkCompletion(browser, vp) {
     await checkPrayers(browser, vp);
     await checkHours(browser, vp);
     await checkTrueDevotion(browser, vp);
+    await checkSpiritualReading(browser, vp);
     await checkChant(browser, vp);
     await checkConsecration(browser, vp);
     await checkTodaysPrayer(browser, vp);
