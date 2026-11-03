@@ -33,7 +33,10 @@
 //   clock and "Line 3 of 12", Repeat this line (or the chant), and
 //   three-quarter speed. The line sounding is lit in the Words
 //   ([data-line], with data-start and data-end) and written into the now
-//   line; a click on a line plays from it.
+//   line; a click on a line plays from it. The full score's small player
+//   (ChantScore, over the page) drives the same recording: its
+//   [data-act=toggle] plays and pauses, its [data-role=score-scrub]
+//   moves through the chant, and [data-role=score-time] tells the time.
 
 const clock = (seconds) => {
   const whole = Math.max(0, Math.floor(seconds || 0))
@@ -110,6 +113,13 @@ export default {
       this.tick(true)
     })
     this.current = this.el.dataset.chant
+    // The full score's scrubber, which comes and goes with the sheet.
+    this.el.addEventListener("input", (event) => {
+      if (!event.target.matches?.("[data-role=score-scrub]")) return
+      this.audio.currentTime = parseFloat(event.target.value)
+      this.lineIndex = this.lineAt(this.audio.currentTime)
+      this.tick(true)
+    })
   },
 
   // ---- Presses
@@ -390,6 +400,15 @@ export default {
       this.scrub.style.setProperty("--progress", `${Math.min(100, (time / max) * 100)}%`)
       this.scrub.setAttribute("aria-valuetext", `${clock(time)} of ${clock(max)}`)
     }
+    this.el.querySelectorAll("[data-role=score-scrub]").forEach((scrub) => {
+      const max = parseFloat(this.scrub?.max || scrub.max) || 1
+      scrub.max = String(max)
+      if (document.activeElement !== scrub) scrub.value = String(time)
+      scrub.style.setProperty("--progress", `${Math.min(100, (time / max) * 100)}%`)
+      scrub.setAttribute("aria-valuetext", `${clock(time)} of ${clock(max)}`)
+    })
+    const scoreTime = this.el.querySelector("[data-role=score-time]")
+    if (scoreTime && this.started) scoreTime.textContent = clock(time)
   },
 
   showLine(index) {
@@ -467,11 +486,11 @@ export default {
       this.player.querySelectorAll("[data-act=back], [data-act=on]").forEach((step) => {
         step.disabled = !this.started
       })
-      const play = this.player.querySelector("[data-act=toggle]")
-      if (play) {
+      // The page's gold play, and the full score's disc when it is open
+      this.el.querySelectorAll("[data-act=toggle]").forEach((play) => {
         play.setAttribute("aria-pressed", playing ? "true" : "false")
         play.setAttribute("aria-label", `${playing ? "Pause" : "Play"} ${play.dataset.label}`)
-      }
+      })
       const repeat = this.player.querySelector("[data-act=repeat]")
       if (repeat) repeat.setAttribute("aria-pressed", this.repeat ? "true" : "false")
       const speed = this.player.querySelector("[data-act=speed]")

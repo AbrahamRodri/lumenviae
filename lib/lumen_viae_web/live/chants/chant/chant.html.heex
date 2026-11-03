@@ -153,6 +153,16 @@
             </p>
           </div>
         </div>
+        <div :if={@chant.score != []} class="chant-score-open">
+          <.link
+            patch={score_path(@chant.id, @words)}
+            class="chant-score-open__link"
+            data-role="score-open"
+            data-chant-score-open
+          >
+            <span class="hero-arrows-pointing-out size-4" aria-hidden="true" /> The Sheet Music
+          </.link>
+        </div>
       </div>
 
       <section :if={@chant.lines != []} class="chant-words" aria-labelledby="words-heading">
@@ -232,4 +242,106 @@
       </div>
     </div>
   </article>
+
+  <div
+    :if={@score}
+    id="chant-score"
+    class="chant-score"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="chant-score-heading"
+    phx-hook="ChantScore"
+    data-role="score"
+  >
+    <header class="chant-score__head">
+      <span class="chant-score__painting" aria-hidden="true">
+        <.painting painting={@painting} sizes="100vw" loading="eager" />
+      </span>
+      <.link
+        patch={words_path(@chant.id, @words)}
+        class="chant-score__done"
+        aria-label="Done"
+        data-role="score-done"
+      >
+        Done
+      </.link>
+      <div class="chant-score__names">
+        <h2 id="chant-score-heading" class="chant-score__title" lang="la">
+          {@chant.latin_title}
+        </h2>
+        <p class="chant-score__english">{Library.subtitle(@chant)}</p>
+      </div>
+    </header>
+
+    <div
+      class="chant-score__glass"
+      tabindex="0"
+      role="group"
+      aria-label="The sheet music. Double-click, or press plus or minus, to bring it closer"
+      data-role="score-glass"
+    >
+      <div id="chant-score-sheet" class="chant-score__sheet" phx-update="ignore">
+        <figure
+          :for={part <- @chant.score}
+          class="chant-score__part"
+          data-role="score-part"
+        >
+          <figcaption :if={length(@chant.score) > 1} class="chant-score__caption">
+            {part.caption}
+          </figcaption>
+          <div
+            class="chant-score__drawing"
+            style={"aspect-ratio: #{part.aspect_ratio}"}
+            role="img"
+            aria-label={"Sheet music: #{part.caption}"}
+            data-src={Library.score_page_path(part)}
+            data-role="score-drawing"
+          >
+          </div>
+        </figure>
+      </div>
+    </div>
+
+    <div class="chant-score__foot">
+      <div class="chant-score__pill">
+        <button
+          type="button"
+          class="chant-disc chant-score__play"
+          data-act="toggle"
+          aria-pressed="false"
+          aria-label={"Play #{@chant.latin_title}, #{@chant.english_title}"}
+          data-label={"#{@chant.latin_title}, #{@chant.english_title}"}
+        >
+          <span class="hero-play-solid chant-disc__play" aria-hidden="true" />
+          <span class="hero-pause-solid chant-disc__pause" aria-hidden="true" />
+        </button>
+        <input
+          type="range"
+          class="chant-scrub chant-score__scrub"
+          min="0"
+          max={@chant.duration}
+          step="0.1"
+          value="0"
+          aria-label="Position in the chant"
+          data-role="score-scrub"
+        />
+        <span class="chant-score__time" aria-hidden="true" data-role="score-time">
+          {Library.duration_label(@chant.duration)}
+        </span>
+      </div>
+      <div class="chant-score__zoom" role="group" aria-label="Zoom">
+        <button
+          type="button"
+          class="chant-score__zoom-button"
+          data-zoom="out"
+          aria-label="Zoom out"
+        >
+          <span class="hero-minus size-5" aria-hidden="true" />
+        </button>
+        <button type="button" class="chant-score__zoom-button" data-zoom="in" aria-label="Zoom in">
+          <span class="hero-plus size-5" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

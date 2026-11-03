@@ -30,8 +30,9 @@ defmodule LumenViae.Office.Cache do
 
   The table is shared by every test. A test that wants a cache of its own
   calls `isolate/0` in its setup: its keys, and those of the processes it
-  starts, are then namespaced apart from every other test's. Only
-  config/test.exs turns this on (`:isolate_office_cache`).
+  starts, are then namespaced apart from every other test's, and `reset/0`
+  empties that namespace alone. Only config/test.exs turns this on
+  (`:isolate_office_cache`).
   """
 
   use GenServer
@@ -127,6 +128,11 @@ defmodule LumenViae.Office.Cache do
       {namespace, key}
     end
 
+    # A test empties its own namespace only (nil, the shared one, for a
+    # test that did not isolate): the Ops and System screen tests empty the
+    # cache while async tests are holding entries of their own.
+    defp clear, do: :ets.match_delete(@table, {{namespace(), :_}, :_, :_})
+
     defp namespace_of(pid) do
       case Process.info(pid, :dictionary) do
         {:dictionary, dictionary} -> Keyword.get(dictionary, @namespace_key)
@@ -135,6 +141,8 @@ defmodule LumenViae.Office.Cache do
     end
   else
     defp namespaced(key), do: {nil, key}
+
+    defp clear, do: :ets.delete_all_objects(@table)
   end
 
   def fetch(key), do: lookup(namespaced(key))
@@ -189,9 +197,12 @@ defmodule LumenViae.Office.Cache do
     end
   end
 
-  @doc "Empties the cache: for tests, and the console's System screen."
+  @doc """
+  Empties the cache: for the console's System screen, and tests. In the
+  suite it empties only the calling test's namespace (`isolate/0`).
+  """
   def reset do
-    :ets.delete_all_objects(@table)
+    clear()
     :ok
   rescue
     ArgumentError -> :ok

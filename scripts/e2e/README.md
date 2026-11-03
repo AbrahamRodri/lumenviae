@@ -64,7 +64,12 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   all and the rows; on `/chant/salve_regina_simple` checks the recording's
   address on the site's bucket and the lines, presses play and waits for
   a line after the first to light (this fetches the recording, so it needs
-  a network), chooses English (the link gains `words=english`); on `/chant/sets`
+  a network), chooses English (the link gains `words=english`), opens
+  The Sheet Music (the link gains `score=full`, a dialog opens and every
+  page of the score is drawn from `/chant/scores/:file`, which the server
+  fetches from the bucket), double-clicks to twice the width, presses Zoom
+  in, checks the score scrolls inside its own frame and not the page, and
+  presses Escape back to the page; on `/chant/sets`
   checks the six sets; on `/chant/sets/benediction` checks the notes in
   red, presses Play all and waits for the first chant to sound and its row
   to light; and checks an unknown chant, section and set answer 404;

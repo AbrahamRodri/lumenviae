@@ -33,7 +33,7 @@ time, as its desktop version. The console
 | `/chant/sections/:section_id` | `LumenViaeWeb.Live.Chants.Section` | A section's shelf (`hymns`, `ourLady`), or the Mass of the Angels' (`mass_of_the_angels`): its painting with the name, when it is sung, how many chants and how long, Play all, the strip of its parts where it has them, and its chants, numbered where they share the shelf's painting, each with its own painting otherwise. |
 | `/chant/sets` | `LumenViaeWeb.Live.Chants.Sets` | Sets of Chants, as the app's `ChantSetsPage`: the six sung sets as wide painted cards, each with what it is for and how many chants and how long. |
 | `/chant/sets/:occasion_id` | `LumenViaeWeb.Live.Chants.Set` | A sung set (`benediction`, `sung_rosary`, `before_bed`), as the app's `ChantSetPage`: its painting with the name, its line, how many chants and how long, Play all (then Pause, Resume, Play next), Pause Between Chants, and its order: the notes in red over the chants they lead to, each chant numbered with how often it is sung and a Play from Here. |
-| `/chant/:chant_id` | `LumenViaeWeb.Live.Chants.Chant` | One chant, as the app's `ChantView`: its painting and its Latin and English names; the recording with the scrubber, back and on a line (greyed until it has played), the gold play, Repeat this line (which starts it) and three-quarter speed; the line being sung, or when it is sung for a chant with no timed lines; the Words (`?words=`), every line lit as it is sung and a click playing from it; the prayer it sings, its other settings and the singers' credit. |
+| `/chant/:chant_id` | `LumenViaeWeb.Live.Chants.Chant` | One chant, as the app's `ChantView`: its painting and its Latin and English names; the recording with the scrubber, back and on a line (greyed until it has played), the gold play, Repeat this line (which starts it) and three-quarter speed; the line being sung, or when it is sung for a chant with no timed lines; the Words (`?words=`), every line lit as it is sung and a click playing from it; The Sheet Music, opening the full score over the page (`?score=full`); the prayer it sings, its other settings and the singers' credit. |
 | `/hours` | `LumenViaeWeb.Live.Hours.Index` | Hours of Prayer, the Divine Office as the app's landing opens it, for the visitor's today: the hour now under its painting (NOW and when it lapses) with a gold Pray, the day's feast and class in plain words, the eight hours on a strand in a breviary's three groups, and a link to the month. The hour and the date wait, as an empty frame, for the browser's clock, so the server's UTC never names them. |
 | `/hours/:date` | `LumenViaeWeb.Live.Hours.Index` | The same for another day (`YYYY-MM-DD`): its date where NOW stands, and a link back to today. |
 | `/hours/:date/:hour` | `LumenViaeWeb.Live.Hours.Hour` | One hour read in full: its painting and name, the day and its feast, Latin, English or Both (`?lang=`), the parts of the hour (a rail beside the text from 1024px, a jump list above it on a phone), the hours either side and the Divinum Officium credit linked to the engine's page for the hour. `:hour` is the Office's slug (`matutinum` to `completorium`). |
@@ -234,6 +234,33 @@ playlists and praying aloud.
 The Chant pages keep their state in the link too: `/chant?q=` is the
 search, and `/chant/:chant_id?words=` the Words, `latin` or `english`;
 Both is the default and never written, and anything else is Both.
+`/chant/:chant_id?score=full` is the full score open over the page;
+anything else is the page alone.
+
+The full score is the app's `ChantScoreSheet` (opened on iOS from the
+score on the chant's page or the more menu's Enlarge the Sheet Music):
+the chant's painting with its names and DONE at the head, every page of
+the score at the width of the glass (a page's width at most, 60rem, on a
+wide screen), each named in gold where there is more than one, the notes
+in cream and the initials in the rubric red, and a small player floating
+at the foot (play, the scrubber, the time) that drives the page's own
+recording. A double-click (or a double tap) brings it to twice the width
+or back, about the phrase clicked; the zoom buttons beside the player and
+the + and - keys (0 for the width of the glass) step it from one to three
+times, and the score then scrolls inside its own frame, never the page.
+It is a dialog: focus starts on the score and stays within it, and DONE,
+Escape or Back close it (opened from the page, DONE and Escape go back in
+the history; opened from a link, they go to the chant's page). The pages
+of the score are drawn by the `ChantScore` hook
+(`assets/js/hooks/chant_score.js`) from the apps' own packed drawings
+(`.lvscore`), which the site serves at `/chant/scores/:file` (a file, not
+a page: the bucket sends no CORS headers, so the server fetches it; see
+docs/ARCHITECTURE.md). A page that cannot be had says "The sheet music
+comes with a connection", as the app does. Unlike the app: the web has
+no pinch (the browser's own zoom stays the browser's) and no animation
+of the zoom, the zoom has buttons and keys besides the double-click, and
+the entry is a quiet capsule, The Sheet Music, under the player, as the
+page has no score window of its own yet.
 
 The chants, their recordings and their timed lines are the domain's
 (`LumenViae.Rosary.get_chant_library!/1`, from
@@ -266,7 +293,8 @@ player at the foot of every page yet. The site's Content-Security-Policy
 (`base-uri` and `frame-ancestors` only) does not limit media, so nothing
 needed widening.
 
-Not here yet, as the app has them: the score (the `.lvscore` pages), the
+Not here yet, as the app has them: the score window on a chant's page
+that follows the line being sung (the full score is here), the
 reader's own sets (Make your own set, the bookmark that keeps a sung set,
 Share, which the app offers on the reader's own sets alone), a player at the foot of every page, and
 everything the phone keeps (the chant last sung, Played lately,

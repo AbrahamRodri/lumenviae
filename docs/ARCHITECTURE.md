@@ -53,6 +53,7 @@ lib/lumen_viae/
 │   ├── rosary_script.ex       resource with no table: one Rosary's script, expanded, for the APIs
 │   ├── prayer_book.ex         resource with no table: the Prayer Book's words as one document, for the APIs
 │   ├── chant_library.ex       resource with no table: the Chant Library, with its files' URLs, for the APIs
+│   ├── chant_score.ex         a score page (.lvscore) fetched from the bucket for the site's full score (Rosary.fetch_chant_score_page/1)
 │   ├── rosary_content/        the content document's sections, one calculation each, and current.ex: its version and date (stamp/2)
 │   ├── rosary_script/         expand.ex: a script's arguments read, refused when unknown, and expanded
 │   ├── artwork.ex             value module: licences, field lists and framing arithmetic
@@ -625,6 +626,18 @@ the file. How the apps arrange the words (orders of prayer, paintings,
 the chant shelves) stays in the apps. See docs/JSON_API.md, "The Prayer
 Book and the Chant Library".
 
+The website's full score on a chant's page draws those score pages in
+the browser, but the bucket sends no CORS headers, so a page cannot read
+them there. `GET /chant/scores/:file` (`ChantScoreController`) serves
+each one under the bucket's own file name through
+`LumenViae.Rosary.fetch_chant_score_page/1` (`Rosary.ChantScore`): only a
+page the library names, fetched from the library's URL (the host the
+server already writes to), checked against the library's size and
+SHA-256, and handed on unchanged with a year's immutable cache; nothing
+is kept on the server. The `ChantScore` hook inflates it
+(`DecompressionStream`, raw DEFLATE) and draws its operations as one SVG,
+as the iOS app's `ChantScoreDrawing` does on a Canvas.
+
 Add a value module when a list of allowed values is needed in more than one
 layer. Do not add one for anything that reads the database.
 
@@ -1086,6 +1099,7 @@ after a deploy is docs/DEPLOY_WATCH.md.
 lib/lumen_viae_web/
 ├── components/          shared function components
 ├── controllers/api/     JSON API for the iOS app
+├── controllers/         also the site's few non-page answers (security.txt, a chant's score pages)
 ├── live/                LiveViews, grouped by domain area
 ├── plugs/               canonical host, admin authentication
 └── router.ex
@@ -1100,7 +1114,7 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/pray/` | the prayer page: see [The prayer page](#the-prayer-page) |
 | `live/consecration/` | the 33-day Consecration, as the app's Consecration tab: the introduction, the feast chooser and the waiting page (`index/`, with `intro/`, `chooser/` and `scheduled/`), a day's page and its steps (`day/`, with `overview/`, `flow/` and `journey/`) and the Act made (`act/`). `days.ex` is the Consecration as the pages read it (a day's steps, its words, the phases' tints, the chant a prayer is sung to, over `Rosary.get_consecration!/1`), `plan.ex` the reader's plan and the app's date arithmetic, `state.ex` the plan the `ConsecrationPlan` hook hands the page, `parts.ex` the pieces the pages share; all are presentation and never query. The plan lives in the browser's `localStorage` alone. Their CSS is the `cons-*` classes, with the Prayer Book's `pray-along__*` for a day's steps |
 | `live/prayers/` | the Prayer Book, as the app's Prayers tab: the shelves, the shortcuts, Now and the search (`index/`, with `shelves/` and `search/`), a chapter (`chapter/`), an order of prayer (`order/`) and praying it in silence (`order/pray/`), and a prayer (`prayer/`, its words drawn by `prayer/text/`). `book.ex` is the book as the pages read it (the app's shelves, the five parts, second names, paintings and search ranking, over `Rosary.get_prayer_book!/1`), `orders.ex` the orders of prayer as the app reads them (the hour's order, Eastertide, the closing song to Mary, their paintings and search), `prayer_text.ex` the text's grammar and `painting.ex` a painting drawn about its subject; all are presentation and never query. Their CSS is the `book-*` and `prayers-*` classes, apart from the Rosary page's `.prayer-text` |
-| `live/chants/` | the Chant Library, as the app's Chant tab: the tab (`index/`), a section's shelf or the Mass of the Angels' (`section/`), Sets of Chants (`sets/`), a sung set (`set/`) and a chant (`chant/`). `occasions.ex` is the sung sets' rules (tonight's song to Mary, the order unrolled, the rows and the queue the player reads). `library.ex` is the library as the pages read it (the songs to Mary, the sections' names, the paintings, numbered shelves, the rows' second lines and the search, over `Rosary.get_chant_library!/1`) and `parts.ex` the rows, cards and play discs the pages share; both are presentation and never query. The recordings play through the `ChantPlayer` hook. Their CSS is the `chant-*` classes |
+| `live/chants/` | the Chant Library, as the app's Chant tab: the tab (`index/`), a section's shelf or the Mass of the Angels' (`section/`), Sets of Chants (`sets/`), a sung set (`set/`) and a chant (`chant/`). `occasions.ex` is the sung sets' rules (tonight's song to Mary, the order unrolled, the rows and the queue the player reads). `library.ex` is the library as the pages read it (the songs to Mary, the sections' names, the paintings, numbered shelves, the rows' second lines and the search, over `Rosary.get_chant_library!/1`) and `parts.ex` the rows, cards and play discs the pages share; both are presentation and never query. The recordings play through the `ChantPlayer` hook; a chant's full score (`?score=full`, over its page) is drawn by the `ChantScore` hook from `/chant/scores/:file`. Their CSS is the `chant-*` classes |
 | `live/hours/` | Hours of Prayer, the Divine Office as the app's: the landing for today or another day (`index/`), an hour read (`hour/`, a section drawn by `hour/section/`) and the month's calendar (`calendar/`). `canonical_hours.ex` is the eight hours as the app names and orders them (plain names, clock times, paintings) with the pages' dates and paths, `day_rank.ex` a day's class in plain words, `office_text.ex` an hour's sections set for a language; all are presentation and fetch nothing. The pages reach the Office only through `LumenViae.Office`'s public functions, after they connect (`start_async`). Their CSS is the `hours-*` classes and the Prayer Book's `book-*` reading classes; the rail is the `OfficeRail` hook |
 | `live/missal/` | The Daily Missal, the 1962 Mass as the app's: a day's Mass for today or another day (`index/`), the Order of Mass (`ordo/`) and the month's calendar by vestment colour (`calendar/`). `days.ex` is the dates, paths, vestment colours and plain classes, `missal_text.ex` a day's or the Order of Mass's sections set for a language (plain names, posture, the propers' diamond, citations, rubrics), `section.ex` one part drawn; all are presentation and fetch nothing. The pages reach the Missal only through `LumenViae.Office`'s public functions, after they connect (`start_async`), and share Hours of Prayer's parts rail (`hours/parts_rail.ex`, the `OfficeRail` hook) and month grid. Their own CSS is the `missal-*` classes |
 | `live/true_devotion/` | True Devotion, St. Louis de Montfort's book, as the app's reader: the title page (`index/`, the binding drawn by `cover/`) and a chapter read in place (`chapter/`). `book.ex` is the book as the pages read it (the contents' order, the short part names, a chapter's numbered paragraphs and versal, the shared citation, over `Rosary.get_true_devotion!/1`); presentation only, it never queries. The reader's place, the chapters read and the bookmarks are the browser's, kept by the `TrueDevotionPlace` hook, never sent. Their CSS is the `td-*` classes |
