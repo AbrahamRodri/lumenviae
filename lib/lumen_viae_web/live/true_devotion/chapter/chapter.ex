@@ -79,7 +79,8 @@ defmodule LumenViaeWeb.Live.TrueDevotion.Chapter do
 
   # The whole book from inside a chapter, as the app's contents sheet: the
   # reader's bookmarks at its head (drawn by the hook from this browser's
-  # storage), then the chapters under their parts, this one marked Here.
+  # storage, ending on a "Chapters" label), then the chapters under their
+  # parts, this one marked Here.
   defp contents(assigns) do
     ~H"""
     <div class="td-contents">
@@ -119,7 +120,7 @@ defmodule LumenViaeWeb.Live.TrueDevotion.Chapter do
       data-chapter={@chapter.id}
       aria-current={if(@chapter.id == @current.id, do: "page")}
     >
-      <span class="flex-1 min-w-0">{@chapter.title}</span>
+      <span class="flex-1 min-w-0" data-role="row-title">{@chapter.title}</span>
       <span :if={@chapter.id == @current.id} class="td-contents__here">Here</span>
     </.link>
     """

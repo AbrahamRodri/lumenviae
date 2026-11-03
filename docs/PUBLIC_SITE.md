@@ -38,8 +38,8 @@ time, as its desktop version. The console
 | `/hours/:date` | `LumenViaeWeb.Live.Hours.Index` | The same for another day (`YYYY-MM-DD`): its date where NOW stands, and a link back to today. |
 | `/hours/:date/:hour` | `LumenViaeWeb.Live.Hours.Hour` | One hour read in full: its painting and name, the day and its feast, Latin, English or Both (`?lang=`), the parts of the hour (a rail beside the text from 1024px, a jump list above it on a phone), the hours either side and the Divinum Officium credit linked to the engine's page for the hour. `:hour` is the Office's slug (`matutinum` to `completorium`). |
 | `/hours/calendar/:year/:month` | `LumenViaeWeb.Live.Hours.Calendar` | The month by the days' classes, a gold mark brighter for the greater feasts; each day links to its hours, and from 768px each cell carries the day's title. |
-| `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open, the part being read open), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
-| `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head. `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
+| `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open; the chapter last opened marked while it is unfinished, its part open, and a folded part holding it marked on its header), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
+| `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head, each its chapter's title over the passage's opening words (the rail carries the contents sheet's head: the book's title, Contents and "8 of 13"). `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
 | `/true-devotion` | True Devotion to Mary (the summary page; the address now opens the book) |
 
 All twenty-six are in the `:public` live session in `router.ex`. A set
@@ -413,7 +413,10 @@ read and the bookmarks are this browser's (below). The place is the
 paragraph at the top of the screen once the reader scrolls; reaching a
 chapter's foot, or pressing Next chapter, marks it read and puts the
 place at its top, as the app does. Continue Reading resumes the chapter
-last read if it is unfinished, else the first unfinished one.
+last read if it is unfinished, else the first unfinished one. A chapter
+opened any other way (the contents, the rail, the chapters either side)
+also resumes its kept paragraph while it is unfinished, unless the
+address names a paragraph (`#p-3`).
 
 There is no link to the book in the header or the footer: the app reaches
 it from Explore and from the Consecration, neither of which is on the site
