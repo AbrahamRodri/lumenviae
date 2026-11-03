@@ -210,6 +210,135 @@ defmodule LumenViae.Office.MissalTest do
     end
   end
 
+  describe "bounds (W1)" do
+    test "at most four fetches at once; past that, unavailable with nothing held" do
+      test = self()
+
+      Req.Test.stub(MissaleMeum, fn conn ->
+        send(test, {:fetching, self()})
+
+        receive do
+          :go -> Req.Test.json(conn, [])
+        end
+      end)
+
+      waiting =
+        for day <- 1..4 do
+          Task.async(fn -> Office.fetch_mass(Date.new!(2026, 11, day)) end)
+        end
+
+      fetchers =
+        for _ <- 1..4 do
+          assert_receive {:fetching, pid}, 2_000
+          pid
+        end
+
+      assert {:error, :missal_unavailable} = Office.fetch_mass(~D[2026-11-05])
+
+      Enum.each(fetchers, &send(&1, :go))
+      assert Enum.all?(Task.await_many(waiting), &match?({:ok, []}, &1))
+
+      # Nothing was held: the fifth day is asked for as soon as there is room.
+      Req.Test.stub(MissaleMeum, &Req.Test.json(&1, []))
+      assert {:ok, []} = Office.fetch_mass(~D[2026-11-05])
+    end
+
+    test "at most sixty cold fetches a minute; past that, unavailable with nothing held" do
+      calls = stub_json("[]")
+
+      for day <- 0..59 do
+        assert {:ok, []} = Office.fetch_mass(Date.add(~D[2026-01-01], day))
+      end
+
+      assert {:error, :missal_unavailable} = Office.fetch_mass(~D[2026-06-01])
+      assert count(calls) == 60
+      # What is cached is still served.
+      assert {:ok, []} = Office.fetch_mass(~D[2026-01-01])
+    end
+
+    test "a day far from today, or a year far from this one, is kept an hour" do
+      today = ~D[2026-11-03]
+      hour = :timer.hours(1)
+
+      assert LumenViae.Office.Missal.ttl({:missal, :proper, ~D[2026-11-20]}, today) == nil
+      assert LumenViae.Office.Missal.ttl({:missal, :proper, ~D[2026-12-15]}, today) == nil
+      assert LumenViae.Office.Missal.ttl({:missal, :proper, ~D[2027-03-01]}, today) == hour
+      assert LumenViae.Office.Missal.ttl({:missal, :proper, ~D[1700-01-01]}, today) == hour
+      assert LumenViae.Office.Missal.ttl({:missal, :calendar, 2027}, today) == nil
+      assert LumenViae.Office.Missal.ttl({:missal, :calendar, 2030}, today) == hour
+      assert LumenViae.Office.Missal.ttl({:missal, :ordo}, today) == nil
+    end
+  end
+
+  describe "which failures close every key (W2)" do
+    test "a 404 or an unreadable answer holds only its own key" do
+      Req.Test.stub(MissaleMeum, fn conn ->
+        case conn.request_path do
+          "/en/api/v5/proper/2026-11-04" -> Plug.Conn.send_resp(conn, 404, "{}")
+          "/en/api/v5/proper/2026-11-05" -> Req.Test.html(conn, "<html>blocked</html>")
+          _other -> Req.Test.json(conn, [])
+        end
+      end)
+
+      assert {:error, :missal_unavailable} = Office.fetch_mass(~D[2026-11-04])
+      assert {:ok, []} = Office.fetch_mass(~D[2026-11-06])
+      assert {:error, :missal_unavailable} = Office.fetch_mass(~D[2026-11-05])
+      assert {:ok, []} = Office.fetch_mass(~D[2026-11-07])
+    end
+
+    test "a 5xx closes every key for a while" do
+      Req.Test.stub(MissaleMeum, fn conn ->
+        case conn.request_path do
+          "/en/api/v5/proper/2026-11-04" -> Plug.Conn.send_resp(conn, 502, "")
+          _other -> Req.Test.json(conn, [])
+        end
+      end)
+
+      assert {:error, :missal_unavailable} = Office.fetch_mass(~D[2026-11-04])
+      assert {:error, :missal_unavailable} = Office.fetch_mass(~D[2026-11-06])
+    end
+  end
+
+  describe "the deadline" do
+    test "a fetch past it is stopped, counted as Missale Meum failing, and held" do
+      Process.put(:missal_deadline_ms, 100)
+
+      Req.Test.stub(MissaleMeum, fn conn ->
+        Process.sleep(1_000)
+        Req.Test.json(conn, [])
+      end)
+
+      assert {:error, :missal_unavailable} = Office.fetch_mass(~D[2026-11-04])
+      assert {:error, :missal_unavailable} = Office.fetch_mass(~D[2026-11-06])
+    end
+
+    test "a value stored a moment before the deadline is answered, with no failure held" do
+      test = self()
+
+      Req.Test.stub(MissaleMeum, fn conn ->
+        send(test, :fetching)
+        Process.sleep(1_000)
+        Req.Test.json(conn, [])
+      end)
+
+      stored = [%{title: "Stored"}]
+
+      caller =
+        Task.async(fn ->
+          Process.put(:missal_deadline_ms, 150)
+          Office.fetch_mass(~D[2026-11-04])
+        end)
+
+      assert_receive :fetching, 2_000
+      # The task's store, as it lands in the instant before the deadline.
+      LumenViae.Office.Cache.put({:missal, :proper, ~D[2026-11-04]}, stored)
+
+      assert {:ok, ^stored} = Task.await(caller)
+      Req.Test.stub(MissaleMeum, &Req.Test.json(&1, []))
+      assert {:ok, []} = Office.fetch_mass(~D[2026-11-06])
+    end
+  end
+
   defp eventually(fun, tries \\ 50) do
     cond do
       fun.() -> true

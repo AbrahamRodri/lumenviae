@@ -6,7 +6,7 @@
     if(@language == "both", do: "max-w-6xl", else: "max-w-5xl")
   ]}>
     <.link
-      navigate={Days.today_path(@language)}
+      navigate={Days.back_path(@day, @language)}
       class="btn-text !text-ink-muted hover:!text-gilt-light -ml-1"
       data-role="back"
     >
@@ -25,7 +25,7 @@
     <nav class="prayers-language hours-language mt-6" aria-label="Language" data-role="language">
       <.link
         :for={{value, label} <- @languages}
-        patch={Days.ordo_path(value)}
+        patch={Days.ordo_path(value, @day)}
         replace
         class="prayers-language__option"
         aria-current={if(value == @language, do: "true")}

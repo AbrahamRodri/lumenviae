@@ -74,6 +74,20 @@ defmodule LumenViaeWeb.Live.Hours.DayRank do
     end
   end
 
+  @doc """
+  The Missal's day in plain words, as iOS's `DayRank.plainLabel` reads
+  Missale Meum's number: a weekday by its title whatever its class, else
+  the class; nil for a day Missale Meum sends with no class, unless its
+  title names a weekday.
+  """
+  def plain_missal(rank, title, season \\ nil)
+
+  def plain_missal(rank, title, season) when is_integer(rank), do: plain(rank, title, season)
+
+  def plain_missal(_no_rank, title, season) do
+    if weekday?(title, nil), do: weekday(String.downcase("#{title} #{season}"))
+  end
+
   @doc "A day's plain class from an Office day or hour map."
   def plain_for(%{celebration: %{title: title, rank: rank}} = day),
     do: plain(rank, title, season(day))

@@ -146,9 +146,23 @@ defmodule LumenViaeWeb.Live.Missal.MissalText do
   # A part by its key, or by the head of it: Missale Meum names a second
   # lesson "Lectio 2" and a seasonal variant "Graduale (Allelúja)". A part
   # the tables do not know reads as the day's own, with no posture.
+  #
+  # As iOS reads them (`MissalOrderData`): the name from the day's table or
+  # the Order of Mass's, by the key and then its head; the posture and the
+  # diamond from the exact key only, so a variant part keeps its name but
+  # not a posture it may not share.
   defp part(key) do
     head = key |> String.split(~r/[^\p{L} ]/u) |> List.first() |> String.trim()
-    Map.get(@parts, key) || Map.get(@parts, head) || {nil, nil, true}
+
+    name =
+      Enum.find_value([key, head], fn k ->
+        (Map.get(@parts, k) && elem(Map.get(@parts, k), 0)) || Map.get(@ordinary, k)
+      end)
+
+    case Map.get(@parts, key) do
+      {_name, posture, proper?} -> {name, posture, proper?}
+      nil -> {name, nil, true}
+    end
   end
 
   defp ordinary_name(nil), do: nil

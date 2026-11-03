@@ -451,6 +451,24 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
     end
   end
 
+  describe "the Missal behind a day (W4)" do
+    test "is reached only through the suite's stub, never the network", %{conn: conn} do
+      stub_page("kalendar_2026-08.html")
+      calls = :counters.new(1, [])
+
+      Req.Test.stub(LumenViae.Office.MissaleMeum, fn conn ->
+        :counters.add(calls, 1, 1)
+        Req.Test.transport_error(conn, :econnrefused)
+      end)
+
+      {:ok, view, _html} = live(conn, "/hours/2026-08-27")
+      render_async(view, 2000)
+      assert :counters.get(calls, 1) == 1
+      # Without the Missal the day keeps the Office's Latin title.
+      assert has_element?(view, "[data-role=feast-plate] [lang=la]")
+    end
+  end
+
   describe "the sitemap and robots.txt" do
     test "list /hours and keep crawlers out of the dated pages" do
       sitemap = File.read!(Application.app_dir(:lumen_viae, "priv/static/sitemap.xml"))

@@ -434,16 +434,25 @@ How the server keeps from hammering Missale Meum:
   fetch. The task stores what it read before it answers.
 - A fetch follows no redirect, reads at most 2 MB, and has 20 seconds in
   all.
+- At most 4 fetches run at once and at most 60 start a minute on a
+  machine (`LumenViae.Hammer`); past either the page says Missale Meum
+  could not be reached, and nothing is held.
+- A Mass more than six weeks from today, or a calendar of a year other
+  than this one and those either side, is kept an hour, not a month, so a
+  walk through the centuries cannot fill memory.
 - Anything but the JSON the Missal reads (down, slow, a non-200, a
   redirect, an HTML block page with a 200, JSON of another shape) is a
-  failure, held: that key is not asked for again for five minutes, and no
-  key for one.
+  failure, held: that key is not asked for again for five minutes. Only
+  Missale Meum itself failing (unreachable, past the deadline, a 5xx)
+  closes every key, for a minute.
 
 | Page | Parameter | Values | Default |
 | --- | --- | --- | --- |
 | `/missal`, `/missal/:date` | `lang` | `latin` or `both` | English |
 | `/missal`, `/missal/:date` | `mass` | the Mass of a day with several, from `1` | `1` |
 | `/missal/order-of-mass` | `lang` | `latin` or `both` | English |
+| `/missal/order-of-mass`, `/missal/calendar/:year/:month` | `day` | the day it was opened from, for the way back | today, `/missal` |
+| `/missal/calendar/:year/:month` | `lang` | `latin` or `both`, carried to every day it opens | English |
 
 A day's parts are named plainly ("Entrance Chant", "Prayer over the
 Gifts"), with the Latin name beside them small and dim; the day's own

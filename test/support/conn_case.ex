@@ -36,6 +36,14 @@ defmodule LumenViaeWeb.ConnCase do
 
   setup tags do
     LumenViae.DataCase.setup_sandbox(tags)
+
+    # Pages that reach the Daily Missal (Home's Today's Mass, Hours of
+    # Prayer's day) fetch it once connected. No test reaches Missale Meum:
+    # it answers as down unless a test stubs it, and each test's Office
+    # cache is its own, so a failure one test holds never reaches another.
+    LumenViae.Office.Cache.isolate()
+    Req.Test.stub(LumenViae.Office.MissaleMeum, &Req.Test.transport_error(&1, :econnrefused))
+
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 

@@ -1,3 +1,9 @@
+# Replaced, never appended: a caller's own X-Real-IP is dropped, so
+# LumenViaeWeb.ClientIP (CLIENT_IP_HEADER=x-real-ip) reads the real peer.
+(real_ip) {
+	header_up X-Real-IP {remote_host}
+}
+
 # HTTPS for both names, certificates by DNS-01 through Cloudflare, so they
 # are issued before the DNS points here (no window of certificate errors,
 # which HSTS would make unclickable). The token is limited to editing
@@ -9,9 +15,23 @@ lumenviae.org, www.lumenviae.org {
 
 	encode zstd gzip
 
-	reverse_proxy app:8080 {
-		# Replaced, never appended: a caller's own X-Real-IP is dropped, so
-		# LumenViaeWeb.ClientIP (CLIENT_IP_HEADER=x-real-ip) reads the real peer.
-		header_up X-Real-IP {remote_host}
+	# A deploy stops the old app before the new one listens (about 10 s).
+	# A request without a body waits that out: Caddy tries to connect every
+	# 250ms for up to 30 s instead of answering 502. A request with a body
+	# (a POST) still gets 502 in that window, because a resent POST reaches
+	# the app with its body missing, even with request_buffers (tried
+	# under Compose 2.40 in a simulated deploy).
+	@no_body method GET HEAD OPTIONS
+	handle @no_body {
+		reverse_proxy app:8080 {
+			import real_ip
+			lb_try_duration 30s
+			lb_try_interval 250ms
+		}
+	}
+	handle {
+		reverse_proxy app:8080 {
+			import real_ip
+		}
 	}
 }

@@ -14,7 +14,12 @@ defmodule LumenViaeWeb.Live.Missal.Calendar do
   (after a failure only). Today is marked once the `UserTimezone` hook
   gives the visitor's date. The app's offline row (Save the month) has no
   place on a website and is left out. A month that is not one, or that
-  the Missal does not serve, is a 404.
+  the Missal does not serve, is a 404, and so is one written with a
+  leading zero or sign (one address a month).
+
+  `?lang=` is the language being read, carried to every day the month
+  opens and to its arrows; `?day=` the day the reader came from, which
+  the way back opens (today otherwise), as iOS's sheet closes over it.
   """
   use LumenViaeWeb, :live_view
 
@@ -34,7 +39,7 @@ defmodule LumenViaeWeb.Live.Missal.Calendar do
   end
 
   @impl true
-  def handle_params(%{"year" => year, "month" => month}, _uri, socket) do
+  def handle_params(%{"year" => year, "month" => month} = params, _uri, socket) do
     {year, month} =
       case Days.parse_month(year, month) do
         {:ok, ym} -> ym
@@ -53,9 +58,10 @@ defmodule LumenViaeWeb.Live.Missal.Calendar do
         trail: [{"The Mass", "/missal"}, {title, path}]
       )
       |> assign(year: year, month: month, title: title)
+      |> assign(:language, LumenViaeWeb.Live.Missal.MissalText.language(params["lang"]))
+      |> assign(:day, day(params["day"]))
       |> assign(:cells, cells(year, month))
-      |> assign(:previous, neighbour(year, month, -1))
-      |> assign(:next, neighbour(year, month, 1))
+      |> assign_neighbours()
 
     # The calendar comes a year at a time: a month of the same year needs
     # nothing fetched again.
@@ -116,11 +122,25 @@ defmodule LumenViaeWeb.Live.Missal.Calendar do
     padded ++ List.duplicate(nil, rem(7 - rem(length(padded), 7), 7))
   end
 
-  defp neighbour(year, month, step) do
+  # The arrows keep the language and the day the reader came from.
+  defp assign_neighbours(%{assigns: %{year: year, month: month} = assigns} = socket) do
+    socket
+    |> assign(:previous, neighbour(year, month, -1, assigns.language, assigns.day))
+    |> assign(:next, neighbour(year, month, 1, assigns.language, assigns.day))
+  end
+
+  defp neighbour(year, month, step, language, day) do
     date = Date.new!(year, month, 1) |> Date.shift(month: step)
 
     case Days.parse_month(to_string(date.year), to_string(date.month)) do
-      {:ok, _} -> Days.calendar_path(date)
+      {:ok, _} -> Days.calendar_path(date, language, day)
+      :error -> nil
+    end
+  end
+
+  defp day(value) do
+    case Days.parse_date(value) do
+      {:ok, date} -> date
       :error -> nil
     end
   end

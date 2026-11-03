@@ -45,7 +45,10 @@ defmodule LumenViaeWeb.Live.Missal.Days do
 
   @doc "A year and month from the link, `{:ok, {year, month}}` or `:error`."
   def parse_month(year, month) when is_binary(year) and is_binary(month) do
-    with {year, ""} <- Integer.parse(year),
+    # Digits only, with no leading zero: one address a month.
+    with true <- Regex.match?(~r/\A[1-9]\d{3}\z/, year),
+         true <- Regex.match?(~r/\A[1-9]\d?\z/, month),
+         {year, ""} <- Integer.parse(year),
          {month, ""} <- Integer.parse(month),
          true <- month in 1..12,
          true <- Office.serves?(Date.new!(year, month, 1)) do
@@ -89,17 +92,44 @@ defmodule LumenViaeWeb.Live.Missal.Days do
     do: "/missal" <> query(mass: mass, lang: language)
 
   @doc "The Order of Mass, in the language being read."
-  def ordo_path(language \\ "english"), do: "/missal/order-of-mass" <> query(lang: language)
+  def ordo_path(language \\ "english", day \\ nil),
+    do: "/missal/order-of-mass" <> query(lang: language, day: day)
 
-  def calendar_path(%Date{year: year, month: month}), do: calendar_path(year, month)
-  def calendar_path(year, month), do: "/missal/calendar/#{year}/#{month}"
+  @doc """
+  A month's calendar, carrying the language being read and, from another
+  day's page, that day, for the way back: `/missal/calendar/2026/11?lang=both&day=2026-11-04`.
+  """
+  def calendar_path(
+        date_or_year,
+        month_or_language \\ "english",
+        language_or_day \\ nil,
+        day \\ nil
+      )
+
+  def calendar_path(%Date{year: year, month: month}, language, day, _unused),
+    do: calendar_path(year, month, language || "english", day)
+
+  def calendar_path(year, month, language, day) when is_integer(year),
+    do: "/missal/calendar/#{year}/#{month}" <> query(lang: language || "english", day: day)
+
+  @doc "Where a page reached from a day goes back to: that day, or today."
+  def back_path(nil, language), do: today_path(language)
+  def back_path(%Date{} = day, language), do: day_path(day, language)
 
   defp query(pairs) do
     pairs =
       Enum.reject(pairs, fn
         {:mass, 1} -> true
         {:lang, "english"} -> true
+        {:day, nil} -> true
+        {:day, false} -> true
         _kept -> false
+      end)
+
+    pairs =
+      Enum.map(pairs, fn
+        {k, %Date{} = d} -> {k, Date.to_iso8601(d)}
+        pair -> pair
       end)
 
     if pairs == [], do: "", else: "?" <> URI.encode_query(pairs)
@@ -122,7 +152,7 @@ defmodule LumenViaeWeb.Live.Missal.Days do
 
   @doc "\"Great Feast\", \"Feast\", \"Lesser Feast\" or a weekday, from a Mass or a calendar day."
   def class(%{rank: rank, title: title} = day),
-    do: DayRank.plain(rank, title, Map.get(day, :tempora))
+    do: DayRank.plain_missal(rank, title, Map.get(day, :tempora))
 
   def class(_day), do: nil
 

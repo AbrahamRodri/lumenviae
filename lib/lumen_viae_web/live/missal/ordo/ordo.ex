@@ -9,6 +9,9 @@ defmodule LumenViaeWeb.Live.Missal.Ordo do
   Its parts stand in a rail beside the text from 1024px and a jump list
   above it on a phone, as the day's do; the app has neither.
 
+  `?day=` is the day it was opened from, which the way back opens
+  (today otherwise), as iOS's page closes back to it.
+
   The text is `LumenViae.Office.fetch_order_of_mass/0`, fetched by the
   server and cached there, after the page is shown; when it cannot be
   reached the page says so with a Try again, which asks again only after
@@ -43,6 +46,7 @@ defmodule LumenViaeWeb.Live.Missal.Ordo do
     {:noreply,
      socket
      |> assign(:language, MissalText.language(params["lang"]))
+     |> assign(:day, day(params["day"]))
      |> assign_sections()}
   end
 
@@ -71,4 +75,12 @@ defmodule LumenViaeWeb.Live.Missal.Ordo do
        do: assign(socket, :sections, MissalText.ordo_sections(ordo, language))
 
   defp assign_sections(socket), do: socket
+
+  # The day the reader came from, for the way back; anything else is today.
+  defp day(value) do
+    case Days.parse_date(value) do
+      {:ok, date} -> date
+      :error -> nil
+    end
+  end
 end
