@@ -74,7 +74,9 @@ config :lumen_viae, :spiritual_reading,
 
 # The same for the chant score pages the full score fetches from the
 # assets bucket.
-config :lumen_viae, :chant_scores, req_options: [plug: {Req.Test, LumenViae.Rosary.ChantScore}]
+config :lumen_viae, :chant_scores,
+  req_options: [plug: {Req.Test, LumenViae.Rosary.ChantScore}],
+  keep: false
 
 # The same for the Daily Missal's texts from Missale Meum.
 config :lumen_viae, :missal, req_options: [plug: {Req.Test, LumenViae.Office.MissaleMeum}]
