@@ -336,11 +336,21 @@ function save() {
 // What is read back is checked before it is used: a recording or painting
 // only from this site or the chant files' own origin (the <audio>'s
 // data-origin), a chant's page only under /chant/.
+// A recording or painting is trusted only where the browser itself would
+// fetch it from: this site, or the chant files' origin. Resolved as the
+// browser resolves it, so "/\host/x", "/<tab>/host/x" and the like, which a
+// browser reads as another host, are refused.
 function trustedUrl(url) {
-  if (typeof url !== "string") return false
-  if (url.startsWith("/") && !url.startsWith("//")) return true
+  if (typeof url !== "string" || (!url.startsWith("/") && !/^https:\/\//.test(url))) return false
+  let resolved
+  try {
+    resolved = new URL(url, window.location.origin)
+  } catch (_unreadable) {
+    return false
+  }
+  if (url.startsWith("/")) return resolved.origin === window.location.origin
   const origin = audio()?.dataset.origin
-  return !!origin && url.startsWith(`${origin}/`)
+  return !!origin && resolved.origin === origin && url.startsWith(`${origin}/`)
 }
 
 const text = (value) => (typeof value === "string" ? value : undefined)
