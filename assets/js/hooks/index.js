@@ -16,6 +16,7 @@ import ChantScore from "./chant_score"
 import TrueDevotionPlace from "./true_devotion_place"
 import SpiritualReadingPlace from "./spiritual_reading_place"
 import ConsecrationPlan from "./consecration_plan"
+import MissalReading from "./missal_reading"
 
 export default {
   UserTimezone,
@@ -35,5 +36,6 @@ export default {
   ChantScore,
   TrueDevotionPlace,
   SpiritualReadingPlace,
-  ConsecrationPlan
+  ConsecrationPlan,
+  MissalReading
 }

@@ -26,17 +26,26 @@ defmodule LumenViaeWeb.Live.Missal.Index do
   Missale Meum cannot be reached the plate says so with a Try again,
   which asks again only after a failure.
 
-  As the Android app, the page sets the day's own texts and leaves the
-  fixed parts to the Order of Mass's page; the app's "With the
-  Ordinary" reading, its text size and posture settings, the first-open
-  layout question and the offline week are left out (the width decides
-  side by side; posture is always shown).
+  The Mass is read whole by default, as the app reads it ("With the
+  Ordinary"): the Order of Mass's prayers let into their places among the
+  day's own texts (`LumenViaeWeb.Live.Missal.Ordinary`), the Order of
+  Mass fetched alongside the day (`LumenViae.Office.fetch_order_of_mass/0`,
+  cached as its own page's is). The app's Contents choice, Today's texts
+  only or Whole Mass, and its Sung Mass switch, here Spoken or Sung, stand
+  under the language; they are this browser's own (the `MissalReading`
+  hook keeps them in localStorage, never on the server). Until the Order
+  of Mass has come the day waits for it; without it the day's texts stand
+  alone, as the app's do.
+
+  The app's text size and posture settings, the first-open layout question
+  and the offline week are left out (the width decides side by side;
+  posture is always shown).
   """
   use LumenViaeWeb, :live_view
 
   alias LumenViae.Office
   alias LumenViaeWeb.Live.Hours.{CanonicalHours, PartsRail}
-  alias LumenViaeWeb.Live.Missal.{Days, MissalText}
+  alias LumenViaeWeb.Live.Missal.{Days, MissalText, Ordinary}
   alias LumenViaeWeb.PageMeta
 
   import LumenViaeWeb.Live.Missal.Section
@@ -69,6 +78,7 @@ defmodule LumenViaeWeb.Live.Missal.Index do
       |> assign(:clock_known?, fixed_date?)
       |> assign(masses: nil, mass: nil, sections: [], state: :waiting)
       |> assign(language: "english", mass_number: 1, languages: MissalText.languages())
+      |> assign(whole?: true, sung?: false, ordo: nil, ordo_state: :idle)
 
     {:ok, if(fixed_date?, do: load(socket), else: socket)}
   end
@@ -92,6 +102,43 @@ defmodule LumenViaeWeb.Live.Missal.Index do
 
   def handle_event("set_timezone", _params, socket), do: {:noreply, socket}
 
+  # Today's texts only or the Whole Mass, and Spoken or Sung: chosen here,
+  # kept by this browser.
+  def handle_event("set_contents", %{"contents" => contents}, socket)
+      when contents in ["propers", "whole"] do
+    {:noreply,
+     socket
+     |> assign(:whole?, contents == "whole")
+     |> reading_changed()
+     |> store_reading()}
+  end
+
+  def handle_event("set_sung", %{"sung" => sung}, socket) when sung in ["true", "false"] do
+    {:noreply,
+     socket
+     |> assign(:sung?, sung == "true")
+     |> reading_changed()
+     |> store_reading()}
+  end
+
+  # The MissalReading hook hands back what this browser chose before.
+  def handle_event("restore_reading", params, socket) do
+    whole? =
+      case params["contents"] do
+        "propers" -> false
+        "whole" -> true
+        _other -> socket.assigns.whole?
+      end
+
+    sung? = if is_boolean(params["sung"]), do: params["sung"], else: socket.assigns.sung?
+
+    {:noreply, socket |> assign(whole?: whole?, sung?: sung?) |> reading_changed()}
+  end
+
+  def handle_event(event, _params, socket)
+      when event in ["set_contents", "set_sung"],
+      do: {:noreply, socket}
+
   # Only after a failure: a Try again can never cut a fetch short or start
   # another while one is on its way.
   def handle_event("retry", _params, %{assigns: %{state: :failed}} = socket),
@@ -113,6 +160,13 @@ defmodule LumenViaeWeb.Live.Missal.Index do
   end
 
   def handle_async(:mass, _crashed, socket), do: {:noreply, assign(socket, :state, :failed)}
+
+  def handle_async(:ordo, {:ok, {:ok, ordo}}, socket),
+    do: {:noreply, socket |> assign(ordo: ordo, ordo_state: :ready) |> assign_mass()}
+
+  # Without the Order of Mass the day's texts stand alone, as the app's do.
+  def handle_async(:ordo, _failed, socket),
+    do: {:noreply, socket |> assign(:ordo_state, :failed) |> assign_mass()}
 
   # The visitor's today: today's page moves to it and fetches its Mass the
   # first time, or when the date has turned.
@@ -138,9 +192,36 @@ defmodule LumenViaeWeb.Live.Missal.Index do
       socket
       |> cancel_async(:mass)
       |> start_async(:mass, fn -> {date, Office.fetch_mass(date)} end)
+      |> load_ordo()
     else
       socket
     end
+  end
+
+  # The Order of Mass, once, and again only after a failure, when the
+  # Whole Mass is read.
+  defp load_ordo(%{assigns: %{whole?: true, ordo_state: state}} = socket)
+       when state in [:idle, :failed] do
+    if connected?(socket),
+      do:
+        socket
+        |> assign(:ordo_state, :loading)
+        |> start_async(:ordo, &Office.fetch_order_of_mass/0),
+      else: socket
+  end
+
+  defp load_ordo(socket), do: socket
+
+  defp reading_changed(socket) do
+    socket = if socket.assigns.state == :waiting, do: socket, else: load_ordo(socket)
+    assign_mass(socket)
+  end
+
+  defp store_reading(socket) do
+    push_event(socket, "store_missal_reading", %{
+      contents: if(socket.assigns.whole?, do: "whole", else: "propers"),
+      sung: socket.assigns.sung?
+    })
   end
 
   defp assign_mass(%{assigns: %{masses: masses}} = socket)
@@ -150,10 +231,27 @@ defmodule LumenViaeWeb.Live.Missal.Index do
 
     socket
     |> assign(:mass, mass)
-    |> assign(:sections, MissalText.day_sections(mass.sections, socket.assigns.language))
+    |> assign(:sections, sections(socket.assigns, mass))
   end
 
   defp assign_mass(socket), do: assign(socket, mass: nil, sections: [])
+
+  # The Whole Mass waits for the Order of Mass, so the page is not
+  # rebuilt under the reader when it comes.
+  defp sections(%{whole?: true, ordo_state: :loading}, _mass), do: []
+
+  defp sections(%{whole?: true} = assigns, mass) do
+    mass.sections
+    |> Ordinary.weave(assigns.ordo, mass, date: assigns.date, sung?: assigns.sung?)
+    |> MissalText.mass_sections(assigns.language)
+  end
+
+  defp sections(assigns, mass), do: MissalText.day_sections(mass.sections, assigns.language)
+
+  @doc false
+  # The day is in hand and the Whole Mass waits on the Order of Mass.
+  def ordo_waiting?(%{mass: mass, whole?: whole?, ordo_state: state}),
+    do: mass != nil and whole? and state == :loading
 
   defp mass_number(value) when is_binary(value) do
     case Integer.parse(value) do
