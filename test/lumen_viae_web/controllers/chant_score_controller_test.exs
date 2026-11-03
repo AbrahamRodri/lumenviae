@@ -29,6 +29,31 @@ defmodule LumenViaeWeb.ChantScoreControllerTest do
     assert type =~ "application/octet-stream"
   end
 
+  test "a verified page is kept, so the bucket is asked once", %{conn: conn} do
+    Process.put(:chant_score_scope, make_ref())
+    bytes = File.read!(@fixture)
+    calls = :counters.new(1, [])
+
+    stub(fn req ->
+      :counters.add(calls, 1, 1)
+      Plug.Conn.send_resp(req, 200, bytes)
+    end)
+
+    for _ <- 1..3, do: assert(conn |> get("/chant/scores/#{@name}") |> response(200) == bytes)
+    assert :counters.get(calls, 1) == 1
+  end
+
+  test "a failure is not kept: the next request asks the bucket again", %{conn: conn} do
+    Process.put(:chant_score_scope, make_ref())
+    bytes = File.read!(@fixture)
+
+    stub(&Req.Test.transport_error(&1, :econnrefused))
+    assert conn |> get("/chant/scores/#{@name}") |> response(502)
+
+    stub(fn req -> Plug.Conn.send_resp(req, 200, bytes) end)
+    assert conn |> get("/chant/scores/#{@name}") |> response(200) == bytes
+  end
+
   test "a name the library does not have is a 404 and asks the bucket nothing", %{conn: conn} do
     stub(fn _req -> flunk("the bucket was asked") end)
 
