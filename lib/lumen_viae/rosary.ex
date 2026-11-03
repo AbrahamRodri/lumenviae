@@ -529,6 +529,9 @@ defmodule LumenViae.Rosary do
   """
   def spiritual_reading_text, do: LumenViae.Rosary.SpiritualReading.Text
 
+  @doc "The child spec of the table that keeps verified chant score pages."
+  def chant_score_store, do: LumenViae.Rosary.ChantScore
+
   @doc """
   A page of a chant's sheet music, the packed drawing the apps draw, by
   its name in the assets bucket (`chant-salve-regina-simple-8748a1058c7c.lvscore`),
