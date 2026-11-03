@@ -208,6 +208,7 @@ defmodule LumenViaeWeb.JsonApi.RecordCompletionTest do
     @limit 2
 
     setup do
+      LumenViae.Test.HourWindow.clear_of_the_edge()
       previous = Application.get_env(:lumen_viae, :completions_per_hour)
       Application.put_env(:lumen_viae, :completions_per_hour, @limit)
       on_exit(fn -> Application.put_env(:lumen_viae, :completions_per_hour, previous) end)
