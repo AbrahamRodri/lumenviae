@@ -16,6 +16,13 @@ defmodule LumenViaeWeb.Live.Home.Index do
   The mysteries' names, fruits and paintings come from the database; a
   category whose mysteries are not there yet falls back to the labels
   `LumenViae.Rosary.Categories` gives each position.
+
+  Today's Prayer (`LumenViaeWeb.Live.Home.TodaysPrayer`) follows the
+  categories, as on the app's Home: the Consecration from the plan the
+  `ConsecrationPlan` hook reads from this browser (`consecration_state`),
+  the hour's order and the Hours of Prayer from the browser's clock. Each
+  row waits as an empty frame until its source has spoken, and while the
+  page is open the rows turn on the hour.
   """
   use LumenViaeWeb, :live_view
 
@@ -24,6 +31,8 @@ defmodule LumenViaeWeb.Live.Home.Index do
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.{Categories, Labels}
   alias LumenViaeWeb.Components.{MysteryPainting, SetPortrait}
+  alias LumenViaeWeb.Live.Consecration.Plan
+  alias LumenViaeWeb.Live.Home.TodaysPrayer
   alias LumenViaeWeb.PageMeta
 
   @numerals ~w(I II III IV V VI VII)
@@ -54,22 +63,38 @@ defmodule LumenViaeWeb.Live.Home.Index do
      |> assign(:schedule, LiturgicalCalendar.default_schedule())
      |> assign(:categories, categories)
      |> assign(:meditation_sets, meditation_sets)
-     |> assign_today(Date.utc_today())}
+     |> assign_today(Date.utc_today())
+     |> assign(:prayer_data, TodaysPrayer.load(actor))
+     |> assign(offset: nil, now: nil, turn: nil)
+     |> assign(plan_known?: false, plan: nil, done: [], plan_today: nil)
+     |> assign_prayer()}
   end
 
   @impl true
   def handle_event("set_timezone", %{"offset" => offset}, socket)
       when is_integer(offset) and abs(offset) <= @max_offset_minutes do
     # The browser's offset is positive west of UTC (-180 is UTC+3).
-    local_date =
-      DateTime.utc_now()
-      |> DateTime.add(-offset * 60, :second)
-      |> DateTime.to_date()
+    now = local_now(offset)
 
-    {:noreply, assign_today(socket, local_date)}
+    {:noreply,
+     socket
+     |> assign(:offset, offset)
+     |> assign_today(NaiveDateTime.to_date(now))
+     |> keep_time(now)}
   end
 
   def handle_event("set_timezone", _params, socket), do: {:noreply, socket}
+
+  # The ConsecrationPlan hook hands over what this browser keeps.
+  def handle_event("consecration_state", params, socket) when is_map(params) do
+    {:noreply,
+     socket
+     |> assign(:plan_known?, true)
+     |> assign(:plan, Plan.parse(params["plan"], []))
+     |> assign(:done, Plan.parse_done(params["done"]))
+     |> assign(:plan_today, Plan.parse_date(params["today"], nil))
+     |> assign_prayer()}
+  end
 
   # Chosen on the page: applied, and handed to the MysterySchedule hook to
   # keep.
@@ -105,6 +130,51 @@ defmodule LumenViaeWeb.Live.Home.Index do
         chosen = Enum.random(sets)
         {:noreply, push_navigate(socket, to: "/meditation-sets/#{chosen.id}/pray")}
     end
+  end
+
+  @impl true
+  def handle_info(:turn, %{assigns: %{offset: offset}} = socket) when is_integer(offset),
+    do: {:noreply, keep_time(socket, local_now(offset))}
+
+  def handle_info(:turn, socket), do: {:noreply, socket}
+
+  # The browser's offset is positive west of UTC (-180 is UTC+3).
+  defp local_now(offset),
+    do: NaiveDateTime.utc_now() |> NaiveDateTime.add(-offset * 60, :second)
+
+  # Today's Prayer at the visitor's `now`, and a wake on the next hour,
+  # a second after it so the clock has passed it.
+  defp keep_time(socket, now) do
+    if socket.assigns.turn, do: Process.cancel_timer(socket.assigns.turn)
+    turn = Process.send_after(self(), :turn, TodaysPrayer.next_turn_in(now) + 1000)
+
+    socket |> assign(now: now, turn: turn) |> assign_prayer()
+  end
+
+  # The rows, each waiting until what it says is known: the Consecration
+  # for the browser's plan (and a date), the hours for the browser's clock.
+  defp assign_prayer(socket) do
+    %{prayer_data: data, now: now, plan: plan, done: done} = socket.assigns
+    date = if now, do: NaiveDateTime.to_date(now), else: socket.assigns.plan_today
+
+    consecration =
+      if socket.assigns.plan_known? and date do
+        completed_on = TodaysPrayer.completed_on(plan, socket.assigns.offset)
+        TodaysPrayer.consecration(data, plan, done, date, completed_on)
+      else
+        {:waiting, :consecration}
+      end
+
+    hours =
+      if now do
+        Enum.reject([TodaysPrayer.hour_order(data, now), TodaysPrayer.office(now)], &is_nil/1)
+      else
+        [{:waiting, :hour_order}, {:waiting, :office}]
+      end
+
+    socket
+    |> assign(:prayer_date, now && NaiveDateTime.to_date(now))
+    |> assign(:prayer_rows, [consecration | hours])
   end
 
   defp parse_schedule(schedule) do
