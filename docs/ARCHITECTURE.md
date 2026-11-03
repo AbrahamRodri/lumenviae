@@ -694,6 +694,34 @@ production the five books are fetched a while after boot, one at a time
 `Rosary.spiritual_reading_text/0`. No table and no migration: the text is
 Gutenberg's, fetched again after a deploy.
 
+The books' LibriVox recordings follow the Missal's pattern, inside the
+Rosary domain. `SpiritualReading`'s `:recording` action
+(`Rosary.read_spiritual_recording!/2`) asks
+`LumenViae.Rosary.SpiritualReading.LibriVox` (a Req client: no retries, 5
+seconds to connect and 15 to answer, the bot User-Agent, no redirect
+followed, a 1 MB cap on the body, `config :lumen_viae, :librivox`,
+`:req_options` as the test seam) for a book's track list
+(`/api/feed/audiobooks/?id=<id>&extended=1&format=json`, the apps'
+address), keeps only the tracks on the Internet Archive (`archive.org`
+and its hosts, over https), and lines them up with the chapters cut from
+the text with `SpiritualReading.TrackMap` (the iOS app's
+`LibraryTrackMap` and `LibraryNumerals`, line for line). The lists are
+held by `SpiritualReading.Recording`, a GenServer owning an ETS table and
+a `Task.Supervisor`, as `Office.Missal` is: one fetch per book in a task
+no LiveView owns, a 15-second deadline (a list stored just before it
+stands), at most 2 fetches at once and 12 a minute (`LumenViae.Hammer`;
+past either, unavailable with nothing held), and failures held five
+minutes for that book, or a minute for every book when LibriVox itself is
+failing (unreachable, past the deadline, 5xx). The keys are the
+catalogue's four LibriVox numbers, so memory is bounded by the catalogue.
+A list lives a month. The tests namespace the table per test
+(`Recording.isolate/0`, `:isolate_spiritual_reading_cache`, as
+`Office.Cache`). The application starts it through
+`Rosary.spiritual_reading_recordings/0`. No table and no migration. The
+recording itself streams in the visitor's browser from the Internet
+Archive (the `BookPlayer` hook); the site's Content-Security-Policy
+(`base-uri` and `frame-ancestors` only) does not limit media.
+
 `LumenViae.Hammer` sits alongside them. It is a supervised ETS counter
 (Hammer's) with no domain knowledge, which AshRateLimiter spends through
 `LumenViae.Limits.Backend`; see "Rate limits" under the domain.
@@ -1093,7 +1121,7 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/missal/` | The Daily Missal, the 1962 Mass as the app's: a day's Mass for today or another day (`index/`), the Order of Mass (`ordo/`) and the month's calendar by vestment colour (`calendar/`). `days.ex` is the dates, paths, vestment colours and plain classes, `missal_text.ex` a day's or the Order of Mass's sections set for a language (plain names, posture, the propers' diamond, citations, rubrics), `section.ex` one part drawn; all are presentation and fetch nothing. The pages reach the Missal only through `LumenViae.Office`'s public functions, after they connect (`start_async`), and share Hours of Prayer's parts rail (`hours/parts_rail.ex`, the `OfficeRail` hook) and month grid. Their own CSS is the `missal-*` classes |
 | `live/true_devotion/` | True Devotion, St. Louis de Montfort's book, as the app's reader: the title page (`index/`, the binding drawn by `cover/`) and a chapter read in place (`chapter/`). `book.ex` is the book as the pages read it (the contents' order, the short part names, a chapter's numbered paragraphs and versal, the shared citation, over `Rosary.get_true_devotion!/1`); presentation only, it never queries. The reader's place, the chapters read and the bookmarks are the browser's, kept by the `TrueDevotionPlace` hook, never sent. Their CSS is the `td-*` classes |
 | `live/explore/` | Explore, as the app's: the page (`index/`), its directory at rest (`index/browse/`) and what the search found (`index/results/`). `search.ex` is the one search as the app's `AppSearch` runs it (the mysteries, the site's doors and the sets found here, the Prayer Book and the chants by the `prayers/` and `chants/` searches, the best match and the sections' order); presentation only, it never queries. Their CSS is the `explore-*` classes |
-| `live/spiritual_reading/` | Spiritual Reading, the app's shelf of public-domain books: the shelf (`index/`), a book's page (`book/`) and a chapter read in place (`chapter/`), the covers drawn by `cover.ex` and the loading and unavailable states by `states.ex`. `shelf.ex` is the shelf as the pages read it (the runs under parts, a row's numeral and title, the short place on Continue, the kicker, the footnote markers, over `Rosary.get_spiritual_reading!/1` and `Rosary.read_spiritual_book!/2`); presentation only. A book the server does not hold yet is fetched after the page connects (`start_async`). The place and the chapters read are the browser's, kept by the `SpiritualReadingPlace` hook, never sent. Their CSS is the `sr-*` classes over True Devotion's `td-*` |
+| `live/spiritual_reading/` | Spiritual Reading, the app's shelf of public-domain books: the shelf (`index/`), a book's page (`book/`) and a chapter read in place (`chapter/`), the covers drawn by `cover.ex` and the loading and unavailable states by `states.ex`. `shelf.ex` is the shelf as the pages read it (the runs under parts, a row's numeral and title, the short place on Continue, the kicker, the footnote markers, over `Rosary.get_spiritual_reading!/1` and `Rosary.read_spiritual_book!/2`); presentation only. A book the server does not hold yet is fetched after the page connects (`start_async`). The place and the chapters read are the browser's, kept by the `SpiritualReadingPlace` hook, never sent. The LibriVox recording (`Rosary.read_spiritual_recording!/2`) is drawn by `player.ex` (the mini player and the player) with Hear this read on a chapter and the listen chips on a book's rows, and played by the `BookPlayer` hook in the browser; where the voice stopped and the speed are the browser's. Their CSS is the `sr-*` and `bp-*` classes over True Devotion's `td-*` |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |

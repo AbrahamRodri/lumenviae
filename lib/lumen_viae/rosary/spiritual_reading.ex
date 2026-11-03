@@ -11,7 +11,11 @@ defmodule LumenViae.Rosary.SpiritualReading do
   The books themselves are not served: a device fetches the text from
   Gutenberg and streams the recording from LibriVox. The website reads
   them through the `:book` action, which fetches and cuts the text on the
-  server (`LumenViae.Rosary.SpiritualReading.Text`). Serving the rules
+  server (`LumenViae.Rosary.SpiritualReading.Text`), and the `:recording`
+  action, which fetches a recording's track list from LibriVox on the
+  server and lines it up with the chapters
+  (`LumenViae.Rosary.SpiritualReading.Recording`); the recording itself
+  streams in the visitor's browser from the Internet Archive. Serving the rules
   means a book that changes shape is fixed with a deploy, not an app
   release.
 
@@ -64,6 +68,18 @@ defmodule LumenViae.Rosary.SpiritualReading do
 
       run LumenViae.Rosary.SpiritualReading.ReadBook
     end
+
+    # The website's player: a book's LibriVox track list, which the server
+    # fetches from LibriVox, lined up with the chapters cut from its text.
+    # Not served by any API: the apps fetch the track list themselves.
+    action :recording, :map do
+      description "A book's LibriVox recording: its tracks and how they line up with the chapters. The answer's status is ok, none (the book has no recording), not_found, unavailable, or cold (only when cached_only is set and this machine has not fetched the track list or the text yet)."
+
+      argument :book_id, :string, allow_nil?: false
+      argument :cached_only, :boolean, default: false
+
+      run LumenViae.Rosary.SpiritualReading.ReadRecording
+    end
   end
 
   policies do
@@ -71,7 +87,7 @@ defmodule LumenViae.Rosary.SpiritualReading do
       authorize_if always()
     end
 
-    policy action([:current, :book]) do
+    policy action([:current, :book, :recording]) do
       authorize_if always()
     end
   end

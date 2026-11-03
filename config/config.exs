@@ -239,6 +239,12 @@ config :lumen_viae, :office, base_url: "https://www.divinumofficium.com"
 # See LumenViae.Rosary.SpiritualReading.Gutenberg.
 config :lumen_viae, :spiritual_reading, base_url: "https://www.gutenberg.org"
 
+# Where the Spiritual Reading recordings' track lists come from: LibriVox's
+# catalogue API, fetched by the server, never by a visitor's browser (the
+# recordings themselves stream in the browser from the Internet Archive).
+# See LumenViae.Rosary.SpiritualReading.LibriVox.
+config :lumen_viae, :librivox, base_url: "https://librivox.org"
+
 # Where the Daily Missal's texts come from: Missale Meum's API (the 1962
 # Missal), fetched by the server, never by a visitor's browser. See
 # LumenViae.Office.MissaleMeum.
