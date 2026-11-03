@@ -977,8 +977,12 @@ never calls a third party, and none of it is an API route. A miss is
 fetched in a task under `Office.MissalTasks`, owned by the `Office.Missal`
 process rather than the page that asked, so a closed tab never aborts a
 shared fetch, and concurrent misses wait for one fetch; the task stores
-the answer in `Office.Cache` (a month) or holds the failure (five minutes
-for the key, one for every key), with a 20-second deadline over all.
+the answer in `Office.Cache` (a month; an hour for a date more than six
+weeks off) or holds the failure (five minutes for the key; one minute for
+every key only when Missale Meum itself fails: unreachable, past the
+20-second deadline, or a 5xx). At most 4 fetches run at once and 60 start
+a minute (`LumenViae.Hammer`); past that a page is told the Missal is
+unavailable, with nothing held.
 Anything that is not the JSON the Missal reads (a block page, a redirect,
 a body past 2 MB) is a failure. See docs/PUBLIC_SITE.md, "The Daily
 Missal".

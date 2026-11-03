@@ -19,16 +19,32 @@ defmodule LumenViae.Office.Missal do
   it any more. A fetch has 20 seconds in all; past that it is
   stopped and counted as a failure.
 
+  ## Bounds
+
+  Every date from 1600 to 2200 is a key of its own, so a script walking
+  the dates must not be able to make the server walk Missale Meum, or
+  fill memory, with it:
+
+    * at most 4 fetches run at once, and at most 60 start a minute on a
+      machine (`LumenViae.Hammer`); past either, the answer is
+      `{:error, :missal_unavailable}` and nothing is held, so the next
+      visitor may ask again;
+    * a Mass more than six weeks from today, or a calendar of a year
+      other than this one and those either side, is kept an hour rather
+      than a month, so the cache holds the dates people pray and not the
+      ones a crawler walked.
+
   ## Failures are held
 
   Anything but the JSON the Missal reads (Missale Meum down or slow, a
   non-200, a redirect, an HTML block page with a 200, a body past the
   client's cap, JSON of another shape) is `{:error, :missal_unavailable}`,
   the cause kept in the log, and is held: that key is not asked for again
-  for five minutes, and no key at all for one, since a Missale Meum that
-  fails one request is likely failing all of them. So no number of
-  visitors, retries or dates can make the server hammer it while it is
-  down.
+  for five minutes. When Missale Meum itself is failing (it cannot be
+  reached, it times out, it answers 5xx) no key at all is asked for a
+  minute; a 4xx or an answer that cannot be read is that key's alone. So
+  no number of visitors, retries or dates can make the server hammer it
+  while it is down, and one bad date never closes the others.
 
   Every passage of the Missal is an `[english, latin]` pair; a rubric of
   the Order of Mass is a single text. Both are kept as they come, the
@@ -45,8 +61,10 @@ defmodule LumenViae.Office.Missal do
   @key_hold_ms :timer.minutes(5)
   @outage_hold_ms :timer.minutes(1)
   @deadline_ms 20_000
-  # Longer than the deadline, so a caller always hears the fetch's answer.
-  @call_timeout_ms 25_000
+  @max_running 4
+  @per_minute 60
+  @near_days 42
+  @far_ttl_ms :timer.hours(1)
   @tasks LumenViae.Office.MissalTasks
 
   @doc "The task supervisor the fetches run under, for the application to start."
@@ -63,6 +81,18 @@ defmodule LumenViae.Office.Missal do
   def propers(%Date{} = date) do
     get({:missal, :proper, date}, fn -> MissaleMeum.fetch_proper(date) end, &masses/1)
   end
+
+  @doc false
+  # How long a key is kept: a month near today, an hour far from it.
+  def ttl({:missal, :proper, date}, today) do
+    if abs(Date.diff(date, today)) > @near_days, do: @far_ttl_ms, else: nil
+  end
+
+  def ttl({:missal, :calendar, year}, today) do
+    if abs(year - today.year) > 1, do: @far_ttl_ms, else: nil
+  end
+
+  def ttl(_key, _today), do: nil
 
   @doc """
   The year's calendar, `{:ok, %{date => day}}`, each day `%{title:, rank:,
@@ -94,29 +124,60 @@ defmodule LumenViae.Office.Missal do
     namespace = Cache.namespace()
     callers = [self() | Process.get(:"$callers", [])]
     job = fn -> load(namespace, key, fetch, reader) end
-    GenServer.call(__MODULE__, {:load, {namespace, key}, job, callers}, @call_timeout_ms)
+    limits = limits()
+
+    GenServer.call(
+      __MODULE__,
+      {:load, {namespace, key}, job, callers, limits},
+      limits.deadline_ms + 5_000
+    )
   catch
     :exit, _reason -> {:error, :missal_unavailable}
+  end
+
+  # The bounds, from `config :lumen_viae, :missal` where the tests set
+  # them, and a test's own deadline (`Process.put(:missal_deadline_ms, ms)`).
+  defp limits do
+    config = Application.get_env(:lumen_viae, :missal, [])
+
+    %{
+      max_running: Keyword.get(config, :max_running, @max_running),
+      per_minute: Keyword.get(config, :per_minute, @per_minute),
+      deadline_ms:
+        Process.get(:missal_deadline_ms) || Keyword.get(config, :deadline_ms, @deadline_ms)
+    }
   end
 
   # In the task: fetch, read, and store the value or hold the failure.
   defp load(namespace, key, fetch, reader) do
     with {:ok, json} <- fetch.(),
          {:ok, value} <- read(json, reader, key) do
-      Cache.put_in_namespace(namespace, key, value)
+      case ttl(key, Date.utc_today()) do
+        nil -> Cache.put_in_namespace(namespace, key, value)
+        ttl_ms -> Cache.put_in_namespace(namespace, key, value, ttl_ms)
+      end
+
       {:ok, value}
     else
-      {:error, _reason} -> fail(namespace, key)
+      {:error, reason} -> fail(namespace, key, outage?(reason))
     end
   rescue
     exception ->
       Logger.error("The Missal's #{inspect(key)} raised: #{Exception.message(exception)}")
-      fail(namespace, key)
+      fail(namespace, key, false)
   end
 
-  defp fail(namespace, key) do
+  # Missale Meum itself failing, rather than this one key.
+  defp outage?(:upstream_unreachable), do: true
+  defp outage?({:upstream_status, status}) when status >= 500, do: true
+  defp outage?(_reason), do: false
+
+  defp fail(namespace, key, outage?) do
     Cache.put_in_namespace(namespace, {:missal_failed, key}, true, @key_hold_ms)
-    Cache.put_in_namespace(namespace, {:missal_failed, :any}, true, @outage_hold_ms)
+
+    if outage?,
+      do: Cache.put_in_namespace(namespace, {:missal_failed, :any}, true, @outage_hold_ms)
+
     {:error, :missal_unavailable}
   end
 
@@ -137,24 +198,42 @@ defmodule LumenViae.Office.Missal do
   def init(_opts), do: {:ok, %{loading: %{}}}
 
   @impl true
-  def handle_call({:load, key, job, callers}, from, state) do
+  def handle_call({:load, {namespace, _key} = key, job, callers, limits}, from, state) do
     case state.loading do
       %{^key => entry} ->
         {:noreply, put_in(state.loading[key], %{entry | waiters: [from | entry.waiters]})}
 
       %{} ->
-        task =
-          Task.Supervisor.async_nolink(@tasks, fn ->
-            # Whose request this is, for the tests' stubs and cache
-            # namespaces; nothing in production reads it.
-            Process.put(:"$callers", callers)
-            job.()
-          end)
-
-        timer = Process.send_after(self(), {:deadline, key, task.ref}, @deadline_ms)
-        entry = %{task: task, timer: timer, waiters: [from]}
-        {:noreply, put_in(state.loading[key], entry)}
+        if room?(state, namespace, limits),
+          do: {:noreply, start(state, key, job, callers, limits, from)},
+          else: {:reply, {:error, :missal_unavailable}, state}
     end
+  end
+
+  # Under the cap of fetches at once and of fetches a minute (counted per
+  # test namespace in the suite, one count in production).
+  defp room?(state, namespace, limits) do
+    running = Enum.count(state.loading, fn {{ns, _key}, _entry} -> ns == namespace end)
+
+    running < limits.max_running and
+      match?(
+        {:allow, _count},
+        LumenViae.Hammer.hit("missal_fetch:#{inspect(namespace)}", 60_000, limits.per_minute)
+      )
+  end
+
+  defp start(state, key, job, callers, limits, from) do
+    task =
+      Task.Supervisor.async_nolink(@tasks, fn ->
+        # Whose request this is, for the tests' stubs and cache
+        # namespaces; nothing in production reads it.
+        Process.put(:"$callers", callers)
+        job.()
+      end)
+
+    timer = Process.send_after(self(), {:deadline, key, task.ref}, limits.deadline_ms)
+    entry = %{task: task, timer: timer, waiters: [from]}
+    put_in(state.loading[key], entry)
   end
 
   @impl true
@@ -185,7 +264,7 @@ defmodule LumenViae.Office.Missal do
 
             :miss ->
               Logger.warning("Missale Meum's #{inspect(key)} passed its deadline")
-              fail(namespace, key)
+              fail(namespace, key, true)
           end
 
         {:noreply, finish(state, ref, result)}

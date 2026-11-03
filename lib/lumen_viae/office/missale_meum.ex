@@ -102,7 +102,7 @@ defmodule LumenViae.Office.MissaleMeum do
         {:ok, json}
 
       {:error, _reason} ->
-        Logger.error("Missale Meum answered #{path} with a body that is not JSON")
+        Logger.warning("Missale Meum answered #{path} with a body that is not JSON")
         {:error, :undecodable}
     end
   end

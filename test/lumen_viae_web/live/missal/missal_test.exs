@@ -142,7 +142,11 @@ defmodule LumenViaeWeb.Live.Missal.MissalTest do
       assert has_element?(view, "[data-role=citation]")
       assert has_element?(view, ".missal-line--versal")
 
-      assert has_element?(view, ~s([data-role=ordo-link][href="/missal/order-of-mass"]))
+      assert has_element?(
+               view,
+               ~s([data-role=ordo-link][href="/missal/order-of-mass?day=2026-11-04"])
+             )
+
       assert has_element?(view, "[data-role=credit]", "texts from Missale Meum")
       refute has_element?(view, "[data-role=masses]")
       refute has_element?(view, "[data-role=about]")
@@ -310,6 +314,50 @@ defmodule LumenViaeWeb.Live.Missal.MissalTest do
     end
   end
 
+  describe "the language and the way back (W3)" do
+    test "the pill and the Order of Mass carry the language and the day", %{conn: conn} do
+      stub_missal()
+      {:ok, view, _html} = live(conn, "/missal/2026-11-04?lang=both")
+      render_async(view, 2000)
+
+      assert has_element?(
+               view,
+               ~s([data-role=date-pill][href="/missal/calendar/2026/11?lang=both&day=2026-11-04"])
+             )
+
+      assert has_element?(
+               view,
+               ~s([data-role=ordo-link][href="/missal/order-of-mass?lang=both&day=2026-11-04"])
+             )
+    end
+
+    test "the calendar keeps the language on its days, arrows and way back", %{conn: conn} do
+      stub_missal()
+      {:ok, view, _html} = live(conn, "/missal/calendar/2026/11?lang=latin&day=2026-11-04")
+
+      assert has_element?(view, ~s([data-role=day-cell][href="/missal/2026-11-09?lang=latin"]))
+      assert has_element?(view, ~s([data-role=back][href="/missal/2026-11-04?lang=latin"]))
+
+      assert has_element?(
+               view,
+               ~s([data-role=next-month][href="/missal/calendar/2026/12?lang=latin&day=2026-11-04"])
+             )
+
+      {:ok, view, _html} = live(conn, "/missal/calendar/2026/11")
+      assert has_element?(view, ~s([data-role=back][href="/missal"]))
+      assert has_element?(view, ~s([data-role=day-cell][href="/missal/2026-11-09"]))
+    end
+
+    test "the Order of Mass goes back to the day it was opened from", %{conn: conn} do
+      stub_missal()
+      {:ok, view, _html} = live(conn, "/missal/order-of-mass?lang=both&day=2026-11-04")
+      assert has_element?(view, ~s([data-role=back][href="/missal/2026-11-04?lang=both"]))
+
+      {:ok, view, _html} = live(conn, "/missal/order-of-mass?day=nonsense")
+      assert has_element?(view, ~s([data-role=back][href="/missal"]))
+    end
+  end
+
   describe "/missal/calendar/:year/:month" do
     test "the month by the days' vestments, each day its Mass", %{conn: conn} do
       stub_missal()
@@ -351,7 +399,14 @@ defmodule LumenViaeWeb.Live.Missal.MissalTest do
     end
 
     test "a month that is not one is a 404", %{conn: conn} do
-      for path <- ["/missal/calendar/2026/13", "/missal/calendar/1599/1", "/missal/calendar/x/1"] do
+      for path <- [
+            "/missal/calendar/2026/13",
+            "/missal/calendar/1599/1",
+            "/missal/calendar/x/1",
+            "/missal/calendar/02026/1",
+            "/missal/calendar/2026/01",
+            "/missal/calendar/+2026/1"
+          ] do
         assert_raise LumenViaeWeb.NotFoundError, fn -> live(conn, path) end
       end
     end
@@ -442,8 +497,9 @@ defmodule LumenViaeWeb.Live.Missal.MissalTest do
           "english"
         )
 
+      # Named by its head, as iOS names it; its posture only from the exact key.
       assert lesson.name == "First Reading"
-      assert lesson.posture == "Sit"
+      assert lesson.posture == nil
       assert rite.name == "Blessing of Candles"
       assert rite.proper?
       assert rite.posture == nil
@@ -468,6 +524,19 @@ defmodule LumenViaeWeb.Live.Missal.MissalTest do
                MissalText.passage(["x", "S. Dóminus vobíscum."], "latin")
 
       assert Enum.map_join(runs, &elem(&1, 1)) == "P. Dóminus vobíscum."
+    end
+
+    test "a Mass with no class says none, unless its title names a weekday" do
+      assert Days.class(%{rank: nil, title: "St. Test", tempora: nil}) == nil
+      assert Days.class(%{rank: nil, title: "Feria", tempora: nil}) == "Weekday"
+      assert Days.class(%{rank: 3, title: "St. Charles Borromeo", tempora: nil}) == "Lesser Feast"
+    end
+
+    test "a day's part may take the Order of Mass's name" do
+      [kyrie] =
+        MissalText.day_sections([%{id: nil, label: "Kyrie", body: [["a", "b"]]}], "english")
+
+      assert kyrie.name == "Lord, Have Mercy"
     end
 
     test "the date pill and the paths" do

@@ -6,7 +6,7 @@
       <h1 id="missal-heading" class="kicker">Daily Missal</h1>
       <.link
         :if={@clock_known?}
-        navigate={Days.calendar_path(@date)}
+        navigate={Days.calendar_path(@date, @language, @fixed_date? && @date)}
         class="missal-pill"
         aria-label={"Choose a day. Showing #{Days.long_date(@date)}"}
         data-role="date-pill"
@@ -157,7 +157,7 @@
           <.sacred_divider class="!my-0 max-w-[150px] mx-auto" />
           <p class="hours-colophon__explicit">The Mass is ended</p>
           <.link
-            navigate={Days.ordo_path(@language)}
+            navigate={Days.ordo_path(@language, @fixed_date? && @date)}
             class="btn-text"
             data-role="ordo-link"
           >
