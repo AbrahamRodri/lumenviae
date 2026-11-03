@@ -130,7 +130,13 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   `priv/library/spiritual_reading.json`; the apps fetch the books
   themselves, and the website's server fetches them from Project
   Gutenberg for its pages (`Rosary.read_spiritual_book!/2`, held in
-  memory per machine). See docs/JSON_API.md, "Spiritual Reading"
+  memory per machine), and each recording's track list from LibriVox's
+  API (`https://librivox.org/api/feed/audiobooks/`,
+  `Rosary.read_spiritual_recording!/2`, `LumenViae.Rosary.SpiritualReading.Recording`:
+  one fetch per book in a task no page owns, failures held, no redirects,
+  a 1 MB cap); the recordings themselves stream in the visitor's browser
+  from the Internet Archive (`archive.org`). Keep the privacy policy's
+  paragraphs on both current. See docs/JSON_API.md, "Spiritual Reading"
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
@@ -164,7 +170,8 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   `?q=`, and Spiritual Reading, the app's shelf (`/spiritual-reading`, a book at
   `/spiritual-reading/:book_id`, a chapter at
   `/spiritual-reading/:book_id/:chapter`, counted from 1), the text fetched
-  from Project Gutenberg by the server, the reader's place kept in the
+  from Project Gutenberg by the server, its LibriVox recording heard on the
+  book's pages (Hear this read, the listen chips, the player), the reader's place kept in the
   browser only. Read
   docs/PUBLIC_SITE.md before touching a public page
 - Retired pages (dashboard, How to Pray, True Devotion, St. Carlo,

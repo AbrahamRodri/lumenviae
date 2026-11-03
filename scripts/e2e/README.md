@@ -34,8 +34,14 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   or says "Couldn't reach the library", and the log says which. With the
   text it presses Begin reading (the first chapter opens), steps to the
   next chapter, and checks the book's page then offers Continue with a
-  chapter read; an unknown book and a chapter that is not a number answer
-  404;
+  chapter read. Then the recording: the server fetches the track list from
+  LibriVox, so the book's page either wears listen chips (none on the
+  preface, one on the first conversation) with the LibriVox credit, or
+  says "The recording couldn't be reached", and the log says which; with
+  the chips, the second chapter offers Hear this read, which brings up the
+  player naming First Conversation and opens it from its title (real
+  playback from the Internet Archive is not required). An unknown book and
+  a chapter that is not a number answer 404;
 - on the category page, chooses the whole Rosary aloud (Counting
   disappears and the Pray links gain `aloud=true`), then counting on the
   screen (the Pray links gain `count=screen`), and checks both survive a

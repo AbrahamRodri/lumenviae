@@ -5,6 +5,7 @@
   data-page="book"
   data-book={@book.id}
   data-edition={assigns[:edition]}
+  data-book-screen={@book.id}
 >
   <Layouts.flash_group flash={@flash} variant={:public} />
 
@@ -35,7 +36,7 @@
           </div>
         </div>
         <p class="sr-credit sr-credit--wide">
-          <a href={Shelf.gutenberg_url(@book)} class="sr-credit__link">{Shelf.credit(@book)}</a>
+          <.credit book={@book} />
         </p>
       </section>
 
@@ -43,10 +44,24 @@
         <.loading :if={@state == :loading} />
         <.unavailable :if={@state == :failed} failure={@failure} />
 
+        <div
+          :if={@recording}
+          id="book-player"
+          phx-hook="BookPlayer"
+          phx-update="ignore"
+          data-page="book"
+          data-book={@book.id}
+          data-title={@book.title}
+          data-rate={@book.preferred_rate}
+          data-tracks={Shelf.player_tracks(@recording)}
+        >
+          <.player book={@book} />
+        </div>
+
         <nav
           :if={@state == :ready}
           class="sr-ledger"
-          id="contents"
+          id={if @recording, do: "contents-listening", else: "contents"}
           aria-labelledby="contents-heading"
           data-role="contents"
           phx-update="ignore"
@@ -78,12 +93,18 @@
                   </span>
                 </h3>
                 <ol class="sr-rows">
-                  <li :for={chapter <- run.chapters} data-role="row-item">
+                  <li :for={chapter <- run.chapters} class="sr-rows__item" data-role="row-item">
                     <.chapter_row
                       chapter={chapter}
                       book={@book}
                       runs={@runs}
                       numbered?={@numbered?}
+                    />
+                    <.listen_chip
+                      :if={@recording}
+                      chapter={chapter}
+                      book={@book}
+                      recording={@recording}
                     />
                   </li>
                 </ol>
@@ -104,8 +125,25 @@
           </div>
         </nav>
 
+        <div
+          :if={@recording_failed? && @state == :ready}
+          class="sr-recording-failed"
+          role="status"
+          data-role="recording-unavailable"
+        >
+          <p>The recording couldn't be reached.</p>
+          <button
+            type="button"
+            phx-click="retry_recording"
+            class="btn-text"
+            data-role="retry-recording"
+          >
+            <span class="hero-arrow-path size-3.5" aria-hidden="true" /> Try again
+          </button>
+        </div>
+
         <p class="sr-credit sr-credit--narrow">
-          <a href={Shelf.gutenberg_url(@book)} class="sr-credit__link">{Shelf.credit(@book)}</a>
+          <.credit book={@book} />
         </p>
       </div>
     </div>

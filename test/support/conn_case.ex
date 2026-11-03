@@ -44,6 +44,15 @@ defmodule LumenViaeWeb.ConnCase do
     LumenViae.Office.Cache.isolate()
     Req.Test.stub(LumenViae.Office.MissaleMeum, &Req.Test.transport_error(&1, :econnrefused))
 
+    # The same for the Spiritual Reading recordings' track lists from
+    # LibriVox: down unless a test stubs it, held apart per test.
+    LumenViae.Rosary.SpiritualReading.Recording.isolate()
+
+    Req.Test.stub(
+      LumenViae.Rosary.SpiritualReading.LibriVox,
+      &Req.Test.transport_error(&1, :econnrefused)
+    )
+
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 

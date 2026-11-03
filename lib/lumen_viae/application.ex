@@ -31,6 +31,9 @@ defmodule LumenViae.Application do
       LumenViae.Office.Cache,
       # Owns the Spiritual Reading books' text, fetched from Gutenberg and cut.
       LumenViae.Rosary.spiritual_reading_text(),
+      # Holds the recordings' track lists, fetched from LibriVox in tasks
+      # no page owns.
+      LumenViae.Rosary.spiritual_reading_recordings(),
       # Fetches the Daily Missal from Missale Meum, in tasks no page owns.
       {Task.Supervisor, name: LumenViae.Office.Missal.task_supervisor()},
       LumenViae.Office.Missal,

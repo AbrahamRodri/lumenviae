@@ -501,6 +501,10 @@ defmodule LumenViae.Rosary do
       # true` answers `:cold` instead of fetching).
       define :get_spiritual_reading, action: :current, functions: @read
       define :read_spiritual_book, action: :book, args: [:book_id]
+      # A book's LibriVox track list, fetched by the server and lined up
+      # with its chapters (`cached_only: true` answers `:cold` instead of
+      # fetching).
+      define :read_spiritual_recording, action: :recording, args: [:book_id]
     end
   end
 
@@ -528,6 +532,12 @@ defmodule LumenViae.Rosary do
   (fetched from Project Gutenberg and cut), for the application to start.
   """
   def spiritual_reading_text, do: LumenViae.Rosary.SpiritualReading.Text
+
+  @doc """
+  The process that holds the Spiritual Reading recordings' track lists on
+  this machine (fetched from LibriVox), for the application to start.
+  """
+  def spiritual_reading_recordings, do: LumenViae.Rosary.SpiritualReading.Recording
 
   ## Mysteries
   #

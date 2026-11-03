@@ -40,6 +40,62 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Shelf do
     Rosary.read_spiritual_book!(book_id, params, actor: actor)
   end
 
+  @doc """
+  The book's LibriVox recording, as `read_spiritual_recording!/2` answers
+  it: its `status` (`:ok`, `:none`, `:not_found`, `:unavailable`, or
+  `:cold` when `cached_only:` is set and the server has not fetched it
+  yet) and, when `:ok`, its `tracks` and how they read each chapter
+  (`chapters`, by index).
+  """
+  def recording(actor, book_id, opts \\ []) do
+    params = opts |> Keyword.take([:cached_only]) |> Map.new()
+    Rosary.read_spiritual_recording!(book_id, params, actor: actor)
+  end
+
+  @doc "How the recording reads a chapter (`%{track:, from:, whole?:}`), or nil."
+  def reading(%{status: :ok, chapters: chapters}, index), do: Enum.at(chapters, index)
+  def reading(_recording, _index), do: nil
+
+  @doc """
+  The recording that begins at this chapter, for its row's listen chip:
+  only where a track opens, not merely where one covers (the app's
+  `LibraryBookView.listening(for:)`), so a track holding ten chapters
+  wears one chip, on its first.
+  """
+  def opening(recording, index) do
+    case reading(recording, index) do
+      %{from: ^index, track: track} -> Enum.at(recording.tracks, track) |> Map.put(:index, track)
+      _none -> nil
+    end
+  end
+
+  @doc """
+  A recording's length as a chip says it (`ReadingSpans.chipMinutes`):
+  "27 MIN", "1 HR", "1 HR 5 MIN"; nil when the feed gives none.
+  """
+  def chip_minutes(nil), do: nil
+
+  def chip_minutes(seconds) do
+    minutes = max(round(seconds / 60), 1)
+
+    cond do
+      minutes < 60 -> "#{minutes} MIN"
+      rem(minutes, 60) == 0 -> "#{div(minutes, 60)} HR"
+      true -> "#{div(minutes, 60)} HR #{rem(minutes, 60)} MIN"
+    end
+  end
+
+  @doc """
+  What the page's player is handed (the `BookPlayer` hook's
+  `data-tracks`): each track's id, title, address, length and the chapter
+  it reads whole, as JSON.
+  """
+  def player_tracks(%{status: :ok, tracks: tracks}) do
+    tracks
+    |> Enum.map(&Map.take(&1, [:id, :title, :url, :seconds, :chapter]))
+    |> Jason.encode!()
+  end
+
   @doc "The shelf's path."
   def path, do: "/spiritual-reading"
 
@@ -74,10 +130,16 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Shelf do
 
   @doc """
   The book page's credit, as the app's: "Text: Project Gutenberg eBook
-  #1653. Public domain." The app adds the recording's credit; the site
-  plays no recording yet.
+  #16772." for the text (which links to Gutenberg's page), then
+  `recording_credit/1` and "Public domain."
   """
-  def credit(book), do: "Text: Project Gutenberg eBook ##{book.gutenberg_id}. Public domain."
+  def credit(book), do: "Text: Project Gutenberg eBook ##{book.gutenberg_id}."
+
+  @doc "\"Recording: LibriVox volunteers.\" for a book with a recording, else nil."
+  def recording_credit(%{librivox_id: id}) when is_integer(id),
+    do: "Recording: LibriVox volunteers."
+
+  def recording_credit(_book), do: nil
 
   @doc "Project Gutenberg's own page for the book, which the credit links to."
   def gutenberg_url(book), do: "https://www.gutenberg.org/ebooks/#{book.gutenberg_id}"
