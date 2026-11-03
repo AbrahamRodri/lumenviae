@@ -770,6 +770,18 @@ async function checkChantMiniPlayer(browser, vp) {
   check(await eventually(async () => !(await mini.isVisible())), `${label}: close puts it away`);
   check((await sounding()) === 0, `${label}: and the chant with it`);
   check(await page.evaluate(() => sessionStorage.getItem("lv:chant-player") === null), `${label}: nothing kept once closed`);
+
+  // What is read back is checked: a recording that a browser would fetch
+  // from another host ("/\\host", read as "//host") is never restored
+  await page.evaluate((chant) => {
+    const current = { id: chant, src: "/\\evil.example/x.m4a", facts: { latin: "X", href: `/chant/${chant}` } };
+    sessionStorage.setItem("lv:chant-player", JSON.stringify({ current, queue: null, waiting: false, time: 3, rate: 1 }));
+  }, id);
+  await page.goto(BASE_URL + "/mysteries");
+  await settle(page);
+  const tampered = await page.locator("audio#site-chant-audio").evaluate((a) => a.getAttribute("src") || "");
+  check(!tampered.includes("evil.example"), `${label}: a recording from another host is never restored`, tampered);
+  check(!(await mini.isVisible()), `${label}: and no player stands for it`);
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
   await context.close();
 }
