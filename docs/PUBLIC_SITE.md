@@ -44,7 +44,7 @@ time, as its desktop version. The console
 | `/missal/calendar/:year/:month` | `LumenViaeWeb.Live.Missal.Calendar` | Choose a day: the month of the 1962 calendar, each day's vestment colour as a dot (and from 768px its title in the cell), each day opening its Mass. |
 | `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open; the chapter last opened marked while it is unfinished, its part open, and a folded part holding it marked on its header), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
 | `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head, each its chapter's title over the passage's opening words (the rail carries the contents sheet's head: the book's title, Contents and "8 of 13"). `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
-| `/explore` | `LumenViaeWeb.Live.Explore.Index` | Explore, as the app's `ExploreView`: at rest a directory (the five devotions, the Prayers shelf of occasion orders with All prayers, the Chant tiles with Chant Library, Hours of Prayer, and True Devotion on the Spiritual Reading shelf); typed into (`?q=`), the one search over the mysteries, the site's doors, the Prayer Book's topics, orders and prayers, the chants and every meditation set: the kinds found as chips, the best match as a painted card (Pray on an order, Listen on a chant), then a section per kind, twelve rows each before "And 3 more". |
+| `/explore` | `LumenViaeWeb.Live.Explore.Index` | Explore, as the app's `ExploreView`: at rest a directory (the five devotions, the Prayers shelf of occasion orders with All prayers, the Chant tiles with Chant Library, Mass & Hours as two tiles (the Daily Missal and Hours of Prayer), and the Spiritual Reading shelf with All books: True Devotion's cover, then the five books', the ribbon on a book under way in this browser); typed into (`?q=`), the one search over the mysteries, the site's doors (Today's Mass, Spiritual Reading and each of its books among them, a book found by its title, author or translator), the Prayer Book's topics, orders and prayers, the chants and every meditation set: the kinds found as chips, the best match as a painted card (Pray on an order, Listen on a chant), then a section per kind, twelve rows each before "And 3 more". |
 | `/spiritual-reading` | `LumenViaeWeb.Live.SpiritualReading.Index` | The Spiritual Reading shelf, as the app's `SpiritualReadingView`: the open book, the shelf's name, "Classic Catholic books to read", Augustine's "Take up and read", the five books as covers in their own cloth (two across on a phone, five on a wide screen; the ribbon on a book with a reading under way in this browser), and the credit. Fetches no text. |
 | `/spiritual-reading/:book_id` | `LumenViaeWeb.Live.SpiritualReading.Book` | A book, as the app's `LibraryBookView`: its cover beside the title and author, Begin reading (or "Continue · III.V" where this browser left off), the contents ("Contents · 115 chapters") with each part's name pinned over its chapters and the parts' numerals down the edge, the chapter being read lit, the ones read dimmed and those more than two before it folded into "N earlier chapters", and the Gutenberg credit. From 1024px the head stands in a column beside the contents. `:book_id` is the catalogue's (`imitation-of-christ`). |
 | `/spiritual-reading/:book_id/:chapter` | `LumenViaeWeb.Live.SpiritualReading.Chapter` | A chapter read in place, as the app's `LibraryChapterReaderView`: the place in the book as a hairline, the part and heading over the title with "8 of 115", the text on night with the versal, the edition's footnote markers linked to the notes at the foot, the chapters either side by their headings, and the contents (a rail from 1024px, a list above the text on a phone). `:chapter` counts from 1. |
@@ -482,8 +482,9 @@ Missale Meum's English descriptions were empty on every day checked, so
 About This Day shows only where one is served.
 
 There is no link in the header (its eight links fill it): the Missal is
-reached from Today's Prayer on Home, by its address and the sitemap.
-Explore, where the app keeps The Mass, is not on the site yet.
+reached from Today's Prayer on Home, from Explore's Mass & Hours (The
+Mass, Daily Missal) and its search (Today's Mass, found by "missal"), as
+the app keeps it, by its address and the sitemap.
 
 ## True Devotion
 
@@ -576,8 +577,13 @@ app's `editionFingerprint`, the page's `data-edition`), so a change to a
 book's rules lets go of places kept against the old cut, as the app does.
 
 As on the shelf and True Devotion, there is no link to it in the header
-or the footer: the app reaches the shelf from Explore, which is not on the
-site yet. True Devotion is not on the shelf, as it is not on the app's.
+or the footer: the app reaches the shelf from Explore, and so does the
+site: Explore's Spiritual Reading shelf (All books, and every book's
+cover, with its ribbon) and its search, which finds the shelf by its
+words and each book by its title, author or translator (the app's search
+finds only the shelf, by words naming the books; the site lists the book
+itself too). True Devotion is not on the shelf, as it is not on the
+app's; on Explore it stands first, as the app's Explore has it.
 
 Left out, as the app has them: the LibriVox recording (Hear this read,
 the listen chips, Save for offline, the player and the sleep timer),
@@ -745,8 +751,9 @@ today's Mass (its text, or the line saying Missale Meum could not be
 reached), chooses Both, steps a day and opens the Order of Mass and the
 month, reads True
 Devotion (Begin reading, Next chapter, a bookmark, then Continue reading
-on the title page), searches Explore ("Salve", "ave maria", "PÂTER",
-"annunciation"), and checks that the four archived paths that still
+on the title page), checks Explore's Daily Missal tile, its reading shelf (six covers, All
+books, the ribbon on a book a test place is kept for), searches it
+("kempis", "Salve", "ave maria", "PÂTER", "annunciation"), and checks that the four archived paths that still
 
 on the title page), opens the Spiritual Reading shelf and a book (its text
 from Gutenberg or the "couldn't reach" state, either passing and the log

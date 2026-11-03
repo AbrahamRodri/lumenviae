@@ -360,7 +360,7 @@ defmodule LumenViaeWeb.Live.Explore.Index.Results do
   # A row's line (AppSearchResultsView.row).
   defp note({:mysteries, slug}, _book), do: Categories.subtitle(slug)
   defp note({:mystery, mystery}, _book), do: Categories.devotion_title(mystery.category)
-  defp note({:page, _page}, _book), do: nil
+  defp note({:page, page}, _book), do: Map.get(page, :note)
   defp note({:topic, chapter}, _book), do: Book.count_label(length(chapter.prayer_ids))
   defp note({:order, order}, _book), do: order.occasion
   defp note({:prayer, prayer}, book), do: prayer_note(prayer, book)
@@ -388,7 +388,7 @@ defmodule LumenViaeWeb.Live.Explore.Index.Results do
   defp kicker({:chant, chant}, _book), do: Library.form_name(chant)
   defp kicker({:mysteries, _}, _book), do: "Rosary Mysteries"
   defp kicker({:mystery, mystery}, _book), do: Categories.devotion_title(mystery.category)
-  defp kicker({:page, _}, _book), do: "Page"
+  defp kicker({:page, page}, _book), do: Map.get(page, :kicker, "Page")
   defp kicker({:set, _}, _book), do: "Meditation"
 
   # The best card's line (AppSearchBestCard.line): the chant's setting
@@ -405,7 +405,7 @@ defmodule LumenViaeWeb.Live.Explore.Index.Results do
 
   defp line({:mysteries, slug}, _date), do: Categories.subtitle(slug)
   defp line({:mystery, _}, _date), do: nil
-  defp line({:page, _}, _date), do: nil
+  defp line({:page, page}, _date), do: Map.get(page, :note)
   defp line({:set, set}, _date), do: Search.set_note(set)
 
   defp glyph({:page, page}), do: page.icon

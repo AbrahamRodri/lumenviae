@@ -35,7 +35,48 @@ defmodule LumenViaeWeb.Live.Explore.ExploreTest do
       assert has_element?(view, ~s([data-role=tile][href="/chant/sets"]))
       assert has_element?(view, ~s([data-role=tile][href="/hours"]))
       assert has_element?(view, ~s([data-role=book][href="/true-devotion"]))
-      refute html =~ "Daily Missal"
+    end
+
+    test "Mass & Hours: the Daily Missal beside Hours of Prayer", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/explore")
+
+      assert has_element?(view, "#explore-browse-liturgy", "Mass & Hours")
+      assert has_element?(view, ~s([data-role=tile][href="/missal"]), "The Mass")
+      assert has_element?(view, ~s([data-role=tile][href="/missal"]), "Daily Missal")
+    end
+
+    test "Spiritual Reading: All books, True Devotion's cover then the shelf's books",
+         %{conn: conn} do
+      {:ok, view, html} = live(conn, "/explore")
+      doc = Floki.parse_document!(html)
+
+      assert has_element?(
+               view,
+               ~s(#explore-browse-reading-shelf a[href="/spiritual-reading"]),
+               "All books"
+             )
+
+      hrefs =
+        doc
+        |> Floki.find("#explore-browse-reading-shelf [data-role=book]")
+        |> Floki.attribute("href")
+
+      assert hrefs == [
+               "/true-devotion",
+               "/spiritual-reading/imitation-of-christ",
+               "/spiritual-reading/story-of-a-soul",
+               "/spiritual-reading/confessions-of-st-augustine",
+               "/spiritual-reading/glories-of-mary",
+               "/spiritual-reading/practice-of-the-presence-of-god"
+             ]
+
+      # The ribbons wait, hidden, for the browser's place.
+      assert doc
+             |> Floki.find("#explore-browse-reading-shelf[phx-hook=SpiritualReadingPlace]")
+             |> length() == 1
+
+      assert doc |> Floki.find(~s([data-role=ribbon][data-book="imitation-of-christ"][hidden])) !=
+               []
     end
 
     test "carries its own title and a canonical address with no query", %{conn: conn} do
@@ -128,6 +169,31 @@ defmodule LumenViaeWeb.Live.Explore.ExploreTest do
       {:ok, view, _html} = live(conn, "/explore?q=consecration")
 
       assert has_element?(view, ~s([data-role=best] a[href="/consecration"]))
+    end
+
+    test "missal finds Today's Mass", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/explore?q=missal")
+
+      assert has_element?(view, ~s(#explore-pages a[href="/missal"]), "Today's Mass")
+    end
+
+    test "kempis finds the Imitation of Christ, and imitation makes it the best", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/explore?q=kempis")
+
+      assert has_element?(
+               view,
+               ~s(#explore-pages a[href="/spiritual-reading/imitation-of-christ"]),
+               "The Imitation of Christ"
+             )
+
+      assert has_element?(view, ~s(#explore-pages a[href="/spiritual-reading"]))
+
+      {:ok, view, _html} = live(conn, "/explore?q=imitation")
+
+      assert has_element?(
+               view,
+               ~s([data-role=best] a[href="/spiritual-reading/imitation-of-christ"])
+             )
     end
 
     test "finds a meditation set by name and opens its prayer page", %{conn: conn} do
