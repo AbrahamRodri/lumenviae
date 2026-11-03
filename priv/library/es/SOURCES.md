@@ -107,7 +107,7 @@ Prayer by prayer:
   Padre..." the source abbreviates is written out in full from the same
   appendix.
 - `regina_caeli`: each "aleluya" is joined onto its line. The source's
-  "los gozos eterno" is kept as printed.
+  misprint "los gozos eterno" is corrected to "los gozos eternos".
 - `magnificat`: a character-encoding error on the page
   ("Â–como lo había prometido...Â–") is written with the en dashes the
   source intends.
@@ -118,16 +118,21 @@ Prayer by prayer:
   out.
 - `spiritual_communion`: the source's ten short lines are one paragraph,
   as the English is.
-- `reparation_sacred_heart`: no wording change. The source's "A1 mismo
-  tiempo" (a digit 1 for l) and "ofrecisté" are kept as printed.
-- `nada_te_turbe`: each " / " is a line break, and the source's space
-  before the comma in "Todo se pasa ," is kept.
-- `peace_prayer`: a stray space before the final period is removed. The
-  source's "házme" is kept.
+- `reparation_sacred_heart`: two misprints corrected: "A1 mismo tiempo"
+  (a digit 1 for l) to "Al mismo tiempo", and "ofrecisté" to
+  "ofreciste".
+- `nada_te_turbe`: each " / " is a line break, and the stray space
+  before the comma in "Todo se pasa ," is removed.
+- `peace_prayer`: a stray space before the final period is removed, and
+  the misprint "házme" is corrected to "hazme", in the title too.
 - `litany_sacred_heart`: read from the card's rendered page (its text
   layer is garbled). Each people's response follows its call after "℟.",
-  the card's footnote is a bracketed rubric after the first response, and
-  "Amén" is the closing response.
+  and "Amén" is the closing response. The card's footnote ("Ten
+  misericordia de nosotros se repite después de cada invocación") is left
+  out: it names a response the card itself does not print. Instead, as in
+  the English, "℟. ten piedad de nosotros." (the response the card prints
+  after the first invocation) is written at the head of each stanza of
+  invocations.
 
 ## Where the Spanish differs from the English
 

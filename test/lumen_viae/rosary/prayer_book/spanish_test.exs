@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text must come from an official source listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-03 03:00:00Z], "6359914f60b9f38f"}
+  @pinned {~U[2026-11-03 03:10:00Z], "4ed9a06f10df3ea9"}
 
   @file_ids ~w(act_of_faith act_of_hope act_of_charity regina_caeli anima_christi sub_tuum
                jesus_i_trust_in_thee my_lord_and_my_god pardon_prayer miraculous_medal
