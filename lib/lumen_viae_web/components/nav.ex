@@ -2,7 +2,7 @@ defmodule LumenViaeWeb.Components.Nav do
   @moduledoc """
   The public site's header: the logo lockup (the mark and the wordmark), Today's
   Rosary, a Mysteries menu of the five categories and the Scripture
-  page, the Prayer Book and the app's page.
+  page, the Prayer Book, Hours of Prayer and the app's page.
 
   The header lives in the root layout, outside every LiveView, so its menus
   are driven by `assets/js/site_nav.js` rather than by LiveView JS commands:
@@ -94,6 +94,9 @@ defmodule LumenViaeWeb.Components.Nav do
           <.nav_link navigate="/chant" current_path={@current_path} section>
             Chant
           </.nav_link>
+          <.nav_link navigate="/hours" current_path={@current_path} section>
+            Hours
+          </.nav_link>
 
           <.nav_link navigate="/app" current_path={@current_path}>
             The App
@@ -184,6 +187,12 @@ defmodule LumenViaeWeb.Components.Nav do
           </li>
 
           <li>
+            <.nav_link navigate="/hours" current_path={@current_path} section mobile>
+              Hours of Prayer
+            </.nav_link>
+          </li>
+
+          <li>
             <.nav_link navigate="/app" current_path={@current_path} mobile>
               The App
             </.nav_link>
@@ -224,7 +233,7 @@ defmodule LumenViaeWeb.Components.Nav do
   # The prayer page belongs to its category, so a set's prayer page marks
   # nothing: its path is not one the header links to. A section's link
   # (Prayers) is current on every page beneath it too, as site_nav.js
-  # marks it after live navigation.
+  # marks it after live navigation, and so is Hours.
   defp current(path, path), do: "page"
   defp current(_path, _current_path), do: nil
 

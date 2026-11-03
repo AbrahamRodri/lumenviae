@@ -129,6 +129,13 @@ defmodule LumenViaeWeb.Router do
       live "/chant/sets/:occasion_id", Live.Chants.Set
       live "/chant/:chant_id", Live.Chants.Chant
 
+      # Hours of Prayer, the Divine Office as the app's: today's hours, a
+      # month's calendar, another day's hours, and one hour read
+      live "/hours", Live.Hours.Index, :today
+      live "/hours/calendar/:year/:month", Live.Hours.Calendar
+      live "/hours/:date", Live.Hours.Index, :day
+      live "/hours/:date/:hour", Live.Hours.Hour
+
       # The iPhone app's landing page
       live "/app", Live.Home.App.Index
 

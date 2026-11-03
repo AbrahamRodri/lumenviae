@@ -143,6 +143,12 @@ defmodule LumenViae.Office do
   end
 
   @doc """
+  Whether `date` falls in the years the Office serves, so a page can
+  answer 404 for a date outside them before asking the engine anything.
+  """
+  def serves?(%Date{year: year}), do: year in @first_year..@last_year
+
+  @doc """
   The vocabulary a client needs before asking for anything else: the
   version, hour and language slugs this API accepts, and the defaults.
   """

@@ -10,6 +10,9 @@ const { chromium } = require("playwright");
 const BASE_URL = (process.env.BASE_URL || "http://localhost:8096").replace(/\/$/, "");
 const OUT_DIR = path.join(__dirname, "out");
 
+// The server's date, near enough for the Hours pages: any served date works.
+const TODAY = new Date().toISOString().slice(0, 10);
+
 const VIEWPORTS = [
   { name: "narrow", width: 320, height: 568 },
   { name: "mobile", width: 390, height: 844 },
@@ -30,6 +33,9 @@ const PAGES = [
   { path: "/prayers/litany_loreto?lang=both", slug: "prayer-both" },
   { path: "/prayers/orders/morning", slug: "prayer-order" },
   { path: "/prayers/orders/morning/pray?step=3&lang=both", slug: "prayer-order-pray" },
+  { path: "/hours", slug: "hours" },
+  { path: `/hours/${TODAY}/vesperae?lang=both`, slug: "hour-both" },
+  { path: `/hours/calendar/${TODAY.slice(0, 4)}/${Number(TODAY.slice(5, 7))}`, slug: "hours-calendar" },
   { path: "/chant", slug: "chant" },
   { path: "/chant?q=salve", slug: "chant-search" },
   { path: "/chant/sections/mass", slug: "chant-section" },
@@ -252,6 +258,51 @@ async function checkPrayers(browser, vp) {
   check(errors.length === 0, `${label}: no console errors after praying`, errors.join(" | "));
 
   for (const unknown of ["/prayers/not-a-prayer", "/prayers/topics/nowhere", "/prayers/orders/nowhere"]) {
+    const response = await page.goto(BASE_URL + unknown);
+    check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
+  }
+  await context.close();
+}
+
+// Hours of Prayer: Pray on /hours opens the hour now, Both rides in the
+// link, and the text arrives or the page says it could not be reached. The
+// engine may be unreachable from a dev machine, so either answer passes and
+// the log says which it was. An unknown hour and a bad date are 404s.
+async function checkHours(browser, vp) {
+  const label = `${vp.name} hours`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+
+  await page.goto(BASE_URL + "/hours");
+  await settle(page);
+  const pray = page.getByRole("link", { name: /^Pray / });
+  const href = await pray.getAttribute("href");
+  check(/^\/hours\/\d{4}-\d{2}-\d{2}\/[a-z]+$/.test(href || ""), `${label}: Pray opens the hour now`, href);
+  const feast = await eventually(async () => {
+    const text = await page.locator("[data-role=feast]").innerText();
+    return !/Finding the day/.test(text) && text;
+  }, 20000);
+  console.log(`        the day's feast: ${feast ? feast.replace(/\s+/g, " ").trim() : "still loading"}`);
+
+  await pray.click();
+  await eventually(() => new URL(page.url()).pathname === href);
+  await settle(page);
+  await page.getByRole("navigation", { name: "Language" }).getByRole("link", { name: "Both" }).click();
+  const both = await eventually(() => new URL(page.url()).searchParams.get("lang") === "both");
+  check(both, `${label}: Both rides in the link`, page.url());
+
+  const outcome = await eventually(async () => {
+    if ((await page.locator("[data-role=office-text]").count()) > 0) return "text";
+    if ((await page.locator("[data-role=hour-failed]").count()) > 0) return "unreachable";
+    return false;
+  }, 30000);
+  check(Boolean(outcome), `${label}: the hour arrives or says it could not be reached`);
+  console.log(`        the hour: ${outcome === "text" ? "text from the engine" : outcome || "neither"}`);
+  await noHorizontalScroll(page, `${label} (both)`);
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+
+  for (const unknown of ["/hours/not-a-date", `/hours/${TODAY}/midnight`, "/hours/calendar/2026/13"]) {
     const response = await page.goto(BASE_URL + unknown);
     check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
   }
@@ -629,6 +680,7 @@ async function checkCompletion(browser, vp) {
     await checkScriptural(browser, vp);
     await checkSetlessAndUnknown(browser, vp);
     await checkPrayers(browser, vp);
+    await checkHours(browser, vp);
     await checkChant(browser, vp);
   }
 

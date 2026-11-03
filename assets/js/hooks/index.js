@@ -10,6 +10,7 @@ import RosaryChoices from "./rosary_choices"
 import SwipeHint from "./swipe_hint"
 import MysterySchedule from "./mystery_schedule"
 import DisplayChoices from "./display_choices"
+import OfficeRail from "./office_rail"
 import ChantPlayer from "./chant_player"
 
 export default {
@@ -25,5 +26,6 @@ export default {
   SwipeHint,
   MysterySchedule,
   DisplayChoices,
+  OfficeRail,
   ChantPlayer
 }
