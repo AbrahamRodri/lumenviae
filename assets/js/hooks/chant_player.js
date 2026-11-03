@@ -280,6 +280,9 @@ export default {
   // never stops Play all.
   failed() {
     if (!this.audio.getAttribute("src") || !this.pressed) return
+    // A chant held at its start by Pause Between Chants waits for its tap,
+    // even when its file will not load: the tap then says so.
+    if (this.waiting) return
     const error = this.el.querySelector("[data-role=error]")
     if (error) error.hidden = false
     if (!this.player && this.queued && this.queue && this.queue.length > 0) {

@@ -27,7 +27,7 @@
           >
             <span class="hero-play-solid size-3.5 chant-play-all__play" aria-hidden="true" />
             <span class="hero-pause-solid size-3.5 chant-play-all__pause" aria-hidden="true" />
-            <span data-play-set-word>Play all</span>
+            <span id={"play-set-word-#{@set.id}"} phx-update="ignore" data-play-set-word>Play all</span>
           </button>
           <label class="chant-pauses" data-role="pauses-between">
             <input type="checkbox" class="chant-pauses__box" data-pauses-between />
