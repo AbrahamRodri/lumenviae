@@ -4,8 +4,9 @@ Read this before you touch a public page. It says what the pages are, what
 is in a prayer link, where each setting is kept, how to check your work in
 a browser, and which pages nobody maintains.
 
-The public site is the Rosary, the Prayer Book, Hours of Prayer and True
-Devotion: the iOS app's tabs and books coming to the website, one at a
+The public site is the Rosary, the Prayer Book, the Chant Library, Hours
+of Prayer and True Devotion: the iOS app's tabs and books coming to the
+website, one at a
 time, as its desktop version. The console
 (`/admin`), the APIs (`/api`) and `/healthz` are not part of it.
 
@@ -25,25 +26,36 @@ time, as its desktop version. The console
 | `/prayers/orders/:order_id` | `LumenViaeWeb.Live.Prayers.Order` | An order of prayer, as the app's `PrayerOrderView`: its painting, when it is said and its name for the day, its prayers numbered (each begins praying there), the Eastertide line on the Angelus, and Pray. |
 | `/prayers/orders/:order_id/pray` | `LumenViaeWeb.Live.Prayers.Order.Pray` | Praying an order in silence, a prayer a page, as the app's `PrayAlongView`: the way back, the order's name, its beads and "2 of 9", the prayer in English, Latin or Both, the way back a prayer and Next, Amen on the last and the close (Done, Pray again). From 1024px a rail of its prayers. Nothing is recorded. |
 | `/prayers/:prayer_id` | `LumenViaeWeb.Live.Prayers.Prayer` | One prayer, as the app opens a prayer alone: its second name as a gold label over the title where the app shows one, English, Latin or Both (`?lang=`), the words, and a link back to its topic. |
+| `/chant` | `LumenViaeWeb.Live.Chants.Index` | The Chant Library, as the app's Chant tab: the number of recordings, the search (`?q=`; by title, by the prayer sung, by a line of the words), the tiles (A Sung Rosary, Adoration and Blessing, the Mass of the Angels, Before Bed), Songs to Mary as square cards with their length and a play disc, Sets of Chants (the six sung sets as cards whose disc sings the whole set, the shelf's All sets opening `/chant/sets`), and All Chants, the book's twelve sections as painted cards. |
+| `/chant/sections/:section_id` | `LumenViaeWeb.Live.Chants.Section` | A section's shelf (`hymns`, `ourLady`), or the Mass of the Angels' (`mass_of_the_angels`): its painting with the name, when it is sung, how many chants and how long, Play all, the strip of its parts where it has them, and its chants, numbered where they share the shelf's painting, each with its own painting otherwise. |
+| `/chant/sets` | `LumenViaeWeb.Live.Chants.Sets` | Sets of Chants, as the app's `ChantSetsPage`: the six sung sets as wide painted cards, each with what it is for and how many chants and how long. |
+| `/chant/sets/:occasion_id` | `LumenViaeWeb.Live.Chants.Set` | A sung set (`benediction`, `sung_rosary`, `before_bed`), as the app's `ChantSetPage`: its painting with the name, its line, how many chants and how long, Play all (then Pause, Resume, Play next), Pause Between Chants, and its order: the notes in red over the chants they lead to, each chant numbered with how often it is sung and a Play from Here. |
+| `/chant/:chant_id` | `LumenViaeWeb.Live.Chants.Chant` | One chant, as the app's `ChantView`: its painting and its Latin and English names; the recording with the scrubber, back and on a line (greyed until it has played), the gold play, Repeat this line (which starts it) and three-quarter speed; the line being sung, or when it is sung for a chant with no timed lines; the Words (`?words=`), every line lit as it is sung and a click playing from it; the prayer it sings, its other settings and the singers' credit. |
 | `/hours` | `LumenViaeWeb.Live.Hours.Index` | Hours of Prayer, the Divine Office as the app's landing opens it, for the visitor's today: the hour now under its painting (NOW and when it lapses) with a gold Pray, the day's feast and class in plain words, the eight hours on a strand in a breviary's three groups, and a link to the month. The hour and the date wait, as an empty frame, for the browser's clock, so the server's UTC never names them. |
 | `/hours/:date` | `LumenViaeWeb.Live.Hours.Index` | The same for another day (`YYYY-MM-DD`): its date where NOW stands, and a link back to today. |
 | `/hours/:date/:hour` | `LumenViaeWeb.Live.Hours.Hour` | One hour read in full: its painting and name, the day and its feast, Latin, English or Both (`?lang=`), the parts of the hour (a rail beside the text from 1024px, a jump list above it on a phone), the hours either side and the Divinum Officium credit linked to the engine's page for the hour. `:hour` is the Office's slug (`matutinum` to `completorium`). |
+| `/hours/calendar/:year/:month` | `LumenViaeWeb.Live.Hours.Calendar` | The month by the days' classes, a gold mark brighter for the greater feasts; each day links to its hours, and from 768px each cell carries the day's title. |
 | `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open, the part being read open), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
 | `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head. `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
-| `/hours/calendar/:year/:month` | `LumenViaeWeb.Live.Hours.Calendar` | The month by the days' classes, a gold mark brighter for the greater feasts; each day links to its hours, and from 768px each cell carries the day's title. |
+| `/true-devotion` | True Devotion to Mary (the summary page; the address now opens the book) |
 
-All eighteen are in the `:public` live session in `router.ex`. A set that
-does not exist, or is hidden, answers 404, and so do an unknown category,
-an unknown chapter, an unknown order and an unknown prayer, an unknown
-True Devotion chapter, and on the
-Hours pages a date that is not one or that the Office does not serve
+All twenty-three are in the `:public` live session in `router.ex`. A set
+that does not exist, or is hidden, answers 404, and so do an unknown
+category, an unknown chapter, an unknown order, an unknown prayer, an
+unknown chant section, an unknown sung set, an unknown chant and an
+unknown True Devotion chapter, and on
+the Hours pages a date that is not one or that the Office does not serve
 (1600 to 2200, `LumenViae.Office.serves?/1`), an unknown hour and a
 month that is not one.
 
 `priv/static/sitemap.xml` lists `/`, `/mysteries`, the five category pages,
 `/prayers`, every chapter's page and every order of prayer's page,
-`/hours`, `/true-devotion` and each of its thirteen chapters, `/app` and
-`/privacy-policy`. The
+`/chant`, every chant section's shelf (and the Mass of the Angels'),
+`/chant/sets` and every sung set's page, every chant's page, `/hours`,
+`/true-devotion` and each of its thirteen chapters, `/app` and
+`/privacy-policy`. When a chant, a section or a sung set is
+added to `priv/library/chant_library.json`, add its page; the
+Chant tests check every one is there. The
 prayers themselves are not listed: every one is linked from its chapter,
 and a list of 150 pages would drift from the book. Nor are the Hours'
 dated pages, and `robots.txt` asks crawlers to stay out of `/hours/`
@@ -190,6 +202,48 @@ of a topic, here as there.
 Not here yet, as the app has them: Saved, Learn by Heart, the app's own
 playlists and praying aloud.
 
+## The Chant Library
+
+The Chant pages keep their state in the link too: `/chant?q=` is the
+search, and `/chant/:chant_id?words=` the Words, `latin` or `english`;
+Both is the default and never written, and anything else is Both.
+
+The chants, their recordings and their timed lines are the domain's
+(`LumenViae.Rosary.get_chant_library!/1`, from
+`priv/library/chant_library.json`); how the pages arrange them (the songs
+to Mary, the sections' names, which painting each section and chant
+hangs, which shelves number their chants, the rows' second lines and the
+search) is `LumenViaeWeb.Live.Chants.Library`, the app's rules
+(`ChantLibraryData.swift`, `ChantLibraryPages.swift`). The sung sets
+(the library's `occasions`) are unrolled for the visitor's day by
+`LumenViaeWeb.Live.Chants.Occasions`, the app's `ChantOccasion`: Before
+Bed sings tonight's song to Mary, the season's antiphon by
+`LumenViae.LiturgicalCalendar.marian_antiphon_season/1` on the browser's
+date (the `UserTimezone` hook; the server's until it comes). The
+paintings are
+the app's own, in `priv/static/images/paintings/` with their credits.
+
+A recording is the public file the apps play, on the site's own bucket
+(`s3.us-east-2.amazonaws.com/lumenviae-images/chants/audio/`), played by
+an `<audio>` that the `ChantPlayer` hook (`assets/js/hooks/chant_player.js`)
+drives: a disc plays its chant where it stands, Play all sings a shelf in
+order, a sung set's Play all (or its card's disc) sings the set unrolled,
+every chant as often as it sounds, and lights the step sounding, a row's
+Play from Here sings it from that step, and with Pause Between Chants (a
+switch on the set's page, kept nowhere) the next chant waits at its start
+for Play next; and a chant's page follows the recording line by line. The hook
+keeps nothing and sends nothing. A recording that will not play is
+said only once play was pressed; on a list, Play all passes over it to
+the next chant and a quiet line says so. Leaving the page stops it: there is no
+player at the foot of every page yet. The site's Content-Security-Policy
+(`base-uri` and `frame-ancestors` only) does not limit media, so nothing
+needed widening.
+
+Not here yet, as the app has them: the score (the `.lvscore` pages), the
+reader's own sets (Make your own set, the bookmark that keeps a sung set,
+Share, which the app offers on the reader's own sets alone), a player at the foot of every page, and
+everything the phone keeps (the chant last sung, Played lately,
+favourites, learning a chant, Take turns and the sleep timer).
 ## Hours of Prayer
 
 The pages follow the iOS app's `DivineOfficeView`, `OfficeHourView` and
@@ -400,6 +454,14 @@ tokens and the shared vocabulary are in the "Design tokens" section of
 The smoke test in `scripts/e2e/` drives the real site in Chrome at a phone
 width (390 px) and a desktop width (1280 px). It loads `/`, `/mysteries`,
 `/mysteries/joyful`, `/mysteries/seven_sorrows`, `/privacy-policy`,
+`/app`, the Prayers pages and the Chant pages, and checks each one answers 200, has an
+`h1`, logs no console errors and does not scroll sideways. It follows the
+first Pray link on `/mysteries/joyful` and presses ArrowRight, checks every
+App Store link and screenshot on `/app`, searches the Prayer Book and
+chooses Both on a prayer, searches the Chant Library, presses play on a
+chant's page and waits for a line to light, opens Sets of Chants and a sung
+set and presses its Play all, and checks that the five archived paths redirect
+to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 `/app`, the Prayers pages, Hours of Prayer and True Devotion, and checks each one answers 200, has an
 `h1`, logs no console errors and does not scroll sideways. It follows the
 first Pray link on `/mysteries/joyful` and presses ArrowRight, checks every

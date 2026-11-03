@@ -352,7 +352,9 @@ and call neither route.
 
 No build sends `lang` yet. A build that does gets each prayer's `title`
 and `text` with `es` beside `en` and `la`, never null (the English where
-there is no Spanish), and a `version` of its own, so it keeps its Spanish
+there is no Spanish), the mysteries' `name` and `fruit` and the
+sets' `name` and `devotion_title` in Spanish in the same fields, and a
+`version` of its own, so it keeps its Spanish
 copy apart from the English one. Without `lang`, or with `lang=en`, the
 document is exactly what every shipped build reads today, version and
 date included, pinned by `test/lumen_viae_web/json_api/rosary_content_test.exs`

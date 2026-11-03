@@ -311,9 +311,10 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
                }
              } = Enum.find(spanish["prayers"], &(&1["id"] == "hail_mary"))
 
-      # Only the prayers are in Spanish so far; every other section is the English.
-      assert Map.drop(spanish, ~w(prayers version updated_at)) ==
-               Map.drop(english, ~w(prayers version updated_at))
+      # The prayers, mysteries and categories have Spanish
+      # (rosary_content_mysteries_test.exs); every other section is the English.
+      assert Map.drop(spanish, ~w(prayers mysteries categories version updated_at)) ==
+               Map.drop(english, ~w(prayers mysteries categories version updated_at))
     end
 
     test "es has a version and a date of its own, and a region reads as es", %{conn: conn} do

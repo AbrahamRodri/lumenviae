@@ -1,0 +1,140 @@
+<div class="prayers-page min-h-screen pb-16" id="chant-page" phx-hook="ChantPlayer">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+  <audio id="chant-page-audio" preload="none" phx-update="ignore"></audio>
+  <div id="chant-page-day" phx-hook="UserTimezone" hidden></div>
+
+  <section class="border-b border-[rgba(227,188,91,0.15)]" aria-labelledby="chant-heading">
+    <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-8 pb-6 md:pt-14 md:pb-10 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] md:gap-12 md:items-end">
+      <div class="min-w-0">
+        <p class="kicker mb-1">The Chant Library</p>
+        <h1
+          id="chant-heading"
+          class="font-display text-4xl md:text-6xl text-ink-light leading-[1.1]"
+        >
+          Chant
+        </h1>
+        <p class="font-garamond italic text-lg text-ink-muted mt-1" data-role="chant-count">
+          {@count} recordings
+        </p>
+      </div>
+
+      <form
+        id="chant-search"
+        action="/chant"
+        method="get"
+        role="search"
+        phx-change="search"
+        phx-submit="search"
+        class="mt-6 md:mt-0 min-w-0"
+      >
+        <label for="chant-search-field" class="kicker block mb-1.5">Search chants</label>
+        <div class="prayers-search">
+          <span class="hero-magnifying-glass size-5 text-ink-muted shrink-0" aria-hidden="true" />
+          <input
+            id="chant-search-field"
+            type="search"
+            name="q"
+            value={@query}
+            placeholder="Salve Regina, Glory Be…"
+            autocomplete="off"
+            spellcheck="false"
+            phx-debounce="200"
+            aria-describedby="chant-search-hint"
+            class="prayers-search__field"
+          />
+        </div>
+        <p id="chant-search-hint" class="italic text-base text-ink-muted mt-2 leading-snug">
+          A chant's name, the prayer it sings, or a word it sings: "Salve", "glory be", "lumen".
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-8 md:pt-12">
+    <section :if={@query != ""} aria-labelledby="results-heading" data-role="results">
+      <h2 id="results-heading" class="section-label" aria-live="polite">
+        {if @hits == [], do: "No chants", else: Library.chant_count(length(@hits))}
+      </h2>
+      <p :if={@hits == []} class="italic text-lg text-ink-muted" data-role="no-match">
+        No chant by that name. Try a word it sings ("regina", "lux") or the prayer ("Hail Mary").
+      </p>
+      <ul class="chant-rows max-w-3xl">
+        <li :for={chant <- @hits}>
+          <.painted_row chant={chant} />
+        </li>
+      </ul>
+    </section>
+
+    <div :if={@query == ""} class="space-y-12">
+      <section aria-label="Ways in" class="chant-tiles">
+        <.tile
+          :for={occasion <- @tiles_before}
+          id={occasion.id}
+          title={occasion.title}
+          painting={Occasions.painting(occasion)}
+          href={Occasions.set_path(occasion.id)}
+          role="set-tile"
+        />
+        <.tile
+          id={Library.mass_of_the_angels_id()}
+          title="Mass of the Angels"
+          painting={Library.mass_tile_painting()}
+          href={Library.section_path(Library.mass_of_the_angels_id())}
+          role="mass-tile"
+        />
+        <.tile
+          :for={occasion <- @tiles_after}
+          id={occasion.id}
+          title={occasion.title}
+          painting={Occasions.painting(occasion)}
+          href={Occasions.set_path(occasion.id)}
+          role="set-tile"
+        />
+      </section>
+
+      <section aria-labelledby="mary-heading" class="min-w-0">
+        <h2 id="mary-heading" class="section-label">Songs to Mary</h2>
+        <ul class="book-shelf chant-shelf mt-3" data-queue>
+          <li :for={chant <- @songs}>
+            <.square_card chant={chant} />
+          </li>
+        </ul>
+      </section>
+
+      <section :if={@sets != []} aria-labelledby="sets-heading" class="min-w-0">
+        <div class="flex items-baseline gap-4">
+          <h2 id="sets-heading" class="section-label flex-1 min-w-0">Sets of Chants</h2>
+          <.link
+            navigate={Occasions.sets_path()}
+            class="kicker shrink-0 chant-shelf-link"
+            data-role="sets-link"
+          >
+            All sets <span aria-hidden="true">›</span>
+          </.link>
+        </div>
+        <ul class="chant-set-shelf mt-3">
+          <li :for={set <- @sets}>
+            <.set_card set={set} />
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="all-heading" class="min-w-0">
+        <div class="flex items-baseline gap-4">
+          <h2 id="all-heading" class="section-label flex-1 min-w-0">All Chants</h2>
+          <span class="kicker shrink-0">{Library.chant_count(@count)}</span>
+        </div>
+        <ul class="chant-sections mt-3">
+          <li :for={section <- @sections}>
+            <.section_card {section} />
+          </li>
+        </ul>
+      </section>
+
+      <p class="chant-error chant-error--list" data-role="error" role="status" hidden>
+        A recording could not be played, so it was passed over. Check the connection and try again.
+      </p>
+      <.credit compact />
+    </div>
+  </div>
+</div>

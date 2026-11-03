@@ -1,0 +1,99 @@
+<div class="prayers-page min-h-screen pb-16" id="chant-set" phx-hook="ChantPlayer">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+  <audio id="chant-set-audio" preload="none" phx-update="ignore"></audio>
+  <div id="chant-set-day" phx-hook="UserTimezone" hidden></div>
+
+  <div data-set={@set.id} data-entries={Occasions.entries_json(@set)} data-role="set">
+    <section class="book-hero chant-hero" aria-labelledby="set-heading">
+      <span class="book-hero__painting" aria-hidden="true">
+        <.painting painting={Library.hero(@set.painting)} sizes="100vw" loading="eager" />
+      </span>
+      <div class="book-hero__inner">
+        <.link navigate={Occasions.sets_path()} class="book-back" data-role="back">
+          <span class="hero-chevron-left size-4" aria-hidden="true" /> Sets of Chants
+        </.link>
+        <div class="book-hero__words chant-hero__words">
+          <h1 id="set-heading" class="book-hero__title">{@set.title}</h1>
+          <p class="book-hero__note" data-role="set-note">{@set.note}</p>
+          <p class="chant-hero__summary" data-role="summary">{Occasions.summary(@set)}</p>
+          <button
+            type="button"
+            class="btn-outline-gold chant-play-all"
+            data-play-set
+            data-label={@set.title}
+            data-role="play-all"
+            aria-label={"Play all of #{@set.title}"}
+            aria-pressed="false"
+          >
+            <span class="hero-play-solid size-3.5 chant-play-all__play" aria-hidden="true" />
+            <span class="hero-pause-solid size-3.5 chant-play-all__pause" aria-hidden="true" />
+            <span data-play-set-word>Play all</span>
+          </button>
+          <label class="chant-pauses" data-role="pauses-between">
+            <input type="checkbox" class="chant-pauses__box" data-pauses-between />
+            <span class="chant-pauses__switch" aria-hidden="true"></span>
+            <span class="chant-pauses__words">
+              <span class="chant-pauses__title">Pause Between Chants</span>
+              <span class="chant-pauses__note">The next chant waits until you tap</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <div class="max-w-3xl mx-auto px-4 sm:px-8">
+      <ol class="chant-set-order" data-role="order">
+        <li
+          :for={row <- @set.rows}
+          class={[
+            row.kind == :rubric && "chant-set-rubric",
+            row.kind == :chant && "chant-set-order__chant"
+          ]}
+        >
+          <p :if={row.kind == :rubric} class="chant-set-rubric__text" data-role="rubric">
+            {row.text}
+          </p>
+          <div
+            :if={row.kind == :chant}
+            class="chant-row chant-set-row"
+            data-origin={row.origin}
+            data-role="set-row"
+          >
+            <.link navigate={Library.chant_path(row.chant.id)} class="chant-row__face">
+              <span class="chant-row__number" aria-hidden="true">{row.number}</span>
+              <span class="chant-row__names">
+                <span class="chant-row__latin">
+                  <span lang="la">{row.chant.latin_title}</span><span
+                    :if={Occasions.repeats(row.times)}
+                    class="chant-set-row__times"
+                    data-role="times"
+                  >{Occasions.repeats(row.times)}</span>
+                </span>
+                <span class="chant-row__english">{row.chant.english_title}</span>
+              </span>
+              <span class="chant-row__length">{Library.duration_label(row.seconds)}</span>
+              <.sounding_bars />
+            </.link>
+            <button
+              type="button"
+              class="chant-disc chant-from"
+              data-play-from={row.origin}
+              aria-label={"Play from here: #{row.chant.latin_title}"}
+              title="Play from here"
+            >
+              <span class="hero-forward-solid size-3.5 chant-from__icon" aria-hidden="true" />
+            </button>
+          </div>
+        </li>
+      </ol>
+
+      <p class="chant-error chant-error--list" data-role="error" role="status" hidden>
+        A recording could not be played, so it was passed over. Check the connection and try again.
+      </p>
+      <p class="chant-note-quiet" data-role="queue-note">
+        Play all sings the set in order while this page is open. Each chant's page has its words.
+      </p>
+      <.credit compact />
+    </div>
+  </div>
+</div>

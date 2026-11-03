@@ -1,0 +1,81 @@
+<div class="prayers-page min-h-screen pb-16" id="chant-section" phx-hook="ChantPlayer">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+  <audio id="chant-section-audio" preload="none" phx-update="ignore"></audio>
+
+  <section class="book-hero chant-hero" aria-labelledby="section-heading">
+    <span class="book-hero__painting" aria-hidden="true">
+      <.painting painting={Library.hero(@shelf.painting)} sizes="100vw" loading="eager" />
+    </span>
+    <div class="book-hero__inner">
+      <.link navigate="/chant" class="book-back" data-role="back">
+        <span class="hero-chevron-left size-4" aria-hidden="true" /> Chant
+      </.link>
+      <div class="book-hero__words chant-hero__words">
+        <h1 id="section-heading" class="book-hero__title">{@shelf.title}</h1>
+        <p :if={@shelf.note} class="book-hero__note" data-role="section-note">{@shelf.note}</p>
+        <p class="chant-hero__summary" data-role="summary">{Library.summary(@chants)}</p>
+        <button
+          :if={length(@chants) > 1}
+          type="button"
+          class="btn-outline-gold chant-play-all"
+          data-play-all
+          data-role="play-all"
+          aria-label={"Play all of #{@shelf.title}"}
+        >
+          <span class="hero-play-solid size-3.5 chant-play-all__play" aria-hidden="true" />
+          <span class="hero-pause-solid size-3.5 chant-play-all__pause" aria-hidden="true" />
+          <span data-play-all-word>Play all</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-8">
+    <nav :if={@strip?} class="chant-strip" aria-label="Parts" data-role="parts">
+      <a
+        :for={{part, i} <- Enum.with_index(@shelf.parts)}
+        :if={part.title}
+        href={"#part-#{i}"}
+        class="chant-strip__part"
+      >
+        {part.title}
+      </a>
+    </nav>
+
+    <div data-queue>
+      <section
+        :for={{part, i} <- Enum.with_index(@shelf.parts)}
+        id={"part-#{i}"}
+        class={["chant-part", part.title && "chant-part--headed"]}
+        aria-labelledby={part.title && "part-heading-#{i}"}
+      >
+        <div :if={part.title} class="chant-part__head">
+          <h2 id={"part-heading-#{i}"} class="chant-part__title">{part.title}</h2>
+          <p :if={part.note} class="chant-part__note">{part.note}</p>
+        </div>
+        <ul class="chant-rows">
+          <li :for={{chant, n} <- Enum.with_index(part.chants, 1)}>
+            <.numbered_row
+              :if={@numbered?}
+              number={n}
+              chant={chant}
+              shows_setting={Library.says_setting?(chant, [@shelf.title, part.title, part.note])}
+            />
+            <.painted_row
+              :if={!@numbered?}
+              chant={chant}
+              shows_setting={Library.says_setting?(chant, [@shelf.title, part.title, part.note])}
+            />
+          </li>
+        </ul>
+      </section>
+    </div>
+
+    <p class="chant-error chant-error--list" data-role="error" role="status" hidden>
+      A recording could not be played, so it was passed over. Check the connection and try again.
+    </p>
+    <p class="chant-note-quiet" data-role="queue-note">
+      Play all sings these chants one after another while this page is open.
+    </p>
+  </div>
+</div>

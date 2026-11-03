@@ -14,24 +14,37 @@ defmodule LumenViae.Rosary.RosaryContent.Mysteries do
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.Artwork.Published
   alias LumenViae.Rosary.Categories
+  alias LumenViae.Rosary.Content
   alias LumenViae.Rosary.Mystery
   alias LumenViae.Rosary.PrayerAudio
+  alias LumenViae.Rosary.RosaryContent.SpanishNames
   alias LumenViae.Rosary.Types
+
+  # GraphQL selects only the fields a query names, so the language is
+  # asked for here or it would arrive empty.
+  @impl true
+  def load(_query, _opts, _context), do: [:lang]
 
   @impl true
   def calculate(records, _opts, context) do
-    mysteries = context |> Ash.Context.to_opts() |> rows() |> Enum.map(&elem(&1, 0))
+    opts = Ash.Context.to_opts(context)
 
-    Enum.map(records, fn _record -> mysteries end)
+    Enum.map(records, fn record ->
+      opts |> rows(Content.language(record.lang)) |> Enum.map(&elem(&1, 0))
+    end)
   end
 
   @doc """
   The served mysteries in prayer order, each as `{%Types.RosaryMystery{},
   updated_at}`, the second being the row's last change as a UTC
   `DateTime`.
+
+  In `"es"` a mystery's `name` and `fruit` are `SpanishNames.mystery/1`'s
+  where it has them; every other field, the announcement included, is the
+  row's English.
   """
-  @spec rows(keyword) :: [{Types.RosaryMystery.t(), DateTime.t()}]
-  def rows(opts) do
+  @spec rows(keyword, String.t()) :: [{Types.RosaryMystery.t(), DateTime.t()}]
+  def rows(opts, lang \\ "en") do
     announcements = Map.new(PrayerAudio.announcements(), &{&1.mystery, &1.text})
     positions = Categories.mystery_keys() |> Enum.with_index() |> Map.new()
 
@@ -54,7 +67,17 @@ defmodule LumenViae.Rosary.RosaryContent.Mysteries do
          key_verse_reference: mystery.key_verse_reference,
          artwork: if(Artwork.publishable?(mystery), do: Published.shape(mystery)),
          announcement: Map.fetch!(announcements, mystery.key)
-       }, DateTime.from_naive!(mystery.updated_at, "Etc/UTC")}
+       }
+       |> in_language(lang), DateTime.from_naive!(mystery.updated_at, "Etc/UTC")}
     end)
   end
+
+  defp in_language(%Types.RosaryMystery{key: key} = mystery, "es") do
+    case SpanishNames.mystery(key) do
+      nil -> mystery
+      spanish -> %{mystery | name: spanish.name, fruit: spanish.fruit}
+    end
+  end
+
+  defp in_language(mystery, _lang), do: mystery
 end

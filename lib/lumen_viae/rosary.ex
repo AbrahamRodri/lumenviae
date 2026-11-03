@@ -473,7 +473,12 @@ defmodule LumenViae.Rosary do
       define :get_prayer_book, action: :current, functions: @read
     end
 
-    resource LumenViae.Rosary.ChantLibrary
+    resource LumenViae.Rosary.ChantLibrary do
+      # The website's Chant pages read the whole library at once, naming
+      # the sections they draw in `load:`.
+      define :get_chant_library, action: :current, functions: @read
+    end
+
     resource LumenViae.Rosary.Consecration
 
     resource LumenViae.Rosary.TrueDevotion do

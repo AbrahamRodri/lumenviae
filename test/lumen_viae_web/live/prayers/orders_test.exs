@@ -84,6 +84,8 @@ defmodule LumenViaeWeb.Live.Prayers.OrdersTest do
       angelus = Orders.order(book, "angelus")
 
       assert Orders.hour_painting(angelus, ~D[2026-11-02]) == {"joyful_annunciation", 0.5, 0.18}
+      # The app's own painting since the Chant Library brought it to the
+      # site; before, the Resurrection stood in for it.
       {easter, _x, _y} = Orders.hour_painting(angelus, ~D[2026-04-20])
       assert easter == "easter_appears_to_mary"
     end

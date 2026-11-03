@@ -12,6 +12,7 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
   alias LumenViae.Rosary.RosaryContent.Labels
   alias LumenViae.Rosary.RosaryContent.Mysteries
   alias LumenViae.Rosary.RosaryContent.Schedule
+  alias LumenViae.Rosary.RosaryContent.SpanishNames
   alias LumenViae.Rosary.RosaryContent.Verses
 
   @impl true
@@ -48,26 +49,28 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
   in their own modules.
 
   `lang` is the document's language (`Content.language/1`): in Spanish the
-  content is `Content.document("es")`, so its version and date are its
-  own, and the English ones are what they were.
+  content is `Content.document("es")` and the mysteries and categories
+  carry `SpanishNames`' words, whose file's date joins the dates, so its
+  version and date are its own, and the English ones are what they were.
   """
   @spec stamp(integer, keyword, String.t()) :: %{version: String.t(), updated_at: DateTime.t()}
   def stamp(year \\ Schedule.current_year(), opts \\ [], lang \\ "en") do
-    mysteries = Mysteries.rows(opts)
+    mysteries = Mysteries.rows(opts, lang)
 
-    sections = [
-      {"content", Content.document(lang), Content.updated_at(lang)},
-      {"schedule", Schedule.section(year), Schedule.updated_at(year)},
-      {"categories", Categories.all(opts),
-       Enum.max(
-         Enum.reject([Categories.updated_at(), Categories.cards_updated_at(opts)], &is_nil/1),
-         DateTime
-       )},
-      {"labels", Labels.section(), Labels.updated_at()},
-      {"verses", Verses.groups(), Verses.updated_at()},
-      {"mysteries", Enum.map(mysteries, &elem(&1, 0)),
-       mysteries |> Enum.map(&elem(&1, 1)) |> Enum.max(DateTime, fn -> Content.updated_at() end)}
-    ]
+    sections =
+      [
+        {"content", Content.document(lang), Content.updated_at(lang)},
+        {"schedule", Schedule.section(year), Schedule.updated_at(year)},
+        {"categories", Categories.all(opts, lang),
+         Enum.max(
+           Enum.reject([Categories.updated_at(), Categories.cards_updated_at(opts)], &is_nil/1),
+           DateTime
+         )},
+        {"labels", Labels.section(), Labels.updated_at()},
+        {"verses", Verses.groups(), Verses.updated_at()},
+        {"mysteries", Enum.map(mysteries, &elem(&1, 0)),
+         mysteries |> Enum.map(&elem(&1, 1)) |> Enum.max(DateTime, fn -> Content.updated_at() end)}
+      ] ++ spanish_names(lang)
 
     version =
       sections
@@ -90,6 +93,13 @@ defmodule LumenViae.Rosary.RosaryContent.Current do
   def folded_sections do
     Map.keys(Content.document()) ++ ~w(schedule categories labels verses mysteries)
   end
+
+  # In Spanish the names file is dated too, so a word changed there moves
+  # the Spanish date as well as its version.
+  defp spanish_names("es"),
+    do: [{"spanish_names", SpanishNames.version(), SpanishNames.updated_at()}]
+
+  defp spanish_names(_lang), do: []
 
   # Typed structs as plain maps, so Content.version/1 can order their keys.
   defp plain(list) when is_list(list), do: Enum.map(list, &plain/1)
