@@ -552,11 +552,41 @@ hook).
 an empty frame, until the browser's clock is known, and fetches nothing
 until then.
 
-Left out, as the app has them: the app's default "With the Ordinary"
-reading, which lets the Order of Mass into the day's page between the
-propers (the day's page sets the day's own texts, as the Android app
-does, and the Order of Mass is its own page a link away), with the High
-or Low Mass choice that goes with it; the text size, the posture switch
+### With the Ordinary
+
+The day's page reads the Whole Mass by default, as the app does
+(`MissalScope.full`, "With the Ordinary"): the Order of Mass's prayers
+let into their places among the day's own texts, after iOS's
+`MissalOrderData.readerSections` rule for rule
+(`LumenViaeWeb.Live.Missal.Ordinary`). Under the language stand the
+app's two other choices from its Text options sheet, in the same pill:
+Contents, TODAY'S TEXTS ONLY or WHOLE MASS, and, with the Whole Mass,
+SPOKEN or SUNG (the app's Sung Mass switch), with the app's line for it
+beneath. Both are this browser's own: the `MissalReading` hook keeps them
+in localStorage (`lv:missal-reading`) and hands them back on connect;
+nothing is kept on the server or written into the link.
+
+Where the Ordinary stands: At the Foot of the Altar before the Introit
+(after the Sprinkling with Holy Water, the Asperges, on a sung Sunday);
+Lord, Have Mercy and Glory to God after it; the Creed after the Gospel;
+the Offertory's dialogue at the head of the day's Offertory verse; the
+Offertory Prayers, the Incensing (sung), the Washing of the Hands, the
+Prayer to the Holy Trinity and Pray, Brethren before the Secret; Lift Up
+Your Hearts before the day's Preface (the Common Preface where the day
+has none) and Holy, Holy, Holy after it; the Eucharistic Prayer, the Our
+Father, the Breaking of the Host, the Lamb of God, the Communion prayers
+and the Cleansing of the Vessels before the Communion verse; The Mass Is
+Ended, the Closing Gospel and the Prayers after Mass (spoken only) after
+the Postcommunion. The Gloria falls away in violet, black and rose; the
+Creed belongs to Sundays and feasts of the first and second class. Each
+part of the Ordinary has its plain name, its Latin name, its posture and
+no diamond; only its prayers are woven in, its rubrics stay on the Order
+of Mass page. The Order of Mass is fetched once beside the day
+(`fetch_order_of_mass/0`, the same cache as its page); the day waits for
+it ("Finding the day's Mass…") so the page is not rebuilt under the
+reader, and without it the day's own texts stand alone, as in the app.
+
+Left out, as the app has them: the text size, the posture switch
 and the first-open "line by line or side by side" question (the width
 decides; posture is always shown); the collapsing header and its
 progress hair (the page scrolls, and the rail lights the part being
@@ -713,6 +743,12 @@ tab closes; each track runs on into the next by itself.
   A track list that cannot be had says "The recording couldn't be
   reached." with Try again (the `retry_recording` event, answered only
   after a failure). The credit adds "Recording: LibriVox volunteers."
+- **Before the page connects** (a slow phone: the page is drawn, its
+  script not yet run), Hear this read and the listen chips stand dimmed
+  and take no tap, since nothing could answer them; they come alive with
+  the connection (CSS on LiveView's `phx-connected`). A connection lost
+  later leaves them working, since the voice is the browser's own. The
+  app has no such moment.
 - **The player** (`LumenViaeWeb.Live.SpiritualReading.Player`): the mini
   player over the foot of the screen (the reading's title, which opens
   the player, back fifteen seconds, play and pause), and the player
