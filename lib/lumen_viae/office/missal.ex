@@ -173,10 +173,22 @@ defmodule LumenViae.Office.Missal do
         {:noreply, state}
 
       {_key, entry} ->
-        Logger.warning("Missale Meum's #{inspect(key)} passed its deadline")
         Task.Supervisor.terminate_child(@tasks, entry.task.pid)
         Process.demonitor(ref, [:flush])
-        {:noreply, finish(state, ref, fail(namespace, key))}
+
+        # The task may have stored the value a moment before the deadline:
+        # then the callers get it, and no failure is held over it.
+        result =
+          case Cache.fetch_in_namespace(namespace, key) do
+            {:ok, value} ->
+              {:ok, value}
+
+            :miss ->
+              Logger.warning("Missale Meum's #{inspect(key)} passed its deadline")
+              fail(namespace, key)
+          end
+
+        {:noreply, finish(state, ref, result)}
     end
   end
 

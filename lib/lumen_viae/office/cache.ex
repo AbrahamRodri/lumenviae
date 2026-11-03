@@ -137,9 +137,12 @@ defmodule LumenViae.Office.Cache do
     defp namespaced(key), do: {nil, key}
   end
 
-  def fetch(key) do
-    key = namespaced(key)
+  def fetch(key), do: lookup(namespaced(key))
 
+  @doc "`fetch/1` under a namespace `namespace/0` gave, from any process."
+  def fetch_in_namespace(namespace, key), do: lookup({namespace, key})
+
+  defp lookup(key) do
     case :ets.lookup(@table, key) do
       [{^key, value, expires_at}] ->
         if System.monotonic_time(:millisecond) < expires_at, do: {:ok, value}, else: :miss
