@@ -125,7 +125,9 @@ rehearsal uses a test name.
    - As the owner's user, once (each deploy copies `deploy/vm/` to the server, so the
      units are in `/srv/<name>/systemd/`; before the first deploy, copy that
      folder by hand):
-     `sudo cp /srv/<name>/systemd/* /etc/systemd/system/`,
+     `sudo sh -c 'cp /srv/<name>/systemd/* /etc/systemd/system/'` (the
+     glob runs inside the root shell; a bare `sudo cp ...*` expands it as
+     `deploy` first),
      `sudo systemctl daemon-reload`,
      `sudo systemctl enable --now backup@<name>.timer restore-test@<name>.timer`.
    - Run one of each now and read the result:
