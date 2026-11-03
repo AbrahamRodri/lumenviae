@@ -333,6 +333,22 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
       assert attributes(build_conn(), "&lang=es-MX") == spanish
     end
 
+    test "ai_translated: true on the one prayer partly in the team's translation, absent elsewhere",
+         %{conn: conn} do
+      spanish = attributes(conn, "&lang=es")["prayers"]
+
+      assert %{"ai_translated" => true} =
+               Enum.find(spanish, &(&1["id"] == "sorrows_closing_prayer"))
+
+      for prayer <- spanish, prayer["id"] != "sorrows_closing_prayer" do
+        refute Map.has_key?(prayer, "ai_translated"), prayer["id"]
+      end
+
+      for prayer <- attributes(build_conn(), "")["prayers"] do
+        assert Map.keys(prayer) |> Enum.sort() == ~w(group id text title)
+      end
+    end
+
     test "the bare request with es is the Spanish version and date alone", %{conn: conn} do
       attributes =
         conn

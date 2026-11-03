@@ -42,7 +42,8 @@ defmodule LumenViae.Rosary.ContentTest do
   # alone. Change es/prayers.json the same way.
   @spanish_history %{
     "es/prayers.json" => [
-      {~U[2026-11-02 23:00:00Z], "c5fc5ae325922a61"}
+      {~U[2026-11-02 23:00:00Z], "c5fc5ae325922a61"},
+      {~U[2026-11-03 03:00:00Z], "eb7de5487f2c29f6"}
     ]
   }
 
@@ -145,6 +146,40 @@ defmodule LumenViae.Rosary.ContentTest do
       end
     end
 
+    test "the Seven Sorrows closing prayer: Abraham's text, completed to match the English" do
+      %{"title" => %{"es" => title}, "text" => %{"es" => lines, "en" => english}} =
+        Enum.find(Content.prayers("es"), &(&1["id"] == "sorrows_closing_prayer"))
+
+      assert title == "Oración final de los Siete Dolores"
+      assert length(lines) == length(english)
+
+      # The versicle and "ahora y en la hora de nuestra muerte," are the
+      # team's; the rest is as Abraham supplied it, 3 Nov 2026, but for the
+      # final period (SOURCES.md).
+      assert lines == [
+               "Ruega por nosotros, Virgen dolorosísima,",
+               "para que seamos dignos de alcanzar las promesas de Cristo.",
+               "[Oremos.]",
+               "Te rogamos, Señor nuestro Jesucristo, ahora y en la hora de nuestra muerte,",
+               "que interceda ante tu clemencia la bienaventurada Virgen María tu Madre,",
+               "cuya alma atravesó la espada de dolor en la hora de tu Pasión.",
+               "Lo pedimos por ti, oh Jesucristo, Salvador del mundo,",
+               "que vives y reinas con el Padre y el Espíritu Santo,",
+               "por los siglos de los siglos. Amén."
+             ]
+    end
+
+    test "only a prayer partly in the team's own translation is marked ai_translated" do
+      marked = for %{"ai_translated" => true, "id" => id} <- Content.prayers("es"), do: id
+      assert marked == ["sorrows_closing_prayer"]
+
+      for prayer <- Content.prayers("es"), prayer["id"] not in marked do
+        refute Map.has_key?(prayer, "ai_translated"), prayer["id"]
+      end
+
+      for prayer <- Content.prayers(), do: refute(Map.has_key?(prayer, "ai_translated"))
+    end
+
     test "lang reads es and its regions as Spanish, and anything else as English" do
       for lang <- ["es", "ES", "es-MX", "es_419", "es-ES"],
           do: assert(Content.language(lang) == "es")
@@ -164,18 +199,7 @@ defmodule LumenViae.Rosary.ContentTest do
       end
     end
 
-    # No official Spanish text was found for these (priv/rosary_content/SOURCES.md).
-    @english_only ~w(sorrows_closing_prayer)
-
-    test "a prayer with no Spanish text is served with its English as the es" do
-      for %{"id" => id, "title" => title, "text" => text} <- Content.prayers("es"),
-          id in @english_only do
-        assert title["es"] == title["en"]
-        assert text["es"] == text["en"]
-      end
-    end
-
-    test "every other prayer has its own Spanish beside the English and Latin, unchanged" do
+    test "every prayer has its own Spanish beside the English and Latin, unchanged" do
       spanish = Content.prayers("es")
 
       assert Enum.map(spanish, & &1["id"]) == @prayer_ids
@@ -185,7 +209,7 @@ defmodule LumenViae.Rosary.ContentTest do
         assert Map.delete(es["text"], "es") == en["text"]
       end
 
-      for {es, en} <- Enum.zip(spanish, Content.prayers()), es["id"] not in @english_only do
+      for {es, en} <- Enum.zip(spanish, Content.prayers()) do
         assert es["title"]["es"] != en["title"]["en"], "#{es["id"]} has no Spanish title"
         assert es["text"]["es"] != en["text"]["en"], "#{es["id"]} has no Spanish text"
 
@@ -204,10 +228,7 @@ defmodule LumenViae.Rosary.ContentTest do
 
     test "the spoken Rosary records no Spanish: its prayer clips say the English" do
       spanish_words =
-        for p <- Content.prayers("es"),
-            p["id"] not in @english_only,
-            line <- p["text"]["es"],
-            do: line
+        for p <- Content.prayers("es"), line <- p["text"]["es"], do: line
 
       for clip <- PrayerAudio.clips([:prayer]) do
         refute Enum.any?(spanish_words, &String.contains?(clip.text, &1)), "#{clip.name}"
