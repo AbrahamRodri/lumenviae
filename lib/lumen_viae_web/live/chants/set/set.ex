@@ -48,6 +48,7 @@ defmodule LumenViaeWeb.Live.Chants.Set do
      |> PageMeta.put(Occasions.set_path(id),
        title: "#{occasion.title}, Chant",
        description: description(set),
+       image: PageMeta.named_image(set.painting),
        trail: [
          {"Chant", "/chant"},
          {"Sets of Chants", Occasions.sets_path()},

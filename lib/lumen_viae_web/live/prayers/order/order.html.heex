@@ -7,8 +7,8 @@
     </div>
 
     <div class="order-column">
-      <.link navigate="/prayers" class="book-back order-back" data-role="back">
-        <span class="hero-chevron-left size-4" aria-hidden="true" /> Prayers
+      <.link navigate={@back} class="book-back order-back" data-role="back">
+        <span class="hero-chevron-left size-4" aria-hidden="true" /> {@back_name}
       </.link>
 
       <header class="order-head">
@@ -19,7 +19,7 @@
       <ol class="order-prayers" aria-label={"The prayers of #{@title}"}>
         <li :for={{prayer, i} <- Enum.with_index(@prayers, 1)}>
           <.link
-            navigate={Orders.pray_path(@order.id, i)}
+            navigate={Orders.pray_path(@order.id, i, "english", @from)}
             class="order-prayer"
             data-role="order-prayer"
             aria-label={"#{i}, #{prayer.title}: pray from here"}
@@ -35,7 +35,7 @@
 
       <div class="order-foot">
         <.gold_cta
-          navigate={Orders.pray_path(@order.id)}
+          navigate={Orders.pray_path(@order.id, 1, "english", @from)}
           class="order-foot__pray"
           aria-label={"Pray #{@title}"}
           data-role="order-pray"

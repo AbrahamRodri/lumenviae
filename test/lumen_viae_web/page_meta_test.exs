@@ -14,6 +14,9 @@ defmodule LumenViaeWeb.PageMetaTest do
   alias LumenViae.Rosary.Categories
   alias LumenViae.Test.Mysteries
   alias LumenViaeWeb.Components.MysteryPainting
+  alias LumenViaeWeb.Live.Chants.{Library, Occasions}
+  alias LumenViaeWeb.Live.Hours.CanonicalHours
+  alias LumenViaeWeb.Live.Prayers.{Book, Orders}
   alias LumenViaeWeb.PageMeta
 
   @site "https://www.lumenviae.org"
@@ -308,6 +311,46 @@ defmodule LumenViaeWeb.PageMetaTest do
                "The Sorrowful Mysteries",
                "Pray the Sorrowful Mysteries"
              ]
+    end
+  end
+
+  describe "the Prayers, Chant and Hours pages" do
+    # Each page's link preview is its own painting's preview JPEG, the
+    # painting the page hangs at its head.
+    test "preview with the painting they hang", %{conn: conn} do
+      book = Book.load(nil)
+      library = Library.load(nil)
+      today = Date.utc_today()
+      before_mass = Orders.order(book, "before_mass")
+      chant = Library.chant(library, "salve_regina_simple")
+      hour = CanonicalHours.present(CanonicalHours.server_now().hour)
+
+      pages = [
+        {"/prayers/topics/mass", Book.topic_painting("mass")},
+        {"/prayers/orders/before_mass", Orders.page_painting(before_mass, today)},
+        {"/chant/sections/ourLady", Library.shelf(library, "ourLady").painting},
+        {"/chant/sets/before_bed", Occasions.painting(Occasions.occasion(library, "before_bed"))},
+        {"/chant/salve_regina_simple", Library.painting(chant)},
+        {"/hours", hour.painting}
+      ]
+
+      for {path, {name, _x, _y}} <- pages do
+        doc = page(conn, path)
+        painting = MysteryPainting.for_name(name)
+
+        assert content(doc, ~s(meta[property="og:image"])) ==
+                 @site <> "/images/paintings/#{name}-preview.jpg",
+               path
+
+        assert content(doc, ~s(meta[property="og:image:width"])) ==
+                 to_string(painting.preview.width)
+
+        assert content(doc, ~s(meta[property="og:image:height"])) ==
+                 to_string(painting.preview.height)
+
+        assert content(doc, ~s(meta[property="og:image:alt"])) == painting.alt
+        assert File.exists?(Path.join("priv/static", painting.preview.src)), path
+      end
     end
   end
 

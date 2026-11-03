@@ -53,6 +53,13 @@ crawler reads WebP.
 | A category | the woodcut its header shows (`PageMeta.category_image/1`) |
 | A set's prayer page | the woodcut of the set's first mystery, else the category's |
 | A category's prayer page | the woodcut of the category's first mystery |
+| A Prayer Book topic, an order of prayer | the painting at its head (`PageMeta.named_image/1`) |
+| A Chant section, sung set or chant | the painting at its head (`PageMeta.named_image/1`) |
+| Hours of Prayer | the painting of the hour now, on the server's clock |
+
+`PageMeta.named_image/1` takes a painting's name, or a page's
+`{name, focal x, focal y}`, and gives its `<name>-preview.jpg` with the size
+`manifest.json`'s `preview` records.
 
 The woodcuts are taller than wide, so those pages use the `summary` Twitter
 card, which shows a small square, and the others use

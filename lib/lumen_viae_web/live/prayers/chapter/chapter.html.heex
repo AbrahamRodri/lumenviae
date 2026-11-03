@@ -37,7 +37,7 @@
       <ul class="book-together__rows">
         <li :for={order <- @orders}>
           <.link
-            navigate={Orders.order_path(order.id)}
+            navigate={Orders.order_path(order.id, "topic:#{@chapter.id}")}
             class="book-together__row"
             data-role="topic-order"
           >

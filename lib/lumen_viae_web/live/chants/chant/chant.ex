@@ -45,6 +45,7 @@ defmodule LumenViaeWeb.Live.Chants.Chant do
      |> PageMeta.put(Library.chant_path(id),
        title: "#{chant.latin_title} (#{chant.english_title}), Chant",
        description: description(chant),
+       image: PageMeta.named_image(Library.painting(chant)),
        trail:
          [{"Chant", "/chant"}] ++
            if(group,

@@ -56,6 +56,7 @@ defmodule LumenViaeWeb.Live.Hours.Index do
       |> PageMeta.put(path,
         title: title,
         description: @description,
+        image: preview_image(),
         trail: trail(fixed_date?, path, title)
       )
       |> assign(:fixed_date?, fixed_date?)
@@ -138,6 +139,12 @@ defmodule LumenViaeWeb.Live.Hours.Index do
       {:ok, date} -> date
       :error -> raise LumenViaeWeb.NotFoundError, message: "no office for #{inspect(value)}"
     end
+  end
+
+  # A link preview shows the painting of the hour now on the server's clock:
+  # the page's own head waits for the visitor's.
+  defp preview_image do
+    PageMeta.named_image(CanonicalHours.present(CanonicalHours.server_now().hour).painting)
   end
 
   defp trail(true, path, title), do: [{"Hours of Prayer", "/hours"}, {title, path}]
