@@ -117,6 +117,28 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayerTest do
     end
   end
 
+  describe "Today's Mass" do
+    test "before the Mass is known, says what the Mass holds" do
+      row = TodaysPrayer.mass(nil)
+
+      assert row.name == "Today's Mass"
+      assert row.subtitle == "Prayers and readings for today"
+      assert row.fact == nil
+      assert row.path == "/missal"
+      assert {"topic_holy_mass", _x, _y} = row.painting
+    end
+
+    test "the feast in the line, its class and colour in the fact, the silk before it" do
+      mass = %{title: "St. Charles Borromeo", rank: 3, colors: ["w"], tempora: nil}
+      row = TodaysPrayer.mass(mass)
+
+      assert row.subtitle == "St. Charles Borromeo"
+      assert row.fact == "Lesser Feast · White"
+      assert row.mark == {:silk, "w"}
+      assert row.spoken == "Today's Mass, St. Charles Borromeo, Lesser Feast, white vestments"
+    end
+  end
+
   describe "on the home page" do
     defp state(plan, done \\ [], today \\ Date.utc_today()) do
       %{"plan" => plan, "done" => done, "intro_seen" => false, "today" => Date.to_iso8601(today)}
@@ -127,11 +149,12 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayerTest do
 
       assert html =~ "Today&#39;s Prayer"
       assert has_element?(view, "#todays-prayer[phx-hook=ConsecrationPlan]")
-      assert view |> element("#todays-prayer") |> render() |> count("data-role=\"waiting\"") == 3
+      assert view |> element("#todays-prayer") |> render() |> count("data-role=\"waiting\"") == 4
       refute has_element?(view, "[data-role=todays-prayer-date]")
     end
 
     test "shows the rows and their links once the plan and the clock are known", %{conn: conn} do
+      Req.Test.stub(LumenViae.Office.MissaleMeum, &Req.Test.transport_error(&1, :timeout))
       {:ok, view, _html} = live(conn, "/")
       render_hook(view, "set_timezone", %{"offset" => 0})
       render_hook(view, "consecration_state", state(nil))
@@ -140,7 +163,7 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayerTest do
       assert has_element?(view, "[data-role=row-consecration][href='/consecration']", "Begin")
       assert has_element?(view, "[data-role=row-hour_order][href^='/prayers/orders/']")
       assert has_element?(view, "[data-role=row-office][href='/hours']", "Now · until")
-      refute has_element?(view, "[data-role=row-mass]")
+      assert has_element?(view, "[data-role=row-mass][href='/missal']", "Today's Mass")
 
       date = TodaysPrayer.date_line(Date.utc_today())
       assert has_element?(view, "[data-role=todays-prayer-date]", date)

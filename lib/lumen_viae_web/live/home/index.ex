@@ -20,13 +20,16 @@ defmodule LumenViaeWeb.Live.Home.Index do
   Today's Prayer (`LumenViaeWeb.Live.Home.TodaysPrayer`) follows the
   categories, as on the app's Home: the Consecration from the plan the
   `ConsecrationPlan` hook reads from this browser (`consecration_state`),
-  the hour's order and the Hours of Prayer from the browser's clock. Each
+  the hour's order, Today's Mass and the Hours of Prayer from the
+  browser's clock (the Mass fetched by the server for the visitor's date,
+  through `LumenViae.Office.fetch_mass/1`). Each
   row waits as an empty frame until its source has spoken, and while the
   page is open the rows turn on the hour.
   """
   use LumenViaeWeb, :live_view
 
   alias LumenViae.LiturgicalCalendar
+  alias LumenViae.Office
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
   alias LumenViae.Rosary.{Categories, Labels}
@@ -67,7 +70,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
      # The dead render shows the rows' empty frames, so the documents load
      # only once connected.
      |> assign(:prayer_data, if(connected?(socket), do: TodaysPrayer.load(actor)))
-     |> assign(offset: nil, now: nil, turn: nil)
+     |> assign(offset: nil, now: nil, turn: nil, mass: nil, mass_date: nil)
      |> assign(plan_known?: false, plan: nil, done: [], plan_today: nil, completed_on: nil)
      |> assign_prayer()}
   end
@@ -135,6 +138,16 @@ defmodule LumenViaeWeb.Live.Home.Index do
     end
   end
 
+  # Today's Mass, for its row; a failure leaves the row as it was.
+  @impl true
+  def handle_async(:mass, {:ok, {date, {:ok, [mass | _others]}}}, socket) do
+    if date == socket.assigns.mass_date,
+      do: {:noreply, socket |> assign(:mass, mass) |> assign_prayer()},
+      else: {:noreply, socket}
+  end
+
+  def handle_async(:mass, _no_mass, socket), do: {:noreply, socket}
+
   @impl true
   def handle_info(:turn, %{assigns: %{offset: offset}} = socket) when is_integer(offset),
     do: {:noreply, keep_time(socket, local_now(offset))}
@@ -151,7 +164,22 @@ defmodule LumenViaeWeb.Live.Home.Index do
     if socket.assigns.turn, do: Process.cancel_timer(socket.assigns.turn)
     turn = Process.send_after(self(), :turn, TodaysPrayer.next_turn_in(now) + 1000)
 
-    socket |> assign(now: now, turn: turn) |> assign_prayer()
+    socket
+    |> assign(now: now, turn: turn)
+    |> load_mass(NaiveDateTime.to_date(now))
+    |> assign_prayer()
+  end
+
+  # The visitor's day's Mass, fetched by the server (`Office.fetch_mass/1`
+  # runs it where leaving the page never stops it), once a day.
+  defp load_mass(%{assigns: %{mass_date: date}} = socket, date), do: socket
+
+  defp load_mass(socket, date) do
+    socket = assign(socket, mass: nil, mass_date: date)
+
+    if connected?(socket),
+      do: start_async(socket, :mass, fn -> {date, Office.fetch_mass(date)} end),
+      else: socket
   end
 
   # The rows, each waiting until what it says is known: the Consecration
@@ -169,9 +197,16 @@ defmodule LumenViaeWeb.Live.Home.Index do
 
     hours =
       if now do
-        Enum.reject([TodaysPrayer.hour_order(data, now), TodaysPrayer.office(now)], &is_nil/1)
+        Enum.reject(
+          [
+            TodaysPrayer.hour_order(data, now),
+            TodaysPrayer.mass(socket.assigns.mass),
+            TodaysPrayer.office(now)
+          ],
+          &is_nil/1
+        )
       else
-        [{:waiting, :hour_order}, {:waiting, :office}]
+        [{:waiting, :hour_order}, {:waiting, :mass}, {:waiting, :office}]
       end
 
     socket

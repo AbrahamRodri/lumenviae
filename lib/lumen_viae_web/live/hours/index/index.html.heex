@@ -51,16 +51,35 @@
         {if @today?, do: "Today · ", else: ""}{CanonicalHours.long_date(@date)}
       </p>
       <p :if={!@clock_known? and !@fixed_date?} class="kicker" aria-hidden="true">&nbsp;</p>
-      <div :if={@day_state == :ready} class="mt-2 space-y-1.5" data-role="feast-plate">
-        <p :if={@day.celebration} class="hours-feast" lang="la">{@day.celebration.title}</p>
-        <p :if={class_line(@day)} class="hours-class" data-role="day-class">
-          {class_line(@day)}
+      <div
+        :if={@day_state == :ready or @missal_day}
+        class="mt-2 space-y-1.5"
+        data-role="feast-plate"
+      >
+        <p :if={@missal_day} class="hours-feast" data-role="feast-english">
+          {@missal_day.title}
+        </p>
+        <p :if={!@missal_day && @day && @day.celebration} class="hours-feast" lang="la">
+          {@day.celebration.title}
+        </p>
+        <p :if={class_line(@day, @missal_day)} class="hours-class" data-role="day-class">
+          <span
+            :if={MissalDays.vestment(@missal_day)}
+            class={["missal-silk", "missal-silk--#{MissalDays.vestment(@missal_day).letter}"]}
+            aria-hidden="true"
+            data-role="vestment"
+          ></span>
+          {class_line(@day, @missal_day)}
         </p>
       </div>
-      <p :if={@day_state == :loading} class="hours-quiet mt-2" data-role="feast-loading">
+      <p
+        :if={@day_state == :loading and !@missal_day}
+        class="hours-quiet mt-2"
+        data-role="feast-loading"
+      >
         Finding the day's feast…
       </p>
-      <div :if={@day_state == :failed} class="mt-2" data-role="feast-failed">
+      <div :if={@day_state == :failed and !@missal_day} class="mt-2" data-role="feast-failed">
         <p class="hours-quiet">The day's feast could not be reached.</p>
         <button type="button" phx-click="retry" class="btn-text" data-role="retry">
           <span class="hero-arrow-path size-3.5" aria-hidden="true" /> Try again

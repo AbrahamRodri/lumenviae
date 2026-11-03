@@ -1168,9 +1168,10 @@
 }
 
 @media (min-width: 1024px) {
+  /* Four rows: two by two. */
   .todays-prayer__list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 2.5rem;
   }
 
@@ -3558,6 +3559,9 @@ html[data-prayer-images="off"] .prayer-plate {
   }
 
   .hours-class {
+    display: flex;
+    align-items: center;
+    gap: 0.5625rem;
     font-family: var(--font-display);
     font-size: 0.75rem;
     letter-spacing: 0.18em;
@@ -4052,6 +4056,387 @@ html[data-prayer-images="off"] .prayer-plate {
   }
 }
 /* === end Hours of Prayer === */
+
+/* === the Daily Missal (/missal) ===
+   The 1962 Mass as the app's Daily Missal draws it (DailyMissalView,
+   MissalReaderSectionView, OrdoMissaeView, MissalCalendarSheet): the
+   day's feast on a plate with the date pill and the day's arrows around
+   its vestment and class, the parts of the Mass with their posture, the
+   propers' diamond and their Latin names, and the month by the days'
+   vestments. The rail, the language switch and the month's grid are the
+   Hours of Prayer's (`hours-*`, `prayers-language`), the words the Prayer
+   Book's `book-*` classes; every class of its own here is `missal-*`.
+   The vestment swatches are the app's own (FixedColors.swift), muted to
+   sit on the night ground: a mark, not a flag. */
+@layer components {
+  .missal-plate {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 0;
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .missal-plate {
+      padding-top: 2.5rem;
+    }
+  }
+
+  .missal-plate__bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* The date pill: the day shown, opening the month. */
+  .missal-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5625rem;
+    min-height: 44px;
+    padding: 0 1rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.28);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    color: var(--color-gilt);
+    transition: background-color 0.16s ease-out;
+  }
+
+  a.missal-pill:hover {
+    background: var(--color-night-raised);
+  }
+
+  .missal-pill--waiting {
+    width: 9rem;
+    border-color: rgba(227, 188, 91, 0.12);
+  }
+
+  .missal-plate__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .missal-plate__body--waiting {
+    min-height: 8.5rem;
+  }
+
+  .missal-feast {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.15;
+    color: var(--color-ink-light);
+  }
+
+  @media (min-width: 768px) {
+    .missal-feast {
+      font-size: 2.75rem;
+    }
+  }
+
+  .missal-remembered {
+    margin-top: 0.375rem;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* Yesterday and tomorrow at the edges, the vestment and class between. */
+  .missal-steps {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 28rem;
+  }
+
+  .missal-step {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    color: rgba(227, 188, 91, 0.8);
+  }
+
+  a.missal-step:hover {
+    background: var(--color-night-raised);
+    color: var(--color-gilt-light);
+  }
+
+  .missal-rubric-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5625rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  /* The day's vestment as a lit dot. */
+  .missal-silk {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: var(--silk, transparent);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--silk, transparent) 45%, transparent);
+  }
+
+  .missal-silk--w { --silk: #EDE7D6; }
+  .missal-silk--r { --silk: #A0473F; }
+  .missal-silk--g { --silk: #4E6B4A; }
+  .missal-silk--v { --silk: #6B5480; }
+  .missal-silk--b { --silk: #54545F; }
+  .missal-silk--p { --silk: #C98A97; }
+
+  .missal-silk--day {
+    width: 6px;
+    height: 6px;
+  }
+
+  @media (min-width: 768px) {
+    .hours-day .missal-silk--day {
+      position: absolute;
+      top: 0.875rem;
+      right: 0.75rem;
+    }
+
+    .hours-day:has(.missal-silk--day) {
+      position: relative;
+    }
+  }
+
+  /* Several Masses, and About This Day: quiet disclosures. */
+  .missal-masses,
+  .missal-about {
+    margin-top: 1rem;
+  }
+
+  .missal-disclosure {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(227, 188, 91, 0.75);
+  }
+
+  .missal-disclosure::-webkit-details-marker {
+    display: none;
+  }
+
+  details[open] > .missal-disclosure .hero-chevron-down {
+    transform: rotate(180deg);
+  }
+
+  .missal-masses__list {
+    display: grid;
+    gap: 0.25rem;
+    max-width: 36rem;
+    padding: 0.25rem 0 0.5rem;
+  }
+
+  .missal-masses__link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(227, 188, 91, 0.14);
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    color: var(--color-ink-light);
+  }
+
+  .missal-masses__link[aria-current] {
+    border-color: rgba(227, 188, 91, 0.7);
+    color: var(--color-gilt-light);
+  }
+
+  .missal-about__text {
+    max-width: 62ch;
+    padding-bottom: 0.5rem;
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: rgba(246, 241, 228, 0.86);
+  }
+
+  .missal-about__text p + p {
+    margin-top: 0.75em;
+  }
+
+  /* A part of the Mass: its posture, then its name. */
+  .missal-section + .missal-section {
+    margin-top: 2.75rem;
+  }
+
+  .missal-posture {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    max-width: 62ch;
+    margin-bottom: 1.125rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .missal-posture::before,
+  .missal-posture::after {
+    content: "";
+    flex: 1 1 0;
+    height: 1px;
+  }
+
+  .missal-posture::before {
+    background: linear-gradient(to right, rgba(227, 188, 91, 0), rgba(227, 188, 91, 0.22));
+  }
+
+  .missal-posture::after {
+    background: linear-gradient(to left, rgba(227, 188, 91, 0), rgba(227, 188, 91, 0.22));
+  }
+
+  .missal-section__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.625rem;
+    row-gap: 0.125rem;
+    margin-bottom: 1rem;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  .missal-diamond {
+    flex: none;
+    align-self: center;
+    width: 5px;
+    height: 5px;
+    transform: rotate(45deg);
+    background: rgba(227, 188, 91, 0.85);
+  }
+
+  .missal-section__latin {
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    color: rgba(227, 188, 91, 0.7);
+  }
+
+  .missal-passages > * + * {
+    margin-top: 0.9em;
+  }
+
+  .missal-text .missal-line + .missal-line,
+  .missal-text .missal-citation + .missal-line {
+    margin-top: 0.45em;
+  }
+
+  .missal-text * + .missal-citation {
+    margin-top: 1em;
+  }
+
+  .missal-text .missal-pair .book-line__primary,
+  .missal-text .missal-pair .book-line__secondary {
+    padding-left: 0;
+    text-indent: 0;
+  }
+
+  .missal-text .missal-pair + .missal-pair,
+  .missal-text .missal-citation + .missal-pair {
+    margin-top: 0.55em;
+  }
+
+  /* A citation, as a hand missal prints it: small engraved capitals in
+     dim gold. */
+  .missal-citation {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(227, 188, 91, 0.78);
+  }
+
+  /* What the priest does, in the Order of Mass: quiet italic, once. */
+  .missal-note {
+    max-width: 62ch;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+  }
+
+  /* The app's versal on the day's first text. */
+  .missal-line--versal::first-letter,
+  .missal-line--versal .book-line__primary::first-letter {
+    font-family: var(--font-display);
+    font-size: 1.6em;
+    line-height: 1;
+    color: var(--color-gilt);
+  }
+
+  .missal-colophon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 3.5rem;
+    text-align: center;
+  }
+
+  .missal-ordo-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .missal-ordo-head__title {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 500;
+    line-height: 1.15;
+    color: var(--color-ink-light);
+  }
+
+  @media (min-width: 768px) {
+    .missal-ordo-head__title {
+      font-size: 3rem;
+    }
+  }
+
+  .missal-ordo-head__line {
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    color: var(--color-ink-muted);
+  }
+}
+/* === end the Daily Missal === */
 
 /* === the Chant Library (/chant) ===
    The Chant pages as the app's Chant tab draws them (ChantLibraryView,

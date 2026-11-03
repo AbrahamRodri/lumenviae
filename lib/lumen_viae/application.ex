@@ -29,6 +29,9 @@ defmodule LumenViae.Application do
       LumenViae.Services.Geolocation,
       # Owns the parsed Divine Office cache.
       LumenViae.Office.Cache,
+      # Fetches the Daily Missal from Missale Meum, in tasks no page owns.
+      {Task.Supervisor, name: LumenViae.Office.Missal.task_supervisor()},
+      LumenViae.Office.Missal,
       # AshAuthentication's own processes: chiefly the expunger, which
       # deletes expired rows from `admin_tokens` (revocations included)
       # every twelve hours. Without it that table only grows.

@@ -1,0 +1,182 @@
+<div class="missal-page min-h-screen pb-16" id="missal-page" phx-hook="UserTimezone">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <header class="missal-plate" aria-labelledby="missal-heading">
+    <div class="missal-plate__bar">
+      <h1 id="missal-heading" class="kicker">Daily Missal</h1>
+      <.link
+        :if={@clock_known?}
+        navigate={Days.calendar_path(@date)}
+        class="missal-pill"
+        aria-label={"Choose a day. Showing #{Days.long_date(@date)}"}
+        data-role="date-pill"
+      >
+        <span aria-hidden="true">{Days.pill_date(@date)}</span>
+        <span class="hero-chevron-down size-3" aria-hidden="true" />
+      </.link>
+      <span :if={!@clock_known?} class="missal-pill missal-pill--waiting" aria-hidden="true"></span>
+    </div>
+
+    <div
+      :if={!@clock_known?}
+      class="missal-plate__body missal-plate__body--waiting"
+      data-role="plate-waiting"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div :if={@clock_known?} class="missal-plate__body" aria-live="polite" data-role="plate">
+      <div :if={@mass} class="missal-plate__feast">
+        <h2 class="missal-feast" data-role="feast">{@mass.title}</h2>
+        <p :if={Days.remembered(@mass)} class="missal-remembered" data-role="remembered">
+          {Days.remembered(@mass)}
+        </p>
+      </div>
+      <p :if={@state == :loading} class="hours-quiet" data-role="mass-loading">
+        Finding the day's Mass…
+      </p>
+      <p :if={@state == :ready and @masses == []} class="hours-quiet" data-role="mass-none">
+        No Mass texts for this day.
+      </p>
+      <div :if={@state == :failed} class="space-y-2" role="alert" data-role="mass-failed">
+        <p class="hours-quiet">
+          The Mass texts could not be reached from Missale Meum. Try again in a moment.
+        </p>
+        <button type="button" phx-click="retry" class="btn-text" data-role="retry">
+          <span class="hero-arrow-path size-3.5" aria-hidden="true" /> Try again
+        </button>
+      </div>
+
+      <div class="missal-steps">
+        <.link
+          :if={Days.step(@date, -1)}
+          navigate={Days.day_path(Days.step(@date, -1), @language)}
+          class="missal-step"
+          aria-label="Previous day"
+          data-role="previous-day"
+        >
+          <span class="hero-chevron-left size-4" aria-hidden="true" />
+        </.link>
+        <span :if={!Days.step(@date, -1)} class="missal-step" aria-hidden="true"></span>
+        <p
+          :if={@mass && Days.spoken_class(@mass) != ""}
+          class="missal-rubric-row"
+          aria-label={Days.spoken_class(@mass)}
+          data-role="day-class"
+        >
+          <span
+            :if={Days.vestment(@mass)}
+            class={["missal-silk", "missal-silk--#{Days.vestment(@mass).letter}"]}
+            aria-hidden="true"
+            data-role="vestment"
+            data-vestment={Days.vestment(@mass).name}
+          ></span>
+          <span :if={Days.class(@mass)} aria-hidden="true">{Days.class(@mass)}</span>
+        </p>
+        <span :if={!@mass}></span>
+        <.link
+          :if={Days.step(@date, 1)}
+          navigate={Days.day_path(Days.step(@date, 1), @language)}
+          class="missal-step"
+          aria-label="Next day"
+          data-role="next-day"
+        >
+          <span class="hero-chevron-right size-4" aria-hidden="true" />
+        </.link>
+        <span :if={!Days.step(@date, 1)} class="missal-step" aria-hidden="true"></span>
+      </div>
+
+      <.link
+        :if={@today && !today?(assigns)}
+        navigate={Days.today_path(@language)}
+        class="btn-text"
+        data-role="today-link"
+      >
+        <span class="hero-arrow-uturn-left size-3.5" aria-hidden="true" /> Return to today
+      </.link>
+    </div>
+  </header>
+
+  <div class={[
+    "mx-auto px-4 sm:px-8",
+    if(@language == "both", do: "max-w-6xl", else: "max-w-5xl")
+  ]}>
+    <nav class="prayers-language hours-language mt-6" aria-label="Language" data-role="language">
+      <.link
+        :for={{value, label} <- @languages}
+        patch={page_path(@date, @fixed_date?, value, @mass_number)}
+        replace
+        class="prayers-language__option"
+        aria-current={if(value == @language, do: "true")}
+      >
+        {label}
+      </.link>
+    </nav>
+
+    <details
+      :if={is_list(@masses) and length(@masses) > 1}
+      class="missal-masses"
+      data-role="masses"
+    >
+      <summary class="missal-disclosure">
+        {length(@masses)} Masses today · choose one
+        <span class="hero-chevron-down size-3" aria-hidden="true" />
+      </summary>
+      <ul class="missal-masses__list">
+        <li :for={{choice, number} <- Enum.with_index(@masses, 1)}>
+          <.link
+            patch={page_path(@date, @fixed_date?, @language, number)}
+            replace
+            class="missal-masses__link"
+            aria-current={if(choice == @mass, do: "true")}
+            data-role="mass-choice"
+          >
+            {choice.title}
+          </.link>
+        </li>
+      </ul>
+    </details>
+
+    <details :if={@mass && @mass.description} class="missal-about" data-role="about">
+      <summary class="missal-disclosure">
+        About this day <span class="hero-chevron-down size-3" aria-hidden="true" />
+      </summary>
+      <div class="missal-about__text">
+        <p :for={paragraph <- about_paragraphs(@mass.description)}>{paragraph}</p>
+      </div>
+    </details>
+
+    <div :if={@sections != []} class="hours-reader" id="missal-reader" phx-hook="OfficeRail">
+      <PartsRail.jump_list parts={@sections} label="Parts of the Mass" />
+      <PartsRail.rail parts={@sections} label="Parts of the Mass" kicker="In this Mass" />
+
+      <div class="hours-reader__text min-w-0" data-role="missal-text">
+        <.missal_section :for={section <- @sections} section={section} />
+
+        <footer class="missal-colophon">
+          <.sacred_divider class="!my-0 max-w-[150px] mx-auto" />
+          <p class="hours-colophon__explicit">The Mass is ended</p>
+          <.link
+            navigate={Days.ordo_path(@language)}
+            class="btn-text"
+            data-role="ordo-link"
+          >
+            <span class="hero-book-open size-3.5" aria-hidden="true" /> The Order of Mass
+            <span class="hero-chevron-right size-3.5" aria-hidden="true" />
+          </.link>
+          <p class="hours-credit">
+            <a
+              href={Days.credit_url()}
+              class="hours-credit__link"
+              rel="noopener"
+              target="_blank"
+              data-role="credit"
+            >
+              {Days.credit()}
+            </a>
+          </p>
+        </footer>
+      </div>
+    </div>
+  </div>
+</div>

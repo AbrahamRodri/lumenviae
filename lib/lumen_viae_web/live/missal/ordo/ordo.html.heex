@@ -1,0 +1,79 @@
+<div class="missal-page min-h-screen pb-16" id="missal-ordo">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <div class={[
+    "mx-auto px-4 sm:px-8 pt-6 md:pt-10",
+    if(@language == "both", do: "max-w-6xl", else: "max-w-5xl")
+  ]}>
+    <.link
+      navigate={Days.today_path(@language)}
+      class="btn-text !text-ink-muted hover:!text-gilt-light -ml-1"
+      data-role="back"
+    >
+      <span class="hero-chevron-left size-3.5" aria-hidden="true" /> The Mass
+    </.link>
+
+    <header class="missal-ordo-head" aria-labelledby="ordo-heading">
+      <p class="kicker">Every Mass</p>
+      <h1 id="ordo-heading" class="missal-ordo-head__title">The Order of Mass</h1>
+      <p class="missal-ordo-head__line">
+        The prayers said at every traditional Latin Mass (Ordo Missæ)
+      </p>
+      <.sacred_divider class="!mb-0 max-w-[210px] mx-auto" />
+    </header>
+
+    <nav class="prayers-language hours-language mt-6" aria-label="Language" data-role="language">
+      <.link
+        :for={{value, label} <- @languages}
+        patch={Days.ordo_path(value)}
+        replace
+        class="prayers-language__option"
+        aria-current={if(value == @language, do: "true")}
+      >
+        {label}
+      </.link>
+    </nav>
+
+    <p :if={@state == :loading} class="hours-quiet py-16 text-center" data-role="loading">
+      Opening the Order of Mass…
+    </p>
+
+    <div
+      :if={@state == :failed}
+      class="py-16 text-center space-y-3"
+      role="alert"
+      data-role="ordo-failed"
+    >
+      <p class="hours-quiet">
+        The Order of Mass could not be reached from Missale Meum. Try again in a moment.
+      </p>
+      <button type="button" phx-click="retry" class="btn-text" data-role="retry">
+        <span class="hero-arrow-path size-3.5" aria-hidden="true" /> Try again
+      </button>
+    </div>
+
+    <div :if={@sections != []} class="hours-reader" id="ordo-reader" phx-hook="OfficeRail">
+      <PartsRail.jump_list parts={@sections} label="Parts of the Mass" />
+      <PartsRail.rail parts={@sections} label="Parts of the Mass" kicker="Every Mass" />
+
+      <div class="hours-reader__text min-w-0" data-role="ordo-text">
+        <.missal_section :for={section <- @sections} section={section} />
+
+        <footer class="missal-colophon">
+          <.sacred_divider class="!my-0 max-w-[210px] mx-auto" />
+          <p class="hours-credit">
+            <a
+              href={Days.credit_url()}
+              class="hours-credit__link"
+              rel="noopener"
+              target="_blank"
+              data-role="credit"
+            >
+              {Days.credit()}
+            </a>
+          </p>
+        </footer>
+      </div>
+    </div>
+  </div>
+</div>

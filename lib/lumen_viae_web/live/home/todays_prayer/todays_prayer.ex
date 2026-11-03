@@ -4,10 +4,15 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
   (and the Android app's `domain/TodaysPrayer.kt`): the day's rows, each a
   painting, its name, one line saying what today holds and its own live
   fact in small capitals. The Consecration to Mary, the hour's order of
-  prayer, then the Hours of Prayer.
+  prayer, Today's Mass, then the Hours of Prayer.
 
-  The app's third row, Today's Mass, is left out: the website has no
-  Daily Missal yet, and it makes no call to Missale Meum.
+  Today's Mass reads the day's Mass from the Missal (`LumenViae.Office.fetch_mass/1`,
+  fetched by the server from Missale Meum and cached there, once the
+  visitor's date is known): the feast in its line and the class and
+  vestment colour in its fact, with the vestment's silk before it. Until
+  the Mass arrives, or when Missale Meum cannot be reached, the row says
+  what the Mass holds and keeps its fact blank, as the app does; it never
+  looks broken.
 
   Everything here is the visitor's: the Consecration from the plan the
   `ConsecrationPlan` hook reads from this browser
@@ -24,6 +29,7 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
 
   alias LumenViaeWeb.Live.Consecration.{Days, Plan}
   alias LumenViaeWeb.Live.Hours.CanonicalHours
+  alias LumenViaeWeb.Live.Missal.Days, as: MissalDays
   alias LumenViaeWeb.Live.Prayers.{Book, Orders}
 
   @name "Consecration to Mary"
@@ -33,6 +39,9 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
 
   # PrayerBookPainting.topic(id: "day"), the Hours of Prayer row's.
   @office_painting {"topic_daily_prayers", 0.5, 0.45}
+
+  # PrayerBookPainting.topic(id: "mass"), Today's Mass's.
+  @mass_painting {"topic_holy_mass", 0.5, 0.5}
 
   @doc """
   What the rows need, read once on mount: each day's title, the phases'
@@ -168,6 +177,44 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
   def moment(hour) when hour >= 11 and hour < 15, do: "At noon"
   def moment(hour) when hour >= 15 and hour < 20, do: "At 6 PM"
   def moment(_hour), do: "At bedtime"
+
+  # ---- Today's Mass
+
+  @doc """
+  Today's Mass (`TodaysPrayerRow.mass`): the feast in the line and LESSER
+  FEAST · WHITE in the fact, the vestment's silk before it. `mass` is the
+  day's first Mass, or nil until it is known: the line then says what the
+  Mass holds and the fact is blank.
+  """
+  def mass(nil) do
+    row(:mass, "/missal", @mass_painting, "Today's Mass", "Prayers and readings for today",
+      fact: nil,
+      spoken: "Today's Mass, prayers and readings for today"
+    )
+  end
+
+  def mass(mass) do
+    class = MissalDays.class(mass)
+    vestment = MissalDays.vestment(mass)
+
+    fact =
+      case {class, vestment} do
+        {nil, _vestment} -> nil
+        {class, nil} -> class
+        {class, vestment} -> "#{class} · #{vestment.name}"
+      end
+
+    spoken =
+      ["Today's Mass", mass.title, MissalDays.spoken_class(mass)]
+      |> Enum.reject(&(&1 in [nil, ""]))
+      |> Enum.join(", ")
+
+    row(:mass, "/missal", @mass_painting, "Today's Mass", mass.title,
+      fact: fact,
+      mark: vestment && {:silk, vestment.letter},
+      spoken: spoken
+    )
+  end
 
   # ---- The Hours of Prayer
 

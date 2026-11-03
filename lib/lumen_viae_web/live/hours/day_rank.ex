@@ -37,7 +37,12 @@ defmodule LumenViaeWeb.Live.Hours.DayRank do
     "vigil"
   ]
 
-  @doc "1 to 4 from the engine's rank, nil for a feria or no rank."
+  @doc """
+  1 to 4 from the engine's rank, nil for a feria or no rank. The Missal's
+  class is already a number (Missale Meum's `rank`), and is taken as it is.
+  """
+  def class(rank) when is_integer(rank) and rank in 1..4, do: rank
+
   def class(rank) when is_binary(rank) do
     text = rank |> String.trim() |> String.upcase()
 

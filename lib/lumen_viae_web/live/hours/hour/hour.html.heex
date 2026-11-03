@@ -69,30 +69,12 @@
       </div>
 
       <div :if={@state == :ready} class="hours-reader" id="hours-reader" phx-hook="OfficeRail">
-        <details :if={OfficeText.named(@sections) != []} class="hours-jump" data-role="jump-list">
-          <summary class="hours-jump__summary">Parts of this prayer</summary>
-          <ol class="hours-jump__list">
-            <li :for={section <- OfficeText.named(@sections)}>
-              <a href={"##{section.id}"} class="hours-jump__link">{section.rail_name}</a>
-            </li>
-          </ol>
-        </details>
-
-        <nav
-          :if={OfficeText.named(@sections) != []}
-          class="hours-rail"
-          aria-label="Parts of this prayer"
-          data-role="rail"
-        >
-          <p class="hours-rail__kicker">In this prayer</p>
-          <ol>
-            <li :for={section <- OfficeText.named(@sections)}>
-              <a href={"##{section.id}"} class="hours-rail__link" data-rail-link={section.id}>
-                {section.rail_name}
-              </a>
-            </li>
-          </ol>
-        </nav>
+        <PartsRail.jump_list parts={OfficeText.named(@sections)} label="Parts of this prayer" />
+        <PartsRail.rail
+          parts={OfficeText.named(@sections)}
+          label="Parts of this prayer"
+          kicker="In this prayer"
+        />
 
         <div class="hours-reader__text min-w-0" data-role="office-text">
           <.office_section :for={section <- @sections} section={section} />

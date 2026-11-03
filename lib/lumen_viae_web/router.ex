@@ -145,6 +145,13 @@ defmodule LumenViaeWeb.Router do
       live "/hours/:date", Live.Hours.Index, :day
       live "/hours/:date/:hour", Live.Hours.Hour
 
+      # The Daily Missal, the 1962 Mass as the app's: today's Mass, the
+      # Order of Mass, a month's calendar, and another day's Mass
+      live "/missal", Live.Missal.Index, :today
+      live "/missal/order-of-mass", Live.Missal.Ordo
+      live "/missal/calendar/:year/:month", Live.Missal.Calendar
+      live "/missal/:date", Live.Missal.Index, :day
+
       # True Devotion, St. Louis de Montfort's book, as the app's reader:
       # its title page and a chapter read in place
       live "/true-devotion", Live.TrueDevotion.Index

@@ -25,7 +25,7 @@ defmodule LumenViaeWeb.Live.Hours.Hour do
   use LumenViaeWeb, :live_view
 
   alias LumenViae.Office
-  alias LumenViaeWeb.Live.Hours.{CanonicalHours, DayRank, OfficeText}
+  alias LumenViaeWeb.Live.Hours.{CanonicalHours, DayRank, OfficeText, PartsRail}
   alias LumenViaeWeb.PageMeta
 
   import LumenViaeWeb.Live.Prayers.Painting
