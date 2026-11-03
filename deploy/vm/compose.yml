@@ -73,7 +73,8 @@ services:
   # so each deploy recreated it and dropped HTTPS for a few seconds. The
   # deploy reloads the Caddyfile in place instead. After changing
   # caddy/Dockerfile, raise the tag's last number: the next deploy builds
-  # the new tag and restarts Caddy once.
+  # the new tag and restarts Caddy once. The same goes for Caddy's own
+  # patch releases: they arrive only when someone raises the tag.
   caddy:
     build: ./caddy
     image: lumenviae-caddy:2.10-cloudflare-1

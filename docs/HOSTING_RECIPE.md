@@ -59,7 +59,9 @@ that from showing as errors:
   without buildx (Ubuntu's package) gave the Caddy image a new id on every
   build and so recreated Caddy each time, which closed 80 and 443 for a few
   seconds. The Caddy image has a fixed tag in `compose.yml`; after changing
-  `caddy/Dockerfile`, raise the tag so the next deploy builds it.
+  `caddy/Dockerfile`, raise the tag so the next deploy builds it. Caddy's
+  own patch releases (`caddy:2.10`) also arrive only when someone raises
+  the tag, so raise it now and then.
 
 Checked on a local copy of the stack under Compose 2.40.3, with an app
 that takes 5 seconds to start. Before: 26 of 100 GETs got 502, 2 found no
