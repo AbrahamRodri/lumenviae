@@ -124,6 +124,7 @@ value is added to a vocabulary, never a renamed one.
 | `GET /api/v2/rosary-content?lang=es` and `?lang=es&fields[rosary_content]=...` | as the two above, when the app is in Spanish | the same, with each prayer's `es` beside `en` and `la`, the mysteries' names and fruits and the sets' names in Spanish, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Rosary in Spanish") |
 | `GET /api/v2/prayer-book` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters,orders,marian_antiphons` | when `version` differs from the saved copy's | all four sections (the orders of prayer and the songs to Mary need the prayers) |
+| `GET /api/v2/prayer-book?lang=es&fields[prayer_book]=...,translations` | as the two above, when the app is in Spanish | the same, plus `translations`: each prayer with a Spanish text, laid over the English by `id`, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Prayer Book in Spanish") |
 | `GET /api/v2/chant-library` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants,feasts,months,occasions` | when `version` differs from the saved copy's | all five sections (the sung sets, months and feasts name the chants); a build that asks for `groups,chants` alone still gets just those |
 | `GET /api/v2/consecration` | at launch and once a day | bare: `version` and `updated_at` only |

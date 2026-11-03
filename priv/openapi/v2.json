@@ -2189,6 +2189,33 @@
                 },
                 "type": "array"
               },
+              "translations": {
+                "description": "With `lang=es`, every prayer the book prints that has a Spanish text, by id, in book order: its title and words in Spanish, from official Church sources. A prayer not listed has no Spanish yet; show its English. Empty in English.",
+                "items": {
+                  "properties": {
+                    "ai_translated": {
+                      "nullable": true,
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "text"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
               "updated_at": {
                 "description": "When the content last changed. Field included by default.",
                 "format": "date-time",
@@ -6648,10 +6675,20 @@
         "operationId": "getPrayerBook",
         "parameters": [
           {
-            "description": "Comma separated fields of prayer_book: chapters, marian_antiphons, orders, prayers, updated_at, version",
+            "description": "Comma separated fields of prayer_book: chapters, marian_antiphons, orders, prayers, translations, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[prayer_book]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The language of `translations`: `es` fills it with every prayer the book has in Spanish. Missing, `en` or a language not served: the document as it always was, and `translations` empty.",
+            "in": "query",
+            "name": "lang",
             "required": false,
             "schema": {
               "type": "string"
