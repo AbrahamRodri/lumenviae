@@ -745,6 +745,79 @@ async function checkChantMiniPlayer(browser, vp) {
   await context.close();
 }
 
+// Pause Between Chants, one kept choice as the app keeps it: turned on on
+// a set's page, it is still on there after a live navigation away and
+// back while the set sings on; at a chant's end the set waits for a tap
+// (the mini player names the next chant and keeps the line full), and so
+// does a shelf's Play all. The recordings come from the site's bucket.
+async function checkChantPauses(browser, vp) {
+  const label = `${vp.name} pause between chants`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+  const audio = page.locator("audio#site-chant-audio");
+  const mini = page.locator("#chant-mini");
+  const sounding = () => audio.evaluate((a) => (!a.paused && a.currentTime > 0 ? a.currentTime : 0));
+  // To the last moment of the chant sounding, so its end comes now
+  const toTheEnd = () =>
+    audio.evaluate((a) => {
+      a.currentTime = Math.max(0, a.duration - 0.4);
+    });
+
+  await page.goto(BASE_URL + "/chant/sets/benediction");
+  await settle(page);
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root], #live-debugger { display: none !important; }" });
+  const box = page.locator("[data-pauses-between]");
+  check(!(await box.isChecked()), `${label}: off at first`);
+  await page.locator("[data-role=pauses-between]").click();
+  check(await box.isChecked(), `${label}: the switch turns it on`);
+  check(await page.evaluate(() => localStorage.getItem("lv:chant-pauses-between") === "true"), `${label}: kept in this browser`);
+
+  await page.locator("[data-role=play-all]").click();
+  check(await eventually(sounding, 30000), `${label}: the set sings`);
+
+  await page.evaluate(() => (window.__sameDocument = true));
+  await page.locator('#site-footer a[href="/mysteries"]').click();
+  await page.waitForURL(/\/mysteries$/);
+  await settle(page);
+  await page.goBack();
+  await page.waitForURL(/\/chant\/sets\/benediction$/);
+  await settle(page);
+  check(await page.evaluate(() => window.__sameDocument === true), `${label}: away and back by live navigation`);
+  check(await eventually(() => box.isChecked()), `${label}: the switch still shows it on`);
+  check((await sounding()) > 0, `${label}: the set sang on meanwhile`);
+
+  await audio.evaluate((a) => a.duration > 0 || new Promise((ok) => a.addEventListener("loadedmetadata", ok, { once: true })));
+  await toTheEnd();
+  const word = page.locator("[data-play-set-word]");
+  check(await eventually(async () => (await word.textContent()).trim() === "Play next", 15000), `${label}: the set waits with Play next`);
+  check((await sounding()) === 0, `${label}: nothing sounds while it waits`);
+  check(/waiting for you$/.test((await mini.locator("[data-role=mini-subtitle]").textContent()).trim()), `${label}: the mini player says it waits`);
+  const disc = await mini.locator("[data-role=mini-play]").getAttribute("aria-label");
+  check(/^Play [^,]+, .+/.test(disc), `${label}: its disc names the next chant, Latin and English`, disc);
+  check((await mini.locator("[data-role=mini-progress]").evaluate((el) => el.style.transform)) === "scaleX(1)",
+    `${label}: the line stays full while it waits`);
+  await page.locator("[data-role=play-all]").click();
+  check(await eventually(sounding, 30000), `${label}: Play next sings the next chant`);
+
+  // A shelf's Play all waits too: the choice is the player's, not the set's
+  await page.goto(BASE_URL + "/chant/sections/mass");
+  await settle(page);
+  const all = page.locator("[data-play-all]");
+  await all.click();
+  check(await eventually(sounding, 30000), `${label}: a shelf's Play all sings`);
+  await toTheEnd();
+  const allWord = all.locator("[data-play-all-word]");
+  check(await eventually(async () => (await allWord.textContent()).trim() === "Play next", 15000),
+    `${label}: the shelf waits between chants`);
+  check((await sounding()) === 0, `${label}: nothing sounds while the shelf waits`);
+  await all.click();
+  check(await eventually(sounding, 30000), `${label}: the shelf goes on at a tap`);
+
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+  await context.close();
+}
+
 // Explore: the directory at rest, the header's link to it, and the one
 // search riding in the link. "Salve", "ave maria" and "Pater" find a
 // prayer and a chant, accents and case aside; "annunciation" finds a
@@ -1309,6 +1382,7 @@ async function checkCompletion(browser, vp) {
     await checkSpiritualReading(browser, vp);
     await checkChant(browser, vp);
     await checkChantMiniPlayer(browser, vp);
+    await checkChantPauses(browser, vp);
     await checkConsecration(browser, vp);
     await checkTodaysPrayer(browser, vp);
     await checkExplore(browser, vp);

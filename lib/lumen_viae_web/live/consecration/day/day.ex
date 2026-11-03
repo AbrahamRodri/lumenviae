@@ -20,6 +20,10 @@ defmodule LumenViaeWeb.Live.Consecration.Day do
   Amen keeps nothing and returns to it. The app's reflection, written in its
   journal, is not on the website.
 
+  The chant mini player stands aside on a day's page, except on today's
+  day of a plan under way before its flow begins, which is the app's
+  Consecration tab's root (`ConsecrationTabView`), where it shows.
+
   Every day is open to anyone, with or without a plan. A day that is not
   one (`0`, `35`, `2.5`, a word) is a 404; a `step` past either end is the
   nearest, and anything else the first.

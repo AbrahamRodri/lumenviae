@@ -27,9 +27,10 @@
 //   from that step's first chant. The row whose step sounds
 //   ([data-origin]) is marked data-sounding, data-lit while it is the
 //   step under way, sounding or not; a tile or card of the set
-//   ([data-set-tile], [data-set]) data-sounding. With the page's
-//   [data-pauses-between] checked (Pause Between Chants), the next chant
-//   is put under the hand at its start and waits for Play next
+//   ([data-set-tile], [data-set]) data-sounding. A [data-pauses-between]
+//   box is Pause Between Chants, the one kept choice (chant_session.js):
+//   drawn from it, written by it. While it is on, the next chant of any
+//   queue is put under the hand at its start and waits for Play next
 //   (ChantQueue.after). The sets have no silences of their own.
 //
 // - A chant's page ([data-role=player]): the gold play, back and on a
@@ -53,6 +54,7 @@ import {
   toggle,
   playQueue,
   isQueue,
+  pausesBetween,
   setPausesBetween,
   goOn,
 } from "../chant_session"
@@ -82,11 +84,9 @@ export default {
     this.onClick = (event) => this.click(event)
     this.el.addEventListener("click", this.onClick)
 
-    // Pause Between Chants follows the switch while its set is sung
+    // Pause Between Chants: the box writes the one kept choice
     this.el.addEventListener("change", (event) => {
-      if (!event.target.matches?.("[data-pauses-between]")) return
-      const set = event.target.closest("[data-set]") || this.el.querySelector("[data-set]")
-      if (set) setPausesBetween("set", set.dataset.set, event.target.checked)
+      if (event.target.matches?.("[data-pauses-between]")) setPausesBetween(event.target.checked)
     })
 
     this.unsubscribe = subscribe((kind) => {
@@ -247,7 +247,6 @@ export default {
     const entries = parse(set.dataset.entries, []).map(([id, src, origin]) => ({ id, src, origin }))
     const start = origin == null ? 0 : entries.findIndex((entry) => entry.origin === origin)
     if (start < 0 || entries.length === 0) return
-    const box = this.el.querySelector("[data-pauses-between]")
     playQueue(
       {
         kind: "set",
@@ -255,7 +254,6 @@ export default {
         title: set.dataset.title || "",
         entries,
         facts: parse(set.dataset.chants, {}),
-        pausesBetween: !!(box && box.checked),
       },
       start
     )
@@ -404,6 +402,11 @@ export default {
 
     if (playing) this.hideError()
 
+    const pauses = pausesBetween()
+    this.el.querySelectorAll("[data-pauses-between]").forEach((box) => {
+      box.checked = pauses
+    })
+
     this.el.querySelectorAll("[data-chant-row]").forEach((row) => {
       if (row.dataset.chantRow === current && playing) row.setAttribute("data-sounding", "")
       else row.removeAttribute("data-sounding")
@@ -445,7 +448,7 @@ export default {
     if (all) {
       const mine = isQueue("shelf", this.shelfId(all))
       const word = all.querySelector("[data-play-all-word]")
-      const label = !mine ? "Play all" : playing ? "Pause" : "Resume"
+      const label = !mine ? "Play all" : session.waiting ? "Play next" : playing ? "Pause" : "Resume"
       if (word) word.textContent = label
       all.setAttribute("aria-pressed", mine && playing ? "true" : "false")
     }

@@ -16,13 +16,23 @@ defmodule LumenViaeWeb.Components.ChantMiniPlayer do
   stands aside there (the chant sings on), as the app's
   `showsChantPlayer`: a chant's own page, a Rosary prayed, an order of
   prayer prayed along, a Spiritual Reading chapter, a Consecration day
-  and the Act.
+  (other than today's under a plan, the tab's root in the app) and the
+  Act.
   """
   use Phoenix.Component
 
+  alias LumenViae.Rosary.Library
+
   def mini_player(assigns) do
+    assigns = assign(assigns, :origin, chant_origin())
+
     ~H"""
-    <audio id="site-chant-audio" preload="none" data-role="site-chant-audio"></audio>
+    <audio
+      id="site-chant-audio"
+      preload="none"
+      data-role="site-chant-audio"
+      data-origin={@origin}
+    ></audio>
     <section
       id="chant-mini"
       class="chant-mini"
@@ -69,5 +79,22 @@ defmodule LumenViaeWeb.Components.ChantMiniPlayer do
       </span>
     </section>
     """
+  end
+
+  @doc """
+  The origin the chant recordings are served from (`scheme://host[:port]`),
+  the one besides the site's own whose files the player takes back from
+  this tab's storage.
+  """
+  def chant_origin do
+    case URI.parse(Library.chant_asset_base()) do
+      %URI{scheme: scheme, host: host} = uri
+      when scheme in ["http", "https"] and is_binary(host) ->
+        port = if uri.port && uri.port != URI.default_port(scheme), do: ":#{uri.port}", else: ""
+        "#{scheme}://#{host}#{port}"
+
+      _other ->
+        nil
+    end
   end
 end

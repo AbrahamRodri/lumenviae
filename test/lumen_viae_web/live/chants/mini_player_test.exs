@@ -30,6 +30,25 @@ defmodule LumenViaeWeb.Live.Chants.MiniPlayerTest do
       end
     end
 
+    test "the chant audio names the one other origin its recordings come from", %{conn: conn} do
+      doc = conn |> get("/chant") |> html_response(200) |> Floki.parse_document!()
+      [origin] = Floki.attribute(doc, "audio#site-chant-audio", "data-origin")
+      assert origin == "https://s3.us-east-2.amazonaws.com"
+      assert String.starts_with?(LumenViae.Rosary.Library.chant_asset_base(), origin <> "/")
+    end
+
+    test "the admin console has neither the chant audio nor the mini player", %{conn: conn} do
+      doc =
+        conn
+        |> log_in_admin()
+        |> get("/admin")
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert Floki.find(doc, "#site-chant-audio") == []
+      assert Floki.find(doc, "#chant-mini") == []
+    end
+
     test "the chant audio is outside the LiveView, so it outlives a live navigation",
          %{conn: conn} do
       doc = conn |> get("/chant") |> html_response(200) |> Floki.parse_document!()
@@ -53,6 +72,38 @@ defmodule LumenViaeWeb.Live.Chants.MiniPlayerTest do
         {:ok, view, _html} = live(conn, path)
         assert has_element?(view, "[data-hides-chant-player]"), path
       end
+    end
+
+    test "a Spiritual Reading chapter", %{conn: conn} do
+      # The mark stands on the page's frame, whatever the book's text does
+      {:ok, view, _html} = live(conn, "/spiritual-reading/imitation-of-christ/1")
+      assert has_element?(view, "#spiritual-reading-chapter[data-hides-chant-player]")
+    end
+
+    test "today's Consecration day under a plan shows it, as the tab's root; its flow does not",
+         %{conn: conn} do
+      today = Date.utc_today()
+      start = Date.add(today, -14)
+
+      state = %{
+        "plan" => %{"start" => Date.to_iso8601(start)},
+        "done" => [],
+        "intro_seen" => true,
+        "today" => Date.to_iso8601(today)
+      }
+
+      {:ok, view, _html} = live(conn, "/consecration/days/15")
+      render_hook(view, "consecration_state", state)
+      refute has_element?(view, "[data-hides-chant-player]")
+
+      # Another day of the same plan, and today's day walked, stand aside
+      {:ok, view, _html} = live(conn, "/consecration/days/14")
+      render_hook(view, "consecration_state", state)
+      assert has_element?(view, "[data-hides-chant-player]")
+
+      {:ok, view, _html} = live(conn, "/consecration/days/15?step=1")
+      render_hook(view, "consecration_state", state)
+      assert has_element?(view, "[data-hides-chant-player]")
     end
 
     test "every other page leaves it standing", %{conn: conn} do
@@ -98,6 +149,38 @@ defmodule LumenViaeWeb.Live.Chants.MiniPlayerTest do
 
       for [id, _src, _origin] <- Jason.decode!(entries) do
         assert %{"latin" => _, "href" => "/chant/" <> ^id} = facts[id]
+      end
+    end
+
+    test "a set card on the Chant page carries its title and its chants' facts", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/chant")
+      cards = html |> Floki.parse_document!() |> Floki.find("[data-role=set-card]")
+      assert cards != []
+
+      for card <- cards do
+        assert [title] = Floki.attribute(card, "data-title")
+        assert title != ""
+        [entries] = Floki.attribute(card, "data-entries")
+        facts = card |> Floki.attribute("data-chants") |> hd() |> Jason.decode!()
+
+        for [id, _src, _origin] <- Jason.decode!(entries) do
+          assert %{"latin" => _, "english" => _, "href" => "/chant/" <> ^id} = facts[id]
+        end
+      end
+    end
+
+    test "Explore's chant result hands the player its facts", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/explore?q=Salve")
+      doc = Floki.parse_document!(html)
+      discs = Floki.find(doc, "#explore-results [data-play][data-facts]")
+      assert discs != []
+
+      for disc <- discs do
+        [id] = Floki.attribute(disc, "data-play")
+        [facts] = Floki.attribute(disc, "data-facts")
+
+        assert %{"latin" => _, "href" => "/chant/" <> ^id, "thumb" => "/images/" <> _} =
+                 Jason.decode!(facts)
       end
     end
 

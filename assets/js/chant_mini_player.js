@@ -1,7 +1,7 @@
 // The chant mini player at the foot of the site, as the app's
 // ChantMiniPlayer: the chant's painting, its Latin name and where it
 // stands, its disc, and close. A tap on the names opens the chant's page.
-// While a set waits between chants it names the next ("Next: ...",
+// While a queue waits between chants it names the next ("Next: ...",
 // "<set> · waiting for you") and its disc sings it.
 //
 // It stands in the root layout, outside every LiveView, and draws what
@@ -9,8 +9,9 @@
 // page that carries its own transport or a prayer under way, which marks
 // itself [data-hides-chant-player] (the app's showsChantPlayer: the
 // chant's own page, a Rosary prayed, a pray-along, a chapter read, a
-// consecration day). While it shows, <html data-chant-mini> keeps room at
-// the page's foot so the last of it scrolls clear.
+// consecration day other than today's under a plan). While it shows,
+// <html data-chant-mini> keeps room at the page's foot so the last of it
+// scrolls clear.
 
 import { session, subscribe, toggle, relinquish } from "./chant_session"
 
@@ -92,7 +93,10 @@ function paint() {
 
   const playing = session.playing
   const disc = part("play")
-  const name = session.waiting ? facts.latin || "the next chant" : title()
+  // While a queue waits, the next chant by its spoken name, "Latin, English"
+  const name = session.waiting
+    ? [facts.latin, facts.english].filter(Boolean).join(", ") || "the next chant"
+    : title()
   disc.setAttribute("aria-pressed", playing ? "true" : "false")
   disc.setAttribute("aria-label", `${playing ? "Pause" : "Play"} ${name}`)
   el.toggleAttribute("data-playing", playing)
@@ -113,7 +117,8 @@ function progress() {
   const bar = part("progress")
   if (!a || !bar) return
   const fraction = a.duration && isFinite(a.duration) ? Math.min(1, a.currentTime / a.duration) : 0
-  bar.style.transform = `scaleX(${session.waiting ? 0 : fraction})`
+  // While a queue waits, the chant just sung stays full
+  bar.style.transform = `scaleX(${session.waiting ? 1 : fraction})`
   if (session.playing) raf = requestAnimationFrame(progress)
 }
 
@@ -142,5 +147,12 @@ export function initChantMiniPlayer() {
     paint()
   })
   window.addEventListener("phx:page-loading-stop", paint)
+  // A page that comes to stand aside, or stops, without a navigation
+  // (today's Consecration day, once the plan is read)
+  new MutationObserver(paint).observe(document.body, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["data-hides-chant-player"],
+  })
   paint()
 }

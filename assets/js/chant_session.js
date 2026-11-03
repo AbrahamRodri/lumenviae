@@ -11,7 +11,7 @@
 // What it holds: the chant in hand (its id, recording and the facts the
 // mini player shows), and a queue when a shelf's Play all or a sung set
 // is under way (its title, its entries unrolled, the step sounding,
-// whether the next chant waits for a tap). The queue goes on by itself
+// whether its next chant waits for a tap now). The queue goes on by itself
 // from any page.
 //
 // A full page load (a reload, a link opened anew, a page outside the
@@ -20,18 +20,24 @@
 // brings the player back paused where it stood: its disc goes on. Nothing
 // else is kept and nothing is sent; the tab's storage ends with the tab.
 //
+// Pause Between Chants is one kept choice, as the app keeps it
+// (ChantShelfStore.pausesBetween): true or false in this browser's
+// localStorage, read when any queue (a set, a shelf's Play all) comes to
+// the end of a chant, so the next waits for a tap.
+//
 // Another recording on the site (the spoken Rosary, a prayer said aloud,
 // a book read) taking the speakers puts the chant away, as another flow's
 // claim does in the app.
 
 const KEY = "lv:chant-player"
+const PAUSES_KEY = "lv:chant-pauses-between"
 
 const listeners = new Set()
 
 const state = {
   audio: null,
   current: null, // {id, src, facts: {latin, english, href, thumb, position}}
-  queue: null, // {kind, id, title, entries: [{id, src, origin}], index, pausesBetween, facts}
+  queue: null, // {kind, id, title, entries: [{id, src, origin}], index, facts}
   waiting: false, // a set's next chant held at its start for a tap
   error: false, // the chant asked for would not play
   pressed: false, // play was pressed: no error is shown before
@@ -197,9 +203,9 @@ export function toggle() {
 
 // A shelf's Play all or a sung set from a step: entries [{id, src, origin}]
 // with the facts of each chant by id.
-export function playQueue({ kind, id, title, entries, facts, pausesBetween = false }, index = 0) {
+export function playQueue({ kind, id, title, entries, facts }, index = 0) {
   if (!entries || !entries[index]) return
-  state.queue = { kind, id, title, entries, index, facts: facts || {}, pausesBetween }
+  state.queue = { kind, id, title, entries, index, facts: facts || {} }
   state.waiting = false
   load(entryChant(entries[index]))
 }
@@ -208,11 +214,20 @@ export function isQueue(kind, id) {
   return !!state.queue && state.queue.kind === kind && state.queue.id === id
 }
 
-export function setPausesBetween(kind, id, on) {
-  if (isQueue(kind, id)) {
-    state.queue.pausesBetween = !!on
-    save()
+// Pause Between Chants, the one kept choice: off until it is turned on
+export function pausesBetween() {
+  try {
+    return JSON.parse(localStorage.getItem(PAUSES_KEY) || "false") === true
+  } catch (_err) {
+    return false
   }
+}
+
+export function setPausesBetween(on) {
+  try {
+    localStorage.setItem(PAUSES_KEY, JSON.stringify(on === true))
+  } catch (_err) {}
+  emit("pauses")
 }
 
 function entryChant(entry) {
@@ -261,7 +276,7 @@ function ended() {
   if (q && q.index + 1 < q.entries.length) {
     q.index += 1
     const next = entryChant(q.entries[q.index])
-    if (q.kind === "set" && q.pausesBetween) {
+    if (pausesBetween()) {
       // Held at its very start, so nothing of it is heard before the tap
       state.current = { id: next.id, src: next.src, facts: next.facts }
       state.started = false
@@ -318,6 +333,46 @@ function save() {
   } catch (_err) {}
 }
 
+// What is read back is checked before it is used: a recording or painting
+// only from this site or the chant files' own origin (the <audio>'s
+// data-origin), a chant's page only under /chant/.
+function trustedUrl(url) {
+  if (typeof url !== "string") return false
+  if (url.startsWith("/") && !url.startsWith("//")) return true
+  const origin = audio()?.dataset.origin
+  return !!origin && url.startsWith(`${origin}/`)
+}
+
+const text = (value) => (typeof value === "string" ? value : undefined)
+
+function cleanFacts(facts) {
+  if (!facts || typeof facts !== "object") return {}
+  return {
+    latin: text(facts.latin),
+    english: text(facts.english),
+    href: typeof facts.href === "string" && /^\/chant\/[\w-]+$/.test(facts.href) ? facts.href : undefined,
+    thumb: trustedUrl(facts.thumb) ? facts.thumb : undefined,
+    position: typeof facts.position === "string" && /^[\d.]+% [\d.]+%$/.test(facts.position) ? facts.position : undefined,
+  }
+}
+
+const cleanEntry = (entry) =>
+  entry && typeof entry.id === "string" && trustedUrl(entry.src)
+    ? { id: entry.id, src: entry.src, origin: Number.isInteger(entry.origin) ? entry.origin : null }
+    : null
+
+function cleanQueue(q) {
+  if (!q || typeof q !== "object" || !Array.isArray(q.entries) || !Number.isInteger(q.index)) return null
+  const entries = q.entries.map(cleanEntry)
+  // One bad entry and the queue is not trusted; the chant in hand stays
+  if (entries.length === 0 || entries.some((entry) => !entry) || !entries[q.index]) return null
+  const facts = {}
+  if (q.facts && typeof q.facts === "object") {
+    for (const id of new Set(entries.map((entry) => entry.id))) facts[id] = cleanFacts(q.facts[id])
+  }
+  return { kind: text(q.kind), id: text(q.id), title: text(q.title) || "", entries, index: q.index, facts }
+}
+
 function restore() {
   let saved = null
   try {
@@ -326,17 +381,17 @@ function restore() {
     saved = null
   }
   const a = audio()
-  if (!a || !saved || !saved.current || typeof saved.current.src !== "string") return
+  if (!a || !saved || typeof saved !== "object" || !saved.current) return
+  const { id, src } = saved.current
+  if (typeof id !== "string" || !trustedUrl(src)) return
   const rate = saved.rate === 0.75 ? 0.75 : 1
   a.defaultPlaybackRate = rate
   a.playbackRate = rate
-  const q = saved.queue
-  state.queue =
-    q && Array.isArray(q.entries) && Number.isInteger(q.index) && q.entries[q.index]
-      ? { ...q, facts: q.facts || {} }
-      : null
-  state.waiting = !!(state.queue && saved.waiting)
-  load(saved.current, { play: false, at: state.waiting ? 0 : Number(saved.time) || 0 })
+  state.queue = cleanQueue(saved.queue)
+  state.waiting = !!(state.queue && saved.waiting === true)
+  const time = Number(saved.time)
+  const at = !state.waiting && Number.isFinite(time) && time >= 0 ? time : 0
+  load({ id, src, facts: cleanFacts(saved.current.facts) }, { play: false, at })
 }
 
 export function initChantSession() {
