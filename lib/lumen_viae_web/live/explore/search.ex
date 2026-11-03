@@ -55,8 +55,17 @@ defmodule LumenViaeWeb.Live.Explore.Search do
   # The site's doors the search knows by name and words, as Explore's
   # library entries (ExploreView.allLibraryEntries): those the website has,
   # in the app's order. `:today` opens the day's mysteries' page, where the
-  # Rosary's ways to pray stand.
+  # Rosary's ways to pray stand. The Consecration is iOS's tab and no entry
+  # of its search; it is found here as Android's search finds it
+  # (AppSearch.kt's PAGES), by its name and its words.
   @pages [
+    %{
+      id: "consecration",
+      title: "Consecration to Mary",
+      words: "33 days total consecration de montfort",
+      icon: "hero-sparkles",
+      path: "/consecration"
+    },
     %{
       id: "office",
       title: "Hours of Prayer",

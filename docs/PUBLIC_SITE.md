@@ -421,9 +421,9 @@ address names a paragraph (`#p-3`).
 
 There is no link to the book in the header or the footer: the app reaches
 it from Explore and from the Consecration, and its Prayers tab has no door
-to it. On the site it stands on Explore's Spiritual Reading shelf, and
-Explore's search finds it by name; the Consecration is not on the site
-yet.
+to it. On the site, likewise, it stands on Explore's Spiritual Reading
+shelf, Explore's search finds it by name, and the Consecration's pages
+open it.
 
 Left out, as the app has them: the summary page (the teaching, the short
 prayers, his sayings), archived on iOS; the day's reading goal; a note on
@@ -457,7 +457,12 @@ What differs from the app, and why:
   Devotion in Summary, the Marian Library, St. Carlo, Prayer Record,
   Journal), are left out; so are the Mass tile and the other books at
   rest. In Scripture, archived on iOS, stays a door here (`/mysteries`),
-  as the site keeps that page. The Consecration is not on the site yet.
+  as the site keeps that page.
+- The Consecration is a door the search finds by name and words
+  ("Consecration to Mary", "33 days total consecration de montfort"), as
+  Android's search has it. iOS's Explore and search have no entry for it
+  (it is a tab there, as it is in the site's header), so the page at rest
+  does not list it either.
 - A meditation set opens its prayer page, as the site has no page of a
   set alone; a mystery opens its devotion's page, as the app's does.
 - The Scriptural Rosary and the Audio Rosary open the day's mysteries on

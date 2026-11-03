@@ -3,9 +3,10 @@ defmodule LumenViaeWeb.Components.Nav do
   The public site's header: the logo lockup (the mark and the wordmark), Today's
   Rosary, a Mysteries menu of the five categories and the Scripture
   page, the Consecration, the Prayer Book, the Chant Library, Hours of
-  Prayer, Explore and the app's page. The links stand in the header from
-  1024px, each on one line, the tagline beside the mark from 1280px; below
-  1024px they are the menu.
+  Prayer, Explore and the app's page. The eight links stand in the header
+  from 1280px, each on one line, beside the lockup alone; below 1280px they
+  are the menu, and from 1024px the tagline stands beside the mark in their
+  place (the header is at most 1280px wide, with no room for both).
 
   The header lives in the root layout, outside every LiveView, so its menus
   are driven by `assets/js/site_nav.js` rather than by LiveView JS commands:
@@ -37,12 +38,12 @@ defmodule LumenViaeWeb.Components.Nav do
           aria-label="Lumen Viae, home"
         >
           <.logo variant={:lockup} />
-          <span class="hidden xl:block font-garamond text-ink-muted text-sm italic leading-snug">
+          <span class="hidden lg:block xl:hidden font-garamond text-ink-muted text-sm italic leading-snug">
             Meditations on the Holy Rosary
           </span>
         </.link>
 
-        <nav class="hidden lg:flex items-center gap-2" aria-label="Main">
+        <nav class="hidden xl:flex items-center gap-2" aria-label="Main">
           <.nav_link navigate="/" current_path={@current_path}>
             Today's Rosary
           </.nav_link>
@@ -122,7 +123,7 @@ defmodule LumenViaeWeb.Components.Nav do
           type="button"
           id="mobile-menu-button"
           data-menu-toggle
-          class="group lg:hidden inline-flex shrink-0 items-center justify-center size-11 -mr-2 rounded-sm text-ink-light hover:text-gilt transition-colors"
+          class="group xl:hidden inline-flex shrink-0 items-center justify-center size-11 -mr-2 rounded-sm text-ink-light hover:text-gilt transition-colors"
           aria-label="Menu"
           aria-expanded="false"
           aria-controls="mobile-menu"
@@ -160,7 +161,7 @@ defmodule LumenViaeWeb.Components.Nav do
 
       <nav
         id="mobile-menu"
-        class="hidden lg:hidden bg-night-deep border-t border-night-border max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
+        class="hidden xl:hidden bg-night-deep border-t border-night-border max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
         aria-label="Main"
       >
         <ul class="px-4 sm:px-6 py-3">

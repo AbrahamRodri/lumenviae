@@ -124,6 +124,10 @@ defmodule LumenViaeWeb.Live.Explore.ExploreTest do
       {:ok, view, _html} = live(conn, "/explore?q=hours+of+prayer")
 
       assert has_element?(view, ~s([data-role=best] a[href="/hours"]))
+
+      {:ok, view, _html} = live(conn, "/explore?q=consecration")
+
+      assert has_element?(view, ~s([data-role=best] a[href="/consecration"]))
     end
 
     test "finds a meditation set by name and opens its prayer page", %{conn: conn} do
