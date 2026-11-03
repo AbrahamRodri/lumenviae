@@ -79,7 +79,7 @@ built around those three.
      which refuses a newer server. The `postgres` password is the
      `lumenviae-db` app's `OPERATOR_PASSWORD` secret; reading it needs
      Abraham's own Fly login. Never print it.
-   - Copy it up: `scp lv.dump deploy@<ip>:/srv/lumenviae/`, then on the
+   - Copy it up: `scp ~/lv.dump deploy@<ip>:/srv/lumenviae/`, then on the
      Droplet, in `/srv/lumenviae`: `export IMAGE=lumenviae:<commit>
      RELEASE_COMMIT=<commit>` (compose refuses to start without IMAGE, and
      `/healthz` reports RELEASE_COMMIT), `docker compose up -d db`, then
