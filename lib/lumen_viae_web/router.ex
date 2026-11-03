@@ -142,6 +142,10 @@ defmodule LumenViaeWeb.Router do
       live "/true-devotion", Live.TrueDevotion.Index
       live "/true-devotion/:chapter_id", Live.TrueDevotion.Chapter
 
+      # Explore, as the app's: the site's directory, and one search over
+      # the mysteries, the Prayer Book, the chants and the meditation sets
+      live "/explore", Live.Explore.Index
+
       # The iPhone app's landing page
       live "/app", Live.Home.App.Index
 

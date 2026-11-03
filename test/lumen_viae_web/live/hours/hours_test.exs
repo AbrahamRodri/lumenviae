@@ -426,7 +426,9 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
   end
 
   describe "the header" do
-    test "links Hours after Prayers and Chant and marks it on every Hours page", %{conn: conn} do
+    test "links Hours after Prayers and Chant, then Explore, and marks it on every Hours page", %{
+      conn: conn
+    } do
       stub_page("laudes_2026-08-24.html")
       html = conn |> get("/hours/1953-08-24/laudes") |> html_response(200)
       doc = Floki.parse_document!(html)
@@ -436,10 +438,11 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
 
       labels = Enum.map(labels, &String.trim/1)
 
-      assert Enum.drop_while(labels, &(&1 != "Prayers")) |> Enum.take(3) == [
+      assert Enum.drop_while(labels, &(&1 != "Prayers")) |> Enum.take(4) == [
                "Prayers",
                "Chant",
-               "Hours"
+               "Hours",
+               "Explore"
              ]
 
       assert [_desktop, _phone] = Floki.find(doc, ~s(a[href="/hours"][aria-current=page]))

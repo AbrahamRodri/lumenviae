@@ -1,0 +1,68 @@
+<div class="prayers-page min-h-screen pb-16" id="explore-page" phx-hook="ChantPlayer">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+  <audio id="explore-page-audio" preload="none" phx-update="ignore"></audio>
+  <div id="explore-page-day" phx-hook="UserTimezone" hidden></div>
+
+  <section class="border-b border-[rgba(227,188,91,0.15)]" aria-labelledby="explore-heading">
+    <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-8 pb-6 md:pt-14 md:pb-8">
+      <h1
+        id="explore-heading"
+        class="font-display text-4xl md:text-6xl text-ink-light leading-[1.1]"
+      >
+        Explore
+      </h1>
+
+      <form
+        id="explore-search"
+        action="/explore"
+        method="get"
+        role="search"
+        phx-change="search"
+        phx-submit="search"
+        class="mt-5 md:mt-6 max-w-3xl"
+      >
+        <label for="explore-search-field" class="sr-only">Search</label>
+        <div class="prayers-search explore-search">
+          <span class="hero-magnifying-glass size-5 text-gilt shrink-0" aria-hidden="true" />
+          <input
+            id="explore-search-field"
+            type="search"
+            name="q"
+            value={@query}
+            placeholder="Search prayers, mysteries, books and chant"
+            autocomplete="off"
+            spellcheck="false"
+            phx-debounce="200"
+            class="prayers-search__field"
+          />
+          <.link
+            :if={@query != ""}
+            patch="/explore"
+            replace
+            class="explore-search__clear"
+            aria-label="Clear the search"
+            data-role="clear"
+          >
+            <span class="hero-x-circle size-5" aria-hidden="true" />
+          </.link>
+        </div>
+      </form>
+
+      <.chips :if={@query != "" and not Search.empty?(@results)} results={@results} />
+    </div>
+  </section>
+
+  <p class="sr-only" aria-live="polite" data-role="announcement">
+    {if @query != "", do: announcement(@results)}
+  </p>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-8 md:pt-12">
+    <.results :if={@query != ""} results={@results} book={@book} />
+
+    <.browse :if={@query == ""} orders={@occasions} chant_count={@chant_count} date={@date} />
+
+    <p class="chant-error chant-error--list" data-role="error" role="status" hidden>
+      A recording could not be played. Check the connection and try again.
+    </p>
+  </div>
+</div>

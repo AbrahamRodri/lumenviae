@@ -2,7 +2,9 @@ defmodule LumenViaeWeb.Components.Nav do
   @moduledoc """
   The public site's header: the logo lockup (the mark and the wordmark), Today's
   Rosary, a Mysteries menu of the five categories and the Scripture
-  page, the Prayer Book, Hours of Prayer and the app's page.
+  page, the Prayer Book, the Chant Library, Hours of Prayer, Explore and the
+  app's page. The links stand in the header from 1024px, each on one line,
+  the tagline beside the mark from 1280px; below 1024px they are the menu.
 
   The header lives in the root layout, outside every LiveView, so its menus
   are driven by `assets/js/site_nav.js` rather than by LiveView JS commands:
@@ -34,12 +36,12 @@ defmodule LumenViaeWeb.Components.Nav do
           aria-label="Lumen Viae, home"
         >
           <.logo variant={:lockup} />
-          <span class="hidden lg:block font-garamond text-ink-muted text-sm italic leading-snug">
+          <span class="hidden xl:block font-garamond text-ink-muted text-sm italic leading-snug">
             Meditations on the Holy Rosary
           </span>
         </.link>
 
-        <nav class="hidden md:flex items-center gap-2" aria-label="Main">
+        <nav class="hidden lg:flex items-center gap-2" aria-label="Main">
           <.nav_link navigate="/" current_path={@current_path}>
             Today's Rosary
           </.nav_link>
@@ -49,7 +51,7 @@ defmodule LumenViaeWeb.Components.Nav do
               type="button"
               id="mysteries-menu-button"
               data-menu-toggle
-              class="group inline-flex items-center gap-1.5 min-h-11 px-3 rounded-sm font-display text-xs tracking-[0.16em] uppercase text-ink-muted hover:text-gilt transition-colors aria-expanded:text-gilt"
+              class="group inline-flex items-center gap-1.5 min-h-11 px-3 lg:whitespace-nowrap rounded-sm font-display text-xs tracking-[0.16em] uppercase text-ink-muted hover:text-gilt transition-colors aria-expanded:text-gilt"
               aria-expanded="false"
               aria-controls="mysteries-menu"
             >
@@ -98,6 +100,10 @@ defmodule LumenViaeWeb.Components.Nav do
             Hours
           </.nav_link>
 
+          <.nav_link navigate="/explore" current_path={@current_path}>
+            Explore
+          </.nav_link>
+
           <.nav_link navigate="/app" current_path={@current_path}>
             The App
           </.nav_link>
@@ -111,7 +117,7 @@ defmodule LumenViaeWeb.Components.Nav do
           type="button"
           id="mobile-menu-button"
           data-menu-toggle
-          class="group md:hidden inline-flex shrink-0 items-center justify-center size-11 -mr-2 rounded-sm text-ink-light hover:text-gilt transition-colors"
+          class="group lg:hidden inline-flex shrink-0 items-center justify-center size-11 -mr-2 rounded-sm text-ink-light hover:text-gilt transition-colors"
           aria-label="Menu"
           aria-expanded="false"
           aria-controls="mobile-menu"
@@ -149,7 +155,7 @@ defmodule LumenViaeWeb.Components.Nav do
 
       <nav
         id="mobile-menu"
-        class="hidden md:hidden bg-night-deep border-t border-night-border max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
+        class="hidden lg:hidden bg-night-deep border-t border-night-border max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
         aria-label="Main"
       >
         <ul class="px-4 sm:px-6 py-3">
@@ -189,6 +195,12 @@ defmodule LumenViaeWeb.Components.Nav do
           <li>
             <.nav_link navigate="/hours" current_path={@current_path} section mobile>
               Hours of Prayer
+            </.nav_link>
+          </li>
+
+          <li>
+            <.nav_link navigate="/explore" current_path={@current_path} mobile>
+              Explore
             </.nav_link>
           </li>
 
@@ -264,7 +276,7 @@ defmodule LumenViaeWeb.Components.Nav do
           do:
             "flex items-center min-h-11 font-display text-sm tracking-[0.12em] uppercase text-ink-light hover:text-gilt aria-[current=page]:text-gilt",
           else:
-            "inline-flex items-center min-h-11 px-3 rounded-sm font-display text-xs tracking-[0.16em] uppercase text-ink-muted hover:text-gilt aria-[current=page]:text-gilt border-b border-transparent aria-[current=page]:border-gilt"
+            "inline-flex items-center min-h-11 px-3 lg:whitespace-nowrap rounded-sm font-display text-xs tracking-[0.16em] uppercase text-ink-muted hover:text-gilt aria-[current=page]:text-gilt border-b border-transparent aria-[current=page]:border-gilt"
         )
       ]}
     >
