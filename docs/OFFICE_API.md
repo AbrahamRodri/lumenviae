@@ -141,16 +141,24 @@ those fixtures to see exactly what changed.
 
 ## Updating the engine
 
-The engine image is pinned by digest in two places that must match:
-`deploy/divinum-officium/fly.toml` and `deploy/vm/compose.yml`. GHCR keeps
-only the `master` and `nightly` tags, and an older digest can disappear
-(the September 2026 pin did, in November). When a pull of the pinned
-digest fails, or to take an upstream update, pin `master`'s current
-digest and check the parser against it:
+Production pulls the engine from our own copy,
+`ghcr.io/abrahamrodri/divinum-officium`, pinned by digest in
+`deploy/vm/compose.yml`. Upstream's GHCR keeps only the `master` and
+`nightly` tags, and an older digest can disappear (the September 2026 pin
+did, in November), so the VM deploy (`.github/workflows/ci.yml`, "Mirror
+the Office engine image") copies the pinned digest from upstream into our
+copy the first time it sees it, unchanged. Once copied, upstream deleting
+it no longer matters. `deploy/divinum-officium/fly.toml`, the engine as
+it ran on Fly before the move, names the same digest at upstream.
+
+To take an upstream update, pin `master`'s current digest and check the
+parser against it:
 
 1. `docker buildx imagetools inspect ghcr.io/divinumofficium/divinum-officium:master`
-   gives the digest. Put it in both files.
-2. Run that image locally:
+   gives the digest. Put it in both files, keeping each file's registry:
+   ours in `compose.yml`, upstream's in `fly.toml`. The next deploy
+   copies it, which works only while upstream still has it.
+2. Run upstream's image at that digest locally:
    `docker run -d --rm --name do-check --platform linux/amd64 -p 127.0.0.1:18090:8080 <image@digest> starman --port 8080 --host 0.0.0.0 --workers 2 --preload-app --user www-data --group www-data /var/www/app.psgi`
    (the image is amd64 only; Docker on an Apple Silicon Mac emulates it).
 3. `bin/record-office-fixtures` saves the test pages from it again; read

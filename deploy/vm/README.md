@@ -33,7 +33,9 @@ The deploy lives in `.github/workflows/ci.yml`. The repository variable
 
 - unset (today): `deploy`, to Fly, exactly as before;
 - `vm`: `deploy-vm`, which builds the release image from main's commit,
-  pushes it to GHCR, and over SSH (user `deploy`, folder
+  pushes it to GHCR, copies the pinned Office engine image into our own
+  GHCR copy if it is not there yet (docs/OFFICE_API.md, "Updating the
+  engine"), and over SSH (user `deploy`, folder
   `/srv/lumenviae`) migrates and restarts the stack with
   `RELEASE_COMMIT` set, then runs `bin/post-deploy-check` and
   `bin/prod-feature-check` as Fly's job does.

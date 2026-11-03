@@ -14,13 +14,10 @@
 #   fly deploy -c deploy/divinum-officium/fly.toml
 #
 # The image is pinned by digest so the HTML shape LumenViae.Office.Parser
-# was written against cannot move under it. To take an upstream update, or
-# when GHCR drops the pinned digest (it keeps only the `master` and
-# `nightly` tags, and older digests can disappear):
-#   docker buildx imagetools inspect ghcr.io/divinumofficium/divinum-officium:master
-# for the new digest, pin it here and in deploy/vm/compose.yml, re-record
-# the parser fixtures from it (docs/OFFICE_API.md, "Updating the engine")
-# and run the office tests.
+# was written against cannot move under it. The Droplet runs the same
+# digest from our own GHCR copy (deploy/vm/compose.yml), because upstream
+# deletes old digests; docs/OFFICE_API.md, "Updating the engine", says how
+# to take an upstream update.
 
 app = 'lumenviae-office'
 primary_region = 'dfw'
