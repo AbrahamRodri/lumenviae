@@ -633,8 +633,10 @@ each one under the bucket's own file name through
 `LumenViae.Rosary.fetch_chant_score_page/1` (`Rosary.ChantScore`): only a
 page the library names, fetched from the library's URL (the host the
 server already writes to), checked against the library's size and
-SHA-256, and handed on unchanged with a year's immutable cache; nothing
-is kept on the server. The `ChantScore` hook inflates it
+SHA-256, and handed on unchanged with a year's immutable cache. A page
+that passed is kept in memory for the life of the machine (an ETS table
+by checksum, about 120 pages, some 2 MB), so the bucket is asked for
+each once; a failure is never kept. The `ChantScore` hook inflates it
 (`DecompressionStream`, raw DEFLATE) and draws its operations as one SVG,
 as the iOS app's `ChantScoreDrawing` does on a Canvas.
 

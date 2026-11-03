@@ -34,6 +34,8 @@ defmodule LumenViae.Application do
       # Holds the recordings' track lists, fetched from LibriVox in tasks
       # no page owns.
       LumenViae.Rosary.spiritual_reading_recordings(),
+      # Keeps the chant score pages it has checked.
+      LumenViae.Rosary.chant_score_store(),
       # Fetches the Daily Missal from Missale Meum, in tasks no page owns.
       {Task.Supervisor, name: LumenViae.Office.Missal.task_supervisor()},
       LumenViae.Office.Missal,

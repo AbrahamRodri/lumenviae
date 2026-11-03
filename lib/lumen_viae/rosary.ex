@@ -533,6 +533,9 @@ defmodule LumenViae.Rosary do
   """
   def spiritual_reading_text, do: LumenViae.Rosary.SpiritualReading.Text
 
+  @doc "The child spec of the table that keeps verified chant score pages."
+  def chant_score_store, do: LumenViae.Rosary.ChantScore
+
   @doc """
   The process that holds the Spiritual Reading recordings' track lists on
   this machine (fetched from LibriVox), for the application to start.
