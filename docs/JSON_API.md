@@ -712,6 +712,16 @@ a file no URL in its copy names any more. Chants share some score pages
 (`chant-vers-alt-ora-pro-nobis`), so a file is fetched once for all of
 them. About 100 MB in all, 261 files as of 14 October 2026.
 
+The server can serve the files from another base without the file
+changing: set `CHANT_ASSET_BASE_URL` (no trailing slash; Cloudflare R2's
+is `https://media.lumenviae.org`) and every chant URL is served with the
+file's base, `Library.asset_base/0`, replaced by it, giving
+`https://media.lumenviae.org/chants/audio/...`. The document's `version`
+changes with it, so a device fetches the new copy, and its `updated_at`
+stays. Unset or empty, the document is the file's, byte for byte. Copy
+the files first (`mix lumen_viae.copy_storage`): a device fetches them
+from the new base as soon as the setting is live.
+
 `mix lumen_viae.upload_chants` puts the files there and writes each one's
 `url`, `bytes` and `sha256` into `priv/library/chant_library.json`
 (`LumenViae.Curation.ChantUpload`). An export that carries no `feasts`,
