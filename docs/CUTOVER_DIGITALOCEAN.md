@@ -70,9 +70,15 @@ built around those three.
 
 7. **Rehearse under the real name**, with yesterday's data:
    - Dump Fly's database (read-only on Fly):
-     `fly proxy 15432:5432 -a lumenviae-db`, then
-     `pg_dump -Fc -h localhost -p 15432 -U postgres lumen_viae > lv.dump`
-     (the `postgres` password is the cluster's operator password).
+     `fly proxy 15432:5432 -a lumenviae-db`, then, in another terminal,
+     `docker run --rm -it -v ~/:/out postgres:17 pg_dump -Fc -h host.docker.internal -p 15432 -U postgres -f /out/lv.dump lumenviae`
+     (writes `~/lv.dump`). Fly's database is `lumenviae`; the Droplet's is
+     `lumen_viae`, and the restore below (`-d lumen_viae --no-owner
+     --no-acl`) handles the difference. Dump with the `postgres:17` image
+     because Fly runs Postgres 17 and the Mac's Homebrew `pg_dump` is 14,
+     which refuses a newer server. The `postgres` password is the
+     `lumenviae-db` app's `OPERATOR_PASSWORD` secret; reading it needs
+     Abraham's own Fly login. Never print it.
    - Copy it up: `scp lv.dump deploy@<ip>:/srv/lumenviae/`, then on the
      Droplet, in `/srv/lumenviae`: `export IMAGE=lumenviae:<commit>
      RELEASE_COMMIT=<commit>` (compose refuses to start without IMAGE, and

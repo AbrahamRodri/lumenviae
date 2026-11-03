@@ -135,6 +135,28 @@ deliberately not involved.
 The suite never touches the network: `config/test.exs` routes the client
 through `Req.Test`, and the parser is pinned against real saved pages in
 `test/support/fixtures/divinum_officium/` (a two-column hour, the longest
-hour, a single-column Latin office, and a month calendar). If the engine
-ever reshapes its markup, refresh those fixtures to see exactly what
-changed.
+hour, a single-column Latin office, and a month calendar), saved from the
+pinned engine image. If the engine ever reshapes its markup, refresh
+those fixtures to see exactly what changed.
+
+## Updating the engine
+
+The engine image is pinned by digest in two places that must match:
+`deploy/divinum-officium/fly.toml` and `deploy/vm/compose.yml`. GHCR keeps
+only the `master` and `nightly` tags, and an older digest can disappear
+(the September 2026 pin did, in November). When a pull of the pinned
+digest fails, or to take an upstream update, pin `master`'s current
+digest and check the parser against it:
+
+1. `docker buildx imagetools inspect ghcr.io/divinumofficium/divinum-officium:master`
+   gives the digest. Put it in both files.
+2. Run that image locally:
+   `docker run -d --rm --name do-check --platform linux/amd64 -p 127.0.0.1:18090:8080 <image@digest> starman --port 8080 --host 0.0.0.0 --workers 2 --preload-app --user www-data --group www-data /var/www/app.psgi`
+   (the image is amd64 only; Docker on an Apple Silicon Mac emulates it).
+3. `bin/record-office-fixtures` saves the test pages from it again; read
+   the fixture diff and run the office tests. A failing parser test means
+   the markup changed: fix `LumenViae.Office.Parser` in the same change.
+4. For a wider check, start the app with
+   `DIVINUM_OFFICIUM_BASE_URL=http://127.0.0.1:18090` and open a few hours
+   at `/hours`, or call `LumenViae.Office.fetch_hour/3` for them.
+5. `docker stop do-check`.
