@@ -99,8 +99,9 @@ defmodule LumenViaeWeb.Router do
 
     # Pages retired to archive/ (see archive/README.md). Their addresses
     # are linked from outside the site, so each answers with a permanent
-    # redirect home rather than a 404.
-    for path <- ~w(/dashboard /rosary-methods /true-devotion /saint-carlo /feedback) do
+    # redirect home rather than a 404. /true-devotion left the list when
+    # the book itself came to the site.
+    for path <- ~w(/dashboard /rosary-methods /saint-carlo /feedback) do
       get path, RedirectController, :home
     end
 
@@ -143,6 +144,11 @@ defmodule LumenViaeWeb.Router do
       live "/hours/calendar/:year/:month", Live.Hours.Calendar
       live "/hours/:date", Live.Hours.Index, :day
       live "/hours/:date/:hour", Live.Hours.Hour
+
+      # True Devotion, St. Louis de Montfort's book, as the app's reader:
+      # its title page and a chapter read in place
+      live "/true-devotion", Live.TrueDevotion.Index
+      live "/true-devotion/:chapter_id", Live.TrueDevotion.Chapter
 
       # The iPhone app's landing page
       live "/app", Live.Home.App.Index

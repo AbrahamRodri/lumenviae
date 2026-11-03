@@ -60,7 +60,7 @@ defmodule LumenViaeWeb.Live.HomeTodayTest do
 
     hrefs = doc |> Floki.find("main a") |> Floki.attribute("href")
 
-    for retired <- ~w(/dashboard /app /rosary-methods /true-devotion /saint-carlo /feedback) do
+    for retired <- ~w(/dashboard /app /rosary-methods /saint-carlo /feedback) do
       refute retired in hrefs
     end
   end

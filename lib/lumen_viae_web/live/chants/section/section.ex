@@ -37,6 +37,7 @@ defmodule LumenViaeWeb.Live.Chants.Section do
      |> PageMeta.put(Library.section_path(shelf.id),
        title: "#{shelf.title}, Chant",
        description: description(shelf, chants),
+       image: PageMeta.named_image(shelf.painting),
        trail: [{"Chant", "/chant"}, {shelf.title, Library.section_path(shelf.id)}]
      )
      |> assign(:shelf, shelf)

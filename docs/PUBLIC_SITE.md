@@ -5,7 +5,8 @@ is in a prayer link, where each setting is kept, how to check your work in
 a browser, and which pages nobody maintains.
 
 The public site is the Rosary, the Consecration, the Prayer Book, the
-Chant Library and Hours of Prayer: the iOS app's tabs coming to the website, one at a
+Chant Library, Hours of Prayer and True Devotion: the iOS app's tabs and books coming to the
+website, one at a
 time, as its desktop version. The console
 (`/admin`), the APIs (`/api`) and `/healthz` are not part of it.
 
@@ -37,12 +38,16 @@ time, as its desktop version. The console
 | `/hours/:date` | `LumenViaeWeb.Live.Hours.Index` | The same for another day (`YYYY-MM-DD`): its date where NOW stands, and a link back to today. |
 | `/hours/:date/:hour` | `LumenViaeWeb.Live.Hours.Hour` | One hour read in full: its painting and name, the day and its feast, Latin, English or Both (`?lang=`), the parts of the hour (a rail beside the text from 1024px, a jump list above it on a phone), the hours either side and the Divinum Officium credit linked to the engine's page for the hour. `:hour` is the Office's slug (`matutinum` to `completorium`). |
 | `/hours/calendar/:year/:month` | `LumenViaeWeb.Live.Hours.Calendar` | The month by the days' classes, a gold mark brighter for the greater feasts; each day links to its hours, and from 768px each cell carries the day's title. |
+| `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open, the part being read open), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
+| `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head. `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
+| `/true-devotion` | True Devotion to Mary (the summary page; the address now opens the book) |
 
-All twenty-four are in the `:public` live session in `router.ex`. A set
+All twenty-six are in the `:public` live session in `router.ex`. A set
 that does not exist, or is hidden, answers 404, and so do an unknown
 category, an unknown chapter, an unknown order, an unknown prayer, an
-unknown chant section, an unknown sung set and an unknown chant, a
-Consecration day that is not a whole number from 1 to 34, and on
+unknown chant section, an unknown sung set, an unknown chant and an
+unknown True Devotion chapter, a Consecration day that is not a whole
+number from 1 to 34, and on
 the Hours pages a date that is not one or that the Office does not serve
 (1600 to 2200, `LumenViae.Office.serves?/1`), an unknown hour and a
 month that is not one.
@@ -51,7 +56,8 @@ month that is not one.
 `/consecration`, `/consecration/act` and the 34 days' pages, `/prayers`, every chapter's page and every order of prayer's page,
 `/chant`, every chant section's shelf (and the Mass of the Angels'),
 `/chant/sets` and every sung set's page, every chant's page, `/hours`,
-`/app` and `/privacy-policy`. When a chant, a section or a sung set is
+`/true-devotion` and each of its thirteen chapters, `/app` and
+`/privacy-policy`. When a chant, a section or a sung set is
 added to `priv/library/chant_library.json`, add its page; the
 Chant tests check every one is there. The
 prayers themselves are not listed: every one is linked from its chapter,
@@ -80,12 +86,15 @@ not run.
 | --- | --- |
 | `/dashboard` | Prayer dashboard (folded into the home page) |
 | `/rosary-methods` | How to Pray the Rosary |
-| `/true-devotion` | True Devotion to Mary |
+| `/true-devotion` | True Devotion to Mary (the summary page; the address now opens the book) |
 | `/saint-carlo` | St. Carlo Acutis |
 | `/feedback` | Feedback |
 
 Each old path answers `301 Moved Permanently` and redirects to `/`, through
-`LumenViaeWeb.RedirectController`. The list is the `for path <- ~w(...)`
+`LumenViaeWeb.RedirectController`, except `/true-devotion`: since
+November 2026 it opens the book itself (`LumenViaeWeb.Live.TrueDevotion`,
+new code; the archived summary page of its teaching stays archived, as it
+is on iOS). The list is the `for path <- ~w(...)`
 loop in `router.ex`. The addresses are linked from outside the site, so
 keep the redirects.
 
@@ -334,6 +343,47 @@ is no colour, until the Missal comes to the site); the text size and the
 "line by line" or "side by side" choice (the width decides); and the
 calendar's offline row.
 
+## True Devotion
+
+The pages follow the iOS app's `TrueDevotionReaderView` and
+`TrueDevotionChapterReaderView` on main (Android's `ui/truedevotion` reads
+them line for line). The words are the domain's
+(`LumenViae.Rosary.get_true_devotion!/1`, from
+`priv/library/true_devotion.json`, Faber's translation); how the pages set
+them (the contents' order, "Part I", the kicker, the versal, the citation
+a shared passage carries) is `LumenViaeWeb.Live.TrueDevotion.Book`, and
+the binding is `TrueDevotion.Cover`, drawn in CSS in the `marian` token.
+The text is on night, as the app reads it, at the reading size and a
+measure of about 62 characters.
+
+A chapter's paragraphs are numbered from 1 within the chapter, its
+sub-headings not counted, and each number is the paragraph's anchor
+(`/true-devotion/motives#p-3`). The book's data carries no paragraph
+numbers, and Faber's paragraphs do not fall where the standard numbers of
+the treatise do, so these are the chapter's own count, not "paragraph 23"
+as the book is usually cited. The number is a button: it, or a tap on the
+paragraph, chooses the paragraph, and the bar that rises offers Bookmark
+and Share. Share uses the browser's share sheet (the Web Share API) with
+the passage, the citation and the paragraph's link where there is one,
+and otherwise copies the link.
+
+Nothing the reader does is sent to the server: the place, the chapters
+read and the bookmarks are this browser's (below). The place is the
+paragraph at the top of the screen once the reader scrolls; reaching a
+chapter's foot, or pressing Next chapter, marks it read and puts the
+place at its top, as the app does. Continue Reading resumes the chapter
+last read if it is unfinished, else the first unfinished one.
+
+There is no link to the book in the header or the footer: the app reaches
+it from Explore and from the Consecration, neither of which is on the site
+yet, and its Prayers tab has no door to it. Until they come, the pages
+are reached by their address and the sitemap.
+
+Left out, as the app has them: the summary page (the teaching, the short
+prayers, his sayings), archived on iOS; the day's reading goal; a note on
+a passage kept in the Journal; the text size (the site's reading size is
+fixed here); and the reader's chrome that withdraws as it scrolls.
+
 ## Where each setting lives
 
 Nothing about a visitor is kept on the server. Every setting is the URL or
@@ -356,6 +406,9 @@ starts from the defaults. The one thing the server writes is a completion.
 | The Consecration's plan: Day 1, the feast it ends on, when it was begun and completed | `lv:consecration:plan`, holding `{start, feast_id, started_at, completed_at}` | the `ConsecrationPlan` hook |
 | The Consecration's days prayed | `lv:consecration:done`, a list of day numbers | `ConsecrationPlan`, at a day's Amen |
 | The Consecration's introduction already walked | `lv:consecration:intro-seen` | `ConsecrationPlan`, on reaching the chooser |
+| True Devotion: the place, for Continue Reading | `lv:true-devotion:place`, holding `{chapter, paragraph, at}` (the paragraph's number in the chapter, 0 for its top) | the `TrueDevotionPlace` hook |
+| True Devotion: the chapters read | `lv:true-devotion:read`, a list of chapter ids | `TrueDevotionPlace` |
+| True Devotion: bookmarks | `lv:true-devotion:marks`, a list of `{chapter, paragraph, words, at}` (the paragraph's first 90 characters, for the contents), at most 200 | `TrueDevotionPlace` |
 
 Details worth knowing:
 
@@ -473,12 +526,14 @@ set and presses its Play all, begins a Consecration from the chooser and
 from Start at any day, steps through a day and says its Amen, opens the
 Act's page and a day that is not one, and checks that the five archived paths redirect
 to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
-`/app`, the Prayers pages and Hours of Prayer, and checks each one answers 200, has an
+`/app`, the Prayers pages, Hours of Prayer and True Devotion, and checks each one answers 200, has an
 `h1`, logs no console errors and does not scroll sideways. It follows the
 first Pray link on `/mysteries/joyful` and presses ArrowRight, checks every
 App Store link and screenshot on `/app`, searches the Prayer Book and
-chooses Both on a prayer, opens an hour of the Office in Both, and checks
-that the five archived paths redirect to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
+chooses Both on a prayer, opens an hour of the Office in Both, reads True
+Devotion (Begin reading, Next chapter, a bookmark, then Continue reading
+on the title page), and checks that the four archived paths that still
+redirect go to `/` while `/true-devotion` answers 200. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 gitignored.
 
 It is not part of CI. Run it before you hand in a change to a public page.

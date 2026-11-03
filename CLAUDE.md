@@ -133,7 +133,7 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
   change as any code that widens what is collected
-- The public website is the Rosary, the Prayer Book and Hours of Prayer: home (today's mysteries and
+- The public website is the Rosary, the Prayer Book, Hours of Prayer and True Devotion: home (today's mysteries and
   today's sets), `/mysteries` (the mysteries in Scripture), each category
   page with "Your Rosary Today" (audio, counting and voice choices), the
   prayer page (the whole Rosary bead by bead, in meditation, scriptural or
@@ -147,9 +147,11 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   Prayer, the Divine Office as the app's (`/hours`, another day at
   `/hours/:date`, an hour at `/hours/:date/:hour`, a month at
   `/hours/calendar/:year/:month`), read through `LumenViae.Office`; and
-  the 33-day Consecration as the app's tab (`/consecration`, a day at
-  `/consecration/days/:n`, the Act made at `/consecration/act`), its
-  plan kept in the browser alone. Read
+  True Devotion, the book read as the app reads it (`/true-devotion`, a
+  chapter at `/true-devotion/:chapter_id`, the reader's place and
+  bookmarks kept in the browser only); and the 33-day Consecration as
+  the app's tab (`/consecration`, a day at `/consecration/days/:n`, the
+  Act made at `/consecration/act`), its plan kept in the browser alone. Read
   docs/PUBLIC_SITE.md before touching a public page
 - Retired pages (dashboard, How to Pray, True Devotion, St. Carlo,
   Feedback) live in `archive/`, outside the build, and their addresses

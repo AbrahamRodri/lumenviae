@@ -394,7 +394,55 @@ defmodule LumenViaeWeb.Live.Prayers.OrderPagesTest do
              |> Floki.parse_document!()
              |> Floki.find("[data-role=topic-order]")
              |> Enum.flat_map(&Floki.attribute(&1, "href")) ==
-               ["/prayers/orders/before_mass", "/prayers/orders/after_mass"]
+               [
+                 "/prayers/orders/before_mass?from=topic%3Amass",
+                 "/prayers/orders/after_mass?from=topic%3Amass"
+               ]
+    end
+
+    test "the order it opens goes back to the topic, and so do the prayers prayed from it", %{
+      conn: conn
+    } do
+      {:ok, view, _html} = live(conn, "/prayers/topics/mass")
+
+      {:ok, view, html} =
+        view
+        |> element("[data-role=topic-order]", "Before Mass")
+        |> render_click()
+        |> follow_redirect(conn, "/prayers/orders/before_mass?from=topic%3Amass")
+
+      doc = Floki.parse_document!(html)
+      assert Floki.attribute(doc, "[data-role=back]", "href") == ["/prayers/topics/mass"]
+      assert doc |> Floki.find("[data-role=back]") |> Floki.text() =~ "Holy Mass"
+
+      assert Floki.attribute(doc, "[data-role=order-pray]", "href") ==
+               ["/prayers/orders/before_mass/pray?from=topic%3Amass"]
+
+      assert doc
+             |> Floki.attribute("[data-role=order-prayer]", "href")
+             |> Enum.all?(&String.ends_with?(&1, "from=topic%3Amass"))
+
+      {:ok, _view, html} =
+        view
+        |> element("[data-role=order-pray]")
+        |> render_click()
+        |> follow_redirect(conn, "/prayers/orders/before_mass/pray?from=topic%3Amass")
+
+      assert html
+             |> Floki.parse_document!()
+             |> Floki.attribute("[data-role=close]", "href") == ["/prayers/topics/mass"]
+    end
+
+    test "an order opened from anywhere else goes back to Prayers", %{conn: conn} do
+      for query <- ["", "?from=topic%3Anowhere", "?from=elsewhere"] do
+        {:ok, _view, html} = live(conn, "/prayers/orders/before_mass" <> query)
+        doc = Floki.parse_document!(html)
+
+        assert Floki.attribute(doc, "[data-role=back]", "href") == ["/prayers"]
+
+        assert Floki.attribute(doc, "[data-role=order-pray]", "href") ==
+                 ["/prayers/orders/before_mass/pray"]
+      end
     end
 
     test "is not on a topic without", %{conn: conn} do

@@ -58,7 +58,8 @@ defmodule LumenViaeWeb.PageMeta do
 
     * `:title` and `:description` (required). The description is cut to
       `max_description/0` characters at a word.
-    * `:image` - `painting_image/1`'s result, or `nil` for the default share image.
+    * `:image` - `painting_image/1`'s, `category_image/1`'s or
+      `named_image/1`'s result, or `nil` for the default share image.
     * `:trail` - the page's breadcrumb below Home, as `{name, path}` pairs
       ending with the page itself; empty on the home page and on pages with
       no parent.
@@ -103,8 +104,14 @@ defmodule LumenViaeWeb.PageMeta do
   @doc "The preview image for a category's page: the painting its head shows."
   def category_image(category), do: preview(MysteryPainting.for_category(category))
 
-  @doc "The preview image for a painting named by its asset name (`\"glorious_coronation\"`)."
-  def named_image(name), do: preview(MysteryPainting.for_name(name))
+  @doc """
+  The preview image for a painting by its own name (`"topic_mary"`), or a
+  page's `{name, focal x, focal y}` painting as the Prayers, Chant and
+  Hours pages hang them. Nil for a name the site does not have.
+  """
+  def named_image({name, _x, _y}), do: named_image(name)
+  def named_image(name) when is_binary(name), do: preview(MysteryPainting.for_name(name))
+  def named_image(_), do: nil
 
   defp preview(nil), do: nil
 

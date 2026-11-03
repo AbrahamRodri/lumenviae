@@ -10,7 +10,8 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   `/privacy-policy`, `/app`, `/prayers` (and a search), a topic of the
   Prayer Book, two prayers (one in Both), an order of prayer and a step
   of praying it in Both, `/chant` (and a search), a section's shelf,
-  a chant's page, Sets of Chants and a sung set, `/hours`, today's
+  a chant's page, Sets of Chants and a sung set, `/true-devotion` and a
+  chapter, `/hours`, today's
   Vespers in Both and this month's Hours calendar, and checks each
   answers 200 with an h1 and no console errors;
 - checks no page scrolls sideways (`scrollWidth <= innerWidth`);
@@ -18,8 +19,13 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   `/meditation-sets/:id/pray` and presses ArrowRight;
 - on `/app`, checks every App Store link goes to the listing and every
   screenshot loads;
-- checks `/dashboard`, `/rosary-methods`, `/true-devotion`, `/saint-carlo`
-  and `/feedback` redirect to `/`;
+- checks `/dashboard`, `/rosary-methods`, `/saint-carlo` and `/feedback`
+  redirect to `/`;
+- on `/true-devotion` (which answers 200 now, no longer a redirect),
+  presses Begin reading (the Introduction opens) and Next chapter, chooses
+  a paragraph by its number and bookmarks it, then checks the title page
+  offers Continue reading at that chapter, and that an unknown chapter
+  answers 404;
 - on the category page, chooses the whole Rosary aloud (Counting
   disappears and the Pray links gain `aloud=true`), then counting on the
   screen (the Pray links gain `count=screen`), and checks both survive a

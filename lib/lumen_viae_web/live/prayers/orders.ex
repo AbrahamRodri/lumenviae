@@ -45,8 +45,13 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
 
   ## Paths
 
-  @doc "An order's page."
-  def order_path(id), do: "/prayers/orders/#{id}"
+  @doc """
+  An order's page; with `from` (`from/2`), the page it was opened from,
+  which its Back and the prayers prayed from it go back to.
+  """
+  def order_path(id, from \\ nil)
+  def order_path(id, nil), do: "/prayers/orders/#{id}"
+  def order_path(id, from), do: order_path(id) <> "?" <> URI.encode_query(from: from)
 
   @doc """
   Praying an order: `step` counts its prayers from 1, or is `:amen` for

@@ -23,7 +23,7 @@ defmodule LumenViaeWeb.Live.Prayers.Order do
   import LumenViaeWeb.Live.Prayers.Painting
 
   @impl true
-  def mount(%{"order_id" => id}, _session, socket) do
+  def mount(%{"order_id" => id} = params, _session, socket) do
     book = Book.load(socket.assigns.current_admin)
 
     order =
@@ -33,16 +33,22 @@ defmodule LumenViaeWeb.Live.Prayers.Order do
     chapter = order.chapter_id && Book.chapter(book, order.chapter_id)
     # The day's name (Queen of Heaven in Eastertide), on the server's date.
     title = Orders.title(order, Date.utc_today())
+    # A topic's Pray together opens the page with `?from=topic:<id>`: its
+    # Back and the prayers prayed from it go back to the topic.
+    from = Orders.from(book, params["from"])
+    {back, back_name} = Orders.back(book, order, from || "prayers", title)
 
     {:ok,
      socket
      |> PageMeta.put(Orders.order_path(id),
        title: title,
        description: "#{title} (#{order.latin_title}), #{lower(order.occasion)}: #{order.detail}",
+       image: PageMeta.named_image(Orders.page_painting(order, Date.utc_today())),
        trail: trail(order, chapter, title)
      )
      |> assign(:book, book)
      |> assign(:order, order)
+     |> assign(from: from, back: back, back_name: back_name)
      |> assign_day(Date.utc_today())}
   end
 

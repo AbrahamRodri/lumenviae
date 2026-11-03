@@ -37,6 +37,7 @@ defmodule LumenViaeWeb.Live.Prayers.Chapter do
      |> PageMeta.put(Book.chapter_path(id),
        title: chapter.topic,
        description: description(book, chapter),
+       image: PageMeta.named_image(Book.topic_painting(chapter.id)),
        trail: [{"Prayers", "/prayers"}, {chapter.title, Book.chapter_path(id)}]
      )
      |> assign(:book, book)
