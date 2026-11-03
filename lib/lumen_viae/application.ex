@@ -29,6 +29,8 @@ defmodule LumenViae.Application do
       LumenViae.Services.Geolocation,
       # Owns the parsed Divine Office cache.
       LumenViae.Office.Cache,
+      # Owns the Spiritual Reading books' text, fetched from Gutenberg and cut.
+      LumenViae.Rosary.spiritual_reading_text(),
       # Fetches the Daily Missal from Missale Meum, in tasks no page owns.
       {Task.Supervisor, name: LumenViae.Office.Missal.task_supervisor()},
       LumenViae.Office.Missal,

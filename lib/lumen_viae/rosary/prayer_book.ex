@@ -12,7 +12,11 @@ defmodule LumenViae.Rosary.PrayerBook do
   current, and a client names the sections it wants in
   `fields[prayer_book]=` (GraphQL: the selection set).
   """
+  # The one read takes an optional `lang`, so Ash's warning that a primary
+  # read should take no arguments is off: nothing loads this resource
+  # through a relationship, which is what that warning protects.
   use Ash.Resource,
+    primary_read_warning?: false,
     domain: LumenViae.Rosary,
     authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshJsonApi.Resource]
@@ -42,7 +46,12 @@ defmodule LumenViae.Rosary.PrayerBook do
       primary? true
       get? true
       description "The Prayer Book's words as one document. There is only ever one."
-      prepare {Library.Current, document: :prayer_book}
+
+      argument :lang, :string do
+        description "The language of `translations`: `es` fills it with every prayer the book has in Spanish. Missing, `en` or a language not served: the document as it always was, and `translations` empty."
+      end
+
+      prepare LumenViae.Rosary.PrayerBook.Current
     end
   end
 
@@ -76,6 +85,14 @@ defmodule LumenViae.Rosary.PrayerBook do
       public? true
       description "When the content last changed."
     end
+
+    # The language the read asked for (`Content.language/1`), for the
+    # `translations` section. Not served itself.
+    attribute :lang, :string do
+      allow_nil? false
+      default "en"
+      public? false
+    end
   end
 
   calculations do
@@ -107,6 +124,16 @@ defmodule LumenViae.Rosary.PrayerBook do
       constraints nil_items?: false
 
       description "The orders of prayer, a few prayers said together (Morning Prayers, Before Mass), in the app's order: the three of the day first, then those for an occasion."
+    end
+
+    calculate :translations,
+              {:array, LumenViae.Rosary.PrayerBook.Translation},
+              LumenViae.Rosary.PrayerBook.Translations do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "With `lang=es`, every prayer the book prints that has a Spanish text, by id, in book order: its title and words in Spanish, from official Church sources. A prayer not listed has no Spanish yet; show its English. Empty in English."
     end
 
     calculate :marian_antiphons,

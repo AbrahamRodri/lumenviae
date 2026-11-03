@@ -361,6 +361,18 @@ document is exactly what every shipped build reads today, version and
 date included, pinned by `test/lumen_viae_web/json_api/rosary_content_test.exs`
 ("lang"). The shapes are docs/JSON_API.md, "The Rosary in Spanish".
 
+### 12. GET /api/v2/prayer-book?lang=es (not yet called)
+
+No build sends `lang` yet. A build that does asks for the new
+`translations` section: every prayer with a Spanish text, `{id, title,
+text}` and `ai_translated: true` where part is the team's translation,
+laid over the English by `id`; every other section is unchanged. The
+Spanish document has a `version` of its own. Without `lang`, or with
+`lang=en`, the document is exactly what every shipped build reads today,
+version and date included, and `translations` is empty, pinned by
+`test/lumen_viae_web/json_api/prayer_book_spanish_test.exs`. The shapes
+are docs/JSON_API.md, "The Prayer Book in Spanish".
+
 ### Outside Phoenix
 
 S3 presigned narration and rosary clips (AVPlayer, or a plain GET), S3

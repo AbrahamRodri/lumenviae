@@ -65,6 +65,13 @@ config :lumen_viae, :sign_in_per_email, 1_000_000
 # request to the real Divinum Officium site.
 config :lumen_viae, :office, req_options: [plug: {Req.Test, LumenViae.Office.DivinumOfficium}]
 
+# The same for the Spiritual Reading books' text from Project Gutenberg.
+# The fixtures are excerpts, smaller than the 50,000 bytes a whole edition
+# must be, so the floor is lowered here (its own test sets it back).
+config :lumen_viae, :spiritual_reading,
+  req_options: [plug: {Req.Test, LumenViae.Rosary.SpiritualReading.Gutenberg}],
+  minimum_bytes: 20_000
+
 # The same for the Daily Missal's texts from Missale Meum.
 config :lumen_viae, :missal, req_options: [plug: {Req.Test, LumenViae.Office.MissaleMeum}]
 

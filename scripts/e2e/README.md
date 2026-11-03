@@ -11,7 +11,7 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   Prayer Book, two prayers (one in Both), an order of prayer and a step
   of praying it in Both, `/chant` (and a search), a section's shelf,
   a chant's page, Sets of Chants and a sung set, `/true-devotion` and a
-  chapter, `/hours`, today's
+  chapter, `/spiritual-reading` and a book's page, `/hours`, today's
   Vespers in Both, this month's Hours calendar, `/missal`, a day's
   Mass in Both, the Order of Mass and this month's Missal calendar,
   `/explore` and a search there, and checks each
@@ -28,6 +28,14 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   a paragraph by its number and bookmarks it, then checks the title page
   offers Continue reading at that chapter, and that an unknown chapter
   answers 404;
+- on `/spiritual-reading`, checks the shelf holds five books and opens
+  Brother Lawrence: the server fetches the text from Project Gutenberg,
+  which a dev machine may not reach, so the page either shows the contents
+  or says "Couldn't reach the library", and the log says which. With the
+  text it presses Begin reading (the first chapter opens), steps to the
+  next chapter, and checks the book's page then offers Continue with a
+  chapter read; an unknown book and a chapter that is not a number answer
+  404;
 - on the category page, chooses the whole Rosary aloud (Counting
   disappears and the Pray links gain `aloud=true`), then counting on the
   screen (the Pray links gain `count=screen`), and checks both survive a

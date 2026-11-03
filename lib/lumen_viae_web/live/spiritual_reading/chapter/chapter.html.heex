@@ -1,0 +1,115 @@
+<div
+  class="sr-page min-h-screen pb-16"
+  id="spiritual-reading-chapter"
+  phx-hook="SpiritualReadingPlace"
+  data-page="chapter"
+  data-book={@book.id}
+  data-edition={assigns[:edition]}
+  data-chapter={@index}
+>
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <div :if={@state == :ready} class="td-place" aria-hidden="true" data-role="place-rule">
+    <span class="td-place__fill" style={"width: #{Float.round((@index + 1) / @count * 100, 2)}%"}></span>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-4 sm:px-8">
+    <div class="td-reader">
+      <nav :if={@state == :ready} class="td-rail" aria-label="Contents" data-role="rail">
+        <div class="td-rail__head">
+          <div class="min-w-0">
+            <p class="td-rail__kicker">{@book.title}</p>
+            <p class="td-rail__title">Contents</p>
+          </div>
+          <p class="td-rail__place" aria-label={"Chapter #{@index + 1} of #{@count}"}>
+            {@index + 1} of {@count}
+          </p>
+        </div>
+        <.contents id="rail" book={@book} runs={@runs} index={@index} />
+      </nav>
+      <div :if={@state != :ready} class="hidden lg:block" aria-hidden="true"></div>
+
+      <article class="td-chapter min-w-0" aria-labelledby="chapter-heading">
+        <.link navigate={Shelf.book_path(@book.id)} class="book-back" data-role="back">
+          <span class="hero-chevron-left size-4" aria-hidden="true" /> {@book.title}
+        </.link>
+
+        <%= if @state == :ready do %>
+          <header class="td-chapter__head">
+            <p class="td-chapter__kicker">
+              <span data-role="kicker">{@kicker}</span>
+              <span :if={@count > 1} class="td-chapter__place" data-role="chapter-place">
+                {@index + 1} of {@count}
+              </span>
+            </p>
+            <h1 id="chapter-heading" class="td-chapter__title">
+              {Shelf.display_title(@chapter)}
+            </h1>
+            <.sacred_divider cross={false} class="!justify-start max-w-[180px] !my-5" />
+          </header>
+
+          <details class="td-jump" data-role="jump-list">
+            <summary class="td-jump__summary">
+              Contents <span class="hero-chevron-down size-3" aria-hidden="true" />
+            </summary>
+            <.contents id="jump" book={@book} runs={@runs} index={@index} />
+          </details>
+
+          <div class="td-text sr-text" data-role="chapter-text">
+            <p
+              :for={paragraph <- @paragraphs}
+              id={"p-#{paragraph.number}"}
+              class={["td-para", paragraph.versal? && "td-para--versal"]}
+              data-p={paragraph.number}
+            >
+              {prose(paragraph.pieces, @note_text)}
+            </p>
+          </div>
+
+          <aside :if={@notes != []} class="sr-notes" aria-labelledby="notes-heading" id="notes">
+            <.sacred_divider cross={false} class="!justify-start max-w-[140px] !my-4" />
+            <h2 id="notes-heading" class="sr-notes__kicker">Notes</h2>
+            <p :for={note <- @notes} id={note.anchor} class="sr-note">{note.text}</p>
+          </aside>
+
+          <footer class="td-foot" data-role="chapter-end">
+            <nav class="td-foot__ways" aria-label="Chapters">
+              <.link
+                :if={@previous}
+                navigate={Shelf.chapter_path(@book.id, @previous.id)}
+                class="td-foot__link"
+                data-role="previous-chapter"
+                aria-label={"Chapter before, #{@previous.heading}"}
+              >
+                <span class="hero-chevron-left size-3.5 shrink-0" aria-hidden="true" />
+                <span>{@previous.heading}</span>
+              </.link>
+              <span :if={!@previous}></span>
+              <.link
+                :if={@next}
+                navigate={Shelf.chapter_path(@book.id, @next.id)}
+                class="td-foot__link td-foot__link--next"
+                data-role="next-chapter"
+                aria-label={"Next chapter, #{@next.heading}"}
+              >
+                <span>{@next.heading}</span>
+                <span class="hero-chevron-right size-3.5 shrink-0" aria-hidden="true" />
+              </.link>
+            </nav>
+          </footer>
+        <% else %>
+          <h1 id="chapter-heading" class="td-chapter__title sr-chapter__waiting">
+            {@book.title}, chapter {@index + 1}
+          </h1>
+          <.loading :if={@state == :loading} />
+          <.unavailable :if={@state == :failed} failure={@failure} />
+          <div :if={@state == :missing} class="sr-state" role="alert" data-role="missing">
+            <p class="sr-state__title">No such chapter</p>
+            <p>{@book.title} has no chapter {@index + 1}.</p>
+            <.link navigate={Shelf.book_path(@book.id)} class="btn-text">The contents</.link>
+          </div>
+        <% end %>
+      </article>
+    </div>
+  </div>
+</div>

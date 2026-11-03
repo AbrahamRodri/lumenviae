@@ -656,6 +656,29 @@ wrap an external API or a file format and know nothing about the domain.
 city and country through a third-party provider, owns its own cache, and is
 switched off by default so no address leaves a development machine.
 
+The Spiritual Reading books' text is fetched the same way, but inside the
+Rosary domain, because it is the catalogue's books cut by the catalogue's
+rules: `SpiritualReading`'s `:book` action (`Rosary.read_spiritual_book!/2`)
+asks `LumenViae.Rosary.SpiritualReading.Gutenberg` (a Req client built as
+`Office.DivinumOfficium` is: no retries, short timeouts, the bot
+User-Agent, `:req_options` as the test seam, `config :lumen_viae,
+:spiritual_reading`; no redirects followed, a 5 MB cap on the body, and
+only a `text/plain` answer of at least 50,000 bytes taken for the book, as
+iOS takes it) for a book's plain text from Project Gutenberg, cuts it with
+`SpiritualReading.Parser` (the iOS app's `LibraryBookParser`, line for
+line; text that is not UTF-8 read as Latin-1, as iOS reads it) and holds
+the cut in `SpiritualReading.Text`, a supervised ETS table per machine
+like `Office.Cache`, with each chapter under its own key so a page copies
+out only the chapter it shows. A cold book is downloaded once, in a task
+of `Text`'s own `Task.Supervisor` that no LiveView owns, with a 60-second
+deadline: every caller waits on it, and a caller going away (a tab
+closed) never aborts it. A cut lives a month, an unreachable Gutenberg is
+remembered for a minute and an edition that cannot be cut for an hour. In
+production the five books are fetched a while after boot, one at a time
+(`warm: true` in `config/prod.exs`). The application starts it through
+`Rosary.spiritual_reading_text/0`. No table and no migration: the text is
+Gutenberg's, fetched again after a deploy.
+
 `LumenViae.Hammer` sits alongside them. It is a supervised ETS counter
 (Hammer's) with no domain knowledge, which AshRateLimiter spends through
 `LumenViae.Limits.Backend`; see "Rate limits" under the domain.
@@ -1050,17 +1073,18 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/missal/` | The Daily Missal, the 1962 Mass as the app's: a day's Mass for today or another day (`index/`), the Order of Mass (`ordo/`) and the month's calendar by vestment colour (`calendar/`). `days.ex` is the dates, paths, vestment colours and plain classes, `missal_text.ex` a day's or the Order of Mass's sections set for a language (plain names, posture, the propers' diamond, citations, rubrics), `section.ex` one part drawn; all are presentation and fetch nothing. The pages reach the Missal only through `LumenViae.Office`'s public functions, after they connect (`start_async`), and share Hours of Prayer's parts rail (`hours/parts_rail.ex`, the `OfficeRail` hook) and month grid. Their own CSS is the `missal-*` classes |
 | `live/true_devotion/` | True Devotion, St. Louis de Montfort's book, as the app's reader: the title page (`index/`, the binding drawn by `cover/`) and a chapter read in place (`chapter/`). `book.ex` is the book as the pages read it (the contents' order, the short part names, a chapter's numbered paragraphs and versal, the shared citation, over `Rosary.get_true_devotion!/1`); presentation only, it never queries. The reader's place, the chapters read and the bookmarks are the browser's, kept by the `TrueDevotionPlace` hook, never sent. Their CSS is the `td-*` classes |
 | `live/explore/` | Explore, as the app's: the page (`index/`), its directory at rest (`index/browse/`) and what the search found (`index/results/`). `search.ex` is the one search as the app's `AppSearch` runs it (the mysteries, the site's doors and the sets found here, the Prayer Book and the chants by the `prayers/` and `chants/` searches, the best match and the sections' order); presentation only, it never queries. Their CSS is the `explore-*` classes |
+| `live/spiritual_reading/` | Spiritual Reading, the app's shelf of public-domain books: the shelf (`index/`), a book's page (`book/`) and a chapter read in place (`chapter/`), the covers drawn by `cover.ex` and the loading and unavailable states by `states.ex`. `shelf.ex` is the shelf as the pages read it (the runs under parts, a row's numeral and title, the short place on Continue, the kicker, the footnote markers, over `Rosary.get_spiritual_reading!/1` and `Rosary.read_spiritual_book!/2`); presentation only. A book the server does not hold yet is fetched after the page connects (`start_async`). The place and the chapters read are the browser's, kept by the `SpiritualReadingPlace` hook, never sent. Their CSS is the `sr-*` classes over True Devotion's `td-*` |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
 The public site is the Rosary, the Consecration, the Prayer Book, the
-Chant Library, Hours of Prayer, the Daily Missal, True Devotion and
-Explore: home, the mysteries, their sets and the prayer page, the
-Consecration's three pages, the Prayer Book's five, the Chant Library's
-five, the Hours' four, the Missal's four, True Devotion's two and Explore,
-with the iPhone app's page and the privacy policy beside them, thirty-one
-routes in all
+Chant Library, Hours of Prayer, the Daily Missal, True Devotion, Explore
+and Spiritual Reading: home, the mysteries, their sets and the prayer
+page, the Consecration's three pages, the Prayer Book's five, the Chant
+Library's five, the Hours' four, the Missal's four, True Devotion's two,
+Explore and Spiritual Reading's three, with the iPhone app's page and the
+privacy policy beside them, thirty-four routes in all
 (`docs/PUBLIC_SITE.md` lists them, the links' parameters and where each
 setting is kept). Pages retired from it (the
 dashboard, How to Pray, True Devotion's summary page, St. Carlo, Feedback)
@@ -1375,6 +1399,7 @@ ornament, Roman numerals, colophon quotes.
 | `sky` | `#C9B98F` | the app's soft accent: links and a set's kinds (10.1:1) |
 | `night-rubric` | `#D07A6E` | the app's rubric text: a prayer's directions and the marks ℣ ℟ ✠ on the Prayer Book's pages, nothing else (6.3:1; 5.8:1 on raised) |
 | `marian` | `#2E3D66` | True Devotion's cloth: its cover and the halo behind it, nothing else; never text |
+| `cloth-imitation`, `cloth-story`, `cloth-confessions`, `cloth-glories`, `cloth-practice` | `#44301E`, `#5E3140`, `#3D3A24`, `#1F3A5A`, `#5A4A2A` | the Spiritual Reading books' cloths (the app's `bindingColor`), each book's cover and nothing else; never text |
 | `vellum` | `#F6F0E2` | the reading page |
 | `vellum-ink` / `vellum-muted` | `#2A211C` / `#6A5B4E` | text on vellum (13.9:1 / 5.7:1) |
 | `vellum-gold` | `#7A5A1E` | small rubrics on vellum: verse numbers, references, list markers (5.6:1) |

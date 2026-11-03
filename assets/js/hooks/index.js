@@ -13,6 +13,7 @@ import DisplayChoices from "./display_choices"
 import OfficeRail from "./office_rail"
 import ChantPlayer from "./chant_player"
 import TrueDevotionPlace from "./true_devotion_place"
+import SpiritualReadingPlace from "./spiritual_reading_place"
 import ConsecrationPlan from "./consecration_plan"
 
 export default {
@@ -31,5 +32,6 @@ export default {
   OfficeRail,
   ChantPlayer,
   TrueDevotionPlace,
+  SpiritualReadingPlace,
   ConsecrationPlan
 }
