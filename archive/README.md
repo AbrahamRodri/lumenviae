@@ -19,7 +19,11 @@ the same day, rewritten for the app's 4.0; it is in `lib/` again.
 
 Each old address now answers with a permanent redirect to `/`
 (`LumenViaeWeb.RedirectController`), because the addresses are linked
-from outside the site.
+from outside the site. The one exception is `/true-devotion`: in
+November 2026 the book itself came to the site at that address
+(`LumenViaeWeb.Live.TrueDevotion`, new code, as the iOS app's reader), so
+it no longer redirects. The archived page here, a summary of the book's
+teaching, stays archived, as it is on iOS.
 
 ## Bringing a page back
 

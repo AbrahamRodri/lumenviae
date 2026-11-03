@@ -1,0 +1,129 @@
+<div
+  class="td-page min-h-screen pb-16"
+  id="true-devotion-chapter"
+  phx-hook="TrueDevotionPlace"
+  data-page="chapter"
+  data-chapter={@chapter.id}
+  data-title={@chapter.title}
+  data-citation={@citation}
+>
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <div class="td-place" aria-hidden="true" data-role="place-rule">
+    <span class="td-place__fill" style={"width: #{Float.round((@index + 1) / @count * 100, 2)}%"}></span>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-4 sm:px-8">
+    <div class="td-reader">
+      <nav class="td-rail" aria-label="Contents" data-role="rail">
+        <p class="td-rail__kicker">Contents</p>
+        <.contents id="rail" book={@book} chapter={@chapter} free={@free} parts={@parts} />
+      </nav>
+
+      <article class="td-chapter min-w-0" aria-labelledby="chapter-heading">
+        <.link navigate={Book.path()} class="book-back" data-role="back">
+          <span class="hero-chevron-left size-4" aria-hidden="true" /> True Devotion
+        </.link>
+
+        <header class="td-chapter__head">
+          <p class="td-chapter__kicker">
+            <span data-role="kicker">{@kicker}</span>
+            <span class="td-chapter__place" data-role="chapter-place">
+              {@index + 1} of {@count}
+            </span>
+          </p>
+          <h1 id="chapter-heading" class="td-chapter__title">{@chapter.title}</h1>
+          <.sacred_divider class="!justify-start max-w-[180px] !my-5" />
+        </header>
+
+        <details class="td-jump" data-role="jump-list">
+          <summary class="td-jump__summary">
+            Contents <span class="hero-chevron-down size-3" aria-hidden="true" />
+          </summary>
+          <.contents id="jump" book={@book} chapter={@chapter} free={@free} parts={@parts} />
+        </details>
+
+        <div class="td-text" data-role="chapter-text">
+          <%= for block <- @blocks do %>
+            <h2 :if={block.kind == :subheading} class="td-subheading">{block.text}</h2>
+            <p
+              :if={block.kind == :text}
+              id={"p-#{block.number}"}
+              class={["td-para", block.versal? && "td-para--versal"]}
+              data-p={block.number}
+            >
+              {block.text}<button
+                type="button"
+                class="td-para__num"
+                data-select={block.number}
+                aria-label={"Paragraph #{block.number}: bookmark or share"}
+              >{block.number}</button>
+            </p>
+          <% end %>
+        </div>
+
+        <footer class="td-foot" data-role="chapter-end">
+          <nav class="td-foot__ways" aria-label="Chapters">
+            <.link
+              :if={@previous}
+              navigate={Book.chapter_path(@previous.id)}
+              class="td-foot__link"
+              data-role="previous-chapter"
+              aria-label={"Chapter before, #{@previous.title}"}
+            >
+              <span class="hero-chevron-left size-3.5 shrink-0" aria-hidden="true" />
+              <span>{@previous.title}</span>
+            </.link>
+            <span :if={!@previous}></span>
+            <.link
+              :if={@next}
+              navigate={Book.chapter_path(@next.id)}
+              class="td-foot__link td-foot__link--next"
+              data-role="next-chapter"
+              aria-label={"Next chapter, #{@next.title}"}
+            >
+              <span>{@next.title}</span>
+              <span class="hero-chevron-right size-3.5 shrink-0" aria-hidden="true" />
+            </.link>
+          </nav>
+
+          <div :if={!@next} class="td-finis" data-role="finis">
+            <.sacred_divider class="max-w-[260px] mx-auto" />
+            <p class="td-finis__title">The End</p>
+            <p class="td-finis__line">
+              You have read the whole of True Devotion. All yours, Mary.
+            </p>
+            <.link navigate={Book.path()} class="btn-text" data-role="back-to-contents">
+              Back to contents
+            </.link>
+          </div>
+        </footer>
+      </article>
+    </div>
+  </div>
+
+  <div
+    id="passage-bar"
+    class="td-passage-bar"
+    role="toolbar"
+    aria-label="This passage"
+    data-role="passage-bar"
+    phx-update="ignore"
+    hidden
+  >
+    <button type="button" class="td-passage-bar__act" data-act="mark">Bookmark</button>
+    <button type="button" class="td-passage-bar__act" data-act="share">Share</button>
+    <button type="button" class="td-passage-bar__close" data-act="close" aria-label="Close">
+      <span class="hero-x-mark size-4" aria-hidden="true" />
+    </button>
+  </div>
+  <p
+    id="passage-toast"
+    class="td-toast"
+    role="status"
+    aria-live="polite"
+    data-role="toast"
+    phx-update="ignore"
+  >
+  </p>
+</div>

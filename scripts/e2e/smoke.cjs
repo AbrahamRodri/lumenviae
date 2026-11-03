@@ -33,6 +33,8 @@ const PAGES = [
   { path: "/prayers/litany_loreto?lang=both", slug: "prayer-both" },
   { path: "/prayers/orders/morning", slug: "prayer-order" },
   { path: "/prayers/orders/morning/pray?step=3&lang=both", slug: "prayer-order-pray" },
+  { path: "/true-devotion", slug: "true-devotion" },
+  { path: "/true-devotion/motives", slug: "true-devotion-chapter" },
   { path: "/hours", slug: "hours" },
   { path: `/hours/${TODAY}/vesperae?lang=both`, slug: "hour-both" },
   { path: `/hours/calendar/${TODAY.slice(0, 4)}/${Number(TODAY.slice(5, 7))}`, slug: "hours-calendar" },
@@ -40,7 +42,9 @@ const PAGES = [
 
 const APP_STORE = "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749";
 
-const RETIRED = ["/dashboard", "/rosary-methods", "/true-devotion", "/saint-carlo", "/feedback"];
+// /true-devotion left this list when the book came to the site; it is
+// checked in checkTrueDevotion instead.
+const RETIRED = ["/dashboard", "/rosary-methods", "/saint-carlo", "/feedback"];
 
 const failures = [];
 let checks = 0;
@@ -299,6 +303,60 @@ async function checkHours(browser, vp) {
   for (const unknown of ["/hours/not-a-date", `/hours/${TODAY}/midnight`, "/hours/calendar/2026/13"]) {
     const response = await page.goto(BASE_URL + unknown);
     check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
+  }
+  await context.close();
+}
+
+// True Devotion: the old address opens the book rather than redirecting
+// home, Begin reading opens the first chapter, Next chapter steps on, and
+// the place kept in this browser turns the act into Continue reading. A
+// paragraph's number chooses it and Bookmark keeps it. Unknown chapters
+// are 404s.
+async function checkTrueDevotion(browser, vp) {
+  const label = `${vp.name} true devotion`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+
+  const response = await page.goto(BASE_URL + "/true-devotion");
+  await settle(page);
+  check(response && response.status() === 200, `${label}: /true-devotion answers 200`, `got ${response && response.status()}`);
+  check(new URL(page.url()).pathname === "/true-devotion", `${label}: /true-devotion no longer redirects`, page.url());
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+
+  const act = page.locator("[data-role=read-act]");
+  check(/Begin reading/i.test(await act.innerText()), `${label}: a new reader is offered Begin reading`);
+  await act.click();
+  const opened = await eventually(() => new URL(page.url()).pathname === "/true-devotion/introduction");
+  check(opened, `${label}: Begin reading opens the Introduction`, page.url());
+  await settle(page);
+
+  await page.locator("[data-role=next-chapter]").click();
+  const stepped = await eventually(() => new URL(page.url()).pathname === "/true-devotion/necessity");
+  check(stepped, `${label}: Next chapter steps on`, page.url());
+  await settle(page);
+  const heading = await eventually(async () => (await page.locator("h1").textContent()).includes("Necessity"));
+  check(heading, `${label}: the next chapter is on the page`);
+
+  await page.mouse.wheel(0, 1200);
+  await page.waitForTimeout(400);
+  await page.locator('[data-select="2"]').click();
+  await page.locator("[data-role=passage-bar] [data-act=mark]").click();
+  const marked = await eventually(async () => (await page.locator('[data-p="2"][data-marked]').count()) === 1);
+  check(marked, `${label}: Bookmark marks the paragraph`);
+  await noHorizontalScroll(page, `${label} (chapter)`);
+
+  await page.goto(BASE_URL + "/true-devotion");
+  await settle(page);
+  const resumed = await eventually(async () => /Continue reading/i.test(await act.innerText()));
+  check(resumed, `${label}: the place kept turns the act into Continue reading`);
+  const href = await act.getAttribute("href");
+  check(/^\/true-devotion\/necessity(#p-\d+)?$/.test(href || ""), `${label}: Continue reading resumes the chapter`, href);
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+
+  for (const unknown of ["/true-devotion/nowhere"]) {
+    const res = await page.goto(BASE_URL + unknown);
+    check(res && res.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${res && res.status()}`);
   }
   await context.close();
 }
@@ -604,6 +662,7 @@ async function checkCompletion(browser, vp) {
     await checkSetlessAndUnknown(browser, vp);
     await checkPrayers(browser, vp);
     await checkHours(browser, vp);
+    await checkTrueDevotion(browser, vp);
   }
 
   // Once only: it writes a completion row to the server's database.
