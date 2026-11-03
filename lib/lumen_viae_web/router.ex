@@ -150,6 +150,13 @@ defmodule LumenViaeWeb.Router do
       live "/true-devotion", Live.TrueDevotion.Index
       live "/true-devotion/:chapter_id", Live.TrueDevotion.Chapter
 
+      # Spiritual Reading, the app's shelf of public-domain books: the
+      # shelf, a book's page and a chapter read in place (from 1), the text
+      # fetched from Project Gutenberg by the server
+      live "/spiritual-reading", Live.SpiritualReading.Index
+      live "/spiritual-reading/:book_id", Live.SpiritualReading.Book
+      live "/spiritual-reading/:book_id/:chapter", Live.SpiritualReading.Chapter
+
       # The iPhone app's landing page
       live "/app", Live.Home.App.Index
 

@@ -128,12 +128,14 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   Gutenberg and LibriVox numbers and the rules that cut and align each
   edition) as a library document, `GET /api/v2/spiritual-reading`, from
   `priv/library/spiritual_reading.json`; the apps fetch the books
-  themselves. See docs/JSON_API.md, "Spiritual Reading"
+  themselves, and the website's server fetches them from Project
+  Gutenberg for its pages (`Rosary.read_spiritual_book!/2`, held in
+  memory per machine). See docs/JSON_API.md, "Spiritual Reading"
 - Completion analytics carrying an approximate place, taken from the
   request's address with nobody prompted for anything. See
   docs/COMPLETION_ANALYTICS.md, and edit the privacy policy in the same
   change as any code that widens what is collected
-- The public website is the Rosary, the Prayer Book, Hours of Prayer and True Devotion: home (today's mysteries and
+- The public website is the Rosary, the Prayer Book, Hours of Prayer, True Devotion and Spiritual Reading: home (today's mysteries and
   today's sets), `/mysteries` (the mysteries in Scripture), each category
   page with "Your Rosary Today" (audio, counting and voice choices), the
   prayer page (the whole Rosary bead by bead, in meditation, scriptural or
@@ -151,7 +153,12 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   chapter at `/true-devotion/:chapter_id`, the reader's place and
   bookmarks kept in the browser only); and the 33-day Consecration as
   the app's tab (`/consecration`, a day at `/consecration/days/:n`, the
-  Act made at `/consecration/act`), its plan kept in the browser alone. Read
+  Act made at `/consecration/act`), its plan kept in the browser alone;
+  and Spiritual Reading, the app's shelf (`/spiritual-reading`, a book at
+  `/spiritual-reading/:book_id`, a chapter at
+  `/spiritual-reading/:book_id/:chapter`, counted from 1), the text fetched
+  from Project Gutenberg by the server, the reader's place kept in the
+  browser only. Read
   docs/PUBLIC_SITE.md before touching a public page
 - Retired pages (dashboard, How to Pray, True Devotion, St. Carlo,
   Feedback) live in `archive/`, outside the build, and their addresses

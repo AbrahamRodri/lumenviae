@@ -1,0 +1,112 @@
+<div
+  class="sr-page min-h-screen pb-16"
+  id="spiritual-reading-book"
+  phx-hook="SpiritualReadingPlace"
+  data-page="book"
+  data-book={@book.id}
+  data-edition={assigns[:edition]}
+>
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <div class="mx-auto max-w-5xl px-4 sm:px-8">
+    <.link navigate={Shelf.path()} class="book-back mt-4" data-role="back">
+      <span class="hero-chevron-left size-4" aria-hidden="true" /> Spiritual Reading
+    </.link>
+
+    <div class="td-book sr-book">
+      <section class="sr-book__front" aria-labelledby="book-heading">
+        <div class="sr-book__head">
+          <.cover book={@book} class="sr-cover--book" />
+          <div class="sr-book__about">
+            <h1 id="book-heading" class="sr-book__title">{@book.title}</h1>
+            <p class="sr-book__author">{@book.author}</p>
+            <.link
+              :if={@state == :ready}
+              navigate={Shelf.chapter_path(@book.id, 0)}
+              class="btn-gold sr-act"
+              id="read-act"
+              data-role="read-act"
+              phx-update="ignore"
+            >
+              <span data-role="act-label">Begin reading</span>
+              <span class="hero-chevron-right size-4" aria-hidden="true" />
+            </.link>
+          </div>
+        </div>
+        <p class="sr-credit sr-credit--wide">
+          <a href={Shelf.gutenberg_url(@book)} class="sr-credit__link">{Shelf.credit(@book)}</a>
+        </p>
+      </section>
+
+      <div class="sr-book__body">
+        <.loading :if={@state == :loading} />
+        <.unavailable :if={@state == :failed} failure={@failure} />
+
+        <nav
+          :if={@state == :ready}
+          class="sr-ledger"
+          id="contents"
+          aria-labelledby="contents-heading"
+          data-role="contents"
+          phx-update="ignore"
+        >
+          <h2 id="contents-heading" class="td-ledger__kicker sr-ledger__kicker">
+            Contents · {length(@chapters)} chapters
+          </h2>
+
+          <button type="button" class="sr-earlier" data-role="earlier" hidden>
+            <span class="hero-chevron-up size-3" aria-hidden="true" />
+            <span class="sr-earlier__count" data-role="earlier-count"></span>
+            <span class="sr-earlier__show">Show</span>
+          </button>
+
+          <div class={["sr-ledger__body", @parts? && "sr-ledger__body--indexed"]}>
+            <div class="min-w-0">
+              <section
+                :for={run <- @runs}
+                class="sr-run"
+                id={run.number && "part-#{run.number}"}
+                data-role="run"
+              >
+                <h3 :if={@parts? && run.title} class="sr-part">
+                  <span class="sr-part__name">{run.title}</span>
+                  <span class="sr-part__count">
+                    {length(run.chapters)} {if length(run.chapters) == 1,
+                      do: "chapter",
+                      else: "chapters"}
+                  </span>
+                </h3>
+                <ol class="sr-rows">
+                  <li :for={chapter <- run.chapters} data-role="row-item">
+                    <.chapter_row
+                      chapter={chapter}
+                      book={@book}
+                      runs={@runs}
+                      numbered?={@numbered?}
+                    />
+                  </li>
+                </ol>
+              </section>
+            </div>
+
+            <nav :if={@parts?} class="sr-index" aria-label="Parts" data-role="part-index">
+              <a
+                :for={run <- Shelf.titled(@runs)}
+                href={"#part-#{run.number}"}
+                class="sr-index__part"
+                data-part={run.number}
+                aria-label={run.title}
+              >
+                {Shelf.roman(run.number)}
+              </a>
+            </nav>
+          </div>
+        </nav>
+
+        <p class="sr-credit sr-credit--narrow">
+          <a href={Shelf.gutenberg_url(@book)} class="sr-credit__link">{Shelf.credit(@book)}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
