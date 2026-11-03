@@ -343,7 +343,7 @@ No good Spanish version was found, so the team translated these from the book's 
 - `morning_offering`: The traditional Apostleship of Prayer text was not found in good Spanish: Catholic Company's Spanish version has different content (adds bishops, reunion of Christians, drops 'in reparation for my sins' wording), and the Pope's Prayer Network now gives a new, different offering.
 - `newman_definite_service`: Spanish versions found online differ and carry calques or errors ('servicio definitivo', 'Talvez').
 - `lead_kindly_light`: No Spanish version found.
-- `examen`: No Spanish text exists with this wording (the research found none.
+- `examen`: No Spanish text exists with this wording (the Examen is a set of steps, not a fixed prayer).
 - `in_manus_tuas`: Translated from our English and the Latin.
 - `my_jesus_mercy`: One-line jaculatory.
 - `sweet_heart`: No Spanish source found for this couplet (search for the exact wording returned nothing).
@@ -360,7 +360,7 @@ No good Spanish version was found, so the team translated these from the book's 
 - `aquinas_after_mass`: Spanish versions found all had errors or rewrites: ACI Prensa santisimo.htm is a loose paraphrase with typos ("pasionres", "inexpungable").
 - `transfige`: EWTN's version ('Traspasa, dulcísimo Jesús y Señor mío') is close but has a punctuation error (an opening '¡Oh Jesús' never closed) and adds wording ('tal como la que llenaba el corazón de los Santos Apóstoles').
 - `mary_after_communion`: EWTN's and catholic.org's version says 'servirte' (serve Mary) where the Latin and our English say serve Him.
-- `suscipe`: Versions found had errors (archspm.org: "ya no desearán".
+- `suscipe`: Versions found had errors (archspm.org: "ya no desearán"; Wikipedia: "Vos me lo diste") or old spelling, and St Ignatius's own Spanish (Ejercicios 234) is shorter than our English.
 - `before_confession`: No Spanish source found.
 - `examination_of_conscience`: No Church Spanish text matches our guide.
 - `the_confession`: No Church Spanish text matches our guide.
@@ -369,8 +369,8 @@ No good Spanish version was found, so the team translated these from the book's 
 - `o_sacrum_convivium`: The Valladolid edition's translation is stilted ('en el que se toma a Cristo', 'y de una futura gloria se nos da señal').
 - `ave_verum`: No Spanish text found.
 - `litany_blessed_sacrament`: The only Spanish copy found (EWTN Español, 'Devoción al Santísimo Sacramento del Altar') is full of typos ('Preexcelxo', 'nosostros', 'deso', 'verdera', a doubled 'de corazón') and differs from our litany in places.
-- `st_patrick_breastplate`: EWTN's short version has errors ('Cristo bajo mí'.
-- `breathe_in_me`: ACI Prensa's version is a different text (four plural petitions, 'inspíranos ...
+- `st_patrick_breastplate`: EWTN's short version has errors ('Cristo bajo mí').
+- `breathe_in_me`: ACI Prensa's version is a different text (four plural petitions).
 - `seven_gifts`: ACI Prensa dones.htm has different prayers.
 - `secret_of_sanctity`: ACI Prensa's version (Oracion/oracionespi.htm) has an accent error ('dime que debo hacer') and turns the promise into a petition ('Concédeme someterme').
 - `litany_holy_ghost`: No Spanish text of this litany found.
@@ -380,7 +380,7 @@ No good Spanish version was found, so the team translated these from the book's 
 - `golden_arrow`: No Spanish text found in searches.
 - `litany_precious_blood`: Three Spanish versions checked and rejected: EWTN (misspellings 'Sanfre', 'Verno', 'Jescucristo', and 'Nuevo y Antiguo Testamento'), ACI Prensa letaniasangre2 (a different litany), adoracionyliberacion.com PDF (gender error 'emanado', stray punctuation, different versicle).
 - `precious_blood_offering`: The only source (a scanned Philippine parish bulletin) is OCR text with typos ("lglesia"), uses "mis culpas", lacks "Santa" and "Amén".
-- `christ_the_king`: The FSSPX News Spanish text is the 1925 form with two paragraphs our English does not have (idolatry and Islam.
+- `christ_the_king`: The FSSPX News Spanish text is the 1925 form, with two paragraphs our English does not have.
 - `st_richard`: Only loose paraphrases exist in Spanish.
 - `o_jesus_living_in_mary`: No Spanish version found.
 - `generosity_ignatius`: Common Spanish versions are in the singular ('enséñame a ser generoso') and vary in wording.
@@ -393,11 +393,11 @@ No good Spanish version was found, so the team translated these from the book's 
 - `tota_pulchra`: Only devotional and music-site versions exist, with varying wording.
 - `flos_carmeli`: No Spanish text on a Carmelite site.
 - `three_hail_marys`: Devotional sites only, with varying wording.
-- `perpetual_help`: Search found only differently worded prayers (ACI Prensa's 'bellísimo nombre...
+- `perpetual_help`: Search found only differently worded prayers.
 - `our_lady_of_good_counsel`: Leo XIII's prayer was not found in Spanish.
 - `our_lady_of_lourdes`: Only news and devotional sites with varying wording, none found with this full text.
 - `immaculate_heart`: ACI Prensa's 'Oh Corazón de María, Madre de Dios y Madre nuestra' (aciprensa.com/Maria/oraciones/cor-mar.htm) is only the opening of this prayer, then a different short ending in vosotros.
-- `mary_help_of_christians`: ACI Prensa's version (now offline, read from the Wayback Machine) is ungrammatical in its second half ('Tú, en las angustias...
+- `mary_help_of_christians`: ACI Prensa's version (now offline, read from the Wayback Machine) is ungrammatical in its second half and adds words.
 - `our_lady_of_mount_carmel`: The Leo XIII prayer was not found in Spanish.
 - `stabat_mater`: No official Spanish text confirmed online.
 - `our_lady_of_sorrows`: No Spanish text of this Raccolta form found (devotional sites only, none matching).

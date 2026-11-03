@@ -354,7 +354,9 @@ No build sends `lang` yet. A build that does gets each prayer's `title`
 and `text` with `es` beside `en` and `la`, never null (the English where
 there is no Spanish), `ai_translated: true` on a prayer whose Spanish
 is partly the team's own translation (absent otherwise), the mysteries' `name` and `fruit` and the
-sets' `name` and `devotion_title` in Spanish in the same fields, and a
+sets' `name` and `devotion_title` in Spanish in the same fields, each
+quote's `text`, `author` and cited `source` in Spanish (an
+`ai_translated: true` on the team's translations, absent otherwise), and a
 `version` of its own, so it keeps its Spanish
 copy apart from the English one. Without `lang`, or with `lang=en`, the
 document is exactly what every shipped build reads today, version and
