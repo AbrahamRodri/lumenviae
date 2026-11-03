@@ -12,6 +12,7 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
   import Phoenix.LiveViewTest
 
   alias LumenViae.Rosary.SpiritualReading.Gutenberg
+  alias LumenViae.Rosary.SpiritualReading.LibriVox
   alias LumenViae.Rosary.SpiritualReading.Text
 
   @moduletag :capture_log
@@ -46,6 +47,28 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
 
   defp stub_down, do: Req.Test.stub(Gutenberg, &Req.Test.transport_error(&1, :econnrefused))
 
+  @librivox Path.expand("../../../support/fixtures/librivox", __DIR__)
+
+  # Each recording's track list as LibriVox serves it, counting the
+  # requests. ConnCase stubs LibriVox as down unless a test does this.
+  defp stub_librivox do
+    calls = :counters.new(1, [])
+
+    Req.Test.stub(LibriVox, fn conn ->
+      :counters.add(calls, 1, 1)
+      conn = Plug.Conn.fetch_query_params(conn)
+
+      conn
+      |> Plug.Conn.put_resp_content_type("application/json")
+      |> Plug.Conn.send_resp(
+        200,
+        File.read!(Path.join(@librivox, "feed-#{conn.query_params["id"]}.json"))
+      )
+    end)
+
+    calls
+  end
+
   describe "/spiritual-reading" do
     test "the shelf holds the five books in their cloth, and fetches nothing", %{conn: conn} do
       stub_down()
@@ -54,6 +77,8 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
       assert html =~ "Spiritual Reading"
       assert html =~ "Take up and read"
       assert html =~ "Texts from Project Gutenberg"
+      assert html =~ "Classic Catholic books to read, or to listen to"
+      assert html =~ "Recordings by LibriVox volunteers."
 
       for id <-
             ~w(imitation-of-christ story-of-a-soul confessions-of-st-augustine glories-of-mary practice-of-the-presence-of-god) do
@@ -90,7 +115,12 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
       # The excerpt holds two of the four books: the index numbers them as
       # the page counts its parts, as the app's does.
       assert has_element?(view, ~s([data-role=part-index] a[href="#part-2"]), "II")
-      assert html =~ "Text: Project Gutenberg eBook #1653. Public domain."
+      assert html =~ "Text: Project Gutenberg eBook #1653."
+      assert html =~ "Public domain."
+      # The Imitation has no recording: no credit for one, no chips, no player.
+      refute has_element?(view, "[data-role=recording-credit]")
+      refute has_element?(view, "[data-act=listen]")
+      refute has_element?(view, "#book-player")
 
       # The Fourth Book's exhortation is named by its part's numeral alone.
       assert has_element?(view, ~s([data-role=chapter-row][data-short="II"]))
@@ -235,6 +265,139 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
     end
   end
 
+  describe "the recording" do
+    test "a chapter a track reads offers Hear this read, its length, and the player",
+         %{conn: conn} do
+      stub_gutenberg()
+      calls = stub_librivox()
+      {:ok, view, _html} = live(conn, "/spiritual-reading/practice-of-the-presence-of-god/2")
+      render_async(view)
+      render_async(view)
+
+      assert has_element?(view, "[data-role=hear]", "Hear this read")
+      assert has_element?(view, ~s([data-role=hear][data-track="0"]))
+      assert has_element?(view, ~s([data-role=hear][aria-label="Hear this chapter read"]))
+      # Read whole by its own track: no "from".
+      refute has_element?(view, "[data-role=hear-from]")
+      assert has_element?(view, "[data-role=hear-left]", "4 MIN")
+
+      # The player, drawn hidden for the hook, with the tracks it plays.
+      assert has_element?(view, ~s(#book-player[phx-hook=BookPlayer][data-rate="1.0"]))
+      assert has_element?(view, "[data-role=player][hidden]")
+      assert has_element?(view, ~s([data-act=rate][data-rate="1.5"]))
+      html = render(view)
+      assert html =~ "practiceofpresence_01_lawrence_64kb.mp3"
+      assert html =~ "Listening to this chapter"
+      assert count(calls) == 1
+    end
+
+    test "Thérèse's recording is offered at her reader's pace", %{conn: conn} do
+      stub_gutenberg()
+      stub_librivox()
+      LumenViae.Rosary.read_spiritual_book!("story-of-a-soul")
+      {:ok, view, _html} = live(conn, "/spiritual-reading/story-of-a-soul/1")
+      render_async(view)
+
+      assert has_element?(view, ~s([data-role=hear][data-track="1"]))
+      assert has_element?(view, ~s(#book-player[data-rate="1.5"]))
+    end
+
+    test "the preface, which the recording never reads, has no Hear this read", %{conn: conn} do
+      stub_gutenberg()
+      stub_librivox()
+      {:ok, view, _html} = live(conn, "/spiritual-reading/practice-of-the-presence-of-god/1")
+      render_async(view)
+      render_async(view)
+
+      assert has_element?(view, "#book-player")
+      refute has_element?(view, "[data-role=hear]")
+    end
+
+    test "a held recording is drawn whole in the first response", %{conn: conn} do
+      stub_gutenberg()
+      stub_librivox()
+      LumenViae.Rosary.read_spiritual_book!("practice-of-the-presence-of-god")
+      LumenViae.Rosary.read_spiritual_recording!("practice-of-the-presence-of-god")
+
+      html =
+        conn |> get("/spiritual-reading/practice-of-the-presence-of-god/2") |> html_response(200)
+
+      assert html =~ ~s(data-role="hear")
+    end
+
+    test "LibriVox out of reach leaves the chapter without Hear this read", %{conn: conn} do
+      stub_gutenberg()
+      {:ok, view, _html} = live(conn, "/spiritual-reading/practice-of-the-presence-of-god/2")
+      render_async(view)
+      render_async(view)
+
+      assert has_element?(view, "h1", "First Conversation")
+      refute has_element?(view, "[data-role=hear]")
+      refute has_element?(view, "#book-player")
+    end
+
+    test "a book's rows wear the listen chip where a track opens, and the credit names LibriVox",
+         %{conn: conn} do
+      stub_gutenberg()
+      stub_librivox()
+      {:ok, view, _html} = live(conn, "/spiritual-reading/practice-of-the-presence-of-god")
+      render_async(view)
+      render_async(view)
+
+      # Nineteen tracks for twenty chapters: the preface has none.
+      assert view |> element("#contents-listening") |> render() =~ "First Conversation"
+      refute has_element?(view, ~s([data-act=listen][data-chapter="0"]))
+      assert has_element?(view, ~s([data-act=listen][data-chapter="1"][data-track="0"]), "4 MIN")
+
+      assert has_element?(
+               view,
+               ~s([data-act=listen][aria-label="Hear First Conversation read"])
+             )
+
+      assert length(Regex.scan(~r/data-act="listen"/, render(view))) == 19
+      assert has_element?(view, "[data-role=recording-credit]", "Recording: LibriVox volunteers.")
+      assert has_element?(view, "#book-player[phx-hook=BookPlayer]")
+    end
+
+    test "LibriVox out of reach says so on the book's page, with Try again", %{conn: conn} do
+      stub_gutenberg()
+      {:ok, view, _html} = live(conn, "/spiritual-reading/practice-of-the-presence-of-god")
+      render_async(view)
+      render_async(view)
+
+      assert has_element?(
+               view,
+               "[data-role=recording-unavailable]",
+               "The recording couldn't be reached."
+             )
+
+      refute has_element?(view, "[data-act=listen]")
+      # The text is whole without it.
+      assert has_element?(view, "[data-role=chapter-row]")
+
+      calls = stub_librivox()
+      # Held for a while after the failure: Try again asks the server, which
+      # answers from the hold without asking LibriVox again.
+      view |> element("[data-role=retry-recording]") |> render_click()
+      render_async(view)
+      assert count(calls) == 0
+    end
+
+    test "retry_recording is ignored unless the recording failed", %{conn: conn} do
+      stub_gutenberg()
+      calls = stub_librivox()
+      {:ok, view, _html} = live(conn, "/spiritual-reading/practice-of-the-presence-of-god")
+      render_async(view)
+      render_async(view)
+
+      for _ <- 1..5, do: render_hook(view, "retry_recording", %{})
+      assert count(calls) == 1
+      assert has_element?(view, "[data-act=listen]")
+    end
+  end
+
+  defp count(calls), do: :counters.get(calls, 1)
+
   test "the sitemap lists the shelf, every book and every chapter of the books held here" do
     sitemap = File.read!("priv/static/sitemap.xml")
     assert sitemap =~ "<loc>https://www.lumenviae.org/spiritual-reading</loc>"
@@ -291,5 +454,7 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
     {:ok, _view, html} = live(conn, "/privacy-policy")
     assert html =~ ~r/fetched from Project Gutenberg by\s+our own server/
     assert html =~ "kept in your own browser"
+    assert html =~ ~r/track list is fetched from LibriVox\s+by our own server/
+    assert html =~ ~r/loaded from the\s+Internet Archive by your browser/
   end
 end

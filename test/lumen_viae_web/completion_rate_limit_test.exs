@@ -15,7 +15,8 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
   Not async: the limit is read from the application environment, which this
   file lowers, and the counters are global. Every test spends an address of its
   own, from `LumenViae.Test.Addresses`: the counters outlive the test, so an
-  address that anything else has used is already partly spent.
+  address that anything else has used is already partly spent.  Each test begins clear of the top of the hour
+  (`LumenViae.Test.HourWindow`).
   """
   use LumenViaeWeb.ConnCase, async: false
 
@@ -43,6 +44,7 @@ defmodule LumenViaeWeb.CompletionRateLimitTest do
   """
 
   setup do
+    LumenViae.Test.HourWindow.clear_of_the_edge()
     put_env(:lumen_viae, :completions_per_hour, @limit)
 
     {:ok, set} =

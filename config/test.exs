@@ -72,6 +72,14 @@ config :lumen_viae, :spiritual_reading,
   req_options: [plug: {Req.Test, LumenViae.Rosary.SpiritualReading.Gutenberg}],
   minimum_bytes: 20_000
 
+# The same for the Spiritual Reading recordings' track lists from LibriVox.
+config :lumen_viae, :librivox,
+  req_options: [plug: {Req.Test, LumenViae.Rosary.SpiritualReading.LibriVox}]
+
+# Each test that asks for a recording's track list keeps its own
+# (LumenViae.Rosary.SpiritualReading.Recording.isolate/0).
+config :lumen_viae, :isolate_spiritual_reading_cache, true
+
 # The same for the chant score pages the full score fetches from the
 # assets bucket.
 config :lumen_viae, :chant_scores,

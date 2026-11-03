@@ -3,7 +3,8 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Index do
   `/spiritual-reading`: the Spiritual Reading shelf, as the iOS app's
   `SpiritualReadingView`: the open book over the shelf's name, what it
   is, Augustine's "Take up and read", then the five books in their own
-  cloth, each opening its page, and the credit to the books' sources.
+  cloth, each opening its page, and the credit to the books' sources and
+  their recordings.
   A book with a reading under way in this browser wears the marker ribbon
   (the `SpiritualReadingPlace` hook). Instant: no book's text is fetched
   until a book is opened.
@@ -28,9 +29,9 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Index do
      |> PageMeta.put(Shelf.path(),
        title: "Spiritual Reading",
        description:
-         "Classic Catholic books to read online, chapter by chapter: " <>
+         "Classic Catholic books to read online, chapter by chapter, or to listen to: " <>
            Enum.map_join(books, ", ", &"#{&1.title} by #{&1.author}") <>
-           ". Public-domain texts from Project Gutenberg.",
+           ". Public-domain texts from Project Gutenberg, and recordings by LibriVox volunteers.",
        trail: [{"Spiritual Reading", Shelf.path()}],
        json_ld: [shelf_data(books)]
      )
