@@ -906,7 +906,7 @@ async function checkSpiritualReading(browser, vp) {
         await hear.click();
         const shown = await eventually(async () => await page.locator("[data-role=player]").isVisible());
         check(shown, `${label}: Hear this read brings up the player`);
-        const title = (await page.locator("[data-role=mini-title]").innerText()).trim();
+        const title = (await page.locator("[data-role=player] [data-role=mini-title]").innerText()).trim();
         check(title === "First Conversation", `${label}: the player names the reading`, title);
         await page.locator("[data-role=player] [data-act=expand]").click();
         check(await page.locator("[data-role=panel]").isVisible(), `${label}: the player opens from its title`);
