@@ -41,8 +41,9 @@ defmodule LumenViae.Rosary.Content do
   ## In Spanish
 
   `es/prayers.json` holds the prayers in Spanish, each a title and its
-  lines, copied from official Church sources (listed, with what was
-  changed, in `priv/rosary_content/SOURCES.md`); a prayer with none found
+  lines, copied from official Church sources or supplied by Abraham
+  (listed, with what was changed, in `priv/rosary_content/SOURCES.md`); a
+  prayer with none found
   is left out and served in English. It is a file of its own, outside
   `files/0`, so the English document is unchanged by it, word, version
   and date. A request with `lang=es` gets each prayer with `es` beside
@@ -180,13 +181,14 @@ defmodule LumenViae.Rosary.Content do
     end
 
     with %{"title" => title, "text" => [_ | _] = lines} when is_binary(title) <- prayer,
-         true <- Enum.all?(lines, &is_binary/1) do
+         true <- Enum.all?(lines, &is_binary/1),
+         true <- Map.get(prayer, "ai_translated", true) == true do
       :ok
     else
       _ ->
         raise CompileError,
           description:
-            "priv/rosary_content/es/prayers.json: #{id} needs a title and its text as a non-empty list of lines"
+            "priv/rosary_content/es/prayers.json: #{id} needs a title and its text as a non-empty list of lines, and \"ai_translated\" is either true or left out"
     end
   end
 
@@ -554,7 +556,9 @@ defmodule LumenViae.Rosary.Content do
   served today. `"es"` adds `"es"` beside `"en"` and `"la"` in each
   prayer's title and text, from `priv/rosary_content/es/prayers.json`,
   and the English where that file holds no Spanish, so it is never
-  missing.
+  missing. A prayer whose Spanish is partly the team's own (AI)
+  translation also carries `"ai_translated" => true`; no other prayer
+  has that key.
   """
   @spec prayers(String.t()) :: [map]
   def prayers("es") do
@@ -566,10 +570,18 @@ defmodule LumenViae.Rosary.Content do
         | "title" => Map.put(title, "es", spanish["title"]),
           "text" => Map.put(text, "es", spanish["text"])
       }
+      |> mark_ai_translated(spanish)
     end
   end
 
   def prayers(_lang), do: @prayers
+
+  # Only a prayer whose Spanish is partly the team's own translation says
+  # so; every other prayer has no such key.
+  defp mark_ai_translated(prayer, %{"ai_translated" => true}),
+    do: Map.put(prayer, "ai_translated", true)
+
+  defp mark_ai_translated(prayer, _spanish), do: prayer
 
   @doc """
   `document/0` in a language: for `"es"`, its prayers are `prayers("es")`,

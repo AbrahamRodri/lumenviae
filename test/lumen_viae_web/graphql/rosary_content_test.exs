@@ -199,14 +199,21 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
   test "lang: es adds the Spanish, and English stays as it was", %{conn: conn} do
     query = fn args ->
       graphql(build_conn(), """
-      { rosaryContent#{args} { version prayers { id group title { en la es } text { en la es } } } }
+      { rosaryContent#{args} { version prayers { id group title { en la es } text { en la es } aiTranslated } } }
       """)
     end
 
     spanish = query.(~s|(lang: "es")|)
     refute spanish["errors"]
 
-    assert get_in(spanish, ["data", "rosaryContent", "prayers"]) == Content.prayers("es")
+    # GraphQL names every field it is asked for, so absent reads as null.
+    expected =
+      for prayer <- Content.prayers("es"),
+          do:
+            Map.put(prayer, "aiTranslated", prayer["ai_translated"])
+            |> Map.delete("ai_translated")
+
+    assert get_in(spanish, ["data", "rosaryContent", "prayers"]) == expected
 
     english = get_in(query.(""), ["data", "rosaryContent"])
     assert english == get_in(query.(~s|(lang: "en")|), ["data", "rosaryContent"])
@@ -214,6 +221,7 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
 
     for prayer <- english["prayers"] do
       assert prayer["title"]["es"] == nil and prayer["text"]["es"] == nil
+      assert prayer["aiTranslated"] == nil
     end
 
     refute get_in(spanish, ["data", "rosaryContent", "version"]) == english["version"]

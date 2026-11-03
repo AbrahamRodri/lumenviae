@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-02T23:00:00Z",
+  "updated_at": "2026-11-03T03:00:00Z",
   "prayers": {
     "sign_of_cross": {
       "title": "Señal de la Cruz",
@@ -106,6 +106,21 @@
         "Por eso propongo firmemente, con ayuda de tu gracia,",
         "no pecar más en adelante",
         "y huir de toda ocasión de pecado. Amén."
+      ]
+    },
+    "sorrows_closing_prayer": {
+      "ai_translated": true,
+      "title": "Oración final de los Siete Dolores",
+      "text": [
+        "Ruega por nosotros, Virgen dolorosísima,",
+        "para que seamos dignos de alcanzar las promesas de Cristo.",
+        "[Oremos.]",
+        "Te rogamos, Señor nuestro Jesucristo, ahora y en la hora de nuestra muerte,",
+        "que interceda ante tu clemencia la bienaventurada Virgen María tu Madre,",
+        "cuya alma atravesó la espada de dolor en la hora de tu Pasión.",
+        "Lo pedimos por ti, oh Jesucristo, Salvador del mundo,",
+        "que vives y reinas con el Padre y el Espíritu Santo,",
+        "por los siglos de los siglos. Amén."
       ]
     },
     "memorare": {
