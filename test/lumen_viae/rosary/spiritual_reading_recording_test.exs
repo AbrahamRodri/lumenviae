@@ -138,10 +138,54 @@ defmodule LumenViae.Rosary.SpiritualReadingRecordingTest do
         )
       end)
 
-      assert Enum.map(recording(@lawrence).tracks, & &1.url) == [
+      recording = recording(@lawrence)
+
+      assert Enum.map(recording.tracks, & &1.url) == [
                "https://www.archive.org/a.mp3",
                "https://ia800.us.archive.org/e.mp3"
              ]
+
+      # A track that can't be played leaves a hole, so nothing is lined up
+      # with a chapter it might not read.
+      assert Enum.all?(recording.chapters, &is_nil/1)
+      assert Enum.all?(recording.tracks, &is_nil(&1.chapter))
+    end
+
+    test "a host with a backslash, odd characters or another port is not the Archive" do
+      stub_librivox(fn conn, _id ->
+        sections =
+          [
+            "https://evil.com\\.archive.org/x.mp3",
+            "https://evil.com%2F.archive.org/x.mp3",
+            "https://www.archive.org:8443/x.mp3",
+            "HTTPS://WWW.Archive.org/ok.mp3"
+          ]
+          |> Enum.with_index(1)
+          |> Enum.map(fn {url, i} -> %{"id" => "#{i}", "title" => "T", "listen_url" => url} end)
+
+        json(conn, Jason.encode!(%{"books" => [%{"sections" => sections}]}))
+      end)
+
+      assert Enum.map(recording(@lawrence).tracks, & &1.url) == [
+               "HTTPS://WWW.Archive.org/ok.mp3"
+             ]
+    end
+
+    test "a feed that trips the alignment leaves the recording unavailable, not a crash" do
+      stub_librivox(fn conn, _id ->
+        sections =
+          for {title, i} <- Enum.with_index(["Chapter 1 Part \u0662", "Chapter 1 pt. \uFF17"], 1) do
+            %{
+              "id" => "#{i}",
+              "title" => title,
+              "listen_url" => "https://www.archive.org/#{i}.mp3"
+            }
+          end
+
+        json(conn, Jason.encode!(%{"books" => [%{"sections" => sections}]}))
+      end)
+
+      assert recording(@therese).status == :ok
     end
   end
 

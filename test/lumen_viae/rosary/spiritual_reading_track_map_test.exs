@@ -87,6 +87,17 @@ defmodule LumenViae.Rosary.SpiritualReadingTrackMapTest do
     assert Alignment.track(map, 41) == Alignment.track(map, 39) + 1
   end
 
+  test "a part number in another script is no part, and never raises" do
+    info = info("story-of-a-soul")
+
+    tracks =
+      for {title, i} <- Enum.with_index(["Chapter 1 Part \u0662", "Chapter 1 pt. \uFF17"]) do
+        %{id: "#{i}", title: title, url: "https://www.archive.org/#{i}.mp3", seconds: 60}
+      end
+
+    assert %Alignment{} = TrackMap.align(chapters("story-of-a-soul"), tracks, info.track_mapping)
+  end
+
   test "a book without a recording has no tracks" do
     info = info("imitation-of-christ")
     assert info.librivox_id == nil

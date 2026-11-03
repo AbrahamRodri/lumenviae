@@ -22,6 +22,8 @@ defmodule LumenViae.Rosary.SpiritualReading.ReadRecording do
   """
   use Ash.Resource.Actions.Implementation
 
+  require Logger
+
   alias LumenViae.Rosary.Library
   alias LumenViae.Rosary.SpiritualReading.Recording
   alias LumenViae.Rosary.SpiritualReading.Text
@@ -44,10 +46,17 @@ defmodule LumenViae.Rosary.SpiritualReading.ReadRecording do
   defp read(info, fetch?, aligned?) do
     with {:ok, contents} <- contents(info, fetch?),
          {:ok, tracks} <- Recording.tracks(info, fetch: fetch?) do
+      # A track that can't be played would leave a hole iOS doesn't have,
+      # so the book is then heard track by track, never lined up with
+      # the wrong chapters.
+      whole_list? = Enum.all?(tracks, & &1.url)
+
       alignment =
-        if aligned?,
+        if aligned? and whole_list?,
           do: TrackMap.align(contents.chapters, tracks, info.track_mapping),
           else: Alignment.empty()
+
+      tracks = Enum.filter(tracks, & &1.url)
 
       %{
         status: :ok,
@@ -62,6 +71,11 @@ defmodule LumenViae.Rosary.SpiritualReading.ReadRecording do
       {:error, :cold} -> %{status: :cold}
       {:error, _reason} -> %{status: :unavailable}
     end
+  rescue
+    # The feed's data never takes the book's pages down with it.
+    exception ->
+      Logger.error("A recording's alignment raised: #{Exception.message(exception)}")
+      %{status: :unavailable}
   end
 
   defp contents(info, fetch?) do

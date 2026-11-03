@@ -156,14 +156,17 @@ defmodule LumenViae.Rosary.SpiritualReading.Recording do
   end
 
   @doc false
-  # The feed's first book's sections with a recording on the Internet
-  # Archive, as tracks; none is no recording (LibriVox answers 200 with no
-  # sections often enough, and holding [] would retire the recording).
+  # The feed's first book's sections with a recording, as tracks, every
+  # one kept as iOS keeps it so the chapters line up; a track not on the
+  # Internet Archive has a nil `url` and is never played. None playable is
+  # no recording (LibriVox answers 200 with no sections often enough, and
+  # holding [] would retire the recording).
   def read(%{"books" => [%{"sections" => sections} | _rest]}, _id) when is_list(sections) do
-    case for(section <- sections, track = track(section), track != nil, do: track) do
-      [] -> unreadable("has no playable tracks")
-      tracks -> {:ok, tracks}
-    end
+    tracks = for section <- sections, track = track(section), track != nil, do: track
+
+    if Enum.any?(tracks, & &1.url),
+      do: {:ok, tracks},
+      else: unreadable("has no playable tracks")
   end
 
   def read(_json, id), do: unreadable("#{id} was not in the shape the shelf reads")
@@ -175,19 +178,19 @@ defmodule LumenViae.Rosary.SpiritualReading.Recording do
 
   defp track(%{"id" => id, "listen_url" => url} = section)
        when (is_binary(id) or is_integer(id)) and is_binary(url) do
-    with url when url != nil <- archive_url(url) do
-      %{
-        id: to_string(id),
-        title: string(section["title"]),
-        url: url,
-        seconds: seconds(section["playtime"])
-      }
-    end
+    %{
+      id: to_string(id),
+      title: string(section["title"]),
+      url: archive_url(url),
+      seconds: seconds(section["playtime"])
+    }
   end
 
   defp track(_section), do: nil
 
-  # Over https, and only on the Internet Archive.
+  # Over https on the default port, and only on the Internet Archive: the
+  # host plain letters, digits, dots and hyphens (a backslash, which a
+  # browser reads as a slash, never passes).
   defp archive_url(url) do
     url =
       if String.starts_with?(url, "http://"),
@@ -195,8 +198,13 @@ defmodule LumenViae.Rosary.SpiritualReading.Recording do
         else: url
 
     case URI.parse(url) do
-      %URI{scheme: "https", host: host, userinfo: nil} when is_binary(host) ->
-        if host == "archive.org" or String.ends_with?(host, ".archive.org"), do: url
+      %URI{scheme: "https", host: host, userinfo: nil, port: port}
+      when is_binary(host) and port in [nil, 443] ->
+        host = String.downcase(host)
+
+        if host =~ ~r/\A[a-z0-9.-]+\z/ and
+             (host == "archive.org" or String.ends_with?(host, ".archive.org")),
+           do: url
 
       _other ->
         nil

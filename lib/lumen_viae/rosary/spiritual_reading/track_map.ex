@@ -75,8 +75,8 @@ defmodule LumenViae.Rosary.SpiritualReading.TrackMap do
     def reads_whole_chapter?(%__MODULE__{whole: whole}, track), do: MapSet.member?(whole, track)
   end
 
-  @part ~r/[\s,\-–—]*\bp(?:ar)?t\.?\s*(\d+)\s*$/iu
-  @span ~r/\bbook\s+([IVXLC]+|\d+)\b.*?\b(\d+)\s*(?:[-–—]|to)\s*(\d+)\b/iu
+  @part ~r/[\s,\-–—]*\bp(?:ar)?t\.?\s*([0-9]+)\s*$/iu
+  @span ~r/\bbook\s+([IVXLC]+|[0-9]+)\b.*?\b([0-9]+)\s*(?:[-–—]|to)\s*([0-9]+)\b/iu
 
   @doc """
   Aligns `chapters` (each with `:part` and `:heading`) against `tracks`
