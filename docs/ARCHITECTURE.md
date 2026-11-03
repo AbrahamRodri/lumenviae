@@ -1049,16 +1049,18 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/hours/` | Hours of Prayer, the Divine Office as the app's: the landing for today or another day (`index/`), an hour read (`hour/`, a section drawn by `hour/section/`) and the month's calendar (`calendar/`). `canonical_hours.ex` is the eight hours as the app names and orders them (plain names, clock times, paintings) with the pages' dates and paths, `day_rank.ex` a day's class in plain words, `office_text.ex` an hour's sections set for a language; all are presentation and fetch nothing. The pages reach the Office only through `LumenViae.Office`'s public functions, after they connect (`start_async`). Their CSS is the `hours-*` classes and the Prayer Book's `book-*` reading classes; the rail is the `OfficeRail` hook |
 | `live/missal/` | The Daily Missal, the 1962 Mass as the app's: a day's Mass for today or another day (`index/`), the Order of Mass (`ordo/`) and the month's calendar by vestment colour (`calendar/`). `days.ex` is the dates, paths, vestment colours and plain classes, `missal_text.ex` a day's or the Order of Mass's sections set for a language (plain names, posture, the propers' diamond, citations, rubrics), `section.ex` one part drawn; all are presentation and fetch nothing. The pages reach the Missal only through `LumenViae.Office`'s public functions, after they connect (`start_async`), and share Hours of Prayer's parts rail (`hours/parts_rail.ex`, the `OfficeRail` hook) and month grid. Their own CSS is the `missal-*` classes |
 | `live/true_devotion/` | True Devotion, St. Louis de Montfort's book, as the app's reader: the title page (`index/`, the binding drawn by `cover/`) and a chapter read in place (`chapter/`). `book.ex` is the book as the pages read it (the contents' order, the short part names, a chapter's numbered paragraphs and versal, the shared citation, over `Rosary.get_true_devotion!/1`); presentation only, it never queries. The reader's place, the chapters read and the bookmarks are the browser's, kept by the `TrueDevotionPlace` hook, never sent. Their CSS is the `td-*` classes |
+| `live/explore/` | Explore, as the app's: the page (`index/`), its directory at rest (`index/browse/`) and what the search found (`index/results/`). `search.ex` is the one search as the app's `AppSearch` runs it (the mysteries, the site's doors and the sets found here, the Prayer Book and the chants by the `prayers/` and `chants/` searches, the best match and the sections' order); presentation only, it never queries. Their CSS is the `explore-*` classes |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
 The public site is the Rosary, the Consecration, the Prayer Book, the
-Chant Library, Hours of Prayer and True Devotion: home, the mysteries,
-their sets and the prayer page, the Consecration's three pages, the
-Prayer Book's five, the Chant Library's five, the Hours' four and True
-Devotion's two, with the iPhone app's page and the privacy policy beside
-them, twenty-six routes in all
+Chant Library, Hours of Prayer, the Daily Missal, True Devotion and
+Explore: home, the mysteries, their sets and the prayer page, the
+Consecration's three pages, the Prayer Book's five, the Chant Library's
+five, the Hours' four, the Missal's four, True Devotion's two and Explore,
+with the iPhone app's page and the privacy policy beside them, thirty-one
+routes in all
 (`docs/PUBLIC_SITE.md` lists them, the links' parameters and where each
 setting is kept). Pages retired from it (the
 dashboard, How to Pray, True Devotion's summary page, St. Carlo, Feedback)

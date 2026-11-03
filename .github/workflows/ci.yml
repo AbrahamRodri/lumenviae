@@ -294,6 +294,28 @@ jobs:
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
           docker build --progress=plain --build-arg REGISTRY=mirror.gcr.io --tag "$IMAGE" .
           docker push "$IMAGE"
+      # The Office engine runs from our own GHCR copy of upstream's image
+      # (deploy/vm/compose.yml), because upstream deletes old digests. The
+      # first deploy after a pin change copies the image there, digest
+      # unchanged; every later one finds it and copies nothing.
+      - name: Mirror the Office engine image
+        if: steps.tip.outputs.is_tip == 'true'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pinned="$(grep -oE 'ghcr.io/abrahamrodri/divinum-officium@sha256:[0-9a-f]{64}' deploy/vm/compose.yml)"
+          digest="${pinned#*@}"
+          echo "$GHCR_TOKEN" | skopeo login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          if skopeo inspect --raw "docker://$pinned" >/dev/null 2>&1; then
+            echo "Already mirrored: $pinned"
+          else
+            skopeo copy --all --preserve-digests \
+              "docker://ghcr.io/divinumofficium/divinum-officium@$digest" \
+              "docker://ghcr.io/abrahamrodri/divinum-officium:${digest/:/-}"
+            skopeo inspect --raw "docker://$pinned" >/dev/null
+            echo "Mirrored: $pinned"
+          fi
+          skopeo logout ghcr.io
       - name: Reach the VM
         if: steps.tip.outputs.is_tip == 'true'
         env:
@@ -316,7 +338,7 @@ jobs:
           echo "$GHCR_TOKEN" | ssh -i ~/.ssh/vm "$VM" \
             "docker login ghcr.io -u '$GITHUB_ACTOR' --password-stdin"
           ssh -i ~/.ssh/vm "$VM" "cd /srv/lumenviae && export IMAGE='$IMAGE' RELEASE_COMMIT='$GITHUB_SHA' \
-            && docker compose pull app; status=\$?; docker logout ghcr.io; [ \$status -eq 0 ] \
+            && docker compose pull app office; status=\$?; docker logout ghcr.io; [ \$status -eq 0 ] \
             && docker compose run --rm app /app/bin/migrate \
             && docker compose up -d --build --wait"
       - name: Check production

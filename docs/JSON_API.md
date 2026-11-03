@@ -551,8 +551,13 @@ GraphQL: `rosaryContent(lang: "es")`.
 - **`lang=es`**, or any `es-` region (`es-MX`, `es_419`): each prayer's
   `title` and `text` carry `es` beside `en` and `la`. `es` is never
   null: a prayer with no Spanish text yet carries its English there
-  (today the Seven Sorrows closing prayer). Spanish lines need not pair
+  (today every prayer has its Spanish). Spanish lines need not pair
   with the Latin.
+- **`ai_translated: true`** on a prayer, only with `lang=es`, when part of
+  its Spanish is the team's own (AI) translation rather than a published
+  text: show the app's AI notice under it. Today that is the Seven
+  Sorrows closing prayer (its versicle and one phrase). A prayer without
+  it has no such key, and an English document never has it.
 - **`mysteries`** with `lang=es`: each mystery's `name` and `fruit` are
   Spanish, in the same fields. Everything else in a mystery stays
   English: `description`, `key_verse` and the `announcement` the spoken
@@ -569,8 +574,9 @@ GraphQL: `rosaryContent(lang: "es")`.
 - **The words** of the prayers and the mysteries' names are copied from
   official Church sources: the Compendium of the Catechism (vatican.va),
   Vatican News, the Shrine of Fatima and a homily of Pope Francis for the
-  Seven Sorrows. The fruits are the team's translation, with no official
-  list to copy. `priv/rosary_content/SOURCES.md` lists
+  Seven Sorrows. The Seven Sorrows closing prayer is a text Abraham
+  supplied. The fruits are the team's translation, with no official list
+  to copy. `priv/rosary_content/SOURCES.md` lists
   the source of each prayer and every change made to it (line breaks, a
   final period). They live in `priv/rosary_content/es/prayers.json` and
   `priv/rosary_content/es/mysteries.json`.
@@ -705,6 +711,16 @@ caches by URL, checks a download against `bytes` and `sha256`, and drops
 a file no URL in its copy names any more. Chants share some score pages
 (`chant-vers-alt-ora-pro-nobis`), so a file is fetched once for all of
 them. About 100 MB in all, 261 files as of 14 October 2026.
+
+The server can serve the files from another base without the file
+changing: set `CHANT_ASSET_BASE_URL` (no trailing slash; Cloudflare R2's
+is `https://media.lumenviae.org`) and every chant URL is served with the
+file's base, `Library.asset_base/0`, replaced by it, giving
+`https://media.lumenviae.org/chants/audio/...`. The document's `version`
+changes with it, so a device fetches the new copy, and its `updated_at`
+stays. Unset or empty, the document is the file's, byte for byte. Copy
+the files first (`mix lumen_viae.copy_storage`): a device fetches them
+from the new base as soon as the setting is live.
 
 `mix lumen_viae.upload_chants` puts the files there and writes each one's
 `url`, `bytes` and `sha256` into `priv/library/chant_library.json`

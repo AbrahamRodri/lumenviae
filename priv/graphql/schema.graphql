@@ -1574,6 +1574,9 @@ type RosaryPrayer {
 
   "`rosary`: one of the Rosary's eight prayers. `chaplet`: the Seven Sorrows chaplet's own. `after`: an optional prayer after the Rosary. A client should keep a prayer whose group it does not know."
   group: String!
+
+  "`true` when part of this prayer's text in the asked-for language is the team's own AI translation, not a published text: show the app's AI notice under it. Present only then, and only with a `lang` other than English; otherwise absent."
+  aiTranslated: Boolean
 }
 
 type VerseClip {

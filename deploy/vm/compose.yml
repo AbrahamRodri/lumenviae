@@ -60,10 +60,11 @@ services:
 
   # The same image as deploy/divinum-officium/fly.toml, with 2 workers
   # instead of 4: it shares a 1GB Droplet, and its traffic never fills 2.
-  # If the digest no longer pulls, docs/OFFICE_API.md ("Updating the
-  # engine") says how to pin a current one.
+  # Pulled from our own GHCR copy, which the deploy fills from upstream
+  # with the same digest, so upstream deleting it no longer matters.
+  # docs/OFFICE_API.md ("Updating the engine") says how to change it.
   office:
-    image: ghcr.io/divinumofficium/divinum-officium@sha256:ef674f7973adc8b1029c4a5d2275d76c1fe222f810f0dfd4369c2930964d3aa7
+    image: ghcr.io/abrahamrodri/divinum-officium@sha256:ef674f7973adc8b1029c4a5d2275d76c1fe222f810f0dfd4369c2930964d3aa7
     command: starman --port 8080 --host 0.0.0.0 --workers 2 --preload-app --user www-data --group www-data /var/www/app.psgi
     restart: unless-stopped
 

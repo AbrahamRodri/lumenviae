@@ -13,7 +13,6 @@ defmodule LumenViae.Rosary.RosaryContent.Prayers do
   use Ash.Resource.Calculation
 
   alias LumenViae.Rosary.Content
-  alias LumenViae.Rosary.Types
 
   # GraphQL selects only the fields a query names, so the language is
   # asked for here or it would arrive empty.
@@ -27,8 +26,12 @@ defmodule LumenViae.Rosary.RosaryContent.Prayers do
     end)
   end
 
-  defp shape(%{"id" => id, "group" => group, "title" => title, "text" => text}) do
-    %Types.RosaryPrayer{id: id, group: group, title: languages(title), text: languages(text)}
+  # A plain map too, for the same reason: `ai_translated` is there only
+  # when it is true, so every other prayer reads as it always has.
+  defp shape(%{"id" => id, "group" => group, "title" => title, "text" => text} = prayer) do
+    shaped = %{id: id, group: group, title: languages(title), text: languages(text)}
+
+    if prayer["ai_translated"] == true, do: Map.put(shaped, :ai_translated, true), else: shaped
   end
 
   # Only the languages served, so a stray key in a content file never

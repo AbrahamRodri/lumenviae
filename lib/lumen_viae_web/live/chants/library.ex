@@ -170,6 +170,38 @@ defmodule LumenViaeWeb.Live.Chants.Library do
     "last_judgment" => {0.5, 0.3}
   }
 
+  # What kind of chant each is, in one word for the best match's kicker
+  # in Explore's search (ChantLibraryData.forms, ChantForm.singular): a
+  # short chant, a feast poem, a litany, a psalm or an everyday prayer;
+  # every chant not named is a hymn, as the app's default is.
+  @short_chants ~w(
+    salve_regina_simple salve_regina_solemn alma_redemptoris alma_redemptoris_simple
+    ave_regina_simple ave_regina_solemn regina_caeli_simple regina_caeli_solemn sub_tuum
+    tota_pulchra ave_maria_antiphon o_sacrum_convivium cor_jesu rorate_caeli parce_domine
+    adoremus christus_vincit vidi_aquam o_vos_omnes o_sapientia_magnificat
+    o_adonai_magnificat o_radix_magnificat o_clavis_magnificat o_oriens_magnificat
+    o_rex_magnificat o_emmanuel_magnificat adoramus_te da_pacem asperges_me media_vita
+  )
+  @feast_poems ~w(
+    victimae_paschali veni_sancte_spiritus lauda_sion ecce_panis stabat_mater dies_irae
+    flos_carmeli
+  )
+  @litanies ~w(litany_loreto litany_sacred_heart litany_holy_name litany_st_joseph litany_saints)
+  @psalms ~w(magnificat miserere te_deum te_deum_simple te_matrem)
+  @everyday_prayers ~w(
+    in_nomine_patris credo_in_deum pater_noster ave_maria gloria_patri o_mi_jesu angelus
+    sancte_michael memorare anima_christi divine_praises veni_sancte_reple kyrie_de_angelis
+    gloria_de_angelis sanctus_de_angelis agnus_de_angelis credo_iii kyrie_orbis_factor
+    gloria_orbis_factor sanctus_orbis_factor agnus_orbis_factor
+  )
+  @forms Map.new(
+           Enum.map(@short_chants, &{&1, "Short chant"}) ++
+             Enum.map(@feast_poems, &{&1, "Feast poem"}) ++
+             Enum.map(@litanies, &{&1, "Litany"}) ++
+             Enum.map(@psalms, &{&1, "Psalm"}) ++
+             Enum.map(@everyday_prayers, &{&1, "Prayer"})
+         )
+
   @fallback "mary_sistine_madonna"
 
   # The Mass of the Angels' tile and shelf (ChantBrowseScope.massOfTheAngels).
@@ -348,6 +380,12 @@ defmodule LumenViaeWeb.Live.Chants.Library do
     do: chants |> Enum.map(&painting/1) |> Enum.uniq() |> length() <= 1
 
   ## Words under a name
+
+  @doc """
+  The kind of chant it is, in the app's word for one of them ("Short
+  chant", "Hymn", "Feast poem"), for the kicker over Explore's best match.
+  """
+  def form_name(%{id: id}), do: Map.get(@forms, id, "Hymn")
 
   @doc "\"1 chant\", \"8 chants\"."
   def chant_count(1), do: "1 chant"

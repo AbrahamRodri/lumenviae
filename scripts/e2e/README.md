@@ -12,9 +12,9 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   of praying it in Both, `/chant` (and a search), a section's shelf,
   a chant's page, Sets of Chants and a sung set, `/true-devotion` and a
   chapter, `/hours`, today's
-  Vespers in Both and this month's Hours calendar, `/missal`, a day's
-  Mass in Both, the Order of Mass and this month's Missal calendar, and
-  checks each
+  Vespers in Both, this month's Hours calendar, `/missal`, a day's
+  Mass in Both, the Order of Mass and this month's Missal calendar,
+  `/explore` and a search there, and checks each
   answers 200 with an h1 and no console errors;
 - checks no page scrolls sideways (`scrollWidth <= innerWidth`);
 - follows the first Pray link on `/mysteries/joyful` to
@@ -54,6 +54,11 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   checks the six sets; on `/chant/sets/benediction` checks the notes in
   red, presses Play all and waits for the first chant to sound and its row
   to light; and checks an unknown chant, section and set answer 404;
+- on `/explore`, checks the five devotions and the header's Explore
+  link, types "Salve" (the link gains `q=` and both the Salve Regina's
+  prayer and chant are found), checks "ave maria" and "PÂTER" each find
+  the prayer and the chant (accents and case aside), and that
+  "annunciation" finds the mystery, whose card opens `/mysteries/joyful`;
 - on `/hours`, follows Pray to the hour now, chooses Both (the link gains
   `lang=both`) and waits for the hour's text or its "could not be reached"
   state: the Divinum Officium engine may not answer a dev machine, so

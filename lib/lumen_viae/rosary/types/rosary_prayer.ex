@@ -25,6 +25,10 @@ defmodule LumenViae.Rosary.Types.RosaryPrayer do
       allow_nil?: false,
       description:
         "The words, as lines broken where they are shown. Both languages have the same number of lines, so they pair line for line. A line in square brackets is a rubric (`[Let us pray.]`)."
+
+    field :ai_translated, :boolean,
+      description:
+        "`true` when part of this prayer's text in the asked-for language is the team's own AI translation, not a published text: show the app's AI notice under it. Present only then, and only with a `lang` other than English; otherwise absent."
   end
 
   use AshGraphql.Type
