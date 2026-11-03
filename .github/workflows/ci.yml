@@ -340,7 +340,8 @@ jobs:
           ssh -i ~/.ssh/vm "$VM" "cd /srv/lumenviae && export IMAGE='$IMAGE' RELEASE_COMMIT='$GITHUB_SHA' \
             && docker compose pull app office; status=\$?; docker logout ghcr.io; [ \$status -eq 0 ] \
             && docker compose run --rm app /app/bin/migrate \
-            && docker compose up -d --build --wait"
+            && docker compose up -d --wait \
+            && docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile"
       - name: Check production
         if: steps.tip.outputs.is_tip == 'true'
         run: bin/post-deploy-check
