@@ -666,9 +666,11 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   prayer the book prints that has a Spanish text, in the book's order,
   each `{id, title, text}`: `id` is one of `prayers`, `title` and `text`
   are the Spanish, `text` in the same `PrayerText` grammar as `english`.
-  A prayer that is partly the team's own translation also carries
-  `ai_translated: true`; the key is absent otherwise. A prayer not
-  listed has no Spanish yet: show its English. Every other section is
+  Every prayer the book prints is listed. A prayer that is the team's
+  own translation (no good Spanish version was found) carries
+  `ai_translated: true`, for the app's notice; the key is absent
+  otherwise. A client still shows the English for a prayer it does not
+  find listed. Every other section is
   unchanged, English and Latin: a client lays the Spanish over the
   English by `id`.
 - Spanish lines need not pair with the Latin, and the Spanish may say a
@@ -676,10 +678,13 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   in places); `priv/library/es/SOURCES.md` lists where.
 - **Its own `version` and `updated_at`**, as for the Rosary: keep one copy
   per language and poll with the `lang` fetched with.
-- **The words** are copied from official Church sources (the Compendium of
-  the Catechism, the Catechism, papal encyclicals, the Shrine of Fatima,
-  Vatican News, the USCCB and others), each listed with every change made
-  in `priv/library/es/SOURCES.md`, from `priv/library/es/prayer_book.json`.
+- **The words**, from `priv/library/es/prayer_book.json`, come first from
+  Church sources (the Compendium of the Catechism, the Catechism, papal
+  encyclicals, the Spanish Missal and Liturgy of the Hours, bishops'
+  conferences, dioceses and religious orders), then from good unofficial
+  versions, and last from the team's translation, marked
+  `ai_translated`. `priv/library/es/SOURCES.md` lists each prayer's
+  source and every change made.
   The Rosary's prayers the book prints carry the Rosary's own Spanish
   (`priv/rosary_content/es/prayers.json`), so the two documents agree.
 - **Never narrated.** The spoken Prayer Book says the English.

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-03T03:50:00Z",
+  "updated_at": "2026-11-03T04:00:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -196,6 +196,450 @@
     "prayer_for_priests": {
       "title": "Dios todopoderoso y eterno",
       "text": "Dios todopoderoso y eterno, cuyo Espíritu santifica todo y gobierna todo el cuerpo de la Iglesia; escucha las súplicas que te dirigimos por todos sus ministros, para que, con la ayuda de tu gracia, cada uno te sirva fielmente en la vocación a que le has llamado. Por Jesucristo nuestro Señor.\n\n℟. Amén."
+    },
+    "lead_kindly_light": {
+      "title": "Guíame, Luz bondadosa",
+      "text": "Guíame, Luz bondadosa, en medio de las tinieblas que me rodean,\n¡guíame tú!\nLa noche es oscura y estoy lejos de mi hogar;\n¡guíame tú!\nGuarda mis pies; no te pido ver\nel horizonte lejano; un solo paso me basta.\n\nNo siempre fui así, ni te pedí\nque me guiaras;\nme gustaba escoger y ver mi camino; pero ahora\n¡guíame tú!\nAmaba el día deslumbrante y, a pesar de mis temores,\nel orgullo gobernaba mi voluntad: no recuerdes los años pasados.\n\nTanto tiempo me ha bendecido tu poder, que sin duda aún\nme guiará\npor páramos y pantanos, por riscos y torrentes, hasta que\npase la noche,\ny con la aurora sonrían aquellos rostros de ángeles\nque amé hace tiempo y perdí por un tiempo.",
+      "ai_translated": true
+    },
+    "sacred_heart_trust": {
+      "title": "Sacratísimo Corazón de Jesús",
+      "text": "Sacratísimo Corazón de Jesús, en Vos confío."
+    },
+    "my_god_and_my_all": {
+      "title": "Mi Dios y mi todo",
+      "text": "Mi Dios y mi todo.",
+      "ai_translated": true
+    },
+    "o_sacrament_most_holy": {
+      "title": "Oh Sacramento santísimo",
+      "text": "Oh Sacramento santísimo, oh Sacramento divino,\ntoda alabanza y toda acción de gracias sean tuyas en todo momento.",
+      "ai_translated": true
+    },
+    "en_ego": {
+      "title": "Oración ante el Crucifijo",
+      "text": "Heme aquí, oh buen y dulcísimo Jesús, postrado de rodillas en tu presencia; con el más ferviente deseo de mi alma te ruego y te suplico que imprimas en mi corazón vivos sentimientos de fe, esperanza y caridad, verdadero arrepentimiento de mis pecados y firmísimo propósito de enmendarlos; mientras con gran afecto y dolor de alma considero en mí mismo y contemplo en mi mente tus cinco llagas, teniendo ante mis ojos lo que ya el profeta David ponía en tu boca acerca de ti, oh buen Jesús:\n\nHan taladrado mis manos y mis pies; han contado todos mis huesos.",
+      "ai_translated": true
+    },
+    "transfige": {
+      "title": "Oración de San Buenaventura después de la Misa",
+      "text": "Traspasa, oh dulcísimo Señor Jesús, la médula más íntima de mi alma con la suavísima y saludabilísima herida de tu amor, con verdadera, serena y santísima caridad apostólica, para que mi alma desfallezca y se derrita siempre de amor y deseo de ti solo; para que te anhele y desfallezca en tus atrios, y desee verse libre para estar contigo.\n\nHaz que mi alma tenga hambre de ti, Pan de los Ángeles, alimento de las almas santas, pan nuestro de cada día y supersustancial, que tiene toda dulzura y sabor y todo deleite del gusto.\n\nQue mi corazón tenga siempre hambre de ti y se alimente de ti, a quien los ángeles desean contemplar, y que lo más íntimo de mi alma se llene de la dulzura de tu sabor; que tenga siempre sed de ti, fuente de vida, fuente de sabiduría y de ciencia, fuente de luz eterna, torrente de delicias, abundancia de la casa de Dios;\n\nque siempre te busque, siempre te encuentre, tienda hacia ti, llegue a ti, medite en ti, hable de ti y lo haga todo para alabanza y gloria de tu nombre, con humildad y discreción, con amor y deleite, con prontitud y afecto, y con perseverancia hasta el fin;\n\ny sé tú solo siempre mi esperanza, toda mi confianza, mis riquezas, mi deleite, mi placer, mi gozo, mi descanso y tranquilidad, mi paz, mi dulzura, mi fragancia, mi dulce sabor, mi alimento, mi refrigerio, mi refugio, mi auxilio, mi sabiduría, mi herencia, mi posesión y mi tesoro, en quien estén siempre fijos, firmes e inconmoviblemente arraigados mi mente y mi corazón. Amén.",
+      "ai_translated": true
+    },
+    "st_alphonsus_visit": {
+      "title": "Oración para la visita al Santísimo Sacramento",
+      "text": "Señor mío Jesucristo, que por el amor que tienes a los hombres permaneces noche y día en este Sacramento, lleno de compasión y de amor, esperando, llamando y acogiendo a todos los que vienen a visitarte: creo que estás presente en el Sacramento del Altar. Te adoro desde el abismo de mi nada y te doy gracias por todos los favores que me has hecho, y en especial por haberte dado tú mismo a mí en este Sacramento, por haberme dado por abogada a tu santísima Madre María y por haberme llamado a visitarte en esta iglesia.\n\nSaludo ahora a tu amantísimo Corazón, y esto con tres fines: primero, en acción de gracias por este gran don; segundo, para desagraviarte por todas las injurias que recibes en este Sacramento de todos tus enemigos; tercero, con esta visita quiero adorarte en todos los lugares de la tierra donde estás menos reverenciado y más abandonado.\n\nJesús mío, te amo con todo mi corazón. Me pesa de haber ofendido hasta ahora tantas veces tu bondad infinita. Propongo, con la ayuda de tu gracia, no ofenderte nunca más; y en este momento, miserable como soy, me consagro todo entero a ti. Te doy toda mi voluntad, todos mis afectos y deseos y todo lo que tengo. Desde hoy en adelante dispón de mí y de todas mis cosas como mejor te parezca. Lo único que te pido y deseo es tu santo amor, la perseverancia final y el perfecto cumplimiento de tu voluntad.\n\nTe encomiendo las almas del purgatorio, especialmente las que fueron más devotas del Santísimo Sacramento y de la santísima Virgen María; y te encomiendo también a todos los pobres pecadores. Amado Salvador mío, uno todos mis afectos con los afectos de tu amantísimo Corazón, y así unidos los ofrezco a tu Eterno Padre, y le ruego en tu nombre que por tu amor se digne aceptarlos y concederlos. Amén.",
+      "ai_translated": true
+    },
+    "o_sacrum_convivium": {
+      "title": "Oh sagrado banquete",
+      "text": "Oh sagrado banquete,\nen el que se recibe a Cristo,\nse renueva la memoria de su Pasión,\nel alma se llena de gracia\ny se nos da una prenda de la gloria futura.\nAleluya.",
+      "ai_translated": true
+    },
+    "st_patrick_breastplate": {
+      "title": "La coraza de San Patricio",
+      "text": "Cristo conmigo, Cristo delante de mí, Cristo detrás de mí,\nCristo en mí, Cristo debajo de mí, Cristo sobre mí,\nCristo a mi derecha, Cristo a mi izquierda,\nCristo al acostarme, Cristo al sentarme, Cristo al levantarme,\nCristo en el corazón de todos los que piensan en mí,\nCristo en la boca de todos los que hablan de mí,\nCristo en todo ojo que me mira,\nCristo en todo oído que me escucha.",
+      "ai_translated": true
+    },
+    "breathe_in_me": {
+      "title": "Respira en mí, oh Espíritu Santo",
+      "text": "Respira en mí, oh Espíritu Santo, para que todos mis pensamientos sean santos.\nActúa en mí, oh Espíritu Santo, para que también mis obras sean santas.\nAtrae mi corazón, oh Espíritu Santo, para que solo ame lo que es santo.\nFortaléceme, oh Espíritu Santo, para que defienda todo lo que es santo.\nGuárdame, oh Espíritu Santo, para que sea santo para siempre. Amén.",
+      "ai_translated": true
+    },
+    "efficacious_novena": {
+      "title": "Novena eficaz al Sagrado Corazón de Jesús",
+      "text": "Oh Jesús mío, tú dijiste: «Pedid y se os dará; buscad y hallaréis; llamad y se os abrirá». He aquí que llamo, busco y pido la gracia de [nombra la gracia].\n\n[Padre nuestro, Ave María, Gloria.]\n\nSagrado Corazón de Jesús, en ti pongo toda mi confianza.\n\nOh Jesús mío, tú dijiste: «En verdad, en verdad os digo: si pedís algo al Padre en mi nombre, os lo dará». He aquí que en tu nombre pido al Padre la gracia de [nombra la gracia].\n\n[Padre nuestro, Ave María, Gloria.]\n\nSagrado Corazón de Jesús, en ti pongo toda mi confianza.\n\nOh Jesús mío, tú dijiste: «El cielo y la tierra pasarán, pero mis palabras no pasarán». Apoyándome en la infalibilidad de tus santas palabras, pido la gracia de [nombra la gracia].\n\n[Padre nuestro, Ave María, Gloria.]\n\nSagrado Corazón de Jesús, en ti pongo toda mi confianza.\n\nOh Sagrado Corazón de Jesús, a quien es imposible no tener compasión de los afligidos, ten piedad de nosotros, pobres pecadores, y concédenos la gracia que te pedimos, por el Corazón Doloroso e Inmaculado de María, tu tierna Madre y nuestra.\n\n[Salve Regina.]\n\nSan José, padre nutricio de Jesús, ruega por nosotros.",
+      "ai_translated": true
+    },
+    "o_jesus_living_in_mary": {
+      "title": "Oh Jesús, que vives en María",
+      "text": "Oh Jesús, que vives en María,\nven y vive en tus siervos,\nen el espíritu de tu santidad,\nen la plenitud de tu poder,\nen la verdad de tus virtudes,\nen la perfección de tus caminos,\nen la comunión de tus misterios.\nSomete todo poder enemigo\nen tu Espíritu, para gloria del Padre. Amén.",
+      "ai_translated": true
+    },
+    "abandonment_foucauld": {
+      "title": "Oración de abandono",
+      "text": "Padre mío, me abandono a ti;\nhaz de mí lo que quieras.\nHagas lo que hagas conmigo, te lo agradezco.\nEstoy dispuesto a todo, lo acepto todo.\nQue solo se haga tu voluntad en mí y en todas tus criaturas;\nno deseo nada más, Dios mío.\n\nEn tus manos encomiendo mi alma;\nte la doy, Dios mío,\ncon todo el amor de mi corazón,\nporque te amo,\ny porque para mí es una necesidad de amor darme,\nponerme en tus manos sin medida,\ncon infinita confianza,\nporque tú eres mi Padre. Amén.",
+      "ai_translated": true
+    },
+    "radiating_christ": {
+      "title": "Oración para irradiar a Cristo",
+      "text": "Amado Jesús, ayúdame a esparcir tu fragancia dondequiera que vaya.\n\nLlena mi alma de tu espíritu y de tu vida. Entra en todo mi ser y apodérate de él tan por completo que mi vida no sea más que un resplandor de la tuya.\n\nBrilla a través de mí y habita en mí de tal manera que cada alma con la que me encuentre sienta tu presencia en la mía. Que me miren y ya no me vean a mí, sino solo a Jesús.\n\nQuédate conmigo, y entonces empezaré a brillar como tú brillas, a brillar de tal modo que sea luz para los demás. La luz, oh Jesús, vendrá toda de ti; nada de ella será mía. Serás tú quien brille sobre los demás a través de mí.\n\nQue así te alabe de la manera que más te agrada, brillando sobre los que me rodean. Que te predique sin predicar, no con palabras sino con mi ejemplo, con la fuerza que atrae y la influencia bondadosa de lo que hago, con la evidente plenitud del amor que mi corazón te tiene. Amén.",
+      "ai_translated": true
+    },
+    "flos_carmeli": {
+      "title": "Flor del Carmelo",
+      "text": "Flor del Carmelo,\nviña florida,\nesplendor del cielo,\nVirgen que diste a luz un Hijo,\nsin igual.\n\nMadre dulcísima,\nque no conociste varón,\na tus carmelitas\nsé propicia,\noh Estrella del mar.",
+      "ai_translated": true
+    },
+    "three_hail_marys": {
+      "title": "Las tres Avemarías",
+      "text": "[Tres Avemarías, en honor del poder que Dios Padre dio a Nuestra Señora, de la sabiduría que le dio Dios Hijo y del amor que le dio Dios Espíritu Santo.]\n\n[La primera, en honor del poder del Padre.]\n\nDios te salve, María, llena eres de gracia; el Señor es contigo.\nBendita Tú eres entre todas las mujeres,\ny bendito es el fruto de tu vientre, Jesús.\nSanta María, Madre de Dios,\nruega por nosotros, pecadores,\nahora y en la hora de nuestra muerte. Amén.\n\nPor tu pura e Inmaculada Concepción, oh María,\nhaz puro mi cuerpo y santa mi alma.\n\n[La segunda, en honor de la sabiduría del Hijo.]\n\nDios te salve, María, llena eres de gracia; el Señor es contigo.\nBendita Tú eres entre todas las mujeres,\ny bendito es el fruto de tu vientre, Jesús.\nSanta María, Madre de Dios,\nruega por nosotros, pecadores,\nahora y en la hora de nuestra muerte. Amén.\n\nPor tu pura e Inmaculada Concepción, oh María,\nhaz puro mi cuerpo y santa mi alma.\n\n[La tercera, en honor del amor del Espíritu Santo.]\n\nDios te salve, María, llena eres de gracia; el Señor es contigo.\nBendita Tú eres entre todas las mujeres,\ny bendito es el fruto de tu vientre, Jesús.\nSanta María, Madre de Dios,\nruega por nosotros, pecadores,\nahora y en la hora de nuestra muerte. Amén.\n\nPor tu pura e Inmaculada Concepción, oh María,\nhaz puro mi cuerpo y santa mi alma.\n\nOh Madre mía, líbrame de pecado mortal en este día.\n[Por la noche: en esta noche.]",
+      "ai_translated": true
+    },
+    "our_lady_of_lourdes": {
+      "title": "Oración a Nuestra Señora de Lourdes",
+      "text": "Oh Virgen siempre Inmaculada, Madre de misericordia, salud de los enfermos, refugio de los pecadores, consuelo de los afligidos, tú conoces mis necesidades, mis penas, mis sufrimientos; dígnate mirarme con ojos de misericordia.\n\nAl aparecerte en la gruta de Lourdes, quisiste hacer de ella un santuario privilegiado, desde donde repartes tus favores; y ya muchos que sufren han obtenido la curación de sus enfermedades, tanto espirituales como corporales. Vengo, pues, con la más ilimitada confianza a implorar tu maternal intercesión.\n\nAlcánzame, oh Madre amorosa, lo que te pido. En agradecimiento por tus favores, procuraré imitar tus virtudes, para participar un día de tu gloria. Amén.",
+      "ai_translated": true
+    },
+    "st_joseph_happy_death": {
+      "title": "A San José por una buena muerte",
+      "text": "Oh bienaventurado José, que exhalaste el último suspiro en los brazos de Jesús y de María, alcánzame, te lo suplico, esta gracia: que muera como tú, con Jesús y María a mi lado.\n\nAsísteme en mi última lucha, líbrame de las asechanzas del enemigo, y cuando mi alma salga de esta vida, preséntala a mi Salvador, para que lo alabe contigo por siempre. Amén.\n\nJesús, María y José, os doy el corazón y el alma mía.\nJesús, María y José, asistidme en mi última agonía.\nJesús, María y José, expire en paz con vosotros el alma mía.",
+      "ai_translated": true
+    },
+    "litany_of_humility": {
+      "title": "Letanía de la humildad",
+      "text": "Oh Jesús, manso y humilde de corazón, ℟. óyeme.\n\nDel deseo de ser estimado, ℟. líbrame, Jesús.\nDel deseo de ser amado,\nDel deseo de ser ensalzado,\nDel deseo de ser honrado,\nDel deseo de ser alabado,\nDel deseo de ser preferido a otros,\nDel deseo de ser consultado,\nDel deseo de ser aprobado,\n\nDel temor de ser humillado, ℟. líbrame, Jesús.\nDel temor de ser despreciado,\nDel temor de sufrir reprensiones,\nDel temor de ser calumniado,\nDel temor de ser olvidado,\nDel temor de ser puesto en ridículo,\nDel temor de ser injuriado,\nDel temor de ser objeto de sospechas,\n\nQue otros sean más amados que yo, ℟. Jesús, dame la gracia de desearlo.\nQue otros sean más estimados que yo,\nQue, en la opinión del mundo, otros crezcan y yo disminuya,\nQue otros sean escogidos y yo dejado de lado,\nQue otros sean alabados y yo pase inadvertido,\nQue otros sean preferidos a mí en todo,\nQue otros lleguen a ser más santos que yo, con tal de que yo llegue a ser todo lo santo que debo,",
+      "ai_translated": true
+    },
+    "prayer_for_the_sick": {
+      "title": "Por los enfermos",
+      "text": "Mira, Señor, a tu siervo, que padece enfermedad en su cuerpo, y reanima el alma que tú creaste; para que, enmendado por tus castigos, se sienta salvado por tu medicina. Por Cristo nuestro Señor. Amén.",
+      "ai_translated": true
+    },
+    "litany_of_the_saints": {
+      "title": "Letanía de los Santos",
+      "text": "Señor, ten piedad de nosotros.\nCristo, ten piedad de nosotros.\nSeñor, ten piedad de nosotros.\nCristo, óyenos. ℟. Cristo, escúchanos.\n\nDios Padre celestial, ℟. ten piedad de nosotros.\nDios Hijo, Redentor del mundo,\nDios Espíritu Santo,\nSantísima Trinidad, un solo Dios,\n\nSanta María, ℟. ruega por nosotros.\nSanta Madre de Dios,\nSanta Virgen de las vírgenes,\nSan Miguel,\nSan Gabriel,\nSan Rafael,\n\nTodos los santos Ángeles y Arcángeles, ℟. rogad por nosotros.\nTodos los santos coros de los Espíritus bienaventurados,\n\nSan Juan Bautista, ℟. ruega por nosotros.\nSan José,\n\nTodos los santos Patriarcas y Profetas, ℟. rogad por nosotros.\n\nSan Pedro, ℟. ruega por nosotros.\nSan Pablo,\nSan Andrés,\nSantiago,\nSan Juan,\nSanto Tomás,\nSantiago,\nSan Felipe,\nSan Bartolomé,\nSan Mateo,\nSan Simón,\nSan Tadeo,\nSan Matías,\nSan Bernabé,\nSan Lucas,\nSan Marcos,\n\nTodos los santos Apóstoles y Evangelistas, ℟. rogad por nosotros.\nTodos los santos Discípulos del Señor,\nTodos los santos Inocentes,\n\nSan Esteban, ℟. ruega por nosotros.\nSan Lorenzo,\nSan Vicente,\n\nSantos Fabián y Sebastián, ℟. rogad por nosotros.\nSantos Juan y Pablo,\nSantos Cosme y Damián,\nSantos Gervasio y Protasio,\nTodos los santos Mártires,\n\nSan Silvestre, ℟. ruega por nosotros.\nSan Gregorio,\nSan Ambrosio,\nSan Agustín,\nSan Jerónimo,\nSan Martín,\nSan Nicolás,\n\nTodos los santos Obispos y Confesores, ℟. rogad por nosotros.\nTodos los santos Doctores,\n\nSan Antonio, ℟. ruega por nosotros.\nSan Benito,\nSan Bernardo,\nSanto Domingo,\nSan Francisco,\n\nTodos los santos Sacerdotes y Levitas, ℟. rogad por nosotros.\nTodos los santos Monjes y Ermitaños,\n\nSanta María Magdalena, ℟. ruega por nosotros.\nSanta Águeda,\nSanta Lucía,\nSanta Inés,\nSanta Cecilia,\nSanta Catalina,\nSanta Anastasia,\n\nTodas las santas Vírgenes y Viudas, ℟. rogad por nosotros.\n\nTodos los Santos y Santas de Dios, ℟. interceded por nosotros.\n\nMuéstrate propicio, ℟. perdónanos, Señor.\nMuéstrate propicio, ℟. escúchanos, Señor.\n\nDe todo mal, ℟. líbranos, Señor.\nDe todo pecado,\nDe tu ira,\nDe una muerte repentina e imprevista,\nDe las asechanzas del demonio,\nDe la ira, del odio y de toda mala voluntad,\nDel espíritu de fornicación,\nDel rayo y de la tempestad,\nDel azote del terremoto,\nDe la peste, del hambre y de la guerra,\nDe la muerte eterna,\nPor el misterio de tu santa Encarnación,\nPor tu venida,\nPor tu nacimiento,\nPor tu bautismo y tu santo ayuno,\nPor tu Cruz y tu Pasión,\nPor tu muerte y sepultura,\nPor tu santa Resurrección,\nPor tu admirable Ascensión,\nPor la venida del Espíritu Santo Paráclito,\nEn el día del juicio,\n\nNosotros, pecadores, ℟. te rogamos, óyenos.\nQue nos perdones,\nQue nos concedas tu indulgencia,\nQue te dignes conducirnos a verdadera penitencia,\nQue te dignes gobernar y conservar tu santa Iglesia,\nQue te dignes conservar en tu santa religión al Sumo Pontífice y a todos los órdenes de la Iglesia,\nQue te dignes humillar a los enemigos de la santa Iglesia,\nQue te dignes dar paz y verdadera concordia a los reyes y príncipes cristianos,\nQue te dignes conceder paz y unidad a todo el pueblo cristiano,\nQue te dignes fortalecernos y conservarnos en tu santo servicio,\nQue eleves nuestras mentes a los deseos celestiales,\nQue des los bienes eternos a todos nuestros bienhechores,\nQue libres de la condenación eterna nuestras almas y las de nuestros hermanos, parientes y bienhechores,\nQue te dignes dar y conservar los frutos de la tierra,\nQue te dignes dar el descanso eterno a todos los fieles difuntos,\nQue te dignes escucharnos benignamente,\nHijo de Dios,\n\nCordero de Dios, que quitas los pecados del mundo, ℟. perdónanos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. escúchanos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. ten piedad de nosotros.\n\nCristo, óyenos. ℟. Cristo, escúchanos.\nSeñor, ten piedad de nosotros.\nCristo, ten piedad de nosotros.\nSeñor, ten piedad de nosotros.\n\n[Padre nuestro, en silencio.]\n\n℣. Y no nos dejes caer en la tentación.\n℟. Y líbranos del mal.\n\n℣. Señor, escucha mi oración.\n℟. Y llegue a ti mi clamor.\n\n[Oremos.]\n\nDios todopoderoso y eterno, que tienes dominio sobre los vivos y los muertos a la vez, y tienes misericordia de todos los que prevés que serán tuyos por la fe y las obras: te suplicamos humildemente que aquellos por quienes nos hemos propuesto derramar nuestras oraciones, ya los retenga todavía en la carne este mundo presente, ya los haya recibido libres del cuerpo el mundo venidero, por la intercesión de todos tus Santos y la bondad de tu misericordia, obtengan el perdón de todos sus pecados. Por nuestro Señor Jesucristo, tu Hijo, que vive y reina contigo en la unidad del Espíritu Santo y es Dios, por los siglos de los siglos.\n\n℟. Amén.",
+      "ai_translated": true
+    },
+    "morning_offering": {
+      "title": "Ofrecimiento de la mañana",
+      "text": "Oh Jesús, por medio del Corazón Inmaculado de María, te ofrezco mis oraciones, obras, alegrías y sufrimientos de este día, por todas las intenciones de tu Sagrado Corazón, en unión con el Santo Sacrificio de la Misa en todo el mundo, en reparación de mis pecados, por las intenciones de todos nuestros asociados y, en particular, por la intención que el Santo Padre recomienda este mes. Amén.",
+      "ai_translated": true
+    },
+    "grace_before": {
+      "title": "Oración antes de comer",
+      "text": "Bendícenos, Señor, y bendice estos alimentos\nque dados por tu bondad vamos a tomar.\nPor Cristo nuestro Señor. Amén."
+    },
+    "aquinas_before_study": {
+      "title": "Oración para antes de estudiar",
+      "text": "Creador inefable, que en los tesoros de tu sabiduría has establecido tres jerarquías de Ángeles, y las has colocado sobre el cielo empíreo con orden admirable y has dispuesto admirablemente todas las partes del universo.\n\nTú, pues, que eres considerado verdadera fuente de la luz, y principio eminentísimo de la sabiduría, dígnate infundir un rayo de tu claridad en las tinieblas de mi inteligencia, alejando de mí las dos clases de tinieblas con las que he nacido: la del pecado y la de la ignorancia.\n\nTú, que sueltas las lenguas de los niños, prepara mi lengua e infunde la gracia de tu bendición en mis labios.\n\nConcédeme la agudeza para entender, la capacidad para asimilar, el modo y la facilidad para aprender, la sutileza para interpretar y la gracia abundante para hablar.\n\nInstruye el comienzo, dirige el desarrollo, completa la conclusión. Tú, que eres verdadero Dios y hombre, y que vives y reinas por los siglos de los siglos. Amén."
+    },
+    "newman_definite_service": {
+      "title": "Algún servicio determinado",
+      "text": "Dios me ha creado para prestarle algún servicio determinado; me ha confiado una tarea que no ha confiado a ningún otro. Tengo mi misión. Puede que nunca la conozca en esta vida, pero se me dará a conocer en la otra.\n\nSoy un eslabón de una cadena, un lazo de unión entre personas. No me ha creado para nada. Haré el bien, haré su obra; seré un ángel de paz, un predicador de la verdad en el lugar que me corresponde, aun sin pretenderlo, con tal que guarde sus mandamientos y le sirva en mi vocación.\n\nPor tanto, confiaré en Él. Sea lo que sea, esté donde esté, nunca podré ser desechado. Si estoy enfermo, mi enfermedad puede servirle; si estoy perplejo, mi perplejidad puede servirle; si estoy triste, mi tristeza puede servirle. Mi enfermedad, o mi perplejidad, o mi tristeza pueden ser causas necesarias de algún gran fin que está muy por encima de nosotros. Él no hace nada en vano; puede alargar mi vida, puede acortarla; Él sabe lo que hace. Puede quitarme a mis amigos, puede arrojarme entre extraños, puede hacer que me sienta desolado, que se me abata el ánimo, puede ocultarme el futuro; aun así, Él sabe lo que hace.",
+      "ai_translated": true
+    },
+    "my_jesus_i_love_thee": {
+      "title": "Jesús mío, te amo",
+      "text": "Jesús mío, te amo sobre todas las cosas.",
+      "ai_translated": true
+    },
+    "st_joseph_pray": {
+      "title": "San José, ruega por nosotros",
+      "text": "San José, ruega por nosotros.",
+      "ai_translated": true
+    },
+    "jmj_heart_and_soul": {
+      "title": "Jesús, José y María",
+      "text": "Jesús, José y María\nos doy mi corazón y el alma mía.\nJesús, José y María\nasistidme en mi última agonía.\nJesús, José y María\ncon Vos descanse en paz el alma mía."
+    },
+    "holy_spirit_enlighten": {
+      "title": "Espíritu Santo, Espíritu de verdad",
+      "text": "Espíritu Santo, Espíritu de verdad, ven a nuestros corazones; derrama sobre todas las naciones el resplandor de tu luz, para que tengan una sola fe y sean agradables a Dios.",
+      "ai_translated": true
+    },
+    "aquinas_before_mass": {
+      "title": "Oración de Santo Tomás de Aquino antes de la Misa",
+      "text": "Omnipotente y sempiterno Dios, he aquí que me acerco al sacramento de tu Hijo unigénito, nuestro Señor Jesucristo: me acerco como enfermo al médico de la vida, como impuro a la fuente de la misericordia, como ciego a la luz de la claridad eterna, como pobre y necesitado al Señor del cielo y de la tierra.\n\nTe ruego, pues, por la abundancia de tu inmensa generosidad, que te dignes sanar mi enfermedad, lavar mi impureza, iluminar mi ceguera, enriquecer mi pobreza y vestir mi desnudez; para que reciba el Pan de los Ángeles, al Rey de reyes y Señor de señores, con tanta reverencia y humildad, con tanta contrición y devoción, con tanta pureza y fe, con tal propósito e intención, como conviene a la salvación de mi alma.\n\nConcédeme, te ruego, recibir no solo el sacramento del Cuerpo y de la Sangre del Señor, sino también la realidad y la virtud del sacramento. Oh Dios benignísimo, concédeme recibir de tal modo el Cuerpo de tu Hijo unigénito, nuestro Señor Jesucristo, que tomó de la Virgen María, que merezca ser incorporado a su cuerpo místico y contado entre sus miembros.\n\nOh Padre amantísimo, concédeme contemplar al fin para siempre, a cara descubierta, a tu amado Hijo, a quien ahora me propongo recibir velado en este camino: que vive y reina contigo en la unidad del Espíritu Santo y es Dios, por los siglos de los siglos. Amén.",
+      "ai_translated": true
+    },
+    "mary_after_communion": {
+      "title": "A la Santísima Virgen después de la Comunión",
+      "text": "Oh María, Virgen y Madre santísima, he aquí que he recibido a tu amadísimo Hijo, a quien concebiste en tu seno inmaculado, diste a luz, amamantaste y estrechaste con ternísimos abrazos.\n\nHe aquí a Aquel cuya vista te alegraba y te colmaba de toda delicia; a Él mismo, humilde y amorosamente, te lo presento y te lo ofrezco, para que lo estreches en tus brazos, lo ames con tu corazón y lo ofrezcas a la Santísima Trinidad en supremo culto de adoración, para tu propio honor y gloria, y por mis necesidades y las del mundo entero.\n\nTe pido, pues, Madre amantísima, que me alcances el perdón de todos mis pecados y gracia abundante para servirle en adelante con más fidelidad; y, por último, la gracia de la perseverancia final, para que contigo pueda alabarle por los siglos de los siglos. Amén.",
+      "ai_translated": true
+    },
+    "after_confession": {
+      "title": "Acción de gracias después de la Confesión",
+      "text": "[Si la penitencia impuesta es una oración, rézala primero, antes que ninguna otra cosa.]\n\nOh Dios todopoderoso y misericordiosísimo, que según la multitud de tus misericordias te has dignado recibirme una vez más, después de haberme apartado de ti tantas veces, y admitirme a la gracia de la reconciliación: te doy gracias con todas las potencias de mi alma por esta y por todas las misericordias, gracias y beneficios que me has concedido; y, postrándome a tus sagrados pies, me ofrezco a ser tuyo desde ahora y para siempre.\n\nQue nada, ni en la vida ni en la muerte, me separe jamás de ti. Renuncio con toda mi alma a todas mis traiciones contra ti y a todos los pecados de mi vida pasada; renuevo las promesas que se hicieron por mí en el Bautismo, y desde este momento me consagro para siempre a tu amor y a tu servicio.\n\nConcédeme que en adelante aborrezca el pecado más que la muerte misma, y que evite todas las ocasiones y compañías que por desgracia me han llevado a él. Esto me propongo hacer con la ayuda de tu divina gracia, sin la cual nada puedo. Suple con tu misericordia todo lo que haya faltado a esta confesión mía, y dame la gracia de ser, ahora y siempre, un verdadero penitente. Por Jesucristo nuestro Señor. Amén.",
+      "ai_translated": true
+    },
+    "litany_blessed_sacrament": {
+      "title": "Letanías del Santísimo Sacramento",
+      "text": "Señor, ten piedad de nosotros.\nCristo, ten piedad de nosotros.\nSeñor, ten piedad de nosotros.\nCristo, óyenos. ℟. Cristo, escúchanos.\n\nDios, Padre celestial, ℟. ten piedad de nosotros.\nDios Hijo, Redentor del mundo,\nDios Espíritu Santo,\nTrinidad Santa, un solo Dios,\n\nPan vivo, que bajaste del cielo, ℟. ten piedad de nosotros.\nDios escondido y Salvador,\nTrigo de los elegidos,\nVino que engendra vírgenes,\nPan sustancioso y delicia de los reyes,\nSacrificio perpetuo,\nOblación pura,\nCordero sin mancha,\nBanquete purísimo,\nAlimento de los ángeles,\nManá escondido,\nMemorial de las maravillas de Dios,\nPan supersustancial,\nVerbo hecho carne, que habitas en nosotros,\nHostia santa,\nCáliz de bendición,\nMisterio de fe,\n\nAltísimo y adorable Sacramento, ℟. ten piedad de nosotros.\nSacrificio, el más santo de todos,\nVerdadera propiciación por los vivos y los difuntos,\nAntídoto celestial, que nos preserva del pecado,\nMilagro, el más admirable de todos,\nConmemoración santísima de la Pasión de Cristo,\nDon que sobrepasa toda plenitud,\nMemorial singular del amor divino,\nAbundancia de la largueza divina,\nMisterio santísimo y augusto,\nMedicina de inmortalidad,\nSacramento tremendo y vivificante,\nPan hecho carne por la omnipotencia del Verbo,\nSacrificio incruento,\nNuestro banquete y nuestro comensal,\nDulcísimo convite, en el que sirven los ángeles,\nSacramento de piedad,\nVínculo de caridad,\nSacerdote y víctima,\nDulzura espiritual gustada en su propia fuente,\nAlivio de las almas santas,\nViático de los que mueren en el Señor,\nPrenda de la gloria futura,\n\nSénos propicio, ℟. perdónanos, Señor.\nSénos propicio, ℟. óyenos, Señor.\n\nDe la recepción indigna de tu Cuerpo y de tu Sangre, ℟. líbranos, Señor.\nDe la concupiscencia de la carne,\nDe la concupiscencia de los ojos,\nDe la soberbia de la vida,\nDe toda ocasión de pecado,\nPor aquel deseo con que deseaste comer esta Pascua con tus discípulos,\nPor aquella profunda humildad con que les lavaste los pies,\nPor aquella ardiente caridad con que instituiste este divino Sacramento,\nPor tu preciosa Sangre, que nos dejaste en el altar,\nPor las cinco llagas de este tu santísimo Cuerpo, que recibiste por nosotros,\n\nNosotros, pecadores, ℟. te rogamos, óyenos.\nQue te dignes conservar y aumentar nuestra fe, reverencia y devoción hacia este admirable Sacramento,\nQue te dignes conducirnos, por medio de una verdadera confesión de nuestros pecados, a la recepción frecuente de la Sagrada Eucaristía,\nQue te dignes librarnos de toda herejía, incredulidad y ceguera de corazón,\nQue te dignes concedernos los preciosos y celestiales frutos de este santísimo Sacramento,\nQue en la hora de nuestra muerte te dignes fortalecernos y defendernos con este Viático celestial,\nHijo de Dios,\n\nCordero de Dios, que quitas los pecados del mundo, ℟. perdónanos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. óyenos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. ten piedad de nosotros.\n\n℣. Les diste pan del cielo,\n℟. Que contiene en sí todo deleite.\n\n[Oremos.]\n\nOh Dios, que bajo un Sacramento admirable nos dejaste el memorial de tu Pasión: concédenos, te rogamos, venerar de tal modo los sagrados misterios de tu Cuerpo y de tu Sangre, que experimentemos siempre en nosotros el fruto de tu redención. Tú que vives y reinas por los siglos de los siglos.\n\n℟. Amén.",
+      "ai_translated": true
+    },
+    "secret_of_sanctity": {
+      "title": "El secreto de la santidad",
+      "text": "Oh Espíritu Santo, alma de mi alma, te adoro.\nIlumíname, guíame, fortaléceme, consuélame.\nDime lo que debo hacer; dame tus órdenes.\nTe prometo someterme a todo lo que desees de mí y aceptar todo lo que permitas que me suceda: solo hazme conocer tu voluntad. Amén.",
+      "ai_translated": true
+    },
+    "golden_arrow": {
+      "title": "La Flecha de Oro",
+      "text": "Que el más santo, el más sagrado, el más adorable, el más incomprensible e inefable Nombre de Dios sea siempre alabado, bendecido, amado, adorado y glorificado, en el cielo, en la tierra y bajo la tierra, por todas las criaturas salidas de las manos de Dios, y por el Sagrado Corazón de nuestro Señor Jesucristo en el Santísimo Sacramento del altar.\n\nAmén.",
+      "ai_translated": true
+    },
+    "ave_maris_stella": {
+      "title": "Salve, estrella del mar",
+      "text": "Salve, estrella del océano,\nMadre bendita de Dios,\nVirgen siempre sin pecado,\npuerta del descanso celestial.\n\nRecibiendo aquel dulce Ave\nque de Gabriel te llegó,\nafiánzanos en la paz,\ncambiando el nombre de Eva.\n\nRompe las cadenas de los pecadores,\nconvierte en día nuestra ceguera,\naleja de nosotros todos los males,\npide para nosotros todos los bienes.\n\nMuéstrate Madre,\ny que el Verbo divino,\nnacido por nosotros como Hijo tuyo,\nescuche por ti nuestras súplicas.\n\nVirgen sin igual,\nla más mansa entre todos,\nlíbranos de culpa\ny consérvanos mansos y puros.\n\nGuarda nuestra vida sin mancha,\nhaz seguro nuestro camino,\nhasta que hallemos en Jesús\nla alegría para siempre.\n\nAlabanza a Dios Padre,\nhonor al Hijo,\ny en el Espíritu Santo\nsea una la gloria. Amén.",
+      "ai_translated": true
+    },
+    "o_domina_mea": {
+      "title": "Ofrecimiento a la Santísima Virgen",
+      "text": "¡Oh Señora mía!\n¡Oh Madre mía!\nYo me ofrezco enteramente a ti\ny en prueba de mi filial afecto\nte consagro en este día,\nmis ojos, mis oídos, mi lengua, mi corazón;\nen una palabra, todo mi ser.\nYa que soy todo tuyo, oh Madre de bondad,\nguárdame y defiéndeme\ncomo a pertenencia y posesión tuya. Amén."
+    },
+    "our_lady_of_good_counsel": {
+      "title": "Oración a Nuestra Señora del Buen Consejo",
+      "text": "Gloriosísima Virgen, elegida por el Consejo eterno para ser la Madre del Verbo eterno hecho hombre, tesoro de las gracias divinas y abogada de los pecadores: yo, el más indigno de tus siervos, recurro a ti y te suplico que seas mi guía y mi consejera en este valle de lágrimas.\n\nAlcánzame, por la preciosísima Sangre de tu divino Hijo, el perdón de mis pecados y la salvación de mi alma, con todos los medios necesarios para conseguirla. Alcanza a la santa Iglesia el triunfo sobre sus enemigos y la extensión del Reino de Jesucristo sobre toda la tierra. Amén.",
+      "ai_translated": true
+    },
+    "mary_help_of_christians": {
+      "title": "Oración a María Auxiliadora",
+      "text": "Oh María, Virgen poderosa, tú eres la poderosa y gloriosa protectora de la Iglesia; tú eres el auxilio maravilloso de los cristianos; tú eres terrible como un ejército en orden de batalla; tú has destruido la herejía en el mundo entero.\n\nEn medio de nuestras angustias, nuestras luchas y nuestras aflicciones, defiéndenos del poder del enemigo, y en la hora de nuestra muerte recibe nuestras almas en el Paraíso. Amén.",
+      "ai_translated": true
+    },
+    "litany_seven_sorrows": {
+      "title": "Letanías de Nuestra Señora de los Dolores",
+      "text": "Señor, ten piedad de nosotros.\nCristo, ten piedad de nosotros.\nSeñor, ten piedad de nosotros.\nCristo, óyenos. ℟. Cristo, escúchanos.\n\nDios, Padre celestial, ℟. ten piedad de nosotros.\nDios Hijo, Redentor del mundo,\nDios Espíritu Santo,\nTrinidad Santa, un solo Dios,\n\nSanta María, Madre de Dios, ℟. ruega por nosotros.\nSanta Virgen de las vírgenes,\nMadre del Crucificado,\nMadre dolorosa,\nMadre llorosa,\nMadre suspirante,\nMadre afligida,\nMadre abandonada,\nMadre desolada,\n\nMadre tristísima, ℟. ruega por nosotros.\nMadre rodeada de angustia,\nMadre abrumada por el dolor,\nMadre traspasada por una espada,\nMadre crucificada en tu corazón,\nMadre privada de tu Hijo,\nPaloma gimiente,\nMadre de los Dolores,\n\nFuente de lágrimas, ℟. ruega por nosotros.\nMar de amargura,\nCampo de tribulación,\nCúmulo de sufrimientos,\nEspejo de paciencia,\nRoca de constancia,\nRemedio en la perplejidad,\nAlegría de los afligidos,\n\nArca de los desolados, ℟. ruega por nosotros.\nRefugio de los abandonados,\nEscudo de los oprimidos,\nVencedora de los incrédulos,\nConsuelo de los desdichados,\nMedicina de los enfermos,\nAyuda de los desfallecidos,\nFortaleza de los débiles,\n\nProtectora de los que combaten, ℟. ruega por nosotros.\nPuerto de los náufragos,\nCalma de las tempestades,\nCompañera de los que sufren,\nRetiro de los que gimen,\nTerror de los traidores,\n\nAbanderada de los Mártires, ℟. ruega por nosotros.\nTesoro de los Fieles,\nLuz de los Confesores,\nPerla de las Vírgenes,\nConsuelo de las Viudas,\nAlegría de todos los Santos,\nReina de tus Siervos,\nSanta María, la única sin igual,\n\nCordero de Dios, que quitas los pecados del mundo, ℟. perdónanos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. óyenos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. ten piedad de nosotros.\n\n℣. Ruega por nosotros, Virgen dolorosísima,\n℟. Para que seamos dignos de las promesas de Cristo.\n\n[Oremos.]\n\nOh Dios, en cuya Pasión, según la profecía de Simeón, una espada de dolor traspasó el alma dulcísima de tu gloriosa y bienaventurada Virgen y Madre María: concede que nosotros, que celebramos la memoria de sus siete Dolores, obtengamos el feliz fruto de tu Pasión. Tú que vives y reinas por los siglos de los siglos.\n\n℟. Amén.",
+      "ai_translated": true
+    },
+    "st_anne": {
+      "title": "Oración a Santa Ana",
+      "text": "Oh buena Santa Ana, madre de la Virgen María y abuela de nuestro Salvador: Dios te eligió para traer al mundo a aquella que había de ser la Madre de su Hijo. Con plena confianza me dirijo a ti y me pongo bajo tu cuidado.\n\nToma a mi familia bajo tu protección. Enséñanos a amar a Jesús y a María como tú los amaste, y alcánzanos la gracia que ahora te pedimos.\n\n[Aquí se nombra el favor que se pide.]\n\nAcompáñanos en la vida y, en la hora de la muerte, llévanos a Jesús y a María, para que contigo alabemos a Dios para siempre. Amén.",
+      "ai_translated": true
+    },
+    "parents_for_children": {
+      "title": "Oración de los padres por sus hijos",
+      "text": "Oh Padre celestial, te encomiendo a mis hijos. Sé tú su Dios y su Padre, y suple misericordiosamente todo lo que por fragilidad o negligencia falte en mí. Fortalécelos para vencer las corrupciones del mundo, vengan de dentro o de fuera, y líbralos de las asechanzas ocultas del enemigo. Derrama tu gracia en sus corazones, y confirma y multiplica en ellos los dones de tu Espíritu Santo, para que cada día crezcan en la gracia y en el conocimiento de nuestro Señor Jesucristo; y así, sirviéndote fielmente aquí, lleguen a gozar de tu presencia en la otra vida. Por el mismo Cristo nuestro Señor. Amén.",
+      "ai_translated": true
+    },
+    "prayer_for_our_country": {
+      "title": "Por nuestra patria",
+      "text": "Te rogamos, oh Dios de poder, sabiduría y justicia, por quien se ejerce rectamente la autoridad, se promulgan las leyes y se dictan los juicios, que asistas con tu Santo Espíritu de consejo y fortaleza al Presidente de estos Estados Unidos, para que su gobierno se conduzca con rectitud y sea de gran provecho para tu pueblo, al que preside: fomentando el debido respeto a la virtud y a la religión, ejecutando fielmente las leyes con justicia y misericordia, y refrenando el vicio y la inmoralidad.\n\nQue la luz de tu divina sabiduría dirija las deliberaciones del Congreso y resplandezca en todas las actuaciones y leyes dictadas para nuestro orden y gobierno, de modo que contribuyan a conservar la paz, a promover la felicidad de la nación y a acrecentar la laboriosidad, la sobriedad y el saber útil, y perpetúen para nosotros la bendición de una libertad igual para todos.\n\nTe rogamos por su excelencia el gobernador de este estado, por los miembros de la asamblea, por todos los jueces, magistrados y demás funcionarios designados para velar por nuestro bienestar político, para que, con tu poderosa protección, puedan cumplir con honradez y competencia los deberes de sus respectivos cargos.\n\nEncomendamos asimismo a tu misericordia infinita a todos nuestros hermanos y conciudadanos de todos los Estados Unidos, para que sean bendecidos en el conocimiento de tu santísima ley y santificados en su observancia; para que se conserven en la unión y en aquella paz que el mundo no puede dar; y, después de gozar de las bendiciones de esta vida, sean admitidos a las que son eternas. Amén.",
+      "ai_translated": true
+    },
+    "examen": {
+      "title": "El examen antes de dormir",
+      "text": "[Da gracias a Dios por los dones de este día.]\nTe doy gracias, Dios mío, por todos los beneficios que me has concedido en este día.\n\n[Pide luz para ver el día como Él lo ve.]\nDame luz, Señor, para conocer mis pecados y para ver este día como tú lo ves.\n\n[Repasa el día, hora por hora: lo que hiciste, dijiste y pensaste, y lo que dejaste de hacer.]\nSondéame, oh Dios, y conoce mi corazón; examíname y conoce mis caminos.\n\n[Pide perdón por lo que estuvo mal.]\nOh Dios, ten piedad de mí, que soy pecador.\n\n[Propón, con su gracia, enmendarte mañana.]\nConcédeme, Señor, la gracia de enmendar mi vida y de servirte mejor mañana. Amén.",
+      "ai_translated": true
+    },
+    "sweet_heart": {
+      "title": "Dulce Corazón de Jesús",
+      "text": "Dulce Corazón de Jesús, sé mi amor.\nDulce Corazón de María, sé mi salvación.",
+      "ai_translated": true
+    },
+    "blessed_be_conception": {
+      "title": "Bendita sea su Inmaculada Concepción",
+      "text": "Bendita sea la santa e Inmaculada Concepción\nde la Bienaventurada Virgen María, Madre de Dios.",
+      "ai_translated": true
+    },
+    "jmj": {
+      "title": "Jesús, José y María",
+      "text": "Jesús, José y María, os doy mi corazón y el alma mía.\nJesús, José y María, asistidme en mi última agonía.\nJesús, José y María, con Vos descanse en paz el alma mía."
+    },
+    "st_ambrose_before_mass": {
+      "title": "Oración de San Ambrosio antes de la Misa",
+      "text": "Oh Sumo Sacerdote y verdadero Pontífice, que te ofreciste a Dios Padre como hostia pura e inmaculada en el ara de la cruz por nosotros, miserables pecadores; que nos diste tu carne para comer y tu sangre para beber, e instituiste este misterio en la virtud del Espíritu Santo, diciendo: Cada vez que hagáis esto, lo haréis en memoria mía:\n\nte ruego por esa misma sangre tuya, gran precio de nuestra salvación; te ruego por ese admirable e inefable amor con que te dignaste amarnos de tal modo, miserables e indignos como somos, que nos lavaste de nuestros pecados en tu sangre:\n\nenséñame a mí, tu indigno siervo, a quien, entre tus demás dones, te dignaste llamar al oficio sacerdotal, no por mérito alguno mío, sino por pura condescendencia de tu misericordia; enséñame, por tu Espíritu Santo, a tratar tan gran misterio con aquella reverencia y honor, aquella devoción y temor, que se deben y convienen. Amén.",
+      "ai_translated": true
+    },
+    "before_confession": {
+      "title": "Oración antes de la confesión",
+      "text": "Recibe mi confesión, oh amantísimo y clementísimo Señor Jesucristo, única esperanza de la salvación de mi alma. Concédeme verdadera contrición del alma, para que día y noche satisfaga con la penitencia por mis muchos pecados.\n\nSalvador del mundo, oh buen Jesús, que te entregaste a la muerte de cruz para salvar a los pecadores, mírame a mí, el más miserable de todos los pecadores; ten piedad de mí y dame luz para conocer mis pecados, verdadero dolor de ellos y firme propósito de no volver a cometerlos jamás. Amén.",
+      "ai_translated": true
+    },
+    "adoro_te": {
+      "title": "Himno a Jesús Sacramentado",
+      "text": "Te adoro con devoción, Dios escondido,\noculto verdaderamente bajo estas apariencias.\nA Ti se somete mi corazón por completo,\ny se rinde totalmente al contemplarte.\n\nAl juzgar de Ti, se equivocan la vista, el tacto, el gusto;\npero basta el oído para creer con firmeza;\ncreo todo lo que ha dicho el Hijo de Dios:\nnada es más verdadero que esta Palabra de verdad.\n\nEn la Cruz se escondía sólo la Divinidad,\npero aquí se esconde también la Humanidad;\nsin embargo, creo y confieso ambas cosas,\ny pido lo que pidió aquel ladrón arrepentido.\n\nNo veo las llagas como las vio Tomás\npero confieso que eres mi Dios:\nhaz que yo crea más y más en Ti,\nque en Ti espere y que te ame.\n\n¡Memorial de la muerte del Señor!\nPan vivo que das vida al hombre:\nconcede a mi alma que de Ti viva\ny que siempre saboree tu dulzura.\n\nSeñor Jesús, Pelícano bueno,\nlímpiame a mí, inmundo, con tu Sangre,\nde la que una sola gota puede liberar\nde todos los crímenes al mundo entero.\n\nJesús, a quien ahora veo oculto, te ruego,\nque se cumpla lo que tanto ansío:\nque al mirar tu rostro cara a cara,\nsea yo feliz viendo tu gloria.\nAmén."
+    },
+    "litany_holy_name": {
+      "title": "Letanías del Santísimo Nombre de Jesús",
+      "text": "Señor, ten piedad de nosotros.\nCristo, ten piedad de nosotros.\nSeñor, ten piedad de nosotros.\nJesús, óyenos. ℟. Jesús, escúchanos.\n\nDios Padre celestial, ℟. ten piedad de nosotros.\nDios Hijo, Redentor del mundo,\nDios Espíritu Santo,\nSantísima Trinidad, un solo Dios,\n\nJesús, Hijo de Dios vivo, ℟. ten piedad de nosotros.\nJesús, esplendor del Padre,\nJesús, resplandor de la luz eterna,\nJesús, Rey de la gloria,\nJesús, sol de justicia,\nJesús, Hijo de la Virgen María,\n\nJesús amabilísimo, ℟. ten piedad de nosotros.\nJesús admirabilísimo,\nJesús, Dios fuerte,\nJesús, Padre del siglo venidero,\nJesús, ángel del gran consejo,\nJesús poderosísimo,\nJesús pacientísimo,\nJesús obedientísimo,\nJesús, manso y humilde de corazón,\n\nJesús, amante de la castidad, ℟. ten piedad de nosotros.\nJesús, amador nuestro,\nJesús, Dios de paz,\nJesús, autor de la vida,\nJesús, modelo de virtudes,\nJesús, amante de las almas,\nJesús, Dios nuestro,\n\nJesús, refugio nuestro, ℟. ten piedad de nosotros.\nJesús, padre de los pobres,\nJesús, tesoro de los fieles,\nJesús, buen Pastor,\nJesús, luz verdadera,\nJesús, sabiduría eterna,\nJesús, bondad infinita,\nJesús, camino y vida nuestra,\n\nJesús, alegría de los ángeles, ℟. ten piedad de nosotros.\nJesús, Rey de los patriarcas,\nJesús, maestro de los apóstoles,\nJesús, doctor de los evangelistas,\nJesús, fortaleza de los mártires,\nJesús, luz de los confesores,\nJesús, pureza de las vírgenes,\nJesús, corona de todos los santos,\n\nSé propicio, ℟. perdónanos, Jesús.\nSé propicio, ℟. escúchanos, Jesús.\n\nDe todo mal, ℟. líbranos, Jesús.\nDe todo pecado,\nDe tu ira,\nDe las asechanzas del demonio,\nDel espíritu de fornicación,\nDe la muerte eterna,\nDel menosprecio de tus inspiraciones,\n\nPor el misterio de tu santa Encarnación, ℟. líbranos, Jesús.\nPor tu natividad,\nPor tu infancia,\nPor tu divinísima vida,\nPor tus trabajos,\nPor tu agonía y pasión,\nPor tu cruz y desamparo,\nPor tus padecimientos,\nPor tu muerte y sepultura,\nPor tu resurrección,\nPor tu ascensión,\nPor tu institución de la santísima Eucaristía,\nPor tus gozos,\nPor tu gloria,\n\nCordero de Dios, que quitas los pecados del mundo, ℟. perdónanos, Jesús.\nCordero de Dios, que quitas los pecados del mundo, ℟. escúchanos, Jesús.\nCordero de Dios, que quitas los pecados del mundo, ℟. ten piedad de nosotros, Jesús.\n\nJesús, óyenos. ℟. Jesús, escúchanos.\n\n[Oremos.]\n\nSeñor Jesucristo, que dijiste: Pedid y recibiréis, buscad y hallaréis, llamad y se os abrirá; concede, te rogamos, a quienes te pedimos el don de tu divino amor, que te amemos siempre con todo el corazón, y en todas nuestras palabras y obras, y que nunca cesemos de alabarte.\n\nDanos, Señor, un perpetuo temor y amor de tu santo Nombre, pues nunca dejas de gobernar a los que estableces firmemente en tu amor. Tú que vives y reinas por los siglos de los siglos.\n\n℟. Amén.",
+      "ai_translated": true
+    },
+    "consecration_sacred_heart": {
+      "title": "Acto de consagración al Sagrado Corazón",
+      "text": "Yo, N., me entrego y consagro al Sagrado Corazón de nuestro Señor Jesucristo: mi persona y mi vida, mis acciones, penas y sufrimientos, para no querer servirme ya de ninguna parte de mi ser sino para honrarle, amarle y glorificarle.\n\nEsta es mi voluntad irrevocable: ser todo suyo y hacerlo todo por su amor, renunciando de todo corazón a cuanto pueda desagradarle.\n\nTe tomo, pues, oh Sagrado Corazón, por único objeto de mi amor, protector de mi vida, seguridad de mi salvación, remedio de mi fragilidad e inconstancia, reparador de todas las faltas de mi vida y asilo seguro en la hora de mi muerte.\n\nSé tú, oh Corazón de bondad, mi justificación ante Dios tu Padre, y aparta de mí los golpes de su justa ira. Oh Corazón de amor, pongo en ti toda mi confianza, porque todo lo temo de mi propia debilidad y malicia, pero todo lo espero de tu bondad.\n\nConsume, pues, en mí cuanto pueda desagradarte o resistirte. Que tu puro amor te imprima tan hondamente en mi corazón, que nunca pueda olvidarte ni separarme de ti.\n\nTe suplico, por toda tu bondad, que mi nombre quede escrito en ti, pues quiero poner toda mi dicha y toda mi gloria en vivir y morir como esclavo tuyo. Amén.",
+      "ai_translated": true
+    },
+    "litany_precious_blood": {
+      "title": "Letanías de la Preciosísima Sangre",
+      "text": "Señor, ten piedad de nosotros.\nCristo, ten piedad de nosotros.\nSeñor, ten piedad de nosotros.\nCristo, óyenos. ℟. Cristo, escúchanos.\n\nDios Padre celestial, ℟. ten piedad de nosotros.\nDios Hijo, Redentor del mundo,\nDios Espíritu Santo,\nSantísima Trinidad, un solo Dios,\n\nSangre de Cristo, Unigénito del Padre Eterno, ℟. sálvanos.\nSangre de Cristo, Verbo de Dios encarnado,\nSangre de Cristo, del Nuevo y Eterno Testamento,\nSangre de Cristo, que corrió por la tierra en la agonía,\nSangre de Cristo, que brotó en la flagelación,\nSangre de Cristo, que manó en la coronación de espinas,\nSangre de Cristo, derramada en la cruz,\nSangre de Cristo, precio de nuestra salvación,\nSangre de Cristo, sin la cual no hay perdón,\nSangre de Cristo, bebida y purificación de las almas en la Eucaristía,\nSangre de Cristo, río de misericordia,\nSangre de Cristo, vencedora de los demonios,\nSangre de Cristo, fortaleza de los mártires,\nSangre de Cristo, fuerza de los confesores,\nSangre de Cristo, que engendra vírgenes,\nSangre de Cristo, sostén de los que están en peligro,\nSangre de Cristo, alivio de los que trabajan,\nSangre de Cristo, solaz en el llanto,\nSangre de Cristo, esperanza de los penitentes,\nSangre de Cristo, consuelo de los moribundos,\nSangre de Cristo, paz y dulzura de los corazones,\nSangre de Cristo, prenda de la vida eterna,\nSangre de Cristo, que libra a las almas del abismo del purgatorio,\nSangre de Cristo, dignísima de toda gloria y honor,\n\nCordero de Dios, que quitas los pecados del mundo, ℟. perdónanos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. escúchanos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. ten piedad de nosotros.\n\n℣. Nos redimiste, Señor, con tu Sangre,\n℟. E hiciste de nosotros un reino para nuestro Dios.\n\n[Oremos.]\n\nDios todopoderoso y eterno, que constituiste a tu Hijo unigénito Redentor del mundo y quisiste ser aplacado con su Sangre: concédenos, te rogamos, venerar de tal modo este precio de nuestra salvación, y ser por su virtud tan defendidos en la tierra de los males de la vida presente, que gocemos de su fruto eterno en el cielo. Por el mismo Cristo nuestro Señor.\n\n℟. Amén.",
+      "ai_translated": true
+    },
+    "st_richard": {
+      "title": "Oración de San Ricardo de Chichester",
+      "text": "Gracias te sean dadas, mi Señor Jesucristo, por todos los beneficios que me has concedido, por todas las penas e injurias que has sufrido por mí. Oh misericordiosísimo Redentor, Amigo y Hermano, que te conozca más claramente, te ame más entrañablemente y te siga más de cerca, día tras día. Amén.",
+      "ai_translated": true
+    },
+    "generosity_ignatius": {
+      "title": "Oración por la generosidad",
+      "text": "Señor Jesús, enséñanos a ser generosos;\na servirte como tú mereces;\na dar sin contar;\na combatir sin hacer caso de las heridas;\na trabajar sin buscar descanso;\na entregarnos sin esperar otra recompensa\nque saber que hacemos tu santa voluntad. Amén.",
+      "ai_translated": true
+    },
+    "ave_regina_caelorum": {
+      "title": "Salve, Reina de los cielos",
+      "text": "Salve, Reina de los cielos,\nsalve, Señora de los ángeles;\nsalve, raíz; salve, puerta,\npor quien vino al mundo la luz.\n\nAlégrate, Virgen gloriosa,\nhermosa sobre todas;\nadiós, oh bellísima,\ny ruega a Cristo por nosotros.\n\n℣. Permíteme alabarte, oh Virgen sagrada.\n℟. Dame fuerza contra tus enemigos.\n\n[Oremos.]\n\nConcede, oh Dios misericordioso, tu protección a nuestra flaqueza, para que quienes celebramos la memoria de la santa Madre de Dios, con la ayuda de su intercesión nos levantemos de nuestras iniquidades. Por el mismo Cristo nuestro Señor. Amén.",
+      "ai_translated": true
+    },
+    "inviolata": {
+      "title": "Inviolada",
+      "text": "Inviolada, íntegra y casta eres, María,\nque fuiste hecha resplandeciente puerta del cielo.\nOh Madre amorosa de Cristo, queridísima,\nrecibe nuestros devotos pregones de alabanza.\nCorazones y labios devotos te suplican ahora\nque nuestros corazones y cuerpos sean puros.\nPor tus dulcísonas plegarias\nconcédenos el perdón para siempre.\n¡Oh benigna! ¡Oh Reina! ¡Oh María,\nque sola permaneciste inviolada!",
+      "ai_translated": true
+    },
+    "tota_pulchra": {
+      "title": "Toda hermosa eres",
+      "text": "Toda hermosa eres, oh María,\ny la mancha original no está en ti.\nTú eres la gloria de Jerusalén,\ntú eres la alegría de Israel,\ntú eres la honra de nuestro pueblo,\ntú eres la abogada de los pecadores.\nOh María,\nVirgen prudentísima,\nMadre clementísima,\nruega por nosotros,\nintercede por nosotros ante nuestro Señor Jesucristo.\n\n℣. En tu concepción, oh Virgen, fuiste inmaculada.\n℟. Ruega por nosotros al Padre, cuyo Hijo diste a luz.\n\n[Oremos.]\n\nOh Dios, que por la Inmaculada Concepción de la Virgen preparaste a tu Hijo una digna morada: te rogamos que, así como por la muerte prevista de ese mismo Hijo la preservaste de toda mancha, nos concedas también a nosotros, purificados por su intercesión, llegar hasta ti. Por el mismo Cristo nuestro Señor. Amén.",
+      "ai_translated": true
+    },
+    "perpetual_help": {
+      "title": "A Nuestra Madre del Perpetuo Socorro",
+      "text": "Oh Madre del Perpetuo Socorro, concédeme que invoque siempre tu poderosísimo nombre, que es protección de los vivos y salvación de los moribundos.\n\nOh purísima María, oh dulcísima María, que tu nombre esté desde hoy siempre en mis labios. No tardes, oh Señora bendita, en socorrerme cada vez que te invoque; porque en todas mis necesidades, en todas mis tentaciones, nunca dejaré de invocarte, repitiendo siempre tu sagrado nombre: María, María.\n\n¡Oh, qué consuelo, qué dulzura, qué confianza, qué emoción llenan mi alma cuando pronuncio tu sagrado nombre, o tan solo pienso en ti! Doy gracias al Señor por haberte dado, para mi bien, un nombre tan dulce, tan poderoso, tan amable.\n\nPero no me contentaré con solo pronunciar tu nombre: que mi amor por ti me mueva a saludarte siempre como Madre del Perpetuo Socorro. Amén.",
+      "ai_translated": true
+    },
+    "immaculate_heart": {
+      "title": "Oración al Corazón de María",
+      "text": "Corazón de María, Madre de Dios y Madre nuestra; Corazón amabilísimo, en el que la adorable Trinidad se complace siempre, digno de toda la veneración y ternura de los ángeles y de los hombres; Corazón el más semejante al Corazón de Jesús, del cual eres la imagen más perfecta; Corazón lleno de bondad, siempre compasivo con nuestras miserias: dígnate derretir el hielo de nuestros corazones, para que se transformen enteramente a semejanza del Corazón de Jesús.\n\nInfúndeles el amor de tus virtudes, inflámalos con aquel fuego bienaventurado en que tú ardes siempre. Halle en ti la santa Iglesia un refugio seguro; protégela y sé su dulce asilo, su torre de fortaleza, inexpugnable a todo asalto de sus enemigos. Sé tú el camino que conduce a Jesús; sé tú el canal por donde recibamos todas las gracias necesarias para nuestra salvación.\n\nSé nuestra ayuda en la necesidad, nuestro consuelo en la tribulación, nuestra fortaleza en la tentación, nuestro refugio en la persecución, nuestro auxilio en todos los peligros; pero sobre todo en el último combate de nuestra vida, en el momento de nuestra muerte, cuando todo el infierno se desencadene contra nosotros para arrebatarnos el alma.\n\nEn aquel trance temible, en aquella hora tan terrible de la que depende nuestra eternidad, ¡ah!, entonces, Virgen tiernísima, haznos sentir cuán grande es la ternura de tu Corazón maternal y cuán grande tu poder ante el Corazón de Jesús, abriéndonos un refugio seguro en la misma fuente de la misericordia, para que también nosotros podamos unirnos contigo en el Paraíso para bendecir ese mismo Corazón de Jesús por los siglos de los siglos. Amén.",
+      "ai_translated": true
+    },
+    "st_peregrine": {
+      "title": "Oración a San Peregrino",
+      "text": "Oh glorioso San Peregrino, que respondiste a la llamada de María y dejaste el mundo para servir a su Hijo en la Orden de sus Siervos; que soportaste con paciencia una dolorosa enfermedad y fuiste sanado por la mano de Cristo, que se inclinó hacia ti desde la cruz: mira con piedad a todos los que sufren.\n\nAlcánzame, si es voluntad de Dios, alivio en esta enfermedad, y gracia para llevar con paciencia y confianza lo que deba llevar.\n\n[Nombra aquí a la persona enferma.]\n\nRuega por nosotros, para que en la salud y en la enfermedad amemos a Dios, y al final lleguemos a alabarle contigo para siempre. Amén.",
+      "ai_translated": true
+    },
+    "st_benedict_medal": {
+      "title": "Los versos de la medalla de San Benito",
+      "text": "Que la santa Cruz sea mi luz;\nque el dragón no sea mi guía.\n\nApártate, Satanás;\nnunca me aconsejes vanidades.\nMala es la copa que me ofreces;\nbebe tú mismo tu veneno.",
+      "ai_translated": true
+    },
+    "st_gertrude": {
+      "title": "Ofrecimiento de Santa Gertrudis por las almas del purgatorio",
+      "text": "Padre Eterno, te ofrezco la preciosísima Sangre de tu divino Hijo Jesús, junto con todas las Misas que hoy se celebran en el mundo entero, por todas las benditas almas del purgatorio, por los pecadores de todo lugar, por los pecadores de la Iglesia universal, y por los de mi propia casa y de mi propia familia. Amén.",
+      "ai_translated": true
+    },
+    "prayer_for_family": {
+      "title": "Por la familia",
+      "text": "Oh Dios de bondad y de misericordia, a tu paternal protección encomendamos nuestra familia, nuestro hogar y todo lo que nos pertenece. Todo lo ponemos en tu amor y bajo tu custodia: llena esta casa de tus bendiciones, como llenaste con tu presencia la santa casa de Nazaret. Aleja de nosotros, ante todo, la mancha del pecado; y reina tú solo entre nosotros por tu ley, por tu santo amor y por la práctica de todas las virtudes cristianas. Que cada uno de nosotros te obedezca, te ame y siga en su propia vida tu ejemplo, y el de María, tu Madre y nuestra, y el de San José, tu fiel custodio.\n\nGuárdanos a nosotros y a nuestra casa de todo mal y desgracia; pero concédenos estar siempre resignados a tu santa voluntad, aun en las penas que te plazca enviarnos. Danos a todos la gracia de vivir en perfecta paz unos con otros y en caridad con nuestro prójimo, y concede que cada uno de nosotros viva de tal modo que reciba el consuelo de tus santos Sacramentos en la hora de la muerte. Oh Jesús, bendícenos y guárdanos.\n\nOh María, Madre de gracia y de misericordia, defiéndenos del espíritu maligno, reconcílianos con tu Hijo y encomiéndanos a él, para que seamos dignos de sus promesas.\n\nSan José, padre adoptivo de nuestro Salvador, custodio de su santa Madre, cabeza de la Sagrada Familia, ruega por nosotros, bendícenos y defiende nuestro hogar en todo tiempo.\n\nBendice esta casa, oh Dios Padre, que nos creaste; oh Dios Hijo, que padeciste por nosotros en la cruz; oh Dios Espíritu Santo, que nos santificaste en el Bautismo. Que el único Dios en tres Personas guarde nuestros cuerpos, purifique nuestras mentes, dirija nuestros corazones y nos lleve a todos a la vida eterna. Amén.",
+      "ai_translated": true
+    },
+    "grace_after": {
+      "title": "Oración después de comer",
+      "text": "Te damos gracias, Señor,\npor todos tus beneficios,\na ti que vives y reinas por los siglos de los siglos.\n℟. Amén.\n\n℣. Las almas de los difuntos por la misericordia de Dios descansen en paz.\n℟. Así sea."
+    },
+    "my_jesus_mercy": {
+      "title": "Jesús mío, misericordia",
+      "text": "Jesús mío, misericordia.",
+      "ai_translated": true
+    },
+    "jesus_meek": {
+      "title": "Jesús, manso y humilde de corazón",
+      "text": "Jesús, manso y humilde de corazón,\nhaz nuestro corazón semejante al Tuyo."
+    },
+    "totus_tuus": {
+      "title": "Todo tuyo",
+      "text": "Soy todo tuyo, y todo lo que tengo es tuyo,\noh amantísimo Jesús, por María, tu santísima Madre.",
+      "ai_translated": true
+    },
+    "aquinas_after_mass": {
+      "title": "Oración de Santo Tomás de Aquino después de la Misa",
+      "text": "Te doy gracias, Señor santo, Padre todopoderoso, Dios eterno, porque, sin mérito alguno de mi parte, sino por pura condescendencia de tu misericordia, te has dignado alimentarme a mí, pecador e indigno siervo tuyo, con el precioso Cuerpo y la Sangre de tu Hijo, nuestro Señor Jesucristo.\n\nY te pido que esta santa Comunión no sea para mí reato de culpa para castigo, sino intercesión saludable para el perdón. Sea para mí armadura de fe y escudo de buena voluntad.\n\nSea la expulsión de mis vicios, la extirpación de la concupiscencia y de la lujuria, el aumento de la caridad y de la paciencia, de la humildad y de la obediencia, y de todas las virtudes; firme defensa contra las asechanzas de todos mis enemigos, tanto visibles como invisibles; perfecta quietud de todos mis movimientos, tanto de la carne como del espíritu; firme adhesión a ti, único y verdadero Dios; y feliz consumación de mi fin.\n\nY te ruego que te dignes conducirme a mí, pecador, a aquel inefable banquete donde tú, con tu Hijo y el Espíritu Santo, eres para tus Santos luz verdadera, saciedad plena, gozo eterno, alegría consumada y felicidad perfecta. Por el mismo Cristo nuestro Señor. Amén.",
+      "ai_translated": true
+    },
+    "suscipe": {
+      "title": "Toma, Señor, y recibe",
+      "text": "Toma, Señor, y recibe toda mi libertad.\nToma mi memoria, mi entendimiento y toda mi voluntad.\nTodo cuanto tengo o poseo, tú me lo diste;\ntodo te lo devuelvo, y lo entrego por entero para que tu voluntad lo gobierne.\nDame solamente tu amor con tu gracia,\ny ya soy bastante rico, y no pido nada más. Amén.",
+      "ai_translated": true
+    },
+    "ave_verum": {
+      "title": "Salve, verdadero Cuerpo",
+      "text": "Salve, verdadero Cuerpo, nacido\nde la Virgen María,\nque verdaderamente padeció y fue inmolado\nen la cruz por el hombre;\ncuyo costado, al ser traspasado,\nmanó agua y sangre:\nsé para nosotros un anticipo\nen el trance de la muerte.\n\n¡Oh dulce Jesús, oh piadoso Jesús,\noh Jesús, Hijo de María!",
+      "ai_translated": true
+    },
+    "seven_gifts": {
+      "title": "Oración para pedir los siete dones del Espíritu Santo",
+      "text": "Oh Señor Jesucristo, que antes de subir al cielo prometiste enviar el Espíritu Santo para que acabara tu obra en las almas de tus discípulos, concédeme que el mismo Espíritu Santo perfeccione en mí la obra de tu gracia y de tu amor.\n\nConcédeme el Espíritu de Sabiduría, para que desprecie las cosas pasajeras de este mundo y anhele solo las eternas;\nel Espíritu de Entendimiento, para iluminar mi mente con la luz de tu verdad;\nel Espíritu de Consejo, para que elija siempre el camino más seguro de agradarte;\nel Espíritu de Fortaleza, para que lleve mi cruz contigo y venza todo obstáculo a mi salvación;\nel Espíritu de Ciencia, para que te conozca a ti y me conozca a mí mismo;\nel Espíritu de Piedad, para que tu servicio me sea dulce;\ny el Espíritu de Temor, para que me llene de amorosa reverencia hacia ti y tema sobre todo desagradarte.\n\nMárcame, amado Señor, con la señal de tus verdaderos discípulos, y lléname en todo de tu Espíritu. Amén.",
+      "ai_translated": true
+    },
+    "litany_holy_ghost": {
+      "title": "Letanías del Espíritu Santo",
+      "text": "Señor, ten piedad de nosotros.\nCristo, ten piedad de nosotros.\nSeñor, ten piedad de nosotros.\n\nPadre todopoderoso, ℟. ten piedad de nosotros.\nJesús, Hijo eterno del Padre, Redentor del mundo, ℟. sálvanos.\nEspíritu del Padre y del Hijo, vida infinita de ambos, ℟. santifícanos.\nSantísima Trinidad, ℟. óyenos.\n\nEspíritu Santo, que procedes del Padre y del Hijo, ℟. entra en nuestros corazones.\nEspíritu Santo, que eres igual al Padre y al Hijo, ℟. entra en nuestros corazones.\n\nPromesa de Dios Padre, ℟. ten piedad de nosotros.\nRayo de luz celestial,\nAutor de todo bien,\nManantial de agua celestial,\nFuego consumidor,\nCaridad ardiente,\nUnción espiritual,\n\nEspíritu de amor y de verdad, ℟. ten piedad de nosotros.\nEspíritu de sabiduría y de entendimiento,\nEspíritu de consejo y de fortaleza,\nEspíritu de ciencia y de piedad,\nEspíritu de temor del Señor,\nEspíritu de gracia y de oración,\nEspíritu de paz y de mansedumbre,\nEspíritu de modestia y de inocencia,\n\nEspíritu Santo Consolador, ℟. ten piedad de nosotros.\nEspíritu Santo Santificador,\nEspíritu Santo, que gobiernas la Iglesia,\nDon del Dios Altísimo,\nEspíritu que llenas el universo,\nEspíritu de adopción de los hijos de Dios,\n\nEspíritu Santo, inspíranos horror al pecado.\nEspíritu Santo, ven y renueva la faz de la tierra.\nEspíritu Santo, derrama tu luz en nuestras almas.\nEspíritu Santo, graba tu ley en nuestros corazones.\nEspíritu Santo, inflámanos con la llama de tu amor.\nEspíritu Santo, ábrenos los tesoros de tus gracias.\nEspíritu Santo, enséñanos a orar bien.\n\nEspíritu Santo, ilumínanos con tus celestiales inspiraciones.\nEspíritu Santo, guíanos por el camino de la salvación.\nEspíritu Santo, concédenos la única ciencia necesaria.\nEspíritu Santo, inspíranos la práctica del bien.\nEspíritu Santo, concédenos los méritos de todas las virtudes.\nEspíritu Santo, haz que perseveremos en la justicia.\nEspíritu Santo, sé tú nuestra recompensa eterna.\n\nCordero de Dios, que quitas los pecados del mundo, ℟. envíanos tu Espíritu Santo.\nCordero de Dios, que quitas los pecados del mundo, ℟. derrama en nuestras almas los dones del Espíritu Santo.\nCordero de Dios, que quitas los pecados del mundo, ℟. concédenos el Espíritu de sabiduría y de piedad.\n\n℣. ¡Ven, Espíritu Santo! Llena los corazones de tus fieles,\n℟. Y enciende en ellos el fuego de tu amor.\n\n[Oremos.]\n\nConcede, oh Padre misericordioso, que tu divino Espíritu nos ilumine, nos inflame y nos purifique, que nos penetre con su rocío celestial y nos haga fecundos en buenas obras, por nuestro Señor Jesucristo, tu Hijo, que contigo vive y reina en la unidad del mismo Espíritu, por los siglos de los siglos.\n\n℟. Amén.",
+      "ai_translated": true
+    },
+    "precious_blood_offering": {
+      "title": "Ofrecimiento de la Preciosísima Sangre",
+      "text": "Eterno Padre, te ofrezco la Preciosísima Sangre de Jesucristo en satisfacción de mis pecados y por las necesidades de la Santa Iglesia.\n\nAmén.",
+      "ai_translated": true
+    },
+    "christ_the_king": {
+      "title": "Acto de consagración del género humano a Cristo Rey",
+      "text": "Dulcísimo Jesús, Redentor del género humano, míranos humildemente postrados ante tu altar. Tuyos somos y tuyos queremos ser; y para estar más firmemente unidos a ti, he aquí que cada uno de nosotros se consagra hoy libremente a tu Sacratísimo Corazón.\n\nMuchos, en verdad, nunca te han conocido; muchos, despreciando tus mandamientos, te han rechazado. Ten misericordia de todos ellos, benignísimo Jesús, y atráelos a todos a tu santo Corazón.\n\nSé tú Rey, Señor, no solo de los fieles que nunca se han apartado de ti, sino también de los hijos pródigos que te han abandonado: haz que vuelvan pronto a la casa paterna, para que no perezcan de miseria y de hambre.\n\nSé tú Rey de aquellos a quienes engañan opiniones erróneas o a quienes la discordia mantiene separados, y llámalos de nuevo al puerto de la verdad y a la unidad de la fe, para que pronto haya un solo rebaño y un solo pastor.\n\nConcede, Señor, a tu Iglesia libertad segura y sin peligro; concede a todos los pueblos la tranquilidad del orden; haz que de un extremo a otro de la tierra resuene una sola voz: ¡Alabado sea el divino Corazón, por el que nos vino la salvación; a él la gloria y el honor por siempre! Amén.",
+      "ai_translated": true
+    },
+    "salve_mater": {
+      "title": "Salve, Madre de misericordia",
+      "text": "Salve, Madre de misericordia,\nMadre de Dios y Madre del perdón,\nMadre de la esperanza y Madre de la gracia,\nMadre llena de santa alegría.\n¡Oh María!\n\nSalve, gloria del género humano,\nsalve, Virgen más digna que todas las demás,\nque aventajas a todas las vírgenes\ny te sientas más alto entre los del cielo.\n¡Oh María!\n\nSalve, Virgen dichosa que diste a luz:\npues Aquel que se sienta a la diestra del Padre,\nrigiendo el cielo, la tierra y el firmamento,\nse encerró dentro de tu seno.\n¡Oh María!\n\nSé tú, Madre, nuestro consuelo;\nsé tú, oh Virgen, nuestra alegría;\ny al fin, después de este destierro,\núnenos gozosos a los coros del cielo.\n¡Oh María!",
+      "ai_translated": true
+    },
+    "our_lady_of_mount_carmel": {
+      "title": "Oración a Nuestra Señora del Carmen",
+      "text": "Santísima Virgen Inmaculada, belleza y esplendor del Carmelo, tú que miras con ojos de especial amor a quienes visten tu bendito hábito, mírame benignamente y extiende sobre mí el manto de tu maternal protección.\n\nFortalece mi debilidad con tu poder, ilumina las tinieblas de mi mente con tu sabiduría, aumenta en mí las virtudes de la Fe, la Esperanza y la Caridad. Adorna mi alma con tales gracias y virtudes que sea siempre grata a tu divino Hijo y a ti.\n\nAsísteme en la vida, consuélame en la muerte, con tu dulce presencia, y preséntame a la Santísima Trinidad como hijo tuyo y siervo devoto, para alabarte y bendecirte eternamente en el Paraíso. Amén.\n\n[Avemaría, tres veces; Gloria, una vez.]",
+      "ai_translated": true
+    },
+    "stabat_mater": {
+      "title": "Estaba la Madre dolorosa",
+      "text": "Estaba la Madre dolorosa\nllorando junto a la Cruz\nmientras su Hijo pendía.\n\nPor su alma, que gemía,\ntriste y dolorida,\npasó la espada.\n\n¡Oh, cuán triste y afligida\nestuvo aquella bendita,\nla Madre del Unigénito!\n\nSe lamentaba y se dolía\nla amorosa Madre, al contemplar\nlos tormentos de su glorioso Hijo.\n\n¿Quién es el hombre que no lloraría\nsi viera a la Madre de Cristo\nen tan grande angustia?\n\n¿Quién podría contener su pena\nal contemplar a la Madre de Cristo\ndoliéndose con su Hijo?\n\nPor los pecados de su pueblo\nvio a Jesús en los tormentos\ny entregado a los azotes.\n\nVio a su dulce Hijo\ndesamparado al morir,\ncuando entregó su espíritu.\n\nOh Madre, fuente de amor,\nhazme sentir la fuerza de tu dolor,\nhaz que llore contigo.\n\nHaz que mi corazón arda\nen el amor de Cristo mi Dios,\npara que le sea agradable.\n\nSanta Madre, haz esto por mí:\nclava las llagas del Crucificado\nen lo hondo de mi corazón.\n\nDe tu Hijo llagado,\nque tanto se dignó padecer por mí,\ncomparte conmigo las penas.\n\nHaz que llore contigo con amor\ny que me duela con el Crucificado\nmientras yo viva.\n\nEstar junto a la Cruz contigo\ny unirme a ti\nen el llanto, es mi deseo.\n\nVirgen, la más gloriosa de las vírgenes,\nno me seas amarga ahora;\nhaz que llore contigo.\n\nHaz que lleve la muerte de Cristo,\nhazme partícipe de su Pasión\ny que recuerde sus llagas.\n\nHaz que sea herido con sus llagas,\nhaz que me embriague con la Cruz\ny con la Sangre de tu Hijo.\n\nPara que no arda, encendido en las llamas,\npor ti, oh Virgen, sea yo defendido\nen el día del juicio.\n\nOh Cristo, cuando haya de partir de aquí,\nconcédeme que por tu Madre llegue\na la palma de la victoria.\n\nCuando mi cuerpo muera,\nhaz que a mi alma se le conceda\nla gloria del paraíso. Amén.",
+      "ai_translated": true
+    },
+    "our_lady_of_sorrows": {
+      "title": "Oración a Nuestra Señora de los Dolores",
+      "text": "℣. Dios mío, ven en mi auxilio.\n℟. Señor, date prisa en socorrerme.\n\n[Gloria al Padre.]\n\nMe compadezco de ti, María dolorosa, por la aflicción de tu tierno corazón ante la profecía del santo anciano Simeón. Madre amada, por tu corazón entonces tan afligido, alcánzame la virtud de la humildad y el don del santo temor de Dios.\n\n[Avemaría.]\n\nMe compadezco de ti, María dolorosa, por la angustia que padeció tu sensible corazón en la huida y estancia en Egipto. Madre amada, por tu corazón entonces tan angustiado, alcánzame la virtud de la liberalidad, sobre todo con los pobres, y el don de piedad.\n\n[Avemaría.]\n\nMe compadezco de ti, María dolorosa, por la congoja de tu ansioso corazón cuando perdiste a tu amado Hijo Jesús. Madre amada, por tu corazón entonces tan acongojado, alcánzame la virtud de la santa castidad y el don de ciencia.\n\n[Avemaría.]\n\nMe compadezco de ti, María dolorosa, por la conmoción que sufrió tu corazón maternal cuando Jesús te salió al encuentro con la Cruz a cuestas. Madre amada, por tu amante corazón entonces tan abrumado, alcánzame la virtud de la paciencia y el don de fortaleza.\n\n[Avemaría.]\n\nMe compadezco de ti, María dolorosa, por el martirio que tu generoso corazón soportó tan noblemente mientras estabas junto a Jesús en su agonía. Madre amada, por tu corazón entonces tan martirizado, alcánzame la virtud de la templanza y el don de consejo.\n\n[Avemaría.]\n\nMe compadezco de ti, María dolorosa, por la herida de tu tierno corazón cuando el sagrado Costado de Jesús fue traspasado por la lanza. Madre amada, por tu corazón entonces tan traspasado, alcánzame la virtud de la caridad fraterna y el don de entendimiento.\n\n[Avemaría.]\n\nMe compadezco de ti, María dolorosa, por el dolor que sintió tu amante corazón cuando el Cuerpo de Jesús fue depositado en el sepulcro. Madre amada, por toda la amargura de la desolación que entonces experimentaste, alcánzame la virtud de la diligencia y el don de sabiduría.\n\n[Avemaría.]\n\n℣. Ruega por nosotros, Virgen dolorosísima.\n℟. Para que seamos dignos de alcanzar las promesas de Cristo.\n\n[Oremos.]\n\nConcédenos, te rogamos, Señor Jesucristo, que la santísima Virgen María, tu Madre, interceda por nosotros ante el trono de tu misericordia, ahora y en la hora de nuestra muerte, ella cuya santísima alma fue traspasada por la espada del dolor en la hora de tu Pasión. Por ti, Jesucristo, Salvador del mundo, que vives y reinas por los siglos de los siglos.\n\n℟. Amén.",
+      "ai_translated": true
+    },
+    "memorare_st_joseph": {
+      "title": "Acordaos",
+      "text": "Acordaos, oh castísimo esposo de la Virgen María y amable protector mío San José, que jamás se ha oído decir que ninguno haya invocado vuestra protección e implorado vuestro auxilio sin haber sido consolado.\n\nLleno, pues, de confianza en vuestro poder, ya que ejercisteis con Jesús el cargo de Padre, vengo a vuestra presencia y me encomiendo a Vos con todo fervor. No desechéis mis súplicas, antes bien acogedlas propicio y dignaos acceder a ellas piadosamente. Amén."
+    },
+    "st_joseph_workers": {
+      "title": "Oración de San Pío X a San José, patrono y modelo de trabajadores",
+      "text": "Glorioso San José, modelo de todos aquellos que se dedican al trabajo, obtenedme la gracia de trabajar con espíritu de penitencia para la expiación de mis numerosos pecados;\n\nde trabajar en conciencia, poniendo el culto del deber por encima de mis inclinaciones; de trabajar con reconocimiento y alegría, considerando un honor el emplear y desarrollar por el trabajo los dones recibidos de Dios;\n\nde trabajar con orden, paz, moderación y paciencia, sin retroceder jamás ante la pereza y las dificultades; de trabajar sobre todo con pureza de intención y desprendimiento de mí mismo, teniendo sin cesar ante mis ojos la muerte y la cuenta que deberé rendir del tiempo perdido, de los talentos inutilizados, del bien omitido y de las vanas complacencias en el éxito, tan funestas para la obra de Dios.\n\nTodo por Jesús, todo por María, todo a imitación vuestra ¡oh Patriarca San José! Tal será mi divisa en la vida y en la muerte. Así sea."
+    },
+    "st_anthony": {
+      "title": "Oración a San Antonio",
+      "text": "Oh bendito San Antonio, el más dulce de los santos, por el amor que tuviste a Dios y la caridad que mostraste a sus criaturas, se te concedió en la tierra el poder de obrar maravillas. Tu palabra estaba siempre pronta para cuantos acudían a ti en la aflicción o en la necesidad, y el Señor la atendía.\n\nConfiando en esto, acudo a ti y te ruego que me alcances lo que te pido.\n\n[Pídase aquí la gracia que se desea.]\n\nSi lo que busco necesitara un milagro, tú eres el santo de los milagros.\n\nOh bondadoso y amante San Antonio, cuyo corazón fue siempre tierno con los hombres, presenta mi petición al Niño Jesús, a quien tuviste en tus brazos, y mi gratitud será tuya para siempre. Amén.",
+      "ai_translated": true
+    },
+    "st_jude": {
+      "title": "Oración a San Judas Tadeo",
+      "text": "Oh bendito San Judas, Apóstol y Mártir, pariente de nuestro Señor, grande en virtud y rico en milagros, fiel auxiliador de cuantos te invocan en la necesidad: a ti acudo desde lo hondo de mi corazón, y humildemente te pido, a ti a quien Dios ha concedido tan gran poder, que vengas en mi ayuda.\n\nSocórreme ahora en esta tribulación presente y urgente.\n\n[Pídase aquí lo que se necesita.]\n\nEn correspondencia, prometo dar a conocer tu nombre y hacer que seas honrado e invocado. Ruega por mí, para que nunca pierda la esperanza. Amén.",
+      "ai_translated": true
+    },
+    "conversion_of_sinners": {
+      "title": "Por la conversión de los pecadores",
+      "text": "Eterno Padre, te ofrecemos la Sangre, la Pasión y la Muerte de Jesucristo, los dolores de María Santísima y de San José, en satisfacción de nuestros pecados, en alivio de las benditas almas del Purgatorio, por las necesidades de nuestra santa Madre la Iglesia y por la conversión de los pecadores. Amén.",
+      "ai_translated": true
+    },
+    "happy_death": {
+      "title": "Por una buena muerte",
+      "text": "Oh Señor y Salvador mío, sostenme en mi última hora con los fuertes brazos de tus Sacramentos y con la fresca fragancia de tus consuelos. Que se pronuncien sobre mí las palabras de la absolución, que el santo óleo me signe y me selle, que tu propio Cuerpo sea mi alimento y tu Sangre mi aspersión; que mi dulce Madre, María, aliente sobre mí, que mi Ángel me susurre la paz y que mis gloriosos Santos me sonrían; para que en todos ellos y por todos ellos reciba el don de la perseverancia, y muera, como deseo vivir, en tu fe, en tu Iglesia, en tu servicio y en tu amor. Amén.",
+      "ai_translated": true
+    },
+    "prayer_for_travel": {
+      "title": "Antes de un viaje",
+      "text": "Por el camino de la paz y de la prosperidad nos guíe el Señor omnipotente y misericordioso: y el Ángel Rafael nos acompañe en el camino, para que volvamos a casa en paz, a salvo y con alegría.\n\n℣. Salva a tus siervos.\n℟. Que esperan en ti, Dios mío.\n℣. Envíanos, Señor, auxilio desde el santuario.\n℟. Y desde Sión defiéndenos.\n℣. Sé para nosotros, Señor, torre de fortaleza.\n℟. Frente al enemigo.\n℣. Muéstranos, Señor, tus caminos.\n℟. Y enséñanos tus sendas.\n℣. Dios ha dado orden a sus ángeles acerca de ti.\n℟. Para que te guarden en todos tus caminos.\n℣. Señor, escucha mi oración.\n℟. Y llegue a ti mi clamor.\n\n[Oremos.]\n\nOh Dios, que hiciste caminar a pie enjuto a los hijos de Israel por en medio del mar, y que abriste a los tres Magos el camino hacia ti guiándolos con una estrella: concédenos, te rogamos, un viaje próspero y un tiempo tranquilo; para que, con tu santo Ángel por compañero, lleguemos felizmente al lugar adonde vamos y, al fin, al puerto de la salvación eterna.\n\nAtiende, Señor, te rogamos, a nuestras súplicas, y dispón el camino de tus siervos en la prosperidad de tu salvación; para que, entre todas las vicisitudes de este camino y de esta vida, estemos siempre protegidos por tu auxilio. Por nuestro Señor Jesucristo, tu Hijo, que contigo vive y reina en la unidad del Espíritu Santo y es Dios, por los siglos de los siglos.\n℟. Amén.\n\n℣. Partamos en paz.\n℟. En el nombre del Señor. Amén.",
+      "ai_translated": true
+    },
+    "examination_of_conscience": {
+      "title": "Examen de conciencia",
+      "text": "[Pide luz al Espíritu Santo y luego avanza despacio; detente donde una pregunta te toque.]\n\n[I. Yo soy el Señor tu Dios; no tendrás dioses ajenos delante de mí.]\n¿He descuidado mis oraciones diarias, o las he rezado sin atención?\n¿He dudado de una verdad de la fe o la he negado, o he puesto en peligro mi fe por lo que leo o por las compañías que frecuento?\n¿He buscado ayuda en adivinos, horóscopos, amuletos o en el ocultismo?\n¿He desesperado de la misericordia de Dios, o he abusado de ella para pecar?\n¿He recibido algún sacramento indignamente, o he tratado las cosas santas sin reverencia?\n\n[II. No tomarás el nombre del Señor tu Dios en vano.]\n¿He usado el nombre de Dios, de Jesús o de los Santos a la ligera o con ira?\n¿He maldecido, o he hablado con desprecio de Dios, de la Iglesia o de las cosas santas?\n¿He jurado en falso, o sin necesidad?\n¿He quebrantado un voto o una promesa hecha a Dios?\n\n[III. Acuérdate de santificar el día de sábado.]\n¿He faltado a Misa un domingo o una fiesta de precepto por mi propia culpa?\n¿He llegado tarde o me he ido antes sin motivo justo, o me he distraído voluntariamente en Misa?\n¿He hecho trabajos serviles innecesarios en domingo, o he impedido a otros santificarlo?\n\n[IV. Honra a tu padre y a tu madre.]\n¿He faltado al respeto o a la obediencia a mis padres, o los he desatendido en su necesidad?\n¿He dejado de enseñar la fe a mis hijos, o de darles buen ejemplo?\n¿He faltado a mis deberes con mi esposo o esposa, o con quienes están a mi cuidado?\n¿He desobedecido a la autoridad legítima, o he descuidado mis deberes de ciudadano?\n\n[V. No matarás.]\n¿He alimentado ira, odio o deseo de venganza, o me he negado a perdonar?\n¿He herido a alguien en su cuerpo, o he tenido alguna parte en un aborto?\n¿He dañado mi propia vida o mi salud con excesos en la bebida o en las drogas, o por imprudencia?\n¿He llevado a otro al pecado con mis palabras o con mi ejemplo?\n\n[VI. No cometerás adulterio.]\n¿He cometido actos impuros, a solas o con otra persona?\n¿He mirado, leído o visto cosas impuras?\n¿He sido infiel a mi esposo o esposa, o he frustrado el fin del matrimonio?\n¿Me he puesto sin necesidad en ocasión de impureza?\n\n[VII. No hurtarás.]\n¿He robado, o me he quedado con lo que pertenece a otro?\n¿He engañado a alguien, o he dañado los bienes ajenos?\n¿He dejado de pagar mis deudas, o de dar un trabajo honrado a cambio de mi salario?\n¿He descuidado hacer la restitución que debo?\n¿He negado ayuda a los pobres cuando podía darla?\n\n[VIII. No dirás falso testimonio contra tu prójimo.]\n¿He mentido?\n¿He dado a conocer sin necesidad los defectos de otro?\n¿He dañado la buena fama de alguien diciendo lo que no es verdad?\n¿He juzgado a otros temerariamente, o he revelado un secreto que se me confió?\n\n[IX. No desearás la mujer de tu prójimo.]\n¿He consentido en pensamientos o deseos impuros, o me he complacido en ellos?\n¿He deseado al esposo o a la esposa de otro?\n¿He descuidado la guarda de mis ojos y de mi imaginación?\n\n[X. No codiciarás los bienes de tu prójimo.]\n¿He envidiado lo que tienen otros?\n¿He deseado tener injustamente lo que pertenece a otro?\n¿He puesto mi corazón en el dinero y en los bienes más que en Dios?\n\n[Los Mandamientos de la Iglesia]\n¿He guardado los días de ayuno y abstinencia?\n¿Me he confesado al menos una vez al año, y he comulgado por Pascua?\n¿He ayudado a sostener a la Iglesia según mis posibilidades?\n¿He guardado las leyes de la Iglesia sobre el matrimonio?\n\n[Los siete pecados capitales]\nSoberbia: ¿me he estimado en demasía, o he mirado a otros por encima del hombro?\nAvaricia: ¿he amado demasiado el dinero y las cosas?\nLujuria: ¿he cedido a la impureza en pensamiento, palabra u obra?\nIra: ¿he perdido los estribos, o he guardado rencor?\nGula: ¿he comido o bebido en exceso?\nEnvidia: ¿me he entristecido por el bien ajeno?\nPereza: ¿he descuidado por pereza mis deberes o el servicio de Dios?\n\n[Después haz un acto de contrición, y propón con la gracia de Dios no pecar más.]",
+      "ai_translated": true
+    },
+    "the_confession": {
+      "title": "Cómo hacer tu confesión",
+      "text": "[Arrodíllate y haz la señal de la cruz.]\n\nBendígame, Padre, porque he pecado.\nHace ya [tiempo] desde mi última confesión.\n\n[Confiesa tus pecados con sencillez: cada pecado mortal según su especie y su número, con la mayor exactitud que puedas, y los pecados veniales que quieras. Después di:]\n\nDe estos y de todos los pecados de mi vida pasada, en especial de [un pecado], me arrepiento de todo corazón.\n\n[Escucha el consejo del sacerdote y la penitencia que te impone. Cuando te lo pida, reza el acto de contrición.]\n\n[El sacerdote da la absolución. Responde:]\n℟. Amén.\n\n[El sacerdote puede despedirte diciendo:]\n℣. Dad gracias al Señor porque es bueno.\n℟. Porque es eterna su misericordia.\n\n[Ve y cumple tu penitencia.]",
+      "ai_translated": true
+    },
+    "da_pacem": {
+      "title": "Por la paz (en latín: Da pacem, Domine)",
+      "text": "Danos la paz, Señor, en nuestros días, porque no hay otro que luche por nosotros sino solo tú, Dios nuestro.\n\n℣. Haya paz en tu fortaleza.\n℟. Y abundancia en tus torres.\n\n[Oremos.]\n\nOh Dios, de quien proceden los santos deseos, los rectos consejos y las obras justas: concede a tus siervos aquella paz que el mundo no puede dar; para que nuestros corazones se entreguen a cumplir tus mandamientos y, alejado el temor de los enemigos, nuestros tiempos sean tranquilos bajo tu protección. Por nuestro Señor Jesucristo, tu Hijo, que vive y reina contigo en la unidad del Espíritu Santo y es Dios, por los siglos de los siglos.\n\n℟. Amén.",
+      "ai_translated": true
+    },
+    "in_manus_tuas": {
+      "title": "En tus manos (en latín: In manus tuas)",
+      "text": "℣. A tus manos, Señor, encomiendo mi espíritu.\n℟. A tus manos, Señor, encomiendo mi espíritu.\n℣. Tú nos has redimido, Señor, Dios de verdad.\n℟. Encomiendo mi espíritu.\n℣. Gloria al Padre, y al Hijo, y al Espíritu Santo.\n℟. A tus manos, Señor, encomiendo mi espíritu.\n\n℣. Guárdanos, Señor, como a la niña de tus ojos.\n℟. Protégenos a la sombra de tus alas.",
+      "ai_translated": true
+    },
+    "deceased_parents": {
+      "title": "Por el padre y la madre difuntos (en latín: Deus, qui nos patrem et matrem)",
+      "text": "[Oremos.]\n\nOh Dios, que nos mandaste honrar a nuestro padre y a nuestra madre: ten piedad, en tu clemencia, de las almas de mi padre y de mi madre, perdónales sus pecados y concédeme volver a verlos en el gozo de la luz eterna. Por Cristo nuestro Señor.\n\n℟. Amén.",
+      "ai_translated": true
     }
   }
 }
