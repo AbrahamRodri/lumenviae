@@ -31,6 +31,11 @@ config :swoosh, api_client: Swoosh.ApiClient.Req
 # Disable Swoosh Local Memory Storage
 config :swoosh, local: false
 
+# Fetch the Spiritual Reading books from Project Gutenberg a while after
+# boot, one at a time, so visitors and crawlers after a deploy find them
+# held (LumenViae.Rosary.SpiritualReading.Text).
+config :lumen_viae, :spiritual_reading, warm: true
+
 # Do not print debug messages in production
 config :logger, level: :info
 

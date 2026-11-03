@@ -59,7 +59,12 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Chapter do
   end
 
   @impl true
-  def handle_event("retry", _params, socket), do: {:noreply, fetch(socket)}
+  # Only a failed page tries again: a client sending retry while the text
+  # is on the way (or there) asks Gutenberg for nothing more.
+  def handle_event("retry", _params, %{assigns: %{state: :failed}} = socket),
+    do: {:noreply, fetch(socket)}
+
+  def handle_event("retry", _params, socket), do: {:noreply, socket}
 
   @impl true
   def handle_async(:text, {:ok, text}, socket), do: {:noreply, assign_text(socket, text)}

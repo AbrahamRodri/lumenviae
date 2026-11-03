@@ -321,16 +321,21 @@ defmodule LumenViae.Rosary.SpiritualReading.Parser do
             word
 
           index == 0 or index == last ->
-            String.capitalize(word)
+            capitalize(word)
 
           true ->
-            cased = String.capitalize(word)
+            cased = capitalize(word)
             bare = cased |> String.replace(~r/^[^\p{L}]+|[^\p{L}]+$/u, "") |> String.downcase()
             if bare in @small_words, do: String.downcase(cased), else: cased
         end
       end)
     end
   end
+
+  # Each piece of a hyphenated word capitalized, as iOS's
+  # `localizedCapitalized` sets it ("Peace-Maker").
+  defp capitalize(word),
+    do: word |> String.split("-") |> Enum.map_join("-", &String.capitalize/1)
 
   # -- Footnotes ------------------------------------------------------------
 

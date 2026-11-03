@@ -298,4 +298,9 @@ defmodule LumenViae.Rosary.SpiritualReadingParserTest do
     refute Text.fingerprint(catalogue("imitation-of-christ")) ==
              Text.fingerprint(catalogue("story-of-a-soul"))
   end
+
+  test "each piece of a hyphenated word is capitalized, as iOS sets it" do
+    assert Parser.title_cased("MARY IS THE PEACE-MAKER BETWEEN SINNERS AND GOD") ==
+             "Mary Is the Peace-Maker Between Sinners and God"
+  end
 end

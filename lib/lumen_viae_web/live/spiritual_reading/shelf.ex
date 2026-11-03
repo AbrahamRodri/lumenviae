@@ -54,10 +54,12 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Shelf do
   or `:error` for anything that is not a whole number from 1.
   """
   def parse_chapter(param) do
-    case Integer.parse(to_string(param)) do
-      {n, ""} when n >= 1 -> {:ok, n - 1}
-      _other -> :error
-    end
+    param = to_string(param)
+
+    # Digits only, no leading zero or sign, so a chapter has one address.
+    if param =~ ~r/^[1-9]\d*$/,
+      do: {:ok, String.to_integer(param) - 1},
+      else: :error
   end
 
   @doc """

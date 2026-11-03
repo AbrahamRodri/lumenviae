@@ -14,8 +14,9 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Book do
   The book's text is fetched from Project Gutenberg by the server
   (`Shelf.read/3`). A book this machine already holds is drawn whole at
   once, for a crawler too; one it has not fetched yet shows "Fetching the
-  text from Project Gutenberg" and fetches it once the page connects
-  (`start_async`); a book that cannot be reached says so with Try again,
+  text from Project Gutenberg" and, once the page connects, waits
+  (`start_async`) on the download the server runs in a process of its own,
+  so leaving the page never aborts it; a book that cannot be reached says so with Try again,
   and an edition that no longer cuts into chapters says so without one,
   as the app does. The place is this browser's (`SpiritualReadingPlace`).
   An unknown book is a 404.
@@ -50,7 +51,12 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Book do
   end
 
   @impl true
-  def handle_event("retry", _params, socket), do: {:noreply, fetch(socket)}
+  # Only a failed page tries again: a client sending retry while the text
+  # is on the way (or there) asks Gutenberg for nothing more.
+  def handle_event("retry", _params, %{assigns: %{state: :failed}} = socket),
+    do: {:noreply, fetch(socket)}
+
+  def handle_event("retry", _params, socket), do: {:noreply, socket}
 
   @impl true
   def handle_async(:text, {:ok, text}, socket), do: {:noreply, assign_text(socket, text)}

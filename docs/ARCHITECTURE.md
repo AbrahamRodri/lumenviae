@@ -662,14 +662,22 @@ rules: `SpiritualReading`'s `:book` action (`Rosary.read_spiritual_book!/2`)
 asks `LumenViae.Rosary.SpiritualReading.Gutenberg` (a Req client built as
 `Office.DivinumOfficium` is: no retries, short timeouts, the bot
 User-Agent, `:req_options` as the test seam, `config :lumen_viae,
-:spiritual_reading`) for a book's plain text from Project Gutenberg, cuts
-it with `SpiritualReading.Parser` (the iOS app's `LibraryBookParser`,
-line for line) and holds the cut in `SpiritualReading.Text`, a supervised
-ETS table per machine like `Office.Cache`: a month to live, a minute for
-a failure, one fetch per cold book behind a `:global` lock, each chapter
-under its own key so a page copies out only the chapter it shows. The
-application starts it through `Rosary.spiritual_reading_text/0`. No table
-and no migration: the text is Gutenberg's, fetched again after a deploy.
+:spiritual_reading`; no redirects followed, a 5 MB cap on the body, and
+only a `text/plain` answer of at least 50,000 bytes taken for the book, as
+iOS takes it) for a book's plain text from Project Gutenberg, cuts it with
+`SpiritualReading.Parser` (the iOS app's `LibraryBookParser`, line for
+line; text that is not UTF-8 read as Latin-1, as iOS reads it) and holds
+the cut in `SpiritualReading.Text`, a supervised ETS table per machine
+like `Office.Cache`, with each chapter under its own key so a page copies
+out only the chapter it shows. A cold book is downloaded once, in a task
+of `Text`'s own `Task.Supervisor` that no LiveView owns, with a 60-second
+deadline: every caller waits on it, and a caller going away (a tab
+closed) never aborts it. A cut lives a month, an unreachable Gutenberg is
+remembered for a minute and an edition that cannot be cut for an hour. In
+production the five books are fetched a while after boot, one at a time
+(`warm: true` in `config/prod.exs`). The application starts it through
+`Rosary.spiritual_reading_text/0`. No table and no migration: the text is
+Gutenberg's, fetched again after a deploy.
 
 `LumenViae.Hammer` sits alongside them. It is a supervised ETS counter
 (Hammer's) with no domain knowledge, which AshRateLimiter spends through

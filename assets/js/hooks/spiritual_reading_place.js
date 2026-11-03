@@ -101,7 +101,15 @@ export default {
 
   drawShelf() {
     for (const ribbon of this.el.querySelectorAll("[data-role=ribbon]")) {
-      ribbon.hidden = !readKept(ribbon.dataset.book)
+      const reading = Boolean(readKept(ribbon.dataset.book))
+      ribbon.hidden = !reading
+      // The cover's ribbon is decorative; the book's label says it, as the
+      // app's does.
+      const book = ribbon.closest("[data-role=book]")
+      if (book && reading && !book.dataset.labelled) {
+        book.dataset.labelled = ""
+        book.setAttribute("aria-label", `${book.getAttribute("aria-label")} Reading under way.`)
+      }
     }
   },
 

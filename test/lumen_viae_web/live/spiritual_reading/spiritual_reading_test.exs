@@ -39,7 +39,7 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
 
       case texts[id] do
         nil -> Plug.Conn.send_resp(conn, 404, "")
-        file -> Plug.Conn.send_resp(conn, 200, File.read!(Path.join(@fixtures, file)))
+        file -> Req.Test.text(conn, File.read!(Path.join(@fixtures, file)))
       end
     end)
   end
@@ -124,6 +124,38 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
       assert has_element?(view, "[data-role=contents]")
     end
 
+    test "retry is ignored unless the page failed, so a client cannot loop downloads",
+         %{conn: conn} do
+      asked = :counters.new(1, [])
+      text = File.read!(Path.join(@fixtures, "pg13871.txt"))
+
+      Req.Test.stub(Gutenberg, fn conn ->
+        :counters.add(asked, 1, 1)
+        Req.Test.text(conn, text)
+      end)
+
+      {:ok, view, _html} = live(conn, "/spiritual-reading/practice-of-the-presence-of-god")
+      render_async(view)
+      assert has_element?(view, "[data-role=contents]")
+
+      for _ <- 1..5, do: render_hook(view, "retry", %{})
+      render_async(view)
+
+      assert has_element?(view, "[data-role=contents]")
+      assert :counters.get(asked, 1) == 1
+    end
+
+    test "Begin reading says in full where it opens", %{conn: conn} do
+      stub_gutenberg()
+      {:ok, view, _html} = live(conn, "/spiritual-reading/imitation-of-christ")
+      render_async(view)
+
+      assert has_element?(
+               view,
+               ~s([data-role=read-act][aria-label^="Begin reading, The First Book, Chapter I, Of the imitation of Christ"])
+             )
+    end
+
     test "an unknown book is a 404", %{conn: conn} do
       assert_error_sent 404, fn -> get(conn, "/spiritual-reading/nowhere") end
     end
@@ -186,6 +218,13 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
       assert_error_sent 404, fn ->
         get(conn, "/spiritual-reading/practice-of-the-presence-of-god/one")
       end
+
+      # One address for a chapter: no leading zero, no sign.
+      for param <- ["01", "+1", "1.0"] do
+        assert_error_sent 404, fn ->
+          get(conn, "/spiritual-reading/practice-of-the-presence-of-god/#{param}")
+        end
+      end
     end
 
     test "found missing only after the fetch, it says so", %{conn: conn} do
@@ -213,6 +252,38 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
     end
 
     refute sitemap =~ "practice-of-the-presence-of-god/21<"
+  end
+
+  # How many chapters the catalogue's rules cut each whole edition into
+  # (November 2026; iOS's parser gives the same). Brother Lawrence's is
+  # checked against its whole edition in the fixtures; the others are the
+  # full texts' counts, kept here so the sitemap cannot drift from them.
+  @cut_counts %{
+    "imitation-of-christ" => 115,
+    "story-of-a-soul" => 13,
+    "confessions-of-st-augustine" => 13,
+    "glories-of-mary" => 58,
+    "practice-of-the-presence-of-god" => 20
+  }
+
+  test "the sitemap lists each book's chapters 1 to its count, no more, no gap" do
+    sitemap = File.read!("priv/static/sitemap.xml")
+
+    listed =
+      ~r{<loc>https://www\.lumenviae\.org/spiritual-reading/([a-z-]+)/(\d+)</loc>}
+      |> Regex.scan(sitemap)
+      |> Enum.group_by(fn [_all, id, _n] -> id end, fn [_all, _id, n] -> String.to_integer(n) end)
+
+    assert Map.keys(listed) |> Enum.sort() == Map.keys(@cut_counts) |> Enum.sort()
+
+    for {id, count} <- @cut_counts do
+      assert Enum.sort(listed[id]) == Enum.to_list(1..count), "#{id}'s chapters in the sitemap"
+    end
+
+    stub_gutenberg()
+    lawrence = LumenViae.Rosary.read_spiritual_book!("practice-of-the-presence-of-god")
+
+    assert length(lawrence.contents) == @cut_counts["practice-of-the-presence-of-god"]
   end
 
   test "the privacy policy says the server fetches the books and the place stays in the browser",

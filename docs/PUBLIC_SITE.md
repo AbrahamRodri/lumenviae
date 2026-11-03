@@ -453,9 +453,14 @@ book's plain text from Project Gutenberg
 fetch), cuts it into chapters with a line-for-line port of the app's
 `LibraryBookParser`, and holds it in memory on each machine for a month
 (`LumenViae.Rosary.SpiritualReading.Text`), so a book is fetched once per
-machine and a visitor's browser never calls Gutenberg. A failure is held
-for a minute, so a Gutenberg that is down is not asked again by every
-visitor. How the pages arrange a book (the runs under their parts, a
+machine and a visitor's browser never calls Gutenberg. The download is
+the server's own (a supervised task with a deadline, which a closed tab
+never aborts), and Try again answers only on a page that failed. An
+unreachable Gutenberg is remembered for a minute and an edition that
+cannot be cut for an hour, so neither is asked again by every visitor; a
+block or rate-limit page (anything not plain text of at least 50,000
+bytes) counts as unreachable. In production the five books are fetched a
+while after boot, so the first visitor after a deploy finds them held. How the pages arrange a book (the runs under their parts, a
 row's numeral and title, "III.V", the kicker, the footnote markers) is
 `LumenViaeWeb.Live.SpiritualReading.Shelf`, the app's rules.
 
