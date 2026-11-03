@@ -153,6 +153,47 @@ defmodule LumenViae.Rosary.SpiritualReadingTextTest do
     end
   end
 
+  describe "the deadline" do
+    test "a book stored a moment before the deadline is answered, not overwritten",
+         %{fetches: fetches} do
+      gate = self()
+
+      Req.Test.stub(Gutenberg, fn conn ->
+        :counters.add(fetches, 1, 1)
+        send(gate, :asked)
+
+        receive do
+          :answer -> Req.Test.text(conn, @lawrence)
+        after
+          5_000 -> Req.Test.text(conn, @lawrence)
+        end
+      end)
+
+      visitor =
+        Task.async(fn -> Rosary.read_spiritual_book!("practice-of-the-presence-of-god") end)
+
+      assert_receive :asked, 2_000
+
+      # The download stores the book, then its deadline fires before its
+      # answer reaches the cache's owner.
+      %{loading: loading, tasks: tasks} = :sys.get_state(Text)
+      [{key, _entry}] = Map.to_list(loading)
+      [ref] = Map.keys(tasks)
+      contents = %{fingerprint: elem(key, 2), chapters: []}
+      expires = System.monotonic_time(:millisecond) + 60_000
+      :ets.insert(:lumen_viae_spiritual_reading_text, {key, {:ok, contents}, expires})
+
+      send(Text, {:deadline, ref})
+
+      assert %{status: :ok, contents: []} = Task.await(visitor, 5_000)
+
+      assert %{status: :ok} =
+               Rosary.read_spiritual_book!("practice-of-the-presence-of-god", %{
+                 cached_only: true
+               })
+    end
+  end
+
   # The stub's waiting download is answered (it runs in Text's own task,
   # which is no child of this test).
   defp stub_owner_answers do

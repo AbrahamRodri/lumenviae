@@ -6,6 +6,11 @@ defmodule LumenViaeWeb.Live.Explore.Search do
   prayer and prayers, the chants and the meditation sets, gathered, put in
   Explore's order and the best match picked.
 
+  The Daily Missal and the Spiritual Reading shelf are doors, found by
+  their names and words as the app's library entries are; each book of
+  the shelf is a door of its own besides, found by its title, author and
+  translator, which the app finds only through the shelf's words.
+
   The finding is each area's own, as the app's is: the Prayers page's
   (`LumenViaeWeb.Live.Prayers.Book.search/2` and `topics/2`,
   `LumenViaeWeb.Live.Prayers.Orders.search/3`) and the Chant Library's
@@ -16,14 +21,15 @@ defmodule LumenViaeWeb.Live.Explore.Search do
   Salve Regina and "pater" the Pater Noster.
 
   Presentation only: it is handed what the page loaded and never queries.
-  The app's Readings kind is not here, as its shelves are How to Pray's,
-  which the website does not have.
+  The app's Readings kind is not here, as its shelves are How to Pray's
+  lessons and Montfort's counsel, which the website does not have.
   """
 
   alias LumenViae.LiturgicalCalendar
   alias LumenViae.Rosary.{Categories, Labels}
   alias LumenViaeWeb.Live.Chants.Library
   alias LumenViaeWeb.Live.Prayers.{Book, Orders}
+  alias LumenViaeWeb.Live.SpiritualReading.Shelf
 
   defstruct best: nil, sections: [], date: nil
 
@@ -67,6 +73,13 @@ defmodule LumenViaeWeb.Live.Explore.Search do
       path: "/consecration"
     },
     %{
+      id: "missal",
+      title: "Today's Mass",
+      words: "daily missal mass 1962 propers latin",
+      icon: "hero-sun",
+      path: "/missal"
+    },
+    %{
       id: "office",
       title: "Hours of Prayer",
       words:
@@ -81,6 +94,15 @@ defmodule LumenViaeWeb.Live.Explore.Search do
       icon: "hero-bookmark",
       path: "/true-devotion"
     },
+    %{
+      id: "spiritualReading",
+      title: "Spiritual Reading",
+      words:
+        "spiritual reading books imitation of christ story of a soul confessions augustine therese kempis library",
+      icon: "hero-book-open",
+      path: "/spiritual-reading"
+    },
+    :books,
     %{
       id: "scripturalRosary",
       title: "The Scriptural Rosary",
@@ -134,11 +156,31 @@ defmodule LumenViaeWeb.Live.Explore.Search do
   @doc """
   The site's doors as the search knows them, each with the path it opens
   on `date`: the Scriptural Rosary and the Audio Rosary open the day's
-  mysteries on the traditional schedule.
+  mysteries on the traditional schedule. `books` are the Spiritual
+  Reading shelf's (`LumenViaeWeb.Live.SpiritualReading.Shelf.books/1`),
+  each a door after the shelf's own, found by its title, author and
+  translator and lined with its author.
   """
-  def pages(%Date{} = date) do
+  def pages(%Date{} = date, books \\ []) do
     today = "/mysteries/#{LiturgicalCalendar.recommended_mysteries(date, :traditional)}"
-    Enum.map(@pages, fn page -> if page.path == :today, do: %{page | path: today}, else: page end)
+
+    Enum.flat_map(@pages, fn
+      :books -> Enum.map(books, &book_page/1)
+      %{path: :today} = page -> [%{page | path: today}]
+      page -> [page]
+    end)
+  end
+
+  defp book_page(book) do
+    %{
+      id: "book:#{book.id}",
+      title: book.title,
+      words: Enum.join(Enum.reject([book.author, book.translator, "book"], &is_nil/1), " "),
+      icon: "hero-book-open",
+      path: Shelf.book_path(book.id),
+      note: book.author,
+      kicker: "Spiritual Reading"
+    }
   end
 
   @doc "The words searched for, as the app reads them: folded and trimmed (SearchText.needle)."

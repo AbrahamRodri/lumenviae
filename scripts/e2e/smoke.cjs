@@ -651,6 +651,33 @@ async function checkExplore(browser, vp) {
   await settle(page);
   check((await page.locator("[data-role=devotion]").count()) === 5, `${label}: the five devotions`);
   check((await page.locator('#site-header a[href="/explore"]').count()) >= 1, `${label}: the header links Explore`);
+  check((await page.locator('[data-role=tile][href="/missal"]').count()) === 1, `${label}: Mass & Hours opens the Daily Missal`);
+  const shelf = page.locator("#explore-browse-reading-shelf");
+  check((await shelf.locator("[data-role=book]").count()) === 6, `${label}: True Devotion and the five books on the reading shelf`);
+  check((await shelf.locator('a[href="/spiritual-reading"]').count()) === 1, `${label}: the reading shelf's All books`);
+  await noHorizontalScroll(page, `${label} (at rest)`);
+
+  // A reading under way in this browser hangs the ribbon on its cover.
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "lv:spiritual-reading:imitation-of-christ",
+      JSON.stringify({ edition: "e2e", chapter: 2, paragraph: 0, read: [], at: Date.now() })
+    )
+  );
+  await page.reload();
+  await settle(page);
+  const ribbon = shelf.locator('[data-role=ribbon][data-book="imitation-of-christ"]');
+  check(await eventually(async () => await ribbon.isVisible()), `${label}: a book under way wears its ribbon`);
+  check(!(await shelf.locator('[data-role=ribbon][data-book="story-of-a-soul"]').isVisible()), `${label}: a book not begun wears none`);
+
+  await page.goto(BASE_URL + "/explore?q=kempis");
+  await settle(page);
+  check(
+    (await page.locator('#explore-results a[href="/spiritual-reading/imitation-of-christ"]').count()) === 1,
+    `${label}: "kempis" finds the Imitation of Christ`
+  );
+  await page.goto(BASE_URL + "/explore");
+  await settle(page);
 
   await page.getByRole("searchbox", { name: /search/i }).fill("Salve");
   const searched = await eventually(() => new URL(page.url()).searchParams.get("q") === "Salve");

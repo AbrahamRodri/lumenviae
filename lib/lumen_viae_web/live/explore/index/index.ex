@@ -3,8 +3,9 @@ defmodule LumenViaeWeb.Live.Explore.Index do
   `/explore`: Explore, as the iOS app opens it from Home's search glass
   (`ExploreView`): one page that can reach everything. Empty, it is a
   directory of the site (`LumenViaeWeb.Live.Explore.Index.Browse`);
-  typed into, it searches the mysteries, the site's doors, the Prayer
-  Book's topics, orders and prayers, the chants and every meditation set
+  typed into, it searches the mysteries, the site's doors (the Daily
+  Missal, the Spiritual Reading shelf and each of its books among them),
+  the Prayer Book's topics, orders and prayers, the chants and every meditation set
   (`LumenViaeWeb.Live.Explore.Search`), drawn as the app draws what it
   found (`LumenViaeWeb.Live.Explore.Index.Results`).
 
@@ -22,6 +23,8 @@ defmodule LumenViaeWeb.Live.Explore.Index do
   Angelus in Eastertide): the server's date until the `UserTimezone` hook
   says the browser's. A chant's disc, and the best card's Listen, play it
   where it stands through the `ChantPlayer` hook; leaving the page stops it.
+  The Spiritual Reading shelf's covers wear the marker ribbon where this
+  browser has a reading under way (the `SpiritualReadingPlace` hook).
   """
   use LumenViaeWeb, :live_view
 
@@ -29,6 +32,7 @@ defmodule LumenViaeWeb.Live.Explore.Index do
   alias LumenViaeWeb.Live.Chants.Library
   alias LumenViaeWeb.Live.Explore.Search
   alias LumenViaeWeb.Live.Prayers.Book
+  alias LumenViaeWeb.Live.SpiritualReading.Shelf
   alias LumenViaeWeb.PageMeta
 
   import LumenViaeWeb.Live.Explore.Index.Browse
@@ -55,6 +59,7 @@ defmodule LumenViaeWeb.Live.Explore.Index do
      |> assign(:library, library)
      |> assign(:occasions, occasion_orders(book))
      |> assign(:chant_count, Library.count(library))
+     |> assign(:books, Shelf.books(actor))
      |> assign(:loaded, nil)
      |> assign(:query, "")
      |> assign_date(Date.utc_today())}
@@ -86,7 +91,7 @@ defmodule LumenViaeWeb.Live.Explore.Index do
   defp assign_date(socket, date) do
     socket
     |> assign(:date, date)
-    |> assign(:pages, Search.pages(date))
+    |> assign(:pages, Search.pages(date, socket.assigns.books))
   end
 
   defp assign_search(%{assigns: %{query: ""}} = socket) do
