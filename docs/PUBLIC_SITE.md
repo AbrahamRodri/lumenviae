@@ -5,7 +5,7 @@ is in a prayer link, where each setting is kept, how to check your work in
 a browser, and which pages nobody maintains.
 
 The public site is the Rosary, the Consecration, the Prayer Book, the
-Chant Library, Hours of Prayer and True Devotion: the iOS app's tabs and books coming to the
+Chant Library, Hours of Prayer, True Devotion and Explore: the iOS app's tabs and books coming to the
 website, one at a
 time, as its desktop version. The console
 (`/admin`), the APIs (`/api`) and `/healthz` are not part of it.
@@ -38,11 +38,11 @@ time, as its desktop version. The console
 | `/hours/:date` | `LumenViaeWeb.Live.Hours.Index` | The same for another day (`YYYY-MM-DD`): its date where NOW stands, and a link back to today. |
 | `/hours/:date/:hour` | `LumenViaeWeb.Live.Hours.Hour` | One hour read in full: its painting and name, the day and its feast, Latin, English or Both (`?lang=`), the parts of the hour (a rail beside the text from 1024px, a jump list above it on a phone), the hours either side and the Divinum Officium credit linked to the engine's page for the hour. `:hour` is the Office's slug (`matutinum` to `completorium`). |
 | `/hours/calendar/:year/:month` | `LumenViaeWeb.Live.Hours.Calendar` | The month by the days' classes, a gold mark brighter for the greater feasts; each day links to its hours, and from 768px each cell carries the day's title. |
-| `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open; the chapter last opened marked while it is unfinished, its part open, and a folded part holding it marked on its header), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
-| `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head, each its chapter's title over the passage's opening words (the rail carries the contents sheet's head: the book's title, Contents and "8 of 13"). `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
-| `/true-devotion` | True Devotion to Mary (the summary page; the address now opens the book) |
+| `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open, the part being read open), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
+| `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head. `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
+| `/explore` | `LumenViaeWeb.Live.Explore.Index` | Explore, as the app's `ExploreView`: at rest a directory (the five devotions, the Prayers shelf of occasion orders with All prayers, the Chant tiles with Chant Library, Hours of Prayer, and True Devotion on the Spiritual Reading shelf); typed into (`?q=`), the one search over the mysteries, the site's doors, the Prayer Book's topics, orders and prayers, the chants and every meditation set: the kinds found as chips, the best match as a painted card (Pray on an order, Listen on a chant), then a section per kind, twelve rows each before "And 3 more". |
 
-All twenty-six are in the `:public` live session in `router.ex`. A set
+All twenty-seven are in the `:public` live session in `router.ex`. A set
 that does not exist, or is hidden, answers 404, and so do an unknown
 category, an unknown chapter, an unknown order, an unknown prayer, an
 unknown chant section, an unknown sung set, an unknown chant and an
@@ -56,7 +56,8 @@ month that is not one.
 `/consecration`, `/consecration/act` and the 34 days' pages, `/prayers`, every chapter's page and every order of prayer's page,
 `/chant`, every chant section's shelf (and the Mass of the Angels'),
 `/chant/sets` and every sung set's page, every chant's page, `/hours`,
-`/true-devotion` and each of its thirteen chapters, `/app` and
+`/true-devotion` and each of its thirteen chapters, `/explore` (never a
+search), `/app` and
 `/privacy-policy`. When a chant, a section or a sung set is
 added to `priv/library/chant_library.json`, add its page; the
 Chant tests check every one is there. The
@@ -419,14 +420,60 @@ also resumes its kept paragraph while it is unfinished, unless the
 address names a paragraph (`#p-3`).
 
 There is no link to the book in the header or the footer: the app reaches
-it from Explore and from the Consecration, neither of which is on the site
-yet, and its Prayers tab has no door to it. Until they come, the pages
-are reached by their address and the sitemap.
+it from Explore and from the Consecration, and its Prayers tab has no door
+to it. On the site, likewise, it stands on Explore's Spiritual Reading
+shelf, Explore's search finds it by name, and the Consecration's pages
+open it.
 
 Left out, as the app has them: the summary page (the teaching, the short
 prayers, his sayings), archived on iOS; the day's reading goal; a note on
 a passage kept in the Journal; the text size (the site's reading size is
 fixed here); and the reader's chrome that withdraws as it scrolls.
+
+## Explore
+
+The page follows the iOS app's `ExploreView`, `AppSearch` and
+`AppSearchResultsView` on main (Android's `domain/AppSearch.kt` reads them
+line for line). The search rides in the link as `?q=` (a `q` that is not
+text is no search) and runs on the server over what the page loaded;
+nothing about a search is kept or logged beyond the ordinary request log.
+`LumenViaeWeb.Live.Explore.Search` gathers, orders and picks the best as
+the app does; the finding is each area's own (the Prayers page's
+`Book.search/2`, `Book.topics/2` and `Orders.search/3`, the Chant
+Library's `Library.search/3`), so the three searches agree. Words fold as
+the app folds them (case, accents, æ and œ, "coel" as "cael"). The
+sections stand in Explore's order (Rosary Mysteries, Pages, Prayers,
+Chants, Meditations); the best match is the closest name of every kind
+(the name itself, then its start, then a word's start, then anywhere), a
+tie going to the kind and the hit that stands first, and a hit found only
+by its words is never the best. The mysteries, the meditation sets and
+the Prayer Book's names for the chants' prayers are read the first time
+anything is searched.
+
+What differs from the app, and why:
+
+- The app's Readings kind, and the Pages its search knows that the site
+  does not have (Today's Mass, Spiritual Reading, How to Pray, The
+  Devotion in Summary, the Marian Library, St. Carlo, Prayer Record,
+  Journal), are left out; so are the Mass tile and the other books at
+  rest. In Scripture, archived on iOS, stays a door here (`/mysteries`),
+  as the site keeps that page.
+- The Consecration is a door the search finds by name and words
+  ("Consecration to Mary", "33 days total consecration de montfort"), as
+  Android's search has it. iOS's Explore and search have no entry for it
+  (it is a tab there, as it is in the site's header), so the page at rest
+  does not list it either.
+- A meditation set opens its prayer page, as the site has no page of a
+  set alone; a mystery opens its devotion's page, as the app's does.
+- The Scriptural Rosary and the Audio Rosary open the day's mysteries on
+  the traditional schedule (the app reads the reader's chosen schedule,
+  which the site keeps in the browser).
+- A prayer as the best match has no Pray: the site has no pray-along for
+  a single prayer, so the card is the door alone.
+- The chips are links to their sections; none is lit as the page scrolls.
+- The devotions at rest are a ruled ledger, not the app's category
+  gradients, which the site has no tokens for; and the shelves hold their
+  defaults, as the site keeps nothing of what was prayed or sung lately.
 
 ## Where each setting lives
 
@@ -571,13 +618,14 @@ from Start at any day, steps through a day and says its Amen, checks
 that Consecration Day's Amen on Day 1 keeps nothing, opens the
 Act's page and a day that is not one, and checks that the five archived paths redirect
 to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
-`/app`, the Prayers pages, Hours of Prayer and True Devotion, and checks each one answers 200, has an
+`/app`, the Prayers pages, Hours of Prayer, True Devotion and Explore, and checks each one answers 200, has an
 `h1`, logs no console errors and does not scroll sideways. It follows the
 first Pray link on `/mysteries/joyful` and presses ArrowRight, checks every
 App Store link and screenshot on `/app`, searches the Prayer Book and
 chooses Both on a prayer, opens an hour of the Office in Both, reads True
 Devotion (Begin reading, Next chapter, a bookmark, then Continue reading
-on the title page), and checks that the four archived paths that still
+on the title page), searches Explore ("Salve", "ave maria", "PÂTER",
+"annunciation"), and checks that the four archived paths that still
 redirect go to `/` while `/true-devotion` answers 200. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 gitignored.
 
