@@ -12,6 +12,9 @@
 set -eu
 
 cd "$(dirname "$0")/.."
+# compose.yml requires IMAGE (the app's release image) even for `exec db`,
+# and systemd starts this without the deploy's environment.
+export IMAGE="${IMAGE:-unused-by-backups}"
 # shellcheck disable=SC1091
 . ./backup.env
 
@@ -32,8 +35,10 @@ sql() {
   docker compose exec -T db sh -c "psql -v ON_ERROR_STOP=1 -X -q -t -A -U \"\$POSTGRES_USER\" -d $1"
 }
 
+# An empty prefix has no Contents at all; `|| \`[]\`` gives sort_by a list, so
+# the query answers None rather than failing.
 latest=$(aws s3api list-objects-v2 --bucket "$R2_BUCKET" --prefix "$BACKUP_PREFIX/" \
-  --query 'sort_by(Contents, &Key)[-1].Key' --output text)
+  --query 'sort_by(Contents || `[]`, &Key)[-1].Key' --output text)
 case "$latest" in
   "" | None) echo "restore-test: no dump under $BACKUP_PREFIX/" >&2; exit 1 ;;
 esac
