@@ -429,6 +429,32 @@ async function checkTrueDevotion(browser, vp) {
   check(resumed, `${label}: the place kept turns the act into Continue reading`);
   const href = await act.getAttribute("href");
   check(/^\/true-devotion\/necessity(#p-\d+)?$/.test(href || ""), `${label}: Continue reading resumes the chapter`, href);
+
+  // Opened from the contents (no #p-N), the chapter resumes the kept
+  // paragraph and leaves the place as it was.
+  const keptPlace = () =>
+    page.evaluate(() => {
+      try {
+        return JSON.parse(localStorage.getItem("lv:true-devotion:place"));
+      } catch (_e) {
+        return null;
+      }
+    });
+  const kept = await keptPlace();
+  check(kept && kept.chapter === "necessity" && kept.paragraph > 0, `${label}: scrolling keeps a paragraph as the place`, JSON.stringify(kept));
+  await page.locator('[data-role=chapter-row][data-chapter="necessity"]').click();
+  const reopened = await eventually(() => new URL(page.url()).pathname === "/true-devotion/necessity");
+  check(reopened, `${label}: a contents row opens the chapter`, page.url());
+  await settle(page);
+  if (kept && kept.paragraph > 0) {
+    const landed = await eventually(async () => {
+      const top = await page.locator(`#p-${kept.paragraph}`).evaluate((el) => el.getBoundingClientRect().top);
+      return top >= 0 && top < 160;
+    });
+    check(landed, `${label}: a chapter opened from the contents resumes the kept paragraph`, `p-${kept.paragraph}`);
+    const after = await keptPlace();
+    check(after && after.chapter === "necessity" && after.paragraph >= kept.paragraph, `${label}: opening the chapter keeps the place`, JSON.stringify(after));
+  }
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
 
   for (const unknown of ["/true-devotion/nowhere"]) {

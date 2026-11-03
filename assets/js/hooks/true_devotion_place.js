@@ -11,10 +11,12 @@
 //
 // On the title page (data-page="book") it turns Begin Reading into
 // Continue Reading where the reader left off, rings the ribbon on the
-// cover, marks the rows read, here and bookmarked, and opens the part
-// being read. On a chapter (data-page="chapter") it keeps the place once
-// the reader scrolls, marks the chapter read at its foot or on stepping
-// on, and gives a paragraph Bookmark and Share.
+// cover, marks the rows read and bookmarked, puts the "where you are" dot
+// on the chapter last opened while it is unfinished, and opens its part.
+// On a chapter (data-page="chapter") it resumes the kept paragraph
+// however the chapter was opened, keeps the place once the reader
+// scrolls, marks the chapter read at its foot or on stepping on, and
+// gives a paragraph Bookmark and Share.
 
 const PLACE_KEY = "lv:true-devotion:place"
 const READ_KEY = "lv:true-devotion:read"
@@ -82,6 +84,7 @@ export default {
     if (this.onKey) document.removeEventListener("keydown", this.onKey)
     if (this.observer) this.observer.disconnect()
     if (this.frame) cancelAnimationFrame(this.frame)
+    if (this.resumeFrame) cancelAnimationFrame(this.resumeFrame)
     clearTimeout(this.toastTimer)
   },
 
@@ -126,9 +129,16 @@ export default {
     act.querySelector("[data-role=act-meta]").hidden = true
     act.setAttribute("aria-label", `Continue reading: ${row.dataset.title}`)
 
-    if (!read.includes(row.dataset.chapter)) row.dataset.current = ""
-    const part = row.closest("details[data-part]")
+    // As the app's chapter rows and seedExpansion: the dot stays on the
+    // chapter last opened while it is unfinished, and its part stands open
+    // (the first part when it is the Introduction). A closed part holding
+    // it shows the dot on its header.
+    const last = place && rows.find((r) => r.dataset.chapter === place.chapter)
+    if (!last) return
+    if (!read.includes(last.dataset.chapter)) last.dataset.current = ""
+    const part = last.closest("details[data-part]")
     if (part) {
+      part.dataset.holdsCurrent = ""
       for (const other of this.el.querySelectorAll("details[data-part]")) other.open = other === part
     }
   },
@@ -154,7 +164,27 @@ export default {
         this.keepPlace()
       })
     }
-    window.addEventListener("scroll", this.onScroll, { passive: true })
+
+    // As the app's resumeParagraph: opened from the contents, the rail or
+    // the chapters either side (no #p-N in the address), the chapter
+    // resumes its kept paragraph. LiveView puts a navigated page at its top
+    // on the next frame, so this waits a frame past that, and keeps the
+    // place only after its own scroll has passed, so it never writes the
+    // chapter's top over the paragraph it resumed.
+    const resume = this.resumeParagraph()
+    if (resume) {
+      this.resumeFrame = requestAnimationFrame(() => {
+        this.resumeFrame = requestAnimationFrame(() => {
+          resume.scrollIntoView({ block: "start" })
+          this.resumeFrame = requestAnimationFrame(() => {
+            this.resumeFrame = null
+            window.addEventListener("scroll", this.onScroll, { passive: true })
+          })
+        })
+      })
+    } else {
+      window.addEventListener("scroll", this.onScroll, { passive: true })
+    }
 
     // Reaching the foot marks the chapter read, once the reader has moved,
     // or at once when the whole chapter fits on the screen.
@@ -176,6 +206,16 @@ export default {
       if (event.key === "Escape" && this.selected !== null) this.select(null)
     }
     document.addEventListener("keydown", this.onKey)
+  },
+
+  // The kept paragraph of this chapter, when the address names none and
+  // the chapter is unfinished; else null.
+  resumeParagraph() {
+    if (window.location.hash) return null
+    const place = readPlace()
+    if (!place || place.chapter !== this.chapter || place.paragraph === 0) return null
+    if (readRead().includes(this.chapter)) return null
+    return this.paragraph(place.paragraph)
   },
 
   // The paragraph whose top has risen past the band under the top of the
@@ -268,7 +308,9 @@ export default {
   labelBar() {
     const marked = readMarks().some((m) => m.chapter === this.chapter && m.paragraph === this.selected)
     const mark = this.bar.querySelector("[data-act=mark]")
-    mark.textContent = marked ? "Remove bookmark" : "Bookmark"
+    // The app's passage bar: BOOKMARK, or REMOVE on a kept one.
+    mark.textContent = marked ? "Remove" : "Bookmark"
+    mark.setAttribute("aria-label", marked ? "Remove bookmark" : "Bookmark")
     mark.setAttribute("aria-pressed", marked ? "true" : "false")
   },
 
@@ -329,7 +371,10 @@ export default {
     }, 2200)
   },
 
-  // The ribbons in the margin, and the bookmarks at the head of the contents.
+  // The ribbons in the margin, and the bookmarks at the head of the
+  // contents, each as the app's LibraryMarkSheetRow: the chapter's title,
+  // the passage's opening words under it, the ribbon. A "Chapters" label
+  // ends them, where the contents open on the Introduction.
   drawMarks() {
     const marks = readMarks()
     for (const p of this.paragraphs) {
@@ -352,14 +397,21 @@ export default {
         const link = document.createElement("a")
         link.className = "td-mark"
         link.href = chapterHref(mark.chapter, mark.paragraph)
+        const text = document.createElement("span")
+        text.className = "td-mark__text"
+        const title = document.createElement("span")
+        title.className = "td-mark__chapter"
+        const row = this.el.querySelector(`.td-contents [data-chapter="${CSS.escape(mark.chapter)}"]`)
+        const rowTitle = row && row.querySelector("[data-role=row-title]")
+        title.textContent = rowTitle ? rowTitle.textContent.trim() : mark.chapter
         const words = document.createElement("span")
         words.className = "td-mark__words"
         words.textContent = typeof mark.words === "string" && mark.words ? mark.words : `Paragraph ${mark.paragraph}`
-        const where = document.createElement("span")
-        where.className = "td-mark__where"
-        const row = this.el.querySelector(`.td-contents [data-chapter="${CSS.escape(mark.chapter)}"]`)
-        where.textContent = `${row ? row.textContent.replace(/Here$/, "").trim() : mark.chapter} · ${mark.paragraph}`
-        link.append(words, where)
+        text.append(title, words)
+        const ribbon = document.createElement("span")
+        ribbon.className = "td-ribbon"
+        ribbon.setAttribute("aria-hidden", "true")
+        link.append(text, ribbon)
         link.addEventListener("click", () => {
           const details = link.closest("details")
           if (details) details.open = false
@@ -367,7 +419,10 @@ export default {
         item.append(link)
         list.append(item)
       }
-      box.append(label, list)
+      const chapters = document.createElement("p")
+      chapters.className = "td-contents__part"
+      chapters.textContent = "Chapters"
+      box.append(label, list, chapters)
     }
   }
 }
