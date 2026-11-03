@@ -215,6 +215,15 @@ defmodule LumenViaeWeb.Live.Explore.Search do
     end
   end
 
+  @doc """
+  Where a chip leads: the best match's kind to the best card, as the app's
+  chip scrolls there (its own section may not be drawn when the best was
+  its only hit); every other kind to its section.
+  """
+  def chip_target(%__MODULE__{best: best}, kind) do
+    if best && kind(best) == kind, do: "#explore-best", else: "#explore-#{kind}"
+  end
+
   @doc "How many of a kind were found, the best match included."
   def count(%__MODULE__{best: best, sections: sections}, kind) do
     in_section =

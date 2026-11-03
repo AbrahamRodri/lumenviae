@@ -68,7 +68,7 @@ defmodule LumenViaeWeb.Live.Explore.ExploreTest do
 
       assert view |> element("[data-role=best]") |> render() =~ "The Annunciation"
       assert has_element?(view, ~s([data-role=best] a[href="/mysteries/joyful"]))
-      assert has_element?(view, ~s([data-role=chip][href="#explore-mysteries"]), "Mysteries")
+      assert has_element?(view, ~s([data-role=chip][href="#explore-best"]), "Mysteries")
     end
 
     test "finds a prayer and a chant by their Latin, accents and case aside", %{conn: conn} do
@@ -178,6 +178,29 @@ defmodule LumenViaeWeb.Live.Explore.ExploreTest do
       assert render_hook(view, "search", %{"q" => %{"x" => "1"}}) =~ ~s(data-role="browse")
       assert render_hook(view, "set_timezone", %{"offset" => "nonsense"}) =~ "Explore"
       assert render_hook(view, "set_timezone", %{"offset" => 300}) =~ "Explore"
+    end
+
+    test "a search is cut to a hundred characters, from the link or the socket", %{conn: conn} do
+      long = String.duplicate("a", 250)
+      clipped = String.duplicate("a", 100)
+
+      {:ok, view, html} = live(conn, "/explore?q=" <> long)
+      assert html =~ ~s(maxlength="100")
+      assert has_element?(view, ~s(#explore-search-field[value="#{clipped}"]))
+
+      render_hook(view, "search", %{"q" => long})
+      assert_patch(view, "/explore?q=" <> clipped)
+    end
+
+    test "the best match's chip leads to the best card", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/explore?q=chant")
+
+      chips = view |> element("[data-role=chips]") |> render()
+      assert chips =~ ~s(href="#explore-best")
+
+      for [_, kind] <- Regex.scan(~r/href="#explore-(\w+)"/, chips), kind != "best" do
+        assert has_element?(view, "#explore-#{kind}")
+      end
     end
   end
 

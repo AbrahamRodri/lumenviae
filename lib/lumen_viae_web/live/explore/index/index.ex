@@ -34,6 +34,8 @@ defmodule LumenViaeWeb.Live.Explore.Index do
   import LumenViaeWeb.Live.Explore.Index.Browse
   import LumenViaeWeb.Live.Explore.Index.Results
 
+  @max_query 100
+
   @description "Explore Lumen Viae: search the mysteries of the Rosary, the Prayer Book, the Chant Library and every meditation set at once, or browse them."
 
   @impl true
@@ -60,7 +62,7 @@ defmodule LumenViaeWeb.Live.Explore.Index do
 
   @impl true
   def handle_params(params, _uri, socket) do
-    query = if is_binary(params["q"]), do: String.trim(params["q"]), else: ""
+    query = if is_binary(params["q"]), do: params["q"] |> clip() |> String.trim(), else: ""
 
     {:noreply, socket |> assign(:query, query) |> assign_search()}
   end
@@ -114,12 +116,20 @@ defmodule LumenViaeWeb.Live.Explore.Index do
     assign(socket, :loaded, %{
       prayer_names: Library.prayer_names(socket.assigns.book),
       mysteries: Rosary.list_mysteries!(actor: actor),
-      sets: Rosary.list_visible_meditation_set_summaries!(actor: actor)
+      # By name, as the app's Explore lists them (ExploreView).
+      sets:
+        Rosary.list_visible_meditation_set_summaries!(actor: actor)
+        |> Enum.sort_by(& &1.name)
     })
   end
 
+  # A search is at most @max_query characters: the field stops there, and
+  # a longer one from a link or the socket is cut, so no visitor can make
+  # every prayer fold against a page of text.
+  defp clip(query), do: String.slice(query, 0, @max_query)
+
   defp path(query) do
-    case String.trim(query) do
+    case query |> clip() |> String.trim() do
       "" -> "/explore"
       query -> "/explore?" <> URI.encode_query(q: query)
     end

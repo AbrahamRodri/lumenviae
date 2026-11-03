@@ -33,7 +33,7 @@ defmodule LumenViaeWeb.Live.Explore.Index.Results do
     <nav aria-label="Found" class="explore-chips" data-role="chips">
       <a
         :for={kind <- Search.found_kinds(@results)}
-        href={"#explore-#{kind}"}
+        href={Search.chip_target(@results, kind)}
         class="explore-chip"
         data-role="chip"
         aria-label={"#{Search.title(kind)}, #{Search.count(@results, kind)}"}
