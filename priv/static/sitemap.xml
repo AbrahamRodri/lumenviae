@@ -256,6 +256,41 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.lumenviae.org/chant/sets</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.lumenviae.org/chant/sets/benediction</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.lumenviae.org/chant/sets/visit</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.lumenviae.org/chant/sets/sung_rosary</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.lumenviae.org/chant/sets/before_bed</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.lumenviae.org/chant/sets/before_work</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.lumenviae.org/chant/sets/for_the_dead</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.lumenviae.org/chant/salve_regina_simple</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

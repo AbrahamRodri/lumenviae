@@ -4339,14 +4339,6 @@ html[data-prayer-images="off"] .prayer-plate {
     color: rgba(246, 241, 228, 0.78);
   }
 
-  .chant-hero__detail {
-    margin-top: 0.5rem;
-    font-family: var(--font-garamond);
-    font-style: italic;
-    font-size: 1rem;
-    line-height: 1.4;
-    color: var(--color-ink-muted);
-  }
 
   .chant-play-all {
     margin-top: 1rem;
@@ -4610,6 +4602,21 @@ html[data-prayer-images="off"] .prayer-plate {
     color: var(--color-gilt-light);
   }
 
+  /* Back and on wait until the chant has played, as the app greys them. */
+  .chant-step:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .chant-step:disabled:hover {
+    color: var(--color-gilt);
+  }
+
+  .chant-error--list {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+
   .chant-step:focus-visible,
   .chant-gold-play:focus-visible,
   .chant-tool:focus-visible,
@@ -4823,6 +4830,392 @@ html[data-prayer-images="off"] .prayer-plate {
 
   .chant-credit__links a:hover {
     color: var(--color-gilt-light);
+  }
+}
+/* The sung sets (/chant's tiles and Sets of Chants shelf, /chant/sets, a
+   set's page), as the app draws them (ChantSetCard, ChantSetsPage,
+   ChantSetPage): a set's card with its disc and first chants, the wide
+   cards, the order with its notes in red, and Pause Between Chants. */
+@layer components {
+  .chant-tile .chant-bars {
+    margin-left: auto;
+  }
+
+  .chant-tile[data-sounding] .chant-bars {
+    display: inline-flex;
+  }
+
+  .chant-shelf-link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .chant-shelf-link:hover {
+    color: var(--color-gilt-light);
+  }
+
+  /* On a phone the cards scroll sideways, as the app's shelf; wider,
+     they stand in a grid. */
+  .chant-set-shelf {
+    display: flex;
+    align-items: stretch;
+    gap: 0.875rem;
+    margin: 0 -1rem;
+    padding: 0 1rem 0.25rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+  }
+
+  .chant-set-shelf::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chant-set-shelf > li {
+    flex: 0 0 17rem;
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 768px) {
+    .chant-set-shelf {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin: 0;
+      padding: 0;
+      overflow-x: visible;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .chant-set-shelf {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .chant-set-card {
+    height: 100%;
+    padding: 0.75rem 0.875rem 0.375rem;
+    border-radius: 1.125rem;
+    border: 1px solid rgba(227, 188, 91, 0.24);
+    background: var(--color-night-raised);
+  }
+
+  .chant-set-card__head {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding-bottom: 0.625rem;
+  }
+
+  .chant-set-card__open {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
+  }
+
+  .chant-set-card__open:focus-visible,
+  .chant-set-card__chant:focus-visible,
+  .chant-wide-set:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .chant-set-card__thumb {
+    flex: 0 0 4.75rem;
+    height: 4.75rem;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(227, 188, 91, 0.24);
+  }
+
+  .chant-set-card__thumb picture,
+  .chant-wide-set__painting picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .chant-set-card__thumb img,
+  .chant-wide-set__painting img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .chant-set-card__names {
+    min-width: 0;
+  }
+
+  .chant-set-card__title {
+    display: block;
+    font-family: var(--font-garamond);
+    font-size: 1.0625rem;
+    line-height: 1.25;
+    color: var(--color-ink-light);
+    transition: color 0.18s ease-out;
+  }
+
+  .chant-set-card__open:hover .chant-set-card__title,
+  .chant-set-card[data-sounding] .chant-set-card__title {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-set-card__summary {
+    display: block;
+    margin-top: 0.125rem;
+    font-family: var(--font-garamond);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-set-card__list > li {
+    border-top: 1px solid rgba(227, 188, 91, 0.08);
+  }
+
+  .chant-set-card__list > li:first-child {
+    border-top-color: rgba(227, 188, 91, 0.16);
+  }
+
+  .chant-set-card__chant {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.25rem;
+    padding: 0.375rem 0;
+  }
+
+  .chant-set-card__number {
+    flex: 0 0 0.875rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    color: var(--color-night-rubric);
+  }
+
+  .chant-set-card__latin {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: var(--font-garamond);
+    font-size: 0.9375rem;
+    color: rgba(246, 241, 228, 0.92);
+  }
+
+  .chant-set-card__chant:hover .chant-set-card__latin {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-set-card__length {
+    flex-shrink: 0;
+    font-family: var(--font-garamond);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-set-card__more {
+    padding: 0.375rem 0;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* Sets of Chants: wide cards, one across on a phone, two wider. */
+  .chant-wide-sets {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 768px) {
+    .chant-wide-sets {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+  }
+
+  .chant-wide-set {
+    position: relative;
+    display: flex;
+    min-height: 7rem;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid rgba(227, 188, 91, 0.24);
+    background: var(--color-night-raised);
+    transition: border-color 0.18s ease-out;
+  }
+
+  .chant-wide-set:hover {
+    border-color: rgba(227, 188, 91, 0.6);
+  }
+
+  .chant-wide-set__painting {
+    flex: 0 0 7rem;
+    align-self: stretch;
+  }
+
+  .chant-wide-set__words {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.875rem;
+  }
+
+  .chant-wide-set__title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    line-height: 1.3;
+    color: var(--color-ink-light);
+  }
+
+  .chant-wide-set:hover .chant-wide-set__title {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-wide-set__note {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.9375rem;
+    line-height: 1.3;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-wide-set__summary {
+    font-family: var(--font-garamond);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  /* A set's page: Pause Between Chants under PLAY ALL, a switch kept
+     nowhere. */
+  .chant-pauses {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.75rem auto 0;
+    min-height: 44px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .chant-pauses__box {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+
+  .chant-pauses__switch {
+    position: relative;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.45);
+    background: rgba(5, 5, 9, 0.55);
+    transition: background-color 0.18s ease-out;
+  }
+
+  .chant-pauses__switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 9999px;
+    background: var(--color-ink-muted);
+    transition: transform 0.18s ease-out, background-color 0.18s ease-out;
+  }
+
+  .chant-pauses__box:checked + .chant-pauses__switch {
+    background: rgba(227, 188, 91, 0.25);
+  }
+
+  .chant-pauses__box:checked + .chant-pauses__switch::after {
+    transform: translateX(1rem);
+    background: var(--color-gilt-light);
+  }
+
+  .chant-pauses__box:focus-visible + .chant-pauses__switch {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  .chant-pauses__title {
+    display: block;
+    font-family: var(--font-garamond);
+    font-size: 1rem;
+    color: var(--color-ink-light);
+  }
+
+  .chant-pauses__note {
+    display: block;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* The order: the notes in red over the chants they lead to. */
+  .chant-set-order {
+    margin-top: 1.5rem;
+  }
+
+  .chant-set-rubric {
+    padding: 1.125rem 0 0.375rem;
+  }
+
+  .chant-set-rubric__text {
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: var(--color-night-rubric);
+  }
+
+  .chant-set-order__chant {
+    border-bottom: 1px solid rgba(227, 188, 91, 0.12);
+  }
+
+  .chant-set-row__times {
+    margin-left: 0.5rem;
+    color: var(--color-gilt);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chant-set-row[data-lit] .chant-row__latin,
+  .chant-set-row[data-lit] .chant-row__number {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-from {
+    color: var(--color-gilt);
+  }
+
+  .chant-from::before {
+    background: transparent;
+    border-color: rgba(227, 188, 91, 0.35);
+    box-shadow: none;
+  }
+
+  .chant-from__icon {
+    position: relative;
   }
 }
 /* === end the Chant Library === */

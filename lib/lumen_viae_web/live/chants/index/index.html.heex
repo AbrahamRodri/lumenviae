@@ -1,6 +1,7 @@
 <div class="prayers-page min-h-screen pb-16" id="chant-page" phx-hook="ChantPlayer">
   <Layouts.flash_group flash={@flash} variant={:public} />
   <audio id="chant-page-audio" preload="none" phx-update="ignore"></audio>
+  <div id="chant-page-day" phx-hook="UserTimezone" hidden></div>
 
   <section class="border-b border-[rgba(227,188,91,0.15)]" aria-labelledby="chant-heading">
     <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-8 pb-6 md:pt-14 md:pb-10 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] md:gap-12 md:items-end">
@@ -66,16 +67,29 @@
 
     <div :if={@query == ""} class="space-y-12">
       <section aria-label="Ways in" class="chant-tiles">
-        <.link
-          navigate={Library.section_path(Library.mass_of_the_angels_id())}
-          class="chant-tile"
-          data-role="mass-tile"
-        >
-          <span class="chant-tile__painting" aria-hidden="true">
-            <.painting painting={Library.mass_tile_painting()} sizes="56px" />
-          </span>
-          <span class="chant-tile__title">Mass of the Angels</span>
-        </.link>
+        <.tile
+          :for={occasion <- @tiles_before}
+          id={occasion.id}
+          title={occasion.title}
+          painting={Occasions.painting(occasion)}
+          href={Occasions.set_path(occasion.id)}
+          role="set-tile"
+        />
+        <.tile
+          id={Library.mass_of_the_angels_id()}
+          title="Mass of the Angels"
+          painting={Library.mass_tile_painting()}
+          href={Library.section_path(Library.mass_of_the_angels_id())}
+          role="mass-tile"
+        />
+        <.tile
+          :for={occasion <- @tiles_after}
+          id={occasion.id}
+          title={occasion.title}
+          painting={Occasions.painting(occasion)}
+          href={Occasions.set_path(occasion.id)}
+          role="set-tile"
+        />
       </section>
 
       <section aria-labelledby="mary-heading" class="min-w-0">
@@ -83,6 +97,24 @@
         <ul class="book-shelf chant-shelf mt-3" data-queue>
           <li :for={chant <- @songs}>
             <.square_card chant={chant} />
+          </li>
+        </ul>
+      </section>
+
+      <section :if={@sets != []} aria-labelledby="sets-heading" class="min-w-0">
+        <div class="flex items-baseline gap-4">
+          <h2 id="sets-heading" class="section-label flex-1 min-w-0">Sets of Chants</h2>
+          <.link
+            navigate={Occasions.sets_path()}
+            class="kicker shrink-0 chant-shelf-link"
+            data-role="sets-link"
+          >
+            All sets <span aria-hidden="true">›</span>
+          </.link>
+        </div>
+        <ul class="chant-set-shelf mt-3">
+          <li :for={set <- @sets}>
+            <.set_card set={set} />
           </li>
         </ul>
       </section>
@@ -99,6 +131,9 @@
         </ul>
       </section>
 
+      <p class="chant-error chant-error--list" data-role="error" role="status" hidden>
+        A recording could not be played, so it was passed over. Check the connection and try again.
+      </p>
       <.credit compact />
     </div>
   </div>

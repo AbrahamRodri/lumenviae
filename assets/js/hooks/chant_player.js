@@ -15,6 +15,19 @@
 //   Resume, as the app's PLAY ALL does. The row or card that sounds is
 //   marked data-sounding, its disc aria-pressed.
 //
+// - A sung set ([data-set], on the Chant page's cards and a set's own
+//   page): its data-entries is the whole set unrolled, [[chant id,
+//   recording, origin], ...], a chant as often as it is sung. Its
+//   [data-play-set] sings it from the start, then Pause, Resume, and Play
+//   next while a chant waits; a row's [data-play-from=<origin>] sings it
+//   from that step's first chant. The row whose step sounds
+//   ([data-origin]) is marked data-sounding, data-lit while it is the
+//   step under way, sounding or not; a tile or card of the set
+//   ([data-set-tile], [data-set]) data-sounding. With the page's
+//   [data-pauses-between] checked (Pause Between Chants), the next chant
+//   is put under the hand at its start and waits for Play next
+//   (ChantQueue.after). The sets have no silences of their own.
+//
 // - A chant's page ([data-role=player]): the gold play, back and on a
 //   line (ten seconds for a chant with no timed lines), the scrubber, the
 //   clock and "Line 3 of 12", Repeat this line (or the chant), and
@@ -34,15 +47,23 @@ export default {
     if (!this.audio) return
 
     this.current = null // the chant id sounding (list pages)
-    this.queue = null // ids left to sing after the current one
+    this.queue = null // entries left to sing after the current one
     this.queued = false // whether Play all is under way
+    this.setId = null // the sung set under way, if Play all is one
+    this.origin = null // the set's step the current chant was unrolled from
+    this.waiting = false // the next chant waits for a tap (Pause Between Chants)
     this.repeat = false
     this.raf = null
+    this.pressed = false // whether play was pressed: no error is shown before
+    this.started = false // whether the chant's page has played: back and on wait for it
 
     this.onClick = (event) => this.click(event)
     this.el.addEventListener("click", this.onClick)
 
-    this.audio.addEventListener("play", () => this.paint())
+    this.audio.addEventListener("play", () => {
+      this.started = true
+      this.paint()
+    })
     this.audio.addEventListener("pause", () => this.paint())
     this.audio.addEventListener("ended", () => this.ended())
     this.audio.addEventListener("error", () => this.failed())
@@ -83,6 +104,9 @@ export default {
     this.scrub = this.player.querySelector("[data-role=scrub]")
     this.scrub?.addEventListener("input", () => {
       this.audio.currentTime = parseFloat(this.scrub.value)
+      // The line under the new place, so Repeat holds that one, not the
+      // line the scrub left
+      this.lineIndex = this.lineAt(this.audio.currentTime)
       this.tick(true)
     })
     this.current = this.el.dataset.chant
@@ -91,6 +115,12 @@ export default {
   // ---- Presses
 
   click(event) {
+    const setPlay = event.target.closest("[data-play-set]")
+    if (setPlay) return this.playSet(setPlay.closest("[data-set]"))
+
+    const from = event.target.closest("[data-play-from]")
+    if (from) return this.playSet(from.closest("[data-set]"), parseInt(from.dataset.playFrom, 10))
+
     const disc = event.target.closest("[data-play]")
     if (disc && this.el.contains(disc)) return this.toggleChant(disc.dataset.play, disc.dataset.src)
 
@@ -110,6 +140,9 @@ export default {
           return this.on()
         case "repeat":
           this.repeat = !this.repeat
+          // Repeat this line starts the chant, as the app's does; Repeat
+          // the chant only switches on
+          if (this.repeat && this.hasLines && !this.started) this.start()
           return this.paint()
         case "speed":
           this.audio.playbackRate = this.audio.playbackRate < 1 ? 1 : 0.75
@@ -119,6 +152,7 @@ export default {
   },
 
   start() {
+    this.pressed = true
     this.hideError()
     const playing = this.audio.play()
     if (playing && playing.catch) playing.catch((err) => err.name !== "AbortError" && this.failed())
@@ -133,11 +167,14 @@ export default {
     // A disc pressed while a shelf is sung puts the shelf down.
     this.queued = false
     this.queue = null
+    this.setId = null
+    this.waiting = false
     this.load(id, src)
   },
 
-  load(id, src) {
+  load(id, src, origin = null) {
     this.current = id
+    this.origin = origin
     this.audio.src = src
     this.audio.currentTime = 0
     this.start()
@@ -162,8 +199,50 @@ export default {
     const discs = this.discs()
     if (discs.length === 0) return
     this.queued = true
+    this.setId = null
+    this.waiting = false
     this.queue = discs.slice(1).map((d) => ({ id: d.dataset.play, src: d.dataset.src }))
     this.load(discs[0].dataset.play, discs[0].dataset.src)
+  },
+
+  entries(set) {
+    try {
+      return JSON.parse(set.dataset.entries || "[]").map(([id, src, origin]) => ({ id, src, origin }))
+    } catch (_err) {
+      return []
+    }
+  },
+
+  // A sung set: from its start, or from a step (Play from Here). Pressed
+  // again while it is under way, Play all pauses and resumes it, or sings
+  // the chant waiting for a tap.
+  playSet(set, origin = null) {
+    if (!set) return
+    if (origin == null && this.queued && this.setId === set.dataset.set) {
+      if (this.waiting) return this.goOn()
+      if (this.audio.paused) this.start()
+      else this.audio.pause()
+      return
+    }
+    const entries = this.entries(set)
+    const start = origin == null ? 0 : entries.findIndex((entry) => entry.origin === origin)
+    if (start < 0 || entries.length === 0) return
+    this.queued = true
+    this.setId = set.dataset.set
+    this.waiting = false
+    this.queue = entries.slice(start + 1)
+    this.load(entries[start].id, entries[start].src, entries[start].origin)
+  },
+
+  goOn() {
+    this.waiting = false
+    this.audio.currentTime = 0
+    this.start()
+  },
+
+  pausesBetween() {
+    const box = this.el.querySelector("[data-pauses-between]")
+    return !!(box && box.checked)
   },
 
   ended() {
@@ -176,18 +255,44 @@ export default {
     }
     if (this.queued && this.queue && this.queue.length > 0) {
       const next = this.queue.shift()
-      return this.load(next.id, next.src)
+      if (this.setId && this.pausesBetween()) {
+        // Held at its very start, so nothing of it is heard before the tap
+        this.current = next.id
+        this.origin = next.origin
+        this.waiting = true
+        this.audio.src = next.src
+        return this.paint()
+      }
+      return this.load(next.id, next.src, next.origin)
     }
     this.queued = false
     this.queue = null
+    this.setId = null
+    this.origin = null
+    this.waiting = false
     this.current = null
     this.paint()
   },
 
+  // A recording that will not play. The chant's page says so once play
+  // was pressed (its metadata may fail before, unasked). A list says so
+  // and goes on to the next chant of what it sings, so one missing file
+  // never stops Play all.
   failed() {
-    if (!this.audio.getAttribute("src")) return
+    if (!this.audio.getAttribute("src") || !this.pressed) return
     const error = this.el.querySelector("[data-role=error]")
     if (error) error.hidden = false
+    if (!this.player && this.queued && this.queue && this.queue.length > 0) {
+      const next = this.queue.shift()
+      return this.load(next.id, next.src, next.origin ?? null)
+    }
+    if (!this.player) {
+      this.queued = false
+      this.queue = null
+      this.setId = null
+      this.origin = null
+      this.waiting = false
+    }
     this.paint()
   },
 
@@ -320,6 +425,33 @@ export default {
       disc.setAttribute("aria-label", `${on ? "Pause" : "Play"} ${disc.dataset.label}`)
     })
 
+    this.el.querySelectorAll("[data-set]").forEach((set) => {
+      const mine = this.queued && this.setId === set.dataset.set
+      if (mine && playing) set.setAttribute("data-sounding", "")
+      else set.removeAttribute("data-sounding")
+      set.querySelectorAll("[data-origin]").forEach((row) => {
+        const lit = mine && Number(row.dataset.origin) === this.origin
+        row.toggleAttribute("data-lit", lit)
+        row.toggleAttribute("data-sounding", lit && playing)
+      })
+      set.querySelectorAll("[data-play-set]").forEach((button) => {
+        const going = mine && playing && !this.waiting
+        const word = !mine ? "Play all" : this.waiting ? "Play next" : going ? "Pause" : "Resume"
+        const text = button.querySelector("[data-play-set-word]")
+        if (text) {
+          text.textContent = word
+          button.setAttribute("aria-label", mine ? word : `Play all of ${button.dataset.label}`)
+        } else {
+          button.setAttribute("aria-label", `${going ? "Pause" : "Play"} ${button.dataset.label}`)
+        }
+        button.setAttribute("aria-pressed", going ? "true" : "false")
+      })
+    })
+    this.el.querySelectorAll("[data-set-tile]").forEach((tile) => {
+      const on = this.queued && this.setId === tile.dataset.setTile && playing
+      tile.toggleAttribute("data-sounding", on)
+    })
+
     const all = this.el.querySelector("[data-play-all]")
     if (all) {
       const word = all.querySelector("[data-play-all-word]")
@@ -329,6 +461,9 @@ export default {
     }
 
     if (this.player) {
+      this.player.querySelectorAll("[data-act=back], [data-act=on]").forEach((step) => {
+        step.disabled = !this.started
+      })
       const play = this.player.querySelector("[data-act=toggle]")
       if (play) {
         play.setAttribute("aria-pressed", playing ? "true" : "false")

@@ -40,6 +40,8 @@ const PAGES = [
   { path: "/chant?q=salve", slug: "chant-search" },
   { path: "/chant/sections/mass", slug: "chant-section" },
   { path: "/chant/salve_regina_simple", slug: "chant-page" },
+  { path: "/chant/sets", slug: "chant-sets" },
+  { path: "/chant/sets/sung_rosary", slug: "chant-set" },
 ];
 
 const APP_STORE = "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749";
@@ -351,7 +353,27 @@ async function checkChant(browser, vp) {
   await noHorizontalScroll(page, `${label} (playing)`);
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
 
-  for (const unknown of ["/chant/nowhere", "/chant/sections/nowhere"]) {
+  // Sets of Chants lists the six; a set's Play all sings its first chant
+  // and lights its row.
+  await page.goto(BASE_URL + "/chant/sets");
+  await settle(page);
+  check((await page.locator("[data-role=wide-set-card]").count()) === 6, `${label}: Sets of Chants lists six sets`);
+  await page.goto(BASE_URL + "/chant/sets/benediction");
+  await settle(page);
+  check((await page.locator("[data-role=rubric]").count()) >= 1, `${label}: the set's notes in red`);
+  await page.locator("[data-role=play-all]").click();
+  const singing = await eventually(async () => {
+    const lit = await page.locator('[data-role=set-row][data-origin="0"][data-sounding]').count();
+    const playing = await page.locator("audio#chant-set-audio").evaluate((a) => !a.paused && a.currentTime > 0);
+    return lit === 1 && playing;
+  }, 30000);
+  check(singing, `${label}: Play all sings the set's first chant`);
+  check((await page.locator("[data-play-set-word]").textContent()).trim() === "Pause", `${label}: Play all turns to Pause`);
+  await page.locator("[data-role=play-all]").click();
+  await noHorizontalScroll(page, `${label} (set)`);
+  check(errors.length === 0, `${label}: no console errors on the sets`, errors.join(" | "));
+
+  for (const unknown of ["/chant/nowhere", "/chant/sections/nowhere", "/chant/sets/nowhere"]) {
     const response = await page.goto(BASE_URL + unknown);
     check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
   }

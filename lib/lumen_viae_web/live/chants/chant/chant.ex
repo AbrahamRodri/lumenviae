@@ -2,11 +2,12 @@ defmodule LumenViaeWeb.Live.Chants.Chant do
   @moduledoc """
   `/chant/:chant_id`: one chant on a page of its own, as the app's
   `ChantView` (its Now Playing): the chant's painting at the head,
-  dissolving into the page, its Latin name over its English and when it
-  is sung; the scrubber, the time and "Line 3 of 12", back a line, the
-  gold play, on a line (by ten seconds where a chant has no timed lines);
-  the quiet capsule of Repeat this line and three-quarter speed; the line
-  being sung, Latin over English. Beside it, from 1024px, the Words (the
+  dissolving into the page, its Latin name over its English; the
+  scrubber, the time and "Line 3 of 12", back a line, the gold play, on a
+  line (by ten seconds where a chant has no timed lines), back and on
+  greyed until it has played; the quiet capsule of Repeat this line
+  (which starts it) and three-quarter speed; the line being sung, Latin
+  over English, or when it is sung for a chant with no timed lines. Beside it, from 1024px, the Words (the
   app's Words sheet): every line, the one sounding lit, a click plays from
   it, in Latin, English or Both (`?words=`). Then the prayer it sings in
   the Prayer Book, its other settings and the singers' credit.
