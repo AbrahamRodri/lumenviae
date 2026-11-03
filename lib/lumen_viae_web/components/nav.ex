@@ -2,9 +2,10 @@ defmodule LumenViaeWeb.Components.Nav do
   @moduledoc """
   The public site's header: the logo lockup (the mark and the wordmark), Today's
   Rosary, a Mysteries menu of the five categories and the Scripture
-  page, the Prayer Book, the Chant Library, Hours of Prayer, Explore and the
-  app's page. The links stand in the header from 1024px, each on one line,
-  the tagline beside the mark from 1280px; below 1024px they are the menu.
+  page, the Consecration, the Prayer Book, the Chant Library, Hours of
+  Prayer, Explore and the app's page. The links stand in the header from
+  1024px, each on one line, the tagline beside the mark from 1280px; below
+  1024px they are the menu.
 
   The header lives in the root layout, outside every LiveView, so its menus
   are driven by `assets/js/site_nav.js` rather than by LiveView JS commands:
@@ -88,6 +89,10 @@ defmodule LumenViaeWeb.Components.Nav do
               </li>
             </ul>
           </div>
+
+          <.nav_link navigate="/consecration" current_path={@current_path} section>
+            Consecration
+          </.nav_link>
 
           <.nav_link navigate="/prayers" current_path={@current_path} section>
             Prayers
@@ -181,6 +186,12 @@ defmodule LumenViaeWeb.Components.Nav do
           </li>
 
           <li class="pt-3 mt-3 border-t border-night-border">
+            <.nav_link navigate="/consecration" current_path={@current_path} section mobile>
+              Consecration
+            </.nav_link>
+          </li>
+
+          <li>
             <.nav_link navigate="/prayers" current_path={@current_path} section mobile>
               Prayers
             </.nav_link>

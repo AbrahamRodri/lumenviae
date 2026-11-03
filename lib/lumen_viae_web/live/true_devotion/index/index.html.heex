@@ -35,7 +35,7 @@
       </.link>
 
       <div class="td-colophon td-colophon--wide">
-        <.sacred_divider class="max-w-[200px] mx-auto !my-4" />
+        <.sacred_divider cross={false} class="max-w-[200px] mx-auto !my-4" />
         <p>{@book.about.translator}</p>
         <p class="td-colophon__source">{@book.about.source_note}</p>
       </div>
@@ -61,6 +61,7 @@
           aria-label={"#{part.title}, #{length(chapters)} chapters"}
         >
           <span class="td-part__name">{Book.short_part_title(part)}</span>
+          <span class="td-part__here" aria-hidden="true"></span>
           <span class="td-part__rule" aria-hidden="true"></span>
           <span class="td-part__count" aria-hidden="true">{length(chapters)}</span>
           <span class="hero-chevron-down size-3 td-part__caret" aria-hidden="true" />
@@ -74,7 +75,7 @@
     </nav>
 
     <div class="td-colophon td-colophon--narrow">
-      <.sacred_divider class="max-w-[200px] mx-auto !my-4" />
+      <.sacred_divider cross={false} class="max-w-[200px] mx-auto !my-4" />
       <p>{@book.about.translator}</p>
       <p class="td-colophon__source">{@book.about.source_note}</p>
     </div>

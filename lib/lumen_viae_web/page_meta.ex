@@ -111,6 +111,7 @@ defmodule LumenViaeWeb.PageMeta do
   """
   def named_image({name, _x, _y}), do: named_image(name)
   def named_image(name) when is_binary(name), do: preview(MysteryPainting.for_name(name))
+  def named_image(_), do: nil
 
   defp preview(nil), do: nil
 

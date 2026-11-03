@@ -149,9 +149,12 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   `/hours/calendar/:year/:month`), read through `LumenViae.Office`; and
   True Devotion, the book read as the app reads it (`/true-devotion`, a
   chapter at `/true-devotion/:chapter_id`, the reader's place and
-  bookmarks kept in the browser only); and Explore (`/explore`), the
-  app's directory and its one search over the mysteries, the Prayer Book,
-  the chants and the meditation sets, in `?q=`. Read
+  bookmarks kept in the browser only); and the 33-day Consecration as
+  the app's tab (`/consecration`, a day at `/consecration/days/:n`, the
+  Act made at `/consecration/act`), its plan kept in the browser alone;
+  and Explore (`/explore`), the app's directory and its one search over
+  the mysteries, the Prayer Book, the chants and the meditation sets, in
+  `?q=`. Read
   docs/PUBLIC_SITE.md before touching a public page
 - Retired pages (dashboard, How to Pray, True Devotion, St. Carlo,
   Feedback) live in `archive/`, outside the build, and their addresses

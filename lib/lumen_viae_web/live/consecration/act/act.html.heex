@@ -1,0 +1,51 @@
+<div id="consecration-act" class="cons-page" phx-hook="ConsecrationPlan">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+  <.ground phase={@phase} />
+
+  <article class="cons-act" aria-labelledby="act-heading" data-role="act">
+    <div class="cons-seal" aria-hidden="true">
+      <span class="cons-seal__halo"></span>
+      <span class="cons-seal__disc"><.seal_glyph class="size-11" /></span>
+    </div>
+
+    <div class="cons-act__title-block">
+      <p class="cons-act__kicker">Consecrated</p>
+      <.sacred_divider class="my-4" />
+      <h1 id="act-heading" class="cons-act__title">I am all yours</h1>
+      <p class="cons-act__latin" lang="la">Totus tuus ego sum</p>
+    </div>
+
+    <div class="cons-card cons-act__message">
+      <p>You have made your consecration to Jesus through Mary.</p>
+      <p class="cons-act__renew">
+        Renew it each year on this feast, and every day in your heart.
+      </p>
+    </div>
+
+    <.link navigate={Days.path()} class="btn-text" data-role="return">
+      Return to the Consecration
+    </.link>
+
+    <section :if={@act} class="cons-act__words" aria-labelledby="act-words">
+      <p class="cons-kicker">Totus tuus</p>
+      <h2 id="act-words" class="cons-act__words-title">{@act.title}</h2>
+      <div class="mt-6">
+        <.prayer_text stanzas={@stanzas} language="english" />
+      </div>
+      <.link navigate={Days.book_act_path()} class="btn-text mt-4" data-role="book-act">
+        <span class="hero-book-open size-4" aria-hidden="true" /> Read it in True Devotion
+      </.link>
+    </section>
+
+    <div :if={@plan} class="cons-act__restart">
+      <button
+        type="button"
+        class="btn-text cons-doors__quiet"
+        data-consecration-restart
+        data-role="restart"
+      >
+        Restart the consecration
+      </button>
+    </div>
+  </article>
+</div>

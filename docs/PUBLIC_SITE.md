@@ -4,8 +4,8 @@ Read this before you touch a public page. It says what the pages are, what
 is in a prayer link, where each setting is kept, how to check your work in
 a browser, and which pages nobody maintains.
 
-The public site is the Rosary, the Prayer Book, the Chant Library, Hours
-of Prayer, True Devotion and Explore: the iOS app's tabs and books coming to the
+The public site is the Rosary, the Consecration, the Prayer Book, the
+Chant Library, Hours of Prayer, True Devotion and Explore: the iOS app's tabs and books coming to the
 website, one at a
 time, as its desktop version. The console
 (`/admin`), the APIs (`/api`) and `/healthz` are not part of it.
@@ -14,13 +14,16 @@ time, as its desktop version. The console
 
 | Path | Module | What it is |
 | --- | --- | --- |
-| `/` | `LumenViaeWeb.Live.Home.Index` | The daily hub. Today's mysteries, on the traditional weekly schedule or the modern one, in the visitor's own time zone. The five mysteries and their fruits, the meditation sets for today, the Rosary without a set, and a card for every category. |
+| `/` | `LumenViaeWeb.Live.Home.Index` | The daily hub. Today's mysteries, on the traditional weekly schedule or the modern one, in the visitor's own time zone. The five mysteries and their fruits, the meditation sets for today, the Rosary without a set, a card for every category, and Today's Prayer (the Consecration's day, the hour's order of prayer and the Hours of Prayer; see below). |
 | `/mysteries` | `LumenViaeWeb.Live.Mysteries.Scripture` | "Finding the Mysteries in Scripture". Every mystery, with its Douay-Rheims passages, and a note on the Traditional and Modern schedules. |
 | `/mysteries/:category` | `LumenViaeWeb.Live.Mysteries.CategoryList` | One category: `joyful`, `sorrowful`, `glorious`, `luminous` or `seven_sorrows`. Its mysteries, "Your Rosary Today" choices, the two ways to pray without a set, and the shelf of meditation sets. |
 | `/meditation-sets/:set_id/pray` | `LumenViaeWeb.Live.Pray.Index` | The prayer page, praying one set. |
 | `/mysteries/:category/pray` | `LumenViaeWeb.Live.Pray.Index` | The same page, praying a category without a set. |
 | `/app` | `LumenViaeWeb.Live.Home.App.Index` | The iPhone app's page: real screenshots of the app in CSS-drawn phones, what it holds in the app's own names, and the App Store link. |
 | `/privacy-policy` | `LumenViaeWeb.Live.PrivacyPolicy.Index` | The privacy policy the App Store listing links to. |
+| `/consecration` | `LumenViaeWeb.Live.Consecration.Index` | The 33-day Consecration to Jesus through Mary, as the app's Consecration tab: with no plan in this browser, the introduction (`?step=devotion`, `day`, `journey`, the welcome never written) and the feast chooser (`?step=choose`; where a visitor who has reached it before opens); a plan before its Day 1, the waiting page; a plan under way goes on to today's day; a finished one offers the feasts again under a note that it was made. |
+| `/consecration/days/:n` | `LumenViaeWeb.Live.Consecration.Day` | Day `n`, 1 to 34 (Consecration Day): the phase's painting in the arch with the badge, the title and Pray; the feast the plan ends on; the day's prayers (`?lang=`), readings and question; the journey; the book; Restart. `?step=` walks it a page a step, the prayers then the readings, with Amen on the last. Open to anyone, plan or none. |
+| `/consecration/act` | `LumenViaeWeb.Live.Consecration.Act` | The Act made, as the app's completion: the seal, "I am all yours", the way back, then the Act's own words to renew it, and Restart under a plan. |
 | `/prayers` | `LumenViaeWeb.Live.Prayers.Index` | The Prayer Book, as the app's Prayers tab: the number of prayers, the search (`?q=`; topics, then up to three orders of prayer, then the prayers), the shortcuts to Morning Prayers, the Angelus, Night Prayers, Before Mass and Before Confession, Now (the order for the visitor's hour, with Pray), Everyday Prayers, Prayers to Mary (the season's song first) and All Topics under the book's five parts, as shelves of square painted cards (sideways on a phone, wrapping from 640px). |
 | `/prayers/topics/:chapter_id` | `LumenViaeWeb.Live.Prayers.Chapter` | One topic, as the app's topic page: its painting with the title and line over it, Pray together (the topic's orders of prayer, a row each) where it has any, its prayers (a small arched painting and the title each) under its sections where it has more than one, the next topic as a painted card and a line back to the one before. |
 | `/prayers/orders/:order_id` | `LumenViaeWeb.Live.Prayers.Order` | An order of prayer, as the app's `PrayerOrderView`: its painting, when it is said and its name for the day, its prayers numbered (each begins praying there), the Eastertide line on the Angelus, and Pray. |
@@ -39,17 +42,18 @@ time, as its desktop version. The console
 | `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head. `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
 | `/explore` | `LumenViaeWeb.Live.Explore.Index` | Explore, as the app's `ExploreView`: at rest a directory (the five devotions, the Prayers shelf of occasion orders with All prayers, the Chant tiles with Chant Library, Hours of Prayer, and True Devotion on the Spiritual Reading shelf); typed into (`?q=`), the one search over the mysteries, the site's doors, the Prayer Book's topics, orders and prayers, the chants and every meditation set: the kinds found as chips, the best match as a painted card (Pray on an order, Listen on a chant), then a section per kind, twelve rows each before "And 3 more". |
 
-All twenty-four are in the `:public` live session in `router.ex`. A set
+All twenty-seven are in the `:public` live session in `router.ex`. A set
 that does not exist, or is hidden, answers 404, and so do an unknown
 category, an unknown chapter, an unknown order, an unknown prayer, an
 unknown chant section, an unknown sung set, an unknown chant and an
-unknown True Devotion chapter, and on
+unknown True Devotion chapter, a Consecration day that is not a whole
+number from 1 to 34, and on
 the Hours pages a date that is not one or that the Office does not serve
 (1600 to 2200, `LumenViae.Office.serves?/1`), an unknown hour and a
 month that is not one.
 
 `priv/static/sitemap.xml` lists `/`, `/mysteries`, the five category pages,
-`/prayers`, every chapter's page and every order of prayer's page,
+`/consecration`, `/consecration/act` and the 34 days' pages, `/prayers`, every chapter's page and every order of prayer's page,
 `/chant`, every chant section's shelf (and the Mass of the Angels'),
 `/chant/sets` and every sung set's page, every chant's page, `/hours`,
 `/true-devotion` and each of its thirteen chapters, `/explore` (never a
@@ -67,7 +71,8 @@ through all of them. When a chapter or an order is added
 to `priv/library/prayer_book.json`, add its page; the Prayers tests check
 every chapter and order is there. The prayer pages and the steps of
 praying an order are not in it, and `robots.txt` asks crawlers to stay out
-of `/meditation-sets/` and `/prayers/orders/*/pray`. A crawler that walked the
+of `/meditation-sets/`, `/prayers/orders/*/pray` and a Consecration day's
+steps (`/consecration/days/*?step=`). A crawler that walked the
 prayer flow once pressed Complete often enough to leave Rosaries nobody had
 prayed; see `docs/COMPLETION_ANALYTICS.md`.
 
@@ -245,6 +250,101 @@ reader's own sets (Make your own set, the bookmark that keeps a sung set,
 Share, which the app offers on the reader's own sets alone), a player at the foot of every page, and
 everything the phone keeps (the chant last sung, Played lately,
 favourites, learning a chant, Take turns and the sleep timer).
+## The Consecration
+
+The pages follow the iOS app's `app/Views/Consecration` on main
+(`ConsecrationOnboardingView`, `ConsecrationDateSelectionView`,
+`ConsecrationScheduledView`, `ConsecrationDayOverviewView`,
+`ConsecrationDayFlowView` with `ConsecrationDayIndex`,
+`ConsecrationCompletionView`; the Android app's `ui/consecration` reads
+them line for line). The words are the domain's
+(`LumenViae.Rosary.get_consecration!/1`, from
+`priv/library/consecration.json`); how the pages read them (a day's
+steps, its badge and line, the phases' tints and the chant each prayer is
+sung to) is `LumenViaeWeb.Live.Consecration.Days`, and the date
+arithmetic (Day 1 thirty-three days before the feast, only preparations
+that can still begin on their Day 1, today's day of a plan) is
+`LumenViaeWeb.Live.Consecration.Plan`.
+
+The reader's plan is this browser's alone (below), read by the
+`ConsecrationPlan` hook, which hands the page what it holds and the
+browser's own date when the page connects, and again at the next local
+midnight. Nothing is sent anywhere else and nothing is kept on the
+server. Until the hook speaks, `/consecration` stands as a still, unseen
+frame of the welcome that can't be pressed (a crawler or a browser
+without JavaScript reads it), so a plan under way never flashes the
+introduction; if the hook never speaks (the socket blocked), the frame
+shows itself after about two seconds. The chooser's Begin, Start at any
+day's Begin today, Choose another feast and Restart are presses the hook
+answers; Restart from a day's page returns to `/consecration`. Amen keeps
+the day as prayed only under a plan and only on that day or after, and
+returns to today's day; on Consecration Day, when it is today (or with no
+plan), it completes the plan and goes on to `/consecration/act`. Every
+day stays open to read, but a day ahead's Amen keeps nothing and returns
+to it. A finished plan's chooser says "Consecrated November 2, 2026 —
+renew whenever you wish", as the app's does.
+
+| Page | Parameter | Values | Default |
+| --- | --- | --- | --- |
+| `/consecration` | `step` | `devotion`, `day`, `journey` or `choose` | the welcome, or the chooser for a visitor who has reached it before |
+| `/consecration/days/:n` | `step` | the step, counted from `1`: the phase's prayers, then the day's readings | the day's page |
+| `/consecration/days/:n` | `lang` | `latin` or `both`, for the prayers, carried from step to step | English |
+
+A `step` past either end is the nearest step, and anything else the first;
+a `step` or `lang` that is not one never fails the page.
+
+The paintings are the app's own (each phase's, the Coronation, the
+Annunciation), all already on the site. A prayer the Chant Library sings
+(Veni Creator, Ave Maris Stella, the Magnificat, the Gloria Patri, the
+Litany of Loreto, the Litany of the Holy Name) carries its recording,
+the first of its settings in the library's order, played by the
+`ChantPlayer` hook in a box of its own for the step, so turning the page
+stops it.
+
+Left out, by Abraham's decision ("leave out journal , prayer record and
+how to pray guided rosary"): the reflection written in the app's journal
+(`ConsecrationJournalView`). The day's question stays, to sit with; the
+introduction's Reflect says only that. Also left out, as the website
+does not have them: the chant's sheet music, and the days ahead kept
+closed (every day is open on the website). The book behind the
+consecration links to True Devotion's pages at `/true-devotion` and
+`/true-devotion/formula`, which come with PR #149; until it merges
+`/true-devotion` still answers the archive's redirect home.
+
+## Today's Prayer on Home
+
+The home page closes on the iOS app's `TodaysPrayerSection` (Home, after
+the mysteries; the Android app's `domain/TodaysPrayer.kt` reads it line
+for line): "Today's Prayer" with the visitor's date beside it ("MON 2
+NOV"), then a row each for the Consecration to Mary, the hour's order of
+prayer and the Hours of Prayer, each a painting, its name, a line and its
+fact in small capitals. The rules are
+`LumenViaeWeb.Live.Home.TodaysPrayer`, the drawing
+`LumenViaeWeb.Live.Home.TodaysPrayer.Section`; a ruled list on a phone,
+three columns from 1024px.
+
+| Row | Says | Opens |
+| --- | --- | --- |
+| Consecration to Mary | No plan: "Give yourself to Jesus through Mary", BEGIN. Chosen ahead: BEGINS NOV 21. Under way: the day's title, DAY 15 OF 33 (THE DAY OF CONSECRATION on Day 34, READY TO CONSECRATE past it), the phase's painting, the seal once the day is prayed. Made today: CONSECRATED TODAY with the seal; made earlier, BEGIN again | today's day, `/consecration/days/:n`, under a plan; `/consecration` otherwise |
+| The hour's order | Morning Prayers, the Angelus (Queen of Heaven in Eastertide) or Night Prayers by the book's hours, its line as the Prayers page's Now card, and ON WAKING, AT NOON, AT 6 PM or AT BEDTIME | the order's page, `/prayers/orders/:id` |
+| Hours of Prayer | the hour now, "Mid-Morning Prayer (Terce)", with the lit hour and NOW · UNTIL NOON | `/hours` |
+
+All of it is the visitor's. The Consecration's row reads the plan the
+`ConsecrationPlan` hook hands over (the same `lv:consecration:*` keys,
+read only; the date arithmetic is `Consecration.Plan`'s), the hours read
+the browser's clock (`UserTimezone`), and the date the Act was made is
+moved by the browser's offset before it is compared with today. Each row
+is an empty frame of its size until its source has spoken, so a crawler
+or a browser without JavaScript never sees the hour in UTC or a plan
+that is not theirs; while the page is open the rows turn on the hour.
+
+Left out: the app's Today's Mass row, until the Daily Missal comes to the
+site (it reads Missale Meum, and this site calls no third party). The
+hour's order is never marked PRAYED, as the Prayers page's Now card never
+is: the website keeps nothing about what was prayed there. The row opens
+the order's own page rather than the Prayer Book's front, which the app
+opens.
+
 ## Hours of Prayer
 
 The pages follow the iOS app's `DivineOfficeView`, `OfficeHourView` and
@@ -314,7 +414,10 @@ read and the bookmarks are this browser's (below). The place is the
 paragraph at the top of the screen once the reader scrolls; reaching a
 chapter's foot, or pressing Next chapter, marks it read and puts the
 place at its top, as the app does. Continue Reading resumes the chapter
-last read if it is unfinished, else the first unfinished one.
+last read if it is unfinished, else the first unfinished one. A chapter
+opened any other way (the contents, the rail, the chapters either side)
+also resumes its kept paragraph while it is unfinished, unless the
+address names a paragraph (`#p-3`).
 
 There is no link to the book in the header or the footer: the app reaches
 it from Explore and from the Consecration, and its Prayers tab has no door
@@ -386,6 +489,9 @@ starts from the defaults. The one thing the server writes is a completion.
 | The mystery's painting shown or hidden | `lv:pray:images` | `DisplayChoices`, read by `PrayerSurface` |
 | Days in a row | `lv:pray:streak` | the `PrayerStreak` hook |
 | Swipe hint already shown | `lv:pray:swipe-hint-seen` | the `SwipeHint` hook |
+| The Consecration's plan: Day 1, the feast it ends on, when it was begun and completed | `lv:consecration:plan`, holding `{start, feast_id, started_at, completed_at}` | the `ConsecrationPlan` hook |
+| The Consecration's days prayed | `lv:consecration:done`, a list of day numbers | `ConsecrationPlan`, at a day's Amen |
+| The Consecration's introduction already walked | `lv:consecration:intro-seen` | `ConsecrationPlan`, on reaching the chooser |
 | True Devotion: the place, for Continue Reading | `lv:true-devotion:place`, holding `{chapter, paragraph, at}` (the paragraph's number in the chapter, 0 for its top) | the `TrueDevotionPlace` hook |
 | True Devotion: the chapters read | `lv:true-devotion:read`, a list of chapter ids | `TrueDevotionPlace` |
 | True Devotion: bookmarks | `lv:true-devotion:marks`, a list of `{chapter, paragraph, words, at}` (the paragraph's first 90 characters, for the contents), at most 200 | `TrueDevotionPlace` |
@@ -502,7 +608,10 @@ first Pray link on `/mysteries/joyful` and presses ArrowRight, checks every
 App Store link and screenshot on `/app`, searches the Prayer Book and
 chooses Both on a prayer, searches the Chant Library, presses play on a
 chant's page and waits for a line to light, opens Sets of Chants and a sung
-set and presses its Play all, and checks that the five archived paths redirect
+set and presses its Play all, begins a Consecration from the chooser and
+from Start at any day, steps through a day and says its Amen, checks
+that Consecration Day's Amen on Day 1 keeps nothing, opens the
+Act's page and a day that is not one, and checks that the five archived paths redirect
 to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 `/app`, the Prayers pages, Hours of Prayer, True Devotion and Explore, and checks each one answers 200, has an
 `h1`, logs no console errors and does not scroll sideways. It follows the

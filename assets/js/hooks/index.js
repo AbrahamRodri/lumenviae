@@ -13,6 +13,7 @@ import DisplayChoices from "./display_choices"
 import OfficeRail from "./office_rail"
 import ChantPlayer from "./chant_player"
 import TrueDevotionPlace from "./true_devotion_place"
+import ConsecrationPlan from "./consecration_plan"
 
 export default {
   UserTimezone,
@@ -29,5 +30,6 @@ export default {
   DisplayChoices,
   OfficeRail,
   ChantPlayer,
-  TrueDevotionPlace
+  TrueDevotionPlace,
+  ConsecrationPlan
 }

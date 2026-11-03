@@ -44,6 +44,11 @@ const PAGES = [
   { path: "/chant/salve_regina_simple", slug: "chant-page" },
   { path: "/chant/sets", slug: "chant-sets" },
   { path: "/chant/sets/sung_rosary", slug: "chant-set" },
+  { path: "/consecration", slug: "consecration" },
+  { path: "/consecration?step=choose", slug: "consecration-choose" },
+  { path: "/consecration/days/15", slug: "consecration-day" },
+  { path: "/consecration/days/15?step=1&lang=both", slug: "consecration-flow" },
+  { path: "/consecration/act", slug: "consecration-act" },
   { path: "/explore", slug: "explore" },
   { path: "/explore?q=salve", slug: "explore-search" },
 ];
@@ -270,6 +275,169 @@ async function checkPrayers(browser, vp) {
   await context.close();
 }
 
+// Today's Prayer on Home: the Consecration's row, the hour's order and the
+// Hours of Prayer, each waiting for the browser (its plan, its clock); each
+// row's link opens its page, and a plan kept in this browser turns the
+// Consecration's row to today's day.
+async function checkTodaysPrayer(browser, vp) {
+  const label = `${vp.name} today's prayer`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+
+  const row = (id) => page.locator(`#todays-prayer [data-role=row-${id}]`);
+  const openHome = async () => {
+    await page.goto(BASE_URL + "/");
+    await settle(page);
+    await eventually(async () => (await row("office").count()) > 0);
+    await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  };
+  const follows = async (id, pattern, name) => {
+    await openHome();
+    await row(id).click();
+    const ok = await eventually(() => pattern.test(new URL(page.url()).pathname));
+    check(ok, `${label}: ${name} opens its page`, page.url());
+    await settle(page);
+  };
+
+  await openHome();
+  check(
+    (await page.getByRole("heading", { name: "Today's Prayer" }).count()) === 1,
+    `${label}: Home shows Today's Prayer`
+  );
+  check((await page.locator("#todays-prayer [data-role=waiting]").count()) === 0, `${label}: every row has spoken`);
+  check((await row("consecration").getAttribute("href")) === "/consecration", `${label}: no plan invites one`);
+  check((await row("consecration").innerText()).includes("Give yourself to Jesus through Mary"), `${label}: the Consecration's line`);
+  check(/^\/prayers\/orders\/(morning|angelus|night)$/.test(await row("hour_order").getAttribute("href")), `${label}: the hour's order`);
+  check((await row("office").innerText()).toUpperCase().includes("NOW"), `${label}: the Hours of Prayer's hour now`);
+  await noHorizontalScroll(page, label);
+
+  await follows("hour_order", /^\/prayers\/orders\/(morning|angelus|night)$/, "the hour's order");
+  await follows("office", /^\/hours$/, "the Hours of Prayer");
+  await follows("consecration", /^\/consecration$/, "the Consecration");
+
+  await page.evaluate(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 4);
+    const p = (n) => String(n).padStart(2, "0");
+    const start = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    localStorage.setItem("lv:consecration:plan", JSON.stringify({ start, feast_id: null, started_at: new Date().toISOString(), completed_at: null }));
+    localStorage.setItem("lv:consecration:done", JSON.stringify([5]));
+  });
+  await openHome();
+  check(
+    await eventually(async () => (await row("consecration").getAttribute("href")) === "/consecration/days/5"),
+    `${label}: a plan under way names today's day`
+  );
+  check((await row("consecration").getAttribute("data-prayed")) === "true", `${label}: the day prayed is marked`);
+  await follows("consecration", /^\/consecration\/days\/5$/, "the Consecration's day");
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+  await context.close();
+}
+
+// The Consecration: the chooser's Begin keeps a plan in this browser and
+// the page turns to the waiting page or today's day; Start at any day at
+// Day 15 opens Day 15; Pray and Next step through the day in the link;
+// Amen at the last step comes back to the day, marked prayed; the Act's
+// page shows, and a day that is not one is a 404.
+async function checkConsecration(browser, vp) {
+  const label = `${vp.name} consecration`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+
+  // The presses are the ConsecrationPlan hook's, so wait for it to have
+  // spoken (the stage shows only then).
+  const known = () => eventually(async () => (await page.locator("[data-role=stage][data-known=true]").count()) > 0);
+
+  await page.goto(BASE_URL + "/consecration?step=choose");
+  await settle(page);
+  await known();
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  await page.locator("[data-role=begin]").click();
+  const begun = await eventually(
+    async () => (await page.locator("[data-role=scheduled]").count()) > 0 || /\/consecration\/days\/1$/.test(page.url())
+  );
+  check(begun, `${label}: Begin keeps the feast and turns the page`, page.url());
+
+  await page.goto(BASE_URL + "/consecration");
+  await settle(page);
+  await known();
+  if ((await page.locator("[data-role=another-feast]").count()) > 0) {
+    await page.locator("[data-role=another-feast]").click();
+  }
+  await eventually(async () => (await page.locator("[data-role=any-start]").count()) > 0);
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  await page.locator("[data-role=any-start]").click();
+  await page.locator("[data-role=any-day]").selectOption("15");
+  await eventually(async () => (await page.locator("[data-role=any-begin]").textContent()).includes("Day 15"));
+  await page.locator("[data-role=any-begin]").click();
+  const day = await eventually(() => new URL(page.url()).pathname === "/consecration/days/15");
+  check(day, `${label}: Start at any day opens today's day`, page.url());
+  await settle(page);
+  check(
+    await eventually(async () => (await page.locator("[data-role=pray]").textContent()).includes("Begin today")),
+    `${label}: the day is today's`
+  );
+
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  await page.locator("[data-role=pray]").click();
+  check(await eventually(() => new URL(page.url()).searchParams.get("step") === "1"), `${label}: Pray opens the first prayer`, page.url());
+  await settle(page);
+  await page.locator("[data-role=next]").click();
+  check(await eventually(() => new URL(page.url()).searchParams.get("step") === "2"), `${label}: Next steps in the link`, page.url());
+  await noHorizontalScroll(page, `${label} (step)`);
+
+  await page.goto(BASE_URL + "/consecration/days/15?step=99");
+  await settle(page);
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  await page.locator("[data-role=amen]").click();
+  check(await eventually(() => new URL(page.url()).pathname === "/consecration/days/15" && !page.url().includes("step")), `${label}: Amen returns to the day`, page.url());
+  await settle(page);
+  check(
+    await eventually(async () => (await page.locator("[data-role=pray]").textContent()).includes("Pray it again")),
+    `${label}: the day is kept as prayed`
+  );
+
+  // A day ahead is open to read, but its Amen keeps nothing: on Day 1,
+  // Consecration Day's Amen neither marks it prayed nor completes the plan.
+  await page.evaluate(() => {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const start = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    localStorage.setItem("lv:consecration:plan", JSON.stringify({ start, feast_id: null, started_at: now.toISOString(), completed_at: null }));
+    localStorage.removeItem("lv:consecration:done");
+  });
+  await page.goto(BASE_URL + "/consecration/days/34?step=99");
+  await settle(page);
+  check(
+    await eventually(async () => (await page.locator("[data-role=amen]").getAttribute("href")) === "/consecration/days/34"),
+    `${label}: a day ahead's Amen returns to it`
+  );
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+  await page.locator("[data-role=amen]").click();
+  await eventually(() => new URL(page.url()).pathname === "/consecration/days/34" && !page.url().includes("step"));
+  const kept = await page.evaluate(() => ({
+    plan: JSON.parse(localStorage.getItem("lv:consecration:plan") || "null"),
+    done: JSON.parse(localStorage.getItem("lv:consecration:done") || "[]"),
+  }));
+  check(kept.plan && kept.plan.completed_at == null && kept.done.length === 0, `${label}: a day ahead's Amen keeps nothing`, JSON.stringify(kept));
+  await page.goto(BASE_URL + "/consecration");
+  check(await eventually(() => new URL(page.url()).pathname === "/consecration/days/1"), `${label}: the Consecration still opens Day 1`, page.url());
+
+  await page.goto(BASE_URL + "/consecration/act");
+  await settle(page);
+  check((await page.locator("h1").textContent()).includes("I am all yours"), `${label}: the Act's page`);
+  await noHorizontalScroll(page, `${label} (act)`);
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
+
+  for (const unknown of ["/consecration/days/35", "/consecration/days/x"]) {
+    const response = await page.goto(BASE_URL + unknown);
+    check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
+  }
+  await context.close();
+}
+
 // Hours of Prayer: Pray on /hours opens the hour now, Both rides in the
 // link, and the text arrives or the page says it could not be reached. The
 // engine may be unreachable from a dev machine, so either answer passes and
@@ -477,6 +645,32 @@ async function checkTrueDevotion(browser, vp) {
   check(resumed, `${label}: the place kept turns the act into Continue reading`);
   const href = await act.getAttribute("href");
   check(/^\/true-devotion\/necessity(#p-\d+)?$/.test(href || ""), `${label}: Continue reading resumes the chapter`, href);
+
+  // Opened from the contents (no #p-N), the chapter resumes the kept
+  // paragraph and leaves the place as it was.
+  const keptPlace = () =>
+    page.evaluate(() => {
+      try {
+        return JSON.parse(localStorage.getItem("lv:true-devotion:place"));
+      } catch (_e) {
+        return null;
+      }
+    });
+  const kept = await keptPlace();
+  check(kept && kept.chapter === "necessity" && kept.paragraph > 0, `${label}: scrolling keeps a paragraph as the place`, JSON.stringify(kept));
+  await page.locator('[data-role=chapter-row][data-chapter="necessity"]').click();
+  const reopened = await eventually(() => new URL(page.url()).pathname === "/true-devotion/necessity");
+  check(reopened, `${label}: a contents row opens the chapter`, page.url());
+  await settle(page);
+  if (kept && kept.paragraph > 0) {
+    const landed = await eventually(async () => {
+      const top = await page.locator(`#p-${kept.paragraph}`).evaluate((el) => el.getBoundingClientRect().top);
+      return top >= 0 && top < 160;
+    });
+    check(landed, `${label}: a chapter opened from the contents resumes the kept paragraph`, `p-${kept.paragraph}`);
+    const after = await keptPlace();
+    check(after && after.chapter === "necessity" && after.paragraph >= kept.paragraph, `${label}: opening the chapter keeps the place`, JSON.stringify(after));
+  }
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
 
   for (const unknown of ["/true-devotion/nowhere"]) {
@@ -789,6 +983,8 @@ async function checkCompletion(browser, vp) {
     await checkHours(browser, vp);
     await checkTrueDevotion(browser, vp);
     await checkChant(browser, vp);
+    await checkConsecration(browser, vp);
+    await checkTodaysPrayer(browser, vp);
     await checkExplore(browser, vp);
   }
 
