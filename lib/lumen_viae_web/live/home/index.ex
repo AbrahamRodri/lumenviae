@@ -64,9 +64,11 @@ defmodule LumenViaeWeb.Live.Home.Index do
      |> assign(:categories, categories)
      |> assign(:meditation_sets, meditation_sets)
      |> assign_today(Date.utc_today())
-     |> assign(:prayer_data, TodaysPrayer.load(actor))
+     # The dead render shows the rows' empty frames, so the documents load
+     # only once connected.
+     |> assign(:prayer_data, if(connected?(socket), do: TodaysPrayer.load(actor)))
      |> assign(offset: nil, now: nil, turn: nil)
-     |> assign(plan_known?: false, plan: nil, done: [], plan_today: nil)
+     |> assign(plan_known?: false, plan: nil, done: [], plan_today: nil, completed_on: nil)
      |> assign_prayer()}
   end
 
@@ -93,6 +95,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
      |> assign(:plan, Plan.parse(params["plan"], []))
      |> assign(:done, Plan.parse_done(params["done"]))
      |> assign(:plan_today, Plan.parse_date(params["today"], nil))
+     |> assign(:completed_on, Plan.parse_date(params["completed_on"], nil))
      |> assign_prayer()}
   end
 
@@ -159,8 +162,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
 
     consecration =
       if socket.assigns.plan_known? and date do
-        completed_on = TodaysPrayer.completed_on(plan, socket.assigns.offset)
-        TodaysPrayer.consecration(data, plan, done, date, completed_on)
+        TodaysPrayer.consecration(data, plan, done, date, socket.assigns.completed_on)
       else
         {:waiting, :consecration}
       end
