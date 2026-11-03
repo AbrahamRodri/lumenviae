@@ -267,14 +267,21 @@ that can still begin on their Day 1, today's day of a plan) is
 
 The reader's plan is this browser's alone (below), read by the
 `ConsecrationPlan` hook, which hands the page what it holds and the
-browser's own date when the page connects. Nothing is sent anywhere else
-and nothing is kept on the server. Until the hook speaks, `/consecration`
-stands as a still, unseen frame of the welcome (a crawler or a browser
+browser's own date when the page connects, and again at the next local
+midnight. Nothing is sent anywhere else and nothing is kept on the
+server. Until the hook speaks, `/consecration` stands as a still, unseen
+frame of the welcome that can't be pressed (a crawler or a browser
 without JavaScript reads it), so a plan under way never flashes the
-introduction. The chooser's Begin, Start at any day's Begin today, Choose
-another feast and Restart are presses the hook answers; Amen keeps the
-day as prayed (only under a plan) and, on Consecration Day, completes
-the plan and goes on to `/consecration/act`.
+introduction; if the hook never speaks (the socket blocked), the frame
+shows itself after about two seconds. The chooser's Begin, Start at any
+day's Begin today, Choose another feast and Restart are presses the hook
+answers; Restart from a day's page returns to `/consecration`. Amen keeps
+the day as prayed only under a plan and only on that day or after, and
+returns to today's day; on Consecration Day, when it is today (or with no
+plan), it completes the plan and goes on to `/consecration/act`. Every
+day stays open to read, but a day ahead's Amen keeps nothing and returns
+to it. A finished plan's chooser says "Consecrated November 2, 2026 —
+renew whenever you wish", as the app's does.
 
 | Page | Parameter | Values | Default |
 | --- | --- | --- | --- |
@@ -557,7 +564,8 @@ App Store link and screenshot on `/app`, searches the Prayer Book and
 chooses Both on a prayer, searches the Chant Library, presses play on a
 chant's page and waits for a line to light, opens Sets of Chants and a sung
 set and presses its Play all, begins a Consecration from the chooser and
-from Start at any day, steps through a day and says its Amen, opens the
+from Start at any day, steps through a day and says its Amen, checks
+that Consecration Day's Amen on Day 1 keeps nothing, opens the
 Act's page and a day that is not one, and checks that the five archived paths redirect
 to `/`. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 `/app`, the Prayers pages, Hours of Prayer and True Devotion, and checks each one answers 200, has an

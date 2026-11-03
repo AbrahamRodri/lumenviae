@@ -36,6 +36,7 @@ defmodule LumenViaeWeb.Live.Consecration.Day.Flow do
   attr :shown_language, :string, required: true
   attr :stanzas, :list, default: []
   attr :chant, :map, default: nil
+  attr :today_day, :integer, default: nil
 
   def flow(assigns) do
     readings = Enum.count(assigns.steps, &match?({:reading, _}, &1))
@@ -44,11 +45,7 @@ defmodule LumenViaeWeb.Live.Consecration.Day.Flow do
       assign(assigns,
         languages: @language_labels,
         reading_count: readings,
-        amen_to:
-          if(assigns.number == 34,
-            do: Days.act_path(),
-            else: Days.day_path(assigns.number, assigns.language)
-          )
+        amen_to: amen_path(assigns.number, assigns.today_day, assigns.language)
       )
 
     ~H"""
@@ -296,6 +293,23 @@ defmodule LumenViaeWeb.Live.Consecration.Day.Flow do
     </div>
     """
   end
+
+  @doc """
+  Where Amen on day `number` goes, given today's day under the reader's
+  plan (`today_day`, nil without one): a day ahead returns to itself,
+  kept as nothing (the `ConsecrationPlan` hook keeps it only on its day
+  or after); a day past returns to today's, as the app's journal does;
+  Consecration Day goes on to the Act made only when it is today, or
+  when there is no plan at all.
+  """
+  def amen_path(number, today_day, language \\ "english")
+  def amen_path(34, nil, _language), do: Days.act_path()
+  def amen_path(34, 34, _language), do: Days.act_path()
+
+  def amen_path(number, today_day, language) when is_integer(today_day) and number < today_day,
+    do: Days.day_path(today_day, language)
+
+  def amen_path(number, _today_day, language), do: Days.day_path(number, language)
 
   @doc "A step's name: the prayer's title, or the reading's."
   def step_title({:prayer, prayer}), do: prayer.title

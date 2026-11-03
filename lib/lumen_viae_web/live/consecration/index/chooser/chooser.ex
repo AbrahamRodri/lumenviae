@@ -24,6 +24,7 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
   attr :any_day, :integer, default: 1
   attr :any_phase, :map, default: nil
   attr :completed?, :boolean, default: false
+  attr :completed_on, Date, default: nil
 
   def chooser(assigns) do
     others =
@@ -48,7 +49,11 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
       </div>
 
       <.completed_note :if={@completed?}>
-        Consecration completed. Renew it whenever you wish.
+        <%= if @completed_on do %>
+          Consecrated {Plan.full_date(@completed_on)} — renew whenever you wish
+        <% else %>
+          Consecration completed — renew whenever you wish
+        <% end %>
       </.completed_note>
 
       <div :if={@selected} class="cons-card cons-card--elevated cons-chosen" data-role="chosen">

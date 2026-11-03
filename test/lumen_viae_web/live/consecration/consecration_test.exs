@@ -151,9 +151,25 @@ defmodule LumenViaeWeb.Live.Consecration.ConsecrationTest do
         view,
         "consecration_state",
         state(%{"start" => "2026-01-01", "completed_at" => "2026-02-03T08:00:00Z"})
+        |> Map.put("intro_seen", true)
       )
 
-      assert has_element?(view, "[data-role=completed-note]")
+      assert view |> element("[data-role=completed-note]") |> render() =~
+               "Consecration completed — renew whenever you wish"
+    end
+
+    test "a finished plan's note names the day it was made", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/consecration")
+
+      render_hook(
+        view,
+        "consecration_state",
+        state(%{"start" => "2026-01-01", "completed_at" => "2026-02-03T08:00:00Z"})
+        |> Map.merge(%{"completed_on" => "2026-02-03", "intro_seen" => true})
+      )
+
+      assert view |> element("[data-role=completed-note]") |> render() =~
+               "Consecrated February 3, 2026 — renew whenever you wish"
     end
 
     test "nonsense from the browser is no plan", %{conn: conn} do
@@ -288,6 +304,34 @@ defmodule LumenViaeWeb.Live.Consecration.ConsecrationTest do
       assert view |> element("[data-role=amen]") |> render() =~ ~s(href="/consecration/act")
     end
 
+    test "under a plan, Amen returns to today's day; a day ahead keeps to itself", %{conn: conn} do
+      plan = state(%{"start" => Date.to_iso8601(Date.add(today(), -4))})
+
+      {:ok, view, _html} = live(conn, "/consecration/days/2?step=99")
+      render_hook(view, "consecration_state", plan)
+      assert has_element?(view, ~s([data-role=amen][href="/consecration/days/5"]))
+
+      {:ok, view, _html} = live(conn, "/consecration/days/9?step=99&lang=latin")
+      render_hook(view, "consecration_state", plan)
+      assert has_element?(view, ~s([data-role=amen][href="/consecration/days/9?lang=latin"]))
+
+      {:ok, view, _html} = live(conn, "/consecration/days/34?step=99")
+      render_hook(view, "consecration_state", plan)
+      assert has_element?(view, ~s([data-role=amen][href="/consecration/days/34"]))
+    end
+
+    test "Consecration Day's Amen goes on to the Act when it is today", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/consecration/days/34?step=99")
+
+      render_hook(
+        view,
+        "consecration_state",
+        state(%{"start" => Date.to_iso8601(Date.add(today(), -40))})
+      )
+
+      assert has_element?(view, ~s([data-role=amen][href="/consecration/act"]))
+    end
+
     test "a step past either end is the nearest, anything else the first", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/consecration/days/1?step=99")
       assert view |> element("[data-role=step-count]") |> render() =~ "6 of 6"
@@ -299,6 +343,15 @@ defmodule LumenViaeWeb.Live.Consecration.ConsecrationTest do
 
       {:ok, view, _html} = live(conn, "/consecration/days/1?step[]=3&lang[]=x")
       assert view |> element("[data-role=step-count]") |> render() =~ "1 of 6"
+    end
+  end
+
+  describe "Restart" do
+    test "from a day's page returns to the Consecration", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/consecration/days/3")
+
+      assert {:error, {:live_redirect, %{to: "/consecration"}}} =
+               render_hook(view, "consecration_state", Map.put(state(nil), "restarted", true))
     end
   end
 
