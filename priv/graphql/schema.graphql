@@ -573,6 +573,20 @@ type MarianAntiphon {
   begins: String!
 }
 
+type BookPrayerTranslation {
+  "Its title in this language."
+  title: String!
+
+  "Its words in this language, in the same PrayerText grammar as `english`. Its lines need not pair with the English or the Latin."
+  text: String!
+
+  "The prayer's id, the same as in `prayers`."
+  id: String!
+
+  "`true` when part of the text is the team's own AI translation, not a published text: show the app's AI notice under it. Absent otherwise."
+  aiTranslated: Boolean
+}
+
 type PrayerOrderVariant {
   "Its name in the season."
   title: String!
@@ -1900,6 +1914,9 @@ type PrayerBook {
   "The orders of prayer, a few prayers said together (Morning Prayers, Before Mass), in the app's order: the three of the day first, then those for an occasion."
   orders: [PrayerOrder!]!
 
+  "With `lang=es`, every prayer the book prints that has a Spanish text, by id, in book order: its title and words in Spanish, from official Church sources. A prayer not listed has no Spanish yet; show its English. Empty in English."
+  translations: [BookPrayerTranslation!]!
+
   "The four songs to Mary through the year, in the order their seasons begin from Advent. An order that closes with the season's song ends on the one whose season holds the day."
   marianAntiphons: [MarianAntiphon!]!
 }
@@ -2162,7 +2179,10 @@ type RootQueryType {
   ): RosaryScript
 
   "The Prayer Book's words as one document. There is only ever one."
-  prayerBook: PrayerBook!
+  prayerBook(
+    "The language of `translations`: `es` fills it with every prayer the book has in Spanish. Missing, `en` or a language not served: the document as it always was, and `translations` empty."
+    lang: String
+  ): PrayerBook!
 
   "The Chant Library as one document. There is only ever one."
   chantLibrary: ChantLibrary!

@@ -583,8 +583,8 @@ GraphQL: `rosaryContent(lang: "es")`.
 - **Never narrated.** The spoken Rosary says the English; no Spanish
   word is sent to a narrator.
 
-The prayer book, the script's captions and the labels are English only
-for now and take no `lang`.
+The script's captions and the labels are English only for now. The
+Prayer Book takes `lang` too: "The Prayer Book in Spanish", below.
 
 ## The Prayer Book and the Chant Library
 
@@ -649,6 +649,40 @@ chants.
   `easter` (Easter Sunday) and `pentecost_saturday` (the Saturday after
   Pentecost, 55 days after Easter). Before February 2 the song is still
   Advent's, from the year before.
+
+### The Prayer Book in Spanish
+
+```
+GET /api/v2/prayer-book?lang=es
+GET /api/v2/prayer-book?lang=es&fields[prayer_book]=version,updated_at,prayers,chapters,orders,marian_antiphons,translations
+```
+
+GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }`.
+
+- **No `lang`, `lang=en`, or a language not served**: the document as it
+  was before Spanish, byte for byte, with the same `version` and
+  `updated_at`. `translations`, when asked for, is `[]`.
+- **`lang=es`**, or any `es-` region: **`translations`** lists every
+  prayer the book prints that has a Spanish text, in the book's order,
+  each `{id, title, text}`: `id` is one of `prayers`, `title` and `text`
+  are the Spanish, `text` in the same `PrayerText` grammar as `english`.
+  A prayer that is partly the team's own translation also carries
+  `ai_translated: true`; the key is absent otherwise. A prayer not
+  listed has no Spanish yet: show its English. Every other section is
+  unchanged, English and Latin: a client lays the Spanish over the
+  English by `id`.
+- Spanish lines need not pair with the Latin, and the Spanish may say a
+  little more or less than the English (the Church's Spanish forms differ
+  in places); `priv/library/es/SOURCES.md` lists where.
+- **Its own `version` and `updated_at`**, as for the Rosary: keep one copy
+  per language and poll with the `lang` fetched with.
+- **The words** are copied from official Church sources (the Compendium of
+  the Catechism, the Catechism, papal encyclicals, the Shrine of Fatima,
+  Vatican News, the USCCB and others), each listed with every change made
+  in `priv/library/es/SOURCES.md`, from `priv/library/es/prayer_book.json`.
+  The Rosary's prayers the book prints carry the Rosary's own Spanish
+  (`priv/rosary_content/es/prayers.json`), so the two documents agree.
+- **Never narrated.** The spoken Prayer Book says the English.
 
 ### `chant_library`
 
