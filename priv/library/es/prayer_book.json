@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-03T03:10:00Z",
+  "updated_at": "2026-11-03T03:50:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -104,6 +104,98 @@
     "nada_te_turbe": {
       "title": "Nada te turbe",
       "text": "Nada te turbe,\nNada te espante\nTodo se pasa,\nDios no se muda\nLa paciencia,\nTodo lo alcanza;\nQuien a Dios tiene,\nNada le falta:\nSólo Dios basta."
+    },
+    "actiones_nostras": {
+      "title": "Señor, que tu gracia inspire",
+      "text": "Señor, que tu gracia inspire, sostenga y acompañe nuestras obras, para que nuestro trabajo comience en Ti, como en su fuente, y tienda siempre a Ti, como a su fin. Por nuestro Señor Jesucristo."
+    },
+    "visita_quaesumus": {
+      "title": "Visita, Señor, esta habitación",
+      "text": "Visita, Señor, esta habitación: aleja de ella las insidias del enemigo; que tus santos ángeles habiten en ella y nos guarden en paz y que tu bendición permanezca siempre con nosotros. Por Jesucristo nuestro Señor."
+    },
+    "fidelium_deus": {
+      "title": "Oh Dios, Creador y Redentor de todos los fieles",
+      "text": "Oh Dios, Creador y Redentor de todos los fieles,\nconcede a tus siervos difuntos el perdón de todos sus pecados,\npara que consigan, por estas piadosas súplicas, la misericordia que siempre desearon.\nPor nuestro Señor Jesucristo."
+    },
+    "domine_non_sum_dignus": {
+      "title": "Señor, no soy digno",
+      "text": "Señor, no soy digno de que entres en mi casa, pero una palabra tuya bastará para sanarme."
+    },
+    "de_profundis": {
+      "title": "Salmo 129",
+      "text": "Desde lo hondo a ti grito, Señor;\nSeñor, escucha mi voz;\nestén tus oídos atentos\na la voz de mi súplica.\nSi llevas cuenta de los delitos, Señor,\n¿quién podrá resistir?\nPero de ti procede el perdón,\ny así infundes respeto.\n\nMi alma espera en el Señor,\nespera en su palabra;\nmi alma aguarda al Señor,\nmás que el centinela la aurora.\nAguarde Israel al Señor,\ncomo el centinela la aurora;\nporque del Señor viene la misericordia,\nla redención copiosa;\ny él redimirá a Israel\nde todos sus delitos."
+    },
+    "nunc_dimittis": {
+      "title": "Cántico de Simeón",
+      "text": "Sálvanos, Señor, despiertos, protégenos mientras dormimos,\npara que velemos con Cristo y descansemos en paz.\n\nAhora, Señor, según tu promesa,\npuedes dejar a tu siervo irse en paz,\nporque mis ojos han visto a tu Salvador,\na quien has presentado ante todos los pueblos:\nluz para alumbrar a las naciones\ny gloria de tu pueblo Israel.\n\nGloria al Padre, y al Hijo, y al Espíritu Santo.\nComo era en el principio, ahora y siempre, por los siglos de los siglos. Amén.\n\nSálvanos, Señor, despiertos, protégenos mientras dormimos,\npara que velemos con Cristo y descansemos en paz."
+    },
+    "confiteor": {
+      "title": "Yo confieso",
+      "text": "Yo confieso ante Dios todopoderoso,\ny ante ustedes, hermanos, que he pecado mucho\nde pensamiento, palabra, obra y omisión.\n\n[Y, golpeándose el pecho, dicen:]\nPor mi culpa, por mi culpa, por mi gran culpa.\n\nPor eso ruego a santa María, siempre Virgen,\na los ángeles, a los santos y a ustedes, hermanos,\nque intercedan por mí ante Dios, nuestro Señor."
+    },
+    "o_salutaris": {
+      "title": "O Salutaris Hostia",
+      "text": "O Salutaris Hostia,\nQue abres la puerta del cielo:\nen los ataques del enemigo danos fuerza,\nconcédenos tu auxilio.\n\nAl Señor Uno y Trino\nse atribuye eterna gloria:\ny Él, vida sin término\nnos otorgue en la Patria.\nAmén."
+    },
+    "tantum_ergo": {
+      "title": "Tantum ergo",
+      "text": "Veneremos, pues, inclinados\ntan gran Sacramento;\ny la antigua figura ceda el puesto\nal nuevo rito;\nla fe supla la\nincapacidad de los sentidos.\n\nAl Padre y al Hijo\nsean dadas alabanza y júbilo,\nsalud, honor, poder y bendición;\nuna gloria igual sea dada\nal que de uno y de otro procede.\nAmén.\n\n℣. Les diste Pan del cielo\n℟. Que contiene en sí todo el deleite\n\n[Oremos.]\n\nOh Dios, que en este sacramento admirable nos dejaste el memorial de tu pasión, te pedimos nos concedas venerar de tal modo los sagrados misterios de tu cuerpo y de tu sangre, que experimentemos constantemente en nosotros el fruto de tu redención. Tú que vives y reinas por los siglos de los siglos.\n\n℟. Amén."
+    },
+    "divine_praises": {
+      "title": "Alabanzas",
+      "text": "Bendito sea Dios.\nBendito sea su Santo Nombre.\nBendito sea Jesucristo, verdadero Dios y verdadero Hombre.\nBendito sea el Nombre de Jesús.\nBendito sea su Sacratísimo Corazón.\nBendita sea su Preciosísima Sangre.\nBendito sea Jesús en el Santísimo Sacramento del Altar.\nBendito sea el Espíritu Santo Paráclito.\nBendita sea la excelsa Madre de Dios, María Santísima.\nBendita sea su Santa e Inmaculada Concepción.\nBendita sea su gloriosa Asunción.\nBendito sea el Nombre de María, Virgen y Madre.\nBendito sea San José su castísimo esposo.\nBendito sea Dios en sus Ángeles y en sus Santos."
+    },
+    "st_francis_before_crucifix": {
+      "title": "Oración de San Francisco ante el Cristo de San Damián",
+      "text": "Sumo, glorioso Dios,\nilumina las tinieblas de mi corazón\ny dame fe recta, esperanza cierta y caridad perfecta,\nsentido y conocimiento, Señor,\npara que cumpla tu santo y verdadero mandamiento. Amén."
+    },
+    "st_dominic_o_lumen": {
+      "title": "Luz de la Iglesia",
+      "text": "Luz de la Iglesia,\nDoctor de la Verdad,\nEjemplo de paciencia,\nIdeal de castidad,\nque nos diste a beber con largueza\ndel agua de la Sabiduría,\npredicador de la Gracia,\njúntanos a los santos."
+    },
+    "requiem_aeternam": {
+      "title": "Señor, dales el descanso eterno",
+      "text": "℣. Señor, dales el descanso eterno.\n℟. Y brille sobre ellos la luz eterna.\n℣. Descansen en paz.\n℟. Amén."
+    },
+    "come_holy_ghost": {
+      "title": "Ven, Espíritu Santo",
+      "text": "¡Ven, Espíritu Santo! Llena los corazones de tus fieles y enciende en ellos el fuego de tu amor, tú que congregas a los pueblos de todas las lenguas en la confesión de una sola fe. Aleluya."
+    },
+    "miserere": {
+      "title": "Salmo 51",
+      "text": "¡Ten piedad de mí, oh Dios, por tu bondad,\npor tu gran compasión, borra mis faltas!\n¡Lávame totalmente de mi culpa y purifícame de mi pecado!\nPorque yo reconozco mis faltas y mi pecado está siempre ante mí.\n\nContra ti, contra ti solo pequé e hice lo que es malo a tus ojos. Por eso, será justa tu sentencia y tu juicio será irreprochable;\nyo soy culpable desde que nací; pecador me concibió mi madre.\nTú amas la sinceridad del corazón y me enseñas la sabiduría en mi interior.\nPurifícame con el hisopo y quedaré limpio; lávame, y quedaré más blanco que la nieve.\n\nAnúnciame el gozo y la alegría: que se alegren los huesos quebrantados.\nAparta tu vista de mis pecados y borra todas mis culpas.\nCrea en mí, Dios mío, un corazón puro, y renueva la firmeza de mi espíritu.\nNo me arrojes lejos de tu presencia ni retires de mí tu santo espíritu.\n\nDevuélveme la alegría de tu salvación, que tu espíritu generoso me sostenga:\nyo enseñaré tu camino a los impíos y los pecadores volverán a ti.\n¡Líbrame de la muerte, Dios, salvador mío, y mi lengua anunciará tu justicia!\nAbre mis labios, Señor, y mi boca proclamará tu alabanza.\n\nLos sacrificios no te satisfacen; si ofrezco un holocausto, no lo aceptas:\nmi sacrificio es un espíritu contrito, tú no desprecias el corazón contrito y humillado.\nTrata bien a Sión por tu bondad; reconstruye los muros de Jerusalén,\nEntonces aceptarás los sacrificios rituales –las oblaciones y los holocaustos– y se ofrecerán novillos en tu altar."
+    },
+    "beati_quorum": {
+      "title": "Salmo 32",
+      "text": "¡Feliz el que ha sido absuelto de su pecado y liberado de su falta!\n¡Feliz el hombre a quien el Señor no le tiene en cuenta las culpas, y en cuyo espíritu no hay doblez!\nMientras me quedé callado, mis huesos se consumían entre continuos lamentos,\nporque de día y de noche tu mano pesaba sobre mí; mi savia se secaba por los ardores del verano.\n\nPero yo reconocí mi pecado, no te escondí mi culpa, pensando: «Confesaré mis faltas al Señor». ¡Y tú perdonaste mi culpa y mi pecado!\nPor eso, que todos tus fieles te supliquen en el momento de la angustia; y cuando irrumpan las aguas caudalosas no llegarán hasta ellos.\n\nTú eres mi refugio, tú me libras de los peligros y me colmas con la alegría de la salvación.\nYo te instruiré, te enseñaré el camino que debes seguir; con los ojos puestos en ti, seré tu consejero.\nNo sean irracionales con el caballo y la mula, cuyo brío hay que contener con el bozal y el freno para poder acercarse.\n\n¡Cuántos son los tormentos del malvado! Pero el Señor cubrirá con su amor al que confía en él.\n¡Alégrense en el Señor, regocíjense los justos! ¡Canten jubilosos los rectos de corazón!"
+    },
+    "infant_of_prague": {
+      "title": "Oración del venerable Padre Cyril de Nuestra Señora",
+      "text": "Niño Jesús, acudo a ti y te ruego la intercesión de tu Santa Madre, ayúdame con esta necesidad [es posible especificarla], porque creo firmemente en que puedes ayudarme. Firmemente confío en que recibiré tu santa misericordia. Te amo con todo mi corazón y con toda la fuerza de mi alma. Me arrepiento de todos mis pecados y te pido, buen Jesús, que me des fuerza para vencer. Te prometo que nunca te ofenderé y estoy dispuesto a sufrir antes que a hacerte sufrir. Desde hoy quiero servirte y desde el amor que te profeso, amar también a los que me rodean.\n\nNiño Todopoderoso, Señor Jesús, de nuevo te pido que me ayudes en esta ocasión [es posible especificar]. Concédeme misericordia para que te venere eternamente con María y José, y con los ángeles en la corte de los cielos. Amén."
+    },
+    "litany_loreto": {
+      "title": "Letanías de la Virgen",
+      "text": "Señor, ten piedad.\nCristo, ten piedad.\nSeñor, ten piedad.\nCristo, óyenos. ℟. Cristo, escúchanos.\n\nDios, Padre celestial, ℟. ten piedad de nosotros.\nDios, Hijo, Redentor del mundo,\nDios, Espíritu Santo,\nSantísima Trinidad, un solo Dios,\n\nSanta María, ℟. ruega por nosotros.\nSanta Madre de Dios,\nSanta Virgen de las Vírgenes,\n\nMadre de Cristo,\nMadre de la Iglesia,\nMadre de la misericordia,\nMadre de la divina gracia,\nMadre de la esperanza,\nMadre purísima,\nMadre castísima,\nMadre siempre virgen,\nMadre inmaculada,\nMadre amable,\nMadre admirable,\nMadre del buen consejo,\nMadre del Creador,\nMadre del Salvador,\n\nVirgen prudentísima,\nVirgen digna de veneración,\nVirgen digna de alabanza,\nVirgen poderosa,\nVirgen clemente,\nVirgen fiel,\n\nEspejo de justicia,\nTrono de la sabiduría,\nCausa de nuestra alegría,\nVaso espiritual,\nVaso digno de honor,\nVaso de insigne devoción,\nRosa mística,\nTorre de David,\nTorre de marfil,\nCasa de oro,\nArca de la Alianza,\nPuerta del cielo,\nEstrella de la mañana,\n\nSalud de los enfermos,\nRefugio de los pecadores,\nConsuelo de los migrantes,\nConsoladora de los afligidos,\nAuxilio de los cristianos,\n\nReina de los Ángeles,\nReina de los Patriarcas,\nReina de los Profetas,\nReina de los Apóstoles,\nReina de los Mártires,\nReina de los Confesores,\nReina de las Vírgenes,\nReina de todos los Santos,\nReina concebida sin pecado original,\nReina asunta a los Cielos,\nReina del Santísimo Rosario,\nReina de la familia,\nReina de la paz.\n\nCordero de Dios, que quitas el pecado del mundo, ℟. perdónanos, Señor.\nCordero de Dios, que quitas el pecado del mundo, ℟. escúchanos, Señor.\nCordero de Dios, que quitas el pecado del mundo, ℟. ten misericordia de nosotros.\n\n℣. Ruega por nosotros, Santa Madre de Dios.\n℟. Para que seamos dignos de las promesas de Cristo.\n\n[ORACIÓN.]\n\nTe rogamos nos concedas, Señor Dios nuestro, gozar de continua salud de alma y cuerpo, y por la gloriosa intercesión de la bienaventurada siempre Virgen María, vernos libres de las tristezas de la vida presente y disfrutar de las alegrías eternas. Por Cristo nuestro Señor.\n\n℟. Amén."
+    },
+    "divine_mercy_chaplet": {
+      "title": "Coronilla de la Divina Misericordia",
+      "text": "[Para recitar la Coronilla de la Divina Misericordia se usa un rosario normal y se sigue esta secuencia:]\n[La señal de la Cruz: En el nombre del Padre y del Hijo y del Espíritu Santo. Amén.]\n[Padre Nuestro]\n[Ave María]\n[Credo (Símbolo de los Apóstoles)]\n\n[En cada grano mayor del Rosario, cuando normalmente se dice el Padre Nuestro, diga:]\nPadre Eterno, Te ofrezco el Cuerpo, la Sangre, el Alma y la Divinidad de Tu amadísimo Hijo, Nuestro Señor Jesucristo, como propiciación de nuestros pecados y los del mundo entero.\n\n[En cada grano menor del Rosario, cuando normalmente se dice el Ave María, diga:]\nPor Su dolorosa Pasión, ten misericordia de nosotros y del mundo entero.\n\n[Invocación: Al final de la corona, la siguiente oración se reza tres veces seguidas:]\nSanto Dios, Santo Fuerte, Santo Inmortal, ten misericordia de nosotros y del mundo entero.\n\n[Oración para concluir (opcional)]\nOh Dios Eterno, en quien la misericordia es infinita y el tesoro de compasión inagotable, vuelve a nosotros Tu mirada bondadosa y aumenta Tu misericordia en nosotros, para que en momentos difíciles no nos desesperemos ni nos desalentemos, sino que, con gran confianza, nos sometamos a Tu santa voluntad, que es el Amor y la Misericordia mismos. Amén."
+    },
+    "alma_redemptoris": {
+      "title": "Madre del Redentor",
+      "text": "Madre del Redentor, Virgen fecunda, puerta del cielo siempre abierta,\nestrella del mar, ven a librar al pueblo que cae y se quiere levantar.\nAnte el asombro de cielo y tierra, engendraste a tu santo Creador\ny permaneces siempre virgen.\nRecibe el saludo del ángel Gabriel\ny ten piedad de nosotros, pecadores."
+    },
+    "litany_st_joseph": {
+      "title": "Letanías en honor de San José",
+      "text": "Señor, ten piedad.\nCristo, ten piedad.\nSeñor, ten piedad.\nCristo, óyenos. ℟. Cristo, escúchanos.\n\nDios, Padre celestial, ℟. ten misericordia de nosotros.\nDios, Hijo, redentor del mundo, ℟. ten misericordia de nosotros.\nDios, Espíritu Santo, ℟. ten misericordia de nosotros.\nTrinidad Santa, un solo Dios, ℟. ten misericordia de nosotros.\n\nSanta María, ℟. ruega por nosotros.\nSan José, ℟. ruega por nosotros.\nGlorioso descendiente de David, ℟. ruega por nosotros.\nLuz de los patriarcas, ℟. ruega por nosotros.\n\nEsposo de la Madre de Dios, ℟. ruega por nosotros.\nCustodio del Redentor, ℟. ruega por nosotros.\nCustodio casto de la Virgen, ℟. ruega por nosotros.\nTú que alimentaste al Hijo de Dios, ℟. ruega por nosotros.\nDiligente defensor de Cristo, ℟. ruega por nosotros.\nServidor de Cristo, ℟. ruega por nosotros.\nMinistro de la salvación, ℟. ruega por nosotros.\nCabeza de la Sagrada Familia, ℟. ruega por nosotros.\n\nJosé, justísimo, ℟. ruega por nosotros.\nJosé, castísimo, ℟. ruega por nosotros.\nJosé, prudentísimo, ℟. ruega por nosotros.\nJosé, fortísimo, ℟. ruega por nosotros.\nJosé, obedientísimo, ℟. ruega por nosotros.\nJosé, fidelísimo, ℟. ruega por nosotros.\n\nEspejo de paciencia, ℟. ruega por nosotros.\nAmante de la pobreza, ℟. ruega por nosotros.\nModelo de los trabajadores, ℟. ruega por nosotros.\nEsplendor de la vida doméstica, ℟. ruega por nosotros.\nCustodio de las vírgenes, ℟. ruega por nosotros.\nColumna de las familias, ℟. ruega por nosotros.\n\nApoyo en las dificultades, ℟. ruega por nosotros.\nConsuelo de los que sufren, ℟. ruega por nosotros.\nEsperanza de los enfermos, ℟. ruega por nosotros.\nPatrono de los exiliados, ℟. ruega por nosotros.\nPatrono de los afligidos, ℟. ruega por nosotros.\nPatrono de los pobres, ℟. ruega por nosotros.\nPatrono de los moribundos, ℟. ruega por nosotros.\nTerror de los demonios, ℟. ruega por nosotros.\nProtector de la santa Iglesia, ℟. ruega por nosotros.\n\nCordero de Dios, que quitas el pecado del mundo, ℟. perdónanos, Señor.\nCordero de Dios, que quitas el pecado del mundo, ℟. escúchanos, Señor.\nCordero de Dios, que quitas el pecado del mundo, ℟. ten misericordia de nosotros.\n\n℣. Lo nombró administrador de su casa.\n℟. Señor de todas sus posesiones.\n\n[Oremos.]\n\nOh, Dios, que con inefable providencia elegiste a san José como esposo de la santísima Madre de tu Hijo, concédenos que merezcamos tener como intercesor en el cielo al que veneramos como protector en la tierra. Por nuestro Señor, Jesucristo.\n\n℟. Amén."
+    },
+    "prayer_for_the_pope": {
+      "title": "Oración por el Papa",
+      "text": "℣. Oremos por nuestro Papa León XIV.\n℟. Que el Señor lo guarde, le dé larga vida, lo haga santo en la tierra y no lo entregue a la voluntad de sus enemigos.\n\n[Padre nuestro. Ave María.]\n\n[Oremos.]\nDios nuestro, pastor y guía de todos los fieles,\nmira con bondad a tu siervo León XIV,\na quien constituiste pastor de tu Iglesia.\nTe rogamos que lo sostengas con tu amor,\npara que, con su palabra y su ejemplo,\nconduzca al pueblo que le has confiado,\ny llegue junto con él a la vida eterna.\nPor nuestro Señor Jesucristo, amén."
+    },
+    "prayer_for_priests": {
+      "title": "Dios todopoderoso y eterno",
+      "text": "Dios todopoderoso y eterno, cuyo Espíritu santifica todo y gobierna todo el cuerpo de la Iglesia; escucha las súplicas que te dirigimos por todos sus ministros, para que, con la ayuda de tu gracia, cada uno te sirva fielmente en la vocación a que le has llamado. Por Jesucristo nuestro Señor.\n\n℟. Amén."
     }
   }
 }

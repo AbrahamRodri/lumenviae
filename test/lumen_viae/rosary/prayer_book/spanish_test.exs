@@ -13,14 +13,19 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text must come from an official source listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-03 03:10:00Z], "4ed9a06f10df3ea9"}
+  @pinned {~U[2026-11-03 03:50:00Z], "c3630068889378ff"}
 
   @file_ids ~w(act_of_faith act_of_hope act_of_charity regina_caeli anima_christi sub_tuum
                jesus_i_trust_in_thee my_lord_and_my_god pardon_prayer miraculous_medal
                spiritual_communion angels_prayer_fatima reparation_sacred_heart ad_te_beate_ioseph
                nada_te_turbe nicene_creed benedictus angele_dei angelus veni_creator
                veni_sancte_spiritus magnificat te_deum jesus_prayer peace_prayer
-               litany_sacred_heart)
+               litany_sacred_heart actiones_nostras visita_quaesumus fidelium_deus
+               domine_non_sum_dignus de_profundis nunc_dimittis confiteor o_salutaris tantum_ergo
+               divine_praises st_francis_before_crucifix st_dominic_o_lumen requiem_aeternam
+               come_holy_ghost miserere beati_quorum infant_of_prague litany_loreto
+               divine_mercy_chaplet alma_redemptoris litany_st_joseph prayer_for_the_pope
+               prayer_for_priests)
 
   test "the file is pinned by its date and words" do
     assert {Spanish.file_updated_at(), Spanish.file_version()} == @pinned, """
