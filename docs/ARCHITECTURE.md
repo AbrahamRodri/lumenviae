@@ -1026,20 +1026,22 @@ LiveViews are grouped by **area of the site**, not by resource:
 | `live/prayers/` | the Prayer Book, as the app's Prayers tab: the shelves, the shortcuts, Now and the search (`index/`, with `shelves/` and `search/`), a chapter (`chapter/`), an order of prayer (`order/`) and praying it in silence (`order/pray/`), and a prayer (`prayer/`, its words drawn by `prayer/text/`). `book.ex` is the book as the pages read it (the app's shelves, the five parts, second names, paintings and search ranking, over `Rosary.get_prayer_book!/1`), `orders.ex` the orders of prayer as the app reads them (the hour's order, Eastertide, the closing song to Mary, their paintings and search), `prayer_text.ex` the text's grammar and `painting.ex` a painting drawn about its subject; all are presentation and never query. Their CSS is the `book-*` and `prayers-*` classes, apart from the Rosary page's `.prayer-text` |
 | `live/chants/` | the Chant Library, as the app's Chant tab: the tab (`index/`), a section's shelf or the Mass of the Angels' (`section/`), Sets of Chants (`sets/`), a sung set (`set/`) and a chant (`chant/`). `occasions.ex` is the sung sets' rules (tonight's song to Mary, the order unrolled, the rows and the queue the player reads). `library.ex` is the library as the pages read it (the songs to Mary, the sections' names, the paintings, numbered shelves, the rows' second lines and the search, over `Rosary.get_chant_library!/1`) and `parts.ex` the rows, cards and play discs the pages share; both are presentation and never query. The recordings play through the `ChantPlayer` hook. Their CSS is the `chant-*` classes |
 | `live/hours/` | Hours of Prayer, the Divine Office as the app's: the landing for today or another day (`index/`), an hour read (`hour/`, a section drawn by `hour/section/`) and the month's calendar (`calendar/`). `canonical_hours.ex` is the eight hours as the app names and orders them (plain names, clock times, paintings) with the pages' dates and paths, `day_rank.ex` a day's class in plain words, `office_text.ex` an hour's sections set for a language; all are presentation and fetch nothing. The pages reach the Office only through `LumenViae.Office`'s public functions, after they connect (`start_async`). Their CSS is the `hours-*` classes and the Prayer Book's `book-*` reading classes; the rail is the `OfficeRail` hook |
+| `live/true_devotion/` | True Devotion, St. Louis de Montfort's book, as the app's reader: the title page (`index/`, the binding drawn by `cover/`) and a chapter read in place (`chapter/`). `book.ex` is the book as the pages read it (the contents' order, the short part names, a chapter's numbered paragraphs and versal, the shared citation, over `Rosary.get_true_devotion!/1`); presentation only, it never queries. The reader's place, the chapters read and the bookmarks are the browser's, kept by the `TrueDevotionPlace` hook, never sent. Their CSS is the `td-*` classes |
 | `live/privacy_policy/` | the privacy policy the App Store listing links to |
 | `live/meditations/` | admin CRUD for meditations and sets |
 | `live/admin/` | admin dashboard, login, CSV import, spoken Rosary coverage, system, admins, completions |
 
-The public site is the Rosary, the Prayer Book, the Chant Library and
-Hours of Prayer: home, the mysteries, their sets and the prayer page, the
-Prayer Book's five pages, the Chant Library's five and the Hours' four,
-with the iPhone app's page and the privacy policy beside them,
-twenty-one routes in all
+The public site is the Rosary, the Prayer Book, the Chant Library, Hours
+of Prayer and True Devotion: home, the mysteries, their sets and the
+prayer page, the Prayer Book's five pages, the Chant Library's five, the
+Hours' four and True Devotion's two, with the iPhone app's page and the
+privacy policy beside them, twenty-three routes in all
 (`docs/PUBLIC_SITE.md` lists them, the links' parameters and where each
 setting is kept). Pages retired from it (the
-dashboard, How to Pray, True Devotion, St. Carlo, Feedback) are in
-`archive/`, outside the build; each old path answers a
-`301` to `/` through `LumenViaeWeb.RedirectController`, and
+dashboard, How to Pray, True Devotion's summary page, St. Carlo, Feedback)
+are in `archive/`, outside the build; each old path answers a
+`301` to `/` through `LumenViaeWeb.RedirectController`, except
+`/true-devotion`, which opens the book now, and
 `archive/README.md` says how to bring one back. Archived pages are not
 maintained: do not update them when a shared component changes.
 
@@ -1347,6 +1349,7 @@ ornament, Roman numerals, colophon quotes.
 | `gilt` / `gilt-light` | `#E3BC5B` / `#F3D89A` | the accent (10.9:1 / 14.2:1): labels and kickers, numerals, the gold button with `night` text, quiet actions, the lit bead, the focus ring; `gilt-light` for section headings and chosen segments |
 | `sky` | `#C9B98F` | the app's soft accent: links and a set's kinds (10.1:1) |
 | `night-rubric` | `#D07A6E` | the app's rubric text: a prayer's directions and the marks ℣ ℟ ✠ on the Prayer Book's pages, nothing else (6.3:1; 5.8:1 on raised) |
+| `marian` | `#2E3D66` | True Devotion's cloth: its cover and the halo behind it, nothing else; never text |
 | `vellum` | `#F6F0E2` | the reading page |
 | `vellum-ink` / `vellum-muted` | `#2A211C` / `#6A5B4E` | text on vellum (13.9:1 / 5.7:1) |
 | `vellum-gold` | `#7A5A1E` | small rubrics on vellum: verse numbers, references, list markers (5.6:1) |

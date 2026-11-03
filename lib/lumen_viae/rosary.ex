@@ -480,7 +480,13 @@ defmodule LumenViae.Rosary do
     end
 
     resource LumenViae.Rosary.Consecration
-    resource LumenViae.Rosary.TrueDevotion
+
+    resource LumenViae.Rosary.TrueDevotion do
+      # The website's True Devotion pages read the book at once, naming
+      # the sections they draw in `load:`.
+      define :get_true_devotion, action: :current, functions: @read
+    end
+
     resource LumenViae.Rosary.CarloAcutis
     resource LumenViae.Rosary.MarianLibrary
     resource LumenViae.Rosary.SpiritualReading

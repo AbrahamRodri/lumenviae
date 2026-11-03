@@ -1,0 +1,82 @@
+<div
+  class="td-page min-h-screen pb-16"
+  id="true-devotion"
+  phx-hook="TrueDevotionPlace"
+  data-page="book"
+>
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <div class="td-book mx-auto max-w-5xl px-4 sm:px-8">
+    <section class="td-book__front" aria-labelledby="book-heading">
+      <h1 id="book-heading" class="sr-only">
+        {@book.about.title}, by {@book.about.author}
+      </h1>
+      <.cover title={@book.about.title} author={@book.about.author} />
+
+      <.link
+        navigate={Book.chapter_path(@first.id)}
+        class="td-act"
+        data-role="read-act"
+        id="read-act"
+        phx-update="ignore"
+      >
+        <span class="td-act__head">
+          <span class="td-act__ribbon" aria-hidden="true"></span>
+          <span class="td-act__kicker" data-role="act-kicker">Begin reading</span>
+          <span class="hero-chevron-right size-4 td-act__caret" aria-hidden="true" />
+        </span>
+        <span class="td-act__destination" data-role="act-destination">{@first.title}</span>
+        <span class="td-act__foot">
+          <span class="td-act__thread" aria-hidden="true">
+            <span class="td-act__fill" data-role="act-fill"></span>
+          </span>
+          <span class="td-act__meta" data-role="act-meta">Not yet opened</span>
+        </span>
+      </.link>
+
+      <div class="td-colophon td-colophon--wide">
+        <.sacred_divider class="max-w-[200px] mx-auto !my-4" />
+        <p>{@book.about.translator}</p>
+        <p class="td-colophon__source">{@book.about.source_note}</p>
+      </div>
+    </section>
+
+    <nav class="td-ledger" aria-labelledby="contents-heading" id="contents" phx-update="ignore">
+      <h2 id="contents-heading" class="td-ledger__kicker">
+        Contents · {length(@book.chapters)} chapters
+      </h2>
+      <ul>
+        <li :for={chapter <- @free}>
+          <.chapter_row chapter={chapter} />
+        </li>
+      </ul>
+      <details
+        :for={%{part: part, chapters: chapters} <- @parts}
+        class="td-part"
+        data-part={part.number}
+        open={part.number == 1}
+      >
+        <summary
+          class="td-part__summary"
+          aria-label={"#{part.title}, #{length(chapters)} chapters"}
+        >
+          <span class="td-part__name">{Book.short_part_title(part)}</span>
+          <span class="td-part__rule" aria-hidden="true"></span>
+          <span class="td-part__count" aria-hidden="true">{length(chapters)}</span>
+          <span class="hero-chevron-down size-3 td-part__caret" aria-hidden="true" />
+        </summary>
+        <ul>
+          <li :for={chapter <- chapters}>
+            <.chapter_row chapter={chapter} />
+          </li>
+        </ul>
+      </details>
+    </nav>
+
+    <div class="td-colophon td-colophon--narrow">
+      <.sacred_divider class="max-w-[200px] mx-auto !my-4" />
+      <p>{@book.about.translator}</p>
+      <p class="td-colophon__source">{@book.about.source_note}</p>
+    </div>
+  </div>
+</div>
