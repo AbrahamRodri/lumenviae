@@ -3334,6 +3334,10 @@
                   "items": {
                     "items": {
                       "properties": {
+                        "ai_translated": {
+                          "nullable": true,
+                          "type": "boolean"
+                        },
                         "author": {
                           "type": "string"
                         },

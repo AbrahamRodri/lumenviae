@@ -127,3 +127,47 @@ translated with AI.
 - Key verses: a Spanish Bible translation is needed. Torres Amat (1825)
   and Scío are in the public domain; any modern translation needs its
   publisher's licence.
+
+# Sources of the daily quotations
+
+`es/quotes.json` holds the 21 daily quotations in Spanish, in the order
+and with the authors of `quotes.json`. Abraham's rule for the rest of the
+content: "the rest if you can easily get it translated yes go ahead add
+it". A quote's Spanish is the author's own words where they wrote in
+Spanish, a Church or a published Spanish version where one says what the
+English says, and otherwise the team's translation, marked
+`ai_translated`.
+
+| # | Author | Spanish |
+|---|---|---|
+| 0 | St. Pius X | the team's translation |
+| 1 | Bl. Pius IX | the team's translation |
+| 2 | St. Padre Pio | the team's translation |
+| 3 | Bl. Alan de la Roche | the team's translation |
+| 4 | Pope Adrian VI | the team's translation |
+| 5 | Our Lady of Fatima | the team's translation, after the Shrine of Fatima's account of 13 May 1917 ([fatima.pt](https://www.fatima.pt/es/pages/narrativa-de-las-apariciones-de-fatima)), which adds "y el fin de la guerra", not in the English |
+| 6 | Bl. Alan de la Roche | the team's translation |
+| 7 | Sr. Lucia of Fatima | the team's translation, worded after the 1957 interview as [ACI Prensa](https://www.aciprensa.com/noticias/61830/el-rosario-es-el-arma-de-los-ultimos-tiempos-aseguro-sor-lucia-vidente-de-la-virgen-de-fatima) prints it |
+| 8 | Our Lady of Fatima | the team's translation; the Shrine's account of 13 October 1917 gives it in indirect speech |
+| 9 | St. Louis de Montfort | the team's translation |
+| 10 | St. Louis de Montfort | the team's translation |
+| 11 | St. Louis de Montfort | the team's translation |
+| 12 | St. Padre Pio | the team's translation |
+| 13 | St. Padre Pio | [Ascension Press](https://ascensionpress.com/es/blogs/articles/tips-and-saintly-wisdom-for-praying-the-rosary-well), Spanish |
+| 14 | St. Josemaría Escrivá | his own words, *Surco* 475 ([escriva.org](https://escriva.org/es/surco/475/)) |
+| 15 | St. Josemaría Escrivá | his own words, *Camino* 558 ([escrivaobras.org](https://www.escrivaobras.org/book/camino-punto-558.htm)) |
+| 16 | Ven. Fulton J. Sheen | the team's translation (the Spanish edition is not online) |
+| 17 | St. Francis de Sales | the team's translation |
+| 18 | Bl. Pius IX | the team's translation |
+| 19 | Pope Leo XIII | the team's translation |
+| 20 | Ven. Patrick Peyton | Holy Cross Family Ministries, his own ministry ([hcfm.org](https://hcfm.org/es/)) |
+
+Changes to the copied texts: quotation marks and a leading dash removed,
+a final period added, and in 14 the first letter capitalized (the words
+stand mid-sentence in *Surco*). Our Lady and Sr. Lucia speak to the
+children in ustedes; the rest use tú.
+
+Noticed while sourcing, not changed (the English stays as it is): 14 is
+*Surco* (Furrow) 475, where the English source says *The Way*; 2 is
+elsewhere credited to Pius XI, 3 is Montfort's own words in *The Secret
+of the Rosary*, and 1 is often credited to Pius X.

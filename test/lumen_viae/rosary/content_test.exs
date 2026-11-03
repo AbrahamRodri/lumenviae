@@ -44,6 +44,9 @@ defmodule LumenViae.Rosary.ContentTest do
     "es/prayers.json" => [
       {~U[2026-11-02 23:00:00Z], "c5fc5ae325922a61"},
       {~U[2026-11-03 03:00:00Z], "eb7de5487f2c29f6"}
+    ],
+    "es/quotes.json" => [
+      {~U[2026-11-03 16:05:00Z], "f7cc8230d8091b01"}
     ]
   }
 
@@ -220,10 +223,30 @@ defmodule LumenViae.Rosary.ContentTest do
 
     test "the Spanish document has a version and a date of its own" do
       refute Content.version(Content.document("es")) == Content.version()
-      [%{updated_at: spanish_file_at}] = Content.spanish_files()
+      spanish_files_at = Enum.map(Content.spanish_files(), & &1.updated_at)
 
       assert Content.updated_at("es") ==
-               Enum.max([Content.updated_at(), spanish_file_at], DateTime)
+               Enum.max([Content.updated_at() | spanish_files_at], DateTime)
+    end
+
+    test "the quotes in Spanish: every quote, same order, author and source" do
+      english = Content.quotes()
+      spanish = Content.quotes("es")
+
+      assert spanish["rotation"] == english["rotation"]
+      assert length(spanish["items"]) == length(english["items"])
+
+      for {es, en} <- Enum.zip(spanish["items"], english["items"]) do
+        assert Map.take(es, ["author", "source"]) == Map.take(en, ["author", "source"])
+        refute es["text"] == en["text"], "#{en["author"]}: no Spanish text"
+        assert Map.get(es, "ai_translated", true) == true
+      end
+
+      # The ones with a Spanish source are unmarked: Fatima's Shrine and
+      # the team's translations aside, Escrivá wrote in Spanish.
+      escriva = Enum.filter(spanish["items"], &(&1["author"] == "St. Josemaría Escrivá"))
+      assert Enum.all?(escriva, &(not Map.has_key?(&1, "ai_translated")))
+      assert Content.quotes("en") == english
     end
 
     test "the spoken Rosary records no Spanish: its prayer clips say the English" do

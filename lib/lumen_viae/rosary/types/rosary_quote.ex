@@ -17,6 +17,10 @@ defmodule LumenViae.Rosary.Types.RosaryQuote do
     field :source, :string,
       description:
         "The work or occasion, only where it can be cited with confidence. Null where the attribution is traditional rather than documented."
+
+    field :ai_translated, :boolean,
+      description:
+        "`true` when this quote's text in the asked-for language is the team's own AI translation, not a published text: show the app's AI notice. Present only then, and only with a `lang` other than English; otherwise absent."
   end
 
   use AshGraphql.Type

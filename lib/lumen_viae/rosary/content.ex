@@ -40,6 +40,9 @@ defmodule LumenViae.Rosary.Content do
 
   ## In Spanish
 
+  `es/quotes.json` holds the daily quotations in Spanish, in the same
+  order and with the same authors (`quotes/1`), sourced the same way.
+
   `es/prayers.json` holds the prayers in Spanish, each a title and its
   lines, copied from official Church sources or supplied by Abraham
   (listed, with what was changed, in `priv/rosary_content/SOURCES.md`); a
@@ -337,6 +340,32 @@ defmodule LumenViae.Rosary.Content do
     invalid.("quotes.json", "every quote needs a text and an author, and a source or null")
   end
 
+  # The quotes in Spanish: a file of its own, like the prayers', so the
+  # English document, version and date stay as they were. It lists every
+  # quote in quotes.json's order, each with the same author (the check
+  # that the two lists line up) and its Spanish text.
+  @spanish_quotes_path Path.join([@dir, "es", "quotes.json"])
+  @external_resource @spanish_quotes_path
+
+  {spanish_quotes_file, spanish_quotes_updated_at} = read.(@spanish_quotes_path)
+
+  @spanish_quotes Map.fetch!(spanish_quotes_file, "quotes")
+  @spanish_quotes_updated_at spanish_quotes_updated_at
+
+  if length(@spanish_quotes) != length(@quotes["items"]) or
+       not Enum.all?(Enum.zip(@spanish_quotes, @quotes["items"]), fn
+         {%{"author" => author, "text" => text} = spanish, %{"author" => author}} ->
+           text?.(text) and Map.get(spanish, "ai_translated", true) == true
+
+         _other ->
+           false
+       end) do
+    invalid.(
+      "es/quotes.json",
+      "lists every quote of quotes.json in its order, each with the same author, a Spanish text, and \"ai_translated\" either true or left out"
+    )
+  end
+
   {milestones_file, milestones_updated_at} = read.(@milestones_path)
   @milestones Map.fetch!(milestones_file, "milestones")
 
@@ -584,11 +613,32 @@ defmodule LumenViae.Rosary.Content do
   defp mark_ai_translated(prayer, _spanish), do: prayer
 
   @doc """
+  The daily quotations in a language. `"en"` is `quotes/0`, as it is
+  served today. `"es"` is the same rotation and quotes, author and source
+  unchanged, each text in Spanish from `priv/rosary_content/es/quotes.json`;
+  a quote whose Spanish is the team's own (AI) translation also carries
+  `"ai_translated" => true`.
+  """
+  @spec quotes(String.t()) :: map
+  def quotes("es") do
+    items =
+      for {quote, spanish} <- Enum.zip(@quotes["items"], @spanish_quotes) do
+        mark_ai_translated(%{quote | "text" => spanish["text"]}, spanish)
+      end
+
+    %{@quotes | "items" => items}
+  end
+
+  def quotes(_lang), do: @quotes
+
+  @doc """
   `document/0` in a language: for `"es"`, its prayers are `prayers("es")`,
   so its `version/1` is its own and a Spanish word changed moves it.
   """
   @spec document(String.t()) :: map
-  def document("es"), do: Map.put(@document, "prayers", prayers("es"))
+  def document("es"),
+    do: @document |> Map.put("prayers", prayers("es")) |> Map.put("quotes", quotes("es"))
+
   def document(_lang), do: @document
 
   @doc """
@@ -596,7 +646,9 @@ defmodule LumenViae.Rosary.Content do
   Spanish file's date.
   """
   @spec updated_at(String.t()) :: DateTime.t()
-  def updated_at("es"), do: Enum.max([@updated_at, @spanish_prayers_updated_at], DateTime)
+  def updated_at("es"),
+    do: Enum.max([@updated_at, @spanish_prayers_updated_at, @spanish_quotes_updated_at], DateTime)
+
   def updated_at(_lang), do: @updated_at
 
   @doc """
@@ -611,6 +663,11 @@ defmodule LumenViae.Rosary.Content do
         name: "es/prayers.json",
         updated_at: @spanish_prayers_updated_at,
         version: version(%{"prayers" => @spanish_prayers})
+      },
+      %{
+        name: "es/quotes.json",
+        updated_at: @spanish_quotes_updated_at,
+        version: version(%{"quotes" => @spanish_quotes})
       }
     ]
   end

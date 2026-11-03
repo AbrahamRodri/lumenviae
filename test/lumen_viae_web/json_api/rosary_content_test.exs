@@ -311,10 +311,19 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
                }
              } = Enum.find(spanish["prayers"], &(&1["id"] == "hail_mary"))
 
-      # The prayers, mysteries and categories have Spanish
+      assert %{"items" => [%{"text" => "El Rosario es la más bella" <> _} | _]} =
+               spanish["quotes"]
+
+      # The prayers, quotes, mysteries and categories have Spanish
       # (rosary_content_mysteries_test.exs); every other section is the English.
-      assert Map.drop(spanish, ~w(prayers mysteries categories version updated_at)) ==
-               Map.drop(english, ~w(prayers mysteries categories version updated_at))
+      assert Map.drop(spanish, ~w(prayers quotes mysteries categories version updated_at)) ==
+               Map.drop(english, ~w(prayers quotes mysteries categories version updated_at))
+
+      assert Enum.map(spanish["quotes"]["items"], &Map.take(&1, ["author", "source"])) ==
+               Enum.map(english["quotes"]["items"], &Map.take(&1, ["author", "source"]))
+
+      for quote <- english["quotes"]["items"], do: refute(Map.has_key?(quote, "ai_translated"))
+      assert Enum.any?(spanish["quotes"]["items"], &(&1["ai_translated"] == true))
     end
 
     test "es has a version and a date of its own, and a region reads as es", %{conn: conn} do
@@ -328,8 +337,10 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
       stamp = Current.stamp(Schedule.current_year(), [], "es")
       assert spanish["updated_at"] == DateTime.to_iso8601(stamp.updated_at)
 
-      [%{updated_at: spanish_file_at}] = Content.spanish_files()
-      refute DateTime.compare(stamp.updated_at, spanish_file_at) == :lt
+      for %{updated_at: spanish_file_at} <- Content.spanish_files() do
+        refute DateTime.compare(stamp.updated_at, spanish_file_at) == :lt
+      end
+
       assert attributes(build_conn(), "&lang=es-MX") == spanish
     end
 

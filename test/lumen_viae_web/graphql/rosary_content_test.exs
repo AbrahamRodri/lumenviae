@@ -227,4 +227,25 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
     refute get_in(spanish, ["data", "rosaryContent", "version"]) == english["version"]
     _ = conn
   end
+
+  test "lang: es gives the quotes in Spanish, marked where they are the team's translation" do
+    query = fn args ->
+      graphql(build_conn(), """
+      { rosaryContent#{args} { quotes { items { text author source aiTranslated } } } }
+      """)
+    end
+
+    spanish = get_in(query.(~s|(lang: "es")|), ["data", "rosaryContent", "quotes", "items"])
+    english = get_in(query.(""), ["data", "rosaryContent", "quotes", "items"])
+
+    assert Enum.map(spanish, & &1["text"]) ==
+             Enum.map(Content.quotes("es")["items"], & &1["text"])
+
+    assert Enum.map(spanish, & &1["author"]) == Enum.map(english, & &1["author"])
+    assert Enum.map(english, & &1["text"]) == Enum.map(Content.quotes()["items"], & &1["text"])
+    assert Enum.all?(english, &is_nil(&1["aiTranslated"]))
+
+    assert Enum.map(spanish, &(&1["aiTranslated"] == true)) ==
+             Enum.map(Content.quotes("es")["items"], &(&1["ai_translated"] == true))
+  end
 end
