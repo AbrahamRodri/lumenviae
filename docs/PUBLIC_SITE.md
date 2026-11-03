@@ -697,6 +697,12 @@ tab closes; each track runs on into the next by itself.
   A track list that cannot be had says "The recording couldn't be
   reached." with Try again (the `retry_recording` event, answered only
   after a failure). The credit adds "Recording: LibriVox volunteers."
+- **Before the page connects** (a slow phone: the page is drawn, its
+  script not yet run), Hear this read and the listen chips stand dimmed
+  and take no tap, since nothing could answer them; they come alive with
+  the connection (CSS on LiveView's `phx-connected`). A connection lost
+  later leaves them working, since the voice is the browser's own. The
+  app has no such moment.
 - **The player** (`LumenViaeWeb.Live.SpiritualReading.Player`): the mini
   player over the foot of the screen (the reading's title, which opens
   the player, back fifteen seconds, play and pause), and the player

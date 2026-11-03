@@ -7752,6 +7752,17 @@ html[data-prayer-images="off"] .prayer-plate {
     border-radius: 4px;
   }
 
+  /* Until the page has connected, the voice's controls have no hook to
+     answer them: they stand dimmed and take no tap, and come alive with the
+     connection (LiveView's phx-connected on the page). A connection lost
+     later leaves them working, since the voice is the browser's own. */
+  [data-phx-session]:not(.phx-connected, .phx-error, .phx-client-error, .phx-server-error)
+    :is(.bp-hear__act, .sr-listen) {
+    opacity: 0.45;
+    pointer-events: none;
+    cursor: progress;
+  }
+
   .bp-hear__left {
     font-family: var(--font-display);
     font-size: 0.75rem;

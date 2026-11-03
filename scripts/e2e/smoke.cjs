@@ -847,11 +847,33 @@ async function checkSpiritualReading(browser, vp) {
         (await page.locator("[data-role=recording-credit]").count()) > 0,
         `${label}: the credit names LibriVox's volunteers`
       );
+      // Before the page connects there is no hook to answer the voice's
+      // controls, so they stand dimmed and take no tap (a slow phone).
+      {
+        const unconnected = await freshPage(browser, vp, []);
+        // The app's script held back, as on a slow connection: the page is
+        // drawn, but nothing has connected yet.
+        await unconnected.context.route(/\/assets\/js\/app\.js/, () => {});
+        await unconnected.page.goto(BASE_URL + "/spiritual-reading/practice-of-the-presence-of-god/2", {
+          waitUntil: "commit"
+        });
+        const waiting = unconnected.page.locator("[data-act=hear]");
+        await waiting.waitFor({ state: "attached", timeout: 10000 }).catch(() => {});
+        if ((await waiting.count()) === 1) {
+          const style = await waiting.evaluate((el) => getComputedStyle(el).pointerEvents);
+          check(style === "none", `${label}: Hear this read takes no tap until the page connects`, style);
+        }
+        await unconnected.context.close();
+      }
       await page.goto(BASE_URL + "/spiritual-reading/practice-of-the-presence-of-god/2");
       await settle(page);
       await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
       const hear = page.locator("[data-act=hear]");
       check(await eventually(async () => (await hear.count()) === 1), `${label}: the chapter offers Hear this read`);
+      check(
+        (await hear.evaluate((el) => getComputedStyle(el).pointerEvents)) !== "none",
+        `${label}: Hear this read comes alive with the connection`
+      );
       if ((await hear.count()) === 1) {
         check(await page.locator("[data-role=player]").isHidden(), `${label}: the player waits until the reading is asked for`);
         await hear.click();
