@@ -74,15 +74,6 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayerTest do
       assert earlier.fact == "Begin"
       refute earlier.prayed?
     end
-
-    test "the Act's date is the visitor's, moved by the browser's offset" do
-      made = plan(@today, "2026-11-03T02:00:00Z")
-
-      assert TodaysPrayer.completed_on(made, 300) == ~D[2026-11-02]
-      assert TodaysPrayer.completed_on(made, 0) == ~D[2026-11-03]
-      assert TodaysPrayer.completed_on(plan(@today), 0) == nil
-      assert TodaysPrayer.completed_on(plan(@today, "nonsense"), 0) == nil
-    end
   end
 
   describe "the hours' rows" do
@@ -169,6 +160,35 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayerTest do
              )
 
       assert has_element?(view, "[data-role=prayed-seal]")
+    end
+
+    test "an Act made on the browser's today reads as consecrated today", %{conn: conn} do
+      today = Date.utc_today()
+      start = Date.add(today, -33)
+
+      plan = %{
+        "start" => Date.to_iso8601(start),
+        "feast_id" => nil,
+        "completed_at" => DateTime.to_iso8601(DateTime.utc_now())
+      }
+
+      {:ok, view, _html} = live(conn, "/")
+
+      render_hook(
+        view,
+        "consecration_state",
+        Map.put(state(plan, [34]), "completed_on", Date.to_iso8601(today))
+      )
+
+      assert has_element?(view, "[data-role=row-consecration]", "Consecrated today")
+
+      render_hook(
+        view,
+        "consecration_state",
+        Map.put(state(plan, [34]), "completed_on", Date.to_iso8601(Date.add(today, -1)))
+      )
+
+      assert has_element?(view, "[data-role=row-consecration]", "Begin")
     end
   end
 

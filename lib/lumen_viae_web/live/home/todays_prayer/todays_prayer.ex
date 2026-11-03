@@ -128,23 +128,6 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
     {(phase && phase.painting) || "glorious_coronation", 0.5, focal}
   end
 
-  @doc """
-  The visitor's date the Act was made, from the plan's `completed_at` (an
-  ISO 8601 instant the browser wrote) moved by the browser's offset
-  (minutes, positive west of UTC); nil when there is none.
-  """
-  def completed_on(%{completed_at: at}, offset) when is_binary(at) do
-    case DateTime.from_iso8601(at) do
-      {:ok, instant, _utc_offset} ->
-        instant |> DateTime.add(-(offset || 0) * 60, :second) |> DateTime.to_date()
-
-      _error ->
-        nil
-    end
-  end
-
-  def completed_on(_plan, _offset), do: nil
-
   # ---- The hour's prayers
 
   @doc """
