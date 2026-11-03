@@ -342,8 +342,9 @@ defmodule LumenViae.Rosary.Content do
 
   # The quotes in Spanish: a file of its own, like the prayers', so the
   # English document, version and date stay as they were. It lists every
-  # quote in quotes.json's order, each with the same author (the check
-  # that the two lists line up) and its Spanish text.
+  # quote in quotes.json's order, each with the same English author (the
+  # check that the two lists line up), the author's Spanish name, the
+  # Spanish text and, where the English cites a work, its Spanish title.
   @spanish_quotes_path Path.join([@dir, "es", "quotes.json"])
   @external_resource @spanish_quotes_path
 
@@ -355,14 +356,16 @@ defmodule LumenViae.Rosary.Content do
   if length(@spanish_quotes) != length(@quotes["items"]) or
        not Enum.all?(Enum.zip(@spanish_quotes, @quotes["items"]), fn
          {%{"author" => author, "text" => text} = spanish, %{"author" => author}} ->
-           text?.(text) and Map.get(spanish, "ai_translated", true) == true
+           text?.(text) and text?.(spanish["name"]) and
+             Map.get(spanish, "ai_translated", true) == true and
+             text_or_nil?.(Map.get(spanish, "source"))
 
          _other ->
            false
        end) do
     invalid.(
       "es/quotes.json",
-      "lists every quote of quotes.json in its order, each with the same author, a Spanish text, and \"ai_translated\" either true or left out"
+      "lists every quote of quotes.json in its order, each with the same author, the author's Spanish name, a Spanish text, a Spanish source or none, and \"ai_translated\" either true or left out"
     )
   end
 
@@ -614,8 +617,11 @@ defmodule LumenViae.Rosary.Content do
 
   @doc """
   The daily quotations in a language. `"en"` is `quotes/0`, as it is
-  served today. `"es"` is the same rotation and quotes, author and source
-  unchanged, each text in Spanish from `priv/rosary_content/es/quotes.json`;
+  served today. `"es"` is the same rotation and quotes in the same order,
+  from `priv/rosary_content/es/quotes.json`: each text in Spanish, the
+  author by the name Spanish speakers use (`"name"`), and the work cited
+  by its Spanish title where the file gives one (the English source
+  otherwise);
   a quote whose Spanish is the team's own (AI) translation also carries
   `"ai_translated" => true`.
   """
@@ -623,7 +629,13 @@ defmodule LumenViae.Rosary.Content do
   def quotes("es") do
     items =
       for {quote, spanish} <- Enum.zip(@quotes["items"], @spanish_quotes) do
-        mark_ai_translated(%{quote | "text" => spanish["text"]}, spanish)
+        %{
+          quote
+          | "text" => spanish["text"],
+            "author" => spanish["name"],
+            "source" => Map.get(spanish, "source", quote["source"])
+        }
+        |> mark_ai_translated(spanish)
       end
 
     %{@quotes | "items" => items}

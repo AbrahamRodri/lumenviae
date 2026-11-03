@@ -46,7 +46,8 @@ defmodule LumenViae.Rosary.ContentTest do
       {~U[2026-11-03 03:00:00Z], "eb7de5487f2c29f6"}
     ],
     "es/quotes.json" => [
-      {~U[2026-11-03 16:05:00Z], "f7cc8230d8091b01"}
+      {~U[2026-11-03 16:05:00Z], "f7cc8230d8091b01"},
+      {~U[2026-11-03 16:14:00Z], "47b4a5749588512e"}
     ]
   }
 
@@ -237,16 +238,23 @@ defmodule LumenViae.Rosary.ContentTest do
       assert length(spanish["items"]) == length(english["items"])
 
       for {es, en} <- Enum.zip(spanish["items"], english["items"]) do
-        assert Map.take(es, ["author", "source"]) == Map.take(en, ["author", "source"])
+        refute es["author"] == "", en["author"]
+        # A cited work gets its Spanish title; an uncited quote stays uncited.
+        assert is_nil(es["source"]) == is_nil(en["source"]), en["author"]
         refute es["text"] == en["text"], "#{en["author"]}: no Spanish text"
         assert Map.get(es, "ai_translated", true) == true
       end
 
       # The ones with a Spanish source are unmarked: Fatima's Shrine and
       # the team's translations aside, Escrivá wrote in Spanish.
-      escriva = Enum.filter(spanish["items"], &(&1["author"] == "St. Josemaría Escrivá"))
+      escriva = Enum.filter(spanish["items"], &(&1["author"] == "San Josemaría Escrivá"))
       assert Enum.all?(escriva, &(not Map.has_key?(&1, "ai_translated")))
       assert Content.quotes("en") == english
+
+      assert Enum.at(spanish["items"], 14)["source"] == "Surco"
+      assert Enum.at(spanish["items"], 9)["author"] == "San Luis María Grignion de Montfort"
+      assert Enum.at(english["items"], 9)["author"] == "St. Louis de Montfort"
+      assert Enum.at(english["items"], 14)["source"] == "The Way"
     end
 
     test "the spoken Rosary records no Spanish: its prayer clips say the English" do

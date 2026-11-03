@@ -319,8 +319,14 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
       assert Map.drop(spanish, ~w(prayers quotes mysteries categories version updated_at)) ==
                Map.drop(english, ~w(prayers quotes mysteries categories version updated_at))
 
-      assert Enum.map(spanish["quotes"]["items"], &Map.take(&1, ["author", "source"])) ==
-               Enum.map(english["quotes"]["items"], &Map.take(&1, ["author", "source"]))
+      assert Enum.map(spanish["quotes"]["items"], & &1["author"]) ==
+               Enum.map(Content.quotes("es")["items"], & &1["author"])
+
+      assert Enum.map(english["quotes"]["items"], & &1["author"]) ==
+               Enum.map(Content.quotes()["items"], & &1["author"])
+
+      assert Enum.map(spanish["quotes"]["items"], & &1["source"]) ==
+               Enum.map(Content.quotes("es")["items"], & &1["source"])
 
       for quote <- english["quotes"]["items"], do: refute(Map.has_key?(quote, "ai_translated"))
       assert Enum.any?(spanish["quotes"]["items"], &(&1["ai_translated"] == true))

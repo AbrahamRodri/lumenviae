@@ -241,7 +241,9 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
     assert Enum.map(spanish, & &1["text"]) ==
              Enum.map(Content.quotes("es")["items"], & &1["text"])
 
-    assert Enum.map(spanish, & &1["author"]) == Enum.map(english, & &1["author"])
+    assert Enum.map(spanish, & &1["author"]) ==
+             Enum.map(Content.quotes("es")["items"], & &1["author"])
+
     assert Enum.map(english, & &1["text"]) == Enum.map(Content.quotes()["items"], & &1["text"])
     assert Enum.all?(english, &is_nil(&1["aiTranslated"]))
 

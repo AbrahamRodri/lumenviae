@@ -162,12 +162,21 @@ English says, and otherwise the team's translation, marked
 | 19 | Pope Leo XIII | the team's translation |
 | 20 | Ven. Patrick Peyton | Holy Cross Family Ministries, his own ministry ([hcfm.org](https://hcfm.org/es/)) |
 
+With `lang=es` each quote also names its author as Spanish speakers do
+(San Pío X, Beato Pío IX, San Pío de Pietrelcina, Beato Alano de la
+Rupe, Papa Adriano VI, Nuestra Señora de Fátima, Sor Lucía de Fátima, San
+Luis María Grignion de Montfort, San Josemaría Escrivá, Venerable Fulton
+J. Sheen, San Francisco de Sales, Papa León XIII, Venerable Patrick
+Peyton), and a cited work by its Spanish title: "13 de octubre de 1917",
+"El secreto del Rosario", "Surco" and "El primer amor del mundo".
+
 Changes to the copied texts: quotation marks and a leading dash removed,
 a final period added, and in 14 the first letter capitalized (the words
 stand mid-sentence in *Surco*). Our Lady and Sr. Lucia speak to the
 children in ustedes; the rest use tú.
 
-Noticed while sourcing, not changed (the English stays as it is): 14 is
-*Surco* (Furrow) 475, where the English source says *The Way*; 2 is
+Noticed while sourcing, not changed in the English: 14 is *Surco*
+(Furrow) 475, where the English source says *The Way* (the Spanish says
+"Surco"); 2 is
 elsewhere credited to Pius XI, 3 is Montfort's own words in *The Secret
 of the Rosary*, and 1 is often credited to Pius X.

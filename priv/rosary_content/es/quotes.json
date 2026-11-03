@@ -1,105 +1,132 @@
 {
-  "updated_at": "2026-11-03T16:05:00Z",
+  "updated_at": "2026-11-03T16:14:00Z",
   "quotes": [
     {
       "author": "St. Pius X",
+      "name": "San Pío X",
       "text": "El Rosario es la más bella y la más rica en gracias de todas las oraciones; es la oración que más toca el Corazón de la Madre de Dios.",
       "ai_translated": true
     },
     {
       "author": "Bl. Pius IX",
+      "name": "Beato Pío IX",
       "text": "Denme un ejército que rece el Rosario y conquistaré el mundo.",
       "ai_translated": true
     },
     {
       "author": "St. Padre Pio",
+      "name": "San Pío de Pietrelcina",
       "text": "El Rosario es un arma poderosa para poner en fuga a los demonios.",
       "ai_translated": true
     },
     {
       "author": "Bl. Alan de la Roche",
+      "name": "Beato Alano de la Rupe",
       "text": "Nunca se extraviará quien rece su Rosario todos los días.",
       "ai_translated": true
     },
     {
       "author": "Pope Adrian VI",
+      "name": "Papa Adriano VI",
       "text": "El Rosario es el azote del demonio.",
       "ai_translated": true
     },
     {
       "author": "Our Lady of Fatima",
+      "name": "Nuestra Señora de Fátima",
       "text": "Recen el Rosario todos los días para alcanzar la paz para el mundo.",
       "ai_translated": true
     },
     {
       "author": "Bl. Alan de la Roche",
-      "text": "El santo Rosario es un depósito de innumerables bendiciones.",
+      "name": "Beato Alano de la Rupe",
+      "text": "El santo Rosario es un tesoro de innumerables bendiciones.",
       "ai_translated": true
     },
     {
       "author": "Sr. Lucia of Fatima",
+      "name": "Sor Lucía de Fátima",
       "text": "No hay problema, les digo, por más difícil que sea, que no podamos resolver con el rezo del Santo Rosario.",
       "ai_translated": true
     },
     {
       "author": "Our Lady of Fatima",
+      "name": "Nuestra Señora de Fátima",
       "text": "Soy la Señora del Rosario. Continúen rezando el Rosario todos los días.",
+      "source": "13 de octubre de 1917",
       "ai_translated": true
     },
     {
       "author": "St. Louis de Montfort",
+      "name": "San Luis María Grignion de Montfort",
       "text": "Cuando el Rosario se reza bien, da más gloria a Jesús y a María y es más meritorio que cualquier otra oración.",
+      "source": "El secreto del Rosario",
       "ai_translated": true
     },
     {
       "author": "St. Louis de Montfort",
+      "name": "San Luis María Grignion de Montfort",
       "text": "Si rezas fielmente el Rosario hasta la muerte, te aseguro que recibirás una corona de gloria inmarcesible.",
+      "source": "El secreto del Rosario",
       "ai_translated": true
     },
     {
       "author": "St. Louis de Montfort",
+      "name": "San Luis María Grignion de Montfort",
       "text": "Reza tu Rosario con fe, con humildad, con confianza y con perseverancia.",
+      "source": "El secreto del Rosario",
       "ai_translated": true
     },
     {
       "author": "St. Padre Pio",
+      "name": "San Pío de Pietrelcina",
       "text": "Ama a la Virgen y reza el Rosario, porque su Rosario es el arma contra los males del mundo de hoy.",
       "ai_translated": true
     },
     {
       "author": "St. Padre Pio",
+      "name": "San Pío de Pietrelcina",
       "text": "El Rosario es el arma para estos tiempos."
     },
     {
       "author": "St. Josemaría Escrivá",
-      "text": "¡Bendita monotonía de avemarías que purifica la monotonía de tus pecados!"
+      "name": "San Josemaría Escrivá",
+      "text": "¡Bendita monotonía de avemarías que purifica la monotonía de tus pecados!",
+      "source": "Surco"
     },
     {
       "author": "St. Josemaría Escrivá",
+      "name": "San Josemaría Escrivá",
       "text": "El Santo Rosario es arma poderosa. Empléala con confianza y te maravillarás del resultado."
     },
     {
       "author": "Ven. Fulton J. Sheen",
-      "text": "El Rosario es el libro de los ciegos, donde las almas ven y allí representan el mayor drama de amor que el mundo haya conocido jamás.",
+      "name": "Venerable Fulton J. Sheen",
+      "text": "El Rosario es el libro de los ciegos, en el que las almas ven y viven el mayor drama de amor que el mundo haya conocido jamás.",
+      "source": "El primer amor del mundo",
       "ai_translated": true
     },
     {
       "author": "St. Francis de Sales",
+      "name": "San Francisco de Sales",
       "text": "El mejor método de oración es rezar el Rosario.",
       "ai_translated": true
     },
     {
       "author": "Bl. Pius IX",
+      "name": "Beato Pío IX",
       "text": "Entre todas las devociones aprobadas por la Iglesia, ninguna ha sido favorecida con tantos milagros como la devoción del Santísimo Rosario.",
       "ai_translated": true
     },
     {
       "author": "Pope Leo XIII",
+      "name": "Papa León XIII",
       "text": "El Rosario es la forma de oración más excelente y el medio más eficaz para alcanzar la vida eterna.",
       "ai_translated": true
     },
     {
       "author": "Ven. Patrick Peyton",
+      "name": "Venerable Patrick Peyton",
       "text": "La familia que reza unida permanece unida."
     }
   ]
