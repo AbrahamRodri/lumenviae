@@ -280,8 +280,13 @@ async function checkConsecration(browser, vp) {
   const errors = [];
   const { context, page } = await freshPage(browser, vp, errors);
 
+  // The presses are the ConsecrationPlan hook's, so wait for it to have
+  // spoken (the stage shows only then).
+  const known = () => eventually(async () => (await page.locator("[data-role=stage][data-known=true]").count()) > 0);
+
   await page.goto(BASE_URL + "/consecration?step=choose");
   await settle(page);
+  await known();
   await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
   await page.locator("[data-role=begin]").click();
   const begun = await eventually(
@@ -291,6 +296,7 @@ async function checkConsecration(browser, vp) {
 
   await page.goto(BASE_URL + "/consecration");
   await settle(page);
+  await known();
   if ((await page.locator("[data-role=another-feast]").count()) > 0) {
     await page.locator("[data-role=another-feast]").click();
   }
