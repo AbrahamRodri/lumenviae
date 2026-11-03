@@ -37,6 +37,31 @@ image, pushes it to GHCR, copies `deploy/vm/` (compose file, Caddyfile, `bin/`, 
 restarts the stack, and runs the post-deploy checks. With `HOSTING` unset,
 deploys go where they went before.
 
+### What a deploy does to requests
+
+A deploy replaces the app container: the old one stops before the new one
+listens, about 10 seconds on Lumen Viae's 1 GB Droplet. Two things keep
+that from showing as errors:
+
+- **Caddy holds requests without a body.** A GET, HEAD or OPTIONS
+  request waits, retried every 250ms for up to 30 seconds, and gets its
+  answer once the new app listens (`Caddyfile`). A POST is not held: when
+  Caddy resends one, the app gets it with the body missing, even with
+  `request_buffers`. So a POST in those seconds still gets 502, and the
+  app never sees half a request. An app should retry a failed POST.
+- **Caddy itself is not restarted.** The deploy runs `docker compose up`
+  without `--build` and then `caddy reload`, which loads a changed
+  Caddyfile without dropping a connection. With `--build`, Compose 2.40
+  without buildx (Ubuntu's package) gave the Caddy image a new id on every
+  build and so recreated Caddy each time, which closed 80 and 443 for a few
+  seconds. The Caddy image has a fixed tag in `compose.yml`; after changing
+  `caddy/Dockerfile`, raise the tag so the next deploy builds it.
+
+Checked on a local copy of the stack under Compose 2.40.3, with an app
+that takes 5 seconds to start. Before: 26 of 100 GETs got 502, 2 found no
+listener, and Caddy was recreated. After: 100 of 100 got 200, the slowest
+in about 5.4 seconds, and Caddy kept running.
+
 ## Names to change for another site
 
 | What | Lumen Viae | Where |

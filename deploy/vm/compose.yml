@@ -68,8 +68,15 @@ services:
     command: starman --port 8080 --host 0.0.0.0 --workers 2 --preload-app --user www-data --group www-data /var/www/app.psgi
     restart: unless-stopped
 
+  # Built once and then kept: the deploy runs `up` without `--build`. With
+  # Compose 2.40 and no buildx, every rebuild gave Caddy a new image id,
+  # so each deploy recreated it and dropped HTTPS for a few seconds. The
+  # deploy reloads the Caddyfile in place instead. After changing
+  # caddy/Dockerfile, raise the tag's last number: the next deploy builds
+  # the new tag and restarts Caddy once.
   caddy:
     build: ./caddy
+    image: lumenviae-caddy:2.10-cloudflare-1
     ports:
       - "80:80"
       - "443:443"
