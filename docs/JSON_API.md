@@ -49,7 +49,7 @@ involved.
 | `GET /rosary-content` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
 | `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers`, `chapters`, `orders` and `marian_antiphons` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
-| `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers` and `feasts` when named in `fields[consecration]=`. See "The Consecration". |
+| `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers`, `feasts` and `translations` when named in `fields[consecration]=`; `lang=es` fills `translations`. See "The Consecration". |
 | `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts`, `chapters`, `teaching` and `ejaculatory_prayers` when named in `fields[true_devotion]=`. See "True Devotion". |
 | `GET /carlo-acutis` | `CarloAcutis.:current` | St. Carlo Acutis's page as one document: its `version` and `updated_at`, and `feast`, `shelves`, `timeline`, `rule`, `sayings` and `prayer` when named in `fields[carlo_acutis]=`. See "St. Carlo Acutis". |
 | `GET /marian-library` | `MarianLibrary.:current` | The Marian Library as one document: its `version` and `updated_at`, and `feasts` and `shelves` when named in `fields[marian_library]=`. See "The Marian Library". |
@@ -923,6 +923,49 @@ app reads this document; date the file and pin its new version as for
 the Prayer Book. This document carries no audio: the sung prayers are the
 Chant Library's. The older consecration recordings under
 `GET /api/prayers/:id/audio` had no licence and stay withdrawn (410).
+
+### The Consecration in Spanish
+
+```
+GET /api/v2/consecration?lang=es
+GET /api/v2/consecration?lang=es&fields[consecration]=version,updated_at,phases,days,prayers,feasts,translations
+```
+
+GraphQL: `consecration(lang: "es") { translations { phases { id name subtitle aiTranslated } days { number title journalPrompt aiTranslated readings { order title text source aiTranslated } } prayers { id title text aiTranslated } feasts { id name description aiTranslated } } }`.
+
+- **No `lang`, `lang=en`, or a language not served**: the document as it
+  was before Spanish, byte for byte, with the same `version` and
+  `updated_at`. `translations`, when asked for, is
+  `{phases: [], days: [], prayers: [], feasts: []}`.
+- **`lang=es`**, or any `es-` region: **`translations`** holds the
+  Spanish, keyed as the English sections key it, each list in the English
+  order and holding only the parts that have Spanish:
+  - `phases`: `{id, name, subtitle}`;
+  - `days`: `{number, title, journal_prompt, readings}`, and `readings`
+    each `{order, title, text, source}`: `title` is the Spanish citation,
+    `source` the Spanish edition (`Biblia de Torres Amat`), `text` in the
+    same ReadingText grammar. A reading not listed has no Spanish: show
+    its English;
+  - `prayers`: `{id, title, text}`, `text` in the PrayerText grammar. The
+    prayers the Prayer Book prints carry the book's own Spanish
+    ("The Prayer Book in Spanish"), so the two documents agree;
+  - `feasts`: `{id, name, description}`.
+
+  Every other section is unchanged, English and Latin: a client lays the
+  Spanish over the English by key. Any part that is the team's own
+  translation carries `ai_translated: true`, for the app's notice; the
+  key is absent otherwise. On a day it marks the title and the journal
+  question; each reading carries its own.
+- **Its own `version` and `updated_at`**: keep one copy per language and
+  poll with the `lang` fetched with.
+- **The words**, from `priv/library/es/consecration.json`: Scripture from
+  Torres Amat's Bible (1825), the Imitation of Christ from Nieremberg's
+  Spanish, True Devotion and Montfort's prayers from a public-domain
+  Spanish edition where one was found, else the team's translation,
+  marked; the day titles, journal questions, phases and feasts are the
+  team's translation, marked. `priv/library/es/SOURCES.md` lists each
+  source and every change made.
+- **Never narrated.**
 
 ## True Devotion
 

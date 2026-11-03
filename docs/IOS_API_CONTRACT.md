@@ -373,6 +373,19 @@ version and date included, and `translations` is empty, pinned by
 `test/lumen_viae_web/json_api/prayer_book_spanish_test.exs`. The shapes
 are docs/JSON_API.md, "The Prayer Book in Spanish".
 
+### 13. GET /api/v2/consecration?lang=es (not yet called)
+
+The app bundles the Consecration and does not fetch it yet. A build that
+fetches it in Spanish asks for the new `translations` section: the
+phases, days (title, journal question and readings by `order`), prayers
+and feasts that have Spanish, each laid over the English by key, with
+`ai_translated: true` where a part is the team's translation; every
+other section is unchanged. The Spanish document has a `version` of its
+own. Without `lang`, or with `lang=en`, the document is exactly what it
+is today, version and date included, and `translations` holds four empty
+lists, pinned by `test/lumen_viae_web/json_api/consecration_spanish_test.exs`.
+The shapes are docs/JSON_API.md, "The Consecration in Spanish".
+
 ### Outside Phoenix
 
 S3 presigned narration and rosary clips (AVPlayer, or a plain GET), S3

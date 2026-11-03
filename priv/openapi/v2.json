@@ -967,6 +967,153 @@
                 },
                 "type": "array"
               },
+              "translations": {
+                "description": "With `lang=es`, the Consecration's words in Spanish, keyed as the English sections key them: phases and prayers by `id`, days by `number` and their readings by `order`, feasts by `id`. A part not listed has no Spanish; show its English. `ai_translated` marks the team's own translation. In English, four empty lists.",
+                "properties": {
+                  "days": {
+                    "items": {
+                      "properties": {
+                        "ai_translated": {
+                          "nullable": true,
+                          "type": "boolean"
+                        },
+                        "journal_prompt": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "integer"
+                        },
+                        "readings": {
+                          "items": {
+                            "properties": {
+                              "ai_translated": {
+                                "nullable": true,
+                                "type": "boolean"
+                              },
+                              "order": {
+                                "type": "integer"
+                              },
+                              "source": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "order",
+                              "title",
+                              "text",
+                              "source"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "number",
+                        "title",
+                        "journal_prompt",
+                        "readings"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "feasts": {
+                    "items": {
+                      "properties": {
+                        "ai_translated": {
+                          "nullable": true,
+                          "type": "boolean"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "description"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "phases": {
+                    "items": {
+                      "properties": {
+                        "ai_translated": {
+                          "nullable": true,
+                          "type": "boolean"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "subtitle": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "subtitle"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "prayers": {
+                    "items": {
+                      "properties": {
+                        "ai_translated": {
+                          "nullable": true,
+                          "type": "boolean"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "text"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "phases",
+                  "days",
+                  "prayers",
+                  "feasts"
+                ],
+                "type": "object"
+              },
               "updated_at": {
                 "description": "When the content last changed. Field included by default.",
                 "format": "date-time",
@@ -5559,10 +5706,20 @@
         "operationId": "getConsecration",
         "parameters": [
           {
-            "description": "Comma separated fields of consecration: days, feasts, phases, prayers, updated_at, version",
+            "description": "Comma separated fields of consecration: days, feasts, phases, prayers, translations, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[consecration]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The language of `translations`: `es` fills it with every part of the Consecration that has Spanish. Missing, `en` or a language not served: the document as it always was, and `translations` empty.",
+            "in": "query",
+            "name": "lang",
             "required": false,
             "schema": {
               "type": "string"
