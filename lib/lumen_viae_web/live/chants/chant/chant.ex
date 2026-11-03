@@ -13,7 +13,10 @@ defmodule LumenViaeWeb.Live.Chants.Chant do
   the Prayer Book, its other settings and the singers' credit.
 
   The recording is the app's own, the public file on the site's bucket,
-  played by an `<audio>` the `ChantPlayer` hook drives. The app's score window,
+  played through the site's one chant player (the root layout's `<audio>`)
+  that the `ChantPlayer` hook drives, so it sings on when the reader
+  leaves; the mini player (`ChantMiniPlayer`) stands aside on this page,
+  as the app's does on a chant's. The app's score window,
   learning, favourites, sets, Take turns and sleep timer are not here.
   An id the library does not have is a 404.
 

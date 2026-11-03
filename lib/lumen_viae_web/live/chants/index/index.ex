@@ -24,7 +24,8 @@ defmodule LumenViaeWeb.Live.Chants.Index do
   they sing, by a line of their words.
 
   A disc plays its chant where it stands, through the `ChantPlayer` hook;
-  leaving the page stops it.
+  leaving the page leaves it singing, with the mini player at the foot of
+  the site (`ChantMiniPlayer`).
   """
   use LumenViaeWeb, :live_view
 

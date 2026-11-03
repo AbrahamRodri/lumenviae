@@ -10,8 +10,9 @@ defmodule LumenViaeWeb.Live.Consecration.Day.Flow do
   the last prayer, or Amen on the last step. From 1024px a rail of the
   day's steps stands beside it, as the Prayer Book's pray-along has.
 
-  The chant plays through the `ChantPlayer` hook in a box of its own for
-  each step, so leaving a step stops it, as the app unloads it. The app's
+  The chant plays through the `ChantGuest` hook in a box of its own for
+  each step, so leaving a step stops it, as the app unloads its guest; it
+  is not the site's chant player and never stands in the mini player. The app's
   sheet music is not on the website yet.
   """
   use LumenViaeWeb, :html
@@ -249,7 +250,7 @@ defmodule LumenViaeWeb.Live.Consecration.Day.Flow do
     <div
       id={"cons-chant-#{@step}-#{@chant.id}"}
       class="cons-chant"
-      phx-hook="ChantPlayer"
+      phx-hook="ChantGuest"
       data-chant={@chant.id}
       data-role="chant"
     >

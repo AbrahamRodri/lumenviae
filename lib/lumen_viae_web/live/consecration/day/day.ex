@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.Consecration.Day do
   `?step=` walks the day as `ConsecrationDayFlowView` does, a page a step
   (counted from 1): each prayer of the phase, set by the Prayer Book's
   `PrayerText` with the chant it is sung to where the Chant Library has
-  one (the `ChantPlayer` hook), then each reading. Amen on the last keeps
+  one (the `ChantGuest` hook), then each reading. Amen on the last keeps
   the day as prayed in this browser (the `ConsecrationPlan` hook, only
   under a plan, and only on its day or after) and returns to today's day,
   or on Consecration Day, when it is today or without a plan, goes on to

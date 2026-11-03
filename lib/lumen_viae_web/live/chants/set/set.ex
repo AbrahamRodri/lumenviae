@@ -7,13 +7,14 @@ defmodule LumenViaeWeb.Live.Chants.Set do
   each with how often it is sung and how long, the notes in red over the
   chants they lead to.
 
-  Play all sings the whole set in this page (`ChantPlayer`), the decades'
+  Play all sings the whole set (`ChantPlayer`), the decades'
   rounds and repeats unrolled, and lights the row sounding; it pauses and
   resumes once under way. A row's Play from Here sings the set from that
   chant. Pause Between Chants, which the app keeps in the set's ··· menu,
   is a switch on the page, kept nowhere: with it on, the next chant waits
-  at its start until Play next is pressed. Leaving the page stops it,
-  since the website has no player at the foot of every page yet.
+  at its start until Play next is pressed. Leaving the page leaves it
+  singing, with the mini player at the foot of the site
+  (`ChantMiniPlayer`), whose disc sings a chant left waiting.
 
   The app's bookmark, which keeps a sung set as the reader's own, is left
   out: the website keeps nothing. Share is the reader's own sets' alone

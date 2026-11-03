@@ -279,24 +279,69 @@ the app's own, in `priv/static/images/paintings/` with their credits.
 
 A recording is the public file the apps play, on the site's own bucket
 (`s3.us-east-2.amazonaws.com/lumenviae-images/chants/audio/`), played by
-an `<audio>` that the `ChantPlayer` hook (`assets/js/hooks/chant_player.js`)
+the site's one chant player (`assets/js/chant_session.js`, the app's
+`ChantPlayer.shared`) through the root layout's `<audio id="site-chant-audio">`,
+which the Chant pages' `ChantPlayer` hook (`assets/js/hooks/chant_player.js`)
 drives: a disc plays its chant where it stands, Play all sings a shelf in
 order, a sung set's Play all (or its card's disc) sings the set unrolled,
 every chant as often as it sounds, and lights the step sounding, a row's
 Play from Here sings it from that step, and with Pause Between Chants (a
 switch on the set's page, kept nowhere) the next chant waits at its start
-for Play next; and a chant's page follows the recording line by line. The hook
-keeps nothing and sends nothing. A recording that will not play is
-said only once play was pressed; on a list, Play all passes over it to
-the next chant and a quiet line says so. Leaving the page stops it: there is no
-player at the foot of every page yet. The site's Content-Security-Policy
-(`base-uri` and `frame-ancestors` only) does not limit media, so nothing
-needed widening.
+for Play next; and a chant's page follows the recording line by line. A
+recording that will not play is said only once play was pressed; on a
+list, Play all passes over it to the next chant and a quiet line says so.
+The site's Content-Security-Policy (`base-uri` and `frame-ancestors`
+only) does not limit media, so nothing needed widening.
+
+### The mini player
+
+What a Chant page starts goes on singing as the reader moves about the
+site, and stands at the foot of the page as the app's `ChantMiniPlayer`
+stands at the foot of the whole app (`ContentView.showsChantPlayer`):
+the chant's painting, its Latin name, and where it stands (its English
+name and "0:42 of 3:10", or the shelf or set and "3 of 74", or "waiting
+for you" with "Next: ..." while a set holds the next chant for Pause
+Between Chants), its disc, which plays, pauses or sings the chant waiting,
+and close ("Stop and close the player"), with a gold line of progress
+along its foot. A click on the names opens the chant's page. It is
+`LumenViaeWeb.Components.ChantMiniPlayer`, drawn once in the public root
+layout, and `assets/js/chant_mini_player.js`; on a wide screen it keeps a
+phone's width, centred at the foot, as the Spiritual Reading player does.
+While it shows, the footer keeps room beneath it so the page's last line
+scrolls clear.
+
+It stands aside, the chant singing on, where the app keeps it off: a
+chant's own page, a Rosary prayed (`/meditation-sets/:id/pray`,
+`/mysteries/:category/pray`, with its completion), an order of prayer
+prayed along (`/prayers/orders/:id/pray`), a Spiritual Reading chapter, a
+Consecration day and the Act. Each of those carries
+`data-hides-chant-player` on its outermost element. Another recording
+taking the speakers (the Rosary said aloud, a meditation's narration, a
+Consecration day's chant) puts the chant away and the mini
+player with it, as another flow's claim does in the app.
+
+How it survives navigation: every public page is in one `live_session`
+and every link between them navigates live (the header, the footer and
+the pages' `<.link navigate>`), which never re-renders the root layout,
+so the `<audio>` there keeps sounding and a shelf or set goes on to its
+next chant from any page. A full page load ends it: a reload, a link
+opened in a new tab, an address typed, the console's pages (another
+`live_session`), and a deploy that reloads the page. For those, the chant
+in hand, the queue under way, the speed and the place in the recording
+are kept in this tab's `sessionStorage` (`lv:chant-player`, gone with the
+tab, never sent), and the new page brings the mini player back paused
+where it stood: its disc goes on. A browser will not start sound on a
+page load without a press, so it never plays by itself there.
+
+Unlike the app: no lock screen or headphone controls, no sleep timer;
+Repeat on a chant's page is that page's, and leaving the page leaves the
+chant singing without it; and the player hides only on the pages above,
+as the website has no tour, Chapel or tab bar.
 
 Not here yet, as the app has them: the score window on a chant's page
 that follows the line being sung (the full score is here), the
 reader's own sets (Make your own set, the bookmark that keeps a sung set,
-Share, which the app offers on the reader's own sets alone), a player at the foot of every page, and
+Share, which the app offers on the reader's own sets alone), and
 everything the phone keeps (the chant last sung, Played lately,
 favourites, learning a chant, Take turns and the sleep timer).
 ## The Consecration
@@ -347,8 +392,9 @@ Annunciation), all already on the site. A prayer the Chant Library sings
 (Veni Creator, Ave Maris Stella, the Magnificat, the Gloria Patri, the
 Litany of Loreto, the Litany of the Holy Name) carries its recording,
 the first of its settings in the library's order, played by the
-`ChantPlayer` hook in a box of its own for the step, so turning the page
-stops it.
+`ChantGuest` hook in a box of its own for the step, so turning the page
+stops it (the app's ChantGuest; it is not the site's chant player, and
+its playing puts away a chant the Chant Library was singing).
 
 Left out, by Abraham's decision ("leave out journal , prayer record and
 how to pray guided rosary"): the reflection written in the app's journal
@@ -754,6 +800,11 @@ tokens and the shared vocabulary are in the "Design tokens" section of
   template never renders another.
 - A page that wants the whole screen, as the prayer page does, carries
   `data-layout="focused"`. The header, footer and skip link then step aside.
+- A page with a transport of its own or a prayer under way carries
+  `data-hides-chant-player`, as the app's `showsChantPlayer` lists it; the
+  chant mini player then stands aside. Any other recording a page plays
+  goes through an `<audio>` in the page, so it puts the chant away (or,
+  like the spoken Rosary's detached `Audio`, calls `relinquish` itself).
 - Use the design tokens, never raw hex. The "Design tokens" section of
   `docs/ARCHITECTURE.md` is the list.
 - No emojis anywhere.

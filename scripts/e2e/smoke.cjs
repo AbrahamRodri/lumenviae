@@ -594,7 +594,7 @@ async function checkChant(browser, vp) {
   await page.goto(BASE_URL + "/chant/salve_regina_simple");
   await settle(page);
   await page.addStyleTag({ content: "[data-tidewave-toolbar-root], #live-debugger { display: none !important; }" });
-  const src = await page.locator("audio#chant-audio").getAttribute("src");
+  const src = await page.locator("[data-role=player]").getAttribute("data-src");
   check(/^https:\/\/s3\.us-east-2\.amazonaws\.com\/lumenviae-images\/chants\/audio\//.test(src || ""), `${label}: the page carries the recording`, src);
   check((await page.locator("[data-role=line]").count()) > 1, `${label}: the page lists the lines`);
   await page.locator("[data-role=play]").click();
@@ -651,7 +651,7 @@ async function checkChant(browser, vp) {
   await page.locator("[data-role=play-all]").click();
   const singing = await eventually(async () => {
     const lit = await page.locator('[data-role=set-row][data-origin="0"][data-sounding]').count();
-    const playing = await page.locator("audio#chant-set-audio").evaluate((a) => !a.paused && a.currentTime > 0);
+    const playing = await page.locator("audio#site-chant-audio").evaluate((a) => !a.paused && a.currentTime > 0);
     return lit === 1 && playing;
   }, 30000);
   check(singing, `${label}: Play all sings the set's first chant`);
@@ -664,6 +664,84 @@ async function checkChant(browser, vp) {
     const response = await page.goto(BASE_URL + unknown);
     check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);
   }
+  await context.close();
+}
+
+// The chant mini player (the app's ChantMiniPlayer): a chant played on a
+// shelf goes on singing across a live navigation, with the mini player at
+// the foot of the next page; its disc pauses and plays; its names open the
+// chant's page, where it stands aside; after a full page load it comes
+// back paused where it stood and its disc goes on; close puts it away.
+// The recording comes from the site's bucket, so this needs a network.
+async function checkChantMiniPlayer(browser, vp) {
+  const label = `${vp.name} chant mini player`;
+  console.log(label);
+  const errors = [];
+  const { context, page } = await freshPage(browser, vp, errors);
+  const mini = page.locator("#chant-mini");
+  const sounding = () =>
+    page.locator("audio#site-chant-audio").evaluate((a) => (!a.paused && a.currentTime > 0 ? a.currentTime : 0));
+
+  await page.goto(BASE_URL + "/chant/sections/mass");
+  await settle(page);
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root], #live-debugger { display: none !important; }" });
+  check(!(await mini.isVisible()), `${label}: hidden until a chant is in hand`);
+  const disc = page.locator("[data-role=chant-row] [data-play]").first();
+  const id = await disc.getAttribute("data-play");
+  const latin = JSON.parse(await disc.getAttribute("data-facts")).latin;
+  await disc.click();
+  check(await eventually(sounding, 30000), `${label}: a disc on a shelf sings its chant`);
+  check(await eventually(() => mini.isVisible()), `${label}: the mini player stands at the shelf's foot`);
+
+  // A live navigation, as every link between the public pages is
+  await page.evaluate(() => (window.__sameDocument = true));
+  await page.locator('#site-footer a[href="/mysteries"]').click();
+  await page.waitForURL(/\/mysteries$/);
+  await settle(page);
+  check(await page.evaluate(() => window.__sameDocument === true), `${label}: the footer's link navigates live`);
+  const t1 = await sounding();
+  await page.waitForTimeout(1200);
+  const t2 = await sounding();
+  check(t1 > 0 && t2 > t1, `${label}: the chant sings on after the navigation`, `${t1} -> ${t2}`);
+  check(await mini.isVisible(), `${label}: the mini player stands at the next page's foot`);
+  check((await mini.locator("[data-role=mini-title]").textContent()).trim() === latin, `${label}: it names the chant`, latin);
+  check(/ of \d+:\d\d$/.test((await mini.locator("[data-role=mini-subtitle]").textContent()).trim()), `${label}: it says where the chant stands`);
+  check(await page.evaluate(() => document.documentElement.hasAttribute("data-chant-mini")), `${label}: the page keeps room at its foot`);
+  await noHorizontalScroll(page, `${label} (showing)`);
+  await page.screenshot({ path: path.join(OUT_DIR, `${vp.name}-chant-mini.png`) });
+
+  const play = mini.locator("[data-role=mini-play]");
+  check((await play.getAttribute("aria-pressed")) === "true", `${label}: its disc shows pause while it sings`);
+  await play.click();
+  check(await eventually(async () => (await sounding()) === 0), `${label}: its disc pauses the chant`);
+  check(await eventually(async () => (await play.getAttribute("aria-label")).startsWith("Play ")), `${label}: the paused disc is labelled Play`);
+  await play.click();
+  check(await eventually(sounding, 10000), `${label}: its disc sings it again`);
+
+  await mini.locator("[data-role=mini-open]").click();
+  await page.waitForURL(new RegExp(`/chant/${id}$`));
+  await settle(page);
+  check(!(await mini.isVisible()), `${label}: it stands aside on the chant's own page`);
+  check(await eventually(async () => (await page.locator("[data-role=play]").getAttribute("aria-pressed")) === "true"),
+    `${label}: the chant's page shows its chant singing`);
+  check(await page.evaluate(() => window.__sameDocument === true), `${label}: the names open the chant by live navigation`);
+
+  // A full page load ends the <audio>: the player comes back paused where it stood
+  await page.waitForTimeout(2500);
+  await page.goto(BASE_URL + "/explore");
+  await settle(page);
+  await page.addStyleTag({ content: "[data-tidewave-toolbar-root], #live-debugger { display: none !important; }" });
+  check(await eventually(() => mini.isVisible()), `${label}: after a full page load it comes back`);
+  const restored = await page.locator("audio#site-chant-audio").evaluate((a) => ({ paused: a.paused, time: a.currentTime }));
+  check(restored.paused && restored.time > 0, `${label}: paused where it stood`, JSON.stringify(restored));
+  await play.click();
+  check(await eventually(sounding, 30000), `${label}: its disc goes on from there`);
+
+  await mini.locator("[data-role=mini-close]").click();
+  check(await eventually(async () => !(await mini.isVisible())), `${label}: close puts it away`);
+  check((await sounding()) === 0, `${label}: and the chant with it`);
+  check(await page.evaluate(() => sessionStorage.getItem("lv:chant-player") === null), `${label}: nothing kept once closed`);
+  check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
   await context.close();
 }
 
@@ -1187,6 +1265,7 @@ async function checkCompletion(browser, vp) {
     await checkTrueDevotion(browser, vp);
     await checkSpiritualReading(browser, vp);
     await checkChant(browser, vp);
+    await checkChantMiniPlayer(browser, vp);
     await checkConsecration(browser, vp);
     await checkTodaysPrayer(browser, vp);
     await checkExplore(browser, vp);

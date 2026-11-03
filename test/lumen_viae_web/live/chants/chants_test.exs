@@ -154,7 +154,15 @@ defmodule LumenViaeWeb.Live.Chants.ChantsTest do
       # said only for a chant with no timed lines, in the now line.
       refute has_element?(view, "[data-role=detail]")
       refute view |> element("article") |> render() =~ "Trinity Sunday to Advent"
-      assert has_element?(view, ~s(audio#chant-audio[src="#{chant.audio.url}"]))
+      # The recording goes to the site's one chant player, with what its mini
+      # player shows; the mini player stands aside on a chant's own page.
+      assert has_element?(view, ~s([data-role=player][data-src="#{chant.audio.url}"]))
+      [facts] = Floki.attribute(Floki.parse_document!(html), "[data-role=player]", "data-facts")
+
+      assert %{"latin" => "Salve Regina", "href" => "/chant/salve_regina_simple"} =
+               Jason.decode!(facts)
+
+      assert has_element?(view, "#chant-view[data-hides-chant-player]")
 
       doc = Floki.parse_document!(html)
       lines = Floki.find(doc, "[data-role=line]")

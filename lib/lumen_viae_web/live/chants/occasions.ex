@@ -174,4 +174,15 @@ defmodule LumenViaeWeb.Live.Chants.Occasions do
     |> Enum.map(&[&1.chant.id, &1.chant.audio.url, &1.origin])
     |> Jason.encode!()
   end
+
+  @doc """
+  What the mini player shows of each chant the set sings, by chant id
+  (`Library.player_facts/1`), once each however often it is sung: JSON.
+  """
+  def chants_json(%{queue: queue}) do
+    queue
+    |> Enum.uniq_by(& &1.chant.id)
+    |> Map.new(&{&1.chant.id, Library.player_facts(&1.chant)})
+    |> Jason.encode!()
+  end
 end

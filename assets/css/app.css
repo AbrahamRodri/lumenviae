@@ -9861,3 +9861,132 @@ html[data-prayer-images="off"] .prayer-plate {
   }
 }
 /* === end Explore === */
+
+/* === the chant mini player (ChantMiniPlayer) ===
+   What the Chant Library is singing, at the foot of the site, as the app's
+   ChantMiniPlayer stands at the foot of the whole app: the one filled
+   surface floating over a page that scrolls beneath it. Elevated night, a
+   gold hairline, the painting, the Latin name over where it stands, the
+   play disc, close, and a gold line of progress along its foot. On a wide
+   screen it keeps a phone's width, centred, as the Spiritual Reading
+   player does. A page marked data-hides-chant-player keeps it off; while
+   it shows, the page keeps room at its foot so its last line scrolls
+   clear (ChantPlayerRoom). */
+@layer components {
+  .chant-mini {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    z-index: 40;
+    max-width: 30rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.125rem 0.5rem 0.625rem;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid rgba(227, 188, 91, 0.3);
+    background: var(--color-night-elevated);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  }
+
+  .site:has([data-hides-chant-player]) .chant-mini {
+    display: none;
+  }
+
+  /* The room is the footer's, the page's last box (the body may be drawn
+     as display: contents, which takes no padding). */
+  html[data-chant-mini] .site:not(:has([data-hides-chant-player])) .site-footer {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+
+  .chant-mini__open {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .chant-mini__thumb {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 0.5rem;
+    object-fit: cover;
+  }
+
+  .chant-mini__names {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chant-mini__title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: var(--font-garamond);
+    font-size: 1rem;
+    line-height: 1.3;
+    color: var(--color-ink-light);
+  }
+
+  .chant-mini__subtitle {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: var(--font-garamond);
+    font-style: italic;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-mini__open:hover .chant-mini__title {
+    color: var(--color-gilt-light);
+  }
+
+  .chant-mini__close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    color: var(--color-ink-muted);
+  }
+
+  .chant-mini__close:hover {
+    color: var(--color-ink-light);
+  }
+
+  .chant-mini .chant-disc:focus-visible,
+  .chant-mini__close:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: -2px;
+  }
+
+  .chant-mini__progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1.5px;
+    pointer-events: none;
+  }
+
+  .chant-mini__line {
+    display: block;
+    height: 100%;
+    background: linear-gradient(to right, var(--color-gilt), var(--color-gilt-light));
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+}
+/* === end the chant mini player === */

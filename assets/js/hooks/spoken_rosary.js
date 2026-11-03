@@ -18,6 +18,8 @@
 //
 // Clips play through an Audio element rather than fetch(): the audio bucket
 // sends no CORS headers, and a media element does not need them.
+import { relinquish as putAwayChant, session as chantSession } from "../chant_session"
+
 const MEDIA_ACTIONS = ["play", "pause", "previoustrack", "nexttrack"]
 
 export default {
@@ -52,6 +54,12 @@ export default {
     this.el.querySelector("[data-forward]").addEventListener("click", () => this.step(1))
 
     this.audio.addEventListener("ended", () => this.advance())
+    // The Rosary aloud takes the speakers: a chant still singing from the
+    // Chant Library is put away, as the app's claim does. This Audio is not
+    // in the page, so the site's document-wide listener does not hear it.
+    this.audio.addEventListener("play", () => {
+      if (chantSession.active) putAwayChant()
+    })
     // A clip that will not load is skipped, as the app does, rather than
     // stopping the Rosary on a bead.
     this.audio.addEventListener("error", () => {
