@@ -22,6 +22,16 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Chapter do
   kept as the reader scrolls and resumed when the chapter is opened again,
   and reaching the foot or stepping on marks the chapter read. Nothing is
   sent to the server.
+
+  Where the book has a LibriVox recording and a track reads this chapter,
+  Hear this read stands under the title (the app's `hearThisRead`): it
+  hands that track to the voice, says "· from Chapter I" where the track
+  opens on an earlier chapter, and the track's length at the right ("18
+  MIN LEFT" while it sounds). The track list is fetched by the server
+  (`Shelf.recording/3`) once the text is held: drawn at once when this
+  machine holds it, else fetched after the page connects; one that cannot
+  be had leaves the chapter without it, as the app's reader does. The
+  recording plays in the browser (`Player`, the `BookPlayer` hook).
   """
   use LumenViaeWeb, :live_view
 
@@ -29,6 +39,7 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Chapter do
   alias LumenViaeWeb.Live.SpiritualReading.Shelf
   alias LumenViaeWeb.PageMeta
 
+  import LumenViaeWeb.Live.SpiritualReading.Player
   import LumenViaeWeb.Live.SpiritualReading.States
 
   @impl true
@@ -53,7 +64,7 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Chapter do
 
     {:ok,
      socket
-     |> assign(book: book, index: index, failure: nil)
+     |> assign(book: book, index: index, failure: nil, recording: nil)
      |> put_meta(text)
      |> assign_text(text)}
   end
@@ -71,6 +82,13 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Chapter do
 
   def handle_async(:text, {:exit, _reason}, socket),
     do: {:noreply, assign(socket, state: :failed, failure: :unreachable)}
+
+  # The recording rides behind the text and, as in the app's reader, a
+  # track list that cannot be had leaves the chapter without Hear this read.
+  def handle_async(:recording, {:ok, %{status: :ok} = recording}, socket),
+    do: {:noreply, assign(socket, :recording, recording)}
+
+  def handle_async(:recording, _other, socket), do: {:noreply, socket}
 
   # The title names the chapter where the server already holds it, and
   # its number otherwise, as the meta is written with the first response.
@@ -125,8 +143,10 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Chapter do
       notes: notes,
       note_text: Map.new(notes, &{&1.number, &1.text}),
       previous: index > 0 && Enum.at(text.contents, index - 1),
-      next: Enum.at(text.contents, index + 1)
+      next: Enum.at(text.contents, index + 1),
+      contents: text.contents
     )
+    |> load_recording()
   end
 
   defp assign_text(socket, %{status: :cold}), do: fetch(socket)
@@ -136,6 +156,28 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Chapter do
 
   defp assign_text(socket, %{status: reason}),
     do: assign(socket, state: :failed, failure: reason)
+
+  # The track list, once the text is held: from this machine at once, or
+  # fetched after the page connects.
+  defp load_recording(%{assigns: %{book: %{librivox_id: nil}}} = socket), do: socket
+  defp load_recording(%{assigns: %{recording: %{status: :ok}}} = socket), do: socket
+
+  defp load_recording(socket) do
+    %{book: book, current_admin: actor} = socket.assigns
+
+    case Shelf.recording(actor, book.id, cached_only: true) do
+      %{status: :ok} = recording ->
+        assign(socket, :recording, recording)
+
+      %{status: :cold} ->
+        if connected?(socket),
+          do: start_async(socket, :recording, fn -> Shelf.recording(actor, book.id) end),
+          else: socket
+
+      _unavailable ->
+        socket
+    end
+  end
 
   defp fetch(socket) do
     socket = assign(socket, state: :loading, failure: nil)
@@ -175,6 +217,60 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Chapter do
     end)
     |> Enum.map(&Phoenix.HTML.safe_to_string/1)
     |> Phoenix.HTML.raw()
+  end
+
+  attr :book, :map, required: true
+  attr :recording, :map, required: true
+  attr :index, :integer, required: true
+  attr :contents, :list, required: true
+
+  # Hear this read (the app's `hearThisRead`), where a track reads this
+  # chapter: the act, "· from Chapter I" where the track opens on an
+  # earlier one, and the track's length. The hook says Pause the reading
+  # while it sounds, and the time left.
+  defp hear_this_read(assigns) do
+    reading = Shelf.reading(assigns.recording, assigns.index)
+
+    track =
+      reading && Map.put(Enum.at(assigns.recording.tracks, reading.track), :index, reading.track)
+
+    from = reading && !reading.whole? && Enum.at(assigns.contents, reading.from)
+    assigns = assign(assigns, reading: reading, track: track, from: from)
+
+    ~H"""
+    <div :if={@reading} class="bp-hear" data-role="hear-row">
+      <button
+        type="button"
+        class="bp-hear__act"
+        data-act="hear"
+        data-track={@track.index}
+        data-role="hear"
+        data-label={
+          if @reading.whole?,
+            do: "Hear this chapter read",
+            else: "Hear this read, from the start of this recording"
+        }
+        aria-label={
+          if @reading.whole?,
+            do: "Hear this chapter read",
+            else: "Hear this read, from the start of this recording"
+        }
+      >
+        <span class="hero-speaker-wave size-4 shrink-0" data-icon="play" aria-hidden="true" />
+        <span class="hero-pause-solid size-4 shrink-0" data-icon="pause" aria-hidden="true" hidden />
+        <span class="bp-hear__label" data-role="hear-label">Hear this read</span>
+        <span :if={@from} class="bp-hear__from" data-role="hear-from">· from {@from.heading}</span>
+      </button>
+      <span
+        :if={@track.seconds}
+        class="bp-hear__left"
+        data-role="hear-left"
+        data-seconds={@track.seconds}
+      >
+        {Shelf.chip_minutes(@track.seconds)}
+      </span>
+    </div>
+    """
   end
 
   attr :id, :string, required: true

@@ -16,6 +16,7 @@ import ChantGuest from "./chant_guest"
 import ChantScore from "./chant_score"
 import TrueDevotionPlace from "./true_devotion_place"
 import SpiritualReadingPlace from "./spiritual_reading_place"
+import BookPlayer from "./book_player"
 import ConsecrationPlan from "./consecration_plan"
 
 export default {
@@ -37,5 +38,6 @@ export default {
   ChantScore,
   TrueDevotionPlace,
   SpiritualReadingPlace,
+  BookPlayer,
   ConsecrationPlan
 }

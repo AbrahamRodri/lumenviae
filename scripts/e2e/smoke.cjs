@@ -873,6 +873,49 @@ async function checkSpiritualReading(browser, vp) {
   }
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
 
+  if (outcome === "text") {
+    // The LibriVox recording: the book's rows wear listen chips, or the page
+    // says the recording could not be reached (the server could not reach
+    // LibriVox). Real playback is not required: the stream comes from the
+    // Internet Archive, which a test run may not reach.
+    const recording = await eventually(async () => {
+      if ((await page.locator("[data-act=listen]").count()) > 0) return "tracks";
+      if ((await page.locator("[data-role=recording-unavailable]").count()) > 0) return "unreachable";
+      return false;
+    }, 30000);
+    check(Boolean(recording), `${label}: the recording arrives or says it could not be reached`);
+    console.log(`        the recording: ${recording === "tracks" ? "track list from LibriVox" : recording || "neither"}`);
+
+    if (recording === "tracks") {
+      check(
+        (await page.locator('[data-act=listen][data-chapter="0"]').count()) === 0 &&
+          (await page.locator('[data-act=listen][data-chapter="1"]').count()) === 1,
+        `${label}: the preface has no chip, the first conversation has one`
+      );
+      check(
+        (await page.locator("[data-role=recording-credit]").count()) > 0,
+        `${label}: the credit names LibriVox's volunteers`
+      );
+      await page.goto(BASE_URL + "/spiritual-reading/practice-of-the-presence-of-god/2");
+      await settle(page);
+      await page.addStyleTag({ content: "[data-tidewave-toolbar-root] { display: none !important; }" });
+      const hear = page.locator("[data-act=hear]");
+      check(await eventually(async () => (await hear.count()) === 1), `${label}: the chapter offers Hear this read`);
+      if ((await hear.count()) === 1) {
+        check(await page.locator("[data-role=player]").isHidden(), `${label}: the player waits until the reading is asked for`);
+        await hear.click();
+        const shown = await eventually(async () => await page.locator("[data-role=player]").isVisible());
+        check(shown, `${label}: Hear this read brings up the player`);
+        const title = (await page.locator("[data-role=mini-title]").innerText()).trim();
+        check(title === "First Conversation", `${label}: the player names the reading`, title);
+        await page.locator("[data-role=player] [data-act=expand]").click();
+        check(await page.locator("[data-role=panel]").isVisible(), `${label}: the player opens from its title`);
+        await noHorizontalScroll(page, `${label} (player)`);
+        await fullPageShot(page, `${vp.name}-spiritual-reading-player`);
+      }
+    }
+  }
+
   for (const unknown of ["/spiritual-reading/nowhere", "/spiritual-reading/imitation-of-christ/zero"]) {
     const response = await page.goto(BASE_URL + unknown);
     check(response && response.status() === 404, `${vp.name} ${unknown}: answers 404`, `got ${response && response.status()}`);

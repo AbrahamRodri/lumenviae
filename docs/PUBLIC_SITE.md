@@ -45,9 +45,9 @@ time, as its desktop version. The console
 | `/true-devotion` | `LumenViaeWeb.Live.TrueDevotion.Index` | St. Louis de Montfort's True Devotion, the book's title page as the app's `TrueDevotionReaderView`: the Marian-blue binding over its halo, Begin Reading (or Continue Reading where this browser left off, with a thread for how far into the chapter), the contents (the Introduction, then Part I and Part II folding open; the chapter last opened marked while it is unfinished, its part open, and a folded part holding it marked on its header), the translator and the edition. From 1024px the binding and the act stand beside the contents. |
 | `/true-devotion/:chapter_id` | `LumenViaeWeb.Live.TrueDevotion.Chapter` | A chapter read in place, as the app's chapter reader: the place in the book as a hairline, the part and "8 of 13", the title, the text on night with each paragraph's number in the margin (anchored `#p-3`), a paragraph's Bookmark and Share, the chapters either side or The End, and the contents (a rail from 1024px, a list above the text on a phone) with the reader's bookmarks at their head, each its chapter's title over the passage's opening words (the rail carries the contents sheet's head: the book's title, Contents and "8 of 13"). `:chapter_id` is the book's chapter id (`introduction`, `motives`). |
 | `/explore` | `LumenViaeWeb.Live.Explore.Index` | Explore, as the app's `ExploreView`: at rest a directory (the five devotions, the Prayers shelf of occasion orders with All prayers, the Chant tiles with Chant Library, Mass & Hours as two tiles (the Daily Missal and Hours of Prayer), and the Spiritual Reading shelf with All books: True Devotion's cover, then the five books', the ribbon on a book under way in this browser); typed into (`?q=`), the one search over the mysteries, the site's doors (Today's Mass, Spiritual Reading and each of its books among them, a book found by its title, author or translator), the Prayer Book's topics, orders and prayers, the chants and every meditation set: the kinds found as chips, the best match as a painted card (Pray on an order, Listen on a chant), then a section per kind, twelve rows each before "And 3 more". |
-| `/spiritual-reading` | `LumenViaeWeb.Live.SpiritualReading.Index` | The Spiritual Reading shelf, as the app's `SpiritualReadingView`: the open book, the shelf's name, "Classic Catholic books to read", Augustine's "Take up and read", the five books as covers in their own cloth (two across on a phone, five on a wide screen; the ribbon on a book with a reading under way in this browser), and the credit. Fetches no text. |
-| `/spiritual-reading/:book_id` | `LumenViaeWeb.Live.SpiritualReading.Book` | A book, as the app's `LibraryBookView`: its cover beside the title and author, Begin reading (or "Continue · III.V" where this browser left off), the contents ("Contents · 115 chapters") with each part's name pinned over its chapters and the parts' numerals down the edge, the chapter being read lit, the ones read dimmed and those more than two before it folded into "N earlier chapters", and the Gutenberg credit. From 1024px the head stands in a column beside the contents. `:book_id` is the catalogue's (`imitation-of-christ`). |
-| `/spiritual-reading/:book_id/:chapter` | `LumenViaeWeb.Live.SpiritualReading.Chapter` | A chapter read in place, as the app's `LibraryChapterReaderView`: the place in the book as a hairline, the part and heading over the title with "8 of 115", the text on night with the versal, the edition's footnote markers linked to the notes at the foot, the chapters either side by their headings, and the contents (a rail from 1024px, a list above the text on a phone). `:chapter` counts from 1. |
+| `/spiritual-reading` | `LumenViaeWeb.Live.SpiritualReading.Index` | The Spiritual Reading shelf, as the app's `SpiritualReadingView`: the open book, the shelf's name, "Classic Catholic books to read, or to listen to", Augustine's "Take up and read", the five books as covers in their own cloth (two across on a phone, five on a wide screen; the ribbon on a book with a reading under way in this browser), and the credit. Fetches no text. |
+| `/spiritual-reading/:book_id` | `LumenViaeWeb.Live.SpiritualReading.Book` | A book, as the app's `LibraryBookView`: its cover beside the title and author, Begin reading (or "Continue · III.V" where this browser left off), the contents ("Contents · 115 chapters") with each part's name pinned over its chapters and the parts' numerals down the edge, the chapter being read lit, the ones read dimmed and those more than two before it folded into "N earlier chapters", the listen chip on each row a LibriVox track opens on (its length; "31:05 in" where this browser left the voice), and the credit (Gutenberg's text, LibriVox's volunteers). From 1024px the head stands in a column beside the contents. `:book_id` is the catalogue's (`imitation-of-christ`). |
+| `/spiritual-reading/:book_id/:chapter` | `LumenViaeWeb.Live.SpiritualReading.Chapter` | A chapter read in place, as the app's `LibraryChapterReaderView`: the place in the book as a hairline, the part and heading over the title with "8 of 115", the text on night with the versal, the edition's footnote markers linked to the notes at the foot, the chapters either side by their headings, and the contents (a rail from 1024px, a list above the text on a phone); where a LibriVox track reads the chapter, Hear this read under the title, and the player. `:chapter` counts from 1. |
 
 All thirty-four are in the `:public` live session in `router.ex`. A set
 that does not exist, or is hidden, answers 404, and so do an unknown
@@ -668,14 +668,76 @@ finds only the shelf, by words naming the books; the site lists the book
 itself too). True Devotion is not on the shelf, as it is not on the
 app's; on Explore it stands first, as the app's Explore has it.
 
-Left out, as the app has them: the LibriVox recording (Hear this read,
-the listen chips, Save for offline, the player and the sleep timer),
-which is the next piece of work; the search inside a book; the daily
-reading goal; bookmarks (MARK), notes kept in the Journal (NOTE) and
-Share on a passage; the text size; Home's reading shelf; and the reader's
-chrome that withdraws as it scrolls. The shelf's line says "Classic
-Catholic books to read" where the app adds "or to listen to", and the
-credit leaves out the recordings, until the recordings come. The app's
+### The recording
+
+A book with a LibriVox recording (all but the Imitation, whose only
+recording puts ten chapters in a file) is heard on its pages, as the
+app's `LibraryListeningSession` and `LibraryPlayerViews` have it. Its
+track list is the server's (`LumenViae.Rosary.read_spiritual_recording!/2`):
+fetched from LibriVox's API
+(`https://librivox.org/api/feed/audiobooks/?id=<id>&extended=1&format=json`,
+the apps' address) once the book's text is held, held a month per
+machine, and lined up with the chapters by a line-for-line port of the
+app's `LibraryTrackMap` (`SpiritualReading.TrackMap`), by the book's
+`track_mapping` in the catalogue. Only tracks on the Internet Archive
+(`archive.org`) are kept. One fetch per book, in a task no page owns, with
+a 15-second deadline, at most two at once and twelve a minute; a failure
+is held five minutes for that book, or a minute for every book when
+LibriVox itself is failing (`SpiritualReading.Recording`). A list the
+server holds is drawn in the first response; one it does not is fetched
+after the page connects.
+
+The recording itself streams in the visitor's browser from the Internet
+Archive, as in the apps, played by the `BookPlayer` hook
+(`assets/js/hooks/book_player.js`) through one `<audio>` the hook's module
+holds, so a reading begun on the book's page plays on into a chapter and
+between chapters. It stops when no page of that book is on the screen
+(each page's `data-book-screen`), when another book is opened, or when the
+tab closes; each track runs on into the next by itself.
+
+- **A chapter**: Hear this read under the title (the app's
+  `hearThisRead`), where a track reads the chapter: it starts the track,
+  or says Pause the reading while it sounds; "· from Book I" where the
+  track is not this chapter's alone (several tracks to the chapter, or
+  several chapters to the track); the track's length at the right, "18
+  MIN LEFT" while it is loaded. While a track that reads exactly this
+  whole chapter sounds, the page keeps pace with it (paragraph N of M at
+  N/M of the track), standing aside for four seconds after the reader
+  scrolls, as the app's reader follows the voice. A chapter no track
+  reads (Brother Lawrence's preface) has no Hear this read; a track list
+  that cannot be had leaves the chapter without it, as the app's reader.
+- **A book's page**: the listen chip on each row a track opens on (not
+  every row a track covers), with the track's length; it starts the voice
+  and opens the chapter, or pauses the track sounding. "31:05 in" beside
+  it where this browser left the voice mid-reading (past 20 seconds).
+  A track list that cannot be had says "The recording couldn't be
+  reached." with Try again (the `retry_recording` event, answered only
+  after a failure). The credit adds "Recording: LibriVox volunteers."
+- **The player** (`LumenViaeWeb.Live.SpiritualReading.Player`): the mini
+  player over the foot of the screen (the reading's title, which opens
+  the player, back fifteen seconds, play and pause), and the player
+  above it: Listening to this chapter, the reading's title, the book and
+  its author, the scrubber with the time gone and the time left, the
+  previous and next readings, fifteen seconds back and on, the gold play,
+  and the speed (0.75× to 2×; the catalogue's `preferred_rate` until the
+  reader chooses, Thérèse at 1.5×), with the app's note on LibriVox's
+  readers. A recording that will not play says "The recording couldn't be
+  reached. Check your connection and try again."
+
+The shelf says "Classic Catholic books to read, or to listen to", and its
+credit "Texts from Project Gutenberg. Recordings by LibriVox volunteers.
+All in the public domain.", as the app's.
+
+Left out, as the app has them: the sleep timer, the lock screen and the
+headphones' controls, Save for offline (the recordings are streamed, never
+kept), the cover drawn for the lock screen, and a reading that goes on
+after the book's pages are left (the app's goes on while any library
+screen is open, and the site's player lives on the book's pages); the
+fifteen-second arrows carry their 15 beside the arrow, at the site's
+12px floor, where the app sets it small inside. Also left out: the search
+inside a book; the daily reading goal; bookmarks (MARK), notes kept in the
+Journal (NOTE) and Share on a passage; the text size; Home's reading
+shelf; and the reader's chrome that withdraws as it scrolls. The app's
 "Once opened, this book reads offline" is left out: the site does not
 keep the text in the browser. A footnote marker links to its note at the
 chapter's foot (its words in the link's title), where the app raises the
@@ -707,6 +769,8 @@ starts from the defaults. The one thing the server writes is a completion.
 | True Devotion: the chapters read | `lv:true-devotion:read`, a list of chapter ids | `TrueDevotionPlace` |
 | True Devotion: bookmarks | `lv:true-devotion:marks`, a list of `{chapter, paragraph, words, at}` (the paragraph's first 90 characters, for the contents), at most 200 | `TrueDevotionPlace` |
 | Spiritual Reading: the place in a book and the chapters read | `lv:spiritual-reading:<book id>`, holding `{edition, chapter, paragraph, read, at}` (the chapter's index from 0, the paragraph from 1 or 0 for the top, `read` a list of chapter indexes) | the `SpiritualReadingPlace` hook |
+| Spiritual Reading: where the voice stopped in a book's recording | `lv:spiritual-reading-listening:<book id>`, holding `{track, seconds, at}` (the LibriVox track's id) | the `BookPlayer` hook |
+| Spiritual Reading: the speed chosen for a book's recording | `lv:spiritual-reading-rate:<book id>` | `BookPlayer` |
 
 Details worth knowing:
 
@@ -845,7 +909,11 @@ books, the ribbon on a book a test place is kept for), searches it
 
 on the title page), opens the Spiritual Reading shelf and a book (its text
 from Gutenberg or the "couldn't reach" state, either passing and the log
-saying which; with the text, Begin reading, the next chapter and Continue),
+saying which; with the text, Begin reading, the next chapter and Continue,
+then the recording: the book's listen chips and the LibriVox credit, or
+"The recording couldn't be reached", either passing; with the chips, a
+chapter's Hear this read bringing up the player and opening it, without
+requiring real playback),
 and checks that the four archived paths that still
 redirect go to `/` while `/true-devotion` answers 200. It saves a screenshot of each page in `scripts/e2e/out/`, which is
 gitignored.

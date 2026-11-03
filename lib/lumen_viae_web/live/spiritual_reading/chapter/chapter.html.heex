@@ -7,6 +7,7 @@
   data-edition={assigns[:edition]}
   data-chapter={@index}
   data-hides-chant-player
+  data-book-screen={@book.id}
 >
   <Layouts.flash_group flash={@flash} variant={:public} />
 
@@ -47,6 +48,26 @@
               {Shelf.display_title(@chapter)}
             </h1>
             <.sacred_divider cross={false} class="!justify-start max-w-[180px] !my-5" />
+            <div
+              :if={@recording}
+              id="book-player"
+              phx-hook="BookPlayer"
+              phx-update="ignore"
+              data-page="chapter"
+              data-book={@book.id}
+              data-title={@book.title}
+              data-rate={@book.preferred_rate}
+              data-chapter={@index}
+              data-tracks={Shelf.player_tracks(@recording)}
+            >
+              <.hear_this_read
+                book={@book}
+                recording={@recording}
+                index={@index}
+                contents={@contents}
+              />
+              <.player book={@book} />
+            </div>
           </header>
 
           <details class="td-jump" data-role="jump-list">
