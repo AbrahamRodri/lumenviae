@@ -14,7 +14,7 @@ time, as its desktop version. The console
 
 | Path | Module | What it is |
 | --- | --- | --- |
-| `/` | `LumenViaeWeb.Live.Home.Index` | The daily hub. Today's mysteries, on the traditional weekly schedule or the modern one, in the visitor's own time zone. The five mysteries and their fruits, the meditation sets for today, the Rosary without a set, and a card for every category. |
+| `/` | `LumenViaeWeb.Live.Home.Index` | The daily hub. Today's mysteries, on the traditional weekly schedule or the modern one, in the visitor's own time zone. The five mysteries and their fruits, the meditation sets for today, the Rosary without a set, a card for every category, and Today's Prayer (the Consecration's day, the hour's order of prayer and the Hours of Prayer; see below). |
 | `/mysteries` | `LumenViaeWeb.Live.Mysteries.Scripture` | "Finding the Mysteries in Scripture". Every mystery, with its Douay-Rheims passages, and a note on the Traditional and Modern schedules. |
 | `/mysteries/:category` | `LumenViaeWeb.Live.Mysteries.CategoryList` | One category: `joyful`, `sorrowful`, `glorious`, `luminous` or `seven_sorrows`. Its mysteries, "Your Rosary Today" choices, the two ways to pray without a set, and the shelf of meditation sets. |
 | `/meditation-sets/:set_id/pray` | `LumenViaeWeb.Live.Pray.Index` | The prayer page, praying one set. |
@@ -302,6 +302,40 @@ closed (every day is open on the website). The book behind the
 consecration links to True Devotion's pages at `/true-devotion` and
 `/true-devotion/formula`, which come with PR #149; until it merges
 `/true-devotion` still answers the archive's redirect home.
+
+## Today's Prayer on Home
+
+The home page closes on the iOS app's `TodaysPrayerSection` (Home, after
+the mysteries; the Android app's `domain/TodaysPrayer.kt` reads it line
+for line): "Today's Prayer" with the visitor's date beside it ("MON 2
+NOV"), then a row each for the Consecration to Mary, the hour's order of
+prayer and the Hours of Prayer, each a painting, its name, a line and its
+fact in small capitals. The rules are
+`LumenViaeWeb.Live.Home.TodaysPrayer`, the drawing
+`LumenViaeWeb.Live.Home.TodaysPrayer.Section`; a ruled list on a phone,
+three columns from 1024px.
+
+| Row | Says | Opens |
+| --- | --- | --- |
+| Consecration to Mary | No plan: "Give yourself to Jesus through Mary", BEGIN. Chosen ahead: BEGINS NOV 21. Under way: the day's title, DAY 15 OF 33 (THE DAY OF CONSECRATION on Day 34, READY TO CONSECRATE past it), the phase's painting, the seal once the day is prayed. Made today: CONSECRATED TODAY with the seal; made earlier, BEGIN again | today's day, `/consecration/days/:n`, under a plan; `/consecration` otherwise |
+| The hour's order | Morning Prayers, the Angelus (Queen of Heaven in Eastertide) or Night Prayers by the book's hours, its line as the Prayers page's Now card, and ON WAKING, AT NOON, AT 6 PM or AT BEDTIME | the order's page, `/prayers/orders/:id` |
+| Hours of Prayer | the hour now, "Mid-Morning Prayer (Terce)", with the lit hour and NOW · UNTIL NOON | `/hours` |
+
+All of it is the visitor's. The Consecration's row reads the plan the
+`ConsecrationPlan` hook hands over (the same `lv:consecration:*` keys,
+read only; the date arithmetic is `Consecration.Plan`'s), the hours read
+the browser's clock (`UserTimezone`), and the date the Act was made is
+moved by the browser's offset before it is compared with today. Each row
+is an empty frame of its size until its source has spoken, so a crawler
+or a browser without JavaScript never sees the hour in UTC or a plan
+that is not theirs; while the page is open the rows turn on the hour.
+
+Left out: the app's Today's Mass row, until the Daily Missal comes to the
+site (it reads Missale Meum, and this site calls no third party). The
+hour's order is never marked PRAYED, as the Prayers page's Now card never
+is: the website keeps nothing about what was prayed there. The row opens
+the order's own page rather than the Prayer Book's front, which the app
+opens.
 
 ## Hours of Prayer
 

@@ -1142,6 +1142,140 @@
     transform: none;
   }
 }
+/* Today's Prayer, the app's TodaysPrayerSection: the heading with the
+   date in tracked capitals at its end, then the rows as a ruled ledger, in
+   three columns from 1024px. Each row: the painting cut square on a gold
+   hairline (the seal on its corner once prayed), the name, a line, and the
+   fact in small capitals, the Office's after its lit hour. */
+.todays-prayer__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.todays-prayer__date {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  color: var(--color-ink-muted);
+}
+
+.todays-prayer__list > li + li {
+  border-top: 1px solid rgba(227, 188, 91, 0.15);
+}
+
+@media (min-width: 1024px) {
+  .todays-prayer__list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+
+  .todays-prayer__list > li {
+    border-top: 1px solid rgba(227, 188, 91, 0.15);
+  }
+
+  /* Side by side, the paintings stand on one line. */
+  .todays-prayer__row {
+    align-items: flex-start;
+  }
+
+  .todays-prayer__row .row-chevron {
+    align-self: center;
+  }
+}
+
+.todays-prayer__row {
+  min-height: 5.5rem;
+}
+
+.todays-prayer__row--waiting {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0;
+}
+
+.todays-prayer__painting {
+  position: relative;
+  flex-shrink: 0;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 0.75rem;
+  background: var(--color-night-raised);
+  box-shadow: inset 0 0 0 1px rgba(227, 188, 91, 0.28);
+}
+
+.todays-prayer__painting picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.todays-prayer__painting img {
+  border-radius: 0.75rem;
+}
+
+/* The hairline drawn over the painting, as the app strokes its border. */
+.todays-prayer__painting::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0.75rem;
+  box-shadow: inset 0 0 0 1px rgba(227, 188, 91, 0.28);
+  pointer-events: none;
+}
+
+.todays-prayer__seal {
+  position: absolute;
+  top: -0.3125rem;
+  right: -0.3125rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  background: var(--color-night-deep);
+  box-shadow: 0 0 0 1px rgba(227, 188, 91, 0.4);
+  color: var(--color-gilt);
+}
+
+.todays-prayer__line {
+  display: block;
+  margin-top: 0.125rem;
+  font-family: var(--font-garamond);
+  font-size: 1rem;
+  line-height: 1.35;
+  color: rgba(246, 241, 228, 0.72);
+}
+
+.todays-prayer__fact {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  margin-top: 0.25rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+/* The lit hour: the lit disc inside a gold ring (the app's LitHourDot). */
+.todays-prayer__lit {
+  flex-shrink: 0;
+  width: 0.6875rem;
+  height: 0.6875rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-gilt-light);
+  background: radial-gradient(circle, var(--color-gilt) 0 2.5px, transparent 3px);
+  box-shadow: 0 0 3px rgba(227, 188, 91, 0.5);
+}
+
 /* === end home page === */
 
 /* === category page === */
