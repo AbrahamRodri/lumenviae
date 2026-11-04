@@ -69,12 +69,19 @@ defmodule LumenViaeWeb.Graphql.MeditationSetsSpanishTest do
     refute spanish["errors"]
 
     assert get_in(spanish, ["data", "meditationSet", "translations"]) == [
-             %{"id" => meditation.id, "title" => "La Anunciación", "content" => "En español.", "aiTranslated" => true}
+             %{
+               "id" => meditation.id,
+               "title" => "La Anunciación",
+               "content" => "En español.",
+               "aiTranslated" => true
+             }
            ]
 
     english = query(set, "")
     assert english == query(set, ~s|, lang: "en"|)
     assert get_in(english, ["data", "meditationSet", "translations"]) == []
-    assert get_in(english, ["data", "meditationSet", "name"]) == get_in(spanish, ["data", "meditationSet", "name"])
+
+    assert get_in(english, ["data", "meditationSet", "name"]) ==
+             get_in(spanish, ["data", "meditationSet", "name"])
   end
 end
