@@ -328,6 +328,13 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
       assert Enum.map(spanish["quotes"]["items"], & &1["source"]) ==
                Enum.map(Content.quotes("es")["items"], & &1["source"])
 
+      # A cited work comes back under its Spanish title, at the English's place.
+      montfort =
+        Enum.find_index(english["quotes"]["items"], &(&1["author"] == "St. Louis de Montfort"))
+
+      assert Enum.at(english["quotes"]["items"], montfort)["source"] == "The Secret of the Rosary"
+      assert Enum.at(spanish["quotes"]["items"], montfort)["source"] == "El secreto del Rosario"
+
       for quote <- english["quotes"]["items"], do: refute(Map.has_key?(quote, "ai_translated"))
       assert Enum.any?(spanish["quotes"]["items"], &(&1["ai_translated"] == true))
     end
