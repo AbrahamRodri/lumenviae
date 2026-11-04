@@ -129,6 +129,7 @@ value is added to a vocabulary, never a renamed one.
 | `GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants,feasts,months,occasions` | when `version` differs from the saved copy's | all five sections (the sung sets, months and feasts name the chants); a build that asks for `groups,chants` alone still gets just those |
 | `GET /api/v2/consecration` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/consecration?fields[consecration]=version,updated_at,phases,days,prayers,feasts` | when `version` differs from the saved copy's | all four sections |
+| `GET /api/v2/consecration?lang=es&fields[consecration]=...,translations` | as the two above, when the app is in Spanish | the same, plus `translations`: the phases, days and their readings, prayers and feasts with Spanish, laid over the English by key, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Consecration in Spanish") |
 | `GET /api/v2/true-devotion` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/true-devotion?fields[true_devotion]=version,updated_at,about,parts,chapters` | when `version` differs from the saved copy's | the three sections the reader needs; `teaching` and `ejaculatory_prayers` are there to name when a screen needs them |
 | `GET /api/v2/carlo-acutis` | at launch and once a day | bare: `version` and `updated_at` only |

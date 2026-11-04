@@ -13,7 +13,11 @@ defmodule LumenViae.Rosary.Consecration do
   set). Where a reader is in the 33 days, and their journal, stay on the
   device.
   """
+  # The one read takes an optional `lang`, so Ash's warning that a primary
+  # read should take no arguments is off: nothing loads this resource
+  # through a relationship, which is what that warning protects.
   use Ash.Resource,
+    primary_read_warning?: false,
     domain: LumenViae.Rosary,
     authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshJsonApi.Resource]
@@ -42,7 +46,12 @@ defmodule LumenViae.Rosary.Consecration do
       primary? true
       get? true
       description "The 33-day Consecration as one document. There is only ever one."
-      prepare {Library.Current, document: :consecration}
+
+      argument :lang, :string do
+        description "The language of `translations`: `es` fills it with every part of the Consecration that has Spanish. Missing, `en` or a language not served: the document as it always was, and `translations` empty."
+      end
+
+      prepare LumenViae.Rosary.Consecration.Current
     end
   end
 
@@ -75,6 +84,14 @@ defmodule LumenViae.Rosary.Consecration do
       allow_nil? false
       public? true
       description "When the content last changed."
+    end
+
+    # The language the read asked for (`Content.language/1`), for the
+    # `translations` section. Not served itself.
+    attribute :lang, :string do
+      allow_nil? false
+      default "en"
+      public? false
     end
   end
 
@@ -117,6 +134,15 @@ defmodule LumenViae.Rosary.Consecration do
       constraints nil_items?: false
 
       description "The feasts of Mary a Consecration may end on, in calendar order. Day 1 is 33 days before the feast."
+    end
+
+    calculate :translations,
+              LumenViae.Rosary.Consecration.Translation,
+              LumenViae.Rosary.Consecration.Translations do
+      allow_nil? false
+      public? true
+
+      description "With `lang=es`, the Consecration's words in Spanish, keyed as the English sections key them: phases and prayers by `id`, days by `number` and their readings by `order`, feasts by `id`. A part not listed has no Spanish; show its English. `ai_translated` marks the team's own translation. In English, four empty lists."
     end
   end
 end

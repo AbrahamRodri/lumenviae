@@ -270,6 +270,96 @@ type TrueDevotionAbout {
   author: String!
 }
 
+type ConsecrationReadingTranslation {
+  "Its citation in this language (`Mateo 5, 1-19`)."
+  title: String!
+
+  "The reading in this language, in the same ReadingText grammar as the English."
+  text: String!
+
+  "The edition it is from (`Biblia de Torres Amat`), or the work it translates when `ai_translated`."
+  source: String!
+
+  "Its place in the day, the same as in `days`."
+  order: Int!
+
+  "`true` when the reading is the team's own AI translation, not a published text: show the app's AI notice under it. Absent otherwise."
+  aiTranslated: Boolean
+}
+
+type ConsecrationDayTranslation {
+  "Its theme in this language."
+  title: String!
+
+  "The day's readings that have this language, by `order`. A reading not listed has none: show its English."
+  readings: [ConsecrationReadingTranslation!]!
+
+  "The day, the same as in `days`."
+  number: Int!
+
+  "Its journal question in this language."
+  journalPrompt: String!
+
+  "`true` when the title and journal question are the team's own AI translation: show the app's AI notice. Absent otherwise. Each reading carries its own mark."
+  aiTranslated: Boolean
+}
+
+type ConsecrationFeastTranslation {
+  "Its name in this language."
+  name: String!
+
+  "The feast's id, the same as in `feasts`."
+  id: String!
+
+  "Its description in this language."
+  description: String!
+
+  "`true` when the words are the team's own AI translation, not a published text: show the app's AI notice. Absent otherwise."
+  aiTranslated: Boolean
+}
+
+type ConsecrationPhaseTranslation {
+  "Its subtitle in this language."
+  subtitle: String!
+
+  "Its name in this language (`Días 1–12`)."
+  name: String!
+
+  "The phase's id, the same as in `phases`."
+  id: String!
+
+  "`true` when the words are the team's own AI translation, not a published text: show the app's AI notice. Absent otherwise."
+  aiTranslated: Boolean
+}
+
+type ConsecrationPrayerTranslation {
+  "Its title in this language."
+  title: String!
+
+  "Its words in this language, in the same PrayerText grammar as `english`. Its lines need not pair with the English or the Latin."
+  text: String!
+
+  "The prayer's id, the same as in `prayers`."
+  id: String!
+
+  "`true` when part of the text is the team's own AI translation, not a published text: show the app's AI notice under it. Absent otherwise."
+  aiTranslated: Boolean
+}
+
+type ConsecrationTranslation {
+  "Each prayer with Spanish, by `id`, in the prayers' order."
+  prayers: [ConsecrationPrayerTranslation!]!
+
+  "Each phase with Spanish, by `id`, in the phases' order."
+  phases: [ConsecrationPhaseTranslation!]!
+
+  "Each feast with Spanish, by `id`, in calendar order."
+  feasts: [ConsecrationFeastTranslation!]!
+
+  "Each day with Spanish, by `number`, in order."
+  days: [ConsecrationDayTranslation!]!
+}
+
 type MarianFeast {
   "Its name (`The Assumption`)."
   name: String!
@@ -1884,6 +1974,9 @@ type Consecration {
 
   "The feasts of Mary a Consecration may end on, in calendar order. Day 1 is 33 days before the feast."
   feasts: [MarianFeast!]!
+
+  "With `lang=es`, the Consecration's words in Spanish, keyed as the English sections key them: phases and prayers by `id`, days by `number` and their readings by `order`, feasts by `id`. A part not listed has no Spanish; show its English. `ai_translated` marks the team's own translation. In English, four empty lists."
+  translations: ConsecrationTranslation!
 }
 
 type ChantLibrary {
@@ -2216,7 +2309,10 @@ type RootQueryType {
   chantLibrary: ChantLibrary!
 
   "The 33-day Consecration as one document. There is only ever one."
-  consecration: Consecration!
+  consecration(
+    "The language of `translations`: `es` fills it with every part of the Consecration that has Spanish. Missing, `en` or a language not served: the document as it always was, and `translations` empty."
+    lang: String
+  ): Consecration!
 
   "True Devotion, the whole book, as one document. There is only ever one."
   trueDevotion: TrueDevotion!

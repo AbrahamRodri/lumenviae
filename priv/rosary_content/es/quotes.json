@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-03T16:14:00Z",
+  "updated_at": "2026-11-04T15:05:00Z",
   "quotes": [
     {
       "author": "St. Pius X",
@@ -44,12 +44,6 @@
       "ai_translated": true
     },
     {
-      "author": "Sr. Lucia of Fatima",
-      "name": "Sor Lucía de Fátima",
-      "text": "No hay problema, les digo, por más difícil que sea, que no podamos resolver con el rezo del Santo Rosario.",
-      "ai_translated": true
-    },
-    {
       "author": "Our Lady of Fatima",
       "name": "Nuestra Señora de Fátima",
       "text": "Soy la Señora del Rosario. Continúen rezando el Rosario todos los días.",
@@ -89,17 +83,6 @@
       "text": "El Rosario es el arma para estos tiempos."
     },
     {
-      "author": "St. Josemaría Escrivá",
-      "name": "San Josemaría Escrivá",
-      "text": "¡Bendita monotonía de avemarías que purifica la monotonía de tus pecados!",
-      "source": "Surco"
-    },
-    {
-      "author": "St. Josemaría Escrivá",
-      "name": "San Josemaría Escrivá",
-      "text": "El Santo Rosario es arma poderosa. Empléala con confianza y te maravillarás del resultado."
-    },
-    {
       "author": "Ven. Fulton J. Sheen",
       "name": "Venerable Fulton J. Sheen",
       "text": "El Rosario es el libro de los ciegos, en el que las almas ven y viven el mayor drama de amor que el mundo haya conocido jamás.",
@@ -123,11 +106,6 @@
       "name": "Papa León XIII",
       "text": "El Rosario es la forma de oración más excelente y el medio más eficaz para alcanzar la vida eterna.",
       "ai_translated": true
-    },
-    {
-      "author": "Ven. Patrick Peyton",
-      "name": "Venerable Patrick Peyton",
-      "text": "La familia que reza unida permanece unida."
     }
   ]
 }

@@ -81,7 +81,7 @@ start with `appTests/` or `Tools/`.
 | The day's mysteries | `Services/ScheduleService.swift:40-243` | Traditional and modern; Sunday by season | `LiturgicalCalendar`: traditional only, **no tests** | W5 |
 | How to Pray course | `Data/HowToPrayData.swift`, `Views/Resources/HowToPrayRosaryView.swift`, `RosaryLessonView.swift`, `GuidedRosaryView.swift`, `MysteriesInScriptureView.swift` | 3 lessons, 10 steps, 8 prayer counts, 9 questions, 3 Montfort readings with 6 tables | None | W6 |
 | "Your First Rosary" | `Models/GuidedRosary.swift:105-313` | 75 steps per category, 61 bead parts, 7 anatomy entries | None | W6 |
-| Rosary quotes | `Data/RosaryQuotes.swift:27-135` | 21, with a daily rotation rule | None | W7 |
+| Rosary quotes | `Data/RosaryQuotes.swift:27-135` | 21, with a daily rotation rule (17 since November 2026: four copyrighted lines removed) | None | W7 |
 | Streak milestones | `Models/StreakMilestone.swift:50-123` | 7 (3, 7, 9, 33, 54, 100, 365) | None | W7 |
 | Reminder messages | `Data/ReminderMessages.swift:29-124` | 30 in 5 groups, with a selection rule | None | W7 |
 | Label display names, kinds of meditation | `Models/MeditationSet.swift:34-38`, `Views/Onboarding/RosaryMethodsView.swift:46-71` | 3 renames, 4 cards | `Labels` holds the stored strings only | W7 |
