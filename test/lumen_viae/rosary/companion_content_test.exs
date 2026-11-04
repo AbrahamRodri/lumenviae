@@ -22,19 +22,19 @@ defmodule LumenViae.Rosary.CompanionContentTest do
   defp present(list), do: Enum.reject(list, &is_nil/1)
 
   describe "quotes" do
-    test "are the app's twenty-one, word for word, in its order" do
+    test "are the app's seventeen, word for word, in its order" do
       %{"items" => items} = Content.quotes()
 
-      assert length(items) == 21
+      assert length(items) == 17
 
       served = Enum.flat_map(items, &present([&1["text"], &1["author"], &1["source"]]))
       assert served == @fixture["quotes"]
     end
 
-    test "cite a source for six only, and name every author" do
+    test "cite a source for five only, and name every author" do
       items = Content.quotes()["items"]
 
-      assert length(Enum.filter(items, & &1["source"])) == 6
+      assert length(Enum.filter(items, & &1["source"])) == 5
       assert Enum.all?(items, &(&1["author"] != ""))
     end
 
@@ -50,11 +50,11 @@ defmodule LumenViae.Rosary.CompanionContentTest do
         Enum.at(items, rem(day + div(count, rotation["after_prayer_offset_divisor"]), count))
       end
 
-      # January 1 is day 1: the second quotation at home, the twelfth after praying.
+      # January 1 is day 1: the second quotation at home, the tenth after praying.
       assert home.(1) == Enum.at(items, 1)
-      assert after_prayer.(1) == Enum.at(items, 11)
-      # The year turns over the catalogue: day 21 is back at the first.
-      assert home.(21) == Enum.at(items, 0)
+      assert after_prayer.(1) == Enum.at(items, 9)
+      # The year turns over the catalogue: day 17 is back at the first.
+      assert home.(17) == Enum.at(items, 0)
       # One session never shows the same line twice.
       assert Enum.all?(1..366, &(home.(&1) != after_prayer.(&1)))
     end

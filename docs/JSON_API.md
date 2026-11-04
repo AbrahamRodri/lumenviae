@@ -429,9 +429,9 @@ is stated here because a client applies it on its own. A word changed is
 a change to the file and its dated entry in `content_test.exs`, or for
 `labels` to `Labels` and the entry `labels_test.exs` prints.
 
-**`quotes`**: `{rotation, items}`. `items` are 21 quotations, each
+**`quotes`**: `{rotation, items}`. `items` are 17 quotations, each
 `{text, author, source}`; `source` is null unless the work or the occasion
-can be cited with confidence (six are). The order is the rotation's, so
+can be cited with confidence (five are). The order is the rotation's, so
 keep it. `rotation` is `{home_offset, after_prayer_offset_divisor}`.
 Take the device's calendar day of the year (January 1 is 1, the day turning
 at midnight in the device's own calendar: not the prayer day), then:
@@ -439,8 +439,8 @@ at midnight in the device's own calendar: not the prayer day), then:
 - the home screen's quotation is `items[(day_of_year + home_offset) mod
   count]`;
 - the one shown after praying is `items[(day_of_year + count div
-  after_prayer_offset_divisor) mod count]`, which with 21 quotations and a
-  divisor of 2 is ten away from the home screen's, so a single session
+  after_prayer_offset_divisor) mod count]`, which with 17 quotations and a
+  divisor of 2 is eight away from the home screen's, so a single session
   never shows the same line twice.
 
 Everyone praying on one day sees the same line at home, steady through the
@@ -566,10 +566,10 @@ GraphQL: `rosaryContent(lang: "es")`.
   `devotion_title` ("Gozosos", "Misterios gozosos"; "Siete Dolores",
   "Los siete dolores de María"). Every other field (`subtitle`,
   `mystery_labels`, `graces`) stays English.
-- **`quotes`** with `lang=es`: the same rotation and the same 21
+- **`quotes`** with `lang=es`: the same rotation and the same 17
   quotations in the same order, each `text` in Spanish, the `author` by
   the name Spanish speakers use ("San Luis María Grignion de Montfort")
-  and a cited `source` by its Spanish title ("Surco"); an uncited quote
+  and a cited `source` by its Spanish title ("El secreto del Rosario"); an uncited quote
   stays `null`. A quote that is the team's own translation carries
   `ai_translated: true`; the key is absent otherwise, and in English.
 - Every other section is the English one for now.
