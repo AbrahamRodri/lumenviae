@@ -421,3 +421,208 @@ No good Spanish version was found, so the team translated these from the book's 
 - `happy_death`: Newman's prayer not found in Spanish from a reliable page.
 - `deceased_parents`: Translated from our English and the Latin.
 - `prayer_for_travel`: The Itinerarium is not in the Spanish Liturgia de las Horas and no Spanish text was found.
+
+
+# Sources of the Consecration's Spanish
+
+`es/consecration.json` holds the 33-day Consecration in Spanish, served in
+the `translations` section of `GET /api/v2/consecration?lang=es`. Every
+phase, day, reading, prayer and feast has Spanish. Every copied reading
+was checked sentence by sentence against a saved copy of its source on 3
+November 2026; where a source had only a scan, the passage was
+transcribed from the page images and the transcription checked against
+them.
+
+The eight prayers the Prayer Book also prints (`veni_creator`,
+`ave_maris_stella`, `magnificat`, `glory_be`, `litany_holy_ghost`,
+`litany_loreto`, `litany_holy_name`, `o_jesus_living_in_mary`) are not in
+this file: their Spanish is `es/prayer_book.json`'s, listed above, so the
+two documents never disagree.
+
+## The editions
+
+- **[S1]** Félix Torres Amat, *La Sagrada Biblia, traducida al español de
+  la Vulgata latina* (first edition Madrid 1823-1825; public domain),
+  Vulgate-based like the Douay-Rheims, with the Vulgate's psalm numbers.
+  24 readings from es.wikisource's proofread transcription of the 1836
+  printing (tomos XIII to XV, for example [Mateo](https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)/Mateo)),
+  4 transcribed from the scans of the first edition on archive.org
+  ([sagrada-biblia-torres-amat-completa](https://archive.org/details/sagrada-biblia-torres-amat-completa)).
+  Source label: "Biblia de Torres Amat".
+- **[S2]** Thomas à Kempis, *Imitación de Cristo*, translated by Juan
+  Eusebio Nieremberg SJ (died 1658; public domain), Madrid, Saturnino
+  Calleja, 1876, from the scan on archive.org
+  ([imitacion-de-cristo...nieremberg](https://archive.org/details/imitacion-de-cristo-tomas-de-kempis-traduzido-por-pe.-juan-eusebio-nieremberg)),
+  each passage checked against the page images. Source label:
+  "Imitación de Cristo, trad. Nieremberg".
+- **[S3]** St Louis Marie Grignion de Montfort, *Tratado de la verdadera
+  devoción a la Santísima Virgen*, translated from the eighth French
+  edition by Ramón María de Araiztegui, Habana, Imprenta de Casa-Nova e
+  Hijos, 1885 (public domain: printed 141 years ago, the translator a
+  judge by 1885), from the scan on archive.org
+  ([tratado-de-la-verdadera-devocion-a-la-virgen-maria](https://archive.org/details/tratado-de-la-verdadera-devocion-a-la-virgen-maria)).
+  Its OCR is poor: every passage was corrected against the page images,
+  and paragraphs 247 and the opening of 257-258 transcribed from them.
+  Source label: "Tratado de la verdadera devoción a la Santísima Virgen,
+  trad. Araiztegui (1885)"; citations as the English gives them
+  ("Verdadera devoción, números 152–164"). Not used: the Lérida 1872 (Orgaz) and Quito 1890 (Peña)
+  translations, also public domain, and the modern ones (the 1954 BAC
+  *Obras*, montfort.org, EWTN), under copyright.
+
+The spelling and accents are modernized to the RAE's current rules, never
+the wording: "á" to "a", "fué" to "fue", "devocion" to "devoción",
+"Magestad" to "Majestad", "muger" to "mujer", "zelo" to "celo",
+"esquisito" to "exquisito" and the like. The words stay the 19th-century
+translators', and so do their old names and forms ("Jesu-Cristo",
+"priesa", "trasformaos").
+
+## The readings and their sources
+
+| Day | Reading | English | Spanish | Edition | Note |
+|---|---|---|---|---|---|
+| 1 | 1 | Matthew 5:1-19 | Mateo 5, 1-19 | [S1] |  |
+| 1 | 2 | True Devotion, paragraph 227 | Verdadera devoción, número 227 | [S3] |  |
+| 2 | 1 | Matthew 5:48, 6:1-15 | Mateo 5, 48; 6, 1-15 | [S1] |  |
+| 2 | 2 | Imitation of Christ, Book 2, Chapter 6 | Imitación de Cristo, libro 2, capítulo 6 | [S2] |  |
+| 3 | 1 | Matthew 7:1-14 | Mateo 7, 1-14 | [S1] |  |
+| 3 | 2 | Imitation of Christ, Book 3, Chapter 56 | Imitación de Cristo, libro 3, capítulo 56 | [S2] |  |
+| 4 | 1 | Imitation of Christ, Book 3, Chapters 7 & 40 | Imitación de Cristo, libro 3, capítulos 40 y 7 | [S2] |  |
+| 4 | 2 | Psalm 102:13-18 | Salmo 102, 13-18 | [S1] | transcribed from the scan of the first edition |
+| 5 | 1 | Imitation of Christ, Book 3, Chapter 40 | Imitación de Cristo, libro 3, capítulo 40 | [S2] |  |
+| 5 | 2 | Luke 18:9-14 | Lucas 18, 9-14 | [S1] |  |
+| 6 | 1 | Imitation of Christ, Book 1, Chapter 18 | Imitación de Cristo, libro 1, capítulo 18 | [S2] |  |
+| 6 | 2 | Hebrews 12:1-3 | Hebreos 12, 1-3 | [S1] | transcribed from the scan of the first edition |
+| 7 | 1 | Imitation of Christ, Book 1, Chapter 18 (cont.) | Imitación de Cristo, libro 1, capítulo 18 | [S2] |  |
+| 7 | 2 | Apocalypse 3:14-20 | Apocalipsis 3, 14-20 | [S1] |  |
+| 8 | 1 | Imitation of Christ, Book 1, Chapter 13 | Imitación de Cristo, libro 1, capítulo 13 | [S2] |  |
+| 8 | 2 | Matthew 4:1-11 | Mateo 4, 1-11 | [S1] |  |
+| 9 | 1 | Imitation of Christ, Book 1, Chapter 13 (cont.) | Imitación de Cristo, libro 1, capítulo 13 | [S2] |  |
+| 9 | 2 | James 1:12-15; 1 Corinthians 10:13 | Santiago 1, 12-15; 1 Corintios 10, 13 | [S1] |  |
+| 10 | 1 | Imitation of Christ, Book 3, Chapter 10 | Imitación de Cristo, libro 3, capítulo 10 | [S2] |  |
+| 10 | 2 | 1 John 2:15-17 | 1 Juan 2, 15-17 | [S1] |  |
+| 11 | 1 | Imitation of Christ, Book 1, Chapter 25 | Imitación de Cristo, libro 1, capítulo 25 | [S2] |  |
+| 11 | 2 | Luke 15:11-24 | Lucas 15, 11-24 | [S1] |  |
+| 12 | 1 | Imitation of Christ, Book 1, Chapter 25 (cont.) | Imitación de Cristo, libro 1, capítulo 25 | [S2] |  |
+| 12 | 2 | Galatians 2:19-20; 6:14 | Gálatas 2, 19-20; 6, 14 | [S1] | transcribed from the scan of the first edition |
+| 13 | 1 | True Devotion, paragraph 228 | Verdadera devoción, número 228 | [S3] |  |
+| 13 | 2 | Luke 11:1-10 | Lucas 11, 1-10 | [S1] |  |
+| 14 | 1 | Imitation of Christ, Book 3, Chapter 13 | Imitación de Cristo, libro 3, capítulo 13 | [S2] |  |
+| 14 | 2 | Philippians 2:5-11 | Filipenses 2, 5-11 | [S1] | transcribed from the scan of the first edition |
+| 15 | 1 | Luke 13:1-5 | Lucas 13, 1-5 | [S1] |  |
+| 15 | 2 | True Devotion, paragraphs 81–82 | Verdadera devoción, números 81–82 | [S3] |  |
+| 16 | 1 | True Devotion, paragraphs 79–80 | Verdadera devoción, números 79–80 | [S3] |  |
+| 16 | 2 | Imitation of Christ, Book 2, Chapter 5 | Imitación de Cristo, libro 2, capítulo 5 | [S2] |  |
+| 17 | 1 | Imitation of Christ, Book 1, Chapter 24 | Imitación de Cristo, libro 1, capítulo 24 | [S2] |  |
+| 17 | 2 | Luke 16:1-8 | Lucas 16, 1-8 | [S1] |  |
+| 18 | 1 | Luke 17:1-10 | Lucas 17, 1-10 | [S1] |  |
+| 18 | 2 | Imitation of Christ, Book 3, Chapter 47 | Imitación de Cristo, libro 3, capítulo 47 | [S2] |  |
+| 19 | 1 | Luke 18:15-30 | Lucas 18, 15-30 | [S1] |  |
+| 19 | 2 | Imitation of Christ, Book 3, Chapter 4 | Imitación de Cristo, libro 3, capítulo 4 | [S2] |  |
+| 20 | 1 | True Devotion, paragraph 229 | Verdadera devoción, número 229 | [S3] |  |
+| 20 | 2 | Luke 2:16-21, 45-52 | Lucas 2, 16-21. 45-52 | [S1] |  |
+| 21 | 1 | True Devotion, paragraphs 115–118 | Verdadera devoción, números 115–118 | [S3] |  |
+| 21 | 2 | John 19:25-27 | Juan 19, 25-27 | [S1] |  |
+| 22 | 1 | True Devotion, paragraphs 106–110 | Verdadera devoción, números 106–110 | [S3] |  |
+| 22 | 2 | Luke 8:19-21; 11:27-28 | Lucas 8, 19-21; 11, 27-28 | [S1] |  |
+| 23 | 1 | True Devotion, paragraphs 120–121 | Verdadera devoción, números 120–121 | [S3] |  |
+| 23 | 2 | Romans 12:1-2; 6:3-4 | Romanos 12, 1-2; 6, 3-4 | [S1] |  |
+| 24 | 1 | True Devotion, paragraphs 152–164 | Verdadera devoción, números 152–164 | [S3] |  |
+| 24 | 2 | John 14:1-6 | Juan 14, 1-6 | [S1] |  |
+| 25 | 1 | True Devotion, paragraphs 213–225 | Verdadera devoción, números 213–225 | [S3] |  |
+| 25 | 2 | John 15:1-8 | Juan 15, 1-8 | [S1] |  |
+| 26 | 1 | True Devotion, paragraphs 14–38 | Verdadera devoción, números 14–38 | [S3] |  |
+| 26 | 2 | Apocalypse 12:1-6 | Apocalipsis 12, 1-6 | [S1] |  |
+| 27 | 1 | True Devotion, paragraph 230 | Verdadera devoción, número 230 | [S3] |  |
+| 27 | 2 | True Devotion, paragraphs 61–62 | Verdadera devoción, números 61–62 | [S3] |  |
+| 28 | 1 | Matthew 26:1-2, 26-29, 36-46 | Mateo 26, 1-2. 26-29. 36-46 | [S1] |  |
+| 28 | 2 | Imitation of Christ, Book 2, Chapter 11 | Imitación de Cristo, libro 2, capítulo 11 | [S2] |  |
+| 29 | 1 | Imitation of Christ, Book 1, Chapter 1 | Imitación de Cristo, libro 1, capítulo 1 | [S2] |  |
+| 29 | 2 | 1 Peter 2:21-25 | 1 Pedro 2, 21-25 | [S1] |  |
+| 30 | 1 | Matthew 27:36-44 | Mateo 27, 36-44 | [S1] |  |
+| 30 | 2 | Imitation of Christ, Book 2, Chapter 12 | Imitación de Cristo, libro 2, capítulo 12 | [S2] |  |
+| 31 | 1 | Imitation of Christ, Book 4, Chapter 2 | Imitación de Cristo, libro 4, capítulo 2 | [S2] |  |
+| 31 | 2 | True Devotion, paragraphs 243, 247, 249, 253 | Verdadera devoción, números 243, 247, 249, 253 | [S3] |  |
+| 32 | 1 | Imitation of Christ, Book 2, Chapter 7 | Imitación de Cristo, libro 2, capítulo 7 | [S2] |  |
+| 32 | 2 | True Devotion, paragraphs 257–260 | Verdadera devoción, números 257–260 | [S3] |  |
+| 33 | 1 | Imitation of Christ, Book 4, Chapter 11 | Imitación de Cristo, libro 4, capítulo 11 | [S2] |  |
+| 33 | 2 | True Devotion, paragraphs 261–265 | Verdadera devoción, números 261–265 | [S3] | `ai_translated`: the passage the edition leaves out (264, point 4, to the middle of 265) is the team's translation |
+| 34 | 1 | True Devotion, paragraphs 230–231 | Verdadera devoción, números 230–231 | [S3] |  |
+| 34 | 2 | True Devotion, paragraphs 234–256 | Verdadera devoción, números 234–256 | [S3] |  |
+
+## What was changed from the source
+
+- Verse numbers, paragraph numbers, footnote markers, running heads,
+  page numbers and the section dashes at the ends of verses are left
+  out. Torres Amat's italic glosses in the running text are kept, as he
+  prints them.
+- Each reading has the English's excerpt and the English's paragraph
+  breaks, where they fall inside a printed paragraph.
+- The speaker labels the 1876 Imitation adds ("JESUCRISTO:", "EL
+  ALMA:") are left out, as the English has none. A heading is the
+  chapter's title as Nieremberg prints it.
+- Two Scripture readings open with a heading in the English ("Examples
+  inviting Repentance", "The Crafty Steward"), which is not Scripture:
+  the team's "Ejemplos que mueven a penitencia" and "El mayordomo
+  astuto".
+- Transcription and print errors corrected:
+  - [S1] Wikisource: "En vendad" to "En verdad", "hipócrilas" to
+    "hipócritas", "pordonará" to "perdonará", "asl" to "asi" (day 2);
+    "aciertos hombres" to "á ciertos hombres" (day 5); "cuando no se,
+    levantare" to "cuando no se levantare" (day 13); "la palabra el
+    Dios" to "la palabra de Dios" (day 22); "yo permanecerá" to "yo
+    permaneceré" (day 25).
+  - [S2] the 1876 printing: "necesidadd el" to "necesidad del" (day 6),
+    "do toda tentación" to "de toda tentación" and "insconstancia" to
+    "inconstancia" (day 8), "Todas las cosas pasadas" to "Todas las
+    cosas pesadas" (the title of book 3, chapter 47, day 18), "Muhos" to
+    "Muchos" (day 28), "la irá de Dios" to "la ira de Dios" (day 2).
+  - [S3] the OCR's misreadings, from the page images, and the printer's
+    turned letters ("de reducen" to "se reducen"). Kept as printed:
+    "Santos muy esclavos" and "no da fruta".
+- Day 33, reading 2: the 1885 edition runs from the end of paragraph
+  264, point 3 ("los que obran en Ella no pecan,") straight into the
+  second half of 265 ("es menester atraer á todo el mundo"), with no page
+  missing from the scan. The lost passage (the Latin "Qui operantur in
+  me, non peccabunt", point 4, and the start of IV) is the team's
+  translation from Faber, so the reading is marked `ai_translated`. Its
+  third section is numbered "III." for the printed "3.º", to match "IV."
+  and the English.
+
+## Where the Spanish differs from the English
+
+Each translation is its own, made from the Vulgate, the Latin or the
+French, not from these English versions:
+
+- [S1] 1 John 2:15 opens "Ved pues lo que os escribo á todos:";
+  Matthew 5:48 ends with Torres Amat's gloss "imitándole en cuanto
+  podais"; in Galatians 2:19 "Estoy clavado en la cruz" closes the verse.
+- [S2] Day 3 "vence todas las cosas" where the English has "sell all
+  that thou hast"; day 10 "me mandaste que te amase" for "commanded me
+  to serve Thee"; day 6 has a sentence the English lacks ("¡Cuán gran
+  celo y fervor tuvieron en su aprovechamiento espiritual!"), day 7 a
+  phrase ("del cual eran familiares amigos"); day 9 gives the couplet
+  "Atajar al principio el mal procura" without the English's "Whence a
+  certain one has said".
+- [S3] The fifth motive is "camino fácil, perfecto y seguro", without
+  "corto"; the Act says "este pequeño gusano y miserable pecador" for
+  "this poor sinner".
+
+## The prayers
+
+| Prayer (`id`) | Source |
+|---|---|
+| `act_of_consecration` | [S3], the end of the Treatise, `ai_translated`: two lines the 1885 edition does not print are the team's translation ("no he guardado las promesas que tan solemnemente os hice en mi Bautismo;" and "Os saludo, oh Reina del cielo y de la tierra, á cuyo imperio está sometido todo lo que está debajo de Dios."). "N." is put for the printed "N......." as in the Prayer Book. Kept in vos, the edition's own form. Phrases broken in the print, mended: the opening exclamation closed ("siempre Virgen! Os adoro"); "no os he cumplido mis deberes" to "no he cumplido mis deberes"; "la Sabiduría eterna escondida quiere ser adorada" to "la Sabiduría eterna quiso estar escondida y ser adorada"; "para en adelante" to "en adelante"; "sobre tierra" to "sobre la tierra"; "por que os habéis sometido" to "porque os habéis sometido" |
+| `st_louis_prayer_mary` | the team's translation, `ai_translated`. It is from *The Secret of Mary*; the only old Spanish found (P. Nazario Pérez SJ, died 1952) is under copyright |
+| `st_louis_prayer_jesus` | the team's translation, `ai_translated`, for the same reason |
+| `rosary` | the team's translation of the app's rubric, `ai_translated`, with the app's Spanish names "Inicio" and "Rezar" |
+
+The team's translations address Jesus and Mary as tú, as the Prayer
+Book's do; the Act keeps the 1885 edition's vos.
+
+## The team's translation of the rest (`ai_translated`)
+
+The day titles and journal questions (tú to the reader), the phases'
+names and subtitles, and the feasts' names and descriptions, in the
+names Spanish-speaking Catholics use ("Nuestra Señora del Carmen"). A
+journal question that quotes a reading quotes that day's Spanish
+reading.
