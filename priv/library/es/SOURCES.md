@@ -463,20 +463,25 @@ two documents never disagree.
   ([tratado-de-la-verdadera-devocion-a-la-virgen-maria](https://archive.org/details/tratado-de-la-verdadera-devocion-a-la-virgen-maria)).
   Its OCR is poor: every passage was corrected against the page images,
   and paragraphs 247 and the opening of 257-258 transcribed from them.
-  Source label: "Tratado de la verdadera devoción, trad. Araiztegui
-  (1885)". Not used: the Lérida 1872 (Orgaz) and Quito 1890 (Peña)
+  Source label: "Tratado de la verdadera devoción a la Santísima Virgen,
+  trad. Araiztegui (1885)"; citations as the English gives them
+  ("Verdadera devoción, números 152–164"). Not used: the Lérida 1872 (Orgaz) and Quito 1890 (Peña)
   translations, also public domain, and the modern ones (the 1954 BAC
   *Obras*, montfort.org, EWTN), under copyright.
 
-Old spelling is kept as each edition prints it ("á", "fué", "Magestad",
-"devocion"), as the English keeps the Douay's.
+The spelling and accents are modernized to the RAE's current rules, never
+the wording: "á" to "a", "fué" to "fue", "devocion" to "devoción",
+"Magestad" to "Majestad", "muger" to "mujer", "zelo" to "celo",
+"esquisito" to "exquisito" and the like. The words stay the 19th-century
+translators', and so do their old names and forms ("Jesu-Cristo",
+"priesa", "trasformaos").
 
 ## The readings and their sources
 
 | Day | Reading | English | Spanish | Edition | Note |
 |---|---|---|---|---|---|
 | 1 | 1 | Matthew 5:1-19 | Mateo 5, 1-19 | [S1] |  |
-| 1 | 2 | True Devotion, paragraph 227 | 227 | [S3] |  |
+| 1 | 2 | True Devotion, paragraph 227 | Verdadera devoción, número 227 | [S3] |  |
 | 2 | 1 | Matthew 5:48, 6:1-15 | Mateo 5, 48; 6, 1-15 | [S1] |  |
 | 2 | 2 | Imitation of Christ, Book 2, Chapter 6 | Imitación de Cristo, libro 2, capítulo 6 | [S2] |  |
 | 3 | 1 | Matthew 7:1-14 | Mateo 7, 1-14 | [S1] |  |
@@ -499,13 +504,13 @@ Old spelling is kept as each edition prints it ("á", "fué", "Magestad",
 | 11 | 2 | Luke 15:11-24 | Lucas 15, 11-24 | [S1] |  |
 | 12 | 1 | Imitation of Christ, Book 1, Chapter 25 (cont.) | Imitación de Cristo, libro 1, capítulo 25 | [S2] |  |
 | 12 | 2 | Galatians 2:19-20; 6:14 | Gálatas 2, 19-20; 6, 14 | [S1] | transcribed from the scan of the first edition |
-| 13 | 1 | True Devotion, paragraph 228 | 228 | [S3] |  |
+| 13 | 1 | True Devotion, paragraph 228 | Verdadera devoción, número 228 | [S3] |  |
 | 13 | 2 | Luke 11:1-10 | Lucas 11, 1-10 | [S1] |  |
 | 14 | 1 | Imitation of Christ, Book 3, Chapter 13 | Imitación de Cristo, libro 3, capítulo 13 | [S2] |  |
 | 14 | 2 | Philippians 2:5-11 | Filipenses 2, 5-11 | [S1] | transcribed from the scan of the first edition |
 | 15 | 1 | Luke 13:1-5 | Lucas 13, 1-5 | [S1] |  |
-| 15 | 2 | True Devotion, paragraphs 81–82 | 81-82 | [S3] |  |
-| 16 | 1 | True Devotion, paragraphs 79–80 | 79-80 | [S3] |  |
+| 15 | 2 | True Devotion, paragraphs 81–82 | Verdadera devoción, números 81–82 | [S3] |  |
+| 16 | 1 | True Devotion, paragraphs 79–80 | Verdadera devoción, números 79–80 | [S3] |  |
 | 16 | 2 | Imitation of Christ, Book 2, Chapter 5 | Imitación de Cristo, libro 2, capítulo 5 | [S2] |  |
 | 17 | 1 | Imitation of Christ, Book 1, Chapter 24 | Imitación de Cristo, libro 1, capítulo 24 | [S2] |  |
 | 17 | 2 | Luke 16:1-8 | Lucas 16, 1-8 | [S1] |  |
@@ -513,22 +518,22 @@ Old spelling is kept as each edition prints it ("á", "fué", "Magestad",
 | 18 | 2 | Imitation of Christ, Book 3, Chapter 47 | Imitación de Cristo, libro 3, capítulo 47 | [S2] |  |
 | 19 | 1 | Luke 18:15-30 | Lucas 18, 15-30 | [S1] |  |
 | 19 | 2 | Imitation of Christ, Book 3, Chapter 4 | Imitación de Cristo, libro 3, capítulo 4 | [S2] |  |
-| 20 | 1 | True Devotion, paragraph 229 | 229 | [S3] |  |
+| 20 | 1 | True Devotion, paragraph 229 | Verdadera devoción, número 229 | [S3] |  |
 | 20 | 2 | Luke 2:16-21, 45-52 | Lucas 2, 16-21. 45-52 | [S1] |  |
-| 21 | 1 | True Devotion, paragraphs 115–118 | 115, 118 | [S3] |  |
+| 21 | 1 | True Devotion, paragraphs 115–118 | Verdadera devoción, números 115–118 | [S3] |  |
 | 21 | 2 | John 19:25-27 | Juan 19, 25-27 | [S1] |  |
-| 22 | 1 | True Devotion, paragraphs 106–110 | 105-110 | [S3] |  |
+| 22 | 1 | True Devotion, paragraphs 106–110 | Verdadera devoción, números 106–110 | [S3] |  |
 | 22 | 2 | Luke 8:19-21; 11:27-28 | Lucas 8, 19-21; 11, 27-28 | [S1] |  |
-| 23 | 1 | True Devotion, paragraphs 120–121 | 120-121 | [S3] |  |
+| 23 | 1 | True Devotion, paragraphs 120–121 | Verdadera devoción, números 120–121 | [S3] |  |
 | 23 | 2 | Romans 12:1-2; 6:3-4 | Romanos 12, 1-2; 6, 3-4 | [S1] |  |
-| 24 | 1 | True Devotion, paragraphs 152–164 | 152-153, 155-159, 164 | [S3] |  |
+| 24 | 1 | True Devotion, paragraphs 152–164 | Verdadera devoción, números 152–164 | [S3] |  |
 | 24 | 2 | John 14:1-6 | Juan 14, 1-6 | [S1] |  |
-| 25 | 1 | True Devotion, paragraphs 213–225 | 213-219 | [S3] |  |
+| 25 | 1 | True Devotion, paragraphs 213–225 | Verdadera devoción, números 213–225 | [S3] |  |
 | 25 | 2 | John 15:1-8 | Juan 15, 1-8 | [S1] |  |
-| 26 | 1 | True Devotion, paragraphs 14–38 | 14-17, 23-25, 38 | [S3] |  |
+| 26 | 1 | True Devotion, paragraphs 14–38 | Verdadera devoción, números 14–38 | [S3] |  |
 | 26 | 2 | Apocalypse 12:1-6 | Apocalipsis 12, 1-6 | [S1] |  |
-| 27 | 1 | True Devotion, paragraph 230 | 230-233 | [S3] |  |
-| 27 | 2 | True Devotion, paragraphs 61–62 | 61-62 | [S3] |  |
+| 27 | 1 | True Devotion, paragraph 230 | Verdadera devoción, número 230 | [S3] |  |
+| 27 | 2 | True Devotion, paragraphs 61–62 | Verdadera devoción, números 61–62 | [S3] |  |
 | 28 | 1 | Matthew 26:1-2, 26-29, 36-46 | Mateo 26, 1-2. 26-29. 36-46 | [S1] |  |
 | 28 | 2 | Imitation of Christ, Book 2, Chapter 11 | Imitación de Cristo, libro 2, capítulo 11 | [S2] |  |
 | 29 | 1 | Imitation of Christ, Book 1, Chapter 1 | Imitación de Cristo, libro 1, capítulo 1 | [S2] |  |
@@ -536,13 +541,13 @@ Old spelling is kept as each edition prints it ("á", "fué", "Magestad",
 | 30 | 1 | Matthew 27:36-44 | Mateo 27, 36-44 | [S1] |  |
 | 30 | 2 | Imitation of Christ, Book 2, Chapter 12 | Imitación de Cristo, libro 2, capítulo 12 | [S2] |  |
 | 31 | 1 | Imitation of Christ, Book 4, Chapter 2 | Imitación de Cristo, libro 4, capítulo 2 | [S2] |  |
-| 31 | 2 | True Devotion, paragraphs 243, 247, 249, 253 | 243, 247, 249, 253 | [S3] |  |
+| 31 | 2 | True Devotion, paragraphs 243, 247, 249, 253 | Verdadera devoción, números 243, 247, 249, 253 | [S3] |  |
 | 32 | 1 | Imitation of Christ, Book 2, Chapter 7 | Imitación de Cristo, libro 2, capítulo 7 | [S2] |  |
-| 32 | 2 | True Devotion, paragraphs 257–260 | 257-260 | [S3] |  |
+| 32 | 2 | True Devotion, paragraphs 257–260 | Verdadera devoción, números 257–260 | [S3] |  |
 | 33 | 1 | Imitation of Christ, Book 4, Chapter 11 | Imitación de Cristo, libro 4, capítulo 11 | [S2] |  |
-| 33 | 2 | True Devotion, paragraphs 261–265 | 261-264, end of 265 | [S3] | `ai_translated`: the passage the edition leaves out (264, point 4, to the middle of 265) is the team's translation |
-| 34 | 1 | True Devotion, paragraphs 230–231 | 230-233 | [S3] |  |
-| 34 | 2 | True Devotion, paragraphs 234–256 | 234-235, 243, 249, 250, 255, 256 | [S3] |  |
+| 33 | 2 | True Devotion, paragraphs 261–265 | Verdadera devoción, números 261–265 | [S3] | `ai_translated`: the passage the edition leaves out (264, point 4, to the middle of 265) is the team's translation |
+| 34 | 1 | True Devotion, paragraphs 230–231 | Verdadera devoción, números 230–231 | [S3] |  |
+| 34 | 2 | True Devotion, paragraphs 234–256 | Verdadera devoción, números 234–256 | [S3] |  |
 
 ## What was changed from the source
 
@@ -579,7 +584,9 @@ Old spelling is kept as each edition prints it ("á", "fué", "Magestad",
   second half of 265 ("es menester atraer á todo el mundo"), with no page
   missing from the scan. The lost passage (the Latin "Qui operantur in
   me, non peccabunt", point 4, and the start of IV) is the team's
-  translation from Faber, so the reading is marked `ai_translated`.
+  translation from Faber, so the reading is marked `ai_translated`. Its
+  third section is numbered "III." for the printed "3.º", to match "IV."
+  and the English.
 
 ## Where the Spanish differs from the English
 
@@ -604,7 +611,7 @@ French, not from these English versions:
 
 | Prayer (`id`) | Source |
 |---|---|
-| `act_of_consecration` | [S3], the end of the Treatise, `ai_translated`: two lines the 1885 edition does not print are the team's translation ("no he guardado las promesas que tan solemnemente os hice en mi Bautismo;" and "Os saludo, oh Reina del cielo y de la tierra, á cuyo imperio está sometido todo lo que está debajo de Dios."). "N." is put for the printed "N......." as in the Prayer Book |
+| `act_of_consecration` | [S3], the end of the Treatise, `ai_translated`: two lines the 1885 edition does not print are the team's translation ("no he guardado las promesas que tan solemnemente os hice en mi Bautismo;" and "Os saludo, oh Reina del cielo y de la tierra, á cuyo imperio está sometido todo lo que está debajo de Dios."). "N." is put for the printed "N......." as in the Prayer Book. Kept in vos, the edition's own form. Phrases broken in the print, mended: the opening exclamation closed ("siempre Virgen! Os adoro"); "no os he cumplido mis deberes" to "no he cumplido mis deberes"; "la Sabiduría eterna escondida quiere ser adorada" to "la Sabiduría eterna quiso estar escondida y ser adorada"; "para en adelante" to "en adelante"; "sobre tierra" to "sobre la tierra"; "por que os habéis sometido" to "porque os habéis sometido" |
 | `st_louis_prayer_mary` | the team's translation, `ai_translated`. It is from *The Secret of Mary*; the only old Spanish found (P. Nazario Pérez SJ, died 1952) is under copyright |
 | `st_louis_prayer_jesus` | the team's translation, `ai_translated`, for the same reason |
 | `rosary` | the team's translation of the app's rubric, `ai_translated`, with the app's Spanish names "Inicio" and "Rezar" |

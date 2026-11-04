@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.Consecration.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # reading's source, or its marking as the team's translation, is listed
   # in priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-03 16:38:00Z], "83e446a66cf2d90b"}
+  @pinned {~U[2026-11-03 16:53:00Z], "0a25e74c36bed2a8"}
 
   defp english(section), do: Library.served(:consecration, section)
 
