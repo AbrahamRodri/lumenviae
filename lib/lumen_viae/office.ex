@@ -42,6 +42,7 @@ defmodule LumenViae.Office do
   alias LumenViae.Office.Breviary
   alias LumenViae.Office.Cache
   alias LumenViae.Office.DivinumOfficium
+  alias LumenViae.Office.FallbackHeadings
   alias LumenViae.Office.Missal
   alias LumenViae.Office.Parser
   alias LumenViae.Office.Versions
@@ -303,7 +304,7 @@ defmodule LumenViae.Office do
          language: language.slug,
          celebration: parsed.celebration,
          tempora: parsed.tempora,
-         sections: parsed.sections,
+         sections: FallbackHeadings.translate(parsed.sections, language.slug),
          source_url:
            DivinumOfficium.public_url(
              date,

@@ -99,6 +99,13 @@ and all. Lines are plain text with the traditional glyphs kept
 `language` is `latin`, the engine prints a single column and `vernacular`
 is null throughout.
 
+Where the engine has no translation for a heading in the chosen language,
+it prints the English one. `LumenViae.Office.FallbackHeadings` puts the
+ones found in Spanish into Spanish, but only a vernacular title or a whole
+line that is exactly that English text: "At the Nocturn" (Matins),
+"Martyrology" and "The Capitular Office" (Prime). Other languages pass
+through as the engine wrote them.
+
 ## Query parameters
 
 Every content endpoint takes:
