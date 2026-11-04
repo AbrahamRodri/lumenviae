@@ -130,7 +130,7 @@ translated with AI.
 
 # Sources of the daily quotations
 
-`es/quotes.json` holds the 21 daily quotations in Spanish, in the order
+`es/quotes.json` holds the 17 daily quotations in Spanish, in the order
 and with the authors of `quotes.json`. Abraham's rule for the rest of the
 content: "the rest if you can easily get it translated yes go ahead add
 it". A quote's Spanish is the author's own words where they wrote in
@@ -147,36 +147,36 @@ English says, and otherwise the team's translation, marked
 | 4 | Pope Adrian VI | the team's translation |
 | 5 | Our Lady of Fatima | the team's translation, after the Shrine of Fatima's account of 13 May 1917 ([fatima.pt](https://www.fatima.pt/es/pages/narrativa-de-las-apariciones-de-fatima)), which adds "y el fin de la guerra", not in the English |
 | 6 | Bl. Alan de la Roche | the team's translation |
-| 7 | Sr. Lucia of Fatima | the team's translation, worded after the 1957 interview as [ACI Prensa](https://www.aciprensa.com/noticias/61830/el-rosario-es-el-arma-de-los-ultimos-tiempos-aseguro-sor-lucia-vidente-de-la-virgen-de-fatima) prints it |
-| 8 | Our Lady of Fatima | the team's translation; the Shrine's account of 13 October 1917 gives it in indirect speech |
+| 7 | Our Lady of Fatima | the team's translation; the Shrine's account of 13 October 1917 gives it in indirect speech |
+| 8 | St. Louis de Montfort | the team's translation |
 | 9 | St. Louis de Montfort | the team's translation |
 | 10 | St. Louis de Montfort | the team's translation |
-| 11 | St. Louis de Montfort | the team's translation |
-| 12 | St. Padre Pio | the team's translation |
-| 13 | St. Padre Pio | [Ascension Press](https://ascensionpress.com/es/blogs/articles/tips-and-saintly-wisdom-for-praying-the-rosary-well), Spanish |
-| 14 | St. Josemaría Escrivá | his own words, *Surco* 475 ([escriva.org](https://escriva.org/es/surco/475/)) |
-| 15 | St. Josemaría Escrivá | his own words, *Camino* 558 ([escrivaobras.org](https://www.escrivaobras.org/book/camino-punto-558.htm)) |
-| 16 | Ven. Fulton J. Sheen | the team's translation (the Spanish edition is not online) |
-| 17 | St. Francis de Sales | the team's translation |
-| 18 | Bl. Pius IX | the team's translation |
-| 19 | Pope Leo XIII | the team's translation |
-| 20 | Ven. Patrick Peyton | Holy Cross Family Ministries, his own ministry ([hcfm.org](https://hcfm.org/es/)) |
+| 11 | St. Padre Pio | the team's translation |
+| 12 | St. Padre Pio | [Ascension Press](https://ascensionpress.com/es/blogs/articles/tips-and-saintly-wisdom-for-praying-the-rosary-well), Spanish |
+| 13 | Ven. Fulton J. Sheen | the team's translation (the Spanish edition is not online) |
+| 14 | St. Francis de Sales | the team's translation |
+| 15 | Bl. Pius IX | the team's translation |
+| 16 | Pope Leo XIII | the team's translation |
 
 With `lang=es` each quote also names its author as Spanish speakers do
 (San Pío X, Beato Pío IX, San Pío de Pietrelcina, Beato Alano de la
-Rupe, Papa Adriano VI, Nuestra Señora de Fátima, Sor Lucía de Fátima, San
-Luis María Grignion de Montfort, San Josemaría Escrivá, Venerable Fulton
-J. Sheen, San Francisco de Sales, Papa León XIII, Venerable Patrick
-Peyton), and a cited work by its Spanish title: "13 de octubre de 1917",
-"El secreto del Rosario", "Surco" and "El primer amor del mundo".
+Rupe, Papa Adriano VI, Nuestra Señora de Fátima, San Luis María Grignion
+de Montfort, Venerable Fulton J. Sheen, San Francisco de Sales, Papa León
+XIII), and a cited work by its Spanish title: "13 de octubre de 1917",
+"El secreto del Rosario" and "El primer amor del mundo".
 
 Changes to the copied texts: quotation marks and a leading dash removed,
-a final period added, and in 14 the first letter capitalized (the words
-stand mid-sentence in *Surco*). Our Lady and Sr. Lucia speak to the
-children in ustedes; the rest use tú.
+and a final period added. Our Lady speaks to the children in ustedes;
+the rest use tú.
 
-Noticed while sourcing, not changed in the English: 14 is *Surco*
-(Furrow) 475, where the English source says *The Way* (the Spanish says
-"Surco"); 2 is
+Noticed while sourcing, not changed in the English: 2 is
 elsewhere credited to Pius XI, 3 is Montfort's own words in *The Secret
 of the Rosary*, and 1 is often credited to Pius X.
+
+Four quotations were removed from both files on 4 November 2026, as the
+iOS app removed them in October 2026: their words are still under
+copyright. They were Sr. Lucia of Fatima ("There is no problem, I tell
+you..."), St. Josemaría Escrivá's two (*Surco* 475 and *Camino* 558) and
+Ven. Patrick Peyton ("The family that prays together stays together").
+The note that the first Escrivá line was *Furrow*, not *The Way*, went
+with them. The numbers above are the remaining quotations' places.
