@@ -10,7 +10,7 @@ defmodule LumenViae.Rosary.Meditation.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # meditation's source, or its marking as the team's translation, is in
   # priv/meditations/es/SOURCES.md.
-  @pinned {~U[2026-11-04 16:01:00Z], "0c84f9fea6e8e890"}
+  @pinned {~U[2026-11-04 16:16:00Z], "7b142d27434e3137"}
 
   test "the file is pinned by its date and words" do
     assert {Spanish.updated_at(), Spanish.file_version()} == @pinned, """
