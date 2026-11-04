@@ -1230,6 +1230,10 @@ GraphQL: `meditationSet(id: 48, lang: "es") { translations { id title content ai
   meditation's English still matches it.
 - **The recordings stay English.** `narrations` and `narrated_voices` are
   the English recordings in every language; nothing Spanish is narrated.
+- **v1, for the iPhone app:** `GET /api/meditation-sets/:id?lang=es`
+  carries the same `translations` beside its `meditations`; without `lang`
+  it has no `translations` key at all (docs/IOS_API_CONTRACT.md, section
+  13).
 - **The words** are `priv/meditations/es/meditations.json`; their
   sources and every change are in `priv/meditations/es/SOURCES.md`.
 

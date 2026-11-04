@@ -1090,15 +1090,17 @@ defmodule LumenViae.Rosary do
   the pages, where a 404 by exception is the right answer; the API wants
   the error in hand so it goes through the fallback controller and comes
   back in the same envelope as every other error.
+
+  With `lang:` (the v1 API's `?lang=`), the set also carries its
+  `translations` (`LumenViae.Rosary.Meditation.SetTranslations`): the
+  Spanish of its meditations for `"es"`, none otherwise. Without it, the
+  read is exactly as before.
   """
   def fetch_visible_meditation_set(id, opts \\ []) do
+    {lang, opts} = Keyword.pop(opts, :lang)
+
     with {:ok, id} <- set_id(id),
-         {:ok, set} <-
-           Ash.get(
-             MeditationSet,
-             id,
-             [action: :visible, load: @visible_set_in_prayer_order] ++ AshOpts.take(opts)
-           ) do
+         {:ok, set} <- get_visible_set(id, lang, opts) do
       {:ok, in_prayer_order(set)}
     else
       :error ->
@@ -1113,6 +1115,26 @@ defmodule LumenViae.Rosary do
 
       {:error, error} ->
         raise error
+    end
+  end
+
+  defp get_visible_set(id, nil, opts) do
+    Ash.get(
+      MeditationSet,
+      id,
+      [action: :visible, load: @visible_set_in_prayer_order] ++ AshOpts.take(opts)
+    )
+  end
+
+  defp get_visible_set(id, lang, opts) do
+    MeditationSet
+    |> Ash.Query.for_read(:visible, %{lang: lang}, AshOpts.take(opts))
+    |> Ash.Query.filter(id == ^id)
+    |> Ash.Query.load(@visible_set_in_prayer_order ++ [:translations])
+    |> Ash.read_one(AshOpts.take(opts))
+    |> case do
+      {:ok, nil} -> :error
+      result -> result
     end
   end
 
