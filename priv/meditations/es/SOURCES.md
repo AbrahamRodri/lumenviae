@@ -51,10 +51,14 @@ sentence by sentence against a saved copy of its source.
 - Spelling and accents modernized to the RAE's current rules, never the
   wording: "á" to "a", "fué" to "fue", "conçibirás" to "concebirás",
   "vn" to "un", "dixo" to "dijo", "Christo" to "Cristo", "Hierusalem" to
-  "Jerusalén", "puncto" to "punto", "sancto" to "santo" and the like.
-  Older word forms stay ("agora", "veniendo", "della", "respetivamente",
-  "oprobrios"), and so do the names as written ("Josef", "Elisabet",
-  "Nicodemus").
+  "Jerusalén", "puncto" to "punto", "sancto" to "santo",
+  "respetivamente" to "respectivamente" (338), "oprobrios" to "oprobios"
+  (339) and the like. Older word forms stay ("agora", "veniendo",
+  "della"), and so do the names as written ("Josef", "Elisabet",
+  "Nicodemus"), and García's "no acostumbraba a semejantes viajes" (344).
+- Punctuation: the ordinals are "2.º" and "3.º" (263 to 265), with the
+  colon the others have after "3.º" in 265; a colon, not a semicolon,
+  before the words "Hijo mío" (339).
 - Footnote numbers left out; paragraph breaks put where the English has
   them, where a printed paragraph runs longer.
 
@@ -81,21 +85,21 @@ PDFs downloaded, they can be copied instead. The modern Spanish editions
 
 | Meditation | Set | English title or mystery | Source |
 |---|---|---|---|
-| 136 | 29 | The Annunciation | the team's translation (`ai_translated`): not in Liguori, see below |
-| 137 | 29 | The Visitation | the team's translation (`ai_translated`): not in Liguori, see below |
-| 138 | 29 | The Nativity | the team's translation (`ai_translated`): not in Liguori, see below |
-| 139 | 29 | The Presentation | the team's translation (`ai_translated`): not in Liguori, see below |
-| 140 | 29 | The Finding in the Temple | the team's translation (`ai_translated`): not in Liguori, see below |
-| 141 | 30 | The Agony in the Garden | the team's translation (`ai_translated`): not in Liguori, see below |
-| 142 | 30 | The Scourging at the Pillar | the team's translation (`ai_translated`): not in Liguori, see below |
-| 143 | 30 | The Crowning with Thorns | the team's translation (`ai_translated`): not in Liguori, see below |
-| 144 | 30 | The Carrying of the Cross | the team's translation (`ai_translated`): not in Liguori, see below |
-| 145 | 30 | The Crucifixion | the team's translation (`ai_translated`): not in Liguori, see below |
-| 146 | 28 | The Resurrection | the team's translation (`ai_translated`): not in Liguori, see below |
-| 147 | 28 | The Ascension | the team's translation (`ai_translated`): not in Liguori, see below |
-| 148 | 28 | The Descent of the Holy Spirit | the team's translation (`ai_translated`): not in Liguori, see below |
-| 149 | 28 | The Assumption | the team's translation (`ai_translated`): not in Liguori, see below |
-| 150 | 28 | The Coronation | the team's translation (`ai_translated`): not in Liguori, see below |
+| 136 | 29 | The Annunciation | the team's translation (`ai_translated`): not in Liguori, see above |
+| 137 | 29 | The Visitation | the team's translation (`ai_translated`): not in Liguori, see above |
+| 138 | 29 | The Nativity | the team's translation (`ai_translated`): not in Liguori, see above |
+| 139 | 29 | The Presentation | the team's translation (`ai_translated`): not in Liguori, see above |
+| 140 | 29 | The Finding in the Temple | the team's translation (`ai_translated`): not in Liguori, see above |
+| 141 | 30 | The Agony in the Garden | the team's translation (`ai_translated`): not in Liguori, see above |
+| 142 | 30 | The Scourging at the Pillar | the team's translation (`ai_translated`): not in Liguori, see above |
+| 143 | 30 | The Crowning with Thorns | the team's translation (`ai_translated`): not in Liguori, see above |
+| 144 | 30 | The Carrying of the Cross | the team's translation (`ai_translated`): not in Liguori, see above |
+| 145 | 30 | The Crucifixion | the team's translation (`ai_translated`): not in Liguori, see above |
+| 146 | 28 | The Resurrection | the team's translation (`ai_translated`): not in Liguori, see above |
+| 147 | 28 | The Ascension | the team's translation (`ai_translated`): not in Liguori, see above |
+| 148 | 28 | The Descent of the Holy Spirit | the team's translation (`ai_translated`): not in Liguori, see above |
+| 149 | 28 | The Assumption | the team's translation (`ai_translated`): not in Liguori, see above |
+| 150 | 28 | The Coronation | the team's translation (`ai_translated`): not in Liguori, see above |
 | 261 | 48 | Hail, Full of Grace | [M2] Ejercicios espirituales, n. 262 (De la anunciación de Nuestra Señora); MHSI 1919 p. 450 |
 | 262 | 48 | The Infant Leaped in Her Womb | [M2] Ejercicios espirituales, n. 263 (De la visitación); MHSI 1919 pp. 450-452 |
 | 263 | 48 | Laid in the Manger | [M2] Ejercicios espirituales, n. 264 (Del nacimiento); MHSI 1919 p. 452 |
