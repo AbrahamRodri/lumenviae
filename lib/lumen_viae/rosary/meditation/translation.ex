@@ -11,7 +11,8 @@ defmodule LumenViae.Rosary.Meditation.Translation do
       allow_nil?: false,
       description: "The meditation's id, the same as in the set's meditations."
 
-    field :title, :string, description: "Its title in this language, or null where the English has none."
+    field :title, :string,
+      description: "Its title in this language, or null where the English has none."
 
     field :content, :string,
       allow_nil?: false,

@@ -107,7 +107,11 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetsSpanishTest do
     spanish = attributes(build_conn(), set, @fields <> ",translations&lang=es")
 
     assert spanish["translations"] == [
-             %{"id" => one.id, "title" => "La Anunciación", "content" => "La Anunciación, en español."},
+             %{
+               "id" => one.id,
+               "title" => "La Anunciación",
+               "content" => "La Anunciación, en español."
+             },
              %{
                "id" => two.id,
                "title" => "La Visitación",
@@ -126,7 +130,9 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetsSpanishTest do
        %{conn: conn, set: set, meditations: [one, two, _three]} do
     {:ok, _} = Rosary.update_meditation(one, %{content: "Edited English."}, actor: admin())
 
-    assert [%{"id" => id}] = attributes(conn, set, "fields[meditation_set]=translations&lang=es")["translations"]
+    assert [%{"id" => id}] =
+             attributes(conn, set, "fields[meditation_set]=translations&lang=es")["translations"]
+
     assert id == two.id
   end
 
@@ -134,7 +140,11 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetsSpanishTest do
     query = "include=set_memberships.meditation&" <> @fields
 
     english = conn |> get_v2("/meditation-sets/#{set.id}?" <> query) |> v2_response(200)
-    spanish = build_conn() |> get_v2("/meditation-sets/#{set.id}?" <> query <> "&lang=es") |> v2_response(200)
+
+    spanish =
+      build_conn()
+      |> get_v2("/meditation-sets/#{set.id}?" <> query <> "&lang=es")
+      |> v2_response(200)
 
     assert english["included"] == spanish["included"]
   end
@@ -142,7 +152,9 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetsSpanishTest do
   test "the list carries each set's Spanish with lang=es", %{conn: conn, set: set} do
     sets =
       conn
-      |> get_v2("/meditation-sets?category=joyful&lang=es&fields[meditation_set]=name,translations")
+      |> get_v2(
+        "/meditation-sets?category=joyful&lang=es&fields[meditation_set]=name,translations"
+      )
       |> v2_response(200)
       |> Map.fetch!("data")
 
