@@ -139,6 +139,7 @@ value is added to a vocabulary, never a renamed one.
 | `GET /api/v2/spiritual-reading?fields[spiritual_reading]=version,updated_at,books` | when `version` differs from the saved copy's | the books, with their Gutenberg and LibriVox numbers and rules; the app fetches each book's text and recording from those sites itself |
 | `GET /api/v2/meditation-sets?category=<slug>` | a mysteries' page's shelf | default fields |
 | `GET /api/v2/meditation-sets/<id>?include=set_memberships.meditation.mystery&fields[meditation]=title,content,author,source,narrated_voices,narrations` | a set is opened or saved for offline | with its meditations, in prayer order, and their signed narrations |
+| the same, with `lang=es` and `translations` added to `fields[meditation_set]` | as above, when the app is in Spanish | the same, plus `translations`: each meditation with a Spanish text, laid over the English by `id` (`ai_translated: true` on the team's own translation: show the AI notice); the recordings stay English (docs/JSON_API.md, "The meditations in Spanish") |
 | `POST /api/v2/meditations/audio` | a saved set's narration links have expired, or one would not load | `{"data": {"meditation_ids": [...], "voice": "<slug>"}}`, at most 200 ids |
 | `GET /api/v2/voices` | the voice picker | default fields |
 | `GET /api/v2/voices/retired` | a stored voice is no longer offered | default fields |

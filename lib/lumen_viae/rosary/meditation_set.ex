@@ -91,7 +91,8 @@ defmodule LumenViae.Rosary.MeditationSet do
       :byline_author,
       :byline_source,
       :artwork,
-      :set_memberships
+      :set_memberships,
+      :translations
     ]
 
     default_fields [
@@ -196,6 +197,12 @@ defmodule LumenViae.Rosary.MeditationSet do
       description "The sets the public may see: those with at least one meditation and none archived. By category and then in creation order, optionally narrowed to one category. Never paginated."
 
       argument :category, :string
+
+      argument :lang, :string do
+        description "The language of `translations`: `es` fills it with the set's meditations that have Spanish. Missing, `en` or a language not served: the sets as they always were, and `translations` empty."
+      end
+
+      prepare LumenViae.Rosary.Meditation.Language
 
       filter expr(visible? and (is_nil(^arg(:category)) or category == ^arg(:category)))
       prepare build(sort: [category: :asc, id: :asc])
@@ -348,6 +355,16 @@ defmodule LumenViae.Rosary.MeditationSet do
   end
 
   calculations do
+    calculate :translations,
+              {:array, LumenViae.Rosary.Meditation.Translation},
+              LumenViae.Rosary.Meditation.SetTranslations do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "With `lang=es`, the set's meditations that have Spanish, in prayer order, by id: each one's title and text in Spanish, laid over the English by `id`. A meditation not listed has none: show its English. `ai_translated` marks the team's own translation. The recordings stay English. Empty in English."
+    end
+
     # Built on the two unauthorized aggregates below rather than on
     # `exists(meditations, ...)`, which would be authorized against
     # Meditation's policies: an anonymous caller cannot see archived

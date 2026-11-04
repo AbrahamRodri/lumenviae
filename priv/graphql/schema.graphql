@@ -1622,6 +1622,20 @@ type RosaryClip {
   audio: SignedAudio!
 }
 
+type MeditationTranslation {
+  "Its title in this language, or null where the English has none."
+  title: String
+
+  "The meditation's id, the same as in the set's meditations."
+  id: Int!
+
+  "Its text in this language, paragraphs parted as the English's. The recording, if any, still says the English."
+  content: String!
+
+  "`true` when the text is the team's own AI translation, not a published text: show the app's AI notice under it. Absent otherwise."
+  aiTranslated: Boolean
+}
+
 type MeditationNarration {
   voice: String!
 
@@ -2071,6 +2085,9 @@ type MeditationSet {
 
   setMemberships: [SetMembership!]!
 
+  "With `lang=es`, the set's meditations that have Spanish, in prayer order, by id: each one's title and text in Spanish, laid over the English by `id`. A meditation not listed has none: show its English. `ai_translated` marks the team's own translation. The recordings stay English. Empty in English."
+  translations: [MeditationTranslation!]!
+
   "The author the set is shown with: its own, or else the one its meditations agree on."
   author: String
 
@@ -2140,12 +2157,20 @@ type RootQueryType {
   ): [MeditationNarration!]
 
   "The sets the public may see: those with at least one meditation and none archived. By category and then in creation order, optionally narrowed to one category. Never paginated."
-  visibleMeditationSets(category: String): [MeditationSet!]!
+  visibleMeditationSets(
+    category: String
+
+    "The language of `translations`: `es` fills it with the set's meditations that have Spanish. Missing, `en` or a language not served: the sets as they always were, and `translations` empty."
+    lang: String
+  ): [MeditationSet!]!
 
   "One set the public may see, by id. Null when it does not exist or is hidden: it holds an archived meditation, or no meditations yet."
   meditationSet(
     "The id of the record"
     id: ID!
+
+    "The language of `translations`: `es` fills it with the set's meditations that have Spanish. Missing, `en` or a language not served: the sets as they always were, and `translations` empty."
+    lang: String
   ): MeditationSet
 
   "The voices a listener may choose, the default first."
