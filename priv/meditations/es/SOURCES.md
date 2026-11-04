@@ -14,10 +14,13 @@ content`, from the production API on 4 November 2026). An English edit in
 the console changes the fingerprint, and that meditation falls back to
 English until its Spanish is redone. The recordings stay English.
 
-This file covers Groups A and B of `reports/rig-es/meditation-sources.md`:
-the eight sets with a Spanish source, and the four Blessed Anne Catherine
-Emmerich sets (42, 45, 46, 53). 64 meditations: 30 copied, 34 the
-team's translation, marked `ai_translated`. The Spanish titles are the
+This file covers Groups A, B and C of
+`reports/rig-es/meditation-sources.md`, and Faber: the eight sets with a
+Spanish source, the four Blessed Anne Catherine Emmerich sets (42, 45,
+46, 53), and the eight sets of Newman, Guéranger, St Augustine, St John
+Chrysostom and Faber (52, 63, 64, 54, 55, 62, 59, 65). 106 meditations:
+30 copied, 76 the team's translation, marked `ai_translated`. Only
+Sheen's three sets stay English (see below). The Spanish titles are the
 team's, translating the English titles. Every copied text was checked
 sentence by sentence against a saved copy of its source.
 
@@ -125,6 +128,19 @@ Pasión*, Planeta 2004; J. Fuchs's *Visiones y revelaciones completas*,
 Mexico, after 1966; the Espasa-Calpe *Vida de la Santa Virgen*, 1944;
 the "Editorial Surgite!" PDFs).
 
+## Newman, Guéranger, St Augustine, St John Chrysostom and Faber
+
+These 42 meditations are the team's translation from the public-domain
+English each set quotes (Newman's *Meditations and Devotions*, 1893;
+Guéranger's *The Liturgical Year* in the 1871-1909 English (Laurence Shepherd and the Benedictines of Stanbrook); the Nicene and
+Post-Nicene Fathers, 1888-1889; Faber's *Bethlehem*, 1860, and *The Foot
+of the Cross*, 1858), marked. Their Spanish editions are modern and
+under copyright and were not used: Cavaller's Newman (2006), the monks
+of Silos's *El año litúrgico* (1954), the BAC's Augustine (from 1955)
+and Ruiz Bueno's Chrysostom (1955-1956). No Spanish *Belén* by Faber
+was found, and the only *Al pie de la Cruz* found is a 2017 PDF with no
+translator or date.
+
 ## Bl. Fulton J. Sheen: left in English
 
 Sets 25, 26 and 27 quote Sheen's *The Fifteen Mysteries of the Rosary*.
@@ -179,11 +195,25 @@ estate's permission whatever the US status. The three sets stay English.
 | 263 | 48 | Laid in the Manger | [M2] Ejercicios espirituales, n. 264 (Del nacimiento); MHSI 1919 p. 452 |
 | 264 | 48 | Received in Simeon's Arms | [M2] Ejercicios espirituales, n. 268 (De la purificación de Nuestra Señora y representación del Niño Jesú); MHSI 1919 p. 456 |
 | 265 | 48 | In the Things of My Father | [M2] Ejercicios espirituales, n. 272 (De la venida de Christo al templo quando era de hedad de XII años); MHSI 1919 p. 460 |
+| 296 | 52 | His Risen Body and Mine | the team's translation (`ai_translated`) from the English, see above |
+| 297 | 52 | The Flesh of Bethlehem Enters Heaven | the team's translation (`ai_translated`) from the English, see above |
+| 298 | 52 | The Fire That Makes Us Love | the team's translation (`ai_translated`) from the English, see above |
+| 299 | 52 | Why She Has No Tomb | the team's translation (`ai_translated`) from the English, see above |
+| 300 | 52 | Queen of the Angels | the team's translation (`ai_translated`) from the English, see above |
 | 301 | 53 | The Heavens Opened | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
 | 302 | 53 | A Word Spoken Low | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
 | 303 | 53 | The Scroll Unrolled in Nazareth | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
 | 304 | 53 | The Light on Thabor | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
 | 305 | 53 | His Entire Self | [M4] pp. 129-130 |
+| 306 | 54 | The Trinity at the Jordan | the team's translation (`ai_translated`) from the English, see above |
+| 307 | 54 | The Wine He Makes Every Year | the team's translation (`ai_translated`) from the English, see above |
+| 308 | 54 | The Season of Mercy | the team's translation (`ai_translated`) from the English, see above |
+| 309 | 54 | One Tabernacle, Not Three | the team's translation (`ai_translated`) from the English, see above |
+| 310 | 54 | O Bond of Charity | the team's translation (`ai_translated`) from the English, see above |
+| 311 | 55 | The Lord Among the Servants | the team's translation (`ai_translated`) from the English, see above |
+| 312 | 55 | Why He Granted What He Had Refused | the team's translation (`ai_translated`) from the English, see above |
+| 314 | 55 | A Glimpse of the Brightness to Come | the team's translation (`ai_translated`) from the English, see above |
+| 315 | 55 | He Mingled Himself With Us | the team's translation (`ai_translated`) from the English, see above |
 | 316 | 56 | The Heavens Opened | the team's translation (`ai_translated`), from the English of III, q. 39, a. 5 |
 | 317 | 56 | Sealed with the King's Ring | the team's translation (`ai_translated`), from the English of III, q. 43, a. 1 |
 | 318 | 56 | Why He Came Into the World | the team's translation (`ai_translated`), from the English of III, q. 40, a. 1 |
@@ -194,6 +224,11 @@ estate's permission whatever the US status. The three sets stay English.
 | 328 | 58 | The Mother Calls the Poor to the Crib | [M3] Segunda parte, lib. IV, cap. X, n. 483 |
 | 329 | 58 | The Mother Presents Her Son in the Temple | [M3] Segunda parte, lib. IV, cap. XX, n. 598 |
 | 330 | 58 | The Mother's Question and the Son's Answer | [M3] Segunda parte, lib. V, cap. V, nn. 766-767 |
+| 331 | 59 | The Prayer That Drew Him Down | the team's translation (`ai_translated`) from the English, see above |
+| 332 | 59 | The Sound of Her Voice | the team's translation (`ai_translated`) from the English, see above |
+| 333 | 59 | The Desire That Could Not Be Recalled | the team's translation (`ai_translated`) from the English, see above |
+| 334 | 59 | Old Age Receives Its God | the team's translation (`ai_translated`) from the English, see above |
+| 335 | 59 | A Voice She Could Not Mistake | the team's translation (`ai_translated`) from the English, see above |
 | 336 | 60 | Wounded in Advance by the Sword | [M3] Segunda parte, lib. IV, cap. XX, n. 601 |
 | 337 | 60 | Waking the Child to Flee | [M3] Segunda parte, lib. IV, cap. XXI, nn. 611-613 |
 | 338 | 60 | Turning Back to Jerusalem | [M3] Segunda parte, lib. V, cap. IV, n. 748 |
@@ -208,3 +243,26 @@ estate's permission whatever the US status. The three sets stay English.
 | 347 | 61 | A Mother Who Could Give No Relief | [M1] p. 354 (leaf n358) |
 | 348 | 61 | The World Returns Her Son | [M1] pp. 360-361 (leaves n364-n365) |
 | 349 | 61 | Her Heart Left in the Tomb | [M1] pp. 365-366 (leaves n369-n370) |
+| 350 | 55 | Not a City Did He Overlook | the team's translation (`ai_translated`) from the English, see above |
+| 351 | 62 | The Fear Was Real | the team's translation (`ai_translated`) from the English, see above |
+| 352 | 62 | Silent Beneath the Scourge | the team's translation (`ai_translated`) from the English, see above |
+| 353 | 62 | Bear Them in Our Mind | the team's translation (`ai_translated`) from the English, see above |
+| 354 | 62 | The Cross Borne as a Trophy | the team's translation (`ai_translated`) from the English, see above |
+| 355 | 62 | He Died by His Own Power | the team's translation (`ai_translated`) from the English, see above |
+| 356 | 63 | The Dazzling Light in the Sepulchre | the team's translation (`ai_translated`) from the English, see above |
+| 357 | 63 | Their Eyes Upon the Cloud | the team's translation (`ai_translated`) from the English, see above |
+| 358 | 63 | The Fire That Shall Not Be Checked | the team's translation (`ai_translated`) from the English, see above |
+| 359 | 63 | The Eternal Gates Lifted Up | the team's translation (`ai_translated`) from the English, see above |
+| 360 | 63 | Above All the Choirs | the team's translation (`ai_translated`) from the English, see above |
+| 361 | 64 | Accepting the Chalice | the team's translation (`ai_translated`) from the English, see above |
+| 362 | 64 | Bound to the Pillar | the team's translation (`ai_translated`) from the English, see above |
+| 363 | 64 | A Crown of Thorns for a King | the team's translation (`ai_translated`) from the English, see above |
+| 364 | 64 | Veronica and the Daughters of Jerusalem | the team's translation (`ai_translated`) from the English, see above |
+| 365 | 64 | Mary Draws Near to the Cross | the team's translation (`ai_translated`) from the English, see above |
+| 366 | 65 | The Words That Pierced Her | the team's translation (`ai_translated`) from the English, see above |
+| 367 | 65 | Going Forth into the Cold Starlight | the team's translation (`ai_translated`) from the English, see above |
+| 368 | 65 | The Light Went Out in Her Soul | the team's translation (`ai_translated`) from the English, see above |
+| 369 | 65 | Her Eyes Fixed on His | the team's translation (`ai_translated`) from the English, see above |
+| 370 | 65 | A Childless Mother | the team's translation (`ai_translated`) from the English, see above |
+| 371 | 65 | Her Arms Receive Him Again | the team's translation (`ai_translated`) from the English, see above |
+| 372 | 65 | The Stone Rolled to the Door | the team's translation (`ai_translated`) from the English, see above |
