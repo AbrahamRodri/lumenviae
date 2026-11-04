@@ -14,8 +14,9 @@ content`, from the production API on 4 November 2026). An English edit in
 the console changes the fingerprint, and that meditation falls back to
 English until its Spanish is redone. The recordings stay English.
 
-This file covers Group A of `reports/rig-es/meditation-sources.md`: the
-eight sets with a Spanish source. 44 meditations: 24 copied, 20 the
+This file covers Groups A and B of `reports/rig-es/meditation-sources.md`:
+the eight sets with a Spanish source, and the four Blessed Anne Catherine
+Emmerich sets (42, 45, 46, 53). 64 meditations: 30 copied, 34 the
 team's translation, marked `ai_translated`. The Spanish titles are the
 team's, translating the English titles. Every copied text was checked
 sentence by sentence against a saved copy of its source.
@@ -45,6 +46,25 @@ sentence by sentence against a saved copy of its source.
   siguiente", 342 "le confesó por Hijo de Dios"); the Spanish is copied
   as she wrote it. Printer's errors corrected: "Perú" to "Pero" (337),
   "cástisimo" to "castísimo" (341).
+
+- **[M4]** Bl. Anne Catherine Emmerich, *La dolorosa Pasión de N. S.
+  Jesucristo, según las meditaciones de sor Ana Catalina Emmerich*,
+  "traducida del francés" (the abbé de Cazalès's French), Madrid, Imp. de
+  la Esperanza, a cargo de D. A. P. Dubrull, 1865, from [the archive.org
+  scan](https://archive.org/details/la-dolorosa-pasion-de-nuestro-senor-jesucristo_202606)
+  (the same edition in full view on [Google Books](https://books.google.com/books?id=cNu6oAluwJEC)),
+  checked against the page images. The translator is not named: an
+  anonymous work published 161 years ago is public domain. It follows
+  the French, which condenses the English 1862 text, so the Spanish is
+  shorter: 252 is shorter throughout; 253 has no gallery, open doors or
+  potsherds; 255 has no "voice of God" passage and no trembling horse;
+  254 says "puerta" where the English has a pillar. In 251 one printed
+  sentence the English excerpt skips is left out. Printed paragraphs
+  are split where the English breaks them. Printing errors corrected:
+  "sotavoces" to "solas voces" (252; the English "they alone"), "dc" to
+  "de" (255), and the missing "!" in «¡Salve, Rey de los judíos!» (253).
+  The words of consecration (305), in italics in the print, are put in
+  «». The print's own forms stay ("Quedaos", "Hacedlo morir", "le acompañaban", "a su rededor").
 
 ## What was changed from the source
 
@@ -81,6 +101,45 @@ translation from the English Dominicans', marked. With the volume's two
 PDFs downloaded, they can be copied instead. The modern Spanish editions
 (BAC from 1947, the Dominicans' online text) are under copyright.
 
+## Bl. Anne Catherine Emmerich
+
+Only the *Dolorous Passion* has a public-domain Spanish edition online
+([M4]); it covers 251-255 and 305. The other fourteen (227-231,
+246-250, 301-304) come from *The Life of Jesus Christ and Biblical
+Revelations*, and are the team's translation from the 1914 English,
+marked. 246 has a shorter parallel account in [M4]'s Resurrection
+chapter (p. 495), but it lacks most of the English excerpt, so it is
+translated instead.
+
+The one old Spanish *Life* is Guillermo Jünemann's (Freiburg, Herder,
+1911; again 1921 and 1923), a one-volume condensation. Jünemann died at
+Tomé in 1938 (Pablo Uribe Ulloa, *Cuestiones Teológicas* 47, 2020), so it
+is public domain, but no scan of it was found (archive.org, Google
+Books, Deutsche Digitale Bibliothek, Europeana, Memoria Chilena);
+HathiTrust and the Biblioteca Digital Hispánica refused automated
+reading and are still to be checked by hand. With a scan, the fourteen
+can be copied where it has them. Older Spanish Lives of the Virgin
+(Santiago de Chile 1877, 1894, Barcelona 1898) are known only from
+catalogue records. Not used: the modern Spanish editions (*La amarga
+Pasión*, Planeta 2004; J. Fuchs's *Visiones y revelaciones completas*,
+Mexico, after 1966; the Espasa-Calpe *Vida de la Santa Virgen*, 1944;
+the "Editorial Surgite!" PDFs).
+
+## Bl. Fulton J. Sheen: left in English
+
+Sets 25, 26 and 27 quote Sheen's *The Fifteen Mysteries of the Rosary*.
+The iOS app's note that "his work having been checked and found out of
+copyright (Oct 2026)" (`app/Data/RosaryQuotes.swift`) rests on one
+commit, 5ee26d5 of 12 October 2026, "Sheen's work was checked and found
+out of copyright", which records no evidence: no renewal search, no
+edition, and it concerns his quotation from *The World's First Love*,
+not this book. `Tools/ContentSourcing/MANIFEST.md` has no entry for
+Sheen. A US work of 1928-1963 is public domain there only if its
+copyright was not renewed, which was not checked here. In Spain Sheen's
+works are protected until the end of 2059 (he died in 1979), and a
+Spanish translation is a derivative work, so translating him needs his
+estate's permission whatever the US status. The three sets stay English.
+
 ## The meditations and their sources
 
 | Meditation | Set | English title or mystery | Source |
@@ -100,11 +159,31 @@ PDFs downloaded, they can be copied instead. The modern Spanish editions
 | 148 | 28 | The Descent of the Holy Spirit | the team's translation (`ai_translated`): not in Liguori, see above |
 | 149 | 28 | The Assumption | the team's translation (`ai_translated`): not in Liguori, see above |
 | 150 | 28 | The Coronation | the team's translation (`ai_translated`): not in Liguori, see above |
+| 227 | 42 | The Fiat and the Flood of Light | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 228 | 42 | Light Passing Between Them | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 229 | 42 | The Light Born in the Cave | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 230 | 42 | Heaven Opened Over the Altar | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 231 | 42 | About My Father's Business | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 246 | 46 | Light in the Sealed Tomb | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 247 | 46 | Blessing the Whole World | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 248 | 46 | Tongues of Fire | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 249 | 46 | In Triumph to the Heavenly Jerusalem | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 250 | 46 | He Placed in Her Hand a Scepter | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 251 | 45 | Watch and Pray With Me | [M4] pp. 151-153 |
+| 252 | 45 | The Lamb and the Lambs | [M4] pp. 311-312 |
+| 253 | 45 | Hail, King of the Jews | [M4] pp. 334-335 |
+| 254 | 45 | Mother and Son on the Way | [M4] pp. 360-361 |
+| 255 | 45 | It Is Consummated | [M4] pp. 408-409 |
 | 261 | 48 | Hail, Full of Grace | [M2] Ejercicios espirituales, n. 262 (De la anunciación de Nuestra Señora); MHSI 1919 p. 450 |
 | 262 | 48 | The Infant Leaped in Her Womb | [M2] Ejercicios espirituales, n. 263 (De la visitación); MHSI 1919 pp. 450-452 |
 | 263 | 48 | Laid in the Manger | [M2] Ejercicios espirituales, n. 264 (Del nacimiento); MHSI 1919 p. 452 |
 | 264 | 48 | Received in Simeon's Arms | [M2] Ejercicios espirituales, n. 268 (De la purificación de Nuestra Señora y representación del Niño Jesú); MHSI 1919 p. 456 |
 | 265 | 48 | In the Things of My Father | [M2] Ejercicios espirituales, n. 272 (De la venida de Christo al templo quando era de hedad de XII años); MHSI 1919 p. 460 |
+| 301 | 53 | The Heavens Opened | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 302 | 53 | A Word Spoken Low | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 303 | 53 | The Scroll Unrolled in Nazareth | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 304 | 53 | The Light on Thabor | the team's translation (`ai_translated`) from the 1914 English; no Spanish scan, see above |
+| 305 | 53 | His Entire Self | [M4] pp. 129-130 |
 | 316 | 56 | The Heavens Opened | the team's translation (`ai_translated`), from the English of III, q. 39, a. 5 |
 | 317 | 56 | Sealed with the King's Ring | the team's translation (`ai_translated`), from the English of III, q. 43, a. 1 |
 | 318 | 56 | Why He Came Into the World | the team's translation (`ai_translated`), from the English of III, q. 40, a. 1 |
