@@ -1807,6 +1807,33 @@
                 "description": "The source the set is shown with: its own, or else the one its meditations agree on. Field included by default.",
                 "nullable": true,
                 "type": "string"
+              },
+              "translations": {
+                "description": "With `lang=es`, the set's meditations that have Spanish, in prayer order, by id: each one's title and text in Spanish, laid over the English by `id`. A meditation not listed has none: show its English. `ai_translated` marks the team's own translation. The recordings stay English. Empty in English.",
+                "items": {
+                  "properties": {
+                    "ai_translated": {
+                      "nullable": true,
+                      "type": "boolean"
+                    },
+                    "content": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "content"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
               }
             },
             "type": "object"
@@ -5814,7 +5841,7 @@
         "operationId": "listMeditationSets",
         "parameters": [
           {
-            "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, set_memberships",
+            "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, translations, set_memberships",
             "explode": false,
             "in": "query",
             "name": "fields[meditation_set]",
@@ -5827,6 +5854,16 @@
           {
             "in": "query",
             "name": "category",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The language of `translations`: `es` fills it with the set's meditations that have Spanish. Missing, `en` or a language not served: the sets as they always were, and `translations` empty.",
+            "in": "query",
+            "name": "lang",
             "required": false,
             "schema": {
               "type": "string"
@@ -5908,7 +5945,7 @@
             "style": "form"
           },
           {
-            "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, set_memberships",
+            "description": "Comma separated fields of meditation_set: artwork, author, category, description, labels, name, source, translations, set_memberships",
             "explode": false,
             "in": "query",
             "name": "fields[meditation_set]",
@@ -5934,6 +5971,16 @@
             "explode": false,
             "in": "query",
             "name": "fields[set_membership]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The language of `translations`: `es` fills it with the set's meditations that have Spanish. Missing, `en` or a language not served: the sets as they always were, and `translations` empty.",
+            "in": "query",
+            "name": "lang",
             "required": false,
             "schema": {
               "type": "string"

@@ -20,7 +20,30 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
   from a 403 partway through a Rosary.
   """
   def show(%{set: set} = assigns) do
-    %{data: set_detail(set, assigns[:audio_expires_at], assigns[:narrations] || %{})}
+    %{
+      data:
+        set
+        |> set_detail(assigns[:audio_expires_at], assigns[:narrations] || %{})
+        |> put_translations(set)
+    }
+  end
+
+  # Only a set read with `?lang=` has its translations loaded; any other
+  # renders exactly as before, with no `translations` key.
+  defp put_translations(data, %{translations: translations}) when is_list(translations) do
+    Map.put(data, :translations, Enum.map(translations, &translation/1))
+  end
+
+  defp put_translations(data, _set), do: data
+
+  defp translation(translation) do
+    %{id: translation.id, title: translation.title, content: translation.content}
+    |> then(
+      &if(Map.get(translation, :ai_translated) == true,
+        do: Map.put(&1, :ai_translated, true),
+        else: &1
+      )
+    )
   end
 
   @doc """

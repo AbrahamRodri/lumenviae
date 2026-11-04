@@ -1249,6 +1249,37 @@ unreachable is a 503 `office_unavailable`, which a client retries later.
 Responses are `private, no-store` like the rest of v2, so a client keeps
 its own copy of an office it has read (an office never changes).
 
+## The meditations in Spanish
+
+```
+GET /api/v2/meditation-sets/:id?lang=es&fields[meditation_set]=name,category,description,labels,author,source,artwork,translations
+GET /api/v2/meditation-sets?lang=es&fields[meditation_set]=...,translations
+```
+
+GraphQL: `meditationSet(id: 48, lang: "es") { translations { id title content aiTranslated } }`.
+
+- **No `lang`, `lang=en`, or a language not served**: every set exactly
+  as before. `translations`, when asked for, is `[]`.
+- **`lang=es`**, or any `es-` region: **`translations`** lists the set's
+  meditations that have Spanish, in prayer order, each `{id, title,
+  content}`: `id` is the meditation's, `title` and `content` the Spanish
+  (`title` null where the English has none). A meditation that is the
+  team's own translation carries `ai_translated: true`; the key is absent
+  otherwise. A client lays the Spanish over the English by `id` and shows
+  the English for a meditation not listed. The included meditations and
+  every other field stay English.
+- **An English edit falls back to English.** Each Spanish text records a
+  fingerprint of the English it translates, and is served only while the
+  meditation's English still matches it.
+- **The recordings stay English.** `narrations` and `narrated_voices` are
+  the English recordings in every language; nothing Spanish is narrated.
+- **v1, for the iPhone app:** `GET /api/meditation-sets/:id?lang=es`
+  carries the same `translations` beside its `meditations`; without `lang`
+  it has no `translations` key at all (docs/IOS_API_CONTRACT.md, section
+  14).
+- **The words** are `priv/meditations/es/meditations.json`; their
+  sources and every change are in `priv/meditations/es/SOURCES.md`.
+
 ## Fresh meditation audio
 
 ```

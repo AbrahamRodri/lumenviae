@@ -20,11 +20,11 @@ defmodule LumenViaeWeb.API.MeditationSetController do
   @doc """
   Shows a single meditation set with full details including ordered meditations and audio URLs.
   """
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"id" => id} = params) do
     # Result-shaped rather than the bang version, so a missing or hidden set
     # comes back through the fallback controller in the same envelope as
     # every other error instead of as a rendered exception.
-    with {:ok, set} <- Rosary.fetch_visible_meditation_set(id) do
+    with {:ok, set} <- Rosary.fetch_visible_meditation_set(id, language(params)) do
       # Fresh presigned URLs for every voice of every meditation, keyed by
       # meditation id for the JSON view
       narrations =
@@ -39,6 +39,11 @@ defmodule LumenViaeWeb.API.MeditationSetController do
       |> render(:show, set: set, narrations: narrations, audio_expires_at: audio_expiry())
     end
   end
+
+  # `?lang=` asks for the set's `translations` too (the Spanish of its
+  # meditations, laid over the English by id). Without it, nothing changes.
+  defp language(%{"lang" => lang}) when is_binary(lang), do: [lang: lang]
+  defp language(_params), do: []
 
   # The signing moment is the same for every URL in this response, so the
   # expiry is carried once on the set rather than repeated on all seven

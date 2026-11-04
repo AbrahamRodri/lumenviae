@@ -388,6 +388,23 @@ is today, version and date included, and `translations` holds four empty
 lists, pinned by `test/lumen_viae_web/json_api/consecration_spanish_test.exs`.
 The shapes are docs/JSON_API.md, "The Consecration in Spanish".
 
+### 14. GET /api/meditation-sets/:id?lang=es (not yet called)
+
+No build sends `lang` yet. A build that does gets the set exactly as in
+section 2, plus `translations`: each meditation with a Spanish text,
+`{id, title, content}` in prayer order (`title` null where the English
+has none) and `ai_translated: true` on the team's own translation
+(absent otherwise), laid over the English by `id`. A meditation not
+listed shows its English, as does one whose English was edited after its
+Spanish was made. `meditations`, `narrations` and every `audio_url` stay
+English: the recordings are English in every language. Without `lang`
+the response is exactly what every shipped build reads today, with no
+`translations` key; `lang=en` or a language not served gives
+`translations: []`. Pinned by
+`test/lumen_viae_web/controllers/api/meditation_set_spanish_test.exs`.
+The words and their sources: docs/JSON_API.md, "The meditations in
+Spanish".
+
 ### Outside Phoenix
 
 S3 presigned narration and rosary clips (AVPlayer, or a plain GET), S3
