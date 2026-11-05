@@ -130,7 +130,7 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
     body =
       graphql(conn, """
       { rosaryContent {
-          quotes { rotation { homeOffset afterPrayerOffsetDivisor } items { text author source } }
+          quotes { rotation { homeOffset afterPrayerOffsetDivisor } items { text author source creditInCreditsOnly } }
           milestones { days meaning icon blessing }
           labels { labels { id name } kinds { label icon title description } }
       } }
@@ -146,7 +146,19 @@ defmodule LumenViaeWeb.Graphql.RosaryContentTest do
              "afterPrayerOffsetDivisor" => quotes["rotation"]["after_prayer_offset_divisor"]
            }
 
-    assert content["quotes"]["items"] == quotes["items"]
+    # GraphQL names every field it is asked for, so a quote without the
+    # mark reads null there.
+    assert content["quotes"]["items"] ==
+             Enum.map(quotes["items"], fn quote ->
+               %{
+                 "text" => quote["text"],
+                 "author" => quote["author"],
+                 "source" => quote["source"],
+                 "creditInCreditsOnly" => quote["credit_in_credits_only"]
+               }
+             end)
+
+    assert Enum.count(content["quotes"]["items"], & &1["creditInCreditsOnly"]) == 1
     assert content["milestones"] == Content.milestones()
     assert content["labels"] == LabelsSection.section()
   end

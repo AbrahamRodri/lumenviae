@@ -431,8 +431,12 @@ a change to the file and its dated entry in `content_test.exs`, or for
 
 **`quotes`**: `{rotation, items}`. `items` are 17 quotations, each
 `{text, author, source}`; `source` is null unless the work or the occasion
-can be cited with confidence (five are). The order is the rotation's, so
-keep it. `rotation` is `{home_offset, after_prayer_offset_divisor}`.
+can be cited with confidence (five are). One quote, Fulton J. Sheen's,
+also carries `credit_in_credits_only: true`: show it with no author or
+source under it, and credit it in the app's sources and credits instead
+(Abraham, 5 November 2026: "keep it credit in the credit menu only").
+The key is absent on every other quote; it is the same with `lang=es`.
+The order is the rotation's, so keep it. `rotation` is `{home_offset, after_prayer_offset_divisor}`.
 Take the device's calendar day of the year (January 1 is 1, the day turning
 at midnight in the device's own calendar: not the prayer day), then:
 

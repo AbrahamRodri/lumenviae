@@ -21,6 +21,10 @@ defmodule LumenViae.Rosary.Types.RosaryQuote do
     field :ai_translated, :boolean,
       description:
         "`true` when this quote's text in the asked-for language is the team's own AI translation, not a published text: show the app's AI notice. Present only then, and only with a `lang` other than English; otherwise absent."
+
+    field :credit_in_credits_only, :boolean,
+      description:
+        "`true` on a quote whose author and source are not shown under it: credit it only in the app's sources and credits. Present only then, in every language; otherwise absent, and the credit shows under the quote as always."
   end
 
   use AshGraphql.Type

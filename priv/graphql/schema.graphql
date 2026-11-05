@@ -1003,6 +1003,9 @@ type RosaryQuote {
   "The work or occasion, only where it can be cited with confidence. Null where the attribution is traditional rather than documented."
   source: String
 
+  "`true` on a quote whose author and source are not shown under it: credit it only in the app's sources and credits. Present only then, in every language; otherwise absent, and the credit shows under the quote as always."
+  creditInCreditsOnly: Boolean
+
   "Who is quoted, named as the Church now names them (`St. Pius X`, `Bl. Pius IX`)."
   author: String!
 
