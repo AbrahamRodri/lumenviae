@@ -41,6 +41,17 @@ defmodule LumenViaeWeb.ClientIP do
   Cloudflare's published ranges (`LumenViaeWeb.ClientIP.Cloudflare`), so a
   caller who reaches the origin directly cannot choose their own address.
   Off by default.
+
+  ## Through the Fly pass-through
+
+  Installed iPhones on 4.1 and earlier call `lumenviae.fly.dev`, which is
+  now a proxy to `www.lumenviae.org` (`deploy/fly-proxy/`). Every such
+  request reaches the VM from Fly's address. The proxy sends the caller's
+  `Fly-Client-IP` as `X-LV-Client-IP`, beside `X-LV-Proxy-Secret`, a secret
+  set on both sides (`FLY_PROXY_SECRET`, 32 characters or more). The first
+  header is believed only when the second matches it; with the secret unset
+  here, neither is read. Both are overwritten by the proxy on the way in, so
+  a caller of `lumenviae.fly.dev` cannot choose them either.
   """
 
   alias LumenViaeWeb.ClientIP.Cloudflare
@@ -49,6 +60,10 @@ defmodule LumenViaeWeb.ClientIP do
   The client address for a `Plug.Conn`, as a string, or `nil`.
   """
   def from_conn(%Plug.Conn{} = conn) do
+    through_fly_proxy(conn) || direct(conn)
+  end
+
+  defp direct(conn) do
     seen =
       case Plug.Conn.get_req_header(conn, header()) do
         [value | _] -> presence(value) || peer_address(conn.remote_ip)
@@ -56,6 +71,21 @@ defmodule LumenViaeWeb.ClientIP do
       end
 
     behind_cloudflare(conn, seen)
+  end
+
+  # The Fly pass-through's caller, only with the shared secret (moduledoc).
+  defp through_fly_proxy(conn) do
+    with secret when is_binary(secret) and byte_size(secret) >= 32 <-
+           Application.get_env(:lumen_viae, :fly_proxy_secret),
+         [given | _] <- Plug.Conn.get_req_header(conn, "x-lv-proxy-secret"),
+         true <- Plug.Crypto.secure_compare(given, secret),
+         [value | _] <- Plug.Conn.get_req_header(conn, "x-lv-client-ip"),
+         address when is_binary(address) <- presence(value),
+         {:ok, _ip} <- address |> String.to_charlist() |> :inet.parse_address() do
+      address
+    else
+      _ -> nil
+    end
   end
 
   # With `CLIENT_IP_CLOUDFLARE=true`, a request that reached us from one of

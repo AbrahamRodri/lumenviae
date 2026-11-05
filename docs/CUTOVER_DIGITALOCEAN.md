@@ -11,7 +11,9 @@ The installed apps must not notice anything. Android and the website call
 `https://www.lumenviae.org` (`/api` and `/api/v2`). Installed iPhones on
 4.1 and earlier call `https://lumenviae.fly.dev/api` and `/api/office`
 directly, not `www.lumenviae.org`, so they reach Fly whatever the DNS says;
-4.2 moves them to `www.lumenviae.org`. The site's pages must keep working,
+4.2 moves them to `www.lumenviae.org`. Until then `lumenviae.fly.dev` is a
+pass-through to `www.lumenviae.org` (`deploy/fly-proxy/`), so they reach the
+Droplet too. The site's pages must keep working,
 and HSTS is on, so a certificate error would be unclickable. The order
 below is built around those three.
 
