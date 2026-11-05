@@ -3,10 +3,11 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
   alias LumenViaeWeb.API.ArtworkJSON
 
   @doc """
-  Renders a list of meditation sets (summary view).
+  Renders a list of meditation sets (summary view). A list read with
+  `?lang=` gives each set its `set_translation` too, as `show/1` does.
   """
   def index(%{sets: sets}) do
-    %{data: Enum.map(sets, &set_summary/1)}
+    %{data: Enum.map(sets, &(&1 |> set_summary() |> put_set_translation(&1)))}
   end
 
   @doc """
