@@ -20,6 +20,10 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # closing prayer the Rosary marks.
   @ai_translated_count 82
 
+  # The Advent prayers added in English on 5 November 2026; the Spanish
+  # team adds them to priv/library/es/prayer_book.json and empties this.
+  @awaiting_spanish ~w(immaculate_conception_novena st_andrew_novena o_antiphons)
+
   test "the file is pinned by its date and words" do
     assert {Spanish.file_updated_at(), Spanish.file_version()} == @pinned, """
     priv/library/es/prayer_book.json changed (now #{DateTime.to_iso8601(Spanish.file_updated_at())}, #{Spanish.file_version()}).
@@ -32,8 +36,10 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
     ids = Enum.map(Spanish.prayers(), & &1.id)
 
     assert ids == Enum.filter(book_ids, &(&1 in ids))
-    # Every prayer the book prints has Spanish.
-    assert ids == book_ids
+    # Every prayer the book prints has Spanish, but the ones still waiting
+    # for it, which read in English until the Spanish team adds them.
+    assert ids == book_ids -- @awaiting_spanish
+    assert Enum.all?(@awaiting_spanish, &(&1 in book_ids))
   end
 
   test "the team's translations are marked" do

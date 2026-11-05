@@ -26,7 +26,8 @@ defmodule LumenViae.Rosary.LibraryTest do
     "prayer_book.json" => [
       {~U[2026-10-14 02:51:54Z], "63167a494d1c4b44"},
       {~U[2026-10-14 03:14:56Z], "f16e6e8bb9b60649"},
-      {~U[2026-10-28 16:30:00Z], "ec0e0d5a60a76890"}
+      {~U[2026-10-28 16:30:00Z], "ec0e0d5a60a76890"},
+      {~U[2026-11-05 01:55:00Z], "492097690b5e8f72"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
@@ -168,6 +169,40 @@ defmodule LumenViae.Rosary.LibraryTest do
     end
   end
 
+  describe "the Advent prayers" do
+    @advent ~w(immaculate_conception_novena st_andrew_novena o_antiphons)
+
+    test "are in Feasts and Seasons, under Advent and Christmas, each with its source" do
+      book = Library.sections(:prayer_book)
+      seasons = Enum.find(book["chapters"], &(&1["id"] == "seasons"))
+      advent = Enum.find(seasons["sections"], &(&1["title"] == "Advent and Christmas"))
+
+      assert advent["prayer_ids"] ==
+               ["alma_redemptoris" | @advent] ++ ["nunc_dimittis"]
+
+      prayers = Map.new(book["prayers"], &{&1["id"], &1})
+
+      for id <- @advent do
+        assert String.trim(prayers[id]["english"]) != ""
+        assert is_binary(prayers[id]["origin"]) and prayers[id]["origin"] != ""
+      end
+    end
+
+    # A Prayer Book prayer with no recording shows a "no recording yet"
+    # note in the apps, but an order prayed aloud stops at it; and the
+    # recordings come only from priv/rosary_audio/, by hand. These are
+    # text only, in no order.
+    test "are text only: no recording to make, and in no order of prayer" do
+      book = Library.sections(:prayer_book)
+      clip_names = LumenViae.Rosary.PrayerAudio.clips([:book]) |> Enum.map(& &1.name)
+
+      for id <- @advent do
+        refute id in clip_names
+        refute Enum.any?(book["orders"], &(id in &1["prayer_ids"]))
+      end
+    end
+  end
+
   describe "the Prayer Book's check" do
     test "the file as it is passes" do
       assert Check.prayer_book_errors(Library.sections(:prayer_book)) == []
@@ -198,6 +233,26 @@ defmodule LumenViae.Rosary.LibraryTest do
 
     test "refuses a chapter naming a prayer that does not exist" do
       book = update_chapter(book(), "prayer_ids", ["sub_tuum", "memorare", "nowhere"])
+
+      assert book_errors(book) =~ ~s(names the prayer "nowhere")
+    end
+
+    # The iOS app refuses the whole served book (and keeps its old copy)
+    # for a prayer with blank English or a section naming a prayer the
+    # book does not hold (LibraryContent.swift), so the server refuses
+    # them first.
+    test "refuses a prayer whose English is blank" do
+      assert book_errors(update_prayer(book(), "english", "  ")) =~
+               "the prayer sub_tuum: english is required text"
+    end
+
+    test "refuses a section naming a prayer that does not exist" do
+      ids = ["sub_tuum", "memorare", "nowhere"]
+
+      book =
+        book()
+        |> update_chapter("sections", [%{"title" => "One", "prayer_ids" => ids}])
+        |> update_chapter("prayer_ids", ids)
 
       assert book_errors(book) =~ ~s(names the prayer "nowhere")
     end

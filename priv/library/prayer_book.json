@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-28T16:30:00Z",
+  "updated_at": "2026-11-05T01:55:00Z",
   "chapters": [
     {
       "id": "first",
@@ -747,6 +747,9 @@
       "numeral": "XII",
       "prayer_ids": [
         "alma_redemptoris",
+        "immaculate_conception_novena",
+        "st_andrew_novena",
+        "o_antiphons",
         "nunc_dimittis",
         "stabat_mater",
         "miserere",
@@ -772,6 +775,9 @@
         {
           "prayer_ids": [
             "alma_redemptoris",
+            "immaculate_conception_novena",
+            "st_andrew_novena",
+            "o_antiphons",
             "nunc_dimittis"
           ],
           "title": "Advent and Christmas"
@@ -2351,6 +2357,56 @@
       "origin": "Attributed to Hermann of Reichenau · 11th century",
       "search_words": [],
       "title": "Loving Mother of the Redeemer"
+    },
+    {
+      "english": "Virgin most pure, conceived without sin, all fair and stainless in thy Conception; glorious Mary, full of grace, Mother of my God, Queen of Angels and of men, I humbly venerate thee as Mother of my Saviour, who, though He was God, taught me by His own veneration, reverence, and obedience to thee, the honour and homage that are due to thee. Vouchsafe, I pray thee, to accept this Novena which I dedicate to thee. Thou art the safe refuge of the penitent sinner; it is very fitting, then, that I should have recourse to thee. Thou art the Mother of Compassion; then wilt thou surely be moved with pity for my many miseries. Thou art my best hope after Jesus; thou canst not but accept the loving confidence that I have in thee. Make me worthy to be called thy son, that so I may dare to cry unto thee: Show thyself a mother.\n\n[Then the Hail Mary nine times, and the Glory Be once.]",
+      "english_name": null,
+      "id": "immaculate_conception_novena",
+      "latin": null,
+      "latin_title": null,
+      "list_title": null,
+      "note": "Opens each day of the novena before the feast of the Immaculate Conception, from November 29 to December 7, before that day's own prayer.",
+      "origin": "The Raccolta · 1910, the Novena for the Immaculate Conception · indulgenced by Pope Pius VII, 1808",
+      "search_words": [
+        "immaculate conception",
+        "novena",
+        "december 8"
+      ],
+      "title": "The Daily Prayer of the Immaculate Conception Novena"
+    },
+    {
+      "english": "Hail and blessed be the hour and moment in which the Son of God was born of the most pure Virgin Mary, at midnight, in Bethlehem, in piercing cold. In that hour vouchsafe, O my God, to hear my prayer and grant my desires, through the merits of our Saviour Jesus Christ, and of His blessed Mother. Amen.",
+      "english_name": null,
+      "id": "st_andrew_novena",
+      "latin": null,
+      "latin_title": null,
+      "list_title": "St Andrew Christmas Novena",
+      "note": "Said fifteen times a day from the feast of St Andrew, November 30, until Christmas.",
+      "origin": "Imprimatur, Archbishop Michael Augustine Corrigan of New York · 1897",
+      "search_words": [
+        "st andrew",
+        "christmas novena",
+        "novena",
+        "christmas anticipation prayer"
+      ],
+      "title": "The St Andrew Christmas Novena"
+    },
+    {
+      "english": "[December 17.]\n\nO Wisdom, who camest forth from the mouth of the Most High, reaching from end to end, mightily and sweetly ordering all things: come and teach us the way of prudence.\n\n[December 18.]\n\nO Adonai, and Leader of the house of Israel, who to Moses in the fire of the burning bush didst appear, and gavest him the law on Sinai: come to redeem us with an outstretched arm.\n\n[December 19.]\n\nO Root of Jesse, who standest for an ensign of the peoples, before whom kings shall keep their mouths shut, to whom the Gentiles shall make their prayer: come to deliver us, and tarry now no longer.\n\n[December 20.]\n\nO Key of David, and Sceptre of the house of Israel, who openest, and no man shutteth; who shuttest, and no man openeth: come, and lead forth the captive out of the prison house, him that sitteth in darkness and in the shadow of death.\n\n[December 21.]\n\nO Dayspring, splendour of light eternal, and Sun of justice: come, and enlighten those who sit in darkness and in the shadow of death.\n\n[December 22.]\n\nO King of the nations, and their Desired One, and the Cornerstone, who makest both one: come, and save man, whom Thou didst form out of clay.\n\n[December 23.]\n\nO Emmanuel, our King and Lawgiver, the Expected of the nations, and their Saviour: come to save us, O Lord our God.",
+      "english_name": null,
+      "id": "o_antiphons",
+      "latin": "[Die 17 Decembris.]\n\nO Sapientia, quae ex ore Altissimi prodisti, attingens a fine usque ad finem, fortiter suaviter disponensque omnia: veni ad docendum nos viam prudentiae.\n\n[Die 18 Decembris.]\n\nO Adonai, et Dux domus Israel, qui Moysi in igne flammae rubi apparuisti, et ei in Sina legem dedisti: veni ad redimendum nos in brachio extento.\n\n[Die 19 Decembris.]\n\nO Radix Jesse, qui stas in signum populorum, super quem continebunt reges os suum, quem gentes deprecabuntur: veni ad liberandum nos, jam noli tardare.\n\n[Die 20 Decembris.]\n\nO Clavis David, et sceptrum domus Israel: qui aperis, et nemo claudit; claudis, et nemo aperit: veni, et educ vinctum de domo carceris, sedentem in tenebris et umbra mortis.\n\n[Die 21 Decembris.]\n\nO Oriens, splendor lucis aeternae, et sol justitiae: veni, et illumina sedentes in tenebris et umbra mortis.\n\n[Die 22 Decembris.]\n\nO Rex gentium, et desideratus earum, lapisque angularis, qui facis utraque unum: veni, et salva hominem, quem de limo formasti.\n\n[Die 23 Decembris.]\n\nO Emmanuel, Rex et legifer noster, exspectatio gentium, et Salvator earum: veni ad salvandum nos, Domine Deus noster.",
+      "latin_title": "Antiphonae O",
+      "list_title": null,
+      "note": "The antiphons sung with the Magnificat at Vespers on the seven evenings before Christmas Eve, each calling on Christ by one of His names. Each is in the Chant Library on its day.",
+      "origin": "The Roman Breviary · Vespers, December 17 to 23",
+      "search_words": [
+        "o antiphons",
+        "o sapientia",
+        "o emmanuel",
+        "great antiphons"
+      ],
+      "title": "The O Antiphons"
     },
     {
       "english": "Hail, O Queen of heaven,\nhail, O Lady of the Angels;\nhail, thou root, hail, thou gate,\nfrom whom unto the world a light hath arisen.\n\nRejoice, O glorious Virgin,\nlovely beyond all others;\nfarewell, O most beautiful,\nand pray for us to Christ.\n\n℣. Vouchsafe that I may praise thee, O sacred Virgin.\n℟. Give me strength against thine enemies.\n\n[Let us pray.]\n\nGrant, O merciful God, to our weak natures Thy protection, that we who commemorate the holy Mother of God may, by the help of her intercession, rise again from our iniquities. Through the same Christ our Lord. Amen.",
