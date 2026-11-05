@@ -35,11 +35,11 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
   @name "Consecration to Mary"
   @invitation "Give yourself to Jesus through Mary"
   # From Day 1 of the preparation that ends on the Immaculate Conception
-  # (5 November) to the feast itself, the row's invitation says so. Each
+  # (5 November) to its last day (7 December), the row's invitation says so. Each
   # year, by month and day; never before or after.
-  @immaculate_note "The 33 days of preparation for consecration on December 8 begin November 5."
+  @immaculate_note "The 33 days of preparation for consecration on December 8 run from November 5 to December 7."
   @immaculate_note_from {11, 5}
-  @immaculate_note_until {12, 8}
+  @immaculate_note_until {12, 7}
   @coronation_focal 0.12
   @under_way_focal 0.25
 
@@ -112,9 +112,9 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
   end
 
   @doc """
-  Whether `date` falls from 5 November to 8 December, when a visitor with
-  no consecration under way is told the preparation for the Immaculate
-  Conception begins on 5 November.
+  Whether `date` falls from 5 November to 7 December, when a visitor with
+  no consecration under way is told the 33 days of preparation for the
+  Immaculate Conception run from 5 November to 7 December.
   """
   def immaculate_note?(%Date{month: month, day: day}),
     do: {month, day} >= @immaculate_note_from and {month, day} <= @immaculate_note_until

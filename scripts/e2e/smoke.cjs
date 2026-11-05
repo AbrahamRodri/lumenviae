@@ -313,9 +313,9 @@ async function checkTodaysPrayer(browser, vp) {
   );
   check((await page.locator("#todays-prayer [data-role=waiting]").count()) === 0, `${label}: every row has spoken`);
   check((await row("consecration").getAttribute("href")) === "/consecration", `${label}: no plan invites one`);
-  // From 5 November to 8 December the line says the preparation for 8 December begins 5 November.
+  // From 5 November to 7 December the line says the preparation for 8 December runs from 5 November to 7 December.
   check(
-    /Give yourself to Jesus through Mary|preparation for consecration on December 8 begin November 5/.test(
+    /Give yourself to Jesus through Mary|preparation for consecration on December 8 run from November 5 to December 7/.test(
       await row("consecration").innerText()
     ),
     `${label}: the Consecration's line`

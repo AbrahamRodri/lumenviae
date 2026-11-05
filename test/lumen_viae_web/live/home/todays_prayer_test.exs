@@ -31,10 +31,11 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayerTest do
       refute row.prayed?
     end
 
-    test "with no plan, from 5 November to 8 December, says the preparation for 8 December begins 5 November" do
-      note = "The 33 days of preparation for consecration on December 8 begin November 5."
+    test "with no plan, from 5 November to 7 December, says the preparation for 8 December runs from 5 November to 7 December" do
+      note =
+        "The 33 days of preparation for consecration on December 8 run from November 5 to December 7."
 
-      for date <- [~D[2026-11-05], ~D[2026-11-20], ~D[2026-12-08], ~D[2027-11-05]] do
+      for date <- [~D[2026-11-05], ~D[2026-11-20], ~D[2026-12-07], ~D[2027-11-05]] do
         row = TodaysPrayer.consecration(data(), nil, [], date, nil)
 
         assert row.subtitle == note
@@ -46,7 +47,7 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayerTest do
       made_earlier = TodaysPrayer.consecration(data(), nil, [], ~D[2026-11-20], ~D[2026-08-15])
       assert made_earlier.subtitle == note
 
-      for date <- [~D[2026-11-04], ~D[2026-12-09], ~D[2026-12-25], ~D[2027-01-01]] do
+      for date <- [~D[2026-11-04], ~D[2026-12-08], ~D[2026-12-25], ~D[2027-01-01]] do
         assert TodaysPrayer.consecration(data(), nil, [], date, nil).subtitle ==
                  "Give yourself to Jesus through Mary"
       end
