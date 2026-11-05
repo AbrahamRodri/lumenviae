@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-05T03:20:00Z",
+  "updated_at": "2026-11-05T03:30:00Z",
   "sets": {
     "25": {
       "name": {
@@ -77,8 +77,12 @@
         "english": "1a7dad605e586c2c"
       },
       "description": {
-        "es": "Una breve consideración y una oración de San Alfonso María de Ligorio sobre los misterios gloriosos.",
+        "es": "Una breve consideración y una oración de San Alfonso María de Ligorio sobre los misterios gloriosos, tomadas de su libro Las glorias de María.",
         "english": "730a835075913689"
+      },
+      "source": {
+        "es": "Las glorias de María",
+        "english": "73cc1c63dc00bc85"
       },
       "image_alt": {
         "es": "Retrato",
@@ -95,8 +99,12 @@
         "english": "1a7dad605e586c2c"
       },
       "description": {
-        "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios gozosos.",
+        "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios gozosos, tomadas de su libro Las glorias de María.",
         "english": "1a586c8efcd177df"
+      },
+      "source": {
+        "es": "Las glorias de María",
+        "english": "73cc1c63dc00bc85"
       },
       "image_alt": {
         "es": "Retrato de San Alfonso María de Ligorio",
@@ -113,8 +121,12 @@
         "english": "1a7dad605e586c2c"
       },
       "description": {
-        "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios dolorosos.",
+        "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios dolorosos, tomadas de su libro Las glorias de María.",
         "english": "2379d757807ce088"
+      },
+      "source": {
+        "es": "Las glorias de María",
+        "english": "73cc1c63dc00bc85"
       },
       "image_alt": {
         "es": "Retrato",

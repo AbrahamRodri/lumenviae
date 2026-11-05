@@ -303,9 +303,11 @@ a client is shown (`name`, the byline's `author` and `source`,
   translated. Where the English names no source and no edition was
   copied, there is none (set 53 has one meditation from [M4] among
   translated ones, so it has none either). Sets 28 to 30 name *Glories
-  of Mary* in English, but their meditations are not from it ("Not from
-  the books named in production"), so they have no Spanish source (their
-  English one still shows) and their descriptions end at the mysteries.
+  of Mary* in English, though their meditations are not from it ("Not
+  from the books named in production"); Abraham, 5 November 2026, chose
+  to leave the English credit as it is and "keep the same in Spanish", so
+  their source is "Las glorias de María" and their descriptions say so,
+  as the English does.
   An English translation given as a source says so ("traducción
   inglesa"), so it is not taken for a Spanish edition. Emmerich is spelled
   so throughout, as the 1865 edition prints it. Sheen's *The Fifteen Mysteries
@@ -317,9 +319,9 @@ a client is shown (`name`, the byline's `author` and `source`,
 | 25 | Blessed Fulton J. Sheen | Los quince misterios del Rosario | the English citation translated |
 | 26 | Blessed Fulton J. Sheen | Los quince misterios del Rosario | the English citation translated |
 | 27 | Blessed Fulton J. Sheen | Los quince misterios del Rosario | the English citation translated |
-| 28 | St. Alphonsus Liguori | none (the English shows) | its meditations are not from the book the English names |
-| 29 | St. Alphonsus Liguori | none (the English shows) | its meditations are not from the book the English names |
-| 30 | St. Alphonsus Liguori | none (the English shows) | its meditations are not from the book the English names |
+| 28 | St. Alphonsus Liguori | Las glorias de María | the English credit kept, at Abraham's word, though the meditations are not from it |
+| 29 | St. Alphonsus Liguori | Las glorias de María | the English credit kept, at Abraham's word, though the meditations are not from it |
+| 30 | St. Alphonsus Liguori | Las glorias de María | the English credit kept, at Abraham's word, though the meditations are not from it |
 | 42 | Blessed Anne Catherine Emmerich | Vida de Jesucristo y revelaciones bíblicas, vol. 1 (traducción inglesa de 1914) | the English citation translated |
 | 45 | Blessed Anne Catherine Emmerich | La dolorosa Pasión de N. S. Jesucristo, según las meditaciones de sor Ana Catalina Emmerich (Madrid, 1865) | [M4], the edition copied |
 | 46 | Blessed Anne Catherine Emmerich | Vida de Jesucristo y revelaciones bíblicas, vol. 4 (traducción inglesa de 1914) | the English citation translated |
