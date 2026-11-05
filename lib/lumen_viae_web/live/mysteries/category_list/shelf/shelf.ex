@@ -34,7 +34,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Shelf do
           </p>
           <p class="font-garamond text-ink-muted text-base">
             New sets are added regularly. In the meantime, pray the Scriptural
-            Rosary or the Audio Rosary above.
+            Rosary or pray with no meditation above.
           </p>
         </div>
       <% else %>

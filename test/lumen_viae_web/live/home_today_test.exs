@@ -192,7 +192,7 @@ defmodule LumenViaeWeb.Live.HomeTodayTest do
     end
   end
 
-  test "offers today's Scriptural Rosary and the Audio Rosary", %{conn: conn} do
+  test "offers today's Scriptural Rosary and No meditation", %{conn: conn} do
     {view, _html} = open_on(conn, 2)
 
     assert has_element?(
@@ -204,7 +204,7 @@ defmodule LumenViaeWeb.Live.HomeTodayTest do
     assert has_element?(
              view,
              ~s(#todays-forms a[href="/mysteries/sorrowful/pray?form=holy"]),
-             "The Audio Rosary"
+             "No meditation"
            )
   end
 

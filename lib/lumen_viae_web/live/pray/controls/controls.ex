@@ -12,7 +12,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   @form_names %{
     "meditation" => "With the meditations",
     "scriptural" => "The Scriptural Rosary",
-    "holy" => "The prayers alone"
+    "holy" => "No meditation"
   }
 
   # The prayers' speeds, in steps with 1x in the middle, as the app offers
@@ -22,7 +22,8 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   @form_notes %{
     "meditation" => "A meditation from the saints for each mystery.",
     "scriptural" => "A verse of Scripture before every Hail Mary.",
-    "holy" => "Each mystery announced, and every prayer, with no readings."
+    "holy" =>
+      "The Rosary prayed aloud: each mystery announced, and every prayer, with no readings."
   }
 
   attr :route, :atom, required: true

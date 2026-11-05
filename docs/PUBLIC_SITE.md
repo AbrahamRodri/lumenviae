@@ -16,7 +16,7 @@ time, as its desktop version. The console
 | --- | --- | --- |
 | `/` | `LumenViaeWeb.Live.Home.Index` | The daily hub. Today's mysteries, on the traditional weekly schedule or the modern one, in the visitor's own time zone. The five mysteries and their fruits, the meditation sets for today, the Rosary without a set, a card for every category, and Today's Prayer (the Consecration's day, the hour's order of prayer, Today's Mass and the Hours of Prayer; see below). |
 | `/mysteries` | `LumenViaeWeb.Live.Mysteries.Scripture` | "Finding the Mysteries in Scripture". Every mystery, with its Douay-Rheims passages, and a note on the Traditional and Modern schedules. |
-| `/mysteries/:category` | `LumenViaeWeb.Live.Mysteries.CategoryList` | One category: `joyful`, `sorrowful`, `glorious`, `luminous` or `seven_sorrows`. Its mysteries, "Your Rosary Today" choices, the two ways to pray without a set, and the shelf of meditation sets. |
+| `/mysteries/:category` | `LumenViaeWeb.Live.Mysteries.CategoryList` | One category: `joyful`, `sorrowful`, `glorious`, `luminous` or `seven_sorrows`. Its mysteries, "Your Rosary Today" (the narration voice, the one choice left), the two ways to pray without a set (the Scriptural Rosary and "No meditation", the Rosary prayed aloud with none, `form=holy`), and the shelf of meditation sets. |
 | `/meditation-sets/:set_id/pray` | `LumenViaeWeb.Live.Pray.Index` | The prayer page, praying one set. |
 | `/mysteries/:category/pray` | `LumenViaeWeb.Live.Pray.Index` | The same page, praying a category without a set. |
 | `/app` | `LumenViaeWeb.Live.Home.App.Index` | The iPhone app's page: real screenshots of the app in CSS-drawn phones, what it holds in the app's own names, and the App Store link. |
@@ -175,7 +175,7 @@ Examples:
 ```
 
 `LumenViaeWeb.Live.Mysteries.CategoryList.PrayLinks` builds the links on the
-category and home pages, carrying "Your Rosary Today" choices.
+category and home pages, carrying the visitor's voice (`aloud` and `count` are no longer written; old links that carry them still open). `form=holy` is offered as "No meditation".
 
 ## The Prayer Book's links
 
@@ -802,7 +802,7 @@ starts from the defaults. The one thing the server writes is a completion.
 | --- | --- | --- |
 | Where you are, form, voice | the link, above | `Pray.Params` |
 | Traditional or modern weekly schedule | `lv:schedule` | the `MysterySchedule` hook, on the home page |
-| "Your Rosary Today": aloud, count, voice | `lumenviae:rosary-choices` | the `RosaryChoices` hook, on the category page |
+| "Your Rosary Today": voice (older copies also held aloud and count, which are ignored and cleared) | `lumenviae:rosary-choices` | the `RosaryChoices` hook, on the category page |
 | The place in a Rosary, for "Continue where you left off" | `lv:pray:<key>:<form>`, for example `lv:pray:set:26:meditation` or `lv:pray:mysteries:joyful:scriptural`, holding `{mystery, step, count, at}` | the `PrayerMemory` hook |
 | Closing prayers (Pope's intentions, Memorare, St. Michael) | `lv:pray:extras` | `PrayerMemory` |
 | Language of the prayers, English or Latin | `lv:pray:language` | `PrayerMemory` |
@@ -835,7 +835,7 @@ Details worth knowing:
 ## The app page
 
 `/app` describes the iPhone app as it is now, in the app's own names
-(Your Rosary Today, the Audio Rosary, Hours of Prayer, Today's Mass,
+(Your Rosary Today, the Audio Rosary as the app named it then, Hours of Prayer, Today's Mass,
 the Chant Library, the Chapel). Describe nothing the app does not do, and
 no ratings, reviews or download counts.
 

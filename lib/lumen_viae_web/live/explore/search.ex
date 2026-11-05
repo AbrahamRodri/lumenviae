@@ -112,7 +112,7 @@ defmodule LumenViaeWeb.Live.Explore.Search do
     },
     %{
       id: "rosaryAloud",
-      title: "The Audio Rosary",
+      title: "No meditation",
       words:
         "audio rosary holy rosary aloud said spoken listen voice hear prayers learn by ear no meditation",
       icon: "hero-speaker-wave",
@@ -155,7 +155,7 @@ defmodule LumenViaeWeb.Live.Explore.Search do
 
   @doc """
   The site's doors as the search knows them, each with the path it opens
-  on `date`: the Scriptural Rosary and the Audio Rosary open the day's
+  on `date`: the Scriptural Rosary and No meditation open the day's
   mysteries on the traditional schedule. `books` are the Spiritual
   Reading shelf's (`LumenViaeWeb.Live.SpiritualReading.Shelf.books/1`),
   each a door after the shelf's own, found by its title, author and

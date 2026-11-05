@@ -17,6 +17,16 @@ export default {
 
     if (saved && typeof saved === "object" && !Array.isArray(saved)) {
       this.pushEvent("restore_choices", saved)
+
+      // Older copies also kept "aloud" and "count", which no longer do
+      // anything; rewrite the copy with only the voice.
+      if ("aloud" in saved || "count" in saved) {
+        try {
+          window.localStorage.setItem(KEY, JSON.stringify({voice: saved.voice}))
+        } catch (_error) {
+          // Left as it was; the page ignores them.
+        }
+      }
     }
 
     this.handleEvent("store_choices", (choices) => {

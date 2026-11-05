@@ -22,7 +22,7 @@ defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
     :ok
   end
 
-  test "the Audio Rosary opens with the player, a bead at a time", %{conn: conn} do
+  test "No meditation opens with the player, a bead at a time", %{conn: conn} do
     {:ok, view, _html} = live(conn, @holy)
 
     assert has_element?(view, "[phx-hook=SpokenRosary]")
@@ -63,8 +63,11 @@ defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
     assert_patch(view, "/mysteries/joyful/pray?mystery=opening&step=1&form=holy")
   end
 
-  test "choosing the Audio Rosary brings its form, and plays", %{conn: conn} do
+  test "choosing No meditation brings its form, and plays", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/mysteries/joyful/pray")
+
+    view |> element("button[aria-controls=prayer-settings]") |> render_click()
+    assert has_element?(view, "#prayer-settings button", "No meditation")
 
     render_click(view, "set_form", %{"form" => "holy"})
     assert_patch(view, "/mysteries/joyful/pray?mystery=opening&step=0&form=holy")

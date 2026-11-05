@@ -71,7 +71,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
   end
 
   describe "ways to pray without a set" do
-    test "offer the Scriptural Rosary and the Audio Rosary", %{conn: conn} do
+    test "offer the Scriptural Rosary and No meditation", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/sorrowful")
 
       assert has_element?(
@@ -83,8 +83,10 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       assert has_element?(
                view,
                ~s(a[href="/mysteries/sorrowful/pray?form=holy"]),
-               "The Audio Rosary"
+               "No meditation"
              )
+
+      refute render(view) =~ "Audio Rosary"
     end
 
     test "are offered even when the category has no sets", %{conn: conn} do
@@ -282,9 +284,9 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       visible_set(%{name: "Silent"})
 
       {:ok, view, _html} = live(conn, "/mysteries/joyful?narrated=true")
-      choose(view, %{aloud: "true", voice: "male"})
+      choose(view, %{voice: "male"})
 
-      to = "/meditation-sets/#{set.id}/pray?aloud=true&voice=male"
+      to = "/meditation-sets/#{set.id}/pray?voice=male"
 
       assert {:error, {:live_redirect, %{to: ^to}}} =
                view |> element("button", "Let one be chosen for me") |> render_click()
@@ -296,41 +298,29 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       %{set: visible_set(%{name: "A Set"})}
     end
 
-    test "says in one line how the Rosary will be prayed", %{conn: conn} do
+    test "says in one line which voice is heard", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/joyful")
 
       summary = fn -> view |> element("#choices-summary") |> render() end
       voice = LumenViae.Rosary.Voices.default().name
 
-      assert summary.() =~ "On my rosary"
       assert summary.() =~ "#{voice} voice"
 
-      choose(view, %{count: "screen"})
-      assert summary.() =~ "On the screen"
-
-      # With the whole Rosary aloud, counting is not a choice; the voice is.
-      choose(view, %{aloud: "true"})
-      refute summary.() =~ "On the screen"
-      assert summary.() =~ "#{voice} voice"
+      choose(view, %{voice: "male"})
+      assert summary.() =~ "Male voice"
     end
 
-    test "offers Audio, Counting and Voice as radio groups", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "/mysteries/joyful")
+    test "offers only the voice, as a radio group", %{conn: conn} do
+      {:ok, view, html} = live(conn, "/mysteries/joyful")
 
-      assert has_element?(view, "fieldset legend", "Audio")
+      refute has_element?(view, "fieldset legend", "Audio")
+      refute has_element?(view, "fieldset legend", "Counting")
+      refute has_element?(view, ~s(input[name="choices[aloud]"]))
+      refute has_element?(view, ~s(input[name="choices[count]"]))
+      refute html =~ "Meditation only"
+      refute html =~ "Whole Rosary read to you"
 
-      assert has_element?(
-               view,
-               ~s(input[type=radio][name="choices[aloud]"][value=false][checked])
-             )
-
-      assert has_element?(view, "label", "Meditation only")
-      assert has_element?(view, "label", "Whole Rosary read to you")
-
-      assert has_element?(
-               view,
-               ~s(input[type=radio][name="choices[count]"][value=beads][checked])
-             )
+      assert has_element?(view, "fieldset legend", "Voice")
 
       assert has_element?(
                view,
@@ -340,80 +330,55 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryListTest do
       assert has_element?(view, "label", "Male")
     end
 
-    test "counting on the screen is carried by every link", %{conn: conn, set: set} do
+    test "links carry neither aloud nor count", %{conn: conn, set: set} do
       {:ok, view, _html} = live(conn, "/mysteries/joyful")
 
-      choose(view, %{count: "screen"})
-
-      assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray?count=screen"]))
-      assert has_element?(view, ~s(a[href="/mysteries/joyful/pray?form=scriptural&count=screen"]))
+      assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray"]))
+      assert has_element?(view, ~s(a[href="/mysteries/joyful/pray?form=scriptural"]))
       assert has_element?(view, ~s(a[href="/mysteries/joyful/pray?form=holy"]))
     end
 
-    test "the Whole Rosary read to you drops Counting, which the voice then keeps", %{
-      conn: conn,
-      set: set
-    } do
-      {:ok, view, _html} = live(conn, "/mysteries/joyful")
-
-      choose(view, %{count: "screen"})
-      choose(view, %{aloud: "true"})
-
-      refute has_element?(view, ~s(input[name="choices[count]"]))
-      assert render(view) =~ "With the Whole Rosary, the voice moves the beads on the screen."
-      assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray?aloud=true"]))
-      assert has_element?(view, ~s(a[href="/mysteries/joyful/pray?form=scriptural&aloud=true"]))
-    end
-
-    test "a voice other than the default is named in the links", %{conn: conn, set: set} do
+    test "a voice other than the default is named in every link", %{conn: conn, set: set} do
       {:ok, view, _html} = live(conn, "/mysteries/joyful")
 
       choose(view, %{voice: "male"})
 
       assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray?voice=male"]))
       assert has_element?(view, ~s(a[href="/mysteries/joyful/pray?form=holy&voice=male"]))
-      # Read in silence, the Scriptural Rosary has no voice.
-      assert has_element?(view, ~s(a[href="/mysteries/joyful/pray?form=scriptural"]))
-    end
-
-    test "the Scriptural Rosary's row says it is read in silence", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "/mysteries/joyful")
-
-      assert view |> element("li", "The Scriptural Rosary") |> render() =~
-               "Read in silence · On my rosary"
-
-      choose(view, %{aloud: "true"})
-
-      assert view |> element("li", "The Scriptural Rosary") |> render() =~
-               "Whole Rosary read to you · Female voice"
+      assert has_element?(view, ~s(a[href="/mysteries/joyful/pray?form=scriptural&voice=male"]))
     end
 
     test "each change is handed to the browser to remember", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/joyful")
 
-      choose(view, %{count: "screen"})
+      choose(view, %{voice: "male"})
 
-      assert_push_event(view, "store_choices", %{
-        "aloud" => "false",
-        "count" => "screen",
-        "voice" => "female"
-      })
+      assert_push_event(view, "store_choices", %{"voice" => "male"} = stored)
+      assert Map.keys(stored) == ["voice"]
     end
 
-    test "the browser's saved choices are restored, and nonsense ignored", %{conn: conn, set: set} do
+    test "the browser's saved voice is restored, and nonsense ignored", %{conn: conn, set: set} do
+      {:ok, view, _html} = live(conn, "/mysteries/joyful")
+
+      render_hook(view, "restore_choices", %{"voice" => "male"})
+      assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray?voice=male"]))
+
+      render_hook(view, "restore_choices", %{"voice" => "nobody"})
+      assert has_element?(view, ~s(input[name="choices[voice]"][value=male][checked]))
+    end
+
+    test "an older saved copy with aloud and count is ignored", %{conn: conn, set: set} do
       {:ok, view, _html} = live(conn, "/mysteries/joyful")
 
       render_hook(view, "restore_choices", %{
-        "aloud" => "false",
+        "aloud" => "true",
         "count" => "screen",
-        "voice" => "nobody"
+        "voice" => "male"
       })
 
-      assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray?count=screen"]))
-      assert has_element?(view, ~s(input[name="choices[voice]"][value=female][checked]))
-
-      render_hook(view, "restore_choices", %{"aloud" => "maybe", "count" => "abacus"})
-      assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray?count=screen"]))
+      assert has_element?(view, ~s(a[href="/meditation-sets/#{set.id}/pray?voice=male"]))
+      refute render(view) =~ "aloud="
+      refute render(view) =~ "count="
     end
   end
 end
