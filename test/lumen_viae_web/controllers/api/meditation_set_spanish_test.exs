@@ -116,7 +116,7 @@ defmodule LumenViaeWeb.API.MeditationSetSpanishTest do
              }
            ]
 
-    assert Map.delete(spanish, "translations") == english
+    assert Map.drop(spanish, ["translations", "set_translation"]) == english
   end
 
   test "lang=en, or a language not served: translations empty", %{conn: conn, set: set} do
@@ -125,7 +125,8 @@ defmodule LumenViaeWeb.API.MeditationSetSpanishTest do
     for lang <- ["en", "fr"] do
       served = show(build_conn(), set, "?lang=" <> lang)
       assert served["translations"] == []
-      assert Map.delete(served, "translations") == english
+      assert served["set_translation"] == nil
+      assert Map.drop(served, ["translations", "set_translation"]) == english
     end
   end
 

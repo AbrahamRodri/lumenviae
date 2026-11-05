@@ -402,6 +402,17 @@ the response is exactly what every shipped build reads today, with no
 `translations` key; `lang=en` or a language not served gives
 `translations: []`. Pinned by
 `test/lumen_viae_web/controllers/api/meditation_set_spanish_test.exs`.
+
+With `lang`, it also carries `set_translation`, the set's own words in
+Spanish: `{name, author, description, source, image_alt, ai_translated}`
+(`name` and `author` in the usual Spanish forms, "San Alfonso María de
+Ligorio"), each null
+where it has no Spanish or its English was edited since (show the
+English), `ai_translated: true` on the team's translation. The whole key
+is null for `lang=en`, a language not served, or a set with no Spanish;
+without `lang` there is no `set_translation` key, and the set's own
+`name` and `author` stay as in section 2 in every language. Pinned by
+`test/lumen_viae_web/json_api/meditation_set_text_spanish_test.exs`.
 The words and their sources: docs/JSON_API.md, "The meditations in
 Spanish".
 

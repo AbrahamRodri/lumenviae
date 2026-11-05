@@ -266,3 +266,76 @@ estate's permission whatever the US status. The three sets stay English.
 | 370 | 65 | A Childless Mother | the team's translation (`ai_translated`) from the English, see above |
 | 371 | 65 | Her Arms Receive Him Again | the team's translation (`ai_translated`) from the English, see above |
 | 372 | 65 | The Stone Rolled to the Door | the team's translation (`ai_translated`) from the English, see above |
+
+## The sets' own words
+
+`priv/meditations/es/sets.json` holds each visible set's name, author,
+description, source and image alt text in Spanish, served in `set_translation` with
+`lang=es`. Added on 5 November 2026 for the 23 sets production shows,
+Sheen's three included: a set's description and alt text are the team's
+words, not the author's. Each field records a fingerprint of the English
+a client is shown (`name`, the byline's `author` and `source`,
+`description`, the artwork's alt) and is served only while that English is unchanged.
+
+- **Names, authors, descriptions and alt texts** are the team's
+  translation of the English, so every set carries `ai_translated`.
+  Added to the set's name and author at the lead's word (5 November
+  2026): "set name and author in Spanish with lang=es (e.g. 'San Alfonso
+  María de Ligorio', 'Beata Ana Catalina Emmerich', 'Santo Tomás de
+  Aquino'), the usual Spanish forms of the names". Sheen's set name is
+  "Beato Fulton J. Sheen" and his byline "Arzobispo Fulton J. Sheen", as
+  the English. Names follow Spanish usage: San Alfonso María de Ligorio, la Beata Ana Catalina Emmerich,
+  la Venerable María de Jesús de Ágreda, Dom Próspero Guéranger,
+  Federico Guillermo Faber (the set's name and byline "Padre Federico
+  Guillermo Faber"), San John Henry Newman, San Ignacio de Loyola, San
+  Agustín, San Juan Crisóstomo, Santo Tomás de Aquino. Sheen is "el
+  arzobispo Fulton J. Sheen", as the English says. Books are named by
+  their usual Spanish titles (*Las glorias de María*, *Mística Ciudad de
+  Dios*, *Suma teológica*, *El año litúrgico*, St Augustine's *Tratados
+  sobre el Evangelio de San Juan*); *Vida de Jesucristo y revelaciones
+  bíblicas* translates the English title, as no Spanish edition of it was
+  used. Set 48's last sentence follows St Ignatius's own Spanish
+  (*Ejercicios*, n. 2, "no el mucho saber harta y satisface al ánima, mas
+  el sentir y gustar de las cosas internamente") in modern wording. Set
+  29's English alt misspells "Ligouri"; the Spanish has "Ligorio".
+- **Sources** are the Spanish edition's title where the meditations were
+  copied from one ([M1] to [M4] above), else the English citation
+  translated. Where the English names no source and no edition was
+  copied, there is none (set 53 has one meditation from [M4] among
+  translated ones, so it has none either). Sets 28 to 30 name *Glories
+  of Mary* in English, though their meditations are not from it ("Not
+  from the books named in production"); Abraham, 5 November 2026, chose
+  to leave the English credit as it is and "keep the same in Spanish", so
+  their source is "Las glorias de María" and their descriptions say so,
+  as the English does.
+  An English translation given as a source says so ("traducción
+  inglesa"), so it is not taken for a Spanish edition. Emmerich is spelled
+  so throughout, as the 1865 edition prints it. Sheen's *The Fifteen Mysteries
+  of the Rosary* is given as "Los quince misterios del Rosario", a
+  translation of the title, not a Spanish edition.
+
+| Set | Name | Source in Spanish | Why |
+|---|---|---|---|
+| 25 | Blessed Fulton J. Sheen | Los quince misterios del Rosario | the English citation translated |
+| 26 | Blessed Fulton J. Sheen | Los quince misterios del Rosario | the English citation translated |
+| 27 | Blessed Fulton J. Sheen | Los quince misterios del Rosario | the English citation translated |
+| 28 | St. Alphonsus Liguori | Las glorias de María | the English credit kept, at Abraham's word, though the meditations are not from it |
+| 29 | St. Alphonsus Liguori | Las glorias de María | the English credit kept, at Abraham's word, though the meditations are not from it |
+| 30 | St. Alphonsus Liguori | Las glorias de María | the English credit kept, at Abraham's word, though the meditations are not from it |
+| 42 | Blessed Anne Catherine Emmerich | Vida de Jesucristo y revelaciones bíblicas, vol. 1 (traducción inglesa de 1914) | the English citation translated |
+| 45 | Blessed Anne Catherine Emmerich | La dolorosa Pasión de N. S. Jesucristo, según las meditaciones de sor Ana Catalina Emmerich (Madrid, 1865) | [M4], the edition copied |
+| 46 | Blessed Anne Catherine Emmerich | Vida de Jesucristo y revelaciones bíblicas, vol. 4 (traducción inglesa de 1914) | the English citation translated |
+| 48 | St. Ignatius of Loyola | Ejercicios espirituales, texto autógrafo (Monumenta Ignatiana, Madrid, 1919) | [M2], the edition copied |
+| 52 | St. John Henry Newman | Meditaciones y devociones del difunto cardenal Newman (Longmans, Green and Co.; 1.ª ed., 1893; reimpresión de 1916) | the English citation translated |
+| 53 | Blessed Anne Catherine Emmerich | none | the English names none, and no Spanish edition was copied |
+| 54 | St. Augustine | none | the English names none, and no Spanish edition was copied |
+| 55 | St. John Chrysostom | none | the English names none, and no Spanish edition was copied |
+| 56 | St. Thomas Aquinas | Suma teológica, tercera parte (Tertia Pars), traducción de los padres dominicos de la Provincia de Inglaterra (edición de Benziger Brothers) | the English citation translated |
+| 58 | Venerable Mary of Agreda | Mística Ciudad de Dios (Barcelona, 1860) | [M3], the edition copied; the English names none |
+| 59 | Father Frederick William Faber | none | the English names none, and no Spanish edition was copied |
+| 60 | Venerable Mary of Agreda | Mística Ciudad de Dios (Barcelona, 1860) | [M3], the edition copied; the English names none |
+| 61 | St. Alphonsus Liguori | Las glorias de María, traducción del P. Ramón García, S. J., 2.ª ed. (Tolosa, 1868) | [M1], the edition copied |
+| 62 | St. John Chrysostom | none | the English names none, and no Spanish edition was copied |
+| 63 | Dom Prosper Guéranger | none | the English names none, and no Spanish edition was copied |
+| 64 | Dom Prosper Guéranger | El año litúrgico: Tiempo de Pasión y Semana Santa (traducción inglesa, 2.ª ed., Dublín: James Duffy, 1886) | the English citation translated |
+| 65 | Father Frederick William Faber | Al pie de la cruz, o Los dolores de María (1858) | the English citation translated |

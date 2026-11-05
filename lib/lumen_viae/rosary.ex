@@ -1092,8 +1092,10 @@ defmodule LumenViae.Rosary do
   back in the same envelope as every other error.
 
   With `lang:` (the v1 API's `?lang=`), the set also carries its
-  `translations` (`LumenViae.Rosary.Meditation.SetTranslations`): the
-  Spanish of its meditations for `"es"`, none otherwise. Without it, the
+  `translations` (`LumenViae.Rosary.Meditation.SetTranslations`) and
+  `set_translation` (`LumenViae.Rosary.Meditation.SetTextTranslation`):
+  the Spanish of its meditations and of its own name, author, description,
+  source and image alt for `"es"`, none otherwise. Without it, the
   read is exactly as before.
   """
   def fetch_visible_meditation_set(id, opts \\ []) do
@@ -1130,7 +1132,7 @@ defmodule LumenViae.Rosary do
     MeditationSet
     |> Ash.Query.for_read(:visible, %{lang: lang}, AshOpts.take(opts))
     |> Ash.Query.filter(id == ^id)
-    |> Ash.Query.load(@visible_set_in_prayer_order ++ [:translations])
+    |> Ash.Query.load(@visible_set_in_prayer_order ++ [:translations, :set_translation])
     |> Ash.read_one(AshOpts.take(opts))
     |> case do
       {:ok, nil} -> :error

@@ -1715,6 +1715,26 @@ type RosaryClip {
   audio: SignedAudio!
 }
 
+type MeditationSetTranslation {
+  "The set's source in this language (the Spanish edition's title where the Spanish was copied from one), or null: show the English."
+  source: String
+
+  "The set's name in this language, or null: show the English."
+  name: String
+
+  "The set's description in this language, or null: show the English."
+  description: String
+
+  "The set's author in this language (the usual Spanish form of the name), or null: show the English."
+  author: String
+
+  "The alt text of the set's artwork in this language, or null: show the English."
+  artworkAlt: String
+
+  "`true` when the text is the team's own AI translation: show the app's AI notice. Absent otherwise."
+  aiTranslated: Boolean
+}
+
 type MeditationTranslation {
   "Its title in this language, or null where the English has none."
   title: String
@@ -2184,6 +2204,9 @@ type MeditationSet {
   "With `lang=es`, the set's meditations that have Spanish, in prayer order, by id: each one's title and text in Spanish, laid over the English by `id`. A meditation not listed has none: show its English. `ai_translated` marks the team's own translation. The recordings stay English. Empty in English."
   translations: [MeditationTranslation!]!
 
+  "With `lang=es`, the set's own name, author, description, source and image alt in Spanish, each null where it has none or its English has changed: show the English. `ai_translated` marks the team's own translation. Null in English, and for a set with no Spanish."
+  setTranslation: MeditationSetTranslation
+
   "The author the set is shown with: its own, or else the one its meditations agree on."
   author: String
 
@@ -2256,7 +2279,7 @@ type RootQueryType {
   visibleMeditationSets(
     category: String
 
-    "The language of `translations`: `es` fills it with the set's meditations that have Spanish. Missing, `en` or a language not served: the sets as they always were, and `translations` empty."
+    "The language of `translations` and `set_translation`: `es` fills them with the Spanish of the set's meditations and of its own name, author, description, source and image alt. Missing, `en` or a language not served: the sets as they always were, `translations` empty and `set_translation` null."
     lang: String
   ): [MeditationSet!]!
 
@@ -2265,7 +2288,7 @@ type RootQueryType {
     "The id of the record"
     id: ID!
 
-    "The language of `translations`: `es` fills it with the set's meditations that have Spanish. Missing, `en` or a language not served: the sets as they always were, and `translations` empty."
+    "The language of `translations` and `set_translation`: `es` fills them with the Spanish of the set's meditations and of its own name, author, description, source and image alt. Missing, `en` or a language not served: the sets as they always were, `translations` empty and `set_translation` null."
     lang: String
   ): MeditationSet
 
