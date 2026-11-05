@@ -34,9 +34,10 @@ problems=""
 problem() { problems="${problems}$1
 "; }
 
-# Disk: the root filesystem under 85% (dumps, images and logs grow there).
+# Disk: the root filesystem under 80% (dumps, images and logs grow there,
+# and a deploy needs room to pull its release image).
 disk=$(df -P / | awk 'NR == 2 { sub("%", "", $5); print $5 }')
-[ "${disk:-100}" -lt 85 ] || problem "disk / is ${disk}% full (limit 85%)"
+[ "${disk:-100}" -lt 80 ] || problem "disk / is ${disk}% full (limit 80%)"
 
 # Memory: what is still free in RAM and swap together, under 10% of both is
 # a server about to kill a process (the app, most likely).
