@@ -76,14 +76,7 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
 
       <.sacred_divider class="!my-8 w-full max-w-sm" />
 
-      <figure :if={@quote} class="max-w-[52ch]">
-        <blockquote class="font-garamond text-xl md:text-2xl text-ink-light leading-relaxed">
-          &ldquo;{@quote["text"]}&rdquo;
-        </blockquote>
-        <figcaption class="mt-4 kicker">
-          {@quote["author"]}
-        </figcaption>
-      </figure>
+      <.after_prayer_quote :if={@quote} quote={@quote} />
 
       <div class="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
         <.link navigate={~p"/mysteries/#{@category}"} class="btn-gold min-h-11">
@@ -94,6 +87,27 @@ defmodule LumenViaeWeb.Live.Pray.Completion do
         </.link>
       </div>
     </section>
+    """
+  end
+
+  attr :quote, :map, required: true
+
+  @doc """
+  The line for after praying, with its author under it, except on a quote
+  marked `credit_in_credits_only` (Fulton J. Sheen's): that one is credited
+  in the app's sources and credits only, and the website has no credits
+  page, so it shows the words alone.
+  """
+  def after_prayer_quote(assigns) do
+    ~H"""
+    <figure id="after-prayer-quote" class="max-w-[52ch]">
+      <blockquote class="font-garamond text-xl md:text-2xl text-ink-light leading-relaxed">
+        &ldquo;{@quote["text"]}&rdquo;
+      </blockquote>
+      <figcaption :if={!@quote["credit_in_credits_only"]} class="mt-4 kicker">
+        {@quote["author"]}
+      </figcaption>
+    </figure>
     """
   end
 end
