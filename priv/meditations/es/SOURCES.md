@@ -302,7 +302,13 @@ a client is shown (`name`, the byline's `author` and `source`,
   copied from one ([M1] to [M4] above), else the English citation
   translated. Where the English names no source and no edition was
   copied, there is none (set 53 has one meditation from [M4] among
-  translated ones, so it has none either). Sheen's *The Fifteen Mysteries
+  translated ones, so it has none either). Sets 28 to 30 name *Glories
+  of Mary* in English, but their meditations are not from it ("Not from
+  the books named in production"), so they have no Spanish source (their
+  English one still shows) and their descriptions end at the mysteries.
+  An English translation given as a source says so ("traducción
+  inglesa"), so it is not taken for a Spanish edition. Emmerich is spelled
+  so throughout, as the 1865 edition prints it. Sheen's *The Fifteen Mysteries
   of the Rosary* is given as "Los quince misterios del Rosario", a
   translation of the title, not a Spanish edition.
 
@@ -311,23 +317,23 @@ a client is shown (`name`, the byline's `author` and `source`,
 | 25 | Blessed Fulton J. Sheen | Los quince misterios del Rosario | the English citation translated |
 | 26 | Blessed Fulton J. Sheen | Los quince misterios del Rosario | the English citation translated |
 | 27 | Blessed Fulton J. Sheen | Los quince misterios del Rosario | the English citation translated |
-| 28 | St. Alphonsus Liguori | Las glorias de María | the English citation translated |
-| 29 | St. Alphonsus Liguori | Las glorias de María | the English citation translated |
-| 30 | St. Alphonsus Liguori | Las glorias de María | the English citation translated |
+| 28 | St. Alphonsus Liguori | none (the English shows) | its meditations are not from the book the English names |
+| 29 | St. Alphonsus Liguori | none (the English shows) | its meditations are not from the book the English names |
+| 30 | St. Alphonsus Liguori | none (the English shows) | its meditations are not from the book the English names |
 | 42 | Blessed Anne Catherine Emmerich | Vida de Jesucristo y revelaciones bíblicas, vol. 1 (traducción inglesa de 1914) | the English citation translated |
 | 45 | Blessed Anne Catherine Emmerich | La dolorosa Pasión de N. S. Jesucristo, según las meditaciones de sor Ana Catalina Emmerich (Madrid, 1865) | [M4], the edition copied |
 | 46 | Blessed Anne Catherine Emmerich | Vida de Jesucristo y revelaciones bíblicas, vol. 4 (traducción inglesa de 1914) | the English citation translated |
-| 48 | St. Ignatius of Loyola | Ejercicios espirituales, el autógrafo español (Monumenta Ignatiana, Madrid, 1919) | [M2], the edition copied |
-| 52 | St. John Henry Newman | Meditaciones y devociones del difunto cardenal Newman (Longmans, Green and Co.; publicado por primera vez en 1893, reimpresión de 1916) | the English citation translated |
+| 48 | St. Ignatius of Loyola | Ejercicios espirituales, texto autógrafo (Monumenta Ignatiana, Madrid, 1919) | [M2], the edition copied |
+| 52 | St. John Henry Newman | Meditaciones y devociones del difunto cardenal Newman (Longmans, Green and Co.; 1.ª ed., 1893; reimpresión de 1916) | the English citation translated |
 | 53 | Blessed Anne Catherine Emmerich | none | the English names none, and no Spanish edition was copied |
 | 54 | St. Augustine | none | the English names none, and no Spanish edition was copied |
 | 55 | St. John Chrysostom | none | the English names none, and no Spanish edition was copied |
-| 56 | St. Thomas Aquinas | Suma teológica, tercera parte (Tertia Pars), traducción de los Padres de la Provincia Dominica de Inglaterra (edición de Benziger Brothers) | the English citation translated |
+| 56 | St. Thomas Aquinas | Suma teológica, tercera parte (Tertia Pars), traducción de los padres dominicos de la Provincia de Inglaterra (edición de Benziger Brothers) | the English citation translated |
 | 58 | Venerable Mary of Agreda | Mística Ciudad de Dios (Barcelona, 1860) | [M3], the edition copied; the English names none |
 | 59 | Father Frederick William Faber | none | the English names none, and no Spanish edition was copied |
 | 60 | Venerable Mary of Agreda | Mística Ciudad de Dios (Barcelona, 1860) | [M3], the edition copied; the English names none |
 | 61 | St. Alphonsus Liguori | Las glorias de María, traducción del P. Ramón García, S. J., 2.ª ed. (Tolosa, 1868) | [M1], the edition copied |
 | 62 | St. John Chrysostom | none | the English names none, and no Spanish edition was copied |
 | 63 | Dom Prosper Guéranger | none | the English names none, and no Spanish edition was copied |
-| 64 | Dom Prosper Guéranger | El año litúrgico: Tiempo de Pasión y Semana Santa (segunda edición, Dublín: James Duffy, 1886) | the English citation translated |
-| 65 | Father Frederick William Faber | Al pie de la Cruz, o los dolores de María (1858) | the English citation translated |
+| 64 | Dom Prosper Guéranger | El año litúrgico: Tiempo de Pasión y Semana Santa (traducción inglesa, 2.ª ed., Dublín: James Duffy, 1886) | the English citation translated |
+| 65 | Father Frederick William Faber | Al pie de la cruz, o Los dolores de María (1858) | the English citation translated |

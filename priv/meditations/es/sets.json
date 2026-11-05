@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-05T03:10:00Z",
+  "updated_at": "2026-11-05T03:20:00Z",
   "sets": {
     "25": {
       "name": {
@@ -77,12 +77,8 @@
         "english": "1a7dad605e586c2c"
       },
       "description": {
-        "es": "Una breve consideración y una oración de San Alfonso María de Ligorio sobre los misterios gloriosos, tomadas de su libro Las glorias de María.",
+        "es": "Una breve consideración y una oración de San Alfonso María de Ligorio sobre los misterios gloriosos.",
         "english": "730a835075913689"
-      },
-      "source": {
-        "es": "Las glorias de María",
-        "english": "73cc1c63dc00bc85"
       },
       "image_alt": {
         "es": "Retrato",
@@ -99,12 +95,8 @@
         "english": "1a7dad605e586c2c"
       },
       "description": {
-        "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios gozosos, tomadas de su libro Las glorias de María.",
+        "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios gozosos.",
         "english": "1a586c8efcd177df"
-      },
-      "source": {
-        "es": "Las glorias de María",
-        "english": "73cc1c63dc00bc85"
       },
       "image_alt": {
         "es": "Retrato de San Alfonso María de Ligorio",
@@ -121,12 +113,8 @@
         "english": "1a7dad605e586c2c"
       },
       "description": {
-        "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios dolorosos, tomadas de su libro Las glorias de María.",
+        "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios dolorosos.",
         "english": "2379d757807ce088"
-      },
-      "source": {
-        "es": "Las glorias de María",
-        "english": "73cc1c63dc00bc85"
       },
       "image_alt": {
         "es": "Retrato",
@@ -143,7 +131,7 @@
         "english": "d5cef1a750091ff7"
       },
       "description": {
-        "es": "Pasajes textuales de las visiones de la Beata Ana Catalina Emmerich sobre los misterios gozosos, tomados de Vida de Jesucristo y revelaciones bíblicas (1914).",
+        "es": "Pasajes de las visiones de la Beata Ana Catalina Emmerich sobre los misterios gozosos, tomados de Vida de Jesucristo y revelaciones bíblicas (traducción inglesa de 1914).",
         "english": "b2d6664e2ed0abb2"
       },
       "source": {
@@ -165,7 +153,7 @@
         "english": "d5cef1a750091ff7"
       },
       "description": {
-        "es": "Pasajes textuales de las visiones de la Beata Ana Catalina Emmerich sobre los misterios dolorosos, tomados de La dolorosa Pasión de Nuestro Señor Jesucristo (1862).",
+        "es": "Pasajes textuales de las visiones de la Beata Ana Catalina Emmerich sobre los misterios dolorosos, tomados de La dolorosa Pasión de Nuestro Señor Jesucristo (1865).",
         "english": "622453cd9dd3e454"
       },
       "source": {
@@ -187,7 +175,7 @@
         "english": "d5cef1a750091ff7"
       },
       "description": {
-        "es": "Pasajes textuales de las visiones de la Beata Ana Catalina Emmerich sobre los misterios gloriosos, tomados de Vida de Jesucristo y revelaciones bíblicas, vol. 4 (1914).",
+        "es": "Pasajes de las visiones de la Beata Ana Catalina Emmerich sobre los misterios gloriosos, tomados de Vida de Jesucristo y revelaciones bíblicas, vol. 4 (traducción inglesa de 1914).",
         "english": "abe4073c15b414be"
       },
       "source": {
@@ -213,7 +201,7 @@
         "english": "88986c7f50f106c3"
       },
       "source": {
-        "es": "Ejercicios espirituales, el autógrafo español (Monumenta Ignatiana, Madrid, 1919)",
+        "es": "Ejercicios espirituales, texto autógrafo (Monumenta Ignatiana, Madrid, 1919)",
         "english": "fc9ad39e8e152143"
       },
       "image_alt": {
@@ -231,11 +219,11 @@
         "english": "15ebcf6367cd6ef9"
       },
       "description": {
-        "es": "De Meditaciones y devociones del cardenal Newman. Tres provienen de sus Meditaciones sobre la doctrina cristiana y dos de sus meditaciones de mayo sobre los títulos de las letanías lauretanas.",
+        "es": "Tomadas de Meditaciones y devociones, del cardenal Newman. Tres provienen de sus Meditaciones sobre la doctrina cristiana y dos de sus meditaciones de mayo sobre los títulos de las letanías lauretanas.",
         "english": "30e1cd54ff1a446f"
       },
       "source": {
-        "es": "Meditaciones y devociones del difunto cardenal Newman (Longmans, Green and Co.; publicado por primera vez en 1893, reimpresión de 1916)",
+        "es": "Meditaciones y devociones del difunto cardenal Newman (Longmans, Green and Co.; 1.ª ed., 1893; reimpresión de 1916)",
         "english": "9c2de5cf14f1481e"
       },
       "image_alt": {
@@ -311,7 +299,7 @@
         "english": "e131030eff4f40c1"
       },
       "source": {
-        "es": "Suma teológica, tercera parte (Tertia Pars), traducción de los Padres de la Provincia Dominica de Inglaterra (edición de Benziger Brothers)",
+        "es": "Suma teológica, tercera parte (Tertia Pars), traducción de los padres dominicos de la Provincia de Inglaterra (edición de Benziger Brothers)",
         "english": "5dacb330433e6158"
       },
       "image_alt": {
@@ -369,7 +357,7 @@
         "english": "104d4da6eb770ad2"
       },
       "description": {
-        "es": "Siete escenas narradas desde María: lo que la Madre supo, vio y sufrió en la profecía de Simeón, en la huida a Egipto, en la pérdida del Niño en el templo, en el camino del Calvario, al pie de la Cruz y en el sepulcro.",
+        "es": "Siete escenas narradas desde la mirada de María: lo que la Madre supo, vio y sufrió en la profecía de Simeón, en la huida a Egipto, en la pérdida del Niño en el templo, en el camino del Calvario, al pie de la cruz y en el sepulcro.",
         "english": "8fa94c68b6baabd4"
       },
       "source": {
@@ -391,7 +379,7 @@
         "english": "1a7dad605e586c2c"
       },
       "description": {
-        "es": "Reflexiones sobre cada uno de los siete dolores de María, tomadas de la sección final de Las glorias de María, de San Alfonso María de Ligorio. San Alfonso recorre los dolores uno a uno, y considera lo que cada uno le costó a la Madre de Dios y lo que pide al alma que reza junto a ella.",
+        "es": "Reflexiones sobre cada uno de los siete dolores de María, tomadas de la sección final de Las glorias de María, de San Alfonso María de Ligorio. San Alfonso recorre los dolores uno a uno y considera lo que cada uno le costó a la Madre de Dios y lo que pide al alma que reza junto a ella.",
         "english": "d371fd4d62fda7e5"
       },
       "source": {
@@ -431,7 +419,7 @@
         "english": "76dd1a32a7315594"
       },
       "description": {
-        "es": "Extractos de El año litúrgico, de Dom Próspero Guéranger, sobre la Pascua, la Ascensión y Pentecostés; y, sobre la Asunción y la realeza de Nuestra Señora, de la continuación de su obra escrita por un monje de Solesmes.",
+        "es": "Extractos de El año litúrgico, de Dom Próspero Guéranger, sobre la Pascua, la Ascensión y Pentecostés; los de la Asunción y la realeza de Nuestra Señora provienen de la continuación que un monje de Solesmes hizo de su obra.",
         "english": "db17f596d457238a"
       },
       "image_alt": {
@@ -449,11 +437,11 @@
         "english": "76dd1a32a7315594"
       },
       "description": {
-        "es": "Pasajes del comentario de Dom Próspero Guéranger a la Semana Santa, día por día, que sigue la Pasión hora por hora y se detiene en cada escena para adorar.",
+        "es": "Pasajes del comentario, día por día, de Dom Próspero Guéranger a la Semana Santa, que sigue la Pasión hora por hora y se detiene en cada escena para adorar.",
         "english": "4de4a4bf9bdcb93f"
       },
       "source": {
-        "es": "El año litúrgico: Tiempo de Pasión y Semana Santa (segunda edición, Dublín: James Duffy, 1886)",
+        "es": "El año litúrgico: Tiempo de Pasión y Semana Santa (traducción inglesa, 2.ª ed., Dublín: James Duffy, 1886)",
         "english": "9a76e57720a62951"
       },
       "image_alt": {
@@ -475,7 +463,7 @@
         "english": "1ca708d02c8cf74e"
       },
       "source": {
-        "es": "Al pie de la Cruz, o los dolores de María (1858)",
+        "es": "Al pie de la cruz, o Los dolores de María (1858)",
         "english": "7bb23039e5481075"
       },
       "image_alt": {

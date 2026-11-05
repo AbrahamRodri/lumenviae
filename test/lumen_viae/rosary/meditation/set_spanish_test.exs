@@ -10,7 +10,7 @@ defmodule LumenViae.Rosary.Meditation.SetSpanishTest do
 
   # Change the file: bump its updated_at and set the new pair here. Each
   # set's sources are in priv/meditations/es/SOURCES.md.
-  @pinned {~U[2026-11-05 03:10:00Z], "14ee1a7e7743164a"}
+  @pinned {~U[2026-11-05 03:20:00Z], "162ec0a85b1dd418"}
 
   # The 23 sets production shows (5 November 2026), Sheen's three
   # included: the set's words are the team's, not his.
