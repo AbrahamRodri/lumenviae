@@ -39,7 +39,9 @@ EXPECT_COMMIT=<sha> bin/prod-feature-check  # and /healthz must serve <sha>
 ```
 
 `ARTWORK_HOST` and `AUDIO_HOST_SUFFIX` change the hosts it expects, for a
-move of the files to another store.
+move of the files to another store; in the hourly run they are repository
+variables of the same names (unset means the R2 defaults), so a rollback to
+S3 sets them instead of editing the script.
 
 When a batch adds something the apps depend on, add it to the table and to
 the script in the same batch.
@@ -227,6 +229,19 @@ the final dump in R2 `site-backups/fly-final/`), copy the Droplet's
 database into Fly, unset `HOSTING` so CI deploys to Fly again, then DNS.
 Installed iPhones on 4.1 and earlier call `lumenviae.fly.dev` directly, so
 their completions land on Fly whichever way DNS points.
+
+A rollback that moves the files off R2 (Fly reads AWS S3, or
+`switch-r2.sh rollback` on the Droplet) changes the hosts the production
+check expects. Set the repository variables before the next check runs, or
+it fails on hosts that are right:
+
+```
+GH_TOKEN="$(gh auth token --user AbrahamRodri)" gh variable set ARTWORK_HOST -R AbrahamRodri/lumenviae --body <the S3 bucket's host>
+GH_TOKEN="$(gh auth token --user AbrahamRodri)" gh variable set AUDIO_HOST_SUFFIX -R AbrahamRodri/lumenviae --body .amazonaws.com
+```
+
+`/api/meditation-sets` shows the artwork host in each `image_url`. Delete
+both variables when the files are back on R2.
 
 ### Installing the system check
 

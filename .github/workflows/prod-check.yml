@@ -31,6 +31,10 @@ jobs:
         shell: bash -o pipefail {0}
         env:
           OPS_STATUS_TOKEN: ${{ secrets.OPS_STATUS_TOKEN }}
+          # Repository variables, unset normally: set them when the files
+          # move (a rollback to S3), so the check expects the new hosts.
+          ARTWORK_HOST: ${{ vars.ARTWORK_HOST }}
+          AUDIO_HOST_SUFFIX: ${{ vars.AUDIO_HOST_SUFFIX }}
       # Success pings the check; a failure pings its /fail with the output,
       # which healthchecks.io shows in the email. Without the secret it says
       # so and passes, so the check runs before the secret is added.

@@ -32,8 +32,9 @@ import urllib.request
 
 BASE = (sys.argv[1] if len(sys.argv) > 1 else "https://www.lumenviae.org").rstrip("/")
 TIMEOUT = 30
-ARTWORK_HOST = os.environ.get("ARTWORK_HOST", "media.lumenviae.org")
-AUDIO_HOST_SUFFIX = os.environ.get("AUDIO_HOST_SUFFIX", ".r2.cloudflarestorage.com")
+# An empty value (an unset repository variable) means the default.
+ARTWORK_HOST = os.environ.get("ARTWORK_HOST") or "media.lumenviae.org"
+AUDIO_HOST_SUFFIX = os.environ.get("AUDIO_HOST_SUFFIX") or ".r2.cloudflarestorage.com"
 failures = []
 
 

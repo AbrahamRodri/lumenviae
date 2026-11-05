@@ -55,9 +55,14 @@ done
 # The site on this machine: Caddy, the app and the database together, the
 # way a visitor reaches them, without leaving the server.
 health=$(curl -sS -m 10 --resolve "$host:443:127.0.0.1" "https://$host/healthz" 2>&1)
+# Each key on its own, so the JSON's key order does not matter.
 case "$health" in
-  *'"status":"ok"'*'"db":"ok"'*) ;;
+  *'"status":"ok"'*) ;;
   *) problem "https://$host/healthz on this machine: $(printf '%s' "$health" | head -c 200)" ;;
+esac
+case "$health" in
+  *'"db":"ok"'*) ;;
+  *) problem "https://$host/healthz reports the database down" ;;
 esac
 
 report="disk ${disk}%, memory and swap ${free_pct}% free, running: $(printf '%s' "$running" | tr '\n' ' ')"
