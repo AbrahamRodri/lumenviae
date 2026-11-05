@@ -1,0 +1,72 @@
+#!/bin/sh
+# The server itself, every 15 minutes: disk, memory, the stack's containers
+# and the site answering on this machine. Run by systemd/system-check@.timer
+# from the stack's folder (/srv/<app>/bin/system-check); docs/DEPLOY_WATCH.md,
+# "Watch and rollback", says what each check catches.
+#
+# Reads ./system-check.env (mode 600, shell syntax, beside backup.env):
+#   HC_SYSTEM_PING_URL  a healthchecks.io check expecting a ping every 15
+#                       minutes. Pinged when all is well; pinged at /fail
+#                       with the reasons when anything is wrong, so the email
+#                       says what. Missing pings (the server down, the timer
+#                       stopped) are noticed by the check's grace time.
+#   SITE_HOST           optional; the name Caddy serves (default
+#                       www.lumenviae.org), asked for at 127.0.0.1
+#   SERVICES            optional; the Compose services that must be running
+#                       (default "app db office caddy")
+#
+# Reads only: it changes nothing on the server.
+set -u
+
+cd "$(dirname "$0")/.."
+# compose.yml requires IMAGE even for `ps`; systemd starts this without the
+# deploy's environment.
+export IMAGE="${IMAGE:-unused-by-system-check}"
+# shellcheck disable=SC1091
+. ./system-check.env
+[ -n "${HC_SYSTEM_PING_URL:-}" ] || {
+  echo "system-check: set HC_SYSTEM_PING_URL in system-check.env, or a failing server goes unnoticed" >&2
+  exit 1
+}
+host=${SITE_HOST:-www.lumenviae.org}
+services=${SERVICES:-app db office caddy}
+problems=""
+problem() { problems="${problems}$1
+"; }
+
+# Disk: the root filesystem under 85% (dumps, images and logs grow there).
+disk=$(df -P / | awk 'NR == 2 { sub("%", "", $5); print $5 }')
+[ "${disk:-100}" -lt 85 ] || problem "disk / is ${disk}% full (limit 85%)"
+
+# Memory: what is still free in RAM and swap together, under 10% of both is
+# a server about to kill a process (the app, most likely).
+free_pct=$(awk '
+  /^MemTotal:/ { total += $2 } /^SwapTotal:/ { total += $2 }
+  /^MemAvailable:/ { free += $2 } /^SwapFree:/ { free += $2 }
+  END { if (total > 0) print int(free * 100 / total); else print 0 }' /proc/meminfo)
+[ "$free_pct" -ge 10 ] || problem "memory and swap ${free_pct}% free (limit 10%)"
+
+# The containers: each service running.
+running=$(docker compose ps --status running --services 2>/dev/null)
+for service in $services; do
+  printf '%s\n' "$running" | grep -qx "$service" || problem "container $service is not running"
+done
+
+# The site on this machine: Caddy, the app and the database together, the
+# way a visitor reaches them, without leaving the server.
+health=$(curl -sS -m 10 --resolve "$host:443:127.0.0.1" "https://$host/healthz" 2>&1)
+case "$health" in
+  *'"status":"ok"'*'"db":"ok"'*) ;;
+  *) problem "https://$host/healthz on this machine: $(printf '%s' "$health" | head -c 200)" ;;
+esac
+
+report="disk ${disk}%, memory and swap ${free_pct}% free, running: $(printf '%s' "$running" | tr '\n' ' ')"
+if [ -z "$problems" ]; then
+  echo "system-check: ok ($report)"
+  curl -fsS -m 10 --retry 3 --data-raw "$report" "$HC_SYSTEM_PING_URL" > /dev/null
+else
+  printf 'system-check: FAILED\n%s' "$problems" >&2
+  printf '%s%s\n' "$problems" "$report" \
+    | curl -fsS -m 10 --retry 3 --data-binary @- "$HC_SYSTEM_PING_URL/fail" > /dev/null
+  exit 1
+fi

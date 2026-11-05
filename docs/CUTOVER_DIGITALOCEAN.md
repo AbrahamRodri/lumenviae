@@ -7,10 +7,13 @@ Viae's own: the data copy from Fly, the DNS switch in Cloudflare, the watch
 and the rollback. Fly stays live, and is what visitors and the apps reach,
 until step 9 is checked. Every step is Abraham's, or run with him watching.
 
-The installed iOS and Android apps call `https://www.lumenviae.org/api` and
-`/api/v2` and must not notice anything; the site's pages must keep working;
-HSTS is on, so a certificate error would be unclickable. The order below is
-built around those three.
+The installed apps must not notice anything. Android and the website call
+`https://www.lumenviae.org` (`/api` and `/api/v2`). Installed iPhones on
+4.1 and earlier call `https://lumenviae.fly.dev/api` and `/api/office`
+directly, not `www.lumenviae.org`, so they reach Fly whatever the DNS says;
+4.2 moves them to `www.lumenviae.org`. The site's pages must keep working,
+and HSTS is on, so a certificate error would be unclickable. The order
+below is built around those three.
 
 ## Before the day
 

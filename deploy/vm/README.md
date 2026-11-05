@@ -21,6 +21,9 @@ Abraham switches, and the switch is his to start.
   security upgrades, Docker, ufw).
 - `bin/backup`, `bin/restore-test`, `systemd/`, `backup.env.example`: the
   nightly `pg_dump` to R2 and the weekly restore test.
+- `bin/system-check`, `systemd/system-check@.*`, `system-check.env.example`:
+  the server checked every 15 minutes (disk, memory, containers, `/healthz`),
+  pinging healthchecks.io (docs/DEPLOY_WATCH.md, "Watch and rollback").
 
 This folder is also the shared recipe Tornado Diet and ClipperHandz copy:
 `docs/HOSTING_RECIPE.md` says how to set a server up and which names to

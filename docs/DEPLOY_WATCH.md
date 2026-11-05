@@ -14,14 +14,14 @@ proves each one, the way the apps call it:
 | Up, database answering, serving the commit just merged | `/healthz` |
 | Today's mysteries, the schedule, the mysteries and categories, the streak milestones | `/api/v2/rosary-content` with those sections |
 | Meditation sets by category (iPhone) | `/api/meditation-sets?category=` for the four categories |
-| A set's meditations, with a signed audio link that opens | `/api/meditation-sets/:id`, then a one-byte GET of the first link |
-| Refreshing one meditation's audio link (iPhone) | `/api/meditations/:id/audio`, and the link opens |
-| A set's meditations and narrations (Android) | `/api/v2/meditation-sets/:id?include=...`, and a narration opens |
-| Artwork | a set's `image_url` opens as an image |
+| A set's meditations, with a signed audio link that opens | `/api/meditation-sets/:id`, then a one-byte GET of the first link, which must be a presigned R2 link (`*.r2.cloudflarestorage.com`) |
+| Refreshing one meditation's audio link (iPhone) | `/api/meditations/:id/audio`, and the link opens from R2 |
+| A set's meditations and narrations (Android) | `/api/v2/meditation-sets/:id?include=...`, and a narration opens from R2 |
+| Artwork | a set's `image_url` is on `media.lumenviae.org` (the R2 bucket's public name) and opens as an image |
 | Narration voices | `/api/v2/voices` (a default voice) and `/api/voices` |
-| The spoken Rosary | `/api/v2/rosary-audio?voice=`, and a clip opens |
+| The spoken Rosary | `/api/v2/rosary-audio?voice=`, and a clip opens from R2 |
 | The Prayer Book with its orders of prayer | `/api/v2/prayer-book`: 100+ prayers, 11 orders, 4 songs to Mary, every order's prayers present |
-| The Chant Library | `/api/v2/chant-library`, a recording opens, and the sung sets name only chants it holds |
+| The Chant Library | `/api/v2/chant-library`, a recording opens (from whichever host serves the chants, printed: S3 until the chants are switched to R2), and the sung sets name only chants it holds |
 | The Consecration, True Devotion, St. Carlo Acutis, the Marian Library, Spiritual Reading | each document with its sections non-empty (34 Consecration days; every book has a Gutenberg number and a chapter pattern) |
 | The Divine Office | today's day and Lauds in v2, and v1 `/api/office/<today>` |
 | The admin console | `/admin/login` answers with a password field |
@@ -37,6 +37,9 @@ generates anything, ElevenLabs included. Each feature prints `ok` or
 bin/prod-feature-check                    # about ten seconds
 EXPECT_COMMIT=<sha> bin/prod-feature-check  # and /healthz must serve <sha>
 ```
+
+`ARTWORK_HOST` and `AUDIO_HOST_SUFFIX` change the hosts it expects, for a
+move of the files to another store.
 
 When a batch adds something the apps depend on, add it to the table and to
 the script in the same batch.
@@ -83,11 +86,18 @@ TOKEN=$(openssl rand -hex 32); fly secrets set OPS_STATUS_TOKEN=$TOKEN --app lum
 environment and fails on any check in `error`; without it, it says it
 skipped it.
 
-## Three times a day, unattended
+## Every hour, unattended
 
-`.github/workflows/prod-check.yml` runs `bin/prod-feature-check` at 06:00,
-12:00 and 18:00 UTC, and can be started by hand. A failure fails the run,
-and GitHub emails the repository's owner. It reads production only.
+`.github/workflows/prod-check.yml` runs `bin/prod-feature-check` at 17
+minutes past every hour, and can be started by hand. A failure fails the
+run, and GitHub emails the repository's owner. It reads production only.
+Each run then pings the healthchecks.io check "lumenviae prod"
+(`HC_PROD_PING_URL`): its plain URL on success, `/fail` with the output on
+a failure. Hourly is free: the repository is public, and GitHub-hosted
+runners are unmetered for public repositories (a run takes about 15
+seconds). GitHub delays scheduled runs by up to an hour at busy times, and
+pauses a public repository's schedules after 60 days with no commits;
+both show as missed pings.
 
 ## The watch: 15 to 30 minutes
 
@@ -151,3 +161,85 @@ fly deploy --app lumenviae --image <that image>
 
 `main` then still holds the broken commit, so revert it on `main` as well,
 or the next deploy brings it back.
+
+## Watch and rollback
+
+Production is the Droplet (docs/HOSTING_RECIPE.md). Four checks watch it,
+all on healthchecks.io's free plan, in Abraham's account, beside each
+other on one dashboard. Each emails when a ping says `/fail` or when an
+expected ping does not arrive in time, so a check that stops running is
+noticed as surely as one that fails.
+
+| Check | Pinged by | Period, grace (to set) | What it catches |
+| --- | --- | --- | --- |
+| lumenviae backup | `deploy/vm/bin/backup`, nightly at about 03:30 UTC (`BACKUP_PING_URL`) | 1 day, 2 hours | the night's `pg_dump` did not reach R2 whole: the database, R2, the token or the timer |
+| lumenviae restore test | `deploy/vm/bin/restore-test`, Sundays at about 04:30 UTC (`RESTORE_TEST_PING_URL`) | 7 days, 6 hours | the newest dump does not restore, or restores with another schema than the live one |
+| lumenviae prod | `.github/workflows/prod-check.yml`, hourly (`HC_PROD_PING_URL`) | 1 hour, 1 hour | a feature the apps use fails from outside, as the apps call it: the site, the API, the Office, the R2 files |
+| lumenviae system | `deploy/vm/bin/system-check`, every 15 minutes (`HC_SYSTEM_PING_URL`) | 15 minutes, 15 minutes | the server itself: disk on `/` at 85% or more, memory and swap under 10% free, a container of app, db, office or caddy not running, `/healthz` not answering on the machine; and, by its missing pings, the server down |
+
+The system check's email says what is wrong (the `/fail` ping carries the
+reasons). The prod check's carries the failing run's output; the run itself
+is in the Actions tab.
+
+### Restoring production on a new Droplet
+
+When the Droplet is lost or broken past repair. The data is the newest R2
+dump (nightly, kept 30 days); everything else comes from this repository.
+
+1. **A Droplet**, as in docs/HOSTING_RECIPE.md, "Setting up a server",
+   steps 2 and 3: the same firewall, Basic 1 GB in SFO3, Ubuntu 24.04,
+   `deploy/vm/cloud-init.yaml` as user data. If DigitalOcean's weekly
+   Droplet backup is newer than the trouble, create the Droplet from that
+   backup instead: it already holds `.env`, `backup.env`,
+   `system-check.env` and Caddy's certificates, so skip to step 5.
+2. **The secrets**, as `deploy` in `/srv/lumenviae`: `.env` (names in
+   `env.example`), `backup.env` and `system-check.env`, each mode 600,
+   from 1Password.
+3. **CI's address:** the repository secrets `VM_HOST` and
+   `VM_SSH_KNOWN_HOSTS` (`ssh-keyscan <new ip>`), then re-run main's
+   newest CI run: its deploy copies `deploy/vm/`, starts the stack and
+   migrates an empty database.
+4. **The data:** stop the app, restore the newest dump into the live
+   database the way `bin/restore-test` restores into its scratch one, with
+   `pg_restore --clean --if-exists --no-owner`, and start the app
+   (docs/HOSTING_RECIPE.md, "Restoring for real").
+5. **DNS:** in Cloudflare, `@` and `www` to the new addresses (TTL 60).
+   Caddy gets its certificates by DNS-01 before the switch, so HTTPS works
+   at once.
+6. **The timers** (docs/HOSTING_RECIPE.md, "Setting up a server",
+   step 5, and "Installing the system check" below), then `bin/prod-feature-check` from anywhere.
+
+About 45 minutes to an hour, most of it the Droplet's first boot
+(cloud-init: about 10 minutes), gathering the secrets, and the deploy
+(about 5 minutes). The restore itself is the weekly restore test's work:
+`journalctl -u restore-test@lumenviae` shows its start and end, which is
+the time step 4 takes. Writes since the night's dump (a day's Rosary
+completions at most) are lost unless the old disk can still be read.
+
+### Back to Fly
+
+While Fly still has its machines and its database, Fly is the fallback:
+docs/CUTOVER_DIGITALOCEAN.md, "Rollback to Fly", in short, and
+`reports/rig/hosting-move-scripts/ROLLBACK-FLY.md` in the workspace as the
+whole procedure (about 45 to 75 minutes): bring the machines back from the
+saved scale-down commands, keep Fly's data (`fly-final.sh`, which stores
+the final dump in R2 `site-backups/fly-final/`), copy the Droplet's
+database into Fly, unset `HOSTING` so CI deploys to Fly again, then DNS.
+Installed iPhones on 4.1 and earlier call `lumenviae.fly.dev` directly, so
+their completions land on Fly whichever way DNS points.
+
+### Installing the system check
+
+Once, as Abraham's own user on the Droplet, after the deploy that brings
+`bin/system-check` and its units (each deploy copies `deploy/vm/bin` and
+`deploy/vm/systemd` to `/srv/lumenviae`):
+
+```
+sudo -u deploy install -m 600 /dev/null /srv/lumenviae/system-check.env
+sudoedit -u deploy /srv/lumenviae/system-check.env   # HC_SYSTEM_PING_URL=<the check's URL>
+sudo sh -c 'cp /srv/lumenviae/systemd/system-check@.* /etc/systemd/system/'
+sudo systemctl daemon-reload
+sudo systemctl enable --now system-check@lumenviae.timer
+sudo systemctl start system-check@lumenviae.service
+journalctl -u system-check@lumenviae -n 5    # ends "system-check: ok (...)"
+```

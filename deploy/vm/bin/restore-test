@@ -2,7 +2,10 @@
 # Proves the backups restore: takes the newest dump from R2, restores it into
 # a scratch database beside the live one, checks it, and drops it. Run by
 # systemd/restore-test.timer once a week, and by hand after the first backup
-# (docs/HOSTING_RECIPE.md). Reads the same ./backup.env as bin/backup.
+# (docs/HOSTING_RECIPE.md). Reads the same ./backup.env as bin/backup, and
+# optionally RESTORE_TEST_PING_URL from it: a healthchecks.io check expecting
+# a ping every week, fetched after a good restore, so a test that fails (or
+# stops running) emails instead of failing quietly in the journal.
 #
 # The check is generic to any Ecto app: the dump must restore without an
 # error, and hold as many schema_migrations rows as the live database (the
@@ -72,3 +75,4 @@ printf '%s\n' "$counts" | sql "$scratch" | sed 's/^/restore-test:   /'
   exit 1
 }
 echo "restore-test: ok"
+[ -z "${RESTORE_TEST_PING_URL:-}" ] || curl -fsS -m 10 --retry 3 "$RESTORE_TEST_PING_URL" > /dev/null
