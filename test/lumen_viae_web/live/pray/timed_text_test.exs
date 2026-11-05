@@ -52,6 +52,15 @@ defmodule LumenViaeWeb.Live.Pray.TimedTextTest do
            ]
   end
 
+  test "a dash standing alone between the words is stepped over" do
+    page = ["The Lord was with him — and he was glad."]
+    lines = [line("The Lord was with him and he was glad.")]
+
+    assert TimedText.segments(page, lines) == [
+             [{"The Lord was with him — and he was glad.", 0}]
+           ]
+  end
+
   test "no timings, or none that can be found, is nil: the words are shown as they are" do
     assert TimedText.segments(["Amen."], nil) == nil
     assert TimedText.segments(["Amen."], []) == nil

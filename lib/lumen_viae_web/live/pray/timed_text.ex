@@ -75,15 +75,22 @@ defmodule LumenViaeWeb.Live.Pray.TimedText do
   defp find_end(_tokens, [], _at), do: nil
 
   defp find_end(tokens, tail, at) do
-    words = tokens |> Enum.drop(at) |> Enum.map(&elem(&1, 2))
+    # A word with no letters (a dash standing alone) is not spoken, so it
+    # is not looked for; a run may step over it.
+    spoken =
+      tokens
+      |> Enum.with_index()
+      |> Enum.drop(at)
+      |> Enum.reject(fn {{_, _, word}, _} -> word == "" end)
+
     size = length(tail)
 
-    words
+    spoken
     |> Enum.chunk_every(size, 1, :discard)
-    |> Enum.find_index(&(&1 == tail))
+    |> Enum.find(fn run -> Enum.map(run, fn {{_, _, word}, _} -> word end) == tail end)
     |> case do
       nil -> nil
-      offset -> at + offset + size - 1
+      run -> run |> List.last() |> elem(1)
     end
   end
 
