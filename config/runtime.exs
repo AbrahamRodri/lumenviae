@@ -94,6 +94,12 @@ config :lumen_viae, :client_ip_header, System.get_env("CLIENT_IP_HEADER", "fly-c
 # Off unless exactly "true".
 config :lumen_viae, :client_ip_cloudflare, System.get_env("CLIENT_IP_CLOUDFLARE") == "true"
 
+# The Fly pass-through (deploy/fly-proxy/) sends its caller's address with
+# this shared secret; unset, that address is never read (LumenViaeWeb.ClientIP).
+config :lumen_viae,
+       :fly_proxy_secret,
+       if(config_env() == :test, do: nil, else: System.get_env("FLY_PROXY_SECRET"))
+
 # Lets Cloudflare's edge hold the seven library documents for this many
 # seconds (s-maxage), with an ETag and 304 for clients
 # (LumenViaeWeb.Plugs.LibraryCache). Unset, they stay private, no-store.

@@ -103,4 +103,55 @@ defmodule LumenViaeWeb.ClientIPHeaderTest do
       assert ClientIP.from_session(Plug.Conn.get_session(conn)) == "203.0.113.7"
     end
   end
+
+  describe "through the Fly pass-through (FLY_PROXY_SECRET)" do
+    @secret String.duplicate("s3cr3t-", 6)
+
+    setup do
+      put_env(:lumen_viae, :client_ip_header, "x-real-ip")
+      :ok
+    end
+
+    defp proxied(secret, ip \\ "203.0.113.7") do
+      conn_with([
+        {"x-real-ip", "198.51.100.20"},
+        {"x-lv-proxy-secret", secret},
+        {"x-lv-client-ip", ip}
+      ])
+    end
+
+    test "with the secret, the caller the proxy carried" do
+      put_env(:lumen_viae, :fly_proxy_secret, @secret)
+
+      assert ClientIP.from_conn(proxied(@secret)) == "203.0.113.7"
+      assert ClientIP.from_conn(proxied(@secret, "2001:db8::7")) == "2001:db8::7"
+    end
+
+    test "a wrong or missing secret leaves the header Caddy wrote" do
+      put_env(:lumen_viae, :fly_proxy_secret, @secret)
+
+      assert ClientIP.from_conn(proxied("guess")) == "198.51.100.20"
+
+      assert ClientIP.from_conn(
+               conn_with([{"x-real-ip", "198.51.100.20"}, {"x-lv-client-ip", "203.0.113.7"}])
+             ) ==
+               "198.51.100.20"
+    end
+
+    test "not an address, it is ignored" do
+      put_env(:lumen_viae, :fly_proxy_secret, @secret)
+
+      assert ClientIP.from_conn(proxied(@secret, "not-an-ip")) == "198.51.100.20"
+      assert ClientIP.from_conn(proxied(@secret, "")) == "198.51.100.20"
+    end
+
+    test "with the secret unset or too short, the headers are never read" do
+      put_env(:lumen_viae, :fly_proxy_secret, nil)
+      assert ClientIP.from_conn(proxied("")) == "198.51.100.20"
+      assert ClientIP.from_conn(proxied(@secret)) == "198.51.100.20"
+
+      put_env(:lumen_viae, :fly_proxy_secret, "short")
+      assert ClientIP.from_conn(proxied("short")) == "198.51.100.20"
+    end
+  end
 end

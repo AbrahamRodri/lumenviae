@@ -1,0 +1,35 @@
+# lumenviae.fly.dev as a pass-through to https://www.lumenviae.org, for the
+# installed iPhones (4.1 and earlier) that call Fly directly (README.md).
+# Fly terminates TLS and sends plain HTTP to :8080.
+{
+	admin off
+	auto_https off
+	# Fly's proxy writes the access log already; Caddy logs only errors.
+}
+
+:8080 {
+	# Fly's machine check: this machine is up. It says nothing about the
+	# Droplet, so a Droplet blip does not take the proxy off Fly's router.
+	handle /_proxy/up {
+		respond "ok" 200
+	}
+
+	handle {
+		# Every method, path, query, header and body as it came. Caddy does
+		# not follow redirects: a 30x goes back to the caller as it is.
+		reverse_proxy https://www.lumenviae.org {
+			header_up Host www.lumenviae.org
+			# The caller, as Fly saw it, for the app's analytics and rate
+			# limits; believed there only beside the shared secret, and
+			# overwritten here so a caller cannot choose either
+			# (LumenViaeWeb.ClientIP). Fly sets Fly-Client-IP itself.
+			header_up X-LV-Client-IP {http.request.header.Fly-Client-IP}
+			header_up X-LV-Proxy-Secret {env.FLY_PROXY_SECRET}
+			# The Droplet may answer slowly in its 10 s deploy window; wait.
+			transport http {
+				dial_timeout 10s
+				response_header_timeout 60s
+			}
+		}
+	}
+}
