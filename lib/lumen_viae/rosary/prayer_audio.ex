@@ -64,6 +64,20 @@ defmodule LumenViae.Rosary.PrayerAudio do
   `version/2` fingerprints those, so recording a voice's own clips later
   and dropping the borrow from config changes the version and devices
   fetch the new files.
+
+  ## Lines
+
+  A recording may carry its lines (`lines/2`): each line of its words and
+  where it is heard, `%{text, start, end}` in seconds, so the app can
+  highlight the line being read, as a meditation's narration does. They
+  live in `priv/rosary_audio/lines/<voice>.json`, one file per voice that
+  recorded, keyed by the recording's file name (with the recording's
+  duration, which the lines must fit), made from the live
+  recordings by `scripts/rosary_lines.py` (local and free; no narration).
+  A reworded or re-recorded clip has a new file name, so old lines never
+  apply to it: it has none (`nil`) until it is timed again. Lines do not
+  change `version/2`, which fingerprints the recordings: the manifest a
+  device fetches to compare its version carries them.
   """
 
   alias LumenViae.Rosary.Content
@@ -89,6 +103,34 @@ defmodule LumenViae.Rosary.PrayerAudio do
   @external_resource @verses_path
 
   @verses @verses_path |> File.read!() |> Jason.decode!()
+
+  @lines_dir Path.join([:code.priv_dir(:lumen_viae), "rosary_audio", "lines"])
+  @lines_files @lines_dir |> Path.join("*.json") |> Path.wildcard() |> Enum.sort()
+  for path <- @lines_files, do: @external_resource(path)
+
+  # Voice slug => file name => `%{duration:, lines: [%{text:, start:, end:}]}`.
+  @lines Map.new(@lines_files, fn path ->
+           lines =
+             path
+             |> File.read!()
+             |> Jason.decode!()
+             |> Map.new(fn {file, %{"duration" => duration, "lines" => lines}} ->
+               {file,
+                %{
+                  duration: duration / 1,
+                  lines:
+                    Enum.map(lines, fn %{"text" => text, "start" => start, "end" => stop} ->
+                      %{text: text, start: start / 1, end: stop / 1}
+                    end)
+                }}
+             end)
+
+           {Path.basename(path, ".json"), lines}
+         end)
+
+  # A new voice's lines file is picked up without a forced recompile.
+  def __mix_recompile__?,
+    do: @lines_dir |> Path.join("*.json") |> Path.wildcard() |> Enum.sort() != @lines_files
 
   @book_path Path.join([:code.priv_dir(:lumen_viae), "rosary_audio", "prayer_book.json"])
   @external_resource @book_path
@@ -441,6 +483,26 @@ defmodule LumenViae.Rosary.PrayerAudio do
       slug -> Voices.get(slug) || voice
     end
   end
+
+  @doc """
+  The lines of the recording a client is served for `voice`'s `clip`
+  (following a borrow, as `served_filename/2` does): `[%{text:, start:,
+  end:}]` in seconds, or nil when that recording is not timed. See
+  "Lines" above.
+  """
+  @spec lines(Voices.Voice.t(), Clip.t()) :: [map] | nil
+  def lines(voice, clip) do
+    served = served_voice(voice, clip)
+
+    get_in(@lines, [served.slug, filename(served, clip), :lines])
+  end
+
+  @doc """
+  The voices' timed recordings, voice slug => file name => `%{duration:,
+  lines:}`, for the test that checks each one against its clip.
+  """
+  @spec timed_lines() :: %{String.t() => %{String.t() => [map]}}
+  def timed_lines, do: @lines
 
   @doc """
   The S3 key a client is served for `voice`'s recording of `clip`. See

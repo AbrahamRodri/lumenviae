@@ -261,7 +261,10 @@ Caller: RosaryAudioPack; both parameters go through URLQueryItem.
 `expires_at`, `prayers` ([String: Clip]), `announcements`
 ([String: Clip]), `verses` ([String: [Clip]]), `book` ([String: Clip]).
 Clip. Required: `file` String, `audio_url` String. Optional: `text`,
-`reference`.
+`reference`, `lines` (added 5 Nov 2026, not yet read by a shipped
+build: `[{text, start, end}]` in seconds, the clip's words a line at a
+time and when each is heard, or null when that recording is not timed;
+it never changes `version`).
 
 A 400 leads to one retry with no voice; any other error uses the saved
 manifest, or a saved manifest in another voice. `file` is the on-disk name

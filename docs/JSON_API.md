@@ -76,6 +76,17 @@ recordings).
 and each answer of `POST /meditations/audio`, is `{voice, audio, lines}`.
 `lines` is the meditation line by line in that recording, each `{text, start, end}` (seconds), the Chant Library's lines for the spoken word; null when that recording has not been timed. Only the recordings named in `priv/narration_lines/` are timed, and a new recording of a meditation clears its lines until it is timed again.
 
+**So can a spoken-Rosary clip.** Each clip of `GET /rosary-audio` (a
+prayer, an announcement, a verse, a Prayer Book prayer) carries `lines`
+in the same shape, `[{text, start, end}]` in seconds, or null when that
+recording has not been timed: the clip's words a line at a time (a line
+of the prayer, or several the narrator did not pause between), for
+highlighting the line being read. They come from
+`priv/rosary_audio/lines/<voice>.json`, keyed by the recording's `file`,
+so a reworded or re-recorded clip has none until it is timed again. They
+do not change `version`, which fingerprints the recordings. GraphQL's
+`rosaryAudio` and v1's `GET /api/rosary/audio` carry the same lines.
+
 **A set's meditations come through `include`.** In prayer order they are
 `?include=set_memberships.meditation.mystery`: the set's
 `relationships.set_memberships.data` lists its memberships in prayer
