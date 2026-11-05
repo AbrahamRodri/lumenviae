@@ -313,7 +313,13 @@ async function checkTodaysPrayer(browser, vp) {
   );
   check((await page.locator("#todays-prayer [data-role=waiting]").count()) === 0, `${label}: every row has spoken`);
   check((await row("consecration").getAttribute("href")) === "/consecration", `${label}: no plan invites one`);
-  check((await row("consecration").innerText()).includes("Give yourself to Jesus through Mary"), `${label}: the Consecration's line`);
+  // From 5 November to 7 December the line says the preparation for 8 December runs from 5 November to 7 December.
+  check(
+    /Give yourself to Jesus through Mary|preparation for consecration on December 8 run from November 5 to December 7/.test(
+      await row("consecration").innerText()
+    ),
+    `${label}: the Consecration's line`
+  );
   check(/^\/prayers\/orders\/(morning|angelus|night)$/.test(await row("hour_order").getAttribute("href")), `${label}: the hour's order`);
   check((await row("office").innerText()).toUpperCase().includes("NOW"), `${label}: the Hours of Prayer's hour now`);
   check((await row("mass").getAttribute("href")) === "/missal", `${label}: Today's Mass opens the Missal`);
