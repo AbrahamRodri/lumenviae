@@ -29,7 +29,7 @@ Everything is in `deploy/vm/` and is copied unchanged apart from names:
 | `backup.env.example` | The names in `backup.env`: the R2 bucket, its token, the site's folder |
 | `bin/backup` | `pg_dump` to R2, then checks R2 holds every byte and pings the dead man's switch; never deletes |
 | `bin/restore-test` | Restores the newest dump into a scratch database, checks its `schema_migrations` against the live one, prints the biggest tables, drops it |
-| `bin/prune-images` | Run by each deploy after its checks pass: removes the app's old release images (keeping the running one and the one before it), dangling layers and the build cache; `--dry-run` lists them |
+| `bin/prune-images` | Run by each deploy after its checks pass: removes the app's old release images (keeping the running one and the two newest others), dangling layers and the build cache; `--dry-run` lists them |
 | `bin/system-check`, `system-check.env.example` | Every 15 minutes: disk, memory and swap, the stack's containers and `/healthz` on the machine; pings a healthchecks.io check, at `/fail` with the reasons when something is wrong |
 | `systemd/` | `backup@.timer` (nightly, 03:30 UTC), `restore-test@.timer` (Sundays, 04:30 UTC) and `system-check@.timer` (every 15 minutes), one instance per folder under `/srv` |
 

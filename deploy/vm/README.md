@@ -22,7 +22,7 @@ Abraham switches, and the switch is his to start.
 - `bin/backup`, `bin/restore-test`, `systemd/`, `backup.env.example`: the
   nightly `pg_dump` to R2 and the weekly restore test.
 - `bin/prune-images`: run by each deploy after its checks, removes old
-  release images (keeping the running and the previous one) and the build
+  release images (keeping the running one and the two newest others) and the build
   cache, so the disk does not fill.
 - `bin/system-check`, `systemd/system-check@.*`, `system-check.env.example`:
   the server checked every 15 minutes (disk, memory, containers, `/healthz`),

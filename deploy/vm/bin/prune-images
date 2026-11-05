@@ -1,6 +1,7 @@
 #!/bin/sh
 # Frees the disk after a good deploy: removes the app's old release images,
-# keeping the one running and the one before it (for a rollback), then
+# keeping the one running and the two newest others (so after a manual
+# rollback the last good release is still there), then
 # dangling layers and the build cache. Run by the deploy (ci.yml, "Prune old
 # release images") from the stack's folder, after the checks pass; by hand
 # with --dry-run to see what it would remove.
@@ -35,7 +36,7 @@ fi
 # The release images, newest first (docker lists by creation time): one
 # decision per image id, applied to every tag it has.
 releases=$(docker images "$REPO" --format '{{.ID}} {{.Tag}}')
-kept_previous=""
+kept=0
 printf '%s\n' "$releases" | awk '!seen[$1]++ { print $1 }' | while read -r id; do
   [ -n "$id" ] || continue
   tags=$(printf '%s\n' "$releases" | awk -v id="$id" '$1 == id { print $2 }' | tr '\n' ' ')
@@ -43,9 +44,9 @@ printf '%s\n' "$releases" | awk '!seen[$1]++ { print $1 }' | while read -r id; d
     say "keep $id ($tags), running"
   elif printf '%s\n' "$in_use" | grep -qx "$id"; then
     say "keep $id ($tags), a container uses it"
-  elif [ -z "$kept_previous" ]; then
-    kept_previous=1
-    say "keep $id ($tags), the previous release, for a rollback"
+  elif [ "$kept" -lt 2 ]; then
+    kept=$((kept + 1))
+    say "keep $id ($tags), one of the two newest unused releases, for a rollback"
   else
     for tag in $tags; do run docker rmi "$REPO:$tag"; done
   fi

@@ -361,7 +361,7 @@ jobs:
           AUDIO_HOST_SUFFIX: ${{ vars.AUDIO_HOST_SUFFIX }}
       # Only after the checks pass: old release images and the build cache
       # filled the disk once (5 Nov 2026). Keeps the running release and the
-      # one before it; never fails the deploy (deploy/vm/bin/prune-images).
+      # two newest others; never fails the deploy (deploy/vm/bin/prune-images).
       - name: Prune old release images
         if: steps.tip.outputs.is_tip == 'true'
         continue-on-error: true

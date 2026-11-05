@@ -180,7 +180,7 @@ noticed as surely as one that fails.
 | lumenviae system | `deploy/vm/bin/system-check`, every 15 minutes (`HC_SYSTEM_PING_URL`) | 15 minutes, 15 minutes | the server itself: disk on `/` at 80% or more, memory and swap under 10% free, a container of app, db, office or caddy not running, `/healthz` not answering on the machine; and, by its missing pings, the server down |
 
 Each deploy to the VM ends by removing old release images, keeping the
-running one and the one before it for a rollback, and the build cache
+running one and the two newest others for a rollback, and the build cache
 (`deploy/vm/bin/prune-images`, after the checks pass; a failed prune never
 fails the deploy). On 5 November 2026 those filled the disk to 99% and a
 deploy failed. `bin/prune-images --dry-run` on the server lists what it
