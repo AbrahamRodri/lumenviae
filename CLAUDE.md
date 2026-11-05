@@ -90,8 +90,8 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   whole Rosary aloud. The clips are `LumenViae.Rosary.PrayerAudio`, served
   by `GET /api/rosary/audio?voice=`, recorded with
   `mix lumen_viae.generate_rosary_audio` (dry-run it first), checked and
-  listened to at `/admin/rosary-audio`, and prayed on the website with the
-  "Hear the prayers" switch. The prayer text and verses are the app's; change
+  listened to at `/admin/rosary-audio`, and prayed on the website by the
+  prayer page's player, which says every prayer aloud. The prayer text and verses are the app's; change
   both together, and keep `PrayerAudio.script/3` in the app's order. See
   docs/SPOKEN_ROSARY.md. When the wording
   changes, run the task from the branch **before** deploying it: the
@@ -144,9 +144,11 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
 - The public website is the Rosary, the Prayer Book, Hours of Prayer, the Daily Missal, True Devotion, Explore and Spiritual Reading: home (today's mysteries and
   today's sets), `/mysteries` (the mysteries in Scripture), each category
   page with "Your Rosary Today" (audio, counting and voice choices), the
-  prayer page (the whole Rosary bead by bead, in meditation, scriptural or
-  holy form, counted on the screen or on your own rosary, English or Latin
-  prayers, optional closing prayers, streak milestones), the set-less
+  prayer page (the app's simple Rosary: one player that says the whole
+  Rosary aloud a prayer at a time, the line being read lit where the
+  recording is timed, in meditation, scriptural or holy form, the prayers'
+  speed, English or Latin prayers, optional closing prayers, streak
+  milestones), the set-less
   `/mysteries/:category/pray` (records no completion), the iPhone app's
   page at `/app` (real app screenshots; see "The app page" in
   docs/PUBLIC_SITE.md), and the privacy policy; and the Prayer Book, the

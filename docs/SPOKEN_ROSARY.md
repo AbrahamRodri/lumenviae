@@ -15,7 +15,7 @@ the website can pray a whole Rosary aloud, bead by bead.
 | Coverage (is every clip in the bucket) | `LumenViae.Curation.RosaryAudioGeneration.coverage/1` |
 | The app's manifest | `GET /api/rosary/audio` |
 | Listening to and checking every clip | `/admin/rosary-audio`, and a row on the dashboard when anything is missing |
-| Praying aloud on the website | the "Hear the prayers" switch on `/meditation-sets/:id/pray`, the `SpokenRosary` hook |
+| Praying aloud on the website | the prayer page's player (`/meditation-sets/:id/pray`, `/mysteries/:category/pray`), the `SpokenRosary` hook |
 | Whether a Rosary was prayed aloud | `rosary_completions.prayed_aloud`, see docs/COMPLETION_ANALYTICS.md |
 
 ---
@@ -317,15 +317,34 @@ which gives it a new key.
 
 ## The website
 
-The prayer page has a "Hear the prayers" switch and a voice choice; both ride in
-the URL (`aloud=true`, `voice=male`). With the switch on, the LiveView builds
-the whole script with signed URLs and hands it to the `SpokenRosary` hook,
-which plays it through one `Audio` element (the bucket sends no CORS
-headers, so `fetch` cannot be used) with the lock-screen Media Session
-controls. When the voice reaches a new decade the hook sends `spoken_at` and
-the page turns to that mystery; when the reader turns the page the LiveView
-sends `spoken_seek` and the voice follows. Pressing Complete is still what
-records the Rosary, now with `prayed_aloud`.
+The prayer page is the app's simple Rosary: one player that says every
+prayer aloud, a prayer at a time, with no switch to turn it on. The voice
+rides in the URL (`voice=male`). The LiveView builds the whole script with
+signed URLs, each step's kind and its timed lines (`PrayerAudio.lines/2`
+for a clip, the narration's `lines` for a meditation), and hands it to the
+`SpokenRosary` hook, which plays it through one `Audio` element (the bucket
+sends no CORS headers, so `fetch` cannot be used) with the lock-screen Media
+Session controls. It starts on its own: the tap on Pray that opened the page
+lets the browser play, and a page opened cold waits for Play. When the
+voice reaches another prayer the hook sends `spoken_at` and the page moves
+to it; when the reader moves the LiveView sends `spoken_seek` and the voice
+follows. Pressing Complete is still what records the Rosary, with
+`prayed_aloud`.
+
+- **Speed:** the prayers at 0.8x to 1.3x in steps (the settings pane,
+  kept in the browser as `lv:pray:prayer-rate`); a meditation always at 1x.
+- **Mute:** the speaker in the player mutes it without stopping it; the
+  Rosary keeps moving at the recording's pace.
+- **The words lit:** where a recording is timed, the line being read is lit
+  and kept in view, muted or not. `LumenViaeWeb.Live.Pray.TimedText` finds
+  each timed line in the page's own words by the words it ends on, since the
+  page breaks its lines elsewhere (the Hail Mary is six lines on the page
+  and four timed) and a narration may read a word differently. A line that
+  cannot be found leaves it and the rest of that recording unlit; a prayer
+  shown in Latin is heard in English, so it is never lit. Nothing is lit at
+  a guessed pace.
+- **One size:** every prayer and verse is set at the one size; the text-size
+  control is capped at 1.4x so the words never outgrow the view.
 
 The voice choice also picks the meditation narration. A meditation not yet
 recorded in the chosen voice plays in whichever voice it has.

@@ -1,18 +1,23 @@
 defmodule LumenViaeWeb.Live.Pray.BeadScreen do
   @moduledoc """
-  Counting "On the Screen": one bead at a time. The strand with the bead
+  One prayer at a time, as the voice says it: the strand with the bead
   under the hand lit, what is said on it in words, and the words
-  themselves. A bead of plain prayer is itself the way to the next one:
-  tap the words, press Space, or swipe.
+  themselves, every prayer at the one size. Where the recording is timed
+  (`timings`), the words carry the line each belongs to, and the
+  SpokenRosary hook lights the line being read. A bead of plain prayer is
+  itself the way to the next one: tap the words, press Space, or swipe.
   """
   use LumenViaeWeb, :html
 
-  alias LumenViaeWeb.Live.Pray.{PageView, PrayerText, Sequence, Strand}
+  alias LumenViaeWeb.Live.Pray.{PrayerText, Sequence, Strand}
 
   attr :sequence, :map, required: true
   attr :screen, :map, required: true
-  attr :audio_url, :string, default: nil
-  attr :pray_aloud, :boolean, default: false
+
+  attr :timings, :map,
+    default: %{},
+    doc: "the timed lines of what is heard on this screen, by kind (:prayer, :verse, :meditation)"
+
   attr :show_meditation, :boolean, default: false
   attr :language, :string, default: "en"
 
@@ -38,6 +43,7 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
 
       <div
         id={"bead-#{@screen.index}"}
+        data-screen={@screen.index}
         phx-click={if @screen.kind == :prayer, do: "advance"}
         class={[
           "mt-6 max-w-[62ch] w-full mx-auto rounded-3xl px-1 py-4 motion-safe:animate-[prayer-fade_0.35s_ease-out]",
@@ -48,34 +54,53 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
           <% :announcement -> %>
             <PrayerText.decade_header decade={@decade} />
             <div :if={@decade.meditation && @sequence.form == "scriptural"} class="mt-8">
-              <PageView.meditation_toggle
-                meditation={@decade.meditation}
-                audio_url={@audio_url}
-                pray_aloud={@pray_aloud}
-                open={@show_meditation}
-              />
+              <.meditation_toggle meditation={@decade.meditation} open={@show_meditation} />
             </div>
           <% :meditation -> %>
             <PrayerText.meditation
               :if={@decade && @decade.meditation}
               meditation={@decade.meditation}
-              audio_url={@audio_url}
-              pray_aloud={@pray_aloud}
+              lines={@timings[:meditation]}
             />
           <% :prayer -> %>
             <div :if={@screen.verse} class="mb-8 text-center">
-              <PrayerText.verse verse={@screen.verse} />
+              <PrayerText.verse verse={@screen.verse} lines={@timings[:verse]} />
             </div>
             <PrayerText.prayer
               prayer_id={@screen.prayer_id}
               title={Sequence.prayer_title(@screen.prayer_id, @language)}
               title_shown={false}
-              size={if @screen.verse, do: "quiet", else: "full"}
               language={@language}
+              lines={@timings[:prayer]}
             />
         <% end %>
       </div>
     </section>
+    """
+  end
+
+  attr :meditation, :map, required: true
+  attr :open, :boolean, default: false
+
+  # The set's meditation, folded away under a Scriptural Rosary's mystery:
+  # the Scriptural Rosary's voice reads verses, not the meditation, so it
+  # is read on the page and never lit.
+  defp meditation_toggle(assigns) do
+    ~H"""
+    <div class="max-w-[62ch] mx-auto text-center">
+      <button
+        type="button"
+        phx-click="toggle_meditation"
+        aria-expanded={to_string(@open)}
+        aria-controls="scriptural-meditation"
+        class="btn-outline-gold !py-2.5 min-h-11"
+      >
+        {if @open, do: "Hide the meditation", else: "Read the meditation"}
+      </button>
+      <div :if={@open} id="scriptural-meditation" class="mt-6 text-left">
+        <PrayerText.meditation meditation={@meditation} />
+      </div>
+    </div>
     """
   end
 

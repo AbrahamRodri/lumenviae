@@ -1616,36 +1616,34 @@
 /* === end scripture page === */
 
 /* === prayer page === */
-/* The words of the Rosary on the night prayer page. Their size follows the
-   reader's choice, the --prayer-text-scale the PrayerSurface hook sets on
-   <html>. */
+/* The words of the Rosary on the night prayer page, every prayer and verse
+   at the one size, as the app's simple Rosary sets them: a long prayer is
+   not shrunk to fit, the page moves with the line being read. Their size
+   follows the reader's choice, the --prayer-text-scale the PrayerSurface
+   hook sets on <html>, capped so the words never outgrow the view. */
 .prayer-text {
   font-size: calc(1.1875rem * var(--prayer-text-scale, 1));
   line-height: 1.7;
-}
-
-.prayer-text-quiet {
-  font-size: calc(1.0625rem * var(--prayer-text-scale, 1));
-  line-height: 1.65;
-}
-
-.prayer-verse .prayer-text {
-  font-size: calc(1.3125rem * var(--prayer-text-scale, 1));
-  line-height: 1.6;
 }
 
 @media (min-width: 768px) {
   .prayer-text {
     font-size: calc(1.3125rem * var(--prayer-text-scale, 1));
   }
+}
 
-  .prayer-text-quiet {
-    font-size: calc(1.125rem * var(--prayer-text-scale, 1));
-  }
+/* Where the recording is timed, the line being read is lit
+   (the SpokenRosary hook sets .is-read); the rest stay as they are. */
+[data-timed] [data-line] {
+  transition: color 0.25s ease-out;
+}
 
-  .prayer-verse .prayer-text {
-    font-size: calc(1.5rem * var(--prayer-text-scale, 1));
-  }
+[data-timed] [data-line].is-read {
+  color: var(--color-gilt);
+}
+
+html[data-reading-page="vellum"] .reading-page [data-timed] [data-line].is-read {
+  color: var(--color-vellum-gold);
 }
 
 .prayer-surface {

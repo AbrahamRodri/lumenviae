@@ -1,8 +1,7 @@
 defmodule LumenViaeWeb.Live.Pray.FormsTest do
   @moduledoc """
   The ways a Rosary is prayed on the prayer page: the Scriptural Rosary
-  and the prayers alone, with or without a set; counting on the screen a
-  bead at a time; the optional closing prayers; the Seven Sorrows chaplet;
+  and the prayers alone, with or without a set; a bead at a time; the optional closing prayers; the Seven Sorrows chaplet;
   and the offer to continue where the reader left off.
   """
   use LumenViaeWeb.ConnCase, async: true
@@ -49,13 +48,19 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
       assert html =~ "Joyful Mysteries"
       assert html =~ "The Annunciation"
-      # The first verse of the Annunciation, Douay-Rheims.
+
+      # The first verse of the Annunciation, Douay-Rheims, on the first
+      # Hail Mary's bead.
+      {:ok, view, html} = live(conn, "/mysteries/joyful/pray?mystery=0&step=2")
       assert html =~ "Luke 1:26"
-      assert html =~ "Hail Mary · 10 of 10"
+      assert status(view) =~ "Hail Mary · 1 of 10"
+
+      {:ok, view, _html} = live(conn, "/mysteries/joyful/pray?mystery=0&step=11")
+      assert status(view) =~ "Hail Mary · 10 of 10"
     end
 
     test "the prayers alone have no verses and no meditation", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/mysteries/sorrowful/pray?form=holy&count=beads&mystery=0")
+      {:ok, _view, html} = live(conn, "/mysteries/sorrowful/pray?form=holy&mystery=0")
 
       assert html =~ "The Agony in the Garden"
       refute html =~ "Luke 22"
@@ -80,7 +85,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
     test "Complete shows the Rosary offered and records nothing, having no set",
          %{conn: conn} do
       before = Rosary.count_total_completions(actor: admin())
-      {:ok, view, _html} = live(conn, "/mysteries/glorious/pray?mystery=closing")
+      {:ok, view, _html} = live(conn, "/mysteries/glorious/pray?mystery=closing&step=999")
 
       html = view |> element("button[phx-click=complete]") |> render_click()
 
@@ -109,13 +114,13 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
       view |> element("button[phx-click=toggle_panel]") |> render_click()
       view |> element("button[phx-value-form=scriptural]") |> render_click()
 
-      assert_patch(view, "#{path}?mystery=2&form=scriptural")
+      assert_patch(view, "#{path}?mystery=2&step=0&form=scriptural")
     end
   end
 
-  describe "counting on the screen" do
+  describe "a bead at a time" do
     test "one bead at a time, from the Sign of the Cross", %{conn: conn} do
-      {:ok, view, html} = live(conn, "/mysteries/joyful/pray?form=holy&count=screen")
+      {:ok, view, html} = live(conn, "/mysteries/joyful/pray?form=holy")
 
       assert html =~ "In the name of the Father"
       assert status(view) =~ "The Sign of the Cross"
@@ -130,7 +135,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
     test "tapping the words moves on, and a decade counts its Hail Marys", %{conn: conn} do
       {:ok, view, _html} =
-        live(conn, "/mysteries/joyful/pray?form=holy&count=screen&mystery=0&step=1")
+        live(conn, "/mysteries/joyful/pray?form=holy&mystery=0&step=1")
 
       assert status(view) =~ "The Our Father"
 
@@ -143,7 +148,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
     end
 
     test "the Scriptural Rosary's verse is on its Hail Mary's bead", %{conn: conn} do
-      {:ok, view, html} = live(conn, "/mysteries/joyful/pray?count=screen&mystery=0&step=2")
+      {:ok, view, html} = live(conn, "/mysteries/joyful/pray?mystery=0&step=2")
 
       assert status(view) =~ "Hail Mary · 1 of 10"
       assert html =~ "Luke 1:26"
@@ -152,7 +157,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
     test "the last bead of a decade leads to the next decade", %{conn: conn} do
       {:ok, view, _html} =
-        live(conn, "/mysteries/joyful/pray?form=holy&count=screen&mystery=0&step=13")
+        live(conn, "/mysteries/joyful/pray?form=holy&mystery=0&step=13")
 
       assert status(view) =~ "The Fatima Prayer"
 
@@ -163,7 +168,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
     test "the end is a press of Complete, not another key", %{conn: conn} do
       {:ok, view, _html} =
-        live(conn, "/mysteries/joyful/pray?form=holy&count=screen&mystery=closing&step=99")
+        live(conn, "/mysteries/joyful/pray?form=holy&mystery=closing&step=99")
 
       assert status(view) =~ "The Sign of the Cross"
       assert has_element?(view, "button[phx-click=complete]")
@@ -171,50 +176,40 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
       render_keydown(view, "key_nav", %{"key" => "Enter"})
       refute_patched(view)
     end
-
-    test "switching the counting keeps the page", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "/mysteries/joyful/pray?mystery=3")
-
-      view |> element("button[phx-click=toggle_panel]") |> render_click()
-      view |> element("button[phx-value-count=screen]") |> render_click()
-
-      assert_patch(view, "/mysteries/joyful/pray?mystery=3&step=0&count=screen")
-    end
   end
 
   describe "the closing prayers" do
     test "the optional prayers are added after the Rosary, in the app's order",
          %{conn: conn} do
-      {:ok, view, html} =
-        live(conn, "/mysteries/joyful/pray?form=holy&count=beads&mystery=closing")
+      {:ok, view, html} = live(conn, "/mysteries/joyful/pray?form=holy&mystery=closing")
 
       refute html =~ "Remember, O most gracious Virgin Mary"
 
       view |> element("button[phx-click=toggle_panel]") |> render_click()
       view |> element("button[phx-value-extra=st_michael]") |> render_click()
-      html = view |> element("button[phx-value-extra=memorare]") |> render_click()
-
+      view |> element("button[phx-value-extra=memorare]") |> render_click()
       assert_push_event(view, "prayer:extras", %{extras: ["memorare", "st_michael"]})
-      assert html =~ "Remember, O most gracious Virgin Mary"
-      assert html =~ "Saint Michael the Archangel"
 
-      [memorare, michael] =
-        Enum.map(["Remember, O most gracious", "Saint Michael the Archangel"], fn words ->
-          :binary.match(html, words) |> elem(0)
-        end)
+      # Hail, Holy Queen, the Closing Prayer, then the extras in the app's
+      # order whatever order they were chosen in.
+      for _ <- 1..2, do: view |> element("button[phx-click=next]") |> render_click()
+      assert status(view) =~ "The Memorare"
+      assert render(view) =~ "Remember, O most gracious Virgin Mary"
 
-      assert memorare < michael
+      view |> element("button[phx-click=next]") |> render_click()
+      assert status(view) =~ "Prayer to Saint Michael"
+      assert render(view) =~ "Saint Michael the Archangel"
     end
 
     test "a browser's earlier choice is restored by the hook", %{conn: conn} do
-      {:ok, view, _html} =
-        live(conn, "/mysteries/joyful/pray?form=holy&count=beads&mystery=closing")
+      {:ok, view, _html} = live(conn, "/mysteries/joyful/pray?form=holy&mystery=closing&step=2")
+      assert status(view) =~ "The Sign of the Cross"
 
       view
       |> element("#prayer-memory")
       |> render_hook("restore_extras", %{"extras" => ["holy_father", "nonsense"]})
 
-      assert render(view) =~ "For the Pope&#39;s intentions"
+      assert status(view) =~ "For the Pope&#39;s intentions"
     end
 
     test "the chaplet offers none", %{conn: conn} do
@@ -227,7 +222,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
   describe "the Seven Sorrows chaplet" do
     test "opens with the Act of Contrition and closes on her tears", %{conn: conn} do
-      {:ok, view, html} = live(conn, "/mysteries/seven_sorrows/pray?form=holy&count=beads")
+      {:ok, view, html} = live(conn, "/mysteries/seven_sorrows/pray?form=holy&step=1")
 
       assert html =~ "The Act of Contrition"
       assert html =~ "O my God, I am heartily sorry"
@@ -235,20 +230,23 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
       html = view |> element("button[phx-click=go_to][phx-value-page='1']") |> render_click()
       assert html =~ "The First Sorrow of Mary"
-      assert html =~ "Seven Hail Marys"
-      refute html =~ "Fatima"
-      assert html =~ "Sorrow I of VII"
 
-      {:ok, _view, html} =
-        live(conn, "/mysteries/seven_sorrows/pray?form=holy&count=beads&mystery=closing")
+      # Seven Hail Marys, and no Fatima Prayer after the Glory Be.
+      {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray?form=holy&mystery=0&step=9")
+      assert status(view) =~ "The Glory Be"
+
+      view |> element("button[phx-click=next]") |> render_click()
+      assert_patch(view, "/mysteries/seven_sorrows/pray?mystery=1&step=0&form=holy")
+
+      {:ok, view, html} = live(conn, "/mysteries/seven_sorrows/pray?form=holy&mystery=closing")
 
       assert html =~ "In honor of her tears"
-      assert html =~ "Pray for us, O most sorrowful Virgin"
+      assert status(view) =~ "In honor of her tears · 1 of 3"
     end
 
-    test "counted on the screen, a sorrow is seven Hail Marys", %{conn: conn} do
+    test "a sorrow is seven Hail Marys", %{conn: conn} do
       {:ok, view, _html} =
-        live(conn, "/mysteries/seven_sorrows/pray?form=holy&count=screen&mystery=0&step=8")
+        live(conn, "/mysteries/seven_sorrows/pray?form=holy&mystery=0&step=8")
 
       assert status(view) =~ "Hail Mary · 7 of 7"
 
@@ -258,7 +256,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
     test "a completed chaplet is offered as the Seven Sorrows", %{conn: conn} do
       set = create_set("seven_sorrows", 7)
-      {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=closing")
+      {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=closing&step=999")
 
       assert view |> element("button[phx-click=complete]") |> render_click() =~
                "The Seven Sorrows are offered"
@@ -278,16 +276,16 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
       assert has_element?(view, "#resume-banner", "The Third Joyful Mystery")
 
       view |> element("button[phx-click=resume]") |> render_click()
-      assert_patch(view, "#{path}?mystery=2")
+      assert_patch(view, "#{path}?mystery=2&step=0")
       refute has_element?(view, "#resume-banner")
     end
 
-    test "with a bead, counting on the screen", %{conn: conn} do
+    test "with a bead", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/joyful/pray?form=holy")
 
       view
       |> element("#prayer-memory")
-      |> render_hook("resume_available", %{"mystery" => "1", "step" => 4, "count" => "screen"})
+      |> render_hook("resume_available", %{"mystery" => "1", "step" => 4})
 
       assert has_element?(view, "#resume-banner", "Hail Mary · 3 of 10")
 
@@ -301,7 +299,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
       view
       |> element("#prayer-memory")
-      |> render_hook("resume_available", %{"mystery" => "3", "step" => 0, "count" => "beads"})
+      |> render_hook("resume_available", %{"mystery" => "3", "step" => 0})
 
       refute has_element?(view, "#resume-banner")
     end
@@ -311,11 +309,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
       view
       |> element("#prayer-memory")
-      |> render_hook("resume_available", %{
-        "mystery" => "closing",
-        "step" => 0,
-        "count" => "beads"
-      })
+      |> render_hook("resume_available", %{"mystery" => "closing", "step" => 0})
 
       view |> element("button[phx-click=dismiss_resume]") |> render_click()
       refute has_element?(view, "#resume-banner")
@@ -325,7 +319,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
   test "the page carries its hooks and a text size control", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/mysteries/joyful/pray")
 
-    assert has_element?(view, "#prayer[phx-hook=PrayerSurface][data-count=beads]")
+    assert has_element?(view, "#prayer[phx-hook=PrayerSurface][data-count=screen]")
 
     assert has_element?(
              view,

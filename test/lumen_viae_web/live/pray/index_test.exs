@@ -26,7 +26,8 @@ defmodule LumenViaeWeb.Live.Pray.IndexTest do
 
     set = Rosary.get_meditation_set_by_name("Round Trip Set", nil, actor: admin())
 
-    {:ok, _view, html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=0")
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=0&step=1")
+    html = render(view)
 
     assert html =~ "First paragraph of the meditation. Same paragraph continues."
     assert html =~ "Second paragraph of the meditation."

@@ -186,21 +186,33 @@ async function checkHooks(page, errors, vp) {
   await settle(page);
   check(await connected(page), `${label}: a damaged saved place leaves the page connected`);
 
-  await page.goto(`${pray}?mystery=closing`);
+  // Complete is on the last prayer; a step past the end is held to it.
+  await page.goto(`${pray}?mystery=closing&step=999`);
   await settle(page);
   await page.getByRole("button", { name: /Complete/ }).click();
   await page.waitForTimeout(500);
   const streak = await page.evaluate(() => document.querySelector("[data-streak]").textContent.trim());
   check(streak === "1 day so far", `${label}: a damaged streak starts again from today`, `"${streak}"`);
 
-  await page.goto(`${pray}?aloud=true`);
+  // An old link that turned the voice on or off still opens, on the one
+  // player, and the link the page writes drops it.
+  await page.goto(`${pray}?aloud=false&count=beads`);
   await settle(page);
-  await page.getByRole("button", { name: "Hear the prayers", pressed: true }).click();
-  await page.waitForTimeout(500);
-  const playback = await page.evaluate(() =>
-    "mediaSession" in navigator ? navigator.mediaSession.playbackState : "none"
+  check(await connected(page), `${label}: an old aloud/count link opens`);
+  check(
+    (await page.locator("[phx-hook=SpokenRosary]").count()) === 1,
+    `${label}: the player is there, with no switch to turn it on`
   );
-  check(playback === "none", `${label}: turning the voice off lets go of the media controls`, playback);
+  await page.getByRole("button", { name: /Next bead/ }).click();
+  const written = await eventually(async () => {
+    const href = page.url();
+    return href.includes("step=") ? href : false;
+  });
+  check(
+    Boolean(written) && !written.includes("aloud=") && !written.includes("count="),
+    `${label}: the page's own link drops aloud and count`,
+    String(written)
+  );
 
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
 }
@@ -1267,15 +1279,16 @@ async function checkCategoryChoices(browser, vp) {
 }
 
 async function checkPrayerScreen(browser, vp) {
-  const label = `${vp.name} prayer, counting on the screen`;
+  const label = `${vp.name} prayer, a prayer at a time`;
   console.log(label);
   const errors = [];
   const { context, page } = await freshPage(browser, vp, errors);
 
   const setPath = await firstSetPath(page);
-  const url = `${BASE_URL}${setPath}?count=screen`;
+  const url = `${BASE_URL}${setPath}`;
   await page.goto(url);
   await settle(page);
+  await pauseVoice(page);
   check((await page.getByRole("heading", { level: 1 }).count()) >= 1, `${label}: has an h1`);
   check((await page.getByRole("button", { name: "Next bead" }).count()) === 1, `${label}: shows the Next bead button`);
   await noHorizontalScroll(page, label);
@@ -1335,14 +1348,22 @@ async function checkPrayerScreen(browser, vp) {
   await context.close();
 }
 
+// The player starts on its own where the browser lets it, and the voice
+// moves the page; a walk through the beads by hand pauses it first.
+async function pauseVoice(page) {
+  const pause = page.locator("[phx-hook=SpokenRosary] [data-pause]");
+  if (await pause.isVisible()) await pause.click();
+}
+
 async function checkScriptural(browser, vp) {
   const label = `${vp.name} scriptural form`;
   console.log(label);
   const errors = [];
   const { context, page } = await freshPage(browser, vp, errors);
 
-  await page.goto(`${BASE_URL}/mysteries/sorrowful/pray?form=scriptural&count=screen`);
+  await page.goto(`${BASE_URL}/mysteries/sorrowful/pray?form=scriptural`);
   await settle(page);
+  await pauseVoice(page);
   check((await page.getByRole("heading", { level: 1 }).count()) >= 1, `${label}: has an h1`);
   await noHorizontalScroll(page, label);
 
@@ -1407,7 +1428,7 @@ async function checkCompletion(browser, vp) {
   const { context, page } = await freshPage(browser, vp, errors);
 
   const setPath = await firstSetPath(page);
-  await page.goto(`${BASE_URL}${setPath}?mystery=closing`);
+  await page.goto(`${BASE_URL}${setPath}?mystery=closing&step=999`);
   await settle(page);
   const complete = page.getByRole("button", { name: /complete/i });
   check((await complete.count()) === 1, `${label}: the closing page offers Complete`);

@@ -136,10 +136,8 @@ reads and writes them.
 | Parameter | Values | Default (left out of the link) |
 | --- | --- | --- |
 | `mystery` | `opening`, a decade number from `0`, or `closing` | the beginning |
-| `step` | the bead on that page, from `0`; used only with `count=screen` | `0` |
+| `step` | the prayer (bead) on that page, from `0` | `0`, written all the same |
 | `form` | on a set: `meditation` or `scriptural`. On a category: `scriptural` or `holy` | `meditation` on a set, `scriptural` on a category |
-| `count` | `beads` (on your own rosary, a decade a page) or `screen` (a bead at a time) | `beads` |
-| `aloud` | `true` | off |
 | `voice` | a narration voice's slug | the default voice |
 
 Rules that hold for every link:
@@ -147,18 +145,20 @@ Rules that hold for every link:
 - A default is never written, so ordinary links stay short.
 - A value that is not allowed is the default. A decade number out of range
   is held to the nearest decade.
-- `mobile` is accepted and ignored. Old links carry it.
-- The closing prayers, the language, the text size, the reading page and
-  the images are not in the link.
+- `mobile`, `count` and `aloud` are accepted and ignored. Old links carry
+  them, from before the page became one player that says every prayer
+  aloud, a prayer at a time (the app's simple Rosary).
+- The closing prayers, the language, the prayers' speed, the text size, the
+  reading page and the images are not in the link.
   They are the browser's (below).
 
 Examples:
 
 ```
 /meditation-sets/26/pray
-/meditation-sets/26/pray?mystery=2&count=screen&step=4
-/mysteries/sorrowful/pray?form=holy&count=screen
-/mysteries/joyful/pray?aloud=true&voice=male
+/meditation-sets/26/pray?mystery=2&step=4
+/mysteries/sorrowful/pray?form=holy
+/mysteries/joyful/pray?voice=male
 ```
 
 `LumenViaeWeb.Live.Mysteries.CategoryList.PrayLinks` builds the links on the
@@ -787,7 +787,7 @@ starts from the defaults. The one thing the server writes is a completion.
 
 | Setting | Where | Written by |
 | --- | --- | --- |
-| Where you are, form, counting, praying aloud, voice | the link, above | `Pray.Params` |
+| Where you are, form, voice | the link, above | `Pray.Params` |
 | Traditional or modern weekly schedule | `lv:schedule` | the `MysterySchedule` hook, on the home page |
 | "Your Rosary Today": aloud, count, voice | `lumenviae:rosary-choices` | the `RosaryChoices` hook, on the category page |
 | The place in a Rosary, for "Continue where you left off" | `lv:pray:<key>:<form>`, for example `lv:pray:set:26:meditation` or `lv:pray:mysteries:joyful:scriptural`, holding `{mystery, step, count, at}` | the `PrayerMemory` hook |

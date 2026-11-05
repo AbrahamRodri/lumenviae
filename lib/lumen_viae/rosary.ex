@@ -801,7 +801,8 @@ defmodule LumenViae.Rosary do
   retired (hidden) voice's slug is served by its successor
   (`Voices.resolve/1`).
 
-  Returns `{:ok, %{voice: %Voice{}, url: url, expires_at: %DateTime{}}}`,
+  Returns `{:ok, %{voice: %Voice{}, url: url, expires_at: %DateTime{}, lines: lines}}`
+  (`lines` the recording's timed lines, or nil where it has none),
   `{:error, :unknown_voice}` for a slug that is not configured, or `:error`
   when the meditation has no such narration or the URL could not be signed.
   """
@@ -826,7 +827,7 @@ defmodule LumenViae.Rosary do
     end
   end
 
-  defp sign_narration(%{voice: voice, s3_key: s3_key}) do
+  defp sign_narration(%{voice: voice, s3_key: s3_key} = narration) do
     ttl = audio_url_ttl()
 
     case S3.generate_presigned_url(s3_key, expires_in: ttl) do
@@ -834,7 +835,7 @@ defmodule LumenViae.Rosary do
         expires_at =
           DateTime.utc_now() |> DateTime.add(ttl, :second) |> DateTime.truncate(:second)
 
-        {:ok, %{voice: voice, url: url, expires_at: expires_at}}
+        {:ok, %{voice: voice, url: url, expires_at: expires_at, lines: narration.lines}}
 
       {:error, _reason} ->
         :error

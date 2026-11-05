@@ -184,33 +184,6 @@ defmodule LumenViaeWeb.Live.Pray.Sequence do
     end
   end
 
-  @doc """
-  The page's screens with a run of the same prayer said several times in a
-  row (three Hail Marys) gathered into one block, for a page read whole.
-  """
-  def blocks(%Page{screens: screens}) do
-    screens
-    |> Enum.chunk_while(
-      [],
-      fn screen, acc ->
-        case acc do
-          [%Screen{kind: :prayer, prayer_id: id} | _] when screen.prayer_id == id ->
-            {:cont, [screen | acc]}
-
-          [] ->
-            {:cont, [screen]}
-
-          acc ->
-            {:cont, Enum.reverse(acc), [screen]}
-        end
-      end,
-      fn
-        [] -> {:cont, []}
-        acc -> {:cont, Enum.reverse(acc), []}
-      end
-    )
-  end
-
   ## Words
 
   @languages ~w(en la)

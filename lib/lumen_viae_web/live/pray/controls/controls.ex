@@ -1,9 +1,9 @@
 defmodule LumenViaeWeb.Live.Pray.Controls do
   @moduledoc """
-  The prayer page's controls: the way to pray it (form, counting, the
-  voice, the closing prayers, the language of the prayers, the reading
-  page, the images, the text size), the Hear the prayers switch, the offer to
-  continue where the reader left off, and Previous and Next.
+  The prayer page's controls: the way to pray it (form, the voice, the
+  prayers' speed, the closing prayers, the language of the prayers, the
+  reading page, the images, the text size), the player that says it aloud,
+  the offer to continue where the reader left off, and Back and Next.
   """
   use LumenViaeWeb, :html
 
@@ -15,6 +15,10 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     "holy" => "The prayers alone"
   }
 
+  # The prayers' speeds, in steps with 1x in the middle, as the app offers
+  # them; the SpokenRosary hook keeps the choice in this browser.
+  @rates ~w(0.8 0.9 1 1.1 1.2 1.3)
+
   @form_notes %{
     "meditation" => "A meditation from the saints for each mystery.",
     "scriptural" => "A verse of Scripture before every Hail Mary.",
@@ -23,7 +27,6 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
 
   attr :route, :atom, required: true
   attr :form, :string, required: true
-  attr :count, :string, required: true
   attr :extras, :list, required: true
   attr :chaplet, :boolean, required: true
   attr :language, :string, required: true
@@ -35,6 +38,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       assigns
       |> assign(:forms, Params.forms(assigns.route))
       |> assign(:closing_extras, Sequence.closing_extras())
+      |> assign(:rates, @rates)
 
     ~H"""
     <div
@@ -56,28 +60,6 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend class={legend_class()}>Counting</legend>
-        <div class="mt-2 grid gap-2 sm:grid-cols-2">
-          <.choice
-            event="set_count"
-            name="count"
-            value="beads"
-            pressed={@count == "beads"}
-            title="On My Rosary"
-            note="Count on your own rosary. The screen shows one mystery at a time."
-          />
-          <.choice
-            event="set_count"
-            name="count"
-            value="screen"
-            pressed={@count == "screen"}
-            title="On the Screen"
-            note="The beads are on the screen. Tap, swipe or press Space for each Hail Mary."
-          />
-        </div>
-      </fieldset>
-
       <fieldset :if={length(@voices) > 1}>
         <legend class={legend_class()}>Voice</legend>
         <div class="mt-2 grid gap-2 sm:grid-cols-2">
@@ -90,6 +72,24 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
             title={voice.name}
             note={voice.description}
           />
+        </div>
+      </fieldset>
+
+      <fieldset id="prayer-speed" phx-update="ignore">
+        <legend class={legend_class()}>Prayer speed</legend>
+        <p class="mt-1 font-garamond text-base text-ink-muted leading-snug">
+          The prayers only; a meditation is always read at its own pace.
+        </p>
+        <div class="mt-2 flex flex-wrap gap-2" role="group" aria-label="Prayer speed">
+          <button
+            :for={rate <- @rates}
+            type="button"
+            data-prayer-rate={rate}
+            aria-pressed={to_string(rate == "1")}
+            class="prayer-choice flex items-center justify-center min-w-14 h-11 px-3 rounded-full border font-garamond text-ink-light motion-safe:transition-colors"
+          >
+            {rate}&times;
+          </button>
         </div>
       </fieldset>
 
@@ -230,38 +230,18 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     """
   end
 
-  attr :pray_aloud, :boolean, required: true
-
-  @doc """
-  Hearing the prayers, switched in the top bar beside the settings: a speaker,
-  lit gilt while every prayer is said aloud. The voice is chosen in the
-  settings pane.
-  """
-  def aloud_button(assigns) do
-    ~H"""
-    <button
-      type="button"
-      id="pray-aloud"
-      phx-click="toggle_pray_aloud"
-      aria-pressed={to_string(@pray_aloud)}
-      aria-label="Hear the prayers"
-      title="Hear every prayer of the Rosary, bead by bead"
-      class={[
-        "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gilt motion-safe:transition-colors",
-        if(@pray_aloud, do: "text-gilt bg-gilt/15", else: "text-ink-muted")
-      ]}
-    >
-      <span class="hero-speaker-wave size-5" aria-hidden="true" />
-    </button>
-    """
-  end
-
   attr :id, :string, required: true
   attr :script, :list, required: true
   attr :start_screen, :integer, required: true
   attr :title, :string, required: true
 
-  @doc "The spoken Rosary's player, driven by the SpokenRosary hook."
+  @doc """
+  The player that says the Rosary aloud, driven by the SpokenRosary hook:
+  Back, play and pause, and Next, a prayer at a time, with play in the
+  middle and Back and Next the same size; and a speaker that mutes it.
+  Muted, it keeps moving at the recording's pace, and the line being read
+  is lit where the recording is timed.
+  """
   def spoken_player(assigns) do
     ~H"""
     <div
@@ -273,34 +253,48 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       data-set-name={@title}
       class="max-w-sm mx-auto mt-3 rounded-2xl border border-night-border bg-night-raised px-3 py-2"
     >
-      <div class="flex items-center gap-1">
-        <button type="button" data-back aria-label="Previous prayer" class={player_button_class()}>
-          <span class="hero-backward size-4" aria-hidden="true" />
+      <p
+        data-caption
+        class="min-h-6 text-center font-garamond text-ink-light text-base leading-snug"
+      >
+      </p>
+      <div class="mt-1 grid grid-cols-[2.75rem_1fr_auto_1fr_2.75rem] items-center">
+        <span aria-hidden="true"></span>
+        <button
+          type="button"
+          data-back
+          aria-label="Previous prayer"
+          class={[player_button_class(), "justify-self-end"]}
+        >
+          <span class="hero-backward size-5" aria-hidden="true" />
+        </button>
+        <div class="mx-3">
+          <button type="button" data-play aria-label="Play" class={play_button_class()}>
+            <span class="hero-play-solid size-5 ml-0.5" aria-hidden="true" />
+          </button>
+          <button type="button" data-pause aria-label="Pause" class={["hidden", play_button_class()]}>
+            <span class="hero-pause-solid size-5" aria-hidden="true" />
+          </button>
+        </div>
+        <button
+          type="button"
+          data-forward
+          aria-label="Next prayer"
+          class={[player_button_class(), "justify-self-start"]}
+        >
+          <span class="hero-forward size-5" aria-hidden="true" />
         </button>
         <button
           type="button"
-          data-play
-          aria-label="Play"
-          class="flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gilt hover:bg-gilt-light text-night"
+          data-mute
+          aria-pressed="false"
+          aria-label="Mute"
+          title="Mute: the Rosary keeps going, and the words light up as they are read"
+          class={player_button_class()}
         >
-          <span class="hero-play-solid size-4 ml-0.5" aria-hidden="true" />
+          <span data-speaker-on class="hero-speaker-wave size-5" aria-hidden="true" />
+          <span data-speaker-off class="hidden hero-speaker-x-mark size-5" aria-hidden="true" />
         </button>
-        <button
-          type="button"
-          data-pause
-          aria-label="Pause"
-          class="hidden flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gilt hover:bg-gilt-light text-night"
-        >
-          <span class="hero-pause-solid size-4" aria-hidden="true" />
-        </button>
-        <button type="button" data-forward aria-label="Next prayer" class={player_button_class()}>
-          <span class="hero-forward size-4" aria-hidden="true" />
-        </button>
-        <p
-          data-caption
-          class="flex-1 min-w-0 pl-2 font-garamond text-ink-light text-base leading-snug"
-        >
-        </p>
       </div>
       <div class="mt-2 h-px bg-gilt/20">
         <div
@@ -379,7 +373,6 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     """
   end
 
-  attr :count, :string, required: true
   attr :at_start, :boolean, required: true
   attr :at_end, :boolean, required: true
 
@@ -395,7 +388,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           phx-click="previous"
           disabled={@at_start}
           class="btn-text !text-ink-muted hover:!text-gilt min-h-14 !px-2 disabled:opacity-30 disabled:cursor-not-allowed"
-          aria-label={if @count == "screen", do: "Back a bead", else: "Back"}
+          aria-label="Back a bead"
         >
           <span aria-hidden="true">&lsaquo;</span> Back
         </button>
@@ -404,14 +397,11 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           Amen &middot; Complete
         </button>
         <button :if={!@at_end} type="button" phx-click="next" class="btn-gold min-h-14 w-full">
-          {if @count == "screen", do: "Next bead", else: "Next"}
-          <span aria-hidden="true">&rsaquo;</span>
+          Next bead <span aria-hidden="true">&rsaquo;</span>
         </button>
       </div>
       <p class="hidden md:block mt-2 text-center font-garamond text-base text-ink-muted">
-        {if @count == "screen",
-          do: "Space, Enter or the arrow keys move a bead",
-          else: "The left and right arrow keys turn the page"}
+        Space, Enter or the arrow keys move a bead
       </p>
     </nav>
     """
@@ -437,5 +427,9 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
 
   defp player_button_class,
     do:
-      "flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-ink-muted hover:text-gilt"
+      "flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-ink-muted hover:text-gilt aria-pressed:text-gilt"
+
+  defp play_button_class,
+    do:
+      "flex items-center justify-center w-14 h-14 shrink-0 rounded-full bg-gilt hover:bg-gilt-light text-night"
 end
