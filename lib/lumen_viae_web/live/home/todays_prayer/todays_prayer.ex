@@ -34,6 +34,12 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
 
   @name "Consecration to Mary"
   @invitation "Give yourself to Jesus through Mary"
+  # From Day 1 of the preparation that ends on the Immaculate Conception
+  # (5 November) to the feast itself, the row's invitation says so. Each
+  # year, by month and day; never before or after.
+  @immaculate_note "The 33 days of preparation for consecration on December 8 begin November 5."
+  @immaculate_note_from {11, 5}
+  @immaculate_note_until {12, 8}
   @coronation_focal 0.12
   @under_way_focal 0.25
 
@@ -96,12 +102,22 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
         under_way(data, plan, done, today, day)
 
       _none_or_made_earlier ->
-        row(:consecration, Days.path(), coronation, @name, @invitation,
-          fact: "Begin",
-          spoken: "#{@name}. #{@invitation}, a 33-day preparation. Begin."
-        )
+        {line, spoken} =
+          if immaculate_note?(today),
+            do: {@immaculate_note, "#{@name}. #{@immaculate_note} Begin."},
+            else: {@invitation, "#{@name}. #{@invitation}, a 33-day preparation. Begin."}
+
+        row(:consecration, Days.path(), coronation, @name, line, fact: "Begin", spoken: spoken)
     end
   end
+
+  @doc """
+  Whether `date` falls from 5 November to 8 December, when a visitor with
+  no consecration under way is told the preparation for the Immaculate
+  Conception begins on 5 November.
+  """
+  def immaculate_note?(%Date{month: month, day: day}),
+    do: {month, day} >= @immaculate_note_from and {month, day} <= @immaculate_note_until
 
   # Day 1 to 33, then the day of consecration, which "DAY 34 OF 33" would
   # be no way to say. Past it, with the Act not yet made, the row says it
