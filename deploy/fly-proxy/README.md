@@ -14,7 +14,7 @@ installed iPhone is older, the app can go.
   never followed. `/_proxy/up` answers `ok` for Fly's machine check and
   says nothing about the Droplet, so a Droplet blip does not take the proxy
   off Fly's router. `/healthz` is the Droplet's own, passed through.
-- `Dockerfile`: stock `caddy:2.10` with the Caddyfile.
+- `Dockerfile`: stock Caddy 2.10.2, pinned by digest, with the Caddyfile.
 - `fly.toml`: the app `lumenviae`, `dfw`, one `shared-cpu-1x` 256MB machine,
   always on (no cold start), bluegreen so the switch drops nothing.
 
