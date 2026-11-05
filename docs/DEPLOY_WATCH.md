@@ -177,7 +177,14 @@ noticed as surely as one that fails.
 | lumenviae backup | `deploy/vm/bin/backup`, nightly at about 03:30 UTC (`BACKUP_PING_URL`) | 1 day, 2 hours | the night's `pg_dump` did not reach R2 whole: the database, R2, the token or the timer |
 | lumenviae restore test | `deploy/vm/bin/restore-test`, Sundays at about 04:30 UTC (`RESTORE_TEST_PING_URL`) | 7 days, 6 hours | the newest dump does not restore, or restores with another schema than the live one |
 | lumenviae prod | `.github/workflows/prod-check.yml`, hourly (`HC_PROD_PING_URL`) | 1 hour, 1 hour | a feature the apps use fails from outside, as the apps call it: the site, the API, the Office, the R2 files |
-| lumenviae system | `deploy/vm/bin/system-check`, every 15 minutes (`HC_SYSTEM_PING_URL`) | 15 minutes, 15 minutes | the server itself: disk on `/` at 85% or more, memory and swap under 10% free, a container of app, db, office or caddy not running, `/healthz` not answering on the machine; and, by its missing pings, the server down |
+| lumenviae system | `deploy/vm/bin/system-check`, every 15 minutes (`HC_SYSTEM_PING_URL`) | 15 minutes, 15 minutes | the server itself: disk on `/` at 80% or more, memory and swap under 10% free, a container of app, db, office or caddy not running, `/healthz` not answering on the machine; and, by its missing pings, the server down |
+
+Each deploy to the VM ends by removing old release images, keeping the
+running one and the one before it for a rollback, and the build cache
+(`deploy/vm/bin/prune-images`, after the checks pass; a failed prune never
+fails the deploy). On 5 November 2026 those filled the disk to 99% and a
+deploy failed. `bin/prune-images --dry-run` on the server lists what it
+would remove.
 
 The system check's email says what is wrong (the `/fail` ping carries the
 reasons). The prod check's carries the failing run's output; the run itself

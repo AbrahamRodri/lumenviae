@@ -359,3 +359,12 @@ jobs:
           # Unset normally (R2); set on a rollback off R2 (docs/DEPLOY_WATCH.md).
           ARTWORK_HOST: ${{ vars.ARTWORK_HOST }}
           AUDIO_HOST_SUFFIX: ${{ vars.AUDIO_HOST_SUFFIX }}
+      # Only after the checks pass: old release images and the build cache
+      # filled the disk once (5 Nov 2026). Keeps the running release and the
+      # one before it; never fails the deploy (deploy/vm/bin/prune-images).
+      - name: Prune old release images
+        if: steps.tip.outputs.is_tip == 'true'
+        continue-on-error: true
+        env:
+          VM: deploy@${{ secrets.VM_HOST }}
+        run: ssh -i ~/.ssh/vm "$VM" "cd /srv/lumenviae && bin/prune-images"

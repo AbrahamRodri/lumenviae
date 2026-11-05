@@ -1,0 +1,59 @@
+#!/bin/sh
+# Frees the disk after a good deploy: removes the app's old release images,
+# keeping the one running and the one before it (for a rollback), then
+# dangling layers and the build cache. Run by the deploy (ci.yml, "Prune old
+# release images") from the stack's folder, after the checks pass; by hand
+# with --dry-run to see what it would remove.
+#
+# It never removes an image a container uses (db, office, caddy, the app;
+# `docker rmi` without -f refuses those anyway), never touches volumes, and
+# always exits 0: a prune that fails leaves a good deploy good.
+#
+# 5 Nov 2026: the disk reached 99% from release images (4.1 GB) and build
+# cache (2.1 GB) no deploy removed, and a deploy failed for want of space.
+set -u
+
+cd "$(dirname "$0")/.."
+export IMAGE="${IMAGE:-unused-by-prune}"
+REPO=${RELEASE_REPO:-ghcr.io/abrahamrodri/lumenviae}
+dry=""
+[ "${1:-}" = "--dry-run" ] && dry=1
+
+say() { echo "prune-images: $*"; }
+run() { if [ -n "$dry" ]; then say "would run: $*"; else "$@" || say "failed (ignored): $*"; fi; }
+
+before=$(df -P / | awk 'NR == 2 { print $5 }')
+
+# Image ids any container uses, running or not.
+in_use=$(docker ps -aq | xargs -r docker inspect --format '{{.Image}}' 2>/dev/null | sed 's/^sha256://' | cut -c1-12 | sort -u)
+running=$(docker compose ps -q app 2>/dev/null | head -1 | xargs -r docker inspect --format '{{.Image}}' 2>/dev/null | sed 's/^sha256://' | cut -c1-12)
+if [ -z "$running" ]; then
+  say "no running app container found; removing nothing"
+  exit 0
+fi
+
+# The release images, newest first (docker lists by creation time): one
+# decision per image id, applied to every tag it has.
+releases=$(docker images "$REPO" --format '{{.ID}} {{.Tag}}')
+kept_previous=""
+printf '%s\n' "$releases" | awk '!seen[$1]++ { print $1 }' | while read -r id; do
+  [ -n "$id" ] || continue
+  tags=$(printf '%s\n' "$releases" | awk -v id="$id" '$1 == id { print $2 }' | tr '\n' ' ')
+  if [ "$id" = "$running" ]; then
+    say "keep $id ($tags), running"
+  elif printf '%s\n' "$in_use" | grep -qx "$id"; then
+    say "keep $id ($tags), a container uses it"
+  elif [ -z "$kept_previous" ]; then
+    kept_previous=1
+    say "keep $id ($tags), the previous release, for a rollback"
+  else
+    for tag in $tags; do run docker rmi "$REPO:$tag"; done
+  fi
+done
+
+run docker image prune -f
+run docker builder prune -af
+
+after=$(df -P / | awk 'NR == 2 { print $5 }')
+say "disk on / was $before, now $after${dry:+ (dry run: nothing removed)}"
+exit 0
