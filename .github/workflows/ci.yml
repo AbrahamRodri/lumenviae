@@ -262,6 +262,9 @@ jobs:
         env:
           EXPECT_COMMIT: ${{ github.sha }}
           OPS_STATUS_TOKEN: ${{ secrets.OPS_STATUS_TOKEN }}
+          # Unset normally (R2); set on a rollback off R2 (docs/DEPLOY_WATCH.md).
+          ARTWORK_HOST: ${{ vars.ARTWORK_HOST }}
+          AUDIO_HOST_SUFFIX: ${{ vars.AUDIO_HOST_SUFFIX }}
 
   # The same deploy on the VM in deploy/vm/, for after the switch
   # (reports/rig/hosting-migration.md). Skipped unless HOSTING is `vm`, so
@@ -353,3 +356,6 @@ jobs:
         env:
           EXPECT_COMMIT: ${{ github.sha }}
           OPS_STATUS_TOKEN: ${{ secrets.OPS_STATUS_TOKEN }}
+          # Unset normally (R2); set on a rollback off R2 (docs/DEPLOY_WATCH.md).
+          ARTWORK_HOST: ${{ vars.ARTWORK_HOST }}
+          AUDIO_HOST_SUFFIX: ${{ vars.AUDIO_HOST_SUFFIX }}

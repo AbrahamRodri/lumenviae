@@ -29,7 +29,8 @@ Everything is in `deploy/vm/` and is copied unchanged apart from names:
 | `backup.env.example` | The names in `backup.env`: the R2 bucket, its token, the site's folder |
 | `bin/backup` | `pg_dump` to R2, then checks R2 holds every byte and pings the dead man's switch; never deletes |
 | `bin/restore-test` | Restores the newest dump into a scratch database, checks its `schema_migrations` against the live one, prints the biggest tables, drops it |
-| `systemd/` | `backup@.timer` (nightly, 03:30 UTC) and `restore-test@.timer` (Sundays, 04:30 UTC), one instance per folder under `/srv` |
+| `bin/system-check`, `system-check.env.example` | Every 15 minutes: disk, memory and swap, the stack's containers and `/healthz` on the machine; pings a healthchecks.io check, at `/fail` with the reasons when something is wrong |
+| `systemd/` | `backup@.timer` (nightly, 03:30 UTC), `restore-test@.timer` (Sundays, 04:30 UTC) and `system-check@.timer` (every 15 minutes), one instance per folder under `/srv` |
 
 The CI side is the `deploy-vm` job in `.github/workflows/ci.yml`. It runs
 only when the repository variable `HOSTING` is `vm`: it builds the release

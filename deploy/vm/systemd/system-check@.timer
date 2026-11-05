@@ -1,0 +1,11 @@
+# Every 15 minutes, starting 5 minutes after boot.
+[Unit]
+Description=Check the server of /srv/%i every 15 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

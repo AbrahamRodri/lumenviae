@@ -1,0 +1,12 @@
+# The server check of the stack in /srv/<name> (deploy/vm/bin/system-check).
+# Installed once: docs/DEPLOY_WATCH.md, "Watch and rollback".
+[Unit]
+Description=Check the server and the stack of /srv/%i
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=deploy
+WorkingDirectory=/srv/%i
+ExecStart=/srv/%i/bin/system-check
