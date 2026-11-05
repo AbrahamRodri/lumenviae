@@ -159,6 +159,28 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
             />
           </div>
         </fieldset>
+
+        <fieldset>
+          <legend class={legend_class()}>On the screen</legend>
+          <button
+            type="button"
+            role="switch"
+            data-display="prayer-words"
+            data-toggle
+            aria-checked="true"
+            class="prayer-switch mt-2 flex items-center justify-between gap-4 w-full min-h-11 rounded-xl border px-4 py-3 text-left"
+          >
+            <span>
+              <span class="block kicker text-gilt">Show Words and Beads</span>
+              <span class="block mt-1 font-garamond text-base text-ink-muted leading-snug">
+                Off, only the prayer's name stays.
+              </span>
+            </span>
+            <span class="prayer-switch__track" aria-hidden="true">
+              <span class="prayer-switch__thumb"></span>
+            </span>
+          </button>
+        </fieldset>
       </div>
 
       <fieldset>

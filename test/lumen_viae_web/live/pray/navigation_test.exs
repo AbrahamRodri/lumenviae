@@ -186,16 +186,17 @@ defmodule LumenViaeWeb.Live.Pray.NavigationTest do
     end
   end
 
-  describe "the strand" do
-    test "jumps to a decade and marks it as the current step", %{conn: conn, path: path} do
+  describe "the Go to list" do
+    test "jumps to a decade and closes", %{conn: conn, path: path} do
       {:ok, view, _html} = live(conn, path)
 
+      view |> element("#go-to-toggle") |> render_click()
       view |> element("button[phx-click=go_to][phx-value-page='4']") |> render_click()
 
       assert_patch(view, at(path, 3, 0))
       assert render(view) =~ "The Fourth Joyful Mystery"
-      assert has_element?(view, ~s(button[phx-value-page='4'][aria-current="step"]))
-      assert has_element?(view, ~s(button[phx-value-page='0'][aria-current="false"]))
+      refute has_element?(view, "#prayer-go-to")
+      assert has_element?(view, "#go-to-toggle", "Mystery 4 of 5")
     end
   end
 

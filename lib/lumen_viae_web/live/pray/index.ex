@@ -114,6 +114,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
      |> assign(:fresh, false)
      |> assign(:resume, nil)
      |> assign(:panel_open, false)
+     |> assign(:go_to_open, false)
      |> assign(:show_meditation, false)
      |> assign(:completed, false)
      |> assign(:completion_tracked, false)
@@ -181,7 +182,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
 
       page ->
         page = page |> max(0) |> min(Sequence.last_page(socket.assigns.sequence))
-        {:noreply, patch_to(socket, page, 0)}
+        {:noreply, socket |> assign(:go_to_open, false) |> patch_to(page, 0)}
     end
   end
 
@@ -279,8 +280,18 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       when event in ~w(set_voice set_form toggle_extra set_language),
       do: {:noreply, socket}
 
-  def handle_event("toggle_panel", _params, socket),
-    do: {:noreply, assign(socket, :panel_open, !socket.assigns.panel_open)}
+  def handle_event("toggle_panel", _params, socket) do
+    {:noreply,
+     socket |> assign(:panel_open, !socket.assigns.panel_open) |> assign(:go_to_open, false)}
+  end
+
+  def handle_event("toggle_go_to", _params, socket) do
+    {:noreply,
+     socket |> assign(:go_to_open, !socket.assigns.go_to_open) |> assign(:panel_open, false)}
+  end
+
+  def handle_event("close_go_to", _params, socket),
+    do: {:noreply, assign(socket, :go_to_open, false)}
 
   def handle_event("toggle_meditation", _params, socket),
     do: {:noreply, assign(socket, :show_meditation, !socket.assigns.show_meditation)}

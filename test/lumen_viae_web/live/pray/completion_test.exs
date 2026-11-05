@@ -65,12 +65,13 @@ defmodule LumenViaeWeb.Live.Pray.CompletionTest do
     assert Rosary.count_total_completions(actor: admin()) == before
   end
 
-  test "jumping to the closing prayers by the strand records nothing", %{conn: conn} do
+  test "jumping to the closing prayers by the Go to list records nothing", %{conn: conn} do
     set = create_set()
     before = Rosary.count_total_completions(actor: admin())
 
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
+    view |> element("#go-to-toggle") |> render_click()
     view |> element("button[phx-click=go_to][phx-value-page='6']") |> render_click()
 
     assert Rosary.count_total_completions(actor: admin()) == before
