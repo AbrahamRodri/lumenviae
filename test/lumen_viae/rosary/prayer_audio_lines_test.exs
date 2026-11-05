@@ -1,12 +1,22 @@
 defmodule LumenViae.Rosary.PrayerAudioLinesTest do
   @moduledoc """
   The spoken Rosary's lines (`priv/rosary_audio/lines/<voice>.json`): each
-  timed recording is one a voice really serves, its lines fit inside the
+  timed recording is one a production voice really serves, its lines fit inside the
   recording, one after another, and together say exactly the clip's words.
   """
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
+
+  import LumenViae.Test.EnvStub, only: [put_env: 3]
 
   alias LumenViae.Rosary.{PrayerAudio, Voices}
+  alias LumenViae.Test.SpokenRosaryClips
+
+  # The lines are production's recordings, whose file names hash
+  # production's voices; the suite runs on voices of its own.
+  setup do
+    put_env(:lumen_viae, :narration_voices, SpokenRosaryClips.production_voices())
+    :ok
+  end
 
   @kinds [:prayer, :announcement, :verse, :book]
 
@@ -65,6 +75,19 @@ defmodule LumenViae.Rosary.PrayerAudioLinesTest do
     for {slug, files} <- PrayerAudio.timed_lines(), {file, timed} <- files do
       clip = get_in(served, [slug, file])
       assert words(Enum.map_join(timed.lines, " ", & &1.text)) == words(clip.text), file
+    end
+  end
+
+  # The Memorare's first line fails the timing checks in both voices
+  # (Whisper hears "O most" as "almost"), so it is left untimed rather
+  # than guessed; every other prayer the Rosary says is timed.
+  @untimed_prayers ~w(memorare)
+
+  test "the Rosary's prayers are timed in every voice" do
+    for voice <- Voices.list(),
+        clip <- PrayerAudio.prayers(),
+        clip.name not in @untimed_prayers do
+      assert PrayerAudio.lines(voice, clip), "#{voice.slug} #{clip.name} has no lines"
     end
   end
 

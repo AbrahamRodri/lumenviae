@@ -12,10 +12,14 @@ defmodule LumenViaeWeb.JsonApi.RosaryAudioLinesTest do
   import LumenViaeWeb.JsonApiHelpers
 
   alias LumenViae.Rosary.{PrayerAudio, Voices}
+  alias LumenViae.Test.SpokenRosaryClips
 
+  # The lines are production's recordings, keyed by file names that hash
+  # production's voices; the suite runs on voices of its own.
   setup do
     put_env(:ex_aws, :access_key_id, "test-key")
     put_env(:ex_aws, :secret_access_key, "test-secret")
+    put_env(:lumen_viae, :narration_voices, SpokenRosaryClips.production_voices())
     :ok
   end
 
@@ -50,6 +54,9 @@ defmodule LumenViaeWeb.JsonApi.RosaryAudioLinesTest do
       served = Enum.at(data["verses"][verse.mystery], verse.bead - 1)
       assert served["lines"] == expected(verse)
     end
+
+    assert [%{"text" => "Hail Mary, full of grace, the Lord is with thee;"} | _] =
+             data["prayers"]["hail_mary"]["lines"]
   end
 
   test "v2 and GraphQL serve the same lines as v1", %{conn: conn} do
