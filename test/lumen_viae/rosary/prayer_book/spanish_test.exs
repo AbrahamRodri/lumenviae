@@ -13,16 +13,16 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-03 04:13:00Z], "a8b97f227d3da15b"}
+  @pinned {~U[2026-11-05 02:40:00Z], "9165c0a99fe315c8"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
   # closing prayer the Rosary marks.
-  @ai_translated_count 82
+  @ai_translated_count 83
 
-  # The Advent prayers added in English on 5 November 2026; the Spanish
-  # team adds them to priv/library/es/prayer_book.json and empties this.
-  @awaiting_spanish ~w(immaculate_conception_novena st_andrew_novena o_antiphons)
+  # A prayer newly added in English, until the Spanish team adds it to
+  # priv/library/es/prayer_book.json. None now.
+  @awaiting_spanish []
 
   test "the file is pinned by its date and words" do
     assert {Spanish.file_updated_at(), Spanish.file_version()} == @pinned, """

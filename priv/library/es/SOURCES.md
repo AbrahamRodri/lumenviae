@@ -422,6 +422,116 @@ No good Spanish version was found, so the team translated these from the book's 
 - `deceased_parents`: Translated from our English and the Latin.
 - `prayer_for_travel`: The Itinerarium is not in the Spanish Liturgia de las Horas and no Spanish text was found.
 
+## The Advent prayers
+
+Added on 5 November 2026, for the three prayers the book added in English
+that day. Each copied text was checked word for word against a saved copy
+of its source (page scans for the 1860 book and the 1962 missal). The
+layout changes are those of the first list.
+
+### `o_antiphons`: "Antífonas de la O"
+
+The Church's Spanish: the *Liturgia de las Horas* of the Spanish bishops'
+conference (CEE), the Magnificat antiphons at Vespers of 17 to 23
+December, as [iBreviary](https://www.ibreviary.com/m2/breviario.php?s=vespri)
+prints them (the site cited as [16]). The title is the usual Spanish name,
+the one closest to the English.
+
+- Changed: "Ant." removed; each antiphon headed by the English's rubric
+  (`[Día 17 de diciembre.]`); the page's misprint "delbarro" (22 December)
+  corrected to "del barro".
+- Differs from the English, which follows the Latin closely, as the modern
+  liturgical translation does: 17 "el camino de la salvación" for the way
+  of prudence; 18 "Pastor" for Leader and "con el poder de tu brazo" for
+  with an outstretched arm; 19 "Renuevo del tronco de Jesé" for Root of
+  Jesse and "cuyo auxilio imploran las naciones" for to whom the Gentiles
+  shall make their prayer; 20 "los cautivos" in the plural; 21 "Sol que
+  naces de lo alto" for Dayspring, with "ahora" added; 22 "Piedra angular
+  de la Iglesia", "que haces de dos pueblos uno solo" and "del barro de la
+  tierra"; 23 "esperanza de las naciones y salvador de los pueblos" for
+  the Expected of the nations and their Saviour.
+
+### `st_andrew_novena`: "Novena de Navidad de San Andrés"
+
+The Archdiocese of Saint Paul and Minneapolis, "Oración de anticipación
+de Navidad", on
+[archspm.org](https://www.archspm.org/es/christmas-anticipation-prayer/),
+copied word for word. No Spanish text has its own imprimatur: each
+translates the 1897 English. This is the one Church page found that could
+be saved. Its form starts "Salve"; the "Ave y bendita sea" form was found
+only on a blog. Not used: the Archdiocese of Philadelphia's version
+(closer to the English, "dígnate", "frío penetrante"), whose own page
+refused access and could be read only as quoted by InfoCatólica; the
+Diocese of Tucson / OSV News version, which adds a clause; versions with
+the error "concédete"; parish bulletins with the calque "oh mi Dios". The
+title is the devotion's usual Spanish name, as the English title is.
+
+- Differs from the English: "Salve" for Hail; "frío glacial" for piercing
+  cold; "te suplico... que escuches" with no word for vouchsafe.
+
+### `immaculate_conception_novena`: "Novena a la Inmaculada Concepción" (`ai_translated`)
+
+A mixed text, so it is marked `ai_translated`:
+
+- The preparatory prayer and the nine prayers of the days: the same
+  Raccolta novena (Pius VII, 1808) in Spanish, *Colección de oraciones y
+  obras piadosas por las cuales han concedido los Sumos Pontífices santas
+  indulgencias*, from the 13th Roman edition, translated by J. M. and
+  Agustín Ferrer, Pbro. (Barcelona, 1860, with the Ordinary's licence),
+  pp. 266 to 274, on
+  [archive.org](https://archive.org/details/coleccion-de-oraciones-y-obras-piadosas-con-indulegncias).
+  Public domain. No other Spanish of this novena was found (ACI Prensa's,
+  Opus Dei's and other "Novena a la Inmaculada" are different texts).
+- "Ven, Espíritu Santo": this file's `come_holy_ghost`, word for word,
+  headed `[Oremos.]` as the English is, its "Amén" as "℟. Amén.".
+- The three collects: [13] (Lefebvre), 8 December p. 1249, "Por el Papa"
+  p. 1226, and "En cualquier necesidad" p. 1934. The 1860 book prints
+  them in Latin.
+- The team's translation: every rubric, the Tota pulchra versicles
+  (following Lefebvre's Spanish of the 8 December Gradual and Tract where
+  they say the same), the versicle "En tu concepción, oh Virgen..." and
+  its response, and the endings of the first two collects, which follow
+  the English (the Immaculate Conception's "Por Cristo nuestro Señor.
+  Amén."; none for the Pope's).
+
+Changed from the 1860 book, spelling and accents only: "á" and "ó" to "a"
+and "o", the interjection "ó" to "oh", "Vírgen" to "Virgen", accents on
+-ión words and on "día", "después", "Adán", "más"; "hácia", "piés",
+"fuéseis", "triunfáseis", "fuísteis", "adorásteis", "dísteis" to "hacia",
+"pies", "fueseis", "triunfaseis", "fuisteis", "adorasteis", "disteis";
+"teneis", "hayais", "digneis", "alcanceis", "hagais" with their accents;
+"y qué muera" to "y que muera". Spaces before punctuation removed, the
+quotation set as «Mostrad que sois nuestra Madre». and its Latin tag
+("Monstra te esse Matrem") left out, as the English has none. The book's
+headings and rubrics give way to the English's in Spanish, and its rubric
+repeated after each day ("Se rezará la Letanía o el Himno...") is left
+out, as the English gives it once. "nono" is "noveno". Lowercase after "!"
+is kept as printed. Lefebvre: a footnote mark removed.
+
+Where it differs from the English:
+
+- The 1860 prayers speak to Mary in vos ("os venero", "alcanzadme"), the
+  book's own form, kept as in `memorare_st_joseph`; the versicles, the
+  team's, use tú. They keep the book's leísmo ("volver a cometerle" for
+  sin, "inflamadle" for the heart, "le ame" for God): the rule is spelling
+  only, never the wording.
+- The preparatory prayer: "y desde aquel primer instante toda hermosa y
+  sin mancilla" for all fair and stainless in thy Conception; "Madre de
+  misericordia"; "lo que en esta Novena os consagro"; «Mostrad que sois
+  nuestra Madre» for Show thyself a mother.
+- The days: 1 "Aquí me tenéis a vuestros santísimos pies" and "Ea, pues,
+  haced que los venza"; 2 "me lleno de confusión en vuestra presencia"
+  for overwhelmed with shame; 3 and 7 no "mortal" before sin; 5 "la
+  pasión y muerte" and no "Precious"; 6 ends "eternamente." with no "world
+  without end. Amen."; 7 "un total y continuo aborrecimiento al pecado
+  sobre todo otro mal"; 8 "que jamás abuse de ella" for never more to
+  receive it in vain, "una total renovación de mi vida"; 9 "ejemplar de
+  pureza", "descendía la plena bendición", "gozar de Vos coronada de tanta
+  gloria".
+- The collects (Lefebvre): "llegar puros hasta ti" and "por la
+  intercesión de María"; "pastor y guía", "pastor y jefe de tu Iglesia",
+  "aproveche a los que preside"; "la fuente misma de la religión" for the
+  author of all holiness, "fervientes ruegos" for pious prayers.
 
 # Sources of the Consecration's Spanish
 
