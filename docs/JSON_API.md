@@ -672,7 +672,9 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   prayer the book prints that has a Spanish text, in the book's order,
   each `{id, title, text}`: `id` is one of `prayers`, `title` and `text`
   are the Spanish, `text` in the same `PrayerText` grammar as `english`.
-  Every prayer the book prints is listed. A prayer that is the team's
+  Every prayer the book prints is listed, but a prayer newly added in
+  English until its Spanish follows (the Advent prayers of 5 November
+  2026, for a time). A prayer that is the team's
   own translation (no good Spanish version was found) carries
   `ai_translated: true`, for the app's notice; the key is absent
   otherwise. A client still shows the English for a prayer it does not
