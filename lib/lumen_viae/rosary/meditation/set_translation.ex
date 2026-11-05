@@ -7,6 +7,13 @@ defmodule LumenViae.Rosary.Meditation.SetTranslation do
   use Ash.TypedStruct
 
   typed_struct do
+    field :name, :string,
+      description: "The set's name in this language, or null: show the English."
+
+    field :author, :string,
+      description:
+        "The set's author in this language (the usual Spanish form of the name), or null: show the English."
+
     field :description, :string,
       description: "The set's description in this language, or null: show the English."
 

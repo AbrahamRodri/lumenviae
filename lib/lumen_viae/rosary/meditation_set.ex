@@ -200,7 +200,7 @@ defmodule LumenViae.Rosary.MeditationSet do
       argument :category, :string
 
       argument :lang, :string do
-        description "The language of `translations` and `set_translation`: `es` fills them with the Spanish of the set's meditations and of its own description, source and image alt. Missing, `en` or a language not served: the sets as they always were, `translations` empty and `set_translation` null."
+        description "The language of `translations` and `set_translation`: `es` fills them with the Spanish of the set's meditations and of its own name, author, description, source and image alt. Missing, `en` or a language not served: the sets as they always were, `translations` empty and `set_translation` null."
       end
 
       prepare LumenViae.Rosary.Meditation.Language
@@ -371,7 +371,7 @@ defmodule LumenViae.Rosary.MeditationSet do
               LumenViae.Rosary.Meditation.SetTextTranslation do
       public? true
 
-      description "With `lang=es`, the set's own description, source and image alt in Spanish, each null where it has none or its English has changed: show the English. `ai_translated` marks the team's own translation. Null in English, and for a set with no Spanish."
+      description "With `lang=es`, the set's own name, author, description, source and image alt in Spanish, each null where it has none or its English has changed: show the English. `ai_translated` marks the team's own translation. Null in English, and for a set with no Spanish."
     end
 
     # Built on the two unauthorized aggregates below rather than on

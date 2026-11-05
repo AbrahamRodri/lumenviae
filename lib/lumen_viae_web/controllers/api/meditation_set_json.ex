@@ -48,7 +48,13 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
     Map.put(
       data,
       :set_translation,
-      %{description: spanish.description, source: spanish.source, image_alt: spanish.artwork_alt}
+      %{
+        name: spanish.name,
+        author: spanish.author,
+        description: spanish.description,
+        source: spanish.source,
+        image_alt: spanish.artwork_alt
+      }
       |> then(
         &if(Map.get(spanish, :ai_translated) == true,
           do: Map.put(&1, :ai_translated, true),

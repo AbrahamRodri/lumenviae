@@ -1,7 +1,15 @@
 {
-  "updated_at": "2026-11-05T03:00:00Z",
+  "updated_at": "2026-11-05T03:10:00Z",
   "sets": {
     "25": {
+      "name": {
+        "es": "Beato Fulton J. Sheen",
+        "english": "1b5a677f85a72a65"
+      },
+      "author": {
+        "es": "Arzobispo Fulton J. Sheen",
+        "english": "384e161b29d82bd8"
+      },
       "description": {
         "es": "Meditaciones del arzobispo Fulton J. Sheen sobre los misterios gloriosos",
         "english": "84aeba7036321813"
@@ -16,6 +24,14 @@
       }
     },
     "26": {
+      "name": {
+        "es": "Beato Fulton J. Sheen",
+        "english": "1b5a677f85a72a65"
+      },
+      "author": {
+        "es": "Arzobispo Fulton J. Sheen",
+        "english": "384e161b29d82bd8"
+      },
       "description": {
         "es": "Meditaciones del arzobispo Fulton J. Sheen sobre los misterios gozosos",
         "english": "292dd2d11147f471"
@@ -30,6 +46,14 @@
       }
     },
     "27": {
+      "name": {
+        "es": "Beato Fulton J. Sheen",
+        "english": "1b5a677f85a72a65"
+      },
+      "author": {
+        "es": "Arzobispo Fulton J. Sheen",
+        "english": "384e161b29d82bd8"
+      },
       "description": {
         "es": "Meditaciones del arzobispo Fulton J. Sheen sobre los misterios dolorosos",
         "english": "e48b41db9db67a4f"
@@ -44,6 +68,14 @@
       }
     },
     "28": {
+      "name": {
+        "es": "San Alfonso María de Ligorio",
+        "english": "1a7dad605e586c2c"
+      },
+      "author": {
+        "es": "San Alfonso María de Ligorio",
+        "english": "1a7dad605e586c2c"
+      },
       "description": {
         "es": "Una breve consideración y una oración de San Alfonso María de Ligorio sobre los misterios gloriosos, tomadas de su libro Las glorias de María.",
         "english": "730a835075913689"
@@ -58,6 +90,14 @@
       }
     },
     "29": {
+      "name": {
+        "es": "San Alfonso María de Ligorio",
+        "english": "1a7dad605e586c2c"
+      },
+      "author": {
+        "es": "San Alfonso María de Ligorio",
+        "english": "1a7dad605e586c2c"
+      },
       "description": {
         "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios gozosos, tomadas de su libro Las glorias de María.",
         "english": "1a586c8efcd177df"
@@ -72,6 +112,14 @@
       }
     },
     "30": {
+      "name": {
+        "es": "San Alfonso María de Ligorio",
+        "english": "1a7dad605e586c2c"
+      },
+      "author": {
+        "es": "San Alfonso María de Ligorio",
+        "english": "1a7dad605e586c2c"
+      },
       "description": {
         "es": "Una breve reflexión y una oración de San Alfonso María de Ligorio sobre los misterios dolorosos, tomadas de su libro Las glorias de María.",
         "english": "2379d757807ce088"
@@ -86,6 +134,14 @@
       }
     },
     "42": {
+      "name": {
+        "es": "Beata Ana Catalina Emmerich",
+        "english": "d5cef1a750091ff7"
+      },
+      "author": {
+        "es": "Beata Ana Catalina Emmerich",
+        "english": "d5cef1a750091ff7"
+      },
       "description": {
         "es": "Pasajes textuales de las visiones de la Beata Ana Catalina Emmerich sobre los misterios gozosos, tomados de Vida de Jesucristo y revelaciones bíblicas (1914).",
         "english": "b2d6664e2ed0abb2"
@@ -100,6 +156,14 @@
       }
     },
     "45": {
+      "name": {
+        "es": "Beata Ana Catalina Emmerich",
+        "english": "d5cef1a750091ff7"
+      },
+      "author": {
+        "es": "Beata Ana Catalina Emmerich",
+        "english": "d5cef1a750091ff7"
+      },
       "description": {
         "es": "Pasajes textuales de las visiones de la Beata Ana Catalina Emmerich sobre los misterios dolorosos, tomados de La dolorosa Pasión de Nuestro Señor Jesucristo (1862).",
         "english": "622453cd9dd3e454"
@@ -114,6 +178,14 @@
       }
     },
     "46": {
+      "name": {
+        "es": "Beata Ana Catalina Emmerich",
+        "english": "d5cef1a750091ff7"
+      },
+      "author": {
+        "es": "Beata Ana Catalina Emmerich",
+        "english": "d5cef1a750091ff7"
+      },
       "description": {
         "es": "Pasajes textuales de las visiones de la Beata Ana Catalina Emmerich sobre los misterios gloriosos, tomados de Vida de Jesucristo y revelaciones bíblicas, vol. 4 (1914).",
         "english": "abe4073c15b414be"
@@ -128,6 +200,14 @@
       }
     },
     "48": {
+      "name": {
+        "es": "San Ignacio de Loyola",
+        "english": "ae2ffa1cbb946d92"
+      },
+      "author": {
+        "es": "San Ignacio de Loyola",
+        "english": "ae2ffa1cbb946d92"
+      },
       "description": {
         "es": "San Ignacio presenta cada misterio en unos pocos puntos numerados: breves escenas del Evangelio, no reflexiones acabadas. Recorre cada punto despacio: imagina a las personas, escucha las palabras y detente en lo que te haga vivir el misterio más de cerca. Como él enseñaba, no es el mucho saber lo que harta y satisface el alma, sino el sentir y gustar de las cosas internamente.",
         "english": "88986c7f50f106c3"
@@ -142,6 +222,14 @@
       }
     },
     "52": {
+      "name": {
+        "es": "San John Henry Newman",
+        "english": "15ebcf6367cd6ef9"
+      },
+      "author": {
+        "es": "San John Henry Newman",
+        "english": "15ebcf6367cd6ef9"
+      },
       "description": {
         "es": "De Meditaciones y devociones del cardenal Newman. Tres provienen de sus Meditaciones sobre la doctrina cristiana y dos de sus meditaciones de mayo sobre los títulos de las letanías lauretanas.",
         "english": "30e1cd54ff1a446f"
@@ -156,6 +244,14 @@
       }
     },
     "53": {
+      "name": {
+        "es": "Beata Ana Catalina Emmerich",
+        "english": "d5cef1a750091ff7"
+      },
+      "author": {
+        "es": "Beata Ana Catalina Emmerich",
+        "english": "d5cef1a750091ff7"
+      },
       "description": {
         "es": "Escenas de la vida pública de Cristo tal como Ana Catalina Emmerich las vio en visión: los cielos abiertos en el Jordán, el agua convertida en vino en Caná, el Reino predicado desde una barca en el lago, la gloria en el monte Tabor y la Última Cena.",
         "english": "0a5c0b28aefffc48"
@@ -166,6 +262,14 @@
       }
     },
     "54": {
+      "name": {
+        "es": "San Agustín",
+        "english": "e41d8beedcfd4fb6"
+      },
+      "author": {
+        "es": "San Agustín",
+        "english": "e41d8beedcfd4fb6"
+      },
       "description": {
         "es": "Cinco pasajes de la predicación de San Agustín, tomados de sus Tratados sobre el Evangelio de San Juan y de sus Sermones sobre lecturas escogidas del Nuevo Testamento. Cada uno explica lo que significa la escena en lugar de volver a narrarla.",
         "english": "9d082965315e8b1e"
@@ -176,6 +280,14 @@
       }
     },
     "55": {
+      "name": {
+        "es": "San Juan Crisóstomo",
+        "english": "b83a3a272c442fb7"
+      },
+      "author": {
+        "es": "San Juan Crisóstomo",
+        "english": "b83a3a272c442fb7"
+      },
       "description": {
         "es": "Pasajes de las homilías de San Juan Crisóstomo sobre los Evangelios de San Mateo y San Juan, predicadas en Antioquía a finales del siglo IV. Cada extracto expone un misterio luminoso tal como Crisóstomo lo enseñaba a sus fieles.",
         "english": "6e870e39f105944d"
@@ -186,6 +298,14 @@
       }
     },
     "56": {
+      "name": {
+        "es": "Santo Tomás de Aquino",
+        "english": "3d2c5cd86abad597"
+      },
+      "author": {
+        "es": "Santo Tomás de Aquino",
+        "english": "3d2c5cd86abad597"
+      },
       "description": {
         "es": "Cinco breves consideraciones de la tercera parte de la Suma teológica, en las que Santo Tomás de Aquino explica por qué cada uno de estos misterios tuvo que suceder como sucedió. Razonadas y doctrinales más que imaginativas.",
         "english": "e131030eff4f40c1"
@@ -200,6 +320,14 @@
       }
     },
     "58": {
+      "name": {
+        "es": "Venerable María de Jesús de Ágreda",
+        "english": "104d4da6eb770ad2"
+      },
+      "author": {
+        "es": "Venerable María de Jesús de Ágreda",
+        "english": "104d4da6eb770ad2"
+      },
       "description": {
         "es": "Pasajes narrativos de la Mística Ciudad de Dios, la vida de la Virgen María tal como la Venerable María de Jesús de Ágreda la recibió por revelación privada. Cada extracto recoge un único momento de los misterios gozosos tal como ella lo describe.",
         "english": "37276e922a91911c"
@@ -214,6 +342,14 @@
       }
     },
     "59": {
+      "name": {
+        "es": "Padre Federico Guillermo Faber",
+        "english": "cf0c50fb7530c292"
+      },
+      "author": {
+        "es": "Padre Federico Guillermo Faber",
+        "english": "cf0c50fb7530c292"
+      },
       "description": {
         "es": "Cinco escenas de la Sagrada Infancia, de Federico Guillermo Faber, tomadas sobre todo de su tratado Belén; la Presentación y el Niño hallado en el templo provienen de su libro sobre los dolores de Nuestra Señora. Faber se detiene en lo que María vio e hizo en cada momento.",
         "english": "915e7e797d8fb6dc"
@@ -224,6 +360,14 @@
       }
     },
     "60": {
+      "name": {
+        "es": "Venerable María de Jesús de Ágreda",
+        "english": "104d4da6eb770ad2"
+      },
+      "author": {
+        "es": "Venerable María de Jesús de Ágreda",
+        "english": "104d4da6eb770ad2"
+      },
       "description": {
         "es": "Siete escenas narradas desde María: lo que la Madre supo, vio y sufrió en la profecía de Simeón, en la huida a Egipto, en la pérdida del Niño en el templo, en el camino del Calvario, al pie de la Cruz y en el sepulcro.",
         "english": "8fa94c68b6baabd4"
@@ -238,6 +382,14 @@
       }
     },
     "61": {
+      "name": {
+        "es": "San Alfonso María de Ligorio",
+        "english": "1a7dad605e586c2c"
+      },
+      "author": {
+        "es": "San Alfonso María de Ligorio",
+        "english": "1a7dad605e586c2c"
+      },
       "description": {
         "es": "Reflexiones sobre cada uno de los siete dolores de María, tomadas de la sección final de Las glorias de María, de San Alfonso María de Ligorio. San Alfonso recorre los dolores uno a uno, y considera lo que cada uno le costó a la Madre de Dios y lo que pide al alma que reza junto a ella.",
         "english": "d371fd4d62fda7e5"
@@ -252,6 +404,14 @@
       }
     },
     "62": {
+      "name": {
+        "es": "San Juan Crisóstomo",
+        "english": "b83a3a272c442fb7"
+      },
+      "author": {
+        "es": "San Juan Crisóstomo",
+        "english": "b83a3a272c442fb7"
+      },
       "description": {
         "es": "Pasajes de las homilías de San Juan Crisóstomo sobre San Mateo y San Juan, que siguen la Pasión desde Getsemaní hasta la muerte en la cruz.",
         "english": "77a27d0189091ddf"
@@ -262,6 +422,14 @@
       }
     },
     "63": {
+      "name": {
+        "es": "Dom Próspero Guéranger",
+        "english": "76dd1a32a7315594"
+      },
+      "author": {
+        "es": "Dom Próspero Guéranger",
+        "english": "76dd1a32a7315594"
+      },
       "description": {
         "es": "Extractos de El año litúrgico, de Dom Próspero Guéranger, sobre la Pascua, la Ascensión y Pentecostés; y, sobre la Asunción y la realeza de Nuestra Señora, de la continuación de su obra escrita por un monje de Solesmes.",
         "english": "db17f596d457238a"
@@ -272,6 +440,14 @@
       }
     },
     "64": {
+      "name": {
+        "es": "Dom Próspero Guéranger",
+        "english": "76dd1a32a7315594"
+      },
+      "author": {
+        "es": "Dom Próspero Guéranger",
+        "english": "76dd1a32a7315594"
+      },
       "description": {
         "es": "Pasajes del comentario de Dom Próspero Guéranger a la Semana Santa, día por día, que sigue la Pasión hora por hora y se detiene en cada escena para adorar.",
         "english": "4de4a4bf9bdcb93f"
@@ -286,6 +462,14 @@
       }
     },
     "65": {
+      "name": {
+        "es": "Padre Federico Guillermo Faber",
+        "english": "cf0c50fb7530c292"
+      },
+      "author": {
+        "es": "Padre Federico Guillermo Faber",
+        "english": "cf0c50fb7530c292"
+      },
       "description": {
         "es": "Meditaciones sobre los siete dolores de María, tomadas del estudio que el Padre Faber dedicó a sus dolores en 1858. Cada pasaje acompaña a la Madre en una escena, desde las palabras de Simeón en el templo hasta el cierre del sepulcro en el huerto.",
         "english": "1ca708d02c8cf74e"

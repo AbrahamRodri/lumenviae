@@ -40,6 +40,7 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetTextSpanishTest do
         %{
           name: "ES Set Text #{System.unique_integer([:positive])}",
           category: "joyful",
+          author: "St. Alphonsus Liguori",
           description: "Meditations on the Joyful Mysteries.",
           source: "Glories of Mary"
         },
@@ -69,6 +70,11 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetTextSpanishTest do
 
     put_sets(%{
       "#{set.id}" => %{
+        "name" => %{"es" => "Juegos de Ligorio", "english" => SetSpanish.fingerprint(set.name)},
+        "author" => %{
+          "es" => "San Alfonso María de Ligorio",
+          "english" => SetSpanish.fingerprint("St. Alphonsus Liguori")
+        },
         "description" => %{
           "es" => "Meditaciones sobre los misterios gozosos.",
           "english" => SetSpanish.fingerprint("Meditations on the Joyful Mysteries.")
@@ -96,6 +102,8 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetTextSpanishTest do
   end
 
   @spanish %{
+    "name" => "Juegos de Ligorio",
+    "author" => "San Alfonso María de Ligorio",
     "description" => "Meditaciones sobre los misterios gozosos.",
     "source" => "Las glorias de María",
     "artwork_alt" => "Retrato",
@@ -161,11 +169,13 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetTextSpanishTest do
   test "GraphQL: setTranslation with lang: es, null without", %{set: set} do
     query = fn args ->
       graphql(build_conn(), """
-      { meditationSet(id: #{set.id}#{args}) { setTranslation { description source artworkAlt aiTranslated } } }
+      { meditationSet(id: #{set.id}#{args}) { setTranslation { name author description source artworkAlt aiTranslated } } }
       """)
     end
 
     assert get_in(query.(~s|, lang: "es"|), ["data", "meditationSet", "setTranslation"]) == %{
+             "name" => "Juegos de Ligorio",
+             "author" => "San Alfonso María de Ligorio",
              "description" => "Meditaciones sobre los misterios gozosos.",
              "source" => "Las glorias de María",
              "artworkAlt" => "Retrato",
@@ -184,6 +194,8 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetTextSpanishTest do
       spanish = v1(build_conn(), set, "?lang=es")
 
       assert spanish["set_translation"] == %{
+               "name" => "Juegos de Ligorio",
+               "author" => "San Alfonso María de Ligorio",
                "description" => "Meditaciones sobre los misterios gozosos.",
                "source" => "Las glorias de María",
                "image_alt" => "Retrato",

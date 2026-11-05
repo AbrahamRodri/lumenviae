@@ -1262,7 +1262,7 @@ GET /api/v2/meditation-sets/:id?lang=es&fields[meditation_set]=name,category,des
 GET /api/v2/meditation-sets?lang=es&fields[meditation_set]=...,set_translation
 ```
 
-GraphQL: `meditationSet(id: 48, lang: "es") { translations { id title content aiTranslated } setTranslation { description source artworkAlt aiTranslated } }`.
+GraphQL: `meditationSet(id: 48, lang: "es") { translations { id title content aiTranslated } setTranslation { name author description source artworkAlt aiTranslated } }`.
 
 - **No `lang`, `lang=en`, or a language not served**: every set exactly
   as before. `translations`, when asked for, is `[]`.
@@ -1275,14 +1275,16 @@ GraphQL: `meditationSet(id: 48, lang: "es") { translations { id title content ai
   the English for a meditation not listed. The included meditations stay
   English.
 - **`set_translation`**, with `lang=es`: the set's own words in Spanish,
-  `{description, source, artwork_alt, ai_translated}`. `description` and
-  `source` stand for the set's `description` and `source`, `artwork_alt`
-  for its `artwork.alt`; each is null where it has no Spanish (show the
-  English). The descriptions and alt texts are the team's translation,
+  `{name, author, description, source, artwork_alt, ai_translated}`.
+  Each stands for the set's field of that name, `artwork_alt` for its
+  `artwork.alt`; each is null where it has no Spanish (show the English).
+  Names and authors are in their usual Spanish forms ("San Alfonso María
+  de Ligorio", "Santo Tomás de Aquino"). The names, authors, descriptions
+  and alt texts are the team's translation,
   so `ai_translated` is `true`; a `source` is the Spanish edition's title
   where the meditations were copied from one, which may stand where the
   English `source` is null. Null in English and for a set with no
-  Spanish. `name`, `author` and `labels` stay English. Only when asked
+  Spanish. The set's own `name`, `author` and `labels` stay English. Only when asked
   for in `fields`: the default fields are unchanged.
 - **An English edit falls back to English.** Each Spanish text records a
   fingerprint of the English it translates, and is served only while the

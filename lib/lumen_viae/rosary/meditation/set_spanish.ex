@@ -1,13 +1,15 @@
 defmodule LumenViae.Rosary.Meditation.SetSpanish do
   @moduledoc """
-  The meditation sets' own words in Spanish: a set's description, source
-  and image alt text, as its `set_translation` serves them with `lang=es`.
+  The meditation sets' own words in Spanish: a set's name, author,
+  description, source and image alt text, as its `set_translation` serves
+  them with `lang=es`.
 
   The sets live in the database and are edited in the console; the
   Spanish lives in `priv/meditations/es/sets.json`, keyed by set id. Each
   field holds its Spanish (`es`) and the `english` fingerprint
   (`fingerprint/1`) of the English it stands for, as a client is shown it:
-  the description, the byline's source (`byline_source`) and the alt text
+  the name, the byline's author and source (`byline_author`,
+  `byline_source`), the description and the alt text
   of the artwork the set is shown with. A field is served only while its
   English still has that fingerprint; an English edit makes it fall back
   to the English. An `english` of null stands for no English: the Spanish
@@ -15,8 +17,9 @@ defmodule LumenViae.Rosary.Meditation.SetSpanish do
   edition the English does not name). A field the entry leaves out has no
   Spanish.
 
-  The descriptions and alt texts are the team's translation, so a set
-  served with any of them is marked `ai_translated`; a source is the
+  The names, authors, descriptions and alt texts are the team's
+  translation (names in their usual Spanish forms), so a set served with
+  any of them is marked `ai_translated`; a source is the
   Spanish edition's title where the Spanish was copied from one, else the
   English citation translated. `priv/meditations/es/SOURCES.md` lists
   them. Nothing here is narrated or written.
@@ -31,7 +34,13 @@ defmodule LumenViae.Rosary.Meditation.SetSpanish do
   @external_resource @path
 
   # The file's field, and the key it is served under.
-  @fields %{"description" => :description, "source" => :source, "image_alt" => :artwork_alt}
+  @fields %{
+    "name" => :name,
+    "author" => :author,
+    "description" => :description,
+    "source" => :source,
+    "image_alt" => :artwork_alt
+  }
 
   file = @path |> File.read!() |> Jason.decode!()
 
@@ -77,13 +86,15 @@ defmodule LumenViae.Rosary.Meditation.SetSpanish do
   end
 
   @doc """
-  The Spanish of a set's description, source and artwork alt text, given
-  the English a client is shown for each: `%{description:, source:,
-  artwork_alt:, ai_translated: true}`, each field nil where it has no
+  The Spanish of a set's name, author, description, source and artwork
+  alt text, given the English a client is shown for each: `%{name:,
+  author:, description:, source:, artwork_alt:, ai_translated: true}`, each field nil where it has no
   Spanish or its English has changed. Nil when the set has no Spanish at
   all, or none still matches.
   """
   @spec translation(integer, %{
+          name: String.t() | nil,
+          author: String.t() | nil,
           description: String.t() | nil,
           source: String.t() | nil,
           artwork_alt: String.t() | nil

@@ -1094,8 +1094,8 @@ defmodule LumenViae.Rosary do
   With `lang:` (the v1 API's `?lang=`), the set also carries its
   `translations` (`LumenViae.Rosary.Meditation.SetTranslations`) and
   `set_translation` (`LumenViae.Rosary.Meditation.SetTextTranslation`):
-  the Spanish of its meditations and of its own description, source and
-  image alt for `"es"`, none otherwise. Without it, the
+  the Spanish of its meditations and of its own name, author, description,
+  source and image alt for `"es"`, none otherwise. Without it, the
   read is exactly as before.
   """
   def fetch_visible_meditation_set(id, opts \\ []) do

@@ -269,19 +269,26 @@ estate's permission whatever the US status. The three sets stay English.
 
 ## The sets' own words
 
-`priv/meditations/es/sets.json` holds each visible set's description,
-source and image alt text in Spanish, served in `set_translation` with
+`priv/meditations/es/sets.json` holds each visible set's name, author,
+description, source and image alt text in Spanish, served in `set_translation` with
 `lang=es`. Added on 5 November 2026 for the 23 sets production shows,
 Sheen's three included: a set's description and alt text are the team's
 words, not the author's. Each field records a fingerprint of the English
-a client is shown (`description`, the byline's `source`, the artwork's
-alt) and is served only while that English is unchanged.
+a client is shown (`name`, the byline's `author` and `source`,
+`description`, the artwork's alt) and is served only while that English is unchanged.
 
-- **Descriptions and alt texts** are the team's translation of the
-  English, so every set carries `ai_translated`. Names follow Spanish
-  usage: San Alfonso María de Ligorio, la Beata Ana Catalina Emmerich,
+- **Names, authors, descriptions and alt texts** are the team's
+  translation of the English, so every set carries `ai_translated`.
+  Added to the set's name and author at the lead's word (5 November
+  2026): "set name and author in Spanish with lang=es (e.g. 'San Alfonso
+  María de Ligorio', 'Beata Ana Catalina Emmerich', 'Santo Tomás de
+  Aquino'), the usual Spanish forms of the names". Sheen's set name is
+  "Beato Fulton J. Sheen" and his byline "Arzobispo Fulton J. Sheen", as
+  the English. Names follow Spanish usage: San Alfonso María de Ligorio, la Beata Ana Catalina Emmerich,
   la Venerable María de Jesús de Ágreda, Dom Próspero Guéranger,
-  Federico Guillermo Faber, San John Henry Newman. Sheen is "el
+  Federico Guillermo Faber (the set's name and byline "Padre Federico
+  Guillermo Faber"), San John Henry Newman, San Ignacio de Loyola, San
+  Agustín, San Juan Crisóstomo, Santo Tomás de Aquino. Sheen is "el
   arzobispo Fulton J. Sheen", as the English says. Books are named by
   their usual Spanish titles (*Las glorias de María*, *Mística Ciudad de
   Dios*, *Suma teológica*, *El año litúrgico*, St Augustine's *Tratados

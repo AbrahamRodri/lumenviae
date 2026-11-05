@@ -10,7 +10,7 @@ defmodule LumenViae.Rosary.Meditation.SetSpanishTest do
 
   # Change the file: bump its updated_at and set the new pair here. Each
   # set's sources are in priv/meditations/es/SOURCES.md.
-  @pinned {~U[2026-11-05 03:00:00Z], "084d24546c867407"}
+  @pinned {~U[2026-11-05 03:10:00Z], "14ee1a7e7743164a"}
 
   # The 23 sets production shows (5 November 2026), Sheen's three
   # included: the set's words are the team's, not his.
@@ -52,7 +52,13 @@ defmodule LumenViae.Rosary.Meditation.SetSpanishTest do
   end
 
   test "a field is served while its English matches, and null once it changes" do
-    english = %{description: "A description.", source: "A Book", artwork_alt: "Portrait"}
+    english = %{
+      name: "A Set",
+      author: "An Author",
+      description: "A description.",
+      source: "A Book",
+      artwork_alt: "Portrait"
+    }
 
     entries = %{
       "7" => %{
@@ -65,6 +71,8 @@ defmodule LumenViae.Rosary.Meditation.SetSpanishTest do
     on_exit(fn -> Application.delete_env(:lumen_viae, SetSpanish) end)
 
     assert SetSpanish.translation(7, english) == %{
+             name: nil,
+             author: nil,
              description: nil,
              source: nil,
              artwork_alt: "Retrato",
@@ -80,10 +88,22 @@ defmodule LumenViae.Rosary.Meditation.SetSpanishTest do
     Application.put_env(:lumen_viae, SetSpanish, entries: entries)
     on_exit(fn -> Application.delete_env(:lumen_viae, SetSpanish) end)
 
-    assert SetSpanish.translation(7, %{description: nil, source: nil, artwork_alt: nil}).source ==
+    assert SetSpanish.translation(7, %{
+             name: nil,
+             author: nil,
+             description: nil,
+             source: nil,
+             artwork_alt: nil
+           }).source ==
              "Mística Ciudad de Dios"
 
-    assert SetSpanish.translation(7, %{description: nil, source: "A Book", artwork_alt: nil}) ==
+    assert SetSpanish.translation(7, %{
+             name: nil,
+             author: nil,
+             description: nil,
+             source: "A Book",
+             artwork_alt: nil
+           }) ==
              nil
   end
 end

@@ -1804,7 +1804,7 @@
                 "type": "string"
               },
               "set_translation": {
-                "description": "With `lang=es`, the set's own description, source and image alt in Spanish, each null where it has none or its English has changed: show the English. `ai_translated` marks the team's own translation. Null in English, and for a set with no Spanish.",
+                "description": "With `lang=es`, the set's own name, author, description, source and image alt in Spanish, each null where it has none or its English has changed: show the English. `ai_translated` marks the team's own translation. Null in English, and for a set with no Spanish.",
                 "nullable": true,
                 "properties": {
                   "ai_translated": {
@@ -1815,7 +1815,15 @@
                     "nullable": true,
                     "type": "string"
                   },
+                  "author": {
+                    "nullable": true,
+                    "type": "string"
+                  },
                   "description": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "name": {
                     "nullable": true,
                     "type": "string"
                   },
@@ -5888,7 +5896,7 @@
             "style": "form"
           },
           {
-            "description": "The language of `translations` and `set_translation`: `es` fills them with the Spanish of the set's meditations and of its own description, source and image alt. Missing, `en` or a language not served: the sets as they always were, `translations` empty and `set_translation` null.",
+            "description": "The language of `translations` and `set_translation`: `es` fills them with the Spanish of the set's meditations and of its own name, author, description, source and image alt. Missing, `en` or a language not served: the sets as they always were, `translations` empty and `set_translation` null.",
             "in": "query",
             "name": "lang",
             "required": false,
@@ -6005,7 +6013,7 @@
             "style": "form"
           },
           {
-            "description": "The language of `translations` and `set_translation`: `es` fills them with the Spanish of the set's meditations and of its own description, source and image alt. Missing, `en` or a language not served: the sets as they always were, `translations` empty and `set_translation` null.",
+            "description": "The language of `translations` and `set_translation`: `es` fills them with the Spanish of the set's meditations and of its own name, author, description, source and image alt. Missing, `en` or a language not served: the sets as they always were, `translations` empty and `set_translation` null.",
             "in": "query",
             "name": "lang",
             "required": false,
