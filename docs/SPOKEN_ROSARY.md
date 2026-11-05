@@ -193,7 +193,8 @@ GET /api/rosary/audio?voice=female&include=prayers,announcements
     "voice": "female",
     "version": "8a336a86aa",            // fingerprints the voice's whole catalogue
     "expires_at": "2026-09-25T12:00:00Z",
-    "prayers": { "hail_mary": { "file": "hail_mary-3f0c1e9a2b.mp3", "audio_url": "https://..." } },
+    "prayers": { "hail_mary": { "file": "hail_mary-3f0c1e9a2b.mp3", "audio_url": "https://...",
+                               "lines": [ { "text": "Hail Mary, full of grace, the Lord is with thee;", "start": 0.0, "end": 3.58 }, "..." ] } },
     "announcements": { "joyful_1": { "file": "...", "audio_url": "...", "text": "The First Joyful Mystery: The Annunciation" } },
     "verses": { "joyful_1": [ { "file": "...", "audio_url": "...", "reference": "Luke 1:26" } ] }
   }
@@ -206,6 +207,10 @@ whenever any file in the voice's catalogue does, so one field says whether an
 offline pack is current. URLs are signed for `Rosary.audio_url_ttl/0` and the
 response is `private, no-store`. A signing failure is a 503
 `audio_unavailable`.
+
+Every clip carries `lines`: its words a line at a time and when each is
+heard, `{text, start, end}` in seconds, or null when its recording is not
+timed (below, "Lines").
 
 The manifest does not check the bucket. A clip that has not been recorded is
 still listed and its URL answers 403, which is why the admin console watches
@@ -359,6 +364,33 @@ Memorare...) are not in it; the app plays their `prayers` clips.
   recorded before deploying, as with the Rosary's prayers.
 
 ---
+
+## Lines
+
+Each clip's `lines` come from `priv/rosary_audio/lines/<voice>.json`, one
+file per voice that recorded, keyed by the recording's file name, with
+the recording's duration. `scripts/rosary_lines.py` makes them from the
+live recordings, fetched through the app's own signed URLs and checked
+against their ETags, the way `scripts/narration_lines.py` times the
+meditations (it imports that script): phrases split at the narrator's
+silences, heard by a local Whisper model, aligned word by word with the
+clip's text. A line ends at a line of the prayer or a sentence, and lines
+the narrator did not pause between are one, so the Hail Mary is four
+lines and the Creed eight to twelve rather than one block. A clip that
+fails a check (90% of its words heard, 70% of each line's, lines of 1 to
+45 seconds read at 6 to 25 characters a second) is left untimed, never
+guessed. Free and local: nothing is recorded or paid for.
+
+```
+mix run --no-start scripts/rosary_clips.exs > "$TMPDIR/rosary_clips.json"
+python3 scripts/rosary_lines.py --clips "$TMPDIR/rosary_clips.json"
+```
+
+A reworded or re-recorded clip has a new file name, so it is untimed until
+the script runs again. Lines never change `version`. `PrayerAudio.lines/2`
+reads them, following a voice's borrowed recordings, and
+`test/lumen_viae/rosary/prayer_audio_lines_test.exs` checks that each
+clip's lines fit its recording and say exactly its words.
 
 ## Not built
 

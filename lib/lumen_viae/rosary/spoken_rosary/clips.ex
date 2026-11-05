@@ -22,8 +22,10 @@ defmodule LumenViae.Rosary.SpokenRosary.Clips do
     kind = Keyword.fetch!(opts, :kind)
 
     Enum.reduce_while(records, {:ok, []}, fn record, {:ok, done} ->
-      case sign(Voices.get(record.voice), PrayerAudio.clips([kind])) do
-        {:ok, signed} -> {:cont, {:ok, [shape(kind, signed) | done]}}
+      voice = Voices.get(record.voice)
+
+      case sign(voice, PrayerAudio.clips([kind])) do
+        {:ok, signed} -> {:cont, {:ok, [shape(kind, signed, voice) | done]}}
         :error -> {:halt, {:error, AudioUnavailable.exception([])}}
       end
     end)
@@ -53,22 +55,34 @@ defmodule LumenViae.Rosary.SpokenRosary.Clips do
     end
   end
 
-  defp shape(kind, signed) when kind in [:prayer, :book] do
+  defp shape(kind, signed, voice) when kind in [:prayer, :book] do
     Enum.map(signed, fn {clip, file, audio} ->
-      %Types.RosaryClip{id: clip.name, title: clip.title, file: file, audio: audio}
+      %Types.RosaryClip{
+        id: clip.name,
+        title: clip.title,
+        file: file,
+        audio: audio,
+        lines: lines(voice, clip)
+      }
     end)
   end
 
-  defp shape(:announcement, signed) do
+  defp shape(:announcement, signed, voice) do
     Enum.map(signed, fn {clip, file, audio} ->
-      %Types.AnnouncementClip{key: clip.mystery, text: clip.text, file: file, audio: audio}
+      %Types.AnnouncementClip{
+        key: clip.mystery,
+        text: clip.text,
+        file: file,
+        audio: audio,
+        lines: lines(voice, clip)
+      }
     end)
   end
 
   # The catalogue lists verses in mystery then bead order; chunking keeps
   # the mysteries in that order, and each group is sorted by bead anyway
   # so the app's clips[n - 1] never depends on how the catalogue is kept.
-  defp shape(:verse, signed) do
+  defp shape(:verse, signed, voice) do
     signed
     |> Enum.chunk_by(fn {clip, _file, _audio} -> clip.mystery end)
     |> Enum.map(fn [{first, _, _} | _] = group ->
@@ -82,10 +96,18 @@ defmodule LumenViae.Rosary.SpokenRosary.Clips do
               bead: clip.bead,
               reference: clip.reference,
               file: file,
-              audio: audio
+              audio: audio,
+              lines: lines(voice, clip)
             }
           end)
       }
     end)
+  end
+
+  defp lines(voice, clip) do
+    case PrayerAudio.lines(voice, clip) do
+      nil -> nil
+      lines -> Enum.map(lines, &struct(Types.NarrationLine, &1))
+    end
   end
 end

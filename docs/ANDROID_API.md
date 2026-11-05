@@ -260,6 +260,11 @@ at a time:
   words are a new file name. Keep each file under its `file`; a saved file
   with the same name never needs checking again, and a file the manifest
   no longer names is an old recording, to delete.
+- **A clip may carry its lines**: `lines`, `[{text, start, end}]` in
+  seconds, the clip's words a line at a time, to highlight the line being
+  read; null when that recording is not timed. Keep them with the
+  manifest. They never change `version` (docs/JSON_API.md, "So can a
+  spoken-Rosary clip").
 - **A saved manifest is used while every recording asked for is in it and
   its links live more than five minutes more** (`expires_at`, about a day
   after it was signed). Otherwise fetch the manifest again before

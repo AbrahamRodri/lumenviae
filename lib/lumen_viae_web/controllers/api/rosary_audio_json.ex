@@ -48,5 +48,7 @@ defmodule LumenViaeWeb.API.RosaryAudioJSON do
     end
   end
 
-  defp file(entry), do: %{file: entry.file, audio_url: entry.audio_url}
+  # `lines`: when each line of the clip is heard, or null when its
+  # recording is not timed (LumenViae.Rosary.PrayerAudio.lines/2).
+  defp file(entry), do: %{file: entry.file, audio_url: entry.audio_url, lines: entry.lines}
 end

@@ -1691,8 +1691,14 @@ type RosaryPrayer {
 
 type VerseClip {
   reference: String
+
+  "Each line of the recording's words and when it is heard, in seconds, for highlighting the line being read; null when this recording is not timed."
+  lines: [NarrationLine]
+
   file: String!
+
   bead: Int!
+
   audio: SignedAudio!
 }
 
@@ -1703,15 +1709,27 @@ type VerseGroup {
 
 type AnnouncementClip {
   text: String
+
+  "Each line of the recording's words and when it is heard, in seconds, for highlighting the line being read; null when this recording is not timed."
+  lines: [NarrationLine]
+
   key: String!
+
   file: String!
+
   audio: SignedAudio!
 }
 
 type RosaryClip {
   title: String
+
+  "Each line of the recording's words and when it is heard, in seconds, for highlighting the line being read; null when this recording is not timed."
+  lines: [NarrationLine]
+
   id: String!
+
   file: String!
+
   audio: SignedAudio!
 }
 

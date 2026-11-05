@@ -81,7 +81,13 @@ defmodule LumenViaeWeb.API.RosaryAudioController do
 
       case LumenViae.Storage.S3.generate_presigned_url(key, expires_in: ttl) do
         {:ok, url} ->
-          entry = %{clip: clip, file: PrayerAudio.served_filename(voice, clip), audio_url: url}
+          entry = %{
+            clip: clip,
+            file: PrayerAudio.served_filename(voice, clip),
+            audio_url: url,
+            lines: PrayerAudio.lines(voice, clip)
+          }
+
           {:cont, {:ok, [entry | acc]}}
 
         # No keys on this machine: S3 has said so once already.
