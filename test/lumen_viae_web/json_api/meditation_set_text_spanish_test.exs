@@ -185,6 +185,56 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetTextSpanishTest do
     assert get_in(query.(""), ["data", "meditationSet", "setTranslation"]) == nil
   end
 
+  describe "the lists" do
+    defp listed(sets, set), do: Enum.find(sets, &(&1["id"] == set.id))
+
+    test "v1: with lang each set carries set_translation; without, the list as before", %{
+      conn: conn,
+      set: set
+    } do
+      english = conn |> get("/api/meditation-sets?category=joyful") |> json_response(200)
+      refute Map.has_key?(listed(english["data"], set), "set_translation")
+
+      spanish =
+        build_conn() |> get("/api/meditation-sets?category=joyful&lang=es") |> json_response(200)
+
+      assert listed(spanish["data"], set)["set_translation"] == %{
+               "name" => "Juegos de Ligorio",
+               "author" => "San Alfonso María de Ligorio",
+               "description" => "Meditaciones sobre los misterios gozosos.",
+               "source" => "Las glorias de María",
+               "image_alt" => "Retrato",
+               "ai_translated" => true
+             }
+
+      assert Enum.map(spanish["data"], &Map.delete(&1, "set_translation")) == english["data"]
+
+      all = build_conn() |> get("/api/meditation-sets?lang=es") |> json_response(200)
+      assert listed(all["data"], set)["set_translation"]["name"] == "Juegos de Ligorio"
+    end
+
+    test "v2 and GraphQL lists carry the same set_translation", %{conn: conn, set: set} do
+      sets =
+        conn
+        |> get_v2("/meditation-sets?lang=es&fields[meditation_set]=set_translation")
+        |> v2_response(200)
+        |> Map.fetch!("data")
+
+      assert Enum.find(sets, &(&1["id"] == "#{set.id}"))["attributes"]["set_translation"] ==
+               @spanish
+
+      %{"data" => %{"visibleMeditationSets" => graph}} =
+        graphql(build_conn(), """
+        { visibleMeditationSets(lang: "es") { id setTranslation { name artworkAlt } } }
+        """)
+
+      assert Enum.find(graph, &(&1["id"] == "#{set.id}"))["setTranslation"] == %{
+               "name" => "Juegos de Ligorio",
+               "artworkAlt" => "Retrato"
+             }
+    end
+  end
+
   describe "v1" do
     test "lang=es: set_translation beside translations, with image_alt", %{
       conn: conn,

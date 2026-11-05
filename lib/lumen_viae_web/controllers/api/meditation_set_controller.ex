@@ -7,13 +7,13 @@ defmodule LumenViaeWeb.API.MeditationSetController do
   @doc """
   Lists all meditation sets, optionally filtered by category.
   """
-  def index(conn, %{"category" => category}) do
-    sets = Rosary.list_visible_meditation_sets_by_category!(category)
+  def index(conn, %{"category" => category} = params) do
+    sets = Rosary.list_visible_meditation_sets_by_category!(category, list_language(params))
     render(conn, :index, sets: sets)
   end
 
-  def index(conn, _params) do
-    sets = Rosary.list_visible_meditation_sets!()
+  def index(conn, params) do
+    sets = Rosary.list_visible_meditation_sets!(list_language(params))
     render(conn, :index, sets: sets)
   end
 
@@ -44,6 +44,11 @@ defmodule LumenViaeWeb.API.MeditationSetController do
   # meditations, laid over the English by id). Without it, nothing changes.
   defp language(%{"lang" => lang}) when is_binary(lang), do: [lang: lang]
   defp language(_params), do: []
+
+  # The list's `?lang=`: each set also carries its `set_translation` (its
+  # own words in that language). Without it, nothing changes.
+  defp list_language(%{"lang" => lang}) when is_binary(lang), do: %{lang: lang}
+  defp list_language(_params), do: %{}
 
   # The signing moment is the same for every URL in this response, so the
   # expiry is carried once on the set rather than repeated on all seven

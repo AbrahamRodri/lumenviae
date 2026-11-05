@@ -1306,7 +1306,9 @@ GraphQL: `meditationSet(id: 48, lang: "es") { translations { id title content ai
 - **v1, for the iPhone app:** `GET /api/meditation-sets/:id?lang=es`
   carries the same `translations` beside its `meditations`, and
   `set_translation` with the alt text as `image_alt`, v1's name; without
-  `lang` it has neither key (docs/IOS_API_CONTRACT.md, section 14).
+  `lang` it has neither key (docs/IOS_API_CONTRACT.md, section 14). The
+  v1 list, `GET /api/meditation-sets?lang=es`, carries `set_translation`
+  on each set too.
 - **The words** are `priv/meditations/es/meditations.json` and
   `priv/meditations/es/sets.json`; their sources and every change are in
   `priv/meditations/es/SOURCES.md`.
