@@ -140,6 +140,19 @@ reads and writes them.
 | `form` | on a set: `meditation` or `scriptural`. On a category: `scriptural` or `holy` | `meditation` on a set, `scriptural` on a category |
 | `voice` | a narration voice's slug | the default voice |
 
+The top of the page is one pill naming the part the reader is in ("Opening
+Prayers", "Mystery 2 of 5", "Closing Prayers") with a dot a part under it, the
+current one gilt. Pressing it opens the Go to list under the header: the set's
+name, then a row for the opening prayers (with the prayers it holds, read from
+the sequence), each mystery and the closing prayers, the current one marked
+"Here". A row goes to that part; Escape, choosing a row or pressing the pill
+again closes it.
+
+Show Words and Beads, in the settings pane, hides the prayer's words, the verse,
+the meditation and the bead strand, leaving the bead's name, the pill, the
+player and Back and Next. It applies only where the page has the player; a
+page read as text always shows its words.
+
 Rules that hold for every link:
 
 - A default is never written, so ordinary links stay short.
@@ -149,7 +162,7 @@ Rules that hold for every link:
   them, from before the page became one player that says every prayer
   aloud, a prayer at a time (the app's simple Rosary).
 - The closing prayers, the language, the prayers' speed, the text size, the
-  reading page and the images are not in the link.
+  reading page, the images and Show Words and Beads are not in the link.
   They are the browser's (below).
 
 Examples:
@@ -796,6 +809,7 @@ starts from the defaults. The one thing the server writes is a completion.
 | Text size | `lv:pray:text-size` | the `PrayerSurface` hook |
 | Reading page, night (the default, as the app's reader) or vellum | `lv:pray:reading-page` | the `DisplayChoices` hook, read by `PrayerSurface` |
 | The mystery's painting shown or hidden | `lv:pray:images` | `DisplayChoices`, read by `PrayerSurface` |
+| Show Words and Beads, on (the default) or off | `lv:pray:words` | `DisplayChoices`, a switch in the settings pane |
 | Days in a row | `lv:pray:streak` | the `PrayerStreak` hook |
 | Swipe hint already shown | `lv:pray:swipe-hint-seen` | the `SwipeHint` hook |
 | The Consecration's plan: Day 1, the feast it ends on, when it was begun and completed | `lv:consecration:plan`, holding `{start, feast_id, started_at, completed_at}` | the `ConsecrationPlan` hook |

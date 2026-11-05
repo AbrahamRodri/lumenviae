@@ -6,6 +6,8 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
   (`timings`), the words carry the line each belongs to, and the
   SpokenRosary hook lights the line being read. A bead of plain prayer is
   itself the way to the next one: tap the words, press Space, or swipe.
+  The words and the strand carry `prayer-words`, which the reader's
+  "Show Words and Beads" choice hides (app.css); the bead's name stays.
   """
   use LumenViaeWeb, :html
 
@@ -53,26 +55,29 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
         <%= case @screen.kind do %>
           <% :announcement -> %>
             <PrayerText.decade_header decade={@decade} />
-            <div :if={@decade.meditation && @sequence.form == "scriptural"} class="mt-8">
+            <div
+              :if={@decade.meditation && @sequence.form == "scriptural"}
+              class="prayer-words mt-8"
+            >
               <.meditation_toggle meditation={@decade.meditation} open={@show_meditation} />
             </div>
           <% :meditation -> %>
-            <PrayerText.meditation
-              :if={@decade && @decade.meditation}
-              meditation={@decade.meditation}
-              lines={@timings[:meditation]}
-            />
+            <div :if={@decade && @decade.meditation} class="prayer-words">
+              <PrayerText.meditation meditation={@decade.meditation} lines={@timings[:meditation]} />
+            </div>
           <% :prayer -> %>
-            <div :if={@screen.verse} class="mb-8 text-center">
+            <div :if={@screen.verse} class="prayer-words mb-8 text-center">
               <PrayerText.verse verse={@screen.verse} lines={@timings[:verse]} />
             </div>
-            <PrayerText.prayer
-              prayer_id={@screen.prayer_id}
-              title={Sequence.prayer_title(@screen.prayer_id, @language)}
-              title_shown={false}
-              language={@language}
-              lines={@timings[:prayer]}
-            />
+            <div class="prayer-words">
+              <PrayerText.prayer
+                prayer_id={@screen.prayer_id}
+                title={Sequence.prayer_title(@screen.prayer_id, @language)}
+                title_shown={false}
+                language={@language}
+                lines={@timings[:prayer]}
+              />
+            </div>
         <% end %>
       </div>
     </section>

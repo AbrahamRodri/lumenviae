@@ -1756,6 +1756,60 @@ html[data-prayer-images="off"] .prayer-plate {
   background: rgba(217, 184, 74, 0.14);
 }
 
+/* "Show Words and Beads" in the settings pane: a switch, on while
+   aria-checked is true. */
+.prayer-switch {
+  border-color: var(--color-night-line);
+}
+
+.prayer-switch:hover {
+  border-color: var(--color-gilt);
+}
+
+.prayer-switch__track {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-night-line);
+  background: var(--color-night);
+}
+
+.prayer-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 9999px;
+  background: var(--color-ink-muted);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.prayer-switch[aria-checked="true"] .prayer-switch__track {
+  border-color: var(--color-gilt);
+}
+
+.prayer-switch[aria-checked="true"] .prayer-switch__thumb {
+  background: var(--color-gilt);
+  transform: translateX(1.25rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prayer-switch__thumb {
+    transition: none;
+  }
+}
+
+/* "Show Words and Beads" off: the prayer's words, the verse, the
+   meditation and the strand are hidden while the player has them said;
+   the bead's name, the pill and Back and Next stay. A page with no player
+   is read as text, so there they always show. */
+html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-words {
+  display: none;
+}
+
 /* The shell pads the sides clear of the notch; with no site header above
    it, the page clears the status bar itself. */
 .prayer-safe-area {

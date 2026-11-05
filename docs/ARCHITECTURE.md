@@ -1212,7 +1212,7 @@ live/pray/
 ├── sequence.ex                 Sequence: the order of prayers, pages and screens
 ├── page_view/page_view.ex      PageView: counting on a rosary, a page at a time
 ├── bead_screen/bead_screen.ex  BeadScreen: counting on the screen, a bead at a time
-├── strand/strand.ex            Strand: the Rosary drawn as a strand, and the way to each page
+├── strand/strand.ex            Strand: the pill that names the part, the Go to list, and the bead strand
 ├── prayer_text/prayer_text.ex  PrayerText: a prayer, a verse, an announcement, a meditation
 ├── controls/controls.ex        Controls: the settings, the aloud controls, the resume offer, Previous and Next
 └── completion/completion.ex    Completion: the Amen, the streak and the milestones

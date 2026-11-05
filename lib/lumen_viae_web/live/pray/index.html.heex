@@ -73,8 +73,15 @@
       <Controls.resume_banner :if={@resume} resume={@resume} />
 
       <div class="mt-3">
-        <Strand.progress sequence={@sequence} page={@page} />
+        <Strand.where sequence={@sequence} page={@page} open={@go_to_open} />
       </div>
+
+      <Strand.go_to_list
+        :if={@go_to_open}
+        sequence={@sequence}
+        page={@page}
+        heading={@heading}
+      />
 
       <Controls.spoken_player
         :if={@spoken_script != []}
