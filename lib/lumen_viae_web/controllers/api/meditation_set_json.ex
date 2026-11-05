@@ -25,6 +25,7 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
         set
         |> set_detail(assigns[:audio_expires_at], assigns[:narrations] || %{})
         |> put_translations(set)
+        |> put_set_translation(set)
     }
   end
 
@@ -35,6 +36,29 @@ defmodule LumenViaeWeb.API.MeditationSetJSON do
   end
 
   defp put_translations(data, _set), do: data
+
+  # Likewise `set_translation`: only with `?lang=`, null when the set has
+  # no Spanish of its own; any other read has no such key.
+  defp put_set_translation(data, %{set_translation: %Ash.NotLoaded{}}), do: data
+
+  defp put_set_translation(data, %{set_translation: nil}),
+    do: Map.put(data, :set_translation, nil)
+
+  defp put_set_translation(data, %{set_translation: spanish}) when is_map(spanish) do
+    Map.put(
+      data,
+      :set_translation,
+      %{description: spanish.description, source: spanish.source, image_alt: spanish.artwork_alt}
+      |> then(
+        &if(Map.get(spanish, :ai_translated) == true,
+          do: Map.put(&1, :ai_translated, true),
+          else: &1
+        )
+      )
+    )
+  end
+
+  defp put_set_translation(data, _set), do: data
 
   defp translation(translation) do
     %{id: translation.id, title: translation.title, content: translation.content}

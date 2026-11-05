@@ -1258,11 +1258,11 @@ its own copy of an office it has read (an office never changes).
 ## The meditations in Spanish
 
 ```
-GET /api/v2/meditation-sets/:id?lang=es&fields[meditation_set]=name,category,description,labels,author,source,artwork,translations
-GET /api/v2/meditation-sets?lang=es&fields[meditation_set]=...,translations
+GET /api/v2/meditation-sets/:id?lang=es&fields[meditation_set]=name,category,description,labels,author,source,artwork,translations,set_translation
+GET /api/v2/meditation-sets?lang=es&fields[meditation_set]=...,set_translation
 ```
 
-GraphQL: `meditationSet(id: 48, lang: "es") { translations { id title content aiTranslated } }`.
+GraphQL: `meditationSet(id: 48, lang: "es") { translations { id title content aiTranslated } setTranslation { description source artworkAlt aiTranslated } }`.
 
 - **No `lang`, `lang=en`, or a language not served**: every set exactly
   as before. `translations`, when asked for, is `[]`.
@@ -1272,19 +1272,31 @@ GraphQL: `meditationSet(id: 48, lang: "es") { translations { id title content ai
   (`title` null where the English has none). A meditation that is the
   team's own translation carries `ai_translated: true`; the key is absent
   otherwise. A client lays the Spanish over the English by `id` and shows
-  the English for a meditation not listed. The included meditations and
-  every other field stay English.
+  the English for a meditation not listed. The included meditations stay
+  English.
+- **`set_translation`**, with `lang=es`: the set's own words in Spanish,
+  `{description, source, artwork_alt, ai_translated}`. `description` and
+  `source` stand for the set's `description` and `source`, `artwork_alt`
+  for its `artwork.alt`; each is null where it has no Spanish (show the
+  English). The descriptions and alt texts are the team's translation,
+  so `ai_translated` is `true`; a `source` is the Spanish edition's title
+  where the meditations were copied from one, which may stand where the
+  English `source` is null. Null in English and for a set with no
+  Spanish. `name`, `author` and `labels` stay English. Only when asked
+  for in `fields`: the default fields are unchanged.
 - **An English edit falls back to English.** Each Spanish text records a
   fingerprint of the English it translates, and is served only while the
-  meditation's English still matches it.
+  meditation's English still matches it; so is each field of
+  `set_translation`, against the set's English as served.
 - **The recordings stay English.** `narrations` and `narrated_voices` are
   the English recordings in every language; nothing Spanish is narrated.
 - **v1, for the iPhone app:** `GET /api/meditation-sets/:id?lang=es`
-  carries the same `translations` beside its `meditations`; without `lang`
-  it has no `translations` key at all (docs/IOS_API_CONTRACT.md, section
-  14).
-- **The words** are `priv/meditations/es/meditations.json`; their
-  sources and every change are in `priv/meditations/es/SOURCES.md`.
+  carries the same `translations` beside its `meditations`, and
+  `set_translation` with the alt text as `image_alt`, v1's name; without
+  `lang` it has neither key (docs/IOS_API_CONTRACT.md, section 14).
+- **The words** are `priv/meditations/es/meditations.json` and
+  `priv/meditations/es/sets.json`; their sources and every change are in
+  `priv/meditations/es/SOURCES.md`.
 
 ## Fresh meditation audio
 
