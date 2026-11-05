@@ -383,5 +383,19 @@ defmodule LumenViaeWeb.JsonApi.RosaryContentTest do
       assert Map.keys(attributes) |> Enum.sort() == ["updated_at", "version"]
       assert attributes["version"] == Current.stamp(Schedule.current_year(), [], "es").version
     end
+
+    test "credit_in_credits_only on Sheen's quote alone, in English and Spanish" do
+      for query <- ["", "&lang=es"] do
+        items = attributes(build_conn(), query)["quotes"]["items"]
+        {marked, others} = Enum.split_with(items, &Map.has_key?(&1, "credit_in_credits_only"))
+
+        assert [%{"credit_in_credits_only" => true, "text" => text}] = marked
+
+        assert text =~
+                 ~r/^(The Rosary is the book of the blind|El Rosario es el libro de los ciegos)/
+
+        assert length(others) == 16
+      end
+    end
   end
 end

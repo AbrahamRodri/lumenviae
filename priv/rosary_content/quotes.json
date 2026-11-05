@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-04T15:05:00Z",
+  "updated_at": "2026-11-05T01:48:00Z",
   "quotes": {
     "rotation": {
       "home_offset": 0,
@@ -74,7 +74,8 @@
       {
         "text": "The Rosary is the book of the blind, where souls see and there enact the greatest drama of love the world has ever known.",
         "author": "Ven. Fulton J. Sheen",
-        "source": "The World's First Love"
+        "source": "The World's First Love",
+        "credit_in_credits_only": true
       },
       {
         "text": "The greatest method of praying is to pray the Rosary.",

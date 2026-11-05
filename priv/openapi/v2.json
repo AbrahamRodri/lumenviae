@@ -3515,6 +3515,10 @@
                         "author": {
                           "type": "string"
                         },
+                        "credit_in_credits_only": {
+                          "nullable": true,
+                          "type": "boolean"
+                        },
                         "source": {
                           "nullable": true,
                           "type": "string"

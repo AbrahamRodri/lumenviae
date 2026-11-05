@@ -169,6 +169,13 @@ Changes to the copied texts: quotation marks and a leading dash removed,
 and a final period added. Our Lady speaks to the children in ustedes;
 the rest use tú.
 
+Fulton J. Sheen's quote (13) stays, with its credit only in the app's
+sources and credits, not under the quote: Abraham, 5 November 2026, "keep
+it credit in the credit menu only". *The World's First Love* (1952) is
+under copyright (Sheen died in 1979), quoted briefly with credit. Its
+entry in `quotes.json` carries `"credit_in_credits_only": true`, which
+the api serves on that quote in English and Spanish.
+
 Noticed while sourcing, not changed in the English: 2 is
 elsewhere credited to Pius XI, 3 is Montfort's own words in *The Secret
 of the Rosary*, and 1 is often credited to Pius X.

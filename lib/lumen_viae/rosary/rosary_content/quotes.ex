@@ -6,8 +6,10 @@ defmodule LumenViae.Rosary.RosaryContent.Quotes do
   the read asked for.
 
   A quote is a plain map, not its typed struct, so `ai_translated` is
-  there only on a quote whose Spanish is the team's translation, and an
-  English quote reads exactly as before Spanish was served.
+  there only on a quote whose Spanish is the team's translation, and
+  `credit_in_credits_only` only on the one quote credited in the app's
+  credits rather than under it (Fulton J. Sheen's); every other quote
+  reads exactly as before.
   """
   use Ash.Resource.Calculation
 
@@ -32,12 +34,15 @@ defmodule LumenViae.Rosary.RosaryContent.Quotes do
       },
       items:
         Enum.map(items, fn quote ->
-          shaped = %{text: quote["text"], author: quote["author"], source: quote["source"]}
-
-          if quote["ai_translated"] == true,
-            do: Map.put(shaped, :ai_translated, true),
-            else: shaped
+          %{text: quote["text"], author: quote["author"], source: quote["source"]}
+          |> put_true(:ai_translated, quote["ai_translated"])
+          |> put_true(:credit_in_credits_only, quote["credit_in_credits_only"])
         end)
     }
   end
+
+  # A mark is there only when true, so a quote without it reads exactly as
+  # before the mark existed.
+  defp put_true(quote, key, true), do: Map.put(quote, key, true)
+  defp put_true(quote, _key, _value), do: quote
 end
