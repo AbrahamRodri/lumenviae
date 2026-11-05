@@ -1217,13 +1217,9 @@ async function checkCategoryChoices(browser, vp) {
   const errors = [];
   const { context, page } = await freshPage(browser, vp, errors);
 
-  const radio = (name) => page.getByRole("radio", { name, exact: true });
-  const choose = async (name) => {
-    await page.getByText(name, { exact: true }).click();
-    await page.waitForTimeout(300);
-  };
   const prayHrefs = () => page.locator(PRAY_LINK).evaluateAll((links) => links.map((a) => a.getAttribute("href")));
-  const countingShown = async () => (await page.getByRole("group", { name: "Counting" }).count()) > 0;
+  const groupShown = async (name) => (await page.getByRole("group", { name }).count()) > 0;
+  const carriesNeither = (hrefs) => hrefs.length > 0 && hrefs.every((h) => !h.includes("aloud=") && !h.includes("count="));
 
   // On a phone the choices are folded behind one row; open them.
   const openChoices = async () => {
@@ -1234,46 +1230,33 @@ async function checkCategoryChoices(browser, vp) {
     }
   };
 
+  // A browser that saved the old Audio and Counting choices must not break.
   await page.goto(`${BASE_URL}/mysteries/joyful`);
-  await settle(page);
-  await openChoices();
-  check(await countingShown(), `${label}: Counting shows while the audio is meditation only`);
-
-  await choose("Whole Rosary read to you");
-  check(await radio("Whole Rosary read to you").isChecked(), `${label}: Whole Rosary read to you is selected`);
-  check(!(await countingShown()), `${label}: Counting disappears with the whole Rosary aloud`);
-  const aloudHrefs = await prayHrefs();
-  check(aloudHrefs.length > 0 && aloudHrefs.every((h) => h.includes("aloud=true")), `${label}: Pray links gain aloud=true`, aloudHrefs[0]);
-  await noHorizontalScroll(page, `${label} (aloud)`);
-
+  await page.evaluate(() =>
+    window.localStorage.setItem("lumenviae:rosary-choices", JSON.stringify({ aloud: "true", count: "screen", voice: "male" }))
+  );
   await page.reload();
   await settle(page);
   await openChoices();
+  check(!(await groupShown("Audio")), `${label}: the Audio group is gone`);
+  check(!(await groupShown("Counting")), `${label}: the Counting group is gone`);
+  check(await page.getByRole("radio", { name: "Male", exact: true }).isChecked(), `${label}: the saved voice is kept`);
+  const hrefs = await prayHrefs();
+  check(carriesNeither(hrefs), `${label}: Pray links carry neither aloud nor count`, hrefs[0]);
   check(
-    await eventually(() => radio("Whole Rosary read to you").isChecked()),
-    `${label}: the whole Rosary aloud persists across a reload`
+    await eventually(async () => {
+      const saved = await page.evaluate(() => window.localStorage.getItem("lumenviae:rosary-choices"));
+      return saved && !saved.includes("aloud") && !saved.includes("count");
+    }),
+    `${label}: the dead saved keys are cleared`
   );
-
-  await choose("Meditation only");
-  check(await eventually(countingShown), `${label}: Counting returns with meditation only`);
-
-  await choose("On the screen");
-  check(await radio("On the screen").isChecked(), `${label}: On the screen is selected`);
-  const screenHrefs = await prayHrefs();
-  check(screenHrefs.length > 0 && screenHrefs.every((h) => h.includes("count=screen")), `${label}: Pray links gain count=screen`, screenHrefs[0]);
+  check(
+    (await page.locator('a[href*="form=holy"]').first().innerText()).includes("No meditation"),
+    `${label}: the prayers-only way is named No meditation`
+  );
   await fullPageShot(page, `${vp.name}-category-choices`);
+  await noHorizontalScroll(page, label);
 
-  await page.reload();
-  await settle(page);
-  await openChoices();
-  check(
-    await eventually(() => radio("On the screen").isChecked()),
-    `${label}: counting on the screen persists across a reload`
-  );
-  check(
-    await eventually(async () => (await prayHrefs()).every((h) => h.includes("count=screen"))),
-    `${label}: Pray links still carry count=screen after the reload`
-  );
   check(errors.length === 0, `${label}: no console errors`, errors.join(" | "));
   await context.close();
 }

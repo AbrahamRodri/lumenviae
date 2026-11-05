@@ -1198,7 +1198,7 @@ the same LiveView:
 - `/meditation-sets/:set_id/pray` prays a set, with its meditations or as the
   Scriptural Rosary. A set that is missing or hidden is a 404.
 - `/mysteries/:category/pray` prays a category without a set, as the
-  Scriptural Rosary or with the prayers alone.
+  Scriptural Rosary or with "No meditation" (`form=holy`).
 
 The reader counts on their own rosary (`count=beads`, a decade a page) or on
 the screen (`count=screen`, a bead a screen).

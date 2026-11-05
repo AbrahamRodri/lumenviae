@@ -1,9 +1,9 @@
 defmodule LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray do
   @moduledoc """
   The Rosary's two forms that need no meditation set, for this category:
-  the Scriptural Rosary (a verse for every Hail Mary) and the Audio
-  Rosary (listen and pray along). Each row says how it will be prayed
-  with the visitor's choices.
+  the Scriptural Rosary (a verse for every Hail Mary) and "No meditation"
+  (the Rosary prayed aloud with none). Each row names the visitor's voice
+  when there is a choice of one.
   """
   use LumenViaeWeb, :html
 
@@ -20,7 +20,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray do
           title: "The Scriptural Rosary",
           detail: "A Bible verse for every Hail Mary"
         },
-        %{form: :holy, title: "The Audio Rosary", detail: "Listen and pray along"}
+        %{form: :holy, title: "No meditation", detail: "The Rosary prayed aloud, prayers only"}
       ])
 
     ~H"""
@@ -60,7 +60,9 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.WaysToPray do
             <span class="flex-1 min-w-0">
               <span class="row-title !font-normal">{way.title}</span>
               <span class="block italic text-base text-ink-muted leading-snug">{way.detail}</span>
-              <span class="row-fact !text-sky">{PrayLinks.summary(way.form, @choices)}</span>
+              <span :if={PrayLinks.summary(@choices)} class="row-fact !text-sky">
+                {PrayLinks.summary(@choices)}
+              </span>
             </span>
             <span class="hero-chevron-right size-5 row-chevron" aria-hidden="true" />
           </.link>

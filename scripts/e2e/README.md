@@ -42,10 +42,10 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   player naming First Conversation and opens it from its title (real
   playback from the Internet Archive is not required). An unknown book and
   a chapter that is not a number answer 404;
-- on the category page, chooses the whole Rosary aloud (Counting
-  disappears and the Pray links gain `aloud=true`), then counting on the
-  screen (the Pray links gain `count=screen`), and checks both survive a
-  reload;
+- on the category page, with an old browser copy that saved Audio and
+  Counting choices, checks neither group shows, the Pray links carry
+  neither `aloud=` nor `count=`, the saved voice is kept, the dead keys are
+  cleared, and the prayers-only way is named "No meditation";
 - on a prayer page (a prayer at a time, the player paused first), advances
   with Space, ArrowDown and the Next bead button (the live region text changes), opens and closes
   the settings pane with Enter, closes it with Escape, and checks the text

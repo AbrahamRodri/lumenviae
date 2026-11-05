@@ -1,14 +1,13 @@
 defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Choices do
   @moduledoc """
-  "Your Rosary Today": the choices every Pray link on the page carries,
-  in the app's words (RosaryForm.swift). On a phone one ruled row says how
-  the Rosary will be prayed and opens the choices beneath it, so the ways
-  to pray come straight after; a wide screen shows them open beside the
-  shelf. Audio, then Counting while the
-  voice reads only the meditation, then the voice when there is more than
-  one. Native radios in one form, so the browser gives each group arrow
-  keys and a name; the `RosaryChoices` hook restores and remembers them.
-  The form is always in the page, hidden or not, so the hook always runs.
+  "Your Rosary Today": the choices every Pray link on the page carries.
+  The prayer page says every prayer aloud, so the only choice left is the
+  narration voice, shown when there is more than one. On a phone one ruled
+  row says which voice and opens the choice beneath it; a wide screen shows
+  it open beside the shelf. Native radios in one form, so the browser gives
+  the group arrow keys and a name; the `RosaryChoices` hook restores and
+  remembers it. The form is always in the page, hidden or not, so the hook
+  always runs.
   """
   use LumenViaeWeb, :html
 
@@ -35,12 +34,12 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Choices do
           |> JS.toggle_attribute({"aria-expanded", "true", "false"})
         }
       >
-        <span class="category-choice-legend shrink-0">As you pray</span>
+        <span class="category-choice-legend shrink-0">Voice</span>
         <span
           id="choices-summary"
           class="flex-1 min-w-0 text-right text-base text-ink-muted leading-snug"
         >
-          {summary(@choices, @voices)}
+          {PrayLinks.summary(@choices) || "One voice"}
         </span>
         <span class="hero-chevron-down size-4 row-chevron" aria-hidden="true" />
       </button>
@@ -52,34 +51,8 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Choices do
         phx-hook="RosaryChoices"
       >
         <p class="italic text-base text-ink-muted pt-3 lg:pt-0">
-          Whichever way you pray below, it will be prayed like this.
+          Whichever way you pray below, you hear it in this voice.
         </p>
-        <.choice_group
-          name="aloud"
-          legend="Audio"
-          options={[{"false", "Meditation only"}, {"true", "Whole Rosary read to you"}]}
-          selected={to_string(@choices.aloud)}
-          note={audio_note(@choices.aloud)}
-        />
-
-        <.choice_group
-          :if={not @choices.aloud}
-          name="count"
-          legend="Counting"
-          options={[
-            {"beads", PrayLinks.count_name("beads")},
-            {"screen", PrayLinks.count_name("screen")}
-          ]}
-          selected={@choices.count}
-          note={count_note(@choices.count)}
-        />
-        <p
-          :if={@choices.aloud}
-          class="category-choice-note py-3 border-b border-[rgba(227,188,91,0.15)]"
-        >
-          With the Whole Rosary, the voice moves the beads on the screen.
-        </p>
-
         <.choice_group
           :if={length(@voices) > 1}
           name="voice"
@@ -126,28 +99,6 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Choices do
     </fieldset>
     """
   end
-
-  # How the Rosary will be prayed, in one line: the audio, the counting
-  # while only the meditation is read, and the voice when there is a
-  # choice of one.
-  defp summary(choices, voices) do
-    base = PrayLinks.summary(:meditation, choices)
-
-    if choices.aloud or length(voices) < 2,
-      do: base,
-      else: base <> " · " <> PrayLinks.voice_name(choices.voice) <> " voice"
-  end
-
-  defp audio_note(true), do: "You hear every prayer. Pray along with the voice."
-
-  defp audio_note(false),
-    do:
-      "You hear the meditation. You say the prayers. In the Scriptural Rosary, the verses are read in silence."
-
-  defp count_note("screen"), do: "The beads are on the screen. Tap or swipe for each Hail Mary."
-
-  defp count_note(_beads),
-    do: "Count on your own rosary. The screen shows one mystery at a time."
 
   defp voice_note(voices, slug) do
     case Enum.find(voices, &(&1.slug == slug)) do

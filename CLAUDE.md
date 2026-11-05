@@ -143,7 +143,7 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   change as any code that widens what is collected
 - The public website is the Rosary, the Prayer Book, Hours of Prayer, the Daily Missal, True Devotion, Explore and Spiritual Reading: home (today's mysteries and
   today's sets), `/mysteries` (the mysteries in Scripture), each category
-  page with "Your Rosary Today" (audio, counting and voice choices), the
+  page with "Your Rosary Today" (the voice choice), the
   prayer page (the app's simple Rosary: one player that says the whole
   Rosary aloud a prayer at a time, the line being read lit where the
   recording is timed, in meditation, scriptural or holy form, the prayers'
