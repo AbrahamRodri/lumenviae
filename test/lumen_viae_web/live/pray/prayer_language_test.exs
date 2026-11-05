@@ -35,7 +35,7 @@ defmodule LumenViaeWeb.Live.Pray.PrayerLanguageTest do
     assert render(view) =~ "Prayer language"
   end
 
-  test "choosing Latin sets the opening prayers in Latin and keeps the choice", %{conn: conn} do
+  test "choosing Latin sets the prayers in Latin and keeps the choice", %{conn: conn} do
     {:ok, view, html} = live(conn, "/mysteries/joyful/pray")
     assert html =~ "In the name of the Father"
 
@@ -44,17 +44,19 @@ defmodule LumenViaeWeb.Live.Pray.PrayerLanguageTest do
 
     assert html =~ "Signum Crucis"
     assert html =~ "In nomine Patris"
-    assert html =~ "Credo in Deum"
     refute html =~ "In the name of the Father"
     assert html =~ ~s(lang="la")
     assert_push_event(view, "prayer:language", %{language: "la"})
 
+    view |> element("button[phx-click=next]") |> render_click()
+    assert render(view) =~ "Credo in Deum"
+
     # Captions stay in English.
-    assert html =~ "A Hail Mary for faith"
+    assert view |> element("#bead-status") |> render() =~ "The Apostles&#39; Creed"
   end
 
-  test "counting on the screen, the bead's prayer is in Latin", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/mysteries/joyful/pray?count=screen")
+  test "the bead's prayer is in Latin", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/mysteries/joyful/pray")
     html = render_hook(view, "restore_language", %{"language" => "la"})
 
     assert view |> element("#bead-0") |> render() =~ "In nomine Patris"
@@ -66,7 +68,9 @@ defmodule LumenViaeWeb.Live.Pray.PrayerLanguageTest do
     html = render_hook(view, "restore_language", %{"language" => "la"})
 
     assert html =~ "The Annunciation"
-    assert html =~ "Pater noster"
+
+    view |> element("button[phx-click=next]") |> render_click()
+    assert render(view) =~ "Pater noster"
   end
 
   test "the language saved in this browser is restored, and nothing else is", %{conn: conn} do
@@ -92,6 +96,6 @@ defmodule LumenViaeWeb.Live.Pray.PrayerLanguageTest do
 
     path = assert_patch(view)
     refute path =~ "la"
-    assert render(view) =~ "Pater noster"
+    assert render(view) =~ "Credo in Deum"
   end
 end

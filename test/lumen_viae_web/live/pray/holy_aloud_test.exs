@@ -1,23 +1,33 @@
 defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
   @moduledoc """
-  The Audio Rosary is, as the app prays it, the whole Rosary aloud
-  with the beads on the screen: `form=holy` defaults to both, and a URL
-  that says otherwise is followed. The voice never starts on arrival, since
-  a browser allows sound only after a tap; it is told to play only when
-  the reader's own action brings the player.
+  Every way of praying the page is the app's simple Rosary: the player says
+  the whole Rosary, a prayer at a time on the screen, and the old links
+  that chose to count on a rosary or to pray in silence open the same page.
+  The voice never starts on arrival, since a browser allows sound only
+  after a tap; it is told to play only when the reader's own action brings
+  the player.
   """
-  use LumenViaeWeb.ConnCase, async: true
+  use LumenViaeWeb.ConnCase, async: false
 
+  import LumenViae.Test.EnvStub, only: [put_env: 3]
   import Phoenix.LiveViewTest
 
   @holy "/mysteries/joyful/pray?form=holy"
 
-  test "the Audio Rosary opens aloud, counting on the screen", %{conn: conn} do
+  # The player is built from recordings, whose URLs need credentials to
+  # sign; these are local arithmetic and never reach AWS.
+  setup do
+    put_env(:ex_aws, :access_key_id, "test-key")
+    put_env(:ex_aws, :secret_access_key, "test-secret")
+    :ok
+  end
+
+  test "the Audio Rosary opens with the player, a bead at a time", %{conn: conn} do
     {:ok, view, _html} = live(conn, @holy)
 
     assert has_element?(view, "[phx-hook=SpokenRosary]")
     assert has_element?(view, "#bead-0")
-    assert has_element?(view, ~s(button[phx-click=toggle_pray_aloud][aria-pressed="true"]))
+    refute has_element?(view, "button[phx-click=toggle_pray_aloud]")
   end
 
   test "it waits for a tap rather than playing on arrival", %{conn: conn} do
@@ -25,22 +35,25 @@ defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
     refute_push_event(view, "spoken_play", %{})
   end
 
-  test "a URL that says otherwise is followed", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "#{@holy}&aloud=false")
-    refute has_element?(view, "[phx-hook=SpokenRosary]")
-    assert has_element?(view, "#bead-0")
+  test "every form opens with the player, a bead at a time", %{conn: conn} do
+    for path <- ["/mysteries/joyful/pray", "/mysteries/sorrowful/pray?form=scriptural"] do
+      {:ok, view, _html} = live(conn, path)
 
-    {:ok, view, _html} = live(conn, "#{@holy}&count=beads")
-    assert has_element?(view, "[phx-hook=SpokenRosary]")
-    refute has_element?(view, "#bead-0")
+      assert has_element?(view, "[phx-hook=SpokenRosary]")
+      assert has_element?(view, "#bead-0")
+    end
   end
 
-  test "turning the voice off is written into the URL", %{conn: conn} do
-    {:ok, view, _html} = live(conn, @holy)
+  test "old links that said otherwise open the same page, and the next URL drops them",
+       %{conn: conn} do
+    {:ok, view, _html} = live(conn, "#{@holy}&aloud=false&count=beads")
 
-    view |> element("button[phx-click=toggle_pray_aloud]") |> render_click()
-    assert_patch(view, "/mysteries/joyful/pray?mystery=opening&step=0&form=holy&aloud=false")
-    refute has_element?(view, "[phx-hook=SpokenRosary]")
+    assert has_element?(view, "[phx-hook=SpokenRosary]")
+    assert has_element?(view, "#bead-0")
+    refute has_element?(view, "button[phx-click=toggle_pray_aloud]")
+
+    view |> element("button[phx-click=next]") |> render_click()
+    assert_patch(view, "/mysteries/joyful/pray?mystery=opening&step=1&form=holy")
   end
 
   test "moving on keeps the URL short", %{conn: conn} do
@@ -50,14 +63,7 @@ defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
     assert_patch(view, "/mysteries/joyful/pray?mystery=opening&step=1&form=holy")
   end
 
-  test "the other forms still open silent on the reader's own beads", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/mysteries/joyful/pray")
-
-    refute has_element?(view, "[phx-hook=SpokenRosary]")
-    refute has_element?(view, "#bead-0")
-  end
-
-  test "choosing the Audio Rosary brings its way of praying, and plays", %{conn: conn} do
+  test "choosing the Audio Rosary brings its form, and plays", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/mysteries/joyful/pray")
 
     render_click(view, "set_form", %{"form" => "holy"})
@@ -66,14 +72,7 @@ defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
     assert_push_event(view, "spoken_play", %{})
   end
 
-  test "turning the voice on is the tap, so the player plays", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/mysteries/joyful/pray")
-
-    view |> element("button[phx-click=toggle_pray_aloud]") |> render_click()
-    assert_push_event(view, "spoken_play", %{})
-  end
-
-  test "a closing prayer chosen while praying aloud plays the new player", %{conn: conn} do
+  test "a closing prayer chosen while praying plays the new player", %{conn: conn} do
     {:ok, view, _html} = live(conn, @holy)
 
     render_click(view, "toggle_extra", %{"extra" => "memorare"})

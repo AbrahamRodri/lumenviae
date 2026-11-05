@@ -17,7 +17,10 @@ import { applyDisplay, clearDisplay } from "./display_choices"
 
 const ADVANCE = ["ArrowRight", "ArrowDown", " ", "Spacebar", "Enter"]
 const BACK = ["ArrowLeft", "ArrowUp"]
-const SCALES = [0.9, 1, 1.12, 1.25, 1.4, 1.6]
+// Capped at 1.4: past it a prayer's words outgrow the view (as the app's
+// simple Rosary caps its text size). A larger size saved before is held to
+// the largest.
+const SCALES = [0.9, 1, 1.12, 1.25, 1.4]
 const SIZE_KEY = "lv:pray:text-size"
 const SWIPE_DISTANCE = 50
 
@@ -44,7 +47,7 @@ export default {
     // size: only a saved index counts.
     const saved = storage.get(SIZE_KEY)
     const index = saved === null ? NaN : Number(saved)
-    this.sizeIndex = Number.isInteger(index) && SCALES[index] ? index : 1
+    this.sizeIndex = Number.isInteger(index) && index >= 0 ? Math.min(index, SCALES.length - 1) : 1
     this.applySize()
     applyDisplay()
 

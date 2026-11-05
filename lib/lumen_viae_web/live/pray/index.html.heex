@@ -4,7 +4,7 @@
   phx-hook="PrayerSurface"
   data-layout="focused"
   data-hides-chant-player
-  data-count={@count}
+  data-count="screen"
 >
   <%!-- The app's candle: a warm glow from the top of the page. --%>
   <div class="prayer-glow absolute inset-0 pointer-events-none" aria-hidden="true"></div>
@@ -39,8 +39,6 @@
         {@heading}
       </h1>
 
-      <Controls.aloud_button :if={!@completed} pray_aloud={@pray_aloud} />
-
       <button
         :if={!@completed}
         type="button"
@@ -65,7 +63,6 @@
         :if={@panel_open}
         route={@route}
         form={@form}
-        count={@count}
         extras={@extras}
         chaplet={@sequence.chaplet?}
         language={@language}
@@ -80,7 +77,7 @@
       </div>
 
       <Controls.spoken_player
-        :if={@pray_aloud}
+        :if={@spoken_script != []}
         id={spoken_id(assigns)}
         script={@spoken_script}
         start_screen={current_screen(assigns).index}
@@ -88,31 +85,18 @@
       />
 
       <div id="prayer-main" class="flex-1 pt-5 pb-6">
-        <%= if @count == "screen" do %>
-          <BeadScreen.bead_screen
-            sequence={@sequence}
-            screen={current_screen(assigns)}
-            audio_url={current_audio_url(assigns)}
-            pray_aloud={@pray_aloud}
-            show_meditation={@show_meditation}
-            language={@language}
-          />
-        <% else %>
-          <PageView.page_view
-            sequence={@sequence}
-            page={Sequence.page(@sequence, @page)}
-            audio_url={current_audio_url(assigns)}
-            pray_aloud={@pray_aloud}
-            show_meditation={@show_meditation}
-            language={@language}
-          />
-        <% end %>
+        <BeadScreen.bead_screen
+          sequence={@sequence}
+          screen={current_screen(assigns)}
+          timings={current_timings(assigns)}
+          show_meditation={@show_meditation}
+          language={@language}
+        />
       </div>
 
-      <Controls.swipe_hint :if={@count == "screen" and !@pray_aloud} place={"#{@page}-#{@step}"} />
+      <Controls.swipe_hint :if={@spoken_script == []} place={"#{@page}-#{@step}"} />
 
       <Controls.bottom_nav
-        count={@count}
         at_start={@page == 0 and @step == 0}
         at_end={at_end?(assigns)}
       />
@@ -124,7 +108,7 @@
         data-key={"#{@storage_key}:#{@form}"}
         data-mystery={Params.mystery_param(@page, length(@decades))}
         data-step={@step}
-        data-count={@count}
+        data-count="screen"
         data-extras={Enum.join(@extras, ",")}
         data-language={@language}
       >

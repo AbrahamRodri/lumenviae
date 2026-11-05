@@ -4,27 +4,21 @@ defmodule LumenViaeWeb.Live.Pray.Params do
 
   Everything rides in the query string so a reload, a shared link or the
   back button keeps it: `mystery` (`opening`, a decade from 0, or
-  `closing`), `step` (the bead on that page, counting on the screen),
-  `form`, `count`, `aloud` and `voice`. Defaults are left out to keep
-  ordinary links short.
+  `closing`), `step` (the prayer on that page), `form` and `voice`.
+  Defaults are left out to keep ordinary links short.
 
-  How the beads are counted and whether the Rosary is said aloud default
-  by form. The Audio Rosary (`holy`), as the app prays it, is the
-  whole Rosary aloud with the beads on the screen; every other form is
-  silent and counted on the reader's own rosary. A URL that says otherwise
-  (`aloud=false`, `count=beads`) is followed, and only a choice away from
-  its form's default is written into a URL. `mobile`, from links made before the page worked
-  on phones by itself, is accepted and ignored.
+  There is one way to pray it, as the app's simple Rosary does: every
+  prayer said aloud, a prayer at a time on the screen. Links made before
+  that carry `count` and `aloud`, and `mobile` from before the page worked
+  on phones by itself; all three are accepted and ignored.
   """
 
   alias LumenViae.Rosary.Voices
 
-  @counts ~w(beads screen)
-
   @doc """
   The forms a route offers, the default first: a set is prayed with its
   meditations or as the Scriptural Rosary; a category without a set as the
-  Scriptural Rosary or with the prayers alone.
+  Scriptural Rosary or with no meditation (the prayers alone).
   """
   def forms(:set), do: ~w(meditation scriptural)
   def forms(:category), do: ~w(scriptural holy)
@@ -33,26 +27,6 @@ defmodule LumenViaeWeb.Live.Pray.Params do
 
   def form(params, route) do
     if params["form"] in forms(route), do: params["form"], else: default_form(route)
-  end
-
-  @doc "How the beads are counted in `form` unless the URL says otherwise."
-  def default_count("holy"), do: "screen"
-  def default_count(_form), do: "beads"
-
-  @doc "Whether `form` is said aloud unless the URL says otherwise."
-  def default_aloud?("holy"), do: true
-  def default_aloud?(_form), do: false
-
-  def count(params, form \\ nil) do
-    if params["count"] in @counts, do: params["count"], else: default_count(form)
-  end
-
-  def aloud?(params, form \\ nil) do
-    case params["aloud"] do
-      "true" -> true
-      "false" -> false
-      _other -> default_aloud?(form)
-    end
   end
 
   @doc """
@@ -97,21 +71,13 @@ defmodule LumenViaeWeb.Live.Pray.Params do
 
   @doc """
   The URL for `base` (the route's path) at `page` and `step`, with the
-  choices in `state`: `route`, `form`, `count`, `aloud`, `voice` and
-  `decades`.
+  choices in `state`: `route`, `form`, `voice` and `decades`.
   """
   def url(base, state, page, step) do
     query =
-      [mystery: mystery_param(page, state.decades)]
-      |> then(&if(state.count == "screen", do: &1 ++ [step: step], else: &1))
+      [mystery: mystery_param(page, state.decades), step: step]
       |> then(
         &if(state.form != default_form(state.route), do: &1 ++ [form: state.form], else: &1)
-      )
-      |> then(
-        &if(state.count != default_count(state.form), do: &1 ++ [count: state.count], else: &1)
-      )
-      |> then(
-        &if(state.aloud != default_aloud?(state.form), do: &1 ++ [aloud: state.aloud], else: &1)
       )
       |> then(fn query ->
         if state.voice && state.voice != Voices.default(),

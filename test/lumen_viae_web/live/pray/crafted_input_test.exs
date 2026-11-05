@@ -15,7 +15,7 @@ defmodule LumenViaeWeb.Live.Pray.CraftedInputTest do
 
   describe "the URL" do
     test "a step that is not a string is the first bead", %{conn: conn} do
-      for query <- ["count=screen&step[]=1", "count=screen&step[a]=1"] do
+      for query <- ["step[]=1", "step[a]=1"] do
         {:ok, view, _html} = live(conn, "#{@path}?#{query}")
         assert has_element?(view, "#bead-0")
       end
@@ -32,7 +32,7 @@ defmodule LumenViaeWeb.Live.Pray.CraftedInputTest do
     test "an event missing its key is ignored", %{conn: conn} do
       {:ok, view, _html} = live(conn, @path)
 
-      for event <- ~w(go_to set_voice set_form toggle_extra set_language set_count) do
+      for event <- ~w(go_to set_voice set_form toggle_extra set_language) do
         assert render_click(view, event, %{}) =~ "In the name of the Father"
       end
     end
@@ -49,7 +49,7 @@ defmodule LumenViaeWeb.Live.Pray.CraftedInputTest do
       {:ok, view, _html} = live(conn, @path)
       render_click(view, "go_to", %{"page" => 1})
 
-      assert_patch(view, "#{@path}?mystery=0")
+      assert_patch(view, "#{@path}?mystery=0&step=0")
     end
 
     test "a damaged saved place is ignored", %{conn: conn} do
@@ -59,7 +59,7 @@ defmodule LumenViaeWeb.Live.Pray.CraftedInputTest do
             %{"mystery" => %{"a" => 1}},
             %{"mystery" => [1]},
             %{"mystery" => "1", "step" => %{"a" => 1}},
-            %{"mystery" => "1", "step" => [1], "count" => "screen"}
+            %{"mystery" => "1", "step" => [1]}
           ] do
         render_hook(view, "resume_available", saved)
         assert render(view) =~ "In the name of the Father"
@@ -85,14 +85,14 @@ defmodule LumenViaeWeb.Live.Pray.CraftedInputTest do
     end
 
     test "is accepted at the end", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "#{@path}?mystery=closing")
+      {:ok, view, _html} = live(conn, "#{@path}?mystery=closing&step=999")
 
       view |> element("button[phx-click=complete]") |> render_click()
       assert has_element?(view, "#prayer-complete")
     end
 
-    test "counting on the screen, is accepted only on the last bead", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "#{@path}?mystery=closing&count=screen")
+    test "is refused before the last bead of the closing prayers", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "#{@path}?mystery=closing")
 
       render_click(view, "complete", %{})
       refute has_element?(view, "#prayer-complete")

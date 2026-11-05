@@ -46,12 +46,12 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   disappears and the Pray links gain `aloud=true`), then counting on the
   screen (the Pray links gain `count=screen`), and checks both survive a
   reload;
-- on a prayer page counting on the screen, advances with Space, ArrowDown
-  and the Next bead button (the live region text changes), opens and closes
+- on a prayer page (a prayer at a time, the player paused first), advances
+  with Space, ArrowDown and the Next bead button (the live region text changes), opens and closes
   the settings pane with Enter, closes it with Escape, and checks the text
   size survives a reload;
-- on `/mysteries/sorrowful/pray?form=scriptural&count=screen`, checks a
-  verse shows before the first counted Hail Mary;
+- on `/mysteries/sorrowful/pray?form=scriptural`, checks a verse shows
+  before the first counted Hail Mary;
 - loads the set-less holy form, and checks an unknown category and an
   unknown set answer 404;
 - on `/prayers`, types "memorare" in the search (the link gains
@@ -95,7 +95,7 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   Today's Mass, the Hours of Prayer's hour now), follows each row's link to its page, then
   keeps a plan begun four days ago in localStorage and checks the
   Consecration's row opens Day 5, marked prayed;
-- jumps to `mystery=closing`, presses Complete and checks the completion
+- jumps to the last prayer (`mystery=closing&step=999`), presses Complete and checks the completion
   screen shows (once, at the mobile width);
 - saves a full-page screenshot of the main pages to `scripts/e2e/out/`
   (gitignored).

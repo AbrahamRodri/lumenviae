@@ -10,7 +10,7 @@ defmodule LumenViaeWeb.Live.Pray.MilestonesTest do
   import Phoenix.LiveViewTest
 
   defp complete(conn) do
-    {:ok, view, _html} = live(conn, "/mysteries/joyful/pray?mystery=closing")
+    {:ok, view, _html} = live(conn, "/mysteries/joyful/pray?mystery=closing&step=999")
     view |> element("button[phx-click=complete]") |> render_click()
     view
   end
