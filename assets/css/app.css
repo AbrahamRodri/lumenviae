@@ -2002,13 +2002,6 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
     border-radius: 12.5% / 5.8%;
     background: var(--color-night-deep);
   }
-
-  /* The download link, set in two lines like Apple's badge. */
-  .app-store-button {
-    min-width: 12rem;
-    padding-top: 0.625rem;
-    padding-bottom: 0.625rem;
-  }
 }
 /* === end the app page's phones === */
 
