@@ -299,7 +299,7 @@ defmodule LumenViae.Curation.CsvImport do
   defp preview_content(nil), do: {nil, [], []}
 
   defp preview_content(raw_content) do
-    case TtsText.extract_pauses(raw_content) do
+    case raw_content |> close_stray_spaces() |> TtsText.extract_pauses() do
       {:ok, clean_content, annotations} -> {clean_content, annotations, []}
       {:error, message} -> {raw_content, [], [message]}
     end
@@ -557,7 +557,7 @@ defmodule LumenViae.Curation.CsvImport do
         {:ok, nil, []}
 
       raw_content ->
-        case TtsText.extract_pauses(raw_content) do
+        case raw_content |> close_stray_spaces() |> TtsText.extract_pauses() do
           {:ok, clean_content, annotations} ->
             {:ok, clean_content, annotations}
 
@@ -566,6 +566,13 @@ defmodule LumenViae.Curation.CsvImport do
         end
     end
   end
+
+  # A space before a comma, semicolon, colon or full stop ("Our Lord ,
+  # though") is a copying mistake, closed up before anything else, so the
+  # pause offsets are taken from the text as stored. An ellipsis (" ...")
+  # is left as written.
+  @stray_space ~r/(\S) +([,;:]|\.(?!\.))/u
+  defp close_stray_spaces(content), do: Regex.replace(@stray_space, content, "\\1\\2")
 
   defp fetch_mystery(mysteries, row_map, opts) do
     mystery_name = Map.get(row_map, "mystery_name")
