@@ -89,6 +89,19 @@ defmodule LumenViaeWeb.Live.Pray.NavigationTest do
       assert view |> element("#bead-status") |> render() =~ "The Glory Be"
     end
 
+    test "a decade's prayers keep the mystery's name in sight", %{conn: conn, path: path} do
+      {:ok, view, _html} = live(conn, at(path, 0, 999))
+      name = view |> element("#bead-mystery") |> render()
+
+      {:ok, announced, _html} = live(conn, at(path, 0))
+      refute has_element?(announced, "#bead-mystery")
+      [_, title] = Regex.run(~r/<p id="bead-mystery"[^>]*>\s*([^<]+?)\s*</, name)
+      assert render(announced) =~ title
+
+      {:ok, opening, _html} = live(conn, path)
+      refute has_element?(opening, "#bead-mystery")
+    end
+
     test "the closing prayers begin with Hail, Holy Queen and end with Complete",
          %{conn: conn, path: path} do
       {:ok, view, html} = live(conn, at(path, "closing"))
