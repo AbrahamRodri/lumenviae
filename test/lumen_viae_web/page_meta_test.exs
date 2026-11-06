@@ -169,10 +169,33 @@ defmodule LumenViaeWeb.PageMetaTest do
       assert content(doc, ~s(meta[property="og:image:alt"])) =~ "Lumen Viae"
       assert content(doc, ~s(meta[name="twitter:card"])) == "summary_large_image"
 
-      assert types(doc) == ["WebSite"]
-      [site] = json_ld(doc)
+      assert types(doc) == ["WebSite", "Organization"]
+      [site, organization] = json_ld(doc)
       assert site["name"] == "Lumen Viae"
       assert site["url"] == @site <> "/"
+
+      assert organization["name"] == "Lumen Viae"
+      assert organization["logo"] == @site <> "/icon-512.png"
+      assert organization["sameAs"] == [PageMeta.app_store_url()]
+    end
+
+    test "links a PNG icon beside the svg and ico", %{conn: conn} do
+      doc = page(conn, "/")
+
+      assert doc |> Floki.find(~s(link[rel="icon"][type="image/png"])) |> Floki.attribute("href") ==
+               ["/icon-192.png"]
+    end
+  end
+
+  describe "the app page" do
+    test "is the iPhone app, free, installed from the App Store", %{conn: conn} do
+      doc = page(conn, "/app")
+
+      [app] = Enum.filter(json_ld(doc), &(&1["@type"] == "MobileApplication"))
+      assert app["operatingSystem"] == "iOS"
+      assert app["installUrl"] == PageMeta.app_store_url()
+      assert app["offers"]["price"] == "0"
+      refute Map.has_key?(app, "aggregateRating")
     end
   end
 

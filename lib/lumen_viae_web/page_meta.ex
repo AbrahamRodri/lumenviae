@@ -26,6 +26,7 @@ defmodule LumenViaeWeb.PageMeta do
 
   @site "https://www.lumenviae.org"
   @site_name "Lumen Viae"
+  @app_store_url "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749"
 
   # The description a search result shows is cut at about 160 characters.
   @max_description 160
@@ -175,6 +176,45 @@ defmodule LumenViaeWeb.PageMeta do
       "inLanguage" => "en"
     }
   end
+
+  @doc """
+  `Organization` structured data for the home page: the name, the site and
+  the logo (the 512 px app icon) search engines show beside it, and the
+  App Store listing as the one other place it lives. The Android app is
+  not on Google Play yet; add its listing to `sameAs` when it is.
+  """
+  def organization do
+    %{
+      "@context" => "https://schema.org",
+      "@type" => "Organization",
+      "name" => @site_name,
+      "url" => @site <> "/",
+      "logo" => absolute_url("/icon-512.png"),
+      "sameAs" => [@app_store_url]
+    }
+  end
+
+  @doc """
+  `MobileApplication` structured data for `/app`: the iPhone app, free, and
+  where to install it. Only what is true and stays true: no rating, no
+  version. The Android app joins it once it is on Google Play.
+  """
+  def mobile_app do
+    %{
+      "@context" => "https://schema.org",
+      "@type" => "MobileApplication",
+      "name" => @site_name,
+      "operatingSystem" => "iOS",
+      "applicationCategory" => "LifestyleApplication",
+      "url" => @app_store_url,
+      "installUrl" => @app_store_url,
+      "image" => absolute_url("/icon-512.png"),
+      "offers" => %{"@type" => "Offer", "price" => "0", "priceCurrency" => "USD"}
+    }
+  end
+
+  @doc "The iPhone app's App Store listing."
+  def app_store_url, do: @app_store_url
 
   @doc """
   A `BreadcrumbList` from Home through `trail`, a list of `{name, path}`

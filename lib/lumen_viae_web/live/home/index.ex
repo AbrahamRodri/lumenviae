@@ -61,7 +61,7 @@ defmodule LumenViaeWeb.Live.Home.Index do
      |> PageMeta.put("/",
        title: "Meditations on the Holy Rosary",
        description: @description,
-       json_ld: [PageMeta.website(@description)]
+       json_ld: [PageMeta.website(@description), PageMeta.organization()]
      )
      |> assign(:schedule, LiturgicalCalendar.default_schedule())
      |> assign(:categories, categories)
