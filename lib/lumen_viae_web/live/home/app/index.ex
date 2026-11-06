@@ -14,8 +14,6 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
 
   import LumenViaeWeb.Live.Home.App.PhoneScreen
 
-  @app_store_url "https://apps.apple.com/us/app/lumen-viae-rosary-meditations/id6760320749"
-
   @hero %{
     name: "home",
     alt:
@@ -186,10 +184,11 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
          width: 1200,
          height: 630,
          alt: "Three screens of the Lumen Viae iPhone app on a night-blue ground"
-       }
+       },
+       json_ld: [PageMeta.mobile_app()]
      )
      |> assign(
-       app_store_url: @app_store_url,
+       app_store_url: PageMeta.app_store_url(),
        hero: @hero,
        features: @features,
        also: @also,
