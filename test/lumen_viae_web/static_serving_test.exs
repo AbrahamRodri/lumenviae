@@ -47,7 +47,7 @@ defmodule LumenViaeWeb.StaticServingTest do
   describe "the logo's icons" do
     test "every icon, the share image and the logo art are served" do
       for path <- ~w(/favicon.ico /favicon.svg /favicon-16.png /favicon-32.png /favicon-48.png
-                     /apple-touch-icon.png /icon-192.png /icon-512.png /icon-maskable-512.png
+                     /apple-touch-icon.png /apple-touch-icon-precomposed.png /icon-192.png /icon-512.png /icon-maskable-512.png
                      /og-image.png /images/logo/lockup-horizontal-gold.svg
                      /images/logo/symbol-gold.svg /images/logo/symbol-compact-gold.svg) do
         conn = get(build_conn(), path)
