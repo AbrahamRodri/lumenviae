@@ -25,6 +25,7 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     BeadScreen,
     Completion,
     Controls,
+    Painting,
     Params,
     Sequence,
     Strand
