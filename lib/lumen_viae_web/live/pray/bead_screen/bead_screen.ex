@@ -42,6 +42,14 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
       >
         {status(@screen, @decade)}
       </p>
+      <%!-- The mystery being prayed stays in sight through its decade. --%>
+      <p
+        :if={@screen.kind == :prayer && @decade && @decade.name}
+        id="bead-mystery"
+        class="mt-1 text-center kicker text-gilt"
+      >
+        {@decade.name}
+      </p>
 
       <div
         id={"bead-#{@screen.index}"}
