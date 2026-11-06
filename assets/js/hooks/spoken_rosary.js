@@ -327,11 +327,16 @@ export default {
     if (this.dead) return
     const step = this.steps[Math.min(this.index, this.steps.length - 1)]
 
-    this.caption.textContent = this.finished
+    // The bead's name is under the strand, so the player names nothing
+    // while praying; it speaks only at the Amen, or when there is nothing
+    // to play.
+    const caption = this.finished
       ? "Amen. Press Complete to finish your Rosary."
       : step
-        ? step.caption
+        ? null
         : "Nothing to play"
+    this.caption.textContent = caption || ""
+    this.caption.hidden = !caption
 
     const done = this.finished ? this.steps.length : this.index
     this.bar.style.width = `${this.steps.length ? (done / this.steps.length) * 100 : 0}%`

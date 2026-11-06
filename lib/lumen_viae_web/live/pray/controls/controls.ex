@@ -276,12 +276,15 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       data-set-name={@title}
       class="max-w-sm mx-auto mt-3 rounded-2xl border border-night-border bg-night-raised px-3 py-2"
     >
+      <%!-- Shown only at the Amen: while praying, the bead's name under the
+           strand already says what is being prayed. --%>
       <p
         data-caption
-        class="min-h-6 text-center font-garamond text-ink-light text-base leading-snug"
+        hidden
+        class="mb-1 text-center font-garamond text-ink-light text-base leading-snug"
       >
       </p>
-      <div class="mt-1 grid grid-cols-[2.75rem_1fr_auto_1fr_2.75rem] items-center">
+      <div class="grid grid-cols-[2.75rem_1fr_auto_1fr_2.75rem] items-center">
         <span aria-hidden="true"></span>
         <button
           type="button"
