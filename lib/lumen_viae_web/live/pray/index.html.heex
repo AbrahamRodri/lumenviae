@@ -72,6 +72,8 @@
 
       <Controls.resume_banner :if={@resume} resume={@resume} />
 
+      <Painting.hero decades={@decades} page={@page} category={@category} />
+
       <div class="mt-3">
         <Strand.where sequence={@sequence} page={@page} open={@go_to_open} />
       </div>
