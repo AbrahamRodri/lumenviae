@@ -197,17 +197,22 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
      )}
   end
 
-  # The download link, in the wording of Apple's badge but drawn as the
-  # site's own gilt button: the official badge is licensed artwork.
+  # The download link: Apple's own "Download on the App Store" badge (black,
+  # US English, from developer.apple.com), kept as downloaded. Apple's rules:
+  # never recoloured, cropped or given effects, at least 40 px tall, with
+  # clear space of a quarter of its height around it (the gap-4 beside it).
   attr :href, :string, required: true
 
   defp app_store_button(assigns) do
     ~H"""
-    <a href={@href} class="btn-gold app-store-button" rel="noopener">
-      <span class="flex flex-col items-start leading-none text-left">
-        <span class="text-[0.8125rem] font-medium tracking-[0.04em]">Download on the</span>
-        <span class="mt-1 text-[1.375rem] font-semibold">App Store</span>
-      </span>
+    <a href={@href} class="inline-block shrink-0" rel="noopener">
+      <img
+        src={~p"/images/app/app-store-badge.svg"}
+        alt="Download on the App Store"
+        width="168"
+        height="56"
+        class="h-14 w-auto"
+      />
     </a>
     """
   end

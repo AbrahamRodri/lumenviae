@@ -42,10 +42,31 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
       assert Enum.all?(links, &(Floki.attribute(&1, "href") == [@app_store]))
     end
 
+    test "each download link is Apple's own badge, kept as downloaded", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/app")
+      doc = Floki.parse_document!(html)
+      badges = Floki.find(doc, ~s(a[href="#{@app_store}"] img))
+
+      assert length(badges) >= 2
+
+      for badge <- badges do
+        assert Floki.attribute(badge, "alt") == ["Download on the App Store"]
+        assert [src] = Floki.attribute(badge, "src")
+        assert src =~ "/images/app/app-store-badge"
+      end
+
+      assert File.read!("priv/static/images/app/app-store-badge.svg") =~
+               "Download_on_the_App_Store_Badge_US-UK_RGB_blk"
+    end
+
     test "every screenshot has alt text, a size and its files", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/app")
       doc = Floki.parse_document!(html)
-      images = Floki.find(doc, "main img, #app-page img")
+
+      images =
+        doc
+        |> Floki.find("main img, #app-page img")
+        |> Enum.reject(&(Floki.attribute(&1, "src") |> hd() =~ "app-store-badge"))
 
       assert length(images) >= 10
 
