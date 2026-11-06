@@ -403,7 +403,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     ~H"""
     <nav
       aria-label="Move through the Rosary"
-      class="prayer-bottom-nav sticky bottom-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 bg-gradient-to-t from-night via-night to-night/0"
+      class="prayer-bottom-nav sticky bottom-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3"
     >
       <div class="grid grid-cols-[auto_1fr] gap-3 items-center max-w-[62ch] mx-auto">
         <button
