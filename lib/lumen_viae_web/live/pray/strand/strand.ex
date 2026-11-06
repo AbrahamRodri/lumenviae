@@ -7,6 +7,8 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
   """
   use LumenViaeWeb, :html
 
+  alias Phoenix.LiveView.JS
+
   alias LumenViaeWeb.Live.Pray.Sequence
 
   attr :sequence, :map, required: true
@@ -54,6 +56,10 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
     """
   end
 
+  # Closing the list puts focus back on the toggle that opened it, rather
+  # than letting it fall to the page (WCAG 2.4.3).
+  defp close_go_to, do: JS.push("close_go_to") |> JS.focus(to: "#go-to-toggle")
+
   attr :sequence, :map, required: true
   attr :page, :integer, required: true
   attr :heading, :string, required: true
@@ -69,7 +75,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
     ~H"""
     <div
       id="prayer-go-to"
-      phx-window-keydown="close_go_to"
+      phx-window-keydown={close_go_to()}
       phx-key="Escape"
       class="mt-3 rounded-2xl border border-night-border bg-night-raised px-2 py-4 sm:px-4"
     >
@@ -79,7 +85,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
         <li :for={page <- @sequence.pages} class="border-t border-night-border first:border-t-0">
           <button
             type="button"
-            phx-click="go_to"
+            phx-click={JS.push("go_to") |> JS.focus(to: "#go-to-toggle")}
             phx-value-page={page.index}
             aria-current={if page.index == @page, do: "step", else: "false"}
             class={[

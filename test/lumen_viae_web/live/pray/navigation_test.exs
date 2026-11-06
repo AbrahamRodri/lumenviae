@@ -204,7 +204,7 @@ defmodule LumenViaeWeb.Live.Pray.NavigationTest do
       {:ok, view, _html} = live(conn, path)
 
       view |> element("#go-to-toggle") |> render_click()
-      view |> element("button[phx-click=go_to][phx-value-page='4']") |> render_click()
+      view |> element("#prayer-go-to button[phx-value-page='4']") |> render_click()
 
       assert_patch(view, at(path, 3, 0))
       assert render(view) =~ "The Fourth Joyful Mystery"
