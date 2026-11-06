@@ -569,10 +569,16 @@ defmodule LumenViae.Curation.CsvImport do
 
   # A space before a comma, semicolon, colon or full stop ("Our Lord ,
   # though") is a copying mistake, closed up before anything else, so the
-  # pause offsets are taken from the text as stored. An ellipsis (" ...")
-  # is left as written.
+  # pause offsets are taken from the text as stored; where the mark runs
+  # into the next word ("was come ,brought") the space moves after it. An
+  # ellipsis (" ...") is left as written.
+  @space_moved ~r/(\S) +([,;:])(?=\p{L})/u
   @stray_space ~r/(\S) +([,;:]|\.(?!\.))/u
-  defp close_stray_spaces(content), do: Regex.replace(@stray_space, content, "\\1\\2")
+  defp close_stray_spaces(content) do
+    content
+    |> then(&Regex.replace(@space_moved, &1, "\\1\\2 "))
+    |> then(&Regex.replace(@stray_space, &1, "\\1\\2"))
+  end
 
   defp fetch_mystery(mysteries, row_map, opts) do
     mystery_name = Map.get(row_map, "mystery_name")

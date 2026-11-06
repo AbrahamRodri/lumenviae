@@ -493,7 +493,9 @@ defmodule LumenViae.Curation.CsvImportTest do
     end
 
     test "closes a stray space before punctuation, and leaves an ellipsis" do
-      raw = "Our Lord , though guilty of no sin ; said to His enemies . Look back now ... Evil."
+      raw =
+        "Our Lord , though guilty of no sin ; said to His enemies . Look back now ... Evil. " <>
+          "Her delivery was come ,brought forth."
 
       content = csv(~w(mystery_name content), ["The Annunciation,#{quoted(raw)}"])
 
@@ -502,7 +504,8 @@ defmodule LumenViae.Curation.CsvImportTest do
       [meditation] = Rosary.list_meditations!(actor: admin())
 
       assert meditation.content ==
-               "Our Lord, though guilty of no sin; said to His enemies. Look back now ... Evil."
+               "Our Lord, though guilty of no sin; said to His enemies. Look back now ... Evil. " <>
+                 "Her delivery was come, brought forth."
     end
 
     test "dry run validates marker content without writing" do

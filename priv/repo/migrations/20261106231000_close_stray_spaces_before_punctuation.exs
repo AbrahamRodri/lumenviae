@@ -3,8 +3,10 @@ defmodule LumenViae.Repo.Migrations.CloseStraySpacesBeforePunctuation do
 
   # Some imported meditations (Sheen's Sorrowful set among them) carry a
   # space before a comma, semicolon, colon or full stop: "Our Lord ,
-  # though guilty", "said to His enemies . Evil". The space is closed up.
-  # An ellipsis (" ...") is left as written.
+  # though guilty", "said to His enemies . Evil". The space is closed up,
+  # and where the mark ran straight into the next word ("was come ,brought")
+  # the space goes after it instead. An ellipsis (" ...") is left as
+  # written.
   #
   # Text only: nothing is narrated again. A narration's timed lines match
   # the page's words without their punctuation, so the lit lines are
@@ -15,7 +17,13 @@ defmodule LumenViae.Repo.Migrations.CloseStraySpacesBeforePunctuation do
   def up do
     execute """
     UPDATE meditations
-    SET content = regexp_replace(content, '(\\S) +([,;:]|\\.(?!\\.))', '\\1\\2', 'g'),
+    SET content =
+          regexp_replace(
+            regexp_replace(content, '(\\S) +([,;:])(?=[[:alpha:]])', '\\1\\2 ', 'g'),
+            '(\\S) +([,;:]|\\.(?!\\.))',
+            '\\1\\2',
+            'g'
+          ),
         updated_at = date_trunc('second', timezone('UTC', now()))
     WHERE content ~ '\\S +([,;:]|\\.(?!\\.))'
       AND (tts_annotations IS NULL OR cardinality(tts_annotations) = 0)
