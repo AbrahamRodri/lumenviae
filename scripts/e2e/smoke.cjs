@@ -189,7 +189,7 @@ async function checkHooks(page, errors, vp) {
   // Complete is on the last prayer; a step past the end is held to it.
   await page.goto(`${pray}?mystery=closing&step=999`);
   await settle(page);
-  await page.getByRole("button", { name: /Complete/ }).click();
+  await page.getByRole("button", { name: /complete/i }).click();
   await page.waitForTimeout(500);
   const streak = await page.evaluate(() => document.querySelector("[data-streak]").textContent.trim());
   check(streak === "1 day so far", `${label}: a damaged streak starts again from today`, `"${streak}"`);
