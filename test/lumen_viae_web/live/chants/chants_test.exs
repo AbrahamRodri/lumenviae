@@ -176,6 +176,33 @@ defmodule LumenViaeWeb.Live.Chants.ChantsTest do
       assert view |> element("[data-role=credit]") |> render() =~ "Verbum Gloriae"
     end
 
+    test "two melodies of one chant have titles of their own", %{conn: conn} do
+      title = fn path ->
+        conn
+        |> get(path)
+        |> html_response(200)
+        |> Floki.parse_document!()
+        |> Floki.find("title")
+        |> Floki.text()
+        |> String.trim()
+      end
+
+      assert title.("/chant/salve_regina_simple") =~
+               "Salve Regina (Hail, Holy Queen), Simple melody, Chant"
+
+      assert title.("/chant/salve_regina_solemn") =~
+               "Salve Regina (Hail, Holy Queen), Solemn melody, Chant"
+
+      library = Library.load(nil)
+
+      titles =
+        for chant <- library.chants do
+          title.(Library.chant_path(chant.id))
+        end
+
+      assert length(Enum.uniq(titles)) == length(titles)
+    end
+
     test "the Words ride in the link; Both is the default and never written", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/chant/salve_regina_simple")
       assert has_element?(view, ~s(#chant-view[data-words=both]))

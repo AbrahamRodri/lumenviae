@@ -54,7 +54,7 @@ defmodule LumenViaeWeb.Live.Chants.Chant do
     {:ok,
      socket
      |> PageMeta.put(Library.chant_path(id),
-       title: "#{chant.latin_title} (#{chant.english_title}), Chant",
+       title: title(chant),
        description: description(chant),
        image: PageMeta.named_image(Library.painting(chant)),
        trail:
@@ -94,6 +94,15 @@ defmodule LumenViaeWeb.Live.Chants.Chant do
 
   defp score_path(id, words),
     do: Library.chant_path(id) <> "?" <> URI.encode_query(words: words, score: "full")
+
+  # Two melodies of one chant (the simple and solemn Salve Regina, the
+  # Kyrie of two Masses) are two pages; the setting keeps their titles apart.
+  defp title(chant) do
+    case Library.distinct_setting(chant) do
+      nil -> "#{chant.latin_title} (#{chant.english_title}), Chant"
+      setting -> "#{chant.latin_title} (#{chant.english_title}), #{setting}, Chant"
+    end
+  end
 
   defp description(chant) do
     first = chant.lines |> Enum.take(2) |> Enum.map_join(" ", & &1.english)
