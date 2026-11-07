@@ -158,6 +158,8 @@ defmodule LumenViae.Curation.CsvImport do
     * `:total` - row count
     * `:valid_count` / `:error_count` - rows without/with errors
     * `:audio_count` - rows that will generate audio
+    * `:audio_characters` - the characters of those rows' text, which is
+      what one voice's recordings are billed by
     * `:new_sets` / `:existing_sets` - distinct set names by status
 
   Returns `{:error, message}` when the file itself is unusable.
@@ -201,6 +203,7 @@ defmodule LumenViae.Curation.CsvImport do
            valid_count: Enum.count(row_infos, &(&1.errors == [])),
            error_count: Enum.count(row_infos, &(&1.errors != [])),
            audio_count: Enum.count(row_infos, & &1.audio_filename),
+           audio_characters: audio_characters(row_maps, row_infos),
            new_sets: for({name, {:new, _}} <- set_statuses, do: name) |> Enum.sort(),
            existing_sets: for({name, {:existing, _}} <- set_statuses, do: name) |> Enum.sort()
          }}
@@ -229,6 +232,14 @@ defmodule LumenViae.Curation.CsvImport do
     changeset = Rosary.changeset_to_create_meditation_set(set_attrs(row_map), AshOpts.take(opts))
 
     if changeset.valid?, do: [], else: ["set: #{changeset_errors(changeset)}"]
+  end
+
+  defp audio_characters(row_maps, row_infos) do
+    row_maps
+    |> Enum.zip(row_infos)
+    |> Enum.filter(fn {_row_map, info} -> info.audio_filename end)
+    |> Enum.map(fn {row_map, _info} -> String.length(Map.get(row_map, "content") || "") end)
+    |> Enum.sum()
   end
 
   defp preview_row(

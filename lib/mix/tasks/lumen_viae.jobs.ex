@@ -8,13 +8,15 @@ defmodule Mix.Tasks.LumenViae.Jobs do
       mix lumen_viae.jobs failures --limit 20  # what failed lately, and why
       mix lumen_viae.jobs schedule             # the crontab, next and last runs
       mix lumen_viae.jobs retry --id 42
-      mix lumen_viae.jobs retry --queue elevenlabs
+      mix lumen_viae.jobs retry --queue maintenance
       mix lumen_viae.jobs retry --worker LumenViae.Office.Jobs.WarmCache
       mix lumen_viae.jobs cancel --id 42
       mix lumen_viae.jobs run Office.Jobs.WarmCache
 
   `retry --queue` and `retry --worker` make every retryable or discarded
-  job of theirs available again; a cancelled job is left alone. `run`
+  job of theirs available again; a cancelled job is left alone. A job on
+  the paid recording queue is never retried here: record it again from the
+  console or the audio task, which checks S3 first. `run`
   enqueues one of the crontab's workers now (the `LumenViae.` prefix may be
   left off), and only those, then waits up to five minutes for it to finish
   and says how it went.
@@ -79,8 +81,14 @@ defmodule Mix.Tasks.LumenViae.Jobs do
     case Ops.retry_jobs(filter) do
       {:ok, count} -> Mix.shell().info("#{count} job(s) made available again.")
       {:error, :not_found} -> Mix.raise("No job with that id.")
+      {:error, :paid_queue} -> Mix.raise(paid_queue_refusal())
     end
   end
+
+  defp paid_queue_refusal,
+    do:
+      "A paid recording is never retried by hand: a cancelled one may already be billed. " <>
+        "Record it again from the console or the audio task, which checks S3 first."
 
   defp cancel(opts) do
     id = opts[:id] || Mix.raise("cancel takes --id")

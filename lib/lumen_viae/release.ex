@@ -415,14 +415,14 @@ defmodule LumenViae.Release do
   end
 
   @doc """
-  Makes failed jobs available again: one of `id: 42`, `queue: "elevenlabs"`
+  Makes failed jobs available again: one of `id: 42`, `queue: "geolocation"`
   or `worker: "LumenViae.Office.Jobs.WarmCache"`. The last two take every
   retryable or discarded job of theirs; a cancelled one is left alone.
 
-  A retried recording job pays ElevenLabs only if its upload is not
-  already at the key (docs/ARCHITECTURE.md, "Paying ElevenLabs once"), but
-  read `job_failures/1` first: a job cancelled as possibly billed needs
-  its key checked by a person, not a retry.
+  A job on the paid recording queue is refused: one cancelled as possibly
+  billed left nothing at its key, so a retry would pay ElevenLabs again.
+  Read `job_failures/1`, check the key, and record it again from the
+  console or the audio task, which checks S3 first.
 
       /app/bin/lumen_viae rpc 'LumenViae.Release.retry_jobs(queue: "geolocation")'
   """
@@ -431,6 +431,7 @@ defmodule LumenViae.Release do
       case LumenViae.Ops.retry_jobs(filter) do
         {:ok, count} -> IO.puts("#{count} job(s) made available again")
         {:error, :not_found} -> IO.puts("ERROR no job with that id")
+        {:error, :paid_queue} -> IO.puts("ERROR a paid recording is never retried by hand")
       end
     end)
   end
