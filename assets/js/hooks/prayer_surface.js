@@ -105,7 +105,8 @@ export default {
 
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
     const target = event.target
-    if (target.closest && target.closest("button, a, input, select, textarea, summary, [contenteditable]")) return
+    // Keys inside the open settings sheet belong to the sheet, never the beads.
+    if (target.closest && target.closest("button, a, input, select, textarea, summary, [contenteditable], #prayer-settings")) return
 
     const screen = this.counting() === "screen"
     const moves = screen
