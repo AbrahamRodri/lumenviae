@@ -135,11 +135,11 @@ this behaviour.
 
 | Query | Returns |
 | --- | --- |
-| `visibleMeditationSets(category)` | `[MeditationSet!]!`, the sets the public may see, by category then in creation order, never paginated. The same list as `GET /api/meditation-sets?category=`. |
-| `meditationSet(id)` | `MeditationSet`, or null when the set does not exist or is hidden: it holds an archived meditation, or no meditations yet (REST answers 404). |
+| `visibleMeditationSets(category, lang)` | `[MeditationSet!]!`, the sets the public may see, by category then in creation order, never paginated. The same list as `GET /api/meditation-sets?category=`. |
+| `meditationSet(id, lang)` | `MeditationSet`, or null when the set does not exist or is hidden: it holds an archived meditation, or no meditations yet (REST answers 404). |
 
 A `MeditationSet` is `id name category description labels author source
-artwork setMemberships`:
+artwork setMemberships translations setTranslation`:
 
 - `author` and `source` are the byline the clients print: the set's own,
   or else the one every meditation in it agrees on.
@@ -151,6 +151,12 @@ artwork setMemberships`:
 - `setMemberships { order meditation { ... } }` is the set's meditations in
   prayer order, `order` running from 1. The player reads it as decades. It
   takes no limit or offset: a prayer is the whole set.
+- `translations: [MeditationTranslation!]!` (`id title content
+  aiTranslated`) and `setTranslation: MeditationSetTranslation` (`name
+  author description source artworkAlt aiTranslated`) are the set in
+  Spanish. Both are filled only when the query passes `lang: "es"`;
+  otherwise `translations` is empty and `setTranslation` null. The rules
+  are in docs/JSON_API.md, "The meditations in Spanish".
 
 A `Meditation` is `id title content author source mystery narratedVoices
 narrations narration(preferring:)`. Its `mystery` is `id key name
@@ -163,7 +169,7 @@ the builds that still decode it.)
   meditation, default first. Signs nothing, so a shelf can say "has audio"
   without a URL signed for it.
 - `narrations: [SignedNarration!]` - every recording as a playable URL,
-  default first, each `voice audio`. All or nothing: an empty list means
+  default first, each `voice audio lines`. All or nothing: an empty list means
   nothing is recorded; null means recordings exist but cannot be signed
   just now. Never a shorter list, which would read as a voice never
   recorded and make a player quietly switch narrator.
@@ -178,7 +184,7 @@ the builds that still decode it.)
 
 | Query | Returns |
 | --- | --- |
-| `meditationAudio(meditationIds, voice)` | `[MeditationNarration!]!`, each `meditationId voice audio { url expiresAt }`: fresh URLs for a stored set's meditations, in the order asked |
+| `meditationAudio(meditationIds, voice)` | `[MeditationNarration!]`, each `meditationId voice audio { url expiresAt } lines { text start end }`: fresh URLs for a stored set's meditations, in the order asked; null with `audio_unavailable` (below) |
 
 The plural of `GET /api/meditations/:id/audio`, so a device resuming an
 offline download re-signs a whole set without refetching its text. Each
@@ -207,13 +213,16 @@ its saved pack is current.
 The REST manifest's keyed maps become lists that carry their keys, since
 GraphQL has no map type:
 
-- `prayers` and `book`: `[RosaryClip!]!`, each `id title file audio`.
+- `prayers` and `book`: `[RosaryClip!]!`, each `id title file audio lines`.
   `title` is the Prayer Book's heading; the Rosary's prayers have none.
-- `announcements`: `[AnnouncementClip!]!`, each `key text file audio`,
+- `announcements`: `[AnnouncementClip!]!`, each `key text file audio lines`,
   keyed `"<category>_<order>"` as the app keys its mysteries.
 - `verses`: `[VerseGroup!]!`, each `key clips`, the clips
-  `bead reference file audio` in bead order, so `clips[n - 1]` is Hail
-  Mary n.
+  `bead reference file audio lines` in bead order, so `clips[n - 1]` is
+  Hail Mary n.
+- `lines { text start end }` on every clip is the recording line by line,
+  in seconds; null when that recording is not timed. Timing a recording
+  never changes `version`.
 
 `file` is the recording's name in S3 and changes exactly when the
 recording does, so a device can use it as its cache key. `version`
@@ -230,11 +239,11 @@ Both are served by resources with no table (`LumenViae.Rosary.NarrationVoice`,
 
 | Query | Returns |
 | --- | --- |
-| `rosaryContent` | `RosaryContent!`: `id version updatedAt prayers schedule script learn guidedRosary mysteries categories verses quotes milestones reminders labels forms`. The same document as `GET /api/v2/rosary-content`. |
+| `rosaryContent(lang)` | `RosaryContent!`: `id version updatedAt prayers schedule script learn guidedRosary mysteries categories verses quotes milestones reminders labels forms`. The same document as `GET /api/v2/rosary-content`. |
 | `rosaryScript(category, style, extras, orders)` | `RosaryScript`: `id category style extras orders steps`, one Rosary expanded. The same as `GET /api/v2/rosary-script`, and null with `invalid_argument` (its `fields` naming the argument) for a value it does not know. |
-| `prayerBook` | `PrayerBook!`: `id version updatedAt prayers chapters orders marianAntiphons`. The same document as `GET /api/v2/prayer-book`; a chapter's `sections` are its sub-headings. |
+| `prayerBook(lang)` | `PrayerBook!`: `id version updatedAt prayers chapters orders marianAntiphons translations`. The same document as `GET /api/v2/prayer-book`; a chapter's `sections` are its sub-headings. With `lang: "es"`, `translations` is `[BookPrayerTranslation!]!`, each `id title text aiTranslated` (docs/JSON_API.md, "The Prayer Book in Spanish"). |
 | `chantLibrary` | `ChantLibrary!`: `id version updatedAt groups chants feasts months occasions`, each chant with its `audio`, `score` and `lines`, each occasion with its `blocks` and their `steps`. The same document as `GET /api/v2/chant-library`. |
-| `consecration` | `Consecration!`: `id version updatedAt phases days prayers feasts`, each day with its `readings`. The same document as `GET /api/v2/consecration`. |
+| `consecration(lang)` | `Consecration!`: `id version updatedAt phases days prayers feasts translations`, each day with its `readings`. The same document as `GET /api/v2/consecration`. With `lang: "es"`, `translations` is a `ConsecrationTranslation!` with `phases days prayers feasts` in Spanish, each with `aiTranslated` (docs/JSON_API.md, "The Consecration in Spanish"). |
 | `trueDevotion` | `TrueDevotion!`: `id version updatedAt about parts chapters teaching ejaculatoryPrayers`, each chapter with its `paragraphs`. The same document as `GET /api/v2/true-devotion`. |
 | `carloAcutis` | `CarloAcutis!`: `id version updatedAt feast shelves timeline rule sayings prayer`, each shelf with its `readings` and their `doors`. The same document as `GET /api/v2/carlo-acutis`. |
 | `marianLibrary` | `MarianLibrary!`: `id version updatedAt feasts shelves`, each shelf with its `readings`. The same document as `GET /api/v2/marian-library`. |
@@ -248,9 +257,13 @@ when the content last changed. `id` is always `"current"`.
 
 - `prayers`: `[RosaryPrayer!]!`, the twelve prayers of the Rosary and the
   Seven Sorrows chaplet in the order they are said, each
-  `id group title { en la } text { en la }`. `group` is `rosary`,
-  `chaplet` or `after` (a string, as everywhere in this API); `text` is
-  two lists of lines of the same length, paired line for line.
+  `id group title { en la es } text { en la es } aiTranslated`. `group`
+  is `rosary`, `chaplet` or `after` (a string, as everywhere in this
+  API); in `text`, `en` and `la` are lists of lines of the same length,
+  paired line for line, and the Spanish lines need not pair with them.
+  `es` is null except with `lang: "es"`, and `aiTranslated` says part of
+  the Spanish is the team's own translation (docs/JSON_API.md, "The
+  Rosary in Spanish").
 - `schedule`: `RosarySchedule!`, which mysteries a day calls for, as
   rules to apply offline: `default seasonsFrom seasonsThrough`,
   `seasons { season startsOn endsOn }` and `schedules { id grid
@@ -288,11 +301,13 @@ when the content last changed. `id` is always `"current"`.
   keeps beside the prayers, as typed objects (`RosaryQuotes`,
   `[RosaryMilestone!]!`, `RosaryReminders`, `RosaryLabels`, `RosaryForms`),
   with the field names camel-cased (`homeOffset`, `rawValue`,
-  `recordedAs`, `whenAloud`). The rules a client applies to them (the
+  `recordedAs`, `whenAloud`). A `RosaryQuote` also carries
+  `aiTranslated` and `creditInCreditsOnly`. The rules a client applies to them (the
   quotation of the day, when a milestone fires, how a week of reminders is
   chosen) are in docs/JSON_API.md, "The companion sections".
 
-`rosaryContent` is non-null and takes no argument: it is answered from
+`rosaryContent` is non-null and takes one argument, `lang` (docs/JSON_API.md,
+"The Rosary in Spanish"). It is answered from
 files compiled into the server (`LumenViae.Rosary.Content`), from code
 (`LumenViae.LiturgicalCalendar` for the schedule, and the modules that
 serve the categories, the verses and the labels) and from the

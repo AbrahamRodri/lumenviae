@@ -22,15 +22,14 @@ document says which of them the app uses and what it does with them.
 | Base URL | `https://www.lumenviae.org` |
 | API | `/api/v2`, JSON:API (docs/JSON_API.md) |
 | Media type | `application/vnd.api+json`, on every request with a body and in `Accept` |
-| Client | generated from `priv/openapi/v2.json` (docs/JSON_API.md, "Generating the Kotlin client") |
+| Client | hand-written: Ktor and kotlinx DTOs in the app's `data/api/` (`LumenViaeApi.kt`, `Dtos.kt`), checked against `priv/openapi/v2.json` |
 | Authentication | none: every request is anonymous |
 
 **Use `www.lumenviae.org`, and nothing else.** It is the canonical host
 and the one the OpenAPI document names. The API also answers on
 `lumenviae.org` and `lumenviae.fly.dev` with no redirect (only the
-website's pages are redirected, 301, to `www`), but those names belong to
-the hosting, and the iPhone app's older builds are what keep
-`lumenviae.fly.dev` answering. A page redirect would turn a POST into a
+website's pages are redirected, 301, to `www`). `lumenviae.fly.dev` is a
+pass-through to `www`, kept only for older iPhone builds. A page redirect would turn a POST into a
 GET, so a client must never rely on one.
 
 **Android calls `/api/v2` and nothing else.** v1 (`/api`) is frozen for
@@ -38,7 +37,9 @@ installed iPhone builds and serves nothing v2 does not. GraphQL
 (`/api/graphql`) serves the same data through the same actions; the
 Android app does not need it.
 
-**The Kotlin client needs three settings the document cannot carry**:
+**A Kotlin client generated from the document would need three settings
+it cannot carry** (the app's own client is hand-written, so none apply to
+it today):
 `typeMappings` to kotlinx's `JsonElement` and `JsonObject`, a
 `schemaMappings` entry for `included_resource`, and a converter for
 `application/vnd.api+json` (the generated default, `application/json`, is
@@ -121,15 +122,15 @@ value is added to a vocabulary, never a renamed one.
 | --- | --- | --- |
 | `GET /api/v2/rosary-content` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/rosary-content?fields[rosary_content]=...` | when `version` differs from the saved copy's | every section the app uses (below) |
-| `GET /api/v2/rosary-content?lang=es` and `?lang=es&fields[rosary_content]=...` | as the two above, when the app is in Spanish | the same, with each prayer's `es` beside `en` and `la` (and `ai_translated: true` on a prayer partly in the team's own translation: show the AI notice), the mysteries' names and fruits, the sets' names and the quotes in Spanish, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Rosary in Spanish") |
+| `GET /api/v2/rosary-content?lang=es` and `?lang=es&fields[rosary_content]=...` | as the two above, when the app is in Spanish (not yet called by the app) | the same, with each prayer's `es` beside `en` and `la` (and `ai_translated: true` on a prayer partly in the team's own translation: show the AI notice), the mysteries' names and fruits, the sets' names and the quotes in Spanish, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Rosary in Spanish") |
 | `GET /api/v2/prayer-book` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters,orders,marian_antiphons` | when `version` differs from the saved copy's | all four sections (the orders of prayer and the songs to Mary need the prayers) |
-| `GET /api/v2/prayer-book?lang=es&fields[prayer_book]=...,translations` | as the two above, when the app is in Spanish | the same, plus `translations`: each prayer with a Spanish text, laid over the English by `id`, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Prayer Book in Spanish") |
+| `GET /api/v2/prayer-book?lang=es&fields[prayer_book]=...,translations` | as the two above, when the app is in Spanish (not yet called by the app) | the same, plus `translations`: each prayer with a Spanish text, laid over the English by `id`, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Prayer Book in Spanish") |
 | `GET /api/v2/chant-library` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/chant-library?fields[chant_library]=version,updated_at,groups,chants,feasts,months,occasions` | when `version` differs from the saved copy's | all five sections (the sung sets, months and feasts name the chants); a build that asks for `groups,chants` alone still gets just those |
 | `GET /api/v2/consecration` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/consecration?fields[consecration]=version,updated_at,phases,days,prayers,feasts` | when `version` differs from the saved copy's | all four sections |
-| `GET /api/v2/consecration?lang=es&fields[consecration]=...,translations` | as the two above, when the app is in Spanish | the same, plus `translations`: the phases, days and their readings, prayers and feasts with Spanish, laid over the English by key, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Consecration in Spanish") |
+| `GET /api/v2/consecration?lang=es&fields[consecration]=...,translations` | as the two above, when the app is in Spanish (not yet called by the app) | the same, plus `translations`: the phases, days and their readings, prayers and feasts with Spanish, laid over the English by key, and a version of its own: keep one copy per language (docs/JSON_API.md, "The Consecration in Spanish") |
 | `GET /api/v2/true-devotion` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/true-devotion?fields[true_devotion]=version,updated_at,about,parts,chapters` | when `version` differs from the saved copy's | the three sections the reader needs; `teaching` and `ejaculatory_prayers` are there to name when a screen needs them |
 | `GET /api/v2/carlo-acutis` | at launch and once a day | bare: `version` and `updated_at` only |
@@ -139,8 +140,9 @@ value is added to a vocabulary, never a renamed one.
 | `GET /api/v2/spiritual-reading` | at launch and once a day | bare: `version` and `updated_at` only |
 | `GET /api/v2/spiritual-reading?fields[spiritual_reading]=version,updated_at,books` | when `version` differs from the saved copy's | the books, with their Gutenberg and LibriVox numbers and rules; the app fetches each book's text and recording from those sites itself |
 | `GET /api/v2/meditation-sets?category=<slug>` | a mysteries' page's shelf | default fields |
+| `GET /api/v2/meditation-sets?category=<slug>&lang=es&fields[meditation_set]=name,category,description,labels,author,source,artwork,set_translation` | the shelf, when the app is in Spanish (not yet called by the app) | the same, plus each set's `set_translation` (below) |
 | `GET /api/v2/meditation-sets/<id>?include=set_memberships.meditation.mystery&fields[meditation]=title,content,author,source,narrated_voices,narrations` | a set is opened or saved for offline | with its meditations, in prayer order, and their signed narrations |
-| the same, with `lang=es` and `translations,set_translation` added to `fields[meditation_set]` | as above, when the app is in Spanish | the same, plus `translations`: each meditation with a Spanish text, laid over the English by `id` (`ai_translated: true` on the team's own translation: show the AI notice), and `set_translation`: the set's own name, author, description, source and artwork alt in Spanish, each null for English; the recordings stay English (docs/JSON_API.md, "The meditations in Spanish") |
+| the same, with `lang=es` and `translations,set_translation` added to `fields[meditation_set]` | as above, when the app is in Spanish (not yet called by the app) | the same, plus `translations`: each meditation with a Spanish text, laid over the English by `id` (`ai_translated: true` on the team's own translation: show the AI notice), and `set_translation`: the set's own name, author, description, source and artwork alt in Spanish, each null for English; the recordings stay English (docs/JSON_API.md, "The meditations in Spanish") |
 | `POST /api/v2/meditations/audio` | a saved set's narration links have expired, or one would not load | `{"data": {"meditation_ids": [...], "voice": "<slug>"}}`, at most 200 ids |
 | `GET /api/v2/voices` | the voice picker | default fields |
 | `GET /api/v2/voices/retired` | a stored voice is no longer offered | default fields |
@@ -248,9 +250,9 @@ at a time:
 - **Ask for the kinds needed** in `fields[spoken_rosary]`: `prayers` and
   `announcements` always, `verses` for the Scriptural Rosary, and `book`
   for the Prayer Book said aloud: a clip per recorded Prayer Book prayer,
-  keyed by its id. Not every prayer has one. Of the 152 (29 October 2026),
+  keyed by its id. Not every prayer has one. Of the 155 (6 November 2026),
   72 have a `book` clip; 12 are prayers the Rosary also says (the Our
-  Father, the Memorare), which play their `prayers` clip; the other 68
+  Father, the Memorare), which play their `prayers` clip; the other 71
   have no recording, so offer no play control for them
   (docs/SPOKEN_ROSARY.md, "The Prayer Book").
   The bare request (`version`, `expires_at`) is how to ask whether a saved
@@ -410,8 +412,9 @@ Paths are under the iOS repository's `app/`.
 - `test/lumen_viae_web/bot_detection_test.exs` and
   `test/lumen_viae_web/json_api/record_completion_test.exs` pin the Android
   user agent: it passes, and its completion is recorded as Android.
-- The Kotlin client, like the Swift one, was generated from the document
-  and decoded 58 responses captured across all ten operations, every
+- A Kotlin client generated from the document (the check, not the app's
+  hand-written client) decoded 58 responses captured across the ten
+  operations v2 had then (it has 23 now), every
   section of the content document and every style of script among them,
   and encoded them back unchanged (docs/JSON_API.md, "Generating the
   Kotlin client").
