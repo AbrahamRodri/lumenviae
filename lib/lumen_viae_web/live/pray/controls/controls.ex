@@ -27,6 +27,8 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   }
 
   attr :route, :atom, required: true
+  attr :heading, :string, required: true, doc: "the set's name, or the devotion's"
+  attr :subheading, :string, default: nil
   attr :form, :string, required: true
   attr :extras, :list, required: true
   attr :chaplet, :boolean, required: true
@@ -46,6 +48,14 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       id="prayer-settings"
       class="mt-3 rounded-2xl border border-night-border bg-night-raised px-4 py-5 sm:px-6 space-y-6"
     >
+      <%!-- The set's name lives here now that the bar is the app's. --%>
+      <header>
+        <p class="font-display !font-normal text-xl text-ink-light leading-snug">{@heading}</p>
+        <p :if={@subheading} class="mt-0.5 font-garamond italic text-base text-ink-muted">
+          {@subheading}
+        </p>
+      </header>
+
       <fieldset>
         <legend class={legend_class()}>How to pray</legend>
         <div class="mt-2 grid gap-2 sm:grid-cols-2">

@@ -55,6 +55,16 @@ defmodule LumenViaeWeb.Live.Pray.GoToTest do
       assert pill(view) =~ "Closing Prayers"
     end
 
+    test "sits in the one top bar, and the devotion's name moves to the sheet",
+         %{conn: conn, path: path} do
+      {:ok, view, _html} = live(conn, path)
+      assert has_element?(view, "header.prayer-top-bar #go-to-toggle")
+      assert has_element?(view, "header.prayer-top-bar h1.sr-only")
+
+      view |> element("button[aria-controls=prayer-settings]") |> render_click()
+      assert view |> element("#prayer-settings header") |> render() =~ "Mysteries"
+    end
+
     test "counts the Seven Sorrows out of seven", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray?mystery=1")
       assert pill(view) =~ "Mystery 2 of 7"

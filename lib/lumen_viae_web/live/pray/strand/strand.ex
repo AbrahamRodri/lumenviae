@@ -31,7 +31,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
         phx-click="toggle_go_to"
         aria-expanded={to_string(@open)}
         aria-controls="prayer-go-to"
-        class="prayer-where flex items-center justify-center gap-2 min-h-11 px-5 rounded-full border border-night-border bg-night-raised text-gilt kicker hover:border-gilt motion-safe:transition-colors"
+        class="prayer-where flex items-center justify-center gap-1.5 sm:gap-2 min-h-11 px-3.5 sm:px-5 rounded-full border border-night-border bg-night-raised text-gilt kicker !tracking-[0.14em] sm:!tracking-[0.2em] whitespace-nowrap hover:border-gilt motion-safe:transition-colors"
       >
         <span>{@label}</span>
         <span

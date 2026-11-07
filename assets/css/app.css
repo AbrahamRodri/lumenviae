@@ -1646,6 +1646,14 @@ html[data-reading-page="vellum"] .reading-page [data-timed] [data-line].is-read 
   color: var(--color-vellum-gold);
 }
 
+/* The prayer page's top bar over a painting (the .prayer-hero, when the
+   page shows one): a light dark scrim behind its buttons so they read, as
+   in the app. On night it is as before. */
+html:has(.prayer-hero) .prayer-top-bar > a,
+html:has(.prayer-hero) .prayer-top-bar > button {
+  background-color: rgb(from var(--color-night) r g b / 0.55);
+}
+
 .prayer-surface {
   -webkit-tap-highlight-color: transparent;
   overflow-x: clip;
