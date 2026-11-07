@@ -125,14 +125,16 @@ defmodule LumenViae.Office.Cache do
   # A ceiling on what the table holds, so a crawler walking every date,
   # hour, version and language cannot fill the machine's memory. Past it a
   # loaded value is served without being stored, until the sweep or the
-  # TTLs make room. A test sets its own ceiling in its process.
+  # TTLs make room. The warm (`:office_unmetered`) always stores: its few
+  # dates a day are what visitors ask for, and a full table must not leave
+  # today's hours cold. A test sets its own ceiling in its process.
   @max_bytes 200 * 1024 * 1024
   defp room? do
     max =
       Process.get(:office_cache_max_bytes) ||
         Application.get_env(:lumen_viae, :office_cache_max_bytes, @max_bytes)
 
-    stats().bytes < max
+    Process.get(:office_unmetered, false) or stats().bytes < max
   end
 
   @doc """
