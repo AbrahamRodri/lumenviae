@@ -27,29 +27,39 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
     page = Sequence.page(assigns.sequence, assigns.screen.page)
 
     assigns =
-      assigns |> assign(:decade, page.decade) |> assign(:page_name, Strand.page_name(page))
+      assigns
+      |> assign(:decade, page.decade)
+      |> assign(:page_name, Strand.page_name(page))
+      |> assign(:part, part_name(page))
+      |> assign(:place, place(page, length(assigns.sequence.decades)))
 
     ~H"""
     <section aria-label="The bead you are on" class="flex flex-col">
       <h2 class="sr-only">{@page_name}</h2>
       <Strand.beads sequence={@sequence} screen={@screen} />
 
-      <p
-        id="bead-status"
-        aria-live="polite"
-        aria-atomic="true"
-        class="mt-1 text-center kicker text-gilt"
-      >
-        {status(@screen, @decade)}
-      </p>
-      <%!-- The mystery being prayed stays in sight through its decade. --%>
-      <p
-        :if={@screen.kind == :prayer && @decade && @decade.name}
-        id="bead-mystery"
-        class="mt-1 text-center kicker text-gilt"
-      >
-        {@decade.name}
-      </p>
+      <%!-- The title block, as the app's: the part's name, where it falls,
+           then the step, left-aligned with the words. It is the same on
+           every step of a part, so moving a bead never shifts the page. --%>
+      <div id="bead-title" class="mt-5 max-w-[62ch] w-full mx-auto px-1">
+        <p
+          aria-hidden="true"
+          class="font-display !font-normal text-[1.75rem] lg:text-[2.25rem] text-ink-light leading-[1.15] text-balance"
+        >
+          {@part}
+        </p>
+        <p class="mt-1 font-garamond italic text-base md:text-lg text-ink-muted leading-snug">
+          {@place}
+        </p>
+        <p
+          id="bead-status"
+          aria-live="polite"
+          aria-atomic="true"
+          class="mt-2 font-display !font-normal text-[0.8rem] uppercase tracking-[0.18em] text-ink-light leading-snug"
+        >
+          {status(@screen, @decade)}
+        </p>
+      </div>
 
       <div
         id={"bead-#{@screen.index}"}
@@ -62,7 +72,7 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
       >
         <%= case @screen.kind do %>
           <% :announcement -> %>
-            <PrayerText.decade_header decade={@decade} />
+            <PrayerText.decade_header decade={@decade} name_shown={false} />
             <div
               :if={@decade.meditation && @sequence.form == "scriptural"}
               class="prayer-words mt-8"
@@ -116,6 +126,16 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
     </div>
     """
   end
+
+  # The part being prayed, by its name, as the app titles it.
+  defp part_name(%{kind: :opening}), do: "The Opening Prayers"
+  defp part_name(%{kind: :closing}), do: "The Closing Prayers"
+  defp part_name(%{decade: decade}), do: decade.name || decade.label
+
+  # Where the part falls in the Rosary.
+  defp place(%{kind: :opening}, _count), do: "Before the first mystery"
+  defp place(%{kind: :closing}, _count), do: "After the last mystery"
+  defp place(%{index: index}, count), do: "Mystery #{index} of #{count}"
 
   # What the bead is, in words: "Hail Mary · 4 of 10", or the mystery
   # announced on the Our Father bead.

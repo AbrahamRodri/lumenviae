@@ -80,6 +80,10 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
 
   attr :decade, :map, required: true
 
+  attr :name_shown, :boolean,
+    default: true,
+    doc: "false where the prayer page's title block already names the mystery and its place"
+
   @doc """
   A decade's header: the mystery's painting beside its announcement, so
   the words of the decade start on the first screen of a phone. With the
@@ -98,10 +102,13 @@ defmodule LumenViaeWeb.Live.Pray.PrayerText do
         />
       </div>
       <div class="min-w-0">
-        <p :if={@decade.label} class="kicker">
+        <p :if={@name_shown && @decade.label} class="kicker">
           {@decade.label}
         </p>
-        <h2 class="mt-1 font-display !font-normal text-[1.625rem] md:text-4xl text-ink-light leading-[1.15]">
+        <h2
+          :if={@name_shown}
+          class="mt-1 font-display !font-normal text-[1.625rem] md:text-4xl text-ink-light leading-[1.15]"
+        >
           {@decade.name}
         </h2>
         <p
