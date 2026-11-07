@@ -99,17 +99,28 @@ defmodule LumenViaeWeb.Live.Pray.NavigationTest do
       assert view |> element("#bead-status") |> render() =~ "The Glory Be"
     end
 
-    test "a decade's prayers keep the mystery's name in sight", %{conn: conn, path: path} do
+    test "the title block names the part, where it falls and the step",
+         %{conn: conn, path: path} do
       {:ok, view, _html} = live(conn, at(path, 0, 999))
-      name = view |> element("#bead-mystery") |> render()
+      title = view |> element("#bead-title") |> render()
+      assert title =~ "Mystery 1 of 5"
 
+      # The announcement shows the same name and place, so the page does not
+      # move between a mystery's steps, and its card does not repeat it.
       {:ok, announced, _html} = live(conn, at(path, 0))
-      refute has_element?(announced, "#bead-mystery")
-      [_, title] = Regex.run(~r/<p id="bead-mystery"[^>]*>\s*([^<]+?)\s*</, name)
-      assert render(announced) =~ title
+      announced_title = announced |> element("#bead-title") |> render()
+      [_, name] = Regex.run(~r/<p aria-hidden="true"[^>]*>\s*([^<]+?)\s*</, announced_title)
+      assert title =~ name
+      assert announced_title =~ "Mystery 1 of 5"
+      refute announced |> element("[data-screen]") |> render() =~ "<h2"
 
       {:ok, opening, _html} = live(conn, path)
-      refute has_element?(opening, "#bead-mystery")
+      opening_title = opening |> element("#bead-title") |> render()
+      assert opening_title =~ "The Opening Prayers"
+      assert opening_title =~ "Before the first mystery"
+
+      {:ok, closing, _html} = live(conn, at(path, "closing"))
+      assert closing |> element("#bead-title") |> render() =~ "After the last mystery"
     end
 
     test "the closing prayers begin with Hail, Holy Queen and end with Complete",
