@@ -20,7 +20,7 @@ defmodule LumenViaeWeb do
   def static_paths,
     do:
       ~w(assets fonts images favicon.ico favicon.svg favicon-16.png favicon-32.png favicon-48.png
-         apple-touch-icon.png icon-192.png icon-512.png icon-maskable-512.png og-image.png
+         apple-touch-icon.png apple-touch-icon-precomposed.png icon-192.png icon-512.png icon-maskable-512.png og-image.png
          site.webmanifest robots.txt sitemap.xml)
 
   def router do
