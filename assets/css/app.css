@@ -1632,18 +1632,38 @@
   }
 }
 
-/* Where the recording is timed, the line being read is lit
-   (the SpokenRosary hook sets .is-read); the rest stay as they are. */
+/* Where the recording is timed, the line being read is lit, as the app
+   lights it: that line bright, the rest of its words dimmed (ink-muted is
+   5.9:1 on night, so they still read). The SpokenRosary hook sets
+   .is-read. Before a line is lit, and with no timings, every word stays
+   bright; a paused voice leaves its line lit. Gold is not used for the
+   words. */
+[data-timed],
 [data-timed] [data-line] {
   transition: color 0.25s ease-out;
 }
 
+[data-timed]:has(.is-read) {
+  color: var(--color-ink-muted);
+}
+
 [data-timed] [data-line].is-read {
-  color: var(--color-gilt);
+  color: var(--color-ink-light);
+}
+
+html[data-reading-page="vellum"] .reading-page [data-timed]:has(.is-read) {
+  color: var(--color-vellum-muted);
 }
 
 html[data-reading-page="vellum"] .reading-page [data-timed] [data-line].is-read {
-  color: var(--color-vellum-gold);
+  color: var(--color-vellum-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-timed],
+  [data-timed] [data-line] {
+    transition: none;
+  }
 }
 
 .prayer-surface {
