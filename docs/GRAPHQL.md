@@ -259,9 +259,11 @@ when the content last changed. `id` is always `"current"`.
   Seven Sorrows chaplet in the order they are said, each
   `id group title { en la es } text { en la es } aiTranslated`. `group`
   is `rosary`, `chaplet` or `after` (a string, as everywhere in this
-  API); `text` is lists of lines of the same length, paired line for
-  line. `es` is null except with `lang: "es"`, and `aiTranslated` says
-  the Spanish was machine-drafted.
+  API); in `text`, `en` and `la` are lists of lines of the same length,
+  paired line for line, and the Spanish lines need not pair with them.
+  `es` is null except with `lang: "es"`, and `aiTranslated` says part of
+  the Spanish is the team's own translation (docs/JSON_API.md, "The
+  Rosary in Spanish").
 - `schedule`: `RosarySchedule!`, which mysteries a day calls for, as
   rules to apply offline: `default seasonsFrom seasonsThrough`,
   `seasons { season startsOn endsOn }` and `schedules { id grid

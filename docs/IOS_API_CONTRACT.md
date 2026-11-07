@@ -185,8 +185,9 @@ per request and 45 per resource. `POST /completions` never retries.
 **Which builds call what.** 1.0 and 1.0.1: set list, set detail,
 completions, `/prayers/:id/audio`. 2.0 adds `/meditations/:id/audio`. 3.0
 adds the Office. 4.0 adds `/voices`, `/rosary/audio`, `narrations`,
-`prayed_aloud`, and `voice` on the audio response. 4.1 adds the v2
-`prayer-book` and `chant-library` (section 10). 4.2 adds, in every
+`prayed_aloud`, and `voice` on the audio response; 4.0 (build 77 and
+later) also reads the v2 `prayer-book` and `chant-library` (section 10).
+4.2 adds, in every
 language, `lines` on `/rosary/audio` (section 5) and `POST
 /api/v2/meditations/audio` (section 15); and, in a Spanish app only,
 `lang=es` on the set list and detail with `translations` and
@@ -336,13 +337,13 @@ production.
 
 Never called by any build.
 
-### 10. GET /api/v2/prayer-book and GET /api/v2/chant-library (the build after 4.0)
+### 10. GET /api/v2/prayer-book and GET /api/v2/chant-library (4.0, build 77 and later)
 
 Callers: the Prayer Book and Chant Library stores, at launch and on
 foreground at most once a day. The bare request is decoded as `{version,
 updated_at}`; when `version` differs from the saved copy's the app asks
 for `fields[prayer_book]=version,updated_at,prayers,chapters` and
-`fields[chant_library]=version,updated_at,groups,chants` (4.1 and later) and replaces its
+`fields[chant_library]=version,updated_at,groups,chants` (4.0, build 77 and later) and replaces its
 copy only when the whole document decodes, so a field the app treats as
 non-optional going null loses that refresh, not the screen: the bundled
 seed or the last good copy stays. The shapes are docs/JSON_API.md, "The
