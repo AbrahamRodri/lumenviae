@@ -39,15 +39,15 @@ involved.
 
 | Route | Action | Returns |
 | --- | --- | --- |
-| `GET /meditation-sets?category=` | `MeditationSet.:visible` | The sets the public may see, by category then in creation order, never paginated. The same list as `GET /api/meditation-sets?category=`. |
-| `GET /meditation-sets/:id` | `MeditationSet.:visible` | One set the public may see; 404 when it does not exist or is hidden (it holds an archived meditation, or none yet). |
+| `GET /meditation-sets?category=&lang=` | `MeditationSet.:visible` | The sets the public may see, by category then in creation order, never paginated. The same list as `GET /api/meditation-sets?category=`. |
+| `GET /meditation-sets/:id?lang=` | `MeditationSet.:visible` | One set the public may see; 404 when it does not exist or is hidden (it holds an archived meditation, or none yet). |
 | `GET /mysteries` | `Mystery.:in_prayer_order` | Every mystery, by category slug (alphabetically, not the order the mysteries are prayed in, which is the content document's `mysteries`) then position. The same list as `GET /api/mysteries`, with `key` (`<category>_<order>`, the app's key), `fruit`, `key_verse`, `key_verse_reference` and `artwork`, which v1 does not carry. |
 | `GET /voices` | `NarrationVoice.:offered` | The voices a listener may choose, default first. The same list as `GET /api/voices`. |
 | `GET /voices/retired` | `NarrationVoice.:retired` | The voices taken out of the pickers, each with `replaced_by`. |
 | `GET /rosary-audio?voice=` | `SpokenRosary.:for_voice` | One voice's spoken Rosary; the same recordings, keys and files as `GET /api/rosary/audio`. |
 | `GET /rosary-script?category=&style=&extras=&orders=` | `RosaryScript.:expand` | One Rosary's script, every step in order: the reference expansion of the content document's `script` templates. See "One Rosary's script". |
-| `GET /rosary-content` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
-| `GET /prayer-book` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers`, `chapters`, `orders` and `marian_antiphons` when named in `fields[prayer_book]=`. See "The Prayer Book and the Chant Library". |
+| `GET /rosary-content?lang=` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
+| `GET /prayer-book?lang=` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers`, `chapters`, `orders`, `marian_antiphons` and `translations` when named in `fields[prayer_book]=`; `lang=es` fills `translations`. See "The Prayer Book and the Chant Library". |
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
 | `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers`, `feasts` and `translations` when named in `fields[consecration]=`; `lang=es` fills `translations`. See "The Consecration". |
 | `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts`, `chapters`, `teaching` and `ejaculatory_prayers` when named in `fields[true_devotion]=`. See "True Devotion". |
@@ -687,9 +687,8 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   prayer the book prints that has a Spanish text, in the book's order,
   each `{id, title, text}`: `id` is one of `prayers`, `title` and `text`
   are the Spanish, `text` in the same `PrayerText` grammar as `english`.
-  Every prayer the book prints is listed, but a prayer newly added in
-  English until its Spanish follows (the Advent prayers of 5 November
-  2026, for a time). A prayer that is the team's
+  Every prayer the book prints is listed; a prayer added later in English
+  is left out until its Spanish follows. A prayer that is the team's
   own translation (no good Spanish version was found) carries
   `ai_translated: true`, for the app's notice; the key is absent
   otherwise. A client still shows the English for a prayer it does not
@@ -1321,7 +1320,9 @@ POST /api/v2/meditations/audio
 ```
 
 answers `201` with a bare list, not a JSON:API document:
-`[{"meditation_id": 12, "voice": "female", "audio": {"url", "expires_at"}}]`.
+`[{"meditation_id": 12, "voice": "female", "audio": {"url", "expires_at"}, "lines": [...]}]`,
+`lines` the recording line by line (`{text, start, end}` in seconds) and
+null when it is not timed.
 It writes nothing; it is a POST because the ids are a list, and a list in
 a query string is spelled one way by Plug (`ids[]=1&ids[]=2`) and another
 by OpenAPI clients (`ids=1&ids=2`). An id with nothing to play is left out
@@ -1397,8 +1398,6 @@ Not served, deliberately:
   cannot describe, so a generated client could never say which voice it
   prefers. A client reads `narrations` (every voice, default first), or
   asks `POST /meditations/audio` with its voice.
-- **The Divine Office.** It is served by v1 and GraphQL; v2 can add it
-  when the app needs it.
 
 ## The OpenAPI document
 
