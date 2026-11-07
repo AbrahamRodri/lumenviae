@@ -507,7 +507,12 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     if socket.assigns.voice == voice do
       socket
     else
-      narrations = Enum.map(socket.assigns.decades, &narration(&1.meditation, voice))
+      # The first, static render (every crawler's) reads no recordings: the
+      # player is filled once the page connects.
+      narrations =
+        if connected?(socket),
+          do: Enum.map(socket.assigns.decades, &narration(&1.meditation, voice)),
+          else: []
 
       socket
       |> assign(:voice, voice)
@@ -574,10 +579,32 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   end
 
   # A new script is a new player, which counts its seeks from 0.
+  #
+  # The first, static render (the one every crawler gets) signs nothing
+  # and sends no script: it holds only the prayers' steps, unsigned, so the
+  # page shows the player where it will be and nothing moves when the page
+  # connects and the real script arrives. The hook mounts only then.
   defp assign_script(socket) do
-    if socket.assigns.spoken_script,
-      do: socket,
-      else: socket |> assign(:spoken_script, build_script(socket)) |> assign(:seek, 0)
+    cond do
+      socket.assigns.spoken_script ->
+        socket
+
+      connected?(socket) ->
+        socket |> assign(:spoken_script, build_script(socket)) |> assign(:seek, 0)
+
+      true ->
+        assign(socket, :spoken_script, static_script(socket))
+    end
+  end
+
+  defp static_script(socket) do
+    if S3.credentials?() do
+      for {step, _screen} <- socket.assigns.sequence.steps,
+          PrayerAudio.clip_for_step(step),
+          do: %{url: nil, lines: nil, kind: nil, screen: nil, page: nil}
+    else
+      []
+    end
   end
 
   # The reader moved themselves - Next, Previous, a bead, a key, a swipe -
