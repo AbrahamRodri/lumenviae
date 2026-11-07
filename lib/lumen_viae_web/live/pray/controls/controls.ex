@@ -47,14 +47,26 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     ~H"""
     <div
       id="prayer-settings"
-      class="mt-3 rounded-2xl border border-night-border bg-night-raised px-4 py-5 sm:px-6 space-y-6"
+      tabindex="-1"
+      phx-mounted={JS.focus(to: "#prayer-settings")}
+      class="mt-3 rounded-2xl focus:outline-none border border-night-border bg-night-raised px-4 py-5 sm:px-6 space-y-6"
     >
       <%!-- The set's name lives here now that the bar is the app's. --%>
-      <header>
-        <p class="font-display !font-normal text-xl text-ink-light leading-snug">{@heading}</p>
-        <p :if={@subheading} class="mt-0.5 font-garamond italic text-base text-ink-muted">
-          {@subheading}
-        </p>
+      <header class="flex items-start gap-3">
+        <div class="flex-1 min-w-0">
+          <p class="font-display !font-normal text-xl text-ink-light leading-snug">{@heading}</p>
+          <p :if={@subheading} class="mt-0.5 font-garamond italic text-base text-ink-muted">
+            {@subheading}
+          </p>
+        </div>
+        <button
+          type="button"
+          phx-click={JS.push("toggle_panel") |> JS.focus(to: "#how-to-pray-toggle")}
+          aria-label="Close How to pray"
+          class="flex items-center justify-center w-11 h-11 shrink-0 -mt-2 -mr-2 rounded-full text-ink-muted hover:text-gilt"
+        >
+          <span class="hero-x-mark size-5" aria-hidden="true" />
+        </button>
       </header>
 
       <fieldset>
@@ -391,6 +403,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
 
   attr :at_start, :boolean, required: true
   attr :at_end, :boolean, required: true
+  attr :panel_open, :boolean, default: false
   slot :play, doc: "Play and pause, between Back and Next, when the set can be heard"
 
   @doc """
@@ -441,7 +454,24 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           Next <span aria-hidden="true">&rsaquo;</span>
         </button>
       </div>
-      <p class="hidden md:block mt-2 text-center font-garamond text-base text-ink-muted">
+      <%!-- Settings under the row, where the app keeps Voice, Text and More. --%>
+      <div class="flex justify-center mt-1">
+        <button
+          id="how-to-pray-toggle"
+          type="button"
+          phx-click="toggle_panel"
+          aria-expanded={to_string(@panel_open)}
+          aria-controls="prayer-settings"
+          class={[
+            "flex items-center gap-2 min-h-11 px-3 rounded-full hover:text-gilt",
+            label_class(),
+            if(@panel_open, do: "text-gilt", else: "text-ink-muted")
+          ]}
+        >
+          <span class="hero-adjustments-horizontal size-5" aria-hidden="true" /> How to pray
+        </button>
+      </div>
+      <p class="hidden md:block mt-1 text-center font-garamond text-base text-ink-muted">
         Space, Enter or the arrow keys move a bead
       </p>
     </nav>

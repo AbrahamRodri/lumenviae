@@ -43,24 +43,11 @@
         <Strand.where :if={!@completed} sequence={@sequence} page={@page} open={@go_to_open} />
       </div>
 
-      <%!-- The right side: How to pray, then mute at the edge, as in the app. --%>
-      <div class="justify-self-end flex items-start">
-        <button
-          :if={!@completed}
-          type="button"
-          phx-click="toggle_panel"
-          aria-expanded={to_string(@panel_open)}
-          aria-controls="prayer-settings"
-          aria-label="How to pray"
-          class={[
-            "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gilt",
-            if(@panel_open, do: "text-gilt bg-gilt/15", else: "text-ink-muted")
-          ]}
-        >
-          <span class="hero-adjustments-horizontal size-5" aria-hidden="true" />
-        </button>
+      <%!-- Mute alone on the right, as in the app; How to pray sits under
+           the controls row. The spacer keeps the pill centred without it. --%>
+      <div class="justify-self-end">
         <Controls.mute_button :if={!@completed and @spoken_script != []} />
-        <span :if={@completed} class="w-11 shrink-0" aria-hidden="true"></span>
+        <span :if={@completed or @spoken_script == []} class="block w-11" aria-hidden="true"></span>
       </div>
     </header>
 
@@ -101,7 +88,11 @@
 
       <Controls.swipe_hint :if={@spoken_script == []} place={"#{@page}-#{@step}"} />
 
-      <Controls.bottom_nav at_start={@page == 0 and @step == 0} at_end={at_end?(assigns)}>
+      <Controls.bottom_nav
+        at_start={@page == 0 and @step == 0}
+        at_end={at_end?(assigns)}
+        panel_open={@panel_open}
+      >
         <:play :if={@spoken_script != []}>
           <Controls.spoken_play
             id={spoken_id(assigns)}

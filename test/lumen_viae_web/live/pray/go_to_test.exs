@@ -61,8 +61,14 @@ defmodule LumenViaeWeb.Live.Pray.GoToTest do
       assert has_element?(view, "header.prayer-top-bar #go-to-toggle")
       assert has_element?(view, "header.prayer-top-bar h1.sr-only")
 
-      view |> element("button[aria-controls=prayer-settings]") |> render_click()
+      # How to pray sits under the controls row, as the app keeps its settings.
+      refute has_element?(view, "header.prayer-top-bar button[aria-controls=prayer-settings]")
+      assert has_element?(view, "nav.prayer-bottom-nav #how-to-pray-toggle", "How to pray")
+
+      view |> element("#how-to-pray-toggle") |> render_click()
       assert view |> element("#prayer-settings header") |> render() =~ "Mysteries"
+      assert has_element?(view, "#how-to-pray-toggle[aria-expanded=true]")
+      assert has_element?(view, "#prayer-settings button[aria-label='Close How to pray']")
     end
 
     test "counts the Seven Sorrows' sorrows out of seven", %{conn: conn} do
