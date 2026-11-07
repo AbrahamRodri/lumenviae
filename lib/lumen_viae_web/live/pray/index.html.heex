@@ -70,8 +70,6 @@
         voice={@voice}
       />
 
-      <Controls.resume_banner :if={@resume} resume={@resume} />
-
       <div class="mt-3">
         <Strand.where sequence={@sequence} page={@page} open={@go_to_open} />
       </div>
@@ -104,6 +102,7 @@
       <Controls.swipe_hint :if={@spoken_script == []} place={"#{@page}-#{@step}"} />
 
       <Controls.bottom_nav
+        resume={@resume}
         at_start={@page == 0 and @step == 0}
         at_end={at_end?(assigns)}
       />
