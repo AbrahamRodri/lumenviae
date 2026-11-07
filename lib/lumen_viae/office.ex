@@ -411,12 +411,17 @@ defmodule LumenViae.Office do
 
   defp upstream({:ok, html}), do: {:ok, html}
 
-  # The engine could not be reached or answered an error: every cold key
-  # waits a minute rather than its own full timeout.
-  defp upstream({:error, _reason}) do
-    Cache.put({:office_failed, :any}, true, @outage_hold_ms)
+  # The engine could not be reached, or its gateway answered for it (502 to
+  # 504): every cold key waits a minute rather than its own full timeout.
+  # Any other error status is that key's alone, held by limited_load/2.
+  defp upstream({:error, reason}) do
+    if outage?(reason), do: Cache.put({:office_failed, :any}, true, @outage_hold_ms)
     {:error, :office_unavailable}
   end
+
+  defp outage?(:upstream_unreachable), do: true
+  defp outage?({:upstream_status, status}) when status in 502..504, do: true
+  defp outage?(_reason), do: false
 
   defp parse({:ok, parsed}, _what), do: {:ok, parsed}
 

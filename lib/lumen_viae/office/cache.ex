@@ -14,7 +14,9 @@ defmodule LumenViae.Office.Cache do
   Only successful parses are stored. An upstream failure must stay a
   miss, or a five-minute outage would answer 503 for a month; the Office
   holds failures for a few minutes itself, under keys of its own. A load
-  may return `{:ok, value, ttl_ms}` to be kept for less than a month.
+  may return `{:ok, value, ttl_ms}` to be kept for less than a month. The
+  table stops storing loaded values at 200 MB (`:office_cache_max_bytes`),
+  serving them unstored until entries expire.
 
   ## One engine request per cold key
 
@@ -108,16 +110,29 @@ defmodule LumenViae.Office.Cache do
   defp load_and_store(key, load) do
     case load.() do
       {:ok, value, ttl_ms} ->
-        put(key, value, ttl_ms)
+        if room?(), do: put(key, value, ttl_ms)
         {:ok, value}
 
       {:ok, value} ->
-        put(key, value)
+        if room?(), do: put(key, value)
         {:ok, value}
 
       other ->
         other
     end
+  end
+
+  # A ceiling on what the table holds, so a crawler walking every date,
+  # hour, version and language cannot fill the machine's memory. Past it a
+  # loaded value is served without being stored, until the sweep or the
+  # TTLs make room. A test sets its own ceiling in its process.
+  @max_bytes 200 * 1024 * 1024
+  defp room? do
+    max =
+      Process.get(:office_cache_max_bytes) ||
+        Application.get_env(:lumen_viae, :office_cache_max_bytes, @max_bytes)
+
+    stats().bytes < max
   end
 
   @doc """

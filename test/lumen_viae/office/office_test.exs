@@ -167,6 +167,30 @@ defmodule LumenViae.OfficeTest do
       refute_received :asked
     end
 
+    test "past the cache's byte ceiling an office is served but not stored" do
+      Process.put(:office_cache_max_bytes, 0)
+      stub_hour_page()
+
+      assert {:ok, _hour} = Office.fetch_hour("2026-08-24", "laudes")
+      assert {:ok, _hour} = Office.fetch_hour("2026-08-24", "laudes")
+      assert_received {:asked, _params}
+      assert_received {:asked, _params}
+    end
+
+    test "an error answer holds that key only; other keys still ask" do
+      test_pid = self()
+
+      Req.Test.stub(DivinumOfficium, fn conn ->
+        send(test_pid, :asked)
+        conn |> Plug.Conn.put_status(500) |> Req.Test.html("boom")
+      end)
+
+      assert Office.fetch_hour("2026-02-18", "laudes") == {:error, :office_unavailable}
+      assert_received :asked
+      assert Office.fetch_hour("2026-02-19", "laudes") == {:error, :office_unavailable}
+      assert_received :asked
+    end
+
     test "cold loads past the budget a minute are refused, warm ones still answer" do
       Process.put(:office_per_minute, 1)
       stub_hour_page()
