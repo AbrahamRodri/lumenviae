@@ -385,8 +385,8 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
 
   @doc """
   Back, Play and Next in one row, as the app has them: the three of equal
-  weight, Play in the middle when there is a recording, and Amen and
-  Complete in Next's place on the last bead.
+  weight, Play in the middle when there is a recording, and Amen (which
+  completes the Rosary) in Next's place on the last bead.
   """
   def bottom_nav(assigns) do
     ~H"""
@@ -415,9 +415,10 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           id="prayer-next"
           type="button"
           phx-click="complete"
+          aria-label="Amen, complete the Rosary"
           class={["btn-gold min-h-14 w-full !px-3", label_class()]}
         >
-          Amen &middot; Complete
+          Amen
         </button>
         <button
           :if={!@at_end}
