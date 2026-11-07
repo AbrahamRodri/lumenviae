@@ -415,7 +415,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           id="prayer-next"
           type="button"
           phx-click="complete"
-          class="btn-gold min-h-14 w-full !px-3"
+          class={["btn-gold min-h-14 w-full !px-3", label_class()]}
         >
           Amen &middot; Complete
         </button>
@@ -457,7 +457,11 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
 
   defp pill_class,
     do:
-      "flex items-center justify-center gap-1 min-h-14 w-full px-4 rounded-full border bg-night/60 font-garamond text-lg text-ink-light hover:border-gilt hover:text-gilt motion-safe:transition-colors"
+      "flex items-center justify-center gap-1.5 min-h-14 w-full px-4 rounded-full border bg-night/60 #{label_class()} text-ink-light hover:border-gilt hover:text-gilt motion-safe:transition-colors"
+
+  # The app's spaced capitals for Back, Next and Amen: the pill's face
+  # (Cinzel), at its weight.
+  defp label_class, do: "font-display !font-normal text-sm uppercase tracking-[0.14em]"
 
   defp play_button_class,
     do:
