@@ -492,6 +492,22 @@ defmodule LumenViae.Curation.CsvImportTest do
       assert meditation.tts_annotations == [%{"offset" => offset, "seconds" => 2.5}]
     end
 
+    test "closes a stray space before punctuation, and leaves an ellipsis" do
+      raw =
+        "Our Lord , though guilty of no sin ; said to His enemies . Look back now ... Evil. " <>
+          "Her delivery was come ,brought forth."
+
+      content = csv(~w(mystery_name content), ["The Annunciation,#{quoted(raw)}"])
+
+      assert [{:ok, _}] = CsvImport.import_string(content, skip_audio: true, actor: admin())
+
+      [meditation] = Rosary.list_meditations!(actor: admin())
+
+      assert meditation.content ==
+               "Our Lord, though guilty of no sin; said to His enemies. Look back now ... Evil. " <>
+                 "Her delivery was come, brought forth."
+    end
+
     test "dry run validates marker content without writing" do
       content =
         csv(~w(mystery_name content audio_filename), [
