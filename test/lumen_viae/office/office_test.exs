@@ -42,6 +42,19 @@ defmodule LumenViae.OfficeTest do
     end)
   end
 
+  describe "ttl/2" do
+    test "a date more than six weeks from today is kept an hour, a near one a month" do
+      today = ~D[2026-11-07]
+      far = {:hour, "rubrics-1960", "english", "laudes", ~D[1750-03-01]}
+      near = {:hour, "rubrics-1960", "english", "laudes", ~D[2026-12-01]}
+
+      assert Office.ttl(far, today) == :timer.hours(1)
+      assert Office.ttl(near, today) == nil
+      assert Office.ttl({:kalendar, "rubrics-1960", 2026, 11}, today) == nil
+      assert Office.ttl({:kalendar, "rubrics-1960", 2027, 6}, today) == :timer.hours(1)
+    end
+  end
+
   describe "ping/0" do
     test "asks the engine for this month's calendar, past the cache" do
       stub_kalendar_page()
@@ -126,12 +139,45 @@ defmodule LumenViae.OfficeTest do
       end)
 
       assert Office.fetch_hour("2026-02-13", "laudes") == {:error, :office_unavailable}
+      assert_received :asked
 
+      # Held for a few minutes: the engine is not asked again for that key.
       Agent.update(agent, fn _ -> :up end)
-      assert {:ok, _hour} = Office.fetch_hour("2026-02-13", "laudes")
+      assert Office.fetch_hour("2026-02-13", "laudes") == {:error, :office_unavailable}
+      refute_received :asked
 
+      # Once the hold is gone, the office loads and nothing failed was cached.
+      LumenViae.Office.Cache.reset()
+      assert {:ok, _hour} = Office.fetch_hour("2026-02-13", "laudes")
       assert_received :asked
+    end
+
+    test "an unreachable engine holds every cold key for a minute" do
+      test_pid = self()
+
+      Req.Test.stub(DivinumOfficium, fn conn ->
+        send(test_pid, :asked)
+        Req.Test.transport_error(conn, :econnrefused)
+      end)
+
+      assert Office.fetch_hour("2026-02-16", "laudes") == {:error, :office_unavailable}
       assert_received :asked
+
+      assert Office.fetch_hour("2026-02-17", "laudes") == {:error, :office_unavailable}
+      refute_received :asked
+    end
+
+    test "cold loads past the budget a minute are refused, warm ones still answer" do
+      Process.put(:office_per_minute, 1)
+      stub_hour_page()
+
+      assert {:ok, _hour} = Office.fetch_hour("2026-08-24", "laudes")
+      assert_received {:asked, _params}
+
+      assert Office.fetch_hour("2026-08-25", "laudes") == {:error, :office_unavailable}
+      refute_received {:asked, _params}
+
+      assert {:ok, _hour} = Office.fetch_hour("2026-08-24", "laudes")
     end
 
     test "an unreachable engine is 'unavailable' rather than a crash" do

@@ -194,6 +194,8 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
       assert has_element?(view, ~s([data-role=hour-row][href="/hours/1951-08-24/laudes"]))
 
       stub_page("kalendar_2026-08.html")
+      # A fresh cache stands for the minute's outage hold having passed.
+      LumenViae.Office.Cache.isolate()
       view |> element("[data-role=retry]") |> render_click()
       render_async(view, 2000)
 
@@ -346,6 +348,8 @@ defmodule LumenViaeWeb.Live.Hours.HoursTest do
       assert has_element?(view, "[data-role=hour-failed]", "Evening Prayer could not be reached")
 
       stub_page("vesperae_2026-08-24.html")
+      # A fresh cache stands for the minute's outage hold having passed.
+      LumenViae.Office.Cache.isolate()
       view |> element("[data-role=retry]") |> render_click()
       render_async(view, 2000)
 

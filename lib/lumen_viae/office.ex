@@ -237,14 +237,22 @@ defmodule LumenViae.Office do
     entries = calendar ++ hours
     counts = %{warmed: 0, cached: 0, failed: 0, skipped: 0}
 
-    entries
-    |> Enum.with_index(1)
-    |> Enum.reduce_while(counts, fn {{key, fetch}, done}, acc ->
-      case warm_entry(key, fetch) do
-        :failed -> {:halt, %{acc | failed: 1, skipped: length(entries) - done}}
-        outcome -> {:cont, Map.update!(acc, outcome, &(&1 + 1))}
-      end
-    end)
+    # The warm is the server's own few dates a day, not a visitor's: it
+    # neither spends the fetch budget nor waits out a hold.
+    Process.put(:office_unmetered, true)
+
+    try do
+      entries
+      |> Enum.with_index(1)
+      |> Enum.reduce_while(counts, fn {{key, fetch}, done}, acc ->
+        case warm_entry(key, fetch) do
+          :failed -> {:halt, %{acc | failed: 1, skipped: length(entries) - done}}
+          outcome -> {:cont, Map.update!(acc, outcome, &(&1 + 1))}
+        end
+      end)
+    after
+      Process.delete(:office_unmetered)
+    end
   end
 
   defp warm_entry(key, fetch) do
@@ -345,7 +353,7 @@ defmodule LumenViae.Office do
   defp cached(key, load), do: Cache.fetch_or_load(key, fn -> limited_load(key, load) end)
 
   defp limited_load(key, load) do
-    if held?(key) or not admitted?() do
+    if not Process.get(:office_unmetered, false) and (held?(key) or not admitted?()) do
       {:error, :office_unavailable}
     else
       case load.() do
@@ -366,12 +374,16 @@ defmodule LumenViae.Office do
   end
 
   defp held?(key),
-    do: Cache.fetch({:office_failed, key}) != :miss or Cache.fetch({:office_failed, :any}) != :miss
+    do:
+      Cache.fetch({:office_failed, key}) != :miss or Cache.fetch({:office_failed, :any}) != :miss
 
   # Counted per test namespace in the suite, one count in production.
   defp admitted? do
+    # A test sets its own budget in its process, as the Missal's tests do.
     per_minute =
-      Application.get_env(:lumen_viae, :office_limits, []) |> Keyword.get(:per_minute, @per_minute)
+      Process.get(:office_per_minute) ||
+        Application.get_env(:lumen_viae, :office_limits, [])
+        |> Keyword.get(:per_minute, @per_minute)
 
     match?(
       {:allow, _count},
