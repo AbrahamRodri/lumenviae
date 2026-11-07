@@ -46,6 +46,16 @@ defmodule LumenViaeWeb.Live.Pray.NavigationTest do
   defp at(path, mystery, step \\ 0), do: "#{path}?mystery=#{mystery}&step=#{step}"
 
   describe "the whole Rosary" do
+    test "the Crucifixion stands above the closing prayers; no painting, no space",
+         %{conn: conn, path: path} do
+      {:ok, view, _html} = live(conn, at(path, "closing"))
+      assert view |> element(".prayer-hero img") |> render() =~ "sorrowful_crucifixion"
+
+      # This set's test mysteries have no painting, so the opening keeps none.
+      {:ok, view, _html} = live(conn, path)
+      refute has_element?(view, ".prayer-hero")
+    end
+
     test "opens on the Sign of the Cross, in the app's words", %{conn: conn, path: path} do
       {:ok, view, html} = live(conn, path)
 

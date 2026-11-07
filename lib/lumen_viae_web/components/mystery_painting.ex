@@ -70,6 +70,14 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
   @doc "The painting for a mystery key, such as \"glorious_3\", or nil."
   def for_mystery(key), do: @paintings[@mysteries[key]]
 
+  @doc """
+  Whether `picture/1` draws anything for a mystery: a painting uploaded
+  and published on its record, or the app's painting for its key.
+  """
+  def painted?(key, record) do
+    (record != nil and Artwork.publishable?(record)) or for_mystery(key) != nil
+  end
+
   @doc "The painting on a category's card, or nil."
   def for_category(slug), do: @paintings[@cards[slug]]
 
