@@ -314,10 +314,23 @@ export default {
 
     if (key !== this.litLine && words.length > 0) {
       this.litLine = key
-      // A long prayer is not shrunk to fit: the page moves with the line.
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      words[0].scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" })
+      this.keepInView(words[0])
     }
+  },
+
+  // A long prayer is not shrunk to fit: the page moves with the line, as
+  // the app's does, so the lit line stays in the upper half of the screen.
+  // A line already there is left alone, so short prayers never move.
+  // Reduce Motion jumps instead of gliding.
+  keepInView(word) {
+    const top = word.getBoundingClientRect().top
+    const view = window.innerHeight
+    if (top >= view * 0.15 && top <= view * 0.5) return
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    window.scrollTo({
+      top: Math.max(0, window.scrollY + top - view * 0.3),
+      behavior: reduce ? "auto" : "smooth"
+    })
   },
 
   unlight() {
