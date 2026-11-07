@@ -43,21 +43,25 @@
         <Strand.where :if={!@completed} sequence={@sequence} page={@page} open={@go_to_open} />
       </div>
 
-      <button
-        :if={!@completed}
-        type="button"
-        phx-click="toggle_panel"
-        aria-expanded={to_string(@panel_open)}
-        aria-controls="prayer-settings"
-        aria-label="How to pray"
-        class={[
-          "justify-self-end flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gilt",
-          if(@panel_open, do: "text-gilt bg-gilt/15", else: "text-ink-muted")
-        ]}
-      >
-        <span class="hero-adjustments-horizontal size-5" aria-hidden="true" />
-      </button>
-      <span :if={@completed} class="justify-self-end w-11 shrink-0" aria-hidden="true"></span>
+      <%!-- The right side: How to pray, then mute at the edge, as in the app. --%>
+      <div class="justify-self-end flex items-start">
+        <button
+          :if={!@completed}
+          type="button"
+          phx-click="toggle_panel"
+          aria-expanded={to_string(@panel_open)}
+          aria-controls="prayer-settings"
+          aria-label="How to pray"
+          class={[
+            "flex items-center justify-center w-11 h-11 shrink-0 rounded-full hover:text-gilt",
+            if(@panel_open, do: "text-gilt bg-gilt/15", else: "text-ink-muted")
+          ]}
+        >
+          <span class="hero-adjustments-horizontal size-5" aria-hidden="true" />
+        </button>
+        <Controls.mute_button :if={!@completed and @spoken_script != []} />
+        <span :if={@completed} class="w-11 shrink-0" aria-hidden="true"></span>
+      </div>
     </header>
 
     <%= if @completed do %>
@@ -85,14 +89,6 @@
         heading={@heading}
       />
 
-      <Controls.spoken_player
-        :if={@spoken_script != []}
-        id={spoken_id(assigns)}
-        script={@spoken_script}
-        start_screen={current_screen(assigns).index}
-        title={@heading}
-      />
-
       <div id="prayer-main" class="flex-1 pt-5 pb-6">
         <BeadScreen.bead_screen
           sequence={@sequence}
@@ -105,10 +101,16 @@
 
       <Controls.swipe_hint :if={@spoken_script == []} place={"#{@page}-#{@step}"} />
 
-      <Controls.bottom_nav
-        at_start={@page == 0 and @step == 0}
-        at_end={at_end?(assigns)}
-      />
+      <Controls.bottom_nav at_start={@page == 0 and @step == 0} at_end={at_end?(assigns)}>
+        <:play :if={@spoken_script != []}>
+          <Controls.spoken_play
+            id={spoken_id(assigns)}
+            script={@spoken_script}
+            start_screen={current_screen(assigns).index}
+            title={@heading}
+          />
+        </:play>
+      </Controls.bottom_nav>
 
       <div
         id="prayer-memory"
