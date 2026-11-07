@@ -47,9 +47,8 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     ~H"""
     <div
       id="prayer-settings"
-      tabindex="-1"
-      phx-mounted={JS.focus(to: "#prayer-settings")}
-      class="mt-3 rounded-2xl focus:outline-none border border-night-border bg-night-raised px-4 py-5 sm:px-6 space-y-6"
+      phx-mounted={JS.focus_first(to: "#prayer-settings")}
+      class="mt-3 rounded-2xl border border-night-border bg-night-raised px-4 py-5 sm:px-6 space-y-6"
     >
       <%!-- The set's name lives here now that the bar is the app's. --%>
       <header class="flex items-start gap-3">
@@ -62,7 +61,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         <button
           type="button"
           phx-click={JS.push("toggle_panel") |> JS.focus(to: "#how-to-pray-toggle")}
-          aria-label="Close How to pray"
+          aria-label="Close the settings"
           class="flex items-center justify-center w-11 h-11 shrink-0 -mt-2 -mr-2 rounded-full text-ink-muted hover:text-gilt"
         >
           <span class="hero-x-mark size-5" aria-hidden="true" />
