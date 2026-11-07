@@ -335,11 +335,19 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
 
   def resume_banner(assigns) do
     ~H"""
+    <%!-- Floats just above Back and Next, over the page, so it never moves
+         the prayer; it stays until the reader answers it or moves a bead. --%>
     <div
       id="resume-banner"
       role="region"
       aria-label="Continue where you left off"
-      class="mt-4 rounded-2xl border border-night-line bg-night-raised px-4 py-4 text-center"
+      phx-remove={
+        JS.hide(
+          transition: {"motion-safe:transition-opacity duration-200", "opacity-100", "opacity-0"},
+          time: 200
+        )
+      }
+      class="prayer-resume absolute inset-x-4 sm:inset-x-6 bottom-full mb-3 max-w-[62ch] mx-auto rounded-2xl border border-night-line bg-night-raised px-4 py-4 text-center shadow-night motion-safe:animate-[prayer-fade_0.35s_ease-out]"
     >
       <p class="font-garamond text-lg text-ink-light">
         You were praying <span class="text-gilt">{@resume.label}</span>.
@@ -399,12 +407,17 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   attr :at_start, :boolean, required: true
   attr :at_end, :boolean, required: true
 
+  attr :resume, :map,
+    default: nil,
+    doc: "the place a returning reader left off, offered above the bar"
+
   def bottom_nav(assigns) do
     ~H"""
     <nav
       aria-label="Move through the Rosary"
       class="prayer-bottom-nav sticky bottom-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3"
     >
+      <.resume_banner :if={@resume} resume={@resume} />
       <div class="grid grid-cols-[auto_1fr] gap-3 items-center max-w-[62ch] mx-auto">
         <button
           type="button"

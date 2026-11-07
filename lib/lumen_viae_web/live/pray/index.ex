@@ -137,6 +137,9 @@ defmodule LumenViaeWeb.Live.Pray.Index do
     step = min(Params.step(params), Sequence.step_count(socket.assigns.sequence, page) - 1)
 
     moved? = {page, step} != {socket.assigns.page, socket.assigns.step}
+    # The voice reaching the next prayer records spoken_at before it turns
+    # the page; only a move of the reader's own puts the resume offer away.
+    voice_moved? = socket.assigns.spoken_at == {page, step}
 
     {:noreply,
      socket
@@ -144,7 +147,12 @@ defmodule LumenViaeWeb.Live.Pray.Index do
        :fresh,
        if(first_visit?, do: is_nil(params["mystery"]), else: socket.assigns.fresh)
      )
-     |> then(&if(moved? or not first_visit?, do: assign(&1, :resume, nil), else: &1))
+     |> then(
+       &if((moved? or not first_visit?) and not voice_moved?,
+         do: assign(&1, :resume, nil),
+         else: &1
+       )
+     )
      |> then(&if(moved?, do: assign(&1, :show_meditation, false), else: &1))
      |> assign(:page, page)
      |> assign(:step, max(step, 0))
