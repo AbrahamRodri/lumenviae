@@ -60,6 +60,17 @@ defmodule LumenViaeWeb.Live.Pray.GoToTest do
       assert pill(view) =~ "Mystery 2 of 7"
     end
 
+    test "the Seven Sorrows' title block counts sorrows", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray?mystery=1")
+      assert view |> element("#bead-title") |> render() =~ "Sorrow 2 of 7"
+
+      {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray")
+      assert view |> element("#bead-title") |> render() =~ "Before the first sorrow"
+
+      {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray?mystery=closing")
+      assert view |> element("#bead-title") |> render() =~ "After the last sorrow"
+    end
+
     test "has a dot a part, the current one gilt", %{conn: conn, path: path} do
       {:ok, view, _html} = live(conn, path <> "?mystery=1")
 
