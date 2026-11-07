@@ -113,7 +113,7 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
     case Sequence.page(sequence, page) do
       %{kind: :opening} -> "Opening Prayers"
       %{kind: :closing} -> "Closing Prayers"
-      %{decade: decade} -> "Mystery #{decade.index + 1} of #{length(sequence.decades)}"
+      %{decade: decade} -> place(sequence, decade, length(sequence.decades))
     end
   end
 
@@ -123,8 +123,13 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
 
   defp part_note(_sequence, %{decade: nil} = page, _count), do: prayers_held(page)
 
-  defp part_note(_sequence, %{decade: decade}, count),
-    do: "Mystery #{decade.index + 1} of #{count}"
+  defp part_note(sequence, %{decade: decade}, count), do: place(sequence, decade, count)
+
+  # "Mystery 2 of 5", or on the Seven Sorrows "Sorrow 2 of 7".
+  defp place(%{category: "seven_sorrows"}, decade, count),
+    do: "Sorrow #{decade.index + 1} of #{count}"
+
+  defp place(_sequence, decade, count), do: "Mystery #{decade.index + 1} of #{count}"
 
   # The prayers a part holds in words, in the order they are said, as the
   # script gives them: "The Sign of the Cross, the Creed, an Our Father,

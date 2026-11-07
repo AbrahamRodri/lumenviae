@@ -65,9 +65,14 @@ defmodule LumenViaeWeb.Live.Pray.GoToTest do
       assert view |> element("#prayer-settings header") |> render() =~ "Mysteries"
     end
 
-    test "counts the Seven Sorrows out of seven", %{conn: conn} do
+    test "counts the Seven Sorrows' sorrows out of seven", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray?mystery=1")
-      assert pill(view) =~ "Mystery 2 of 7"
+      assert pill(view) =~ "Sorrow 2 of 7"
+
+      view |> element("#go-to-toggle") |> render_click()
+      list = view |> element("#prayer-go-to") |> render()
+      assert list =~ "Sorrow 7 of 7"
+      refute list =~ "Mystery 1 of 7"
     end
 
     test "has a dot a part, the current one gilt", %{conn: conn, path: path} do
