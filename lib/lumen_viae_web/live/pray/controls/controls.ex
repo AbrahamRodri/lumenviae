@@ -271,7 +271,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       id={@id}
       phx-hook="SpokenRosary"
       phx-update="ignore"
-      data-script={Jason.encode!(@script)}
+      data-script={Jason.encode!(Enum.filter(@script, & &1.url))}
       data-start-screen={@start_screen}
       data-set-name={@title}
       class="max-w-sm mx-auto mt-3 rounded-2xl border border-night-border bg-night-raised px-3 py-2"
