@@ -276,7 +276,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
       assert has_element?(view, "#resume-banner", "The Third Joyful Mystery")
 
-      view |> element("button[phx-click=resume]") |> render_click()
+      view |> element("#resume-banner button", "Continue where you left off") |> render_click()
       assert_patch(view, "#{path}?mystery=2&step=0")
       refute has_element?(view, "#resume-banner")
     end
@@ -290,7 +290,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
 
       assert has_element?(view, "#resume-banner", "Hail Mary · 3 of 10")
 
-      view |> element("button[phx-click=resume]") |> render_click()
+      view |> element("#resume-banner button", "Continue where you left off") |> render_click()
       assert_patch(view, "/mysteries/joyful/pray?mystery=1&step=4&form=holy")
     end
 
@@ -312,7 +312,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
       |> element("#prayer-memory")
       |> render_hook("resume_available", %{"mystery" => "closing", "step" => 0})
 
-      view |> element("button[phx-click=dismiss_resume]") |> render_click()
+      view |> element("#resume-banner button", "Start from the beginning") |> render_click()
       refute has_element?(view, "#resume-banner")
     end
   end

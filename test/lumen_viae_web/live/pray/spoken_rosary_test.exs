@@ -151,7 +151,8 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     set = create_set("joyful", 5)
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
-    assert has_element?(view, "[phx-hook=SpokenRosary] button[data-mute]")
+    assert has_element?(view, "#prayer-mute button[data-mute]")
+    assert has_element?(view, "nav [phx-hook=SpokenRosary] button[data-play]")
 
     view |> element("button[aria-controls=prayer-settings]") |> render_click()
 

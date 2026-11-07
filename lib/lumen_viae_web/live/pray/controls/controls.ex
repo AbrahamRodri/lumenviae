@@ -2,8 +2,9 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   @moduledoc """
   The prayer page's controls: the way to pray it (form, the voice, the
   prayers' speed, the closing prayers, the language of the prayers, the
-  reading page, the images, the text size), the player that says it aloud,
-  the offer to continue where the reader left off, and Back and Next.
+  reading page, the images, the text size), Play and the speaker for the
+  Rosary said aloud, the offer to continue where the reader left off, and
+  Back and Next.
   """
   use LumenViaeWeb, :html
 
@@ -259,13 +260,12 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   attr :title, :string, required: true
 
   @doc """
-  The player that says the Rosary aloud, driven by the SpokenRosary hook:
-  Back, play and pause, and Next, a prayer at a time, with play in the
-  middle and Back and Next the same size; and a speaker that mutes it.
-  Muted, it keeps moving at the recording's pace, and the line being read
-  is lit where the recording is timed.
+  Play and pause for the Rosary said aloud, the middle of the bottom bar,
+  driven by the SpokenRosary hook. Back and Next beside it move a bead, and
+  the voice follows. The speaker that mutes it is `mute_button/1`, in the
+  top bar.
   """
-  def spoken_player(assigns) do
+  def spoken_play(assigns) do
     ~H"""
     <div
       id={@id}
@@ -274,59 +274,38 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
       data-script={Jason.encode!(@script)}
       data-start-screen={@start_screen}
       data-set-name={@title}
-      class="max-w-sm mx-auto mt-3 rounded-2xl border border-night-border bg-night-raised px-3 py-2"
+      class="flex justify-center"
     >
-      <p
-        data-caption
-        class="min-h-6 text-center font-garamond text-ink-light text-base leading-snug"
+      <button type="button" data-play aria-label="Play" class={play_button_class()}>
+        <span class="hero-play-solid size-6 ml-0.5" aria-hidden="true" />
+      </button>
+      <button type="button" data-pause aria-label="Pause" class={["hidden", play_button_class()]}>
+        <span class="hero-pause-solid size-6" aria-hidden="true" />
+      </button>
+    </div>
+    """
+  end
+
+  @doc """
+  The speaker that mutes the Rosary said aloud. Muted, it keeps moving at
+  the recording's pace, and the line being read is lit where the
+  recording is timed. Left alone by the page (the hook keeps its state),
+  so a player remounted for another voice stays muted.
+  """
+  def mute_button(assigns) do
+    ~H"""
+    <div id="prayer-mute" phx-update="ignore" class="shrink-0">
+      <button
+        type="button"
+        data-mute
+        aria-pressed="false"
+        aria-label="Mute"
+        title="Mute: the Rosary keeps going, and the words light up as they are read"
+        class="flex items-center justify-center w-11 h-11 rounded-full text-ink-muted hover:text-gilt aria-pressed:text-gilt"
       >
-      </p>
-      <div class="mt-1 grid grid-cols-[2.75rem_1fr_auto_1fr_2.75rem] items-center">
-        <span aria-hidden="true"></span>
-        <button
-          type="button"
-          data-back
-          aria-label="Previous prayer"
-          class={[player_button_class(), "justify-self-end"]}
-        >
-          <span class="hero-backward size-5" aria-hidden="true" />
-        </button>
-        <div class="mx-3">
-          <button type="button" data-play aria-label="Play" class={play_button_class()}>
-            <span class="hero-play-solid size-5 ml-0.5" aria-hidden="true" />
-          </button>
-          <button type="button" data-pause aria-label="Pause" class={["hidden", play_button_class()]}>
-            <span class="hero-pause-solid size-5" aria-hidden="true" />
-          </button>
-        </div>
-        <button
-          type="button"
-          data-forward
-          aria-label="Next prayer"
-          class={[player_button_class(), "justify-self-start"]}
-        >
-          <span class="hero-forward size-5" aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          data-mute
-          aria-pressed="false"
-          aria-label="Mute"
-          title="Mute: the Rosary keeps going, and the words light up as they are read"
-          class={player_button_class()}
-        >
-          <span data-speaker-on class="hero-speaker-wave size-5" aria-hidden="true" />
-          <span data-speaker-off class="hidden hero-speaker-x-mark size-5" aria-hidden="true" />
-        </button>
-      </div>
-      <div class="mt-2 h-px bg-gilt/20">
-        <div
-          data-progress
-          class="h-px bg-gilt motion-safe:transition-[width] duration-500"
-          style="width: 0%"
-        >
-        </div>
-      </div>
+        <span data-speaker-on class="hero-speaker-wave size-5" aria-hidden="true" />
+        <span data-speaker-off class="hidden hero-speaker-x-mark size-5" aria-hidden="true" />
+      </button>
     </div>
     """
   end
@@ -345,12 +324,16 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
         You were praying <span class="text-gilt">{@resume.label}</span>.
       </p>
       <div class="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2">
-        <button type="button" phx-click="resume" class="btn-gold !py-2.5 min-h-11">
+        <button
+          type="button"
+          phx-click={JS.push("resume") |> JS.focus(to: "#prayer-next")}
+          class="btn-gold !py-2.5 min-h-11"
+        >
           Continue where you left off
         </button>
         <button
           type="button"
-          phx-click="dismiss_resume"
+          phx-click={JS.push("dismiss_resume") |> JS.focus(to: "#prayer-next")}
           class="btn-outline-gold !py-2.5 min-h-11"
         >
           Start from the beginning
@@ -368,7 +351,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
   voice is moving the beads. The SwipeHint hook shows it once in this
   browser, a moment after the page settles, and spends it as it is shown;
   it leaves after five seconds, at the first bead moved, or when
-  dismissed. It teaches a shortcut, never a requirement: Next bead does
+  dismissed. It teaches a shortcut, never a requirement: Next does
   everything the swipe does.
   """
   def swipe_hint(assigns) do
@@ -398,29 +381,53 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
 
   attr :at_start, :boolean, required: true
   attr :at_end, :boolean, required: true
+  slot :play, doc: "Play and pause, between Back and Next, when the set can be heard"
 
+  @doc """
+  Back, Play and Next in one row, as the app has them: the three of equal
+  weight, Play in the middle when there is a recording, and Amen and
+  Complete in Next's place on the last bead.
+  """
   def bottom_nav(assigns) do
     ~H"""
     <nav
       aria-label="Move through the Rosary"
       class="prayer-bottom-nav sticky bottom-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3"
     >
-      <div class="grid grid-cols-[auto_1fr] gap-3 items-center max-w-[62ch] mx-auto">
+      <div class={[
+        "grid gap-3 items-center max-w-[62ch] mx-auto",
+        if(@play != [], do: "grid-cols-[1fr_auto_1fr]", else: "grid-cols-2")
+      ]}>
         <button
           type="button"
           phx-click="previous"
           disabled={@at_start}
-          class="btn-text !text-ink-muted hover:!text-gilt min-h-14 !px-2 disabled:opacity-30 disabled:cursor-not-allowed"
+          class={[pill_class(), "border-night-line disabled:opacity-30 disabled:cursor-not-allowed"]}
           aria-label="Back a bead"
         >
           <span aria-hidden="true">&lsaquo;</span> Back
         </button>
 
-        <button :if={@at_end} type="button" phx-click="complete" class="btn-gold min-h-14 w-full">
+        {render_slot(@play)}
+
+        <button
+          :if={@at_end}
+          id="prayer-next"
+          type="button"
+          phx-click="complete"
+          class="btn-gold min-h-14 w-full !px-3"
+        >
           Amen &middot; Complete
         </button>
-        <button :if={!@at_end} type="button" phx-click="next" class="btn-gold min-h-14 w-full">
-          Next bead <span aria-hidden="true">&rsaquo;</span>
+        <button
+          :if={!@at_end}
+          id="prayer-next"
+          type="button"
+          phx-click="next"
+          aria-label="Next bead"
+          class={[pill_class(), "border-gilt"]}
+        >
+          Next <span aria-hidden="true">&rsaquo;</span>
         </button>
       </div>
       <p class="hidden md:block mt-2 text-center font-garamond text-base text-ink-muted">
@@ -448,11 +455,11 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
     do:
       "flex items-center justify-center w-11 h-11 rounded-full border border-night-line font-garamond text-ink-light hover:border-gilt"
 
-  defp player_button_class,
+  defp pill_class,
     do:
-      "flex items-center justify-center w-11 h-11 shrink-0 rounded-full text-ink-muted hover:text-gilt aria-pressed:text-gilt"
+      "flex items-center justify-center gap-1 min-h-14 w-full px-4 rounded-full border bg-night/60 font-garamond text-lg text-ink-light hover:border-gilt hover:text-gilt motion-safe:transition-colors"
 
   defp play_button_class,
     do:
-      "flex items-center justify-center w-14 h-14 shrink-0 rounded-full bg-gilt hover:bg-gilt-light text-night"
+      "flex items-center justify-center w-14 h-14 shrink-0 rounded-full border-2 border-gilt bg-night/60 text-gilt hover:bg-gilt/15"
 end
