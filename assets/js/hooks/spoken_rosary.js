@@ -77,17 +77,19 @@ export default {
     this.prefetch = new Audio()
     this.prefetch.preload = "auto"
 
-    this.caption = this.el.querySelector("[data-caption]")
-    this.bar = this.el.querySelector("[data-progress]")
     this.playButton = this.el.querySelector("[data-play]")
     this.pauseButton = this.el.querySelector("[data-pause]")
-    this.muteButton = this.el.querySelector("[data-mute]")
-
     this.playButton.addEventListener("click", () => this.play())
     this.pauseButton.addEventListener("click", () => this.pause())
-    this.el.querySelector("[data-back]").addEventListener("click", () => this.step(-1))
-    this.el.querySelector("[data-forward]").addEventListener("click", () => this.step(1))
-    this.muteButton.addEventListener("click", () => this.toggleMute())
+
+    // The speaker sits in the top bar, outside the player, and outlives it:
+    // a player remounted for another voice takes up its state.
+    this.muteButton = document.querySelector("[data-mute]")
+    this.onMuteClick = () => this.toggleMute()
+    if (this.muteButton) {
+      this.audio.muted = this.muteButton.getAttribute("aria-pressed") === "true"
+      this.muteButton.addEventListener("click", this.onMuteClick)
+    }
 
     // The speed buttons sit in the settings pane, outside the player.
     this.onRateClick = (event) => {
@@ -137,6 +139,7 @@ export default {
     this.playing = false
     clearTimeout(this.timer)
     document.removeEventListener("click", this.onRateClick)
+    if (this.muteButton) this.muteButton.removeEventListener("click", this.onMuteClick)
     this.unlight()
     this.audio.pause()
     for (const audio of [this.audio, this.prefetch]) {
@@ -188,8 +191,8 @@ export default {
     this.render()
   },
 
-  // Back and forward move a whole prayer, so a Hail Mary missed while
-  // distracted can be said again.
+  // The lock screen's back and forward move a whole prayer, so a Hail Mary
+  // missed while distracted can be said again.
   step(offset) {
     if (this.dead) return
     const next = Math.min(Math.max(this.index + offset, 0), this.steps.length - 1)
@@ -273,6 +276,7 @@ export default {
   },
 
   toggleMute() {
+    if (!this.muteButton) return
     this.audio.muted = !this.audio.muted
     this.muteButton.setAttribute("aria-pressed", String(this.audio.muted))
     this.muteButton.setAttribute("aria-label", this.audio.muted ? "Unmute" : "Mute")
@@ -327,15 +331,6 @@ export default {
     if (this.dead) return
     const step = this.steps[Math.min(this.index, this.steps.length - 1)]
 
-    this.caption.textContent = this.finished
-      ? "Amen. Press Complete to finish your Rosary."
-      : step
-        ? step.caption
-        : "Nothing to play"
-
-    const done = this.finished ? this.steps.length : this.index
-    this.bar.style.width = `${this.steps.length ? (done / this.steps.length) * 100 : 0}%`
-
     this.playButton.classList.toggle("hidden", this.playing)
     this.pauseButton.classList.toggle("hidden", !this.playing)
 
@@ -350,7 +345,7 @@ export default {
   },
 
   // Lock screen and headphone controls: play, pause, and a prayer back or
-  // forward, the same as the buttons on the page.
+  // forward (on the page, Back and Next move a bead and the voice follows).
   setUpMediaSession() {
     if (!("mediaSession" in navigator)) return
     const session = navigator.mediaSession
