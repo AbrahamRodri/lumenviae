@@ -90,8 +90,12 @@ defmodule LumenViaeWeb.Live.Pray.GoToTest do
       assert has_element?(view, ~s(#go-to-toggle[aria-expanded="true"]))
       assert has_element?(view, "#prayer-go-to", "Go to")
       assert has_element?(view, "#prayer-go-to", set.name)
-      assert has_element?(view, "#prayer-go-to button[phx-click=go_to]", "The Opening Prayers")
-      assert has_element?(view, "#prayer-go-to button[phx-click=go_to]", "The Closing Prayers")
+      assert has_element?(view, "#prayer-go-to button[phx-value-page]", "The Opening Prayers")
+      assert has_element?(view, "#prayer-go-to button[phx-value-page]", "The Closing Prayers")
+
+      # Choosing a row or pressing Escape puts focus back on the toggle.
+      assert has_element?(view, ~s(#prayer-go-to button[phx-click*="go-to-toggle"]))
+      assert has_element?(view, ~s(#prayer-go-to[phx-window-keydown*="go-to-toggle"]))
 
       for n <- 1..5 do
         assert has_element?(view, "#prayer-go-to button", "Mystery #{n} of 5")

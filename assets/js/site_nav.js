@@ -69,12 +69,13 @@ export function initSiteNav() {
     open.focus()
   })
 
-  // Tabbing out of the desktop dropdown closes it, so it never hangs open
-  // over the page behind the focus. The phone menu stays open until closed:
-  // it pushes the page down rather than covering it.
+  // Tabbing out of a menu closes it, so it never hangs open over the page
+  // behind the focus. That includes the phone menu: the header is sticky
+  // there and the menu covers the page, so focus past its last link would
+  // land on something hidden behind it.
   document.addEventListener("focusin", (event) => {
     toggles().forEach((toggle) => {
-      if (!isOpen(toggle) || toggle.id === "mobile-menu-button") return
+      if (!isOpen(toggle)) return
       const menu = menuFor(toggle)
       if (!menu.contains(event.target) && event.target !== toggle) setOpen(toggle, false)
     })

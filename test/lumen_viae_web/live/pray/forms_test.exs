@@ -229,7 +229,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
       refute html =~ "The Apostles&#39; Creed"
 
       view |> element("#go-to-toggle") |> render_click()
-      html = view |> element("button[phx-click=go_to][phx-value-page='1']") |> render_click()
+      html = view |> element("#prayer-go-to button[phx-value-page='1']") |> render_click()
       assert html =~ "The First Sorrow of Mary"
 
       # Seven Hail Marys, and no Fatima Prayer after the Glory Be.

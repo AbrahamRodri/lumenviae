@@ -1828,6 +1828,12 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
    above it, and a gap before it so the text's last line scrolls clear of
    that fade. The nav is sticky with a z-index, so the backdrop at -1 sits
    behind its buttons and over the text. */
+/* A control tabbed to near the bottom of the page scrolls clear of the
+   sticky Back and Next bar rather than stopping behind it (WCAG 2.4.11). */
+html:has(#prayer) {
+  scroll-padding-bottom: 8rem;
+}
+
 .prayer-bottom-nav {
   margin-top: 2.5rem;
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));

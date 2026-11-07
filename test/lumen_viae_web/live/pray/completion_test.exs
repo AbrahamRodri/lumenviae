@@ -72,7 +72,7 @@ defmodule LumenViaeWeb.Live.Pray.CompletionTest do
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
     view |> element("#go-to-toggle") |> render_click()
-    view |> element("button[phx-click=go_to][phx-value-page='6']") |> render_click()
+    view |> element("#prayer-go-to button[phx-value-page='6']") |> render_click()
 
     assert Rosary.count_total_completions(actor: admin()) == before
   end
