@@ -12,7 +12,9 @@ defmodule LumenViae.Office.Cache do
   costs one extra upstream fetch per key and coordinates nothing.
 
   Only successful parses are stored. An upstream failure must stay a
-  miss, or a five-minute outage would answer 503 for a month.
+  miss, or a five-minute outage would answer 503 for a month; the Office
+  holds failures for a few minutes itself, under keys of its own. A load
+  may return `{:ok, value, ttl_ms}` to be kept for less than a month.
 
   ## One engine request per cold key
 
@@ -101,10 +103,20 @@ defmodule LumenViae.Office.Cache do
       :erlang.raise(kind, reason, __STACKTRACE__)
   end
 
+  # A load may name its own TTL ({:ok, value, ttl_ms}), as the Office does
+  # for a date far from today; the caller is given {:ok, value} either way.
   defp load_and_store(key, load) do
-    with {:ok, value} <- load.() do
-      put(key, value)
-      {:ok, value}
+    case load.() do
+      {:ok, value, ttl_ms} ->
+        put(key, value, ttl_ms)
+        {:ok, value}
+
+      {:ok, value} ->
+        put(key, value)
+        {:ok, value}
+
+      other ->
+        other
     end
   end
 

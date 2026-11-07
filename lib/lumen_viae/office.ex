@@ -326,10 +326,85 @@ defmodule LumenViae.Office do
     end)
   end
 
-  defp cached(key, load), do: Cache.fetch_or_load(key, load)
+  # -- Fetch limits ----------------------------------------------------------
+  #
+  # Any date from 1600 to 2200 is a key of its own, and each cold key is one
+  # request to the engine, so a crawler walking dates could load the engine
+  # and grow the cache without end. As the Missal does: cold loads share a
+  # budget a minute per machine, past which the answer is "unavailable"; a
+  # failed key is held for a few minutes, and an engine that cannot be
+  # reached holds every cold key for a minute, so an outage costs no
+  # request its full timeout; and a date far from today is kept an hour,
+  # not a month, so the cache holds the dates people pray.
+  @per_minute 60
+  @key_hold_ms :timer.minutes(5)
+  @outage_hold_ms :timer.minutes(1)
+  @near_days 42
+  @far_ttl_ms :timer.hours(1)
+
+  defp cached(key, load), do: Cache.fetch_or_load(key, fn -> limited_load(key, load) end)
+
+  defp limited_load(key, load) do
+    if held?(key) or not admitted?() do
+      {:error, :office_unavailable}
+    else
+      case load.() do
+        {:ok, value} ->
+          case ttl(key, Date.utc_today()) do
+            nil -> {:ok, value}
+            ttl_ms -> {:ok, value, ttl_ms}
+          end
+
+        {:error, :office_unavailable} = error ->
+          Cache.put({:office_failed, key}, true, @key_hold_ms)
+          error
+
+        other ->
+          other
+      end
+    end
+  end
+
+  defp held?(key),
+    do: Cache.fetch({:office_failed, key}) != :miss or Cache.fetch({:office_failed, :any}) != :miss
+
+  # Counted per test namespace in the suite, one count in production.
+  defp admitted? do
+    per_minute =
+      Application.get_env(:lumen_viae, :office_limits, []) |> Keyword.get(:per_minute, @per_minute)
+
+    match?(
+      {:allow, _count},
+      LumenViae.Hammer.hit("office_fetch:#{inspect(Cache.namespace())}", 60_000, per_minute)
+    )
+  end
+
+  @doc false
+  # How long a loaded key is kept: an hour for a date (or month) more than
+  # six weeks from today, else the cache's month (nil).
+  def ttl({:hour, _version, _language, _hour, %Date{} = date}, today), do: far(date, today)
+
+  def ttl({:kalendar, _version, year, month}, today) do
+    first = Date.new!(year, month, 1)
+    last = Date.end_of_month(first)
+
+    if Date.compare(today, first) != :lt and Date.compare(today, last) != :gt,
+      do: nil,
+      else: far(Enum.min_by([first, last], &abs(Date.diff(&1, today))), today)
+  end
+
+  def ttl(_key, _today), do: nil
+
+  defp far(date, today), do: if(abs(Date.diff(date, today)) > @near_days, do: @far_ttl_ms)
 
   defp upstream({:ok, html}), do: {:ok, html}
-  defp upstream({:error, _reason}), do: {:error, :office_unavailable}
+
+  # The engine could not be reached or answered an error: every cold key
+  # waits a minute rather than its own full timeout.
+  defp upstream({:error, _reason}) do
+    Cache.put({:office_failed, :any}, true, @outage_hold_ms)
+    {:error, :office_unavailable}
+  end
 
   defp parse({:ok, parsed}, _what), do: {:ok, parsed}
 
