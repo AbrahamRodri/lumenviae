@@ -39,5 +39,9 @@ config :lumen_viae, :spiritual_reading, warm: true
 # Do not print debug messages in production
 config :logger, level: :info
 
+# The paid recording queue runs in production only (config.exs leaves it
+# out); runtime.exs can raise its limit.
+config :lumen_viae, Oban, queues: [geolocation: 1, elevenlabs: 1, maintenance: 1]
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

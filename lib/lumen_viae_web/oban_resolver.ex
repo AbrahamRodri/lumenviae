@@ -27,8 +27,34 @@ defmodule LumenViaeWeb.ObanResolver do
     end
   end
 
+  # Everything but Retry. A recording cancelled as "may be billed" left
+  # nothing at its S3 key, so running it again pays the voice service twice,
+  # and the dashboard cannot limit Retry to some queues. Other jobs are
+  # retried with `mix lumen_viae.jobs retry` or `Release.retry_jobs/1`,
+  # which refuse the paid queue.
+  @access [
+    cancel_jobs: true,
+    cancel_workflows: true,
+    delete_crons: true,
+    delete_jobs: true,
+    delete_pruners: true,
+    insert_crons: true,
+    insert_jobs: true,
+    insert_pruners: true,
+    pause_crons: true,
+    pause_pruners: true,
+    pause_queues: true,
+    retry_jobs: false,
+    retry_workflows: false,
+    scale_queues: true,
+    stop_queues: true,
+    update_crons: true,
+    update_jobs: true,
+    update_pruners: true
+  ]
+
   @impl true
-  def resolve_access(_admin), do: :all
+  def resolve_access(_admin), do: @access
 
   @impl true
   def resolve_refresh(_admin), do: 5

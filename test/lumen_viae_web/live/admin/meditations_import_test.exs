@@ -44,6 +44,17 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImportTest do
     |> render_upload("fiat.csv")
 
     view |> element("#import-form") |> render_submit()
+
+    # Recording is paid, so it is off until the admin turns it on, and Start
+    # then asks first, with the count and the characters.
+    assert has_element?(view, "input[phx-click=toggle-skip-audio][checked]")
+    refute has_element?(view, "button[phx-click=start-import][data-confirm]")
+
+    view |> element("input[phx-click=toggle-skip-audio]") |> render_click()
+
+    assert view |> element("button[phx-click=start-import]") |> render() =~
+             "This queues 2 paid recording(s): 1 row(s) in 2 voice(s), about 40 characters"
+
     view |> element("button", "Start import") |> render_click()
     render_async(view, 10_000)
 

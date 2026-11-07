@@ -207,7 +207,10 @@ config :lumen_viae, Oban,
   engine: Oban.Engines.Basic,
   repo: LumenViae.Repo,
   notifier: Oban.Notifiers.PG,
-  queues: [geolocation: 1, elevenlabs: 1, maintenance: 1],
+  # The paid recording queue is not here: config/prod.exs adds it, and the
+  # audio mix tasks start it on their own node (AudioJobs.wait_here/2), so a
+  # dev server or any other mix task never runs a leftover paid job.
+  queues: [geolocation: 1, maintenance: 1],
   stager: [interval: :timer.seconds(5)],
   pruner: [max_age: {7, :days}, interval: {5, :minutes}],
   lifeline: [rescue_after: {30, :minutes}, interval: {5, :minutes}],

@@ -245,7 +245,15 @@
 
         <div class="flex gap-2">
           <button phx-click="reset" class="admin-btn admin-btn-ghost">Cancel</button>
-          <button phx-click="start-import" class="admin-btn admin-btn-primary">
+          <%!-- Recording is paid: ask first, with what it costs. --%>
+          <button
+            phx-click="start-import"
+            data-confirm={
+              if @preview.audio_count > 0 and not @skip_audio,
+                do: recording_confirm(@preview)
+            }
+            class="admin-btn admin-btn-primary"
+          >
             <%= if @preview.error_count > 0 do %>
               Import {@preview.valid_count} valid row(s)
             <% else %>

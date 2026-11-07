@@ -22,6 +22,7 @@ defmodule LumenViae.Ops.Jobs do
 
   import Ecto.Query, only: [from: 2]
 
+  alias LumenViae.Curation.AudioJobs
   alias LumenViae.Repo
   alias Oban.Cron.Expression
 
@@ -151,16 +152,31 @@ defmodule LumenViae.Ops.Jobs do
   last two retry every job of theirs that is retryable or discarded (a
   cancelled job is left alone: somebody, or the job itself, decided).
   Answers `{:ok, count}`.
+
+  A job on the paid recording queue is never retried by hand
+  (`{:error, :paid_queue}`): one cancelled as "may be billed" left nothing
+  at its S3 key, so running it again pays the voice service twice. Record
+  it again from the console or the audio task, which checks S3 first.
   """
   def retry(id: id) when is_integer(id) do
     case Repo.get(Oban.Job, id) do
       nil -> {:error, :not_found}
-      _job -> Oban.retry_job(id) |> then(fn :ok -> {:ok, 1} end)
+      job -> if AudioJobs.paid?(job), do: {:error, :paid_queue}, else: retry_one(id)
     end
   end
 
-  def retry([{field, value}]) when field in [:queue, :worker] and is_binary(value) do
-    query = from j in Oban.Job, where: j.state in ["retryable", "discarded"]
+  def retry(queue: queue) when is_binary(queue) do
+    if queue == AudioJobs.paid_queue(), do: {:error, :paid_queue}, else: retry_all(queue: queue)
+  end
+
+  def retry(worker: worker) when is_binary(worker), do: retry_all(worker: worker)
+
+  defp retry_one(id), do: Oban.retry_job(id) |> then(fn :ok -> {:ok, 1} end)
+
+  defp retry_all([{field, value}]) do
+    query =
+      from j in Oban.Job,
+        where: j.state in ["retryable", "discarded"] and j.queue != ^AudioJobs.paid_queue()
 
     query =
       case field do

@@ -293,15 +293,27 @@ defmodule LumenViae.Curation.AudioJobs do
   end
 
   @doc """
-  For a mix task whose own node runs the queue: raises this node's
-  `elevenlabs` limit to `concurrency` (default 3; the queue's configured
-  limit is one job per machine, sized for production, and a laptop running
-  the task is one machine), then `follow/3`s the batch to the terminal.
+  For a mix task whose own node runs the queue: starts this node's
+  `elevenlabs` queue at `concurrency` (default 3), or raises its limit to
+  that where it already runs, then `follow/3`s the batch to the terminal.
+  Outside production the queue runs nowhere else (config.exs leaves it
+  out), so a dev server never picks up a paid job.
   """
   def wait_here(batch, concurrency \\ nil) do
-    Oban.scale_queue(queue: :elevenlabs, limit: concurrency || 3, local_only: true)
+    limit = concurrency || 3
+
+    if Oban.check_queue(queue: paid_queue()),
+      do: Oban.scale_queue(queue: paid_queue(), limit: limit, local_only: true),
+      else: Oban.start_queue(queue: paid_queue(), limit: limit, local_only: true)
+
     follow(batch, &IO.puts/1)
   end
+
+  @doc "The queue whose jobs call the paid voice service."
+  def paid_queue, do: "elevenlabs"
+
+  @doc "Whether a job is on the paid queue."
+  def paid?(%Oban.Job{queue: queue}), do: queue == paid_queue()
 
   @doc """
   Makes sure an Oban instance is running to insert jobs through, for a

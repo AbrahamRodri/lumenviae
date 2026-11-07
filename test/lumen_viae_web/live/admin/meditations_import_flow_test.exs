@@ -136,7 +136,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImportFlowTest do
       assert meditation_contents() == ["Behold the handmaid."]
     end
 
-    test "with narration skipped, writes the text and queues no recording",
+    test "narration is skipped unless turned on: writes the text and queues no recording",
          %{conn: conn} do
       view = open(conn)
 
@@ -146,11 +146,14 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImportFlowTest do
           @header <> "The Annunciation,Behold the handmaid.,fiat.mp3,,\n"
         )
 
+      assert html =~ "Skipped"
+      refute html =~ "will be queued for recording"
+
+      html = view |> element("input[phx-click=toggle-skip-audio]") |> render_click()
       assert html =~ "will be queued for recording"
 
       html = view |> element("input[phx-click=toggle-skip-audio]") |> render_click()
       assert html =~ "Skipped"
-      refute html =~ "will be queued for recording"
 
       view |> element("button[phx-click=start-import]") |> render_click()
       render_async(view, 10_000)
