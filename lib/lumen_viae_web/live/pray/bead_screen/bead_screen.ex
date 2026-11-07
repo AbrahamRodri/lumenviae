@@ -31,7 +31,7 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
       |> assign(:decade, page.decade)
       |> assign(:page_name, Strand.page_name(page))
       |> assign(:part, part_name(page))
-      |> assign(:place, place(page, length(assigns.sequence.decades)))
+      |> assign(:place, place(page, assigns.sequence))
 
     ~H"""
     <section aria-label="The bead you are on" class="flex flex-col">
@@ -132,10 +132,16 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
   defp part_name(%{kind: :closing}), do: "The Closing Prayers"
   defp part_name(%{decade: decade}), do: decade.name || decade.label
 
-  # Where the part falls in the Rosary.
-  defp place(%{kind: :opening}, _count), do: "Before the first mystery"
-  defp place(%{kind: :closing}, _count), do: "After the last mystery"
-  defp place(%{index: index}, count), do: "Mystery #{index} of #{count}"
+  # Where the part falls in the Rosary: its mysteries, or the Seven
+  # Sorrows' sorrows.
+  defp place(page, sequence), do: place(page, unit(sequence), length(sequence.decades))
+
+  defp place(%{kind: :opening}, unit, _count), do: "Before the first #{unit}"
+  defp place(%{kind: :closing}, unit, _count), do: "After the last #{unit}"
+  defp place(%{index: index}, unit, count), do: "#{String.capitalize(unit)} #{index} of #{count}"
+
+  defp unit(%{category: "seven_sorrows"}), do: "sorrow"
+  defp unit(_sequence), do: "mystery"
 
   # What the bead is, in words: "Hail Mary · 4 of 10", or the mystery
   # announced on the Our Father bead.
