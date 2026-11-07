@@ -68,7 +68,7 @@ defmodule LumenViaeWeb.Live.Pray.GoToTest do
       view |> element("#how-to-pray-toggle") |> render_click()
       assert view |> element("#prayer-settings header") |> render() =~ "Mysteries"
       assert has_element?(view, "#how-to-pray-toggle[aria-expanded=true]")
-      assert has_element?(view, "#prayer-settings button[aria-label='Close How to pray']")
+      assert has_element?(view, "#prayer-settings button[aria-label='Close the settings']")
     end
 
     test "counts the Seven Sorrows' sorrows out of seven", %{conn: conn} do
