@@ -21,8 +21,9 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   @ai_translated_count 83
 
   # A prayer newly added in English, until the Spanish team adds it to
-  # priv/library/es/prayer_book.json. None now.
-  @awaiting_spanish []
+  # priv/library/es/prayer_book.json. St. Bridget's twelve-year prayers:
+  # their Spanish is its own slice (st-bridget-es).
+  @awaiting_spanish ["st_bridget_twelve_years"]
 
   test "the file is pinned by its date and words" do
     assert {Spanish.file_updated_at(), Spanish.file_version()} == @pinned, """
