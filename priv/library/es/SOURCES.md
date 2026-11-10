@@ -338,6 +338,8 @@ Copied word for word from a devotional or parish site, and checked against a sav
 
 ### The team's translations (`ai_translated`)
 
+The Hail Mary is written "Ave María" as the prayer's name and counted "Ave Marías" ("Tres Ave Marías"), as most Catholic apps and the Vatican's and the Mexican bishops' texts write it (Abraham, 10 Nov 2026: "Follow how other apps do it"; reports/rig/spanish-wording/ave-maria-apps.md).
+
 No good Spanish version was found, so the team translated these from the book's English (and its Latin, for the liturgical wording): natural, traditional Spanish, tú to God, Mary and the saints, line for line with the English. Each is marked `ai_translated: true`. Spanish needs a gender where the English has none; these use the masculine as the general form. Scripture quoted inside a prayer speaks to people in ustedes ("Pidan y recibirán"), as Latin American Missals and Bibles do; litany responses and the old jaculatories keep vosotros ("rogad por nosotros", "os doy mi corazón"), the fixed forms parishes still pray. Rubrics that name an intention are impersonal ("[Aquí se nombra...]"); the guides to confession and the examinations speak to the reader as tú. Why no existing version was used:
 
 - `morning_offering`: The traditional Apostleship of Prayer text was not found in good Spanish: Catholic Company's Spanish version has different content (adds bishops, reunion of Christians, drops 'in reparation for my sins' wording), and the Pope's Prayer Network now gives a new, different offering.
