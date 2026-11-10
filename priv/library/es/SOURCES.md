@@ -457,6 +457,20 @@ Spanish name.
   prayer has in Spanish devotion; "frío penetrante" for piercing cold;
   "dígnate" for vouchsafe.
 
+### `advent_wreath_collects`: "La corona de Adviento: las colectas de los domingos" (`ai_translated`)
+
+The team's translation from the Latin of the four Advent Sunday collects
+(*Missale Romanum*, Tours, Mame, 1882, public domain), checked for natural
+es-MX by ios-review (10 Nov 2026). Abraham, 10 Nov 2026, Q2 "B" and the
+SPEC's Spanish as Q1 "A". The rubric and headings follow the English's;
+each collect ends "℟. Amén." as the English does.
+
+- "Despierta, Señor, ... tu poder" for *Excita potentiam*, the same verb in
+  the three *Excita* collects; 1 "protegidos por ti ... liberados por ti"
+  for *te protegente ... te liberante*; 2 "con el alma purificada" for
+  *purificatis mentibus*; 4 "el perdón de tu misericordia" for *indulgentia
+  tuae propitiationis*.
+
 ### `immaculate_conception_novena`: "Novena a la Inmaculada Concepción" (`ai_translated`)
 
 A mixed text, so it is marked `ai_translated`:
