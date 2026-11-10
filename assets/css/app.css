@@ -1892,6 +1892,41 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
   );
 }
 
+/* Below 1024 px the title block sits over the painting, so it carries its
+   own scrim, as the app's title does: clear about 2rem above the name,
+   60 percent night at the name's top and full night by the step line, so
+   it reads over any painting at any height. The place line is ink-light
+   there, as the app raised it, and the lines keep a soft night shadow. */
+@media (max-width: 1023.98px) {
+  #prayer:has(.prayer-hero) #bead-title {
+    position: relative;
+  }
+
+  #prayer:has(.prayer-hero) #bead-title::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-inline: -1rem;
+    top: -2rem;
+    bottom: -0.75rem;
+    background: linear-gradient(
+      to bottom,
+      transparent 0,
+      color-mix(in oklab, var(--color-night) 60%, transparent) 2rem,
+      color-mix(in oklab, var(--color-night) 88%, transparent) 3.25rem,
+      var(--color-night) 4.5rem
+    );
+  }
+
+  #prayer:has(.prayer-hero) #bead-title p {
+    text-shadow: 0 1px 12px var(--color-night);
+  }
+
+  #prayer:has(.prayer-hero) #bead-title p:nth-child(2) {
+    color: var(--color-ink-light);
+  }
+}
+
 .prayer-hero-image {
   display: block;
   width: 100%;
