@@ -7,6 +7,7 @@ defmodule LumenViae.OpsTest do
   use LumenViae.DataCase, async: true
   use Oban.Testing, repo: LumenViae.Repo
 
+  alias LumenViae.Curation.AudioJobs
   alias LumenViae.Ops
   alias LumenViae.Office.Jobs.WarmCache
   alias LumenViae.Repo
@@ -60,7 +61,8 @@ defmodule LumenViae.OpsTest do
       assert queues["maintenance"].counts["available"] == 2
       assert queues["maintenance"].oldest_available_at
       assert queues["geolocation"].counts["discarded"] == 1
-      assert Map.has_key?(queues, "elevenlabs")
+      # The paid queue is configured in production alone (config/prod.exs).
+      refute Map.has_key?(queues, AudioJobs.paid_queue())
     end
   end
 
@@ -151,6 +153,33 @@ defmodule LumenViae.OpsTest do
       assert {:ok, 1} = Ops.retry_jobs(queue: "geolocation")
       assert Repo.get(Oban.Job, retryable.id).state == "available"
       assert Repo.get(Oban.Job, cancelled.id).state == "cancelled"
+    end
+
+    test "a paid recording is never retried by hand, by id, queue or worker" do
+      paid = AudioJobs.paid_queue()
+      worker = "LumenViae.Curation.Jobs.NarrateMeditation"
+      cancelled = insert_job(%{state: "cancelled", queue: paid, worker: worker, attempt: 1})
+      discarded = insert_job(%{state: "discarded", queue: paid, worker: worker, attempt: 3})
+
+      assert {:error, :paid_queue} = Ops.retry_jobs(id: cancelled.id)
+      assert {:error, :paid_queue} = Ops.retry_jobs(id: discarded.id)
+      assert {:error, :paid_queue} = Ops.retry_jobs(queue: paid)
+      assert {:ok, 0} = Ops.retry_jobs(worker: worker)
+
+      assert Repo.get(Oban.Job, cancelled.id).state == "cancelled"
+      assert Repo.get(Oban.Job, discarded.id).state == "discarded"
+    end
+
+    test "the jobs dashboard offers no Retry, and everything else" do
+      access = LumenViaeWeb.ObanResolver.resolve_access(%{id: 1})
+      refute Oban.Web.Helpers.can?(:retry_jobs, access)
+      assert Oban.Web.Helpers.can?(:cancel_jobs, access)
+      assert Oban.Web.Helpers.can?(:pause_queues, access)
+    end
+
+    test "outside production the paid queue runs nowhere until a task starts it" do
+      queues = Application.fetch_env!(:lumen_viae, Oban)[:queues]
+      refute Keyword.has_key?(queues || [], String.to_existing_atom(AudioJobs.paid_queue()))
     end
 
     test "cancel cancels a waiting job, and both say when there is no such job" do

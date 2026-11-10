@@ -2,7 +2,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
   use LumenViaeWeb, :live_view
 
   alias LumenViae.Curation.{AudioJobs, CsvImport}
-  alias LumenViae.Rosary.Labels
+  alias LumenViae.Rosary.{Labels, Voices}
 
   # Import flow stages:
   #   :idle      - waiting for a file
@@ -34,7 +34,7 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
     |> assign(:rows_status, %{})
     |> assign(:progress, %{done: 0, total: 0})
     |> assign(:current_activity, nil)
-    |> assign(:skip_audio, false)
+    |> assign(:skip_audio, true)
     |> assign(:elapsed, 0)
     |> assign(:cancelled, false)
     |> assign(:successes, [])
@@ -279,4 +279,13 @@ defmodule LumenViaeWeb.Live.Admin.MeditationsImport.Import do
 
   defp error_to_string(:too_many_files),
     do: "Too many files selected. Please upload only one CSV file"
+
+  # What Start import will pay for, asked before anything is queued: each
+  # row is recorded once per narration voice, billed by its characters.
+  defp recording_confirm(%{audio_count: rows, audio_characters: characters}) do
+    voices = length(Voices.all())
+
+    "This queues #{rows * voices} paid recording(s): #{rows} row(s) in #{voices} voice(s), " <>
+      "about #{characters * voices} characters of ElevenLabs credit. Start the import?"
+  end
 end
