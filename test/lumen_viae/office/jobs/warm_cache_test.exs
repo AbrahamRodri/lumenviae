@@ -79,6 +79,24 @@ defmodule LumenViae.Office.Jobs.WarmCacheTest do
       stub_engine()
       assert Office.warm([~D[2032-06-11]]) == %{warmed: 9, cached: 0, failed: 0, skipped: 0}
     end
+
+    test "stores past the cache's byte ceiling, where a visitor's load is not stored" do
+      # Keys of its own: the engine-down test above holds every shared cold
+      # key for a minute.
+      LumenViae.Office.Cache.isolate()
+      Process.put(:office_cache_max_bytes, 0)
+      stub_engine()
+
+      assert {:ok, _hour} = Office.fetch_hour("2035-09-14", "laudes")
+      assert {:ok, _hour} = Office.fetch_hour("2035-09-14", "laudes")
+      assert asked() == 2
+
+      assert Office.warm([~D[2035-09-15]]) == %{warmed: 9, cached: 0, failed: 0, skipped: 0}
+      assert asked() == 9
+
+      assert {:ok, _hour} = Office.fetch_hour("2035-09-15", "laudes")
+      assert asked() == 0
+    end
   end
 
   describe "the job" do

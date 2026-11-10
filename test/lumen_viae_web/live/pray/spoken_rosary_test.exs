@@ -168,6 +168,18 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     assert "In honor of her tears · 3 of 3" in captions
   end
 
+  test "the static render shows the player but signs and sends no script", %{conn: conn} do
+    set = create_set("joyful", 5)
+    html = conn |> get("/meditation-sets/#{set.id}/pray") |> html_response(200)
+
+    assert [player] = html |> Floki.parse_document!() |> Floki.find("[phx-hook=SpokenRosary]")
+    assert Floki.attribute(player, "data-script") == ["[]"]
+    refute html =~ "X-Amz-Signature"
+
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
+    assert script(view) != []
+  end
+
   test "the player can be muted, and the settings offer the prayers' speed", %{conn: conn} do
     set = create_set("joyful", 5)
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")

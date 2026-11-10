@@ -12,7 +12,11 @@ defmodule LumenViae.Office.Cache do
   costs one extra upstream fetch per key and coordinates nothing.
 
   Only successful parses are stored. An upstream failure must stay a
-  miss, or a five-minute outage would answer 503 for a month.
+  miss, or a five-minute outage would answer 503 for a month; the Office
+  holds failures for a few minutes itself, under keys of its own. A load
+  may return `{:ok, value, ttl_ms}` to be kept for less than a month. The
+  table stops storing loaded values at 200 MB (`:office_cache_max_bytes`),
+  serving them unstored until entries expire.
 
   ## One engine request per cold key
 
@@ -101,11 +105,36 @@ defmodule LumenViae.Office.Cache do
       :erlang.raise(kind, reason, __STACKTRACE__)
   end
 
+  # A load may name its own TTL ({:ok, value, ttl_ms}), as the Office does
+  # for a date far from today; the caller is given {:ok, value} either way.
   defp load_and_store(key, load) do
-    with {:ok, value} <- load.() do
-      put(key, value)
-      {:ok, value}
+    case load.() do
+      {:ok, value, ttl_ms} ->
+        if room?(), do: put(key, value, ttl_ms)
+        {:ok, value}
+
+      {:ok, value} ->
+        if room?(), do: put(key, value)
+        {:ok, value}
+
+      other ->
+        other
     end
+  end
+
+  # A ceiling on what the table holds, so a crawler walking every date,
+  # hour, version and language cannot fill the machine's memory. Past it a
+  # loaded value is served without being stored, until the sweep or the
+  # TTLs make room. The warm (`:office_unmetered`) always stores: its few
+  # dates a day are what visitors ask for, and a full table must not leave
+  # today's hours cold. A test sets its own ceiling in its process.
+  @max_bytes 200 * 1024 * 1024
+  defp room? do
+    max =
+      Process.get(:office_cache_max_bytes) ||
+        Application.get_env(:lumen_viae, :office_cache_max_bytes, @max_bytes)
+
+    Process.get(:office_unmetered, false) or stats().bytes < max
   end
 
   @doc """

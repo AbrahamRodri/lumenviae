@@ -3,7 +3,8 @@
 An audit of every call the iOS app makes to this backend, and of exactly
 what it decodes from each response. Taken on 1 October 2026 from the app's
 HEAD (4.0, unreleased) and the shipped builds 1.0.1 (bb72c6d), 2.0
-(8a3108a), 3.0 build 3 (308b1bf) and 3.0 build 4 (ab6d153).
+(8a3108a), 3.0 build 3 (308b1bf) and 3.0 build 4 (ab6d153). Brought up
+to 4.1 (a373440) and 4.2 (f57d792, in App Review) on 6 November 2026.
 
 `test/lumen_viae_web/controllers/api/contract_test.exs` and its siblings
 enforce this. The gap list below records the assertions they were missing
@@ -31,8 +32,10 @@ relaxed until no installed build calls it.
 - **G1.** No route under `/api` passes through the `:browser` pipeline.
   Walk `LumenViaeWeb.Router.__routes__()` and assert `:browser` is not in
   `pipe_through` for any path starting `/api`. In production `CanonicalHost`
-  301s `lumenviae.fly.dev` to `www.lumenviae.org`, the app calls
-  `lumenviae.fly.dev`, and URLSession follows a 301 on a POST as a GET:
+  301s any other host to `www.lumenviae.org`. Builds up to 4.1 call
+  `lumenviae.fly.dev`, now a pass-through proxy to `www`
+  (`deploy/fly-proxy/`); 4.2 calls `www.lumenviae.org` itself. URLSession
+  follows a 301 on a POST as a GET:
   completions would vanish with no error anywhere. The test host is
   localhost, so nothing else can see this.
 - **G2.** Every GET route returns 200 JSON for `accept: */*`, URLSession's
@@ -181,8 +184,15 @@ per request and 45 per resource. `POST /completions` never retries.
 
 **Which builds call what.** 1.0 and 1.0.1: set list, set detail,
 completions, `/prayers/:id/audio`. 2.0 adds `/meditations/:id/audio`. 3.0
-adds the Office. 4.0 (HEAD) adds `/voices`, `/rosary/audio`, `narrations`,
-`prayed_aloud`, and `voice` on the audio response.
+adds the Office. 4.0 adds `/voices`, `/rosary/audio`, `narrations`,
+`prayed_aloud`, and `voice` on the audio response; 4.0 (build 77 and
+later) also reads the v2 `prayer-book` and `chant-library` (section 10).
+4.2 adds, in every
+language, `lines` on `/rosary/audio` (section 5) and `POST
+/api/v2/meditations/audio` (section 15); and, in a Spanish app only,
+`lang=es` on the set list and detail with `translations` and
+`set_translation` (section 14) and the v2 Prayer Book and Consecration
+with `lang=es` (sections 12 and 13).
 
 ### 1. GET /api/meditation-sets?category=<raw>
 
@@ -261,10 +271,13 @@ Caller: RosaryAudioPack; both parameters go through URLQueryItem.
 `expires_at`, `prayers` ([String: Clip]), `announcements`
 ([String: Clip]), `verses` ([String: [Clip]]), `book` ([String: Clip]).
 Clip. Required: `file` String, `audio_url` String. Optional: `text`,
-`reference`, `lines` (added 5 Nov 2026, not yet read by a shipped
-build: `[{text, start, end}]` in seconds, the clip's words a line at a
-time and when each is heard, or null when that recording is not timed;
-it never changes `version`).
+`reference`, `lines` (added 5 Nov 2026, read by 4.2: `[{text, start,
+end}]` in seconds, the clip's words a line at a time and when each is
+heard, or null when that recording is not timed; it never changes
+`version`). 4.2 reads `lines` leniently (`try?` in
+RosaryAudioManifest): a `lines` that does not decode, a null `start`
+included, is read as no lines, not as a failed manifest. Keep `text`,
+`start` and `end` present and typed in every line anyway.
 
 A 400 leads to one retry with no voice; any other error uses the saved
 manifest, or a saved manifest in another voice. `file` is the on-disk name
@@ -324,13 +337,13 @@ production.
 
 Never called by any build.
 
-### 10. GET /api/v2/prayer-book and GET /api/v2/chant-library (the build after 4.0)
+### 10. GET /api/v2/prayer-book and GET /api/v2/chant-library (4.0, build 77 and later)
 
 Callers: the Prayer Book and Chant Library stores, at launch and on
 foreground at most once a day. The bare request is decoded as `{version,
 updated_at}`; when `version` differs from the saved copy's the app asks
 for `fields[prayer_book]=version,updated_at,prayers,chapters` and
-`fields[chant_library]=version,updated_at,groups,chants` and replaces its
+`fields[chant_library]=version,updated_at,groups,chants` (4.0, build 77 and later) and replaces its
 copy only when the whole document decodes, so a field the app treats as
 non-optional going null loses that refresh, not the screen: the bundled
 seed or the last good copy stays. The shapes are docs/JSON_API.md, "The
@@ -343,9 +356,9 @@ including each chant's `audio` and every score page's `url`, `bytes` and
 A meditation's narrations in v2 and GraphQL (`narrations`,
 `narration(preferring:)`, `POST /api/v2/meditations/audio`,
 `meditationAudio`) gained an optional `lines` on 2 Nov 2026: the recording
-line by line, `{text, start, end}` in seconds, null when not timed. No
-build reads it yet; a build that does decodes it as optional. The v1 REST
-narrations (section 3) do not carry it.
+line by line, `{text, start, end}` in seconds, null when not timed. 4.2
+reads it, as optional, from `POST /api/v2/meditations/audio` (section
+15). The v1 REST narrations (sections 2 and 3) do not carry it.
 
 The chant files themselves (`audio.url`, `score[].url`) are fetched
 outside Phoenix, below. Builds up to 4.0 bundle their chants and words
@@ -366,9 +379,11 @@ document is exactly what every shipped build reads today, version and
 date included, pinned by `test/lumen_viae_web/json_api/rosary_content_test.exs`
 ("lang"). The shapes are docs/JSON_API.md, "The Rosary in Spanish".
 
-### 12. GET /api/v2/prayer-book?lang=es (not yet called)
+### 12. GET /api/v2/prayer-book?lang=es (4.2)
 
-No build sends `lang` yet. A build that does asks for the new
+4.2, in a Spanish app only, asks for
+`prayer-book?lang=es&fields[prayer_book]=version,updated_at,translations`
+(LibraryContent); a failure keeps the English (`try?`). It reads the new
 `translations` section: every prayer with a Spanish text, `{id, title,
 text}` and `ai_translated: true` where part is the team's translation,
 laid over the English by `id`; every other section is unchanged. The
@@ -378,10 +393,12 @@ version and date included, and `translations` is empty, pinned by
 `test/lumen_viae_web/json_api/prayer_book_spanish_test.exs`. The shapes
 are docs/JSON_API.md, "The Prayer Book in Spanish".
 
-### 13. GET /api/v2/consecration?lang=es (not yet called)
+### 13. GET /api/v2/consecration?lang=es (4.2)
 
-The app bundles the Consecration and does not fetch it yet. A build that
-fetches it in Spanish asks for the new `translations` section: the
+The app bundles the Consecration. 4.2, in a Spanish app only, asks for
+`consecration?lang=es&fields[consecration]=version,updated_at,translations`
+and keeps the English when that fails (`try?`). It reads the new
+`translations` section: the
 phases, days (title, journal question and readings by `order`), prayers
 and feasts that have Spanish, each laid over the English by key, with
 `ai_translated: true` where a part is the team's translation; every
@@ -391,9 +408,13 @@ is today, version and date included, and `translations` holds four empty
 lists, pinned by `test/lumen_viae_web/json_api/consecration_spanish_test.exs`.
 The shapes are docs/JSON_API.md, "The Consecration in Spanish".
 
-### 14. GET /api/meditation-sets/:id?lang=es (not yet called)
+### 14. GET /api/meditation-sets/:id?lang=es (4.2)
 
-No build sends `lang` yet. A build that does gets the set exactly as in
+4.2 sends `lang` on the set list (`&lang=`) and detail (`?lang=`) when the
+app is in Spanish. It decodes `translations` as optional, each entry's
+`id` Int and `content` String required and `title` and `source` optional,
+and every `set_translation` key as optional, `image_alt` and
+`ai_translated` included. With `lang` the response is the set exactly as in
 section 2, plus `translations`: each meditation with a Spanish text,
 `{id, title, content}` in prayer order (`title` null where the English
 has none) and `ai_translated: true` on the team's own translation
@@ -421,6 +442,15 @@ without `lang` there is no `set_translation` key, and the set's own
 `test/lumen_viae_web/json_api/meditation_set_text_spanish_test.exs`.
 The words and their sources: docs/JSON_API.md, "The meditations in
 Spanish".
+
+### 15. POST /api/v2/meditations/audio (4.2)
+
+Caller: APIService, for a meditation's timed narration. Sent with the
+`application/vnd.api+json` headers. Each element decodes `meditation_id`
+Int, `voice` String and `audio.url` String as required, and `lines`
+(`[{text, start, end}]`, null when untimed) as optional; `expires_at` is
+not read. The shapes are docs/JSON_API.md, "Fresh meditation audio", pinned by
+`priv/openapi/v2.json` (getMeditationAudio).
 
 ### Outside Phoenix
 

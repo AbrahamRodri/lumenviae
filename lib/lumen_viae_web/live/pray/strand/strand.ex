@@ -178,56 +178,124 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
   attr :sequence, :map, required: true
   attr :screen, :map, required: true
 
-  @doc "The page's strand, the bead under the hand lit. Decorative: the status line says it in words."
+  @doc """
+  The bead rail beside the words, as the app's: a thin gold line down the
+  right of the prayer with the beads on it, about five of a decade around
+  the one under the hand, which is larger and glows, with its Hail Mary's
+  number beside it. Beads already prayed are pale outlines, those to come
+  gold dots. The opening prayers show the pendant's beads with the cross at
+  the foot, and the closing prayers the medal. Decorative: `#bead-status`
+  says it in words.
+  """
   def beads(assigns) do
     page = Sequence.page(assigns.sequence, assigns.screen.page)
-    assigns = assign(assigns, :page_kind, page.kind)
+    assigns = assign(assigns, :beads, rail(page.kind, assigns.sequence, assigns.screen))
 
     ~H"""
     <div
+      id="bead-rail"
       aria-hidden="true"
-      class="prayer-words flex items-center justify-center gap-1.5 sm:gap-2 py-2"
+      class="prayer-words relative flex flex-col items-center gap-3 w-11 py-2"
     >
-      <%= if @page_kind == :decade do %>
-        <span class={bead_class(:large, @screen.bead == 0)}></span>
-        <span class="w-2 h-px bg-gilt/30"></span>
+      <span class="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-gilt/30"></span>
+      <span
+        :for={bead <- @beads}
+        data-bead={bead.id}
+        data-state={bead.state}
+        class="relative flex items-center justify-center"
+      >
         <span
-          :for={n <- 1..@sequence.hail_marys}
-          class={bead_class(:small, @screen.bead == n, @screen.bead > n)}
-        ></span>
-        <span class="w-2 h-px bg-gilt/30"></span>
-        <span class={bead_class(:diamond, @screen.bead == @sequence.hail_marys + 1)}></span>
-      <% else %>
-        <.cross lit={@screen.place == "cross"} />
-        <span class="w-2 h-px bg-gilt/30"></span>
-        <span class={bead_class(:large, @screen.place == "large_bead")}></span>
-        <span
-          :for={n <- 1..3}
-          class={bead_class(:small, @screen.place == "small_bead_#{n}")}
-        ></span>
-        <span class={bead_class(:diamond, @screen.place == "chain")}></span>
-        <span class="w-2 h-px bg-gilt/30"></span>
-        <.medal lit={@screen.place == "medal"} />
-      <% end %>
+          :if={bead.number}
+          class="absolute right-full mr-1.5 font-garamond text-xs text-gilt tabular-nums"
+        >
+          {bead.number}
+        </span>
+        <%= case bead.shape do %>
+          <% :cross -> %>
+            <.cross lit={bead.state == :current} />
+          <% :medal -> %>
+            <.medal lit={bead.state == :current} />
+          <% shape -> %>
+            <span class={bead_class(shape, bead.state)}></span>
+        <% end %>
+      </span>
     </div>
     """
   end
 
-  defp bead_class(shape, lit, said \\ false) do
-    base = "block shrink-0 border motion-safe:transition-all motion-safe:duration-300"
+  # The beads the rail shows, top to bottom, each with its state.
+  defp rail(:decade, sequence, screen) do
+    last = sequence.hail_marys + 1
+
+    beads =
+      for n <- 0..last do
+        shape =
+          cond do
+            n == 0 -> :large
+            n == last -> :diamond
+            true -> :small
+          end
+
+        %{
+          id: "decade-#{n}",
+          shape: shape,
+          state: state(n, screen.bead),
+          number: if(shape == :small and n == screen.bead, do: n)
+        }
+      end
+
+    # About five around the bead under the hand.
+    first = min(max(screen.bead - 2, 0), max(length(beads) - 5, 0))
+    Enum.slice(beads, first, 5)
+  end
+
+  defp rail(:closing, _sequence, _screen),
+    do: [%{id: "medal", shape: :medal, state: :current, number: nil}]
+
+  # The pendant from the top down: the chain's Glory Be, the three small
+  # beads, the large bead, and the cross at the foot, where it begins.
+  defp rail(_opening, _sequence, screen) do
+    order = ~w(cross large_bead small_bead_1 small_bead_2 small_bead_3 chain)
+    at = Enum.find_index(order, &(&1 == screen.place)) || 0
+
+    order
+    |> Enum.with_index()
+    |> Enum.map(fn {place, i} ->
+      shape =
+        case place do
+          "cross" -> :cross
+          "large_bead" -> :large
+          "chain" -> :diamond
+          _small -> :small
+        end
+
+      %{id: place, shape: shape, state: state(i, at), number: nil}
+    end)
+    |> Enum.reverse()
+  end
+
+  defp state(n, at) when n < at, do: :said
+  defp state(n, at) when n == at, do: :current
+  defp state(_n, _at), do: :to_come
+
+  defp bead_class(shape, state) do
+    base = "block shrink-0 motion-safe:transition-all motion-safe:duration-300"
 
     size =
-      case shape do
-        :large -> "w-4 h-4 rounded-full"
-        :small -> "w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full"
-        :diamond -> "w-2.5 h-2.5 rotate-45"
+      case {shape, state} do
+        {:large, :current} -> "w-5 h-5 rounded-full"
+        {:large, _} -> "w-3.5 h-3.5 rounded-full"
+        {:small, :current} -> "w-4 h-4 rounded-full"
+        {:small, _} -> "w-2.5 h-2.5 rounded-full"
+        {:diamond, :current} -> "w-3.5 h-3.5 rotate-45"
+        {:diamond, _} -> "w-2.5 h-2.5 rotate-45"
       end
 
     tone =
-      cond do
-        lit -> "bg-gilt border-gilt-light shadow-gilt scale-125"
-        said -> "bg-gilt/55 border-night-line"
-        true -> "bg-transparent border-night-line"
+      case state do
+        :current -> "bg-gilt border border-gilt-light shadow-gilt"
+        :said -> "bg-night border border-ink-light/70"
+        :to_come -> "bg-gilt/70"
       end
 
     [base, size, tone]
@@ -249,15 +317,23 @@ defmodule LumenViaeWeb.Live.Pray.Strand do
 
   attr :lit, :boolean, default: false
 
+  # The pendant's medal, with a small cross on it, as the app draws it.
   defp medal(assigns) do
     ~H"""
     <span
       aria-hidden="true"
       class={[
-        "block w-3 h-4 rounded-[50%] border shrink-0",
+        "flex items-center justify-center w-5 h-6 rounded-[50%] border shrink-0",
         if(@lit, do: "bg-gilt border-gilt-light shadow-gilt", else: "border-night-line")
       ]}
-    ></span>
+    >
+      <svg
+        viewBox="0 0 9 13"
+        class={["w-2 h-3", if(@lit, do: "fill-night", else: "fill-night-line")]}
+      >
+        <path d="M3.24 0 H5.76 V2.64 H9 V5.16 H5.76 V13 H3.24 V5.16 H0 V2.64 H3.24 Z" />
+      </svg>
+    </span>
     """
   end
 
