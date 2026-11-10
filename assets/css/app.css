@@ -960,6 +960,18 @@
   .lancet-hero {
     max-width: 22.5rem;
   }
+
+  /* The longest title ("Pray the Sorrowful Mysteries") is wider than the
+     arch: keep the button on one line, centred over the arch. */
+  .lancet-hero__words {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lancet-hero__words .btn-gold {
+    white-space: nowrap;
+  }
 }
 
 /* The halo is on the outer box, the dissolve on the inner one, so the
