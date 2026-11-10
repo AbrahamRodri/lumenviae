@@ -1861,13 +1861,15 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
   isolation: isolate;
 }
 
-/* The words start under 15 percent of the screen, so the title and the
-   first lines sit over the painting's darkened lower part, as in the app,
-   and a whole Hail Mary fits above Back, Play and Next on a phone. */
+/* The box the painting keeps above the words is what a phone has left
+   once a whole Hail Mary and Back, Play and Next are placed, clear of
+   the controls' fade (about 670 px), so the title sits as low as it can, over the painting's darkened lower
+   part, as in the app: about a third of the way down a 390 x 844 phone,
+   higher on a short one. */
 .prayer-hero {
   position: relative;
   margin-inline: -1rem;
-  height: min(15vh, 180px);
+  height: clamp(5rem, calc(100svh - 668px), 300px);
 }
 
 .prayer-hero picture,
@@ -1883,9 +1885,9 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
   content: "";
   background: linear-gradient(
     to bottom,
-    color-mix(in oklab, var(--color-night) 0%, transparent) 15%,
-    color-mix(in oklab, var(--color-night) 72%, transparent) 45%,
-    color-mix(in oklab, var(--color-night) 88%, transparent) 70%,
+    color-mix(in oklab, var(--color-night) 0%, transparent) 32%,
+    color-mix(in oklab, var(--color-night) 70%, transparent) 58%,
+    color-mix(in oklab, var(--color-night) 88%, transparent) 76%,
     var(--color-night) 100%
   );
 }
