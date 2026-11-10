@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-10T15:00:00Z",
+  "updated_at": "2026-11-10T15:30:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -650,6 +650,11 @@
     "st_andrew_novena": {
       "title": "Novena de Navidad de San Andrés",
       "text": "Salve y bendita sea la hora y el momento en que el Hijo de Dios nació de la purísima Virgen María, a medianoche, en Belén, en medio de un frío penetrante. En esa hora, dígnate, Dios mío, escuchar mi oración y conceder mis deseos, por los méritos de nuestro Salvador Jesucristo y de su bendita Madre. Amén.",
+      "ai_translated": true
+    },
+    "advent_wreath_collects": {
+      "title": "La corona de Adviento: las colectas de los domingos",
+      "text": "[Cada domingo de Adviento se enciende una vela más y se reza la colecta de ese domingo.]\n\n[Primer domingo de Adviento.]\n\nDespierta, Señor, te pedimos, tu poder, y ven: para que, protegidos por ti, merezcamos vernos libres de los peligros que nos amenazan por nuestros pecados, y, liberados por ti, ser salvados.\n℟. Amén.\n\n[Segundo domingo de Adviento.]\n\nDespierta, Señor, nuestros corazones para preparar los caminos de tu Unigénito: para que, por su venida, merezcamos servirte con el alma purificada.\n℟. Amén.\n\n[Tercer domingo de Adviento.]\n\nInclina, Señor, te pedimos, tu oído a nuestras súplicas, e ilumina las tinieblas de nuestra mente con la gracia de tu visita.\n℟. Amén.\n\n[Cuarto domingo de Adviento.]\n\nDespierta, Señor, te pedimos, tu poder, y ven a socorrernos con tu gran fuerza: para que, con la ayuda de tu gracia, el perdón de tu misericordia apresure lo que nuestros pecados retrasan.\n℟. Amén.",
       "ai_translated": true
     },
     "immaculate_conception_novena": {
