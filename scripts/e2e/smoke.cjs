@@ -386,7 +386,11 @@ async function checkConsecration(browser, vp) {
   );
   check(begun, `${label}: Begin keeps the feast and turns the page`, page.url());
 
-  await page.goto(BASE_URL + "/consecration");
+  // Begin kept a plan, and once the feast's 33 days have started the page
+  // opens on today's day rather than the chooser: forget the plan (it lives
+  // in this browser only) and open the chooser again.
+  await page.evaluate(() => window.localStorage.clear());
+  await page.goto(BASE_URL + "/consecration?step=choose");
   await settle(page);
   await known();
   if ((await page.locator("[data-role=another-feast]").count()) > 0) {
