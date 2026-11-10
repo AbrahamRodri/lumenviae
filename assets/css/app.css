@@ -1769,6 +1769,12 @@ html[data-prayer-images="off"] .prayer-plate {
   display: none;
 }
 
+/* While the large painting shows, a mystery's first step does not repeat
+   it small beside the title. */
+#prayer:has(.prayer-hero) .prayer-plate:not(.prayer-hero) {
+  display: none;
+}
+
 /* The settings pane's client-side choices (reading page, images) show
    their state through aria-pressed, which the DisplayChoice hook keeps. */
 .prayer-choice {
