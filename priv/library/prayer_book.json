@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-07T02:00:00Z",
+  "updated_at": "2026-11-10T05:00:00Z",
   "chapters": [
     {
       "id": "first",
@@ -444,6 +444,7 @@
         "precious_blood_offering",
         "en_ego",
         "st_francis_before_crucifix",
+        "st_bridget_twelve_years",
         "christ_the_king",
         "divine_mercy_chaplet",
         "jesus_i_trust_in_thee",
@@ -505,7 +506,8 @@
         {
           "prayer_ids": [
             "en_ego",
-            "st_francis_before_crucifix"
+            "st_francis_before_crucifix",
+            "st_bridget_twelve_years"
           ],
           "title": "The Passion"
         },
@@ -2211,6 +2213,24 @@
       "origin": "St Francis of Assisi · c. 1205",
       "search_words": [],
       "title": "Prayer of St Francis before the Crucifix"
+    },
+    {
+      "english": "[The first shedding of His Blood: the Circumcision. Luke 2:21.]\n\nAnd after eight days were accomplished, that the child should be circumcised, his name was called JESUS, which was called by the angel, before he was conceived in the womb.\n\nOur Father. Hail Mary.\n\n[The second shedding of His Blood: the Agony in the Garden. Luke 22:44.]\n\nAnd his sweat became as drops of blood trickling down upon the earth.\n\nOur Father. Hail Mary.\n\n[The third shedding of His Blood: the Scourging. Matthew 27:26.]\n\nThen he released to them Barabbas, and having scourged Jesus, delivered him unto them for to be crucified.\n\nOur Father. Hail Mary.\n\n[The fourth shedding of His Blood: the Crowning with Thorns. Matthew 27:29.]\n\nAnd platting a crown of thorns, put it upon his head, and a reed in his right hand. And bowing the knee before him, they mocked him, saying: Hail King of the Jews.\n\nOur Father. Hail Mary.\n\n[The fifth shedding of His Blood: the Carrying of the Cross. John 19:17.]\n\nAnd bearing his own cross he went forth into that which is called the place of Calvary, in Hebrew Golgotha.\n\nOur Father. Hail Mary.\n\n[The sixth shedding of His Blood: the Crucifixion. Luke 23:33.]\n\nAnd after they came to the place which is called Calvary, there they crucified him: and the thieves, one on the right hand and the other on the left.\n\nOur Father. Hail Mary.\n\n[The seventh shedding of His Blood: the Piercing of the Side. John 19:34.]\n\nBut one of the soldiers with a spear opened his side, and incontinent there came forth blood and water.\n\nOur Father. Hail Mary.",
+      "english_name": null,
+      "id": "st_bridget_twelve_years",
+      "latin": null,
+      "latin_title": null,
+      "list_title": null,
+      "note": "A devotion long attributed to St. Bridget of Sweden: each day, seven Our Fathers and seven Hail Marys in honor of the seven times Our Lord shed His Blood, traditionally kept for twelve years.",
+      "origin": "Devotion attributed to St. Bridget; Scripture Douay-Rheims.",
+      "search_words": [
+        "bridget",
+        "brigid",
+        "birgitta",
+        "twelve years",
+        "precious blood"
+      ],
+      "title": "The Prayers of St. Bridget (for twelve years)"
     },
     {
       "english": "O most sweet Jesus, Redeemer of the human race, look down upon us, most humbly prostrate before Thine altar. We are Thine, and Thine we wish to be; and that we may be bound to Thee more firmly, behold, each one of us today freely dedicates himself to Thy most Sacred Heart.\n\nMany indeed have never known Thee; many, despising Thy commandments, have rejected Thee. Have mercy on them all, O most gracious Jesus, and draw them all to Thy holy Heart.\n\nBe Thou King, O Lord, not only of the faithful who have never gone away from Thee, but also of the prodigal children who have forsaken Thee: grant that they may soon return to their Father's house, lest they perish of misery and hunger.\n\nBe Thou King of those whom error of opinion has deceived, or whom discord keeps apart, and call them back to the harbour of truth and the unity of faith, so that soon there may be one fold and one shepherd.\n\nGrant, O Lord, to Thy Church a sure freedom and safety; grant to all nations the tranquillity of order; bring it about that from one end of the earth to the other one voice may resound: Praise be to the divine Heart, through which our salvation was won; to It be glory and honour for ever. Amen.",
