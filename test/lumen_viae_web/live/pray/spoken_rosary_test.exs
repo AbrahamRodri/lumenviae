@@ -13,6 +13,7 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
   alias LumenViae.Repo
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Completion
+  alias LumenViae.Test.SpokenRosaryClips
 
   @browser "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Version/17.2 Safari/605.1.15"
 
@@ -197,6 +198,31 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     # These test mysteries have no verses recorded, so none are played;
     # the form is still the Scriptural Rosary's, with no meditation step.
     assert has_element?(view, "[id^=spoken-rosary-female-scriptural]")
+  end
+
+  # The lit line follows the recording's timings. A prayer shown in Latin
+  # is still heard in English, so lighting it would light the wrong words.
+  test "a Hail Mary is lit in English and not in Latin", %{conn: conn} do
+    # The timed lines are production's recordings, whose file names hash
+    # production's voices; the suite runs on voices of its own.
+    put_env(:lumen_viae, :narration_voices, SpokenRosaryClips.production_voices())
+    set = create_set("joyful", 5)
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray?mystery=0&step=6")
+
+    screen =
+      view |> element("[id^=bead-][data-screen]") |> render() |> Floki.parse_fragment!()
+
+    index = screen |> Floki.attribute("data-screen") |> hd() |> String.to_integer()
+    step = Enum.find(script(view), &(&1["screen"] == index))
+    assert step["caption"] =~ "Hail Mary"
+    assert [_ | _] = step["lines"]
+
+    assert has_element?(view, ~s([data-screen="#{index}"] [data-timed="prayer"]))
+    assert has_element?(view, ~s([data-timed="prayer"] [data-line]))
+
+    html = render_hook(view, "restore_language", %{"language" => "la"})
+    assert html =~ "Ave Maria"
+    refute has_element?(view, "[data-timed]")
   end
 
   test "the voice reaching a decade moves the bead, and moving the bead moves the voice",
