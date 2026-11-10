@@ -21,8 +21,9 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   @ai_translated_count 85
 
   # A prayer newly added in English, until the Spanish team adds it to
-  # priv/library/es/prayer_book.json. None now.
-  @awaiting_spanish []
+  # priv/library/es/prayer_book.json. The Advent Sunday collects: the
+  # team's Spanish from the Latin is with ios-review.
+  @awaiting_spanish ["advent_wreath_collects"]
 
   test "the file is pinned by its date and words" do
     assert {Spanish.file_updated_at(), Spanish.file_version()} == @pinned, """
