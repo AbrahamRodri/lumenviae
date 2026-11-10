@@ -429,45 +429,47 @@ that day. Each copied text was checked word for word against a saved copy
 of its source (page scans for the 1860 book and the 1962 missal). The
 layout changes are those of the first list.
 
-### `o_antiphons`: "Antífonas de la O"
+### `o_antiphons`: "Antífonas de la O" (`ai_translated`)
 
-The Church's Spanish: the *Liturgia de las Horas* of the Spanish bishops'
-conference (CEE), the Magnificat antiphons at Vespers of 17 to 23
-December, as [iBreviary](https://www.ibreviary.com/m2/breviario.php?s=vespri)
-prints them (the site cited as [16]). The title is the usual Spanish name,
-the one closest to the English.
+The team's translation from the Latin of the seven Magnificat antiphons of
+17 to 23 December (public domain), as the English book prints it beside
+them, checked for natural es-MX by ios-review (10 Nov 2026). Abraham, 10
+Nov 2026, Q1 "A": the team translates it, so no copyrighted Spanish is
+used (the CEE *Liturgia de las Horas* was used before). The title is the
+usual Spanish name.
 
-- Changed: "Ant." removed; each antiphon headed by the English's rubric
-  (`[Día 17 de diciembre.]`); the page's misprint "delbarro" (22 December)
-  corrected to "del barro".
-- Differs from the English, which follows the Latin closely, as the modern
-  liturgical translation does: 17 "el camino de la salvación" for the way
-  of prudence; 18 "Pastor" for Leader and "con el poder de tu brazo" for
-  with an outstretched arm; 19 "Renuevo del tronco de Jesé" for Root of
-  Jesse and "cuyo auxilio imploran las naciones" for to whom the Gentiles
-  shall make their prayer; 20 "los cautivos" in the plural; 21 "Sol que
-  naces de lo alto" for Dayspring, with "ahora" added; 22 "Piedra angular
-  de la Iglesia", "que haces de dos pueblos uno solo" and "del barro de la
-  tierra"; 23 "esperanza de las naciones y salvador de los pueblos" for
-  the Expected of the nations and their Saviour.
+- Layout: each antiphon headed by the English's rubric
+  (`[Día 17 de diciembre.]`).
+- Following the Latin: 17 "te extiendes de un confín a otro" (Wisdom 8:1)
+  and "el camino de la prudencia"; 18 "Guía" for *Dux* and "con brazo
+  extendido" (Exodus 6:6); 20 and 21 "habita" / "habitan" for *sedentem* /
+  *sedentes* (Luke 1:79); 22 "Deseado de los pueblos" for *desideratus
+  earum*; 23 "esperanza y Salvador de las naciones".
 
-### `st_andrew_novena`: "Novena de Navidad de San Andrés"
+### `st_andrew_novena`: "Novena de Navidad de San Andrés" (`ai_translated`)
 
-The Archdiocese of Saint Paul and Minneapolis, "Oración de anticipación
-de Navidad", on
-[archspm.org](https://www.archspm.org/es/christmas-anticipation-prayer/),
-copied word for word. No Spanish text has its own imprimatur: each
-translates the 1897 English. This is the one Church page found that could
-be saved. Its form starts "Salve"; the "Ave y bendita sea" form was found
-only on a blog. Not used: the Archdiocese of Philadelphia's version
-(closer to the English, "dígnate", "frío penetrante"), whose own page
-refused access and could be read only as quoted by InfoCatólica; the
-Diocese of Tucson / OSV News version, which adds a clause; versions with
-the error "concédete"; parish bulletins with the calque "oh mi Dios". The
-title is the devotion's usual Spanish name, as the English title is.
+The team's translation of the 1897 English (public domain), checked by
+ios-review (10 Nov 2026), as drafted. Abraham, 10 Nov 2026, Q1 "A"; the
+archspm.org Spanish used before is not. The title is the devotion's usual
+Spanish name.
 
-- Differs from the English: "Salve" for Hail; "frío glacial" for piercing
-  cold; "te suplico... que escuches" with no word for vouchsafe.
+- "Salve" for Hail; "bendita sea la hora y el momento", the form the
+  prayer has in Spanish devotion; "frío penetrante" for piercing cold;
+  "dígnate" for vouchsafe.
+
+### `advent_wreath_collects`: "La corona de Adviento: las colectas de los domingos" (`ai_translated`)
+
+The team's translation from the Latin of the four Advent Sunday collects
+(*Missale Romanum*, Tours, Mame, 1882, public domain), checked for natural
+es-MX by ios-review (10 Nov 2026). Abraham, 10 Nov 2026, Q2 "B" and the
+SPEC's Spanish as Q1 "A". The rubric and headings follow the English's;
+each collect ends "℟. Amén." as the English does.
+
+- "Despierta, Señor, ... tu poder" for *Excita potentiam*, the same verb in
+  the three *Excita* collects; 1 "protegidos por ti ... liberados por ti"
+  for *te protegente ... te liberante*; 2 "con el alma purificada" for
+  *purificatis mentibus*; 4 "el perdón de tu misericordia" for *indulgentia
+  tuae propitiationis*.
 
 ### `immaculate_conception_novena`: "Novena a la Inmaculada Concepción" (`ai_translated`)
 
@@ -484,9 +486,13 @@ A mixed text, so it is marked `ai_translated`:
   Opus Dei's and other "Novena a la Inmaculada" are different texts).
 - "Ven, Espíritu Santo": this file's `come_holy_ghost`, word for word,
   headed `[Oremos.]` as the English is, its "Amén" as "℟. Amén.".
-- The three collects: [13] (Lefebvre), 8 December p. 1249, "Por el Papa"
-  p. 1226, and "En cualquier necesidad" p. 1934. The 1860 book prints
-  them in Latin.
+- The three collects: the team's translation from their Latin (the 1860
+  book prints them in Latin; the Roman Missal's *Deus, qui per
+  immaculatam Virginis Conceptionem*, *Deus, omnium fidelium pastor et
+  rector* and *Deus, refugium nostrum et virtus*), checked by ios-review
+  (10 Nov 2026); Abraham, 10 Nov 2026, Q1 "A". The 1962 Lefebvre Spanish
+  used before is not. The third keeps the English's layout, its "Amén"
+  as "℟. Amén.".
 - The team's translation: every rubric, the Tota pulchra versicles
   (following Lefebvre's Spanish of the 8 December Gradual and Tract where
   they say the same), the versicle "En tu concepción, oh Virgen..." and
@@ -506,7 +512,7 @@ quotation set as «Mostrad que sois nuestra Madre». and its Latin tag
 headings and rubrics give way to the English's in Spanish, and its rubric
 repeated after each day ("Se rezará la Letanía o el Himno...") is left
 out, as the English gives it once. "nono" is "noveno". Lowercase after "!"
-is kept as printed. Lefebvre: a footnote mark removed.
+is kept as printed.
 
 Where it differs from the English:
 
@@ -528,10 +534,12 @@ Where it differs from the English:
   receive it in vain, "una total renovación de mi vida"; 9 "ejemplar de
   pureza", "descendía la plena bendición", "gozar de Vos coronada de tanta
   gloria".
-- The collects (Lefebvre): "llegar puros hasta ti" and "por la
-  intercesión de María"; "pastor y guía", "pastor y jefe de tu Iglesia",
-  "aproveche a los que preside"; "la fuente misma de la religión" for the
-  author of all holiness, "fervientes ruegos" for pious prayers.
+- The collects (the team's, from the Latin): "limpios de toda mancha" for
+  *mundos* where the English says purified, "por su intercesión"; "Pastor y
+  Guía" for *pastor et rector*, "edifique a quienes preside" for
+  *proficere*; "autor de toda piedad" and "piadosas súplicas" for the
+  author of all holiness and pious prayers, "alcanzar plenamente" for
+  effectually obtain.
 
 # Sources of the Consecration's Spanish
 

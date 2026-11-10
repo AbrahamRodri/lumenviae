@@ -13,12 +13,12 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-05 02:40:00Z], "9165c0a99fe315c8"}
+  @pinned {~U[2026-11-10 15:30:00Z], "7f143a6eeff4b2a4"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
   # closing prayer the Rosary marks.
-  @ai_translated_count 83
+  @ai_translated_count 86
 
   # A prayer newly added in English, until the Spanish team adds it to
   # priv/library/es/prayer_book.json. St. Bridget's twelve-year prayers:

@@ -32,7 +32,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-11-05 02:05:00Z], "3058ab6d4b4a554d"},
       {~U[2026-11-07 02:00:00Z], "94fa0e037744eff0"},
       {~U[2026-11-10 05:00:00Z], "4ce9982b1852ad25"},
-      {~U[2026-11-10 05:10:00Z], "547ea0cf17d13d0d"}
+      {~U[2026-11-10 05:10:00Z], "547ea0cf17d13d0d"},
+      {~U[2026-11-10 16:00:00Z], "8a19a7af696137bd"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
@@ -177,7 +178,7 @@ defmodule LumenViae.Rosary.LibraryTest do
   end
 
   describe "the Advent prayers" do
-    @advent ~w(immaculate_conception_novena st_andrew_novena o_antiphons)
+    @advent ~w(advent_wreath_collects immaculate_conception_novena st_andrew_novena o_antiphons)
 
     test "are in Feasts and Seasons, under Advent and Christmas, each with its source" do
       book = Library.sections(:prayer_book)
