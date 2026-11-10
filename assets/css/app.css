@@ -1632,18 +1632,46 @@
   }
 }
 
-/* Where the recording is timed, the line being read is lit
-   (the SpokenRosary hook sets .is-read); the rest stay as they are. */
+/* Where the recording is timed, the line being read is lit, as the app
+   lights it: that line bright, the rest of its words dimmed (ink-muted is
+   5.9:1 on night, so they still read). The SpokenRosary hook sets
+   .is-read. Before a line is lit, and with no timings, every word stays
+   bright; a paused voice leaves its line lit. Gold is not used for the
+   words. */
+[data-timed],
 [data-timed] [data-line] {
   transition: color 0.25s ease-out;
 }
 
+[data-timed]:has(.is-read) {
+  color: var(--color-ink-muted);
+}
+
 [data-timed] [data-line].is-read {
-  color: var(--color-gilt);
+  color: var(--color-ink-light);
+}
+
+html[data-reading-page="vellum"] .reading-page [data-timed]:has(.is-read) {
+  color: var(--color-vellum-muted);
 }
 
 html[data-reading-page="vellum"] .reading-page [data-timed] [data-line].is-read {
-  color: var(--color-vellum-gold);
+  color: var(--color-vellum-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-timed],
+  [data-timed] [data-line] {
+    transition: none;
+  }
+}
+
+/* The prayer page's top bar over a painting (the .prayer-hero, when the
+   page shows one): a light dark scrim behind its buttons so they read, as
+   in the app. On night it is as before. */
+html:has(.prayer-hero) .prayer-top-bar > a,
+html:has(.prayer-hero) .prayer-top-bar > button {
+  background-color: rgb(from var(--color-night) r g b / 0.55);
 }
 
 .prayer-surface {
@@ -1741,6 +1769,12 @@ html[data-prayer-images="off"] .prayer-plate {
   display: none;
 }
 
+/* While the large painting shows, a mystery's first step does not repeat
+   it small beside the title. */
+#prayer:has(.prayer-hero) .prayer-plate:not(.prayer-hero) {
+  display: none;
+}
+
 /* The settings pane's client-side choices (reading page, images) show
    their state through aria-pressed, which the DisplayChoice hook keeps. */
 .prayer-choice {
@@ -1820,6 +1854,88 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
 @media (min-width: 640px) {
   .prayer-safe-area {
     padding-inline: 1.5rem;
+  }
+}
+
+/* The mystery's painting above the words, as the app shows it
+   (LumenViaeWeb.Live.Pray.Painting). On a phone it runs from the top
+   down to about 55 percent of the screen, behind the bead's name and the
+   first lines, darkened there so the words read, and fades into the
+   night; the words start a third of the way down. Its sizes are set up
+   front, so nothing shifts as it loads. */
+#prayer:has(.prayer-hero) .prayer-safe-area {
+  isolation: isolate;
+}
+
+.prayer-hero {
+  position: relative;
+  margin-inline: -1rem;
+  height: min(30vh, 300px);
+}
+
+.prayer-hero picture,
+.prayer-hero::after {
+  position: absolute;
+  z-index: -1;
+  inset-inline: 0;
+  top: 0;
+  height: min(55vh, 560px);
+}
+
+.prayer-hero::after {
+  content: "";
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--color-night) 0%, transparent) 30%,
+    color-mix(in oklab, var(--color-night) 60%, transparent) 62%,
+    var(--color-night) 100%
+  );
+}
+
+.prayer-hero-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (min-width: 640px) {
+  .prayer-hero {
+    margin-inline: -1.5rem;
+  }
+}
+
+/* From 1024 px: the painting stands on the left, 44 percent of the window
+   and its full height, fading into the night on its right edge, and the
+   prayer column sits beside it at its own width. */
+@media (min-width: 1024px) {
+  .prayer-hero {
+    position: fixed;
+    z-index: 20;
+    inset-block: 0;
+    left: 0;
+    width: 44vw;
+    height: auto;
+    margin: 0;
+    -webkit-mask-image: linear-gradient(to right, #000 70%, transparent);
+    mask-image: linear-gradient(to right, #000 70%, transparent);
+  }
+
+  .prayer-hero picture {
+    position: static;
+    height: 100%;
+  }
+
+  .prayer-hero::after {
+    content: none;
+  }
+
+  html:not([data-prayer-images="off"]) #prayer:has(.prayer-hero) .prayer-safe-area {
+    margin-left: 44vw;
+    margin-right: 0;
+    max-width: none;
+    width: 56vw;
+    padding-inline: max(1.5rem, calc((56vw - 48rem) / 2));
   }
 }
 

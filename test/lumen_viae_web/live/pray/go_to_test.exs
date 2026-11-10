@@ -55,9 +55,41 @@ defmodule LumenViaeWeb.Live.Pray.GoToTest do
       assert pill(view) =~ "Closing Prayers"
     end
 
-    test "counts the Seven Sorrows out of seven", %{conn: conn} do
+    test "sits in the one top bar, and the devotion's name moves to the sheet",
+         %{conn: conn, path: path} do
+      {:ok, view, _html} = live(conn, path)
+      assert has_element?(view, "header.prayer-top-bar #go-to-toggle")
+      assert has_element?(view, "header.prayer-top-bar h1.sr-only")
+
+      # How to pray sits under the controls row, as the app keeps its settings.
+      refute has_element?(view, "header.prayer-top-bar button[aria-controls=prayer-settings]")
+      assert has_element?(view, "nav.prayer-bottom-nav #how-to-pray-toggle", "How to pray")
+
+      view |> element("#how-to-pray-toggle") |> render_click()
+      assert view |> element("#prayer-settings header") |> render() =~ "Mysteries"
+      assert has_element?(view, "#how-to-pray-toggle[aria-expanded=true]")
+      assert has_element?(view, "#prayer-settings button[aria-label='Close the settings']")
+    end
+
+    test "counts the Seven Sorrows' sorrows out of seven", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray?mystery=1")
-      assert pill(view) =~ "Mystery 2 of 7"
+      assert pill(view) =~ "Sorrow 2 of 7"
+
+      view |> element("#go-to-toggle") |> render_click()
+      list = view |> element("#prayer-go-to") |> render()
+      assert list =~ "Sorrow 7 of 7"
+      refute list =~ "Mystery 1 of 7"
+    end
+
+    test "the Seven Sorrows' title block counts sorrows", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray?mystery=1")
+      assert view |> element("#bead-title") |> render() =~ "Sorrow 2 of 7"
+
+      {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray")
+      assert view |> element("#bead-title") |> render() =~ "Before the first sorrow"
+
+      {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray?mystery=closing")
+      assert view |> element("#bead-title") |> render() =~ "After the last sorrow"
     end
 
     test "has a dot a part, the current one gilt", %{conn: conn, path: path} do
