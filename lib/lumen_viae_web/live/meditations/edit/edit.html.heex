@@ -19,6 +19,17 @@
     </.link>.
   </.callout>
 
+  <.callout :if={@sets_without_byline != []} tone="caution">
+    {if length(@sets_without_byline) == 1, do: "A set", else: "Sets"} holding this meditation show no author on the website and in the app:
+    <%= for {set, i} <- Enum.with_index(@sets_without_byline) do %>
+      {if i > 0, do: ", "}<.link
+        navigate={"/admin/meditation-sets/#{set.id}/edit"}
+        class="underline underline-offset-2"
+      >{set.name}</.link>
+    <% end %>. A set with no author of its own shows the one all its meditations agree on; give the set
+    its own author, or credit its meditations alike.
+  </.callout>
+
   <.callout :if={@meditation.audio_url in [nil, ""] and is_nil(@meditation.archived_at)}>
     No narration yet. The app has nothing to play for this meditation until an audio file is
     generated or an S3 key is set below.
