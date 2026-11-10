@@ -954,6 +954,14 @@
   margin-inline: auto;
 }
 
+/* From 768 px the arch is a little smaller, so on a laptop the Pray
+   button is in view without scrolling. Phones keep the larger arch. */
+@media (min-width: 768px) {
+  .lancet-hero {
+    max-width: 22.5rem;
+  }
+}
+
 /* The halo is on the outer box, the dissolve on the inner one, so the
    glow follows the arch and fades with it instead of being cut off. */
 .lancet-hero__art {
