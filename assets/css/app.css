@@ -1863,9 +1863,9 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
 
 /* The box the painting keeps above the words is what a phone has left
    once a whole Hail Mary and Back, Play and Next are placed, clear of
-   the controls' fade (about 670 px), so the title sits as low as it can, over the painting's darkened lower
-   part, as in the app: about a third of the way down a 390 x 844 phone,
-   higher on a short one. */
+   the controls' fade (about 670 px), so the title sits as low as it
+   can, over the painting's darkened lower part, as in the app: about a
+   third of the way down a 390 x 844 phone, higher on a short one. */
 .prayer-hero {
   position: relative;
   margin-inline: -1rem;
