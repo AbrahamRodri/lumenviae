@@ -31,7 +31,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-11-05 02:00:00Z], "9e86c94b8c9daec7"},
       {~U[2026-11-05 02:05:00Z], "3058ab6d4b4a554d"},
       {~U[2026-11-07 02:00:00Z], "94fa0e037744eff0"},
-      {~U[2026-11-10 05:00:00Z], "4ce9982b1852ad25"}
+      {~U[2026-11-10 05:00:00Z], "4ce9982b1852ad25"},
+      {~U[2026-11-10 05:10:00Z], "547ea0cf17d13d0d"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
@@ -236,15 +237,29 @@ defmodule LumenViae.Rosary.LibraryTest do
 
       text = prayer["english"]
 
-      for ref <-
-            ~w(Luke\ 2:21 Luke\ 22:44 Matthew\ 27:26 Matthew\ 27:29 John\ 19:17 Luke\ 23:33 John\ 19:34) do
-        assert text =~ ref
-      end
+      refs = [
+        "Luke 2:21",
+        "Luke 22:44",
+        "Matthew 27:26",
+        "Matthew 27:29",
+        "John 19:17",
+        "Luke 23:33",
+        "John 19:34"
+      ]
+
+      for ref <- refs, do: assert(text =~ ref)
 
       assert length(String.split(text, "Our Father. Hail Mary.")) == 8
 
-      for claim <- ~w(promise promises approved pope Pope indulgence) do
-        refute prayer["english"] <> " " <> prayer["note"] =~ claim
+      # The introduction comes first, in the text itself: the website
+      # shows no note.
+      assert text =~
+               ~r/^\[A devotion long attributed to St. Bridget of Sweden: .*twelve years\.\]/
+
+      assert prayer["note"] == nil
+
+      for claim <- ~w(promise approved pope indulgence) do
+        refute String.downcase(text) =~ claim
       end
     end
 
