@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-14T05:00:00Z",
+  "updated_at": "2026-11-14T05:15:00Z",
   "chapters": [
     {
       "id": "first",
@@ -3089,7 +3089,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Nine days, begun on any day: each day the Sign of the Cross, the Act of Contrition, three decades of the Rosary, the day's meditation, the last two decades, then the closing prayer.",
-      "origin": "Novena by Fr. Juan Ramón Celeiro, as printed by Ascension Press · https://ascensionpress.com/pages/novena-to-our-lady-undoer-of-knots",
+      "origin": "Novena by Fr. Juan Ramón Celeiro, as printed by Ascension Press",
       "search_words": [
         "undoer of knots",
         "untier of knots",
@@ -3354,7 +3354,7 @@
       "latin_title": null,
       "detail": "Nine days of the Rosary, a meditation and the prayer to Mary, Undoer of Knots.",
       "note": null,
-      "origin": "Novena by Fr. Juan Ramón Celeiro, as printed by Ascension Press · https://ascensionpress.com/pages/novena-to-our-lady-undoer-of-knots",
+      "origin": "Novena by Fr. Juan Ramón Celeiro, as printed by Ascension Press",
       "prayer_id": "undoer_of_knots_novena",
       "chapter_id": "our_lady",
       "length": 9,
@@ -4202,7 +4202,7 @@
               "kind": "invocation",
               "prayer_id": null,
               "times": null,
-              "id": "undoer_of_knots_invocation",
+              "id": "undoer_of_knots_d9_invocation",
               "title": null,
               "text": "Mary, Undoer of Knots, pray for me.",
               "source": null,

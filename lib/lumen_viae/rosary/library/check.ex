@@ -646,6 +646,7 @@ defmodule LumenViae.Rosary.Library.Check do
     days = list(novena["days"])
     chapter = chapters[novena["chapter_id"]]
 
+    # A saved place is (day, part id), so a day names each id once.
     errors =
       required(novena, ~w(title detail)) ++
         unknown("prayer", [novena["prayer_id"]], MapSet.new(Map.keys(english))) ++
@@ -661,6 +662,15 @@ defmodule LumenViae.Rosary.Library.Check do
           day <- days,
           part <- list(day["parts"]),
           error <- novena_part_errors(part, english, twin),
+          do: "day #{inspect(day["number"])}: #{error}"
+        ) ++
+        for(
+          day <- days,
+          error <-
+            repeated(
+              "part",
+              for(part <- list(day["parts"]), is_binary(part["id"]), do: part["id"])
+            ),
           do: "day #{inspect(day["number"])}: #{error}"
         )
 

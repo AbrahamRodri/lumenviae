@@ -35,7 +35,7 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-11-10 05:10:00Z], "547ea0cf17d13d0d"},
       {~U[2026-11-10 16:00:00Z], "8a19a7af696137bd"},
       {~U[2026-11-14 02:00:00Z], "b312ed9b06b56b97"},
-      {~U[2026-11-14 05:00:00Z], "60347325a2bb5cad"}
+      {~U[2026-11-14 05:15:00Z], "b868ccdf1e7faf05"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
@@ -516,6 +516,16 @@ defmodule LumenViae.Rosary.LibraryTest do
 
         assert book_errors(broken) =~ "a rosary part holds only its decades, 1 to 5 in order"
       end
+    end
+
+    test "refuses a part id said twice in one day, since a saved place is (day, part id)" do
+      [novena] = novena_book()["novenas"]
+      [day | days] = novena["days"]
+      [_opening, words, _closing] = day["parts"]
+      twice = %{day | "parts" => day["parts"] ++ [words]}
+      book = %{novena_book() | "novenas" => [%{novena | "days" => [twice | days]}]}
+
+      assert book_errors(book) =~ ~s(day 1: the part id "knots_d1_prayer" is repeated)
     end
 
     test "refuses a novena naming a chant the chant library does not have" do
