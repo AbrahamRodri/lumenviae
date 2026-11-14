@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-14T16:00:00Z",
+  "updated_at": "2026-11-14T20:00:00Z",
   "chapters": [
     {
       "id": "first",
@@ -714,6 +714,8 @@
         "st_anne",
         "st_anthony",
         "st_jude",
+        "st_jude_novena",
+        "st_therese_novena",
         "st_peregrine",
         "st_benedict_medal",
         "st_dominic_o_lumen",
@@ -740,6 +742,8 @@
             "st_anne",
             "st_anthony",
             "st_jude",
+            "st_jude_novena",
+            "st_therese_novena",
             "st_peregrine",
             "st_benedict_medal",
             "st_dominic_o_lumen",
@@ -2834,6 +2838,43 @@
         "desperate cases"
       ],
       "title": "Prayer to St Jude"
+    },
+    {
+      "english": "[Each of the nine days.]\n\n[The Sign of the Cross.]\n\nMost holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.\n\nSt. Jude, pray for us,\nAnd for all who invoke thy aid.\n\n[Our Father, Hail Mary and Glory Be, three times each.]",
+      "english_name": null,
+      "id": "st_jude_novena",
+      "latin": null,
+      "latin_title": null,
+      "list_title": null,
+      "note": "Nine days before his feast, October 19 to 27: the novena prayer, then three Our Fathers, Hail Marys and Glory Bes.",
+      "origin": "Traditional novena prayer, author unknown · as printed in \"Novena in honor of St. Jude Thaddeus, Helper in Desperate Cases\" (St. Jude's Shrine, Oblate Fathers, New Orleans, c. 1935)",
+      "search_words": [
+        "st jude",
+        "saint jude",
+        "hopeless cases",
+        "october 28",
+        "novena"
+      ],
+      "title": "The Novena to St Jude"
+    },
+    {
+      "english": "[Each day: the Prayer for Each Day, the prayer of the day, an Our Father, a Hail Mary and a Glory Be, the Act of Oblation and the invocations.]\n\n[Prayer for Each Day.]\n\nO glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.\n\n[The First Day.]\n\nO Almighty God and Creator of all things, Who to banish from human hearts lukewarmness in Thy service and inflame souls in divine love, hast enriched the soul of Thy Little Flower with such unshaken faith that she desired most ardently to give her life for Thee: I beseech Thee, by the merits of the lively faith of Saint Teresa of the Infant Jesus, to infuse into my soul such an ardent faith that I may firmly believe all the truths taught by the Holy Catholic Church, and practice all the virtues until death.\n\n[The Second Day.]\n\nO Almighty God, Who art admirable in Thy saints, grant me the gift of hope with which Saint Teresa of the Infant Jesus was endowed, that I may believe firmly Thy words, “Whatsoever you shall ask in My Name, it shall be given to you,” and as Saint Teresa abandoned all the vanities of the world and consecrated herself to Thee with unshaken faith and confidence, may I also despise all that the world appreciates, and seek Thee alone Who art my love and my all. Amen.\n\n[The Third Day.]\n\nO my Jesus, grant that I may love Thee, as much as Saint Teresa, Thy Little Flower, loved Thee, and that I may say with her: “O my Jesus, I beg Thee only for Thy love without limits and without bounds. Grant, O my Jesus, that for love of Thee I may be a martyr. I wish to love Thee as Thou hast never been loved.” And thou, O little Saint, succor and assist me that I may never show myself ungrateful to Him who loved me so much. Amen.\n\n[The Fourth Day.]\n\nO my God and my Lord, Thou givest me what is best for me, and as Thy Little Flower consecrated herself to Thee as a sacrificial victim to endure for love of Thee all sufferings and pains, so also may I accept whatever hardships and contradictions Thou hast destined for my sanctification with perfect submission and even with cheerful mind, that I may be able to say as Thy cherished spouse, “O Jesus, I am a victim of Thy love.” Amen.\n\n[The Fifth Day.]\n\nO my Lord, Innocence itself, Thou hast endured all manner of opprobrious treatment for love of me. Give me the grace of humility, self-abnegation, and patience that I may imitate Thy spouse, Saint Teresa of the Infant Jesus, and say with all my heart, O my despised Jesus, grant me the merits of Thy humility and patience to bear in tranquil spirit all the sufferings of this life, and then to enjoy Thy company with Thy spouse, the Little Flower. Amen.\n\n[The Sixth Day.]\n\nO my sweet Jesus, give me the charity and simplicity of Saint Teresa of the Infant Jesus, whose mission in heaven is to make others love the good God as she loved Him, to teach souls her little way. Give me such longings that I may not rest until my heart loves God with all my strength, until I arrive at the spiritual childhood of the Little Flower of Jesus. Amen.\n\n[The Seventh Day.]\n\nO my dear Jesus, give me grace to practise little virtues. It is sometimes difficult, but I trust in Thy goodness and love for little souls. I am too little and weak to climb the steep ladder of perfection, but I know that as much as I hope I shall obtain from Thee. I join then Thy Little Flower and implore Thee with her to make me one of the many little, humble victims, worthy of Thy love. Amen.\n\n[The Eighth Day.]\n\nO my God and my love, give me on this earth the same mission Thou gavest to Thy Little Flower in heaven, of passing life in doing good to my neighbor. O Jesus, help me to console little souls and encourage them to love Thee; let them love Thee as much as Thy Immaculate Mother, Thy foster-father St. Joseph, Thy holy angels and Thy cherished Little Teresa loved Thee. Allow me to pray with her: “Let Thy divine glance rest upon a vast number of little souls, worthy victims of Thy love.” Amen.\n\n[The Ninth Day.]\n\nO my dear Lord, grant me as much filial veneration and love for Thy faithful foster-father and Thy most holy and immaculate Mother, as Saint Teresa of the Infant Jesus cherished in her simple and child-like heart. And thou, O my little Saint, address thyself to my great protector and father St. Joseph, and my most holy Mother Mary, and entreat them to obtain for me the grace of dying in the arms of Jesus and uttering thy own words:\n\n“O, I love Him . . . My God . . . I . . . love Thee.” Amen.\n\n[Our Father, Hail Mary, Glory Be.]\n\n[Act of Oblation of Saint Teresa of the Infant Jesus.]\n\nMy Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.\n\nHoly Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
+      "english_name": null,
+      "id": "st_therese_novena",
+      "latin": null,
+      "latin_title": null,
+      "list_title": null,
+      "note": "Nine days before her feast, September 22 to 30: each day the Prayer for Each Day, the prayer of the day, an Our Father, a Hail Mary and a Glory Be, and her Act of Oblation.",
+      "origin": "Blessed Be God, by Fr Charles J. Callan, O.P. and Fr John A. McHugh, O.P. (New York: P. J. Kenedy & Sons, 1925)",
+      "search_words": [
+        "st therese",
+        "saint therese",
+        "little flower",
+        "lisieux",
+        "october 1",
+        "novena"
+      ],
+      "title": "The Novena to St Thérèse"
     },
     {
       "english": "O glorious St Peregrine, who didst answer the call of Mary and leave the world to serve her Son in the Order of her Servants; who didst bear in patience a painful sickness, and wast healed by the hand of Christ reaching down from the Cross: look with pity on all who suffer.\n\nObtain for me, if it be God's will, relief from this illness, and grace to bear what I must bear with patience and with trust.\n\n[Here name the one who is sick.]\n\nPray for us, that in health and in sickness we may love God, and at the last come to praise Him with thee for ever. Amen.",
@@ -9902,6 +9943,1468 @@
               "id": "sacred_heart_st_joseph",
               "title": null,
               "text": "St. Joseph, foster father of Jesus, pray for us.",
+              "source": null,
+              "decades": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "st_jude",
+      "title": "St Jude",
+      "list_title": null,
+      "latin_title": null,
+      "detail": "Nine days before his feast, October 19 to 27: the novena prayer to the Apostle of things despaired of, then three Our Fathers, Hail Marys and Glory Bes.",
+      "note": null,
+      "origin": "Traditional novena prayer, author unknown · as printed in \"Novena in honor of St. Jude Thaddeus, Helper in Desperate Cases\" (St. Jude's Shrine, Oblate Fathers, New Orleans, c. 1935)",
+      "prayer_id": "st_jude_novena",
+      "chapter_id": "saints",
+      "length": 9,
+      "feast": {
+        "kind": "fixed",
+        "month": 10,
+        "day": 28,
+        "days_from_easter": null
+      },
+      "painting": "saint_jude",
+      "art": null,
+      "chant_ids": [
+        "litany_saints"
+      ],
+      "search_words": [
+        "st jude",
+        "saint jude",
+        "jude thaddeus",
+        "hopeless cases",
+        "october 28",
+        "novena"
+      ],
+      "days": [
+        {
+          "number": 1,
+          "title": "The First Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": "sign_of_cross",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_prayer",
+              "title": "Novena Prayer to St. Jude",
+              "text": "Most holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_invocation",
+              "title": null,
+              "text": "St. Jude, pray for us,\nAnd for all who invoke thy aid.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "The Second Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": "sign_of_cross",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_prayer",
+              "title": "Novena Prayer to St. Jude",
+              "text": "Most holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_invocation",
+              "title": null,
+              "text": "St. Jude, pray for us,\nAnd for all who invoke thy aid.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "The Third Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": "sign_of_cross",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_prayer",
+              "title": "Novena Prayer to St. Jude",
+              "text": "Most holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_invocation",
+              "title": null,
+              "text": "St. Jude, pray for us,\nAnd for all who invoke thy aid.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "The Fourth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": "sign_of_cross",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_prayer",
+              "title": "Novena Prayer to St. Jude",
+              "text": "Most holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_invocation",
+              "title": null,
+              "text": "St. Jude, pray for us,\nAnd for all who invoke thy aid.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 5,
+          "title": "The Fifth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": "sign_of_cross",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_prayer",
+              "title": "Novena Prayer to St. Jude",
+              "text": "Most holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_invocation",
+              "title": null,
+              "text": "St. Jude, pray for us,\nAnd for all who invoke thy aid.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 6,
+          "title": "The Sixth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": "sign_of_cross",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_prayer",
+              "title": "Novena Prayer to St. Jude",
+              "text": "Most holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_invocation",
+              "title": null,
+              "text": "St. Jude, pray for us,\nAnd for all who invoke thy aid.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 7,
+          "title": "The Seventh Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": "sign_of_cross",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_prayer",
+              "title": "Novena Prayer to St. Jude",
+              "text": "Most holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_invocation",
+              "title": null,
+              "text": "St. Jude, pray for us,\nAnd for all who invoke thy aid.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 8,
+          "title": "The Eighth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": "sign_of_cross",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_prayer",
+              "title": "Novena Prayer to St. Jude",
+              "text": "Most holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_invocation",
+              "title": null,
+              "text": "St. Jude, pray for us,\nAnd for all who invoke thy aid.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 9,
+          "title": "The Ninth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": "sign_of_cross",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_prayer",
+              "title": "Novena Prayer to St. Jude",
+              "text": "Most holy Apostle, St. Jude, faithful servant and friend of Jesus, the name of the traitor who delivered thy beloved Master into the hands of His enemies has caused thee to be forgotten by many, but the Church honors and invokes thee universally as the patron of hopeless cases — of things despaired of. Pray for me who am so miserable; make use, I implore thee, of that particular privilege accorded to thee, to bring visible and speedy help where help is almost despaired of. Come to my assistance in this great need that I may receive the consolations and succor of heaven in all my necessities, tribulations and sufferings, particularly . . . (here make your request) and that I may bless God with thee and all the elect throughout eternity.\n\nI promise thee, O blessed Jude, to be ever mindful of this great favor, and I will never cease to honor thee as my special and powerful patron and to do all in my power to encourage devotion to thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_jude_novena_invocation",
+              "title": null,
+              "text": "St. Jude, pray for us,\nAnd for all who invoke thy aid.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": 3,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "st_therese",
+      "title": "St Thérèse of the Child Jesus",
+      "list_title": "St Thérèse",
+      "latin_title": null,
+      "detail": "Nine days before her feast, September 22 to 30: the Prayer for Each Day, the prayer of the day, an Our Father, a Hail Mary and a Glory Be, and her Act of Oblation.",
+      "note": null,
+      "origin": "Blessed Be God, by Fr Charles J. Callan, O.P. and Fr John A. McHugh, O.P. (New York: P. J. Kenedy & Sons, 1925)",
+      "prayer_id": "st_therese_novena",
+      "chapter_id": "saints",
+      "length": 9,
+      "feast": {
+        "kind": "fixed",
+        "month": 10,
+        "day": 1,
+        "days_from_easter": null
+      },
+      "painting": null,
+      "art": null,
+      "chant_ids": [
+        "flos_carmeli"
+      ],
+      "search_words": [
+        "st therese",
+        "saint therese",
+        "little flower",
+        "lisieux",
+        "teresa of the infant jesus",
+        "october 1",
+        "novena"
+      ],
+      "days": [
+        {
+          "number": 1,
+          "title": "The First Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_daily",
+              "title": "Prayer for Each Day",
+              "text": "O glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_d1",
+              "title": "Prayer for the First Day",
+              "text": "O Almighty God and Creator of all things, Who to banish from human hearts lukewarmness in Thy service and inflame souls in divine love, hast enriched the soul of Thy Little Flower with such unshaken faith that she desired most ardently to give her life for Thee: I beseech Thee, by the merits of the lively faith of Saint Teresa of the Infant Jesus, to infuse into my soul such an ardent faith that I may firmly believe all the truths taught by the Holy Catholic Church, and practice all the virtues until death.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "closing",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_oblation",
+              "title": "Act of Oblation of Saint Teresa of the Infant Jesus",
+              "text": "My Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_invocations",
+              "title": null,
+              "text": "Holy Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "The Second Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_daily",
+              "title": "Prayer for Each Day",
+              "text": "O glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_d2",
+              "title": "Prayer for the Second Day",
+              "text": "O Almighty God, Who art admirable in Thy saints, grant me the gift of hope with which Saint Teresa of the Infant Jesus was endowed, that I may believe firmly Thy words, “Whatsoever you shall ask in My Name, it shall be given to you,” and as Saint Teresa abandoned all the vanities of the world and consecrated herself to Thee with unshaken faith and confidence, may I also despise all that the world appreciates, and seek Thee alone Who art my love and my all. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "closing",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_oblation",
+              "title": "Act of Oblation of Saint Teresa of the Infant Jesus",
+              "text": "My Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_invocations",
+              "title": null,
+              "text": "Holy Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "The Third Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_daily",
+              "title": "Prayer for Each Day",
+              "text": "O glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_d3",
+              "title": "Prayer for the Third Day",
+              "text": "O my Jesus, grant that I may love Thee, as much as Saint Teresa, Thy Little Flower, loved Thee, and that I may say with her: “O my Jesus, I beg Thee only for Thy love without limits and without bounds. Grant, O my Jesus, that for love of Thee I may be a martyr. I wish to love Thee as Thou hast never been loved.” And thou, O little Saint, succor and assist me that I may never show myself ungrateful to Him who loved me so much. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "closing",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_oblation",
+              "title": "Act of Oblation of Saint Teresa of the Infant Jesus",
+              "text": "My Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_invocations",
+              "title": null,
+              "text": "Holy Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "The Fourth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_daily",
+              "title": "Prayer for Each Day",
+              "text": "O glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_d4",
+              "title": "Prayer for the Fourth Day",
+              "text": "O my God and my Lord, Thou givest me what is best for me, and as Thy Little Flower consecrated herself to Thee as a sacrificial victim to endure for love of Thee all sufferings and pains, so also may I accept whatever hardships and contradictions Thou hast destined for my sanctification with perfect submission and even with cheerful mind, that I may be able to say as Thy cherished spouse, “O Jesus, I am a victim of Thy love.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "closing",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_oblation",
+              "title": "Act of Oblation of Saint Teresa of the Infant Jesus",
+              "text": "My Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_invocations",
+              "title": null,
+              "text": "Holy Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 5,
+          "title": "The Fifth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_daily",
+              "title": "Prayer for Each Day",
+              "text": "O glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_d5",
+              "title": "Prayer for the Fifth Day",
+              "text": "O my Lord, Innocence itself, Thou hast endured all manner of opprobrious treatment for love of me. Give me the grace of humility, self-abnegation, and patience that I may imitate Thy spouse, Saint Teresa of the Infant Jesus, and say with all my heart, O my despised Jesus, grant me the merits of Thy humility and patience to bear in tranquil spirit all the sufferings of this life, and then to enjoy Thy company with Thy spouse, the Little Flower. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "closing",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_oblation",
+              "title": "Act of Oblation of Saint Teresa of the Infant Jesus",
+              "text": "My Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_invocations",
+              "title": null,
+              "text": "Holy Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 6,
+          "title": "The Sixth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_daily",
+              "title": "Prayer for Each Day",
+              "text": "O glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_d6",
+              "title": "Prayer for the Sixth Day",
+              "text": "O my sweet Jesus, give me the charity and simplicity of Saint Teresa of the Infant Jesus, whose mission in heaven is to make others love the good God as she loved Him, to teach souls her little way. Give me such longings that I may not rest until my heart loves God with all my strength, until I arrive at the spiritual childhood of the Little Flower of Jesus. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "closing",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_oblation",
+              "title": "Act of Oblation of Saint Teresa of the Infant Jesus",
+              "text": "My Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_invocations",
+              "title": null,
+              "text": "Holy Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 7,
+          "title": "The Seventh Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_daily",
+              "title": "Prayer for Each Day",
+              "text": "O glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_d7",
+              "title": "Prayer for the Seventh Day",
+              "text": "O my dear Jesus, give me grace to practise little virtues. It is sometimes difficult, but I trust in Thy goodness and love for little souls. I am too little and weak to climb the steep ladder of perfection, but I know that as much as I hope I shall obtain from Thee. I join then Thy Little Flower and implore Thee with her to make me one of the many little, humble victims, worthy of Thy love. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "closing",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_oblation",
+              "title": "Act of Oblation of Saint Teresa of the Infant Jesus",
+              "text": "My Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_invocations",
+              "title": null,
+              "text": "Holy Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 8,
+          "title": "The Eighth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_daily",
+              "title": "Prayer for Each Day",
+              "text": "O glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_d8",
+              "title": "Prayer for the Eighth Day",
+              "text": "O my God and my love, give me on this earth the same mission Thou gavest to Thy Little Flower in heaven, of passing life in doing good to my neighbor. O Jesus, help me to console little souls and encourage them to love Thee; let them love Thee as much as Thy Immaculate Mother, Thy foster-father St. Joseph, Thy holy angels and Thy cherished Little Teresa loved Thee. Allow me to pray with her: “Let Thy divine glance rest upon a vast number of little souls, worthy victims of Thy love.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "closing",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_oblation",
+              "title": "Act of Oblation of Saint Teresa of the Infant Jesus",
+              "text": "My Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_invocations",
+              "title": null,
+              "text": "Holy Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
+              "source": null,
+              "decades": null
+            }
+          ]
+        },
+        {
+          "number": 9,
+          "title": "The Ninth Day",
+          "parts": [
+            {
+              "kind": "opening",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_daily",
+              "title": "Prayer for Each Day",
+              "text": "O glorious Teresa of the Infant Jesus, through whose unshaken confidence God was so glorified, obtain for me the same filial trust and love which animated thy innocent heart and soul. Grant that I may practice self-abnegation, patience and confidence, and that my confidence may be a fountain of blessings which God pours out upon me. As confidence was for thee the key to the greatest treasures of God, so it may induce me to throw myself into my Saviour’s arms and say with David: “In Thee, O my God, I put my trust, let me not be confounded.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_d9",
+              "title": "Prayer for the Ninth Day",
+              "text": "O my dear Lord, grant me as much filial veneration and love for Thy faithful foster-father and Thy most holy and immaculate Mother, as Saint Teresa of the Infant Jesus cherished in her simple and child-like heart. And thou, O my little Saint, address thyself to my great protector and father St. Joseph, and my most holy Mother Mary, and entreat them to obtain for me the grace of dying in the arms of Jesus and uttering thy own words:\n\n“O, I love Him . . . My God . . . I . . . love Thee.” Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "our_father",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "hail_mary",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "prayer",
+              "prayer_id": "glory_be",
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "closing",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_oblation",
+              "title": "Act of Oblation of Saint Teresa of the Infant Jesus",
+              "text": "My Lord and my God! O Most Blessed Trinity! I desire to love Thee and to make Thee loved by mankind. Since Thou hast loved me so much as to give me Thy only begotten Son for my Saviour and my Spouse, the infinite treasures of His merits are mine. These merits I offer to Thee with joy, beseeching Thee to behold me only as in the Face of Jesus, and in His Sacred Heart burning with love. Moreover, I offer Thee all the merits of the saints — in heaven and on earth — together with their acts of love, and those of the holy Angels. Lastly, I offer Thee, O Blessed Trinity, the love and merits of the Blessed Virgin, my dearest Mother. To her I entrust this oblation, begging her to present it to Thee. Amen.",
+              "source": null,
+              "decades": null
+            },
+            {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "st_therese_invocations",
+              "title": null,
+              "text": "Holy Child Jesus, have mercy on us. Our Lady of Victories, pray for us. Saint Teresa of the Infant Jesus, pray for us. Little Flower of Jesus, pray for us. Amen.",
               "source": null,
               "decades": null
             }

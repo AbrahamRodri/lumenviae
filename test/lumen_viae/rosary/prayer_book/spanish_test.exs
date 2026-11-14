@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-14 16:00:00Z], "91aaf5d7dc21a023"}
+  @pinned {~U[2026-11-14 20:15:00Z], "a5b88336d76624c5"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -21,8 +21,10 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # team's; its verses Torres Amat's). The St Andrew and Sacred Heart
   # (efficacious) novenas left it on 14 Nov 2026 (orch-lead): St Andrew is
   # the Archdiocese of Philadelphia's Spanish, the Sacred Heart
-  # sanpiodapietrelcina.org's.
-  @ai_translated_count 85
+  # sanpiodapietrelcina.org's. St Jude's and St Therese's novenas joined it
+  # the same day: St Jude's invocation and St Therese's whole novena are the
+  # team's.
+  @ai_translated_count 87
 
   # A prayer newly added in English, until the Spanish team adds it to
   # priv/library/es/prayer_book.json.
@@ -118,14 +120,16 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   end
 
   # novenas-api-nine (orch-lead, 14 Nov 2026): each novena's Spanish is a
-  # published text, and each part stands in its twin. The one exception is
-  # the Immaculate Conception's versicles and collects, the team's Spanish
-  # from the Latin (Abraham, 10 Nov 2026, Q1 "A"), marked ai_translated.
+  # published text, and each part stands in its twin. The exceptions are
+  # marked ai_translated: the Immaculate Conception's versicles and collects
+  # (the team's Spanish from the Latin; Abraham, 10 Nov 2026, Q1 "A"), St
+  # Jude's invocation (no published Spanish), and all of St Therese (none
+  # found).
   test "the new novenas' Spanish: published texts, by part, in their twins" do
     by_id = Map.new(Spanish.novenas(), &{&1.id, &1})
 
     assert Map.keys(by_id) |> Enum.sort() ==
-             ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas undoer_of_knots)
+             ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas st_jude st_therese undoer_of_knots)
 
     refute Map.has_key?(by_id, "holy_spirit")
     refute Map.has_key?(by_id, "st_joseph")
@@ -133,13 +137,15 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
     novenas = Map.new(Library.served(:prayer_book, "novenas"), &{&1.id, &1})
     twins = Map.new(Spanish.prayers(), &{&1.id, &1})
 
-    team_parts = ~w(immaculate_conception_tota_pulchra immaculate_conception_closing)
+    team_parts =
+      ~w(immaculate_conception_tota_pulchra immaculate_conception_closing st_jude_novena_invocation)
 
     for {id, spanish} <- by_id do
-      refute spanish.ai_translated, id
+      team? = id == "st_therese"
+      assert spanish.ai_translated == team?, id
 
       assert Enum.filter(spanish.parts, & &1.ai_translated) |> Enum.map(& &1.id) ==
-               Enum.filter(Enum.map(spanish.parts, & &1.id), &(&1 in team_parts)),
+               Enum.filter(Enum.map(spanish.parts, & &1.id), &(team? or &1 in team_parts)),
              id
 
       assert length(spanish.day_titles) == novenas[id].length, id

@@ -161,7 +161,7 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     end
 
     # novenas-api-nine (orch-lead, 14 Nov 2026).
-    test "the seven new novenas are served with their length, days and twins", %{conn: conn} do
+    test "the nine new novenas are served with their length, days and twins", %{conn: conn} do
       attributes =
         conn
         |> get_v2("/prayer-book?fields[prayer_book]=prayers,novenas")
@@ -178,7 +178,9 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
             {"st_joseph", 9, "st_joseph_novena"},
             {"holy_spirit", 9, "holy_spirit_novena"},
             {"our_mother_of_perpetual_help", 9, "our_mother_of_perpetual_help_novena"},
-            {"sacred_heart", 9, "efficacious_novena"}
+            {"sacred_heart", 9, "efficacious_novena"},
+            {"st_jude", 9, "st_jude_novena"},
+            {"st_therese", 9, "st_therese_novena"}
           ] do
         novena = by_id[id]
         assert %{"length" => ^length, "prayer_id" => ^twin, "art" => nil} = novena, id
@@ -254,8 +256,9 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     end
 
     # Published texts, but for the Immaculate Conception's versicles and
-    # collects, the team's Spanish from the Latin (Abraham, 10 Nov 2026,
-    # Q1 "A"), each part marked.
+    # collects (the team's Spanish from the Latin; Abraham, 10 Nov 2026,
+    # Q1 "A") and St Jude's invocation, each part marked, and St Therese,
+    # the team's throughout.
     test "novena_translations: the new novenas' Spanish is published, the team's parts marked", %{
       conn: conn
     } do
@@ -268,15 +271,17 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       by_id = Map.new(spanish["novena_translations"], &{&1["id"], &1})
 
       assert Map.keys(by_id) |> Enum.sort() ==
-               ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas undoer_of_knots)
+               ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas st_jude st_therese undoer_of_knots)
 
-      team_parts = ~w(immaculate_conception_tota_pulchra immaculate_conception_closing)
+      team_parts =
+        ~w(immaculate_conception_tota_pulchra immaculate_conception_closing st_jude_novena_invocation)
 
       for {id, translation} <- by_id do
-        assert translation["ai_translated"] == false, id
+        team? = id == "st_therese"
+        assert translation["ai_translated"] == team?, id
 
         for part <- translation["parts"] do
-          assert part["ai_translated"] == part["id"] in team_parts, part["id"]
+          assert part["ai_translated"] == (team? or part["id"] in team_parts), part["id"]
         end
       end
 
