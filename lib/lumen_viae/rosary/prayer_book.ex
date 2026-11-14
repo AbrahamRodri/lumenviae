@@ -145,5 +145,15 @@ defmodule LumenViae.Rosary.PrayerBook do
 
       description "The four songs to Mary through the year, in the order their seasons begin from Advent. An order that closes with the season's song ends on the one whose season holds the day."
     end
+
+    calculate :novenas,
+              {:array, Types.Novena},
+              {Library.Section, document: :prayer_book, section: "novenas"} do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "The novenas, days of prayer said one a day. Each is also one of `prayers`, its twin (`prayer_id`), holding every day as plain text: show the novena in the twin's place, not both. Served only when named in `fields[prayer_book]`."
+    end
   end
 end

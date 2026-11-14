@@ -33,7 +33,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-11-07 02:00:00Z], "94fa0e037744eff0"},
       {~U[2026-11-10 05:00:00Z], "4ce9982b1852ad25"},
       {~U[2026-11-10 05:10:00Z], "547ea0cf17d13d0d"},
-      {~U[2026-11-10 16:00:00Z], "8a19a7af696137bd"}
+      {~U[2026-11-10 16:00:00Z], "8a19a7af696137bd"},
+      {~U[2026-11-14 02:00:00Z], "b312ed9b06b56b97"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
@@ -390,6 +391,83 @@ defmodule LumenViae.Rosary.LibraryTest do
 
       assert book_errors(book) =~ ~s(the prayer id "../sub tuum" may hold only)
       assert book_errors(book) =~ ~s(the chapter id "our lady" may hold only)
+    end
+
+    test "a novena whose days name the book's prayers and hold words its twin holds passes" do
+      assert Check.prayer_book_errors(novena_book()) == []
+      assert {:ok, [_novena]} = Section.cast(:prayer_book, "novenas", novena_book()["novenas"])
+    end
+
+    test "refuses a novena whose words have drifted from its twin" do
+      book = update_novena_part(novena_book(), 1, 1, "text", "Mary, untie this knot today.")
+
+      assert book_errors(book) =~
+               "the novena knots: day 1: the words of knots_d1_prayer are not in the twin prayer"
+    end
+
+    test "refuses a novena naming a prayer, a twin or a chapter that does not exist" do
+      book =
+        novena_book()
+        |> update_novena("prayer_id", "nowhere_novena")
+        |> update_novena("chapter_id", "attic")
+        |> update_novena_part(1, 0, "prayer_id", "nowhere")
+
+      errors = book_errors(book)
+      assert errors =~ ~s(the novena knots: names the prayer "nowhere_novena")
+      assert errors =~ ~s(the novena knots: names the chapter "attic")
+      assert errors =~ ~s(the novena knots: day 1: names the prayer "nowhere")
+    end
+
+    test "refuses a novena whose chapter does not name its twin" do
+      book = update_chapter(novena_book(), "prayer_ids", ["sub_tuum", "memorare"])
+
+      book =
+        update_chapter(book, "sections", [
+          %{"title" => "One", "prayer_ids" => ["sub_tuum", "memorare"]}
+        ])
+
+      assert book_errors(book) =~ "the novena knots: its chapter our_lady does not name its twin"
+    end
+
+    test "refuses a part whose own words are blank, or say a number of times" do
+      blank = update_novena_part(novena_book(), 1, 1, "text", "  ")
+      times = update_novena_part(novena_book(), 1, 1, "times", 2)
+
+      assert book_errors(blank) =~ "day 1: text is required text"
+      assert book_errors(blank) =~ "the words of knots_d1_prayer are not in the twin prayer"
+      assert book_errors(times) =~ "day 1: a part with its own words has no times"
+    end
+
+    test "refuses days not numbered 1 to the novena's length" do
+      assert book_errors(update_novena(novena_book(), "length", 3)) =~
+               "its days are numbered 1 to its length, 3, in order"
+    end
+
+    test "refuses a part holding both a prayer and words, or neither" do
+      both = update_novena_part(novena_book(), 1, 0, "text", "Remember")
+      neither = update_novena_part(novena_book(), 1, 0, "prayer_id", nil)
+
+      for book <- [both, neither] do
+        assert book_errors(book) =~ "a part holds either a prayer_id or its own text"
+      end
+    end
+
+    test "refuses a repeated novena or part id, and a feast rule the apps do not know" do
+      [novena] = novena_book()["novenas"]
+      book = %{novena_book() | "novenas" => [novena, novena]}
+
+      assert book_errors(book) =~ ~s(the novena id "knots" is repeated)
+      assert book_errors(book) =~ ~s(the novena part id "knots_d1_prayer" is repeated)
+
+      assert book_errors(update_novena(novena_book(), "feast", %{"kind" => "lent"})) =~
+               "its feast rule is one of"
+    end
+
+    test "refuses a novena naming a chant the chant library does not have" do
+      assert Check.novena_chant_errors(novena_book(), ["ave_maris_stella"]) == []
+
+      assert Check.novena_chant_errors(novena_book(), []) ==
+               [~s(the novena knots: names the chant "ave_maris_stella", which does not exist)]
     end
   end
 
@@ -1135,6 +1213,91 @@ defmodule LumenViae.Rosary.LibraryTest do
   defp update_chapter(book, key, value) do
     [first | rest] = book["chapters"]
     %{book | "chapters" => [Map.put(first, key, value) | rest]}
+  end
+
+  # The stand-in book with a two-day novena: its twin holds every word of
+  # its own, and each day names a book prayer too.
+  defp novena_book do
+    book = book()
+
+    twin_words =
+      "[The First Day.]\n\nMary, untie this knot.\n\n[The Second Day.]\n\nMary, keep me free."
+
+    %{
+      book
+      | "prayers" => book["prayers"] ++ [prayer("knots_novena", twin_words, nil)]
+    }
+    |> update_chapter("prayer_ids", ["sub_tuum", "memorare", "knots_novena"])
+    |> update_chapter("sections", [
+      %{"title" => "To Our Lady", "prayer_ids" => ["sub_tuum", "memorare", "knots_novena"]}
+    ])
+    |> Map.put("novenas", [
+      %{
+        "id" => "knots",
+        "title" => "Our Lady, Undoer of Knots",
+        "list_title" => nil,
+        "latin_title" => nil,
+        "detail" => "Nine days asking Mary to untie what binds us.",
+        "note" => nil,
+        "origin" => nil,
+        "prayer_id" => "knots_novena",
+        "chapter_id" => "our_lady",
+        "length" => 2,
+        "feast" => nil,
+        "painting" => nil,
+        "art" => nil,
+        "chant_ids" => ["ave_maris_stella"],
+        "search_words" => ["knots"],
+        "days" => [
+          novena_day(1, "knots_d1_prayer", "Mary, untie this knot."),
+          novena_day(2, "knots_d2_prayer", "Mary, keep me free.")
+        ]
+      }
+    ])
+  end
+
+  defp novena_day(number, id, text) do
+    %{
+      "number" => number,
+      "title" => "Day #{number}",
+      "parts" => [
+        novena_part("opening", "sub_tuum", nil, nil),
+        novena_part("novena_prayer", nil, id, text),
+        %{novena_part("closing", "memorare", nil, nil) | "times" => 3}
+      ]
+    }
+  end
+
+  defp novena_part(kind, prayer_id, id, text) do
+    %{
+      "kind" => kind,
+      "prayer_id" => prayer_id,
+      "times" => nil,
+      "id" => id,
+      "title" => id && "The prayer for today",
+      "text" => text,
+      "source" => nil
+    }
+  end
+
+  defp update_novena(book, key, value) do
+    [novena] = book["novenas"]
+    %{book | "novenas" => [Map.put(novena, key, value)]}
+  end
+
+  defp update_novena_part(book, day, index, key, value) do
+    [novena] = book["novenas"]
+
+    days =
+      Enum.map(novena["days"], fn
+        %{"number" => ^day} = d ->
+          %{d | "parts" => List.update_at(d["parts"], index, &Map.put(&1, key, value))}
+
+        d ->
+          d
+      end)
+
+    %{book | "novenas" => [%{novena | "days" => days}]}
   end
 
   defp library do

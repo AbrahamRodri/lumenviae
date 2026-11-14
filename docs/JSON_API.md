@@ -47,7 +47,7 @@ involved.
 | `GET /rosary-audio?voice=` | `SpokenRosary.:for_voice` | One voice's spoken Rosary; the same recordings, keys and files as `GET /api/rosary/audio`. |
 | `GET /rosary-script?category=&style=&extras=&orders=` | `RosaryScript.:expand` | One Rosary's script, every step in order: the reference expansion of the content document's `script` templates. See "One Rosary's script". |
 | `GET /rosary-content?lang=` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
-| `GET /prayer-book?lang=` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers`, `chapters`, `orders`, `marian_antiphons` and `translations` when named in `fields[prayer_book]=`; `lang=es` fills `translations`. See "The Prayer Book and the Chant Library". |
+| `GET /prayer-book?lang=` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers`, `chapters`, `orders`, `marian_antiphons`, `novenas` and `translations` when named in `fields[prayer_book]=`; `lang=es` fills `translations`. See "The Prayer Book and the Chant Library". |
 | `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
 | `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers`, `feasts` and `translations` when named in `fields[consecration]=`; `lang=es` fills `translations`. See "The Consecration". |
 | `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts`, `chapters`, `teaching` and `ejaculatory_prayers` when named in `fields[true_devotion]=`. See "True Devotion". |
@@ -670,6 +670,46 @@ chants.
   `easter` (Easter Sunday) and `pentecost_saturday` (the Saturday after
   Pentecost, 55 days after Easter). Before February 2 the song is still
   Advent's, from the year before.
+- **`novenas`**: days of prayer said one a day, served only when named
+  (no app before the novena feature asks for it, so adding one changes
+  nothing an older app shows except its twin, below). Each is `id`
+  (stable forever: a device stores it with a person's progress), `title`,
+  `list_title`, `latin_title`, `detail` (one sentence for its card),
+  `note`, `origin`, `prayer_id`, `chapter_id`, `length`, `feast`,
+  `painting`, `art`, `chant_ids`, `search_words` and `days`. Every field
+  but `list_title`, `latin_title`, `note`, `origin`, `feast`, `painting`
+  and `art` is always there.
+  - **The twin.** `prayer_id` names one of `prayers` that holds every day
+    as plain text, as `immaculate_conception_novena` does. An app that
+    knows novenas shows the novena in the twin's place, not both; an app
+    that does not shows the twin as any other prayer. Every word a day
+    holds of its own stands in the twin word for word (the server refuses
+    a file where they drift).
+  - **`length`** is the number of days, usually 9. Never assume 9: the
+    St. Andrew novena runs 25.
+  - **`feast`** is the feast the novena ends on, in the chant library's
+    rule shape (`kind` `fixed` with `month` and `day`, or `easter` with
+    `days_from_easter`, and the other kinds a chant feast may have). Day 1
+    is `length` days before the feast, so the last day is its eve: a
+    novena for Divine Mercy Sunday (Easter + 7) begins on Good Friday.
+    Null when it may be begun on any day.
+  - **`painting`** is the name the apps bundle its painting under, and
+    **`art`** the same painting as a public file, `{url, bytes, sha256,
+    credit}`, its URL ending in `novena_<id>-<first 12 of its sha256>`
+    and its extension, as a chant's recording is named. Either may be
+    null.
+  - **`chant_ids`** are chants of the chant library that suit it, `[]`
+    when none.
+  - **`days`**, numbered 1 to `length` in order, are each `{number,
+    title, parts}`. A part is `{kind, prayer_id, times, id, title, text,
+    source}` and holds exactly one of:
+    - `prayer_id`: one of `prayers`, said `times` times (null for once);
+      `id`, `title` and `text` are null;
+    - `text`: the day's own words, in the `PrayerText` grammar, with their
+      `id` (unique across every novena), `title` and `source` (or null).
+    `kind` says what the part is: `opening`, `meditation`,
+    `novena_prayer` or `closing`, and more may come. Show a kind you do
+    not know as plain text.
 
 ### The Prayer Book in Spanish
 

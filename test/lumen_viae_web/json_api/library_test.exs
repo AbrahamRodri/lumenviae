@@ -17,7 +17,8 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
   @instant ~r/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
 
   @documents [
-    {"/prayer-book", "prayer_book", :prayer_book, ~w(prayers chapters orders marian_antiphons)},
+    {"/prayer-book", "prayer_book", :prayer_book,
+     ~w(prayers chapters orders marian_antiphons novenas)},
     {"/chant-library", "chant_library", :chant_library,
      ~w(groups chants feasts months occasions)},
     {"/consecration", "consecration", :consecration, ~w(phases days prayers feasts)},
@@ -76,6 +77,35 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
         for section <- unquote(sections) do
           assert attributes[section] == Library.sections(unquote(document))[section], section
         end
+      end
+    end
+  end
+
+  describe "the Prayer Book's novenas" do
+    # iOS 4.0 to 4.3 ask for these four fields only (IOS_API_CONTRACT.md,
+    # section 10): they must never receive novenas, only the twin prayers.
+    test "a shipped app's request carries no novenas", %{conn: conn} do
+      attributes =
+        conn
+        |> get_v2("/prayer-book?fields[prayer_book]=version,updated_at,prayers,chapters")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      assert Map.keys(attributes) |> Enum.sort() == ~w(chapters prayers updated_at version)
+    end
+
+    test "every novena's twin is one of the prayers a chapter names", %{conn: conn} do
+      attributes =
+        conn
+        |> get_v2("/prayer-book?fields[prayer_book]=prayers,chapters,novenas")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      named = for chapter <- attributes["chapters"], id <- chapter["prayer_ids"], do: id
+
+      for novena <- attributes["novenas"] do
+        assert novena["prayer_id"] in named, novena["id"]
+        assert length(novena["days"]) == novena["length"], novena["id"]
       end
     end
   end
