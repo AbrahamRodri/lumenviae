@@ -549,7 +549,9 @@ Where it differs from the English:
 
 Added on 14 November 2026. This is slice st-bridget-es, brought forward for the iOS seed. It is a mixed text, so it is marked `ai_translated`.
 
-- The seven verses are Torres Amat's [S1], copied word for word from the 1836 printing on Wikisource and kept in its spelling ("dia", "Jesus", "á", "ácia"): Lucas 2, 21; Lucas 22, 44; Mateo 27, 26; Mateo 27, 29; Juan 19, 17; Lucas 23, 33; Juan 19, 34.
+- The seven verses are Torres Amat's [S1], copied word for word from the 1836 printing on Wikisource: Lucas 2, 21; Lucas 22, 44; Mateo 27, 26; Mateo 27, 29; Juan 19, 17; Lucas 23, 33; Juan 19, 34.
+  - The spelling is modernised, with no word changed (ios-review, 14 November 2026): "dia" to "día", "debia" to "debía", "Jesus" to "Jesús", "despues" to "después", "escarnecian" to "escarnecían", "Barrabas" to "Barrabás", "ácia" to "hacia", "Gólgotha" to "Gólgota", and the prepositions "á" and the conjunction "ú" to "a" and "u".
+  - The Consecration's readings still keep Torres Amat's spelling. Only this prayer was asked for.
   - The verse-end section dashes are left out, as in the Consecration.
   - Mateo 27, 29 begins "y" in the middle of a sentence and is capitalised.
   - Juan 19, 34 begins "sino que uno de los soldados", after a negative in verse 33. The excerpt starts at "Uno de los soldados".
