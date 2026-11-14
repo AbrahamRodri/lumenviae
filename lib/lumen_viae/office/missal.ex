@@ -198,7 +198,7 @@ defmodule LumenViae.Office.Missal do
   def init(_opts), do: {:ok, %{loading: %{}}}
 
   @impl true
-  def handle_call({:load, {namespace, _key} = key, job, callers, limits}, from, state) do
+  def handle_call({:load, {_namespace, _key} = key, job, callers, limits}, from, state) do
     case state.loading do
       %{^key => entry} ->
         {:noreply, put_in(state.loading[key], %{entry | waiters: [from | entry.waiters]})}
