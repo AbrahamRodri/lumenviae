@@ -40,7 +40,7 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
       <%!-- The title block, as the app's: the part's name, where it falls,
            then the step, left-aligned with the words. It is the same on
            every step of a part, so moving a bead never shifts the page. --%>
-      <div id="bead-title" class="mt-5 max-w-[62ch] w-full mx-auto px-1">
+      <div id="bead-title" class="mt-2 lg:mt-5 max-w-[62ch] w-full mx-auto px-1">
         <p
           aria-hidden="true"
           class="font-display !font-normal text-[1.75rem] lg:text-[2.25rem] text-ink-light leading-[1.15] text-balance"
@@ -61,13 +61,13 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
       </div>
 
       <%!-- The words, with the bead rail down their right side, as the app's. --%>
-      <div class="mt-6 flex items-start gap-2 sm:gap-4 max-w-[calc(62ch+3.75rem)] w-full mx-auto">
+      <div class="mt-3 lg:mt-6 flex items-start gap-2 sm:gap-4 max-w-[calc(62ch+3.75rem)] w-full mx-auto">
         <div
           id={"bead-#{@screen.index}"}
           data-screen={@screen.index}
           phx-click={if @screen.kind == :prayer, do: "advance"}
           class={[
-            "flex-1 min-w-0 rounded-3xl px-1 py-4 motion-safe:animate-[prayer-fade_0.35s_ease-out]",
+            "flex-1 min-w-0 rounded-3xl px-1 py-2 lg:py-4 motion-safe:animate-[prayer-fade_0.35s_ease-out]",
             @screen.kind == :prayer && "cursor-pointer select-none"
           ]}
         >
