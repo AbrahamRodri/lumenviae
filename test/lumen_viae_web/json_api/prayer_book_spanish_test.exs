@@ -61,9 +61,10 @@ defmodule LumenViaeWeb.JsonApi.PrayerBookSpanishTest do
   # Abraham, 10 Nov 2026 (Q1 "A"): the team translates the O Antiphons
   # from the Latin rather than copying a copyrighted Spanish. The two Advent
   # novenas became published texts on 14 Nov 2026 (orch-lead): St Andrew
-  # in the Archdiocese of Philadelphia's Spanish, the Immaculate Conception
-  # with its versicles and collects in the 1860 book's Latin.
-  test "es: the O Antiphons are the team's own; the Advent novenas are published texts" do
+  # in the Archdiocese of Philadelphia's Spanish (orch-lead). The Immaculate
+  # Conception keeps the team's Spanish of its versicles and collects, as
+  # that answer decided.
+  test "es: the O Antiphons and the Immaculate Conception novena are the team's; St Andrew is published" do
     spanish = attributes("translations&lang=es")["translations"]
     by_id = Map.new(spanish, &{&1["id"], &1})
 
@@ -71,13 +72,12 @@ defmodule LumenViaeWeb.JsonApi.PrayerBookSpanishTest do
     assert by_id["o_antiphons"]["text"] =~ "te extiendes de un confín a otro"
     assert by_id["o_antiphons"]["text"] =~ "habitan en tinieblas y en sombra de muerte"
 
-    for id <- ~w(st_andrew_novena immaculate_conception_novena) do
-      refute by_id[id]["ai_translated"], id
-    end
-
+    refute by_id["st_andrew_novena"]["ai_translated"]
     assert by_id["st_andrew_novena"]["text"] =~ "dígnate, te suplico, oh Dios mío"
-    assert by_id["immaculate_conception_novena"]["text"] =~ "℣. Tota pulchra es, Maria."
-    assert by_id["immaculate_conception_novena"]["text"] =~ "ad te pervenire concedas"
+
+    assert by_id["immaculate_conception_novena"]["ai_translated"] == true
+    assert by_id["immaculate_conception_novena"]["text"] =~ "℣. Toda hermosa eres, oh María."
+    refute by_id["immaculate_conception_novena"]["text"] =~ "Tota pulchra"
   end
 
   test "es has a version and a date of its own, and a region reads as es" do

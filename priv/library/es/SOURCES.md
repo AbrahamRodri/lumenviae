@@ -469,11 +469,75 @@ each collect ends "℟. Amén." as the English does.
   *purificatis mentibus*; 4 "el perdón de tu misericordia" for *indulgentia
   tuae propitiationis*.
 
-### `immaculate_conception_novena`: "Novena a la Inmaculada Concepción"
+### `immaculate_conception_novena`: "Novena a la Inmaculada Concepción" (`ai_translated`)
 
-Not marked `ai_translated` since 14 November 2026: its versicles and
-collects are now the 1860 book's Latin, as printed. The full entry is
-under "The novenas" below.
+A mixed text, so it is marked `ai_translated`:
+
+- The preparatory prayer and the nine prayers of the days: the same
+  Raccolta novena (Pius VII, 1808) in Spanish, *Colección de oraciones y
+  obras piadosas por las cuales han concedido los Sumos Pontífices santas
+  indulgencias*, from the 13th Roman edition, translated by J. M. and
+  Agustín Ferrer, Pbro. (Barcelona, 1860, with the Ordinary's licence),
+  pp. 266 to 274, on
+  [archive.org](https://archive.org/details/coleccion-de-oraciones-y-obras-piadosas-con-indulegncias).
+  Public domain. No other Spanish of this novena was found (ACI Prensa's,
+  Opus Dei's and other "Novena a la Inmaculada" are different texts).
+- "Ven, Espíritu Santo": this file's `come_holy_ghost`, word for word,
+  headed `[Oremos.]` as the English is, its "Amén" as "℟. Amén.".
+- The three collects: the team's translation from their Latin (the 1860
+  book prints them in Latin; the Roman Missal's *Deus, qui per
+  immaculatam Virginis Conceptionem*, *Deus, omnium fidelium pastor et
+  rector* and *Deus, refugium nostrum et virtus*), checked by ios-review
+  (10 Nov 2026); Abraham, 10 Nov 2026, Q1 "A". The 1962 Lefebvre Spanish
+  used before is not. The third keeps the English's layout, its "Amén"
+  as "℟. Amén.".
+- The team's translation: every rubric, the Tota pulchra versicles
+  (following Lefebvre's Spanish of the 8 December Gradual and Tract where
+  they say the same), the versicle "En tu concepción, oh Virgen..." and
+  its response, and the endings of the first two collects, which follow
+  the English (the Immaculate Conception's "Por Cristo nuestro Señor.
+  Amén."; none for the Pope's).
+
+Changed from the 1860 book, spelling and accents only: "á" and "ó" to "a"
+and "o", the interjection "ó" to "oh", "Vírgen" to "Virgen", accents on
+-ión words and on "día", "después", "Adán", "más"; "hácia", "piés",
+"fuéseis", "triunfáseis", "fuísteis", "adorásteis", "dísteis" to "hacia",
+"pies", "fueseis", "triunfaseis", "fuisteis", "adorasteis", "disteis";
+"teneis", "hayais", "digneis", "alcanceis", "hagais" with their accents;
+"y qué muera" to "y que muera". Spaces before punctuation removed, the
+quotation set as «Mostrad que sois nuestra Madre». and its Latin tag
+("Monstra te esse Matrem") left out, as the English has none. The book's
+headings and rubrics give way to the English's in Spanish, and its rubric
+repeated after each day ("Se rezará la Letanía o el Himno...") is left
+out, as the English gives it once. "nono" is "noveno". Lowercase after "!"
+is kept as printed.
+
+Where it differs from the English:
+
+- The 1860 prayers speak to Mary in vos ("os venero", "alcanzadme"), the
+  book's own form, kept as in `memorare_st_joseph`; the versicles, the
+  team's, use tú. They keep the book's leísmo ("volver a cometerle" for
+  sin, "inflamadle" for the heart, "le ame" for God): the rule is spelling
+  only, never the wording.
+- The preparatory prayer: "y desde aquel primer instante toda hermosa y
+  sin mancilla" for all fair and stainless in thy Conception; "Madre de
+  misericordia"; "lo que en esta Novena os consagro"; «Mostrad que sois
+  nuestra Madre» for Show thyself a mother.
+- The days: 1 "Aquí me tenéis a vuestros santísimos pies" and "Ea, pues,
+  haced que los venza"; 2 "me lleno de confusión en vuestra presencia"
+  for overwhelmed with shame; 3 and 7 no "mortal" before sin; 5 "la
+  pasión y muerte" and no "Precious"; 6 ends "eternamente." with no "world
+  without end. Amen."; 7 "un total y continuo aborrecimiento al pecado
+  sobre todo otro mal"; 8 "que jamás abuse de ella" for never more to
+  receive it in vain, "una total renovación de mi vida"; 9 "ejemplar de
+  pureza", "descendía la plena bendición", "gozar de Vos coronada de tanta
+  gloria".
+- The collects (the team's, from the Latin): "limpios de toda mancha" for
+  *mundos* where the English says purified, "por su intercesión"; "Pastor y
+  Guía" for *pastor et rector*, "edifique a quienes preside" for
+  *proficere*; "autor de toda piedad" and "piadosas súplicas" for the
+  author of all holiness and pious prayers, "alcanzar plenamente" for
+  effectually obtain.
 
 ## St. Bridget's prayers
 
@@ -514,66 +578,15 @@ Copied under the project's rule: there is no explicit notice against it. Always 
 
 ### `immaculate_conception_novena`, and the novena `immaculate_conception`
 
-Changed on 14 November 2026 (orch-lead: "use the Latin exactly as the 1860
-Spanish Raccolta prints it. No team translation."). Not `ai_translated`:
-
-- The preparatory prayer and the nine prayers of the days: the Raccolta
-  novena (Pius VII, 1808) in Spanish, *Colección de oraciones y obras
-  piadosas por las cuales han concedido los Sumos Pontífices santas
-  indulgencias*, from the 13th Roman edition, translated by J. M. and
-  Agustín Ferrer, Pbro. (Barcelona: Librería Religiosa, 1860, with the
-  Ordinary's licence), pp. 266 to 274, on
-  [archive.org](https://archive.org/details/coleccion-de-oraciones-y-obras-piadosas-con-indulegncias).
-  No explicit notice. Public domain.
-- "Ven, Espíritu Santo": this file's `come_holy_ghost`, word for word,
-  headed `[Oremos.]` as the English is, its "Amén" as "℟. Amén.".
-- The Tota pulchra versicles, the versicle "In Conceptione tua..." and
-  the three collects: in Latin, as the same book prints them (pp. 268 and
-  269), read from the page images. Changes: the printed "iñ" in the third
-  line (a broken letter) is "in"; spaces before punctuation are closed
-  up; the book's "OREMUS." heading is the rubric `[Oremus.]`, as the
-  English has `[Let us pray.]`; the last "R/. Amen." is "℟. Amen." on its
-  own line. "Israël" keeps its diaeresis. The first two collects have no
-  ending, as printed. These replace the team's Spanish of 10 November.
-- The bracketed rubrics and headings are the team's, following the
-  English, as in the Undoer of Knots novena.
-- The novena's parts (`novenas` in this file) are the twin's words by part
-  id; the card sentence and the day titles ("Día 1" to "Día 9") are the
-  team's.
-
-Changed from the 1860 book, spelling and accents only: "á" and "ó" to "a"
-and "o", the interjection "ó" to "oh", "Vírgen" to "Virgen", accents on
--ión words and on "día", "después", "Adán", "más"; "hácia", "piés",
-"fuéseis", "triunfáseis", "fuísteis", "adorásteis", "dísteis" to "hacia",
-"pies", "fueseis", "triunfaseis", "fuisteis", "adorasteis", "disteis";
-"teneis", "hayais", "digneis", "alcanceis", "hagais" with their accents;
-"y qué muera" to "y que muera". Spaces before punctuation removed, the
-quotation set as «Mostrad que sois nuestra Madre». and its Latin tag
-("Monstra te esse Matrem") left out, as the English has none. The book's
-headings and rubrics give way to the English's in Spanish, and its rubric
-repeated after each day ("Se rezará la Letanía o el Himno...") is left
-out, as the English gives it once. "nono" is "noveno". Lowercase after "!"
-is kept as printed.
-
-Where it differs from the English:
-
-- The 1860 prayers speak to Mary in vos ("os venero", "alcanzadme"), the
-  book's own form, kept as in `memorare_st_joseph`. They keep the book's
-  leísmo ("volver a cometerle" for sin, "inflamadle" for the heart, "le
-  ame" for God): the rule is spelling only, never the wording.
-- The preparatory prayer: "y desde aquel primer instante toda hermosa y
-  sin mancilla" for all fair and stainless in thy Conception; "Madre de
-  misericordia"; "lo que en esta Novena os consagro"; «Mostrad que sois
-  nuestra Madre» for Show thyself a mother.
-- The days: 1 "Aquí me tenéis a vuestros santísimos pies" and "Ea, pues,
-  haced que los venza"; 2 "me lleno de confusión en vuestra presencia"
-  for overwhelmed with shame; 3 and 7 no "mortal" before sin; 5 "la
-  pasión y muerte" and no "Precious"; 6 ends "eternamente." with no "world
-  without end. Amen."; 7 "un total y continuo aborrecimiento al pecado
-  sobre todo otro mal"; 8 "que jamás abuse de ella" for never more to
-  receive it in vain, "una total renovación de mi vida"; 9 "ejemplar de
-  pureza", "descendía la plena bendición", "gozar de Vos coronada de tanta
-  gloria".
+The novena's parts (`novenas` in this file) are the twin's words by part
+id; the sources are under the twin above. Not `ai_translated` as a whole:
+its preparatory prayer and the nine days are the 1860 book's. The two parts
+of the team's translation from the Latin, the Tota pulchra versicles
+(`immaculate_conception_tota_pulchra`) and the closing versicle and
+collects (`immaculate_conception_closing`), are each marked
+`ai_translated`. Abraham's 10 November answer (Q1 "A", the team
+translates from the Latin) stands (orch-lead, 14 November 2026). The card
+sentence and the day titles ("Día 1" to "Día 9") are the team's.
 
 ### `st_andrew_novena`, and the novena `st_andrew_christmas`
 
