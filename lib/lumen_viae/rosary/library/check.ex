@@ -709,14 +709,16 @@ defmodule LumenViae.Rosary.Library.Check do
     decades = part["decades"]
 
     if is_list(decades) and decades != [] and Enum.all?(decades, &(&1 in 1..5)) and
-         decades == Enum.sort(Enum.uniq(decades)) and is_nil(part["prayer_id"]) and
-         is_nil(part["text"]),
+         decades == Enum.sort(Enum.uniq(decades)) and
+         Enum.all?(~w(prayer_id text id title times source), &is_nil(part[&1])),
        do: [],
        else: ["a rosary part holds only its decades, 1 to 5 in order"]
   end
 
-  defp novena_part_errors(%{"prayer_id" => prayer, "text" => text} = part, english, twin)
-       when not is_map_key(part, "decades") or is_nil(:erlang.map_get("decades", part)) do
+  defp novena_part_errors(%{"decades" => decades}, _english, _twin) when not is_nil(decades),
+    do: ["only a rosary part has decades"]
+
+  defp novena_part_errors(%{"prayer_id" => prayer, "text" => text} = part, english, twin) do
     cond do
       is_binary(prayer) and is_nil(text) ->
         unknown("prayer", [prayer], MapSet.new(Map.keys(english))) ++

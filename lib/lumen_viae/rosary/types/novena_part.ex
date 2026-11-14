@@ -21,7 +21,7 @@ defmodule LumenViae.Rosary.Types.NovenaPart do
 
     field :id, :string,
       description:
-        "The words' id (`undoer_of_knots_d1_prayer`), stable for a device's saved place, or null when the part names a prayer. Words said every day (an invocation, the closing prayer) keep one id on every day."
+        "The words' id (`undoer_of_knots_d1_prayer`), stable for a device's saved place, or null when the part names a prayer. Words said every day (an invocation, the closing prayer) keep one id on every day, so a saved place is the day's number and the part's id together, never the id alone."
 
     field :title, :string,
       description:
