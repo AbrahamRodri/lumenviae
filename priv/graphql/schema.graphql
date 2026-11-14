@@ -647,7 +647,7 @@ type NovenaArt {
 }
 
 type NovenaPart {
-  "The words' heading (`Genesis 3:15`), or null when the part names a prayer."
+  "The words' heading (`Genesis 3:15`), or null: a part that names a prayer, and a short invocation or saying, has none."
   title: String
 
   "How many times the named prayer is said (three Hail Marys), or null for once."
@@ -662,11 +662,14 @@ type NovenaPart {
   "One of the document's prayers, said here, or null when the part holds `text`."
   prayerId: String
 
-  "What the part is: `opening`, `meditation`, `novena_prayer` or `closing`, and more may come. Show a kind you do not know as plain text."
+  "What the part is: `opening`, `meditation`, `novena_prayer`, `invocation`, `saying`, `closing` or `rosary`, and more may come. Show a kind you do not know as plain text."
   kind: String!
 
-  "The words' id (`undoer_of_knots_d1_prayer`), stable for a device's saved place, or null when the part names a prayer."
+  "The words' id (`undoer_of_knots_d1_prayer`), stable for a device's saved place, or null when the part names a prayer. Words said every day (an invocation, the closing prayer) keep one id on every day."
   id: String
+
+  "For a `rosary` part: the decades of the day's mysteries prayed here, 1 to 5 in order (`[1, 2, 3]`, then `[4, 5]` after a meditation). Null for every other part."
+  decades: [Int!]
 }
 
 type NovenaDay {

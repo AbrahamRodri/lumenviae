@@ -702,14 +702,20 @@ chants.
     when none.
   - **`days`**, numbered 1 to `length` in order, are each `{number,
     title, parts}`. A part is `{kind, prayer_id, times, id, title, text,
-    source}` and holds exactly one of:
+    source, decades}` and holds exactly one of:
     - `prayer_id`: one of `prayers`, said `times` times (null for once);
       `id`, `title` and `text` are null;
     - `text`: the day's own words, in the `PrayerText` grammar, with their
-      `id` (unique across every novena), `title` and `source` (or null).
+      `id`, `title` (or null: a short invocation or saying has none) and
+      `source` (or null). Words said every day (an invocation, the closing
+      prayer) keep one `id` on every day; an `id` never names two
+      different texts;
+    - for `kind` `rosary`, `decades`: the decades of the day's mysteries
+      prayed at that point, 1 to 5 in order (`[1, 2, 3]`, then `[4, 5]`
+      after a meditation). `decades` is null on every other part.
     `kind` says what the part is: `opening`, `meditation`,
-    `novena_prayer` or `closing`, and more may come. Show a kind you do
-    not know as plain text.
+    `novena_prayer`, `invocation`, `saying`, `closing` or `rosary`, and
+    more may come. Show a kind you do not know as plain text.
 
 ### The Prayer Book in Spanish
 
