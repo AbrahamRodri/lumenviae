@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-14T21:30:00Z",
+  "updated_at": "2026-11-14T22:00:00Z",
   "chapters": [
     {
       "id": "first",
@@ -7738,7 +7738,12 @@
         "days_from_easter": null
       },
       "painting": null,
-      "art": null,
+      "art": {
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_our_mother_of_perpetual_help-6cecee020429.jpg",
+        "bytes": 493195,
+        "sha256": "6cecee020429ae72e95f380bc226ffe080c1108180fba9e4275e3d2a7c596184",
+        "credit": "Our Mother of Perpetual Help, Cretan icon, 15th century, Sant'Alfonso all'Esquilino, Rome. Public domain, via Wikimedia Commons."
+      },
       "chant_ids": [
         "sub_tuum",
         "salve_regina_simple",
