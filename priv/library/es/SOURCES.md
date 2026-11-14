@@ -702,12 +702,61 @@ EWTN Español".
 - The Prayer of St John Paul II that the page adds each day is left out.
 - The rubrics, the card sentence and the day titles are the team's.
 
-### `holy_spirit_novena` and `st_joseph_novena`
+### `holy_spirit_novena`, and the novena `holy_spirit` (`ai_translated`)
 
-Added in English on 14 November 2026, with no Spanish: no published
-Spanish of either text was found (the one Spanish leaflet of the Holy
-Spirit novena reads as a machine translation). They keep their English
-until one is.
+Added on 14 November 2026. The team's translation of the whole novena from
+the English of the Holy Ghost Fathers' *Novena to the Holy Ghost*
+(Washington; imprimatur 1947), as EWTN prints it; no published Spanish of
+this text was found (reports/rig/novenas/nine/batch-2.md: the one Spanish
+leaflet reads as a machine translation). Every part is marked
+`ai_translated`, and so is the novena. For ios-review to check.
+
+- The day's verse is the book's own Spanish of the sequence
+  (`veni_sancte_spiritus`, the liturgical verse form), the lines that
+  match each of the English's nine stanzas, word for word and joined on
+  one line, as the English prints them. The English is a looser
+  paraphrase, so the Spanish lines are close but not exact (day 1 "Ven,
+  Espíritu divino, manda tu luz desde el cielo").
+- The seven gifts use their usual names: sabiduría, entendimiento,
+  consejo, fortaleza, ciencia, piedad, temor de Dios ("el don de temor",
+  "Espíritu de santo temor"). The gifts are lowercase after "Espíritu de",
+  as in `litany_holy_ghost`; "sevenfold Spirit" is "Espíritu septiforme".
+- The Prayer for the Seven Gifts here is the novena's longer wording, not
+  the book's `seven_gifts`; the shared clauses follow `seven_gifts`
+  ("para que acabara tu obra", "Márcame, amado Señor, con la señal de tus
+  verdaderos discípulos").
+- Tú to God; the reader is masculine as the general form ("digno",
+  "vencido", "Abrazado"). The Scripture in the meditations is the team's,
+  from the English. Day 7's prayer has no "Amén", as in the English. Day
+  8's quotation, unclosed in the English, is closed.
+- The rubrics, the card sentence and the day titles are the team's.
+
+### `st_joseph_novena`, and the novena `st_joseph` (`ai_translated`)
+
+Added on 14 November 2026. The team's translation of the whole novena from
+the English of Fr Lawrence G. Lovasik, S.V.D., *Saint Joseph: The Family
+Saint* (Divine Word Publications, 1956), as EWTN prints it; no published
+Spanish of this text was found (reports/rig/novenas/nine/batch-2.md).
+Every part is marked `ai_translated`, and so is the novena. For ios-review
+to check. The long daily meditations are translated in full.
+
+- "Foster father" is "padre nutricio", as in the team's other prayers;
+  "foster-Son" is "tu Hijo adoptivo"; "God-Man" is "Hombre-Dios"; "a
+  happy death" is "una buena muerte", the usual Spanish.
+- "San José" opens each meditation and prayer; inside a sentence he is
+  "san José" ("Glorioso san José", "el Acordaos a san José").
+- "You and Mary" takes ustedes ("tú y María se entregaron el uno al
+  otro"), as Mexican Spanish does.
+- Scripture is quoted in the team's Spanish with Spanish references (Mt
+  1, 16; Gn 41, 38; Lc 2, 51; Lc 4, 18; Mt 5, 3).
+- "(Mention your request)" is "(Aquí se pide la gracia que se desea.)",
+  impersonal like the book's other intention rubrics.
+- The English's slips are read as meant: day 1 "done its word" as "its
+  work"; day 6 "the holy sacraments of God and of the Church" kept as
+  printed.
+- The Memorare to St Joseph is the book's `memorare_st_joseph`, named in
+  the opening rubric only, as in the English. The rubrics, the card
+  sentence, the part titles and the day titles are the team's.
 
 # Sources of the Consecration's Spanish
 
