@@ -183,7 +183,22 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
             {"st_therese", 9, "st_therese_novena"}
           ] do
         novena = by_id[id]
-        assert %{"length" => ^length, "prayer_id" => ^twin, "art" => nil} = novena, id
+        assert %{"length" => ^length, "prayer_id" => ^twin} = novena, id
+
+        # Art (14 Nov 2026): the painting as a public file, named by its
+        # hash, credited; none yet for Perpetual Help and St Therese.
+        case novena["art"] do
+          nil ->
+            assert id in ~w(our_mother_of_perpetual_help st_therese), id
+
+          art ->
+            assert art["url"] =~
+                     ~r"^https://s3\.us-east-2\.amazonaws\.com/lumenviae-images/novenas/art/novena_#{id}-[0-9a-f]{12}\.jpg$"
+
+            assert String.starts_with?(art["sha256"], art["url"] |> String.slice(-16, 12)), id
+            assert art["bytes"] > 0 and art["credit"] =~ "via Wikimedia Commons", id
+        end
+
         assert Enum.map(novena["days"], & &1["number"]) == Enum.to_list(1..length), id
 
         for day <- novena["days"], %{"text" => text} <- day["parts"], text do
