@@ -30,7 +30,7 @@ defmodule LumenViae.Rosary.Types.SpiritualBookArchiveRecording do
       allow_nil?: false,
       constraints: [nil_items?: false],
       description:
-        "Chapters, by index from 0, this recording does not read (Story of a Soul's Prologue and Epilogue): show them with no audio."
+        "Chapters, by index from 0, this recording does not read: show them with no audio. Usually empty."
   end
 
   use AshGraphql.Type

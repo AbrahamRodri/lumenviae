@@ -1177,8 +1177,9 @@ here, with a new `version`, instead of in an app release.
     that read each chapter, played one after another, each `{name, start,
     end}`: `start` and `end` are seconds or null (the beginning, the end of
     the file), and what follows `end` is a reader's notes, not the book.
-    `unread` lists chapters it does not read (the Prologue and Epilogue):
-    show them with no audio. `librivox_id` and `track_mapping` stay as they
+    `unread` lists chapters it does not read, to show with no audio
+    (none for The Story of a Soul: its Prologue and Epilogue have files
+    too). `librivox_id` and `track_mapping` stay as they
     were, so a client that does not read this field keeps playing
     LibriVox;
   - `chapter_titles`: a title per chapter for an edition that prints none

@@ -23,7 +23,7 @@ type SpiritualBookArchiveChapter {
 }
 
 type SpiritualBookArchiveRecording {
-  "Chapters, by index from 0, this recording does not read (Story of a Soul's Prologue and Epilogue): show them with no audio."
+  "Chapters, by index from 0, this recording does not read: show them with no audio. Usually empty."
   unread: [Int!]!
 
   "The Internet Archive item (`StorySoul`). A file is `https:\/\/archive.org\/download\/<item>\/<name>`."

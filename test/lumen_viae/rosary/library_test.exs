@@ -56,7 +56,7 @@ defmodule LumenViae.Rosary.LibraryTest do
     ],
     "spiritual_reading.json" => [
       {~U[2026-10-29 01:00:00Z], "f30d1197ef8ce10d"},
-      {~U[2026-11-14 02:30:00Z], "11477a4facbd0321"}
+      {~U[2026-11-14 02:45:00Z], "5c1e4c10da5cd476"}
     ]
   }
 
@@ -760,8 +760,8 @@ defmodule LumenViae.Rosary.LibraryTest do
     end
 
     # The 2008 Internet Archive recording (reports/rig/story-of-a-soul-audio/
-    # findings.md, section 2): Thérèse's eleven chapters, the Prologue and
-    # Epilogue unread, the notes after each cut left out. Shipped apps keep
+    # findings.md, section 2): the Prologue, Thérèse's eleven chapters and
+    # the Epilogue, the notes after each cut left out. Shipped apps keep
     # LibriVox 8021 and its mapping, so neither changes.
     test "Story of a Soul carries the archive recording and keeps its LibriVox one" do
       soul = Enum.find(spiritual()["books"], &(&1["id"] == "story-of-a-soul"))
@@ -770,8 +770,14 @@ defmodule LumenViae.Rosary.LibraryTest do
       assert soul["librivox_id"] == 8021
       assert soul["track_mapping"] == %{"kind" => "sequential", "offset" => 1, "unread" => []}
       assert recording["item"] == "StorySoul"
-      assert recording["unread"] == [0, 12]
-      assert Enum.map(recording["chapters"], & &1["chapter"]) == Enum.to_list(1..11)
+      assert recording["unread"] == []
+      assert Enum.map(recording["chapters"], & &1["chapter"]) == Enum.to_list(0..12)
+
+      assert [%{"files" => [%{"name" => "storysoulPreface_64kb.mp3"}]} | _] =
+               recording["chapters"]
+
+      assert Enum.map(List.last(recording["chapters"])["files"], & &1["name"]) ==
+               ~w(storysoulEpilogue1_64kb.mp3 storysoulEpilogue2_64kb.mp3 storysoulEpilogue3_64kb.mp3)
 
       ends =
         for chapter <- recording["chapters"],
@@ -810,7 +816,7 @@ defmodule LumenViae.Rosary.LibraryTest do
       assert broken.(%{recording | "chapters" => [two, one | rest]}) =~
                "its chapters are indexes from 0, each once, in order"
 
-      assert broken.(%{recording | "unread" => [0, 1, 12]}) =~ "chapter 1 is both read and unread"
+      assert broken.(%{recording | "unread" => [1]}) =~ "chapter 1 is both read and unread"
 
       bad_file = %{one | "files" => [%{"name" => "../x.wav", "start" => nil, "end" => nil}]}
       assert broken.(%{recording | "chapters" => [bad_file, two | rest]}) =~ "is an mp3 name"

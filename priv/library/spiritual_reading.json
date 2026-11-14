@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-14T02:30:00Z",
+  "updated_at": "2026-11-14T02:45:00Z",
   "books": [
     {
       "id": "imitation-of-christ",
@@ -42,6 +42,16 @@
         "item": "StorySoul",
         "credit": "Internet Archive recording, 2008, reader not named; public domain",
         "chapters": [
+          {
+            "chapter": 0,
+            "files": [
+              {
+                "name": "storysoulPreface_64kb.mp3",
+                "start": null,
+                "end": null
+              }
+            ]
+          },
           {
             "chapter": 1,
             "files": [
@@ -191,12 +201,29 @@
                 "end": 1937.0
               }
             ]
+          },
+          {
+            "chapter": 12,
+            "files": [
+              {
+                "name": "storysoulEpilogue1_64kb.mp3",
+                "start": null,
+                "end": null
+              },
+              {
+                "name": "storysoulEpilogue2_64kb.mp3",
+                "start": null,
+                "end": null
+              },
+              {
+                "name": "storysoulEpilogue3_64kb.mp3",
+                "start": null,
+                "end": null
+              }
+            ]
           }
         ],
-        "unread": [
-          0,
-          12
-        ]
+        "unread": []
       },
       "track_mapping": {
         "kind": "sequential",
