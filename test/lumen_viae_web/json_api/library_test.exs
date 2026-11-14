@@ -186,10 +186,10 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
         assert %{"length" => ^length, "prayer_id" => ^twin} = novena, id
 
         # Art (14 Nov 2026): the painting as a public file, named by its
-        # hash, credited; none yet for Perpetual Help and St Therese.
+        # hash, credited; none yet for St Therese.
         case novena["art"] do
           nil ->
-            assert id in ~w(our_mother_of_perpetual_help st_therese), id
+            assert id == "st_therese", id
 
           art ->
             assert art["url"] =~
