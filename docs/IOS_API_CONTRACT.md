@@ -27,6 +27,22 @@ relaxed until no installed build calls it.
 
 ## Gap list
 
+Every item below now has its test (checked 14 Nov 2026), so this list is
+the record of what each test pins rather than work still to do. Where to
+find them:
+
+- G1, G2, D1-D3, D6, C2: `test/lumen_viae_web/controllers/api/contract_test.exs`;
+  G2 also per route, and G3's integer checks beside every id comparison.
+- S1-S4: `test/lumen_viae_web/controllers/api/meditation_set_controller_test.exs`.
+- D4, D5, A1, A2: `narration_test.exs`. V1: `voice_controller_test.exs`.
+- R1-R7: `rosary_audio_controller_test.exs`.
+- C1: `completion_context_test.exs`. C3: `completion_back_compat_test.exs`
+  (the server's half; the app's user agent is an Xcode setting).
+- O1-O3: `office_controller_test.exs`.
+
+A new gap is added here with its id when a build starts reading something
+no test pins.
+
 ### Global
 
 - **G1.** No route under `/api` passes through the `:browser` pipeline.

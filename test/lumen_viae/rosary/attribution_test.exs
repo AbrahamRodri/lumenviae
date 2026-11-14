@@ -220,4 +220,45 @@ defmodule LumenViae.Rosary.AttributionTest do
       assert rendered.source == nil
     end
   end
+
+  # Set 25 lost its byline on 7 Nov 2026 when one meditation was credited
+  # to another author: nothing said so. The edit page now lists the sets
+  # an edit leaves with no author.
+  describe "visible_sets_without_byline" do
+    test "lists a visible set once its meditations stop agreeing, and only then" do
+      set = create_set()
+      first = add_meditation(set, %{author: "Archbishop Fulton J. Sheen"})
+      _second = add_meditation(set, %{author: "Archbishop Fulton J. Sheen"})
+
+      refute set.id in ids(Rosary.visible_sets_without_byline(first.id, actor: admin()))
+
+      {:ok, _} =
+        Rosary.update_meditation(first, %{author: "G. K. Chesterton"}, actor: admin())
+
+      assert set.id in ids(Rosary.visible_sets_without_byline(first.id, actor: admin()))
+      assert set.id in ids(Rosary.visible_sets_without_byline(nil, actor: admin()))
+    end
+
+    test "a set's own author keeps it off the list" do
+      set = create_set(%{author: "St. Louis de Montfort"})
+      meditation = add_meditation(set, %{author: "One"})
+      add_meditation(set, %{author: "Another"})
+
+      refute set.id in ids(Rosary.visible_sets_without_byline(meditation.id, actor: admin()))
+    end
+
+    test "narrowed to a meditation, other sets are left out" do
+      lost = create_set()
+      add_meditation(lost, %{author: "One"})
+      add_meditation(lost, %{author: "Another"})
+
+      other = create_set()
+      meditation = add_meditation(other, %{author: "Someone"})
+
+      assert lost.id in ids(Rosary.visible_sets_without_byline(nil, actor: admin()))
+      refute lost.id in ids(Rosary.visible_sets_without_byline(meditation.id, actor: admin()))
+    end
+  end
+
+  defp ids(sets), do: Enum.map(sets, & &1.id)
 end

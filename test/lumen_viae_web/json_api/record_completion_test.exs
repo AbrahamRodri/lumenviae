@@ -349,5 +349,21 @@ defmodule LumenViaeWeb.JsonApi.RecordCompletionTest do
 
       conn |> record(%{meditation_set_id: set.id}) |> v2_response(201)
     end
+
+    # Security pass NIT 7: each check costs a query, so one address has a
+    # minute's budget of checks, apart from the hourly one.
+    test "has a small budget of its own per address, then answers 429", %{conn: conn, set: set} do
+      limit = LumenViae.Rosary.Completion.CheckRecord.per_minute()
+
+      for _ <- 1..limit do
+        conn |> check(%{meditation_set_id: set.id}) |> v2_response(201)
+      end
+
+      conn |> check(%{meditation_set_id: set.id}) |> v2_response(429)
+
+      # Another address is not affected, and the write's budget is untouched.
+      conn |> from_a_new_address() |> check(%{meditation_set_id: set.id}) |> v2_response(201)
+      conn |> record(%{meditation_set_id: set.id}) |> v2_response(201)
+    end
   end
 end

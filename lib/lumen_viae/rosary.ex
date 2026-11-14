@@ -921,6 +921,27 @@ defmodule LumenViae.Rosary do
   end
 
   @doc """
+  The visible sets shown with no author: neither their own nor one every
+  meditation in them agrees on (`MeditationSet.byline_author`). With a
+  meditation id, only the sets holding that meditation. For the
+  meditation edit page, so an edit that empties a set's byline is seen
+  (set 25 shipped that way on 7 Nov 2026).
+  """
+  def visible_sets_without_byline(meditation_id \\ nil, opts \\ []) do
+    MeditationSet
+    |> Ash.Query.for_read(:visible)
+    |> holding(meditation_id)
+    |> Ash.Query.load(:byline_author)
+    |> Ash.read!(AshOpts.take(opts))
+    |> Enum.filter(&is_nil(&1.byline_author))
+  end
+
+  defp holding(query, nil), do: query
+
+  defp holding(query, meditation_id),
+    do: Ash.Query.filter(query, exists(meditations, id == ^meditation_id))
+
+  @doc """
   Ids of the sets still waiting for a painting, for the admin dashboard.
 
   Id-shaped rather than a count because the dashboard only reports on sets

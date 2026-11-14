@@ -294,6 +294,7 @@ defmodule LumenViaeWeb.API.ContractTest do
         |> Map.fetch!("data")
 
       assert Enum.map(data["meditations"], & &1["id"]) == [m3.id, m1.id, m2.id]
+      assert Enum.all?(data["meditations"], &is_integer(&1["id"]))
     end
 
     # D6: the app's URLCache honours this, and a cached response would

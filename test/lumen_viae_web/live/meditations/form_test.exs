@@ -89,6 +89,30 @@ defmodule LumenViaeWeb.Live.Meditations.FormTest do
                "Venerable Fulton J. Sheen"
     end
 
+    test "an edit that leaves a set with no author says so, naming the set", %{
+      conn: conn,
+      mystery: mystery
+    } do
+      {:ok, set} =
+        Rosary.create_meditation_set(%{name: "Sheen set", category: "joyful"}, actor: admin())
+
+      first = create_meditation(mystery, %{author: "Fulton Sheen"})
+      second = create_meditation(mystery, %{author: "Fulton Sheen"})
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, first.id, 1, actor: admin())
+      {:ok, _} = Rosary.add_meditation_to_set(set.id, second.id, 2, actor: admin())
+
+      {:ok, view, html} = live(conn, "/admin/meditations/#{first.id}/edit")
+      refute html =~ "show no author"
+
+      html =
+        view
+        |> form("form[phx-submit=update_meditation]", %{meditation: %{author: "G. K. Chesterton"}})
+        |> render_submit()
+
+      assert html =~ "show no author"
+      assert has_element?(view, ~s(a[href="/admin/meditation-sets/#{set.id}/edit"]), "Sheen set")
+    end
+
     test "an edit to the words clears the narration pauses that indexed them", %{
       conn: conn,
       mystery: mystery

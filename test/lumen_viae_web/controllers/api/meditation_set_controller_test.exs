@@ -62,6 +62,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
         |> Map.fetch!("data")
 
       assert Enum.map(data, & &1["id"]) == [first.id, second.id, third.id]
+      assert Enum.all?(data, &is_integer(&1["id"]))
     end
 
     test "carries the summary fields the picker reads", %{conn: conn} do
@@ -167,6 +168,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
         |> Map.fetch!("data")
 
       assert Enum.map(data, & &1["id"]) == [a.id, b.id, c.id]
+      assert Enum.all?(data, &is_integer(&1["id"]))
     end
 
     # S4: the app never pages, so everything must come back at once.
@@ -180,6 +182,7 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
         |> Map.fetch!("data")
 
       assert Enum.map(data, & &1["id"]) == ids
+      assert Enum.all?(data, &is_integer(&1["id"]))
     end
   end
 

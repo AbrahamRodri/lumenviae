@@ -112,6 +112,10 @@ defmodule LumenViaeWeb.Live.Meditations.Edit do
     |> assign_narration()
     |> History.assign_history(meditation)
     |> assign(
+      :sets_without_byline,
+      Rosary.visible_sets_without_byline(meditation.id, actor: socket.assigns.current_admin)
+    )
+    |> assign(
       :edit_form,
       to_form(
         Rosary.form_to_update_meditation(meditation,

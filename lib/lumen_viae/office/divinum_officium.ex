@@ -43,6 +43,8 @@ defmodule LumenViae.Office.DivinumOfficium do
 
   @receive_timeout_ms 15_000
   @connect_timeout_ms 5_000
+  # An hour's page is well under 1 MB; anything past this is not one.
+  @max_body_bytes 2_000_000
 
   @doc """
   The assembled office of one hour: HTML with Latin and the requested
@@ -95,13 +97,22 @@ defmodule LumenViae.Office.DivinumOfficium do
         headers: [user_agent: @user_agent],
         receive_timeout: @receive_timeout_ms,
         connect_options: [timeout: @connect_timeout_ms] ++ transport_options(base_url),
-        retry: false
+        retry: false,
+        redirect: false,
+        compressed: false,
+        decode_body: false,
+        into: &capped/2
       ]
       |> Keyword.merge(config(:req_options, []))
 
     case Req.get(base_url <> path, options) do
-      {:ok, %Req.Response{status: 200, body: body}} when is_binary(body) ->
-        {:ok, body}
+      {:ok, %Req.Response{status: 200, body: body} = response} when is_binary(body) ->
+        if Req.Response.get_private(response, :too_large) do
+          Logger.warning("Divinum Officium's answer for #{path} passed #{@max_body_bytes} bytes")
+          {:error, :too_large}
+        else
+          {:ok, body}
+        end
 
       {:ok, %Req.Response{status: status}} ->
         Logger.warning("Divinum Officium answered #{status} for #{path}")
@@ -116,6 +127,21 @@ defmodule LumenViae.Office.DivinumOfficium do
       Logger.warning("Divinum Officium request raised: #{Exception.message(exception)}")
       {:error, :upstream_unreachable}
   end
+
+  # The body gathered a chunk at a time, and dropped the moment it passes
+  # the cap, as Missale Meum's is.
+  defp capped({:data, data}, {request, response}) do
+    body = response.body <> data
+
+    if byte_size(body) > @max_body_bytes do
+      {:halt, {request, %{Req.Response.put_private(response, :too_large, true) | body: ""}}}
+    else
+      {:cont, {request, %{response | body: body}}}
+    end
+  end
+
+  @doc false
+  def max_body_bytes, do: @max_body_bytes
 
   defp format_date(date), do: Calendar.strftime(date, "%m-%d-%Y")
 

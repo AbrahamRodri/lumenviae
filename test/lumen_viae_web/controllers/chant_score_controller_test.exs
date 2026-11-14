@@ -79,4 +79,15 @@ defmodule LumenViaeWeb.ChantScoreControllerTest do
     stub(fn req -> Plug.Conn.send_resp(req, 403, "") end)
     assert conn |> get("/chant/scores/#{@name}") |> response(502)
   end
+
+  # Security pass NIT 5: the body is read only up to the size the library
+  # names, so a bucket sending more is dropped, not held in memory whole.
+  test "a body longer than the library's page is a 502", %{conn: conn} do
+    Process.put(:chant_score_scope, make_ref())
+    bytes = File.read!(@fixture)
+
+    stub(fn req -> Plug.Conn.send_resp(req, 200, bytes <> String.duplicate("x", 1_000_000)) end)
+
+    assert conn |> get("/chant/scores/#{@name}") |> response(502)
+  end
 end
