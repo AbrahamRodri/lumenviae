@@ -56,7 +56,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-10-28 06:30:00Z], "20566a4a5a5c600f"}
     ],
     "spiritual_reading.json" => [
-      {~U[2026-10-29 01:00:00Z], "f30d1197ef8ce10d"}
+      {~U[2026-10-29 01:00:00Z], "f30d1197ef8ce10d"},
+      {~U[2026-11-14 02:45:00Z], "5c1e4c10da5cd476"}
     ]
   }
 
@@ -834,6 +835,77 @@ defmodule LumenViae.Rosary.LibraryTest do
 
       assert spiritual_errors(%{"books" => [twice]}) =~
                "chapter 54 has more than one heading override"
+    end
+
+    # The 2008 Internet Archive recording (reports/rig/story-of-a-soul-audio/
+    # findings.md, section 2): the Prologue, Thérèse's eleven chapters and
+    # the Epilogue, the notes after each cut left out. Shipped apps keep
+    # LibriVox 8021 and its mapping, so neither changes.
+    test "Story of a Soul carries the archive recording and keeps its LibriVox one" do
+      soul = Enum.find(spiritual()["books"], &(&1["id"] == "story-of-a-soul"))
+      recording = soul["archive_recording"]
+
+      assert soul["librivox_id"] == 8021
+      assert soul["track_mapping"] == %{"kind" => "sequential", "offset" => 1, "unread" => []}
+      assert recording["item"] == "StorySoul"
+      assert recording["unread"] == []
+      assert Enum.map(recording["chapters"], & &1["chapter"]) == Enum.to_list(0..12)
+
+      assert [%{"files" => [%{"name" => "storysoulPreface_64kb.mp3"}]} | _] =
+               recording["chapters"]
+
+      assert Enum.map(List.last(recording["chapters"])["files"], & &1["name"]) ==
+               ~w(storysoulEpilogue1_64kb.mp3 storysoulEpilogue2_64kb.mp3 storysoulEpilogue3_64kb.mp3)
+
+      ends =
+        for chapter <- recording["chapters"],
+            file <- chapter["files"],
+            file["end"],
+            into: %{},
+            do: {file["name"], file["end"]}
+
+      assert ends == %{
+               "storysoul02b_64kb.mp3" => 1036.0,
+               "storysoul03_64kb.mp3" => 1793.0,
+               "storysoul04a_64kb.mp3" => 1765.0,
+               "storysoul04b_64kb.mp3" => 789.0,
+               "storysoul06b_64kb.mp3" => 740.0,
+               "storysoul07_64kb.mp3" => 2021.0,
+               "storysoul08b_64kb.mp3" => 1452.0,
+               "storysoul11b_64kb.mp3" => 1937.0
+             }
+
+      for book <- spiritual()["books"], book["id"] != "story-of-a-soul" do
+        assert book["archive_recording"] == nil, book["id"]
+      end
+    end
+
+    test "refuses an archive recording whose chapters repeat, are unread, or whose files are not mp3s" do
+      books = spiritual()["books"]
+      soul = Enum.find(books, &(&1["id"] == "story-of-a-soul"))
+      [one, two | rest] = soul["archive_recording"]["chapters"]
+
+      broken = fn recording ->
+        spiritual_errors(%{"books" => [%{soul | "archive_recording" => recording}]})
+      end
+
+      recording = soul["archive_recording"]
+
+      assert broken.(%{recording | "chapters" => [two, one | rest]}) =~
+               "its chapters are indexes from 0, each once, in order"
+
+      assert broken.(%{recording | "unread" => [1]}) =~ "chapter 1 is both read and unread"
+
+      bad_file = %{one | "files" => [%{"name" => "../x.wav", "start" => nil, "end" => nil}]}
+      assert broken.(%{recording | "chapters" => [bad_file, two | rest]}) =~ "is an mp3 name"
+
+      backwards = %{one | "files" => [%{"name" => "a.mp3", "start" => 20.0, "end" => 10.0}]}
+
+      assert broken.(%{recording | "chapters" => [backwards, two | rest]}) =~
+               "a.mp3 starts after it ends"
+
+      assert broken.(%{recording | "chapters" => [%{one | "files" => []}, two | rest]}) =~
+               "chapter 0: it needs at least one file"
     end
   end
 

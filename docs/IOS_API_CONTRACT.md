@@ -380,6 +380,15 @@ twin's place, and treats `list_title`, `latin_title`, `note`, `origin`,
 `title`, `text` and `source` as optional. `kind` is a string, not an
 enum: a kind the app does not know is shown as plain text.
 
+No shipped build calls `GET /api/v2/spiritual-reading`: the Spiritual
+Reading catalogue is compiled into the app (`Data/LibraryCatalog.swift`).
+On 14 Nov 2026 the api's catalogue gained `archive_recording` for The
+Story of a Soul (the 2008 Internet Archive recording, per chapter, with
+optional `start` and `end` seconds; docs/JSON_API.md, "Spiritual
+Reading"). A new build that plays it copies that shape into its catalogue
+or reads the api's, with a new edition cache key. Shipped builds keep
+LibriVox 8021, which the api leaves unchanged.
+
 A meditation's narrations in v2 and GraphQL (`narrations`,
 `narration(preferring:)`, `POST /api/v2/meditations/audio`,
 `meditationAudio`) gained an optional `lines` on 2 Nov 2026: the recording

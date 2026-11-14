@@ -239,6 +239,7 @@ defmodule LumenViae.Rosary.Library.Check do
           else: ["librivox_id is a whole number or null"]
         ) ++
         track_errors(track) ++
+        archive_errors(book["archive_recording"]) ++
         required(parsing, ~w(chapter_pattern)) ++
         optional(parsing, ~w(part_pattern start_pattern stop_pattern note_pattern drop_pattern)) ++
         for(
@@ -263,6 +264,63 @@ defmodule LumenViae.Rosary.Library.Check do
 
     for error <- errors, do: "#{book["id"]}: #{error}"
   end
+
+  # An Internet Archive recording: a name-safe item and credit, each chapter
+  # once and in order, never one it calls unread, each read by at least one
+  # mp3 file, and a file's start before its end.
+  defp archive_errors(nil), do: []
+
+  defp archive_errors(%{"chapters" => chapters, "unread" => unread} = recording)
+       when is_list(chapters) and is_list(unread) do
+    indexes = Enum.map(chapters, &(is_map(&1) && &1["chapter"]))
+
+    errors =
+      required(recording, ~w(item credit)) ++
+        unnamed("archive item", [recording["item"]]) ++
+        if(
+          Enum.all?(indexes, &(is_integer(&1) and &1 >= 0)) and
+            indexes == Enum.sort(Enum.uniq(indexes)),
+          do: [],
+          else: ["its chapters are indexes from 0, each once, in order"]
+        ) ++
+        if(Enum.all?(unread, &(is_integer(&1) and &1 >= 0)),
+          do: [],
+          else: ["its unread chapters are indexes from 0"]
+        ) ++
+        for(index <- indexes, index in unread, do: "chapter #{index} is both read and unread") ++
+        for(
+          chapter <- chapters,
+          error <- archive_chapter_errors(chapter),
+          do: "chapter #{inspect(chapter["chapter"])}: #{error}"
+        )
+
+    for error <- errors, do: "archive_recording: #{error}"
+  end
+
+  defp archive_errors(_recording),
+    do: ["archive_recording is null or has chapters and unread lists"]
+
+  defp archive_chapter_errors(%{"files" => [_ | _] = files}) do
+    for file <- files, error <- archive_file_errors(file), do: error
+  end
+
+  defp archive_chapter_errors(_chapter), do: ["it needs at least one file"]
+
+  defp archive_file_errors(%{"name" => name} = file) when is_binary(name) do
+    start = file["start"]
+    stop = file["end"]
+
+    if(Regex.match?(~r/\A[A-Za-z0-9_-]+\.mp3\z/, name),
+      do: [],
+      else: ["the file #{inspect(name)} is an mp3 name of letters, digits, _ and -"]
+    ) ++
+      if(is_nil(start) or is_nil(stop) or start < stop,
+        do: [],
+        else: ["#{name} starts after it ends"]
+      )
+  end
+
+  defp archive_file_errors(file), do: ["a file needs a name: #{inspect(file)}"]
 
   @track_kinds ~w(none sequential book_chapter_ranges book_spans)
 
