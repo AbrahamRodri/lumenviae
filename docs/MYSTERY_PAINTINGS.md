@@ -177,9 +177,12 @@ Locally:
     mix lumen_viae.artwork_variants --dry-run
     mix lumen_viae.artwork_variants
 
-In production (the Droplet, from the Compose stack's folder; an owner's
-shell, not an agent's):
+In production (the Droplet, in an owner's shell, not an agent's).
+`compose.yml` requires `IMAGE`, which only the deploy sets, so give it a
+placeholder for `exec` as the backup script does:
 
+    cd /srv/lumenviae
+    export IMAGE=unused-by-exec
     docker compose exec app /app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants(dry_run: true)'
     docker compose exec app /app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants()'
 
