@@ -543,6 +543,26 @@ Where it differs from the English:
   author of all holiness and pious prayers, "alcanzar plenamente" for
   effectually obtain.
 
+## The novenas
+
+### `undoer_of_knots_novena`: "Novena a la Virgen Desatanudos", and the novena `undoer_of_knots`
+
+Added on 14 November 2026. Publisher text, not `ai_translated`: Ascension Press's
+own Spanish of Fr. Juan Ramón Celeiro's novena,
+[Novena a Nuestra Señora Desatanudos](https://ascensionpress.com/es/pages/novena-to-our-lady-undoer-of-knots),
+captured on 14 November 2026 02:19Z. Credit: "Novena del P. Juan Ramón Celeiro, según la publica Ascension Press".
+Copied under the project's rule: there is no explicit notice against it. Always credited.
+
+- The words are the page's, word for word, apart from the edits listed in the team's capture notes.
+  - The page's image caption, "Nuestra Señora Desatanudos", is dropped from the start of the meditations.
+  - The closing prayer is printed with slightly different wording on days 8 and 9; the wording of days 1 to 7 is used every day.
+- The titles are the team's (ios-review, 14 November 2026; Abraham: "novena-es: desatanudos").
+  - Novena: "La Virgen Desatanudos"; list: "Virgen Desatanudos"; twin: "Novena a la Virgen Desatanudos".
+  - "La Virgen Desatanudos" is the name used in Mexico. The source page's header, "Nuestra Señora Desatanudos", is a literal rendering of the English and is rarely said.
+  - Text quoted from the source stays as printed ("María, Desatanudos", "Oración a María Desatanudos").
+- The novena's parts (`novenas` in this file) are the same words as the twin, by part id. The server refuses a part whose words are not in the twin.
+- The card sentence ("Nueve días del Rosario, una meditación y la oración a María Desatanudos.") and the day titles ("Día 1" to "Día 9", as the page heads them) are the team's.
+
 # Sources of the Consecration's Spanish
 
 `es/consecration.json` holds the 33-day Consecration in Spanish, served in
