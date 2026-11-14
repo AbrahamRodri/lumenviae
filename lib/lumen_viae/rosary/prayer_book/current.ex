@@ -32,7 +32,12 @@ defmodule LumenViae.Rosary.PrayerBook.Current do
     %{version: version, updated_at: updated_at} = Library.stamp(:prayer_book)
 
     %{
-      version: Content.version(%{"book" => version, "translations" => Spanish.prayers()}),
+      version:
+        Content.version(%{
+          "book" => version,
+          "translations" => Spanish.prayers(),
+          "novena_translations" => Spanish.novenas()
+        }),
       updated_at: Enum.max([updated_at, Spanish.updated_at()], DateTime)
     }
   end

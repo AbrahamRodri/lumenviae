@@ -134,6 +134,41 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
         assert "closing" in kinds, "day #{day["number"]}"
       end
     end
+
+    test "novena_translations: the Spanish by part id with lang=es, empty in English", %{
+      conn: conn
+    } do
+      path = "/prayer-book?fields[prayer_book]=novenas,novena_translations"
+
+      english = conn |> get_v2(path) |> v2_response(200) |> get_in(["data", "attributes"])
+      assert english["novena_translations"] == []
+
+      spanish =
+        conn |> get_v2(path <> "&lang=es") |> v2_response(200) |> get_in(["data", "attributes"])
+
+      [novena] = spanish["novenas"]
+      [knots] = spanish["novena_translations"]
+
+      assert %{"id" => "undoer_of_knots", "title" => "La Virgen Desatanudos"} = knots
+      assert length(knots["day_titles"]) == novena["length"]
+
+      own =
+        for day <- novena["days"], part <- day["parts"], part["id"], uniq: true, do: part["id"]
+
+      assert Enum.map(knots["parts"], & &1["id"]) == own
+    end
+
+    test "a shipped app's Spanish request carries no novena_translations", %{conn: conn} do
+      attributes =
+        conn
+        |> get_v2(
+          "/prayer-book?lang=es&fields[prayer_book]=version,updated_at,prayers,translations"
+        )
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      assert Map.keys(attributes) |> Enum.sort() == ~w(prayers translations updated_at version)
+    end
   end
 
   describe "the Prayer Book" do

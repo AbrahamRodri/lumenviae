@@ -155,5 +155,15 @@ defmodule LumenViae.Rosary.PrayerBook do
 
       description "The novenas, days of prayer said one a day. Each is also one of `prayers`, its twin (`prayer_id`), holding every day as plain text: show the novena in the twin's place, not both. Served only when named in `fields[prayer_book]`."
     end
+
+    calculate :novena_translations,
+              {:array, LumenViae.Rosary.PrayerBook.NovenaTranslation},
+              LumenViae.Rosary.PrayerBook.NovenaTranslations do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "With `lang=es`, every novena that has Spanish, in the order of `novenas`: its titles, card sentence, day titles and the words of its own parts, by part id. A part named by a book prayer takes that prayer's `translations` entry. A novena or part not listed keeps its English. Empty in English. Served only when named in `fields[prayer_book]`."
+    end
   end
 end

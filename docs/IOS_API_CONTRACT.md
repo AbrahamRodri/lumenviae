@@ -378,7 +378,13 @@ novenas names `novenas` in `fields[prayer_book]`, shows a novena in its
 twin's place, and treats `list_title`, `latin_title`, `note`, `origin`,
 `feast`, `painting`, `art` and a part's `prayer_id`, `times`, `id`,
 `title`, `text`, `source` and `decades` as optional. `kind` is a string, not an
-enum: a kind the app does not know is shown as plain text.
+enum: a kind the app does not know is shown as plain text. In Spanish it
+also names `novena_translations` (with `lang=es`): each novena's Spanish
+titles, card sentence, `day_titles` and its own parts' words by part `id`,
+laid over `novenas` as `translations` is over `prayers`; `list_title`,
+`note`, `origin` and a part's `title` are optional, and a novena or part
+not listed keeps its English (docs/JSON_API.md, "The Prayer Book in
+Spanish").
 
 No shipped build calls `GET /api/v2/spiritual-reading`: the Spiritual
 Reading catalogue is compiled into the app (`Data/LibraryCatalog.swift`).

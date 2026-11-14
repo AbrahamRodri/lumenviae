@@ -70,6 +70,89 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
     end
   end
 
+  # The novenas' Spanish, keyed by novena id: its titles, card sentence,
+  # day titles and the words of its own parts by part id. Every part's
+  # Spanish stands in the Spanish twin word for word, as the English does in
+  # the English twin, so the two never drift.
+  @file_novenas Map.get(file, "novenas", %{})
+  @book_novenas Library.served(:prayer_book, "novenas")
+
+  for {id, spanish} <- @file_novenas do
+    novena = Enum.find(@book_novenas, &(&1.id == id))
+
+    fail =
+      &raise(CompileError,
+        description: "priv/library/es/prayer_book.json, the novena #{id}: #{&1}"
+      )
+
+    if is_nil(novena), do: fail.("the book has no such novena")
+
+    twin = get_in(@file_prayers, [novena.prayer_id, "text"])
+    if is_nil(twin), do: fail.("its twin #{novena.prayer_id} has no Spanish here")
+
+    unless match?(%{"title" => t, "detail" => d} when is_binary(t) and is_binary(d), spanish),
+      do: fail.("it needs a title and a detail")
+
+    unless is_list(spanish["search_words"]), do: fail.("it needs its search_words")
+
+    day_titles = spanish["day_titles"]
+
+    unless is_list(day_titles) and length(day_titles) == novena.length and
+             Enum.all?(day_titles, &(is_binary(&1) and &1 != "")),
+           do: fail.("its day_titles are one per day, #{novena.length}")
+
+    part_ids =
+      for day <- novena.days, part <- day.parts, is_binary(part.id), uniq: true, do: part.id
+
+    for {part_id, part} <- spanish["parts"] || %{} do
+      cond do
+        part_id not in part_ids ->
+          fail.("it has no part #{part_id}")
+
+        not match?(%{"text" => text} when is_binary(text) and text != "", part) ->
+          fail.("the part #{part_id} needs its text")
+
+        not String.contains?(twin, part["text"]) ->
+          fail.("the words of #{part_id} are not in the Spanish twin, word for word")
+
+        true ->
+          :ok
+      end
+    end
+  end
+
+  @doc """
+  Every novena that has Spanish, in the book's order, each
+  `%{id:, title:, list_title:, detail:, note:, origin:, search_words:,
+  day_titles:, parts:}`, its parts `%{id:, title:, text:}` in the order the
+  novena first says them.
+  """
+  @spec novenas() :: [map]
+  def novenas do
+    for novena <- @book_novenas, spanish = @file_novenas[novena.id] do
+      parts = spanish["parts"] || %{}
+
+      %{
+        id: novena.id,
+        title: spanish["title"],
+        list_title: spanish["list_title"],
+        detail: spanish["detail"],
+        note: spanish["note"],
+        origin: spanish["origin"],
+        search_words: spanish["search_words"],
+        day_titles: spanish["day_titles"],
+        parts:
+          for(
+            day <- novena.days,
+            part <- day.parts,
+            words = parts[part.id],
+            uniq: true,
+            do: %{id: part.id, title: words["title"], text: words["text"]}
+          )
+      }
+    end
+  end
+
   @doc """
   Every prayer the book prints that has Spanish, in the book's order, each
   `%{id:, title:, text:}` plus `ai_translated: true` where part of it is
@@ -115,5 +198,9 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
 
   @doc "A fingerprint of the file's words (`Content.version/1`), for the test that pins it."
   @spec file_version() :: String.t()
-  def file_version, do: Content.version(%{"prayers" => @file_prayers})
+  def file_version do
+    if @file_novenas == %{},
+      do: Content.version(%{"prayers" => @file_prayers}),
+      else: Content.version(%{"prayers" => @file_prayers, "novenas" => @file_novenas})
+  end
 end

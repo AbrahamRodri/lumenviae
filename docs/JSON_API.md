@@ -757,6 +757,21 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   The Rosary's prayers the book prints carry the Rosary's own Spanish
   (`priv/rosary_content/es/prayers.json`), so the two documents agree.
 - **Never narrated.** The spoken Prayer Book says the English.
+- **`novena_translations`** (14 Nov 2026), served only when named in
+  `fields[prayer_book]=`, with `lang=es`; `[]` in English. One per novena
+  that has Spanish, in the order of `novenas`, each `{id, title,
+  list_title, detail, note, origin, search_words, day_titles, parts}`:
+  - `id` is the novena's id in `novenas`; `day_titles` has one title per
+    day, day 1 first.
+  - `parts` are the novena's own words in Spanish, each `{id, title,
+    text}`, keyed by the part `id` that `novenas` gives them (an id never
+    names two different texts, so one entry serves every day that says
+    it). A part that names a book prayer (`prayer_id`) takes that prayer's
+    `translations` entry; a `rosary` part has no words.
+  - A novena or part not listed keeps its English. The Spanish of every
+    part stands in the twin prayer's Spanish word for word (the server
+    refuses a file where they drift).
+  - Lay it over `novenas` by id, as `translations` lies over `prayers`.
 
 ### `chant_library`
 

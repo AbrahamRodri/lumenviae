@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-14 01:30:00Z], "868e4f007effa58f"}
+  @pinned {~U[2026-11-14 06:30:00Z], "3b04aaef49ba8e9b"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -22,9 +22,8 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
 
   # A prayer newly added in English, until the Spanish team adds it to
   # priv/library/es/prayer_book.json. St. Bridget's twelve-year prayers:
-  # their Spanish is its own slice (st-bridget-es). The Undoer of Knots
-  # novena's twin: its Spanish (Ascension Press's own) is slice novenas-es.
-  @awaiting_spanish ["st_bridget_twelve_years", "undoer_of_knots_novena"]
+  # their Spanish is its own slice (st-bridget-es).
+  @awaiting_spanish ["st_bridget_twelve_years"]
 
   # Abraham, 10 Nov 2026: "Follow how other apps do it". The prayer is
   # "Ave María", and counted "Ave Marías", never "Avemaría".
@@ -89,5 +88,27 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   test "the Spanish date is never earlier than either source" do
     refute DateTime.compare(Spanish.updated_at(), Spanish.file_updated_at()) == :lt
     refute DateTime.compare(Spanish.updated_at(), Content.updated_at("es")) == :lt
+  end
+
+  # novenas-es: La Virgen Desatanudos, in Ascension Press's own Spanish
+  # (not ai_translated), with the names ios-review settled.
+  test "the Undoer of Knots novena has its Spanish, every part of its own words" do
+    assert [knots] = Spanish.novenas()
+    assert knots.id == "undoer_of_knots"
+    assert knots.title == "La Virgen Desatanudos"
+    assert knots.list_title == "Virgen Desatanudos"
+    assert length(knots.day_titles) == 9
+
+    [novena] = Library.served(:prayer_book, "novenas")
+    own = for day <- novena.days, part <- day.parts, is_binary(part.id), uniq: true, do: part.id
+    assert Enum.map(knots.parts, & &1.id) == own
+
+    twin = Enum.find(Spanish.prayers(), &(&1.id == "undoer_of_knots_novena"))
+    assert twin.title == "Novena a la Virgen Desatanudos"
+    refute Map.has_key?(twin, :ai_translated)
+    assert Enum.all?(knots.parts, &String.contains?(twin.text, &1.text))
+
+    assert Enum.find(knots.parts, &(&1.id == "undoer_of_knots_invocation")).text ==
+             "María, Desatanudos, ruega por mí."
   end
 end
