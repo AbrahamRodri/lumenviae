@@ -13,14 +13,16 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-14 15:30:00Z], "ed865bd4a05b9fa1"}
+  @pinned {~U[2026-11-14 16:00:00Z], "91aaf5d7dc21a023"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
   # closing prayer the Rosary marks, and St. Bridget's (its rubrics are the
-  # team's; its verses Torres Amat's). The St Andrew novena left it on
-  # 14 Nov 2026 (orch-lead): it is the Archdiocese of Philadelphia's Spanish.
-  @ai_translated_count 86
+  # team's; its verses Torres Amat's). The St Andrew and Sacred Heart
+  # (efficacious) novenas left it on 14 Nov 2026 (orch-lead): St Andrew is
+  # the Archdiocese of Philadelphia's Spanish, the Sacred Heart
+  # sanpiodapietrelcina.org's.
+  @ai_translated_count 85
 
   # A prayer newly added in English, until the Spanish team adds it to
   # priv/library/es/prayer_book.json.
@@ -123,7 +125,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
     by_id = Map.new(Spanish.novenas(), &{&1.id, &1})
 
     assert Map.keys(by_id) |> Enum.sort() ==
-             ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help st_andrew_christmas undoer_of_knots)
+             ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas undoer_of_knots)
 
     refute Map.has_key?(by_id, "holy_spirit")
     refute Map.has_key?(by_id, "st_joseph")

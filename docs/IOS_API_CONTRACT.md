@@ -391,12 +391,13 @@ its own parts' words by part `id`, each with its own `ai_translated`
 `translations` is over `prayers`; `list_title`, `note`, `origin` and a
 part's `title` are optional, and a novena or part not listed keeps its
 English (docs/JSON_API.md, "The Prayer Book in Spanish"). On 14 Nov 2026
-six novenas joined Undoer of Knots, and four new twin prayers
+seven novenas joined Undoer of Knots, and four new twin prayers
 (`holy_spirit_novena`, `st_joseph_novena`,
 `our_mother_of_perpetual_help_novena`, `our_lady_of_guadalupe_novena`)
-reach 4.0 to 4.3 as ordinary prayers; the St. Andrew and Immaculate
-Conception twins' Spanish changed to published texts and lost
-`ai_translated`.
+reach 4.0 to 4.3 as ordinary prayers; the St. Andrew and Sacred Heart
+(`efficacious_novena`) twins' Spanish changed to published texts and lost
+`ai_translated`, and `efficacious_novena`'s English changed to EWTN's
+wording.
 
 No shipped build calls `GET /api/v2/spiritual-reading`: the Spiritual
 Reading catalogue is compiled into the app (`Data/LibraryCatalog.swift`).

@@ -161,7 +161,7 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     end
 
     # novenas-api-nine (orch-lead, 14 Nov 2026).
-    test "the six new novenas are served with their length, days and twins", %{conn: conn} do
+    test "the seven new novenas are served with their length, days and twins", %{conn: conn} do
       attributes =
         conn
         |> get_v2("/prayer-book?fields[prayer_book]=prayers,novenas")
@@ -177,7 +177,8 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
             {"st_andrew_christmas", 25, "st_andrew_novena"},
             {"st_joseph", 9, "st_joseph_novena"},
             {"holy_spirit", 9, "holy_spirit_novena"},
-            {"our_mother_of_perpetual_help", 9, "our_mother_of_perpetual_help_novena"}
+            {"our_mother_of_perpetual_help", 9, "our_mother_of_perpetual_help_novena"},
+            {"sacred_heart", 9, "efficacious_novena"}
           ] do
         novena = by_id[id]
         assert %{"length" => ^length, "prayer_id" => ^twin, "art" => nil} = novena, id
@@ -188,7 +189,12 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
         end
       end
 
-      refute Map.has_key?(by_id, "sacred_heart")
+      # Sacred Heart: EWTN's wording, the same nine days, timed to the feast
+      # (the Friday 19 days after Pentecost).
+      sacred_heart = by_id["sacred_heart"]
+      assert sacred_heart["feast"]["days_from_easter"] == 68
+      assert sacred_heart["days"] |> Enum.map(& &1["parts"]) |> Enum.uniq() |> length() == 1
+      assert twins["efficacious_novena"] =~ "Encouraged by your infallible words"
     end
 
     test "St Andrew: 25 days of one prayer said 15 times, ending on Christmas Eve", %{conn: conn} do
@@ -262,7 +268,7 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       by_id = Map.new(spanish["novena_translations"], &{&1["id"], &1})
 
       assert Map.keys(by_id) |> Enum.sort() ==
-               ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help st_andrew_christmas undoer_of_knots)
+               ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas undoer_of_knots)
 
       team_parts = ~w(immaculate_conception_tota_pulchra immaculate_conception_closing)
 

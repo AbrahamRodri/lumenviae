@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-14T15:30:00Z",
+  "updated_at": "2026-11-14T16:00:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -248,8 +248,7 @@
     },
     "efficacious_novena": {
       "title": "Novena eficaz al Sagrado Corazón de Jesús",
-      "text": "Oh Jesús mío, tú dijiste: «Pidan y se les dará; busquen y hallarán; llamen y se les abrirá». He aquí que llamo, busco y pido la gracia de [se nombra la gracia].\n\n[Padre nuestro, Ave María, Gloria.]\n\nSagrado Corazón de Jesús, en ti pongo toda mi confianza.\n\nOh Jesús mío, tú dijiste: «En verdad, en verdad les digo: si piden algo al Padre en mi nombre, se lo dará». He aquí que en tu nombre pido al Padre la gracia de [se nombra la gracia].\n\n[Padre nuestro, Ave María, Gloria.]\n\nSagrado Corazón de Jesús, en ti pongo toda mi confianza.\n\nOh Jesús mío, tú dijiste: «El cielo y la tierra pasarán, pero mis palabras no pasarán». Apoyándome en la infalibilidad de tus santas palabras, pido la gracia de [se nombra la gracia].\n\n[Padre nuestro, Ave María, Gloria.]\n\nSagrado Corazón de Jesús, en ti pongo toda mi confianza.\n\nOh Sagrado Corazón de Jesús, a quien es imposible no tener compasión de los afligidos, ten piedad de nosotros, pobres pecadores, y concédenos la gracia que te pedimos, por el Corazón Doloroso e Inmaculado de María, tu tierna Madre y nuestra.\n\n[Salve Regina.]\n\nSan José, padre nutricio de Jesús, ruega por nosotros.",
-      "ai_translated": true
+      "text": "Oh Jesús mío, que dijiste: «En verdad os digo, pedid y recibiréis, buscad y encontraréis, llamad y se os abrirá». He aquí que yo llamo, yo busco, yo pido la gracia...\n\n[Padre nuestro, Ave María, Gloria.]\n\nSagrado Corazón de Jesús, en ti confío y espero.\n\nOh Jesús mío, que dijiste: «En verdad os digo, todo lo que pidáis a mi Padre en mi nombre, os lo concederá». He aquí que a tu Padre, en tu nombre, yo pido la gracia...\n\n[Padre nuestro, Ave María, Gloria.]\n\nSagrado Corazón de Jesús, en ti confío y espero.\n\nOh Jesús mío, que dijiste: «En verdad os digo, el cielo y la tierra pasarán, pero mis palabras no pasarán». He aquí que, apoyado en la infalibilidad de tus santas palabras, yo pido la gracia...\n\n[Padre nuestro, Ave María, Gloria.]\n\nSagrado Corazón de Jesús, en ti confío y espero.\n\nOh Sagrado Corazón de Jesús, a quien es imposible no tener compasión de los infelices, ten piedad de nosotros, pobres pecadores, y concédenos la gracia que te pedimos por intercesión del Corazón Inmaculado de María, tuya y nuestra tierna Madre.\n\n[Salve.]\n\nSan José, padre adoptivo del Sagrado Corazón de Jesús, ruega por nosotros."
     },
     "o_jesus_living_in_mary": {
       "title": "Oh Jesús, que vives en María",
@@ -1018,6 +1017,65 @@
         "perpetual_help_novena_prayer_3": {
           "title": "Tercera oración",
           "text": "Oh Madre del Perpetuo Socorro, Vos sois la dispensadora de todas las gracias que Dios concede a nosotros miserables y con este fin os ha hecho tan poderosa, tan rica, tan benigna, para que nos socorráis en nuestras desgracias. Vos sois la abogada de los reos más desdichados y abandonados que a Vos acuden; socorredme una vez más, pues a Vos me encomiendo. En vuestras manos pongo mi eterna salvación; a Vos confío mi alma. Contadme entre vuestros siervos más fieles, tomadme bajo vuestra protección y esto me basta; sí, porque si Vos me socorréis, nada temo: no mis pecados, porque Vos me obtendréis el perdón; no los demonios, porque Vos sois más poderosa que todo el infierno; no mi juez Jesús, porque con sólo un ruego vuestro se aplaca. Únicamente temo que, por negligencia, deje de encomendarme a Vos, y que de esta manera me pierda. Señora mía, alcanzadme el perdón de mis pecados, el amor a Jesús, la perseverancia final, y la gracia de acudir siempre a Vos, Madre del Perpetuo Socorro."
+        }
+      }
+    },
+    "sacred_heart": {
+      "title": "El Sagrado Corazón",
+      "list_title": "Sagrado Corazón",
+      "detail": "Nueve días antes de la fiesta del Sagrado Corazón, o en cualquier momento: tres peticiones apoyadas en las promesas de Nuestro Señor, las mismas cada día, como las rezaba el Padre Pío.",
+      "note": null,
+      "origin": "Atribuida a santa Margarita María Alacoque · rezada cada día por san Pío de Pietrelcina (Padre Pío) por quienes se encomendaban a sus oraciones · texto en español según sanpiodapietrelcina.org",
+      "search_words": [
+        "sagrado corazón",
+        "novena eficaz",
+        "padre pío",
+        "margarita maría",
+        "novena"
+      ],
+      "day_titles": [
+        "Día 1",
+        "Día 2",
+        "Día 3",
+        "Día 4",
+        "Día 5",
+        "Día 6",
+        "Día 7",
+        "Día 8",
+        "Día 9"
+      ],
+      "parts": {
+        "sacred_heart_petition_1": {
+          "title": "Primera petición",
+          "text": "Oh Jesús mío, que dijiste: «En verdad os digo, pedid y recibiréis, buscad y encontraréis, llamad y se os abrirá». He aquí que yo llamo, yo busco, yo pido la gracia..."
+        },
+        "sacred_heart_trust_1": {
+          "title": null,
+          "text": "Sagrado Corazón de Jesús, en ti confío y espero."
+        },
+        "sacred_heart_petition_2": {
+          "title": "Segunda petición",
+          "text": "Oh Jesús mío, que dijiste: «En verdad os digo, todo lo que pidáis a mi Padre en mi nombre, os lo concederá». He aquí que a tu Padre, en tu nombre, yo pido la gracia..."
+        },
+        "sacred_heart_trust_2": {
+          "title": null,
+          "text": "Sagrado Corazón de Jesús, en ti confío y espero."
+        },
+        "sacred_heart_petition_3": {
+          "title": "Tercera petición",
+          "text": "Oh Jesús mío, que dijiste: «En verdad os digo, el cielo y la tierra pasarán, pero mis palabras no pasarán». He aquí que, apoyado en la infalibilidad de tus santas palabras, yo pido la gracia..."
+        },
+        "sacred_heart_trust_3": {
+          "title": null,
+          "text": "Sagrado Corazón de Jesús, en ti confío y espero."
+        },
+        "sacred_heart_closing": {
+          "title": "Oración final",
+          "text": "Oh Sagrado Corazón de Jesús, a quien es imposible no tener compasión de los infelices, ten piedad de nosotros, pobres pecadores, y concédenos la gracia que te pedimos por intercesión del Corazón Inmaculado de María, tuya y nuestra tierna Madre."
+        },
+        "sacred_heart_st_joseph": {
+          "title": null,
+          "text": "San José, padre adoptivo del Sagrado Corazón de Jesús, ruega por nosotros."
         }
       }
     }

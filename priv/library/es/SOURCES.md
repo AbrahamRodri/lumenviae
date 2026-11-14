@@ -379,7 +379,6 @@ No good Spanish version was found, so the team translated these from the book's 
 - `litany_holy_ghost`: No Spanish text of this litany found.
 - `litany_holy_name`: The diocesan PDF named in the research (obispadoalcala.org) timed out again.
 - `consecration_sacred_heart`: The santisimavirgen.com.ar PDF was checked: it drops 'and malice', paraphrases 'Let Thy pure love imprint Thee', runs the paragraphs differently and ends on a sentence fragment ('Ya que quiero...'), so it was not used.
-- `efficacious_novena`: El País's text is an AI-written article with the petitions in a different order, paraphrased Gospel words and no closing prayer.
 - `golden_arrow`: No Spanish text found in searches.
 - `litany_precious_blood`: Three Spanish versions checked and rejected: EWTN (misspellings 'Sanfre', 'Verno', 'Jescucristo', and 'Nuevo y Antiguo Testamento'), ACI Prensa letaniasangre2 (a different litany), adoracionyliberacion.com PDF (gender error 'emanado', stray punctuation, different versicle).
 - `precious_blood_offering`: The only source (a scanned Philippine parish bulletin) is OCR text with typos ("lglesia"), uses "mis culpas", lacks "Santa" and "Amén".
@@ -602,6 +601,31 @@ español según lo difunde la Arquidiócesis de Filadelfia".
 - A parish-bulletin Spanish ending "©LPi" was not used.
 - The card sentence, note and day titles ("Día 1" to "Día 25") are the
   team's.
+
+### `efficacious_novena`, and the novena `sacred_heart`
+
+Changed on 14 November 2026 (orch-lead: EWTN's wording for the English, the
+twin to match). Not `ai_translated`: the Spanish of
+[sanpiodapietrelcina.org, "Novena al Sagrado Corazón de Jesús"](https://www.sanpiodapietrelcina.org/espanol/novena.htm),
+a Padre Pio devotional site (who runs it is not confirmed), captured on 14
+November 2026. No explicit notice. No EWTN Spanish of this novena exists.
+It replaces the team's translation of 10 November. Credit: "Atribuida a
+santa Margarita María Alacoque · rezada cada día por san Pío de
+Pietrelcina (Padre Pío) ... · texto en español según
+sanpiodapietrelcina.org".
+
+- Word for word, the page's line breaks joined. Kept as printed: the
+  closing asks "por intercesión del Corazón Inmaculado de María" (the
+  English: "the Sorrowful and Immaculate Heart"), and St Joseph is "padre
+  adoptivo del Sagrado Corazón de Jesús" (the English: "foster father of
+  Jesus").
+- The page ends with "Salve" after the line to St Joseph; the twin and the
+  novena follow the English's order, the Salve before St Joseph.
+- The prayers between the petitions are the book's, as rubrics
+  ("[Padre nuestro, Ave María, Gloria.]", "[Salve.]"); in the novena they
+  are the book prayers by id.
+- The card sentence, the part titles ("Primera petición", "Oración
+  final") and the day titles ("Día 1" to "Día 9") are the team's.
 
 ### `our_mother_of_perpetual_help_novena`, and the novena `our_mother_of_perpetual_help`
 
