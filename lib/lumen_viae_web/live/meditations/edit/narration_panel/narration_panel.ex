@@ -90,6 +90,7 @@ defmodule LumenViaeWeb.Live.Meditations.Edit.NarrationPanel do
                 type="button"
                 phx-click="record_narration"
                 phx-value-voice={row.voice.slug}
+                data-confirm={"Record #{row.voice.name}? Each recording is paid for."}
                 class="admin-btn admin-btn-secondary"
               >
                 Record

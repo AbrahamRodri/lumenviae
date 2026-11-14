@@ -38,6 +38,12 @@ defmodule LumenViaeWeb.Live.Meditations.NarrationPanelTest do
 
     assert html =~ "Not recorded"
 
+    # Paid-audio audit NIT 2: the first take asks first, as a second does.
+    assert has_element?(
+             view,
+             "button[phx-click=record_narration][phx-value-voice=female][data-confirm]"
+           )
+
     html =
       view
       |> element("button[phx-click=record_narration][phx-value-voice=female]")
