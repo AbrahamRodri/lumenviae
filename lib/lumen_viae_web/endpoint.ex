@@ -1,9 +1,10 @@
 defmodule LumenViaeWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :lumen_viae
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
+  # The session is stored in the cookie, signed and encrypted: it carries
+  # the admin's token and the client's address, so it can be neither read
+  # nor tampered with. (Encrypting it from 14 Nov 2026 signed every admin
+  # out once: an older, signed-only cookie no longer reads.)
   #
   # `secure` is set in production only (config/prod.exs), so the browser
   # never sends the admin's cookie over plain HTTP; development serves plain
@@ -12,6 +13,7 @@ defmodule LumenViaeWeb.Endpoint do
     store: :cookie,
     key: "_lumen_viae_key",
     signing_salt: "4tFxwdp5",
+    encryption_salt: "Lv7nQe2s",
     same_site: "Lax",
     secure: Application.compile_env(:lumen_viae, :secure_session_cookie, false)
   ]
