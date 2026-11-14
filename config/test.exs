@@ -89,6 +89,11 @@ config :lumen_viae, :chant_scores,
 # The same for the Daily Missal's texts from Missale Meum.
 config :lumen_viae, :missal, req_options: [plug: {Req.Test, LumenViae.Office.MissaleMeum}]
 
+# The same for the paid text-to-speech client (paid-audio audit NIT 1): a
+# test that forgets its stub gets a "no stub" error, never a real, paid
+# request. config/runtime.exs also leaves its key unset in test.
+config :lumen_viae, :eleven_labs_req_options, plug: {Req.Test, LumenViae.Audio.ElevenLabs}
+
 # The suite's own two narration voices, fixed here so the tests of the
 # voice mechanics do not move every time the production line-up in
 # config.exs does. test/lumen_viae/rosary/voices_config_test.exs reads

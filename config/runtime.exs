@@ -75,8 +75,11 @@ config :lumen_viae,
 
 # ElevenLabs Text-to-Speech Configuration. The voices themselves are the
 # :narration_voices list in config.exs; only the key is an environment
-# secret.
-config :lumen_viae, eleven_labs_api_key: System.get_env("ELEVEN_LABS_API_KEY")
+# secret. Never read in test, where every request is stubbed and a test
+# that needs a key sets its own.
+config :lumen_viae,
+  eleven_labs_api_key:
+    if(config_env() == :test, do: nil, else: System.get_env("ELEVEN_LABS_API_KEY"))
 
 # The token GET /ops/status asks for (bearer). Unset, the route answers 404.
 # Tests set their own.
