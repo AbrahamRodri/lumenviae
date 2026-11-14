@@ -30,7 +30,10 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-11-05 01:55:00Z], "492097690b5e8f72"},
       {~U[2026-11-05 02:00:00Z], "9e86c94b8c9daec7"},
       {~U[2026-11-05 02:05:00Z], "3058ab6d4b4a554d"},
-      {~U[2026-11-07 02:00:00Z], "94fa0e037744eff0"}
+      {~U[2026-11-07 02:00:00Z], "94fa0e037744eff0"},
+      {~U[2026-11-10 05:00:00Z], "4ce9982b1852ad25"},
+      {~U[2026-11-10 05:10:00Z], "547ea0cf17d13d0d"},
+      {~U[2026-11-10 16:00:00Z], "8a19a7af696137bd"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
@@ -175,7 +178,7 @@ defmodule LumenViae.Rosary.LibraryTest do
   end
 
   describe "the Advent prayers" do
-    @advent ~w(immaculate_conception_novena st_andrew_novena o_antiphons)
+    @advent ~w(advent_wreath_collects immaculate_conception_novena st_andrew_novena o_antiphons)
 
     test "are in Feasts and Seasons, under Advent and Christmas, each with its source" do
       book = Library.sections(:prayer_book)
@@ -205,6 +208,68 @@ defmodule LumenViae.Rosary.LibraryTest do
         refute id in clip_names
         refute Enum.any?(book["orders"], &(id in &1["prayer_ids"]))
       end
+    end
+  end
+
+  describe "St. Bridget's twelve-year prayers" do
+    @bridget "st_bridget_twelve_years"
+
+    test "are in Our Lord, under The Passion, credited, and found by their names" do
+      book = Library.sections(:prayer_book)
+      our_lord = Enum.find(book["chapters"], &(&1["id"] == "our_lord"))
+      passion = Enum.find(our_lord["sections"], &(&1["title"] == "The Passion"))
+
+      assert @bridget in passion["prayer_ids"]
+      assert @bridget in our_lord["prayer_ids"]
+
+      prayer = Enum.find(book["prayers"], &(&1["id"] == @bridget))
+      assert prayer["origin"] == "Devotion attributed to St. Bridget; Scripture Douay-Rheims."
+
+      for word <- ["bridget", "brigid", "birgitta", "twelve years", "precious blood"] do
+        assert word in prayer["search_words"]
+      end
+    end
+
+    # Seven sheddings of His Blood, each with its verse and its pair of
+    # prayers; and none of the promises that circulate with it.
+    test "name the seven sheddings of Blood, with no promises" do
+      prayer =
+        Enum.find(Library.sections(:prayer_book)["prayers"], &(&1["id"] == @bridget))
+
+      text = prayer["english"]
+
+      refs = [
+        "Luke 2:21",
+        "Luke 22:44",
+        "Matthew 27:26",
+        "Matthew 27:29",
+        "John 19:17",
+        "Luke 23:33",
+        "John 19:34"
+      ]
+
+      for ref <- refs, do: assert(text =~ ref)
+
+      assert length(String.split(text, "Our Father. Hail Mary.")) == 8
+
+      # The introduction comes first, in the text itself: the website
+      # shows no note.
+      assert text =~
+               ~r/^\[A devotion long attributed to St. Bridget of Sweden: .*twelve years\.\]/
+
+      assert prayer["note"] == nil
+
+      for claim <- ~w(promise approved pope indulgence) do
+        refute String.downcase(text) =~ claim
+      end
+    end
+
+    test "are text only: no recording to make, and in no order of prayer" do
+      book = Library.sections(:prayer_book)
+      clip_names = LumenViae.Rosary.PrayerAudio.clips([:book]) |> Enum.map(& &1.name)
+
+      refute @bridget in clip_names
+      refute Enum.any?(book["orders"], &(@bridget in &1["prayer_ids"]))
     end
   end
 

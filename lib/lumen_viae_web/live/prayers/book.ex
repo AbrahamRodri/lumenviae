@@ -391,6 +391,7 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
               "litany_precious_blood" => blood,
               "precious_blood_offering" => mond,
               "en_ego" => crucified,
+              "st_bridget_twelve_years" => blood,
               "christ_the_king" => {"feast_christ_the_king", 0.5, 0.3},
               "anima_christi" => bernard,
               # Our Lady

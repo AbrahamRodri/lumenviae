@@ -95,6 +95,27 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     refute has_element?(view, "#audio-player")
   end
 
+  test "the voice moving on keeps the offer to continue; the reader moving puts it away",
+       %{conn: conn} do
+    set = create_set("joyful", 5)
+    {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
+
+    view
+    |> element("#prayer-memory")
+    |> render_hook("resume_available", %{"mystery" => "2", "step" => 0})
+
+    assert has_element?(view, ".prayer-bottom-nav #resume-banner")
+
+    # The voice reaches the next prayer and turns the page itself.
+    next = script(view) |> Enum.find(&(&1["screen"] == 1))
+    voice_reaches(view, next)
+    assert_patch(view)
+    assert has_element?(view, "#resume-banner")
+
+    view |> element("button[phx-click=next]") |> render_click()
+    refute has_element?(view, "#resume-banner")
+  end
+
   test "the hook is handed the whole Rosary in order, with a URL for every prayer",
        %{conn: conn} do
     set = create_set("joyful", 5)
@@ -164,7 +185,8 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     set = create_set("joyful", 5)
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
-    assert has_element?(view, "[phx-hook=SpokenRosary] button[data-mute]")
+    assert has_element?(view, "#prayer-mute button[data-mute]")
+    assert has_element?(view, "nav [phx-hook=SpokenRosary] button[data-play]")
 
     view |> element("button[aria-controls=prayer-settings]") |> render_click()
 

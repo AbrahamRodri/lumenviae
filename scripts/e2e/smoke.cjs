@@ -189,8 +189,8 @@ async function checkHooks(page, errors, vp) {
   // Complete is on the last prayer; a step past the end is held to it.
   await page.goto(`${pray}?mystery=closing&step=999`);
   await settle(page);
-  await page.getByRole("button", { name: /Complete/ }).click();
-  await page.waitForTimeout(500);
+  await page.getByRole("button", { name: /complete/i }).click();
+  await page.waitForSelector("[data-streak]", { timeout: 10000 });
   const streak = await page.evaluate(() => document.querySelector("[data-streak]").textContent.trim());
   check(streak === "1 day so far", `${label}: a damaged streak starts again from today`, `"${streak}"`);
 
@@ -1193,6 +1193,15 @@ async function eventually(fn, timeout = 5000) {
 // from one flow into the next.
 async function freshPage(browser, vp, errors) {
   const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+  // The dev tools' toolbars sit over the page's foot, where the prayer's
+  // controls are; visitors never see them. Hidden on every load, reloads too.
+  await context.addInitScript(() => {
+    document.addEventListener("DOMContentLoaded", () => {
+      const style = document.createElement("style");
+      style.textContent = "[data-tidewave-toolbar-root], #live-debugger { display: none !important; }";
+      document.head.appendChild(style);
+    });
+  });
   const page = await context.newPage();
   page.on("console", (msg) => {
     if (msg.type() === "error") errors.push(`${msg.text()} @ ${msg.location().url}`);
@@ -1308,7 +1317,7 @@ async function checkPrayerScreen(browser, vp) {
   await noHorizontalScroll(page, `${label} with the settings open`);
   await fullPageShot(page, `${vp.name}-pray-settings`);
   await page.keyboard.press("Enter");
-  check(await eventually(async () => !(await expanded())), `${label}: Enter on How to pray closes the settings`);
+  check(await eventually(async () => !(await expanded())), `${label}: Enter on the sheet's close button closes the settings`);
   await page.keyboard.press("Enter");
   await eventually(expanded);
   await page.keyboard.press("Escape");

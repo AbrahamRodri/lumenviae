@@ -13,16 +13,27 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-05 02:40:00Z], "9165c0a99fe315c8"}
+  @pinned {~U[2026-11-14 01:30:00Z], "868e4f007effa58f"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
   # closing prayer the Rosary marks.
-  @ai_translated_count 83
+  @ai_translated_count 86
 
   # A prayer newly added in English, until the Spanish team adds it to
-  # priv/library/es/prayer_book.json. None now.
-  @awaiting_spanish []
+  # priv/library/es/prayer_book.json. St. Bridget's twelve-year prayers:
+  # their Spanish is its own slice (st-bridget-es).
+  @awaiting_spanish ["st_bridget_twelve_years"]
+
+  # Abraham, 10 Nov 2026: "Follow how other apps do it". The prayer is
+  # "Ave María", and counted "Ave Marías", never "Avemaría".
+  test "the Hail Mary is written Ave María, and counted Ave Marías" do
+    for prayer <- Spanish.prayers(), field <- [prayer.title, prayer.text] do
+      for text <- List.wrap(field), is_binary(text) do
+        refute text =~ ~r/avemar/i, "#{prayer.id}: #{text}"
+      end
+    end
+  end
 
   test "the file is pinned by its date and words" do
     assert {Spanish.file_updated_at(), Spanish.file_version()} == @pinned, """
