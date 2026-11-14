@@ -258,7 +258,7 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     # Published texts, but for the Immaculate Conception's versicles and
     # collects (the team's Spanish from the Latin; Abraham, 10 Nov 2026,
     # Q1 "A") and St Jude's invocation, each part marked, and St Therese,
-    # the team's throughout.
+    # the Holy Spirit and St Joseph, the team's throughout.
     test "novena_translations: the new novenas' Spanish is published, the team's parts marked", %{
       conn: conn
     } do
@@ -271,13 +271,13 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       by_id = Map.new(spanish["novena_translations"], &{&1["id"], &1})
 
       assert Map.keys(by_id) |> Enum.sort() ==
-               ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas st_jude st_therese undoer_of_knots)
+               ~w(holy_spirit immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas st_joseph st_jude st_therese undoer_of_knots)
 
       team_parts =
         ~w(immaculate_conception_tota_pulchra immaculate_conception_closing st_jude_novena_invocation)
 
       for {id, translation} <- by_id do
-        team? = id == "st_therese"
+        team? = id in ~w(holy_spirit st_joseph st_therese)
         assert translation["ai_translated"] == team?, id
 
         for part <- translation["parts"] do
