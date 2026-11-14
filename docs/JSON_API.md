@@ -709,8 +709,8 @@ chants.
       `id`, `title` (or null: a short invocation or saying has none) and
       `source` (or null). Words said every day (an invocation, the closing
       prayer) keep one `id` on every day; an `id` never names two
-      different texts. A saved place is therefore `(day number, part id)`,
-      never the id alone;
+      different texts, and a day names each `id` once. A saved place is
+      therefore `(day number, part id)`, never the id alone;
     - for `kind` `rosary`, `decades`: the decades of the day's mysteries
       prayed at that point, 1 to 5 in order (`[1, 2, 3]`, then `[4, 5]`
       after a meditation). `decades` is null on every other part.

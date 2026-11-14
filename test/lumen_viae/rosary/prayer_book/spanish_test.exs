@@ -22,8 +22,9 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
 
   # A prayer newly added in English, until the Spanish team adds it to
   # priv/library/es/prayer_book.json. St. Bridget's twelve-year prayers:
-  # their Spanish is its own slice (st-bridget-es).
-  @awaiting_spanish ["st_bridget_twelve_years"]
+  # their Spanish is its own slice (st-bridget-es). The Undoer of Knots
+  # novena's twin: its Spanish (Ascension Press's own) is slice novenas-es.
+  @awaiting_spanish ["st_bridget_twelve_years", "undoer_of_knots_novena"]
 
   # Abraham, 10 Nov 2026: "Follow how other apps do it". The prayer is
   # "Ave María", and counted "Ave Marías", never "Avemaría".

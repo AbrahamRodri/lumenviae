@@ -108,6 +108,32 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
         assert length(novena["days"]) == novena["length"], novena["id"]
       end
     end
+
+    # Day shape A (Abraham, 14 Nov: "if we can do 1 without it being clunky
+    # then yes"): three decades, the day's meditation, the last two decades.
+    test "Undoer of Knots: nine days, the Rosary inside each", %{conn: conn} do
+      [novena] =
+        conn
+        |> get_v2("/prayer-book?fields[prayer_book]=novenas")
+        |> v2_response(200)
+        |> get_in(["data", "attributes", "novenas"])
+
+      assert %{"id" => "undoer_of_knots", "length" => 9, "prayer_id" => "undoer_of_knots_novena"} =
+               novena
+
+      assert Enum.map(novena["days"], & &1["number"]) == Enum.to_list(1..9)
+
+      for day <- novena["days"] do
+        kinds = Enum.map(day["parts"], & &1["kind"])
+        decades = for %{"kind" => "rosary", "decades" => d} <- day["parts"], do: d
+
+        assert Enum.take(kinds, 5) == ~w(opening opening rosary meditation rosary),
+               "day #{day["number"]}"
+
+        assert decades == [[1, 2, 3], [4, 5]], "day #{day["number"]}"
+        assert "closing" in kinds, "day #{day["number"]}"
+      end
+    end
   end
 
   describe "the Prayer Book" do
