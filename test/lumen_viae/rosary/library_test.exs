@@ -490,6 +490,20 @@ defmodule LumenViae.Rosary.LibraryTest do
       assert Check.prayer_book_errors(book) == []
       assert {:ok, _} = Section.cast(:prayer_book, "novenas", book["novenas"])
 
+      titled = %{rosary | "title" => "The Rosary"}
+
+      with_title = %{
+        book
+        | "novenas" => [
+            %{novena | "days" => [%{day | "parts" => [titled | day["parts"]]} | days]}
+          ]
+      }
+
+      assert book_errors(with_title) =~ "a rosary part holds only its decades"
+
+      stray = update_novena_part(novena_book(), 1, 0, "decades", [1])
+      assert book_errors(stray) =~ "day 1: only a rosary part has decades"
+
       for decades <- [[], [3, 1], [6], nil] do
         bad = %{rosary | "decades" => decades}
 

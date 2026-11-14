@@ -665,7 +665,7 @@ type NovenaPart {
   "What the part is: `opening`, `meditation`, `novena_prayer`, `invocation`, `saying`, `closing` or `rosary`, and more may come. Show a kind you do not know as plain text."
   kind: String!
 
-  "The words' id (`undoer_of_knots_d1_prayer`), stable for a device's saved place, or null when the part names a prayer. Words said every day (an invocation, the closing prayer) keep one id on every day."
+  "The words' id (`undoer_of_knots_d1_prayer`), stable for a device's saved place, or null when the part names a prayer. Words said every day (an invocation, the closing prayer) keep one id on every day, so a saved place is the day's number and the part's id together, never the id alone."
   id: String
 
   "For a `rosary` part: the decades of the day's mysteries prayed here, 1 to 5 in order (`[1, 2, 3]`, then `[4, 5]` after a meditation). Null for every other part."
