@@ -133,7 +133,10 @@ defmodule LumenViae.Rosary.ChantScore do
         retry: false,
         redirect: false,
         compressed: false,
-        decode_body: false
+        decode_body: false,
+        # Read no more than the page the library names: a longer body is
+        # dropped as it passes that size, and fails the check below.
+        into: capped(bytes)
       ]
       |> Keyword.merge(Application.get_env(:lumen_viae, :chant_scores, [])[:req_options] || [])
 
@@ -156,6 +159,16 @@ defmodule LumenViae.Rosary.ChantScore do
     exception ->
       Logger.warning("A score page's request raised: #{Exception.message(exception)}")
       {:error, :upstream_unreachable}
+  end
+
+  defp capped(limit) do
+    fn {:data, data}, {request, response} ->
+      body = response.body <> data
+
+      if byte_size(body) > limit,
+        do: {:halt, {request, %{response | body: body}}},
+        else: {:cont, {request, %{response | body: body}}}
+    end
   end
 
   defp checked(body, bytes, sha256, url) do
