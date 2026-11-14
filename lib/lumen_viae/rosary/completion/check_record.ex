@@ -12,15 +12,51 @@ defmodule LumenViae.Rosary.Completion.CheckRecord do
   after a write commits) and nothing spent from the caller's hourly
   budget (`Completion.RateLimit` counts in a hook before the
   transaction). A streak lives on the device and is not touched either.
+
+  It has a small budget of its own instead, per address (security pass NIT
+  7): each check costs a query, and only the feature check calls it.
+  Past it, the answer is the usual 429.
   """
   use Ash.Resource.Actions.Implementation
 
+  alias AshRateLimiter.LimitExceeded
+  alias LumenViae.Limits
   alias LumenViae.Rosary.Completion
   alias LumenViae.Rosary.Completion.SetIsVisible
   alias LumenViae.Rosary.Types.CompletionCheck
 
+  @per_minute 30
+
   @impl true
   def run(input, _opts, context) do
+    with :ok <- within_budget(input.context[:client_ip]), do: check(input, context)
+  end
+
+  @doc false
+  def per_minute, do: @per_minute
+
+  defp within_budget(ip) when is_binary(ip) do
+    key = "completion_check:" <> Limits.address(ip)
+
+    case LumenViae.Hammer.hit(key, 60_000, @per_minute) do
+      {:allow, _count} ->
+        :ok
+
+      {:deny, _retry_after} ->
+        {:error,
+         LimitExceeded.exception(
+           action: :check_record_from_app,
+           limit: @per_minute,
+           per: 60_000,
+           key: key
+         )}
+    end
+  end
+
+  # No address: the console or a test, as for the hourly limit.
+  defp within_budget(_no_address), do: :ok
+
+  defp check(input, context) do
     changeset =
       Ash.Changeset.for_create(
         Completion,
