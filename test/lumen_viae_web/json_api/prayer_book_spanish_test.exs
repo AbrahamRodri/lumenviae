@@ -58,21 +58,26 @@ defmodule LumenViaeWeb.JsonApi.PrayerBookSpanishTest do
              Map.drop(english, ~w(version updated_at))
   end
 
-  # Abraham, 10 Nov 2026 (Q1 "A"): the team translates these from the
-  # Latin rather than copying a copyrighted Spanish.
-  test "es: the Advent texts are the team's own, from the Latin" do
+  # Abraham, 10 Nov 2026 (Q1 "A"): the team translates the O Antiphons
+  # from the Latin rather than copying a copyrighted Spanish. The two Advent
+  # novenas became published texts on 14 Nov 2026 (orch-lead): St Andrew
+  # in the Archdiocese of Philadelphia's Spanish (orch-lead). The Immaculate
+  # Conception keeps the team's Spanish of its versicles and collects, as
+  # that answer decided.
+  test "es: the O Antiphons and the Immaculate Conception novena are the team's; St Andrew is published" do
     spanish = attributes("translations&lang=es")["translations"]
     by_id = Map.new(spanish, &{&1["id"], &1})
 
-    for id <- ~w(o_antiphons st_andrew_novena immaculate_conception_novena) do
-      assert by_id[id]["ai_translated"] == true, id
-    end
-
+    assert by_id["o_antiphons"]["ai_translated"] == true
     assert by_id["o_antiphons"]["text"] =~ "te extiendes de un confín a otro"
     assert by_id["o_antiphons"]["text"] =~ "habitan en tinieblas y en sombra de muerte"
-    assert by_id["st_andrew_novena"]["text"] =~ "dígnate, Dios mío"
-    assert by_id["immaculate_conception_novena"]["text"] =~ "llegar a ti limpios de toda mancha"
-    assert by_id["immaculate_conception_novena"]["text"] =~ "edifique a quienes preside"
+
+    refute by_id["st_andrew_novena"]["ai_translated"]
+    assert by_id["st_andrew_novena"]["text"] =~ "dígnate, te suplico, oh Dios mío"
+
+    assert by_id["immaculate_conception_novena"]["ai_translated"] == true
+    assert by_id["immaculate_conception_novena"]["text"] =~ "℣. Toda hermosa eres, oh María."
+    refute by_id["immaculate_conception_novena"]["text"] =~ "Tota pulchra"
   end
 
   test "es has a version and a date of its own, and a region reads as es" do

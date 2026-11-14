@@ -17,6 +17,11 @@ defmodule LumenViae.Rosary.PrayerBook.NovenaPartTranslation do
       allow_nil?: false,
       description:
         "Its words in this language, in the PrayerText grammar. They also stand in the twin prayer's translation, word for word."
+
+    field :ai_translated, :boolean,
+      allow_nil?: false,
+      description:
+        "True when these words are the team's own translation, not a published text; false otherwise."
   end
 
   use AshGraphql.Type

@@ -1,8 +1,10 @@
 defmodule LumenViae.Rosary.Types.NovenaPart do
   @moduledoc """
   One part of a novena's day: one of the book's prayers, named by
-  `prayer_id` (said `times` times); the day's own words in `text`; or, for
-  a `rosary` part, the decades of the day's mysteries prayed there.
+  `prayer_id`; the day's own words in `text`; or, for a `rosary` part, the
+  decades of the day's mysteries prayed there. A prayer or words may be
+  said `times` times, and a part may name a book prayer said instead of it
+  (`or_prayer_id`).
   """
   use Ash.TypedStruct
 
@@ -10,14 +12,19 @@ defmodule LumenViae.Rosary.Types.NovenaPart do
     field :kind, :string,
       allow_nil?: false,
       description:
-        "What the part is: `opening`, `meditation`, `novena_prayer`, `invocation`, `saying`, `closing` or `rosary`, and more may come. Show a kind you do not know as plain text."
+        "What the part is: `opening`, `meditation`, `prayer`, `novena_prayer`, `invocation`, `saying`, `practice`, `closing` or `rosary`, and more may come. Show a kind you do not know as plain text."
 
     field :prayer_id, :string,
       description: "One of the document's prayers, said here, or null when the part holds `text`."
 
+    field :or_prayer_id, :string,
+      description:
+        "One of the document's prayers that may be said instead of this part (the Litany of Loreto in place of the Tota pulchra versicles), or null. A client that ignores it shows the part, which is always right."
+
     field :times, :integer,
       constraints: [min: 1],
-      description: "How many times the named prayer is said (three Hail Marys), or null for once."
+      description:
+        "How many times the part is said, the named prayer or the day's own words (nine Hail Marys; the St. Andrew prayer 15 times a day), or null for once."
 
     field :id, :string,
       description:

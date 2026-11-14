@@ -36,7 +36,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-11-10 16:00:00Z], "8a19a7af696137bd"},
       {~U[2026-11-14 02:00:00Z], "b312ed9b06b56b97"},
       {~U[2026-11-14 05:15:00Z], "b868ccdf1e7faf05"},
-      {~U[2026-11-14 06:00:00Z], "06ff98fbd2838a7b"}
+      {~U[2026-11-14 06:00:00Z], "06ff98fbd2838a7b"},
+      {~U[2026-11-14 16:00:00Z], "1d41570d4f05dad3"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
@@ -432,13 +433,51 @@ defmodule LumenViae.Rosary.LibraryTest do
       assert book_errors(book) =~ "the novena knots: its chapter our_lady does not name its twin"
     end
 
-    test "refuses a part whose own words are blank, or say a number of times" do
+    test "refuses a part whose own words are blank" do
       blank = update_novena_part(novena_book(), 1, 1, "text", "  ")
-      times = update_novena_part(novena_book(), 1, 1, "times", 2)
 
       assert book_errors(blank) =~ "day 1: text is required text"
       assert book_errors(blank) =~ "the words of knots_d1_prayer are not in the twin prayer"
-      assert book_errors(times) =~ "day 1: a part with its own words has no times"
+    end
+
+    # The St Andrew prayer is said 15 times a day: a part's own words, like
+    # a named prayer, may be said a number of times, a whole number from 1.
+    test "a part is said a whole number of times, its own words included" do
+      assert book_errors(update_novena_part(novena_book(), 1, 1, "times", 15)) == ""
+
+      for times <- [0, 1.5, "nine"], part <- [1, 2] do
+        assert book_errors(update_novena_part(novena_book(), 1, part, "times", times)) =~
+                 "day 1: a part's times is a whole number from 1, or null"
+      end
+    end
+
+    # The Immaculate Conception's Tota pulchra versicles, or the Litany of
+    # Loreto in their place.
+    test "a part may name a prayer said instead of it, one the book has" do
+      instead = update_novena_part(novena_book(), 1, 1, "or_prayer_id", "memorare")
+      assert book_errors(instead) == ""
+      assert {:ok, [_novena]} = Section.cast(:prayer_book, "novenas", instead["novenas"])
+
+      assert book_errors(update_novena_part(novena_book(), 1, 1, "or_prayer_id", "nowhere")) =~
+               ~s(day 1: names the prayer "nowhere")
+
+      rosary = %{
+        novena_part("rosary", nil, nil, nil)
+        | "decades" => [1],
+          "or_prayer_id" => "memorare"
+      }
+
+      [novena] = novena_book()["novenas"]
+      [day | days] = novena["days"]
+
+      book = %{
+        novena_book()
+        | "novenas" => [
+            %{novena | "days" => [%{day | "parts" => [rosary | day["parts"]]} | days]}
+          ]
+      }
+
+      assert book_errors(book) =~ "a rosary part holds only its decades"
     end
 
     test "refuses days not numbered 1 to the novena's length" do
@@ -1409,6 +1448,7 @@ defmodule LumenViae.Rosary.LibraryTest do
     %{
       "kind" => kind,
       "prayer_id" => prayer_id,
+      "or_prayer_id" => nil,
       "times" => nil,
       "id" => id,
       "title" => id && "The prayer for today",

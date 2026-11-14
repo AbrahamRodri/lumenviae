@@ -677,6 +677,9 @@ type NovenaPartTranslation {
 
   "The part's `id` in `novenas` (`undoer_of_knots_d1_meditation`)."
   id: String!
+
+  "True when these words are the team's own translation, not a published text; false otherwise."
+  aiTranslated: Boolean!
 }
 
 type NovenaTranslation {
@@ -706,6 +709,9 @@ type NovenaTranslation {
 
   "Each day's title in this language, day 1 first: one per day of `novenas`."
   dayTitles: [String!]!
+
+  "True when part of this novena's words in this language are the team's own translation, not a published text; false otherwise. A part's own flag says which."
+  aiTranslated: Boolean!
 }
 
 type NovenaArt {
@@ -726,7 +732,7 @@ type NovenaPart {
   "The words' heading (`Genesis 3:15`), or null: a part that names a prayer, and a short invocation or saying, has none."
   title: String
 
-  "How many times the named prayer is said (three Hail Marys), or null for once."
+  "How many times the part is said, the named prayer or the day's own words (nine Hail Marys; the St. Andrew prayer 15 times a day), or null for once."
   times: Int
 
   "The day's own words, written as a prayer's `english` is, or null when the part names a prayer. They also stand in the twin prayer, word for word."
@@ -738,7 +744,10 @@ type NovenaPart {
   "One of the document's prayers, said here, or null when the part holds `text`."
   prayerId: String
 
-  "What the part is: `opening`, `meditation`, `novena_prayer`, `invocation`, `saying`, `closing` or `rosary`, and more may come. Show a kind you do not know as plain text."
+  "One of the document's prayers that may be said instead of this part (the Litany of Loreto in place of the Tota pulchra versicles), or null. A client that ignores it shows the part, which is always right."
+  orPrayerId: String
+
+  "What the part is: `opening`, `meditation`, `prayer`, `novena_prayer`, `invocation`, `saying`, `practice`, `closing` or `rosary`, and more may come. Show a kind you do not know as plain text."
   kind: String!
 
   "The words' id (`undoer_of_knots_d1_prayer`), stable for a device's saved place, or null when the part names a prayer. Words said every day (an invocation, the closing prayer) keep one id on every day, so a saved place is the day's number and the part's id together, never the id alone."

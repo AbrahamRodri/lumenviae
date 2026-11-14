@@ -2,7 +2,8 @@
 
 `es/prayer_book.json` holds the Prayer Book's prayers in Spanish, served in
 the `translations` section of `GET /api/v2/prayer-book?lang=es`. Every
-prayer the book prints has Spanish, from three lists below, in this
+prayer the book prints has Spanish (but two novenas, last under "The
+novenas"), from three lists below, in this
 order of preference: first a Church source (the Holy See, bishops'
 conferences and the Church's own pages), then the Spanish Missal and
 Liturgy of the Hours, diocese and religious-order reprints and the
@@ -378,7 +379,6 @@ No good Spanish version was found, so the team translated these from the book's 
 - `litany_holy_ghost`: No Spanish text of this litany found.
 - `litany_holy_name`: The diocesan PDF named in the research (obispadoalcala.org) timed out again.
 - `consecration_sacred_heart`: The santisimavirgen.com.ar PDF was checked: it drops 'and malice', paraphrases 'Let Thy pure love imprint Thee', runs the paragraphs differently and ends on a sentence fragment ('Ya que quiero...'), so it was not used.
-- `efficacious_novena`: El País's text is an AI-written article with the petitions in a different order, paraphrased Gospel words and no closing prayer.
 - `golden_arrow`: No Spanish text found in searches.
 - `litany_precious_blood`: Three Spanish versions checked and rejected: EWTN (misspellings 'Sanfre', 'Verno', 'Jescucristo', and 'Nuevo y Antiguo Testamento'), ACI Prensa letaniasangre2 (a different litany), adoracionyliberacion.com PDF (gender error 'emanado', stray punctuation, different versicle).
 - `precious_blood_offering`: The only source (a scanned Philippine parish bulletin) is OCR text with typos ("lglesia"), uses "mis culpas", lacks "Santa" and "Amén".
@@ -448,16 +448,11 @@ usual Spanish name.
   *sedentes* (Luke 1:79); 22 "Deseado de los pueblos" for *desideratus
   earum*; 23 "esperanza y Salvador de las naciones".
 
-### `st_andrew_novena`: "Novena de Navidad de San Andrés" (`ai_translated`)
+### `st_andrew_novena`: "Novena de Navidad de San Andrés"
 
-The team's translation of the 1897 English (public domain), checked by
-ios-review (10 Nov 2026), as drafted. Abraham, 10 Nov 2026, Q1 "A"; the
-archspm.org Spanish used before is not. The title is the devotion's usual
-Spanish name.
-
-- "Salve" for Hail; "bendita sea la hora y el momento", the form the
-  prayer has in Spanish devotion; "frío penetrante" for piercing cold;
-  "dígnate" for vouchsafe.
+Not the team's since 14 November 2026: the Archdiocese of Philadelphia's
+Spanish, under "The novenas" below. (The team's translation of 10 November
+2026, Abraham's Q1 "A", is replaced by orch-lead's routing of 14 November.)
 
 ### `advent_wreath_collects`: "La corona de Adviento: las colectas de los domingos" (`ai_translated`)
 
@@ -579,6 +574,104 @@ Copied under the project's rule: there is no explicit notice against it. Always 
   - Text quoted from the source stays as printed ("María, Desatanudos", "Oración a María Desatanudos").
 - The novena's parts (`novenas` in this file) are the same words as the twin, by part id. The server refuses a part whose words are not in the twin.
 - The card sentence ("Nueve días del Rosario, una meditación y la oración a María Desatanudos.") and the day titles ("Día 1" to "Día 9", as the page heads them) are the team's.
+
+### `immaculate_conception_novena`, and the novena `immaculate_conception`
+
+The novena's parts (`novenas` in this file) are the twin's words by part
+id; the sources are under the twin above. Not `ai_translated` as a whole:
+its preparatory prayer and the nine days are the 1860 book's. The two parts
+of the team's translation from the Latin, the Tota pulchra versicles
+(`immaculate_conception_tota_pulchra`) and the closing versicle and
+collects (`immaculate_conception_closing`), are each marked
+`ai_translated`. Abraham's 10 November answer (Q1 "A", the team
+translates from the Latin) stands (orch-lead, 14 November 2026). The card
+sentence and the day titles ("Día 1" to "Día 9") are the team's.
+
+### `st_andrew_novena`, and the novena `st_andrew_christmas`
+
+Added on 14 November 2026. Not `ai_translated`: the Archdiocese of
+Philadelphia's Spanish (its "Novena de San Andrés", 2025), as quoted by
+[InfoCatólica](https://www.infocatolica.com/?cod=53988&t=noticia) on 7
+December 2025; the archdiocese's own page could not be opened. No explicit
+notice. Credit: "Autor desconocido, oración del siglo XIX · texto en
+español según lo difunde la Arquidiócesis de Filadelfia".
+
+- Word for word as quoted. It says "te suplico" (I beseech Thee), which
+  the English twin, the 1914 Little Treasury print, does not.
+- A parish-bulletin Spanish ending "©LPi" was not used.
+- The card sentence, note and day titles ("Día 1" to "Día 25") are the
+  team's.
+
+### `efficacious_novena`, and the novena `sacred_heart`
+
+Changed on 14 November 2026 (orch-lead: EWTN's wording for the English, the
+twin to match). Not `ai_translated`: the Spanish of
+[sanpiodapietrelcina.org, "Novena al Sagrado Corazón de Jesús"](https://www.sanpiodapietrelcina.org/espanol/novena.htm),
+a Padre Pio devotional site (who runs it is not confirmed), captured on 14
+November 2026. No explicit notice. No EWTN Spanish of this novena exists.
+It replaces the team's translation of 10 November. Credit: "Atribuida a
+santa Margarita María Alacoque · rezada cada día por san Pío de
+Pietrelcina (Padre Pío) ... · texto en español según
+sanpiodapietrelcina.org".
+
+- Word for word, the page's line breaks joined. Kept as printed: the
+  closing asks "por intercesión del Corazón Inmaculado de María" (the
+  English: "the Sorrowful and Immaculate Heart"), and St Joseph is "padre
+  adoptivo del Sagrado Corazón de Jesús" (the English: "foster father of
+  Jesus").
+- The page ends with "Salve" after the line to St Joseph; the twin and the
+  novena follow the English's order, the Salve before St Joseph.
+- The prayers between the petitions are the book's, as rubrics
+  ("[Padre nuestro, Ave María, Gloria.]", "[Salve.]"); in the novena they
+  are the book prayers by id.
+- The card sentence, the part titles ("Primera petición", "Oración
+  final") and the day titles ("Día 1" to "Día 9") are the team's.
+
+### `our_mother_of_perpetual_help_novena`, and the novena `our_mother_of_perpetual_help`
+
+Added on 14 November 2026. Not `ai_translated`: the three prayers (Pius
+IX, 1866) from the *Enquiridion de las Indulgencias*, no. 427, Preces 1 to
+3 (Spanish edition of the Holy See's *Enchiridion Indulgentiarum*;
+Barcelona: Editorial Balmes, 1956), read in the corrected 2018 text on
+[archive.org](https://archive.org/details/enchiridion-indulgentiarum-iz-1952.-godine).
+No explicit notice (it reprints canon 1388 §2 of the 1917 Code, a Church
+rule on printing the whole collection, not a copyright line). Credit: the
+`es_origin` of the research, "Las tres preces a la Santísima Virgen del
+Perpetuo Socorro, indulgenciadas por Pío IX el 17 de mayo de 1866 ·
+Enquiridion de las Indulgencias, núm. 427 (Editorial Balmes, Barcelona,
+1956)".
+
+- Peninsular Spanish in the vos form, kept as printed.
+- OCR slips fixed by the research ("mise-rable", "qiie", "perque",
+  "ún", "purísma").
+- The Enquiridion says three Hail Marys after each prayer; the novena's
+  nine Our Fathers and nine Hail Marys follow the English (the Boston
+  booklet).
+- The rubrics, the card sentence and the day titles are the team's.
+
+### `our_lady_of_guadalupe_novena`, and the novena `our_lady_of_guadalupe`
+
+Added on 14 November 2026. Not `ai_translated`: the traditional Mexican
+novena, author unknown, as
+[EWTN Español](https://www.ewtn.com/es/oracion/novena-a-la-virgen-de-guadalupe)
+prints it (ACI Prensa's page redirects there), captured 14 November 2026.
+No explicit notice on the text (site footer only). Credit: "Novena
+tradicional mexicana, autor desconocido · según la publican ACI Prensa y
+EWTN Español".
+
+- As printed, with only missing final full stops added (day 2 "Amén",
+  day 4 "deseo") and the page's quotation marks dropped.
+- Two likely misprints are kept as printed, for the lead: day 3 "amarte
+  ti" (Catholic.net prints the same) and day 9 "No embarco a tu piedad".
+- The Prayer of St John Paul II that the page adds each day is left out.
+- The rubrics, the card sentence and the day titles are the team's.
+
+### `holy_spirit_novena` and `st_joseph_novena`
+
+Added in English on 14 November 2026, with no Spanish: no published
+Spanish of either text was found (the one Spanish leaflet of the Holy
+Spirit novena reads as a machine translation). They keep their English
+until one is.
 
 # Sources of the Consecration's Spanish
 
