@@ -353,6 +353,17 @@ Non-optional in the app: every field the contract does not mark `| null`,
 including each chant's `audio` and every score page's `url`, `bytes` and
 `sha256`. Ids are stored on the device and must never change.
 
+The Prayer Book gained an optional `novenas` section on 14 Nov 2026
+(docs/JSON_API.md, "`prayer_book`"). No shipped build names it, so 4.0 to
+4.3 never receive it. What they do receive is each novena's twin: an
+ordinary prayer in `prayers`, named by a chapter, holding the whole
+novena as text, which they show as any other prayer. The build that adds
+novenas names `novenas` in `fields[prayer_book]`, shows a novena in its
+twin's place, and treats `list_title`, `latin_title`, `note`, `origin`,
+`feast`, `painting`, `art` and a part's `prayer_id`, `times`, `id`,
+`title`, `text` and `source` as optional. `kind` is a string, not an
+enum: a kind the app does not know is shown as plain text.
+
 A meditation's narrations in v2 and GraphQL (`narrations`,
 `narration(preferring:)`, `POST /api/v2/meditations/audio`,
 `meditationAudio`) gained an optional `lines` on 2 Nov 2026: the recording

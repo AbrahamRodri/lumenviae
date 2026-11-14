@@ -504,20 +504,6 @@ type ChantMonth {
   chantIds: [String!]!
 }
 
-type ChantFeastRule {
-  "For `fixed`: its month, 1 to 12. Null otherwise."
-  month: Int
-
-  "`fixed` (the same `month` and `day` every year), `easter` (`days_from_easter` after Easter Sunday: Pentecost is 49, Good Friday -2), `last_sunday_of_october` (Christ the King) or `holy_name` (the Sunday between 2 and 5 January, else 2 January)."
-  kind: String!
-
-  "For `easter`: days after Easter Sunday, negative before it. Null otherwise."
-  daysFromEaster: Int
-
-  "For `fixed`: its day of the month. Null otherwise."
-  day: Int
-}
-
 type ChantFeast {
   "How its date is found in a given year."
   rule: ChantFeastRule!
@@ -644,6 +630,118 @@ type ChantGroup {
 
   "The group's id. Stable forever."
   id: String!
+}
+
+type NovenaArt {
+  "A public, unsigned URL that never changes what it serves: a new painting is a new URL. Cache by it."
+  url: String!
+
+  "The file's SHA-256, lowercase hex, to check a download against."
+  sha256: String!
+
+  "The painter, the date and that it is in the public domain, as printed."
+  credit: String!
+
+  "The file's size."
+  bytes: Int!
+}
+
+type NovenaPart {
+  "The words' heading (`Genesis 3:15`), or null when the part names a prayer."
+  title: String
+
+  "How many times the named prayer is said (three Hail Marys), or null for once."
+  times: Int
+
+  "The day's own words, written as a prayer's `english` is, or null when the part names a prayer. They also stand in the twin prayer, word for word."
+  text: String
+
+  "Where the words come from (`Douay-Rheims`), or null."
+  source: String
+
+  "One of the document's prayers, said here, or null when the part holds `text`."
+  prayerId: String
+
+  "What the part is: `opening`, `meditation`, `novena_prayer` or `closing`, and more may come. Show a kind you do not know as plain text."
+  kind: String!
+
+  "The words' id (`undoer_of_knots_d1_prayer`), stable for a device's saved place, or null when the part names a prayer."
+  id: String
+}
+
+type NovenaDay {
+  "Its title (`Mary, who unties`)."
+  title: String!
+
+  "What is prayed, in order."
+  parts: [NovenaPart!]!
+
+  "Which day it is, from 1."
+  number: Int!
+}
+
+type ChantFeastRule {
+  "For `fixed`: its month, 1 to 12. Null otherwise."
+  month: Int
+
+  "`fixed` (the same `month` and `day` every year), `easter` (`days_from_easter` after Easter Sunday: Pentecost is 49, Good Friday -2), `last_sunday_of_october` (Christ the King) or `holy_name` (the Sunday between 2 and 5 January, else 2 January)."
+  kind: String!
+
+  "For `easter`: days after Easter Sunday, negative before it. Null otherwise."
+  daysFromEaster: Int
+
+  "For `fixed`: its day of the month. Null otherwise."
+  day: Int
+}
+
+type Novena {
+  "Its name (`Our Lady, Undoer of Knots`)."
+  title: String!
+
+  "Other names it is looked for by, beside its titles. Empty when none."
+  searchWords: [String!]!
+
+  "Its twin, one of the document's prayers: every day as plain text. Show the novena in its place, not both."
+  prayerId: String!
+
+  "Its painting, by the name the apps bundle it under, or null."
+  painting: String
+
+  "Where its words come from, as the book credits a prayer (`Composed for Lumen Viae from ...`), or null."
+  origin: String
+
+  "Where the devotion comes from and how it is prayed, or null."
+  note: String
+
+  "A shorter name for a list, or null to use `title`."
+  listTitle: String
+
+  "How many days it runs, the number of `days`. Usually 9; never assume it (the St. Andrew novena is 25)."
+  length: Int!
+
+  "Its Latin name, or null."
+  latinTitle: String
+
+  "The novena's id (`undoer_of_knots`). Stable forever: a device stores it with a person's progress."
+  id: String!
+
+  "The feast it ends on, in the chant library's rule shape: day 1 is `length` days before it, so the last day is the eve. Null when it may be begun on any day."
+  feast: ChantFeastRule
+
+  "What it is, in one plain sentence, for its card."
+  detail: String!
+
+  "Its days in order, numbered 1 to `length`."
+  days: [NovenaDay!]!
+
+  "The chapter it is shown in, one of the document's chapters."
+  chapterId: String!
+
+  "Chants that suit it, each one of the chant library's chants (`GET \/api\/v2\/chant-library`). Empty when none."
+  chantIds: [String!]!
+
+  "Its painting as a public file, for an app that does not bundle it, or null until there is one."
+  art: NovenaArt
 }
 
 type MarianAntiphon {
@@ -2070,6 +2168,9 @@ type PrayerBook {
 
   "The four songs to Mary through the year, in the order their seasons begin from Advent. An order that closes with the season's song ends on the one whose season holds the day."
   marianAntiphons: [MarianAntiphon!]!
+
+  "The novenas, days of prayer said one a day. Each is also one of `prayers`, its twin (`prayer_id`), holding every day as plain text: show the novena in the twin's place, not both. Served only when named in `fields[prayer_book]`."
+  novenas: [Novena!]!
 }
 
 type RosaryScript {

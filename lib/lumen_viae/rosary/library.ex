@@ -133,7 +133,7 @@ defmodule LumenViae.Rosary.Library do
   end
 
   {prayer_book, prayer_book_updated_at} =
-    read.(@prayer_book_path, ~w(prayers chapters orders marian_antiphons))
+    read.(@prayer_book_path, ~w(prayers chapters orders marian_antiphons novenas))
 
   check.(@prayer_book_path, Check.prayer_book_errors(prayer_book))
 
@@ -144,6 +144,12 @@ defmodule LumenViae.Rosary.Library do
   check.(
     @chant_library_path,
     Check.chant_library_errors(chant_library, Enum.map(prayer_book["prayers"], & &1["id"]))
+  )
+
+  # A novena's chant_ids name the chant library's chants.
+  check.(
+    @prayer_book_path,
+    Check.novena_chant_errors(prayer_book, Enum.map(chant_library["chants"], & &1["id"]))
   )
 
   {consecration, consecration_updated_at} =

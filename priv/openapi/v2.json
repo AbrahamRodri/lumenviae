@@ -2268,6 +2268,181 @@
                 },
                 "type": "array"
               },
+              "novenas": {
+                "description": "The novenas, days of prayer said one a day. Each is also one of `prayers`, its twin (`prayer_id`), holding every day as plain text: show the novena in the twin's place, not both. Served only when named in `fields[prayer_book]`.",
+                "items": {
+                  "properties": {
+                    "art": {
+                      "nullable": true,
+                      "properties": {
+                        "bytes": {
+                          "type": "integer"
+                        },
+                        "credit": {
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "bytes",
+                        "sha256",
+                        "credit"
+                      ],
+                      "type": "object"
+                    },
+                    "chant_ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "chapter_id": {
+                      "type": "string"
+                    },
+                    "days": {
+                      "items": {
+                        "properties": {
+                          "number": {
+                            "type": "integer"
+                          },
+                          "parts": {
+                            "items": {
+                              "properties": {
+                                "id": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "kind": {
+                                  "type": "string"
+                                },
+                                "prayer_id": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "source": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "times": {
+                                  "nullable": true,
+                                  "type": "integer"
+                                },
+                                "title": {
+                                  "nullable": true,
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "kind"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "number",
+                          "title",
+                          "parts"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "feast": {
+                      "nullable": true,
+                      "properties": {
+                        "day": {
+                          "nullable": true,
+                          "type": "integer"
+                        },
+                        "days_from_easter": {
+                          "nullable": true,
+                          "type": "integer"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "month": {
+                          "nullable": true,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "latin_title": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "length": {
+                      "type": "integer"
+                    },
+                    "list_title": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "origin": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "painting": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "prayer_id": {
+                      "type": "string"
+                    },
+                    "search_words": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "detail",
+                    "prayer_id",
+                    "chapter_id",
+                    "length",
+                    "chant_ids",
+                    "search_words",
+                    "days"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
               "orders": {
                 "description": "The orders of prayer, a few prayers said together (Morning Prayers, Before Mass), in the app's order: the three of the day first, then those for an occasion.",
                 "items": {
@@ -7022,7 +7197,7 @@
         "operationId": "getPrayerBook",
         "parameters": [
           {
-            "description": "Comma separated fields of prayer_book: chapters, marian_antiphons, orders, prayers, translations, updated_at, version",
+            "description": "Comma separated fields of prayer_book: chapters, marian_antiphons, novenas, orders, prayers, translations, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[prayer_book]",

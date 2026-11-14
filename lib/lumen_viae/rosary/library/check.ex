@@ -42,7 +42,8 @@ defmodule LumenViae.Rosary.Library.Check do
       repeated("chapter", chapter_ids) ++
       unnamed("chapter id", chapter_ids) ++
       orders_errors(list(book["orders"]), MapSet.new(prayer_ids), MapSet.new(chapter_ids)) ++
-      antiphons_errors(list(book["marian_antiphons"]), MapSet.new(prayer_ids))
+      antiphons_errors(list(book["marian_antiphons"]), MapSet.new(prayer_ids)) ++
+      novenas_errors(list(book["novenas"]), prayers, MapSet.new(chapter_ids))
   end
 
   def prayer_book_errors(_document), do: ["the document needs a list of prayers and of chapters"]
@@ -528,6 +529,135 @@ defmodule LumenViae.Rosary.Library.Check do
 
   defp order_errors(order, _prayer_ids, _chapter_ids),
     do: ["an order needs an id: #{inspect(order)}"]
+
+  @doc """
+  The problems with a Prayer Book's novenas against the chant library: each
+  of a novena's `chant_ids` names one of `chant_ids`, the library's chants.
+  """
+  @spec novena_chant_errors(map, [String.t()]) :: [String.t()]
+  def novena_chant_errors(book, chant_ids) do
+    known = MapSet.new(chant_ids)
+
+    for novena <- list(book["novenas"]),
+        error <- unknown("chant", list(novena["chant_ids"]), known),
+        do: "the novena #{id(novena)}: #{error}"
+  end
+
+  # A novena: its id once, its twin and chapter ones the book has, its days
+  # numbered 1 to its length, each part either a book prayer or its own
+  # words, and every word of its own in the twin, word for word, so the two
+  # never drift. A feast, when it has one, is a rule the apps know; its
+  # painting file, when it has one, is content-addressed.
+  defp novenas_errors(novenas, prayers, chapter_ids) do
+    ids = Enum.map(novenas, &id/1)
+    english = Map.new(prayers, &{id(&1), &1["english"]})
+
+    Enum.flat_map(novenas, &novena_errors(&1, english, chapter_ids)) ++
+      repeated("novena", ids) ++
+      unnamed("novena id", ids) ++
+      repeated(
+        "novena part",
+        for(
+          novena <- novenas,
+          day <- list(novena["days"]),
+          part <- list(day["parts"]),
+          is_binary(part["id"]),
+          do: part["id"]
+        )
+      ) ++
+      unnamed(
+        "novena part id",
+        for(
+          novena <- novenas,
+          day <- list(novena["days"]),
+          part <- list(day["parts"]),
+          do: part["id"]
+        )
+      )
+  end
+
+  defp novena_errors(%{"id" => id} = novena, english, chapter_ids) when is_binary(id) do
+    twin = english[novena["prayer_id"]]
+    days = list(novena["days"])
+
+    errors =
+      required(novena, ~w(title detail)) ++
+        unknown("prayer", [novena["prayer_id"]], MapSet.new(Map.keys(english))) ++
+        unknown("chapter", [novena["chapter_id"]], chapter_ids) ++
+        novena_days_errors(days, novena["length"]) ++
+        novena_feast_errors(novena["feast"]) ++
+        novena_art_errors(novena["art"], id) ++
+        for(
+          day <- days,
+          part <- list(day["parts"]),
+          error <- novena_part_errors(part, english, twin),
+          do: "day #{inspect(day["number"])}: #{error}"
+        )
+
+    Enum.map(errors, &"the novena #{id}: #{&1}")
+  end
+
+  defp novena_errors(novena, _english, _chapter_ids),
+    do: ["a novena needs an id: #{inspect(novena, limit: 3)}"]
+
+  defp novena_days_errors([_ | _] = days, length) when is_integer(length) and length > 0 do
+    numbers = Enum.map(days, &(is_map(&1) && &1["number"]))
+
+    if numbers == Enum.to_list(1..length),
+      do: [],
+      else: ["its days are numbered 1 to its length, #{length}, in order"]
+  end
+
+  defp novena_days_errors(_days, _length), do: ["it needs a length above zero and its days"]
+
+  defp novena_feast_errors(nil), do: []
+
+  defp novena_feast_errors(rule) when is_map(rule) do
+    case rule["kind"] do
+      "fixed" -> fixed_date_errors(rule["month"], rule["day"])
+      "easter" -> easter_errors(rule["days_from_easter"])
+      kind when kind in @feast_rules -> []
+      _other -> ["its feast rule is one of #{Enum.join(@feast_rules, ", ")}"]
+    end
+  end
+
+  defp novena_feast_errors(_rule), do: ["its feast is a rule or null"]
+
+  defp novena_art_errors(nil, _id), do: []
+
+  defp novena_art_errors(art, id) when is_map(art) do
+    stem = "novena_" <> id
+    extension = "." <> (art["url"] |> to_string() |> Path.extname() |> String.trim_leading("."))
+
+    file_errors("its painting", art, stem, extension) ++
+      for error <- required(art, ~w(credit)), do: "its painting's #{error}"
+  end
+
+  defp novena_art_errors(_art, _id), do: ["its art is a file or null"]
+
+  defp novena_part_errors(%{"prayer_id" => prayer, "text" => text} = part, english, twin) do
+    cond do
+      is_binary(prayer) and is_nil(text) ->
+        unknown("prayer", [prayer], MapSet.new(Map.keys(english))) ++
+          if(is_nil(part["id"]) and is_nil(part["title"]),
+            do: [],
+            else: ["a part that names a prayer has no id or title of its own"]
+          )
+
+      is_nil(prayer) and is_binary(text) ->
+        required(part, ~w(id title kind)) ++
+          if(is_binary(twin) and String.contains?(twin, text),
+            do: [],
+            else: ["the words of #{part["id"]} are not in the twin prayer, word for word"]
+          )
+
+      true ->
+        ["a part holds either a prayer_id or its own text, not both or neither"]
+    end
+  end
+
+  defp novena_part_errors(_part, _english, _twin),
+    do: ["a part holds either a prayer_id or its own text, not both or neither"]
 
   # The four songs, each a prayer of the book, each season once.
   defp antiphons_errors(antiphons, prayer_ids) do

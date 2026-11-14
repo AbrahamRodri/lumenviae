@@ -15,7 +15,8 @@ defmodule LumenViae.Rosary.Library.Section do
       "prayers" => Types.BookPrayer,
       "chapters" => Types.PrayerBookChapter,
       "orders" => Types.PrayerOrder,
-      "marian_antiphons" => Types.MarianAntiphon
+      "marian_antiphons" => Types.MarianAntiphon,
+      "novenas" => Types.Novena
     },
     chant_library: %{
       "groups" => Types.ChantGroup,
