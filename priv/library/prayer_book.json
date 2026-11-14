@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-14T20:00:00Z",
+  "updated_at": "2026-11-14T21:30:00Z",
   "chapters": [
     {
       "id": "first",
@@ -4426,7 +4426,12 @@
         "days_from_easter": null
       },
       "painting": "mary_immaculate_conception",
-      "art": null,
+      "art": {
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_immaculate_conception-d089d507babe.jpg",
+        "bytes": 118098,
+        "sha256": "d089d507babea7a78c61683bbc9f6aa2b51f1caa83c218623a1bebe03816d8ce",
+        "credit": "Giovanni Battista Tiepolo, The Immaculate Conception, 1767–69, Museo del Prado, Madrid. Public domain, via Wikimedia Commons."
+      },
       "chant_ids": [
         "tota_pulchra",
         "litany_loreto",
@@ -5307,7 +5312,12 @@
         "days_from_easter": null
       },
       "painting": null,
-      "art": null,
+      "art": {
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_our_lady_of_guadalupe-d3909f7db712.jpg",
+        "bytes": 219365,
+        "sha256": "d3909f7db71286912da43579b4d3cb09c5831ba0eb2739eb9d832d88f79e3ffa",
+        "credit": "Our Lady of Guadalupe, the original image on St Juan Diego's tilma, 1531, Basilica of Our Lady of Guadalupe, Mexico City. Public domain, via Wikimedia Commons."
+      },
       "chant_ids": [
         "salve_regina_simple",
         "ave_maris_stella",
@@ -5891,7 +5901,12 @@
         "days_from_easter": null
       },
       "painting": "christmas_shepherds",
-      "art": null,
+      "art": {
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_st_andrew_christmas-4d1baa8a13df.jpg",
+        "bytes": 126560,
+        "sha256": "4d1baa8a13df3c6ad66ccd44e8ebf5b45394d6a977a08f1ddddcf034bf84a05e",
+        "credit": "Gerard van Honthorst, The Adoration of the Shepherds, 1622, Wallraf-Richartz-Museum, Cologne. Public domain, via Wikimedia Commons."
+      },
       "chant_ids": [
         "rorate_caeli",
         "veni_emmanuel",
@@ -6351,7 +6366,12 @@
         "days_from_easter": null
       },
       "painting": "devotion_st_joseph",
-      "art": null,
+      "art": {
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_st_joseph-6a411f5806a5.jpg",
+        "bytes": 150779,
+        "sha256": "6a411f5806a5dfb59c3324af8ecc569462c87d01e93d845a5be602e291ca076c",
+        "credit": "Guido Reni, Saint Joseph and the Christ Child, c. 1640, Museum of Fine Arts, Houston. Public domain, via Wikimedia Commons."
+      },
       "chant_ids": [
         "te_joseph",
         "litany_st_joseph"
@@ -6833,7 +6853,12 @@
         "days_from_easter": 49
       },
       "painting": "pentecost_maino",
-      "art": null,
+      "art": {
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_holy_spirit-584e1c3f72c2.jpg",
+        "bytes": 167704,
+        "sha256": "584e1c3f72c2764f0dcbcbe68893905d094e937de64f19f1a8623bef6b6b06e9",
+        "credit": "Juan Bautista Maíno, Pentecost, 1620–25, Museo del Prado, Madrid. Public domain, via Wikimedia Commons."
+      },
       "chant_ids": [
         "veni_creator",
         "veni_sancte_spiritus",
@@ -8098,7 +8123,12 @@
         "days_from_easter": 68
       },
       "painting": "topic_our_lord",
-      "art": null,
+      "art": {
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_sacred_heart-1bb4273ccf79.jpg",
+        "bytes": 167586,
+        "sha256": "1bb4273ccf799f3bafa2f7a2fe005d179f44cce138e5f7180220d631fb6ffc92",
+        "credit": "Pompeo Batoni, The Sacred Heart of Jesus, 1767, Church of the Gesù, Rome. CC0, via Wikimedia Commons."
+      },
       "chant_ids": [
         "litany_sacred_heart",
         "cor_jesu",
@@ -9968,7 +9998,12 @@
         "days_from_easter": null
       },
       "painting": "saint_jude",
-      "art": null,
+      "art": {
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_st_jude-d818af4becd0.jpg",
+        "bytes": 133649,
+        "sha256": "d818af4becd07797c504155a396d241ad3184fe7dbad1cbe8b58cc8d33c801a2",
+        "credit": "El Greco, Saint Jude Thaddeus, c. 1610–14, Museo del Greco, Toledo (Google Art Project). Public domain, via Wikimedia Commons."
+      },
       "chant_ids": [
         "litany_saints"
       ],
