@@ -7,6 +7,29 @@ defmodule LumenViaeWeb.Router do
   import Oban.Web.Router
   import Phoenix.LiveDashboard.Router
 
+  # A fuller Content Security Policy, sent as Report-Only first (security
+  # pass NIT 2): browsers only warn in the console, so nothing visible can
+  # break while it is checked against every page. Phoenix's enforced
+  # default (`base-uri 'self'; frame-ancestors 'self'`) still applies. Media
+  # and images come from the assets bucket and, for Spiritual Reading, the
+  # Internet Archive and LibriVox, so they allow any https host for now.
+  @csp_report_only Enum.join(
+                     [
+                       "default-src 'self'",
+                       "script-src 'self' 'unsafe-inline'",
+                       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+                       "font-src 'self' https://fonts.gstatic.com",
+                       "img-src 'self' data: blob: https:",
+                       "media-src 'self' blob: https:",
+                       "connect-src 'self' wss: https:",
+                       "object-src 'none'",
+                       "form-action 'self'",
+                       "base-uri 'self'",
+                       "frame-ancestors 'self'"
+                     ],
+                     "; "
+                   )
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug LumenViaeWeb.Plugs.CanonicalHost
@@ -20,7 +43,7 @@ defmodule LumenViaeWeb.Router do
     plug :fetch_live_flash
     plug :put_root_layout, html: {LumenViaeWeb.Layouts, :root}
     plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    plug :put_secure_browser_headers, %{"content-security-policy-report-only" => @csp_report_only}
   end
 
   pipeline :api do
