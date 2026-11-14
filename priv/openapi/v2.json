@@ -4752,6 +4752,69 @@
                 "description": "The shelf's books in order, each with its sources and the rules for its edition.",
                 "items": {
                   "properties": {
+                    "archive_recording": {
+                      "nullable": true,
+                      "properties": {
+                        "chapters": {
+                          "items": {
+                            "properties": {
+                              "chapter": {
+                                "type": "integer"
+                              },
+                              "files": {
+                                "items": {
+                                  "properties": {
+                                    "end": {
+                                      "format": "float",
+                                      "nullable": true,
+                                      "type": "number"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "start": {
+                                      "format": "float",
+                                      "nullable": true,
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "name"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "chapter",
+                              "files"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "credit": {
+                          "type": "string"
+                        },
+                        "item": {
+                          "type": "string"
+                        },
+                        "unread": {
+                          "items": {
+                            "type": "integer"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "item",
+                        "credit",
+                        "chapters",
+                        "unread"
+                      ],
+                      "type": "object"
+                    },
                     "author": {
                       "type": "string"
                     },

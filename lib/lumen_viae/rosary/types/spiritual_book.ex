@@ -5,7 +5,7 @@ defmodule LumenViae.Rosary.Types.SpiritualBook do
   its recording come from, and the rules that cut that edition into
   chapters and line its recording up with them. The text and the
   recording are never served here: a device fetches them from Project
-  Gutenberg and LibriVox itself.
+  Gutenberg, LibriVox and the Internet Archive itself.
   """
   use Ash.TypedStruct
 
@@ -31,6 +31,10 @@ defmodule LumenViae.Rosary.Types.SpiritualBook do
     field :librivox_id, :integer,
       description:
         "The LibriVox audiobook read from this same translation, or null when none is offered (a recording of another English is never offered as this text's)."
+
+    field :archive_recording, Types.SpiritualBookArchiveRecording,
+      description:
+        "A recording from an Internet Archive item, chapter by chapter, to play in place of the LibriVox one, or null. Clients that do not read it keep `librivox_id`, which stays as it was."
 
     field :track_mapping, Types.SpiritualBookTrackMapping,
       allow_nil?: false,

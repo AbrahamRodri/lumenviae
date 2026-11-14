@@ -1142,7 +1142,8 @@ library document, kept and polled as the Prayer Book is; GraphQL's
 
 **The books themselves are not served.** A device downloads the text from
 Project Gutenberg (`https://www.gutenberg.org/cache/epub/<gutenberg_id>/pg<gutenberg_id>.txt`),
-streams the recording from LibriVox (audiobook `librivox_id`), and caches
+streams the recording from LibriVox (audiobook `librivox_id`) or the
+Internet Archive (`archive_recording`), and caches
 both. Serving the rules means a book whose edition changes shape is fixed
 here, with a new `version`, instead of in an app release.
 
@@ -1167,6 +1168,19 @@ here, with a new `version`, instead of in an app release.
     of chapters, `Book 3 - Chapters 21-30`) or `book_spans` (a chapter is
     a whole book over several tracks). `offset` is set only for
     `sequential`. The aligning is the iOS app's `LibraryTrackMap`;
+  - `archive_recording`: a recording from an Internet Archive item, to
+    play in place of the LibriVox one, or null (only The Story of a Soul
+    has one: the 2008 `StorySoul` recording of Taylor's translation).
+    `item` names the item, and a file is
+    `https://archive.org/download/<item>/<name>`. `credit` is printed with
+    it. `chapters` lists, by chapter index from 0 and in order, the files
+    that read each chapter, played one after another, each `{name, start,
+    end}`: `start` and `end` are seconds or null (the beginning, the end of
+    the file), and what follows `end` is a reader's notes, not the book.
+    `unread` lists chapters it does not read (the Prologue and Epilogue):
+    show them with no audio. `librivox_id` and `track_mapping` stay as they
+    were, so a client that does not read this field keeps playing
+    LibriVox;
   - `chapter_titles`: a title per chapter for an edition that prints none
     (the Confessions' thirteen books), or null; a printed title wins;
   - `heading_overrides`: `{chapter, heading}` pairs, chapter by index from

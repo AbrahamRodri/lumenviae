@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-29T01:00:00Z",
+  "updated_at": "2026-11-14T02:30:00Z",
   "books": [
     {
       "id": "imitation-of-christ",
@@ -9,6 +9,7 @@
       "blurb": "Four books on following Christ, read daily by the faithful for six hundred years.",
       "gutenberg_id": 1653,
       "librivox_id": null,
+      "archive_recording": null,
       "track_mapping": {
         "kind": "book_chapter_ranges",
         "offset": null,
@@ -37,6 +38,166 @@
       "blurb": "St. Thérèse of Lisieux tells her own life, and her simple way of trusting God.",
       "gutenberg_id": 16772,
       "librivox_id": 8021,
+      "archive_recording": {
+        "item": "StorySoul",
+        "credit": "Internet Archive recording, 2008, reader not named; public domain",
+        "chapters": [
+          {
+            "chapter": 1,
+            "files": [
+              {
+                "name": "storysoul01a_64kb.mp3",
+                "start": null,
+                "end": null
+              },
+              {
+                "name": "storysoul01b_64kb.mp3",
+                "start": null,
+                "end": null
+              }
+            ]
+          },
+          {
+            "chapter": 2,
+            "files": [
+              {
+                "name": "storysoul02a_64kb.mp3",
+                "start": null,
+                "end": null
+              },
+              {
+                "name": "storysoul02b_64kb.mp3",
+                "start": null,
+                "end": 1036.0
+              }
+            ]
+          },
+          {
+            "chapter": 3,
+            "files": [
+              {
+                "name": "storysoul03_64kb.mp3",
+                "start": null,
+                "end": 1793.0
+              }
+            ]
+          },
+          {
+            "chapter": 4,
+            "files": [
+              {
+                "name": "storysoul04a_64kb.mp3",
+                "start": null,
+                "end": 1765.0
+              },
+              {
+                "name": "storysoul04b_64kb.mp3",
+                "start": null,
+                "end": 789.0
+              }
+            ]
+          },
+          {
+            "chapter": 5,
+            "files": [
+              {
+                "name": "storysoul05_64kb.mp3",
+                "start": null,
+                "end": null
+              }
+            ]
+          },
+          {
+            "chapter": 6,
+            "files": [
+              {
+                "name": "storysoul06a_64kb.mp3",
+                "start": null,
+                "end": null
+              },
+              {
+                "name": "storysoul06b_64kb.mp3",
+                "start": null,
+                "end": 740.0
+              }
+            ]
+          },
+          {
+            "chapter": 7,
+            "files": [
+              {
+                "name": "storysoul07_64kb.mp3",
+                "start": null,
+                "end": 2021.0
+              }
+            ]
+          },
+          {
+            "chapter": 8,
+            "files": [
+              {
+                "name": "storysoul08a_64kb.mp3",
+                "start": null,
+                "end": null
+              },
+              {
+                "name": "storysoul08b_64kb.mp3",
+                "start": null,
+                "end": 1452.0
+              }
+            ]
+          },
+          {
+            "chapter": 9,
+            "files": [
+              {
+                "name": "storysoul09a_64kb.mp3",
+                "start": null,
+                "end": null
+              },
+              {
+                "name": "storysoul09b_64kb.mp3",
+                "start": null,
+                "end": null
+              }
+            ]
+          },
+          {
+            "chapter": 10,
+            "files": [
+              {
+                "name": "storysoul10a_64kb.mp3",
+                "start": null,
+                "end": null
+              },
+              {
+                "name": "storysoul10b_64kb.mp3",
+                "start": null,
+                "end": null
+              }
+            ]
+          },
+          {
+            "chapter": 11,
+            "files": [
+              {
+                "name": "storysoul11a_64kb.mp3",
+                "start": null,
+                "end": null
+              },
+              {
+                "name": "storysoul11b_64kb.mp3",
+                "start": null,
+                "end": 1937.0
+              }
+            ]
+          }
+        ],
+        "unread": [
+          0,
+          12
+        ]
+      },
       "track_mapping": {
         "kind": "sequential",
         "offset": 1,
@@ -65,6 +226,7 @@
       "blurb": "Thirteen books of prayer — the restless heart's long road home to God.",
       "gutenberg_id": 3296,
       "librivox_id": 2601,
+      "archive_recording": null,
       "track_mapping": {
         "kind": "book_spans",
         "offset": null,
@@ -107,6 +269,7 @@
       "blurb": "Every title of the Hail, Holy Queen explained, with her feasts and her seven sorrows: the saints' case for trusting Mary.",
       "gutenberg_id": 72411,
       "librivox_id": 8533,
+      "archive_recording": null,
       "track_mapping": {
         "kind": "sequential",
         "offset": 0,
@@ -142,6 +305,7 @@
       "blurb": "A monastery cook's way of praying while he worked: a few conversations and letters, short enough to keep for life.",
       "gutenberg_id": 13871,
       "librivox_id": 564,
+      "archive_recording": null,
       "track_mapping": {
         "kind": "sequential",
         "offset": -1,

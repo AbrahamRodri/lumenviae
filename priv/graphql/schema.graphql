@@ -3,6 +3,39 @@ schema {
   query: RootQueryType
 }
 
+type SpiritualBookArchiveFile {
+  "Where to begin, in seconds, or null for the beginning."
+  start: Float
+
+  "The file's name in the item (`storysoul02b_64kb.mp3`)."
+  name: String!
+
+  "Where to stop, in seconds, or null for the end of the file. What follows (a reader's notes) is not the book's text."
+  end: Float
+}
+
+type SpiritualBookArchiveChapter {
+  "The item's files that read it, in the order they are played."
+  files: [SpiritualBookArchiveFile!]!
+
+  "The chapter, by index from 0, as the text is cut (`parsing`)."
+  chapter: Int!
+}
+
+type SpiritualBookArchiveRecording {
+  "Chapters, by index from 0, this recording does not read (Story of a Soul's Prologue and Epilogue): show them with no audio."
+  unread: [Int!]!
+
+  "The Internet Archive item (`StorySoul`). A file is `https:\/\/archive.org\/download\/<item>\/<name>`."
+  item: String!
+
+  "Who made the recording and its licence, as printed (`read by ...`)."
+  credit: String!
+
+  "The chapters it reads, by index from 0, in order. A chapter not listed has no recording."
+  chapters: [SpiritualBookArchiveChapter!]!
+}
+
 type SpiritualBookHeading {
   "The heading shown instead."
   heading: String!
@@ -87,6 +120,9 @@ type SpiritualBook {
 
   "Its author (`Thomas à Kempis`)."
   author: String!
+
+  "A recording from an Internet Archive item, chapter by chapter, to play in place of the LibriVox one, or null. Clients that do not read it keep `librivox_id`, which stays as it was."
+  archiveRecording: SpiritualBookArchiveRecording
 }
 
 type CarloHabit {
