@@ -1310,8 +1310,11 @@ async function checkPrayerScreen(browser, vp) {
 
   // The Text sheet, by keyboard: the focus moves into it (its Done
   // button first) and back to Text as it closes.
+  // The bar, Text in it, is hidden while a sheet is open, and getByRole
+  // skips hidden elements, so aria-expanded is read by id.
   const toggle = page.getByRole("button", { name: "Text options" });
-  const expanded = async () => (await toggle.getAttribute("aria-expanded")) === "true";
+  const textButton = page.locator("#sheet-button-text");
+  const expanded = async () => (await textButton.getAttribute("aria-expanded")) === "true";
   await toggle.focus();
   await page.keyboard.press("Enter");
   check(await eventually(expanded), `${label}: Enter on Text opens its sheet`);
