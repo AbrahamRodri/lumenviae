@@ -48,7 +48,8 @@ At 320x568 (narrow), 390x844 (mobile) and 1280x800 (desktop) it:
   cleared, and the prayers-only way is named "No meditation";
 - on a prayer page (a prayer at a time, the player paused first), advances
   with Space, ArrowDown and the Next bead button (the live region text changes), opens and closes
-  the settings pane with Enter, closes it with Escape, and checks the text
+  the Text sheet with Enter (the focus moving into it and back to Text, the
+  bar hidden while it is open), closes it with Escape, and checks the text
   size survives a reload;
 - on `/mysteries/sorrowful/pray?form=scriptural`, checks a verse shows
   before the first counted Hail Mary;

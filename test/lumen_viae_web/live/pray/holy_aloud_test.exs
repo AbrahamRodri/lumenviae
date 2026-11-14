@@ -66,8 +66,8 @@ defmodule LumenViaeWeb.Live.Pray.HolyAloudTest do
   test "choosing No meditation brings its form, and plays", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/mysteries/joyful/pray")
 
-    view |> element("button[aria-controls=prayer-settings]") |> render_click()
-    assert has_element?(view, "#prayer-settings button", "No meditation")
+    view |> element("#sheet-button-more") |> render_click()
+    assert has_element?(view, "#sheet-more button", "No meditation")
 
     render_click(view, "set_form", %{"form" => "holy"})
     assert_patch(view, "/mysteries/joyful/pray?mystery=opening&step=0&form=holy")

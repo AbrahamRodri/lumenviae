@@ -77,7 +77,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
     test "a form the route does not offer falls back to its default", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/joyful/pray?form=meditation")
 
-      view |> element("button[phx-click=toggle_panel]") |> render_click()
+      view |> element("#sheet-button-more") |> render_click()
       assert has_element?(view, ~s(button[phx-value-form=scriptural][aria-pressed=true]))
       refute has_element?(view, "button[phx-value-form=meditation]")
     end
@@ -95,14 +95,14 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
   end
 
   describe "a set prayed as the Scriptural Rosary" do
-    test "keeps its meditation a press away", %{conn: conn} do
+    test "keeps its meditation a press away, READ in the bottom row", %{conn: conn} do
       set = create_set()
       path = "/meditation-sets/#{set.id}/pray"
 
       {:ok, view, html} = live(conn, "#{path}?mystery=0&form=scriptural")
       refute html =~ "Reading 1."
 
-      html = view |> element("button[phx-click=toggle_meditation]") |> render_click()
+      html = view |> element("#sheet-button-read") |> render_click()
       assert html =~ "Reading 1."
     end
 
@@ -111,7 +111,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
       path = "/meditation-sets/#{set.id}/pray"
       {:ok, view, _html} = live(conn, "#{path}?mystery=2")
 
-      view |> element("button[phx-click=toggle_panel]") |> render_click()
+      view |> element("#sheet-button-more") |> render_click()
       view |> element("button[phx-value-form=scriptural]") |> render_click()
 
       assert_patch(view, "#{path}?mystery=2&step=0&form=scriptural")
@@ -181,11 +181,13 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
   describe "the closing prayers" do
     test "the optional prayers are added after the Rosary, in the app's order",
          %{conn: conn} do
-      {:ok, view, html} = live(conn, "/mysteries/joyful/pray?form=holy&mystery=closing")
+      {:ok, view, _html} = live(conn, "/mysteries/joyful/pray?form=holy&mystery=closing")
 
-      refute html =~ "Remember, O most gracious Virgin Mary"
+      # The More sheet names the Memorare's opening words; the page does not pray it.
+      refute view |> element("#prayer-main") |> render() =~
+               "Remember, O most gracious Virgin Mary"
 
-      view |> element("button[phx-click=toggle_panel]") |> render_click()
+      view |> element("#sheet-button-more") |> render_click()
       view |> element("button[phx-value-extra=st_michael]") |> render_click()
       view |> element("button[phx-value-extra=memorare]") |> render_click()
       assert_push_event(view, "prayer:extras", %{extras: ["memorare", "st_michael"]})
@@ -215,7 +217,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
     test "the chaplet offers none", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/mysteries/seven_sorrows/pray")
 
-      view |> element("button[phx-click=toggle_panel]") |> render_click()
+      view |> element("#sheet-button-more") |> render_click()
       refute has_element?(view, "button[phx-click=toggle_extra]")
     end
   end
@@ -327,7 +329,7 @@ defmodule LumenViaeWeb.Live.Pray.FormsTest do
              ~s(#prayer-memory[phx-hook=PrayerMemory][data-key="mysteries:joyful:scriptural"])
            )
 
-    view |> element("button[phx-click=toggle_panel]") |> render_click()
+    view |> element("#sheet-button-text") |> render_click()
     assert has_element?(view, "button[data-text-size='1']", "Larger text")
     assert has_element?(view, "button[data-text-size='-1']", "Smaller text")
   end

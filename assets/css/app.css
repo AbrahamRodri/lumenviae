@@ -1810,6 +1810,12 @@ html[data-prayer-images="off"] .prayer-plate {
   background: rgba(217, 184, 74, 0.14);
 }
 
+/* A chosen note reads in ink-light: ink-muted on the gilt wash is under
+   4.5:1. */
+.prayer-choice[aria-pressed="true"] .prayer-choice__note {
+  color: var(--color-ink-light);
+}
+
 /* "Show Words and Beads" in the settings pane: a switch, on while
    aria-checked is true. */
 .prayer-switch {

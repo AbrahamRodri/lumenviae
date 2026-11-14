@@ -1214,7 +1214,7 @@ live/pray/
 ├── bead_screen/bead_screen.ex  BeadScreen: counting on the screen, a bead at a time
 ├── strand/strand.ex            Strand: the pill that names the part, the Go to list, and the bead strand
 ├── prayer_text/prayer_text.ex  PrayerText: a prayer, a verse, an announcement, a meditation
-├── controls/controls.ex        Controls: the settings, the aloud controls, the resume offer, Previous and Next
+├── controls/controls.ex        Controls: Back and Next, the READ, VOICE, TEXT and MORE row and its sheets, the aloud controls, the resume offer
 └── completion/completion.ex    Completion: the Amen, the streak and the milestones
 ```
 
@@ -1438,7 +1438,7 @@ ornament, Roman numerals, colophon quotes.
 | --- | --- | --- |
 | `night` | `#0A0A15` | the page ground (the middle of the page gradient on `<html>`) |
 | `night-deep` | `#050509` | the top and foot of the gradient, the header, the footer, a hero band |
-| `night-raised` | `#151521` | cards, panels, the settings pane |
+| `night-raised` | `#151521` | cards, panels, the prayer page's sheets |
 | `night-elevated` | `#1E1E2E` | the chosen segment of a choice or chip |
 | `night-border` | `#352E23` | decorative hairlines only: the app's gold at 20% (1.5:1) |
 | `night-line` | `#8C753F` | a border that marks a control: chips, fields, outlines; the app's gold at 60% (4.4:1; 4.1:1 on raised) |
@@ -1467,7 +1467,7 @@ now; no public template may.
 
 **Where vellum goes.** The Scripture passages on `/mysteries` and the
 privacy policy body (`.reading-vellum`), and the prayer page's meditation
-when the reader chooses it ("Reading page" in the settings pane). The
+when the reader chooses it ("Reading page" in the prayer page's Text sheet). The
 meditation is on night by default, as the app's reader is. Everything else
 is night.
 

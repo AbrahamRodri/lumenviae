@@ -148,7 +148,20 @@ the sequence), each mystery and the closing prayers, the current one marked
 "Here". A row goes to that part; Escape, choosing a row or pressing the pill
 again closes it.
 
-Show Words and Beads, in the settings pane, hides the prayer's words, the verse,
+Under Back, Play and Next is a row of buttons, each an icon over its name,
+as the apps have it (lumenviae-app #139, lumenviae-android #82): READ,
+VOICE, TEXT and MORE. READ, in gilt, leads the row on every step of a
+mystery with a meditation and opens the whole meditation with its citation;
+elsewhere, and in the "No meditation" form, the row is VOICE, TEXT and
+MORE. VOICE holds the narrator and the prayers' speed; TEXT the text size,
+the prayers' language, Show Words and Beads, the reading page (Night or
+Vellum) and the images; MORE the set and its author, how to pray, the
+closing prayers after the Rosary, and Share. Each opens a sheet at the foot
+of the screen, and Back and Next hide while it is open. Done or Escape
+closes it, and the focus goes into the sheet and back to the button that
+opened it (the `PrayerSheets` hook).
+
+Show Words and Beads, in the Text sheet, hides the prayer's words, the verse,
 the meditation and the bead strand, leaving the bead's name, the pill, the
 player and Back and Next. It applies only where the page has the player; a
 page read as text always shows its words.
@@ -809,7 +822,7 @@ starts from the defaults. The one thing the server writes is a completion.
 | Text size | `lv:pray:text-size` | the `PrayerSurface` hook |
 | Reading page, night (the default, as the app's reader) or vellum | `lv:pray:reading-page` | the `DisplayChoices` hook, read by `PrayerSurface` |
 | The mystery's painting shown or hidden | `lv:pray:images` | `DisplayChoices`, read by `PrayerSurface` |
-| Show Words and Beads, on (the default) or off | `lv:pray:words` | `DisplayChoices`, a switch in the settings pane |
+| Show Words and Beads, on (the default) or off | `lv:pray:words` | `DisplayChoices`, a switch in the Text sheet |
 | Days in a row | `lv:pray:streak` | the `PrayerStreak` hook |
 | Swipe hint already shown | `lv:pray:swipe-hint-seen` | the `SwipeHint` hook |
 | The Consecration's plan: Day 1, the feast it ends on, when it was begun and completed | `lv:consecration:plan`, holding `{start, feast_id, started_at, completed_at}` | the `ConsecrationPlan` hook |
