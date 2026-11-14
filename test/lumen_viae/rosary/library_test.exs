@@ -418,6 +418,26 @@ defmodule LumenViae.Rosary.LibraryTest do
       assert errors =~ ~s(the novena knots: day 1: names the prayer "nowhere")
     end
 
+    test "refuses a novena whose chapter does not name its twin" do
+      book = update_chapter(novena_book(), "prayer_ids", ["sub_tuum", "memorare"])
+
+      book =
+        update_chapter(book, "sections", [
+          %{"title" => "One", "prayer_ids" => ["sub_tuum", "memorare"]}
+        ])
+
+      assert book_errors(book) =~ "the novena knots: its chapter our_lady does not name its twin"
+    end
+
+    test "refuses a part whose own words are blank, or say a number of times" do
+      blank = update_novena_part(novena_book(), 1, 1, "text", "  ")
+      times = update_novena_part(novena_book(), 1, 1, "times", 2)
+
+      assert book_errors(blank) =~ "day 1: text is required text"
+      assert book_errors(blank) =~ "the words of knots_d1_prayer are not in the twin prayer"
+      assert book_errors(times) =~ "day 1: a part with its own words has no times"
+    end
+
     test "refuses days not numbered 1 to the novena's length" do
       assert book_errors(update_novena(novena_book(), "length", 3)) =~
                "its days are numbered 1 to its length, 3, in order"

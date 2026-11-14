@@ -43,7 +43,7 @@ defmodule LumenViae.Rosary.Library.Check do
       unnamed("chapter id", chapter_ids) ++
       orders_errors(list(book["orders"]), MapSet.new(prayer_ids), MapSet.new(chapter_ids)) ++
       antiphons_errors(list(book["marian_antiphons"]), MapSet.new(prayer_ids)) ++
-      novenas_errors(list(book["novenas"]), prayers, MapSet.new(chapter_ids))
+      novenas_errors(list(book["novenas"]), prayers, chapters)
   end
 
   def prayer_book_errors(_document), do: ["the document needs a list of prayers and of chapters"]
@@ -548,11 +548,12 @@ defmodule LumenViae.Rosary.Library.Check do
   # words, and every word of its own in the twin, word for word, so the two
   # never drift. A feast, when it has one, is a rule the apps know; its
   # painting file, when it has one, is content-addressed.
-  defp novenas_errors(novenas, prayers, chapter_ids) do
+  defp novenas_errors(novenas, prayers, chapters) do
     ids = Enum.map(novenas, &id/1)
     english = Map.new(prayers, &{id(&1), &1["english"]})
+    chapters = Map.new(chapters, &{id(&1), list(&1["prayer_ids"])})
 
-    Enum.flat_map(novenas, &novena_errors(&1, english, chapter_ids)) ++
+    Enum.flat_map(novenas, &novena_errors(&1, english, chapters)) ++
       repeated("novena", ids) ++
       unnamed("novena id", ids) ++
       repeated(
@@ -576,14 +577,19 @@ defmodule LumenViae.Rosary.Library.Check do
       )
   end
 
-  defp novena_errors(%{"id" => id} = novena, english, chapter_ids) when is_binary(id) do
+  defp novena_errors(%{"id" => id} = novena, english, chapters) when is_binary(id) do
     twin = english[novena["prayer_id"]]
     days = list(novena["days"])
+    chapter = chapters[novena["chapter_id"]]
 
     errors =
       required(novena, ~w(title detail)) ++
         unknown("prayer", [novena["prayer_id"]], MapSet.new(Map.keys(english))) ++
-        unknown("chapter", [novena["chapter_id"]], chapter_ids) ++
+        unknown("chapter", [novena["chapter_id"]], MapSet.new(Map.keys(chapters))) ++
+        if(is_nil(chapter) or novena["prayer_id"] in chapter,
+          do: [],
+          else: ["its chapter #{novena["chapter_id"]} does not name its twin"]
+        ) ++
         novena_days_errors(days, novena["length"]) ++
         novena_feast_errors(novena["feast"]) ++
         novena_art_errors(novena["art"], id) ++
@@ -597,7 +603,7 @@ defmodule LumenViae.Rosary.Library.Check do
     Enum.map(errors, &"the novena #{id}: #{&1}")
   end
 
-  defp novena_errors(novena, _english, _chapter_ids),
+  defp novena_errors(novena, _english, _chapters),
     do: ["a novena needs an id: #{inspect(novena, limit: 3)}"]
 
   defp novena_days_errors([_ | _] = days, length) when is_integer(length) and length > 0 do
@@ -645,8 +651,9 @@ defmodule LumenViae.Rosary.Library.Check do
           )
 
       is_nil(prayer) and is_binary(text) ->
-        required(part, ~w(id title kind)) ++
-          if(is_binary(twin) and String.contains?(twin, text),
+        required(part, ~w(id title kind text)) ++
+          if(is_nil(part["times"]), do: [], else: ["a part with its own words has no times"]) ++
+          if(is_binary(twin) and String.trim(text) != "" and String.contains?(twin, text),
             do: [],
             else: ["the words of #{part["id"]} are not in the twin prayer, word for word"]
           )
