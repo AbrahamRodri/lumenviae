@@ -177,11 +177,18 @@ Locally:
     mix lumen_viae.artwork_variants --dry-run
     mix lumen_viae.artwork_variants
 
-In production, after the deploy that adds the `image_variant_widths`
-column:
+In production (the Droplet, in an owner's shell, not an agent's).
+`compose.yml` requires `IMAGE`, which only the deploy sets, so give it a
+placeholder for `exec` as the backup script does:
 
-    fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants(dry_run: true)'"
-    fly ssh console -C "/app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants()'"
+    cd /srv/lumenviae
+    export IMAGE=unused-by-exec
+    docker compose exec app /app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants(dry_run: true)'
+    docker compose exec app /app/bin/lumen_viae eval 'LumenViae.Release.artwork_variants()'
+
+Until it has run, the public pages draw each painting and portrait from
+its original (a set or author portrait of several megabytes in a 64px
+home card); once it has, they offer the WebP variants through `srcset`.
 
 Each painting is a GET of the original and three PUTs. Read the output:
 `WARN` means a painting's original is not in the bucket, and `ERROR` means
