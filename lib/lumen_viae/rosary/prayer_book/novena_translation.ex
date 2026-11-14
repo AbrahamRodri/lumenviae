@@ -37,6 +37,11 @@ defmodule LumenViae.Rosary.PrayerBook.NovenaTranslation do
       constraints: [nil_items?: false],
       description: "Each day's title in this language, day 1 first: one per day of `novenas`."
 
+    field :ai_translated, :boolean,
+      allow_nil?: false,
+      description:
+        "True when part of this novena's words in this language are the team's own translation, not a published text; false otherwise. A part's own flag says which."
+
     field :parts, {:array, NovenaPartTranslation},
       allow_nil?: false,
       constraints: [nil_items?: false],

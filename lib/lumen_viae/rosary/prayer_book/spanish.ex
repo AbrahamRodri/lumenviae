@@ -95,6 +95,9 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
 
     unless is_list(spanish["search_words"]), do: fail.("it needs its search_words")
 
+    unless Map.get(spanish, "ai_translated", false) in [true, false],
+      do: fail.("its \"ai_translated\" is true, false or left out")
+
     day_titles = spanish["day_titles"]
 
     unless is_list(day_titles) and length(day_titles) == novena.length and
@@ -115,6 +118,9 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
         not String.contains?(twin, part["text"]) ->
           fail.("the words of #{part_id} are not in the Spanish twin, word for word")
 
+        Map.get(part, "ai_translated", false) not in [true, false] ->
+          fail.("the part #{part_id}'s \"ai_translated\" is true, false or left out")
+
         true ->
           :ok
       end
@@ -124,8 +130,9 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
   @doc """
   Every novena that has Spanish, in the book's order, each
   `%{id:, title:, list_title:, detail:, note:, origin:, search_words:,
-  day_titles:, parts:}`, its parts `%{id:, title:, text:}` in the order the
-  novena first says them.
+  day_titles:, ai_translated:, parts:}`, its parts `%{id:, title:, text:,
+  ai_translated:}` in the order the novena first says them. A novena or a
+  part is `ai_translated` only where the file marks it `true`.
   """
   @spec novenas() :: [map]
   def novenas do
@@ -141,13 +148,19 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
         origin: spanish["origin"],
         search_words: spanish["search_words"],
         day_titles: spanish["day_titles"],
+        ai_translated: spanish["ai_translated"] == true,
         parts:
           for(
             day <- novena.days,
             part <- day.parts,
             words = parts[part.id],
             uniq: true,
-            do: %{id: part.id, title: words["title"], text: words["text"]}
+            do: %{
+              id: part.id,
+              title: words["title"],
+              text: words["text"],
+              ai_translated: words["ai_translated"] == true
+            }
           )
       }
     end

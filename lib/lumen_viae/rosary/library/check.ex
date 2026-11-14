@@ -603,8 +603,9 @@ defmodule LumenViae.Rosary.Library.Check do
 
   # A novena: its id once, its twin and chapter ones the book has, its days
   # numbered 1 to its length, each part either a book prayer or its own
-  # words, and every word of its own in the twin, word for word, so the two
-  # never drift. A feast, when it has one, is a rule the apps know; its
+  # words (said a whole number of times, with any prayer said instead of it
+  # one the book has), and every word of its own in the twin, word for
+  # word, so the two never drift. A feast, when it has one, is a rule the apps know; its
   # painting file, when it has one, is content-addressed.
   defp novenas_errors(novenas, prayers, chapters) do
     ids = Enum.map(novenas, &id/1)
@@ -720,7 +721,7 @@ defmodule LumenViae.Rosary.Library.Check do
 
     if is_list(decades) and decades != [] and Enum.all?(decades, &(&1 in 1..5)) and
          decades == Enum.sort(Enum.uniq(decades)) and
-         Enum.all?(~w(prayer_id text id title times source), &is_nil(part[&1])),
+         Enum.all?(~w(prayer_id or_prayer_id text id title times source), &is_nil(part[&1])),
        do: [],
        else: ["a rosary part holds only its decades, 1 to 5 in order"]
   end
@@ -728,7 +729,25 @@ defmodule LumenViae.Rosary.Library.Check do
   defp novena_part_errors(%{"decades" => decades}, _english, _twin) when not is_nil(decades),
     do: ["only a rosary part has decades"]
 
-  defp novena_part_errors(%{"prayer_id" => prayer, "text" => text} = part, english, twin) do
+  defp novena_part_errors(%{"prayer_id" => _, "text" => _} = part, english, twin) do
+    times = part["times"]
+    instead = part["or_prayer_id"]
+
+    novena_words_errors(part, english, twin) ++
+      if(is_nil(times) or (is_integer(times) and times >= 1),
+        do: [],
+        else: ["a part's times is a whole number from 1, or null"]
+      ) ++
+      if(is_nil(instead),
+        do: [],
+        else: unknown("prayer", [instead], MapSet.new(Map.keys(english)))
+      )
+  end
+
+  defp novena_part_errors(_part, _english, _twin),
+    do: ["a part holds either a prayer_id or its own text, not both or neither"]
+
+  defp novena_words_errors(%{"prayer_id" => prayer, "text" => text} = part, english, twin) do
     cond do
       is_binary(prayer) and is_nil(text) ->
         unknown("prayer", [prayer], MapSet.new(Map.keys(english))) ++
@@ -739,7 +758,6 @@ defmodule LumenViae.Rosary.Library.Check do
 
       is_nil(prayer) and is_binary(text) ->
         required(part, ~w(id kind text)) ++
-          if(is_nil(part["times"]), do: [], else: ["a part with its own words has no times"]) ++
           if(is_binary(twin) and String.trim(text) != "" and String.contains?(twin, text),
             do: [],
             else: ["the words of #{part["id"]} are not in the twin prayer, word for word"]
@@ -749,9 +767,6 @@ defmodule LumenViae.Rosary.Library.Check do
         ["a part holds either a prayer_id or its own text, not both or neither"]
     end
   end
-
-  defp novena_part_errors(_part, _english, _twin),
-    do: ["a part holds either a prayer_id or its own text, not both or neither"]
 
   # The four songs, each a prayer of the book, each season once.
   defp antiphons_errors(antiphons, prayer_ids) do

@@ -376,15 +376,27 @@ ordinary prayer in `prayers`, named by a chapter, holding the whole
 novena as text, which they show as any other prayer. The build that adds
 novenas names `novenas` in `fields[prayer_book]`, shows a novena in its
 twin's place, and treats `list_title`, `latin_title`, `note`, `origin`,
-`feast`, `painting`, `art` and a part's `prayer_id`, `times`, `id`,
-`title`, `text`, `source` and `decades` as optional. `kind` is a string, not an
-enum: a kind the app does not know is shown as plain text. In Spanish it
-also names `novena_translations` (with `lang=es`): each novena's Spanish
-titles, card sentence, `day_titles` and its own parts' words by part `id`,
-laid over `novenas` as `translations` is over `prayers`; `list_title`,
-`note`, `origin` and a part's `title` are optional, and a novena or part
-not listed keeps its English (docs/JSON_API.md, "The Prayer Book in
-Spanish").
+`feast`, `painting`, `art` and a part's `prayer_id`, `or_prayer_id`,
+`times`, `id`, `title`, `text`, `source` and `decades` as optional. `kind`
+is a string, not an enum: a kind the app does not know is shown as plain
+text. Never assume nine days: `length` is the count (the St. Andrew
+Christmas Novena is 25 days of one prayer said 15 times a day, its part's
+`times` 15). `times` may stand on a part's own words as well as on a named
+prayer. `or_prayer_id` (added 14 Nov 2026) names a book prayer said
+instead of the part; an app that ignores it still prays correctly. In
+Spanish it also names `novena_translations` (with `lang=es`): each
+novena's Spanish titles, card sentence, `day_titles`, `ai_translated` and
+its own parts' words by part `id`, each with its own `ai_translated`
+(added 14 Nov 2026, always `true` or `false`), laid over `novenas` as
+`translations` is over `prayers`; `list_title`, `note`, `origin` and a
+part's `title` are optional, and a novena or part not listed keeps its
+English (docs/JSON_API.md, "The Prayer Book in Spanish"). On 14 Nov 2026
+six novenas joined Undoer of Knots, and four new twin prayers
+(`holy_spirit_novena`, `st_joseph_novena`,
+`our_mother_of_perpetual_help_novena`, `our_lady_of_guadalupe_novena`)
+reach 4.0 to 4.3 as ordinary prayers; the St. Andrew and Immaculate
+Conception twins' Spanish changed to published texts and lost
+`ai_translated`.
 
 No shipped build calls `GET /api/v2/spiritual-reading`: the Spiritual
 Reading catalogue is compiled into the app (`Data/LibraryCatalog.swift`).

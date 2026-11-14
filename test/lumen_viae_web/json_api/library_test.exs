@@ -112,7 +112,7 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     # Day shape A (Abraham, 14 Nov: "if we can do 1 without it being clunky
     # then yes"): three decades, the day's meditation, the last two decades.
     test "Undoer of Knots: nine days, the Rosary inside each", %{conn: conn} do
-      [novena] =
+      [novena | _] =
         conn
         |> get_v2("/prayer-book?fields[prayer_book]=novenas")
         |> v2_response(200)
@@ -146,16 +146,127 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       spanish =
         conn |> get_v2(path <> "&lang=es") |> v2_response(200) |> get_in(["data", "attributes"])
 
-      [novena] = spanish["novenas"]
-      [knots] = spanish["novena_translations"]
+      [novena | _] = spanish["novenas"]
+      [knots | _] = spanish["novena_translations"]
 
       assert %{"id" => "undoer_of_knots", "title" => "La Virgen Desatanudos"} = knots
+      assert knots["ai_translated"] == false
       assert length(knots["day_titles"]) == novena["length"]
 
       own =
         for day <- novena["days"], part <- day["parts"], part["id"], uniq: true, do: part["id"]
 
       assert Enum.map(knots["parts"], & &1["id"]) == own
+      assert Enum.all?(knots["parts"], &(&1["ai_translated"] == false))
+    end
+
+    # novenas-api-nine (orch-lead, 14 Nov 2026).
+    test "the six new novenas are served with their length, days and twins", %{conn: conn} do
+      attributes =
+        conn
+        |> get_v2("/prayer-book?fields[prayer_book]=prayers,novenas")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      by_id = Map.new(attributes["novenas"], &{&1["id"], &1})
+      twins = Map.new(attributes["prayers"], &{&1["id"], &1["english"]})
+
+      for {id, length, twin} <- [
+            {"immaculate_conception", 9, "immaculate_conception_novena"},
+            {"our_lady_of_guadalupe", 9, "our_lady_of_guadalupe_novena"},
+            {"st_andrew_christmas", 25, "st_andrew_novena"},
+            {"st_joseph", 9, "st_joseph_novena"},
+            {"holy_spirit", 9, "holy_spirit_novena"},
+            {"our_mother_of_perpetual_help", 9, "our_mother_of_perpetual_help_novena"}
+          ] do
+        novena = by_id[id]
+        assert %{"length" => ^length, "prayer_id" => ^twin, "art" => nil} = novena, id
+        assert Enum.map(novena["days"], & &1["number"]) == Enum.to_list(1..length), id
+
+        for day <- novena["days"], %{"text" => text} <- day["parts"], text do
+          assert String.contains?(twins[twin], text), "#{id} day #{day["number"]}"
+        end
+      end
+
+      refute Map.has_key?(by_id, "sacred_heart")
+    end
+
+    test "St Andrew: 25 days of one prayer said 15 times, ending on Christmas Eve", %{conn: conn} do
+      novena =
+        conn
+        |> get_v2("/prayer-book?fields[prayer_book]=novenas")
+        |> v2_response(200)
+        |> get_in(["data", "attributes", "novenas"])
+        |> Enum.find(&(&1["id"] == "st_andrew_christmas"))
+
+      assert novena["length"] == 25
+      assert length(novena["days"]) == 25
+      assert novena["detail"] =~ "15 times a day for 25 days"
+      refute novena["detail"] =~ "nine"
+
+      assert %{"kind" => "fixed", "month" => 12, "day" => 25} = novena["feast"]
+
+      for day <- novena["days"] do
+        assert [%{"id" => "st_andrew_prayer", "times" => 15}] = day["parts"]
+      end
+    end
+
+    test "the Immaculate Conception: nine Hail Marys, and the Litany in place of the versicles",
+         %{conn: conn} do
+      novena =
+        conn
+        |> get_v2("/prayer-book?fields[prayer_book]=novenas")
+        |> v2_response(200)
+        |> get_in(["data", "attributes", "novenas"])
+        |> Enum.find(&(&1["id"] == "immaculate_conception"))
+
+      assert %{"kind" => "fixed", "month" => 12, "day" => 8} = novena["feast"]
+
+      for day <- novena["days"] do
+        assert %{"times" => 9} = Enum.find(day["parts"], &(&1["prayer_id"] == "hail_mary"))
+
+        assert %{"or_prayer_id" => "litany_loreto"} =
+                 Enum.find(day["parts"], &(&1["id"] == "immaculate_conception_tota_pulchra"))
+      end
+    end
+
+    test "the Holy Spirit novena ends on the eve of Pentecost, seven Glory Bes a day", %{
+      conn: conn
+    } do
+      novena =
+        conn
+        |> get_v2("/prayer-book?fields[prayer_book]=novenas")
+        |> v2_response(200)
+        |> get_in(["data", "attributes", "novenas"])
+        |> Enum.find(&(&1["id"] == "holy_spirit"))
+
+      assert %{"kind" => "easter", "days_from_easter" => 49} = novena["feast"]
+
+      for day <- novena["days"] do
+        assert %{"times" => 7} = Enum.find(day["parts"], &(&1["prayer_id"] == "glory_be"))
+      end
+    end
+
+    test "novena_translations: the new novenas' Spanish is published, none of it the team's", %{
+      conn: conn
+    } do
+      spanish =
+        conn
+        |> get_v2("/prayer-book?lang=es&fields[prayer_book]=novenas,novena_translations")
+        |> v2_response(200)
+        |> get_in(["data", "attributes"])
+
+      by_id = Map.new(spanish["novena_translations"], &{&1["id"], &1})
+
+      assert Map.keys(by_id) |> Enum.sort() ==
+               ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help st_andrew_christmas undoer_of_knots)
+
+      for {id, translation} <- by_id do
+        assert translation["ai_translated"] == false, id
+        assert Enum.all?(translation["parts"], &(&1["ai_translated"] == false)), id
+      end
+
+      assert length(by_id["st_andrew_christmas"]["day_titles"]) == 25
     end
 
     test "a shipped app's Spanish request carries no novena_translations", %{conn: conn} do

@@ -686,7 +686,8 @@ chants.
     holds of its own stands in the twin word for word (the server refuses
     a file where they drift).
   - **`length`** is the number of days, usually 9. Never assume 9: the
-    St. Andrew novena runs 25.
+    St. Andrew Christmas Novena (`st_andrew_christmas`) runs 25, one
+    prayer said 15 times a day from November 30 to Christmas Eve.
   - **`feast`** is the feast the novena ends on, in the chant library's
     rule shape (`kind` `fixed` with `month` and `day`, or `easter` with
     `days_from_easter`, and the other kinds a chant feast may have). Day 1
@@ -701,10 +702,9 @@ chants.
   - **`chant_ids`** are chants of the chant library that suit it, `[]`
     when none.
   - **`days`**, numbered 1 to `length` in order, are each `{number,
-    title, parts}`. A part is `{kind, prayer_id, times, id, title, text,
-    source, decades}` and holds exactly one of:
-    - `prayer_id`: one of `prayers`, said `times` times (null for once);
-      `id`, `title` and `text` are null;
+    title, parts}`. A part is `{kind, prayer_id, or_prayer_id, times, id,
+    title, text, source, decades}` and holds exactly one of:
+    - `prayer_id`: one of `prayers`; `id`, `title` and `text` are null;
     - `text`: the day's own words, in the `PrayerText` grammar, with their
       `id`, `title` (or null: a short invocation or saying has none) and
       `source` (or null). Words said every day (an invocation, the closing
@@ -714,9 +714,25 @@ chants.
     - for `kind` `rosary`, `decades`: the decades of the day's mysteries
       prayed at that point, 1 to 5 in order (`[1, 2, 3]`, then `[4, 5]`
       after a meditation). `decades` is null on every other part.
-    `kind` says what the part is: `opening`, `meditation`,
-    `novena_prayer`, `invocation`, `saying`, `closing` or `rosary`, and
-    more may come. Show a kind you do not know as plain text.
+    `times` (14 Nov 2026 for a part's own words) is how many times the
+    part is said, the named prayer or its own words, a whole number from
+    1, or null for once: nine Hail Marys, seven Glory Bes, the St. Andrew
+    prayer 15 times a day. `or_prayer_id` (14 Nov 2026) names one of
+    `prayers` that may be said instead of the part, or is null: the
+    Immaculate Conception novena says the Litany of Loreto
+    (`litany_loreto`) or else its Tota pulchra versicles, which the part
+    holds. A client that ignores it shows the part, which is always
+    right. Both are null on a `rosary` part.
+    `kind` says what the part is: `opening`, `meditation`, `prayer`,
+    `novena_prayer`, `invocation`, `saying`, `practice`, `closing` or
+    `rosary`, and more may come. Show a kind you do not know as plain
+    text.
+  - **The novenas** (14 Nov 2026): `undoer_of_knots`,
+    `immaculate_conception`, `our_lady_of_guadalupe`,
+    `st_andrew_christmas`, `st_joseph`, `holy_spirit` (ends on the eve of
+    Pentecost, Easter + 49) and `our_mother_of_perpetual_help`. Each
+    credits its source in `origin`. A day's calendar date is not served:
+    it is the feast less `length` days, plus the day's number less one.
 
 ### The Prayer Book in Spanish
 
@@ -760,17 +776,25 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
 - **`novena_translations`** (14 Nov 2026), served only when named in
   `fields[prayer_book]=`, with `lang=es`; `[]` in English. One per novena
   that has Spanish, in the order of `novenas`, each `{id, title,
-  list_title, detail, note, origin, search_words, day_titles, parts}`:
+  list_title, detail, note, origin, search_words, day_titles,
+  ai_translated, parts}`:
   - `id` is the novena's id in `novenas`; `day_titles` has one title per
     day, day 1 first.
   - `parts` are the novena's own words in Spanish, each `{id, title,
-    text}`, keyed by the part `id` that `novenas` gives them (an id never
+    text, ai_translated}`, keyed by the part `id` that `novenas` gives them (an id never
     names two different texts, so one entry serves every day that says
     it). A part that names a book prayer (`prayer_id`) takes that prayer's
     `translations` entry; a `rosary` part has no words.
   - A novena or part not listed keeps its English. The Spanish of every
     part stands in the twin prayer's Spanish word for word (the server
     refuses a file where they drift).
+  - `ai_translated` (on the novena and on each part, always `true` or
+    `false`) is `true` where the words are the team's own translation,
+    not a published text, for the app's notice; the novena's is `true`
+    when any of its words are. Every novena's Spanish today is a
+    published text, so all are `false`. The Immaculate Conception's Tota
+    pulchra versicles and closing collects are in Latin, as the 1860
+    Spanish Raccolta prints them.
   - Lay it over `novenas` by id, as `translations` lies over `prayers`.
 
 ### `chant_library`
