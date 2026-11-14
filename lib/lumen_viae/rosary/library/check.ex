@@ -614,15 +614,21 @@ defmodule LumenViae.Rosary.Library.Check do
     Enum.flat_map(novenas, &novena_errors(&1, english, chapters)) ++
       repeated("novena", ids) ++
       unnamed("novena id", ids) ++
-      repeated(
-        "novena part",
-        for(
-          novena <- novenas,
-          day <- list(novena["days"]),
-          part <- list(day["parts"]),
-          is_binary(part["id"]),
-          do: part["id"]
-        )
+      for(
+        {part_id, texts} <-
+          Enum.group_by(
+            for(
+              novena <- novenas,
+              day <- list(novena["days"]),
+              part <- list(day["parts"]),
+              is_binary(part["id"]),
+              do: part
+            ),
+            & &1["id"],
+            & &1["text"]
+          ),
+        length(Enum.uniq(texts)) > 1,
+        do: "the novena part id #{inspect(part_id)} is repeated with other words"
       ) ++
       unnamed(
         "novena part id",
@@ -699,7 +705,18 @@ defmodule LumenViae.Rosary.Library.Check do
 
   defp novena_art_errors(_art, _id), do: ["its art is a file or null"]
 
-  defp novena_part_errors(%{"prayer_id" => prayer, "text" => text} = part, english, twin) do
+  defp novena_part_errors(%{"kind" => "rosary"} = part, _english, _twin) do
+    decades = part["decades"]
+
+    if is_list(decades) and decades != [] and Enum.all?(decades, &(&1 in 1..5)) and
+         decades == Enum.sort(Enum.uniq(decades)) and is_nil(part["prayer_id"]) and
+         is_nil(part["text"]),
+       do: [],
+       else: ["a rosary part holds only its decades, 1 to 5 in order"]
+  end
+
+  defp novena_part_errors(%{"prayer_id" => prayer, "text" => text} = part, english, twin)
+       when not is_map_key(part, "decades") or is_nil(:erlang.map_get("decades", part)) do
     cond do
       is_binary(prayer) and is_nil(text) ->
         unknown("prayer", [prayer], MapSet.new(Map.keys(english))) ++
@@ -709,7 +726,7 @@ defmodule LumenViae.Rosary.Library.Check do
           )
 
       is_nil(prayer) and is_binary(text) ->
-        required(part, ~w(id title kind text)) ++
+        required(part, ~w(id kind text)) ++
           if(is_nil(part["times"]), do: [], else: ["a part with its own words has no times"]) ++
           if(is_binary(twin) and String.trim(text) != "" and String.contains?(twin, text),
             do: [],

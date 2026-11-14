@@ -377,7 +377,7 @@ novena as text, which they show as any other prayer. The build that adds
 novenas names `novenas` in `fields[prayer_book]`, shows a novena in its
 twin's place, and treats `list_title`, `latin_title`, `note`, `origin`,
 `feast`, `painting`, `art` and a part's `prayer_id`, `times`, `id`,
-`title`, `text` and `source` as optional. `kind` is a string, not an
+`title`, `text`, `source` and `decades` as optional. `kind` is a string, not an
 enum: a kind the app does not know is shown as plain text.
 
 No shipped build calls `GET /api/v2/spiritual-reading`: the Spiritual

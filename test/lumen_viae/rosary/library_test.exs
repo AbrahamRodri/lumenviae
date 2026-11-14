@@ -458,10 +458,49 @@ defmodule LumenViae.Rosary.LibraryTest do
       book = %{novena_book() | "novenas" => [novena, novena]}
 
       assert book_errors(book) =~ ~s(the novena id "knots" is repeated)
-      assert book_errors(book) =~ ~s(the novena part id "knots_d1_prayer" is repeated)
+
+      # Words said every day keep one id; the same id with other words is refused.
+      refute book_errors(book) =~ "novena part id"
+      book = update_novena_part(novena_book(), 2, 1, "id", "knots_d1_prayer")
+
+      assert book_errors(book) =~
+               ~s(the novena part id "knots_d1_prayer" is repeated with other words)
 
       assert book_errors(update_novena(novena_book(), "feast", %{"kind" => "lent"})) =~
                "its feast rule is one of"
+    end
+
+    test "a rosary part holds only its decades; invocations may go untitled" do
+      rosary = %{novena_part("rosary", nil, nil, nil) | "decades" => [1, 2, 3]}
+
+      book =
+        novena_book()
+        |> update_novena_part(1, 0, "kind", "invocation")
+        |> update_novena_part(1, 1, "title", nil)
+
+      [novena] = book["novenas"]
+      [day | days] = novena["days"]
+
+      book = %{
+        book
+        | "novenas" => [
+            %{novena | "days" => [%{day | "parts" => [rosary | day["parts"]]} | days]}
+          ]
+      }
+
+      assert Check.prayer_book_errors(book) == []
+      assert {:ok, _} = Section.cast(:prayer_book, "novenas", book["novenas"])
+
+      for decades <- [[], [3, 1], [6], nil] do
+        bad = %{rosary | "decades" => decades}
+
+        broken = %{
+          book
+          | "novenas" => [%{novena | "days" => [%{day | "parts" => [bad | day["parts"]]} | days]}]
+        }
+
+        assert book_errors(broken) =~ "a rosary part holds only its decades, 1 to 5 in order"
+      end
     end
 
     test "refuses a novena naming a chant the chant library does not have" do
@@ -1348,7 +1387,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       "id" => id,
       "title" => id && "The prayer for today",
       "text" => text,
-      "source" => nil
+      "source" => nil,
+      "decades" => nil
     }
   end
 
