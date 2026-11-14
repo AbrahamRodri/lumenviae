@@ -185,6 +185,28 @@ defmodule LumenViae.Rosary.NarrationsTest do
       assert [%{s3_key: "voices/female/new.mp3", lines: nil}] = Rosary.meditation_narrations(m)
     end
 
+    # Content audit NIT 2: editing a meditation's words keeps its timings
+    # (narration.ex, :record clears them only for a new recording). That is
+    # safe because the page finds each timed line by its last words: lines
+    # up to the first changed one stay lit, and from there on stay unlit.
+    test "editing the words keeps the timings; from the first changed line on, nothing is lit",
+         %{meditation: m} do
+      {:ok, m} = Rosary.record_narration(m, "female", "voices/female/clip.mp3", actor: admin())
+      {:ok, _} = Rosary.time_narration(m.id, "female", @lines, actor: admin())
+
+      {:ok, m} =
+        Rosary.update_meditation(m, %{content: "Hail, full of grace. The Lord be with you."},
+          actor: admin()
+        )
+
+      assert [%{lines: [_, _] = lines}] = Rosary.meditation_narrations(%{id: m.id})
+
+      assert LumenViaeWeb.Live.Pray.TimedText.segments(
+               ["Hail, full of grace.", "The Lord be with you."],
+               lines
+             ) == [[{"Hail, full of grace.", 0}], [{"The Lord be with you.", nil}]]
+    end
+
     test "a voice with no recording cannot be timed", %{meditation: m} do
       assert {:error, :not_recorded} =
                Rosary.time_narration(m.id, "female", @lines, actor: admin())
