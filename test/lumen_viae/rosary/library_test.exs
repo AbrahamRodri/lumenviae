@@ -827,7 +827,7 @@ defmodule LumenViae.Rosary.LibraryTest do
                "a.mp3 starts after it ends"
 
       assert broken.(%{recording | "chapters" => [%{one | "files" => []}, two | rest]}) =~
-               "chapter 1: it needs at least one file"
+               "chapter 0: it needs at least one file"
     end
   end
 
