@@ -397,7 +397,8 @@ seven novenas joined Undoer of Knots, and four new twin prayers
 reach 4.0 to 4.3 as ordinary prayers; the St. Andrew and Sacred Heart
 (`efficacious_novena`) twins' Spanish changed to published texts and lost
 `ai_translated`, and `efficacious_novena`'s English changed to EWTN's
-wording.
+wording. Later on 14 Nov 2026 St Jude and St Thérèse joined them, with
+two more twins (`st_jude_novena`, `st_therese_novena`).
 
 No shipped build calls `GET /api/v2/spiritual-reading`: the Spiritual
 Reading catalogue is compiled into the app (`Data/LibraryCatalog.swift`).

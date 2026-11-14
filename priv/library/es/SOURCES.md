@@ -627,6 +627,42 @@ sanpiodapietrelcina.org".
 - The card sentence, the part titles ("Primera petición", "Oración
   final") and the day titles ("Día 1" to "Día 9") are the team's.
 
+### `st_jude_novena`, and the novena `st_jude` (`ai_translated`)
+
+Added on 14 November 2026 (Abraham: St Jude "Use it, credited"). A mixed
+text, so the twin is marked `ai_translated`:
+
+- The novena prayer: [EWTN Español, Novena a San Judas Tadeo](https://www.ewtn.com/es/oracion/novena-a-san-judas-tadeo),
+  "Oración a San Judas Tadeo", the same prayer ACI Prensa prints
+  ("Escrito por: Desconocido"). No notice on the text; site footer only.
+  Word for word. Credit: "Oración tradicional, autor desconocido · según
+  la publican EWTN Español y ACI Prensa en su Novena a San Judas Tadeo".
+- The invocation "San Judas, ruega por nosotros / y por todos los que
+  invocan tu ayuda": the team's, from the English; no published Spanish of
+  it was found. That part alone is marked `ai_translated` in the novena.
+- The rubrics, the card sentence and the day titles are the team's.
+
+### `st_therese_novena`, and the novena `st_therese` (`ai_translated`)
+
+Added on 14 November 2026 (Abraham: St Therese "Use the 1925 text"). The
+team's translation of the whole novena from the English of *Blessed Be
+God* (Callan and McHugh, P. J. Kenedy & Sons, 1925, pp. 304 to 309); no
+published Spanish of this novena was found. Every part is marked
+`ai_translated`, and so is the novena. For ios-review to check.
+
+- The saint is "santa Teresa del Niño Jesús" in the text, as the English
+  keeps the book's "Saint Teresa of the Infant Jesus"; the titles use
+  "Santa Teresita del Niño Jesús", the name used in Mexico. "Little
+  Flower" is "Florecita", "Little Teresa" "Teresita", "the good God" "el
+  buen Dios" and "her little way" "su caminito", as Spanish editions of her
+  writings say them. "Foster-father" is "padre nutricio", as in the team's
+  other prayers.
+- Tú to God and the saints; the Gospel quoted on day 2 speaks to people in
+  ustedes ("Todo lo que pidan en mi nombre se les concederá"). The reader
+  is masculine as the general form ("ingrato", "pequeño").
+- Her last words on day 9 keep the book's pauses: «Oh, lo amo... Dios
+  mío... te... amo».
+
 ### `our_mother_of_perpetual_help_novena`, and the novena `our_mother_of_perpetual_help`
 
 Added on 14 November 2026. Not `ai_translated`: the three prayers (Pius

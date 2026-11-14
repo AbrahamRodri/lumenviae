@@ -732,7 +732,8 @@ chants.
     `st_andrew_christmas`, `st_joseph`, `holy_spirit` (ends on the eve of
     Pentecost, Easter + 49), `our_mother_of_perpetual_help` and
     `sacred_heart` (the same nine days, ending the day before the feast,
-    Easter + 68; its twin is `efficacious_novena`). Each
+    Easter + 68; its twin is `efficacious_novena`), `st_jude` and
+    `st_therese`. Each
     credits its source in `origin`. A day's calendar date is not served:
     it is the feast less `length` days, plus the day's number less one.
 
