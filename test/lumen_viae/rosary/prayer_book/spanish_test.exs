@@ -13,17 +13,20 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-14 08:00:00Z], "71130947416d7201"}
+  @pinned {~U[2026-11-14 16:00:00Z], "91aaf5d7dc21a023"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
   # closing prayer the Rosary marks, and St. Bridget's (its rubrics are the
-  # team's; its verses Torres Amat's).
-  @ai_translated_count 87
+  # team's; its verses Torres Amat's). The St Andrew and Sacred Heart
+  # (efficacious) novenas left it on 14 Nov 2026 (orch-lead): St Andrew is
+  # the Archdiocese of Philadelphia's Spanish, the Sacred Heart
+  # sanpiodapietrelcina.org's.
+  @ai_translated_count 85
 
   # A prayer newly added in English, until the Spanish team adds it to
   # priv/library/es/prayer_book.json.
-  @awaiting_spanish []
+  @awaiting_spanish ~w(holy_spirit_novena st_joseph_novena)
 
   # Abraham, 10 Nov 2026: "Follow how other apps do it". The prayer is
   # "Ave María", and counted "Ave Marías", never "Avemaría".
@@ -93,15 +96,17 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # novenas-es: La Virgen Desatanudos, in Ascension Press's own Spanish
   # (not ai_translated), with the names ios-review settled.
   test "the Undoer of Knots novena has its Spanish, every part of its own words" do
-    assert [knots] = Spanish.novenas()
+    assert [knots | _] = Spanish.novenas()
     assert knots.id == "undoer_of_knots"
     assert knots.title == "La Virgen Desatanudos"
     assert knots.list_title == "Virgen Desatanudos"
     assert length(knots.day_titles) == 9
 
-    [novena] = Library.served(:prayer_book, "novenas")
+    [novena | _] = Library.served(:prayer_book, "novenas")
     own = for day <- novena.days, part <- day.parts, is_binary(part.id), uniq: true, do: part.id
     assert Enum.map(knots.parts, & &1.id) == own
+    refute knots.ai_translated
+    refute Enum.any?(knots.parts, & &1.ai_translated)
 
     twin = Enum.find(Spanish.prayers(), &(&1.id == "undoer_of_knots_novena"))
     assert twin.title == "Novena a la Virgen Desatanudos"
@@ -110,5 +115,51 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
 
     assert Enum.find(knots.parts, &(&1.id == "undoer_of_knots_invocation")).text ==
              "María, Desatanudos, ruega por mí."
+  end
+
+  # novenas-api-nine (orch-lead, 14 Nov 2026): each novena's Spanish is a
+  # published text, and each part stands in its twin. The one exception is
+  # the Immaculate Conception's versicles and collects, the team's Spanish
+  # from the Latin (Abraham, 10 Nov 2026, Q1 "A"), marked ai_translated.
+  test "the new novenas' Spanish: published texts, by part, in their twins" do
+    by_id = Map.new(Spanish.novenas(), &{&1.id, &1})
+
+    assert Map.keys(by_id) |> Enum.sort() ==
+             ~w(immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas undoer_of_knots)
+
+    refute Map.has_key?(by_id, "holy_spirit")
+    refute Map.has_key?(by_id, "st_joseph")
+
+    novenas = Map.new(Library.served(:prayer_book, "novenas"), &{&1.id, &1})
+    twins = Map.new(Spanish.prayers(), &{&1.id, &1})
+
+    team_parts = ~w(immaculate_conception_tota_pulchra immaculate_conception_closing)
+
+    for {id, spanish} <- by_id do
+      refute spanish.ai_translated, id
+
+      assert Enum.filter(spanish.parts, & &1.ai_translated) |> Enum.map(& &1.id) ==
+               Enum.filter(Enum.map(spanish.parts, & &1.id), &(&1 in team_parts)),
+             id
+
+      assert length(spanish.day_titles) == novenas[id].length, id
+
+      twin = twins[novenas[id].prayer_id]
+      assert Enum.all?(spanish.parts, &String.contains?(twin.text, &1.text)), id
+    end
+
+    assert length(by_id["st_andrew_christmas"].day_titles) == 25
+
+    [andrew] = by_id["st_andrew_christmas"].parts
+    assert andrew.text =~ "dígnate, te suplico, oh Dios mío"
+    refute Map.has_key?(twins["st_andrew_novena"], :ai_translated)
+
+    ic = Map.new(by_id["immaculate_conception"].parts, &{&1.id, &1.text})
+    assert ic["immaculate_conception_tota_pulchra"] =~ "℣. Toda hermosa eres, oh María."
+
+    assert ic["immaculate_conception_closing"] =~
+             "Oh Dios, que por la Inmaculada Concepción de la Virgen"
+
+    assert ic["immaculate_conception_d1"] =~ "Aquí me tenéis a vuestros santísimos pies"
   end
 end
