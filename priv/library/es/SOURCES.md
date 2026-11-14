@@ -543,6 +543,21 @@ Where it differs from the English:
   author of all holiness and pious prayers, "alcanzar plenamente" for
   effectually obtain.
 
+## St. Bridget's prayers
+
+### `st_bridget_twelve_years`: "Las oraciones de Santa Brígida (durante doce años)" (`ai_translated`)
+
+Added on 14 November 2026. This is slice st-bridget-es, brought forward for the iOS seed. It is a mixed text, so it is marked `ai_translated`.
+
+- The seven verses are Torres Amat's [S1], copied word for word from the 1836 printing on Wikisource and kept in its spelling ("dia", "Jesus", "á", "ácia"): Lucas 2, 21; Lucas 22, 44; Mateo 27, 26; Mateo 27, 29; Juan 19, 17; Lucas 23, 33; Juan 19, 34.
+  - The verse-end section dashes are left out, as in the Consecration.
+  - Mateo 27, 29 begins "y" in the middle of a sentence and is capitalised.
+  - Juan 19, 34 begins "sino que uno de los soldados", after a negative in verse 33. The excerpt starts at "Uno de los soldados".
+  - Juan 19, 17 ends at "Gólgotha" with a full stop instead of the semicolon that runs into verse 18.
+  - A space printed before a comma ("Osario ,") is closed up.
+- The headings and the opening rubric are the team's translation of the English. Our Fathers are counted "padrenuestros" (the RAE's plural), and Hail Marys "Ave Marías".
+- No published Spanish of this form was found (search of 14 November 2026). The Spanish twelve-year prayers that are published, at [EWTN](https://www.ewtn.com/es/oracion/oraciones-de-santa-brigida-por-12-anos) and [ACI Prensa](https://www.aciprensa.com/recursos/oraciones-de-santa-brigida-por-12-anos-2775/), use their own words for each shedding and print the promises. The English here is the Scripture form, with no promises, so neither was copied and the Spanish follows the English.
+
 ## The novenas
 
 ### `undoer_of_knots_novena`: "Novena a la Virgen Desatanudos", and the novena `undoer_of_knots`
