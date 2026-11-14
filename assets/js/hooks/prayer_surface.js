@@ -1,7 +1,8 @@
 // The prayer page's surface: the keys and swipes that move through the
 // Rosary, the text size, and keeping the screen awake while praying.
 //
-// Escape closes the settings pane, from wherever the focus is in it.
+// Escape closes the open sheet (READ, VOICE, TEXT or MORE), from wherever
+// the focus is; while one is open, the keys and swipes never move a bead.
 //
 // Keys: counting on the screen, Space, Enter, ArrowDown and ArrowRight
 // move a bead on and ArrowUp and ArrowLeft move one back; counting on a
@@ -98,15 +99,15 @@ export default {
   },
 
   key(event) {
-    if (event.key === "Escape" && this.closeSettings()) {
+    if (event.key === "Escape" && this.closeSheet()) {
       event.preventDefault()
       return
     }
+    if (this.sheetOpen()) return
 
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
     const target = event.target
-    // Keys inside the open settings sheet belong to the sheet, never the beads.
-    if (target.closest && target.closest("button, a, input, select, textarea, summary, [contenteditable], #prayer-settings")) return
+    if (target.closest && target.closest("button, a, input, select, textarea, summary, [contenteditable], [data-prayer-sheet]")) return
 
     const screen = this.counting() === "screen"
     const moves = screen
@@ -118,20 +119,23 @@ export default {
     this.pushEvent("key_nav", { key: event.key })
   },
 
-  // The settings pane is open when its button says so; closing it is the
-  // button's own event, and the focus goes back to the button.
-  closeSettings() {
-    const button = this.el.querySelector('[aria-controls="prayer-settings"][aria-expanded="true"]')
-    if (!button) return false
-    button.click()
-    button.focus()
+  // The server shuts the sheet; PrayerSheets gives the focus back to the
+  // button that opened it.
+  sheetOpen() {
+    const layer = document.getElementById("prayer-sheets")
+    return Boolean(layer && layer.dataset.open)
+  },
+
+  closeSheet() {
+    if (!this.sheetOpen()) return false
+    this.pushEvent("close_sheet", {})
     return true
   },
 
   // Counting on the screen, a swipe left is the next bead and a swipe right
   // the one before; a mostly vertical drag is a scroll and is left alone.
   swipe(event) {
-    if (!this.touch || this.counting() !== "screen") return
+    if (!this.touch || this.counting() !== "screen" || this.sheetOpen()) return
     const touch = event.changedTouches[0]
     const dx = touch.clientX - this.touch.x
     const dy = touch.clientY - this.touch.y

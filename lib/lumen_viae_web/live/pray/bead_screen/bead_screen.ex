@@ -20,7 +20,6 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
     default: %{},
     doc: "the timed lines of what is heard on this screen, by kind (:prayer, :verse, :meditation)"
 
-  attr :show_meditation, :boolean, default: false
   attr :language, :string, default: "en"
 
   def bead_screen(assigns) do
@@ -74,12 +73,6 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
           <%= case @screen.kind do %>
             <% :announcement -> %>
               <PrayerText.decade_header decade={@decade} name_shown={false} />
-              <div
-                :if={@decade.meditation && @sequence.form == "scriptural"}
-                class="prayer-words mt-8"
-              >
-                <.meditation_toggle meditation={@decade.meditation} open={@show_meditation} />
-              </div>
             <% :meditation -> %>
               <div :if={@decade && @decade.meditation} class="prayer-words">
                 <PrayerText.meditation meditation={@decade.meditation} lines={@timings[:meditation]} />
@@ -104,31 +97,6 @@ defmodule LumenViaeWeb.Live.Pray.BeadScreen do
         </div>
       </div>
     </section>
-    """
-  end
-
-  attr :meditation, :map, required: true
-  attr :open, :boolean, default: false
-
-  # The set's meditation, folded away under a Scriptural Rosary's mystery:
-  # the Scriptural Rosary's voice reads verses, not the meditation, so it
-  # is read on the page and never lit.
-  defp meditation_toggle(assigns) do
-    ~H"""
-    <div class="max-w-[62ch] mx-auto text-center">
-      <button
-        type="button"
-        phx-click="toggle_meditation"
-        aria-expanded={to_string(@open)}
-        aria-controls="scriptural-meditation"
-        class="btn-outline-gold !py-2.5 min-h-11"
-      >
-        {if @open, do: "Hide the meditation", else: "Read the meditation"}
-      </button>
-      <div :if={@open} id="scriptural-meditation" class="mt-6 text-left">
-        <PrayerText.meditation meditation={@meditation} />
-      </div>
-    </div>
     """
   end
 

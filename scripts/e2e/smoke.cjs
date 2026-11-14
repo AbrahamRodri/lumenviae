@@ -1308,20 +1308,33 @@ async function checkPrayerScreen(browser, vp) {
   seen = await beadStatus(page);
   await fullPageShot(page, `${vp.name}-pray-screen`);
 
-  // The settings pane, by keyboard.
-  const toggle = page.getByRole("button", { name: "How to pray" });
-  const expanded = async () => (await toggle.getAttribute("aria-expanded")) === "true";
+  // The Text sheet, by keyboard: the focus moves into it (its Done
+  // button first) and back to Text as it closes.
+  // The bar, Text in it, is hidden while a sheet is open, and getByRole
+  // skips hidden elements, so aria-expanded is read by id.
+  const toggle = page.getByRole("button", { name: "Text options" });
+  const textButton = page.locator("#sheet-button-text");
+  const expanded = async () => (await textButton.getAttribute("aria-expanded")) === "true";
   await toggle.focus();
   await page.keyboard.press("Enter");
-  check(await eventually(expanded), `${label}: Enter on How to pray opens the settings`);
-  await noHorizontalScroll(page, `${label} with the settings open`);
+  check(await eventually(expanded), `${label}: Enter on Text opens its sheet`);
+  check(
+    await eventually(() => page.evaluate(() => Boolean(document.activeElement?.closest("#sheet-text")))),
+    `${label}: the focus moves into the Text sheet`
+  );
+  check(await page.locator("nav.prayer-bottom-nav").isHidden(), `${label}: the bar hides while a sheet is open`);
+  await noHorizontalScroll(page, `${label} with the Text sheet open`);
   await fullPageShot(page, `${vp.name}-pray-settings`);
   await page.keyboard.press("Enter");
-  check(await eventually(async () => !(await expanded())), `${label}: Enter on the sheet's close button closes the settings`);
+  check(await eventually(async () => !(await expanded())), `${label}: Enter on the sheet's Done button closes it`);
+  check(
+    await eventually(() => page.evaluate(() => document.activeElement?.id === "sheet-button-text")),
+    `${label}: the focus returns to Text`
+  );
   await page.keyboard.press("Enter");
   await eventually(expanded);
   await page.keyboard.press("Escape");
-  check(await eventually(async () => !(await expanded())), `${label}: Escape closes the settings`);
+  check(await eventually(async () => !(await expanded())), `${label}: Escape closes the sheet`);
 
   // Text size is kept in this browser.
   if (!(await expanded())) await toggle.click();

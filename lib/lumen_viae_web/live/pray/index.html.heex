@@ -43,8 +43,8 @@
         <Strand.where :if={!@completed} sequence={@sequence} page={@page} open={@go_to_open} />
       </div>
 
-      <%!-- Mute alone on the right, as in the app; How to pray sits under
-           the controls row. The spacer keeps the pill centred without it. --%>
+      <%!-- Mute alone on the right, as in the app; Voice, Text and More sit
+           under the controls row. The spacer keeps the pill centred without it. --%>
       <div class="justify-self-end">
         <Controls.mute_button :if={!@completed and @spoken_script != []} />
         <span :if={@completed or @spoken_script == []} class="block w-11" aria-hidden="true"></span>
@@ -54,19 +54,6 @@
     <%= if @completed do %>
       <Completion.completion category={@category} storage_key={@storage_key} />
     <% else %>
-      <Controls.settings_panel
-        :if={@panel_open}
-        heading={@heading}
-        subheading={if @route == :set, do: "The " <> Categories.devotion_title(@category)}
-        route={@route}
-        form={@form}
-        extras={@extras}
-        chaplet={@sequence.chaplet?}
-        language={@language}
-        voices={@voices}
-        voice={@voice}
-      />
-
       <Painting.hero decades={@decades} page={@page} category={@category} />
 
       <Strand.go_to_list
@@ -81,7 +68,6 @@
           sequence={@sequence}
           screen={current_screen(assigns)}
           timings={current_timings(assigns)}
-          show_meditation={@show_meditation}
           language={@language}
         />
       </div>
@@ -92,7 +78,8 @@
         resume={@resume}
         at_start={@page == 0 and @step == 0}
         at_end={at_end?(assigns)}
-        panel_open={@panel_open}
+        sheet={@sheet}
+        read={current_meditation(assigns) != nil}
       >
         <:play :if={@spoken_script != []}>
           <Controls.spoken_play
@@ -103,6 +90,22 @@
           />
         </:play>
       </Controls.bottom_nav>
+
+      <Controls.sheets_layer
+        sheet={@sheet}
+        meditation={current_meditation(assigns)}
+        decade_name={current_decade_name(assigns)}
+        heading={@heading}
+        subheading={if @route == :set, do: "The " <> Categories.devotion_title(@category)}
+        author={@set && PageMeta.set_author(@set)}
+        route={@route}
+        form={@form}
+        extras={@extras}
+        chaplet={@sequence.chaplet?}
+        language={@language}
+        voices={@voices}
+        voice={@voice}
+      />
 
       <div
         id="prayer-memory"

@@ -188,7 +188,7 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     assert has_element?(view, "#prayer-mute button[data-mute]")
     assert has_element?(view, "nav [phx-hook=SpokenRosary] button[data-play]")
 
-    view |> element("button[aria-controls=prayer-settings]") |> render_click()
+    view |> element("#sheet-button-voice") |> render_click()
 
     rates =
       view
@@ -204,8 +204,8 @@ defmodule LumenViaeWeb.Live.Pray.SpokenRosaryTest do
     set = create_set("joyful", 5)
     {:ok, view, _html} = live(conn, "/meditation-sets/#{set.id}/pray")
 
-    view |> element("button[aria-controls=prayer-settings]") |> render_click()
-    view |> element("#prayer-settings button[phx-value-voice=male]") |> render_click()
+    view |> element("#sheet-button-voice") |> render_click()
+    view |> element("#sheet-voice button[phx-value-voice=male]") |> render_click()
 
     assert has_element?(view, "[id^=spoken-rosary-male]")
     assert view |> script() |> Enum.all?(&String.contains?(&1["url"], "/voices/male/rosary/"))

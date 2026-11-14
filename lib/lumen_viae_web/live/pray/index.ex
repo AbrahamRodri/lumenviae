@@ -114,9 +114,8 @@ defmodule LumenViaeWeb.Live.Pray.Index do
      |> assign(:seek, 0)
      |> assign(:fresh, false)
      |> assign(:resume, nil)
-     |> assign(:panel_open, false)
+     |> assign(:sheet, nil)
      |> assign(:go_to_open, false)
-     |> assign(:show_meditation, false)
      |> assign(:completed, false)
      |> assign(:completion_tracked, false)
      |> assign(:completion_context, completion_context(socket, session))}
@@ -153,9 +152,9 @@ defmodule LumenViaeWeb.Live.Pray.Index do
          else: &1
        )
      )
-     |> then(&if(moved?, do: assign(&1, :show_meditation, false), else: &1))
      |> assign(:page, page)
      |> assign(:step, max(step, 0))
+     |> keep_sheet_readable()
      |> assign_script()
      |> follow_with_spoken_rosary()
      |> then(&if(first_visit?, do: &1, else: play_new_player(&1, player_before)))}
@@ -289,21 +288,25 @@ defmodule LumenViaeWeb.Live.Pray.Index do
       when event in ~w(set_voice set_form toggle_extra set_language),
       do: {:noreply, socket}
 
-  def handle_event("toggle_panel", _params, socket) do
-    {:noreply,
-     socket |> assign(:panel_open, !socket.assigns.panel_open) |> assign(:go_to_open, false)}
+  # READ opens only where this step's mystery has a meditation to read.
+  def handle_event("open_sheet", %{"sheet" => sheet}, socket) do
+    readable? = sheet != "read" or current_meditation(socket.assigns) != nil
+
+    if sheet in Controls.sheets() and readable?,
+      do: {:noreply, socket |> assign(:sheet, sheet) |> assign(:go_to_open, false)},
+      else: {:noreply, socket}
   end
 
+  def handle_event("open_sheet", _params, socket), do: {:noreply, socket}
+
+  def handle_event("close_sheet", _params, socket), do: {:noreply, assign(socket, :sheet, nil)}
+
   def handle_event("toggle_go_to", _params, socket) do
-    {:noreply,
-     socket |> assign(:go_to_open, !socket.assigns.go_to_open) |> assign(:panel_open, false)}
+    {:noreply, socket |> assign(:go_to_open, !socket.assigns.go_to_open) |> assign(:sheet, nil)}
   end
 
   def handle_event("close_go_to", _params, socket),
     do: {:noreply, assign(socket, :go_to_open, false)}
-
-  def handle_event("toggle_meditation", _params, socket),
-    do: {:noreply, assign(socket, :show_meditation, !socket.assigns.show_meditation)}
 
   ## Continue where you left off
 
@@ -431,6 +434,32 @@ defmodule LumenViaeWeb.Live.Pray.Index do
   defp at_end?(assigns), do: is_nil(Sequence.next(assigns.sequence, assigns.page, assigns.step))
 
   defp current_screen(assigns), do: Sequence.screen(assigns.sequence, assigns.page, assigns.step)
+
+  # The meditation READ opens: the mystery's, on any of its steps, unless
+  # the Rosary is prayed with no meditation.
+  defp current_meditation(%{sequence: %{form: "holy"}}), do: nil
+
+  defp current_meditation(assigns) do
+    case Sequence.page(assigns.sequence, assigns.page) do
+      %{decade: %{meditation: meditation}} -> meditation
+      _no_mystery -> nil
+    end
+  end
+
+  defp current_decade_name(assigns) do
+    case Sequence.page(assigns.sequence, assigns.page) do
+      %{decade: %{} = decade} -> decade.name || decade.label
+      _no_mystery -> nil
+    end
+  end
+
+  # The voice turns the page under an open reading sheet; past the
+  # mysteries there is nothing left for it to show.
+  defp keep_sheet_readable(%{assigns: %{sheet: "read"}} = socket) do
+    if current_meditation(socket.assigns), do: socket, else: assign(socket, :sheet, nil)
+  end
+
+  defp keep_sheet_readable(socket), do: socket
 
   # The timed lines of what is heard on the screen the reader is on, by
   # the kind of words they belong to (`:prayer`, `:verse`, `:meditation`).

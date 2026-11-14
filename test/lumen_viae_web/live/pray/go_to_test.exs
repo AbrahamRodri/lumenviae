@@ -61,14 +61,14 @@ defmodule LumenViaeWeb.Live.Pray.GoToTest do
       assert has_element?(view, "header.prayer-top-bar #go-to-toggle")
       assert has_element?(view, "header.prayer-top-bar h1.sr-only")
 
-      # How to pray sits under the controls row, as the app keeps its settings.
-      refute has_element?(view, "header.prayer-top-bar button[aria-controls=prayer-settings]")
-      assert has_element?(view, "nav.prayer-bottom-nav #how-to-pray-toggle", "How to pray")
+      # More sits in the row under the controls, as the app keeps it.
+      refute has_element?(view, "header.prayer-top-bar #sheet-button-more")
+      assert has_element?(view, "nav.prayer-bottom-nav #sheet-button-more", "More")
 
-      view |> element("#how-to-pray-toggle") |> render_click()
-      assert view |> element("#prayer-settings header") |> render() =~ "Mysteries"
-      assert has_element?(view, "#how-to-pray-toggle[aria-expanded=true]")
-      assert has_element?(view, "#prayer-settings button[aria-label='Close the settings']")
+      view |> element("#sheet-button-more") |> render_click()
+      assert view |> element("#sheet-more header") |> render() =~ "Mysteries"
+      assert has_element?(view, "#sheet-button-more[aria-expanded=true]")
+      assert has_element?(view, "#sheet-more button[phx-click=close_sheet]", "Done")
     end
 
     test "counts the Seven Sorrows' sorrows out of seven", %{conn: conn} do
@@ -172,23 +172,28 @@ defmodule LumenViaeWeb.Live.Pray.GoToTest do
       refute has_element?(view, "#prayer-go-to")
     end
 
-    test "the settings pane and the list do not both stay open", %{conn: conn, path: path} do
+    test "a sheet and the list do not both stay open", %{conn: conn, path: path} do
       {:ok, view, _html} = live(conn, path)
 
       view |> element("#go-to-toggle") |> render_click()
-      view |> element("button[phx-click=toggle_panel]") |> render_click()
+      view |> element("#sheet-button-more") |> render_click()
 
       refute has_element?(view, "#prayer-go-to")
-      assert has_element?(view, "#prayer-settings")
+      refute has_element?(view, "#sheet-more[hidden]")
+
+      view |> element("#go-to-toggle") |> render_click()
+      assert has_element?(view, "#prayer-go-to")
+      assert has_element?(view, "#sheet-more[hidden]")
     end
   end
 
   describe "Show Words and Beads" do
-    test "is a switch in the settings pane, kept in this browser", %{conn: conn, path: path} do
+    test "is a switch in the Text sheet, kept in this browser", %{conn: conn, path: path} do
       {:ok, view, _html} = live(conn, path)
-      refute has_element?(view, "[data-display=prayer-words]")
+      assert has_element?(view, "#sheet-text[hidden] [data-display=prayer-words]")
 
-      view |> element("button[phx-click=toggle_panel]") |> render_click()
+      view |> element("#sheet-button-text") |> render_click()
+      refute has_element?(view, "#sheet-text[hidden]")
 
       assert has_element?(
                view,

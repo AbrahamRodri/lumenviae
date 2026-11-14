@@ -10,11 +10,11 @@ defmodule LumenViaeWeb.Live.Pray.PrayerLanguageTest do
   import Phoenix.LiveViewTest
 
   defp open_settings(view),
-    do: view |> element("button[aria-controls=prayer-settings]") |> render_click()
+    do: view |> element("#sheet-button-text") |> render_click()
 
   defp choose(view, language) do
     view
-    |> element(~s(#prayer-settings button[phx-value-language="#{language}"]))
+    |> element(~s(#sheet-text button[phx-value-language="#{language}"]))
     |> render_click()
   end
 
@@ -24,12 +24,12 @@ defmodule LumenViaeWeb.Live.Pray.PrayerLanguageTest do
 
     assert has_element?(
              view,
-             ~s(#prayer-settings button[phx-value-language="en"][aria-pressed="true"])
+             ~s(#sheet-text button[phx-value-language="en"][aria-pressed="true"])
            )
 
     assert has_element?(
              view,
-             ~s(#prayer-settings button[phx-value-language="la"][aria-pressed="false"])
+             ~s(#sheet-text button[phx-value-language="la"][aria-pressed="false"])
            )
 
     assert render(view) =~ "Prayer language"

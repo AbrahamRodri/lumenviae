@@ -4,6 +4,7 @@ import FocalPoint from "./focal_point"
 import Tablist from "./tablist"
 import SpokenRosary from "./spoken_rosary"
 import PrayerSurface from "./prayer_surface"
+import PrayerSheets from "./prayer_sheets"
 import PrayerMemory from "./prayer_memory"
 import PrayerStreak from "./prayer_streak"
 import RosaryChoices from "./rosary_choices"
@@ -27,6 +28,7 @@ export default {
   Tablist,
   SpokenRosary,
   PrayerSurface,
+  PrayerSheets,
   PrayerMemory,
   PrayerStreak,
   RosaryChoices,
