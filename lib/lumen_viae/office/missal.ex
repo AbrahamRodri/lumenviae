@@ -204,23 +204,34 @@ defmodule LumenViae.Office.Missal do
         {:noreply, put_in(state.loading[key], %{entry | waiters: [from | entry.waiters]})}
 
       %{} ->
-        if room?(state, namespace, limits),
+        if room?(state, key, limits),
           do: {:noreply, start(state, key, job, callers, limits, from)},
           else: {:reply, {:error, :missal_unavailable}, state}
     end
   end
 
   # Under the cap of fetches at once and of fetches a minute (counted per
-  # test namespace in the suite, one count in production).
-  defp room?(state, namespace, limits) do
+  # test namespace in the suite, one count in production). Dates near
+  # today, which real visitors ask for, have a minute's budget of their
+  # own, so a crawler walking far dates cannot spend it.
+  defp room?(state, {namespace, key}, limits) do
     running = Enum.count(state.loading, fn {{ns, _key}, _entry} -> ns == namespace end)
 
     running < limits.max_running and
       match?(
         {:allow, _count},
-        LumenViae.Hammer.hit("missal_fetch:#{inspect(namespace)}", 60_000, limits.per_minute)
+        LumenViae.Hammer.hit(
+          "missal_fetch:#{budget(key)}:#{inspect(namespace)}",
+          60_000,
+          limits.per_minute
+        )
       )
   end
+
+  @doc false
+  # Which minute's budget a key spends: `near` for today's season (the
+  # dates and years kept a month), `far` for the rest.
+  def budget(key), do: if(ttl(key, Date.utc_today()) == nil, do: :near, else: :far)
 
   defp start(state, key, job, callers, limits, from) do
     task =

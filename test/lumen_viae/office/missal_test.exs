@@ -256,6 +256,31 @@ defmodule LumenViae.Office.MissalTest do
       assert {:ok, []} = Office.fetch_mass(~D[2026-01-01])
     end
 
+    # Security pass NIT 4: a crawler walking far dates must not leave real
+    # visitors, who ask for today's season, with "unavailable".
+    test "far dates spending their minute leave dates near today their own" do
+      calls = stub_json("[]")
+      far = Date.add(Date.utc_today(), -400)
+
+      for day <- 0..59 do
+        assert {:ok, []} = Office.fetch_mass(Date.add(far, -day))
+      end
+
+      assert {:error, :missal_unavailable} = Office.fetch_mass(Date.add(far, -60))
+      assert {:ok, []} = Office.fetch_mass(Date.utc_today())
+      assert count(calls) == 61
+    end
+
+    test "which budget a key spends" do
+      today = Date.utc_today()
+
+      assert LumenViae.Office.Missal.budget({:missal, :proper, today}) == :near
+      assert LumenViae.Office.Missal.budget({:missal, :proper, Date.add(today, 30)}) == :near
+      assert LumenViae.Office.Missal.budget({:missal, :proper, Date.add(today, 90)}) == :far
+      assert LumenViae.Office.Missal.budget({:missal, :calendar, today.year}) == :near
+      assert LumenViae.Office.Missal.budget({:missal, :ordo}) == :near
+    end
+
     test "a day far from today, or a year far from this one, is kept an hour" do
       today = ~D[2026-11-03]
       hour = :timer.hours(1)
