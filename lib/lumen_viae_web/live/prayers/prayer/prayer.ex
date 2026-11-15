@@ -47,6 +47,7 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
      |> assign(:book, book)
      |> assign(:novena, Book.novena(book, id))
      |> assign(:prayer, prayer)
+     |> assign(:origin_lines, Book.origin_lines(prayer))
      |> assign(:chapter, chapter)
      |> assign(:languages, @language_labels)}
   end

@@ -214,6 +214,35 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       refute has_element?(faith, "[data-role=second-title]")
     end
 
+    test "a prayer says where it comes from, under its title", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/prayers/memorare")
+      origin = view |> element("header [data-role=origin]") |> render()
+
+      assert origin =~ "Attributed to St Bernard of Clairvaux · 12th century"
+      refute has_element?(view, "[data-role=source]")
+    end
+
+    test "a long citation: a short credit under the title, the book at the foot",
+         %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/prayers/st_joseph_novena")
+
+      assert view |> element("header [data-role=origin]") |> render() =~
+               "Fr. Lawrence G. Lovasik, S.V.D. · as printed by EWTN"
+
+      assert view |> element("[data-role=source]") |> render() =~
+               "Divine Word Publications, 1956"
+    end
+
+    test "every long citation has a short credit" do
+      book = LumenViaeWeb.Live.Prayers.Book.load(nil)
+
+      for {_id, prayer} <- book.prayers,
+          {under, foot} = LumenViaeWeb.Live.Prayers.Book.origin_lines(prayer),
+          foot do
+        assert under, "#{prayer.id} has a long origin and no short credit"
+      end
+    end
+
     test "a psalm verse breaks at its mediant", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/prayers/magnificat?lang=latin")
 

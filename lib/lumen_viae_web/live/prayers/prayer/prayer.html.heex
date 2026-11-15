@@ -17,7 +17,7 @@
       <div class="mt-4 md:mt-6 space-y-2.5">
         <p
           :if={Book.second_title(@prayer)}
-          class="kicker"
+          class="kicker text-balance"
           lang={if(Book.second_title_latin?(@prayer), do: "la")}
           data-role="second-title"
         >
@@ -29,6 +29,15 @@
         >
           {@prayer.title}
         </h1>
+        <%!-- Where the prayer comes from, quietly, as the app shows it;
+             a long citation goes to the foot (Book.origin_lines/1) --%>
+        <p
+          :if={elem(@origin_lines, 0)}
+          class="font-garamond italic text-base md:text-lg text-ink-muted leading-snug max-w-[62ch]"
+          data-role="origin"
+        >
+          {elem(@origin_lines, 0)}
+        </p>
       </div>
 
       <nav
@@ -62,5 +71,16 @@
     >
       <.prayer_text stanzas={@stanzas} language={@language} />
     </div>
+
+    <footer
+      :if={elem(@origin_lines, 1)}
+      class="mx-auto max-w-3xl px-4 sm:px-8 mt-12 pt-6 border-t border-night-border"
+      data-role="source"
+    >
+      <p class="kicker !text-ink-muted">Source</p>
+      <p class="mt-1.5 font-garamond text-sm md:text-base text-ink-muted leading-snug max-w-[62ch]">
+        {elem(@origin_lines, 1)}
+      </p>
+    </footer>
   </article>
 </div>
