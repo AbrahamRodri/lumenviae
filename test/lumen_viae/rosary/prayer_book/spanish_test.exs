@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 11:45:00Z], "ccf580f6d6f9ef82"}
+  @pinned {~U[2026-11-15 11:50:00Z], "55a5be343586fd5f"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -210,19 +210,10 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
 
   test "a long Spanish origin has a shorter Spanish credit for under the title" do
     for prayer <- Spanish.prayers(), Map.has_key?(prayer, :origin) do
-      long? = String.length(prayer.origin) > 100
-
-      cond do
-        Library.served(:prayer_book, "prayers")
-        |> Enum.find(&(&1.id == prayer.id))
-        |> rosary?() ->
-          :ok
-
-        long? ->
-          assert String.length(prayer.short_credit) < String.length(prayer.origin), prayer.id
-
-        true ->
-          refute Map.has_key?(prayer, :short_credit), prayer.id
+      if String.length(prayer.origin) > 100 do
+        assert String.length(prayer.short_credit) < String.length(prayer.origin), prayer.id
+      else
+        refute Map.has_key?(prayer, :short_credit), prayer.id
       end
     end
 
@@ -231,9 +222,11 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
                "P. Lawrence G. Lovasik, S.V.D. · según la publica EWTN · traducción del equipo"
            } =
              Enum.find(Spanish.prayers(), &(&1.id == "st_joseph_novena"))
-  end
 
-  # The Rosary's own prayers take their origin from rosary_origins, with
-  # no short credit of their own.
-  defp rosary?(%{id: id}), do: id in Content.prayer_ids()
+    assert %{
+             short_credit:
+               "Atribuida a san Bernardo de Claraval · según el Compendio del Catecismo"
+           } =
+             Enum.find(Spanish.prayers(), &(&1.id == "memorare"))
+  end
 end

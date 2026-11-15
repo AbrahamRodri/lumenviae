@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T11:45:00Z",
+  "updated_at": "2026-11-15T11:50:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -1974,5 +1974,8 @@
         "viaje"
       ]
     }
+  },
+  "rosary_short_credits": {
+    "memorare": "Atribuida a san Bernardo de Claraval · según el Compendio del Catecismo"
   }
 }

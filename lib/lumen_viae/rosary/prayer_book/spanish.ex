@@ -57,6 +57,24 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
           "priv/library/es/prayer_book.json: rosary_origins holds #{inspect(id)}; it holds only Rosary prayer ids, each with a line of text"
   end
 
+  # A short credit for a Rosary prayer whose Spanish origin above runs
+  # over 100 characters, as `short_credit` is for the file's own prayers.
+  @rosary_short_credits Map.get(file, "rosary_short_credits", %{})
+
+  for {id, origin} <- @rosary_origins do
+    Map.has_key?(@rosary_short_credits, id) == String.length(origin) > 100 ||
+      raise CompileError,
+        description:
+          "priv/library/es/prayer_book.json: the Rosary prayer #{id} has a rosary_short_credits line exactly when its rosary_origins line runs over 100 characters"
+  end
+
+  for {id, credit} <- @rosary_short_credits do
+    (Map.has_key?(@rosary_origins, id) and is_binary(credit) and String.trim(credit) != "") ||
+      raise CompileError,
+        description:
+          "priv/library/es/prayer_book.json: rosary_short_credits holds #{inspect(id)}; it holds only ids in rosary_origins, each with a line of text"
+  end
+
   for {id, prayer} <- @file_prayers do
     cond do
       id not in @book_ids ->
@@ -280,6 +298,7 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
           prayer["ai_translated"]
         )
         |> put_origin(@rosary_origins[id])
+        |> put_short_credit(@rosary_short_credits[id])
 
       true ->
         nil
@@ -315,6 +334,12 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
         &if(@rosary_origins == %{}, do: &1, else: Map.put(&1, "rosary_origins", @rosary_origins))
       )
       |> then(&if(@file_chapters == %{}, do: &1, else: Map.put(&1, "chapters", @file_chapters)))
+      |> then(
+        &if(@rosary_short_credits == %{},
+          do: &1,
+          else: Map.put(&1, "rosary_short_credits", @rosary_short_credits)
+        )
+      )
 
     Content.version(words)
   end
