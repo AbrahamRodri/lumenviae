@@ -48,7 +48,7 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
      |> assign(:everyday, everyday_rows(book))
      |> assign(:parts, Book.parts(book))
      |> assign(:query, "")
-     |> assign(offset: nil, turn: nil)
+     |> assign(offset: nil, turn: nil, pinned_date: nil)
      |> assign_now(NaiveDateTime.utc_now())}
   end
 
@@ -56,7 +56,7 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
   def handle_params(params, _uri, socket) do
     query = if is_binary(params["q"]), do: String.trim(params["q"]), else: ""
 
-    {:noreply, socket |> assign(:query, query) |> assign_search()}
+    {:noreply, socket |> assign(:query, query) |> pin_date(params["on"]) |> assign_search()}
   end
 
   @impl true
@@ -96,7 +96,7 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
   # paintings, the hour's order, and the season's song to Mary.
   defp assign_now(socket, now) do
     book = socket.assigns.book
-    today = NaiveDateTime.to_date(now)
+    today = socket.assigns.pinned_date || NaiveDateTime.to_date(now)
 
     socket
     |> assign(:today, today)
@@ -104,7 +104,20 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
     |> assign(:now_order, Orders.day_order(book, now))
     |> assign(:hour, now.hour)
     |> assign(:marian, Book.marian_shelf(book, today))
+    |> assign(:advent, Book.advent_cards(book, today))
     |> assign(:seasonal_id, seasonal_id(book, today))
+  end
+
+  # In development (`:any_page_date?`), `?on=2026-12-21` draws the page for
+  # that day, so a season can be looked at out of season.
+  defp pin_date(socket, on) do
+    if is_binary(on) and Application.get_env(:lumen_viae, :any_page_date?, false) do
+      socket
+      |> assign(:pinned_date, Book.page_date(on, Date.utc_today()))
+      |> assign_now(NaiveDateTime.utc_now())
+    else
+      socket
+    end
   end
 
   defp assign_search(socket) do

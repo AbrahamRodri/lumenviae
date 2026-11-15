@@ -107,6 +107,10 @@ config :lumen_viae, :token_signing_secret, "dev-only-token-signing-secret-for-lu
 # honours it is not compiled into a release (see LumenViaeWeb.Plugs.RequireAdmin).
 config :lumen_viae, :skip_admin_auth, true
 
+# `?on=2026-12-21` draws the Prayers pages for that day, so a season can be
+# looked at out of season (LumenViaeWeb.Live.Prayers.Book.page_date/2).
+config :lumen_viae, :any_page_date?, true
+
 # No cache warming on a laptop: it would ask the public Divinum Officium
 # site for 32 hours at every restart of the dev server. Run the job by hand
 # from iex when you want it:

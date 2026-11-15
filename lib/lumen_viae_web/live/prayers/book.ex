@@ -286,6 +286,81 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
     seasonal ++ known
   end
 
+  ## Advent
+
+  @doc """
+  The Advent prayers to bring forward on `date`, each `%{prayer:, note:,
+  painting:, path:}`: the wreath collects from the eve of the First Sunday
+  of Advent to 24 December, and from 17 to 23 December the O Antiphons
+  before them. Each opens at today's heading (`#today`), carrying the
+  visitor's date (`?on=`, `page_date/2`). Empty outside Advent.
+  """
+  def advent_cards(%__MODULE__{} = book, %Date{} = date) do
+    ids =
+      cond do
+        not advent_window?(date) -> []
+        o_antiphon_day?(date) -> ~w(o_antiphons advent_wreath_collects)
+        true -> ~w(advent_wreath_collects)
+      end
+
+    for id <- ids, prayer = prayer(book, id), mark = season_mark(id, date) do
+      %{
+        prayer: prayer,
+        note: String.trim_trailing(mark, "."),
+        painting: prayer_painting(book, id),
+        path: prayer_path(id) <> "?on=#{Date.to_iso8601(date)}#today"
+      }
+    end
+  end
+
+  @doc """
+  The heading of a prayer's part for `date`, as its text prints it
+  ("December 21.", "The Second Sunday of Advent."), for the prayer page to
+  mark Today; nil for a prayer with no such parts or a day outside them.
+  The wreath's week runs from its Sunday's eve, so Saturday evening's
+  candle is the next Sunday's.
+  """
+  def season_mark("o_antiphons", %Date{} = date) do
+    if o_antiphon_day?(date), do: "December #{date.day}."
+  end
+
+  def season_mark("advent_wreath_collects", %Date{} = date) do
+    if advent_window?(date) do
+      sunday = LiturgicalCalendar.advent_start(date.year)
+      week = min(div(Date.diff(date, sunday) + 1, 7) + 1, 4)
+      "The #{Enum.at(~w(First Second Third Fourth), week - 1)} Sunday of Advent."
+    end
+  end
+
+  def season_mark(_prayer_id, _date), do: nil
+
+  defp advent_window?(%Date{year: year} = date) do
+    eve = Date.add(LiturgicalCalendar.advent_start(year), -1)
+    Date.compare(date, eve) != :lt and Date.compare(date, Date.new!(year, 12, 24)) != :gt
+  end
+
+  defp o_antiphon_day?(%Date{month: 12, day: day}), do: day in 17..23
+  defp o_antiphon_day?(_date), do: false
+
+  @doc """
+  The day a page is drawn for: the server's (UTC) date, or the visitor's
+  own date when a link carries it as `?on=` (the Prayers page passes its
+  local date), believed only within a day of the server's. Where the
+  `:any_page_date?` setting is on (development), any date is believed, so
+  a season can be looked at out of season.
+  """
+  def page_date(param, %Date{} = server_today) do
+    with true <- is_binary(param),
+         {:ok, date} <- Date.from_iso8601(param),
+         true <-
+           Application.get_env(:lumen_viae, :any_page_date?, false) or
+             abs(Date.diff(date, server_today)) <= 1 do
+      date
+    else
+      _ -> server_today
+    end
+  end
+
   ## Paintings (PrayerBookPaintings.swift)
 
   # Every painting is `{name, focal x, focal y}`: the iOS asset and where

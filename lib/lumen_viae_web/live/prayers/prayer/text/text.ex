@@ -22,6 +22,10 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
   attr :stanzas, :list, required: true
   attr :language, :string, required: true
 
+  attr :today_mark, :string,
+    default: nil,
+    doc: "a heading to mark Today (`Book.season_mark/2`): its stanza takes the id `today`"
+
   def prayer_text(assigns) do
     assigns = assign(assigns, :versal?, versal?(assigns.stanzas))
 
@@ -33,12 +37,17 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
     >
       <div
         :for={{stanza, i} <- Enum.with_index(@stanzas)}
+        id={if(today?(stanza, @today_mark), do: "today")}
         class={[
           "book-stanza",
           "book-stanza--#{stanza.kind}",
+          today?(stanza, @today_mark) && "scroll-mt-24",
           (i == 0 and @versal?) && "book-stanza--versal"
         ]}
       >
+        <p :if={today?(stanza, @today_mark)} class="kicker !text-gilt" data-role="today">
+          Today
+        </p>
         <div :if={stanza.kind == :rule} aria-hidden="true">
           <.sacred_divider class="max-w-[120px]" />
         </div>
@@ -62,6 +71,14 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
     </div>
     """
   end
+
+  # The stanza that is the marked heading alone, as the text prints it.
+  defp today?(_stanza, nil), do: false
+
+  defp today?(%{lines: [%{primary: {:rubric, runs}}]}, mark),
+    do: runs |> Enum.map_join(&elem(&1, 1)) |> String.trim() == mark
+
+  defp today?(_stanza, _mark), do: false
 
   # A versal opens the first stanza when it is one long paragraph, as the
   # app's DropCapText does.

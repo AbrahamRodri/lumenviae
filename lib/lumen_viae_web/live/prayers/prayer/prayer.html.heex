@@ -69,7 +69,7 @@
         if(@language == "both", do: "max-w-5xl", else: "max-w-3xl")
       ]}
     >
-      <.prayer_text stanzas={@stanzas} language={@language} />
+      <.prayer_text stanzas={@stanzas} language={@language} today_mark={@today_mark} />
     </div>
 
     <footer
