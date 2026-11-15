@@ -90,7 +90,14 @@ defmodule LumenViaeWeb.PageMetaTest do
       set = joyful_set(mysteries)
 
       paths =
-        ["/", "/mysteries", "/privacy-policy", "/app", "/meditation-sets/#{set.id}/pray"] ++
+        [
+          "/",
+          "/mysteries",
+          "/privacy-policy",
+          "/credits",
+          "/app",
+          "/meditation-sets/#{set.id}/pray"
+        ] ++
           Enum.map(Categories.slugs(), &"/mysteries/#{&1}") ++
           Enum.map(Categories.slugs(), &"/mysteries/#{&1}/pray")
 

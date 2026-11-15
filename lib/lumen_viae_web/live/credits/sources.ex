@@ -1,0 +1,171 @@
+defmodule LumenViaeWeb.Live.Credits.Sources do
+  @moduledoc """
+  What the Sources & Credits page lists, shaped for it: the Prayer Book's
+  prayers by their home chapter with their origins, the novenas' paintings
+  and the mysteries' woodcuts with their credits and licences, the Chant
+  Library's singers and every chant's source, and the books with their
+  editions and recordings.
+
+  Presentation only. The credits are the data's own (the Prayer Book's
+  `origin` and novena `art.credit`, the woodcut manifest, the Chant
+  Library's `source_url`, the Spiritual Reading catalogue, True Devotion's
+  `about`), read through `LumenViae.Rosary` and the pages' own readers.
+  """
+
+  alias LumenViae.Rosary
+  alias LumenViaeWeb.Components.WoodcutPlate
+  alias LumenViaeWeb.Live.Chants.Library
+  alias LumenViaeWeb.Live.Prayers.Book
+  alias LumenViaeWeb.Live.SpiritualReading.Shelf
+
+  @cc_by_sa %{label: "CC BY-SA 4.0", url: "https://creativecommons.org/licenses/by-sa/4.0/"}
+  @cc0 %{label: "CC0", url: "https://creativecommons.org/publicdomain/zero/1.0/"}
+  @public_domain %{label: "Public domain", url: nil}
+
+  @doc """
+  The Prayer Book's chapters in the book's order, each `%{chapter:,
+  prayers:}` with the prayers whose home it is, in the chapter's order.
+  A chapter that is home to none is left out.
+  """
+  def prayer_chapters(%Book{chapters: chapters} = book) do
+    for chapter <- chapters,
+        prayers = home_prayers(book, chapter),
+        prayers != [] do
+      %{chapter: chapter, prayers: prayers}
+    end
+  end
+
+  defp home_prayers(book, chapter) do
+    book
+    |> Book.prayers(Enum.uniq(chapter.prayer_ids))
+    |> Enum.filter(&(Book.home_chapter(book, &1.id) == chapter))
+  end
+
+  @doc "A prayer's origin to print, or nil where it has none."
+  def origin(%{origin: origin}) when is_binary(origin) and origin != "", do: origin
+  def origin(_prayer), do: nil
+
+  @doc """
+  The novenas' paintings, in the order their prayers stand in the book,
+  each `%{title:, prayer_id:, url:, credit:, licence:}`. A novena with no
+  painting is left out.
+  """
+  def novena_paintings(%Book{novenas: novenas} = book) do
+    order =
+      book.chapters
+      |> Enum.flat_map(& &1.prayer_ids)
+      |> Enum.uniq()
+      |> Enum.with_index()
+      |> Map.new()
+
+    novenas
+    |> Map.values()
+    |> Enum.filter(
+      &match?(%{art: %{url: url, credit: credit}} when is_binary(url) and is_binary(credit), &1)
+    )
+    |> Enum.sort_by(&Map.get(order, &1.prayer_id, map_size(order)))
+    |> Enum.map(fn novena ->
+      %{
+        title: novena.title,
+        prayer_id: novena.prayer_id,
+        url: novena.art.url,
+        credit: novena.art.credit,
+        licence: licence(novena.art.credit)
+      }
+    end)
+  end
+
+  @doc """
+  The licence a credit names, as the pill shows it: CC BY-SA 4.0 and CC0
+  with their deeds, else public domain, else nil.
+  """
+  def licence(credit) when is_binary(credit) do
+    cond do
+      credit =~ ~r/CC BY-SA 4\.0/ -> @cc_by_sa
+      credit =~ ~r/\bCC0\b/ -> @cc0
+      credit =~ ~r/public domain|PD-old/i -> @public_domain
+      true -> nil
+    end
+  end
+
+  def licence(_credit), do: nil
+
+  @doc """
+  The mysteries' woodcuts, one row per print (a print that hangs on two
+  mysteries once), each `%{title:, src:, srcset:, credit:, source:,
+  licence:}`.
+  """
+  def woodcuts do
+    WoodcutPlate.keys()
+    |> Enum.map(&WoodcutPlate.plate/1)
+    |> Enum.uniq_by(& &1.file)
+    |> Enum.map(fn plate ->
+      %{
+        title: plate.title,
+        src: plate.src,
+        srcset: srcset(plate.sources),
+        credit: woodcut_credit(plate),
+        source: plate.source,
+        licence: licence(plate.licence)
+      }
+    end)
+  end
+
+  defp srcset([]), do: nil
+  defp srcset(sources), do: Enum.map_join(sources, ", ", & &1.srcset)
+
+  defp woodcut_credit(plate) do
+    [plate.artist, plate.year, plate.series && "from #{plate.series}"]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(", ")
+  end
+
+  @doc """
+  The Chant Library's credit and every chant with its source page,
+  `%{credit:, licence_note:, licence_url:, source_site:, chants:}`; nil
+  when no chant names a source.
+  """
+  def chant(actor) do
+    library = Library.load(actor)
+    chants = Enum.filter(library.chants, &is_binary(&1.source_url))
+
+    if chants != [] do
+      %{
+        credit: Library.library_credit(),
+        licence_note: Library.licence_note(),
+        licence_url: Library.licence_url(),
+        source_site: Library.source_site(),
+        chants: Enum.sort_by(chants, &{&1.latin_title, &1.setting || ""})
+      }
+    end
+  end
+
+  @doc "A chant's name on its row: its Latin title and, where it has one, its setting."
+  def chant_name(%{latin_title: title, setting: setting}) when is_binary(setting),
+    do: "#{title} · #{setting}"
+
+  def chant_name(%{latin_title: title}), do: title
+
+  @doc "The Spiritual Reading catalogue's books, in its order."
+  def books(actor), do: Shelf.books(actor)
+
+  defdelegate author_line(book), to: Shelf
+  defdelegate gutenberg_url(book), to: Shelf
+  defdelegate text_credit(book), to: Shelf, as: :credit
+
+  @doc "\"Recording: LibriVox volunteers, audiobook #8021.\", or nil for a book with none."
+  def librivox_credit(%{librivox_id: id}) when is_integer(id),
+    do: "Recording: LibriVox volunteers, audiobook ##{id}."
+
+  def librivox_credit(_book), do: nil
+
+  @doc "The Internet Archive recording the apps play, `%{credit:, url:}`, or nil."
+  def archive_recording(%{archive_recording: %{item: item, credit: credit}})
+      when is_binary(item) and is_binary(credit),
+      do: %{credit: credit, url: "https://archive.org/details/#{item}"}
+
+  def archive_recording(_book), do: nil
+
+  @doc "True Devotion's title, author, translator and edition."
+  def true_devotion(actor), do: Rosary.get_true_devotion!(actor: actor, load: [:about]).about
+end
