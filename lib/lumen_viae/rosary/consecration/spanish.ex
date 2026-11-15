@@ -177,8 +177,9 @@ defmodule LumenViae.Rosary.Consecration.Spanish do
       prayer = @prayers[id] ->
         mark(%{id: id, title: prayer["title"], text: prayer["text"]}, prayer)
 
+      # The Consecration serves no origin line: only the book's words.
       prayer = book[id] ->
-        prayer
+        Map.take(prayer, [:id, :title, :text, :ai_translated])
 
       true ->
         nil

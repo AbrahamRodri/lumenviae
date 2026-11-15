@@ -104,7 +104,7 @@ defmodule LumenViae.Rosary.Consecration.SpanishTest do
 
     assert length(reused) == 8
 
-    for prayer <- reused, do: assert(prayer == book[prayer.id])
+    for prayer <- reused, do: assert(prayer == Map.delete(book[prayer.id], :origin))
   end
 
   test "the Spanish date is never earlier than either source" do
