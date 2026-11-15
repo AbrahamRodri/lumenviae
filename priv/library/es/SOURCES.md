@@ -575,6 +575,7 @@ Copied under the project's rule: there is no explicit notice against it. Always 
 - The words are the page's, word for word, apart from the edits listed in the team's capture notes.
   - The page's image caption, "Nuestra Señora Desatanudos", is dropped from the start of the meditations.
   - The closing prayer is printed with slightly different wording on days 8 and 9; the wording of days 1 to 7 is used every day.
+  - Día 9's "Envuelveme" is spelled "Envuélveme" (15 November 2026): the accent only.
 - The titles are the team's (ios-review, 14 November 2026; Abraham: "novena-es: desatanudos").
   - Novena: "La Virgen Desatanudos"; list: "Virgen Desatanudos"; twin: "Novena a la Virgen Desatanudos".
   - "La Virgen Desatanudos" is the name used in Mexico. The source page's header, "Nuestra Señora Desatanudos", is a literal rendering of the English and is rarely said.
@@ -633,17 +634,27 @@ sanpiodapietrelcina.org".
   are the book prayers by id.
 - The card sentence, the part titles ("Primera petición", "Oración
   final") and the day titles ("Día 1" to "Día 9") are the team's.
+- Where the page prints only "yo pido la gracia...", the rubric "[Aquí
+  nombra tu petición.]" follows, as the English's "[Here name your
+  request.]" does (15 November 2026, novena wording round, item 16). The
+  rubric is the team's; the prayer's words are unchanged.
 
-### `st_jude_novena`, and the novena `st_jude` (`ai_translated`)
+### `st_jude_novena`, and the novena `st_jude`
 
 Added on 14 November 2026 (Abraham: St Jude "Use it, credited"). A mixed
-text, so the twin is marked `ai_translated`:
+text. Neither the twin nor the novena is marked `ai_translated` (15
+November 2026, novena wording round, item 28): only the invocation is the
+team's, and it alone is marked:
 
 - The novena prayer: [EWTN Español, Novena a San Judas Tadeo](https://www.ewtn.com/es/oracion/novena-a-san-judas-tadeo),
   "Oración a San Judas Tadeo", the same prayer ACI Prensa prints
   ("Escrito por: Desconocido"). No notice on the text; site footer only.
   Word for word. Credit: "Oración tradicional, autor desconocido · según
   la publican EWTN Español y ACI Prensa en su Novena a San Judas Tadeo".
+  EWTN Español prints "particularmente(haga aquí ...), y para que": the
+  comma after the request direction is dropped, since the direction stands
+  on its own line, and the direction reads "[Aquí nombra tu petición.]"
+  like every other request rubric.
 - The invocation "San Judas, ruega por nosotros / y por todos los que
   invocan tu ayuda": the team's, from the English; no published Spanish of
   it was found. That part alone is marked `ai_translated` in the novena.
@@ -756,11 +767,12 @@ to check. The long daily meditations are translated in full.
   otro"), as Mexican Spanish does.
 - Scripture is quoted in the team's Spanish with Spanish references (Mt
   1, 16; Gn 41, 38; Lc 2, 51; Lc 4, 18; Mt 5, 3).
-- "(Mention your request)" is "(Aquí se pide la gracia que se desea.)",
+- "[Here name your request.]" is "[Aquí se pide la gracia que se desea.]",
   impersonal like the book's other intention rubrics.
 - The English's slips are read as meant: day 1 "done its word" as "its
-  work"; day 6 "the holy sacraments of God and of the Church" kept as
-  printed.
+  work". Day 6's "the holy sacraments of God and of the Church" is
+  "frequently" in the 1956 book (p. 16), and the English now follows the
+  book; the Spanish follows it as "con frecuencia" (15 November 2026).
 - The Memorare to St Joseph is the book's `memorare_st_joseph`, named in
   the opening rubric only, as in the English. The rubrics, the card
   sentence, the part titles and the day titles are the team's.

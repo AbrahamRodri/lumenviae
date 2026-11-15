@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 06:00:00Z], "48a46fd9438963c0"}
+  @pinned {~U[2026-11-15 06:55:00Z], "b210b71732ce7878"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -21,11 +21,11 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # team's; its verses Torres Amat's). The St Andrew and Sacred Heart
   # (efficacious) novenas left it on 14 Nov 2026 (orch-lead): St Andrew is
   # the Archdiocese of Philadelphia's Spanish, the Sacred Heart
-  # sanpiodapietrelcina.org's. St Jude's and St Therese's novenas joined it
-  # the same day: St Jude's invocation and St Therese's whole novena are the
-  # team's. So did the Holy Spirit and St Joseph novenas, the team's
+  # sanpiodapietrelcina.org's. St Therese's novena joined it the same day
+  # (the whole novena is the team's); St Jude's twin left it on 15 Nov 2026,
+  # since only its invocation (marked as a part) is the team's. So did the Holy Spirit and St Joseph novenas, the team's
   # throughout (no published Spanish of either was found).
-  @ai_translated_count 89
+  @ai_translated_count 88
 
   # A prayer newly added in English, until the Spanish team adds it to
   # priv/library/es/prayer_book.json.
