@@ -93,6 +93,7 @@ defmodule LumenViaeWeb.Live.Prayers.NovenaTest do
              ]
 
       assert has_element?(view, ~s([data-role=novena-direction] a[href="/prayers/sign_of_cross"]))
+      assert has_element?(view, ~s([data-role=novena-direction] a[href="/"]), "the Rosary")
       assert view |> render() =~ "The Act of Contrition"
     end
 

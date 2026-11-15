@@ -130,10 +130,17 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Novena do
     """
   end
 
+  # The decades link to Today's Rosary, so someone who doesn't know them by
+  # heart can pray them (design, 15 Nov); it opens in the same tab.
   defp block(%{block: %{type: :rosary}} = assigns) do
+    assigns = assign(assigns, :lead, String.replace_suffix(assigns.block.text, "the Rosary.", ""))
+
     ~H"""
     <p class="book-text" data-role="novena-direction">
-      <span class="book-rubric">{@block.text}</span>
+      <span :if={@lead != @block.text} class="book-rubric">
+        {@lead}<.link navigate="/" class="underline underline-offset-2">the Rosary</.link>.
+      </span>
+      <span :if={@lead == @block.text} class="book-rubric">{@block.text}</span>
     </p>
     """
   end
