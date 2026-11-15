@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T04:00:00Z",
+  "updated_at": "2026-11-15T04:10:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -19,7 +19,7 @@
     },
     "benedictus": {
       "title": "Benedictus",
-      "text": "Bendito sea el Señor, Dios de Israel, * porque ha visitado y redimido a su pueblo,\nsuscitándonos una fuerza de salvación * en la casa de David, su siervo,\nsegún lo había predicho desde antiguo * por boca de sus santos Profetas.\nEs la salvación que nos libra de nuestros enemigos * y de la mano de todos los que nos odian;\n\nrealizando la misericordia que tuvo con nuestros padres, * recordando su santa alianza\ny el juramento que juró a nuestro padre Abrahán.\nPara concedernos que, libres de temor, arrancados de la mano de los enemigos, * le sirvamos con santidad y justicia, en su presencia, todos nuestros días.\n\nY a ti, niño, te llamarán profeta del Altísimo, * porque irás delante del Señor a preparar sus caminos,\nanunciando a su pueblo la salvación, * el perdón de sus pecados.\nPor la entrañable misericordia de nuestro Dios, * nos visitará el sol que nace de lo alto,\npara iluminar a los que viven en tinieblas y en sombra de muerte, * para guiar nuestros pasos por el camino de la paz.\n\nGloria al Padre, y al Hijo, * y al Espíritu Santo.\nComo era en el principio, ahora y siempre, * por los siglos de los siglos. Amén."
+      "text": "Bendito sea el Señor, Dios de Israel, * porque ha visitado y redimido a su pueblo,\nsuscitándonos una fuerza de salvación * en la casa de David, su siervo,\nsegún lo había predicho desde antiguo * por boca de sus santos Profetas.\nEs la salvación que nos libra de nuestros enemigos * y de la mano de todos los que nos odian;\n\nrealizando la misericordia que tuvo con nuestros padres, * recordando su santa alianza\ny el juramento que juró a nuestro padre Abrahán. * Para concedernos que,\nlibres de temor, arrancados de la mano de los enemigos, * le sirvamos\ncon santidad y justicia, * en su presencia, todos nuestros días.\n\nY a ti, niño, te llamarán profeta del Altísimo, * porque irás delante del Señor a preparar sus caminos,\nanunciando a su pueblo la salvación, * el perdón de sus pecados.\nPor la entrañable misericordia de nuestro Dios, * nos visitará el sol que nace de lo alto,\npara iluminar a los que viven en tinieblas y en sombra de muerte, * para guiar nuestros pasos por el camino de la paz.\n\nGloria al Padre, y al Hijo, * y al Espíritu Santo.\nComo era en el principio, ahora y siempre, * por los siglos de los siglos. Amén."
     },
     "angele_dei": {
       "title": "Ángel de Dios",
@@ -95,7 +95,7 @@
     },
     "ad_te_beate_ioseph": {
       "title": "Oración a San José",
-      "text": "A ti, bienaventurado san José, acudimos en nuestra tribulación, y después de implorar el auxilio de tu santísima esposa, solicitamos también confiadamente tu patrocinio.\n\nCon aquella caridad que te tuvo unido con la Inmaculada Virgen María, Madre de Dios, y por el paterno amor con que abrazaste al Niño Jesús, humildemente te suplicamos que vuelvas benigno los ojos a la herencia que con su Sangre adquirió Jesucristo, y con tu poder y auxilio socorras nuestras necesidades.\n\nProtege, oh providentísimo Custodio de la divina Familia, la escogida descendencia de Jesucristo; aleja de nosotros, oh padre amantísimo, este flagelo de errores y vicios. Asístenos propicio desde el cielo, en esta lucha contra el poder de las tinieblas;\n\ny como en otro tiempo libraste de la muerte la vida amenazada del Niño Jesús, así ahora defiende a la santa Iglesia de Dios de las hostiles insidias y de toda adversidad. Y a cada uno de nosotros protégenos con tu constante patrocinio, para que, a ejemplo tuyo, y sostenidos por tu auxilio, podamos vivir y morir santamente y alcanzar en los cielos la eterna bienaventuranza. Amén."
+      "text": "A ti, bienaventurado san José, acudimos en nuestra tribulación, y después de implorar el auxilio de tu santísima esposa, solicitamos también confiadamente tu patrocinio.\n\nCon aquella caridad que te tuvo unido con la Inmaculada Virgen María, Madre de Dios, y por el paterno amor con que abrazaste al Niño Jesús, humildemente te suplicamos que vuelvas benigno los ojos a la herencia que con su Sangre adquirió Jesucristo, y con tu poder y auxilio socorras nuestras necesidades.\n\nProtege, oh providentísimo Custodio de la divina Familia, la escogida descendencia de Jesucristo; aleja de nosotros, oh padre amantísimo, este flagelo de errores y vicios.\n\nAsístenos propicio desde el cielo, en esta lucha contra el poder de las tinieblas; y como en otro tiempo libraste de la muerte la vida amenazada del Niño Jesús, así ahora defiende a la santa Iglesia de Dios de las hostiles insidias y de toda adversidad. Y a cada uno de nosotros protégenos con tu constante patrocinio, para que, a ejemplo tuyo, y sostenidos por tu auxilio, podamos vivir y morir santamente y alcanzar en los cielos la eterna bienaventuranza. Amén."
     },
     "te_deum": {
       "title": "Te Deum",
@@ -603,7 +603,7 @@
     },
     "st_jude_novena": {
       "title": "Novena a San Judas Tadeo",
-      "text": "[Cada uno de los nueve días.]\n\n[La señal de la cruz.]\n\n¡Oh gloriosísimo Apóstol San Judas! Siervo fiel y amigo de Jesús. El nombre del traidor que entregó a tu querido Maestro en manos de sus enemigos ha sido la causa de que muchos te hayan olvidado, pero la Iglesia te honra e invoca universalmente como patrón de los casos difíciles y desesperados. Ruega por mí que soy tan miserable y haz uso, te ruego, de ese privilegio especial a ti concedido de socorrer visible y prontamente cuando casi se ha perdido toda esperanza. Ven en mi ayuda en esta gran necesidad, para que reciba los consuelos y socorro del cielo en todas mis necesidades, tribulaciones y sufrimientos, particularmente,\n\n[Haga aquí cada una de sus súplicas especiales.]\n\ny para que bendiga a Dios contigo y con todos los escogidos por toda la eternidad.\n\nTe prometo, glorioso San Judas, acordarme siempre de este gran favor y nunca dejaré de honrarte como a mi especial y poderoso protector y hacer todo lo que pueda para fomentar tu devoción. Amén.\n\n℣. San Judas, ruega por nosotros\n℟. y por todos los que invocan tu ayuda.\n\n[Padre nuestro, Ave María y Gloria, tres veces cada uno.]",
+      "text": "[Cada uno de los nueve días.]\n\n[La señal de la cruz.]\n\n¡Oh gloriosísimo Apóstol San Judas! Siervo fiel y amigo de Jesús. El nombre del traidor que entregó a tu querido Maestro en manos de sus enemigos ha sido la causa de que muchos te hayan olvidado, pero la Iglesia te honra e invoca universalmente como patrón de los casos difíciles y desesperados. Ruega por mí que soy tan miserable y haz uso, te ruego, de ese privilegio especial a ti concedido de socorrer visible y prontamente cuando casi se ha perdido toda esperanza. Ven en mi ayuda en esta gran necesidad, para que reciba los consuelos y socorro del cielo en todas mis necesidades, tribulaciones y sufrimientos, particularmente,\n\n[Haga aquí cada una de sus súplicas especiales.]\n\ny para que bendiga a Dios contigo y con todos los escogidos por toda la eternidad.\n\nTe prometo, glorioso San Judas, acordarme siempre de este gran favor y nunca dejaré de honrarte como a mi especial y poderoso protector y hacer todo lo que pueda para fomentar tu devoción. Amén.\n\n℣. San Judas, ruega por nosotros\n℟. Y por todos los que invocan tu ayuda.\n\n[Padre nuestro, Ave María y Gloria, tres veces cada uno.]",
       "ai_translated": true
     },
     "st_therese_novena": {
@@ -1428,7 +1428,7 @@
         },
         "st_jude_novena_invocation": {
           "title": null,
-          "text": "℣. San Judas, ruega por nosotros\n℟. y por todos los que invocan tu ayuda.",
+          "text": "℣. San Judas, ruega por nosotros\n℟. Y por todos los que invocan tu ayuda.",
           "ai_translated": true
         }
       }
