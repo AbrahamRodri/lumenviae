@@ -110,7 +110,8 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     end
 
     # Day shape A (Abraham, 14 Nov: "if we can do 1 without it being clunky
-    # then yes"): three decades, the day's meditation, the last two decades.
+    # then yes"): three decades, the day's meditation with its invocation
+    # (and saying) as Ascension prints them, the last two decades.
     test "Undoer of Knots: nine days, the Rosary inside each", %{conn: conn} do
       [novena | _] =
         conn
@@ -127,7 +128,10 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
         kinds = Enum.map(day["parts"], & &1["kind"])
         decades = for %{"kind" => "rosary", "decades" => d} <- day["parts"], do: d
 
-        assert Enum.take(kinds, 5) == ~w(opening opening rosary meditation rosary),
+        assert Enum.take(kinds, 5) == ~w(opening opening rosary meditation invocation),
+               "day #{day["number"]}"
+
+        assert kinds |> Enum.drop(5) |> Enum.drop_while(&(&1 == "saying")) |> hd() == "rosary",
                "day #{day["number"]}"
 
         assert decades == [[1, 2, 3], [4, 5]], "day #{day["number"]}"
