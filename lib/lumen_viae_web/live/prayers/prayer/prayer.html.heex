@@ -25,14 +25,14 @@
         </p>
         <h1
           id="prayer-heading"
-          class="font-display text-[1.75rem] md:text-5xl text-ink-light leading-[1.2]"
+          class="font-display text-[1.75rem] md:text-5xl text-ink-light leading-[1.2] text-balance"
         >
           {@prayer.title}
         </h1>
       </div>
 
       <nav
-        :if={@prayer.latin}
+        :if={@prayer.latin && is_nil(@novena)}
         class="prayers-language mt-6"
         aria-label="Language"
         data-role="language"
@@ -49,10 +49,17 @@
       </nav>
     </header>
 
-    <div class={[
-      "mx-auto px-4 sm:px-8 mt-8 md:mt-10",
-      if(@language == "both", do: "max-w-5xl", else: "max-w-3xl")
-    ]}>
+    <div :if={@novena} class="mx-auto max-w-3xl px-4 sm:px-8">
+      <.novena_day novena={@novena} prayer_id={@prayer.id} day={@day} blocks={@blocks} />
+    </div>
+
+    <div
+      :if={is_nil(@novena)}
+      class={[
+        "mx-auto px-4 sm:px-8 mt-8 md:mt-10",
+        if(@language == "both", do: "max-w-5xl", else: "max-w-3xl")
+      ]}
+    >
       <.prayer_text stanzas={@stanzas} language={@language} />
     </div>
   </article>

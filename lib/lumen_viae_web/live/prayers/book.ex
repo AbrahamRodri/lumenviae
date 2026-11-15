@@ -16,13 +16,14 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   alias LumenViae.Rosary
   alias LumenViaeWeb.Components.MysteryPainting
 
-  defstruct chapters: [], prayers: %{}, antiphons: [], orders: []
+  defstruct chapters: [], prayers: %{}, antiphons: [], orders: [], novenas: %{}
 
   @type t :: %__MODULE__{
           chapters: [map()],
           prayers: %{String.t() => map()},
           antiphons: [map()],
-          orders: [map()]
+          orders: [map()],
+          novenas: %{String.t() => map()}
         }
 
   # The first prayers, a row each under Everyday Prayers.
@@ -88,21 +89,33 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   @search_stop ~w(a an and of the to o for in on at)
   @topic_stop ~w(a an and at for in of on the to with pray prayer prayers)
 
-  @doc "The whole book, read through the domain as `actor`."
-  def load(actor) do
-    Rosary.get_prayer_book!(actor: actor, load: [:chapters, :prayers, :marian_antiphons, :orders])
+  @doc """
+  The whole book, read through the domain as `actor`; with
+  `novenas: true`, its novenas too.
+  """
+  def load(actor, opts \\ []) do
+    novenas = if Keyword.get(opts, :novenas, false), do: [:novenas], else: []
+
+    Rosary.get_prayer_book!(
+      actor: actor,
+      load: [:chapters, :prayers, :marian_antiphons, :orders] ++ novenas
+    )
     |> new()
   end
 
-  @doc "The index over a book the domain served; its orders of prayer when loaded."
+  @doc "The index over a book the domain served; its orders of prayer and novenas when loaded."
   def new(%{chapters: chapters, prayers: prayers, marian_antiphons: antiphons} = book) do
     %__MODULE__{
       chapters: chapters,
       prayers: Map.new(prayers, &{&1.id, &1}),
       antiphons: antiphons,
-      orders: if(is_list(Map.get(book, :orders)), do: book.orders, else: [])
+      orders: if(is_list(Map.get(book, :orders)), do: book.orders, else: []),
+      novenas: novenas_by_twin(Map.get(book, :novenas))
     }
   end
+
+  defp novenas_by_twin(novenas) when is_list(novenas), do: Map.new(novenas, &{&1.prayer_id, &1})
+  defp novenas_by_twin(_not_loaded), do: %{}
 
   def everyday_ids, do: @everyday_ids
   def first_chapter_id, do: @first_chapter
@@ -122,6 +135,9 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   def prayer_count(%__MODULE__{prayers: prayers}), do: map_size(prayers)
 
   def prayer(%__MODULE__{prayers: prayers}, id), do: Map.get(prayers, id)
+
+  @doc "The novena whose twin is this prayer, when the book was loaded with its novenas."
+  def novena(%__MODULE__{novenas: novenas}, prayer_id), do: Map.get(novenas, prayer_id)
 
   def chapter(%__MODULE__{chapters: chapters}, id), do: Enum.find(chapters, &(&1.id == id))
 
