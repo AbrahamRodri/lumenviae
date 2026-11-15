@@ -19,10 +19,18 @@
         and we will take it down.
       </p>
 
+      <%!-- Two by two on a phone, where four pills cannot share a row and
+           one would sit alone; one row from sm up --%>
       <nav aria-label="Sections" class="mt-6">
-        <ul class="flex flex-wrap gap-2.5">
+        <ul class="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
           <li :for={{id, label} <- @sections}>
-            <a href={"##{id}"} class="credits-jump" data-role="jump">{label}</a>
+            <a
+              href={"##{id}"}
+              class="credits-jump w-full justify-center sm:w-auto"
+              data-role="jump"
+            >
+              {label}
+            </a>
           </li>
         </ul>
       </nav>

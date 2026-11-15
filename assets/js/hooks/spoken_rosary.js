@@ -131,7 +131,23 @@ export default {
     this.render()
     // Starts on its own. A browser that refuses sound before a tap (a page
     // opened from a link or a reload) leaves the Play button showing.
-    this.play()
+    this.autostart()
+  },
+
+  // The first start, which nobody tapped: Pause shows only once the clip
+  // actually sounds, so a browser that blocks autoplay never shows Pause
+  // over silence while it decides.
+  autostart() {
+    if (this.dead || this.steps.length === 0) return
+    if (this.loadedIndex !== this.index) this.load()
+    this.audio
+      .play()
+      .then(() => {
+        if (this.dead || this.playing) return
+        this.playing = true
+        this.render()
+      })
+      .catch(() => {})
   },
 
   destroyed() {
