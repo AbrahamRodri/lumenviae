@@ -76,7 +76,8 @@ defmodule LumenViaeWeb.Live.Missal.Index do
       |> assign(:date, date)
       |> assign(:today, nil)
       |> assign(:clock_known?, fixed_date?)
-      |> assign(masses: nil, mass: nil, sections: [], state: :waiting)
+      |> assign(masses: nil, mass_titles: nil, mass: nil, mass_choice: 1)
+      |> assign(sections: [], state: :waiting)
       |> assign(language: "english", mass_number: 1, languages: MissalText.languages())
       |> assign(whole?: true, sung?: false, ordo: nil, ordo_state: :idle)
 
@@ -149,7 +150,7 @@ defmodule LumenViaeWeb.Live.Missal.Index do
   @impl true
   def handle_async(:mass, {:ok, {date, {:ok, masses}}}, socket) do
     if date == socket.assigns.date,
-      do: {:noreply, socket |> assign(masses: masses, state: :ready) |> assign_mass()},
+      do: {:noreply, socket |> assign(:state, :ready) |> keep_masses(masses) |> assign_mass()},
       else: {:noreply, socket}
   end
 
@@ -186,7 +187,9 @@ defmodule LumenViaeWeb.Live.Missal.Index do
   # it. A wait for an earlier date is let go.
   defp load(socket) do
     date = socket.assigns.date
-    socket = assign(socket, masses: nil, mass: nil, sections: [], state: :loading)
+
+    socket =
+      assign(socket, masses: nil, mass_titles: nil, mass: nil, sections: [], state: :loading)
 
     if connected?(socket) do
       socket
@@ -224,13 +227,25 @@ defmodule LumenViaeWeb.Live.Missal.Index do
     })
   end
 
-  defp assign_mass(%{assigns: %{masses: masses}} = socket)
-       when is_list(masses) and masses != [] do
-    number = min(socket.assigns.mass_number, length(masses))
-    mass = Enum.at(masses, number - 1)
+  # The day's Masses as the page keeps them: the titles for the choice,
+  # and the Masses themselves only where there is a choice to make; a day
+  # of one Mass keeps that Mass alone.
+  defp keep_masses(socket, [mass]),
+    do: assign(socket, masses: nil, mass_titles: [mass.title], mass: mass)
+
+  defp keep_masses(socket, masses),
+    do: assign(socket, masses: masses, mass_titles: Enum.map(masses, & &1.title), mass: nil)
+
+  defp assign_mass(%{assigns: %{mass_titles: [_ | _] = titles}} = socket) do
+    number = min(socket.assigns.mass_number, length(titles))
+
+    mass =
+      if socket.assigns.masses,
+        do: Enum.at(socket.assigns.masses, number - 1),
+        else: socket.assigns.mass
 
     socket
-    |> assign(:mass, mass)
+    |> assign(mass: mass, mass_choice: number)
     |> assign(:sections, sections(socket.assigns, mass))
   end
 

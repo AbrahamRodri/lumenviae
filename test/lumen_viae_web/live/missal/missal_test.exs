@@ -167,6 +167,23 @@ defmodule LumenViaeWeb.Live.Missal.MissalTest do
       assert has_element?(view, "[data-role=mass-choice][aria-current]", "Second Mass")
     end
 
+    test "keeps the day's other Masses only where there is a choice", %{conn: conn} do
+      stub_missal()
+      {:ok, view, _html} = live(conn, "/missal/2026-11-04")
+      render_async(view, 2000)
+      assigns = :sys.get_state(view.pid).socket.assigns
+      assert assigns.masses == nil
+      assert assigns.mass_titles == [assigns.mass.title]
+
+      {:ok, view, _html} = live(conn, "/missal/2026-11-02?mass=3")
+      render_async(view, 2000)
+      assigns = :sys.get_state(view.pid).socket.assigns
+      assert length(assigns.masses) == 3
+      assert assigns.mass_titles == Enum.map(assigns.masses, & &1.title)
+      assert assigns.mass == Enum.at(assigns.masses, 2)
+      assert has_element?(view, "[data-role=mass-choice][aria-current]", "Third Mass")
+    end
+
     test "?lang=latin reads the Latin, ?lang=both pairs it with the English", %{conn: conn} do
       stub_missal()
       {:ok, view, _html} = live(conn, "/missal/2026-11-04?lang=latin")

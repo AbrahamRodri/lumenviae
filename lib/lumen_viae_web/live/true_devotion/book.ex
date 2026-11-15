@@ -53,17 +53,33 @@ defmodule LumenViaeWeb.Live.TrueDevotion.Book do
 
   @doc """
   The contents as the app sets them: the chapters in no part (the
-  Introduction) first, then each part with its chapters.
+  Introduction) first, then each part with its chapters, each chapter its
+  `entry/1`.
   """
   def contents(%__MODULE__{parts: parts, chapters: chapters}) do
-    free = Enum.filter(chapters, &(&1.part == 0))
+    entries = Enum.map(chapters, &entry/1)
+    free = Enum.filter(entries, &(&1.part == 0))
 
     grouped =
       for part <- parts do
-        %{part: part, chapters: Enum.filter(chapters, &(&1.part == part.number))}
+        %{part: part, chapters: Enum.filter(entries, &(&1.part == part.number))}
       end
 
     {free, grouped}
+  end
+
+  @doc """
+  A chapter as the contents and the links either side of a chapter show
+  it, without its text: `%{id:, title:, part:, paragraph_count:}`. A page
+  keeps these, and the one chapter it shows, rather than the whole book.
+  """
+  def entry(chapter) do
+    %{
+      id: chapter.id,
+      title: chapter.title,
+      part: chapter.part,
+      paragraph_count: paragraph_count(chapter)
+    }
   end
 
   @doc "\"Part I\" from \"Part I — On Devotion to Our Lady in General\"."

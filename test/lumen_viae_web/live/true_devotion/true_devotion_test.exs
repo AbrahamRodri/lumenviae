@@ -163,6 +163,28 @@ defmodule LumenViaeWeb.Live.TrueDevotionTest do
       assert html =~ ~s("@type":"Chapter")
     end
 
+    test "the pages keep the contents and the one chapter shown, never the book's text", %{
+      conn: conn
+    } do
+      {:ok, view, _html} = live(conn, "/true-devotion")
+      assigns = :sys.get_state(view.pid).socket.assigns
+      refute Map.has_key?(assigns, :book)
+      assert %{id: "introduction", paragraph_count: 15} = assigns.first
+
+      refute Enum.any?(
+               assigns.free ++ Enum.flat_map(assigns.parts, & &1.chapters),
+               &Map.has_key?(&1, :paragraphs)
+             )
+
+      {:ok, view, _html} = live(conn, "/true-devotion/figure")
+      assigns = :sys.get_state(view.pid).socket.assigns
+      refute Map.has_key?(assigns, :book)
+      assert assigns.chapter == %{id: "figure", title: "The Figure of Jacob and Rebecca"}
+      refute Map.has_key?(assigns.previous, :paragraphs)
+      refute Map.has_key?(assigns.next, :paragraphs)
+      assert byte_size(:erlang.term_to_binary(assigns)) < 50_000
+    end
+
     test "an unknown chapter is a 404", %{conn: conn} do
       for path <- ["/true-devotion/nowhere", "/true-devotion/%00", "/true-devotion/0"] do
         error = assert_raise LumenViaeWeb.NotFoundError, fn -> live(conn, path) end

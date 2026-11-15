@@ -169,6 +169,23 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayerTest do
       assert row.mark == {:silk, "w"}
       assert row.spoken == "Today's Mass, St. Charles Borromeo, Lesser Feast, white vestments"
     end
+
+    test "the home page keeps the row's fields of the Mass, not its texts" do
+      mass = %{
+        id: "x",
+        title: "St. Charles Borromeo",
+        description: "About him",
+        rank: 3,
+        colors: ["w"],
+        tempora: nil,
+        commemorations: [],
+        sections: [%{id: "introitus", label: "Introitus", body: "Statuit ei Dominus"}]
+      }
+
+      summary = TodaysPrayer.mass_summary(mass)
+      assert summary == %{title: "St. Charles Borromeo", rank: 3, colors: ["w"], tempora: nil}
+      assert TodaysPrayer.mass(summary) == TodaysPrayer.mass(mass)
+    end
   end
 
   describe "on the home page" do
