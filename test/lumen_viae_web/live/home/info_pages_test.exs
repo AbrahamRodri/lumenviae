@@ -12,9 +12,15 @@ defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
   describe "the footer" do
     # The footer is in the root layout, outside the LiveView, so it is read
     # from the full page the server sends.
-    test "on every public page leads to the mysteries and the privacy policy",
+    test "on every public page leads to the mysteries, the Prayer Book, the chants, the Hours and the privacy policy",
          %{conn: conn} do
-      for page <- ["/", "/mysteries", "/mysteries/joyful", "/privacy-policy"] do
+      for page <- [
+            "/",
+            "/mysteries",
+            "/mysteries/joyful",
+            "/prayers/hail_mary",
+            "/privacy-policy"
+          ] do
         footer =
           conn
           |> get(page)
@@ -24,6 +30,9 @@ defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
 
         for {path, label} <- [
               {"/mysteries", "Mysteries"},
+              {"/prayers", "Prayers"},
+              {"/chant", "Chant"},
+              {"/hours", "Hours"},
               {"/privacy-policy", "Privacy"}
             ] do
           link = Floki.find(footer, ~s(a[href="#{path}"]))
