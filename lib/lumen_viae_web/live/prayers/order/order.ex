@@ -17,10 +17,11 @@ defmodule LumenViaeWeb.Live.Prayers.Order do
   """
   use LumenViaeWeb, :live_view
 
-  alias LumenViaeWeb.Live.Prayers.{Book, Orders}
+  alias LumenViaeWeb.Live.Prayers.{Book, Orders, PrayerText}
   alias LumenViaeWeb.PageMeta
 
   import LumenViaeWeb.Live.Prayers.Painting
+  import LumenViaeWeb.Live.Prayers.Prayer.Text
 
   @impl true
   def mount(%{"order_id" => id} = params, _session, socket) do
@@ -65,12 +66,20 @@ defmodule LumenViaeWeb.Live.Prayers.Order do
   defp assign_day(socket, date) do
     %{book: book, order: order} = socket.assigns
 
+    prayers = Orders.prayers(book, order, date)
+
     socket
     |> assign(:title, Orders.title(order, date))
-    |> assign(:prayers, Orders.prayers(book, order, date))
+    |> assign(:prayers, prayers)
+    |> assign(:stanzas, single_prayer_stanzas(prayers))
     |> assign(:season_note, Orders.season_note(order, date))
     |> assign(:painting, Orders.page_painting(order, date))
   end
+
+  defp single_prayer_stanzas([prayer]),
+    do: PrayerText.stanzas(prayer.english, prayer.latin, "english")
+
+  defp single_prayer_stanzas(_prayers), do: nil
 
   defp trail(order, nil, title),
     do: [{"Prayers", "/prayers"}, {title, Orders.order_path(order.id)}]

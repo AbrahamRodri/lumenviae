@@ -3115,6 +3115,11 @@ html:has(#prayer) {
     margin-top: 1.125rem;
   }
 
+  /* An order of one prayer sets that prayer's words in place of the list. */
+  .order-text {
+    margin-top: 1.5rem;
+  }
+
   .order-prayers > li + li {
     border-top: 1px solid rgba(227, 188, 91, 0.12);
   }
