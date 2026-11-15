@@ -134,4 +134,25 @@ defmodule LumenViaeWeb.Live.CreditsTest do
            ) ==
              "A Redemptorist print, scan by LimosaCorel, via Wikimedia Commons."
   end
+
+  test "every painting the site hangs is credited, the Advent cards' two among them", %{
+    conn: conn
+  } do
+    {:ok, view, _html} = live(conn, "/credits")
+
+    manifest =
+      [:code.priv_dir(:lumen_viae), "static", "images", "paintings", "manifest.json"]
+      |> Path.join()
+      |> File.read!()
+      |> Jason.decode!()
+
+    rows = view |> element("#site-paintings") |> render()
+
+    assert length(Floki.find(Floki.parse_fragment!(rows), "[data-role=site-painting]")) ==
+             length(manifest["paintings"])
+
+    assert rows =~ "The Prophet Isaiah (Sistine Chapel ceiling)"
+    assert rows =~ "Michelangelo, 1508–12, Sistine Chapel, Vatican"
+    assert rows =~ "Fra Angelico, 1425–26, Museo del Prado, Madrid"
+  end
 end

@@ -139,6 +139,43 @@ defmodule LumenViaeWeb.Live.Credits.Sources do
     |> Enum.join(", ")
   end
 
+  @manifest Path.join([
+              :code.priv_dir(:lumen_viae),
+              "static",
+              "images",
+              "paintings",
+              "manifest.json"
+            ])
+  @external_resource @manifest
+  @site_paintings @manifest |> File.read!() |> Jason.decode!() |> Map.fetch!("paintings")
+
+  @doc """
+  Every painting the site hangs from `priv/static/images/paintings` (the
+  mysteries, the Prayer Book and the Chant Library), by title, each
+  `%{title:, src:, srcset:, credit:, source:, licence:}`: the credit is
+  the artist, date and collection from the manifest.
+  """
+  def site_paintings do
+    @site_paintings
+    |> Enum.map(fn p ->
+      %{
+        title: p["title"],
+        src: "/images/paintings/#{p["name"]}-480.webp",
+        srcset:
+          Enum.map_join(p["widths"] || [], ", ", fn [w, _h] ->
+            "/images/paintings/#{p["name"]}-#{w}.webp #{w}w"
+          end),
+        credit:
+          [p["artist"], p["date"], p["collection"]]
+          |> Enum.reject(&(&1 in [nil, ""]))
+          |> Enum.join(", "),
+        source: p["source_page"],
+        licence: licence(p["licence"])
+      }
+    end)
+    |> Enum.sort_by(&String.downcase(String.replace_prefix(&1.title, "The ", "")))
+  end
+
   @doc """
   The Chant Library's credit and every chant with its source page,
   `%{credit:, licence_note:, licence_url:, source_site:, chants:}`; nil

@@ -25,13 +25,14 @@ defmodule LumenViaeWeb.Live.Credits.Index do
     chapters = Sources.prayer_chapters(book)
     paintings = Sources.novena_paintings(book)
     woodcuts = Sources.woodcuts()
+    site_paintings = Sources.site_paintings()
     chant = Sources.chant(actor)
     books = Sources.books(actor)
 
     sections =
       [
         {chapters != [], "prayers", "Prayers"},
-        {paintings != [] or woodcuts != [], "paintings", "Paintings"},
+        {paintings != [] or woodcuts != [] or site_paintings != [], "paintings", "Paintings"},
         {chant != nil, "chant", "Chant"},
         {true, "books", "Books"}
       ]
@@ -52,6 +53,7 @@ defmodule LumenViaeWeb.Live.Credits.Index do
      |> assign(:chapters, chapters)
      |> assign(:paintings, paintings)
      |> assign(:woodcuts, woodcuts)
+     |> assign(:site_paintings, site_paintings)
      |> assign(:chant, chant)
      |> assign(:books, books)
      |> assign(:true_devotion, Sources.true_devotion(actor))}

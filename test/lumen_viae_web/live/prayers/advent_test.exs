@@ -45,6 +45,8 @@ defmodule LumenViaeWeb.Live.Prayers.AdventTest do
       assert antiphons.note == "December 21"
       assert antiphons.path == "/prayers/o_antiphons?on=2026-12-21#today"
       assert wreath.note == "The Fourth Sunday of Advent"
+      assert {"advent_isaiah", _, _} = antiphons.painting
+      assert {"feast_annunciation", _, _} = wreath.painting
     end
   end
 
