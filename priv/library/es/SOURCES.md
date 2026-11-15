@@ -651,8 +651,10 @@ team's, and it alone is marked:
   ("Escrito por: Desconocido"). No notice on the text; site footer only.
   Word for word. Credit: "Oración tradicional, autor desconocido · según
   la publican EWTN Español y ACI Prensa en su Novena a San Judas Tadeo".
-  The comma after "particularmente" stands after the request rubric, where
-  EWTN Español prints it ("particularmente(haga aquí ...), y para que").
+  EWTN Español prints "particularmente(haga aquí ...), y para que": the
+  comma after the request direction is dropped, since the direction stands
+  on its own line, and the direction reads "[Aquí nombra tu petición.]"
+  like every other request rubric.
 - The invocation "San Judas, ruega por nosotros / y por todos los que
   invocan tu ayuda": the team's, from the English; no published Spanish of
   it was found. That part alone is marked `ai_translated` in the novena.
