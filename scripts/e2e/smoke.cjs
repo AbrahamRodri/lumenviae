@@ -1457,7 +1457,7 @@ async function checkCompletion(browser, vp) {
 
 (async () => {
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  const browser = await chromium.launch({ channel: "chrome" });
+  const browser = await chromium.launch({ channel: "chrome", args: ["--mute-audio"] }); // testing is silent (Abraham, 15 Nov 2026)
 
   for (const vp of VIEWPORTS) {
     const errors = [];
