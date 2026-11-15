@@ -32,6 +32,7 @@ defmodule LumenViaeWeb.Live.Pray.Painting do
         alt=""
         sizes="(min-width: 1024px) 44vw, 100vw"
         loading="eager"
+        fetchpriority="high"
         class="prayer-hero-image"
       />
     </div>

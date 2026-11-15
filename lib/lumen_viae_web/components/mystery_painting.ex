@@ -10,7 +10,9 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
   (`"joyful_1"`) to a painting, `cards` a category to the painting on its
   card (the four Rosaries' first mystery, the Seven Sorrows' Pieta), and
   `paintings` holds each picture's widths and its title, artist and date
-  from the app's sourcing notes. Each painting is `<name>-480.webp`,
+  from the app's sourcing notes. Each painting is `<name>-240.webp` (the
+  thumbnail for small arches and cards, `scripts/paintings/thumbs.exs`),
+  `<name>-480.webp`,
   `<name>-960.webp` (or its full width, when narrower), a 480 pixel
   `<name>.jpg`, `<name>-preview.jpg` (at most 800 pixels) and
   `<name>-share.jpg`, the wide card a shared link shows (1.91:1, at most
@@ -34,6 +36,7 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
 
   @paintings Map.new(@manifest["paintings"], fn p ->
                [[w1, h1], [w2, h2]] = p["widths"]
+               [tw, _th] = p["thumb"]
                [pw, ph] = p["preview"]
                [sw, sh] = p["share"]
                base = "/images/paintings/#{p["name"]}"
@@ -54,7 +57,8 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
                 %{
                   name: p["name"],
                   src: "#{base}.jpg",
-                  srcset: "#{base}-480.webp #{w1}w, #{base}-960.webp #{w2}w",
+                  srcset:
+                    "#{base}-240.webp #{tw}w, #{base}-480.webp #{w1}w, #{base}-960.webp #{w2}w",
                   width: w2,
                   height: h2,
                   small: {w1, h1},
@@ -89,7 +93,7 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
   def for_name(name), do: @paintings[name]
 
   @doc """
-  A painting as a `<picture>`: WebP at two widths, the small JPEG as the
+  A painting as a `<picture>`: WebP at three widths, the small JPEG as the
   fallback. Give `key` (a mystery), `category`, or `name` (a painting by
   its asset name, as the Prayers page names them); `class` sets the crop.
   Give `record` (the mystery or card) too where it is at hand: a painting
@@ -105,6 +109,10 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
   attr :alt, :string, default: nil, doc: "overrides the painting's own description"
   attr :loading, :string, default: "lazy"
 
+  attr :fetchpriority, :string,
+    default: nil,
+    doc: "`high` for the painting a page opens on, so a phone fetches it first"
+
   def picture(%{record: record} = assigns) when not is_nil(record) do
     if Artwork.publishable?(record) do
       ~H"""
@@ -114,6 +122,8 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
         sizes={@sizes}
         class={@class}
         style={"object-position: #{Artwork.object_position(@record.image_focal_x, @record.image_focal_y)}"}
+        loading={@loading}
+        fetchpriority={@fetchpriority}
       />
       """
     else
@@ -140,6 +150,7 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
         width={@painting.width}
         height={@painting.height}
         loading={@loading}
+        fetchpriority={@fetchpriority}
         decoding="async"
         class={@class}
         style={@style}
