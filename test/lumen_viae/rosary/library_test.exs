@@ -46,7 +46,7 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-11-15 05:30:00Z], "94aec6a58824d5cc"},
       {~U[2026-11-15 06:10:00Z], "5a4fdb1f9186ce1d"},
       {~U[2026-11-15 06:50:00Z], "cfeb2cab5d019ae5"},
-      {~U[2026-11-15 07:00:00Z], "7b78f75b5e691e4e"}
+      {~U[2026-11-15 07:05:00Z], "1a5003a6b7c589e5"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
