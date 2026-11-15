@@ -305,7 +305,8 @@ Also:
 - `miserere`, `beati_quorum`: a modern Bible translation, numbered as in
   the Hebrew (51 and 32). The Bible prints no Glory Be; the one at the end
   is from [16], which closes every psalm with it, pointed with " * " like
-  the Benedictus.
+  the Benedictus. In `miserere` the comma after "Jerusalén" is a full
+  stop, as "Entonces" begins a new sentence.
 - `infant_of_prague`: a freer version of the same prayer.
 - `litany_loreto`: the current form, with the invocations added since
   (Madre de la Iglesia, de la misericordia, de la esperanza, Consuelo de
@@ -315,7 +316,8 @@ Also:
   pp. 1053-1054, which prints them with this antiphon; its "ORACIÓN" is
   written "[Oración.]" and its rubrics in brackets. In the second collect
   the drop capital's missing "¡" is supplied and a stray comma after
-  "haznos sentir" (a misprint in the scan) is left out.
+  "haznos sentir" (a misprint in the scan) is left out; "aquélla" is
+  written "aquella", as the Spanish now spells it.
 - `litany_st_joseph`: the 2021 form, with the invocations added that
   year.
 - `prayer_for_the_pope`: adds an Our Father and Hail Mary, and has a
