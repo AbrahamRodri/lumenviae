@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T09:30:00Z",
+  "updated_at": "2026-11-15T09:40:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -123,7 +123,7 @@
     },
     "te_deum": {
       "title": "Te Deum",
-      "origin": "Oficio divino, siglo IV · según el Compendio del Catecismo de la Iglesia Católica",
+      "origin": "Oficio Divino, siglo IV · según el Compendio del Catecismo de la Iglesia Católica",
       "text": "A ti, oh Dios, te alabamos,\na ti, Señor, te reconocemos.\nA ti, eterno Padre,\nte venera toda la creación.\nLos ángeles todos,\nlos cielos y todas las potestades te honran.\nLos querubines y serafines\nte cantan sin cesar:\nSanto, Santo, Santo es el Señor,\nDios del universo.\nLos cielos y la tierra\nestán llenos de la majestad de tu gloria.\n\nA ti te ensalza\nel glorioso coro de los Apóstoles,\nla multitud admirable de los Profetas,\nel blanco ejército de los mártires.\nA ti la Iglesia santa,\nextendida por toda la tierra, te proclama:\nPadre de inmensa majestad,\nHijo único y verdadero, digno de adoración,\nEspíritu Santo, Defensor.\n\nTú eres el Rey de la gloria, Cristo.\nTú eres el Hijo único del Padre.\nTú, para liberar al hombre,\naceptaste la condición humana\nsin desdeñar el seno de la Virgen.\nTú, rotas las cadenas de la muerte,\nabriste a los creyentes el reino del cielo.\nTú te sientas a la derecha de Dios\nen la gloria del Padre.\nCreemos que un día\nhas de venir como juez.\n\nTe rogamos, pues,\nque vengas en ayuda de tus siervos,\na quienes redimiste con tu preciosa sangre.\nHaz que en la gloria eterna\nnos asociemos a tus santos.\n\nSalva a tu pueblo, Señor,\ny bendice tu heredad.\nSé su pastor\ny ensálzalo eternamente.\nDía tras día te bendecimos\ny alabamos tu nombre para siempre,\npor eternidad de eternidades.\nDígnate, Señor, en este día\nguardarnos del pecado.\nTen piedad de nosotros, Señor,\nten piedad de nosotros.\nQue tu misericordia, Señor,\nvenga sobre nosotros,\ncomo lo esperamos de ti.\nEn ti, Señor, confié,\nno me veré defraudado para siempre."
     },
     "nada_te_turbe": {
@@ -138,7 +138,7 @@
     },
     "visita_quaesumus": {
       "title": "Visita, Señor, esta morada",
-      "origin": "Oficio divino, Completas · según el Misal diario y vesperal de Lefebvre (1962)",
+      "origin": "Oficio Divino, Completas · según el Misal diario y vesperal de Lefebvre (1962)",
       "text": "[Oremos.]\n\nVisita, Señor, esta morada; arroja de ella todas las asechanzas del enemigo; habiten en ella tus santos ángeles para que nos guarden en paz, y tu bendición permanezca siempre sobre nosotros. Por nuestro Señor Jesucristo.\n\n℟. Amén."
     },
     "fidelium_deus": {
@@ -238,7 +238,7 @@
     },
     "prayer_for_the_pope": {
       "title": "Oración por el Papa",
-      "origin": "La Misa · Salmo 40, 3 · según Vatican News",
+      "origin": "La Misa · Salmo 40 (41), 3 · según Vatican News",
       "text": "℣. Oremos por nuestro Papa N.\n℟. Que el Señor lo guarde, le dé larga vida, lo haga santo en la tierra y no lo entregue a la voluntad de sus enemigos.\n\n[Padre nuestro. Ave María.]\n\n[Oremos.]\n\nDios nuestro, pastor y guía de todos los fieles, mira con bondad a tu siervo N., a quien constituiste pastor de tu Iglesia. Te rogamos que lo sostengas con tu amor, para que, con su palabra y su ejemplo, conduzca al pueblo que le has confiado, y llegue junto con él a la vida eterna. Por nuestro Señor Jesucristo, amén."
     },
     "prayer_for_priests": {
@@ -248,7 +248,7 @@
     },
     "lead_kindly_light": {
       "title": "Guíame, Luz bondadosa",
-      "origin": "San Juan Enrique Newman, 1833 · traducción del equipo",
+      "origin": "San John Henry Newman, 1833 · traducción del equipo",
       "text": "Guíame, Luz bondadosa, en medio de las tinieblas que me rodean,\n¡guíame tú!\nLa noche es oscura y estoy lejos de mi hogar;\n¡guíame tú!\nGuarda mis pies; no te pido ver\nel horizonte lejano; un solo paso me basta.\n\nNo siempre fui así, ni te pedí\nque me guiaras;\nme gustaba escoger y ver mi camino; pero ahora\n¡guíame tú!\nAmaba el día deslumbrante y, a pesar de mis temores,\nel orgullo gobernaba mi voluntad: no recuerdes los años pasados.\n\nTanto tiempo me ha bendecido tu poder, que sin duda aún\nme guiará\npor páramos y pantanos, por riscos y torrentes, hasta que\npase la noche,\ny con la aurora sonrían aquellos rostros de ángeles\nque amé hace tiempo y perdí por un tiempo.",
       "ai_translated": true
     },
@@ -271,7 +271,7 @@
     },
     "en_ego": {
       "title": "Oración ante el Crucifijo",
-      "origin": "La Misa · Salmo 21, 17-18 · traducción del equipo",
+      "origin": "La Misa · Salmo 21 (22), 17-18 · traducción del equipo",
       "text": "Heme aquí, oh buen y dulcísimo Jesús, postrado de rodillas en tu presencia; con el más ferviente deseo de mi alma te ruego y te suplico que imprimas en mi corazón vivos sentimientos de fe, esperanza y caridad, verdadero arrepentimiento de mis pecados y firmísimo propósito de enmendarlos; mientras con gran afecto y dolor de alma considero en mí mismo y contemplo en mi mente tus cinco llagas, teniendo ante mis ojos lo que ya el profeta David ponía en tu boca acerca de ti, oh buen Jesús:\n\nHan taladrado mis manos y mis pies; han contado todos mis huesos.",
       "ai_translated": true
     },
@@ -324,7 +324,7 @@
     },
     "radiating_christ": {
       "title": "Oración para irradiar a Cristo",
-      "origin": "A partir de san Juan Enrique Newman, siglo XIX, como la rezan las Misioneras de la Caridad · traducción del equipo",
+      "origin": "A partir de san John Henry Newman, siglo XIX, como la rezan las Misioneras de la Caridad · traducción del equipo",
       "text": "Amado Jesús, ayúdame a esparcir tu fragancia dondequiera que vaya.\n\nLlena mi alma de tu espíritu y de tu vida. Entra en todo mi ser y apodérate de él tan por completo que mi vida no sea más que un resplandor de la tuya.\n\nBrilla a través de mí y habita en mí de tal manera que cada alma con la que me encuentre sienta tu presencia en la mía. Que me miren y ya no me vean a mí, sino solo a Jesús.\n\nQuédate conmigo, y entonces empezaré a brillar como tú brillas, a brillar de tal modo que sea luz para los demás. La luz, oh Jesús, vendrá toda de ti; nada de ella será mía. Serás tú quien brille sobre los demás a través de mí.\n\nQue así te alabe de la manera que más te agrada, brillando sobre los que me rodean. Que te predique sin predicar, no con palabras sino con mi ejemplo, con la fuerza que atrae y la influencia bondadosa de lo que hago, con la evidente plenitud del amor que mi corazón te tiene. Amén.",
       "ai_translated": true
     },
@@ -336,7 +336,7 @@
     },
     "three_hail_marys": {
       "title": "Las tres Ave Marías",
-      "origin": "Santa Matilde, siglo XIII · san Alfonso María de Ligorio, siglo XVIII · traducción del equipo",
+      "origin": "Santa Matilde de Hackeborn, siglo XIII · san Alfonso María de Ligorio, siglo XVIII · traducción del equipo",
       "text": "[Tres Ave Marías, en honor del poder que Dios Padre dio a Nuestra Señora, de la sabiduría que le dio Dios Hijo y del amor que le dio Dios Espíritu Santo.]\n\n[La primera, en honor del poder del Padre.]\n\nDios te salve, María, llena eres de gracia; el Señor es contigo.\nBendita Tú eres entre todas las mujeres,\ny bendito es el fruto de tu vientre, Jesús.\nSanta María, Madre de Dios,\nruega por nosotros, pecadores,\nahora y en la hora de nuestra muerte. Amén.\n\nPor tu pura e Inmaculada Concepción, oh María,\nhaz puro mi cuerpo y santa mi alma.\n\n[La segunda, en honor de la sabiduría del Hijo.]\n\nDios te salve, María, llena eres de gracia; el Señor es contigo.\nBendita Tú eres entre todas las mujeres,\ny bendito es el fruto de tu vientre, Jesús.\nSanta María, Madre de Dios,\nruega por nosotros, pecadores,\nahora y en la hora de nuestra muerte. Amén.\n\nPor tu pura e Inmaculada Concepción, oh María,\nhaz puro mi cuerpo y santa mi alma.\n\n[La tercera, en honor del amor del Espíritu Santo.]\n\nDios te salve, María, llena eres de gracia; el Señor es contigo.\nBendita Tú eres entre todas las mujeres,\ny bendito es el fruto de tu vientre, Jesús.\nSanta María, Madre de Dios,\nruega por nosotros, pecadores,\nahora y en la hora de nuestra muerte. Amén.\n\nPor tu pura e Inmaculada Concepción, oh María,\nhaz puro mi cuerpo y santa mi alma.\n\nOh Madre mía, líbrame de pecado mortal en este día.\n\n[Por la noche: en esta noche.]",
       "ai_translated": true
     },
@@ -360,13 +360,13 @@
     },
     "prayer_for_the_sick": {
       "title": "Por los enfermos",
-      "origin": "Ritual romano, la visita a los enfermos · traducción del equipo",
+      "origin": "Ritual Romano, visita a los enfermos · traducción del equipo",
       "text": "Mira, Señor, a tu siervo, que padece enfermedad en su cuerpo, y reanima el alma que tú creaste; para que, enmendado por tus castigos, se sienta salvado por tu medicina. Por Cristo nuestro Señor. Amén.",
       "ai_translated": true
     },
     "litany_of_the_saints": {
       "title": "Letanía de los Santos",
-      "origin": "Ritual romano, en su forma anterior a 1969 · traducción del equipo",
+      "origin": "Ritual Romano, en su forma anterior a 1969 · traducción del equipo",
       "text": "Señor, ten piedad de nosotros.\nCristo, ten piedad de nosotros.\nSeñor, ten piedad de nosotros.\nCristo, óyenos. ℟. Cristo, escúchanos.\n\nDios Padre celestial, ℟. ten piedad de nosotros.\nDios Hijo, Redentor del mundo,\nDios Espíritu Santo,\nSantísima Trinidad, un solo Dios,\n\nSanta María, ℟. ruega por nosotros.\nSanta Madre de Dios,\nSanta Virgen de las vírgenes,\nSan Miguel,\nSan Gabriel,\nSan Rafael,\n\nTodos los santos Ángeles y Arcángeles, ℟. rogad por nosotros.\nTodos los santos coros de los Espíritus bienaventurados,\n\nSan Juan Bautista, ℟. ruega por nosotros.\nSan José,\n\nTodos los santos Patriarcas y Profetas, ℟. rogad por nosotros.\n\nSan Pedro, ℟. ruega por nosotros.\nSan Pablo,\nSan Andrés,\nSantiago,\nSan Juan,\nSanto Tomás,\nSantiago,\nSan Felipe,\nSan Bartolomé,\nSan Mateo,\nSan Simón,\nSan Tadeo,\nSan Matías,\nSan Bernabé,\nSan Lucas,\nSan Marcos,\n\nTodos los santos Apóstoles y Evangelistas, ℟. rogad por nosotros.\nTodos los santos Discípulos del Señor,\nTodos los santos Inocentes,\n\nSan Esteban, ℟. ruega por nosotros.\nSan Lorenzo,\nSan Vicente,\n\nSantos Fabián y Sebastián, ℟. rogad por nosotros.\nSantos Juan y Pablo,\nSantos Cosme y Damián,\nSantos Gervasio y Protasio,\nTodos los santos Mártires,\n\nSan Silvestre, ℟. ruega por nosotros.\nSan Gregorio,\nSan Ambrosio,\nSan Agustín,\nSan Jerónimo,\nSan Martín,\nSan Nicolás,\n\nTodos los santos Obispos y Confesores, ℟. rogad por nosotros.\nTodos los santos Doctores,\n\nSan Antonio, ℟. ruega por nosotros.\nSan Benito,\nSan Bernardo,\nSanto Domingo,\nSan Francisco,\n\nTodos los santos Sacerdotes y Levitas, ℟. rogad por nosotros.\nTodos los santos Monjes y Ermitaños,\n\nSanta María Magdalena, ℟. ruega por nosotros.\nSanta Águeda,\nSanta Lucía,\nSanta Inés,\nSanta Cecilia,\nSanta Catalina,\nSanta Anastasia,\n\nTodas las santas Vírgenes y Viudas, ℟. rogad por nosotros.\n\nTodos los Santos y Santas de Dios, ℟. interceded por nosotros.\n\nMuéstrate propicio, ℟. perdónanos, Señor.\nMuéstrate propicio, ℟. escúchanos, Señor.\n\nDe todo mal, ℟. líbranos, Señor.\nDe todo pecado,\nDe tu ira,\nDe una muerte repentina e imprevista,\nDe las asechanzas del demonio,\nDe la ira, del odio y de toda mala voluntad,\nDel espíritu de fornicación,\nDel rayo y de la tempestad,\nDel azote del terremoto,\nDe la peste, del hambre y de la guerra,\nDe la muerte eterna,\nPor el misterio de tu santa Encarnación,\nPor tu venida,\nPor tu nacimiento,\nPor tu bautismo y tu santo ayuno,\nPor tu Cruz y tu Pasión,\nPor tu muerte y sepultura,\nPor tu santa Resurrección,\nPor tu admirable Ascensión,\nPor la venida del Espíritu Santo Paráclito,\nEn el día del juicio,\n\nNosotros, pecadores, ℟. te rogamos, óyenos.\nQue nos perdones,\nQue nos concedas tu indulgencia,\nQue te dignes conducirnos a verdadera penitencia,\nQue te dignes gobernar y conservar tu santa Iglesia,\nQue te dignes conservar en tu santa religión al Sumo Pontífice y a todos los órdenes de la Iglesia,\nQue te dignes humillar a los enemigos de la santa Iglesia,\nQue te dignes dar paz y verdadera concordia a los reyes y príncipes cristianos,\nQue te dignes conceder paz y unidad a todo el pueblo cristiano,\nQue te dignes fortalecernos y conservarnos en tu santo servicio,\nQue eleves nuestras mentes a los deseos celestiales,\nQue des los bienes eternos a todos nuestros bienhechores,\nQue libres de la condenación eterna nuestras almas y las de nuestros hermanos, parientes y bienhechores,\nQue te dignes dar y conservar los frutos de la tierra,\nQue te dignes dar el descanso eterno a todos los fieles difuntos,\nQue te dignes escucharnos benignamente,\nHijo de Dios,\n\nCordero de Dios, que quitas los pecados del mundo, ℟. perdónanos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. escúchanos, Señor.\nCordero de Dios, que quitas los pecados del mundo, ℟. ten piedad de nosotros.\n\nCristo, óyenos. ℟. Cristo, escúchanos.\n\nSeñor, ten piedad de nosotros.\nCristo, ten piedad de nosotros.\nSeñor, ten piedad de nosotros.\n\n[Padre nuestro, en silencio.]\n\n℣. Y no nos dejes caer en la tentación.\n℟. Y líbranos del mal.\n\n℣. Señor, escucha mi oración.\n℟. Y llegue a ti mi clamor.\n\n[Oremos.]\n\nDios todopoderoso y eterno, que tienes dominio sobre los vivos y los muertos a la vez, y tienes misericordia de todos los que prevés que serán tuyos por la fe y las obras: te suplicamos humildemente que aquellos por quienes nos hemos propuesto derramar nuestras oraciones, ya los retenga todavía en la carne este mundo presente, ya los haya recibido libres del cuerpo el mundo venidero, por la intercesión de todos tus Santos y la bondad de tu misericordia, obtengan el perdón de todos sus pecados. Por nuestro Señor Jesucristo, tu Hijo, que vive y reina contigo en la unidad del Espíritu Santo y es Dios, por los siglos de los siglos.\n\n℟. Amén.",
       "ai_translated": true
     },
@@ -378,7 +378,7 @@
     },
     "grace_before": {
       "title": "Oración antes de comer",
-      "origin": "Oficio divino, bendición de la mesa · según los Legionarios de Cristo",
+      "origin": "Oficio Divino, bendición de la mesa · según los Legionarios de Cristo",
       "text": "Bendícenos, Señor, y bendice estos alimentos\nque dados por tu bondad vamos a tomar.\nPor Cristo nuestro Señor. Amén."
     },
     "aquinas_before_study": {
@@ -388,7 +388,7 @@
     },
     "newman_definite_service": {
       "title": "Algún servicio determinado",
-      "origin": "San Juan Enrique Newman, Meditations and Devotions, 1893 · traducción del equipo",
+      "origin": "San John Henry Newman, Meditations and Devotions, 1893 · traducción del equipo",
       "text": "Dios me ha creado para prestarle algún servicio determinado; me ha confiado una tarea que no ha confiado a ningún otro. Tengo mi misión. Puede que nunca la conozca en esta vida, pero se me dará a conocer en la otra.\n\nSoy un eslabón de una cadena, un lazo de unión entre personas. No me ha creado para nada. Haré el bien, haré su obra; seré un ángel de paz, un predicador de la verdad en el lugar que me corresponde, aun sin pretenderlo, con tal que guarde sus mandamientos y le sirva en mi vocación.\n\nPor tanto, confiaré en Él. Sea lo que sea, esté donde esté, nunca podré ser desechado. Si estoy enfermo, mi enfermedad puede servirle; si estoy perplejo, mi perplejidad puede servirle; si estoy triste, mi tristeza puede servirle. Mi enfermedad, o mi perplejidad, o mi tristeza pueden ser causas necesarias de algún gran fin que está muy por encima de nosotros. Él no hace nada en vano; puede alargar mi vida, puede acortarla; Él sabe lo que hace. Puede quitarme a mis amigos, puede arrojarme entre extraños, puede hacer que me sienta desolado, que se me abata el ánimo, puede ocultarme el futuro; aun así, Él sabe lo que hace.",
       "ai_translated": true
     },
@@ -423,7 +423,7 @@
     },
     "mary_after_communion": {
       "title": "A la Santísima Virgen después de la Comunión",
-      "origin": "La Misa, acción de gracias después de la Misa · traducción del equipo",
+      "origin": "Acción de gracias después de la Misa · traducción del equipo",
       "text": "Oh María, Virgen y Madre santísima, he aquí que he recibido a tu amadísimo Hijo, a quien concebiste en tu seno inmaculado, diste a luz, amamantaste y estrechaste con ternísimos abrazos.\n\nHe aquí a Aquel cuya vista te alegraba y te colmaba de toda delicia; a Él mismo, humilde y amorosamente, te lo presento y te lo ofrezco, para que lo estreches en tus brazos, lo ames con tu corazón y lo ofrezcas a la Santísima Trinidad en supremo culto de adoración, para tu propio honor y gloria, y por mis necesidades y las del mundo entero.\n\nTe pido, pues, Madre amantísima, que me alcances el perdón de todos mis pecados y gracia abundante para servirle en adelante con más fidelidad; y, por último, la gracia de la perseverancia final, para que contigo pueda alabarle por los siglos de los siglos. Amén.",
       "ai_translated": true
     },
@@ -494,7 +494,7 @@
     },
     "prayer_for_our_country": {
       "title": "Por nuestra patria",
-      "origin": "El arzobispo John Carroll, 1791 · traducción del equipo",
+      "origin": "Arzobispo John Carroll, 1791 · traducción del equipo",
       "text": "Te rogamos, oh Dios de poder, sabiduría y justicia, por quien se ejerce rectamente la autoridad, se promulgan las leyes y se dictan los juicios, que asistas con tu Santo Espíritu de consejo y fortaleza al Presidente de estos Estados Unidos, para que su gobierno se conduzca con rectitud y sea de gran provecho para tu pueblo, al que preside: fomentando el debido respeto a la virtud y a la religión, ejecutando fielmente las leyes con justicia y misericordia, y refrenando el vicio y la inmoralidad.\n\nQue la luz de tu divina sabiduría dirija las deliberaciones del Congreso y resplandezca en todas las actuaciones y leyes dictadas para nuestro orden y gobierno, de modo que contribuyan a conservar la paz, a promover la felicidad de la nación y a acrecentar la laboriosidad, la sobriedad y el saber útil, y perpetúen para nosotros la bendición de una libertad igual para todos.\n\nTe rogamos por su excelencia el gobernador de este estado, por los miembros de la asamblea, por todos los jueces, magistrados y demás funcionarios designados para velar por nuestro bienestar político, para que, con tu poderosa protección, puedan cumplir con honradez y competencia los deberes de sus respectivos cargos.\n\nEncomendamos asimismo a tu misericordia infinita a todos nuestros hermanos y conciudadanos de todos los Estados Unidos, para que sean bendecidos en el conocimiento de tu santísima ley y santificados en su observancia; para que se conserven en la unión y en aquella paz que el mundo no puede dar; y, después de gozar de las bendiciones de esta vida, sean admitidos a las que son eternas. Amén.",
       "ai_translated": true
     },
@@ -624,7 +624,7 @@
     },
     "grace_after": {
       "title": "Oración después de comer",
-      "origin": "Oficio divino, acción de gracias después de comer · según los Legionarios de Cristo",
+      "origin": "Oficio Divino, acción de gracias después de comer · según los Legionarios de Cristo",
       "text": "Te damos gracias, Señor,\npor todos tus beneficios,\na ti que vives y reinas por los siglos de los siglos.\n℟. Amén.\n\n℣. Las almas de los difuntos por la misericordia de Dios descansen en paz.\n℟. Así sea."
     },
     "my_jesus_mercy": {
@@ -752,13 +752,13 @@
     },
     "happy_death": {
       "title": "Por una buena muerte",
-      "origin": "San Juan Enrique Newman, Meditations and Devotions, 1893 · traducción del equipo",
+      "origin": "San John Henry Newman, Meditations and Devotions, 1893 · traducción del equipo",
       "text": "Oh Señor y Salvador mío, sostenme en mi última hora con los fuertes brazos de tus Sacramentos y con la fresca fragancia de tus consuelos. Que se pronuncien sobre mí las palabras de la absolución, que el santo óleo me signe y me selle, que tu propio Cuerpo sea mi alimento y tu Sangre mi aspersión; que mi dulce Madre, María, aliente sobre mí, que mi Ángel me susurre la paz y que mis gloriosos Santos me sonrían; para que en todos ellos y por todos ellos reciba el don de la perseverancia, y muera, como deseo vivir, en tu fe, en tu Iglesia, en tu servicio y en tu amor. Amén.",
       "ai_translated": true
     },
     "prayer_for_travel": {
       "title": "Antes de un viaje",
-      "origin": "Breviario romano, el Itinerarium · traducción del equipo",
+      "origin": "Breviario Romano, Itinerarium · traducción del equipo",
       "text": "Por el camino de la paz y de la prosperidad nos guíe el Señor omnipotente y misericordioso: y el Ángel Rafael nos acompañe en el camino, para que volvamos a casa en paz, a salvo y con alegría.\n\n℣. Salva a tus siervos.\n℟. Que esperan en ti, Dios mío.\n℣. Envíanos, Señor, auxilio desde el santuario.\n℟. Y desde Sión defiéndenos.\n℣. Sé para nosotros, Señor, torre de fortaleza.\n℟. Frente al enemigo.\n℣. Muéstranos, Señor, tus caminos.\n℟. Y enséñanos tus sendas.\n℣. Dios ha dado orden a sus ángeles acerca de ti.\n℟. Para que te guarden en todos tus caminos.\n℣. Señor, escucha mi oración.\n℟. Y llegue a ti mi clamor.\n\n[Oremos.]\n\nOh Dios, que hiciste caminar a pie enjuto a los hijos de Israel por en medio del mar, y que abriste a los tres Magos el camino hacia ti guiándolos con una estrella: concédenos, te rogamos, un viaje próspero y un tiempo tranquilo; para que, con tu santo Ángel por compañero, lleguemos felizmente al lugar adonde vamos y, al fin, al puerto de la salvación eterna.\n\nAtiende, Señor, te rogamos, a nuestras súplicas, y dispón el camino de tus siervos en la prosperidad de tu salvación; para que, entre todas las vicisitudes de este camino y de esta vida, estemos siempre protegidos por tu auxilio. Por nuestro Señor Jesucristo, tu Hijo, que contigo vive y reina en la unidad del Espíritu Santo y es Dios, por los siglos de los siglos.\n\n℟. Amén.\n\n℣. Partamos en paz.\n℟. En el nombre del Señor. Amén.",
       "ai_translated": true
     },
@@ -782,7 +782,7 @@
     },
     "in_manus_tuas": {
       "title": "En tus manos (en latín: In manus tuas)",
-      "origin": "Oficio divino, Completas · traducción del equipo",
+      "origin": "Oficio Divino, Completas · traducción del equipo",
       "text": "℣. A tus manos, Señor, encomiendo mi espíritu.\n℟. A tus manos, Señor, encomiendo mi espíritu.\n℣. Tú nos has redimido, Señor, Dios de verdad.\n℟. Encomiendo mi espíritu.\n℣. Gloria al Padre, y al Hijo, y al Espíritu Santo.\n℟. A tus manos, Señor, encomiendo mi espíritu.\n\n℣. Guárdanos, Señor, como a la niña de tus ojos.\n℟. Protégenos a la sombra de tus alas.",
       "ai_translated": true
     },
@@ -794,7 +794,7 @@
     },
     "o_antiphons": {
       "title": "Antífonas de la O",
-      "origin": "Breviario romano, Vísperas del 17 al 23 de diciembre · traducción del equipo del latín",
+      "origin": "Breviario Romano, Vísperas del 17 al 23 de diciembre · traducida del latín por el equipo",
       "text": "[Día 17 de diciembre.]\n\nOh Sabiduría, que brotaste de los labios del Altísimo, te extiendes de un confín a otro y todo lo ordenas con fuerza y suavidad: ven a enseñarnos el camino de la prudencia.\n\n[Día 18 de diciembre.]\n\nOh Adonai, Guía de la casa de Israel, que te apareciste a Moisés en el fuego de la zarza ardiente y en el Sinaí le diste la ley: ven a redimirnos con brazo extendido.\n\n[Día 19 de diciembre.]\n\nOh Raíz de Jesé, que te alzas como estandarte de los pueblos; ante ti los reyes guardarán silencio y a ti clamarán las naciones: ven a librarnos, no tardes más.\n\n[Día 20 de diciembre.]\n\nOh Llave de David y Cetro de la casa de Israel, que abres y nadie puede cerrar, cierras y nadie puede abrir: ven y saca de la cárcel al cautivo que habita en tinieblas y en sombra de muerte.\n\n[Día 21 de diciembre.]\n\nOh Oriente, resplandor de la luz eterna y Sol de justicia: ven e ilumina a los que habitan en tinieblas y en sombra de muerte.\n\n[Día 22 de diciembre.]\n\nOh Rey de las naciones y Deseado de los pueblos, Piedra angular que de dos pueblos haces uno: ven y salva al hombre que formaste del barro.\n\n[Día 23 de diciembre.]\n\nOh Emmanuel, nuestro Rey y Legislador, esperanza y Salvador de las naciones: ven a salvarnos, Señor Dios nuestro.",
       "ai_translated": true
     },
@@ -805,7 +805,7 @@
     },
     "advent_wreath_collects": {
       "title": "La corona de Adviento: las colectas de los domingos",
-      "origin": "Colectas del Missale Romanum (Tours, 1882) · traducción del equipo del latín",
+      "origin": "Colectas del Missale Romanum (Tours, 1882) · traducida del latín por el equipo",
       "text": "[Cada domingo de Adviento se enciende una vela más y se reza la colecta de ese domingo.]\n\n[Primer domingo de Adviento.]\n\nDespierta, Señor, te pedimos, tu poder, y ven: para que, protegidos por ti, merezcamos vernos libres de los peligros que nos amenazan por nuestros pecados, y, liberados por ti, ser salvados.\n\n℟. Amén.\n\n[Segundo domingo de Adviento.]\n\nDespierta, Señor, nuestros corazones para preparar los caminos de tu Unigénito: para que, por su venida, merezcamos servirte con el alma purificada.\n\n℟. Amén.\n\n[Tercer domingo de Adviento.]\n\nInclina, Señor, te pedimos, tu oído a nuestras súplicas, e ilumina las tinieblas de nuestra mente con la gracia de tu visita.\n\n℟. Amén.\n\n[Cuarto domingo de Adviento.]\n\nDespierta, Señor, te pedimos, tu poder, y ven a socorrernos con tu gran fuerza: para que, con la ayuda de tu gracia, el perdón de tu misericordia apresure lo que nuestros pecados retrasan.\n\n℟. Amén.",
       "ai_translated": true
     },
