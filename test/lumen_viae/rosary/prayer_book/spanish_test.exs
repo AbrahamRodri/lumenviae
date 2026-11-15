@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 06:55:00Z], "b210b71732ce7878"}
+  @pinned {~U[2026-11-15 08:45:00Z], "f426255ff4feaece"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -67,7 +67,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
     for prayer <- Spanish.prayers() do
       assert is_binary(prayer.title) and prayer.title != "", prayer.id
       assert is_binary(prayer.text) and prayer.text != "", prayer.id
-      assert Enum.sort(Map.keys(prayer) -- [:ai_translated]) == [:id, :text, :title]
+      assert Enum.sort(Map.keys(prayer) -- [:ai_translated, :origin]) == [:id, :text, :title]
       assert Map.get(prayer, :ai_translated, true) == true
     end
   end
@@ -165,5 +165,14 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
              "Oh Dios, que por la Inmaculada Concepción de la Virgen"
 
     assert ic["immaculate_conception_d1"] =~ "Aquí me tenéis a vuestros santísimos pies"
+  end
+
+  test "a novena's prayer says where it comes from in Spanish, as its novena does" do
+    prayers = Map.new(Spanish.prayers(), &{&1.id, &1})
+
+    assert prayers["undoer_of_knots_novena"].origin ==
+             "Novena del P. Juan Ramón Celeiro, según la publica Ascension Press"
+
+    refute Map.has_key?(prayers["memorare"] || %{}, :origin)
   end
 end

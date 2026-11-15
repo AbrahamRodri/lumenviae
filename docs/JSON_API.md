@@ -757,7 +757,10 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   later in English is left out until its Spanish follows. A prayer that is the team's
   own translation (no good Spanish version was found) carries
   `ai_translated: true`, for the app's notice; the key is absent
-  otherwise. A client still shows the English for a prayer it does not
+  otherwise. A prayer whose source has its Spanish wording carries
+  `origin` (15 Nov 2026), in place of the prayer's English `origin`; where
+  it is absent, a Spanish client shows no origin rather than the English
+  one (today the ten novenas' prayers have it). A client still shows the English for a prayer it does not
   find listed. Every other section is
   unchanged, English and Latin: a client lays the Spanish over the
   English by `id`.

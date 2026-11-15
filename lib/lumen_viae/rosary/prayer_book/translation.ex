@@ -18,6 +18,10 @@ defmodule LumenViae.Rosary.PrayerBook.Translation do
       description:
         "Its words in this language, in the same PrayerText grammar as `english`. Its lines need not pair with the English or the Latin."
 
+    field :origin, :string,
+      description:
+        "Where it comes from, in this language, standing in place of the prayer's `origin`. Absent where there is none yet: a client then shows no origin rather than the English one."
+
     field :ai_translated, :boolean,
       description:
         "`true` when part of the text is the team's own AI translation, not a published text: show the app's AI notice under it. Absent otherwise."
