@@ -44,7 +44,7 @@ defmodule LumenViaeWeb.Live.Prayers.NovenaTest do
       refute html =~ "The First Day"
       assert html =~ "Novena Prayer"
       assert html =~ "The Memorare to St Joseph"
-      assert view |> element("[data-role=rubric]") |> render() =~ "Mention your request."
+      assert view |> element("[data-role=rubric]") |> render() =~ "Here name your request."
 
       assert has_element?(
                view,
