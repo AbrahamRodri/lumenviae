@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T10:50:00Z",
+  "updated_at": "2026-11-15T10:55:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -1695,7 +1695,7 @@
       "section_titles": [
         "Las primeras oraciones",
         "Los credos",
-        "Fe, esperanza, caridad y contrición"
+        "Actos de fe, esperanza, caridad y contrición"
       ],
       "search_words": [
         "oraciones básicas",
@@ -1729,7 +1729,7 @@
       "section_titles": [
         "A Jesús",
         "A María y a san José",
-        "Al Espíritu Santo, y por los difuntos"
+        "Al Espíritu Santo y por los difuntos"
       ],
       "search_words": [
         "jaculatorias",
@@ -1803,7 +1803,7 @@
         "El Santo Niño",
         "El Sagrado Corazón",
         "La Santa Faz",
-        "La Preciosa Sangre",
+        "La Preciosísima Sangre",
         "La Pasión",
         "Cristo Rey",
         "La Divina Misericordia",
