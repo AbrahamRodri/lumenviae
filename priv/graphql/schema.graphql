@@ -484,6 +484,33 @@ type ConsecrationPhase {
   firstDay: Int!
 }
 
+type ChantTranslation {
+  "Its name in this language, in place of `english_title`. May be the Latin itself (Salve Regina) where that is the name in use."
+  title: String!
+
+  "Its setting in this language, in place of `setting`: null exactly when `setting` is."
+  setting: String
+
+  "The chant's id, the same as in `chants`."
+  id: String!
+}
+
+type ChantGroupTranslation {
+  "Its title in this language."
+  title: String!
+
+  "The group's id, the same as in `groups`."
+  id: String!
+}
+
+type ChantLibraryTranslation {
+  "Each group with Spanish, by `id`, in the groups' order."
+  groups: [ChantGroupTranslation!]!
+
+  "Each chant with Spanish, by `id`, in the chants' order."
+  chants: [ChantTranslation!]!
+}
+
 type ChantOccasionStep {
   "How many times it is sung, 1 or more."
   times: Int!
@@ -2230,6 +2257,9 @@ type ChantLibrary {
 
   "The sung sets, each its chants in the order they are sung."
   occasions: [ChantOccasion!]!
+
+  "With `lang=es`, the names the apps print in Spanish, keyed as the English sections key them: each chant's `title` (in place of `english_title`) and `setting` by `id`, each group's `title` by `id`. A chant or group not listed keeps its English. The chants are sung in Latin; their words are unchanged. In English, two empty lists."
+  translations: ChantLibraryTranslation!
 }
 
 type PrayerBook {
@@ -2542,7 +2572,10 @@ type RootQueryType {
   ): PrayerBook!
 
   "The Chant Library as one document. There is only ever one."
-  chantLibrary: ChantLibrary!
+  chantLibrary(
+    "The language of `translations`: `es` fills it with every chant's and group's name in Spanish. Missing, `en` or a language not served: the document as it always was, and `translations` empty."
+    lang: String
+  ): ChantLibrary!
 
   "The 33-day Consecration as one document. There is only ever one."
   consecration(
