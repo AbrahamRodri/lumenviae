@@ -126,8 +126,14 @@ defmodule LumenViaeWeb.Live.Credits.Sources do
   defp srcset([]), do: nil
   defp srcset(sources), do: Enum.map_join(sources, ", ", & &1.srcset)
 
+  # "from the Small Passion", but a print that stands alone is "a
+  # single-sheet engraving", not "from" one.
+  defp series_phrase(nil), do: nil
+  defp series_phrase("Single-sheet " <> rest), do: "a single-sheet " <> rest
+  defp series_phrase(series), do: "from the " <> series
+
   defp woodcut_credit(plate) do
-    [plate.artist, plate.year, plate.series && "from #{plate.series}"]
+    [plate.artist, plate.year, series_phrase(plate.series)]
     |> Enum.reject(&is_nil/1)
     |> Enum.join(", ")
   end
