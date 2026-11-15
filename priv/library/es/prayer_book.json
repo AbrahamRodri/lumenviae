@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T09:40:00Z",
+  "updated_at": "2026-11-15T10:00:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -1673,5 +1673,19 @@
         }
       }
     }
+  },
+  "rosary_origins": {
+    "sign_of_cross": "Tradición apostólica · según el Compendio del Catecismo de la Iglesia Católica",
+    "apostles_creed": "La Iglesia de Roma, siglo II · según el Compendio del Catecismo de la Iglesia Católica",
+    "our_father": "Nuestro Señor · Mateo 6, 9-13 · según el Compendio del Catecismo de la Iglesia Católica",
+    "hail_mary": "Lucas 1, 28 y 42 · la Iglesia, siglo XV · según el Compendio del Catecismo de la Iglesia Católica",
+    "glory_be": "La Iglesia, siglo IV · según el Compendio del Catecismo de la Iglesia Católica",
+    "fatima_prayer": "Nuestra Señora de Fátima, 1917 · según el Santuario de Fátima",
+    "hail_holy_queen": "Iglesia de Occidente, siglo XI · según el Compendio del Catecismo de la Iglesia Católica",
+    "rosary_closing_prayer": "La Misa del Santo Rosario · según el Compendio del Catecismo de la Iglesia Católica",
+    "act_of_contrition": "Tradicional · según el Compendio del Catecismo de la Iglesia Católica",
+    "sorrows_closing_prayer": "Los Siervos de María (servitas) · según devocionario.com, completada por el equipo",
+    "memorare": "Atribuida a san Bernardo de Claraval, siglo XII · según el Compendio del Catecismo de la Iglesia Católica",
+    "st_michael_prayer": "León XIII, 1886 · según Vatican News"
   }
 }

@@ -44,6 +44,18 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
 
   @file_prayers Map.fetch!(file, "prayers")
 
+  # Where the Rosary's own prayers' Spanish comes from, by Rosary prayer
+  # id. Their words are priv/rosary_content/es/prayers.json's and stay
+  # there untouched; only this line is the book's.
+  @rosary_origins Map.get(file, "rosary_origins", %{})
+
+  for {id, origin} <- @rosary_origins do
+    (id in @rosary_ids and is_binary(origin) and String.trim(origin) != "") ||
+      raise CompileError,
+        description:
+          "priv/library/es/prayer_book.json: rosary_origins holds #{inspect(id)}; it holds only Rosary prayer ids, each with a line of text"
+  end
+
   for {id, prayer} <- @file_prayers do
     cond do
       id not in @book_ids ->
@@ -195,12 +207,13 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
       # A Rosary prayer whose Spanish is still its English fallback has no
       # translation.
       (prayer = Map.get(rosary, id)) && prayer["text"]["es"] != prayer["text"]["en"] ->
-        shape(
-          id,
+        id
+        |> shape(
           prayer["title"]["es"],
           Enum.join(prayer["text"]["es"], "\n"),
           prayer["ai_translated"]
         )
+        |> put_origin(@rosary_origins[id])
 
       true ->
         nil
@@ -224,8 +237,13 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
   @doc "A fingerprint of the file's words (`Content.version/1`), for the test that pins it."
   @spec file_version() :: String.t()
   def file_version do
-    if @file_novenas == %{},
-      do: Content.version(%{"prayers" => @file_prayers}),
-      else: Content.version(%{"prayers" => @file_prayers, "novenas" => @file_novenas})
+    words =
+      %{"prayers" => @file_prayers}
+      |> then(&if(@file_novenas == %{}, do: &1, else: Map.put(&1, "novenas", @file_novenas)))
+      |> then(
+        &if(@rosary_origins == %{}, do: &1, else: Map.put(&1, "rosary_origins", @rosary_origins))
+      )
+
+    Content.version(words)
   end
 end

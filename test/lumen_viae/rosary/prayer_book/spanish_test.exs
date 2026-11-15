@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 09:40:00Z], "ce01d686c3e5a968"}
+  @pinned {~U[2026-11-15 10:00:00Z], "e7fc006d7f3a3c63"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -173,6 +173,16 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
     assert prayers["undoer_of_knots_novena"].origin ==
              "Novena del P. Juan Ramón Celeiro, según la publica Ascension Press"
 
-    refute Map.has_key?(prayers["memorare"] || %{}, :origin)
+    assert prayers["memorare"].origin ==
+             "Atribuida a san Bernardo de Claraval, siglo XII · según el Compendio del Catecismo de la Iglesia Católica"
+  end
+
+  test "every Rosary prayer the book serves in Spanish says where it comes from, its words untouched" do
+    rosary = Map.new(Content.prayers("es"), &{&1["id"], &1})
+
+    for prayer <- Spanish.prayers(), Map.has_key?(rosary, prayer.id) do
+      assert is_binary(prayer[:origin]), prayer.id
+      assert prayer.text == Enum.join(rosary[prayer.id]["text"]["es"], "\n")
+    end
   end
 end
