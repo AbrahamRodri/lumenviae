@@ -210,6 +210,7 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
   end
 
   def mass(mass) do
+    mass = mass_summary(mass)
     class = MissalDays.class(mass)
     vestment = MissalDays.vestment(mass)
 
@@ -231,6 +232,12 @@ defmodule LumenViaeWeb.Live.Home.TodaysPrayer do
       spoken: spoken
     )
   end
+
+  @doc """
+  What `mass/1` reads of a Mass, `%{title:, rank:, colors:, tempora:}`,
+  without its texts: what a page keeps for this row.
+  """
+  def mass_summary(mass), do: Map.take(mass, [:title, :rank, :colors, :tempora])
 
   # ---- The Hours of Prayer
 

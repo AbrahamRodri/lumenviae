@@ -18,14 +18,14 @@
       <nav class="td-rail" aria-label="Contents" data-role="rail">
         <div class="td-rail__head">
           <div class="min-w-0">
-            <p class="td-rail__kicker">{@book.about.title}</p>
+            <p class="td-rail__kicker">{@book_title}</p>
             <p class="td-rail__title">Contents</p>
           </div>
           <p class="td-rail__place" aria-label={"Chapter #{@index + 1} of #{@count}"}>
             {@index + 1} of {@count}
           </p>
         </div>
-        <.contents id="rail" book={@book} chapter={@chapter} free={@free} parts={@parts} />
+        <.contents id="rail" chapter={@chapter} free={@free} parts={@parts} />
       </nav>
 
       <article class="td-chapter min-w-0" aria-labelledby="chapter-heading">
@@ -48,7 +48,7 @@
           <summary class="td-jump__summary">
             Contents <span class="hero-chevron-down size-3" aria-hidden="true" />
           </summary>
-          <.contents id="jump" book={@book} chapter={@chapter} free={@free} parts={@parts} />
+          <.contents id="jump" chapter={@chapter} free={@free} parts={@parts} />
         </details>
 
         <div class="td-text" data-role="chapter-text">

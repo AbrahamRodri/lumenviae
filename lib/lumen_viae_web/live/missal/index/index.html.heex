@@ -39,7 +39,7 @@
       >
         Finding the day's Mass…
       </p>
-      <p :if={@state == :ready and @masses == []} class="hours-quiet" data-role="mass-none">
+      <p :if={@state == :ready and @mass_titles == []} class="hours-quiet" data-role="mass-none">
         No Mass texts for this day.
       </p>
       <div :if={@state == :failed} class="space-y-2" role="alert" data-role="mass-failed">
@@ -169,24 +169,24 @@
     </p>
 
     <details
-      :if={is_list(@masses) and length(@masses) > 1}
+      :if={is_list(@mass_titles) and length(@mass_titles) > 1}
       class="missal-masses"
       data-role="masses"
     >
       <summary class="missal-disclosure">
-        {length(@masses)} Masses today · choose one
+        {length(@mass_titles)} Masses today · choose one
         <span class="hero-chevron-down size-3" aria-hidden="true" />
       </summary>
       <ul class="missal-masses__list">
-        <li :for={{choice, number} <- Enum.with_index(@masses, 1)}>
+        <li :for={{title, number} <- Enum.with_index(@mass_titles, 1)}>
           <.link
             patch={page_path(@date, @fixed_date?, @language, number)}
             replace
             class="missal-masses__link"
-            aria-current={if(choice == @mass, do: "true")}
+            aria-current={if(number == @mass_choice, do: "true")}
             data-role="mass-choice"
           >
-            {choice.title}
+            {title}
           </.link>
         </li>
       </ul>

@@ -9,9 +9,9 @@
   <div class="td-book mx-auto max-w-5xl px-4 sm:px-8">
     <section class="td-book__front" aria-labelledby="book-heading">
       <h1 id="book-heading" class="sr-only">
-        {@book.about.title}, by {@book.about.author}
+        {@about.title}, by {@about.author}
       </h1>
-      <.cover title={@book.about.title} author={@book.about.author} />
+      <.cover title={@about.title} author={@about.author} />
 
       <.link
         navigate={Book.chapter_path(@first.id)}
@@ -36,14 +36,14 @@
 
       <div class="td-colophon td-colophon--wide">
         <.sacred_divider cross={false} class="max-w-[200px] mx-auto !my-4" />
-        <p>{@book.about.translator}</p>
-        <p class="td-colophon__source">{@book.about.source_note}</p>
+        <p>{@about.translator}</p>
+        <p class="td-colophon__source">{@about.source_note}</p>
       </div>
     </section>
 
     <nav class="td-ledger" aria-labelledby="contents-heading" id="contents" phx-update="ignore">
       <h2 id="contents-heading" class="td-ledger__kicker">
-        Contents · {length(@book.chapters)} chapters
+        Contents · {@chapter_count} chapters
       </h2>
       <ul>
         <li :for={chapter <- @free}>
@@ -76,8 +76,8 @@
 
     <div class="td-colophon td-colophon--narrow">
       <.sacred_divider cross={false} class="max-w-[200px] mx-auto !my-4" />
-      <p>{@book.about.translator}</p>
-      <p class="td-colophon__source">{@book.about.source_note}</p>
+      <p>{@about.translator}</p>
+      <p class="td-colophon__source">{@about.source_note}</p>
     </div>
   </div>
 </div>

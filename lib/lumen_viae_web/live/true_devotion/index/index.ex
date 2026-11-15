@@ -30,7 +30,7 @@ defmodule LumenViaeWeb.Live.TrueDevotion.Index do
   def mount(_params, _session, socket) do
     book = Book.load(socket.assigns.current_admin)
     {free, parts} = Book.contents(book)
-    first = hd(book.chapters)
+    first = Book.entry(hd(book.chapters))
 
     {:ok,
      socket
@@ -41,7 +41,8 @@ defmodule LumenViaeWeb.Live.TrueDevotion.Index do
        trail: [{"True Devotion", Book.path()}],
        json_ld: [book_data(book)]
      )
-     |> assign(:book, book)
+     |> assign(:about, book.about)
+     |> assign(:chapter_count, length(book.chapters))
      |> assign(:free, free)
      |> assign(:parts, parts)
      |> assign(:first, first)}
@@ -59,7 +60,7 @@ defmodule LumenViaeWeb.Live.TrueDevotion.Index do
       class="td-row"
       data-chapter={@chapter.id}
       data-title={@chapter.title}
-      data-paragraphs={Book.paragraph_count(@chapter)}
+      data-paragraphs={@chapter.paragraph_count}
       data-role="chapter-row"
     >
       <span class="td-row__title">{@chapter.title}</span>

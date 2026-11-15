@@ -48,16 +48,16 @@ defmodule LumenViaeWeb.Live.TrueDevotion.Chapter do
        trail: [{"True Devotion", Book.path()}, {chapter.title, Book.chapter_path(chapter.id)}],
        json_ld: [chapter_data(book, chapter)]
      )
-     |> assign(:book, book)
-     |> assign(:chapter, chapter)
+     |> assign(:book_title, book.about.title)
+     |> assign(:chapter, Map.take(chapter, [:id, :title]))
      |> assign(:blocks, Book.blocks(chapter))
      |> assign(:kicker, Book.kicker(book, chapter))
      |> assign(:index, index)
      |> assign(:count, length(book.chapters))
      |> assign(:free, free)
      |> assign(:parts, parts)
-     |> assign(:previous, previous)
-     |> assign(:next, next)
+     |> assign(:previous, previous && Book.entry(previous))
+     |> assign(:next, next && Book.entry(next))
      |> assign(:citation, Book.citation(book, chapter))}
   end
 
@@ -72,7 +72,6 @@ defmodule LumenViaeWeb.Live.TrueDevotion.Chapter do
   end
 
   attr :id, :string, required: true
-  attr :book, :map, required: true
   attr :chapter, :map, required: true
   attr :free, :list, required: true
   attr :parts, :list, required: true

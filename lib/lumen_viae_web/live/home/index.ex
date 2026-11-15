@@ -138,11 +138,12 @@ defmodule LumenViaeWeb.Live.Home.Index do
     end
   end
 
-  # Today's Mass, for its row; a failure leaves the row as it was.
+  # Today's Mass, for its row; a failure leaves the row as it was. The row
+  # reads only the feast, its class and its colour, so only those are kept.
   @impl true
   def handle_async(:mass, {:ok, {date, {:ok, [mass | _others]}}}, socket) do
     if date == socket.assigns.mass_date,
-      do: {:noreply, socket |> assign(:mass, mass) |> assign_prayer()},
+      do: {:noreply, socket |> assign(:mass, TodaysPrayer.mass_summary(mass)) |> assign_prayer()},
       else: {:noreply, socket}
   end
 
