@@ -2591,6 +2591,49 @@ html:has(#prayer) {
     color: var(--color-ink-light);
   }
 
+  /* A novena's days, as the app's day chips: a numbered pill each, all
+     nine on one row of a phone, the day shown filled in gold. Each is a
+     link 44px tall; on a phone the row's width sets how wide. */
+  .novena-days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .novena-day-chip {
+    flex: 1 1 0;
+    min-width: 2.125rem;
+    max-width: 3.25rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 1px solid rgba(227, 188, 91, 0.3);
+    font-family: var(--font-garamond);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    color: var(--color-ink-light);
+    transition: border-color 0.16s ease-out, color 0.16s ease-out;
+  }
+
+  .novena-day-chip:hover {
+    border-color: rgba(227, 188, 91, 0.7);
+    color: var(--color-gilt-light);
+  }
+
+  .novena-day-chip[aria-current] {
+    border-color: transparent;
+    background-color: var(--color-gilt);
+    background-image: linear-gradient(to right, var(--color-gilt), var(--color-gilt-light));
+    color: var(--color-night);
+  }
+
+  .novena-day-chip:focus-visible {
+    outline: 2px solid var(--color-gilt-light);
+    outline-offset: 2px;
+  }
+
   /* English, Latin, Both: the app's language choice, links here. */
   .prayers-language {
     display: flex;
