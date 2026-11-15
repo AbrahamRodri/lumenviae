@@ -47,7 +47,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-11-15 06:10:00Z], "5a4fdb1f9186ce1d"},
       {~U[2026-11-15 06:50:00Z], "cfeb2cab5d019ae5"},
       {~U[2026-11-15 07:05:00Z], "1a5003a6b7c589e5"},
-      {~U[2026-11-15 09:20:00Z], "a856da745858a069"}
+      {~U[2026-11-15 09:20:00Z], "a856da745858a069"},
+      {~U[2026-11-15 10:35:00Z], "bfe79778ad224b24"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
@@ -238,7 +239,7 @@ defmodule LumenViae.Rosary.LibraryTest do
       assert @bridget in our_lord["prayer_ids"]
 
       prayer = Enum.find(book["prayers"], &(&1["id"] == @bridget))
-      assert prayer["origin"] == "Devotion attributed to St. Bridget; Scripture Douay-Rheims."
+      assert prayer["origin"] == "Devotion attributed to St Bridget; Scripture Douay-Rheims."
 
       for word <- ["bridget", "brigid", "birgitta", "twelve years", "precious blood"] do
         assert word in prayer["search_words"]
