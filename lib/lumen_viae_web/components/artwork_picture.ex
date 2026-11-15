@@ -26,6 +26,8 @@ defmodule LumenViaeWeb.Components.ArtworkPicture do
   attr :sizes, :string, required: true, doc: "the rendered width at each breakpoint"
   attr :class, :any, default: nil
   attr :style, :string, default: nil
+  attr :loading, :string, default: "lazy"
+  attr :fetchpriority, :string, default: nil, doc: "`high` for the painting a page opens on"
 
   def artwork_picture(assigns) do
     variants = Rosary.artwork_variant_urls(assigns.record)
@@ -42,10 +44,28 @@ defmodule LumenViaeWeb.Components.ArtworkPicture do
     <%= if @srcset do %>
       <picture>
         <source type="image/webp" srcset={@srcset} sizes={@sizes} />
-        <.img src={@src} alt={@alt} width={@width} height={@height} class={@class} style={@style} />
+        <.img
+          src={@src}
+          alt={@alt}
+          width={@width}
+          height={@height}
+          class={@class}
+          style={@style}
+          loading={@loading}
+          fetchpriority={@fetchpriority}
+        />
       </picture>
     <% else %>
-      <.img src={@src} alt={@alt} width={@width} height={@height} class={@class} style={@style} />
+      <.img
+        src={@src}
+        alt={@alt}
+        width={@width}
+        height={@height}
+        class={@class}
+        style={@style}
+        loading={@loading}
+        fetchpriority={@fetchpriority}
+      />
     <% end %>
     """
   end
@@ -56,6 +76,8 @@ defmodule LumenViaeWeb.Components.ArtworkPicture do
   attr :height, :integer, default: nil
   attr :class, :any, default: nil
   attr :style, :string, default: nil
+  attr :loading, :string, required: true
+  attr :fetchpriority, :string, default: nil
 
   # The intrinsic width and height reserve the box before the image loads;
   # every caller's CSS sets the drawn size, so they never stretch it.
@@ -66,7 +88,8 @@ defmodule LumenViaeWeb.Components.ArtworkPicture do
       alt={@alt}
       width={@width}
       height={@height}
-      loading="lazy"
+      loading={@loading}
+      fetchpriority={@fetchpriority}
       decoding="async"
       class={@class}
       style={@style}

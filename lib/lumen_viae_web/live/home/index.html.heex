@@ -56,6 +56,7 @@
                 record={@today_category.painting && @today_category.painting.record}
                 sizes="(min-width: 640px) 34rem, 92vw"
                 loading="eager"
+                fetchpriority="high"
                 alt=""
                 class="lancet-hero__image"
                 style={"object-position: #{hero_position(@today_category)}"}

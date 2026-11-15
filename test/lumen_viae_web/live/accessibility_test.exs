@@ -59,4 +59,11 @@ defmodule LumenViaeWeb.Live.AccessibilityTest do
     assert has_element?(view, ".week-day .week-day__label", "Mon")
     assert has_element?(view, ".week-day .week-day__initial", "M")
   end
+
+  test "a chant's Back pill carries a short Back to fall back on", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/chant/adoro_te")
+
+    assert has_element?(view, "a[data-role=back] .book-back__label")
+    assert has_element?(view, "a[data-role=back] .book-back__short", "Back")
+  end
 end

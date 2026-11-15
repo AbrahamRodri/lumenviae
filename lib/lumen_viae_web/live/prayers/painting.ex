@@ -3,6 +3,8 @@ defmodule LumenViaeWeb.Live.Prayers.Painting do
   A Prayer Book painting (`LumenViaeWeb.Live.Prayers.Book`'s
   `{name, focal x, focal y}`) as an `<img>`, cropped about its subject.
   Decorative: every card and row that hangs one says its words beside it.
+  An eager one is the painting a page opens on, so it is also fetched
+  first (`fetchpriority="high"`).
   """
   use LumenViaeWeb, :html
 
@@ -30,6 +32,7 @@ defmodule LumenViaeWeb.Live.Prayers.Painting do
       class={@class}
       style={@position}
       loading={@loading}
+      fetchpriority={if @loading == "eager", do: "high"}
     />
     """
   end

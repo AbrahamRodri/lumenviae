@@ -256,6 +256,7 @@ defmodule LumenViaeWeb.CoreComponents do
   attr :srcset, :string, default: nil, doc: "Lighter copies of `src` (WebP, say), as a srcset"
   attr :sizes, :string, default: nil, doc: "The width the frame is drawn at, for `srcset`"
   attr :loading, :string, default: nil, doc: "`lazy` for a frame far down a page"
+  attr :fetchpriority, :string, default: nil, doc: "`high` for the painting a page opens on"
   attr :rest, :global
 
   def arch_frame(assigns) do
@@ -267,6 +268,7 @@ defmodule LumenViaeWeb.CoreComponents do
         sizes={@sizes}
         alt={@alt}
         loading={@loading}
+        fetchpriority={@fetchpriority}
         class={["absolute inset-0 w-full h-full object-cover", @img_class]}
         style="clip-path: url(#lancet-arch)"
       />

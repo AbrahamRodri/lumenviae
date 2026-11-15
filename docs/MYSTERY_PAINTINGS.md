@@ -87,7 +87,9 @@ names what is recorded about the painting and what the owner must do.
 Since 14 October 2026 the website shows these same paintings without any
 upload: the 28 files from the app's `Assets.xcassets` (the 27 mysteries'
 paintings and the Seven Sorrows' Pieta) are served from
-`priv/static/images/paintings/` as `<name>-480.webp`, `<name>-960.webp` (or
+`priv/static/images/paintings/` as `<name>-240.webp` (the thumbnail the
+small arches and cards fetch, made by `scripts/paintings/thumbs.exs`),
+`<name>-480.webp`, `<name>-960.webp` (or
 the full width, when narrower), a 480 pixel `<name>.jpg` and, for link
 previews, `<name>-preview.jpg` (at most 800 pixels) and the wide
 `<name>-share.jpg` a shared link shows (docs/PAGE_META.md), with each

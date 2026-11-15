@@ -2517,6 +2517,27 @@ html:has(#prayer) {
     color: var(--color-gilt-light);
   }
 
+  /* A long Back label (a chant's group) gives way to "Back" when the
+     hero is narrow for its text, as at 200% text on a phone, so the pill
+     stays one line. The hero's inner column is the container. */
+  .book-hero__inner {
+    container-type: inline-size;
+  }
+
+  .book-back__short {
+    display: none;
+  }
+
+  @container (width < 16em) {
+    .book-back__label {
+      display: none;
+    }
+
+    .book-back__short {
+      display: inline;
+    }
+  }
+
   .book-back:focus-visible {
     outline: 2px solid var(--color-gilt);
     outline-offset: 2px;

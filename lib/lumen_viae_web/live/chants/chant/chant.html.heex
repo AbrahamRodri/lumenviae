@@ -20,7 +20,10 @@
           data-role="back"
         >
           <span class="hero-chevron-left size-4" aria-hidden="true" />
-          {if @group, do: Library.card_title(@group), else: "Chant"}
+          <span class="book-back__label">
+            {if @group, do: Library.card_title(@group), else: "Chant"}
+          </span>
+          <span class="book-back__short">Back</span>
         </.link>
         <div class="book-hero__words chant-hero__words chant-hero__words--center">
           <h1 id="chant-heading" class="book-hero__title" lang="la">{@chant.latin_title}</h1>
