@@ -2,7 +2,7 @@ defmodule LumenViaeWeb.Components.Footer do
   @moduledoc """
   The public site's footer: the logo symbol, one row of the site's links
   (the Rosary, the Prayer Book, the chants and the Hours, the app, the
-  privacy policy) and the colophon.
+  privacy policy, the credits) and the colophon.
   The mysteries themselves are in the header's menu.
   """
   use Phoenix.Component
@@ -29,6 +29,7 @@ defmodule LumenViaeWeb.Components.Footer do
             <li><.footer_link navigate="/hours">Hours</.footer_link></li>
             <li><.footer_link navigate="/app">The App</.footer_link></li>
             <li><.footer_link navigate="/privacy-policy">Privacy</.footer_link></li>
+            <li><.footer_link navigate="/credits">Credits</.footer_link></li>
           </ul>
         </nav>
 

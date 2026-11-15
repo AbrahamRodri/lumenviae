@@ -197,6 +197,9 @@ defmodule LumenViaeWeb.Router do
       # Privacy policy (for iOS App Store listing)
       live "/privacy-policy", Live.PrivacyPolicy.Index
 
+      # Sources & Credits: where every prayer, painting, chant and book comes from
+      live "/credits", Live.Credits.Index
+
       # Browse meditation sets by mystery category (public)
       live "/mysteries/:category", Live.Mysteries.CategoryList
 

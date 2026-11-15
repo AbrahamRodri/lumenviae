@@ -21,6 +21,7 @@ time, as its desktop version. The console
 | `/mysteries/:category/pray` | `LumenViaeWeb.Live.Pray.Index` | The same page, praying a category without a set. |
 | `/app` | `LumenViaeWeb.Live.Home.App.Index` | The iPhone app's page: real screenshots of the app in CSS-drawn phones, what it holds in the app's own names, and the App Store link. |
 | `/privacy-policy` | `LumenViaeWeb.Live.PrivacyPolicy.Index` | The privacy policy the App Store listing links to. |
+| `/credits` | `LumenViaeWeb.Live.Credits.Index` | Sources & Credits, linked from the footer and from the Source line at the foot of a prayer's page (`#prayers`): the jump pills, the Prayer Book's chapters folding open (the first open), each prayer once, in its home chapter, linked with its origin; the novenas' paintings and the mysteries' woodcuts with their credits and licence pills; the Chant Library's credit and every chant's Verbum Gloriae page; the Spiritual Reading books (Gutenberg, LibriVox, the Internet Archive recording) and True Devotion's edition. Shaped by `LumenViaeWeb.Live.Credits.Sources`. |
 | `/consecration` | `LumenViaeWeb.Live.Consecration.Index` | The 33-day Consecration to Jesus through Mary, as the app's Consecration tab: with no plan in this browser, the introduction (`?step=devotion`, `day`, `journey`, the welcome never written) and the feast chooser (`?step=choose`; where a visitor who has reached it before opens); a plan before its Day 1, the waiting page; a plan under way goes on to today's day; a finished one offers the feasts again under a note that it was made. |
 | `/consecration/days/:n` | `LumenViaeWeb.Live.Consecration.Day` | Day `n`, 1 to 34 (Consecration Day): the phase's painting in the arch with the badge, the title and Pray; the feast the plan ends on; the day's prayers (`?lang=`), readings and question; the journey; the book; Restart. `?step=` walks it a page a step, the prayers then the readings, with Amen on the last. Open to anyone, plan or none. |
 | `/consecration/act` | `LumenViaeWeb.Live.Consecration.Act` | The Act made, as the app's completion: the seal, "I am all yours", the way back, then the Act's own words to renew it, and Restart under a plan. |
@@ -49,7 +50,7 @@ time, as its desktop version. The console
 | `/spiritual-reading/:book_id` | `LumenViaeWeb.Live.SpiritualReading.Book` | A book, as the app's `LibraryBookView`: its cover beside the title and author, Begin reading (or "Continue · III.V" where this browser left off), the contents ("Contents · 115 chapters") with each part's name pinned over its chapters and the parts' numerals down the edge, the chapter being read lit, the ones read dimmed and those more than two before it folded into "N earlier chapters", the listen chip on each row a LibriVox track opens on (its length; "31:05 in" where this browser left the voice), and the credit (Gutenberg's text, LibriVox's volunteers). From 1024px the head stands in a column beside the contents. `:book_id` is the catalogue's (`imitation-of-christ`). |
 | `/spiritual-reading/:book_id/:chapter` | `LumenViaeWeb.Live.SpiritualReading.Chapter` | A chapter read in place, as the app's `LibraryChapterReaderView`: the place in the book as a hairline, the part and heading over the title with "8 of 115", the text on night with the versal, the edition's footnote markers linked to the notes at the foot, the chapters either side by their headings, and the contents (a rail from 1024px, a list above the text on a phone); where a LibriVox track reads the chapter, Hear this read under the title, and the player. `:chapter` counts from 1. |
 
-All thirty-four are in the `:public` live session in `router.ex`. A set
+All thirty-five are in the `:public` live session in `router.ex`. A set
 that does not exist, or is hidden, answers 404, and so do an unknown
 category, an unknown chapter, an unknown order, an unknown prayer, an
 unknown chant section, an unknown sung set, an unknown chant and an
@@ -70,8 +71,8 @@ is not one, or that it does not serve (the Office's years, 1600 to 2200).
 `/true-devotion` and each of its thirteen chapters, `/explore` (never a
 search), `/spiritual-reading`,
 each of its five books and every chapter of each (219, as the catalogue's
-rules cut Gutenberg's editions in November 2026), `/app` and
-`/privacy-policy`. When a book is added to
+rules cut Gutenberg's editions in November 2026), `/app`,
+`/privacy-policy` and `/credits`. When a book is added to
 `priv/library/spiritual_reading.json`, or its rules change how many
 chapters it cuts into, add or remove its pages; the Spiritual Reading
 tests check every book is there and Brother Lawrence's twenty chapters

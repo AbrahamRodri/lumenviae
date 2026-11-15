@@ -1,0 +1,274 @@
+<div class="bg-night min-h-screen pb-16">
+  <Layouts.flash_group flash={@flash} variant={:public} />
+
+  <article class="mx-auto max-w-3xl px-4 sm:px-8 pt-10 md:pt-16">
+    <header>
+      <p class="kicker">Lumen Viae</p>
+      <h1 class="font-display text-[2rem] leading-tight md:text-5xl text-ink-light mt-2">
+        Sources &amp; Credits
+      </h1>
+      <p class="font-garamond italic text-lg md:text-xl text-ink-muted leading-relaxed mt-4 max-w-[62ch]">
+        We credit every prayer, painting and recording we use, and name the real author
+        wherever it is known. If you hold the rights to something here and would rather we
+        did not use it,
+        <a
+          href={"mailto:#{@contact}"}
+          class="text-ink-light underline decoration-gilt underline-offset-4 hover:text-gilt"
+          data-role="contact"
+        >write to us</a>
+        and we will take it down.
+      </p>
+
+      <nav aria-label="Sections" class="mt-6">
+        <ul class="flex flex-wrap gap-2.5">
+          <li :for={{id, label} <- @sections}>
+            <a href={"##{id}"} class="credits-jump" data-role="jump">{label}</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <section
+      :if={@chapters != []}
+      id="prayers"
+      aria-labelledby="prayers-heading"
+      class="mt-12 scroll-mt-24"
+    >
+      <.section_heading id="prayers">The Prayer Book</.section_heading>
+
+      <details
+        :for={{entry, i} <- Enum.with_index(@chapters)}
+        id={"chapter-#{entry.chapter.id}"}
+        class="credits-chapter border-t border-night-border"
+        open={i == 0}
+        data-role="chapter"
+      >
+        <summary class="flex items-center justify-between gap-4 min-h-14 py-3 cursor-pointer select-none">
+          <span class="font-display text-lg md:text-xl text-ink-light">
+            {entry.chapter.title}
+          </span>
+          <span class="shrink-0 flex items-center gap-1.5 font-garamond italic text-base text-ink-muted">
+            {Book.count_label(length(entry.prayers))}
+            <span
+              class="credits-chapter__caret hero-chevron-down size-4 text-gilt"
+              aria-hidden="true"
+            />
+          </span>
+        </summary>
+
+        <ul class="pb-2">
+          <li
+            :for={prayer <- entry.prayers}
+            id={"credit-#{prayer.id}"}
+            class="border-t border-night-border py-3"
+          >
+            <.link
+              navigate={Book.prayer_path(prayer.id)}
+              class="font-garamond text-lg text-ink-light hover:text-gilt"
+            >
+              {Book.list_name(prayer)}
+            </.link>
+            <p
+              :if={Sources.origin(prayer)}
+              class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5"
+              data-role="origin"
+            >
+              {Sources.origin(prayer)}
+            </p>
+          </li>
+        </ul>
+      </details>
+    </section>
+
+    <section
+      :if={@paintings != [] or @woodcuts != []}
+      id="paintings"
+      aria-labelledby="paintings-heading"
+      class="mt-12 scroll-mt-24"
+    >
+      <.section_heading id="paintings">Paintings</.section_heading>
+
+      <ul>
+        <li
+          :for={painting <- @paintings}
+          id={"painting-#{painting.prayer_id}"}
+          class="flex gap-4 border-t border-night-border py-4"
+          data-role="painting"
+        >
+          <.thumb src={painting.url} />
+          <div class="min-w-0">
+            <.link
+              navigate={Book.prayer_path(painting.prayer_id)}
+              class="font-garamond text-lg text-ink-light hover:text-gilt"
+            >
+              {painting.title}
+            </.link>
+            <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
+              {painting.credit}
+            </p>
+            <p :if={painting.licence} class="mt-2">
+              <.licence_pill licence={painting.licence} />
+            </p>
+          </div>
+        </li>
+      </ul>
+
+      <details
+        :if={@woodcuts != []}
+        id="woodcuts"
+        class="credits-chapter border-t border-night-border"
+      >
+        <summary class="flex items-center justify-between gap-4 min-h-14 py-3 cursor-pointer select-none">
+          <span class="font-display text-lg md:text-xl text-ink-light">
+            The woodcuts of the mysteries
+          </span>
+          <span class="shrink-0 flex items-center gap-1.5 font-garamond italic text-base text-ink-muted">
+            {length(@woodcuts)} prints
+            <span
+              class="credits-chapter__caret hero-chevron-down size-4 text-gilt"
+              aria-hidden="true"
+            />
+          </span>
+        </summary>
+
+        <ul>
+          <li
+            :for={woodcut <- @woodcuts}
+            class="flex gap-4 border-t border-night-border py-4"
+            data-role="woodcut"
+          >
+            <.thumb src={woodcut.src} srcset={woodcut.srcset} />
+            <div class="min-w-0">
+              <p class="font-garamond text-lg text-ink-light">{woodcut.title}</p>
+              <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
+                {woodcut.credit}<span :if={woodcut.source}>, via <a
+                    href={woodcut.source}
+                    rel="noopener"
+                    target="_blank"
+                    class="underline decoration-night-line underline-offset-4 hover:text-gilt"
+                  >Wikimedia Commons</a></span>.
+              </p>
+              <p :if={woodcut.licence} class="mt-2">
+                <.licence_pill licence={woodcut.licence} />
+              </p>
+            </div>
+          </li>
+        </ul>
+      </details>
+    </section>
+
+    <section :if={@chant} id="chant" aria-labelledby="chant-heading" class="mt-12 scroll-mt-24">
+      <.section_heading id="chant">Chant</.section_heading>
+
+      <div class="border-t border-night-border py-4" data-role="chant-credit">
+        <p class="font-garamond text-lg text-ink-light">
+          {@chant.credit}
+        </p>
+        <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
+          {@chant.licence_note}
+          <a
+            href={@chant.licence_url}
+            rel="noopener"
+            target="_blank"
+            class="underline decoration-night-line underline-offset-4 hover:text-gilt"
+          >Read the licence</a>.
+        </p>
+      </div>
+
+      <details id="chant-sources" class="credits-chapter border-t border-night-border">
+        <summary class="flex items-center justify-between gap-4 min-h-14 py-3 cursor-pointer select-none">
+          <span class="font-display text-lg md:text-xl text-ink-light">Every chant's source</span>
+          <span class="shrink-0 flex items-center gap-1.5 font-garamond italic text-base text-ink-muted">
+            {length(@chant.chants)} chants
+            <span
+              class="credits-chapter__caret hero-chevron-down size-4 text-gilt"
+              aria-hidden="true"
+            />
+          </span>
+        </summary>
+
+        <ul>
+          <li
+            :for={chant <- @chant.chants}
+            class="flex flex-wrap items-baseline justify-between gap-x-4 border-t border-night-border py-3"
+            data-role="chant"
+          >
+            <.link
+              navigate={Library.chant_path(chant.id)}
+              class="font-garamond text-lg text-ink-light hover:text-gilt"
+            >
+              {Sources.chant_name(chant)}
+            </.link>
+            <a
+              href={chant.source_url}
+              rel="noopener"
+              target="_blank"
+              class="inline-flex items-center min-h-11 font-garamond italic text-base text-ink-muted underline decoration-night-line underline-offset-4 hover:text-gilt"
+            >
+              Verbum Gloriae<span class="sr-only">: {Sources.chant_name(chant)}</span>
+            </a>
+          </li>
+        </ul>
+      </details>
+    </section>
+
+    <section id="books" aria-labelledby="books-heading" class="mt-12 scroll-mt-24">
+      <.section_heading id="books">Books and recordings</.section_heading>
+
+      <ul>
+        <li
+          :for={book <- @books}
+          id={"book-#{book.id}"}
+          class="border-t border-night-border py-4"
+          data-role="book"
+        >
+          <.link
+            navigate={"/spiritual-reading/#{book.id}"}
+            class="font-garamond text-lg text-ink-light hover:text-gilt"
+          >
+            {book.title}
+          </.link>
+          <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
+            {Sources.author_line(book)}.
+            <a
+              href={Sources.gutenberg_url(book)}
+              rel="noopener"
+              target="_blank"
+              class="underline decoration-night-line underline-offset-4 hover:text-gilt"
+            >{Sources.text_credit(book)}</a>
+            <span :if={Sources.librivox_credit(book)}>{Sources.librivox_credit(book)}</span>
+            <span :if={Sources.archive_recording(book)}>
+              In the app: <a
+                href={Sources.archive_recording(book).url}
+                rel="noopener"
+                target="_blank"
+                class="underline decoration-night-line underline-offset-4 hover:text-gilt"
+              >{Sources.archive_recording(book).credit}</a>.
+            </span>
+          </p>
+          <p class="mt-2"><.licence_pill licence={Sources.licence("Public domain")} /></p>
+        </li>
+
+        <li id="book-true-devotion" class="border-t border-night-border py-4" data-role="book">
+          <.link
+            navigate="/true-devotion"
+            class="font-garamond text-lg text-ink-light hover:text-gilt"
+          >
+            {@true_devotion.title}
+          </.link>
+          <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
+            {@true_devotion.author}. {@true_devotion.translator}. {@true_devotion.source_note}
+          </p>
+          <p class="mt-2"><.licence_pill licence={Sources.licence("Public domain")} /></p>
+        </li>
+      </ul>
+    </section>
+
+    <p
+      class="font-garamond italic text-base text-ink-muted border-t border-night-border mt-10 pt-6"
+      data-role="last-checked"
+    >
+      Last checked {Calendar.strftime(@last_checked, "%-d %B %Y")}.
+    </p>
+  </article>
+</div>

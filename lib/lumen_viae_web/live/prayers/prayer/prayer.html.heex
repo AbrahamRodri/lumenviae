@@ -77,8 +77,13 @@
       class="mx-auto max-w-3xl px-4 sm:px-8 mt-12 pt-6 border-t border-night-border"
       data-role="source"
     >
-      <p class="kicker !text-ink-muted">Source</p>
-      <p class="mt-1.5 font-garamond text-sm md:text-base text-ink-muted leading-snug max-w-[62ch]">
+      <.link
+        navigate="/credits#prayers"
+        class="kicker !text-ink-muted hover:!text-gilt inline-flex items-center min-h-11"
+      >
+        Source
+      </.link>
+      <p class="font-garamond text-sm md:text-base text-ink-muted leading-snug max-w-[62ch]">
         {elem(@origin_lines, 1)}
       </p>
     </footer>

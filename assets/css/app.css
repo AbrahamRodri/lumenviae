@@ -10728,3 +10728,73 @@ html:has(#prayer) {
   }
 }
 /* === end the chant mini player === */
+
+/* === Sources & Credits (/credits) ===
+   The jump pills, the chapters that fold open, and the small outlined
+   licence pill beside a painting's credit. */
+@layer components {
+  .credits-jump {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 1.125rem;
+    border: 1px solid var(--color-night-line);
+    border-radius: 9999px;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    letter-spacing: 0.16em;
+    color: var(--color-ink-light);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .credits-jump:hover,
+  .credits-jump:focus-visible {
+    border-color: var(--color-gilt);
+    color: var(--color-gilt);
+  }
+
+  .credits-chapter > summary {
+    list-style: none;
+  }
+
+  .credits-chapter > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .credits-chapter__caret {
+    transition: transform 0.2s;
+  }
+
+  .credits-chapter[open] .credits-chapter__caret {
+    transform: rotate(180deg);
+  }
+
+  .credits-licence {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid var(--color-night-line);
+    border-radius: 9999px;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  /* A linked pill keeps the 44px target past its drawn edge. */
+  a.credits-licence {
+    position: relative;
+  }
+
+  a.credits-licence::after {
+    content: "";
+    position: absolute;
+    inset: -0.75rem -0.25rem;
+  }
+
+  a.credits-licence:hover {
+    border-color: var(--color-gilt);
+  }
+}
+/* === end Sources & Credits === */

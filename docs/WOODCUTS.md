@@ -72,7 +72,7 @@ are the owner's choice; never swap or alter them.
   "file": "visitation-durer.jpg",
   "key": "joyful_2",
   "title": "The Visitation",
-  "artist": "Albrecht Durer",
+  "artist": "Albrecht Dürer",
   "year": "c. 1504",
   "series": "Life of the Virgin",
   "alt": "Mary and her cousin Elizabeth embrace before a house",
