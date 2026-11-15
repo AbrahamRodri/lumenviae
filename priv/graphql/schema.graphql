@@ -988,6 +988,9 @@ type BookPrayer {
   "The prayer's title on its own page."
   title: String!
 
+  "Where `origin` is a long book citation: the short credit (author, then publisher) to show under the title, with `origin` in full at the foot of the page. Null where `origin` is short enough to stand under the title itself."
+  shortCredit: String
+
   "Other names it is looked for by, beside its titles. Empty when none."
   searchWords: [String!]!
 

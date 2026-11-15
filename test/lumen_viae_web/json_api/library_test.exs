@@ -339,7 +339,7 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
     test "every prayer carries every field of the contract", %{prayers: prayers} do
       for prayer <- prayers do
         assert Map.keys(prayer) |> Enum.sort() ==
-                 ~w(english english_name id latin latin_title list_title note origin search_words title)
+                 ~w(english english_name id latin latin_title list_title note origin search_words short_credit title)
       end
     end
 

@@ -20,6 +20,10 @@ defmodule LumenViae.Rosary.Types.BookPrayer do
     field :origin, :string,
       description: "Who wrote it and when, as a prayer book's small print, or null."
 
+    field :short_credit, :string,
+      description:
+        "Where `origin` is a long book citation: the short credit (author, then publisher) to show under the title, with `origin` in full at the foot of the page. Null where `origin` is short enough to stand under the title itself."
+
     field :note, :string, description: "When or how it is said, in one plain sentence, or null."
 
     field :english, :string,
