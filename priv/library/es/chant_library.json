@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T08:10:00Z",
+  "updated_at": "2026-11-15T08:15:00Z",
   "groups": {
     "asperges": {
       "title": "Asperges me y Vidi aquam",
@@ -15,7 +15,7 @@
         },
         {
           "title": "Misa XI, Orbis factor",
-          "note": "Para los domingos del año"
+          "note": "Para los domingos durante el año"
         }
       ]
     },
@@ -37,7 +37,7 @@
     },
     "ourLady": {
       "title": "Himnos y cantos a la Santísima Virgen María",
-      "note": "Sus cuatro antífonas a lo largo del año y, después, sus otros himnos"
+      "note": "Sus cuatro cantos a lo largo del año y, después, sus otros himnos"
     },
     "seasons": {
       "title": "Himnos y cantos de los tiempos litúrgicos",
@@ -67,8 +67,8 @@
       ]
     },
     "canticles": {
-      "title": "Cánticos y letanía de los santos",
-      "note": "El cántico de María en las Vísperas, y los santos invocados por su nombre"
+      "title": "Cánticos y letanías de los santos",
+      "note": "El cántico de María en la Oración de la tarde y los santos invocados por su nombre"
     },
     "litanies": {
       "title": "Letanías",

@@ -11,7 +11,7 @@ defmodule LumenViae.Rosary.ChantLibrary.SpanishTest do
 
   # Change the file: bump its updated_at and set the new pair here. The
   # names are the team's own Spanish, listed in priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 08:10:00Z], "c40c20c07e00b07c"}
+  @pinned {~U[2026-11-15 08:15:00Z], "768df24326266b95"}
 
   defp english(section), do: Library.served(:chant_library, section)
 
