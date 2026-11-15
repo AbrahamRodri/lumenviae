@@ -50,20 +50,27 @@ crawler reads WebP.
 | --- | --- |
 | Home, Scripture, privacy | the logo share image, `og-image.png`, 1200x630 |
 | The app page | three app screenshots, `images/app/og-app.jpg`, 1200x630 |
-| A category | the woodcut its header shows (`PageMeta.category_image/1`) |
-| A set's prayer page | the woodcut of the set's first mystery, else the category's |
-| A category's prayer page | the woodcut of the category's first mystery |
+| A category | the painting its header shows (`PageMeta.category_image/1`) |
+| A set's prayer page | the painting of the set's first mystery, else the category's |
+| A category's prayer page | the painting of the category's first mystery |
 | A Prayer Book topic, an order of prayer | the painting at its head (`PageMeta.named_image/1`) |
+| A prayer | the painting its card hangs (`Book.prayer_painting/2`) |
+| A novena | its own painting; else a card cut from its own art when that is public domain (`PageMeta.novena_image/1`); else the logo image (St Therese's photograph is CC BY-SA) |
 | A Chant section, sung set or chant | the painting at its head (`PageMeta.named_image/1`) |
 | Hours of Prayer | the painting of the hour now, on the server's clock |
 
-`PageMeta.named_image/1` takes a painting's name, or a page's
-`{name, focal x, focal y}`, and gives its `<name>-preview.jpg` with the size
-`manifest.json`'s `preview` records.
+A painting is shared as its wide card, `<name>-share.jpg`: a 1.91:1 crop
+(the shape chats show large) of the app's full-size painting about the
+point the website hangs it by, 1200 pixels wide or the painting's own width
+when narrower, never under 600. `manifest.json`'s `share` records its size.
+A novena's card from its own art is `images/novenas/<prayer id>-share.jpg`,
+listed in that folder's `manifest.json`. Both are made by
+`mix run scripts/paintings/share_crops.exs <iOS Assets.xcassets>`; run it
+again after a painting is added or replaced, and look at the cards (a focal
+point that misses a face goes in the script's `overrides`).
 
-The woodcuts are taller than wide, so those pages use the `summary` Twitter
-card, which shows a small square, and the others use
-`summary_large_image`. The large card would crop a portrait print to a strip.
+Every painting card is wider than tall, so those pages use the
+`summary_large_image` Twitter card.
 
 ## Structured data
 
