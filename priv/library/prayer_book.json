@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T06:00:00Z",
+  "updated_at": "2026-11-15T06:10:00Z",
   "chapters": [
     {
       "id": "first",
@@ -3550,20 +3550,6 @@
               "decades": null
             },
             {
-              "kind": "rosary",
-              "prayer_id": null,
-              "or_prayer_id": null,
-              "times": null,
-              "id": null,
-              "title": null,
-              "text": null,
-              "source": null,
-              "decades": [
-                4,
-                5
-              ]
-            },
-            {
               "kind": "invocation",
               "prayer_id": null,
               "or_prayer_id": null,
@@ -3584,6 +3570,20 @@
               "text": "The one who seeks grace, finds it in Mary's hands.",
               "source": null,
               "decades": null
+            },
+            {
+              "kind": "rosary",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": [
+                4,
+                5
+              ]
             },
             {
               "kind": "closing",
@@ -3651,20 +3651,6 @@
               "decades": null
             },
             {
-              "kind": "rosary",
-              "prayer_id": null,
-              "or_prayer_id": null,
-              "times": null,
-              "id": null,
-              "title": null,
-              "text": null,
-              "source": null,
-              "decades": [
-                4,
-                5
-              ]
-            },
-            {
               "kind": "invocation",
               "prayer_id": null,
               "or_prayer_id": null,
@@ -3685,6 +3671,20 @@
               "text": "Mary offered all the moments of her day to God.",
               "source": null,
               "decades": null
+            },
+            {
+              "kind": "rosary",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": [
+                4,
+                5
+              ]
             },
             {
               "kind": "closing",
@@ -3752,20 +3752,6 @@
               "decades": null
             },
             {
-              "kind": "rosary",
-              "prayer_id": null,
-              "or_prayer_id": null,
-              "times": null,
-              "id": null,
-              "title": null,
-              "text": null,
-              "source": null,
-              "decades": [
-                4,
-                5
-              ]
-            },
-            {
               "kind": "invocation",
               "prayer_id": null,
               "or_prayer_id": null,
@@ -3786,6 +3772,20 @@
               "text": "Turn to Mary, you who desire grace.",
               "source": null,
               "decades": null
+            },
+            {
+              "kind": "rosary",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": [
+                4,
+                5
+              ]
             },
             {
               "kind": "closing",
@@ -3853,20 +3853,6 @@
               "decades": null
             },
             {
-              "kind": "rosary",
-              "prayer_id": null,
-              "or_prayer_id": null,
-              "times": null,
-              "id": null,
-              "title": null,
-              "text": null,
-              "source": null,
-              "decades": [
-                4,
-                5
-              ]
-            },
-            {
               "kind": "invocation",
               "prayer_id": null,
               "or_prayer_id": null,
@@ -3887,6 +3873,20 @@
               "text": "Mary is the Sun and no one is deprived of her warmth.",
               "source": null,
               "decades": null
+            },
+            {
+              "kind": "rosary",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": [
+                4,
+                5
+              ]
             },
             {
               "kind": "closing",
@@ -3954,20 +3954,6 @@
               "decades": null
             },
             {
-              "kind": "rosary",
-              "prayer_id": null,
-              "or_prayer_id": null,
-              "times": null,
-              "id": null,
-              "title": null,
-              "text": null,
-              "source": null,
-              "decades": [
-                4,
-                5
-              ]
-            },
-            {
               "kind": "invocation",
               "prayer_id": null,
               "or_prayer_id": null,
@@ -3988,6 +3974,20 @@
               "text": "Mary, with God, is powerful.",
               "source": null,
               "decades": null
+            },
+            {
+              "kind": "rosary",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": [
+                4,
+                5
+              ]
             },
             {
               "kind": "closing",
@@ -4055,20 +4055,6 @@
               "decades": null
             },
             {
-              "kind": "rosary",
-              "prayer_id": null,
-              "or_prayer_id": null,
-              "times": null,
-              "id": null,
-              "title": null,
-              "text": null,
-              "source": null,
-              "decades": [
-                4,
-                5
-              ]
-            },
-            {
               "kind": "invocation",
               "prayer_id": null,
               "or_prayer_id": null,
@@ -4089,6 +4075,20 @@
               "text": "You are beautiful, Mary, and there is no stain of sin in You.",
               "source": null,
               "decades": null
+            },
+            {
+              "kind": "rosary",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": [
+                4,
+                5
+              ]
             },
             {
               "kind": "closing",
@@ -4156,20 +4156,6 @@
               "decades": null
             },
             {
-              "kind": "rosary",
-              "prayer_id": null,
-              "or_prayer_id": null,
-              "times": null,
-              "id": null,
-              "title": null,
-              "text": null,
-              "source": null,
-              "decades": [
-                4,
-                5
-              ]
-            },
-            {
               "kind": "invocation",
               "prayer_id": null,
               "or_prayer_id": null,
@@ -4190,6 +4176,20 @@
               "text": "You are the glory of Jerusalem, the joy of our people.",
               "source": null,
               "decades": null
+            },
+            {
+              "kind": "rosary",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": [
+                4,
+                5
+              ]
             },
             {
               "kind": "closing",
@@ -4257,20 +4257,6 @@
               "decades": null
             },
             {
-              "kind": "rosary",
-              "prayer_id": null,
-              "or_prayer_id": null,
-              "times": null,
-              "id": null,
-              "title": null,
-              "text": null,
-              "source": null,
-              "decades": [
-                4,
-                5
-              ]
-            },
-            {
               "kind": "invocation",
               "prayer_id": null,
               "or_prayer_id": null,
@@ -4291,6 +4277,20 @@
               "text": "Let us go, therefore, full of trust, to the throne of grace.",
               "source": null,
               "decades": null
+            },
+            {
+              "kind": "rosary",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": null,
+              "title": null,
+              "text": null,
+              "source": null,
+              "decades": [
+                4,
+                5
+              ]
             },
             {
               "kind": "closing",
@@ -4358,6 +4358,17 @@
               "decades": null
             },
             {
+              "kind": "invocation",
+              "prayer_id": null,
+              "or_prayer_id": null,
+              "times": null,
+              "id": "undoer_of_knots_invocation",
+              "title": null,
+              "text": "Mary, Undoer of Knots, pray for me.",
+              "source": null,
+              "decades": null
+            },
+            {
               "kind": "rosary",
               "prayer_id": null,
               "or_prayer_id": null,
@@ -4370,17 +4381,6 @@
                 4,
                 5
               ]
-            },
-            {
-              "kind": "invocation",
-              "prayer_id": null,
-              "or_prayer_id": null,
-              "times": null,
-              "id": "undoer_of_knots_invocation",
-              "title": null,
-              "text": "Mary, Undoer of Knots, pray for me.",
-              "source": null,
-              "decades": null
             },
             {
               "kind": "closing",
