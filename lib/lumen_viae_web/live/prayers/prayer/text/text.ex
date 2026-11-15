@@ -45,7 +45,11 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
         <p
           :for={line <- stanza.lines}
           :if={stanza.kind != :rule}
-          class={["book-line", line.secondary && "book-line--paired"]}
+          class={[
+            "book-line",
+            line.secondary && "book-line--paired",
+            flush?(stanza, line) && "book-line--flush"
+          ]}
         >
           <span class="book-line__primary">
             <.part part={line.primary} />
@@ -65,6 +69,12 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
     do: runs |> Enum.map_join(&elem(&1, 1)) |> String.length() >= @versal_length
 
   defp versal?(_stanzas), do: false
+
+  # Only a line of verse hangs from its first word: a lone line is a
+  # paragraph, and a rubric a direction, so a wrapped one sets flush.
+  defp flush?(%{lines: [_only]}, _line), do: true
+  defp flush?(_stanza, %{primary: {:rubric, _runs}}), do: true
+  defp flush?(_stanza, _line), do: false
 
   attr :part, :any, required: true
 

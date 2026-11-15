@@ -48,9 +48,28 @@ defmodule LumenViaeWeb.Live.Prayers.OrderPagesTest do
     test "the visitor's offset is taken, and nonsense is ignored", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/prayers/orders/angelus")
 
-      assert render_hook(view, "set_timezone", %{"offset" => 300}) =~ "order-prayer"
-      assert render_hook(view, "set_timezone", %{"offset" => "x"}) =~ "order-prayer"
-      assert render_hook(view, "set_timezone", %{}) =~ "order-prayer"
+      assert render_hook(view, "set_timezone", %{"offset" => 300}) =~ "order-text"
+      assert render_hook(view, "set_timezone", %{"offset" => "x"}) =~ "order-text"
+      assert render_hook(view, "set_timezone", %{}) =~ "order-text"
+    end
+
+    test "an order of one prayer shows its words, with Pray under them", %{conn: conn} do
+      {:ok, view, html} = live(conn, "/prayers/orders/angelus")
+      doc = Floki.parse_document!(html)
+
+      refute has_element?(view, "[data-role=order-prayer]")
+      text = view |> element("[data-role=order-text] [data-role=prayer-text]") |> render()
+      assert text =~ "Hail Mary, full of grace" or text =~ "O Queen of heaven"
+
+      assert [pray] = Floki.find(doc, "#order-page .btn-gold")
+      assert Floki.attribute(pray, "href") == ["/prayers/orders/angelus/pray"]
+    end
+
+    test "an order of several prayers keeps its list", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/prayers/orders/table")
+
+      assert has_element?(view, "[data-role=order-prayer]")
+      refute has_element?(view, "[data-role=order-text]")
     end
 
     test "an unknown order is a 404", %{conn: conn} do

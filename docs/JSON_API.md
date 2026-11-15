@@ -48,7 +48,7 @@ involved.
 | `GET /rosary-script?category=&style=&extras=&orders=` | `RosaryScript.:expand` | One Rosary's script, every step in order: the reference expansion of the content document's `script` templates. See "One Rosary's script". |
 | `GET /rosary-content?lang=` | `RosaryContent.:current` | The Rosary's words as one document, for a client that prays offline: its `version` and `updated_at`, and the sections named in `fields[rosary_content]=`. See "The content document". |
 | `GET /prayer-book?lang=` | `PrayerBook.:current` | The Prayer Book's words as one document: its `version` and `updated_at`, and `prayers`, `chapters`, `orders`, `marian_antiphons`, `novenas` and `translations` when named in `fields[prayer_book]=`; `lang=es` fills `translations`. See "The Prayer Book and the Chant Library". |
-| `GET /chant-library` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL) when named in `fields[chant_library]=`. |
+| `GET /chant-library?lang=` | `ChantLibrary.:current` | The Chant Library as one document: its `version` and `updated_at`, and `groups` and `chants` (with each recording's and score page's public URL), `feasts`, `months`, `occasions` and `translations` when named in `fields[chant_library]=`; `lang=es` fills `translations`. See "The Chant Library in Spanish". |
 | `GET /consecration` | `Consecration.:current` | The 33-day Consecration as one document: its `version` and `updated_at`, and `phases`, `days`, `prayers`, `feasts` and `translations` when named in `fields[consecration]=`; `lang=es` fills `translations`. See "The Consecration". |
 | `GET /true-devotion` | `TrueDevotion.:current` | St. Louis de Montfort's True Devotion, the whole book, as one document: its `version` and `updated_at`, and `about`, `parts`, `chapters`, `teaching` and `ejaculatory_prayers` when named in `fields[true_devotion]=`. See "True Devotion". |
 | `GET /carlo-acutis` | `CarloAcutis.:current` | St. Carlo Acutis's page as one document: its `version` and `updated_at`, and `feast`, `shelves`, `timeline`, `rule`, `sayings` and `prayer` when named in `fields[carlo_acutis]=`. See "St. Carlo Acutis". |
@@ -843,6 +843,45 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
 Every chant, occasion and feast these name is in the document, checked
 when it compiles. The sections were added on 29 October 2026; a client
 that does not name them is sent nothing new.
+
+### The Chant Library in Spanish
+
+```
+GET /api/v2/chant-library?lang=es
+GET /api/v2/chant-library?lang=es&fields[chant_library]=version,updated_at,groups,chants,translations
+```
+
+GraphQL: `chantLibrary(lang: "es") { translations { chants { id title setting } groups { id title } } }`.
+
+The chants are sung in Latin, so only their names are translated: what an
+app prints on a chant's card and row, and the groups' titles.
+
+- **No `lang`, `lang=en`, or a language not served**: the document as it
+  was before Spanish, byte for byte, with the same `version` and
+  `updated_at`. `translations`, when asked for, is
+  `{"chants": [], "groups": []}`.
+- **`lang=es`**, or any `es-` region: **`translations`** (15 Nov 2026) is
+  `{chants, groups}`:
+  - `chants`: one per chant that has Spanish (today, all), in the order of
+    `chants`, each `{id, title, setting}`. `title` stands in place of
+    `english_title` and `setting` in place of `setting`; `setting` is null
+    exactly when the English one is. A title Spanish-speaking Catholics
+    say in Latin is the `latin_title` exactly (Salve Regina, Ave Maris
+    Stella, Tantum Ergo, Te Deum), so a client that hides a second name
+    equal to the Latin shows it once:
+    `{"id": "salve_regina_simple", "title": "Salve Regina", "setting": "Melodía sencilla"}`.
+  - `groups`: one per group that has Spanish (today, all), in the order of
+    `groups`, each `{id, title}`.
+  - A chant or group not listed keeps its English. Every other section is
+    unchanged: a client lays the Spanish over the English by `id`.
+- The names are the team's own Spanish, listed with the rules followed in
+  `priv/library/es/SOURCES.md`; no `ai_translated` mark is served for a
+  name. Groups' notes, parts' headings, `detail`, feasts, months and
+  occasions keep their English for now.
+- **Its own `version` and `updated_at`**, as for the Prayer Book: the
+  Spanish document's version folds in the English one (moved chant files
+  included) and the names, so keep one copy per language and poll with
+  the `lang` fetched with.
 
 ### The chant files
 

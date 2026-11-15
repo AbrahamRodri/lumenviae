@@ -229,6 +229,22 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       refute has_element?(verse, ".book-stanza--versal")
     end
 
+    test "a lone line and a rubric set flush; verse lines hang", %{conn: conn} do
+      {:ok, novena, _html} = live(conn, "/prayers/undoer_of_knots_novena")
+
+      assert has_element?(
+               novena,
+               ".book-line--flush",
+               "The one who seeks grace, finds it in Mary's hands."
+             )
+
+      assert has_element?(novena, ".book-line--flush [data-role=rubric]", "The First Day.")
+
+      {:ok, verse, _html} = live(conn, "/prayers/memorare")
+      assert has_element?(verse, ".book-line")
+      refute has_element?(verse, ".book-line--flush")
+    end
+
     test "?lang=latin sets the Latin alone", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/prayers/memorare?lang=latin")
       text = view |> element("[data-role=prayer-text]") |> render()

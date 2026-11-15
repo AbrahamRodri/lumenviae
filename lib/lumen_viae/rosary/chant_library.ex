@@ -11,8 +11,16 @@ defmodule LumenViae.Rosary.ChantLibrary do
   only those a query selects: the bare request carries the version and
   the date alone, and a client names the sections it wants in
   `fields[chant_library]=` (GraphQL: the selection set).
+
+  With `lang=es`, `translations` carries the chants' and groups' names in
+  Spanish (`LumenViae.Rosary.ChantLibrary.Spanish`), and the version and
+  date are the Spanish document's.
   """
+  # The one read takes an optional `lang`, so Ash's warning that a primary
+  # read should take no arguments is off: nothing loads this resource
+  # through a relationship, which is what that warning protects.
   use Ash.Resource,
+    primary_read_warning?: false,
     domain: LumenViae.Rosary,
     authorizers: [Ash.Policy.Authorizer],
     extensions: [AshGraphql.Resource, AshJsonApi.Resource]
@@ -42,7 +50,12 @@ defmodule LumenViae.Rosary.ChantLibrary do
       primary? true
       get? true
       description "The Chant Library as one document. There is only ever one."
-      prepare {Library.Current, document: :chant_library}
+
+      argument :lang, :string do
+        description "The language of `translations`: `es` fills it with every chant's and group's name in Spanish. Missing, `en` or a language not served: the document as it always was, and `translations` empty."
+      end
+
+      prepare LumenViae.Rosary.ChantLibrary.Current
     end
   end
 
@@ -75,6 +88,14 @@ defmodule LumenViae.Rosary.ChantLibrary do
       allow_nil? false
       public? true
       description "When the content last changed."
+    end
+
+    # The language the read asked for (`Content.language/1`), for the
+    # `translations` section. Not served itself.
+    attribute :lang, :string do
+      allow_nil? false
+      default "en"
+      public? false
     end
   end
 
@@ -127,6 +148,15 @@ defmodule LumenViae.Rosary.ChantLibrary do
       constraints nil_items?: false
 
       description "The sung sets, each its chants in the order they are sung."
+    end
+
+    calculate :translations,
+              LumenViae.Rosary.ChantLibrary.Translation,
+              LumenViae.Rosary.ChantLibrary.Translations do
+      allow_nil? false
+      public? true
+
+      description "With `lang=es`, the names the apps print in Spanish, keyed as the English sections key them: each chant's `title` (in place of `english_title`) and `setting` by `id`, each group's `title` by `id`. A chant or group not listed keeps its English. The chants are sung in Latin; their words are unchanged. In English, two empty lists."
     end
   end
 end

@@ -731,6 +731,56 @@
                 },
                 "type": "array"
               },
+              "translations": {
+                "description": "With `lang=es`, the names the apps print in Spanish, keyed as the English sections key them: each chant's `title` (in place of `english_title`) and `setting` by `id`, each group's `title` by `id`. A chant or group not listed keeps its English. The chants are sung in Latin; their words are unchanged. In English, two empty lists.",
+                "properties": {
+                  "chants": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "setting": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "groups": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "chants",
+                  "groups"
+                ],
+                "type": "object"
+              },
               "updated_at": {
                 "description": "When the content last changed. Field included by default.",
                 "format": "date-time",
@@ -5981,10 +6031,20 @@
         "operationId": "getChantLibrary",
         "parameters": [
           {
-            "description": "Comma separated fields of chant_library: chants, feasts, groups, months, occasions, updated_at, version",
+            "description": "Comma separated fields of chant_library: chants, feasts, groups, months, occasions, translations, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[chant_library]",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The language of `translations`: `es` fills it with every chant's and group's name in Spanish. Missing, `en` or a language not served: the document as it always was, and `translations` empty.",
+            "in": "query",
+            "name": "lang",
             "required": false,
             "schema": {
               "type": "string"

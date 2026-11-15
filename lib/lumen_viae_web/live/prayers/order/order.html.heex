@@ -16,7 +16,11 @@
         <h1 id="order-heading" class="order-head__title">{@title}</h1>
       </header>
 
-      <ol class="order-prayers" aria-label={"The prayers of #{@title}"}>
+      <div :if={@stanzas} class="order-text" data-role="order-text">
+        <.prayer_text stanzas={@stanzas} language="english" />
+      </div>
+
+      <ol :if={!@stanzas} class="order-prayers" aria-label={"The prayers of #{@title}"}>
         <li :for={{prayer, i} <- Enum.with_index(@prayers, 1)}>
           <.link
             navigate={Orders.pray_path(@order.id, i, "english", @from)}
