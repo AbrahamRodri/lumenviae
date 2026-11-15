@@ -641,7 +641,11 @@ chants.
   (one line per paragraph; versicles, responses and crosses marked; a
   rubric in square brackets), and where there is Latin the two pair line
   for line, blank lines included. A prayer no chapter names is still
-  kept: an order of prayer may name it.
+  kept: an order of prayer may name it. **`short_credit`** (added 15 Nov
+  2026): where `origin` is a long book citation (over 100 characters),
+  the short credit to show under the title (author, then publisher),
+  with `origin` in full at the foot of the page, as the website does;
+  null otherwise.
 - **`chapters`**: the book's chapters in order: `id`, `numeral`, `title`,
   `latin_title`, `note` (the chapter's one italic line, or null), `topic`
   (or null), `search_words`, `sections` (its sub-headings in order, each

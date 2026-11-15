@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T07:05:00Z",
+  "updated_at": "2026-11-15T09:20:00Z",
   "chapters": [
     {
       "id": "first",
@@ -1122,6 +1122,7 @@
       "note": "Begins and ends every prayer; the right hand touches the forehead, the breast, the left shoulder and the right.",
       "origin": "Apostolic tradition",
       "search_words": [],
+      "short_credit": null,
       "title": "The Sign of the Cross"
     },
     {
@@ -1134,6 +1135,7 @@
       "note": "The prayer Christ Himself taught when the disciples asked Him how to pray.",
       "origin": "Our Lord · Matthew 6:9–13",
       "search_words": [],
+      "short_credit": null,
       "title": "The Our Father"
     },
     {
@@ -1146,6 +1148,7 @@
       "note": "The Angel's greeting and Elizabeth's, and the Church's petition after them.",
       "origin": "Luke 1:28, 42 · the Church, 15th century",
       "search_words": [],
+      "short_credit": null,
       "title": "The Hail Mary"
     },
     {
@@ -1158,6 +1161,7 @@
       "note": "Praise of the Trinity, said after each ten Hail Marys of the Rosary and after the psalms in the Church's Hours of Prayer.",
       "origin": "The Church · 4th century",
       "search_words": [],
+      "short_credit": null,
       "title": "The Glory Be"
     },
     {
@@ -1170,6 +1174,7 @@
       "note": "Asked for by Mary at Fatima, to be said in the Rosary after each Glory Be.",
       "origin": "Our Lady of Fatima · 1917",
       "search_words": [],
+      "short_credit": null,
       "title": "The Fatima Prayer"
     },
     {
@@ -1182,6 +1187,7 @@
       "note": "The creed said at baptism in Rome: the faith of the Apostles in twelve statements.",
       "origin": "The Roman Church · 2nd century",
       "search_words": [],
+      "short_credit": null,
       "title": "The Apostles' Creed"
     },
     {
@@ -1194,6 +1200,7 @@
       "note": "Said at Mass after the Gospel on Sundays and the greater feasts.",
       "origin": "Council of Constantinople · 381",
       "search_words": [],
+      "short_credit": null,
       "title": "The Nicene Creed"
     },
     {
@@ -1206,6 +1213,7 @@
       "note": "Made on waking and at night, with the Acts of Hope and Charity.",
       "origin": "Traditional form, author unknown",
       "search_words": [],
+      "short_credit": null,
       "title": "The Act of Faith"
     },
     {
@@ -1218,6 +1226,7 @@
       "note": "Made on waking and at night, after the Act of Faith.",
       "origin": "Traditional form, author unknown",
       "search_words": [],
+      "short_credit": null,
       "title": "The Act of Hope"
     },
     {
@@ -1230,6 +1239,7 @@
       "note": "Made on waking and at night, after the Acts of Faith and Hope.",
       "origin": "Traditional form, author unknown",
       "search_words": [],
+      "short_credit": null,
       "title": "The Act of Charity"
     },
     {
@@ -1242,6 +1252,7 @@
       "note": "Said in the confessional, and each night at bedtime.",
       "origin": "A Manual of Prayers for the Use of the Catholic Laity · Baltimore, 1888",
       "search_words": [],
+      "short_credit": null,
       "title": "The Act of Contrition"
     },
     {
@@ -1254,6 +1265,7 @@
       "note": "Said on waking, offering the whole day to God before it is begun.",
       "origin": "The Apostleship of Prayer · 19th century",
       "search_words": [],
+      "short_credit": null,
       "title": "The Morning Offering"
     },
     {
@@ -1266,6 +1278,7 @@
       "note": "Zachary's song at the birth of his son John, sung every morning at the Church's Dawn Prayer (Lauds).",
       "origin": "Luke 1:68–79 · Douay-Rheims",
       "search_words": [],
+      "short_credit": null,
       "title": "The Canticle of Zachary"
     },
     {
@@ -1280,6 +1293,7 @@
       "search_words": [
         "guardian angel"
       ],
+      "short_credit": null,
       "title": "To One's Guardian Angel"
     },
     {
@@ -1292,6 +1306,7 @@
       "note": "Said at 6 AM, noon and 6 PM when the church bell rings; from Easter to Pentecost, Queen of Heaven (Regina Cæli) is said instead.",
       "origin": "Western Church · 13th–16th century",
       "search_words": [],
+      "short_credit": null,
       "title": "The Angelus"
     },
     {
@@ -1306,6 +1321,7 @@
       "search_words": [
         "queen of heaven rejoice"
       ],
+      "short_credit": null,
       "title": "Queen of Heaven"
     },
     {
@@ -1318,6 +1334,7 @@
       "note": "Said standing at table before the meal, with the Sign of the Cross.",
       "origin": "The Hours of Prayer · the blessing at meals",
       "search_words": [],
+      "short_credit": null,
       "title": "Grace before Meals"
     },
     {
@@ -1330,6 +1347,7 @@
       "note": "Said at the end of the meal, remembering those who have died.",
       "origin": "The Hours of Prayer · the thanks after meals",
       "search_words": [],
+      "short_credit": null,
       "title": "Grace after Meals"
     },
     {
@@ -1342,6 +1360,7 @@
       "note": "Said before beginning any work or study, giving it to God from its first moment to its end.",
       "origin": "The Roman Missal and Breviary",
       "search_words": [],
+      "short_credit": null,
       "title": "Before Work"
     },
     {
@@ -1358,6 +1377,7 @@
         "students",
         "exams"
       ],
+      "short_credit": null,
       "title": "Prayer of St Thomas Aquinas before Study"
     },
     {
@@ -1373,6 +1393,7 @@
         "newman",
         "purpose"
       ],
+      "short_credit": null,
       "title": "Some Definite Service"
     },
     {
@@ -1387,6 +1408,7 @@
       "search_words": [
         "newman"
       ],
+      "short_credit": null,
       "title": "Lead, Kindly Light"
     },
     {
@@ -1399,6 +1421,7 @@
       "note": "Made each night at bedtime: a few quiet minutes looking back over the day, in five steps.",
       "origin": "After St Ignatius of Loyola",
       "search_words": [],
+      "short_credit": null,
       "title": "The Examen before Sleep"
     },
     {
@@ -1411,6 +1434,7 @@
       "note": "A short call and answer from the Church's Bedtime Prayer, giving the night to God in Jesus's last words from the Cross.",
       "origin": "The Hours of Prayer · Bedtime Prayer (Compline)",
       "search_words": [],
+      "short_credit": null,
       "title": "Into Thy Hands"
     },
     {
@@ -1423,6 +1447,7 @@
       "note": "Simeon's song on holding the Child Jesus in the Temple, sung every night at the Church's Bedtime Prayer (Compline).",
       "origin": "Luke 2:29–32 · Douay-Rheims",
       "search_words": [],
+      "short_credit": null,
       "title": "The Canticle of Simeon"
     },
     {
@@ -1435,6 +1460,7 @@
       "note": "The prayer that ends the Church's Bedtime Prayer, asking the angels to guard the house through the night.",
       "origin": "The Hours of Prayer · Bedtime Prayer (Compline)",
       "search_words": [],
+      "short_credit": null,
       "title": "Visit This House"
     },
     {
@@ -1447,6 +1473,7 @@
       "note": "Said in a breath, at any moment of the day and in time of temptation.",
       "origin": "The Raccolta · 1910, no. 61 · Pope Pius IX, 1846",
       "search_words": [],
+      "short_credit": null,
       "title": "My Jesus, Mercy"
     },
     {
@@ -1459,6 +1486,7 @@
       "note": "Our Lord's words of Himself, turned into a petition; it also closes the Litany of the Sacred Heart.",
       "origin": "The Raccolta, an old Vatican prayer book · after Matthew 11:29",
       "search_words": [],
+      "short_credit": null,
       "title": "Jesus, Meek and Humble of Heart"
     },
     {
@@ -1471,6 +1499,7 @@
       "note": "Two short petitions to the Hearts of Jesus and Mary, said in passing through the day.",
       "origin": "The Raccolta · 1910, nos. 163 and 259 · Pope Leo XIII, 1892; Pope Pius IX, 1852",
       "search_words": [],
+      "short_credit": null,
       "title": "Sweet Heart of Jesus"
     },
     {
@@ -1483,6 +1512,7 @@
       "note": "Said in any trouble, and often through June, the month of the Sacred Heart.",
       "origin": "After the Raccolta · 1910, no. 175 · Pope Pius X, 1905",
       "search_words": [],
+      "short_credit": null,
       "title": "Most Sacred Heart of Jesus"
     },
     {
@@ -1495,6 +1525,7 @@
       "note": "The words Our Lord asked to be written beneath His image of Divine Mercy.",
       "origin": "St Faustina Kowalska · 1931",
       "search_words": [],
+      "short_credit": null,
       "title": "Jesus, I Trust in Thee"
     },
     {
@@ -1507,6 +1538,7 @@
       "note": "A short act of love, said in a breath at any moment of the day.",
       "origin": "After the Raccolta · 1910, no. 63 · Pope Pius IX, 1854",
       "search_words": [],
+      "short_credit": null,
       "title": "My Jesus, I Love Thee"
     },
     {
@@ -1519,6 +1551,7 @@
       "note": "St Thomas's words to the risen Christ, said in silence at the elevation of the Host at Mass.",
       "origin": "St Thomas the Apostle · John 20:28",
       "search_words": [],
+      "short_credit": null,
       "title": "My Lord and My God"
     },
     {
@@ -1531,6 +1564,7 @@
       "note": "St Francis's prayer, said over and over through a whole night, in a breath at any hour.",
       "origin": "St Francis of Assisi · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "My God and My All"
     },
     {
@@ -1543,6 +1577,7 @@
       "note": "Said before the Blessed Sacrament, on entering a church or passing one.",
       "origin": "The Raccolta · Woodstock, 1878, no. 51 · Pope Pius VI, 1776",
       "search_words": [],
+      "short_credit": null,
       "title": "O Sacrament Most Holy"
     },
     {
@@ -1555,6 +1590,7 @@
       "note": "Taught to the three children, who said it three times with their foreheads bowed to the ground.",
       "origin": "The Angel of Peace at Fatima · 1916",
       "search_words": [],
+      "short_credit": null,
       "title": "The Pardon Prayer"
     },
     {
@@ -1567,6 +1603,7 @@
       "note": "The words set round Mary on the Miraculous Medal, as she showed it in the chapel of the Rue du Bac.",
       "origin": "Our Lady to St Catherine Labouré · Paris, 1830",
       "search_words": [],
+      "short_credit": null,
       "title": "O Mary, Conceived without Sin"
     },
     {
@@ -1579,6 +1616,7 @@
       "note": "A short act of praise said at any moment of the day, and above all on her feast on December 8.",
       "origin": "After the Raccolta · 1910, no. 248 · Pope Leo XIII, 1878",
       "search_words": [],
+      "short_credit": null,
       "title": "Blessed Be Her Immaculate Conception"
     },
     {
@@ -1591,6 +1629,7 @@
       "note": "St Louis de Montfort's short renewal of the consecration to Jesus through Mary, said often through the day.",
       "origin": "St Louis de Montfort · 18th century",
       "search_words": [],
+      "short_credit": null,
       "title": "All Yours"
     },
     {
@@ -1603,6 +1642,7 @@
       "note": "Said in any need, and especially on Wednesdays and through March.",
       "origin": "The Raccolta · 1910, no. 489, the Litany of St Joseph · Pope Pius X, 1909",
       "search_words": [],
+      "short_credit": null,
       "title": "St Joseph, Pray for Us"
     },
     {
@@ -1615,6 +1655,7 @@
       "note": "Said at any hour, and asked for especially as the hour of death draws near.",
       "origin": "The Raccolta · Woodstock, 1878, no. 181 · Pope Pius VII, 1807",
       "search_words": [],
+      "short_credit": null,
       "title": "Jesus, Mary and Joseph"
     },
     {
@@ -1627,6 +1668,7 @@
       "note": "Three short prayers for a good death, said each day and at the last.",
       "origin": "The Raccolta · Pope Pius VII, 1807",
       "search_words": [],
+      "short_credit": null,
       "title": "Jesus, Mary and Joseph, I Give You My Heart"
     },
     {
@@ -1639,6 +1681,7 @@
       "note": "Said for light, and for the unity of all peoples in the faith.",
       "origin": "After the Raccolta · 1910, no. 40 · Pope Leo XIII, 1897",
       "search_words": [],
+      "short_credit": null,
       "title": "Holy Spirit, Spirit of Truth"
     },
     {
@@ -1651,6 +1694,7 @@
       "note": "Said for the dead, and at the end of grace after meals.",
       "origin": "The Mass · 4 Esdras 2:34–35",
       "search_words": [],
+      "short_credit": null,
       "title": "Eternal Rest"
     },
     {
@@ -1663,6 +1707,7 @@
       "note": "Said to get ready for Mass or Holy Communion, among the prayers the Church gives priests to say before Mass.",
       "origin": "St Thomas Aquinas · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer of St Thomas Aquinas before Mass"
     },
     {
@@ -1675,6 +1720,7 @@
       "note": "Said in preparation for Mass; the Missal divides the long prayer over the days of the week, and this is its first part.",
       "origin": "Attributed to St Ambrose · the Roman Missal",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer of St Ambrose before Mass"
     },
     {
@@ -1687,6 +1733,7 @@
       "note": "Said before prayer, study or any work begun, asking the Holy Spirit for light.",
       "origin": "The Mass · Pentecost",
       "search_words": [],
+      "short_credit": null,
       "title": "Come, Holy Ghost"
     },
     {
@@ -1699,6 +1746,7 @@
       "note": "Said three times before Holy Communion, striking the breast, in the words of the centurion.",
       "origin": "The Mass · Matthew 8:8",
       "search_words": [],
+      "short_credit": null,
       "title": "Lord, I Am Not Worthy"
     },
     {
@@ -1711,6 +1759,7 @@
       "note": "Said by one who cannot receive Communion, at Mass or before the tabernacle (where the Host is kept in church), to receive Him in desire.",
       "origin": "St Alphonsus Liguori · 18th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Act of Spiritual Communion"
     },
     {
@@ -1725,6 +1774,7 @@
       "search_words": [
         "soul of christ"
       ],
+      "short_credit": null,
       "title": "Soul of Christ"
     },
     {
@@ -1737,6 +1787,7 @@
       "note": "Said kneeling before an image of Christ crucified, after Holy Communion or at any time.",
       "origin": "The Mass · Psalm 21:17–18",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer before a Crucifix"
     },
     {
@@ -1749,6 +1800,7 @@
       "note": "Said in thanksgiving after Mass and Holy Communion, among the Church's prayers of thanks after Mass.",
       "origin": "St Thomas Aquinas · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer of St Thomas Aquinas after Mass"
     },
     {
@@ -1761,6 +1813,7 @@
       "note": "Said in thanksgiving after Holy Communion; the Missal sets it among the prayers after Mass.",
       "origin": "St Bonaventure · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer of St Bonaventure after Mass"
     },
     {
@@ -1773,6 +1826,7 @@
       "note": "Said after Communion, among the Church's prayers of thanks after Mass.",
       "origin": "The Mass · thanks after Mass",
       "search_words": [],
+      "short_credit": null,
       "title": "To Our Lady after Communion"
     },
     {
@@ -1785,6 +1839,7 @@
       "note": "St Ignatius's prayer giving himself wholly to God, from his retreat book, the Spiritual Exercises; often said after Holy Communion.",
       "origin": "St Ignatius of Loyola · 16th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Take, O Lord, and Receive"
     },
     {
@@ -1799,6 +1854,7 @@
       "search_words": [
         "salve regina"
       ],
+      "short_credit": null,
       "title": "Hail, Holy Queen"
     },
     {
@@ -1814,6 +1870,7 @@
         "st michael",
         "michael the archangel"
       ],
+      "short_credit": null,
       "title": "Prayer to Saint Michael"
     },
     {
@@ -1826,6 +1883,7 @@
       "note": "Said on coming to Confession, before the examination of conscience.",
       "origin": "After the Saint Joseph Daily Missal · Rev. Hugo H. Hoever, New York, 1951",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer before Confession"
     },
     {
@@ -1838,6 +1896,7 @@
       "note": "Read slowly before Confession; pause where a question touches you.",
       "origin": "After the Ten Commandments",
       "search_words": [],
+      "short_credit": null,
       "title": "Examination of Conscience"
     },
     {
@@ -1850,6 +1909,7 @@
       "note": "The fourth of the seven psalms of sorrow for sin: David's prayer for mercy after his sin.",
       "origin": "Psalm 50 · Douay-Rheims",
       "search_words": [],
+      "short_credit": null,
       "title": "Psalm 50 · Have Mercy on Me"
     },
     {
@@ -1862,6 +1922,7 @@
       "note": "What is said in the confessional, from the Sign of the Cross to the prayers the priest gives you (your penance).",
       "origin": "The Sacrament of Confession",
       "search_words": [],
+      "short_credit": null,
       "title": "Making Your Confession"
     },
     {
@@ -1874,6 +1935,7 @@
       "note": "Said before Confession and in night prayers, striking the breast at the words of fault.",
       "origin": "The Mass",
       "search_words": [],
+      "short_credit": null,
       "title": "I Confess"
     },
     {
@@ -1886,6 +1948,7 @@
       "note": "Said after leaving the confessional, once you have said the prayers the priest gave you (your penance).",
       "origin": "After Bishop Challoner's Garden of the Soul · The Catholic's Vade Mecum, London, 1851",
       "search_words": [],
+      "short_credit": null,
       "title": "Thanksgiving after Confession"
     },
     {
@@ -1898,6 +1961,7 @@
       "note": "The second of the seven psalms of sorrow for sin, often given by the priest as your penance after Confession.",
       "origin": "Psalm 31 · Douay-Rheims",
       "search_words": [],
+      "short_credit": null,
       "title": "Psalm 31 · Blessed Are They"
     },
     {
@@ -1910,6 +1974,7 @@
       "note": "Said at every visit to Jesus in the tabernacle, as St Alphonsus set it before each of his Visits.",
       "origin": "St Alphonsus Liguori · 1745",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer for a Visit to the Blessed Sacrament"
     },
     {
@@ -1922,6 +1987,7 @@
       "note": "Said in thanksgiving after Holy Communion, and in adoration before Jesus present in the Host.",
       "origin": "St Thomas Aquinas · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "I Adore Thee Devoutly"
     },
     {
@@ -1934,6 +2000,7 @@
       "note": "Taught by the Angel to the three children, who said it prostrate before the Host he held; said in adoration and reparation.",
       "origin": "The Angel of Peace at Fatima · 1916",
       "search_words": [],
+      "short_credit": null,
       "title": "The Angel's Prayer at Fatima"
     },
     {
@@ -1946,6 +2013,7 @@
       "note": "The last two verses of a hymn by St Thomas Aquinas, sung at the start of Benediction as the Host is set out for adoration.",
       "origin": "St Thomas Aquinas · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "O Saving Victim"
     },
     {
@@ -1958,6 +2026,7 @@
       "note": "The last two verses of a longer hymn by St Thomas Aquinas, sung at Benediction just before the priest blesses the people with the Host.",
       "origin": "St Thomas Aquinas · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Down in Adoration Falling"
     },
     {
@@ -1970,6 +2039,7 @@
       "note": "Said at Benediction after the priest blesses the people with the Host, each praise repeated by all.",
       "origin": "Fr Luigi Felici, SJ · 18th century",
       "search_words": [],
+      "short_credit": null,
       "title": "The Divine Praises"
     },
     {
@@ -1982,6 +2052,7 @@
       "note": "A short sung prayer from the Church's Evening Prayer on the feast of the Body of Christ, often sung at Benediction (adoration of the Host, ending in a blessing).",
       "origin": "St Thomas Aquinas · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "O Sacred Banquet"
     },
     {
@@ -1994,6 +2065,7 @@
       "note": "A greeting to Jesus present in the Host, sung as the priest raises the Host at Mass, and at Benediction (adoration of the Host, ending in a blessing).",
       "origin": "Attributed to Pope Innocent VI · 14th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Hail, True Body"
     },
     {
@@ -2006,6 +2078,7 @@
       "note": "Said before the Blessed Sacrament, in private devotion, at a visit or a Holy Hour.",
       "origin": "Traditional · 17th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Litany of the Most Blessed Sacrament"
     },
     {
@@ -2018,6 +2091,7 @@
       "note": "The heart of a longer prayer for protection, said on waking and before setting out.",
       "origin": "Attributed to St Patrick · 5th century",
       "search_words": [],
+      "short_credit": null,
       "title": "St Patrick's Breastplate"
     },
     {
@@ -2030,6 +2104,7 @@
       "note": "Sung at Pentecost, at ordinations, and whenever the Church asks the Holy Spirit to come.",
       "origin": "Attributed to Rabanus Maurus · 9th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Come, Creator Spirit"
     },
     {
@@ -2042,6 +2117,7 @@
       "note": "A hymn sung at Mass before the Gospel on Pentecost and through the week after.",
       "origin": "Attributed to Stephen Langton · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Come, Holy Spirit"
     },
     {
@@ -2054,6 +2130,7 @@
       "note": "A prayer to the Holy Spirit for holiness of thought, work, love and life.",
       "origin": "Attributed to St Augustine",
       "search_words": [],
+      "short_credit": null,
       "title": "Breathe in Me, O Holy Spirit"
     },
     {
@@ -2066,6 +2143,7 @@
       "note": "Asks for the seven gifts named in Isaias 11:2–3, often said in preparation for Confirmation and at Pentecost.",
       "origin": "Traditional form, author unknown",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer for the Seven Gifts of the Holy Spirit"
     },
     {
@@ -2078,6 +2156,7 @@
       "note": "Cardinal Mercier counselled saying it for five minutes each day, in silence, as the secret of a holy and peaceful life.",
       "origin": "Cardinal Désiré-Joseph Mercier · early 20th century",
       "search_words": [],
+      "short_credit": null,
       "title": "The Secret of Sanctity"
     },
     {
@@ -2090,6 +2169,7 @@
       "note": "Said in the first days of the 33-day preparation, asking the Holy Spirit to come.",
       "origin": "After True Devotion to Mary · Montfort Fathers, Bay Shore, 1941",
       "search_words": [],
+      "short_credit": null,
       "title": "Litany of the Holy Spirit"
     },
     {
@@ -2102,6 +2182,7 @@
       "note": "A litany to the Holy Name, approved for the whole Church in 1862.",
       "origin": "St Bernardine of Siena · 15th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Litany of the Holy Name of Jesus"
     },
     {
@@ -2114,6 +2195,7 @@
       "note": "Said slowly and often through the day, in the words of the publican who stood afar off in the Temple.",
       "origin": "The Desert Fathers · after Luke 18:13",
       "search_words": [],
+      "short_credit": null,
       "title": "The Jesus Prayer"
     },
     {
@@ -2126,6 +2208,7 @@
       "note": "Said before the image of the Child Jesus of Prague, in any need, and by many on the twenty-fifth of each month, in memory of His birth.",
       "origin": "Ven. Fr Cyril of the Mother of God · c. 1637",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer to the Infant Jesus of Prague"
     },
     {
@@ -2138,6 +2221,7 @@
       "note": "Said especially in June, the month of the Sacred Heart, and on the first Friday of each month.",
       "origin": "Approved by Pope Leo XIII · 1899",
       "search_words": [],
+      "short_credit": null,
       "title": "Litany of the Sacred Heart"
     },
     {
@@ -2153,6 +2237,7 @@
         "sacred heart",
         "enthronement"
       ],
+      "short_credit": null,
       "title": "Act of Consecration to the Sacred Heart"
     },
     {
@@ -2165,6 +2250,7 @@
       "note": "Said before the Blessed Sacrament on the feast of the Sacred Heart, to make amends for the wrongs done to His love.",
       "origin": "Pope Pius XI · Miserentissimus Redemptor, 1928",
       "search_words": [],
+      "short_credit": null,
       "title": "Act of Reparation to the Sacred Heart"
     },
     {
@@ -2180,6 +2266,7 @@
         "novena",
         "padre pio"
       ],
+      "short_credit": "Attributed to St Margaret Mary Alacoque · as printed by EWTN",
       "title": "The Efficacious Novena to the Sacred Heart"
     },
     {
@@ -2192,6 +2279,7 @@
       "note": "A prayer of praise in reparation for blasphemy against the Holy Name, given to a Carmelite of Tours.",
       "origin": "Sr Marie of St Peter · 1843",
       "search_words": [],
+      "short_credit": null,
       "title": "The Golden Arrow"
     },
     {
@@ -2204,6 +2292,7 @@
       "note": "Said especially through July, the month of the Precious Blood, whose feast falls on its first day.",
       "origin": "Approved by St John XXIII · 1960",
       "search_words": [],
+      "short_credit": null,
       "title": "Litany of the Most Precious Blood"
     },
     {
@@ -2216,6 +2305,7 @@
       "note": "A short offering that may be said at any hour, and is often said seven times together.",
       "origin": "The Raccolta · 1910",
       "search_words": [],
+      "short_credit": null,
       "title": "Offering of the Precious Blood"
     },
     {
@@ -2228,6 +2318,7 @@
       "note": "Prayed by St Francis before the crucifix of San Damiano, and said before a crucifix to ask for light to know God's will.",
       "origin": "St Francis of Assisi · c. 1205",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer of St Francis before the Crucifix"
     },
     {
@@ -2246,6 +2337,7 @@
         "twelve years",
         "precious blood"
       ],
+      "short_credit": null,
       "title": "The Prayers of St. Bridget (for twelve years)"
     },
     {
@@ -2260,6 +2352,7 @@
       "search_words": [
         "consecration to christ the king"
       ],
+      "short_credit": null,
       "title": "Act of Dedication of the Human Race to Christ the King"
     },
     {
@@ -2276,6 +2369,7 @@
         "chaplet",
         "st faustina"
       ],
+      "short_credit": null,
       "title": "The Chaplet of Divine Mercy"
     },
     {
@@ -2288,6 +2382,7 @@
       "note": "The bishop's own prayer, which his confessor recorded him saying on his deathbed in 1253.",
       "origin": "St Richard of Chichester · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer of St Richard of Chichester"
     },
     {
@@ -2300,6 +2395,7 @@
       "note": "Said each day of the 33-day preparation to give yourself to Jesus through Mary, on the Consecration tab.",
       "origin": "Fr Charles de Condren · 17th century",
       "search_words": [],
+      "short_credit": null,
       "title": "O Jesus Living in Mary"
     },
     {
@@ -2312,6 +2408,7 @@
       "note": "Said to ask for a heart that gives itself to God's service without counting the cost.",
       "origin": "Attributed to St Ignatius of Loyola · in its French form, 20th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer for Generosity"
     },
     {
@@ -2324,6 +2421,7 @@
       "note": "Drawn from his meditation on Our Lord's last words on the Cross, and said to give oneself wholly into the Father's hands.",
       "origin": "St Charles de Foucauld · 1896",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer of Abandonment"
     },
     {
@@ -2336,6 +2434,7 @@
       "note": "Said after Holy Communion, asking that Christ may shine through one's life to everyone one meets.",
       "origin": "After St John Henry Newman · 19th century, as the Missionaries of Charity pray it",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer for Radiating Christ"
     },
     {
@@ -2352,6 +2451,7 @@
         "instrument of thy peace",
         "instrument of your peace"
       ],
+      "short_credit": null,
       "title": "The Peace Prayer"
     },
     {
@@ -2364,6 +2464,7 @@
       "note": "The Church's prayer from the Mass of the Holy Rosary, said when the beads are done.",
       "origin": "The Mass of the Holy Rosary",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer after the Rosary"
     },
     {
@@ -2380,6 +2481,7 @@
         "loretto",
         "litany of our lady"
       ],
+      "short_credit": null,
       "title": "Litany of the Blessed Virgin Mary"
     },
     {
@@ -2392,6 +2494,7 @@
       "note": "Sung to close the Church's Bedtime Prayer (Compline) from Advent until February 2.",
       "origin": "Attributed to Hermann of Reichenau · 11th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Loving Mother of the Redeemer"
     },
     {
@@ -2410,6 +2513,7 @@
         "advent sunday",
         "collect"
       ],
+      "short_credit": null,
       "title": "The Advent Wreath: the Sunday Collects"
     },
     {
@@ -2426,6 +2530,7 @@
         "novena",
         "december 8"
       ],
+      "short_credit": "The Raccolta · Pope Pius VII, 1808",
       "title": "The Novena for the Immaculate Conception"
     },
     {
@@ -2443,6 +2548,7 @@
         "novena",
         "christmas anticipation prayer"
       ],
+      "short_credit": "Author unknown, 19th century · The Little Treasury of Leaflets",
       "title": "The St Andrew Christmas Novena"
     },
     {
@@ -2460,6 +2566,7 @@
         "o emmanuel",
         "great antiphons"
       ],
+      "short_credit": null,
       "title": "The O Antiphons"
     },
     {
@@ -2472,6 +2579,7 @@
       "note": "Sung to close the Church's Bedtime Prayer (Compline) from February 2 until Holy Week.",
       "origin": "Western Church · 12th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Hail, Queen of Heaven"
     },
     {
@@ -2484,6 +2592,7 @@
       "note": "Mary's own song when she visited Elizabeth, sung every evening at the Church's Evening Prayer (Vespers).",
       "origin": "Our Lady · Luke 1:46–55",
       "search_words": [],
+      "short_credit": null,
       "title": "The Canticle of Mary"
     },
     {
@@ -2496,6 +2605,7 @@
       "note": "The hymn the Church sings at Evening Prayer (Vespers) on Mary's feast days.",
       "origin": "Western Church · 9th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Hail, Star of the Sea"
     },
     {
@@ -2508,6 +2618,7 @@
       "note": "An old chant of Our Lady's purity, sung at Benediction and on her feasts.",
       "origin": "A Marian prose · 11th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Inviolate"
     },
     {
@@ -2520,6 +2631,7 @@
       "note": "A hymn long sung by the Carmelites, its greeting returning after every verse.",
       "origin": "A Marian hymn · 11th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Hail, Mother of Mercy"
     },
     {
@@ -2532,6 +2644,7 @@
       "note": "A short sung prayer to Mary, conceived without sin, for her feast on December 8 and for Benediction (adoration of the Host, ending in a blessing).",
       "origin": "Western Church · after the Canticle of Canticles 4:7",
       "search_words": [],
+      "short_credit": null,
       "title": "Thou Art All Fair"
     },
     {
@@ -2544,6 +2657,7 @@
       "note": "The opening verses of the Carmelites' hymn to their Mother, sung on her feast, July 16.",
       "origin": "Attributed to St Simon Stock · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Flower of Carmel"
     },
     {
@@ -2556,6 +2670,7 @@
       "note": "The oldest known prayer to Mary, found on a papyrus from Egypt, and said in any danger.",
       "origin": "Egyptian papyrus · 3rd century",
       "search_words": [],
+      "short_credit": null,
       "title": "We Fly to Thy Patronage"
     },
     {
@@ -2570,6 +2685,7 @@
       "search_words": [
         "remember o most gracious"
       ],
+      "short_credit": null,
       "title": "The Memorare"
     },
     {
@@ -2582,6 +2698,7 @@
       "note": "A short prayer giving oneself to Mary, said each morning.",
       "origin": "Attributed to Fr Nicolò Zucchi, SJ · 17th century",
       "search_words": [],
+      "short_credit": null,
       "title": "My Queen, My Mother"
     },
     {
@@ -2594,6 +2711,7 @@
       "note": "Said on waking and again at bedtime, asking Mary's help to be kept from mortal sin.",
       "origin": "St Mechtilde · 13th century · St Alphonsus Liguori · 18th century",
       "search_words": [],
+      "short_credit": null,
       "title": "The Three Hail Marys"
     },
     {
@@ -2606,6 +2724,7 @@
       "note": "Said before the icon of Our Mother of Perpetual Help, kept by the Redemptorists in Rome since 1866.",
       "origin": "After St Alphonsus Liguori · 18th century",
       "search_words": [],
+      "short_credit": null,
       "title": "To Our Mother of Perpetual Help"
     },
     {
@@ -2618,6 +2737,7 @@
       "note": "Said when a choice must be made, and on her feast on April 26.",
       "origin": "Pope Leo XIII · 1880 · The Raccolta",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer to Our Lady of Good Counsel"
     },
     {
@@ -2630,6 +2750,7 @@
       "note": "Said for the sick, and on her feast on February 11.",
       "origin": "After Our Favorite Novenas · Very Rev. Dean A. A. Lings, New York, 1897",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer to Our Lady of Lourdes"
     },
     {
@@ -2642,6 +2763,7 @@
       "note": "Said on the first Saturday of the month, and on the feast of her Immaculate Heart.",
       "origin": "Pope Pius VII · 1816 · The Raccolta",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer to the Heart of Mary"
     },
     {
@@ -2654,6 +2776,7 @@
       "note": "St John Bosco's prayer to Our Lady under the title he gave his church in Turin, said on the 24th of each month and on her feast on May 24.",
       "origin": "St John Bosco · 19th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer to Mary, Help of Christians"
     },
     {
@@ -2666,6 +2789,7 @@
       "note": "Said by those who wear her scapular, and on her feast on July 16, with three Hail Marys and a Glory Be.",
       "origin": "Pope Leo XIII · 1886 · The Raccolta",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer to Our Lady of Mount Carmel"
     },
     {
@@ -2678,6 +2802,7 @@
       "note": "The hymn sung at Mass on the feast of Our Lady of Sorrows, and a verse at a time between the Stations of the Cross.",
       "origin": "Attributed to Jacopone da Todi · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "At the Cross Her Station Keeping"
     },
     {
@@ -2690,6 +2815,7 @@
       "note": "Seven greetings of her sorrowing heart, each with a Hail Mary, said on Fridays and through September.",
       "origin": "Pope Pius VII · 1815 · The Raccolta",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer to Our Lady of Sorrows"
     },
     {
@@ -2705,6 +2831,7 @@
         "our lady of sorrows",
         "seven sorrows"
       ],
+      "short_credit": null,
       "title": "Litany of Our Lady of Sorrows"
     },
     {
@@ -2717,6 +2844,7 @@
       "note": "The last prayer of the Seven Sorrows of Mary, prayed on their own beads.",
       "origin": "The Servants of Mary (Servites)",
       "search_words": [],
+      "short_credit": null,
       "title": "To Our Lady of Sorrows"
     },
     {
@@ -2732,6 +2860,7 @@
         "st joseph",
         "prayer to st joseph"
       ],
+      "short_credit": null,
       "title": "To Thee, O Blessed Joseph"
     },
     {
@@ -2744,6 +2873,7 @@
       "note": "Said in any need, and above all on Wednesdays and through March, St Joseph's month.",
       "origin": "The Raccolta · 19th century",
       "search_words": [],
+      "short_credit": null,
       "title": "The Memorare to St Joseph"
     },
     {
@@ -2756,6 +2886,7 @@
       "note": "Said especially on Wednesdays, the day given to St Joseph, and through March, his month.",
       "origin": "Approved by Pope St Pius X · 1909; invocations added 2021 (Congregation for Divine Worship, Prot. N. 133/21; English of the new lines: USCCB)",
       "search_words": [],
+      "short_credit": "Pope St Pius X, 1909 · invocations added 2021",
       "title": "Litany of St Joseph"
     },
     {
@@ -2768,6 +2899,7 @@
       "note": "Said before the day's work begins, and on May 1, the feast of St Joseph the Worker.",
       "origin": "St Pius X · 1906",
       "search_words": [],
+      "short_credit": null,
       "title": "To St Joseph, Model of Workers"
     },
     {
@@ -2780,6 +2912,7 @@
       "note": "St Joseph died with Jesus and Mary beside him, and is asked for the same grace at the hour of death.",
       "origin": "Traditional, author unknown · its closing three ejaculations: the Raccolta · Woodstock, 1878, no. 181 · Pope Pius VII, 1807",
       "search_words": [],
+      "short_credit": "Traditional, author unknown · its ejaculations from the Raccolta, 1878",
       "title": "To St Joseph for a Happy Death"
     },
     {
@@ -2795,6 +2928,7 @@
         "all saints",
         "litaniae sanctorum"
       ],
+      "short_credit": null,
       "title": "Litany of the Saints"
     },
     {
@@ -2807,6 +2941,7 @@
       "note": "Said to the mother of the Blessed Virgin, above all by mothers and grandmothers, and on her feast on July 26.",
       "origin": "After the Raccolta · 1910",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer to St Anne"
     },
     {
@@ -2822,6 +2957,7 @@
         "lost things",
         "anthony of padua"
       ],
+      "short_credit": null,
       "title": "Prayer to St Anthony"
     },
     {
@@ -2837,6 +2973,7 @@
         "hopeless cases",
         "desperate cases"
       ],
+      "short_credit": null,
       "title": "Prayer to St Jude"
     },
     {
@@ -2855,6 +2992,7 @@
         "october 28",
         "novena"
       ],
+      "short_credit": "Author unknown · as printed by the Oblate Fathers, New Orleans",
       "title": "The Novena to St Jude"
     },
     {
@@ -2874,6 +3012,7 @@
         "october 1",
         "novena"
       ],
+      "short_credit": "Blessed Be God · Fr Charles J. Callan and Fr John A. McHugh, 1925",
       "title": "The Novena to St Thérèse"
     },
     {
@@ -2888,6 +3027,7 @@
       "search_words": [
         "cancer"
       ],
+      "short_credit": null,
       "title": "Prayer to St Peregrine"
     },
     {
@@ -2904,6 +3044,7 @@
         "benedict medal",
         "exorcism"
       ],
+      "short_credit": null,
       "title": "The Verses of the St Benedict Medal"
     },
     {
@@ -2916,6 +3057,7 @@
       "note": "The antiphon the Order of Preachers sings to St Dominic, its founder, at the close of Compline.",
       "origin": "The Dominican Breviary · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "O Light of the Church"
     },
     {
@@ -2928,6 +3070,7 @@
       "note": "An offering of the Precious Blood for the souls in purgatory, said at any time and especially in November.",
       "origin": "Attributed to St Gertrude the Great · 13th century",
       "search_words": [],
+      "short_credit": null,
       "title": "St Gertrude's Offering for the Holy Souls"
     },
     {
@@ -2940,6 +3083,7 @@
       "note": "Sung at the end of the Church's Night Vigil (Matins) on Sundays and feast days, and to thank God for a great gift.",
       "origin": "The Hours of Prayer · 4th century",
       "search_words": [],
+      "short_credit": null,
       "title": "We Praise Thee, O God"
     },
     {
@@ -2952,6 +3096,7 @@
       "note": "Said slowly, one petition at a time, against the wish to be esteemed.",
       "origin": "Attributed to Cardinal Rafael Merry del Val · 20th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Litany of Humility"
     },
     {
@@ -2964,6 +3109,7 @@
       "note": "Said for the Pope by name, at Benediction (adoration of the Host, ending in a blessing) and in private prayer.",
       "origin": "The Mass · Psalm 40:3",
       "search_words": [],
+      "short_credit": null,
       "title": "Prayer for the Pope"
     },
     {
@@ -2976,6 +3122,7 @@
       "note": "The Church's prayer for all her orders, her bishops, priests and deacons first, that each may serve God faithfully.",
       "origin": "The Roman Missal · Good Friday and the orations for various needs",
       "search_words": [],
+      "short_credit": null,
       "title": "For Priests"
     },
     {
@@ -2988,6 +3135,7 @@
       "note": "An offering of Christ's Passion and Our Lady's sorrows, for sinners and for the whole Church.",
       "origin": "The Raccolta · Pope Pius IX",
       "search_words": [],
+      "short_credit": null,
       "title": "For the Conversion of Sinners"
     },
     {
@@ -3000,6 +3148,7 @@
       "note": "Said by the household together, commending the home to God as the house of Nazareth was His.",
       "origin": "Pope Leo XIII · the Raccolta",
       "search_words": [],
+      "short_credit": null,
       "title": "For the Family"
     },
     {
@@ -3012,6 +3161,7 @@
       "note": "Said by a father or mother for the children God has given them.",
       "origin": "After A Manual of Prayers for the Use of the Catholic Laity · Baltimore, 1888",
       "search_words": [],
+      "short_credit": null,
       "title": "A Parent's Prayer for Their Children"
     },
     {
@@ -3024,6 +3174,7 @@
       "note": "The first bishop of the United States wrote it for his people; given here are its prayers for those who govern and for the nation, without the paragraphs for the Church and the dead.",
       "origin": "Archbishop John Carroll · 1791",
       "search_words": [],
+      "short_credit": null,
       "title": "For Our Country"
     },
     {
@@ -3036,6 +3187,7 @@
       "note": "Said in time of war and unrest, and whenever the world's peace is threatened.",
       "origin": "The Roman Missal and Breviary · the antiphon and collect for peace",
       "search_words": [],
+      "short_credit": null,
       "title": "For Peace"
     },
     {
@@ -3052,6 +3204,7 @@
         "illness",
         "healing"
       ],
+      "short_credit": null,
       "title": "For the Sick"
     },
     {
@@ -3064,6 +3217,7 @@
       "note": "Said for the grace to die well, in the Church and with her Sacraments.",
       "origin": "St John Henry Newman · Meditations and Devotions, 1893",
       "search_words": [],
+      "short_credit": null,
       "title": "For a Happy Death"
     },
     {
@@ -3076,6 +3230,7 @@
       "note": "The sixth of the seven psalms of sorrow for sin, said above all for those who have died.",
       "origin": "Psalm 129 · Douay-Rheims",
       "search_words": [],
+      "short_credit": null,
       "title": "Psalm 129 · Out of the Depths"
     },
     {
@@ -3088,6 +3243,7 @@
       "note": "The Church's prayer for all who have died, said after Psalm 129, Out of the Depths.",
       "origin": "The Mass",
       "search_words": [],
+      "short_credit": null,
       "title": "For All the Faithful Departed"
     },
     {
@@ -3100,6 +3256,7 @@
       "note": "The Missal's prayer for a son or daughter whose parents have gone before them.",
       "origin": "The Roman Missal · the collect for deceased parents",
       "search_words": [],
+      "short_credit": null,
       "title": "For One's Father and Mother Who Have Died"
     },
     {
@@ -3116,6 +3273,7 @@
         "travel",
         "itinerarium"
       ],
+      "short_credit": null,
       "title": "Before a Journey"
     },
     {
@@ -3128,6 +3286,7 @@
       "note": "Found written in her breviary after her death, and said in any trouble of mind.",
       "origin": "St Teresa of Ávila · 16th century",
       "search_words": [],
+      "short_credit": null,
       "title": "Let Nothing Disturb Thee"
     },
     {
@@ -3145,6 +3304,7 @@
         "novena",
         "knots"
       ],
+      "short_credit": null,
       "title": "The Novena to Our Lady, Undoer of Knots"
     },
     {
@@ -3163,6 +3323,7 @@
         "seven gifts",
         "novena"
       ],
+      "short_credit": "The Holy Ghost Fathers · as printed by EWTN",
       "title": "The Novena to the Holy Spirit for the Seven Gifts"
     },
     {
@@ -3180,6 +3341,7 @@
         "march 19",
         "novena"
       ],
+      "short_credit": "Fr. Lawrence G. Lovasik, S.V.D. · as printed by EWTN",
       "title": "The Novena to St Joseph"
     },
     {
@@ -3197,6 +3359,7 @@
         "redemptorist",
         "novena"
       ],
+      "short_credit": "The Raccolta · arranged by the Redemptorist Fathers",
       "title": "The Novena to Our Mother of Perpetual Help"
     },
     {
@@ -3215,6 +3378,7 @@
         "december 12",
         "novena"
       ],
+      "short_credit": "Traditional Mexican novena · as published by EWTN",
       "title": "The Novena to Our Lady of Guadalupe"
     }
   ],

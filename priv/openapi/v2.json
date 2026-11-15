@@ -2717,6 +2717,10 @@
                       },
                       "type": "array"
                     },
+                    "short_credit": {
+                      "nullable": true,
+                      "type": "string"
+                    },
                     "title": {
                       "type": "string"
                     }

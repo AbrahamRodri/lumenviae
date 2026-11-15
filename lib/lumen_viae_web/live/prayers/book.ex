@@ -205,26 +205,9 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
 
   # A full book citation is too heavy under a title (design, 15 Nov 2026):
   # an origin longer than this shows a short credit there, author then
-  # publisher, and the whole citation at the foot of the page.
+  # publisher, from the prayer's `short_credit`, and the whole citation at
+  # the foot of the page.
   @short_origin_limit 100
-
-  # The short credits, written for each origin over the limit; one with
-  # none here shows at the foot only.
-  @short_credits %{
-    "efficacious_novena" => "Attributed to St Margaret Mary Alacoque · as printed by EWTN",
-    "holy_spirit_novena" => "The Holy Ghost Fathers · as printed by EWTN",
-    "immaculate_conception_novena" => "The Raccolta · Pope Pius VII, 1808",
-    "litany_st_joseph" => "Pope St Pius X, 1909 · invocations added 2021",
-    "our_lady_of_guadalupe_novena" => "Traditional Mexican novena · as published by EWTN",
-    "our_mother_of_perpetual_help_novena" =>
-      "The Raccolta · arranged by the Redemptorist Fathers",
-    "st_andrew_novena" => "Author unknown, 19th century · The Little Treasury of Leaflets",
-    "st_joseph_happy_death" =>
-      "Traditional, author unknown · its ejaculations from the Raccolta, 1878",
-    "st_joseph_novena" => "Fr. Lawrence G. Lovasik, S.V.D. · as printed by EWTN",
-    "st_jude_novena" => "Author unknown · as printed by the Oblate Fathers, New Orleans",
-    "st_therese_novena" => "Blessed Be God · Fr Charles J. Callan and Fr John A. McHugh, 1925"
-  }
 
   @doc """
   Where the prayer comes from, as the page shows it: `{under_title, at_foot}`.
@@ -234,7 +217,7 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   def origin_lines(%{origin: origin} = prayer) when is_binary(origin) and origin != "" do
     if String.length(origin) <= @short_origin_limit,
       do: {origin, nil},
-      else: {Map.get(@short_credits, prayer.id), origin}
+      else: {Map.get(prayer, :short_credit), origin}
   end
 
   def origin_lines(_prayer), do: {nil, nil}

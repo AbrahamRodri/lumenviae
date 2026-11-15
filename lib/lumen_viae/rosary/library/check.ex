@@ -540,6 +540,7 @@ defmodule LumenViae.Rosary.Library.Check do
     errors =
       required(prayer, ~w(title english)) ++
         optional(prayer, ~w(latin_title origin note latin list_title english_name)) ++
+        may_hold(prayer, ~w(short_credit)) ++
         words(prayer, "search_words")
 
     Enum.map(errors, &"the prayer #{id}: #{&1}") ++ pairing_errors(prayer)
@@ -1142,6 +1143,13 @@ defmodule LumenViae.Rosary.Library.Check do
     for key <- keys,
         not (is_binary(map[key]) and String.trim(map[key]) != ""),
         do: "#{key} is required text"
+  end
+
+  # A key added later: absent, null or text.
+  defp may_hold(map, keys) do
+    for key <- keys,
+        Map.has_key?(map, key) and not (is_nil(map[key]) or is_binary(map[key])),
+        do: "#{key} is text or null"
   end
 
   defp optional(map, keys) do
