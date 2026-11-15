@@ -42,6 +42,7 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
      |> PageMeta.put(Book.prayer_path(id),
        title: prayer.title,
        description: description(prayer),
+       image: share_image(book, id),
        trail: trail(prayer, chapter)
      )
      |> assign(:book, book)
@@ -94,6 +95,17 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
   end
 
   # The opening words, without the book's marks.
+  # What a shared link shows: the painting the prayer's card hangs. A
+  # novena shows only its own art, and the logo where that art is not
+  # public domain (St Therese's photograph is CC BY-SA, and a card has no
+  # room for its credit).
+  defp share_image(book, id) do
+    case Book.novena(book, id) do
+      %{painting: name} -> PageMeta.named_image(name) || PageMeta.novena_image(id)
+      nil -> PageMeta.named_image(Book.prayer_painting(book, id))
+    end
+  end
+
   defp description(prayer) do
     words =
       prayer.english

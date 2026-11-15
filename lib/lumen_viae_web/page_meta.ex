@@ -114,13 +114,41 @@ defmodule LumenViaeWeb.PageMeta do
   def named_image(name) when is_binary(name), do: preview(MysteryPainting.for_name(name))
   def named_image(_), do: nil
 
+  # The novenas whose own art is none of the site's paintings: a card cut
+  # from that art, public-domain art only (scripts/paintings/share_crops.exs).
+  @novena_cards Path.expand("../../priv/static/images/novenas/manifest.json", __DIR__)
+  @external_resource @novena_cards
+  @novena_images @novena_cards
+                 |> File.read!()
+                 |> Jason.decode!()
+                 |> Map.new(fn {id, %{"share" => [w, h], "alt" => alt}} ->
+                   {id, %{path: "/images/novenas/#{id}-share.jpg", width: w, height: h, alt: alt}}
+                 end)
+
+  @doc """
+  The preview image cut from a novena's own art, by its prayer id, where
+  the art is none of the site's paintings and is public domain. Nil
+  otherwise.
+  """
+  def novena_image(prayer_id) do
+    case @novena_images[prayer_id] do
+      nil ->
+        nil
+
+      image ->
+        %{url: absolute_url(image.path), width: image.width, height: image.height, alt: image.alt}
+    end
+  end
+
   defp preview(nil), do: nil
 
+  # The painting's wide card, cropped about where the page hangs it, so
+  # chats show it large rather than as a thumbnail.
   defp preview(painting) do
     %{
-      url: absolute_url(painting.preview.src),
-      width: painting.preview.width,
-      height: painting.preview.height,
+      url: absolute_url(painting.share.src),
+      width: painting.share.width,
+      height: painting.share.height,
       alt: painting.alt
     }
   end

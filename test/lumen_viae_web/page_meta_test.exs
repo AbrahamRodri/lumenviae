@@ -238,9 +238,12 @@ defmodule LumenViaeWeb.PageMetaTest do
       end
     end
 
-    test "a tall painting is a summary card, as the large card would crop it", %{conn: conn} do
+    test "a painting is shared as its wide card, so chats show it large", %{conn: conn} do
       doc = page(conn, "/mysteries/joyful")
-      assert content(doc, ~s(meta[name="twitter:card"])) == "summary"
+      assert content(doc, ~s(meta[name="twitter:card"])) == "summary_large_image"
+
+      assert content(doc, ~s(meta[property="og:image"])) =~
+               "/images/paintings/joyful_annunciation-share.jpg"
     end
 
     test "strips the filter's query string from the canonical link", %{conn: conn} do
@@ -270,9 +273,9 @@ defmodule LumenViaeWeb.PageMetaTest do
       refute description =~ "the Annunciation"
 
       image = MysteryPainting.for_mystery("joyful_3")
-      assert content(doc, ~s(meta[property="og:image"])) == @site <> image.preview.src
-      assert content(doc, ~s(meta[property="og:image:width"])) == to_string(image.preview.width)
-      assert content(doc, ~s(meta[property="og:image:height"])) == to_string(image.preview.height)
+      assert content(doc, ~s(meta[property="og:image"])) == @site <> image.share.src
+      assert content(doc, ~s(meta[property="og:image:width"])) == to_string(image.share.width)
+      assert content(doc, ~s(meta[property="og:image:height"])) == to_string(image.share.height)
       assert content(doc, ~s(meta[property="og:image:alt"])) == image.alt
 
       assert breadcrumb_names(doc) == ["Home", "The Joyful Mysteries", "A Set For Meta"]
@@ -332,7 +335,7 @@ defmodule LumenViaeWeb.PageMetaTest do
       assert content(doc, ~s(meta[name="description"])) =~ "Sorrowful Mysteries"
 
       image = MysteryPainting.for_mystery("sorrowful_1")
-      assert content(doc, ~s(meta[property="og:image"])) == @site <> image.preview.src
+      assert content(doc, ~s(meta[property="og:image"])) == @site <> image.share.src
 
       assert canonical(doc) == @site <> "/mysteries/sorrowful/pray"
 
@@ -369,18 +372,50 @@ defmodule LumenViaeWeb.PageMetaTest do
         painting = MysteryPainting.for_name(name)
 
         assert content(doc, ~s(meta[property="og:image"])) ==
-                 @site <> "/images/paintings/#{name}-preview.jpg",
+                 @site <> "/images/paintings/#{name}-share.jpg",
                path
 
         assert content(doc, ~s(meta[property="og:image:width"])) ==
-                 to_string(painting.preview.width)
+                 to_string(painting.share.width)
 
         assert content(doc, ~s(meta[property="og:image:height"])) ==
-                 to_string(painting.preview.height)
+                 to_string(painting.share.height)
 
         assert content(doc, ~s(meta[property="og:image:alt"])) == painting.alt
-        assert File.exists?(Path.join("priv/static", painting.preview.src)), path
+        assert File.exists?(Path.join("priv/static", painting.share.src)), path
       end
+    end
+  end
+
+  describe "a prayer's page" do
+    test "previews the painting its card hangs", %{conn: conn} do
+      doc = page(conn, "/prayers/o_antiphons")
+
+      assert content(doc, ~s(meta[property="og:image"])) ==
+               @site <> "/images/paintings/advent_isaiah-share.jpg"
+
+      assert content(doc, ~s(meta[name="twitter:card"])) == "summary_large_image"
+    end
+
+    test "a novena previews its own art: a painting, or a card cut from its public-domain art",
+         %{conn: conn} do
+      doc = page(conn, "/prayers/st_jude_novena")
+
+      assert content(doc, ~s(meta[property="og:image"])) =~
+               "/images/paintings/saint_jude-share.jpg"
+
+      doc = page(conn, "/prayers/undoer_of_knots_novena")
+
+      assert content(doc, ~s(meta[property="og:image"])) ==
+               @site <> "/images/novenas/undoer_of_knots_novena-share.jpg"
+
+      assert content(doc, ~s(meta[property="og:image:alt"])) =~ "Schmidtner"
+      assert File.exists?("priv/static/images/novenas/undoer_of_knots_novena-share.jpg")
+    end
+
+    test "a novena whose art is not public domain keeps the site's own image", %{conn: conn} do
+      doc = page(conn, "/prayers/st_therese_novena")
+      assert content(doc, ~s(meta[property="og:image"])) == @site <> "/og-image.png"
     end
   end
 
@@ -417,8 +452,18 @@ defmodule LumenViaeWeb.PageMetaTest do
     test "a preview is the painting's JPEG, never its WebP" do
       image = PageMeta.painting_image("sorrowful_1")
 
-      assert image.url =~ "/images/paintings/sorrowful_agony-preview.jpg"
+      assert image.url =~ "/images/paintings/sorrowful_agony-share.jpg"
       assert image.alt =~ "Christ in Gethsemane"
+    end
+
+    test "every painting has its wide share card, 600 to 1200 pixels at 1.91:1" do
+      manifest =
+        "priv/static/images/paintings/manifest.json" |> File.read!() |> Jason.decode!()
+
+      for %{"name" => name, "share" => [w, h]} <- manifest["paintings"] do
+        assert File.exists?("priv/static/images/paintings/#{name}-share.jpg"), name
+        assert w in 600..1200 and abs(w / h - 1200 / 630) < 0.01, name
+      end
     end
   end
 end

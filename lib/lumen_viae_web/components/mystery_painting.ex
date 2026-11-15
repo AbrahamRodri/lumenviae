@@ -12,8 +12,10 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
   `paintings` holds each picture's widths and its title, artist and date
   from the app's sourcing notes. Each painting is `<name>-480.webp`,
   `<name>-960.webp` (or its full width, when narrower), a 480 pixel
-  `<name>.jpg`, and `<name>-preview.jpg` (at most 800 pixels) for link
-  previews. See docs/MYSTERY_PAINTINGS.md.
+  `<name>.jpg`, `<name>-preview.jpg` (at most 800 pixels) and
+  `<name>-share.jpg`, the wide card a shared link shows (1.91:1, at most
+  1200 pixels, `scripts/paintings/share_crops.exs`). See
+  docs/MYSTERY_PAINTINGS.md.
 
       <MysteryPainting.picture key="sorrowful_1" sizes="64px" class="..." />
       <MysteryPainting.picture category="glorious" sizes="50vw" class="..." />
@@ -33,6 +35,7 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
   @paintings Map.new(@manifest["paintings"], fn p ->
                [[w1, h1], [w2, h2]] = p["widths"]
                [pw, ph] = p["preview"]
+               [sw, sh] = p["share"]
                base = "/images/paintings/#{p["name"]}"
 
                credit =
@@ -56,6 +59,7 @@ defmodule LumenViaeWeb.Components.MysteryPainting do
                   height: h2,
                   small: {w1, h1},
                   preview: %{src: "#{base}-preview.jpg", width: pw, height: ph},
+                  share: %{src: "#{base}-share.jpg", width: sw, height: sh},
                   title: p["title"],
                   artist: p["artist"],
                   date: p["date"],
