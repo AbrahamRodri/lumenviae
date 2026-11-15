@@ -410,9 +410,9 @@
 
   /* A page that wants the whole screen (the prayer page) puts
      data-layout="focused" on its outermost element, and the shell steps
-     aside. Works across live navigation, which never re-renders the root
+     aside; a page's own skip link (`.skip-link--own`) stays. Works across live navigation, which never re-renders the root
      layout. */
-  .site:has([data-layout="focused"]) :is(.site-header, .site-footer, .skip-link) {
+  .site:has([data-layout="focused"]) :is(.site-header, .site-footer, .skip-link:not(.skip-link--own)) {
     display: none;
   }
 }
@@ -787,7 +787,9 @@
   box-shadow: var(--shadow-gilt);
 }
 
-/* Skip link: off screen until focused, then a gilt plate at the top left. */
+/* Skip link: off screen until focused, then a gilt plate at the top left
+   of the screen, pinned there (fixed), so a page that has scrolled on
+   load (a chant opening at its line) still shows it. */
 .skip-link {
   position: absolute;
   left: max(0.75rem, env(safe-area-inset-left));
@@ -804,8 +806,30 @@
 }
 
 .skip-link:focus {
+  position: fixed;
   transform: translateY(0);
-  outline-color: var(--color-ink-light);
+  outline: 2px solid var(--color-ink-light);
+  outline-offset: 3px;
+}
+
+/* Home's week of beads: each day's name, or its initial where large text
+   leaves no room for three letters (M T W T F S S). */
+.week-day {
+  container-type: inline-size;
+}
+
+.week-day__initial {
+  display: none;
+}
+
+@container (width < 2.4em) {
+  .week-day__label {
+    display: none;
+  }
+
+  .week-day__initial {
+    display: inline;
+  }
 }
 
 /* A row that scrolls sideways on a phone (the Scripture page's tabs). */
@@ -902,6 +926,11 @@
   opacity: 0.92;
 }
 
+/* The words beside a row's picture may narrow, so large text wraps them. */
+.row-link > * {
+  min-width: 0;
+}
+
 .row-link:focus-visible {
   outline: 2px solid var(--color-gilt);
   outline-offset: 2px;
@@ -912,6 +941,9 @@
    capitals. */
 .row-title {
   display: block;
+  /* A long word ("Consecration") breaks rather than run past the edge
+     at large text sizes. */
+  overflow-wrap: anywhere;
   font-family: var(--font-display);
   font-size: 1.0625rem;
   font-weight: 600;
@@ -926,6 +958,7 @@
 
 .row-fact {
   display: block;
+  overflow-wrap: anywhere;
   margin-top: 0.125rem;
   font-family: var(--font-display);
   font-size: 0.75rem;
@@ -1085,8 +1118,8 @@
 .mystery-thumb {
   position: relative;
   overflow: hidden;
-  width: 2.75rem;
-  height: 3.5rem;
+  width: min(2.75rem, 12vw);
+  height: min(3.5rem, 15.3vw);
   border-radius: 9999px 9999px 0.25rem 0.25rem;
   border: 1px solid rgba(227, 188, 91, 0.5);
   background: var(--color-night-raised);
@@ -1096,7 +1129,10 @@
    name, its fruit in italic beneath. The home page and a category page. */
 .mystery-ledger > li {
   display: grid;
-  grid-template-columns: 1.75rem 2.75rem minmax(0, 1fr);
+  /* The numeral and the painting grow with the text only so far, so a
+     large text size leaves the name room; a long name breaks. */
+  grid-template-columns: min(1.75rem, 8vw) min(2.75rem, 12vw) minmax(0, 1fr);
+  overflow-wrap: anywhere;
   column-gap: 0.75rem;
   align-items: center;
   padding: 0.625rem 0;
@@ -1195,6 +1231,7 @@
    fact in small capitals, the Office's after its lit hour. */
 .todays-prayer__head {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
@@ -1248,8 +1285,9 @@
 .todays-prayer__painting {
   position: relative;
   flex-shrink: 0;
-  width: 4rem;
-  height: 4rem;
+  /* Grows with the text, but never past a fifth of a phone's width. */
+  width: min(4rem, 20vw);
+  height: min(4rem, 20vw);
   border-radius: 0.75rem;
   background: var(--color-night-raised);
   box-shadow: inset 0 0 0 1px rgba(227, 188, 91, 0.28);
@@ -2650,10 +2688,22 @@ html:has(#prayer) {
   /* English, Latin, Both: the app's language choice, links here. */
   .prayers-language {
     display: flex;
+    flex-wrap: wrap;
     max-width: 20rem;
     padding: 3px;
-    border-radius: 9999px;
+    /* Round as a pill at one row (44px), and still neat when large text
+       stacks the options. */
+    border-radius: 1.5rem;
     border: 1px solid rgba(227, 188, 91, 0.18);
+    container-type: inline-size;
+  }
+
+  /* Large text: too narrow for the options side by side, so each takes
+     its own line rather than running past the edge. */
+  @container (width < 16em) {
+    .prayers-language__option {
+      flex-basis: 100%;
+    }
   }
 
   .prayers-language__option {
@@ -5367,6 +5417,9 @@ html:has(#prayer) {
      held in view while the Words scroll. */
   .chant-page__grid {
     display: grid;
+    /* One column no wider than the page, so large text wraps the lines
+       instead of pushing them past the edge. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 2.5rem;
     margin-top: 0.5rem;
   }
@@ -8644,7 +8697,8 @@ html:has(#prayer) {
 
   .cons-intro__title {
     font-family: var(--font-display);
-    font-size: 1.75rem;
+    font-size: min(1.75rem, 8.5vw);
+    overflow-wrap: anywhere;
     line-height: 1.2;
     color: var(--color-ink-light);
   }

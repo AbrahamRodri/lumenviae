@@ -55,6 +55,9 @@
     },
     createCanvas = function () {
       canvas = document.createElement("canvas");
+      // Lumen Viae: a progress bar drawn for the eye only, outside any
+      // landmark; screen readers skip it (axe "region").
+      canvas.setAttribute("aria-hidden", "true");
       var style = canvas.style;
       style.position = "fixed";
       style.top = style.left = style.right = style.margin = style.padding = 0;

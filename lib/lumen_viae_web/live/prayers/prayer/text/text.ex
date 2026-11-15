@@ -109,7 +109,8 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
     ~H"""
     {runs(@invocation)}
     <span class="book-litany-response">
-      <span class="book-glyph" aria-hidden="true">℟.</span> {runs(@response)}
+      <span class="book-glyph" aria-hidden="true">℟.</span><span class="sr-only">All: </span>
+      {runs(@response)}
     </span>
     """
   end
@@ -137,8 +138,10 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
   # would put a space between a glyph and the stop after it ("℟ .").
   defp runs(runs) do
     {:safe,
-     Enum.map(runs, fn
-       {:glyph, glyph} -> [~s(<span class="book-glyph">), escape(glyph), "</span>"]
+     runs
+     |> LumenViaeWeb.Components.Glyph.with_stops()
+     |> Enum.map(fn
+       {:glyph, glyph} -> LumenViaeWeb.Components.Glyph.markup(glyph)
        {:text, text} -> escape(text)
      end)}
   end
