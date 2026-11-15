@@ -336,6 +336,8 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       for chapter <- book.chapters do
         assert sitemap =~ "<loc>https://www.lumenviae.org/prayers/topics/#{chapter.id}</loc>"
       end
+
+      assert sitemap =~ "<loc>https://www.lumenviae.org/prayers/topics/novenas</loc>"
     end
   end
 end
