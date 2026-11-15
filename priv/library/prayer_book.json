@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T06:50:00Z",
+  "updated_at": "2026-11-15T07:05:00Z",
   "chapters": [
     {
       "id": "first",
@@ -1204,7 +1204,7 @@
       "latin_title": "Actus Fidei",
       "list_title": null,
       "note": "Made on waking and at night, with the Acts of Hope and Charity.",
-      "origin": "The Raccolta, an old Vatican prayer book",
+      "origin": "Traditional form, author unknown",
       "search_words": [],
       "title": "The Act of Faith"
     },
@@ -1216,7 +1216,7 @@
       "latin_title": "Actus Spei",
       "list_title": null,
       "note": "Made on waking and at night, after the Act of Faith.",
-      "origin": "The Raccolta, an old Vatican prayer book",
+      "origin": "Traditional form, author unknown",
       "search_words": [],
       "title": "The Act of Hope"
     },
@@ -1228,7 +1228,7 @@
       "latin_title": "Actus Caritatis",
       "list_title": null,
       "note": "Made on waking and at night, after the Acts of Faith and Hope.",
-      "origin": "The Raccolta, an old Vatican prayer book",
+      "origin": "Traditional form, author unknown",
       "search_words": [],
       "title": "The Act of Charity"
     },
@@ -1240,7 +1240,7 @@
       "latin_title": "Actus Contritionis",
       "list_title": "Act of Contrition",
       "note": "Said in the confessional, and each night at bedtime.",
-      "origin": "Traditional",
+      "origin": "A Manual of Prayers for the Use of the Catholic Laity · Baltimore, 1888",
       "search_words": [],
       "title": "The Act of Contrition"
     },
@@ -1445,7 +1445,7 @@
       "latin_title": "Iesu mi, misericordia",
       "list_title": null,
       "note": "Said in a breath, at any moment of the day and in time of temptation.",
-      "origin": "The Raccolta, an old Vatican prayer book",
+      "origin": "The Raccolta · 1910, no. 61 · Pope Pius IX, 1846",
       "search_words": [],
       "title": "My Jesus, Mercy"
     },
@@ -1469,7 +1469,7 @@
       "latin_title": "Dulce Cor Iesu",
       "list_title": null,
       "note": "Two short petitions to the Hearts of Jesus and Mary, said in passing through the day.",
-      "origin": "The Raccolta, an old Vatican prayer book",
+      "origin": "The Raccolta · 1910, nos. 163 and 259 · Pope Leo XIII, 1892; Pope Pius IX, 1852",
       "search_words": [],
       "title": "Sweet Heart of Jesus"
     },
@@ -1481,7 +1481,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Said in any trouble, and often through June, the month of the Sacred Heart.",
-      "origin": "The Raccolta",
+      "origin": "After the Raccolta · 1910, no. 175 · Pope Pius X, 1905",
       "search_words": [],
       "title": "Most Sacred Heart of Jesus"
     },
@@ -1505,7 +1505,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "A short act of love, said in a breath at any moment of the day.",
-      "origin": "Traditional",
+      "origin": "After the Raccolta · 1910, no. 63 · Pope Pius IX, 1854",
       "search_words": [],
       "title": "My Jesus, I Love Thee"
     },
@@ -1541,7 +1541,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Said before the Blessed Sacrament, on entering a church or passing one.",
-      "origin": "The Raccolta",
+      "origin": "The Raccolta · Woodstock, 1878, no. 51 · Pope Pius VI, 1776",
       "search_words": [],
       "title": "O Sacrament Most Holy"
     },
@@ -1577,7 +1577,7 @@
       "latin_title": "Benedicta sit sancta et immaculata Conceptio",
       "list_title": null,
       "note": "A short act of praise said at any moment of the day, and above all on her feast on December 8.",
-      "origin": "The Raccolta, an old Vatican prayer book",
+      "origin": "After the Raccolta · 1910, no. 248 · Pope Leo XIII, 1878",
       "search_words": [],
       "title": "Blessed Be Her Immaculate Conception"
     },
@@ -1601,7 +1601,7 @@
       "latin_title": "Sancte Ioseph, ora pro nobis",
       "list_title": null,
       "note": "Said in any need, and especially on Wednesdays and through March.",
-      "origin": "Traditional",
+      "origin": "The Raccolta · 1910, no. 489, the Litany of St Joseph · Pope Pius X, 1909",
       "search_words": [],
       "title": "St Joseph, Pray for Us"
     },
@@ -1613,7 +1613,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Said at any hour, and asked for especially as the hour of death draws near.",
-      "origin": "The Raccolta, an old Vatican prayer book",
+      "origin": "The Raccolta · Woodstock, 1878, no. 181 · Pope Pius VII, 1807",
       "search_words": [],
       "title": "Jesus, Mary and Joseph"
     },
@@ -1637,7 +1637,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Said for light, and for the unity of all peoples in the faith.",
-      "origin": "The Raccolta",
+      "origin": "After the Raccolta · 1910, no. 40 · Pope Leo XIII, 1897",
       "search_words": [],
       "title": "Holy Spirit, Spirit of Truth"
     },
@@ -1824,7 +1824,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Said on coming to Confession, before the examination of conscience.",
-      "origin": "Traditional",
+      "origin": "After the Saint Joseph Daily Missal · Rev. Hugo H. Hoever, New York, 1951",
       "search_words": [],
       "title": "Prayer before Confession"
     },
@@ -1884,7 +1884,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Said after leaving the confessional, once you have said the prayers the priest gave you (your penance).",
-      "origin": "Traditional",
+      "origin": "After Bishop Challoner's Garden of the Soul · The Catholic's Vade Mecum, London, 1851",
       "search_words": [],
       "title": "Thanksgiving after Confession"
     },
@@ -2064,7 +2064,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Asks for the seven gifts named in Isaias 11:2–3, often said in preparation for Confirmation and at Pentecost.",
-      "origin": "Traditional · the prayer manuals",
+      "origin": "Traditional form, author unknown",
       "search_words": [],
       "title": "Prayer for the Seven Gifts of the Holy Spirit"
     },
@@ -2088,7 +2088,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Said in the first days of the 33-day preparation, asking the Holy Spirit to come.",
-      "origin": "Traditional",
+      "origin": "After True Devotion to Mary · Montfort Fathers, Bay Shore, 1941",
       "search_words": [],
       "title": "Litany of the Holy Spirit"
     },
@@ -2628,7 +2628,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Said for the sick, and on her feast on February 11.",
-      "origin": "A traditional prayer · late 19th century",
+      "origin": "After Our Favorite Novenas · Very Rev. Dean A. A. Lings, New York, 1897",
       "search_words": [],
       "title": "Prayer to Our Lady of Lourdes"
     },
@@ -2778,7 +2778,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "St Joseph died with Jesus and Mary beside him, and is asked for the same grace at the hour of death.",
-      "origin": "The Raccolta",
+      "origin": "Traditional, author unknown · its closing three ejaculations: the Raccolta · Woodstock, 1878, no. 181 · Pope Pius VII, 1807",
       "search_words": [],
       "title": "To St Joseph for a Happy Death"
     },
@@ -3010,7 +3010,7 @@
       "latin_title": null,
       "list_title": null,
       "note": "Said by a father or mother for the children God has given them.",
-      "origin": "The prayer books of the 19th century",
+      "origin": "After A Manual of Prayers for the Use of the Catholic Laity · Baltimore, 1888",
       "search_words": [],
       "title": "A Parent's Prayer for Their Children"
     },
