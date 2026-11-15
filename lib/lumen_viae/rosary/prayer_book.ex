@@ -165,5 +165,15 @@ defmodule LumenViae.Rosary.PrayerBook do
 
       description "With `lang=es`, every novena that has Spanish, in the order of `novenas`: its titles, card sentence, day titles and the words of its own parts, by part id. A part named by a book prayer takes that prayer's `translations` entry. A novena or part not listed keeps its English. Empty in English. Served only when named in `fields[prayer_book]`."
     end
+
+    calculate :chapter_translations,
+              {:array, LumenViae.Rosary.PrayerBook.ChapterTranslation},
+              LumenViae.Rosary.PrayerBook.ChapterTranslations do
+      allow_nil? false
+      public? true
+      constraints nil_items?: false
+
+      description "With `lang=es`, every chapter (a Prayers topic) that has Spanish, in the order of `chapters`, by chapter id: its title, topic, note, one title per section and its Spanish search words. A chapter not listed keeps its English. Empty in English. Served only when named in `fields[prayer_book]`."
+    end
   end
 end

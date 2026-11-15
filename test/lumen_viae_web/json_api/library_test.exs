@@ -307,6 +307,25 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       assert length(by_id["st_andrew_christmas"]["day_titles"]) == 25
     end
 
+    test "chapter_translations: the topics' Spanish by chapter id with lang=es, empty in English",
+         %{conn: conn} do
+      path = "/prayer-book?fields[prayer_book]=chapters,chapter_translations"
+
+      english = conn |> get_v2(path) |> v2_response(200) |> get_in(["data", "attributes"])
+      assert english["chapter_translations"] == []
+
+      spanish =
+        conn |> get_v2(path <> "&lang=es") |> v2_response(200) |> get_in(["data", "attributes"])
+
+      assert Enum.map(spanish["chapter_translations"], & &1["id"]) ==
+               Enum.map(spanish["chapters"], & &1["id"])
+
+      [first | _] = spanish["chapter_translations"]
+
+      assert %{"id" => "first", "title" => "Las primeras oraciones", "note" => nil} = first
+      assert length(first["section_titles"]) == length(hd(spanish["chapters"])["sections"])
+    end
+
     test "a shipped app's Spanish request carries no novena_translations", %{conn: conn} do
       attributes =
         conn

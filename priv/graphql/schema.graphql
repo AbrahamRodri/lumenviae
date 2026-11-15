@@ -709,6 +709,26 @@ type ChantGroup {
   id: String!
 }
 
+type ChapterTranslation {
+  "What it is about, in a few words, in this language (`Oraciones a María`)."
+  topic: String!
+
+  "Its title in this language."
+  title: String!
+
+  "Its sub-headings in this language, one per section, in the order of the chapter's `sections`."
+  sectionTitles: [String!]!
+
+  "Words a search in this language finds it by. Empty when none."
+  searchWords: [String!]!
+
+  "Its one italic line in this language, or null where the English has none."
+  note: String
+
+  "The chapter's id, the same as in `chapters`."
+  id: String!
+}
+
 type NovenaPartTranslation {
   "Its heading in this language, or null where the part has none."
   title: String
@@ -2312,6 +2332,9 @@ type PrayerBook {
 
   "With `lang=es`, every novena that has Spanish, in the order of `novenas`: its titles, card sentence, day titles and the words of its own parts, by part id. A part named by a book prayer takes that prayer's `translations` entry. A novena or part not listed keeps its English. Empty in English. Served only when named in `fields[prayer_book]`."
   novenaTranslations: [NovenaTranslation!]!
+
+  "With `lang=es`, every chapter (a Prayers topic) that has Spanish, in the order of `chapters`, by chapter id: its title, topic, note, one title per section and its Spanish search words. A chapter not listed keeps its English. Empty in English. Served only when named in `fields[prayer_book]`."
+  chapterTranslations: [ChapterTranslation!]!
 }
 
 type RosaryScript {

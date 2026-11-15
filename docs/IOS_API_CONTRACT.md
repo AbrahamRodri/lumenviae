@@ -398,7 +398,12 @@ reach 4.0 to 4.3 as ordinary prayers; the St. Andrew and Sacred Heart
 (`efficacious_novena`) twins' Spanish changed to published texts and lost
 `ai_translated`, and `efficacious_novena`'s English changed to EWTN's
 wording. Later on 14 Nov 2026 St Jude and St Thérèse joined them, with
-two more twins (`st_jude_novena`, `st_therese_novena`).
+two more twins (`st_jude_novena`, `st_therese_novena`). On 15 Nov 2026 the
+Spanish read gained `chapter_translations` (named in `fields`, with
+`lang=es`): each chapter's Spanish `title`, `topic`, optional `note`,
+`section_titles` (one per section, in order) and `search_words`, by
+chapter `id`, laid over `chapters`; a chapter not listed keeps its
+English. Additive: a build that does not name it gets nothing new.
 
 No shipped build calls `GET /api/v2/spiritual-reading`: the Spiritual
 Reading catalogue is compiled into the app (`Data/LibraryCatalog.swift`).
