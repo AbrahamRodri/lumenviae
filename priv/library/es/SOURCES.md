@@ -968,3 +968,51 @@ names and subtitles, and the feasts' names and descriptions, in the
 names Spanish-speaking Catholics use ("Nuestra Señora del Carmen"). A
 journal question that quotes a reading quotes that day's Spanish
 reading.
+
+# Sources of the Chant Library's Spanish
+
+`es/chant_library.json` holds the Chant Library's names in Spanish, served
+in the `translations` section of `GET /api/v2/chant-library?lang=es`
+(added 15 November 2026): each chant's `title` (in place of its
+`english_title`) and `setting`, and each group's `title`. These are the
+names the apps print on a chant's card and row ("Salve Regina · melodía
+sencilla").
+
+## The team's own Spanish for the names (not `ai_translated`)
+
+All of it is the team's own Spanish, written for labels and not copied
+from a source; no `ai_translated` mark is served, as a name is a label
+like the app's own Spanish, not a text to pray. Checked for es-MX by
+ios-review. The rules followed:
+
+- A chant Spanish-speaking Catholics name in Latin keeps its Latin title
+  exactly as `latin_title` spells it, so a client that hides a second name
+  equal to the first shows it once: Salve Regina, Ave Maris Stella, Tantum
+  Ergo, Te Deum.
+- A chant that is a prayer the Prayer Book or the Rosary prints takes that
+  prayer's Spanish title where it reads as a name ("Madre del Redentor",
+  "Toda hermosa eres", "Bajo tu protección", "Acordaos", "Señal de la
+  Cruz", "Símbolo de los Apóstoles", "Padre nuestro", "Ave María", "Gloria
+  al Padre", "Oración de Fátima", "Ángelus", "Alma de Cristo", "San Miguel
+  Arcángel"). Where the book's Spanish title is the Latin and the Latin
+  differs in spelling (Regina Caeli for Regina Cæli, Veni Creator for Veni
+  Creator Spiritus), the name is the Spanish incipit instead ("Reina del
+  cielo, alégrate", "Ven, Espíritu Creador"), so the card does not say the
+  Latin twice.
+- The sequences and the parts of the Mass take the Spanish Missal's first
+  words: "Ofrezcan los cristianos", "Ven, Espíritu divino", "Alaba, Sión",
+  "Estaba la Madre dolorosa", "Día de ira", "Señor, ten piedad", "Gloria a
+  Dios en el cielo", "Santo, Santo, Santo", "Cordero de Dios". The Feast
+  poem setting is "Secuencia", the Missal's word.
+- The O antiphons use the Prayer Book's own "Antífonas de la O" names (Oh
+  Sabiduría, Oh Adonai, Oh Raíz de Jesé, Oh Llave de David, Oh Oriente, Oh
+  Rey de las naciones, Oh Emmanuel), "con el Magnificat" as the book spells
+  it.
+- The settings: Melodía sencilla, Melodía solemne, Melodía de fiesta,
+  Melodía del sábado, Con aleluya, Secuencia, Canto breve (the app's own
+  Spanish for "Short chant"), Misa de los Ángeles, Credo III, Misa XI. A
+  setting starts with a capital, as the English does; the app sets it
+  lower case mid-line unless it is a name (Misa de los Ángeles).
+- The chants' words and lines are Latin and stay as they are; the groups'
+  notes, the parts' headings, feasts, months and occasions are not
+  translated yet and keep their English.
