@@ -90,7 +90,7 @@
           id="todays-devotion-heading"
           class="font-display text-[1.75rem] md:text-4xl text-ink-light leading-tight"
         >
-          {@today_category.title}
+          {list_heading(@today_category)}<span class="sr-only">, {@today_category.title}</span>
         </h2>
         <p class="font-garamond text-lg text-ink-muted italic mt-1 mb-5">
           {@today_category.subtitle}
