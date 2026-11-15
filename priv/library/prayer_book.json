@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T05:00:00Z",
+  "updated_at": "2026-11-15T05:30:00Z",
   "chapters": [
     {
       "id": "first",
@@ -10689,7 +10689,12 @@
         "days_from_easter": null
       },
       "painting": null,
-      "art": null,
+      "art": {
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_st_therese-5520a27f3728.jpg",
+        "bytes": 242386,
+        "sha256": "5520a27f372802ecb0adf9af096acdf82c15b8dccda8bf6ad1f208da2b626707",
+        "credit": "Jozef Mehoffer, St Therese of Lisieux, 1929, Mehoffer Museum, Krakow. Photo via Wikimedia Commons, CC BY-SA 4.0"
+      },
       "chant_ids": [
         "flos_carmeli"
       ],
