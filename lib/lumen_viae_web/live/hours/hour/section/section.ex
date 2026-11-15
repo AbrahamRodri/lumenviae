@@ -85,7 +85,9 @@ defmodule LumenViaeWeb.Live.Hours.Hour.Section do
   # a space between a glyph and the stop after it ("℟ .").
   defp runs(runs) do
     {:safe,
-     Enum.map(runs, fn
+     runs
+     |> LumenViaeWeb.Components.Glyph.with_stops()
+     |> Enum.map(fn
        {:glyph, glyph} -> LumenViaeWeb.Components.Glyph.markup(glyph)
        {:note, note} -> [~s( <span class="book-rubric">), escape(note), "</span>"]
        {:text, text} -> escape(text)

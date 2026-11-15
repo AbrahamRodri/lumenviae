@@ -120,7 +120,9 @@ defmodule LumenViaeWeb.Live.Missal.Section do
   # a space between a glyph and the stop after it ("℟ .").
   defp runs(runs) do
     {:safe,
-     Enum.map(runs, fn
+     runs
+     |> LumenViaeWeb.Components.Glyph.with_stops()
+     |> Enum.map(fn
        {:glyph, glyph} -> LumenViaeWeb.Components.Glyph.markup(glyph)
        {_kind, text} -> escape(text)
      end)}

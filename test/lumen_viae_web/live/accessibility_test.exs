@@ -20,6 +20,18 @@ defmodule LumenViaeWeb.Live.AccessibilityTest do
       assert response =~ ~s(<span class="sr-only">All: </span>)
     end
 
+    test "the stop after ℣ or ℟ is hidden with it, so nothing is read between" do
+      runs = [{:glyph, "℣"}, {:text, ". The Angel"}, {:glyph, "✠"}, {:text, ". x"}]
+
+      assert Glyph.with_stops(runs) ==
+               [{:glyph, "℣."}, {:text, " The Angel"}, {:glyph, "✠"}, {:text, ". x"}]
+
+      assert Glyph.with_stops([{:glyph, "℟"}, {:text, "."}]) == [{:glyph, "℟."}]
+
+      assert IO.iodata_to_binary(Glyph.markup("℟.")) =~
+               ~s(aria-hidden="true">℟.</span><span class="sr-only">All: </span>)
+    end
+
     test "the cross is drawn as it is, with nothing added" do
       assert IO.iodata_to_binary(Glyph.markup("✠")) == ~s(<span class="book-glyph">✠</span>)
     end
@@ -31,6 +43,7 @@ defmodule LumenViaeWeb.Live.AccessibilityTest do
     assert html =~ ~s(<span class="sr-only">Leader: </span>)
     assert html =~ ~s(<span class="sr-only">All: </span>)
     refute html =~ ~s(<span class="book-glyph">℣</span>)
+    refute html =~ ~s(<span class="sr-only">Leader: </span>.)
   end
 
   test "the Rosary player's first stop is its own skip link, to the prayer", %{conn: conn} do

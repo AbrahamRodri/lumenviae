@@ -138,7 +138,9 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Text do
   # would put a space between a glyph and the stop after it ("℟ .").
   defp runs(runs) do
     {:safe,
-     Enum.map(runs, fn
+     runs
+     |> LumenViaeWeb.Components.Glyph.with_stops()
+     |> Enum.map(fn
        {:glyph, glyph} -> LumenViaeWeb.Components.Glyph.markup(glyph)
        {:text, text} -> escape(text)
      end)}
