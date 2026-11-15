@@ -11,7 +11,7 @@ defmodule LumenViae.Rosary.ChantLibrary.SpanishTest do
 
   # Change the file: bump its updated_at and set the new pair here. The
   # names are the team's own Spanish, listed in priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 06:05:00Z], "ca675656c774bd77"}
+  @pinned {~U[2026-11-15 06:20:00Z], "1aa704206e924cb6"}
 
   defp english(section), do: Library.served(:chant_library, section)
 
@@ -53,7 +53,7 @@ defmodule LumenViae.Rosary.ChantLibrary.SpanishTest do
     assert %{title: "Señor, ten piedad", setting: "Misa de los Ángeles"} =
              chants["kyrie_de_angelis"]
 
-    assert %{title: "Cántico de María", setting: "Con aleluya"} = chants["magnificat"]
+    assert %{title: "Magnificat", setting: "Con aleluya"} = chants["magnificat"]
   end
 
   test "a name kept in Latin is the Latin title exactly, so a client shows it once" do

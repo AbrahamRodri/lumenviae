@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T06:05:00Z",
+  "updated_at": "2026-11-15T06:20:00Z",
   "groups": {
     "asperges": {
       "title": "Asperges me y Vidi aquam"
@@ -26,7 +26,7 @@
       "title": "Himnos y cantos de los tiempos litúrgicos"
     },
     "canticles": {
-      "title": "Cánticos evangélicos y Letanías de los santos"
+      "title": "Cánticos evangélicos y letanías de los santos"
     },
     "litanies": {
       "title": "Letanías"
@@ -92,7 +92,7 @@
       "title": "Con gozo unánime"
     },
     "magnificat": {
-      "title": "Cántico de María",
+      "title": "Magnificat",
       "setting": "Con aleluya"
     },
     "tota_pulchra": {
@@ -208,7 +208,7 @@
       "title": "Letanías del Sagrado Corazón"
     },
     "litany_holy_name": {
-      "title": "Letanías del Santo Nombre"
+      "title": "Letanías del Santo Nombre de Jesús"
     },
     "jesu_dulcis_memoria": {
       "title": "Jesús, dulce memoria"
@@ -264,7 +264,7 @@
       "title": "Creador de los astros"
     },
     "veni_emmanuel": {
-      "title": "Oh ven, oh ven, Emanuel"
+      "title": "Oh ven, oh ven, Emmanuel"
     },
     "o_sapientia_magnificat": {
       "title": "Oh Sabiduría, con el Magnificat"
