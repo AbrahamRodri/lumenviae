@@ -56,6 +56,14 @@ defmodule LumenViaeWeb.Live.Pray.NavigationTest do
       refute has_element?(view, ".prayer-hero")
     end
 
+    test "the ground under the words is plain night, with no pattern, on every page",
+         %{conn: conn, path: path} do
+      for place <- [path, at(path, 1, 3), at(path, "closing")] do
+        {:ok, _view, html} = live(conn, place)
+        refute html =~ "ornate-blue-gold-bg-symbols"
+      end
+    end
+
     test "opens on the Sign of the Cross, in the app's words", %{conn: conn, path: path} do
       {:ok, view, html} = live(conn, path)
 

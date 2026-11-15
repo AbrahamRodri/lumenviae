@@ -19,16 +19,17 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
   """
   use LumenViaeWeb, :live_view
 
-  alias LumenViaeWeb.Live.Prayers.{Book, PrayerText}
+  alias LumenViaeWeb.Live.Prayers.{Book, Novena, PrayerText}
   alias LumenViaeWeb.PageMeta
 
   import LumenViaeWeb.Live.Prayers.Prayer.Text
+  import LumenViaeWeb.Live.Prayers.Prayer.Novena
 
   @language_labels [{"english", "English"}, {"latin", "Latin"}, {"both", "Both"}]
 
   @impl true
   def mount(%{"prayer_id" => id}, _session, socket) do
-    book = Book.load(socket.assigns.current_admin)
+    book = Book.load(socket.assigns.current_admin, novenas: true)
 
     prayer =
       Book.prayer(book, id) ||
@@ -43,12 +44,24 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
        description: description(prayer),
        trail: trail(prayer, chapter)
      )
+     |> assign(:book, book)
+     |> assign(:novena, Book.novena(book, id))
      |> assign(:prayer, prayer)
      |> assign(:chapter, chapter)
      |> assign(:languages, @language_labels)}
   end
 
   @impl true
+  def handle_params(params, _uri, %{assigns: %{novena: %{} = novena}} = socket) do
+    day = Novena.day_number(novena, params["day"])
+
+    {:noreply,
+     socket
+     |> assign(:language, "english")
+     |> assign(:day, day)
+     |> assign(:blocks, Novena.blocks(Novena.day(novena, day), socket.assigns.book))}
+  end
+
   def handle_params(params, _uri, socket) do
     prayer = socket.assigns.prayer
 

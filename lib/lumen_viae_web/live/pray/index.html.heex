@@ -8,7 +8,14 @@
 >
   <%!-- The app's candle: a warm glow from the top of the page. --%>
   <div class="prayer-glow absolute inset-0 pointer-events-none" aria-hidden="true"></div>
-  <div class="absolute inset-0 opacity-[0.03] pointer-events-none" aria-hidden="true">
+  <%!-- While praying the page is one night ground to the bottom, as the
+       app's: the pattern would show below the painting's fade as a hard
+       edge. The completion screen keeps it. --%>
+  <div
+    :if={@completed}
+    class="absolute inset-0 opacity-[0.03] pointer-events-none"
+    aria-hidden="true"
+  >
     <picture>
       <source
         type="image/webp"

@@ -238,7 +238,11 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
                "The one who seeks grace, finds it in Mary's hands."
              )
 
-      assert has_element?(novena, ".book-line--flush [data-role=rubric]", "The First Day.")
+      assert has_element?(
+               novena,
+               ".book-line--flush [data-role=rubric]",
+               "Here name your request."
+             )
 
       {:ok, verse, _html} = live(conn, "/prayers/memorare")
       assert has_element?(verse, ".book-line")
