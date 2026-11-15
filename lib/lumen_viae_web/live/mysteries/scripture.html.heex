@@ -30,12 +30,13 @@
 
   <!-- Category tabs: ribbons hanging from the rule -->
   <%!-- On a phone the five ribbons sit in one row that scrolls sideways,
-        rather than wrapping into a second row that hangs from nothing. --%>
+        rather than wrapping into a second row that hangs from nothing; its
+        right edge fades so the row reads as going on. --%>
   <div class="relative z-10">
     <div
       id="category-tablist"
       phx-hook="Tablist"
-      class="tab-scroller max-w-3xl mx-auto flex items-start gap-2 md:gap-3 overflow-x-auto px-4 pb-4 sm:flex-wrap sm:justify-center sm:overflow-visible"
+      class="tab-scroller tab-scroller--fade max-w-3xl mx-auto flex items-start gap-2 md:gap-3 overflow-x-auto pl-4 pr-10 pb-4 sm:px-4 sm:flex-wrap sm:justify-center sm:overflow-visible"
       role="tablist"
       aria-label="Sets of mysteries"
     >

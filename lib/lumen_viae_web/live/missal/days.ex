@@ -68,6 +68,18 @@ defmodule LumenViaeWeb.Live.Missal.Days do
     if Office.serves?(next), do: next
   end
 
+  @doc """
+  The muted line under a Sunday after Epiphany kept in the autumn: the
+  1962 calendar resumes the Sundays after Epiphany that January had no
+  room for before the last Sunday after Pentecost, so "VI Sunday after
+  Epiphany" falls in November. Nil on any other day.
+  """
+  def resumed_line(title, %Date{month: month}) when is_binary(title) and month >= 9 do
+    if title =~ ~r/Sunday after Epiphany\b/, do: "Resumed from after Epiphany"
+  end
+
+  def resumed_line(_title, _date), do: nil
+
   @doc "\"MON · 2 NOV\", the date pill's words (the app's \"EEE · d MMM\")."
   def pill_date(%Date{} = date),
     do: date |> Calendar.strftime("%a · %-d %b") |> String.upcase()

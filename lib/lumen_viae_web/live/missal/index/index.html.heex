@@ -28,6 +28,9 @@
     <div :if={@clock_known?} class="missal-plate__body" aria-live="polite" data-role="plate">
       <div :if={@mass} class="missal-plate__feast">
         <h2 class="missal-feast" data-role="feast">{@mass.title}</h2>
+        <p :if={Days.resumed_line(@mass.title, @date)} class="hours-quiet" data-role="resumed">
+          {Days.resumed_line(@mass.title, @date)}
+        </p>
         <p :if={Days.remembered(@mass)} class="missal-remembered" data-role="remembered">
           {Days.remembered(@mass)}
         </p>

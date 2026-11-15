@@ -815,6 +815,15 @@
   scroll-padding-inline: 1rem;
 }
 
+/* A ribbon row that scrolls on a phone: the right edge fades, so a chip
+   cut at the edge reads as more to come. The row's right padding is as
+   wide as the fade, so the last chip, scrolled to, stands clear of it. */
+@media (width < 40rem) {
+  .tab-scroller--fade {
+    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+  }
+}
+
 /* The one section label on every public page, as the app's ShelfHeading:
    Cinzel tracked capitals in gilt, with a gold rule running to the end of
    the line. Put it on the section's heading, so the label is the heading.
@@ -6599,23 +6608,25 @@ html:has(#prayer) {
     background: rgba(227, 188, 91, 0.75);
   }
 
-  /* The author on one line, as BookCover's: the app shrinks it to fit
-     and then ends it on an ellipsis. The site's floor for any public text
-     (docs/audits) is 12px, the size it already starts at here, so on the
-     web it does not shrink, only ends on the ellipsis. The page's heading
-     says the whole name. */
+  /* The author's whole name, wrapped onto as many lines as it needs at
+     the site's 12px floor rather than ended on an ellipsis (the app
+     shrinks it instead). A long name makes the cover a little taller;
+     nothing on it shrinks, so the lozenge never sits on the name. */
+  .td-cover > * {
+    flex-shrink: 0;
+  }
+
   .td-cover__author {
     max-width: 100%;
+    margin-top: 8px;
     padding: 0 8px;
-    overflow: hidden;
     font-family: var(--font-display);
     font-size: 0.75rem;
     line-height: 1.3;
     letter-spacing: 0.04em;
     text-align: center;
-    text-overflow: ellipsis;
     text-transform: uppercase;
-    white-space: nowrap;
+    text-wrap: balance;
     color: rgba(243, 216, 154, 0.9);
   }
 

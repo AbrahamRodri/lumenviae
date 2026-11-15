@@ -563,5 +563,14 @@ defmodule LumenViaeWeb.Live.Missal.MissalTest do
       assert Days.today_path("latin") == "/missal?lang=latin"
       assert Days.ordo_path() == "/missal/order-of-mass"
     end
+
+    test "a Sunday after Epiphany kept in the autumn says it is resumed, and no other day does" do
+      assert Days.resumed_line("VI Sunday after Epiphany", ~D[2026-11-15]) ==
+               "Resumed from after Epiphany"
+
+      assert Days.resumed_line("VI Sunday after Epiphany", ~D[2026-02-08]) == nil
+      assert Days.resumed_line("XXIV Sunday after Pentecost", ~D[2026-11-22]) == nil
+      assert Days.resumed_line(nil, ~D[2026-11-15]) == nil
+    end
   end
 end

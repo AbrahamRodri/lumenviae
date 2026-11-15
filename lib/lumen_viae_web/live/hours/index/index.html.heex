@@ -59,6 +59,13 @@
         <p :if={@missal_day} class="hours-feast" data-role="feast-english">
           {@missal_day.title}
         </p>
+        <p
+          :if={@missal_day && MissalDays.resumed_line(@missal_day.title, @date)}
+          class="hours-quiet"
+          data-role="resumed"
+        >
+          {MissalDays.resumed_line(@missal_day.title, @date)}
+        </p>
         <p :if={!@missal_day && @day && @day.celebration} class="hours-feast" lang="la">
           {@day.celebration.title}
         </p>
