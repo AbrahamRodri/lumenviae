@@ -148,6 +148,31 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Shelves do
 
   attr :cards, :list, required: true
 
+  @doc """
+  This season, in Advent only (`Book.advent_cards/2`): the season's own
+  prayers as square cards, each naming today's part and opening at it.
+  """
+  def this_season(assigns) do
+    ~H"""
+    <section aria-labelledby="season-heading" class="min-w-0" data-role="this-season-shelf">
+      <h2 id="season-heading" class="section-label">This season · Advent</h2>
+      <ul class="book-shelf mt-3">
+        <li :for={card <- @cards}>
+          <.square_card
+            to={card.path}
+            title={Book.list_name(card.prayer)}
+            note={card.note}
+            painting={card.painting}
+            role="advent-card"
+          />
+        </li>
+      </ul>
+    </section>
+    """
+  end
+
+  attr :cards, :list, required: true
+
   def prayers_to_mary(assigns) do
     ~H"""
     <section aria-labelledby="mary-heading" class="min-w-0">

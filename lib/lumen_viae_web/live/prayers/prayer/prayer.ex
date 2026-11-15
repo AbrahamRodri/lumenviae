@@ -69,9 +69,12 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
     language =
       if prayer.latin, do: PrayerText.language(params["lang"]), else: "english"
 
+    today = Book.page_date(params["on"], Date.utc_today())
+
     {:noreply,
      socket
      |> assign(:language, language)
+     |> assign(:today_mark, Book.season_mark(prayer.id, today))
      |> assign(:stanzas, PrayerText.stanzas(prayer.english, prayer.latin, language))}
   end
 

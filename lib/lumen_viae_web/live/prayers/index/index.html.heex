@@ -44,6 +44,8 @@
         <.everyday rows={@everyday} />
       </div>
 
+      <.this_season :if={@advent != []} cards={@advent} />
+
       <.prayers_to_mary cards={@marian} />
 
       <.all_topics parts={@parts} />
