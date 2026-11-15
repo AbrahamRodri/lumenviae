@@ -205,7 +205,8 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
 
   # A full book citation is too heavy under a title (design, 15 Nov 2026):
   # an origin longer than this shows a short credit there, author then
-  # publisher, from the prayer's `short_credit`, and the whole citation at the foot.of the page.
+  # publisher, from the prayer's `short_credit`, and the whole citation at
+  # the foot of the page.
   @short_origin_limit 100
 
   @doc """
