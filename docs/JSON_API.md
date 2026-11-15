@@ -764,7 +764,9 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   otherwise. A prayer whose source has its Spanish wording carries
   `origin` (15 Nov 2026), in place of the prayer's English `origin`; where
   it is absent, a Spanish client shows no origin rather than the English
-  one (today the ten novenas' prayers have it). A client still shows the English for a prayer it does not
+  one (today every Spanish prayer has it; the Rosary's own prayers take
+  theirs from the file's `rosary_origins`, their words staying
+  `priv/rosary_content/es/prayers.json`'s). A client still shows the English for a prayer it does not
   find listed. Every other section is
   unchanged, English and Latin: a client lays the Spanish over the
   English by `id`.
