@@ -22,6 +22,10 @@ defmodule LumenViae.Rosary.PrayerBook.Translation do
       description:
         "Where it comes from, in this language, standing in place of the prayer's `origin`. Absent where there is none yet: a client then shows no origin rather than the English one."
 
+    field :short_credit, :string,
+      description:
+        "Where this language's `origin` is a long citation (over 100 characters): the short credit to show under the title, with `origin` in full at the foot, as the prayer's own `short_credit`. Absent otherwise."
+
     field :ai_translated, :boolean,
       description:
         "`true` when part of the text is the team's own AI translation, not a published text: show the app's AI notice under it. Absent otherwise."

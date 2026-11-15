@@ -78,11 +78,20 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
           description:
             "priv/library/es/prayer_book.json: #{id} needs a title and a text, and \"ai_translated\" is either true or left out"
 
-      Map.keys(prayer) -- ["title", "text", "ai_translated", "origin"] != [] or
+      Map.keys(prayer) -- ["title", "text", "ai_translated", "origin", "short_credit"] != [] or
           not match?(o when is_nil(o) or (is_binary(o) and o != ""), prayer["origin"]) ->
         raise CompileError,
           description:
-            "priv/library/es/prayer_book.json: #{id} holds a title, a text, \"ai_translated\" and an \"origin\" (where it comes from, in Spanish) only"
+            "priv/library/es/prayer_book.json: #{id} holds a title, a text, \"ai_translated\", an \"origin\" (where it comes from, in Spanish) and a \"short_credit\" only"
+
+      # As in English: a short credit stands under the title where the
+      # origin is a long citation (over 100 characters), and only there.
+      Map.has_key?(prayer, "short_credit") !=
+        String.length(prayer["origin"] || "") > 100 or
+          not match?(c when is_nil(c) or (is_binary(c) and c != ""), prayer["short_credit"]) ->
+        raise CompileError,
+          description:
+            "priv/library/es/prayer_book.json: #{id} has a \"short_credit\" exactly when its origin runs over 100 characters"
 
       true ->
         :ok
@@ -243,8 +252,8 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
   @doc """
   Every prayer the book prints that has Spanish, in the book's order, each
   `%{id:, title:, text:}` plus `ai_translated: true` where part of it is
-  the team's translation, and `origin:` where the file says in Spanish
-  where it comes from.
+  the team's translation, `origin:` where the file says in Spanish
+  where it comes from, and `short_credit:` where that origin is long.
   """
   @spec prayers() :: [map]
   def prayers do
@@ -259,6 +268,7 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
         id
         |> shape(prayer["title"], prayer["text"], prayer["ai_translated"])
         |> put_origin(prayer["origin"])
+        |> put_short_credit(prayer["short_credit"])
 
       # A Rosary prayer whose Spanish is still its English fallback has no
       # translation.
@@ -281,6 +291,11 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
 
   defp put_origin(prayer, origin) when is_binary(origin), do: Map.put(prayer, :origin, origin)
   defp put_origin(prayer, _none), do: prayer
+
+  defp put_short_credit(prayer, credit) when is_binary(credit),
+    do: Map.put(prayer, :short_credit, credit)
+
+  defp put_short_credit(prayer, _none), do: prayer
 
   @doc "When the Spanish last changed: the later of this file's date and the Rosary's Spanish."
   @spec updated_at() :: DateTime.t()
