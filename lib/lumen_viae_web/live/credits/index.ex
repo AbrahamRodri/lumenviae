@@ -66,7 +66,7 @@ defmodule LumenViaeWeb.Live.Credits.Index do
   defp section_heading(assigns) do
     ~H"""
     <h2 id={"#{@id}-heading"} class="flex items-center gap-4 mb-2">
-      <span class="kicker shrink-0">{render_slot(@inner_block)}</span>
+      <span class="kicker min-w-0">{render_slot(@inner_block)}</span>
       <span class="h-px flex-1 bg-night-border" aria-hidden="true"></span>
     </h2>
     """

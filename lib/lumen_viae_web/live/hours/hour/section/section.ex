@@ -86,7 +86,7 @@ defmodule LumenViaeWeb.Live.Hours.Hour.Section do
   defp runs(runs) do
     {:safe,
      Enum.map(runs, fn
-       {:glyph, glyph} -> [~s(<span class="book-glyph">), escape(glyph), "</span>"]
+       {:glyph, glyph} -> LumenViaeWeb.Components.Glyph.markup(glyph)
        {:note, note} -> [~s( <span class="book-rubric">), escape(note), "</span>"]
        {:text, text} -> escape(text)
      end)}

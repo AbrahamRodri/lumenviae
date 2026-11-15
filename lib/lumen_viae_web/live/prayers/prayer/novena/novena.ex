@@ -74,7 +74,7 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Novena do
 
       <nav
         :if={not @same?}
-        class="mt-12 flex items-center justify-between gap-4"
+        class="mt-12 flex flex-wrap items-center justify-between gap-4"
         aria-label="The day before and after"
       >
         <.link
@@ -89,7 +89,7 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer.Novena do
         <.link
           :if={@day < @count}
           patch={Novena.day_path(@prayer_id, @day + 1) <> "#novena-days"}
-          class="btn-gold"
+          class="btn-gold ml-auto"
           rel="next"
         >
           Day {@day + 1} <span aria-hidden="true">&rsaquo;</span>

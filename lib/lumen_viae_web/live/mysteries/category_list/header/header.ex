@@ -22,7 +22,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
     >
       <%!-- As the app heads a pushed page: the picture beside the title in
             Cinzel, the days in tracked gold capitals. --%>
-      <div class="max-w-5xl mx-auto px-4 sm:px-8 py-5 md:py-10 grid grid-cols-[4.5rem_minmax(0,1fr)] sm:grid-cols-[7rem_minmax(0,1fr)] md:grid-cols-[10rem_minmax(0,1fr)] gap-4 sm:gap-6 md:gap-10 items-center">
+      <div class="max-w-5xl mx-auto px-4 sm:px-8 py-5 md:py-10 grid grid-cols-[min(4.5rem,22vw)_minmax(0,1fr)] sm:grid-cols-[7rem_minmax(0,1fr)] md:grid-cols-[10rem_minmax(0,1fr)] gap-4 sm:gap-6 md:gap-10 items-center">
         <.arch_frame
           :if={@painting}
           src={@painting.src}
@@ -43,7 +43,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
           <p class="kicker hidden sm:block mb-1">The Holy Rosary</p>
           <h1
             id="category-heading"
-            class="font-display text-[1.5rem] sm:text-4xl md:text-5xl text-ink-light leading-[1.1] mb-1 sm:mb-2"
+            class="font-display text-[1.5rem] sm:text-4xl md:text-5xl text-ink-light leading-[1.1] [overflow-wrap:anywhere] mb-1 sm:mb-2"
           >
             {@title}
           </h1>

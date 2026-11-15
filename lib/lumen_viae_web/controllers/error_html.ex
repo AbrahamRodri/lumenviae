@@ -52,7 +52,9 @@ defmodule LumenViaeWeb.ErrorHTML do
               {@status}
             </p>
             <.sacred_divider class="max-w-[210px] mx-auto my-6" />
-            <h1 class="font-display text-ink-light text-5xl md:text-6xl mb-5">{@title}</h1>
+            <h1 class="font-display text-ink-light text-[min(3rem,12vw)] md:text-6xl [overflow-wrap:anywhere] mb-5">
+              {@title}
+            </h1>
             <div class="font-garamond text-ink-muted text-lg md:text-xl leading-relaxed">
               {render_slot(@inner_block)}
             </div>

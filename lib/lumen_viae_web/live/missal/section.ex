@@ -121,7 +121,7 @@ defmodule LumenViaeWeb.Live.Missal.Section do
   defp runs(runs) do
     {:safe,
      Enum.map(runs, fn
-       {:glyph, glyph} -> [~s(<span class="book-glyph">), escape(glyph), "</span>"]
+       {:glyph, glyph} -> LumenViaeWeb.Components.Glyph.markup(glyph)
        {_kind, text} -> escape(text)
      end)}
   end

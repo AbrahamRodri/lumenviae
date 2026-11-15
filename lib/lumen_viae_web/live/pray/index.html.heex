@@ -36,6 +36,11 @@
     <%!-- One bar, as the app's: close, where you are, and the controls.
          The pill sits in the middle column, so it stays centred whatever
          the sides hold. --%>
+    <%!-- The site's skip link steps aside with the shell; this one, the
+         first Tab stop, goes straight to the prayer's words. --%>
+    <a :if={!@completed} href="#prayer-main" class="skip-link skip-link--own">
+      Skip to the prayer
+    </a>
     <header class="prayer-top-bar grid grid-cols-[1fr_auto_1fr] items-start gap-2 sm:gap-4 pt-3">
       <h1 class="sr-only">{@heading}</h1>
       <.link
@@ -70,7 +75,7 @@
         heading={@heading}
       />
 
-      <div id="prayer-main" class="flex-1 pt-5 pb-6">
+      <div id="prayer-main" tabindex="-1" class="flex-1 pt-5 pb-6 focus:outline-none">
         <BeadScreen.bead_screen
           sequence={@sequence}
           screen={current_screen(assigns)}

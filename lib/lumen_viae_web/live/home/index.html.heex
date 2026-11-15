@@ -11,7 +11,7 @@
     <div class="relative max-w-xl md:max-w-3xl mx-auto px-5 pt-8 pb-10 md:pt-6 md:pb-14 text-center">
       <h1
         id="home-hero-heading"
-        class="font-display text-[1.75rem] sm:text-4xl md:text-5xl md:whitespace-nowrap text-ink-light leading-tight animate-rise"
+        class="font-display text-[min(1.75rem,9vw)] sm:text-[min(2.25rem,7vw)] md:text-[min(3rem,6vw)] md:whitespace-nowrap text-ink-light leading-tight animate-rise"
       >
         The Rosary, Illuminated
       </h1>
@@ -22,7 +22,10 @@
           <div class="absolute top-[0.4rem] inset-x-6 h-px bg-night-line" aria-hidden="true">
           </div>
           <ol class="relative flex items-start justify-between" aria-label="This week's mysteries">
-            <li :for={day <- @week} class="flex flex-col items-center gap-2 flex-1 min-w-0">
+            <li
+              :for={day <- @week}
+              class="week-day flex flex-col items-center gap-2 flex-1 min-w-0"
+            >
               <span class={["bead", day.today? && "bead-today"]} aria-hidden="true"></span>
               <span
                 class={[
@@ -32,7 +35,9 @@
                 ]}
                 aria-hidden="true"
               >
-                {day.label}
+                <span class="week-day__label">{day.label}</span><span class="week-day__initial">{String.first(
+                  day.label
+                )}</span>
               </span>
               <span class="sr-only">
                 {day.day_name}: the {day.mysteries}{if day.today?, do: " (today)"}
@@ -99,7 +104,7 @@
           data-schedule={@schedule}
           role="group"
           aria-label="Which schedule the week follows"
-          class="mb-6 inline-flex items-center justify-center gap-1 rounded-full border border-night-line p-0.5"
+          class="mb-6 inline-flex flex-wrap max-w-full items-center justify-center gap-1 rounded-[1.5rem] border border-night-line p-0.5"
         >
           <button
             :for={schedule <- LumenViae.LiturgicalCalendar.schedules()}
@@ -162,7 +167,11 @@
             <ul class="row-list">
               <li :for={set <- @todays_sets}>
                 <.link navigate={"/meditation-sets/#{set.id}/pray"} class="row-link home-row">
-                  <SetPortrait.set_portrait set={set} sizes="64px" class="w-16 h-16" />
+                  <SetPortrait.set_portrait
+                    set={set}
+                    sizes="64px"
+                    class="w-[min(4rem,20vw)] h-[min(4rem,20vw)]"
+                  />
                   <span class="flex-1 min-w-0">
                     <span class="row-title">{set.name}</span>
                     <span :if={set_detail(set)} class="row-fact">{set_detail(set)}</span>
