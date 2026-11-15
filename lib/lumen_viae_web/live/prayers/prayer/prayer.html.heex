@@ -29,6 +29,14 @@
         >
           {@prayer.title}
         </h1>
+        <%!-- Where the prayer comes from, quietly, as the app shows it --%>
+        <p
+          :if={Map.get(@prayer, :origin) not in [nil, ""]}
+          class="font-garamond italic text-base md:text-lg text-ink-muted leading-snug max-w-[62ch]"
+          data-role="origin"
+        >
+          {@prayer.origin}
+        </p>
       </div>
 
       <nav

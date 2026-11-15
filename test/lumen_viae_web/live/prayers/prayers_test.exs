@@ -214,6 +214,13 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       refute has_element?(faith, "[data-role=second-title]")
     end
 
+    test "a prayer says where it comes from, under its title", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/prayers/memorare")
+      origin = view |> element("header [data-role=origin]") |> render()
+
+      assert origin =~ "Attributed to St Bernard of Clairvaux · 12th century"
+    end
+
     test "a psalm verse breaks at its mediant", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/prayers/magnificat?lang=latin")
 
