@@ -130,6 +130,7 @@ defmodule LumenViaeWeb.Live.Credits.Sources do
   # single-sheet engraving", not "from" one.
   defp series_phrase(nil), do: nil
   defp series_phrase("Single-sheet " <> rest), do: "a single-sheet " <> rest
+  defp series_phrase("La " <> _ = series), do: "from " <> series
   defp series_phrase(series), do: "from the " <> series
 
   defp woodcut_credit(plate) do
