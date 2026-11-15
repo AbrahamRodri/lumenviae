@@ -27,6 +27,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
           :if={@painting}
           src={@painting.src}
           alt={@painting.alt}
+          fetchpriority="high"
           class="w-full category-rise"
           img_class={focal_class(@category)}
         />
@@ -35,6 +36,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
             category={@category}
             sizes="(min-width: 768px) 160px, (min-width: 640px) 112px, 72px"
             loading="eager"
+            fetchpriority="high"
             class="w-full h-full object-cover"
           />
         </div>
