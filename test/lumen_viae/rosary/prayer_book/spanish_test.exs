@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 10:55:00Z], "bd2e7095c56c3667"}
+  @pinned {~U[2026-11-15 11:50:00Z], "55a5be343586fd5f"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -67,7 +67,13 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
     for prayer <- Spanish.prayers() do
       assert is_binary(prayer.title) and prayer.title != "", prayer.id
       assert is_binary(prayer.text) and prayer.text != "", prayer.id
-      assert Enum.sort(Map.keys(prayer) -- [:ai_translated, :origin]) == [:id, :text, :title]
+
+      assert Enum.sort(Map.keys(prayer) -- [:ai_translated, :origin, :short_credit]) == [
+               :id,
+               :text,
+               :title
+             ]
+
       assert Map.get(prayer, :ai_translated, true) == true
     end
   end
@@ -200,5 +206,27 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
 
     assert %{title: "La Santísima Virgen", topic: "Oraciones a María"} =
              Enum.find(spanish, &(&1.id == "our_lady"))
+  end
+
+  test "a long Spanish origin has a shorter Spanish credit for under the title" do
+    for prayer <- Spanish.prayers(), Map.has_key?(prayer, :origin) do
+      if String.length(prayer.origin) > 100 do
+        assert String.length(prayer.short_credit) < String.length(prayer.origin), prayer.id
+      else
+        refute Map.has_key?(prayer, :short_credit), prayer.id
+      end
+    end
+
+    assert %{
+             short_credit:
+               "P. Lawrence G. Lovasik, S.V.D. · según la publica EWTN · traducción del equipo"
+           } =
+             Enum.find(Spanish.prayers(), &(&1.id == "st_joseph_novena"))
+
+    assert %{
+             short_credit:
+               "Atribuida a san Bernardo de Claraval · según el Compendio del Catecismo"
+           } =
+             Enum.find(Spanish.prayers(), &(&1.id == "memorare"))
   end
 end

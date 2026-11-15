@@ -403,7 +403,10 @@ Spanish read gained `chapter_translations` (named in `fields`, with
 `lang=es`): each chapter's Spanish `title`, `topic`, optional `note`,
 `section_titles` (one per section, in order) and `search_words`, by
 chapter `id`, laid over `chapters`; a chapter not listed keeps its
-English. Additive: a build that does not name it gets nothing new.
+English. Additive: a build that does not name it gets nothing new. Also on 15 Nov 2026 a
+`translations` entry whose Spanish `origin` runs over 100 characters
+gained an optional `short_credit`, the Spanish short credit for under the
+title (the full `origin` at the foot), as the English prayer's.
 
 No shipped build calls `GET /api/v2/spiritual-reading`: the Spiritual
 Reading catalogue is compiled into the app (`Data/LibraryCatalog.swift`).

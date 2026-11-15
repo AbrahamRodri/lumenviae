@@ -2791,6 +2791,10 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "short_credit": {
+                      "nullable": true,
+                      "type": "string"
+                    },
                     "text": {
                       "type": "string"
                     },
