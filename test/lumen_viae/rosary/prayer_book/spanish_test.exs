@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 10:05:00Z], "9bfe880b9efac185"}
+  @pinned {~U[2026-11-15 10:55:00Z], "bd2e7095c56c3667"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -184,5 +184,21 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
       assert is_binary(prayer[:origin]), prayer.id
       assert prayer.text == Enum.join(rosary[prayer.id]["text"]["es"], "\n")
     end
+  end
+
+  test "every chapter has its Spanish name, topic and section titles, in the book's order" do
+    book = Library.served(:prayer_book, "chapters")
+    spanish = Spanish.chapters()
+
+    assert Enum.map(spanish, & &1.id) == Enum.map(book, & &1.id)
+
+    for {chapter, es} <- Enum.zip(book, spanish) do
+      assert length(es.section_titles) == length(chapter.sections), chapter.id
+      assert is_nil(es.note) == is_nil(chapter.note), chapter.id
+      refute es.title == chapter.title and es.topic == chapter.topic, chapter.id
+    end
+
+    assert %{title: "La Santísima Virgen", topic: "Oraciones a María"} =
+             Enum.find(spanish, &(&1.id == "our_lady"))
   end
 end

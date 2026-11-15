@@ -808,6 +808,15 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
     pulchra versicles and closing collects are in Latin, as the 1860
     Spanish Raccolta prints them.
   - Lay it over `novenas` by id, as `translations` lies over `prayers`.
+- **`chapter_translations`** (15 Nov 2026), served only when named in
+  `fields[prayer_book]=`, with `lang=es`; `[]` in English. The Prayers
+  tab's topics in Spanish: one per chapter, in the order of `chapters`,
+  each `{id, title, topic, note, section_titles, search_words}`. `id` is
+  the chapter's id; `note` is null where the English has none;
+  `section_titles` has one title per entry of the chapter's `sections`, in
+  that order; `search_words` are the Spanish words a search finds it by.
+  The numeral and Latin title have no translation. A chapter not listed
+  keeps its English. The team's own wording, never narrated.
 
 ### `chant_library`
 

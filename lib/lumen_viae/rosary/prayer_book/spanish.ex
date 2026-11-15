@@ -14,7 +14,8 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
     `LumenViae.Rosary.Content.prayers("es")`'s, so the two documents never
     disagree. The file may not hold those ids.
 
-  A prayer in neither keeps its English: it has no translation.
+  A prayer in neither keeps its English: it has no translation. The file
+  also holds the chapters' Spanish names (`chapters/0`) and the novenas'.
   Nothing here is narrated: the spoken Prayer Book says the English.
 
   The file is dated and pinned in
@@ -145,6 +146,61 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
     end
   end
 
+  # The chapters' Spanish (the Prayers tab's topics), keyed by chapter id:
+  # its title, topic, note where the English has one, one title per section
+  # in the English order, and the words a Spanish search finds it by.
+  @file_chapters Map.get(file, "chapters", %{})
+  @book_chapters Library.served(:prayer_book, "chapters")
+
+  for {id, spanish} <- @file_chapters do
+    chapter = Enum.find(@book_chapters, &(&1.id == id))
+
+    fail =
+      &raise(CompileError,
+        description: "priv/library/es/prayer_book.json, the chapter #{id}: #{&1}"
+      )
+
+    if is_nil(chapter), do: fail.("the book has no such chapter")
+
+    unless Map.keys(spanish) -- ~w(title topic note section_titles search_words) == [],
+      do: fail.("it holds a title, topic, note, section_titles and search_words only")
+
+    unless match?(%{"title" => t, "topic" => p} when is_binary(t) and is_binary(p), spanish),
+      do: fail.("it needs a title and a topic")
+
+    unless is_nil(spanish["note"]) == is_nil(chapter.note) and
+             (is_nil(spanish["note"]) or is_binary(spanish["note"])),
+           do: fail.("it has a note exactly when the English has one")
+
+    titles = spanish["section_titles"]
+
+    unless is_list(titles) and length(titles) == length(chapter.sections) and
+             Enum.all?(titles, &(is_binary(&1) and &1 != "")),
+           do: fail.("its section_titles are one per section, #{length(chapter.sections)}")
+
+    unless is_list(spanish["search_words"]) and Enum.all?(spanish["search_words"], &is_binary/1),
+      do: fail.("it needs its search_words")
+  end
+
+  @doc """
+  Every chapter that has Spanish, in the book's order, each `%{id:, title:,
+  topic:, note:, section_titles:, search_words:}`, `section_titles` one per
+  section in the order of the chapter's `sections`.
+  """
+  @spec chapters() :: [map]
+  def chapters do
+    for chapter <- @book_chapters, spanish = @file_chapters[chapter.id] do
+      %{
+        id: chapter.id,
+        title: spanish["title"],
+        topic: spanish["topic"],
+        note: spanish["note"],
+        section_titles: spanish["section_titles"],
+        search_words: spanish["search_words"]
+      }
+    end
+  end
+
   @doc """
   Every novena that has Spanish, in the book's order, each
   `%{id:, title:, list_title:, detail:, note:, origin:, search_words:,
@@ -243,6 +299,7 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
       |> then(
         &if(@rosary_origins == %{}, do: &1, else: Map.put(&1, "rosary_origins", @rosary_origins))
       )
+      |> then(&if(@file_chapters == %{}, do: &1, else: Map.put(&1, "chapters", @file_chapters)))
 
     Content.version(words)
   end

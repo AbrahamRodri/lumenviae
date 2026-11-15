@@ -36,7 +36,8 @@ defmodule LumenViae.Rosary.PrayerBook.Current do
         Content.version(%{
           "book" => version,
           "translations" => Spanish.prayers(),
-          "novena_translations" => Spanish.novenas()
+          "novena_translations" => Spanish.novenas(),
+          "chapter_translations" => Spanish.chapters()
         }),
       updated_at: Enum.max([updated_at, Spanish.updated_at()], DateTime)
     }

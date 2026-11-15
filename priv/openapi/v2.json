@@ -2237,6 +2237,47 @@
           "attributes": {
             "description": "An attributes object for a prayer_book",
             "properties": {
+              "chapter_translations": {
+                "description": "With `lang=es`, every chapter (a Prayers topic) that has Spanish, in the order of `chapters`, by chapter id: its title, topic, note, one title per section and its Spanish search words. A chapter not listed keeps its English. Empty in English. Served only when named in `fields[prayer_book]`.",
+                "items": {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "search_words": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "section_titles": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "topic": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "topic",
+                    "section_titles",
+                    "search_words"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
               "chapters": {
                 "description": "The book's chapters in order, each with its sub-headings and the prayers under them.",
                 "items": {
@@ -7440,7 +7481,7 @@
         "operationId": "getPrayerBook",
         "parameters": [
           {
-            "description": "Comma separated fields of prayer_book: chapters, marian_antiphons, novena_translations, novenas, orders, prayers, translations, updated_at, version",
+            "description": "Comma separated fields of prayer_book: chapter_translations, chapters, marian_antiphons, novena_translations, novenas, orders, prayers, translations, updated_at, version",
             "explode": false,
             "in": "query",
             "name": "fields[prayer_book]",

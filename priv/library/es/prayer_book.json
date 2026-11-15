@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T10:05:00Z",
+  "updated_at": "2026-11-15T10:55:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -1687,5 +1687,276 @@
     "sorrows_closing_prayer": "Los Siervos de María (servitas) · texto según devocionario.com, completado por el equipo",
     "memorare": "Atribuida a san Bernardo de Claraval, siglo XII · según el Compendio del Catecismo de la Iglesia Católica",
     "st_michael_prayer": "León XIII, 1886 · según Vatican News"
+  },
+  "chapters": {
+    "first": {
+      "title": "Las primeras oraciones",
+      "topic": "Las primeras oraciones",
+      "section_titles": [
+        "Las primeras oraciones",
+        "Los credos",
+        "Actos de fe, esperanza, caridad y contrición"
+      ],
+      "search_words": [
+        "oraciones básicas",
+        "primeras oraciones",
+        "credo",
+        "actos"
+      ]
+    },
+    "day": {
+      "title": "Oraciones de cada día",
+      "topic": "Oraciones de cada día",
+      "note": "Por la mañana, el Ángelus, las comidas y la noche.",
+      "section_titles": [
+        "Por la mañana",
+        "El Ángelus",
+        "En las comidas",
+        "Durante el día",
+        "Por la noche"
+      ],
+      "search_words": [
+        "mañana",
+        "noche",
+        "comidas",
+        "bendición de la mesa",
+        "ángelus"
+      ]
+    },
+    "short": {
+      "title": "Oraciones breves",
+      "topic": "Oraciones breves",
+      "section_titles": [
+        "A Jesús",
+        "A María y a san José",
+        "Al Espíritu Santo y por los difuntos"
+      ],
+      "search_words": [
+        "jaculatorias",
+        "oraciones cortas"
+      ]
+    },
+    "mass": {
+      "title": "La santa Misa y la Comunión",
+      "topic": "Oraciones para la Misa",
+      "section_titles": [
+        "Antes de la Misa",
+        "En la Comunión",
+        "Después de la Comunión",
+        "Después de la Misa"
+      ],
+      "search_words": [
+        "misa",
+        "comunión",
+        "eucaristía"
+      ]
+    },
+    "penance": {
+      "title": "La Confesión",
+      "topic": "Oraciones para la Confesión",
+      "section_titles": [
+        "Antes de la Confesión",
+        "En el confesionario",
+        "Después de la Confesión"
+      ],
+      "search_words": [
+        "confesión",
+        "penitencia",
+        "reconciliación",
+        "examen de conciencia"
+      ]
+    },
+    "sacrament": {
+      "title": "El Santísimo Sacramento",
+      "topic": "Oraciones a la Eucaristía",
+      "note": "Jesús presente en la Hostia.",
+      "section_titles": [
+        "Una visita",
+        "La Bendición con el Santísimo",
+        "La letanía"
+      ],
+      "search_words": [
+        "santísimo",
+        "adoración",
+        "eucaristía",
+        "bendición"
+      ]
+    },
+    "holy_ghost": {
+      "title": "La Santísima Trinidad y el Espíritu Santo",
+      "topic": "Oraciones al Espíritu Santo",
+      "section_titles": [
+        "La Santísima Trinidad",
+        "El Espíritu Santo"
+      ],
+      "search_words": [
+        "trinidad",
+        "espíritu santo",
+        "pentecostés"
+      ]
+    },
+    "our_lord": {
+      "title": "Nuestro Señor",
+      "topic": "Oraciones a Jesús",
+      "section_titles": [
+        "El Santo Nombre",
+        "El Santo Niño",
+        "El Sagrado Corazón",
+        "La Santa Faz",
+        "La Preciosísima Sangre",
+        "La Pasión",
+        "Cristo Rey",
+        "La Divina Misericordia",
+        "Oraciones a Cristo"
+      ],
+      "search_words": [
+        "jesús",
+        "cristo",
+        "sagrado corazón",
+        "divina misericordia"
+      ]
+    },
+    "our_lady": {
+      "title": "La Santísima Virgen",
+      "topic": "Oraciones a María",
+      "note": "Oraciones a María.",
+      "section_titles": [
+        "El Rosario",
+        "La letanía",
+        "Los cantos de la Iglesia a María",
+        "Cada día",
+        "Sus advocaciones",
+        "Sus siete dolores"
+      ],
+      "search_words": [
+        "maría",
+        "virgen",
+        "nuestra señora",
+        "rosario"
+      ]
+    },
+    "st_joseph": {
+      "title": "San José",
+      "topic": "Oraciones a san José",
+      "section_titles": [
+        "Oraciones a san José"
+      ],
+      "search_words": [
+        "josé"
+      ]
+    },
+    "saints": {
+      "title": "Los ángeles y los santos",
+      "topic": "Oraciones a los ángeles y los santos",
+      "section_titles": [
+        "Los ángeles",
+        "Los santos"
+      ],
+      "search_words": [
+        "ángeles",
+        "santos",
+        "ángel de la guarda"
+      ]
+    },
+    "seasons": {
+      "title": "Fiestas y tiempos del año",
+      "topic": "Oraciones para el año litúrgico",
+      "section_titles": [
+        "Adviento y Navidad",
+        "Cuaresma y la Pasión",
+        "Pascua",
+        "Pentecostés",
+        "Cristo Rey",
+        "Todos los Santos y los Fieles Difuntos",
+        "El fin del año"
+      ],
+      "search_words": [
+        "adviento",
+        "navidad",
+        "cuaresma",
+        "pascua",
+        "año litúrgico"
+      ]
+    },
+    "thanks": {
+      "title": "Acción de gracias",
+      "topic": "Oraciones de acción de gracias",
+      "section_titles": [
+        "Cantos de acción de gracias"
+      ],
+      "search_words": [
+        "gracias",
+        "agradecimiento"
+      ]
+    },
+    "litanies": {
+      "title": "Letanías",
+      "topic": "Letanías",
+      "note": "Peticiones breves, cada una con la misma respuesta.",
+      "section_titles": [
+        "Letanías"
+      ],
+      "search_words": [
+        "letanía"
+      ]
+    },
+    "church": {
+      "title": "Por la Iglesia y por los vivos",
+      "topic": "Oraciones por la Iglesia y por los vivos",
+      "section_titles": [
+        "La Iglesia",
+        "La familia",
+        "La patria y la paz"
+      ],
+      "search_words": [
+        "papa",
+        "sacerdotes",
+        "familia",
+        "patria",
+        "paz"
+      ]
+    },
+    "sick": {
+      "title": "Los enfermos y los moribundos",
+      "topic": "Oraciones por los enfermos y los moribundos",
+      "section_titles": [
+        "Por los enfermos",
+        "Por una buena muerte"
+      ],
+      "search_words": [
+        "enfermos",
+        "enfermedad",
+        "buena muerte"
+      ]
+    },
+    "departed": {
+      "title": "Los fieles difuntos",
+      "topic": "Oraciones por los difuntos",
+      "note": "Por quienes han muerto.",
+      "section_titles": [
+        "Por los difuntos"
+      ],
+      "search_words": [
+        "difuntos",
+        "muertos",
+        "almas del purgatorio"
+      ]
+    },
+    "needs": {
+      "title": "En momentos de necesidad",
+      "topic": "Oraciones en momentos de necesidad",
+      "section_titles": [
+        "En la dificultad",
+        "En el trabajo, en el estudio, en el camino",
+        "Por la confianza y la paz"
+      ],
+      "search_words": [
+        "necesidad",
+        "angustia",
+        "trabajo",
+        "estudio",
+        "viaje"
+      ]
+    }
   }
 }
