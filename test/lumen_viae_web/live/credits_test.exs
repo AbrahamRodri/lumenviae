@@ -110,4 +110,28 @@ defmodule LumenViaeWeb.Live.CreditsTest do
       assert has_element?(view, ~s([data-role=source] a[href="/credits#prayers"]), "Source")
     end
   end
+
+  test "a painting's line ends at its source; the pill carries the licence" do
+    alias LumenViaeWeb.Live.Credits.Sources
+
+    assert Sources.credit_line(
+             "Józef Mehoffer, St Therese of Lisieux, 1929, Mehoffer Museum, Krakow. Photo: Ablakok, via Wikimedia Commons, CC BY-SA 4.0 (creativecommons.org/licenses/by-sa/4.0), cropped."
+           ) ==
+             "Józef Mehoffer, St Therese of Lisieux, 1929, Mehoffer Museum, Krakow. Photo: Ablakok, via Wikimedia Commons, cropped."
+
+    assert Sources.credit_line(
+             "Giovanni Battista Tiepolo, The Immaculate Conception, 1767–69, Museo del Prado, Madrid. Public domain, via Wikimedia Commons."
+           ) ==
+             "Giovanni Battista Tiepolo, The Immaculate Conception, 1767–69, Museo del Prado, Madrid. Via Wikimedia Commons."
+
+    assert Sources.credit_line(
+             "Batoni, The Sacred Heart, 1767, Gesù, Rome. CC0, via Wikimedia Commons."
+           ) ==
+             "Batoni, The Sacred Heart, 1767, Gesù, Rome. Via Wikimedia Commons."
+
+    assert Sources.credit_line(
+             "A Redemptorist print, scan by LimosaCorel, via Wikimedia Commons. Public domain."
+           ) ==
+             "A Redemptorist print, scan by LimosaCorel, via Wikimedia Commons."
+  end
 end

@@ -69,7 +69,7 @@ defmodule LumenViaeWeb.Live.Credits.Sources do
         title: novena.title,
         prayer_id: novena.prayer_id,
         url: novena.art.url,
-        credit: novena.art.credit,
+        credit: credit_line(novena.art.credit),
         licence: licence(novena.art.credit)
       }
     end)
@@ -89,6 +89,18 @@ defmodule LumenViaeWeb.Live.Credits.Sources do
   end
 
   def licence(_credit), do: nil
+
+  @doc """
+  A painting's credit as the page prints it, ending at its source: the
+  licence is the pill's, so it is not said again in the line (design,
+  15 Nov 2026), and no raw licence URL is printed.
+  """
+  def credit_line(credit) when is_binary(credit) do
+    credit
+    |> String.replace(~r/, CC BY-SA 4\.0 \([^)]*\)/, "")
+    |> String.replace(~r/\b(?:Public domain|CC0), via\b/, "Via")
+    |> String.replace(~r/\s*Public domain\.$/, "")
+  end
 
   @doc """
   The mysteries' woodcuts, one row per print (a print that hangs on two
