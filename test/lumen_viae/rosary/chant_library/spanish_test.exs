@@ -11,7 +11,7 @@ defmodule LumenViae.Rosary.ChantLibrary.SpanishTest do
 
   # Change the file: bump its updated_at and set the new pair here. The
   # names are the team's own Spanish, listed in priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 06:20:00Z], "1aa704206e924cb6"}
+  @pinned {~U[2026-11-15 08:10:00Z], "c40c20c07e00b07c"}
 
   defp english(section), do: Library.served(:chant_library, section)
 
@@ -63,5 +63,31 @@ defmodule LumenViae.Rosary.ChantLibrary.SpanishTest do
       title = Enum.find(Spanish.translation().chants, &(&1.id == id)).title
       assert title == latin[id], id
     end
+  end
+
+  test "a group's note and its parts' headings read in Spanish, part for part" do
+    groups = Map.new(Spanish.translation().groups, &{&1.id, &1})
+
+    assert groups["asperges"].note =~ "agua bendita"
+    assert groups["asperges"].parts == []
+
+    assert [
+             %{title: "Misa VIII, De Angelis", note: "La Misa de los Ángeles" <> _},
+             %{title: "Misa XI, Orbis factor"}
+           ] =
+             groups["mass"].parts
+
+    assert Enum.map(groups["seasons"].parts, & &1.title) ==
+             [
+               "Adviento",
+               "Navidad",
+               "Cuaresma",
+               "Jueves Santo",
+               "Viernes Santo",
+               "Pascua",
+               "Ascensión"
+             ]
+
+    assert Enum.all?(groups["seasons"].parts, &is_nil(&1.note))
   end
 end

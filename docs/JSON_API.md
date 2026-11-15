@@ -851,10 +851,11 @@ GET /api/v2/chant-library?lang=es
 GET /api/v2/chant-library?lang=es&fields[chant_library]=version,updated_at,groups,chants,translations
 ```
 
-GraphQL: `chantLibrary(lang: "es") { translations { chants { id title setting } groups { id title } } }`.
+GraphQL: `chantLibrary(lang: "es") { translations { chants { id title setting } groups { id title note parts { title note } } } }`.
 
 The chants are sung in Latin, so only their names are translated: what an
-app prints on a chant's card and row, and the groups' titles.
+app prints on a chant's card and row, and the groups' titles, notes and
+part headings.
 
 - **No `lang`, `lang=en`, or a language not served**: the document as it
   was before Spanish, byte for byte, with the same `version` and
@@ -871,7 +872,12 @@ app prints on a chant's card and row, and the groups' titles.
     equal to the Latin shows it once:
     `{"id": "salve_regina_simple", "title": "Salve Regina", "setting": "Melodía sencilla"}`.
   - `groups`: one per group that has Spanish (today, all), in the order of
-    `groups`, each `{id, title}`.
+    `groups`, each `{id, title, note, parts}`. `note` stands in place of
+    the group's `note` (null exactly when the English is). `parts` (added
+    15 Nov 2026, so an older client ignores it) lists the group's parts in
+    the same order as its English `parts`, each `{title, note}`, null
+    exactly where the English part's is; it is `[]` for a group whose
+    parts have no words: `{"title": "Misa VIII, De Angelis", "note": "La Misa de los Ángeles: para las fiestas y cualquier domingo"}`.
   - A chant or group not listed keeps its English. Every other section is
     unchanged: a client lays the Spanish over the English by `id`.
 - The names are the team's own Spanish, listed with the rules followed in

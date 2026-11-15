@@ -762,13 +762,34 @@
                         "id": {
                           "type": "string"
                         },
+                        "note": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "parts": {
+                          "items": {
+                            "properties": {
+                              "note": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "title": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
                         "title": {
                           "type": "string"
                         }
                       },
                       "required": [
                         "id",
-                        "title"
+                        "title",
+                        "parts"
                       ],
                       "type": "object"
                     },

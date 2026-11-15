@@ -495,9 +495,23 @@ type ChantTranslation {
   id: String!
 }
 
+type ChantGroupPartTranslation {
+  "The part's heading in this language; null where the English has none."
+  title: String
+
+  "The part's note in this language; null where the English has none."
+  note: String
+}
+
 type ChantGroupTranslation {
   "Its title in this language."
   title: String!
+
+  "Its parts' headings and notes, in the same order as the group's `parts`; empty where its parts have no words."
+  parts: [ChantGroupPartTranslation!]!
+
+  "Its note in this language; null where the English has none."
+  note: String
 
   "The group's id, the same as in `groups`."
   id: String!
