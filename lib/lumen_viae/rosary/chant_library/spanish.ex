@@ -5,7 +5,8 @@ defmodule LumenViae.Rosary.ChantLibrary.Spanish do
 
   `priv/library/es/chant_library.json` holds, by id, each chant's Spanish
   `title` (beside its `english_title`) and `setting`, and each group's
-  `title`: the names the apps print on a chant's card and row. They are the
+  `title`, `note` and its parts' headings and notes: the names and lines
+  the apps print on a chant's card and row and over each section. They are the
   team's own Spanish for labels, not a published text
   (`priv/library/es/SOURCES.md`). The chants are sung in Latin, and their
   words and lines stay as they are.
@@ -40,6 +41,18 @@ defmodule LumenViae.Rosary.ChantLibrary.Spanish do
 
   @english_chants Enum.map(english["chants"], &{&1["id"], &1["setting"]})
   @group_ids Enum.map(english["groups"], & &1["id"])
+
+  # Each group's parts as the English has them: `{has title?, has note?}`
+  # by position, so a Spanish part says exactly what its English says.
+  @english_parts Map.new(english["groups"], fn group ->
+                   {group["id"],
+                    Enum.map(
+                      group["parts"] || [],
+                      &{is_binary(&1["title"]), is_binary(&1["note"])}
+                    )}
+                 end)
+
+  @english_group_notes Map.new(english["groups"], &{&1["id"], is_binary(&1["note"])})
 
   @chants Map.get(file, "chants", %{})
   @groups Map.get(file, "groups", %{})
@@ -77,15 +90,40 @@ defmodule LumenViae.Rosary.ChantLibrary.Spanish do
   for {id, group} <- @groups do
     id in @group_ids || fail.("groups holds #{inspect(id)}, which the library does not have")
 
-    (Map.keys(group) == ["title"] and words?.(group["title"])) ||
-      fail.("the group #{id} needs a title, and nothing else")
+    words?.(group["title"]) || fail.("the group #{id} needs a title")
+
+    Map.keys(group) -- ["title", "note", "parts"] == [] ||
+      fail.("the group #{id} holds only a title, a note and its parts")
+
+    case {@english_group_notes[id], Map.has_key?(group, "note")} do
+      {true, true} -> words?.(group["note"]) || fail.("the group #{id}'s note is empty")
+      {false, true} -> fail.("the group #{id} has no note in English, so none in Spanish")
+      _ -> :ok
+    end
+
+    with parts when is_list(parts) <- group["parts"] do
+      english_parts = @english_parts[id]
+
+      length(parts) == length(english_parts) ||
+        fail.("the group #{id} has #{length(english_parts)} parts, so its parts list has as many")
+
+      for {{part, {title?, note?}}, index} <- Enum.with_index(Enum.zip(parts, english_parts)) do
+        (Map.has_key?(part, "title") == title? and Map.has_key?(part, "note") == note? and
+           Enum.all?(Map.values(part), words?)) ||
+          fail.(
+            "the group #{id}'s part #{index} holds a title and a note exactly where its English does"
+          )
+      end
+    end
   end
 
   @doc """
   The Spanish, as the `translations` section serves it: `chants`, each
   `%{id:, title:, setting:}` (`setting` nil where the English has none),
-  and `groups`, each `%{id:, title:}`, listing only those with Spanish, in
-  the English sections' order.
+  and `groups`, each `%{id:, title:, note:, parts:}` (`note` nil where the
+  English has none; `parts` the group's parts in the English order, each
+  `%{title:, note:}`, or empty where the group's parts have no words),
+  listing only those with Spanish, in the English sections' order.
   """
   @spec translation() :: %{chants: [map], groups: [map]}
   def translation do
@@ -100,7 +138,13 @@ defmodule LumenViae.Rosary.ChantLibrary.Spanish do
         for(
           id <- @group_ids,
           group = @groups[id],
-          do: %{id: id, title: group["title"]}
+          do: %{
+            id: id,
+            title: group["title"],
+            note: group["note"],
+            parts:
+              for(part <- group["parts"] || [], do: %{title: part["title"], note: part["note"]})
+          }
         )
     }
   end

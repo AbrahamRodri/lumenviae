@@ -1,41 +1,86 @@
 {
-  "updated_at": "2026-11-15T06:20:00Z",
+  "updated_at": "2026-11-15T08:15:00Z",
   "groups": {
     "asperges": {
-      "title": "Asperges me y Vidi aquam"
+      "title": "Asperges me y Vidi aquam",
+      "note": "Se canta mientras se rocía al pueblo con agua bendita antes de la Misa del domingo; el Vidi aquam, en el tiempo pascual"
     },
     "mass": {
-      "title": "El Ordinario de la Misa"
+      "title": "El Ordinario de la Misa",
+      "note": "Las partes de la Misa cuyas palabras nunca cambian. Su melodía cambia con el día: cada Misa indica cuándo se canta",
+      "parts": [
+        {
+          "title": "Misa VIII, De Angelis",
+          "note": "La Misa de los Ángeles: para las fiestas y cualquier domingo"
+        },
+        {
+          "title": "Misa XI, Orbis factor",
+          "note": "Para los domingos durante el año"
+        }
+      ]
     },
     "creed": {
-      "title": "El Credo"
+      "title": "El Credo",
+      "note": "El Credo niceno, que se canta los domingos y en las fiestas mayores"
     },
     "sequences": {
-      "title": "Secuencias"
+      "title": "Secuencias",
+      "note": "Poemas de fiesta que se cantan antes del Evangelio en Pascua, Pentecostés y Corpus Christi"
     },
     "requiem": {
-      "title": "La Misa de difuntos"
+      "title": "La Misa de difuntos",
+      "note": "Se canta en los funerales y por los difuntos"
     },
     "hymns": {
-      "title": "Himnos y cantos para todo el año"
+      "title": "Himnos y cantos para todo el año",
+      "note": "Para cualquier tiempo del año"
     },
     "ourLady": {
-      "title": "Himnos y cantos a la Santísima Virgen María"
+      "title": "Himnos y cantos a la Santísima Virgen María",
+      "note": "Sus cuatro cantos a lo largo del año y, después, sus otros himnos"
     },
     "seasons": {
-      "title": "Himnos y cantos de los tiempos litúrgicos"
+      "title": "Himnos y cantos de los tiempos litúrgicos",
+      "note": "El año de la Iglesia, del Adviento a la Ascensión",
+      "parts": [
+        {
+          "title": "Adviento"
+        },
+        {
+          "title": "Navidad"
+        },
+        {
+          "title": "Cuaresma"
+        },
+        {
+          "title": "Jueves Santo"
+        },
+        {
+          "title": "Viernes Santo"
+        },
+        {
+          "title": "Pascua"
+        },
+        {
+          "title": "Ascensión"
+        }
+      ]
     },
     "canticles": {
-      "title": "Cánticos evangélicos y letanías de los santos"
+      "title": "Cánticos y letanías de los santos",
+      "note": "El cántico de María en la Oración de la tarde y los santos invocados por su nombre"
     },
     "litanies": {
-      "title": "Letanías"
+      "title": "Letanías",
+      "note": "Oraciones de muchas invocaciones breves, a las que todos responden"
     },
     "benediction": {
-      "title": "Bendición con el Santísimo Sacramento"
+      "title": "Bendición con el Santísimo Sacramento",
+      "note": "Adoración y bendición: se canta ante Jesús en la Hostia"
     },
     "rosary": {
-      "title": "El Rosario en latín"
+      "title": "El Rosario en latín",
+      "note": "Las oraciones de las cuentas, cantadas como se canta un Rosario en latín"
     }
   },
   "chants": {
