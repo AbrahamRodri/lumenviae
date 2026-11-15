@@ -182,7 +182,7 @@ form is used and the difference is listed.
 | `visita_quaesumus` | [13] Compline, p. 1051 |
 | `fidelium_deus` | [13] the first Mass of 2 November, the collect, p. 1951 |
 | `domine_non_sum_dignus` | [15] the Communion rite |
-| `de_profundis` | [16] Wednesday Night Prayer, Psalm 129 |
+| `de_profundis` | [16] Wednesday Night Prayer, Psalm 129; [13] pp. 1937-1938 the Requiem versicle |
 | `nunc_dimittis` | [16] Night Prayer, the Canticle of Simeon with its antiphon |
 | `confiteor` | [13] the Ordinary of the Mass, pp. 957 and 959 |
 | `o_salutaris` | [17] |
@@ -197,7 +197,7 @@ form is used and the difference is listed.
 | `infant_of_prague` | [22] the prayer of Ven. Fr. Cyril |
 | `litany_loreto` | [23] |
 | `divine_mercy_chaplet` | [24] |
-| `alma_redemptoris` | [25] |
+| `alma_redemptoris` | [25] the antiphon; [13] pp. 1053-1054 the versicles and collects |
 | `litany_st_joseph` | [26] |
 | `prayer_for_the_pope` | [27] |
 | `prayer_for_priests` | [28] the Good Friday prayer for the ministers of the Church |
@@ -282,9 +282,9 @@ Also:
 - `visita_quaesumus`: the short ending "Por nuestro Señor Jesucristo.".
 - `domine_non_sum_dignus`: the Mass form, "entres en mi casa" (my house,
   for "under my roof") and "una palabra tuya bastará para sanarme".
-- `de_profundis`: the Liturgy of the Hours translation, not the Vulgate's;
-  the Requiem versicle after it has no Spanish in the source and is left
-  out.
+- `de_profundis`: the Liturgy of the Hours translation, not the Vulgate's.
+  The Requiem versicle after it is from [13], pp. 1937-1938, where it
+  follows this psalm in the rite for the dead; the ℣/℟ marks are ours.
 - `nunc_dimittis`: the Liturgy of the Hours translation in six lines,
   with its antiphon and Glory Be.
 - `confiteor`: the traditional form, as the English. The missal prints
@@ -303,14 +303,19 @@ Also:
   cosas" for "Send forth Thy Spirit, and they shall be created"; the
   collect is headed "[Oración.]", as the source heads it.
 - `miserere`, `beati_quorum`: a modern Bible translation, numbered as in
-  the Hebrew (51 and 32), with no Glory Be.
+  the Hebrew (51 and 32). The Bible prints no Glory Be; the one at the end
+  is from [16], which closes every psalm with it, pointed with " * " like
+  the Benedictus.
 - `infant_of_prague`: a freer version of the same prayer.
 - `litany_loreto`: the current form, with the invocations added since
   (Madre de la Iglesia, de la misericordia, de la esperanza, Consuelo de
   los migrantes, Reina de la familia).
 - `divine_mercy_chaplet`: adds the optional closing prayer.
-- `alma_redemptoris`: the antiphon alone, without the seasons' versicles
-  and collects.
+- `alma_redemptoris`: the seasons' versicles and collects are from [13],
+  pp. 1053-1054, which prints them with this antiphon; its "ORACIÓN" is
+  written "[Oración.]" and its rubrics in brackets. In the second collect
+  the drop capital's missing "¡" is supplied and a stray comma after
+  "haznos sentir" (a misprint in the scan) is left out.
 - `litany_st_joseph`: the 2021 form, with the invocations added that
   year.
 - `prayer_for_the_pope`: adds an Our Father and Hail Mary, and has a
