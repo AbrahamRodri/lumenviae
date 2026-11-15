@@ -337,11 +337,15 @@
     }
   }
 
+  /* A heading that wraps shares its words out between its lines, so no
+     title ends on one word alone ("The Novena to St / Joseph"). Body text
+     is left to wrap as it falls. */
   .site :is(h1, h2, h3, h4, h5, h6) {
     font-family: var(--font-display);
     font-weight: 600;
     letter-spacing: 0;
     line-height: 1.2;
+    text-wrap: balance;
   }
 
   /* 600 is the heaviest face served; asking for 700 would fake a bold. */
@@ -2653,7 +2657,9 @@ html:has(#prayer) {
     text-indent: -1em;
   }
 
-  .book-stanza--prose .book-line__primary {
+  .book-stanza--prose .book-line__primary,
+  .book-line--flush .book-line__primary,
+  .book-line--flush .book-line__secondary {
     padding-left: 0;
     text-indent: 0;
   }
@@ -3107,6 +3113,11 @@ html:has(#prayer) {
 
   .order-prayers {
     margin-top: 1.125rem;
+  }
+
+  /* An order of one prayer sets that prayer's words in place of the list. */
+  .order-text {
+    margin-top: 1.5rem;
   }
 
   .order-prayers > li + li {

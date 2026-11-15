@@ -87,6 +87,22 @@ defmodule LumenViaeWeb.Live.HomeTodayTest do
       assert has_element?(view, ~s(#pray-today[href="/mysteries/joyful"]))
     end
 
+    test "the hero names the mysteries once; the list is headed by what it holds", %{
+      conn: conn
+    } do
+      {view, _html} = open_on(conn, 6)
+
+      heading = view |> element("#todays-devotion-heading") |> render()
+      visible = heading |> Floki.parse_fragment!() |> Floki.filter_out(".sr-only")
+
+      assert Floki.text(visible) =~ "The five mysteries"
+      refute Floki.text(visible) =~ "Glorious"
+      assert heading =~ ~s(<span class="sr-only">, The Glorious Mysteries</span>)
+
+      assert LumenViaeWeb.Live.Home.Index.list_heading(%{slug: "seven_sorrows"}) ==
+               "The seven sorrows"
+    end
+
     test "Tuesday and Friday are the Sorrowful Mysteries", %{conn: conn} do
       for day <- [2, 5] do
         {view, _html} = open_on(conn, day)

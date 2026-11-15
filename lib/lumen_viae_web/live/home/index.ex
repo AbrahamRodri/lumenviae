@@ -340,6 +340,13 @@ defmodule LumenViaeWeb.Live.Home.Index do
     end
   end
 
+  @doc """
+  The head over today's list. The hero just above names the mysteries, so
+  the list is headed by what it holds; the name stays for screen readers.
+  """
+  def list_heading(%{slug: "seven_sorrows"}), do: "The seven sorrows"
+  def list_heading(_category), do: "The five mysteries"
+
   @doc false
   def schedule_name(:traditional), do: "Traditional"
   def schedule_name(:modern), do: "Modern"
