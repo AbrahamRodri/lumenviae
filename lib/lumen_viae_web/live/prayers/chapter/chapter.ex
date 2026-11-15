@@ -24,7 +24,7 @@ defmodule LumenViaeWeb.Live.Prayers.Chapter do
 
   @impl true
   def mount(%{"chapter_id" => id}, _session, socket) do
-    book = Book.load(socket.assigns.current_admin)
+    book = Book.load(socket.assigns.current_admin, novenas: true)
 
     chapter =
       Book.chapter(book, id) ||

@@ -62,8 +62,13 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       assert view |> element("[data-role=topic-tile]", "The Blessed Virgin") |> render() =~
                ~r{href="/prayers/topics/our_lady"}
 
-      assert length(Floki.find(doc, "[data-role=topic-tile]")) == 18
-      assert length(Floki.find(doc, "[data-role=topic-tile] .book-card__painting img")) == 18
+      # The book's 18 chapters and the website's Novenas topic
+      assert length(Floki.find(doc, "[data-role=topic-tile]")) == 19
+      assert length(Floki.find(doc, "[data-role=topic-tile] .book-card__painting img")) == 19
+
+      assert view |> element("[data-role=topic-tile]", "Novenas") |> render() =~
+               ~r{href="/prayers/topics/novenas"}
+
       refute html =~ "Jesus present in the Host"
     end
 
@@ -331,6 +336,8 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       for chapter <- book.chapters do
         assert sitemap =~ "<loc>https://www.lumenviae.org/prayers/topics/#{chapter.id}</loc>"
       end
+
+      assert sitemap =~ "<loc>https://www.lumenviae.org/prayers/topics/novenas</loc>"
     end
   end
 end

@@ -84,6 +84,7 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   ]
 
   @first_chapter "first"
+  @novenas_chapter "novenas"
   @our_lady_chapter "our_lady"
 
   @search_stop ~w(a an and of the to o for in on at)
@@ -118,6 +119,9 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   defp novenas_by_twin(_not_loaded), do: %{}
 
   def everyday_ids, do: @everyday_ids
+
+  @doc "The Novenas topic's id: `/prayers/topics/novenas`."
+  def novenas_chapter_id, do: @novenas_chapter
   def first_chapter_id, do: @first_chapter
   def our_lady_chapter_id, do: @our_lady_chapter
 
@@ -139,6 +143,7 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   @doc "The novena whose twin is this prayer, when the book was loaded with its novenas."
   def novena(%__MODULE__{novenas: novenas}, prayer_id), do: Map.get(novenas, prayer_id)
 
+  def chapter(%__MODULE__{} = book, @novenas_chapter), do: novenas_chapter(book)
   def chapter(%__MODULE__{chapters: chapters}, id), do: Enum.find(chapters, &(&1.id == id))
 
   @doc "The prayers with these ids, in order; an id the book does not carry is skipped."
@@ -149,7 +154,13 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   The prayer's home topic: the one `PrayerBook.homes` names for it, where
   that topic prints it, else the first topic that does.
   """
-  def home_chapter(%__MODULE__{chapters: chapters} = book, prayer_id) do
+  def home_chapter(%__MODULE__{novenas: novenas} = book, prayer_id)
+      when is_map_key(novenas, prayer_id),
+      do: novenas_chapter(book)
+
+  def home_chapter(book, prayer_id), do: book_home_chapter(book, prayer_id)
+
+  defp book_home_chapter(%__MODULE__{chapters: chapters} = book, prayer_id) do
     named = @homes[prayer_id] && chapter(book, @homes[prayer_id])
 
     if named && prayer_id in named.prayer_ids,
@@ -161,19 +172,107 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   The book's five parts, each `%{title:, chapters:}` with its topics in
   the book's order, as All Topics shelves them.
   """
-  def parts(%__MODULE__{chapters: chapters}) do
+  def parts(%__MODULE__{chapters: chapters} = book) do
     named = @parts |> Enum.flat_map(&elem(&1, 1)) |> MapSet.new()
     last = length(@parts) - 1
+    novenas = List.wrap(novenas_chapter(book))
 
     @parts
     |> Enum.with_index()
     |> Enum.map(fn {{title, ids}, i} ->
+      shelf = Enum.filter(chapters, &(&1.id in ids or (i == last and &1.id not in named)))
+
       %{
         title: title,
-        chapters: Enum.filter(chapters, &(&1.id in ids or (i == last and &1.id not in named)))
+        chapters: if(title == "Through the Year", do: shelf ++ novenas, else: shelf)
       }
     end)
   end
+
+  ## Novenas
+
+  @doc """
+  The Novenas topic (`/prayers/topics/novenas`): the website's own, as the
+  app's Novenas card, holding every novena's twin prayer by title. Shaped
+  like a chapter, so the topic page, All Topics and search take it as one.
+  Nil when the book was loaded without its novenas.
+  """
+  def novenas_chapter(%__MODULE__{novenas: novenas}) when novenas == %{}, do: nil
+
+  def novenas_chapter(%__MODULE__{novenas: novenas}) do
+    ids =
+      novenas |> Map.values() |> Enum.sort_by(&sort_title(&1.title)) |> Enum.map(& &1.prayer_id)
+
+    %{
+      id: @novenas_chapter,
+      numeral: nil,
+      title: "Novenas",
+      latin_title: "Novenæ",
+      topic: "Novenas",
+      note: "Nine days of prayer, prayed one day at a time.",
+      search_words: ["novena", "novenas", "nine days"],
+      prayer_ids: ids,
+      sections: [%{title: "Novenas", prayer_ids: ids}]
+    }
+  end
+
+  @doc """
+  The Prayers page's Novenas shelf on `date`, each `%{prayer:, title:,
+  note:, painting:}`: a novena whose days are under way first (its first
+  day reached, its feast not), then the rest by their next feast, then
+  those for any time. The note is the feast's date, "Now, to" the last
+  day while it is under way, or "Any time".
+  """
+  def novena_shelf(%__MODULE__{novenas: novenas} = book, %Date{} = date) do
+    novenas
+    |> Map.values()
+    |> Enum.map(fn novena ->
+      feast = next_feast(novena.feast, date)
+
+      under_way? =
+        feast != nil and Date.compare(date, Date.add(feast, -novena.length)) != :lt and
+          Date.compare(date, feast) == :lt
+
+      %{
+        prayer: prayer(book, novena.prayer_id),
+        title: novena.list_title || novena.title,
+        note: novena_note(feast, under_way?),
+        painting: novena_painting(book, novena),
+        order:
+          {if(under_way?, do: 0, else: if(feast, do: 1, else: 2)),
+           feast && Date.to_gregorian_days(feast), sort_title(novena.title)}
+      }
+    end)
+    |> Enum.reject(&is_nil(&1.prayer))
+    |> Enum.sort_by(& &1.order)
+    |> Enum.map(&Map.delete(&1, :order))
+  end
+
+  @doc "A novena's feast on or after `date`, or nil for a novena of any time."
+  def next_feast(%{kind: "fixed", month: month, day: day}, %Date{year: year} = date) do
+    this_year = Date.new!(year, month, day)
+    if Date.compare(this_year, date) == :lt, do: Date.new!(year + 1, month, day), else: this_year
+  end
+
+  def next_feast(%{kind: "easter", days_from_easter: days}, %Date{year: year} = date) do
+    this_year = Date.add(LiturgicalCalendar.easter(year), days)
+
+    if Date.compare(this_year, date) == :lt,
+      do: Date.add(LiturgicalCalendar.easter(year + 1), days),
+      else: this_year
+  end
+
+  def next_feast(_none, _date), do: nil
+
+  defp novena_note(nil, _under_way?), do: "Any time"
+  defp novena_note(feast, true), do: "Now, to " <> month_day(Date.add(feast, -1))
+  defp novena_note(feast, _not_yet), do: month_day(feast)
+
+  defp month_day(date), do: Calendar.strftime(date, "%B ") <> Integer.to_string(date.day)
+
+  defp novena_painting(book, novena), do: prayer_painting(book, novena.prayer_id)
+
+  defp sort_title(title), do: title |> String.replace_prefix("The ", "") |> String.downcase()
 
   @doc "The chapters either side of this one, each nil at an end."
   def neighbours(list, item) do
@@ -382,6 +481,7 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
     "st_joseph" => {"devotion_st_joseph", 0.5, 0.2},
     "saints" => {"devotion_guardian_angels", 0.5, 0.3},
     "seasons" => {"topic_feasts_seasons", 0.5, 0.4},
+    "novenas" => {"mary_immaculate_conception", 0.5, 0.3},
     "thanks" => {"topic_thanksgiving", 0.5, 0.3},
     "litanies" => {"feast_all_saints", 0.5, 0.3},
     "church" => {"topic_for_the_living", 0.5, 0.6},
@@ -626,15 +726,28 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   website has it, else its topic's painting.
   """
   def prayer_painting(%__MODULE__{} = book, prayer_id) do
-    with scene when not is_nil(scene) <- @scenes[prayer_id],
+    with nil <- novena_scene(book, prayer_id),
+         scene when not is_nil(scene) <- @scenes[prayer_id],
          painting when not is_nil(painting) <- resolve(scene) do
       painting
     else
+      {_name, _x, _y} = painting ->
+        painting
+
       _ ->
-        case home_chapter(book, prayer_id) do
+        # The topic the book prints it under, not the website's Novenas
+        case book_home_chapter(book, prayer_id) do
           nil -> @saved
           chapter -> topic_painting(chapter.id)
         end
+    end
+  end
+
+  # A novena twin's own painting, where the novena names one the site has.
+  defp novena_scene(%__MODULE__{novenas: novenas}, prayer_id) do
+    case novenas[prayer_id] do
+      %{painting: name} when is_binary(name) -> resolve({name, 0.5, 0.3})
+      _ -> nil
     end
   end
 
@@ -697,7 +810,9 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
   topic, Latin title or search words; "prayer" and the small words count
   for nothing, or every topic would answer "pra".
   """
-  def topics(%__MODULE__{chapters: chapters}, needle) do
+  def topics(%__MODULE__{chapters: chapters} = book, needle) do
+    chapters = chapters ++ List.wrap(novenas_chapter(book))
+
     wanted = topic_words(needle)
 
     cond do

@@ -196,6 +196,36 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Shelves do
     """
   end
 
+  attr :cards, :list, required: true
+
+  @doc """
+  Novenas (the app's Novenas card): every novena as a square card, its
+  feast's date under it, or "Now, to" its last day while its days are
+  under way, when it comes first. Opens the novena at its first day.
+  """
+  def novenas(assigns) do
+    ~H"""
+    <section aria-labelledby="novenas-heading" class="min-w-0" data-role="novenas-shelf">
+      <.shelf_heading
+        id="novenas-heading"
+        title="Novenas"
+        to={Book.chapter_path(Book.novenas_chapter_id())}
+      />
+      <ul class="book-shelf mt-3">
+        <li :for={card <- @cards}>
+          <.square_card
+            to={Book.prayer_path(card.prayer.id)}
+            title={card.title}
+            note={card.note}
+            painting={card.painting}
+            role="novena-card"
+          />
+        </li>
+      </ul>
+    </section>
+    """
+  end
+
   attr :parts, :list, required: true
 
   def all_topics(assigns) do

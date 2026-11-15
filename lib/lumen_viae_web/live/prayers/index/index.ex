@@ -34,7 +34,7 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    book = Book.load(socket.assigns.current_admin)
+    book = Book.load(socket.assigns.current_admin, novenas: true)
 
     {:ok,
      socket
@@ -105,6 +105,7 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
     |> assign(:hour, now.hour)
     |> assign(:marian, Book.marian_shelf(book, today))
     |> assign(:advent, Book.advent_cards(book, today))
+    |> assign(:novenas, Book.novena_shelf(book, today))
     |> assign(:seasonal_id, seasonal_id(book, today))
   end
 

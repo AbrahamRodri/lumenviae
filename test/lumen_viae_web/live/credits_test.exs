@@ -36,7 +36,7 @@ defmodule LumenViaeWeb.Live.CreditsTest do
 
     test "one details per Prayer Book chapter, only the first open, every prayer once",
          %{conn: conn} do
-      book = Book.load(nil)
+      book = Book.load(nil, novenas: true)
       doc = page(conn, "/credits")
       details = Floki.find(doc, "#prayers details[data-role=chapter]")
 

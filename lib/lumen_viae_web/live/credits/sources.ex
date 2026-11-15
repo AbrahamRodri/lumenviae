@@ -25,10 +25,11 @@ defmodule LumenViaeWeb.Live.Credits.Sources do
   @doc """
   The Prayer Book's chapters in the book's order, each `%{chapter:,
   prayers:}` with the prayers whose home it is, in the chapter's order.
-  A chapter that is home to none is left out.
+  A chapter that is home to none is left out. The novenas' prayers stand
+  under the website's Novenas topic, last, as their pages' trail has it.
   """
   def prayer_chapters(%Book{chapters: chapters} = book) do
-    for chapter <- chapters,
+    for chapter <- chapters ++ List.wrap(Book.novenas_chapter(book)),
         prayers = home_prayers(book, chapter),
         prayers != [] do
       %{chapter: chapter, prayers: prayers}
