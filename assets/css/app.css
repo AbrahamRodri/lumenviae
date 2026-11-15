@@ -2653,7 +2653,9 @@ html:has(#prayer) {
     text-indent: -1em;
   }
 
-  .book-stanza--prose .book-line__primary {
+  .book-stanza--prose .book-line__primary,
+  .book-line--flush .book-line__primary,
+  .book-line--flush .book-line__secondary {
     padding-left: 0;
     text-indent: 0;
   }
