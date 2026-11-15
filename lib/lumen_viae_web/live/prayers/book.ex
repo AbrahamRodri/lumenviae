@@ -548,6 +548,10 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
               "st_peregrine" => crucified,
               "st_dominic_o_lumen" => rosary,
               "st_francis_before_crucifix" => {"topic_short_prayers", 0.5, 0.3},
+              # Advent (design, 15 Nov 2026): Isaiah for the Messiah's titles,
+              # Fra Angelico's Annunciation for the waiting it begins
+              "o_antiphons" => {"advent_isaiah", 0.5, 0.3},
+              "advent_wreath_collects" => feast_annunciation,
               # Thanksgiving
               "te_deum" => all_saints,
               # For the Church and the Living

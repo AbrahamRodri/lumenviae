@@ -89,7 +89,7 @@
     </section>
 
     <section
-      :if={@paintings != [] or @woodcuts != []}
+      :if={@paintings != [] or @woodcuts != [] or @site_paintings != []}
       id="paintings"
       aria-labelledby="paintings-heading"
       class="mt-12 scroll-mt-24"
@@ -158,6 +158,49 @@
               </p>
               <p :if={woodcut.licence} class="mt-2">
                 <.licence_pill licence={woodcut.licence} />
+              </p>
+            </div>
+          </li>
+        </ul>
+      </details>
+
+      <details
+        :if={@site_paintings != []}
+        id="site-paintings"
+        class="credits-chapter border-t border-night-border"
+      >
+        <summary class="flex items-center justify-between gap-4 min-h-14 py-3 cursor-pointer select-none">
+          <span class="font-display text-lg md:text-xl text-ink-light">
+            The paintings of the mysteries, the prayers and the chants
+          </span>
+          <span class="shrink-0 flex items-center gap-1.5 font-garamond italic text-base text-ink-muted">
+            {length(@site_paintings)} paintings
+            <span
+              class="credits-chapter__caret hero-chevron-down size-4 text-gilt"
+              aria-hidden="true"
+            />
+          </span>
+        </summary>
+
+        <ul>
+          <li
+            :for={painting <- @site_paintings}
+            class="flex gap-4 border-t border-night-border py-4"
+            data-role="site-painting"
+          >
+            <.thumb src={painting.src} srcset={painting.srcset} />
+            <div class="min-w-0">
+              <p class="font-garamond text-lg text-ink-light">{painting.title}</p>
+              <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
+                {painting.credit}<span :if={painting.source}>, via <a
+                    href={painting.source}
+                    rel="noopener"
+                    target="_blank"
+                    class="underline decoration-night-line underline-offset-4 hover:text-gilt"
+                  >Wikimedia Commons</a></span>.
+              </p>
+              <p :if={painting.licence} class="mt-2">
+                <.licence_pill licence={painting.licence} />
               </p>
             </div>
           </li>
