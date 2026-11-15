@@ -40,6 +40,7 @@ focal =
 # Paintings whose subject the first focal point misses at this wide
 # shape: checked by eye on the cards.
 overrides = %{
+  "devotion_st_joseph" => {0.5, 0.42},
   "undoer_of_knots_novena" => {0.5, 0.12},
   "our_lady_of_guadalupe_novena" => {0.5, 0.12}
 }
