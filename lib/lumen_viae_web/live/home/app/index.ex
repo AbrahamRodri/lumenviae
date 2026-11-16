@@ -33,7 +33,7 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
        title: t.title,
        description: t.description,
        image: %{
-         url: PageMeta.absolute_url("/images/app/og-app.jpg"),
+         url: PageMeta.absolute_url("/images/app/og-app-midnight.jpg"),
          width: 1200,
          height: 630,
          alt: t.og_alt

@@ -130,8 +130,8 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
         |> Floki.find(~s(meta[property="og:image"]))
         |> Floki.attribute("content")
 
-      assert image =~ "/images/app/og-app.jpg"
-      assert File.exists?(Path.join(@images, "og-app.jpg"))
+      assert image =~ "/images/app/og-app-midnight.jpg"
+      assert File.exists?(Path.join(@images, "og-app-midnight.jpg"))
     end
   end
 

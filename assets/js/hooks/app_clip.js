@@ -49,7 +49,6 @@ const AppClip = {
   label() {
     const playing = !this.video.paused
     this.button.textContent = playing ? this.el.dataset.pause : this.el.dataset.play
-    this.button.setAttribute("aria-pressed", playing ? "false" : "true")
   },
 
   destroyed() {

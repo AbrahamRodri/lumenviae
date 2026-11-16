@@ -875,7 +875,7 @@ phone each) and the closing call.
 - `?lang=es` is the page in Spanish, linked from nowhere yet and marked
   `noindex` until it is. Its words need a native reader's check before a
   link to it ships.
-- `og-app.jpg` (1200x630) is the link preview.
+- `og-app-midnight.jpg` (1200x630) is the link preview: the player, Home and the prayer book in Midnight.
 - The download button is Apple's own badge, kept as downloaded. Every
   download link is the App Store listing, and
   `test/lumen_viae_web/live/home/app_test.exs` and the smoke test check it.
