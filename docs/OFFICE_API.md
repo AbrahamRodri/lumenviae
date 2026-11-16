@@ -82,8 +82,8 @@ of `matutinum`, `laudes`, `prima`, `tertia`, `sexta`, `nona`, `vesperae`,
   "celebration": {"title": "S. Bartholomaei Apostoli", "rank": "II. classis"},
   "tempora": "Feria Secunda infra Hebdomadam XIII post Octavam Pentecostes ...",
   "sections": [
-    {"latin": {"title": "Incipit", "note": null, "lines": ["...", "..."]},
-     "vernacular": {"title": "Start", "note": null, "lines": ["...", "..."]}},
+    {"latin": {"title": "Incipit", "note": null, "lines": ["...", "..."], "marked_lines": null},
+     "vernacular": {"title": "Start", "note": null, "lines": ["...", "..."], "marked_lines": null}},
     ...
   ],
   "source": {"name": "The Divinum Officium Project", "url": "https://www.divinumofficium.com/..."}
@@ -95,7 +95,14 @@ unit ("Incipit", "Psalmi", "Oratio"...), untitled sections for the
 individual psalms and for standalone rubric rows ("Preces Feriales
 {omittitur}"). `note` holds the small rubric printed after a title, braces
 and all. Lines are plain text with the traditional glyphs kept
-(the versicle and response marks, the cross). When the requested
+(the versicle and response marks, the cross). A small rubric the engine
+prints inside a line, after the words have begun, is run in with the words
+in `lines`, as it always was ("word and deed: strikes his breast through
+my fault"), because a shipped app prints braces as they come.
+`marked_lines` (added 16 Nov 2026, null when the cell has none) is the
+same lines with that rubric in braces ("word and deed: {strikes his
+breast} through my fault"), for a reader that sets it apart in red, as
+the website does; a line that is all rubric stays a plain line in both. When the requested
 `language` is `latin`, the engine prints a single column and `vernacular`
 is null throughout.
 

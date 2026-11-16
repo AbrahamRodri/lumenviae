@@ -165,4 +165,46 @@ defmodule LumenViae.Office.ParserTest do
                {:error, :unparseable}
     end
   end
+
+  describe "parse_hour/1 on the engine's small red marks (22 Nov 2026, English)" do
+    defp all_lines(name, field \\ :lines) do
+      {:ok, parsed} = Parser.parse_hour(fixture(name))
+
+      for section <- parsed.sections,
+          column <- [section.latin, section.vernacular],
+          column,
+          line <- Map.get(column, field) || [],
+          do: line
+    end
+
+    test "a rubric inside a line is in braces in marked_lines, run in as before in lines" do
+      marked = all_lines("completorium_2026-11-22.html", :marked_lines)
+      plain = all_lines("completorium_2026-11-22.html")
+
+      assert Enum.any?(marked, &(&1 =~ "word and deed: {strikes his breast} through my fault"))
+      # Shipped apps (iOS 4.3) print braces as they come: lines keep the old text.
+      assert Enum.any?(plain, &(&1 =~ "word and deed: strikes his breast through my fault"))
+      refute Enum.any?(plain, &String.contains?(&1, "{strikes"))
+    end
+
+    test "a cell with no rubric inside a line has no marked_lines" do
+      {:ok, parsed} = Parser.parse_hour(fixture("vesperae_2026-11-22.html"))
+
+      assert Enum.all?(parsed.sections, &(&1.latin.marked_lines == nil))
+    end
+
+    test "a line that is all rubric stays a line of its own" do
+      lines = all_lines("completorium_2026-11-22.html")
+
+      assert "There follows an examination of conscience, or the Our Father said silently." in lines
+    end
+
+    test "a verse number keeps its space before the mark or rubric after it" do
+      lines = all_lines("vesperae_2026-11-22.html")
+
+      assert "109:1 ‡ Until I make thy enemies * thy footstool." in lines
+      assert Enum.any?(lines, &String.starts_with?(&1, "110:9 (bow head) Holy"))
+      refute Enum.any?(lines, &(&1 =~ ~r/^\d+:\d+[(‡]/u))
+    end
+  end
 end

@@ -124,6 +124,10 @@ defmodule LumenViaeWeb.Live.Hours.OfficeText do
   defp other_side(:latin), do: :english
   defp other_side(:english), do: :latin
 
+  # The lines with a rubric inside a line in braces where the cell has
+  # them, so it is set apart in red; else the plain lines.
+  defp lines(%{marked_lines: [_ | _] = marked}, side), do: lines(%{lines: marked}, side)
+
   defp lines(%{lines: lines}, side) when is_list(lines) do
     lines
     |> Enum.filter(&is_binary/1)

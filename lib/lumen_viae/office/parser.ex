@@ -25,7 +25,8 @@ defmodule LumenViae.Office.Parser do
               tempora: ... | nil,
               sections: [%{latin: cell, vernacular: cell}]}}
 
-  where a cell is `%{title: ..., note: ..., lines: [...]}`.
+  where a cell is `%{title: ..., note: ..., lines: [...], marked_lines:
+  [...] | nil}`.
 
   The anchor prefix is read off the page's own `<h2 id="...top">`
   heading rather than assumed from the hour that was asked for, because
@@ -188,14 +189,14 @@ defmodule LumenViae.Office.Parser do
       [first | rest] ->
         case header_of(first) do
           {title, note} ->
-            %{title: title, note: note, lines: lines_of(rest)}
+            Map.merge(%{title: title, note: note}, lines_of(rest))
 
           :not_a_header ->
-            %{title: nil, note: nil, lines: lines_of(chunks)}
+            Map.merge(%{title: nil, note: nil}, lines_of(chunks))
         end
 
       [] ->
-        %{title: nil, note: nil, lines: []}
+        %{title: nil, note: nil, lines: [], marked_lines: nil}
     end
   end
 
@@ -214,12 +215,68 @@ defmodule LumenViae.Office.Parser do
   defp title_font?({"font", attrs, _children}), do: attr(attrs, "size") == "+1"
   defp title_font?(_other), do: false
 
+  # `lines` as the apps have always had them, the rubric inside a line run
+  # in with the words; `marked_lines` the same with that rubric in braces,
+  # for a reader that sets it apart (the website), or nil when the cell
+  # has none. The braces stay out of `lines` because a shipped app (iOS
+  # 4.3) prints them as they come.
   defp lines_of(chunks) do
+    lines = text_lines(chunks, false)
+    marked = text_lines(chunks, true)
+    %{lines: lines, marked_lines: if(marked == lines, do: nil, else: marked)}
+  end
+
+  defp text_lines(chunks, mark?) do
     chunks
-    |> Enum.map(&text_of/1)
+    |> Enum.map(&line_text(&1, mark?))
     |> Enum.map(&normalize/1)
     |> Enum.reject(&(&1 == ""))
   end
+
+  # One line's text, with two of the engine's small red marks kept apart:
+  #
+  #   * with `mark?`, a rubric in the middle of a line, after the words
+  #     have begun (the English Confiteor's "deed: strikes his breast
+  #     through my fault"), is set in braces, the form the Hours page
+  #     already sets as a red note, so it no longer reads as the prayer;
+  #   * marks the engine sets side by side with a space between ("112:2
+  #     (bow head) Holy", "109:1 ‡ Donec") keep that space, which the HTML
+  #     parser drops as a whitespace-only text node.
+  #
+  # A small red line on its own, a verse number and the marks after it stay
+  # as they were.
+  defp line_text(nodes, mark?) do
+    {parts, _words_begun?, _previous} =
+      Enum.reduce(nodes, {[], false, nil}, fn node, {parts, begun?, previous} ->
+        text = text_of(node)
+
+        part =
+          cond do
+            mark? and begun? and small_red?(node) and String.trim(text) not in ["", "‡", "*", "+"] and
+                not String.starts_with?(String.trim(text), "{") ->
+              " {" <> String.trim(text) <> "} "
+
+            element?(node) and element?(previous) ->
+              " " <> text
+
+            true ->
+              text
+          end
+
+        begun? = begun? or (is_binary(node) and String.trim(node) != "")
+        {[part | parts], begun?, node}
+      end)
+
+    parts |> Enum.reverse() |> Enum.join()
+  end
+
+  defp small_red?({"font", attrs, _children}),
+    do: attr(attrs, "size") == "1" and String.downcase(attr(attrs, "color") || "") == "red"
+
+  defp small_red?(_node), do: false
+
+  defp element?({tag, _attrs, _children}) when is_binary(tag), do: true
+  defp element?(_node), do: false
 
   defp chunk_by_br(nodes) do
     nodes

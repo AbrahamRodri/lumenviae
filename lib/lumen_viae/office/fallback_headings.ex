@@ -32,17 +32,21 @@ defmodule LumenViae.Office.FallbackHeadings do
   end
 
   defp translate_section(%{vernacular: %{} = cell} = section, headings) do
-    %{
-      section
-      | vernacular: %{
-          cell
-          | title: heading(cell.title, headings),
-            lines: Enum.map(cell.lines, &heading(&1, headings))
-        }
-    }
+    translated =
+      %{cell | title: heading(cell.title, headings), lines: heading_lines(cell.lines, headings)}
+
+    translated =
+      case Map.get(cell, :marked_lines) do
+        nil -> translated
+        marked -> Map.put(translated, :marked_lines, heading_lines(marked, headings))
+      end
+
+    %{section | vernacular: translated}
   end
 
   defp translate_section(section, _headings), do: section
+
+  defp heading_lines(lines, headings), do: Enum.map(lines, &heading(&1, headings))
 
   defp heading(text, headings) when is_binary(text), do: Map.get(headings, text, text)
   defp heading(text, _headings), do: text

@@ -92,6 +92,28 @@ defmodule LumenViaeWeb.API.OfficeControllerTest do
       assert data["source"]["url"] =~ "divinumofficium.com"
     end
 
+    # iOS 4.3 prints whatever `lines` holds, braces and all: a rubric inside
+    # a line stays run in there, and comes in braces only in marked_lines.
+    test "a rubric inside a line: plain in lines, in braces in marked_lines", %{conn: conn} do
+      stub_page("completorium_2026-11-22.html")
+
+      conn = get(conn, ~p"/api/office/1902-03-04/completorium")
+      sections = json_response(conn, 200)["data"]["sections"]
+
+      cells = for s <- sections, cell <- [s["latin"], s["vernacular"]], cell, do: cell
+      confiteor = Enum.find(cells, &Enum.any?(&1["lines"], fn l -> l =~ "strikes his breast" end))
+
+      assert Enum.any?(confiteor["lines"], &(&1 =~ "deed: strikes his breast through my fault"))
+      refute Enum.any?(confiteor["lines"], &String.contains?(&1, "{"))
+
+      assert Enum.any?(
+               confiteor["marked_lines"],
+               &(&1 =~ "deed: {strikes his breast} through my fault")
+             )
+
+      assert Enum.any?(cells, &is_nil(&1["marked_lines"]))
+    end
+
     # O1: one null `lines` or one non-string line fails the whole hour for
     # the app, so every section is checked, both sides.
     test "every section is typed the way the app decodes it", %{conn: conn} do

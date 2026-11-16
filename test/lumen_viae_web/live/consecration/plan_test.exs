@@ -48,6 +48,26 @@ defmodule LumenViaeWeb.Live.Consecration.PlanTest do
       assert Plan.preparation(assumption, ~D[2026-07-14]).start == ~D[2027-07-13]
     end
 
+    test "the Annunciation is kept where the 1960 calendar keeps it", %{doc: doc} do
+      annunciation = Enum.find(doc.feasts, &(&1.id == "annunciation"))
+
+      # As /api/v2/office/calendar keeps it (rubrics-1960), checked 16 Nov 2026.
+      assert Plan.feast_date(annunciation, 2026) == {:ok, ~D[2026-03-25]}
+      # Holy Thursday: the Monday after Low Sunday.
+      assert Plan.feast_date(annunciation, 2027) == {:ok, ~D[2027-04-05]}
+      # Palm Sunday, and Easter Sunday itself.
+      assert Plan.feast_date(annunciation, 2029) == {:ok, ~D[2029-04-09]}
+      assert Plan.feast_date(annunciation, 2035) == {:ok, ~D[2035-04-02]}
+      # The Third Sunday of Lent: the Monday.
+      assert Plan.feast_date(annunciation, 2057) == {:ok, ~D[2057-03-26]}
+
+      prep = Plan.preparation(annunciation, ~D[2027-01-01])
+      assert prep.feast_date == ~D[2027-04-05]
+      assert prep.start == ~D[2027-03-03]
+      assert Plan.feast_ending(doc.feasts, prep.start).id == "annunciation"
+      refute Plan.feast_ending(doc.feasts, ~D[2027-02-20])
+    end
+
     test "the preparations are the soonest Day 1 first", %{doc: doc} do
       [first, second | _] = Plan.preparations(doc.feasts, ~D[2026-11-02])
 

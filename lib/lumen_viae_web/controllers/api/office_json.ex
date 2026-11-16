@@ -68,7 +68,12 @@ defmodule LumenViaeWeb.API.OfficeJSON do
   defp cell_data(nil), do: nil
 
   defp cell_data(cell) do
-    %{title: cell.title, note: cell.note, lines: cell.lines}
+    %{
+      title: cell.title,
+      note: cell.note,
+      lines: cell.lines,
+      marked_lines: Map.get(cell, :marked_lines)
+    }
   end
 
   defp slug_and_label(entry) do

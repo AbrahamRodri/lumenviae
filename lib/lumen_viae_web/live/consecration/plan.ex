@@ -12,6 +12,8 @@ defmodule LumenViaeWeb.Live.Consecration.Plan do
   prayed are a sorted list of day numbers. Pure: no storage, no queries.
   """
 
+  alias LumenViae.LiturgicalCalendar
+
   @last_day 34
 
   @doc "The last day: Consecration Day."
@@ -120,7 +122,7 @@ defmodule LumenViaeWeb.Live.Consecration.Plan do
   @doc "One feast's next preparation from `today`, or nil."
   def preparation(feast, today) do
     Enum.find_value([today.year, today.year + 1], fn year ->
-      with {:ok, feast_date} <- Date.new(year, feast.month, feast.day),
+      with {:ok, feast_date} <- feast_date(feast, year),
            start = Date.add(feast_date, -(@last_day - 1)),
            true <- Date.compare(start, today) != :lt do
         %{feast: feast, start: start, feast_date: feast_date}
@@ -133,8 +135,37 @@ defmodule LumenViaeWeb.Live.Consecration.Plan do
   @doc "The feast a preparation begun on `start` ends on, if it ends on one."
   def feast_ending(feasts, start) do
     finish = consecration_date(start)
-    Enum.find(feasts, &(&1.month == finish.month and &1.day == finish.day))
+    Enum.find(feasts, &(feast_date(&1, finish.year) == {:ok, finish}))
   end
+
+  @doc """
+  The day a feast is kept in `year`, as `{:ok, date}`: its month and day,
+  except the Annunciation, which the 1960 calendar (the one Hours of
+  Prayer reads) moves when 25 March is taken. In Holy Week or Easter Week
+  it goes to the Monday after Low Sunday (5 April 2027); on a Sunday of
+  Lent, to the Monday. The other feasts here are never moved, only
+  commemorated when a greater day falls on them.
+  """
+  def feast_date(%{id: "annunciation"} = feast, year) do
+    with {:ok, date} <- Date.new(year, feast.month, feast.day) do
+      easter = LiturgicalCalendar.easter(year)
+      palm_sunday = Date.add(easter, -7)
+      low_sunday = Date.add(easter, 7)
+
+      cond do
+        Date.compare(date, palm_sunday) != :lt and Date.compare(date, low_sunday) != :gt ->
+          {:ok, Date.add(low_sunday, 1)}
+
+        Date.day_of_week(date) == 7 ->
+          {:ok, Date.add(date, 1)}
+
+        true ->
+          {:ok, date}
+      end
+    end
+  end
+
+  def feast_date(feast, year), do: Date.new(year, feast.month, feast.day)
 
   @doc "Day 1 of a consecration begun today at `day` (Start at any day)."
   def start_at(day, today) when day in 1..33, do: Date.add(today, -(day - 1))

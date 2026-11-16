@@ -22,6 +22,11 @@ hour="/cgi-bin/horas/officium.pl?date1=08-24-2026&version=Rubrics+1960+-+1960&la
 record laudes_2026-08-24.html "${hour}Laudes"
 record matutinum_2026-08-24.html "${hour}Matutinum"
 record vesperae_2026-08-24.html "${hour}Vesperae"
+# The small red marks: a rubric inside the English Confiteor, a verse
+# number before a rubric or a flex mark (LumenViae.Office.Parser.line_text).
+sunday="/cgi-bin/horas/officium.pl?date1=11-22-2026&version=Rubrics+1960+-+1960&lang2=English&command=pray"
+record completorium_2026-11-22.html "${sunday}Completorium"
+record vesperae_2026-11-22.html "${sunday}Vesperae"
 record completorium_latin_divino_afflatu.html \
   "/cgi-bin/horas/officium.pl?date1=08-24-2026&version=Divino+Afflatu+-+1954&lang2=Latin&command=prayCompletorium"
 record kalendar_2026-08.html "/cgi-bin/horas/kalendar.pl?kmonth=8&kyear=2026&version=Rubrics+1960+-+1960"
