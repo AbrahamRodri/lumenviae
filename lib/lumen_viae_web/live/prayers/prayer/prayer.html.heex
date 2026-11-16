@@ -29,8 +29,8 @@
         >
           {@prayer.title}
         </h1>
-        <%!-- Where the prayer comes from, quietly, as the app shows it;
-             a long citation goes to the foot (Book.origin_lines/1) --%>
+        <%!-- The author's short credit, where the book names one; where
+             the prayer comes from stands at the foot (Book.origin_lines/1) --%>
         <p
           :if={elem(@origin_lines, 0)}
           class="font-garamond italic text-base md:text-lg text-ink-muted leading-snug max-w-[62ch]"

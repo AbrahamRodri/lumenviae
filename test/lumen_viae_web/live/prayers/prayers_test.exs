@@ -219,15 +219,16 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       refute has_element?(faith, "[data-role=second-title]")
     end
 
-    test "a prayer says where it comes from, under its title", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "/prayers/memorare")
-      origin = view |> element("header [data-role=origin]") |> render()
+    test "a prayer says where it comes from once, at its foot", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/prayers/angelus")
 
-      assert origin =~ "Attributed to St Bernard of Clairvaux · 12th century"
-      refute has_element?(view, "[data-role=source]")
+      refute has_element?(view, "header [data-role=origin]")
+
+      assert view |> element("[data-role=source]") |> render() =~
+               "Western Church · 13th–16th century"
     end
 
-    test "a long citation: a short credit under the title, the book at the foot",
+    test "a named author is credited under the title, the book at the foot",
          %{conn: conn} do
       {:ok, view, _html} = live(conn, "/prayers/st_joseph_novena")
 
@@ -236,15 +237,29 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
 
       assert view |> element("[data-role=source]") |> render() =~
                "Divine Word Publications, 1956"
+
+      {:ok, knots, _html} = live(conn, "/prayers/undoer_of_knots_novena")
+
+      assert knots |> element("header [data-role=origin]") |> render() =~
+               "Fr. Juan Ramón Celeiro"
+
+      assert knots |> element("[data-role=source]") |> render() =~ "as printed by Ascension Press"
     end
 
-    test "every long citation has a short credit" do
+    test "an unknown author is not credited under the title", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/prayers/st_jude_novena")
+
+      refute has_element?(view, "header [data-role=origin]")
+      assert view |> element("[data-role=source]") |> render() =~ "author unknown"
+    end
+
+    test "every short credit is shorter than the origin it stands for" do
       book = LumenViaeWeb.Live.Prayers.Book.load(nil)
 
       for {_id, prayer} <- book.prayers,
           {under, foot} = LumenViaeWeb.Live.Prayers.Book.origin_lines(prayer),
-          foot do
-        assert under, "#{prayer.id} has a long origin and no short credit"
+          under do
+        assert String.length(under) < String.length(foot), prayer.id
       end
     end
 

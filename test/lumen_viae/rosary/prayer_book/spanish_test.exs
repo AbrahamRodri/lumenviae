@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 11:50:00Z], "55a5be343586fd5f"}
+  @pinned {~U[2026-11-16 23:30:00Z], "dd44e470d9616fec"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -208,13 +208,17 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
              Enum.find(spanish, &(&1.id == "our_lady"))
   end
 
-  test "a long Spanish origin has a shorter Spanish credit for under the title" do
-    for prayer <- Spanish.prayers(), Map.has_key?(prayer, :origin) do
-      if String.length(prayer.origin) > 100 do
-        assert String.length(prayer.short_credit) < String.length(prayer.origin), prayer.id
-      else
-        refute Map.has_key?(prayer, :short_credit), prayer.id
-      end
+  test "a Spanish short credit names the author, shorter than the origin" do
+    for prayer <- Spanish.prayers(), Map.has_key?(prayer, :short_credit) do
+      assert String.length(prayer.short_credit) < String.length(prayer.origin), prayer.id
+    end
+
+    spanish = Map.new(Spanish.prayers(), &{&1.id, &1})
+
+    assert spanish["undoer_of_knots_novena"].short_credit == "P. Juan Ramón Celeiro"
+
+    for id <- ~w(st_jude_novena st_andrew_novena peace_prayer immaculate_conception_novena) do
+      refute Map.has_key?(spanish[id], :short_credit), id
     end
 
     assert %{

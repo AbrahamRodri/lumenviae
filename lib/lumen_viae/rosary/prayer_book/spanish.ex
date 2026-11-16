@@ -102,14 +102,14 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
           description:
             "priv/library/es/prayer_book.json: #{id} holds a title, a text, \"ai_translated\", an \"origin\" (where it comes from, in Spanish) and a \"short_credit\" only"
 
-      # As in English: a short credit stands under the title where the
-      # origin is a long citation (over 100 characters), and only there.
-      Map.has_key?(prayer, "short_credit") !=
-        String.length(prayer["origin"] || "") > 100 or
-          not match?(c when is_nil(c) or (is_binary(c) and c != ""), prayer["short_credit"]) ->
+      # As in English: a short credit names the prayer's author, for under
+      # the title, and is shorter than the origin it stands for.
+      Map.has_key?(prayer, "short_credit") and
+          (not match?(c when is_binary(c) and c != "", prayer["short_credit"]) or
+             String.length(prayer["short_credit"]) >= String.length(prayer["origin"] || "")) ->
         raise CompileError,
           description:
-            "priv/library/es/prayer_book.json: #{id} has a \"short_credit\" exactly when its origin runs over 100 characters"
+            "priv/library/es/prayer_book.json: #{id} has a \"short_credit\" with no origin, or one no shorter than its origin"
 
       true ->
         :ok
@@ -271,7 +271,7 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
   Every prayer the book prints that has Spanish, in the book's order, each
   `%{id:, title:, text:}` plus `ai_translated: true` where part of it is
   the team's translation, `origin:` where the file says in Spanish
-  where it comes from, and `short_credit:` where that origin is long.
+  where it comes from, and `short_credit:` where the origin names an author.
   """
   @spec prayers() :: [map]
   def prayers do

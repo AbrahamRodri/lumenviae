@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-16T15:35:00Z",
+  "updated_at": "2026-11-16T23:30:00Z",
   "chapters": [
     {
       "id": "first",
@@ -2530,7 +2530,7 @@
         "novena",
         "december 8"
       ],
-      "short_credit": "The Raccolta · Pope Pius VII, 1808",
+      "short_credit": null,
       "title": "The Novena for the Immaculate Conception"
     },
     {
@@ -2548,7 +2548,7 @@
         "novena",
         "christmas anticipation prayer"
       ],
-      "short_credit": "Author unknown, 19th century · The Little Treasury of Leaflets",
+      "short_credit": null,
       "title": "The St Andrew Christmas Novena"
     },
     {
@@ -2886,7 +2886,7 @@
       "note": "Said especially on Wednesdays, the day given to St Joseph, and through March, his month.",
       "origin": "Approved by Pope St Pius X · 1909; invocations added 2021 (Congregation for Divine Worship, Prot. N. 133/21; English of the new lines: USCCB)",
       "search_words": [],
-      "short_credit": "Pope St Pius X, 1909 · invocations added 2021",
+      "short_credit": null,
       "title": "Litany of St Joseph"
     },
     {
@@ -2912,7 +2912,7 @@
       "note": "St Joseph died with Jesus and Mary beside him, and is asked for the same grace at the hour of death.",
       "origin": "Traditional, author unknown · its closing three ejaculations: the Raccolta · Woodstock, 1878, no. 181 · Pope Pius VII, 1807",
       "search_words": [],
-      "short_credit": "Traditional, author unknown · its ejaculations from the Raccolta, 1878",
+      "short_credit": null,
       "title": "To St Joseph for a Happy Death"
     },
     {
@@ -2992,7 +2992,7 @@
         "october 28",
         "novena"
       ],
-      "short_credit": "Author unknown · as printed by the Oblate Fathers, New Orleans",
+      "short_credit": null,
       "title": "The Novena to St Jude"
     },
     {
@@ -3304,7 +3304,7 @@
         "novena",
         "knots"
       ],
-      "short_credit": null,
+      "short_credit": "Fr. Juan Ramón Celeiro",
       "title": "The Novena to Our Lady, Undoer of Knots"
     },
     {
@@ -3359,7 +3359,7 @@
         "redemptorist",
         "novena"
       ],
-      "short_credit": "The Raccolta · arranged by the Redemptorist Fathers",
+      "short_credit": null,
       "title": "The Novena to Our Mother of Perpetual Help"
     },
     {
@@ -3378,7 +3378,7 @@
         "december 12",
         "novena"
       ],
-      "short_credit": "Traditional Mexican novena · as published by EWTN",
+      "short_credit": null,
       "title": "The Novena to Our Lady of Guadalupe"
     }
   ],
