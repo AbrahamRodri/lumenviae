@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T10:35:00Z",
+  "updated_at": "2026-11-16T15:35:00Z",
   "chapters": [
     {
       "id": "first",
@@ -3644,9 +3644,9 @@
       "feast": null,
       "painting": "novena_undoer_of_knots",
       "art": {
-        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_undoer_of_knots-e09422c019f8.jpg",
-        "bytes": 155553,
-        "sha256": "e09422c019f8460fb9772438519b789670898f2b1b6940855f78a9e1c9888675",
+        "url": "https://s3.us-east-2.amazonaws.com/lumenviae-images/novenas/art/novena_undoer_of_knots-c2f97d8c3b8c.jpg",
+        "bytes": 103954,
+        "sha256": "c2f97d8c3b8c6d191cdbceaeb315769c646e0e86cbc8954b609cd90d375ed0a7",
         "credit": "Johann Georg Melchior Schmidtner, Mary, Untier of Knots (Maria Knotenlöserin), about 1700, St. Peter am Perlach, Augsburg. Public domain, via Wikimedia Commons."
       },
       "chant_ids": [
