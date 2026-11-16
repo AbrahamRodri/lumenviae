@@ -1,0 +1,927 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD>
+
+  <META NAME="Resource-type" CONTENT="Document">
+  <META NAME="description" CONTENT="Divine Office">
+  <META NAME="keywords" CONTENT="Divine Office, Breviarium, Liturgy, Traditional, Zsolozsma">
+  <META NAME="Copyright" CONTENT="Like GNU">
+  <meta name="color-scheme" content="dark light">
+  <STYLE>
+    /* https://www.30secondsofcode.org/css/s/offscreen/ */
+    .offscreen {
+      border: 0;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+    h1, h2 {
+      text-align: center;
+      font-weight: normal;
+    }
+    h2 {
+      margin-top: 4ex;
+      color: maroon;
+      font-size: 112%;
+      font-weight: bold;
+      font-style: italic;
+    }
+    p {
+      color: black;
+    }
+    a:link { color: blue; }
+    a:visited { color: blue; }
+    body {
+      background: #eeeeee;
+    }
+    .contrastbg { background: white; }
+    .nigra { color: black; }
+    .lw .gloss { display: none; }
+    body.interlinear-hint .lw { cursor: pointer; }
+    body.interlinear-hint .lw.revealed .gloss { display: inline; font-size: 0.85em; font-weight: normal; font-style: normal; }
+    body.interlinear-all .lw .gloss { display: inline; font-size: 0.85em; font-weight: normal; font-style: normal; }
+    body.interlinear-all .lw.learned .gloss { display: none; }
+    body.interlinear-all .lw { cursor: pointer; }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: black;
+        color: white;
+      }
+      table { color: white; }
+      a:link { color: #AFAFFF; }
+      a:visited { color: #AFAFFF; }
+      p { color: white; }
+      .contrastbg {
+        background: #3F3F3F;
+        color: white;
+      }
+      .nigra {  color: white;  }
+      }
+  </STYLE>
+  <TITLE>Divinum Officium Vesperae</TITLE>
+<SCRIPT TYPE='text/JavaScript' LANGUAGE='JavaScript1.2'>
+
+//position
+function startup() {
+  if (!"") {
+    var d = new Date();
+    var day = d.getDate();
+    document.forms[0].browsertime.value = (d.getMonth() + 1) + "-" + day + "-" + d.getFullYear();
+    if (!"11-22-2026") {
+      var a = (day > 22) ? "-+" : (day < 22) ? "--" : "";
+      document.forms[0].date.value = document.forms[0].browsertime.value + a;
+      if (a) document.forms[0].submit();
+    }
+  }
+  var i = 1;
+  while (i <= 0) {
+    a = document.getElementById('L' + i);
+    i++;
+    if (a) a.scrollIntoView();
+  }
+}
+
+//call a setup table
+function pset(p) {
+  clearradio();
+  
+  var pc = document.createElement("input");
+  pc.setAttribute("type", "hidden");
+  pc.setAttribute("name", "pcommand");
+  pc.setAttribute("value", "pray" + document.forms[0].command.value);
+  document.forms[0].appendChild(pc);
+  document.forms[0].command.value = "setup" + p;
+  document.forms[0].submit();
+}
+
+//call an individual hora
+function hset(p, d) {
+  clearradio();
+
+  if (p != 'Laudes' && d) {
+    document.forms[0].date.value = d;
+    document.forms[0].caller.value = 1;
+  }
+  if (0) {document.forms[0].caller.value = 1;}
+  document.forms[0].command.value = "pray" + p;
+  document.forms[0].action = "officium.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+// call appendix
+function appendix(a) {
+  document.forms[0].command.value = "Appendix " + a;
+  console.log(document.forms[0].command.value);
+  document.forms[0].submit();
+}
+
+// Jump straight to an hour of the Office for the Dead.
+function defunctorum(hour) {
+  clearradio();
+
+  document.forms[0].caller.value = 1;
+  document.forms[0].votive.value = "C9";
+  document.forms[0].command.value = "pray" + hour;
+  document.forms[0].action = "officium.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+//calls compare
+function callcompare() {
+  document.forms[0].action = "Cofficium.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+//to prevent inhearitance of popup
+function clearradio() {
+  var a= document.forms[0].popup;
+  if (a) a.value = 0;
+  document.forms[0].action = "officium.pl";
+  document.forms[0].target = "_self"
+  return;
+}
+
+// set a popup tab
+function linkit(name,ind,lang) {
+  document.forms[0].popup.value = name;
+  document.forms[0].popuplang.value=lang;
+  document.forms[0].expandnum.value=ind;
+  if (ind == 0) {
+     document.forms[0].action = 'popup.pl';
+     document.forms[0].target = '_BLANK';
+  } else {
+     var c = document.forms[0].command.value;
+     if (!c.match('pray')) document.forms[0].command.value = "pray" + c;
+  }
+  document.forms[0].submit();
+}
+
+//finishing horas back to main page
+function okbutton() {
+  document.forms[0].action = "officium.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].command.value = '';
+  document.forms[0].submit();
+}
+
+//restart the programlet if parameter change
+function parchange() {
+  var c = document.forms[0].command.value;
+  if (c && !c.match("change")) {
+     clearradio();
+  }
+  if (c && !c.match("pray")) document.forms[0].command.value = "pray" + c;
+  document.forms[0].submit();
+}
+
+//calls kalendar
+function callkalendar(mode) {
+  document.forms[0].action = 'kalendar.pl';
+  document.forms[0].target = "_self"
+  if (mode == 'kalendar') {
+    document.forms[0].kmonth.value = 15;
+    document.forms[0].submit();
+  }
+  document.forms[0].submit();
+}
+
+// for Cofficium
+function callbrevi(date) {
+  document.forms[0].date.value = date;
+  document.forms[0].action = 'officium.pl'
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+//calls missa
+function callmissa() {
+  document.forms[0].action = "../missa/missa.pl";
+  if (document.forms[0].command.value != "") {
+    document.forms[0].command.value = "praySanctaMissa"
+  }
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+function prevnext(ch) {
+  var dat = document.forms[0].date.value;
+  var adat = dat.split('-');
+  var mtab = new Array(31,28,31,30,31,30,31,31,30,31,30,31);
+  var m = eval(adat[0]);
+  var d = eval(adat[1]);
+  var y = eval(adat[2]);
+  var c = eval(ch);
+
+  var leapyear = 0;
+  if ((y % 4) == 0) leapyear = 1;
+  if ((y % 100) == 0) leapyear = 0;
+  if ((y % 400) == 0) leapyear = 1;
+  if (leapyear) mtab[1] = 29;
+  d = d + c;
+  if (d < 1) {
+    m--;
+	if (m < 1) {y--; m = 12;}
+	d = mtab[m-1];
+  }
+  if (d > mtab[m-1]) {
+    m++;
+	  d = 1;
+	  if (m > 12) {y++; m = 1;}
+  }
+  document.forms[0].date.value = m + "-" + d + "-" + y;
+}
+
+function applyLearnedWords() {
+  var learned = JSON.parse(localStorage.getItem('learnedWords') || '[]');
+  document.querySelectorAll('.lw').forEach(function(el) {
+    if (learned.indexOf(el.childNodes[0].textContent.toLowerCase()) !== -1) {
+      el.classList.add('learned');
+    }
+  });
+}
+
+function dismissGloss(el) {
+  var word = el.childNodes[0].textContent.toLowerCase();
+  var learned = JSON.parse(localStorage.getItem('learnedWords') || '[]');
+  var idx = learned.indexOf(word);
+  if (idx === -1) {
+    learned.push(word);
+  } else {
+    learned.splice(idx, 1);
+  }
+  localStorage.setItem('learnedWords', JSON.stringify(learned));
+  var hidden = idx === -1;
+  document.querySelectorAll('.lw').forEach(function(e) {
+    if (e.childNodes[0].textContent.toLowerCase() === word) {
+      e.classList.toggle('learned', hidden);
+    }
+  });
+}
+
+function resetLearnedWords() {
+  localStorage.removeItem('learnedWords');
+  document.querySelectorAll('.lw.learned').forEach(function(el) {
+    el.classList.remove('learned');
+  });
+}
+
+function toggleInterlinear() {
+  var on = document.body.classList.toggle('interlinear');
+  var toggle = document.getElementById('interlinear-toggle');
+  if (toggle) {
+    toggle.textContent = on ? 'Interlinear: on' : 'Interlinear: off';
+  }
+  var form = document.querySelector('form');
+  if (form) {
+    var data = new FormData(form);
+    data.set('interlinear', on ? '1' : '0');
+    fetch(form.action, { method: 'POST', body: data });
+  }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  applyLearnedWords();
+  function handleGlossTap(e) {
+    var lw = e.target.closest && e.target.closest('.lw');
+    if (!lw) return;
+    if (document.body.classList.contains('interlinear-hint')) {
+      e.preventDefault();
+      lw.classList.toggle('revealed');
+    } else if (document.body.classList.contains('interlinear-all')) {
+      e.preventDefault();
+      dismissGloss(lw);
+    }
+  }
+  document.addEventListener('click', handleGlossTap);
+  document.addEventListener('touchend', handleGlossTap);
+});
+</SCRIPT>
+</HEAD>
+<BODY  onload="startup()"; onresize="layoutChant()">
+<FORM ACTION="officium.pl" METHOD="post" TARGET="_self">
+<P ALIGN=CENTER><FONT COLOR="green">Dominica XXIV et Ultima Post Pentecosten V. Novembris ~ II. classis</FONT></P>
+<H1><FONT COLOR='MAROON' SIZE='+1'><B><I>Divinum Officium</I></B></FONT>&nbsp;<FONT COLOR='RED' SIZE='+1'>Rubrics 1960 - 1960</FONT></H1>
+<P ALIGN=CENTER><A HREF="#" onclick="callcompare()">Compare</A>
+&ensp;
+<A HREF="#" onclick="callmissa();">Sancta Missa</A>
+&ensp;
+<LABEL FOR="date" CLASS="offscreen">Date</LABEL>
+<INPUT TYPE="TEXT" ID="date" NAME="date" VALUE="11-22-2026" SIZE="10">
+<A HREF="#" onclick="prevnext(-1)">&darr;</A>
+<INPUT TYPE="submit" NAME="SUBMIT" VALUE=" " onclick="parchange();">
+<A HREF="#" onclick="prevnext(1)">&uarr;</A>
+&ensp;
+<A HREF="#" onclick="callkalendar();">Ordo</A>
+&ensp;
+<A HREF="#" onclick="callkalendar('kalendar');">Kalendarium</A>
+&ensp;
+<A HREF="#" onclick="pset('parameters')">Options</A>
+&ensp;
+<!-- interlinear controls (re-enable in officium_html.pl if needed)
+<A HREF="#" id="interlinear-toggle" onclick="toggleInterlinear()">Interlinear: on</A>
+&ensp;
+<A HREF="#" onclick="resetLearnedWords()">Reset learned</A>
+-->
+</P>
+<H2 ID='Vesperatop'>Ad Vesperas</H2>
+<TABLE BORDER='1' ALIGN='CENTER' CELLPADDING='8' WIDTH='100%'  class="contrastbg"><TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera1'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera2'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Incipit</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Deus <span style='color:red; font-size:1.25em'>✠</span> in adiutórium meum inténde.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Dómine, ad adiuvándum me festína.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>G</I></B></FONT>lória Patri, et Fílio, * et Spirítui Sancto.<br/>
+Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>llelúia.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>1</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Start</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> O God, <span style='color:red; font-size:1.25em'>✠</span> come to my assistance;<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> O Lord, make haste to help me.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>G</I></B></FONT>lory be to the Father, and to the Son, * and to the Holy Ghost.<br/>
+As it was in the beginning, is now, * and ever shall be, world without end. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>lleluia.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera2'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera3'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Psalmi</I></B></FONT> <FONT SIZE='-1' >{Psalmi &amp; antiphonæ  ex Psalterio secundum diem}</FONT>
+<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Dixit Dóminus * Dómino meo: Sede a dextris meis. <FONT SIZE='1' COLOR="red">‡</FONT><br/>
+<FONT COLOR="red"><I>Psalmus 109</I></FONT><FONT SIZE='-1' > [1]</FONT><br/>
+<FONT SIZE='1' COLOR="red">109:1</FONT>  Dixit Dóminus Dómino meo: * Sede a dextris meis:<br/>
+<FONT SIZE='1' COLOR="red">109:1</FONT> <FONT SIZE='1' COLOR="red">‡</FONT> Donec ponam inimícos tuos, * scabéllum pedum tuórum.<br/>
+<FONT SIZE='1' COLOR="red">109:2</FONT> Virgam virtútis tuæ emíttet Dóminus ex Sion: * domináre in médio inimicórum tuórum.<br/>
+<FONT SIZE='1' COLOR="red">109:3</FONT> Tecum princípium in die virtútis tuæ in splendóribus sanctórum: * ex útero ante lucíferum génui te.<br/>
+<FONT SIZE='1' COLOR="red">109:4</FONT> Iurávit Dóminus, et non pœnitébit eum: * Tu es sacérdos in ætérnum secúndum órdinem Melchísedech.<br/>
+<FONT SIZE='1' COLOR="red">109:5</FONT> Dóminus a dextris tuis, * confrégit in die iræ suæ reges.<br/>
+<FONT SIZE='1' COLOR="red">109:6</FONT> Iudicábit in natiónibus, implébit ruínas: * conquassábit cápita in terra multórum.<br/>
+<FONT SIZE='1' COLOR="red">109:7</FONT> De torrénte in via bibet: * proptérea exaltábit caput.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Dixit Dóminus Dómino meo: Sede a dextris meis.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>2</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Psalms</I></B></FONT> <FONT SIZE='-1' >{Psalms &amp; antiphons  from the Psalter for the day of the week}</FONT>
+<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> The Lord said to my Lord: * Sit thou at my right hand. <FONT SIZE='1' COLOR="red">‡</FONT><br/>
+<FONT COLOR="red"><I>Psalm 109</I></FONT><FONT SIZE='-1' > [1]</FONT><br/>
+<FONT SIZE='1' COLOR="red">109:1</FONT>  The Lord said to my Lord: * Sit thou at my right hand:<br/>
+<FONT SIZE='1' COLOR="red">109:1</FONT> <FONT SIZE='1' COLOR="red">‡</FONT> Until I make thy enemies * thy footstool.<br/>
+<FONT SIZE='1' COLOR="red">109:2</FONT> The Lord will send forth the sceptre of thy power out of Sion: * rule thou in the midst of thy enemies.<br/>
+<FONT SIZE='1' COLOR="red">109:3</FONT> With thee is the principality in the day of thy strength: in the brightness of the saints: * from the womb before the day star I begot thee.<br/>
+<FONT SIZE='1' COLOR="red">109:4</FONT> The Lord hath sworn, and he will not repent: * Thou art a priest for ever according to the order of Melchisedech.<br/>
+<FONT SIZE='1' COLOR="red">109:5</FONT> The Lord at thy right hand * hath broken kings in the day of his wrath.<br/>
+<FONT SIZE='1' COLOR="red">109:6</FONT> He shall judge among nations, he shall fill ruins: * he shall crush the heads in the land of many.<br/>
+<FONT SIZE='1' COLOR="red">109:7</FONT> He shall drink of the torrent in the way: * therefore shall he lift up the head.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glory be to the Father, and to the Son, * and to the Holy Ghost.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> As it was in the beginning, is now, * and ever shall be, world without end. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> The Lord said to my Lord: Sit thou at my right hand.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera3'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera4'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>Ant.</I></FONT> Magna ópera Dómini: * exquisíta in omnes voluntátes eius.<br/>
+<FONT COLOR="red"><I>Psalmus 110</I></FONT><FONT SIZE='-1' > [2]</FONT><br/>
+<FONT SIZE='1' COLOR="red">110:1</FONT> Confitébor tibi, Dómine, in toto corde meo: * in consílio iustórum, et congregatióne.<br/>
+<FONT SIZE='1' COLOR="red">110:2</FONT> Magna ópera Dómini: * exquisíta in omnes voluntátes eius.<br/>
+<FONT SIZE='1' COLOR="red">110:3</FONT> Conféssio et magnificéntia opus eius: * et iustítia eius manet in sǽculum sǽculi.<br/>
+<FONT SIZE='1' COLOR="red">110:4</FONT> Memóriam fecit mirabílium suórum, miséricors et miserátor Dóminus: *  escam dedit timéntibus se.<br/>
+<FONT SIZE='1' COLOR="red">110:5</FONT> Memor erit in sǽculum testaménti sui: *  virtútem óperum suórum annuntiábit pópulo suo:<br/>
+<FONT SIZE='1' COLOR="red">110:7</FONT> Ut det illis hereditátem géntium: * ópera mánuum eius véritas, et iudícium.<br/>
+<FONT SIZE='1' COLOR="red">110:8</FONT> Fidélia ómnia mandáta eius: confirmáta in sǽculum sǽculi, * facta in veritáte et æquitáte.<br/>
+<FONT SIZE='1' COLOR="red">110:9</FONT> Redemptiónem misit pópulo suo: * mandávit in ætérnum testaméntum suum.<br/>
+<FONT SIZE='1' COLOR="red">110:9</FONT> <FONT SIZE='1' COLOR="red">(fit reverentia)</FONT> Sanctum, et terríbile nomen eius: *  inítium sapiéntiæ timor Dómini.<br/>
+<FONT SIZE='1' COLOR="red">110:10</FONT> Intelléctus bonus ómnibus faciéntibus eum: * laudátio eius manet in sǽculum sǽculi.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Magna ópera Dómini: exquisíta in omnes voluntátes eius.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>3</FONT></DIV>
+<FONT COLOR="red"><I>Ant.</I></FONT> Great are the works of the Lord, * sought out according to all his wills.<br/>
+<FONT COLOR="red"><I>Psalm 110</I></FONT><FONT SIZE='-1' > [2]</FONT><br/>
+<FONT SIZE='1' COLOR="red">110:1</FONT> I will praise thee, O Lord, with my whole heart; * in the council of the just, and in the congregation.<br/>
+<FONT SIZE='1' COLOR="red">110:2</FONT> Great are the works of the Lord: * sought out according to all his wills.<br/>
+<FONT SIZE='1' COLOR="red">110:3</FONT> His work is praise and magnificence: * and his justice continueth for ever and ever.<br/>
+<FONT SIZE='1' COLOR="red">110:4</FONT> He hath made a remembrance of his wonderful works, being a merciful and gracious Lord: *  he hath given food to them that fear him.<br/>
+<FONT SIZE='1' COLOR="red">110:5</FONT> He will be mindful for ever of his covenant: *  he will shew forth to his people the power of his works.<br/>
+<FONT SIZE='1' COLOR="red">110:7</FONT> That he may give them the inheritance of the Gentiles: * the works of his hands are truth and judgment.<br/>
+<FONT SIZE='1' COLOR="red">110:8</FONT> All his commandments are faithful: confirmed for ever and ever, * made in truth and equity.<br/>
+<FONT SIZE='1' COLOR="red">110:9</FONT> He hath sent redemption to his people: * he hath commanded his covenant for ever.<br/>
+<FONT SIZE='1' COLOR="red">110:9</FONT> <FONT SIZE='1' COLOR="red">(bow head)</FONT> Holy and terrible is his name: *  the fear of the Lord is the beginning of wisdom.<br/>
+<FONT SIZE='1' COLOR="red">110:10</FONT> A good understanding to all that do it: * his praise continueth for ever and ever.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glory be to the Father, and to the Son, * and to the Holy Ghost.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> As it was in the beginning, is now, * and ever shall be, world without end. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Great are the works of the Lord, sought out according to all his wills.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera4'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera5'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>Ant.</I></FONT> Qui timet Dóminum, * in mandátis eius cupit nimis.<br/>
+<FONT COLOR="red"><I>Psalmus 111</I></FONT><FONT SIZE='-1' > [3]</FONT><br/>
+<FONT SIZE='1' COLOR="red">111:1</FONT> Beátus vir, qui timet Dóminum: * in mandátis eius volet nimis.<br/>
+<FONT SIZE='1' COLOR="red">111:2</FONT> Potens in terra erit semen eius: * generátio rectórum benedicétur.<br/>
+<FONT SIZE='1' COLOR="red">111:3</FONT> Glória, et divítiæ in domo eius: * et iustítia eius manet in sǽculum sǽculi.<br/>
+<FONT SIZE='1' COLOR="red">111:4</FONT> Exórtum est in ténebris lumen rectis: * miséricors, et miserátor, et iustus.<br/>
+<FONT SIZE='1' COLOR="red">111:5</FONT> Iucúndus homo qui miserétur et cómmodat, dispónet sermónes suos in iudício: *  quia in ætérnum non commovébitur.<br/>
+<FONT SIZE='1' COLOR="red">111:7</FONT> In memória ætérna erit iustus: * ab auditióne mala non timébit.<br/>
+<FONT SIZE='1' COLOR="red">111:7</FONT> Parátum cor eius speráre in Dómino, confirmátum est cor eius: * non commovébitur donec despíciat inimícos suos.<br/>
+<FONT SIZE='1' COLOR="red">111:9</FONT> Dispérsit, dedit paupéribus: iustítia eius manet in sǽculum sǽculi, * cornu eius exaltábitur in glória.<br/>
+<FONT SIZE='1' COLOR="red">111:10</FONT> Peccátor vidébit, et irascétur, déntibus suis fremet et tabéscet: * desidérium peccatórum períbit.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Qui timet Dóminum, in mandátis eius cupit nimis.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>4</FONT></DIV>
+<FONT COLOR="red"><I>Ant.</I></FONT> Blessed is the man that feareth the Lord; * he shall delight exceedingly in his commandments. <FONT SIZE='1' COLOR="red">‡</FONT><br/>
+<FONT COLOR="red"><I>Psalm 111</I></FONT><FONT SIZE='-1' > [3]</FONT><br/>
+<FONT SIZE='1' COLOR="red">111:1</FONT>  Blessed is the man that feareth the Lord: * he shall delight exceedingly in his commandments.<br/>
+<FONT SIZE='1' COLOR="red">111:2</FONT> <FONT SIZE='1' COLOR="red">‡</FONT> His seed shall be mighty upon earth: * the generation of the righteous shall be blessed.<br/>
+<FONT SIZE='1' COLOR="red">111:3</FONT> Glory and wealth shall be in his house: * and his justice remaineth for ever and ever.<br/>
+<FONT SIZE='1' COLOR="red">111:4</FONT> To the righteous a light is risen up in darkness: * he is merciful, and compassionate and just.<br/>
+<FONT SIZE='1' COLOR="red">111:5</FONT> Acceptable is the man that sheweth mercy and lendeth: he shall order his words with judgment: *  because he shall not be moved for ever.<br/>
+<FONT SIZE='1' COLOR="red">111:7</FONT> The just shall be in everlasting remembrance: * he shall not fear the evil hearing.<br/>
+<FONT SIZE='1' COLOR="red">111:7</FONT> His heart is ready to hope in the Lord: his heart is strengthened, * he shall not be moved until he look over his enemies.<br/>
+<FONT SIZE='1' COLOR="red">111:9</FONT> He hath distributed, he hath given to the poor: his justice remaineth for ever and ever: * his horn shall be exalted in glory.<br/>
+<FONT SIZE='1' COLOR="red">111:10</FONT> The wicked shall see, and shall be angry, he shall gnash with his teeth and pine away: * the desire of the wicked shall perish.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glory be to the Father, and to the Son, * and to the Holy Ghost.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> As it was in the beginning, is now, * and ever shall be, world without end. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Blessed is the man that feareth the Lord; he shall delight exceedingly in his commandments.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera5'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera6'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>Ant.</I></FONT> Sit nomen Dómini * benedíctum in sǽcula.<br/>
+<FONT COLOR="red"><I>Psalmus 112</I></FONT><FONT SIZE='-1' > [4]</FONT><br/>
+<FONT SIZE='1' COLOR="red">112:1</FONT> Laudáte, púeri, Dóminum: * laudáte nomen Dómini.<br/>
+<FONT SIZE='1' COLOR="red">112:2</FONT> <FONT SIZE='1' COLOR="red">(fit reverentia)</FONT> Sit nomen Dómini benedíctum, * ex hoc nunc, et usque in sǽculum.<br/>
+<FONT SIZE='1' COLOR="red">112:3</FONT> A solis ortu usque ad occásum, * laudábile nomen Dómini.<br/>
+<FONT SIZE='1' COLOR="red">112:4</FONT> Excélsus super omnes gentes Dóminus, * et super cælos glória eius.<br/>
+<FONT SIZE='1' COLOR="red">112:5</FONT> Quis sicut Dóminus, Deus noster, qui in altis hábitat, *  et humília réspicit in cælo et in terra?<br/>
+<FONT SIZE='1' COLOR="red">112:7</FONT> Súscitans a terra ínopem, * et de stércore érigens páuperem:<br/>
+<FONT SIZE='1' COLOR="red">112:8</FONT> Ut cóllocet eum cum princípibus, * cum princípibus pópuli sui.<br/>
+<FONT SIZE='1' COLOR="red">112:9</FONT> Qui habitáre facit stérilem in domo, * matrem filiórum lætántem.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Sit nomen Dómini benedíctum in sǽcula.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>5</FONT></DIV>
+<FONT COLOR="red"><I>Ant.</I></FONT> Blessed be the name of the Lord * from henceforth now and for ever.<br/>
+<FONT COLOR="red"><I>Psalm 112</I></FONT><FONT SIZE='-1' > [4]</FONT><br/>
+<FONT SIZE='1' COLOR="red">112:1</FONT> Praise the Lord, ye children: * praise ye the name of the Lord.<br/>
+<FONT SIZE='1' COLOR="red">112:2</FONT> <FONT SIZE='1' COLOR="red">(bow head)</FONT> Blessed be the name of the Lord, * from henceforth now and for ever.<br/>
+<FONT SIZE='1' COLOR="red">112:3</FONT> From the rising of the sun unto the going down of the same, * the name of the Lord is worthy of praise.<br/>
+<FONT SIZE='1' COLOR="red">112:4</FONT> The Lord is high above all nations; * and his glory above the heavens.<br/>
+<FONT SIZE='1' COLOR="red">112:5</FONT> Who is as the Lord our God, who dwelleth on high: *  and looketh down on the low things in heaven and in earth?<br/>
+<FONT SIZE='1' COLOR="red">112:7</FONT> Raising up the needy from the earth, * and lifting up the poor out of the dunghill:<br/>
+<FONT SIZE='1' COLOR="red">112:8</FONT> That he may place him with princes, * with the princes of his people.<br/>
+<FONT SIZE='1' COLOR="red">112:9</FONT> Who maketh a barren woman to dwell in a house, * the joyful mother of children.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glory be to the Father, and to the Son, * and to the Holy Ghost.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> As it was in the beginning, is now, * and ever shall be, world without end. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Blessed be the name of the Lord from henceforth now and for ever.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera6'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera7'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>Ant.</I></FONT> Deus autem noster * in cælo: ómnia quæcúmque vóluit, fecit.<br/>
+<FONT COLOR="red"><I>Psalmus 113</I></FONT><FONT SIZE='-1' > [5]</FONT><br/>
+<FONT SIZE='1' COLOR="red">113:1</FONT> In éxitu Israël de Ægýpto, * domus Iacob de pópulo bárbaro:<br/>
+<FONT SIZE='1' COLOR="red">113:2</FONT> Facta est Iudǽa sanctificátio eius, * Israël potéstas eius.<br/>
+<FONT SIZE='1' COLOR="red">113:3</FONT> Mare vidit, et fugit: * Iordánis convérsus est retrórsum.<br/>
+<FONT SIZE='1' COLOR="red">113:4</FONT> Montes exsultavérunt ut aríetes, * et colles sicut agni óvium.<br/>
+<FONT SIZE='1' COLOR="red">113:5</FONT> Quid est tibi, mare, quod fugísti: * et tu, Iordánis, quia convérsus es retrórsum?<br/>
+<FONT SIZE='1' COLOR="red">113:6</FONT> Montes, exsultástis sicut aríetes, * et colles, sicut agni óvium.<br/>
+<FONT SIZE='1' COLOR="red">113:7</FONT> A fácie Dómini mota est terra, * a fácie Dei Iacob.<br/>
+<FONT SIZE='1' COLOR="red">113:8</FONT> Qui convértit petram in stagna aquárum, * et rupem in fontes aquárum.<br/>
+<FONT SIZE='1' COLOR="red">113:9</FONT> Non nobis, Dómine, non nobis: * sed nómini tuo da glóriam.<br/>
+<FONT SIZE='1' COLOR="red">113:10</FONT> Super misericórdia tua, et veritáte tua: * nequándo dicant gentes: Ubi est Deus eórum?<br/>
+<FONT SIZE='1' COLOR="red">113:11</FONT> Deus autem noster in cælo: * ómnia quæcúmque vóluit, fecit.<br/>
+<FONT SIZE='1' COLOR="red">113:12</FONT> Simulácra géntium argéntum, et aurum, * ópera mánuum hóminum.<br/>
+<FONT SIZE='1' COLOR="red">113:13</FONT> Os habent, et non loquéntur: * óculos habent, et non vidébunt.<br/>
+<FONT SIZE='1' COLOR="red">113:14</FONT> Aures habent, et non áudient: * nares habent, et non odorábunt.<br/>
+<FONT SIZE='1' COLOR="red">113:15</FONT> Manus habent, et non palpábunt: pedes habent, et non ambulábunt: * non clamábunt in gútture suo.<br/>
+<FONT SIZE='1' COLOR="red">113:16</FONT> Símiles illis fiant qui fáciunt ea: * et omnes qui confídunt in eis.<br/>
+<FONT SIZE='1' COLOR="red">113:17</FONT> Domus Israël sperávit in Dómino: * adiútor eórum et protéctor eórum est,<br/>
+<FONT SIZE='1' COLOR="red">113:18</FONT> Domus Aaron sperávit in Dómino: * adiútor eórum et protéctor eórum est,<br/>
+<FONT SIZE='1' COLOR="red">113:19</FONT> Qui timent Dóminum, speravérunt in Dómino: * adiútor eórum et protéctor eórum est.<br/>
+<FONT SIZE='1' COLOR="red">113:20</FONT> Dóminus memor fuit nostri: * et benedíxit nobis:<br/>
+<FONT SIZE='1' COLOR="red">113:20</FONT> Benedíxit dómui Israël: * benedíxit dómui Aaron.<br/>
+<FONT SIZE='1' COLOR="red">113:21</FONT> Benedíxit ómnibus, qui timent Dóminum, * pusíllis cum maióribus.<br/>
+<FONT SIZE='1' COLOR="red">113:22</FONT> Adíciat Dóminus super vos: * super vos, et super fílios vestros.<br/>
+<FONT SIZE='1' COLOR="red">113:23</FONT> Benedícti vos a Dómino, * qui fecit cælum, et terram.<br/>
+<FONT SIZE='1' COLOR="red">113:24</FONT> Cælum cæli Dómino: * terram autem dedit fíliis hóminum.<br/>
+<FONT SIZE='1' COLOR="red">113:25</FONT> Non mórtui laudábunt te, Dómine: * neque omnes, qui descéndunt in inférnum.<br/>
+<FONT SIZE='1' COLOR="red">113:26</FONT> Sed nos qui vívimus, benedícimus Dómino, * ex hoc nunc et usque in sǽculum.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Deus autem noster in cælo: ómnia quæcúmque vóluit, fecit.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>6</FONT></DIV>
+<FONT COLOR="red"><I>Ant.</I></FONT> But our God is in heaven, * he hath done all things whatsoever he would.<br/>
+<FONT COLOR="red"><I>Psalm 113</I></FONT><FONT SIZE='-1' > [5]</FONT><br/>
+<FONT SIZE='1' COLOR="red">113:1</FONT> When Israel went out of Egypt, * the house of Jacob from a barbarous people:<br/>
+<FONT SIZE='1' COLOR="red">113:2</FONT> Judea was made his sanctuary, * Israel his dominion.<br/>
+<FONT SIZE='1' COLOR="red">113:3</FONT> The sea saw and fled: * Jordan was turned back.<br/>
+<FONT SIZE='1' COLOR="red">113:4</FONT> The mountains skipped like rams, * and the hills like the lambs of the flock.<br/>
+<FONT SIZE='1' COLOR="red">113:5</FONT> What ailed thee, O thou sea, that thou didst flee: * and thou, O Jordan, that thou wast turned back?<br/>
+<FONT SIZE='1' COLOR="red">113:6</FONT> Ye mountains, that ye skipped like rams, * and ye hills, like lambs of the flock?<br/>
+<FONT SIZE='1' COLOR="red">113:7</FONT> At the presence of the Lord the earth was moved, * at the presence of the God of Jacob:<br/>
+<FONT SIZE='1' COLOR="red">113:8</FONT> Who turned the rock into pools of water, * and the stony hill into fountains of waters.<br/>
+<FONT SIZE='1' COLOR="red">113:9</FONT> Not to us, O Lord, not to us; * but to thy name give glory.<br/>
+<FONT SIZE='1' COLOR="red">113:10</FONT> For thy mercy, and for thy truth’s sake: * lest the Gentiles should say: Where is their God?<br/>
+<FONT SIZE='1' COLOR="red">113:11</FONT> But our God is in heaven: * he hath done all things whatsoever he would.<br/>
+<FONT SIZE='1' COLOR="red">113:12</FONT> The idols of the Gentiles are silver and gold, * the works of the hands of men.<br/>
+<FONT SIZE='1' COLOR="red">113:13</FONT> They have mouths and speak not: * they have eyes and see not.<br/>
+<FONT SIZE='1' COLOR="red">113:14</FONT> They have ears and hear not: * they have noses and smell not.<br/>
+<FONT SIZE='1' COLOR="red">113:15</FONT> They have hands and feel not: they have feet and walk not: * neither shall they cry out through their throat.<br/>
+<FONT SIZE='1' COLOR="red">113:16</FONT> Let them that make them become like unto them: * and all such as trust in them.<br/>
+<FONT SIZE='1' COLOR="red">113:17</FONT> The house of Israel hath hoped in the Lord: * he is their helper and their protector.<br/>
+<FONT SIZE='1' COLOR="red">113:18</FONT> The house of Aaron hath hoped in the Lord: * he is their helper and their protector.<br/>
+<FONT SIZE='1' COLOR="red">113:19</FONT> They that fear the Lord have hoped in the Lord: * he is their helper and their protector.<br/>
+<FONT SIZE='1' COLOR="red">113:20</FONT> The Lord hath been mindful of us, * and hath blessed us.<br/>
+<FONT SIZE='1' COLOR="red">113:20</FONT> He hath blessed the house of Israel: * he hath blessed the house of Aaron.<br/>
+<FONT SIZE='1' COLOR="red">113:21</FONT> He hath blessed all that fear the Lord, * both little and great.<br/>
+<FONT SIZE='1' COLOR="red">113:22</FONT> May the Lord add blessings upon you: * upon you, and upon your children.<br/>
+<FONT SIZE='1' COLOR="red">113:23</FONT> Blessed be you of the Lord, * who made heaven and earth.<br/>
+<FONT SIZE='1' COLOR="red">113:24</FONT> The heaven of heaven is the Lord’s: * but the earth he has given to the children of men.<br/>
+<FONT SIZE='1' COLOR="red">113:25</FONT> The dead shall not praise thee, O Lord: * nor any of them that go down to hell.<br/>
+<FONT SIZE='1' COLOR="red">113:26</FONT> But we that live bless the Lord: * from this time now and for ever.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glory be to the Father, and to the Son, * and to the Holy Ghost.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> As it was in the beginning, is now, * and ever shall be, world without end. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> But our God is in heaven, he hath done all things whatsoever he would.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera7'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera8'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Capitulum Hymnus Versus</I></B></FONT> <FONT SIZE='-1' >{ex Psalterio secundum diem}</FONT>
+<br/>
+<FONT COLOR="red"><I>2 Cor 1:3-4</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>B</I></B></FONT>enedíctus Deus, et Pater Dómini nostri Iesu Christi, Pater misericordiárum, et Deus totíus consolatiónis, qui consolátur nos in omni tribulatióne nostra.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Deo grátias.<br/>
+ <br/>
+<FONT COLOR="red"><I>Hymnus</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>ucis Creátor óptime,<br/>
+Lucem diérum próferens,<br/>
+Primórdiis lucis novæ,<br/>
+Mundi parans oríginem:<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>Q</I></B></FONT>ui mane iunctum vésperi<br/>
+Diem vocári prǽcipis:<br/>
+Illábitur tetrum chaos,<br/>
+Audi preces cum flétibus.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>N</I></B></FONT>e mens graváta crímine,<br/>
+Vitæ sit exsul múnere,<br/>
+Dum nil perénne cógitat,<br/>
+Seséque culpis ílligat.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>C</I></B></FONT>æléste pulset óstium:<br/>
+Vitále tollat prǽmium:<br/>
+Vitémus omne nóxium:<br/>
+Purgémus omne péssimum.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>P</I></B></FONT>ræsta, Pater piíssime,<br/>
+Patríque compar Únice,<br/>
+Cum Spíritu Paráclito<br/>
+Regnans per omne sǽculum.<br/>
+Amen.<br/>
+ <br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dirigátur, Dómine, orátio mea.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut incénsum in conspéctu tuo.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>7</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Chapter Hymn Verse</I></B></FONT> <FONT SIZE='-1' >{from the Psalter for the day of the week}</FONT>
+<br/>
+<FONT COLOR="red"><I>2 Cor 1:3-4</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>B</I></B></FONT>lessed be the God and Father of our Lord Jesus Christ, the Father of mercies, and the God of all comfort, who comforteth us in all our tribulation.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Thanks be to God.<br/>
+ <br/>
+<FONT COLOR="red"><I>Hymn</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT> blest Creator of the light,<br/>
+Who mak’st the day with radiance bright,<br/>
+And o’er the forming world didst call<br/>
+The light from chaos first of all;<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>W</I></B></FONT>hose wisdom joined in meet array<br/>
+The morn and eve, and named them day:<br/>
+Night comes with all its darkling fears;<br/>
+Regard thy people’s prayers and tears.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>L</I></B></FONT>est, sunk in sin, and whelmed with strife,<br/>
+They lose the gift of endless life;<br/>
+While thinking but the thoughts of time,<br/>
+They weave new chains of woe and crime.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>B</I></B></FONT>ut grant them grace that they may strain<br/>
+The heavenly gate and prize to gain:<br/>
+Each harmful lure aside to cast,<br/>
+And purge away each error past.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>O</I></B></FONT> Father, that we ask be done,<br/>
+Through Jesus Christ, thine only Son;<br/>
+Who, with the Holy Ghost and thee,<br/>
+Doth live and reign eternally.<br/>
+Amen.<br/>
+ <br/>
+<FONT COLOR="red"><I>℣.</I></FONT> O Lord, direct my prayer.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> As incense in thy sight.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera8'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera9'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Canticum: Magnificat</I></B></FONT> <FONT SIZE='-1' >{Antiphona ex Proprio de Tempore}</FONT>
+<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Amen dico vobis * quia non præteríbit generátio hæc, donec ómnia fiant: cælum et terra transíbunt, verba autem mea non transíbunt, dicit Dóminus.<br/>
+<FONT COLOR="red"><I>Canticum B. Mariæ Virginis</I></FONT><br/>
+<FONT COLOR="red"><I>Luc. 1:46-55</I></FONT><br/>
+<FONT SIZE='1' COLOR="red">1:46</FONT> Magníficat <span style='color:red; font-size:1.25em'>✠</span> * ánima mea Dóminum.<br/>
+<FONT SIZE='1' COLOR="red">1:47</FONT> Et exsultávit spíritus meus: * in Deo, salutári meo.<br/>
+<FONT SIZE='1' COLOR="red">1:48</FONT> Quia respéxit humilitátem ancíllæ suæ: * ecce enim ex hoc beátam me dicent omnes generatiónes.<br/>
+<FONT SIZE='1' COLOR="red">1:49</FONT> Quia fecit mihi magna qui potens est: * et sanctum nomen eius.<br/>
+<FONT SIZE='1' COLOR="red">1:50</FONT> Et misericórdia eius, a progénie in progénies: * timéntibus eum.<br/>
+<FONT SIZE='1' COLOR="red">1:51</FONT> Fecit poténtiam in brácchio suo: * dispérsit supérbos mente cordis sui.<br/>
+<FONT SIZE='1' COLOR="red">1:52</FONT> Depósuit poténtes de sede: * et exaltávit húmiles.<br/>
+<FONT SIZE='1' COLOR="red">1:53</FONT> Esuriéntes implévit bonis: * et dívites dimísit inánes.<br/>
+<FONT SIZE='1' COLOR="red">1:54</FONT> Suscépit Israël púerum suum: * recordátus misericórdiæ suæ.<br/>
+<FONT SIZE='1' COLOR="red">1:55</FONT> Sicut locútus est ad patres nostros: * Ábraham, et sémini eius in sǽcula.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, * et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, * et in sǽcula sæculórum. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Amen dico vobis quia non præteríbit generátio hæc, donec ómnia fiant: cælum et terra transíbunt, verba autem mea non transíbunt, dicit Dóminus.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>8</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Canticle: Magnificat</I></B></FONT> <FONT SIZE='-1' >{Antiphon from the Proper of the season}</FONT>
+<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Amen, I say unto you, this generation shall not pass till all these things be fulfilled; * heaven and earth shall pass away, but My words shall not pass away, saith the Lord.<br/>
+<FONT COLOR="red"><I>Canticle of the Blessed Virgin</I></FONT><br/>
+<FONT COLOR="red"><I>Luke 1:46-55</I></FONT><br/>
+<FONT SIZE='1' COLOR="red">1:46</FONT> My soul <span style='color:red; font-size:1.25em'>✠</span> * doth magnify the Lord.<br/>
+<FONT SIZE='1' COLOR="red">1:47</FONT> And my spirit hath rejoiced * in God my Saviour.<br/>
+<FONT SIZE='1' COLOR="red">1:48</FONT> Because he hath regarded the humility of his handmaid; * for behold from henceforth all generations shall call me blessed.<br/>
+<FONT SIZE='1' COLOR="red">1:49</FONT> Because he that is mighty, hath done great things to me; * and holy is his name.<br/>
+<FONT SIZE='1' COLOR="red">1:50</FONT> And his mercy is from generation unto generations, * to them that fear him.<br/>
+<FONT SIZE='1' COLOR="red">1:51</FONT> He hath shewed might in his arm: * he hath scattered the proud in the conceit of their heart.<br/>
+<FONT SIZE='1' COLOR="red">1:52</FONT> He hath put down the mighty from their seat, * and hath exalted the humble.<br/>
+<FONT SIZE='1' COLOR="red">1:53</FONT> He hath filled the hungry with good things; * and the rich he hath sent empty away.<br/>
+<FONT SIZE='1' COLOR="red">1:54</FONT> He hath received Israel his servant, * being mindful of his mercy:<br/>
+<FONT SIZE='1' COLOR="red">1:55</FONT> As he spoke to our fathers, * to Abraham and to his seed for ever.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glory be to the Father, and to the Son, * and to the Holy Ghost.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> As it was in the beginning, is now, * and ever shall be, world without end. Amen.<br/>
+<FONT COLOR="red"><I>Ant.</I></FONT> Amen, I say unto you, this generation shall not pass till all these things be fulfilled; heaven and earth shall pass away, but My words shall not pass away, saith the Lord.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='-1' >Preces Feriales{omittitur}</FONT><br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='-1' >Weekday Intercessions{omit}</FONT><br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera9'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera10'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Oratio</I></B></FONT> <FONT SIZE='-1' >{ex Proprio de Tempore}</FONT>
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dómine, exáudi oratiónem meam.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et clamor meus ad te véniat.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>rémus.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>E</I></B></FONT>xcita, quǽsumus, Dómine, tuórum fidélium voluntátes: ut, divíni óperis fructum propénsius exsequéntes; pietátis tuæ remédia maióra percípiant.<br/>
+<FONT SIZE='+1' COLOR="red"><B><I>P</I></B></FONT>er Dóminum nostrum Iesum Christum, Fílium tuum: qui tecum vivit et regnat in unitáte Spíritus Sancti, Deus, per ómnia sǽcula sæculórum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>9</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Prayer</I></B></FONT> <FONT SIZE='-1' >{from the Proper of the season}</FONT>
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> O Lord, hear my prayer.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> And let my cry come unto thee.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>et us pray.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>tir up, we beseech thee, Lord, the wills of thy faithful people, that they, plenteously bringing forth the fruit of good works, may of thee be plenteously rewarded.<br/>
+<FONT SIZE='+1' COLOR="red"><B><I>T</I></B></FONT>hrough Jesus Christ, thy Son our Lord, Who liveth and reigneth with thee, in the unity of the Holy Ghost, God, world without end.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='Vespera10'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#Vesperatop'>Top</A>&nbsp;&nbsp;<A HREF='#Vespera11'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Conclusio</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dómine, exáudi oratiónem meam.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et clamor meus ad te véniat.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Benedicámus Dómino.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Deo grátias.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Fidélium ánimæ per misericórdiam Dei requiéscant in pace.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>10</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Conclusion</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> O Lord, hear my prayer.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> And let my cry come unto thee.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Let us bless the Lord.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Thanks be to God.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> May the souls of the faithful, through the mercy of God, rest in peace.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+</TABLE><A ID='Vespera10'></A><P ALIGN=CENTER><INPUT TYPE='SUBMIT' VALUE='Vespera persolut.' onclick='okbutton();'></P>
+<P ALIGN=CENTER><I>
+<A HREF=# onclick="hset('Matutinum');">Matutinum</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Laudes');">Laudes</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Prima');">Prima</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Tertia');">Tertia</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Sexta');">Sexta</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Nona');">Nona</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Vesperae');">Vesperae</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Completorium');">Completorium</A>
+<br/>
+<A HREF=# onclick="hset('Omnes');">Omnes</A>
+&nbsp;&nbsp;
+<A HREF=# onclick="hset('Plures');">Plures</A>
+&nbsp;&nbsp;
+<A HREF="#" onclick="appendix('Index')"><FONT COLOR=>Appendix</FONT></A>
+</I></P>
+<P ALIGN=CENTER><LABEL FOR='expand' CLASS='offscreen'>Expand</LABEL>
+<SELECT ID=expand NAME=expand SIZE=1 onchange="parchange();">
+<OPTION SELECTED VALUE="tota">tota
+<OPTION  VALUE="psalteria">psalteria
+<OPTION  VALUE="propria">propria
+<OPTION  VALUE="lineamenta">lineamenta
+</SELECT>
+&ensp;<LABEL FOR='version' CLASS='offscreen'>Version</LABEL>
+<SELECT ID=version NAME=version SIZE=1 onchange="parchange();">
+<OPTION  VALUE="Tridentine - 1570">Tridentine - 1570
+<OPTION  VALUE="Tridentine - 1888">Tridentine - 1888
+<OPTION  VALUE="Tridentine - 1906">Tridentine - 1906
+<OPTION  VALUE="Divino Afflatu - 1939">Divino Afflatu - 1939
+<OPTION  VALUE="Divino Afflatu - 1954">Divino Afflatu - 1954
+<OPTION  VALUE="Reduced - 1955">Reduced - 1955
+<OPTION SELECTED VALUE="Rubrics 1960 - 1960">Rubrics 1960 - 1960
+<OPTION  VALUE="Rubrics 1960 - 2020 USA">Rubrics 1960 - 2020 USA
+<OPTION  VALUE="Monastic Tridentinum 1617">Monastic - 1617
+<OPTION  VALUE="Monastic Divino 1930">Monastic - 1930
+<OPTION  VALUE="Monastic - 1963">Monastic - 1963
+<OPTION  VALUE="Monastic - 1963 - Barroux">Monastic - 1963 - Barroux
+<OPTION  VALUE="Monastic Tridentinum Cisterciensis 1951">Ordo Cisterciensis - 1951
+<OPTION  VALUE="Monastic Tridentinum Cisterciensis Altovadensis">Ordo Cisterciensis - Abbatia B.M.V. de Altovado
+<OPTION  VALUE="Ordo Praedicatorum - 1962">Ordo Praedicatorum - 1962
+</SELECT>
+&ensp;<LABEL FOR='dioecesis' CLASS='offscreen'>Dioecesis</LABEL>
+<SELECT ID=dioecesis NAME=dioecesis SIZE=1 onchange="parchange();">
+<OPTION SELECTED VALUE="Generale">Calendarium Generale
+<OPTION  VALUE="Urbis">Diœcesis Urbis seu Romana
+<OPTION  VALUE="Monacensis">Archidiœcesis Monacensis et Frisingensis
+<OPTION  VALUE="Passaviensis">Diœcesis Passaviensis
+<OPTION  VALUE="Ratisbonensis">Diœcesis Ratisbonensis
+<OPTION  VALUE="Spirensis">Diœcesis Spirensis
+<OPTION  VALUE="Brasilia">Brasília (Brasil)
+<OPTION  VALUE="Ultrajectum">Archidiœcesis Ultrajectensis
+<OPTION  VALUE="Groningen">Diœcesis Groningensis
+</SELECT>
+&ensp;<LABEL FOR='lang2' CLASS='offscreen'>Language 2</LABEL>
+<SELECT ID=lang2 NAME=lang2 SIZE=1 onchange="parchange();">
+<OPTION  VALUE="Latin">Latin
+<OPTION  VALUE="Latin-gabc">Cantilenæ
+<OPTION SELECTED VALUE="English">English
+<OPTION  VALUE="Bohemice">Čeština
+<OPTION  VALUE="Cesky-Schaller">Čeština - Schaller
+<OPTION  VALUE="Dansk">Dansk
+<OPTION  VALUE="Deutsch">Deutsch
+<OPTION  VALUE="Espanol">Español
+<OPTION  VALUE="Francais">Français
+<OPTION  VALUE="Italiano">Italiano
+<OPTION  VALUE="Magyar">Magyar
+<OPTION  VALUE="Magyar-Kaldi">Magyar-Káldi
+<OPTION  VALUE="Nederlands">Nederlands
+<OPTION  VALUE="Polski">Polski
+<OPTION  VALUE="Portugues">Português
+<OPTION  VALUE="Vietnamice">Tiếng Việt
+<OPTION  VALUE="Latin-Bea">Latin-Bea
+<OPTION  VALUE="Polski-Newer">Polski-Newer
+<OPTION  VALUE="Hebrew">עברית
+</SELECT>
+&ensp;<LABEL FOR='votive' CLASS='offscreen'>Votive</LABEL>
+<SELECT ID=votive NAME=votive SIZE=1 onchange="parchange();">
+<OPTION SELECTED VALUE="Hodie">Hodie
+<OPTION  VALUE="C1">Apostolorum
+<OPTION  VALUE="C1a">Evangelistarum
+<OPTION  VALUE="C2">Unius Martyris Pontificis
+<OPTION  VALUE="C2a">Unius Martyris non Pontificis
+<OPTION  VALUE="C3">Plurium Martyrum Pontificum
+<OPTION  VALUE="C3a">Plurium Martyrum non Pontificum
+<OPTION  VALUE="C4">Confessoris Pontificis
+<OPTION  VALUE="C4a">Doctoris Pontificis
+<OPTION  VALUE="C4c">Plurium Confessorum Pontificum
+<OPTION  VALUE="C5">Confessoris non Pontificis
+<OPTION  VALUE="C5a">Doctoris non Pontificis
+<OPTION  VALUE="C5b">Abbatis
+<OPTION  VALUE="C5c">Plurium Confessorum non Pontificum
+<OPTION  VALUE="C6">Unius Virginis Martyris
+<OPTION  VALUE="C6a">Unius Virginis tantum
+<OPTION  VALUE="C6b">Plurium Virginum Martyrum
+<OPTION  VALUE="C7">Unius non Virginis Martyris
+<OPTION  VALUE="C7a">Unius non Virginis nec Martyris
+<OPTION  VALUE="C7b">Plurium non Virginum Martyrum
+<OPTION  VALUE="C8">Dedicationis Ecclesiae
+<OPTION  VALUE="C9">Officium defunctorum
+<OPTION  VALUE="C10">Beata Maria in Sabbato
+<OPTION  VALUE="C11">Beatae Mariae Virginis
+<OPTION  VALUE="C12">Officium parvum Beatae Mariae Virginis
+<OPTION  VALUE="V4">De S. Joseph Sponso BMV (Feria IV)
+<OPTION  VALUE="V6">De Passione DNJC (Feria VI)
+</SELECT>
+</P>
+<P ALIGN=CENTER>
+<A HREF="../../www/horas/Help/versions.html" TARGET="_BLANK">Versions</A>
+&emsp;
+<A HREF="../../www/horas/Help/credits.html" TARGET="_BLANK">Credits</A>
+&emsp;
+<A HREF="../../www/horas/Help/download.html" TARGET="_BLANK">Download</A>
+&emsp;
+<A HREF="../../www/horas/Help/rubrics.html" TARGET="_BLANK">Rubrics</A>
+&emsp;
+<A HREF="../../www/horas/Help/technical.html" TARGET="_BLANK">Technical</A>
+&emsp;
+<A HREF="../../www/horas/Help/help.html" TARGET="_BLANK">Help</A>
+</P>
+<INPUT TYPE="HIDDEN" NAME="expandnum" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="popup" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="popuplang" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="setup" VALUE="general;;;$expand='tota';;$version='Rubrics 1960 - 1960';;$dioecesis='Generale';;$lang2='English';;$votive='Hodie';;;generalc;;;$expand='tota';;$version='Divino Afflatu';;$version2='Rubrics 1960 - 1960';;$dioecesis='Generale';;$langc='Latin';;$votive='Hodie';;$accented='plain';;;generalccheck;;;ooooooo;;;generalcheck;;;ooooo;;;parameters;;;$priest='0';;$building='0';;$lang1='Latin';;$psalmvar='0';;$whitebground='1';;$blackfont='';;$smallblack='-1';;$redfont=' italic red';;$initiale='+2 bold italic red';;$largefont='+1 bold italic red';;$smallfont='1 red';;$titlefont='+1 red';;$screenheight='1024';;$textwidth='100';;$oldhymns='0';;$nonumbers='0';;$nofancychars='0';;$noinnumbers='1';;$noflexa='1';;$langfb='English';;$testmode='Proper';;$singleCell='1';;$interlinear='disabled';;$glossfont='';;;parameterscheck;;;bbtbbbtcccccnnbbbbbttbot;;;">
+<INPUT TYPE="HIDDEN" NAME="command" VALUE="Vesperae">
+<INPUT TYPE="HIDDEN" NAME="date1" VALUE="11-22-2026">
+<INPUT TYPE="HIDDEN" NAME="searchvalue" VALUE="0">
+<INPUT TYPE="HIDDEN" NAME="officium" VALUE="officium.pl">
+<INPUT TYPE="HIDDEN" NAME="browsertime" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="version" VALUE="Rubrics 1960 - 1960">
+<INPUT TYPE="HIDDEN" NAME="version2" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="caller" VALUE='0'>
+<INPUT TYPE="HIDDEN" NAME="compare" VALUE=>
+<INPUT TYPE="HIDDEN" NAME="plures" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="kmonth" VALUE="">
+
+<SCRIPT TYPE='text/JavaScript'>
+    
+  
+  
+    const scores = [];
+    const mappings = [];
+    const ctexts = [];
+    var gabcSources = [];
+    var chantContainers = [];
+  
+    $('.GABC').each(function(gabcidx, gabcSource) {
+      gabcSources.push(gabcSource);
+      chantContainer = document.getElementById(gabcSource.id.replace("GABC", "GCHANT"));
+      chantContainers.push(chantContainer);
+    });
+  
+  var updateChant = function() {
+    if (scores.length) {
+      for (let i = 0; i < scores.length; i++) {
+        exsurge.Gabc.updateMappingsFromSource(ctexts[i], mappings[i], gabcSources[i].innerHTML.replace(/&gt;/g, '>').replace(/&lt;/g, '<'));
+        scores[i].updateNotations(ctexts[i]);
+      }
+    } else {
+      for (let i = 0; i < gabcSources.length; i++) {
+        let ctxt = new exsurge.ChantContext();
+        ctxt.lyricTextFont = "'Crimson Text', serif";
+        ctxt.lyricTextSize *= 1.2;
+        ctxt.spaceBetweenSystems = 0;
+        ctxt.dropCapTextFont = ctxt.lyricTextFont;
+        ctxt.annotationTextFont = ctxt.lyricTextFont;
+      
+
+        header = getHeader(gabcSources[i].innerHTML);
+        header["centering-scheme"] = 'latin';
+        let mapping = exsurge.Gabc.createMappingsFromSource(ctxt, gabcSources[i].innerHTML.replace(/&gt;/g, '>').replace(/&lt;/g, '<'));
+        let score = new exsurge.ChantScore(ctxt, mapping, header['initial-style']!=='0');
+        if(header['initial-style']!=='0' && header.annotation) {
+          score.annotation = new exsurge.Annotation(ctxt, header.annotation);
+        }
+        ctexts.push(ctxt);
+        scores.push(score);
+        mappings.push(mapping);
+      };
+    }
+    layoutChant();
+  };
+
+  var layoutChant = function() {
+    for (let i = 0; i < chantContainers.length; i++) {
+      // perform layout on the chant
+      if(scores.length) {
+        scores[i].performLayoutAsync(ctexts[i], function() {
+          scores[i].layoutChantLines(ctexts[i], chantContainers[i].clientWidth, function() {
+            // render the score to svg code
+            chantContainers[i].innerHTML = scores[i].createSvg(ctexts[i]);
+          });
+        });
+        
+        gabcSources[i].style.display = 'none'; // hide Chant text
+      }
+    }
+  };
+  
+  updateChant();
+  
+  
+  $("body").on("resize", layoutChant());
+    </SCRIPT>
+</FORM></BODY></HTML>

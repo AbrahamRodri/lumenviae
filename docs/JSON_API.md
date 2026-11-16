@@ -1016,7 +1016,10 @@ progress.
   `title` is the citation, `source` the work it comes from or null) and
   `journal_prompt`. A reading's `text` is in the app's ReadingText
   grammar: paragraphs parted by a blank line, a paragraph starting `# `
-  a heading. A day has no prayers of its own: they are its phase's.
+  a heading, and a paragraph wholly in square brackets a direction to the
+  reader, set small and red without its brackets ("[Read again from day
+  27.]", on Consecration Day). A day has no prayers of its own: they are
+  its phase's.
 - **`prayers`**: every prayer a phase names, each once: `id`, `title`,
   `latin_title` (or null), `english` and `latin` (null for a prayer said
   in English alone: Montfort's prayers, the Litany of the Holy Ghost, the
@@ -1029,7 +1032,11 @@ progress.
   (`ChantCatalog.chants(forPrayer:)`). Six of the twelve have one today.
 - **`feasts`**, in calendar order: `id`, `name`, `month`, `day` and
   `description`. Day 1 is 33 days before the feast; the date arithmetic
-  is the device's.
+  is the device's. `month` and `day` are the feast's own date; the
+  Annunciation (25 March) is kept elsewhere in some years, as the 1960
+  calendar the Hours use moves it: in Holy Week or Easter Week to the
+  Monday after Low Sunday (5 April 2027), on a Sunday of Lent to the
+  Monday. The website applies that rule (`Consecration.Plan.feast_date/2`).
 
 Labels such as "Day 7 of 33", "Consecration Day" and "Seventh Day" are
 made from `number` on the device, as the iOS app makes them.

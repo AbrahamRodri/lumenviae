@@ -216,10 +216,55 @@ defmodule LumenViae.Office.Parser do
 
   defp lines_of(chunks) do
     chunks
-    |> Enum.map(&text_of/1)
+    |> Enum.map(&line_text/1)
     |> Enum.map(&normalize/1)
     |> Enum.reject(&(&1 == ""))
   end
+
+  # One line's text, with two of the engine's small red marks kept apart:
+  #
+  #   * a rubric in the middle of a line, after the words have begun (the
+  #     English Confiteor's "deed: strikes his breast through my fault"),
+  #     is set in braces, the form the Hours page already sets as a red
+  #     note, so it no longer reads as part of the prayer;
+  #   * marks the engine sets side by side with a space between ("112:2
+  #     (bow head) Holy", "109:1 ‡ Donec") keep that space, which the HTML
+  #     parser drops as a whitespace-only text node.
+  #
+  # A small red line on its own, a verse number and the marks after it stay
+  # as they were.
+  defp line_text(nodes) do
+    {parts, _words_begun?, _previous} =
+      Enum.reduce(nodes, {[], false, nil}, fn node, {parts, begun?, previous} ->
+        text = text_of(node)
+
+        part =
+          cond do
+            begun? and small_red?(node) and String.trim(text) not in ["", "‡", "*", "+"] and
+                not String.starts_with?(String.trim(text), "{") ->
+              " {" <> String.trim(text) <> "} "
+
+            element?(node) and element?(previous) ->
+              " " <> text
+
+            true ->
+              text
+          end
+
+        begun? = begun? or (is_binary(node) and String.trim(node) != "")
+        {[part | parts], begun?, node}
+      end)
+
+    parts |> Enum.reverse() |> Enum.join()
+  end
+
+  defp small_red?({"font", attrs, _children}),
+    do: attr(attrs, "size") == "1" and String.downcase(attr(attrs, "color") || "") == "red"
+
+  defp small_red?(_node), do: false
+
+  defp element?({tag, _attrs, _children}) when is_binary(tag), do: true
+  defp element?(_node), do: false
 
   defp chunk_by_br(nodes) do
     nodes

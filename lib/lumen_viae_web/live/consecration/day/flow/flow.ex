@@ -190,6 +190,10 @@ defmodule LumenViaeWeb.Live.Consecration.Day.Flow do
                         <.sacred_divider cross={false} class="my-6" />
                       <% {:heading, heading} -> %>
                         <h2 class="cons-reading-text__heading">{heading}</h2>
+                      <% {:direction, direction} -> %>
+                        <p class="cons-paragraph" data-role="reading-direction">
+                          <span class="book-rubric">{direction}</span>
+                        </p>
                       <% {:text, text, versal?} -> %>
                         <p class={["cons-paragraph", versal? && "cons-paragraph--versal"]}>{text}</p>
                     <% end %>

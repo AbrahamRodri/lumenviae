@@ -15,6 +15,7 @@ defmodule LumenViaeWeb.Live.Consecration.Days do
 
   alias LumenViae.Rosary
   alias LumenViaeWeb.Live.Chants.Library
+  alias LumenViaeWeb.Live.Prayers.PrayerText
 
   defstruct [:phases, :days, :prayers, :feasts, :chants]
 
@@ -224,8 +225,10 @@ defmodule LumenViaeWeb.Live.Consecration.Days do
   A reading's paragraphs as the page sets them, as the app's
   `ReadingText`: `{:rule}` for a paragraph of rule characters (an
   ornament between sections), `{:heading, text}` for one opening `# `
-  (the reading's own title, as the book prints it), else `{:text, text,
-  versal?}`, the first prose paragraph opening on the versal.
+  (the reading's own title, as the book prints it), `{:direction, text}`
+  for one wholly in square brackets (a note to the reader, "[Read again
+  from day 27.]", set as a small red rubric without its brackets), else
+  `{:text, text, versal?}`, the first prose paragraph opening on the versal.
   """
   def blocks(text) do
     {blocks, _versal_taken?} =
@@ -233,9 +236,17 @@ defmodule LumenViaeWeb.Live.Consecration.Days do
       |> paragraphs()
       |> Enum.map_reduce(false, fn paragraph, taken? ->
         cond do
-          rule?(paragraph) -> {{:rule}, taken?}
-          String.starts_with?(paragraph, "# ") -> {{:heading, heading(paragraph)}, taken?}
-          true -> {{:text, paragraph, not taken?}, true}
+          rule?(paragraph) ->
+            {{:rule}, taken?}
+
+          String.starts_with?(paragraph, "# ") ->
+            {{:heading, heading(paragraph)}, taken?}
+
+          PrayerText.rubric?(paragraph) ->
+            {{:direction, String.slice(paragraph, 1..-2//1)}, taken?}
+
+          true ->
+            {{:text, paragraph, not taken?}, true}
         end
       end)
 

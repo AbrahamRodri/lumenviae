@@ -58,7 +58,8 @@ defmodule LumenViae.Rosary.LibraryTest do
     ],
     "consecration.json" => [
       {~U[2026-10-28 02:30:43Z], "fc067fd951512d2c"},
-      {~U[2026-11-07 02:00:00Z], "b1ec0c3231c43fd9"}
+      {~U[2026-11-07 02:00:00Z], "b1ec0c3231c43fd9"},
+      {~U[2026-11-16 00:15:00Z], "0062ee1f426a1fd3"}
     ],
     "true_devotion.json" => [
       {~U[2026-10-28 05:30:00Z], "3a98bd835108c60c"},

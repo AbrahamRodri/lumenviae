@@ -95,7 +95,10 @@ unit ("Incipit", "Psalmi", "Oratio"...), untitled sections for the
 individual psalms and for standalone rubric rows ("Preces Feriales
 {omittitur}"). `note` holds the small rubric printed after a title, braces
 and all. Lines are plain text with the traditional glyphs kept
-(the versicle and response marks, the cross). When the requested
+(the versicle and response marks, the cross). A small rubric the engine
+prints inside a line, after the words have begun, comes in braces too
+("word and deed: {strikes his breast} through my fault"), so a reader can
+set it apart; a line that is all rubric stays a plain line. When the requested
 `language` is `latin`, the engine prints a single column and `vernacular`
 is null throughout.
 

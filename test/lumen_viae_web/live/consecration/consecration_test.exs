@@ -369,6 +369,41 @@ defmodule LumenViaeWeb.Live.Consecration.ConsecrationTest do
       render_hook(view, "consecration_state", state(%{"start" => "2026-01-01"}))
       assert has_element?(view, "[data-role=restart][data-consecration-restart]")
     end
+
+    test "is Faber's 1904 wording, the book's own, with a place for the name", %{conn: conn} do
+      {:ok, view, html} = live(conn, "/consecration/act")
+
+      assert has_element?(view, "[data-role=rubric]", "At N., say your own name.")
+      assert html =~ "I, N., a faithless sinner—I renew and ratify to-day in thy hands"
+      assert html =~ "over this little worm and miserable sinner"
+      refute html =~ "I, a faithless sinner, renew"
+    end
+  end
+
+  describe "the readings' own directions" do
+    test "a paragraph in square brackets is a red direction, and takes no versal" do
+      assert Days.blocks("[Read again from day 27.]\n\nThey should apply themselves") == [
+               {:direction, "Read again from day 27."},
+               {:text, "They should apply themselves", true}
+             ]
+    end
+
+    test "Consecration Day has its Third Practice, and says which readings come again" do
+      doc = Days.load(nil)
+      [first, second] = Enum.find(doc.days, &(&1.number == 34)).readings
+
+      assert first.text =~ ~r/^\[Read again from day 27\.\]/
+      paragraphs = Days.paragraphs(second.text)
+
+      assert Enum.map(paragraphs, &String.slice(&1, 0, 16)) |> Enum.take(6) == [
+               "Second Practice.",
+               "Third Practice. ",
+               "[Read again from",
+               "Fourth Practice.",
+               "[Read again from",
+               "Fifth Practice. "
+             ]
+    end
   end
 
   describe "the header" do
