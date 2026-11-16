@@ -30,8 +30,8 @@ const ConsecrationSpan = {
     this.el.classList.toggle("is-stacked", this.stacked === true)
   },
 
-  // Lays every pair out side by side in a hidden copy and stacks when the
-  // widest would not fit in the span's width.
+  // Lays every pair out side by side in a hidden copy and stacks when any
+  // would not fit in the span's width.
   decide() {
     let pairs
     try {
@@ -47,23 +47,21 @@ const ConsecrationSpan = {
     Object.assign(copy.style, { position: "absolute", visibility: "hidden", left: "0", top: "0", width: this.el.clientWidth + "px" })
     this.el.parentElement.appendChild(copy)
 
-    const ends = copy.querySelectorAll(".cons-span__end")
+    // Side by side the span is a grid whose date columns never shrink, so
+    // a pair that does not fit makes the copy wider than its box; the two
+    // labels share the top row and must fit beside each other too.
     const dates = copy.querySelectorAll(".cons-span__date")
-    const arrow = copy.querySelector(".cons-span__arrow")
-    const box = getComputedStyle(copy)
-    const gap = parseFloat(box.columnGap) || 0
-    const room = copy.clientWidth - (parseFloat(box.paddingLeft) || 0) - (parseFloat(box.paddingRight) || 0)
-    const arrowWidth = arrow ? parseFloat(getComputedStyle(arrow).minWidth) || 0 : 0
-
-    let widest = 0
+    const labels = copy.querySelectorAll(".cons-span__label")
+    const gap = parseFloat(getComputedStyle(copy).columnGap) || 0
+    let overflows = labels[0].offsetWidth + labels[1].offsetWidth + gap > copy.clientWidth
     for (const [begin, end] of pairs.length ? pairs : [[dates[0].textContent, dates[1].textContent]]) {
       dates[0].textContent = begin
       dates[1].textContent = end
-      widest = Math.max(widest, ends[0].offsetWidth + ends[1].offsetWidth + arrowWidth + 2 * gap)
+      if (copy.scrollWidth > copy.clientWidth + 0.5) overflows = true
     }
 
     copy.remove()
-    this.stacked = widest > room
+    this.stacked = overflows
   },
 
   destroyed() {

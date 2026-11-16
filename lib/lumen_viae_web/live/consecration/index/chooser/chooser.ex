@@ -85,17 +85,17 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
           data-role="span"
           data-pairs={span_pairs(@preparations)}
         >
-          <p class="cons-span__end">
+          <div class="cons-span__end">
             <span class="cons-span__label">You begin</span>
             <span class="cons-span__date">{Plan.day_date(@selected.start)}</span>
-          </p>
+          </div>
           <span class="cons-span__arrow" aria-hidden="true"></span>
-          <p class="cons-span__end cons-span__end--to">
+          <div class="cons-span__end cons-span__end--to">
             <span class="cons-span__label">You consecrate</span>
             <span class="cons-span__date">
               {Plan.day_date(Plan.consecration_date(@selected.start))}
             </span>
-          </p>
+          </div>
         </div>
         <button
           :if={@selected}
