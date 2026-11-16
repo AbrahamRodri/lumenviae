@@ -9181,6 +9181,13 @@ html:has(#prayer) {
     }
   }
 
+  /* Large text: Begin on two lines, not four. */
+  @media (max-height: 33.99em) {
+    .cons-foot__act {
+      letter-spacing: 0.06em;
+    }
+  }
+
   .cons-foot__span {
     padding: 0 0.375rem;
     font-family: var(--font-garamond);

@@ -81,12 +81,13 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
         </li>
       </ul>
 
-      <div :if={@selected} class="cons-foot" data-role="foot">
-        <p class="cons-foot__span" data-role="span">
+      <div class="cons-foot" data-role="foot">
+        <p :if={@selected} class="cons-foot__span" data-role="span">
           33 days, from <b>{Plan.day_date(@selected.start)}</b>
           to <b>{Plan.day_date(Plan.consecration_date(@selected.start))}</b>
         </p>
         <button
+          :if={@selected}
           type="button"
           class="btn-gold cons-foot__act"
           data-consecration-begin
@@ -97,18 +98,17 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
           {Plan.begin_title(@selected, @today)}
           <span class="hero-chevron-right size-4" aria-hidden="true" />
         </button>
+        <button
+          type="button"
+          class="btn-text cons-any-link"
+          phx-click="any_start"
+          aria-expanded={to_string(@any?)}
+          aria-controls="cons-any"
+          data-role="any-start"
+        >
+          Start at any day instead <span class="hero-chevron-right size-3" aria-hidden="true" />
+        </button>
       </div>
-
-      <button
-        type="button"
-        class="btn-text cons-any-link"
-        phx-click="any_start"
-        aria-expanded={to_string(@any?)}
-        aria-controls="cons-any"
-        data-role="any-start"
-      >
-        Start at any day instead <span class="hero-chevron-right size-3" aria-hidden="true" />
-      </button>
 
       <div
         :if={@any?}
