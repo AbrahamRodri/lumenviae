@@ -8960,29 +8960,51 @@ html:has(#prayer) {
     color: var(--color-ink-muted);
   }
 
-  /* ---- The feast chooser */
+  /* ---- The feast chooser: one list that never moves, one sentence above Begin */
 
-  .cons-chosen {
-    margin-top: 1.75rem;
-    box-shadow: 0 0 18px rgba(227, 188, 91, 0.12);
+  .cons-feasts {
+    margin-top: 1.5rem;
+    container-type: inline-size;
   }
 
-  .cons-chosen__top {
+  .cons-feast {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    min-height: 1.5rem;
+    gap: 0.8125rem;
+    width: 100%;
+    min-height: 3.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.875rem;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .cons-feasts > li + li .cons-feast {
+    box-shadow: 0 -0.5px 0 rgba(139, 139, 165, 0.22);
+  }
+
+  .cons-feast.is-on,
+  .cons-feasts > li + li .cons-feast.is-on {
+    background: rgba(227, 188, 91, 0.11);
+    box-shadow: inset 0 0 0 1px rgba(227, 188, 91, 0.6);
+  }
+
+  .cons-feasts > li:has(.is-on) + li .cons-feast {
+    box-shadow: none;
   }
 
   .cons-soonest {
-    padding: 0.125rem 0.625rem;
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.0625rem 0.5rem;
     border-radius: 9999px;
     border: 1px solid rgba(227, 188, 91, 0.6);
-    background: rgba(227, 188, 91, 0.15);
     font-family: var(--font-display);
     font-size: 0.75rem;
+    line-height: 1.4;
     letter-spacing: 0.16em;
     text-transform: uppercase;
+    vertical-align: 0.15em;
     color: var(--color-gilt-light);
   }
 
@@ -8990,103 +9012,22 @@ html:has(#prayer) {
     position: relative;
     display: inline-block;
     flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    margin-left: auto;
+    width: 20px;
+    height: 20px;
     border-radius: 9999px;
-    border: 1px solid rgba(139, 139, 165, 0.5);
+    border: 1.4px solid rgba(139, 139, 165, 0.6);
   }
 
   .cons-radio.is-on {
-    width: 22px;
-    height: 22px;
-    border: 1.5px solid var(--color-gilt);
+    border: 1.6px solid var(--color-gilt);
   }
 
   .cons-radio.is-on::after {
     content: "";
     position: absolute;
-    inset: 4px;
+    inset: 3px;
     border-radius: 9999px;
     background: var(--color-gilt);
-  }
-
-  .cons-chosen__feast {
-    margin-top: 0.5rem;
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    line-height: 1.25;
-    color: var(--color-ink-light);
-  }
-
-  .cons-chosen__date {
-    margin-top: 0.25rem;
-    font-family: var(--font-garamond);
-    font-style: italic;
-    font-size: 1.0625rem;
-    color: var(--color-ink-muted);
-  }
-
-  .cons-chosen__day-one {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.25rem 0.625rem;
-  }
-
-  .cons-chosen__label {
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-gilt);
-  }
-
-  .cons-chosen__start {
-    font-family: var(--font-garamond);
-    font-size: 1.0625rem;
-    color: var(--color-ink-light);
-  }
-
-  .cons-chosen__countdown {
-    margin-left: auto;
-    font-family: var(--font-garamond);
-    font-style: italic;
-    font-size: 1rem;
-    color: var(--color-gilt-light);
-  }
-
-  .cons-others {
-    margin-top: 1.75rem;
-  }
-
-  .cons-others__label {
-    margin-bottom: 0.25rem;
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--color-ink-muted);
-  }
-
-  .cons-others__list > li + li {
-    border-top: 1px solid rgba(227, 188, 91, 0.12);
-  }
-
-  .cons-feast {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    width: 100%;
-    min-height: 3.5rem;
-    padding: 0.75rem 0;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .cons-feast .cons-radio {
-    margin-left: 0;
   }
 
   .cons-feast__words {
@@ -9097,8 +9038,8 @@ html:has(#prayer) {
   .cons-feast__name {
     display: block;
     font-family: var(--font-garamond);
-    font-size: 1.125rem;
-    line-height: 1.3;
+    font-size: 1.0625rem;
+    line-height: 1.25;
     color: var(--color-ink-light);
   }
 
@@ -9106,25 +9047,45 @@ html:has(#prayer) {
     color: var(--color-gilt-light);
   }
 
-  .cons-feast__begins {
+  .cons-feast__moved {
     display: block;
+    margin-top: 0.125rem;
     font-family: var(--font-garamond);
     font-style: italic;
-    font-size: 0.9375rem;
-    color: var(--color-ink-muted);
+    font-size: 0.8125rem;
+    line-height: 1.25;
+    color: var(--color-gilt-light);
   }
 
   .cons-feast__date {
     flex-shrink: 0;
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-gilt);
+    font-family: var(--font-garamond);
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    text-align: right;
+    color: var(--color-ink-muted);
+  }
+
+  .cons-feast.is-on .cons-feast__date {
+    color: var(--color-ink-light);
+  }
+
+  /* At large text the date goes under the name, so the name keeps its width. */
+  @container (max-width: 16em) {
+    .cons-feast {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 0.625rem;
+      padding: 0.5rem;
+    }
+
+    .cons-feast__date {
+      grid-column: 2;
+      text-align: left;
+    }
   }
 
   .cons-feast:focus-visible,
-  .cons-more:focus-visible,
   .cons-road__segment:focus-visible,
   .cons-day-dot:focus-visible,
   .cons-prayer-row:focus-visible,
@@ -9136,20 +9097,14 @@ html:has(#prayer) {
     outline-offset: 2px;
   }
 
-  .cons-more {
-    width: 100%;
-    min-height: 2.75rem;
-    border-top: 1px solid rgba(227, 188, 91, 0.12);
-    font-family: var(--font-garamond);
-    font-style: italic;
-    font-size: 1rem;
-    color: var(--color-gilt);
-    cursor: pointer;
-  }
-
   .cons-any-link {
     align-self: center;
-    margin-top: 1rem;
+    margin-top: 0.25rem;
+    font-family: var(--font-garamond);
+    font-size: 0.90625rem;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--color-ink-muted);
   }
 
   .cons-any {
@@ -9205,25 +9160,41 @@ html:has(#prayer) {
     margin-top: 0.5rem;
   }
 
+  /* Sticky only where the screen has room for it: at large text (browser
+     zoom, or a larger default font) it would cover most of the list. */
   .cons-foot {
-    position: sticky;
-    bottom: 0;
+    position: relative;
     z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
     margin: 1rem -1.5rem 0;
-    padding: 3rem 1.5rem 1.25rem;
-    background: linear-gradient(to bottom, rgba(10, 10, 21, 0), rgba(10, 10, 21, 0.92) 40%, var(--color-night) 70%);
+    padding: 1.5rem 1.5rem 1.25rem;
+    background: linear-gradient(to bottom, rgba(10, 10, 21, 0), var(--color-night) 1.375rem);
   }
 
-  .cons-foot__note {
+  @media (min-height: 34em) {
+    .cons-foot {
+      position: sticky;
+      bottom: 0;
+    }
+  }
+
+  .cons-foot__span {
+    padding: 0 0.375rem;
     font-family: var(--font-garamond);
-    font-style: italic;
-    font-size: 0.9375rem;
+    font-size: 1.03125rem;
+    line-height: 1.35;
     text-align: center;
+    text-wrap: balance;
     color: var(--color-ink-muted);
+  }
+
+  .cons-foot__span b {
+    font-weight: inherit;
+    white-space: nowrap;
+    color: var(--color-ink-light);
   }
 
   /* ---- The waiting page */

@@ -65,37 +65,65 @@ defmodule LumenViaeWeb.Live.Consecration.ConsecrationTest do
       assert has_element?(view, "[data-role=chooser]")
     end
 
-    test "the chooser offers the soonest feast and begins it in this browser", %{conn: conn} do
+    test "the chooser lights the soonest feast and begins it in this browser", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/consecration?step=choose")
       render_hook(view, "consecration_state", state(nil, [], ~D[2026-11-02]))
 
-      assert view |> element("[data-role=chosen-feast]") |> render() =~ "Immaculate Conception"
-      assert view |> element("[data-role=day-one]") |> render() =~ "Thursday, November 5"
+      assert view |> element("[data-role=feast-row][aria-pressed=true]") |> render() =~
+               "Immaculate Conception"
+
+      assert view |> element("[data-role=soonest]") |> render() =~ "Soonest"
+
+      assert view |> element("[data-role=span]") |> render() =~
+               ~r/33 days, from <b>Thursday, November 5<\/b>\s+to <b>Tuesday, December 8<\/b>/
 
       begin = view |> element("[data-role=begin]") |> render()
       assert begin =~ ~s(data-start="2026-11-05")
       assert begin =~ ~s(data-feast="immaculate_conception")
       assert begin =~ "Begin on November 5"
+    end
 
-      assert length(
-               view
-               |> render()
-               |> Floki.parse_document!()
-               |> Floki.find("[data-role=feast-row]")
-             ) ==
-               3
+    # Abraham, 16 Nov 2026: the dates moved around. Now the list keeps its
+    # order; a tap lights the row in place and changes only the sentence and Begin.
+    test "every feast stays in its place in calendar order when one is chosen", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/consecration?step=choose")
+      render_hook(view, "consecration_state", state(nil, [], ~D[2026-11-02]))
 
-      view |> element("[data-role=more-feasts]") |> render_click()
+      names = fn ->
+        view
+        |> render()
+        |> Floki.parse_document!()
+        |> Floki.find("[data-role=feast-row] .cons-feast__name")
+        |> Enum.map(&(&1 |> Floki.text() |> String.replace("Soonest", "") |> String.trim()))
+      end
 
-      assert view
-             |> render()
-             |> Floki.parse_document!()
-             |> Floki.find("[data-role=feast-row]")
-             |> length() == 8
+      before = names.()
+      assert length(before) == 9
+      assert hd(before) == "Immaculate Conception"
 
       view |> element("[data-role=feast-row]", "Our Lady of Guadalupe") |> render_click()
-      assert view |> element("[data-role=chosen-feast]") |> render() =~ "Guadalupe"
+
+      assert names.() == before
+
+      assert view |> element("[data-role=feast-row][aria-pressed=true]") |> render() =~
+               "Guadalupe"
+
+      assert view |> element("[data-role=soonest]") |> render() =~ "Soonest"
       assert view |> element("[data-role=begin]") |> render() =~ ~s(data-start="2026-11-09")
+      assert view |> element("[data-role=span]") |> render() =~ "Saturday, December 12"
+    end
+
+    test "a feast moved that year says so under its name", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/consecration?step=choose")
+      render_hook(view, "consecration_state", state(nil, [], ~D[2026-11-16]))
+
+      assert view |> element("[data-role=feast-row]", "The Annunciation") |> render() =~
+               "Moved from March 25, which is Holy Thursday in 2027"
+
+      assert view |> element("[data-role=feast-row]", "The Annunciation") |> render() =~
+               "Mon, Apr 5"
+
+      refute view |> element("[data-role=feast-row]", "The Assumption") |> render() =~ "Moved"
     end
 
     test "Start at any day begins today at the day chosen", %{conn: conn} do
