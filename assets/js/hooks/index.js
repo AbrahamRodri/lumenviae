@@ -19,6 +19,7 @@ import TrueDevotionPlace from "./true_devotion_place"
 import SpiritualReadingPlace from "./spiritual_reading_place"
 import BookPlayer from "./book_player"
 import ConsecrationPlan from "./consecration_plan"
+import ConsecrationSpan from "./consecration_span"
 import MissalReading from "./missal_reading"
 
 export default {
@@ -43,5 +44,6 @@ export default {
   SpiritualReadingPlace,
   BookPlayer,
   ConsecrationPlan,
+  ConsecrationSpan,
   MissalReading
 }

@@ -152,31 +152,4 @@ defmodule LumenViaeWeb.Live.Consecration.PlanTest do
       assert Plan.begin_title(%{start: today}, today) == "Begin today"
     end
   end
-
-  describe "moved_note/1" do
-    defp annunciation, do: %{id: "annunciation", month: 3, day: 25}
-
-    defp prep(year) do
-      {:ok, date} = Plan.feast_date(annunciation(), year)
-      %{feast: annunciation(), feast_date: date}
-    end
-
-    test "says why the Annunciation is not on March 25 that year" do
-      assert Plan.moved_note(prep(2027)) == "Moved from March 25, which is Holy Thursday in 2027"
-      assert Plan.moved_note(prep(2029)) == "Moved from March 25, which is Palm Sunday in 2029"
-      assert Plan.moved_note(prep(2035)) == "Moved from March 25, which is Easter Sunday in 2035"
-
-      assert Plan.moved_note(prep(2057)) ==
-               "Moved from March 25, which is a Sunday of Lent in 2057"
-    end
-
-    test "nothing when the feast keeps its own day" do
-      assert Plan.moved_note(prep(2026)) == nil
-
-      assert Plan.moved_note(%{
-               feast: %{id: "assumption", month: 8, day: 15},
-               feast_date: ~D[2027-08-15]
-             }) == nil
-    end
-  end
 end

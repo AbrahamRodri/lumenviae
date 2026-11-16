@@ -206,43 +206,8 @@ defmodule LumenViaeWeb.Live.Consecration.Plan do
   @doc "\"Thu, Feb 11\": a feast's date in the chooser's list."
   def row_date(date), do: Calendar.strftime(date, "%a, %b %-d")
 
-  @doc "\"Saturday, January 9\": a date in the chooser's one sentence."
+  @doc "\"Saturday, January 9\": a date in the chooser's foot, above Begin."
   def day_date(date), do: Calendar.strftime(date, "%A, %B %-d")
-
-  @doc """
-  Why a feast is not on its own day in its preparation's year, or nil:
-  \"Moved from March 25, which is Holy Thursday in 2027\". Only the
-  Annunciation moves (`feast_date/2`).
-  """
-  def moved_note(%{feast: feast, feast_date: feast_date}) do
-    with {:ok, own} <- Date.new(feast_date.year, feast.month, feast.day),
-         false <- own == feast_date do
-      "Moved from #{Calendar.strftime(own, "%B %-d")}, which is #{taken_by(own)} in #{own.year}"
-    else
-      _ -> nil
-    end
-  end
-
-  @holy_week [
-    "Palm Sunday",
-    "Monday of Holy Week",
-    "Tuesday of Holy Week",
-    "Wednesday of Holy Week",
-    "Holy Thursday",
-    "Good Friday",
-    "Holy Saturday",
-    "Easter Sunday"
-  ]
-
-  # The day that takes 25 March: a day of Holy Week or Easter Week, else a Sunday of Lent.
-  defp taken_by(date) do
-    case Date.diff(date, LiturgicalCalendar.easter(date.year)) do
-      n when n in -7..0 -> Enum.at(@holy_week, n + 7)
-      n when n in 1..6 -> Calendar.strftime(date, "%A") <> " of Easter Week"
-      7 -> "Low Sunday"
-      _ -> "a Sunday of Lent"
-    end
-  end
 
   @doc "\"November 21, 2026\", as the app's long date style."
   def full_date(date), do: Calendar.strftime(date, "%B %-d, %Y")
