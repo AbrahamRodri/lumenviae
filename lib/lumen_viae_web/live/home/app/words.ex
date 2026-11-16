@@ -43,8 +43,8 @@ defmodule LumenViaeWeb.Live.Home.App.Words do
         {"La Misa de hoy", "El Misal de 1962, en latín e inglés."},
         {"Novenas", "Un día a la vez; la app lleva tu día."},
         {"Consagración", "Los 33 días de san Luis María."},
-        {"Sin conexión", "Reza sin internet."},
-        {"Sin cuenta", "Todo queda en tu teléfono."}
+        {"Sin conexión, sin cuenta", "Reza sin internet. Todo queda en tu teléfono."},
+        {"El libro de oraciones", "#{prayers} oraciones, del Ángelus a las Letanías lauretanas."}
       ],
       close_title: "Comienza el Rosario de hoy",
       close_body: "La app se abre en los misterios de hoy. Un toque, y estás rezando.",
@@ -89,8 +89,8 @@ defmodule LumenViaeWeb.Live.Home.App.Words do
         {"Today's Mass", "The 1962 Missal, Latin and English."},
         {"Novenas", "One day at a time; the app keeps your day."},
         {"Consecration", "The 33 days of St Louis de Montfort."},
-        {"Offline", "Pray without a connection."},
-        {"No account", "Everything stays on your phone."}
+        {"Offline, no account", "Pray without a connection. Everything stays on your phone."},
+        {"The prayer book", "#{prayers} prayers, from the Angelus to the Litany of Loreto."}
       ],
       close_title: "Begin today's Rosary",
       close_body: "The app opens on today's mysteries. One tap, and you are praying.",

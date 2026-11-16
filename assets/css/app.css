@@ -2321,6 +2321,43 @@ html:has(#prayer) {
     padding-bottom: 1.875rem;
   }
 
+  .app-c__hero-words .app-badge {
+    margin-top: 0.5rem;
+  }
+
+  /* Two quiet motions, none under reduced motion: the head's painting
+     drifts, and the rows and tiles rise once as they come on screen (the
+     AppRise hook adds .is-in; without it nothing is hidden). */
+  @media (prefers-reduced-motion: no-preference) {
+    .app-c__hero-painting {
+      animation: app-drift 30s ease-in-out infinite alternate;
+      transform-origin: 50% 30%;
+    }
+
+    .app-c--rise [data-rise] {
+      opacity: 0;
+      transform: translateY(12px);
+      transition:
+        opacity 500ms ease-out var(--rise-delay, 0ms),
+        transform 500ms ease-out var(--rise-delay, 0ms);
+    }
+
+    .app-c--rise [data-rise].is-in {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes app-drift {
+    from {
+      transform: scale(1);
+    }
+
+    to {
+      transform: scale(1.06);
+    }
+  }
+
   .app-badge {
     display: inline-flex;
     flex-wrap: wrap;

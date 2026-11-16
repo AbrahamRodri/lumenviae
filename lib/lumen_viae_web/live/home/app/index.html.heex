@@ -1,4 +1,4 @@
-<div id="app-page" class="app-c" lang={@lang}>
+<div id="app-page" class="app-c" lang={@lang} phx-hook="AppRise">
   <section class="app-c__hero" aria-labelledby="app-title">
     <LumenViaeWeb.Components.MysteryPainting.picture
       name="joyful_annunciation"
@@ -32,7 +32,7 @@
 
   <section class="app-c__rows">
     <div class="app-c__wrap">
-      <article class="app-c__row">
+      <article class="app-c__row" data-rise>
         <LumenViaeWeb.Components.MysteryPainting.picture
           name="sorrowful_carrying"
           sizes="(min-width: 768px) 560px, 100vw"
@@ -45,7 +45,7 @@
           <p>{@t.rosary_body}</p>
         </div>
       </article>
-      <article class="app-c__row app-c__row--flip">
+      <article class="app-c__row app-c__row--flip" data-rise>
         <div class="app-c__row-words">
           <p class="app-c__kicker">{@t.chant_kicker}</p>
           <h2 class="app-c__h2">{@t.chant_title}</h2>
@@ -69,6 +69,8 @@
         <li
           :for={{{title, body}, i} <- Enum.with_index(@t.tiles)}
           class={["app-c__tile", i in [0, 5] && "app-c__tile--wide"]}
+          data-rise
+          style={"--rise-delay: #{i * 60}ms"}
         >
           <div class="app-c__tile-words">
             <span class="app-c__numeral" aria-hidden="true">

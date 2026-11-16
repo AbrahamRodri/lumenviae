@@ -21,6 +21,7 @@ import BookPlayer from "./book_player"
 import ConsecrationPlan from "./consecration_plan"
 import MissalReading from "./missal_reading"
 import AppClip from "./app_clip"
+import AppRise from "./app_rise"
 
 export default {
   UserTimezone,
@@ -45,5 +46,6 @@ export default {
   BookPlayer,
   ConsecrationPlan,
   MissalReading,
-  AppClip
+  AppClip,
+  AppRise
 }

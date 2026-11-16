@@ -32,12 +32,13 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
             "Today&#39;s Mass",
             "Novenas",
             "Consecration",
-            "Offline",
-            "No account"
+            "Offline, no account",
+            "The prayer book"
           ] do
         assert html =~ tile
       end
 
+      assert html =~ "#{prayers} prayers, from the Angelus to the Litany of Loreto."
       refute html =~ ~s(name="robots")
     end
 
