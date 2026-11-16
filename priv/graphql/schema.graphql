@@ -2119,6 +2119,7 @@ type OfficeCelebration {
 type OfficeCell {
   title: String
   note: String
+  markedLines: [String!]
   lines: [String!]!
 }
 

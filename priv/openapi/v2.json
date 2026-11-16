@@ -7106,6 +7106,13 @@
                                   },
                                   "type": "array"
                                 },
+                                "marked_lines": {
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "nullable": true,
+                                  "type": "array"
+                                },
                                 "note": {
                                   "nullable": true,
                                   "type": "string"
@@ -7127,6 +7134,13 @@
                                   "items": {
                                     "type": "string"
                                   },
+                                  "type": "array"
+                                },
+                                "marked_lines": {
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "nullable": true,
                                   "type": "array"
                                 },
                                 "note": {
@@ -7293,6 +7307,13 @@
                                 },
                                 "type": "array"
                               },
+                              "marked_lines": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true,
+                                "type": "array"
+                              },
                               "note": {
                                 "nullable": true,
                                 "type": "string"
@@ -7314,6 +7335,13 @@
                                 "items": {
                                   "type": "string"
                                 },
+                                "type": "array"
+                              },
+                              "marked_lines": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true,
                                 "type": "array"
                               },
                               "note": {

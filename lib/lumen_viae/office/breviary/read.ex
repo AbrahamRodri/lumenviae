@@ -117,7 +117,15 @@ defmodule LumenViae.Office.Breviary.Read do
   end
 
   defp cell(nil), do: nil
-  defp cell(cell), do: %Types.Cell{title: cell.title, note: cell.note, lines: cell.lines}
+
+  defp cell(cell) do
+    %Types.Cell{
+      title: cell.title,
+      note: cell.note,
+      lines: cell.lines,
+      marked_lines: Map.get(cell, :marked_lines)
+    }
+  end
 
   defp celebration(nil), do: nil
   defp celebration(celebration), do: struct(Types.Celebration, celebration)
