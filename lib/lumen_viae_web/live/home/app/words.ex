@@ -54,8 +54,11 @@ defmodule LumenViaeWeb.Live.Home.App.Words do
         "c1-player" =>
           "La app reza el primer misterio glorioso, la Resurrección, bajo su pintura.",
         "c6-hours" => "Las Horas de oración de hoy, con la hora presente iluminada.",
-        "c7-prayers" => "El libro de oraciones se abre en el Ángelus, bajo su pintura."
-      }
+        "c7-prayers" => "El libro de oraciones se abre en el Ángelus, bajo su pintura.",
+        "c3-beads" => "Tres avemarías contadas en la app, una cuenta a la vez.",
+        "c5-chant" => "La Salve Regina abierta en la app, la partitura iluminada línea por línea."
+      },
+      clip_names: %{"c1-player" => "c1-player-es", "c7-prayers" => "c7-prayers-es"}
     }
   end
 
@@ -100,8 +103,11 @@ defmodule LumenViaeWeb.Live.Home.App.Words do
         "c1-player" =>
           "The app praying the First Glorious Mystery, the Resurrection, under its painting.",
         "c6-hours" => "Today's Hours of Prayer, with the hour it is now lit.",
-        "c7-prayers" => "The prayer book opening The Angelus under its painting."
-      }
+        "c7-prayers" => "The prayer book opening The Angelus under its painting.",
+        "c3-beads" => "Three Hail Marys counted in the app, one bead at a time.",
+        "c5-chant" => "The Salve Regina open in the app, its score lighting line by line."
+      },
+      clip_names: %{}
     }
   end
 

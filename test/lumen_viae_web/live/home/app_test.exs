@@ -100,7 +100,7 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
       {:ok, _view, html} = live(conn, "/app")
       phones = html |> Floki.parse_document!() |> Floki.find(".app-phone")
 
-      assert length(phones) == 3
+      assert length(phones) == 5
 
       for phone <- phones do
         case Floki.find(phone, "video") do

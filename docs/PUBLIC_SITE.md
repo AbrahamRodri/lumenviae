@@ -864,8 +864,11 @@ phone each) and the closing call.
   design's shot list (`reports/design/app-page/SHOTS-C.md`). It loads
   nothing until shown, plays only on screen, never by itself under reduced
   motion, and has a Pause button (the `AppClip` hook).
-- Until a clip's three files are there, its phone shows the old still
-  named in `Clip`'s `@stand_in`. Never ship the page with a stand-in.
+- Five clips: `c1-player` in the head, `c3-beads` and `c5-chant` at the
+  inner edge of the two painting rows (the `app-c__row--phone` class; take
+  it off to remove them), `c6-hours` and `c7-prayers` in tiles I and VI.
+  `?lang=es` uses `c1-player-es` and `c7-prayers-es`. Images are cached a
+  week under their names, so a clip recorded again takes a new name.
 - The counts (chants, prayers) are read from the library when the page
   mounts, and spelled out where a heading says them
   (`LumenViaeWeb.Live.Home.App.Words`), so they stay true.

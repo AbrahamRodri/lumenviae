@@ -16,11 +16,10 @@
         <.app_store_button href={@app_store_url} free={@t.free} />
       </div>
       <.clip
-        name="c1-player"
+        name={Map.get(@t.clip_names, "c1-player", "c1-player")}
         alt={@t.clips["c1-player"]}
         pause={@t.pause}
         play={@t.play}
-        loading="eager"
         class="app-phone--hero"
       />
     </div>
@@ -32,12 +31,19 @@
 
   <section class="app-c__rows">
     <div class="app-c__wrap">
-      <article class="app-c__row" data-rise>
+      <article class="app-c__row app-c__row--phone" data-rise>
         <LumenViaeWeb.Components.MysteryPainting.picture
           name="sorrowful_carrying"
           sizes="(min-width: 768px) 560px, 100vw"
           class="app-c__row-painting"
           alt=""
+        />
+        <.clip
+          name="c3-beads"
+          alt={@t.clips["c3-beads"]}
+          pause={@t.pause}
+          play={@t.play}
+          class="app-phone--tile app-phone--row"
         />
         <div class="app-c__row-words">
           <p class="app-c__kicker">{@t.rosary_kicker}</p>
@@ -45,12 +51,19 @@
           <p>{@t.rosary_body}</p>
         </div>
       </article>
-      <article class="app-c__row app-c__row--flip" data-rise>
+      <article class="app-c__row app-c__row--flip app-c__row--phone" data-rise>
         <div class="app-c__row-words">
           <p class="app-c__kicker">{@t.chant_kicker}</p>
           <h2 class="app-c__h2">{@t.chant_title}</h2>
           <p>{@t.chant_body}</p>
         </div>
+        <.clip
+          name="c5-chant"
+          alt={@t.clips["c5-chant"]}
+          pause={@t.pause}
+          play={@t.play}
+          class="app-phone--tile app-phone--row"
+        />
         <LumenViaeWeb.Components.MysteryPainting.picture
           name="mary_sistine_madonna"
           sizes="(min-width: 768px) 560px, 100vw"
@@ -81,7 +94,7 @@
           </div>
           <.clip
             :if={i == 0}
-            name="c6-hours"
+            name={Map.get(@t.clip_names, "c6-hours", "c6-hours")}
             alt={@t.clips["c6-hours"]}
             pause={@t.pause}
             play={@t.play}
@@ -89,7 +102,7 @@
           />
           <.clip
             :if={i == 5}
-            name="c7-prayers"
+            name={Map.get(@t.clip_names, "c7-prayers", "c7-prayers")}
             alt={@t.clips["c7-prayers"]}
             pause={@t.pause}
             play={@t.play}

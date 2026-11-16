@@ -2422,6 +2422,35 @@ html:has(#prayer) {
     padding: 2.5rem;
   }
 
+  /* A small phone at each row's inner edge, a third over the painting.
+     Remove the app-c__row--phone class to take the row phones out. */
+  .app-c__row--phone {
+    position: relative;
+    min-height: 23rem;
+  }
+
+  .app-c__row .app-phone--row {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    margin: 0;
+    transform: translate(-33%, -50%);
+  }
+
+  .app-c__row--flip .app-phone.app-phone--row {
+    transform: translate(-67%, -50%);
+  }
+
+  .app-c__row--phone .app-c__row-words {
+    padding-left: 8.5rem;
+  }
+
+  .app-c__row--flip.app-c__row--phone .app-c__row-words {
+    padding-left: 2.5rem;
+    padding-right: 8.5rem;
+  }
+
   /* Six tiles: I and VI wide, each with a phone. */
   .app-c__tiles {
     padding: 4.875rem 0;
@@ -2559,6 +2588,30 @@ html:has(#prayer) {
 
     .app-c__row > picture {
       min-height: 13.75rem;
+    }
+
+    .app-c__row--phone {
+      min-height: 0;
+      padding-bottom: 1.5rem;
+    }
+
+    .app-c__row .app-phone--row,
+    .app-c__row--flip .app-phone.app-phone--row {
+      position: relative;
+      top: auto;
+      left: auto;
+      justify-self: center;
+      margin: -2.5rem 0 0;
+      transform: none;
+    }
+
+    .app-c__row--flip .app-phone.app-phone--row {
+      order: 3;
+    }
+
+    .app-c__row--phone .app-c__row-words,
+    .app-c__row--flip.app-c__row--phone .app-c__row-words {
+      padding: 2.5rem 1.5rem 1.5rem;
     }
 
     .app-c__rows,
