@@ -24,6 +24,7 @@ defmodule LumenViaeWeb.Components.MetaTags do
     assigns = assign(assigns, :m, meta)
 
     ~H"""
+    <meta :if={Map.get(@m, :noindex)} name="robots" content="noindex" />
     <meta name="description" content={@m.description} />
     <link rel="canonical" href={@m.url} />
     <meta property="og:site_name" content={PageMeta.site_name()} />

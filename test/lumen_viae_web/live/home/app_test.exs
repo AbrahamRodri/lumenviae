@@ -12,24 +12,58 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
   @images Path.expand("../../../../priv/static/images/app", __DIR__)
 
   describe "the app page" do
-    test "presents the app with one h1 and its features in order", %{conn: conn} do
+    test "presents the app with one h1, the library's true counts and the six tiles", %{
+      conn: conn
+    } do
       {:ok, view, html} = live(conn, "/app")
       doc = Floki.parse_document!(html)
 
       assert page_title(view) =~ "Lumen Viae for iPhone"
       assert doc |> Floki.find("h1") |> length() == 1
 
-      for feature <- [
-            "Your Rosary Today",
-            "The Scriptural Rosary",
-            "Hours of Prayer and Today&#39;s Mass",
-            "The Chant Library",
-            "Prayers",
-            "Consecration to Mary",
-            "Without a connection"
+      chants = length(LumenViae.Rosary.get_chant_library!(load: [:chants]).chants)
+      prayers = length(LumenViae.Rosary.get_prayer_book!(load: [:prayers]).prayers)
+      proof = doc |> Floki.find("[data-role=proof]") |> Floki.text()
+      assert proof =~ "#{chants} chants"
+      assert proof =~ "#{prayers} prayers"
+
+      for tile <- [
+            "Hours of Prayer",
+            "Today&#39;s Mass",
+            "Novenas",
+            "Consecration",
+            "Offline",
+            "No account"
           ] do
-        assert html =~ feature
+        assert html =~ tile
       end
+
+      refute html =~ ~s(name="robots")
+    end
+
+    test "?lang=es is the page in Spanish, kept out of search engines", %{conn: conn} do
+      html = conn |> get("/app?lang=es") |> html_response(200)
+      doc = Floki.parse_document!(html)
+
+      assert doc |> Floki.find("h1") |> Floki.text() =~ "El Rosario, rezado dondequiera que estés"
+
+      assert doc |> Floki.find(~s(meta[name="robots"])) |> Floki.attribute("content") == [
+               "noindex"
+             ]
+
+      assert html =~ "Ciento cuatro cantos" or html =~ "cantos, para oír y aprender"
+      assert html =~ "en latín e inglés"
+    end
+
+    test "the counts are spelled as words where a heading says them" do
+      alias LumenViaeWeb.Live.Home.App.Words
+
+      assert Words.spell_en(104) == "a hundred and four"
+      assert Words.spell_en(250) == "two hundred and fifty"
+      assert Words.spell_en(21) == "twenty-one"
+      assert Words.spell_es(104) == "ciento cuatro"
+      assert Words.spell_es(100) == "cien"
+      assert Words.spell_es(235) == "doscientos treinta y cinco"
     end
 
     test "every download button goes to the App Store listing", %{conn: conn} do
@@ -59,29 +93,30 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
                "Download_on_the_App_Store_Badge_US-UK_RGB_blk"
     end
 
-    test "every screenshot has alt text, a size and its files", %{conn: conn} do
+    # Each phone is its clip once recorded, else its still; either way it
+    # says what it shows and its files exist.
+    test "every phone says what it shows, and its files exist", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/app")
-      doc = Floki.parse_document!(html)
+      phones = html |> Floki.parse_document!() |> Floki.find(".app-phone")
 
-      images =
-        doc
-        |> Floki.find("main img, #app-page img")
-        |> Enum.reject(&(Floki.attribute(&1, "src") |> hd() =~ "app-store-badge"))
+      assert length(phones) == 3
 
-      assert length(images) >= 10
+      for phone <- phones do
+        case Floki.find(phone, "video") do
+          [video] ->
+            [label] = Floki.attribute(video, "aria-label")
+            assert String.length(label) > 20
+            assert video |> Floki.attribute("muted") != []
+            [src] = phone |> Floki.find("source") |> Floki.attribute("src")
+            assert File.exists?(Path.join("priv/static", src))
 
-      for img <- images do
-        [src] = Floki.attribute(img, "src")
-        [alt] = Floki.attribute(img, "alt")
-
-        assert String.length(alt) > 20, "#{src} has no description"
-        assert Floki.attribute(img, "width") == ["390"]
-        assert Floki.attribute(img, "height") == ["848"]
-
-        name = src |> Path.basename(".jpg")
-        assert File.exists?(Path.join(@images, "#{name}.jpg"))
-        assert File.exists?(Path.join(@images, "#{name}-390.webp"))
-        assert File.exists?(Path.join(@images, "#{name}-780.webp"))
+          [] ->
+            [img] = Floki.find(phone, "img")
+            [alt] = Floki.attribute(img, "alt")
+            [src] = Floki.attribute(img, "src")
+            assert String.length(alt) > 20
+            assert File.exists?(Path.join("priv/static", src))
+        end
       end
     end
 

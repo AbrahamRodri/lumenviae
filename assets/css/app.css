@@ -103,6 +103,12 @@
   --color-night-raised: #151521;
   --color-night-elevated: #1E1E2E;
 
+  /* Midnight, the app's own theme (its AppIconMidnight): night lifted
+     toward indigo. Only the app page (/app) uses these. */
+  --color-midnight-indigo: #2B2556;
+  --color-midnight-mid: #15142C;
+  --color-midnight-tile: #1A1935;
+
   /* Rules, in the app's gold at opacity, flattened onto night.
      night-border is a decorative hairline only (gold at 20%, 1.5:1); a
      border that marks a control (a chip, a field, an outline button) is
@@ -2216,37 +2222,333 @@ html:has(#prayer) {
 }
 /* === end woodcut plates === */
 
-/* === the app page's phones === */
-/* LumenViaeWeb.Live.Home.App.PhoneScreen: a real screenshot in a phone
-   drawn here, not a device photograph. The radii are percentages of the
-   frame's own width and height (horizontal / vertical), so the corners
-   keep their shape at any width. */
+/* === the app page (/app) === */
+/* Design's direction C in Midnight: a painting leads with one phone, two
+   painting-and-words rows, six tiles (two with a phone), the closing call.
+   Each phone is LumenViaeWeb.Live.Home.App.Clip: the app's screen in a
+   phone drawn here, never a device photograph. */
 @layer components {
-  .phone-frame {
-    position: relative;
-    padding: 3.2%;
-    border-radius: 15% / 7%;
-    background: linear-gradient(
-      160deg,
-      var(--color-night-border) 0%,
-      var(--color-night-deep) 45%,
-      var(--color-night-raised) 100%
-    );
-    box-shadow:
-      0 0 0 1px color-mix(in srgb, var(--color-night-line) 45%, transparent),
-      0 30px 60px -20px rgba(3, 7, 18, 0.8),
-      0 18px 40px -24px color-mix(in srgb, var(--color-gilt) 25%, transparent);
+  .app-c {
+    color: var(--color-ink-light);
+    font-family: var(--font-garamond);
+    font-size: 1.1875rem;
+    line-height: 1.5;
   }
 
-  .phone-frame__screen {
+  .app-c__wrap {
+    max-width: 70rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .app-c__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--color-gilt);
+  }
+
+  .app-c__h1 {
+    margin: 1rem 0 1.125rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.0625rem, 6.2vw, 4.25rem);
+    line-height: 1.06;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  .app-c__h2 {
+    margin: 0.625rem 0 0.75rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.625rem);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  .app-c__h3 {
+    margin: 0 0 0.375rem;
+    font-family: var(--font-display);
+    font-size: 1.3125rem;
+    line-height: 1.2;
+  }
+
+  .app-c p {
+    max-width: 34em;
+  }
+
+  /* The head: the Annunciation behind, darkened toward the words. */
+  .app-c__hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 43.75rem;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .app-c__hero-painting {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 18%;
+  }
+
+  .app-c__hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(100deg, color-mix(in srgb, var(--color-night) 92%, transparent) 0%, color-mix(in srgb, var(--color-midnight-mid) 72%, transparent) 45%, color-mix(in srgb, var(--color-midnight-indigo) 15%, transparent) 100%),
+      linear-gradient(to bottom, transparent 60%, var(--color-night));
+  }
+
+  .app-c__hero-inner {
+    display: flex;
+    align-items: flex-end;
+    gap: 3.125rem;
+    width: 100%;
+    padding-bottom: 3.75rem;
+  }
+
+  .app-c__hero-words {
+    flex: 1;
+    min-width: 0;
+    padding-bottom: 1.875rem;
+  }
+
+  .app-badge {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  .app-badge__free {
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--color-gilt-light);
+  }
+
+  .app-c__proof {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.625rem 2.125rem;
+    padding: 1.375rem 1.5rem;
+    border-block: 1px solid color-mix(in srgb, var(--color-gilt) 18%, transparent);
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-gilt-light);
+  }
+
+  /* Two painting-and-words rows. */
+  .app-c__rows {
+    padding: 3.75rem 0;
+  }
+
+  .app-c__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 1.375rem;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background: var(--color-midnight-tile);
+  }
+
+  /* The painting fills its half; the words set the row's height. */
+  .app-c__row > picture {
+    position: relative;
+    display: block;
+    min-height: 18.75rem;
+  }
+
+  .app-c__row-painting {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 25%;
+  }
+
+  .app-c__row-words {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2.5rem;
+  }
+
+  /* Six tiles: I and VI wide, each with a phone. */
+  .app-c__tiles {
+    padding: 4.875rem 0;
+  }
+
+  .app-c__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.875rem;
+    margin-top: 1.875rem;
+  }
+
+  .app-c__tile {
+    display: flex;
+    flex-direction: column;
+    min-height: 9.375rem;
+    padding: 1.375rem;
+    border-radius: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-gilt) 14%, transparent);
+    background: var(--color-midnight-tile);
+  }
+
+  .app-c__tile p {
+    margin: 0;
+    font-size: 1.0625rem;
+    color: var(--color-ink-muted);
+  }
+
+  .app-c__tile--wide {
+    grid-column: span 2;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.25rem;
+    padding-right: 0;
+    overflow: hidden;
+  }
+
+  .app-c__tile-words {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .app-c__numeral {
+    display: grid;
+    place-items: center;
+    width: 1.875rem;
+    height: 1.875rem;
+    margin-bottom: 0.875rem;
+    border-radius: 9999px;
+    box-shadow: inset 0 0 0 1px var(--color-gilt);
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    color: var(--color-gilt-light);
+  }
+
+  .app-c__close {
+    padding: 5.625rem 1.5rem 6.25rem;
+    text-align: center;
+    background: radial-gradient(90% 70% at 50% 0%, var(--color-midnight-indigo) 0%, var(--color-midnight-mid) 55%, var(--color-night) 100%);
+  }
+
+  .app-c__close p {
+    margin: 0 auto 1.375rem;
+  }
+
+  /* A phone: the app's screen, a thin bezel and a gold hairline. */
+  .app-phone {
+    position: relative;
+    flex: none;
+    width: 16.875rem;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 2.5rem;
+    background: var(--color-night-deep);
+    box-shadow:
+      0 0 0 7px var(--color-midnight-mid),
+      0 0 0 8px color-mix(in srgb, var(--color-gilt) 45%, transparent),
+      0 30px 80px color-mix(in srgb, var(--color-midnight-indigo) 80%, transparent);
+  }
+
+  .app-phone__screen {
     display: block;
     width: 100%;
     height: auto;
-    border-radius: 12.5% / 5.8%;
-    background: var(--color-night-deep);
+    aspect-ratio: 390 / 848;
+    object-fit: cover;
+  }
+
+  .app-phone--tile {
+    width: 9.375rem;
+    margin: 0 1.375rem -4.375rem auto;
+    border-radius: 1.375rem;
+    box-shadow:
+      0 0 0 5px var(--color-midnight-mid),
+      0 0 0 6px color-mix(in srgb, var(--color-gilt) 40%, transparent);
+  }
+
+  .app-phone__toggle {
+    position: absolute;
+    left: 0.625rem;
+    top: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--color-night) 78%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-gilt) 60%, transparent);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-gilt-light);
+    cursor: pointer;
+  }
+
+  .app-phone__toggle:focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 47.5em) {
+    .app-c__hero {
+      min-height: 0;
+      padding-top: 13.75rem;
+    }
+
+    .app-c__hero-inner {
+      flex-direction: column;
+      align-items: center;
+      gap: 1.875rem;
+    }
+
+    .app-c__row {
+      grid-template-columns: 1fr;
+    }
+
+    .app-c__row > picture {
+      min-height: 13.75rem;
+    }
+
+    .app-c__rows,
+    .app-c__tiles {
+      padding: 3.125rem 0;
+    }
+
+    .app-c__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .app-c__tile {
+      padding: 1rem;
+    }
+
+    .app-c__tile .app-c__h3 {
+      font-size: 1rem;
+      overflow-wrap: anywhere;
+    }
+
+    .app-phone--tile {
+      width: 6.875rem;
+      margin-right: 0.875rem;
+    }
   }
 }
-/* === end the app page's phones === */
+/* === end the app page === */
 
 /* === the Prayer Book (/prayers) ===
    The Prayers pages as the app's Prayers tab draws them: the search
