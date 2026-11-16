@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-16T23:30:00Z",
+  "updated_at": "2026-11-16T23:45:00Z",
   "prayers": {
     "nicene_creed": {
       "title": "Credo Niceno-Constantinopolitano",
@@ -89,8 +89,7 @@
     "jesus_prayer": {
       "title": "Señor Jesucristo, Hijo de Dios",
       "origin": "Los Padres del desierto, a partir de Lucas 18, 13 · según el Catecismo de la Iglesia Católica, núm. 2667",
-      "text": "Señor Jesucristo, Hijo de Dios,\nten piedad de nosotros, pecadores.",
-      "short_credit": "Los Padres del desierto · según el Catecismo de la Iglesia Católica"
+      "text": "Señor Jesucristo, Hijo de Dios,\nten piedad de nosotros, pecadores."
     },
     "litany_sacred_heart": {
       "title": "Letanías al Sagrado Corazón de Jesús",
@@ -230,8 +229,7 @@
     "alma_redemptoris": {
       "title": "Madre del Redentor",
       "origin": "Atribuida a Hermann de Reichenau, siglo XI · según Juan Pablo II (1995) y el Misal de Lefebvre (1962)",
-      "text": "Madre del Redentor, Virgen fecunda, puerta del cielo siempre abierta,\nestrella del mar, ven a librar al pueblo que cae y se quiere levantar.\nAnte el asombro de cielo y tierra, engendraste a tu santo Creador\ny permaneces siempre virgen.\nRecibe el saludo del ángel Gabriel\ny ten piedad de nosotros, pecadores.\n\n[Durante el Adviento.]\n\n℣. El ángel del Señor anunció a María.\n℟. Y concibió por obra del Espíritu Santo.\n\n[Oración.]\n\nTe suplicamos, Señor, infundas tu gracia en nuestras almas, para que los que hemos conocido por el anuncio del ángel la encarnación de Jesucristo, tu Hijo, consigamos por su Pasión y su cruz participar de la gloria de la resurrección. Por el mismo Cristo, Señor nuestro.\n\n℟. Amén.\n\n[Desde el día de la Natividad hasta el de la Purificación.]\n\n℣. Después del parto, oh Virgen, has permanecido inmaculada.\n℟. Madre de Dios, intercede por nosotros.\n\n[Oración.]\n\n¡Oh Dios!, que por la fecunda virginidad de la bienaventurada siempre Virgen María has concedido al género humano los bienes de la salvación eterna, haznos sentir la intercesión de aquella, por quien hemos merecido recibir al autor de la vida, Jesucristo, tu Hijo y Señor nuestro.\n\n℟. Amén.",
-      "short_credit": "Atribuida a Hermann de Reichenau, siglo XI · según Juan Pablo II y el Misal de Lefebvre"
+      "text": "Madre del Redentor, Virgen fecunda, puerta del cielo siempre abierta,\nestrella del mar, ven a librar al pueblo que cae y se quiere levantar.\nAnte el asombro de cielo y tierra, engendraste a tu santo Creador\ny permaneces siempre virgen.\nRecibe el saludo del ángel Gabriel\ny ten piedad de nosotros, pecadores.\n\n[Durante el Adviento.]\n\n℣. El ángel del Señor anunció a María.\n℟. Y concibió por obra del Espíritu Santo.\n\n[Oración.]\n\nTe suplicamos, Señor, infundas tu gracia en nuestras almas, para que los que hemos conocido por el anuncio del ángel la encarnación de Jesucristo, tu Hijo, consigamos por su Pasión y su cruz participar de la gloria de la resurrección. Por el mismo Cristo, Señor nuestro.\n\n℟. Amén.\n\n[Desde el día de la Natividad hasta el de la Purificación.]\n\n℣. Después del parto, oh Virgen, has permanecido inmaculada.\n℟. Madre de Dios, intercede por nosotros.\n\n[Oración.]\n\n¡Oh Dios!, que por la fecunda virginidad de la bienaventurada siempre Virgen María has concedido al género humano los bienes de la salvación eterna, haznos sentir la intercesión de aquella, por quien hemos merecido recibir al autor de la vida, Jesucristo, tu Hijo y Señor nuestro.\n\n℟. Amén."
     },
     "litany_st_joseph": {
       "title": "Letanías en honor de San José",
@@ -329,8 +327,7 @@
       "title": "Oración para irradiar a Cristo",
       "origin": "A partir de san John Henry Newman, siglo XIX, como la rezan las Misioneras de la Caridad · traducción del equipo",
       "text": "Amado Jesús, ayúdame a esparcir tu fragancia dondequiera que vaya.\n\nLlena mi alma de tu espíritu y de tu vida. Entra en todo mi ser y apodérate de él tan por completo que mi vida no sea más que un resplandor de la tuya.\n\nBrilla a través de mí y habita en mí de tal manera que cada alma con la que me encuentre sienta tu presencia en la mía. Que me miren y ya no me vean a mí, sino solo a Jesús.\n\nQuédate conmigo, y entonces empezaré a brillar como tú brillas, a brillar de tal modo que sea luz para los demás. La luz, oh Jesús, vendrá toda de ti; nada de ella será mía. Serás tú quien brille sobre los demás a través de mí.\n\nQue así te alabe de la manera que más te agrada, brillando sobre los que me rodean. Que te predique sin predicar, no con palabras sino con mi ejemplo, con la fuerza que atrae y la influencia bondadosa de lo que hago, con la evidente plenitud del amor que mi corazón te tiene. Amén.",
-      "ai_translated": true,
-      "short_credit": "A partir de san John Henry Newman · traducción del equipo"
+      "ai_translated": true
     },
     "flos_carmeli": {
       "title": "Flor del Carmelo",
@@ -342,8 +339,7 @@
       "title": "Las tres Ave Marías",
       "origin": "Santa Matilde de Hackeborn, siglo XIII · san Alfonso María de Ligorio, siglo XVIII · traducción del equipo",
       "text": "[Tres Ave Marías, en honor del poder que Dios Padre dio a Nuestra Señora, de la sabiduría que le dio Dios Hijo y del amor que le dio Dios Espíritu Santo.]\n\n[La primera, en honor del poder del Padre.]\n\nDios te salve, María, llena eres de gracia; el Señor es contigo.\nBendita Tú eres entre todas las mujeres,\ny bendito es el fruto de tu vientre, Jesús.\nSanta María, Madre de Dios,\nruega por nosotros, pecadores,\nahora y en la hora de nuestra muerte. Amén.\n\nPor tu pura e Inmaculada Concepción, oh María,\nhaz puro mi cuerpo y santa mi alma.\n\n[La segunda, en honor de la sabiduría del Hijo.]\n\nDios te salve, María, llena eres de gracia; el Señor es contigo.\nBendita Tú eres entre todas las mujeres,\ny bendito es el fruto de tu vientre, Jesús.\nSanta María, Madre de Dios,\nruega por nosotros, pecadores,\nahora y en la hora de nuestra muerte. Amén.\n\nPor tu pura e Inmaculada Concepción, oh María,\nhaz puro mi cuerpo y santa mi alma.\n\n[La tercera, en honor del amor del Espíritu Santo.]\n\nDios te salve, María, llena eres de gracia; el Señor es contigo.\nBendita Tú eres entre todas las mujeres,\ny bendito es el fruto de tu vientre, Jesús.\nSanta María, Madre de Dios,\nruega por nosotros, pecadores,\nahora y en la hora de nuestra muerte. Amén.\n\nPor tu pura e Inmaculada Concepción, oh María,\nhaz puro mi cuerpo y santa mi alma.\n\nOh Madre mía, líbrame de pecado mortal en este día.\n\n[Por la noche: en esta noche.]",
-      "ai_translated": true,
-      "short_credit": "Santa Matilde de Hackeborn, siglo XIII · traducción del equipo"
+      "ai_translated": true
     },
     "our_lady_of_lourdes": {
       "title": "Oración a Nuestra Señora de Lourdes",
@@ -436,8 +432,7 @@
       "title": "Acción de gracias después de la Confesión",
       "origin": "A partir del Garden of the Soul del obispo Challoner · The Catholic's Vade Mecum, Londres, 1851 · traducción del equipo",
       "text": "[Si la penitencia impuesta es una oración, rézala primero, antes que ninguna otra cosa.]\n\nOh Dios todopoderoso y misericordiosísimo, que según la multitud de tus misericordias te has dignado recibirme una vez más, después de haberme apartado de ti tantas veces, y admitirme a la gracia de la reconciliación: te doy gracias con todas las potencias de mi alma por esta y por todas las misericordias, gracias y beneficios que me has concedido; y, postrándome a tus sagrados pies, me ofrezco a ser tuyo desde ahora y para siempre.\n\nQue nada, ni en la vida ni en la muerte, me separe jamás de ti. Renuncio con toda mi alma a todas mis traiciones contra ti y a todos los pecados de mi vida pasada; renuevo las promesas que se hicieron por mí en el Bautismo, y desde este momento me consagro para siempre a tu amor y a tu servicio.\n\nConcédeme que en adelante aborrezca el pecado más que la muerte misma, y que evite todas las ocasiones y compañías que por desgracia me han llevado a él. Esto me propongo hacer con la ayuda de tu divina gracia, sin la cual nada puedo. Suple con tu misericordia todo lo que haya faltado a esta confesión mía, y dame la gracia de ser, ahora y siempre, un verdadero penitente. Por Jesucristo nuestro Señor. Amén.",
-      "ai_translated": true,
-      "short_credit": "A partir del obispo Challoner · traducción del equipo"
+      "ai_translated": true
     },
     "litany_blessed_sacrament": {
       "title": "Letanías del Santísimo Sacramento",
@@ -1968,8 +1963,5 @@
         "viaje"
       ]
     }
-  },
-  "rosary_short_credits": {
-    "memorare": "Atribuida a san Bernardo de Claraval · según el Compendio del Catecismo"
   }
 }

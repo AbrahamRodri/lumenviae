@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-16 23:30:00Z], "dd44e470d9616fec"}
+  @pinned {~U[2026-11-16 23:45:00Z], "d1ad621476235dd9"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -227,10 +227,17 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
            } =
              Enum.find(Spanish.prayers(), &(&1.id == "st_joseph_novena"))
 
-    assert %{
-             short_credit:
-               "Atribuida a san Bernardo de Claraval · según el Compendio del Catecismo"
-           } =
-             Enum.find(Spanish.prayers(), &(&1.id == "memorare"))
+    refute Map.has_key?(spanish["memorare"], :short_credit)
+  end
+
+  # design, 16 Nov 2026: the two languages of one prayer match. A Spanish
+  # credit stands under the title only where the English one does.
+  test "a Spanish short credit only where the English twin has one" do
+    english =
+      Map.new(LumenViae.Rosary.Library.sections(:prayer_book)["prayers"], &{&1["id"], &1})
+
+    for prayer <- Spanish.prayers(), Map.has_key?(prayer, :short_credit), english[prayer.id] do
+      assert english[prayer.id]["short_credit"], "#{prayer.id} is credited in Spanish only"
+    end
   end
 end

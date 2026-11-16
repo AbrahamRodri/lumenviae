@@ -774,11 +774,12 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   one (today every Spanish prayer has it; the Rosary's own prayers take
   theirs from the file's `rosary_origins`, their words staying
   `priv/rosary_content/es/prayers.json`'s). Where the prayer's
-  author is named, the entry also carries **`short_credit`** (15 Nov
-  2026; author only since 16 Nov 2026), the Spanish short credit to show
-  under the title, with `origin` at the foot, as the English
-  `short_credit` does (a Rosary prayer's from the file's
-  `rosary_short_credits`); the key is absent otherwise. A client still shows the English for a prayer it does not
+  author is named and its English twin carries a `short_credit` too, the
+  entry also carries **`short_credit`** (15 Nov 2026; author only, and
+  matching the English, since 16 Nov 2026), the Spanish short credit to
+  show under the title, with `origin` at the foot, as the English
+  `short_credit` does (a Rosary prayer's would come from the file's
+  `rosary_short_credits`, empty today); the key is absent otherwise. A client still shows the English for a prayer it does not
   find listed. Every other section is
   unchanged, English and Latin: a client lays the Spanish over the
   English by `id`.
