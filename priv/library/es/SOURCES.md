@@ -933,6 +933,20 @@ translators', and so do their old names and forms ("Jesu-Cristo",
   - [S3] the OCR's misreadings, from the page images, and the printer's
     turned letters ("de reducen" to "se reducen"). Kept as printed:
     "Santos muy esclavos" and "no da fruta".
+- Read again against the page images (product-research, 16 Nov 2026):
+  day 1's Matthew 5:12 drops the ":—" after "grande", which is in the
+  Wikisource transcription but not on the printed page (Torres Amat,
+  tomo XIII, p. 35); day 33 keeps the print's "por ella entró en la
+  segunda" and "Este paraíso es el en que" (1885, pp. 188-189); the Act
+  keeps "la Sabiduría eterna escondida quiere ser adorada" as printed
+  (1885, p. 198; Montfort's own "cachée veut être adorée", not a broken
+  phrase); day 34's "explicando el Magnificat," has the print's comma
+  (1885, p. 183); "todos los días; renovar" keeps the print's semicolon
+  (p. 169).
+- Day 34, reading 2: the Third Practice is given as in the English, its
+  first paragraph from 1885, p. 170 ("Tercera práctica. Es muy laudable,
+  muy glorioso, ... benditas con particular bendición."), the footnote
+  mark left out.
 - Day 33, reading 2: the 1885 edition runs from the end of paragraph
   264, point 3 ("los que obran en Ella no pecan,") straight into the
   second half of 265 ("es menester atraer á todo el mundo"), with no page
@@ -965,7 +979,7 @@ French, not from these English versions:
 
 | Prayer (`id`) | Source |
 |---|---|
-| `act_of_consecration` | [S3], the end of the Treatise, `ai_translated`: two lines the 1885 edition does not print are the team's translation ("no he guardado las promesas que tan solemnemente os hice en mi Bautismo;" and "Os saludo, oh Reina del cielo y de la tierra, a cuyo imperio está sometido todo lo que está debajo de Dios."). "N." is put for the printed "N......." as in the Prayer Book. Kept in vos, the edition's own form. Phrases broken in the print, mended: the opening exclamation closed ("siempre Virgen! Os adoro"); "no os he cumplido mis deberes" to "no he cumplido mis deberes"; "la Sabiduría eterna escondida quiere ser adorada" to "la Sabiduría eterna quiso estar escondida y ser adorada"; "para en adelante" to "en adelante"; "sobre tierra" to "sobre la tierra"; "por que os habéis sometido" to "porque os habéis sometido" |
+| `act_of_consecration` | [S3], the end of the Treatise, `ai_translated`: two lines the 1885 edition does not print are the team's translation ("no he guardado las promesas que tan solemnemente os hice en mi Bautismo;" and "Os saludo, oh Reina del cielo y de la tierra, a cuyo imperio está sometido todo lo que está debajo de Dios."). "N." is put for the printed "N......." as in the Prayer Book. Kept in vos, the edition's own form. Phrases broken in the print, mended: the opening exclamation closed ("siempre Virgen! Os adoro"); "no os he cumplido mis deberes" to "no he cumplido mis deberes"; "para en adelante" to "en adelante"; "sobre tierra" to "sobre la tierra"; "por que os habéis sometido" to "porque os habéis sometido" |
 | `st_louis_prayer_mary` | the team's translation, `ai_translated`. It is from *The Secret of Mary*; the only old Spanish found (P. Nazario Pérez SJ, died 1952) is under copyright |
 | `st_louis_prayer_jesus` | the team's translation, `ai_translated`, for the same reason |
 | `rosary` | the team's translation of the app's rubric, `ai_translated`, with the app's Spanish names "Inicio" and "Rezar" |
