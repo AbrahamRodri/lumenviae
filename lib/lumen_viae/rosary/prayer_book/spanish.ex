@@ -57,22 +57,17 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
           "priv/library/es/prayer_book.json: rosary_origins holds #{inspect(id)}; it holds only Rosary prayer ids, each with a line of text"
   end
 
-  # A short credit for a Rosary prayer whose Spanish origin above runs
-  # over 100 characters, as `short_credit` is for the file's own prayers.
+  # A short credit for a Rosary prayer, under its title, as `short_credit`
+  # is for the file's own prayers: only where it names the author, and only
+  # where the English does too (none today, so the key is absent).
   @rosary_short_credits Map.get(file, "rosary_short_credits", %{})
 
-  for {id, origin} <- @rosary_origins do
-    Map.has_key?(@rosary_short_credits, id) == String.length(origin) > 100 ||
-      raise CompileError,
-        description:
-          "priv/library/es/prayer_book.json: the Rosary prayer #{id} has a rosary_short_credits line exactly when its rosary_origins line runs over 100 characters"
-  end
-
   for {id, credit} <- @rosary_short_credits do
-    (Map.has_key?(@rosary_origins, id) and is_binary(credit) and String.trim(credit) != "") ||
+    (Map.has_key?(@rosary_origins, id) and is_binary(credit) and String.trim(credit) != "" and
+       String.length(credit) < String.length(@rosary_origins[id])) ||
       raise CompileError,
         description:
-          "priv/library/es/prayer_book.json: rosary_short_credits holds #{inspect(id)}; it holds only ids in rosary_origins, each with a line of text"
+          "priv/library/es/prayer_book.json: rosary_short_credits holds #{inspect(id)}; it holds only ids in rosary_origins, each with a line shorter than its origin"
   end
 
   for {id, prayer} <- @file_prayers do
@@ -102,14 +97,14 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
           description:
             "priv/library/es/prayer_book.json: #{id} holds a title, a text, \"ai_translated\", an \"origin\" (where it comes from, in Spanish) and a \"short_credit\" only"
 
-      # As in English: a short credit stands under the title where the
-      # origin is a long citation (over 100 characters), and only there.
-      Map.has_key?(prayer, "short_credit") !=
-        String.length(prayer["origin"] || "") > 100 or
-          not match?(c when is_nil(c) or (is_binary(c) and c != ""), prayer["short_credit"]) ->
+      # As in English: a short credit names the prayer's author, for under
+      # the title, and is shorter than the origin it stands for.
+      Map.has_key?(prayer, "short_credit") and
+          (not match?(c when is_binary(c) and c != "", prayer["short_credit"]) or
+             String.length(prayer["short_credit"]) >= String.length(prayer["origin"] || "")) ->
         raise CompileError,
           description:
-            "priv/library/es/prayer_book.json: #{id} has a \"short_credit\" exactly when its origin runs over 100 characters"
+            "priv/library/es/prayer_book.json: #{id} has a \"short_credit\" with no origin, or one no shorter than its origin"
 
       true ->
         :ok
@@ -271,7 +266,7 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
   Every prayer the book prints that has Spanish, in the book's order, each
   `%{id:, title:, text:}` plus `ai_translated: true` where part of it is
   the team's translation, `origin:` where the file says in Spanish
-  where it comes from, and `short_credit:` where that origin is long.
+  where it comes from, and `short_credit:` where the origin names an author.
   """
   @spec prayers() :: [map]
   def prayers do

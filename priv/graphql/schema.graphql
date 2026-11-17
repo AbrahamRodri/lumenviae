@@ -917,7 +917,7 @@ type BookPrayerTranslation {
   "Its words in this language, in the same PrayerText grammar as `english`. Its lines need not pair with the English or the Latin."
   text: String!
 
-  "Where this language's `origin` is a long citation (over 100 characters): the short credit to show under the title, with `origin` in full at the foot, as the prayer's own `short_credit`. Absent otherwise."
+  "This language's short credit to show under the title, as the prayer's own `short_credit`: present only where the prayer's English carries one. Absent otherwise. `origin` shows at the foot where the prayer's `origin_credit` is true."
   shortCredit: String
 
   "Where it comes from, in this language, standing in place of the prayer's `origin`. Absent where there is none yet: a client then shows no origin rather than the English one."
@@ -1011,11 +1011,14 @@ type BookPrayer {
   "The prayer's title on its own page."
   title: String!
 
-  "Where `origin` is a long book citation: the short credit (author, then publisher) to show under the title, with `origin` in full at the foot of the page. Null where `origin` is short enough to stand under the title itself."
+  "The prayer's author, to show under the title, or null. Present only where it names the author (a person, an order, or a traditional attribution), never a publisher or a collection alone."
   shortCredit: String
 
   "Other names it is looked for by, beside its titles. Empty when none."
   searchWords: [String!]!
+
+  "Whether `origin` is a credit owed (it names an author, a book the prayer is taken from or a publisher): show `origin` at the foot of the prayer's page only when true. False where it is only a tradition and a century (`Western Church · 13th–16th century`), which the page leaves out."
+  originCredit: Boolean!
 
   "Who wrote it and when, as a prayer book's small print, or null."
   origin: String

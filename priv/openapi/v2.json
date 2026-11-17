@@ -2752,6 +2752,9 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "origin_credit": {
+                      "type": "boolean"
+                    },
                     "search_words": {
                       "items": {
                         "type": "string"
@@ -2769,6 +2772,7 @@
                   "required": [
                     "id",
                     "title",
+                    "origin_credit",
                     "english",
                     "search_words"
                   ],
