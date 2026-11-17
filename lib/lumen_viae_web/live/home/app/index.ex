@@ -1,218 +1,87 @@
 defmodule LumenViaeWeb.Live.Home.App.Index do
   @moduledoc """
-  The iPhone app's landing page, at `/app`.
+  The iPhone app's landing page, at `/app`: design's direction C (Abraham,
+  16 Nov 2026: "i like c the best"), in the Midnight colours. A painting
+  leads with one phone, two painting-and-words rows follow, then six tiles
+  and the closing call.
 
-  Every screen on it is a real screenshot of the app (4.0, the Marian Blue
-  theme, the site's own colours) in `priv/static/images/app/`, and every
-  feature is named as the app names it. When the app changes, retake the
-  screenshot rather than describing a screen it no longer has; see
-  docs/PUBLIC_SITE.md.
+  Every phone is the app itself in its Midnight theme: a short silent loop
+  where its clip is in `priv/static/images/app/clips/`, else its still
+  (`LumenViaeWeb.Live.Home.App.Clip`). The counts are the library's own,
+  read when the page mounts, so they stay true.
+
+  `?lang=es` is the page in Spanish, linked from nowhere yet and kept out
+  of search engines until it is. See docs/PUBLIC_SITE.md, "The app page".
   """
   use LumenViaeWeb, :live_view
 
+  alias LumenViae.Rosary
+  alias LumenViaeWeb.Live.Home.App.Words
   alias LumenViaeWeb.PageMeta
 
-  import LumenViaeWeb.Live.Home.App.PhoneScreen
-
-  @hero %{
-    name: "home",
-    alt:
-      "The app's home page on a Wednesday: the Glorious Mysteries under a painting of the Resurrection, a Pray the Rosary button, and the Rosary Mysteries below."
-  }
-
-  @features [
-    %{
-      id: "your-rosary-today",
-      kicker: "Your Rosary Today",
-      title: "Three ways to pray, chosen on one page",
-      body: [
-        "Pick the mysteries, then the way to pray them: with a meditation from the saints between the decades, as the Scriptural Rosary with a verse for every Hail Mary, or as the Audio Rosary.",
-        "Before you begin, one page confirms two choices. Audio: the meditation alone, or the whole Rosary read to you. Counting: on the screen, or on your own rosary."
-      ],
-      screen: %{
-        name: "confirm",
-        alt:
-          "Your Rosary Today for Blessed Fulton J. Sheen's meditations on the Glorious Mysteries, with Audio set to Meditation Only, Counting set to On the Screen, and a Pray button."
-      }
-    },
-    %{
-      id: "meditations",
-      kicker: "Meditations",
-      title: "The saints' meditations, read to you",
-      body: [
-        "Each mystery is set under its painting, and you hear its meditation in the voice you choose, at a speed you set. The text is a tap away.",
-        "Meditation sets come from St. Alphonsus Liguori, St. John Henry Newman, Blessed Anne Catherine Emmerich, Blessed Fulton J. Sheen and others, and new sets arrive without an update."
-      ],
-      screen: %{
-        name: "player",
-        alt:
-          "The First Glorious Mystery, the Resurrection, under a painting of the risen Christ, with the play and skip controls of its narrated meditation."
-      }
-    },
-    %{
-      id: "beads",
-      kicker: "The Scriptural Rosary",
-      title: "A strand of beads beside every prayer",
-      body: [
-        "The whole Rosary hangs as one strand of beads at the edge of the screen. Swipe down a bead at a time, and the decade turns on its own at the next Our Father.",
-        "In the Scriptural Rosary a verse of the Douay-Rheims stands beside every Hail Mary: 249 verses, all kept in the app."
-      ],
-      screen: %{
-        name: "scriptural",
-        alt:
-          "The Scriptural Rosary on the third Hail Mary of the Resurrection, showing Matthew 28:5 beside a strand of gold beads."
-      }
-    },
-    %{
-      id: "hours",
-      kicker: "Hours of Prayer and Today's Mass",
-      title: "The Church's day, hour by hour",
-      body: [
-        "The Hours of Prayer are the Divine Office under the 1960 rubrics: eight hours in plain names, from the Night Vigil to Bedtime Prayer, opening on the hour it is now.",
-        "Today's Mass is the Daily Missal, the 1962 propers for any day, in Latin, English or both, with the whole Ordinary or the propers alone."
-      ],
-      screen: %{
-        name: "hours",
-        alt:
-          "Hours of Prayer on the feast of Our Lady of the Rosary, with Evening Prayer as the prayer for now and the day's hours listed below it."
-      }
-    },
-    %{
-      id: "chant",
-      kicker: "The Chant Library",
-      title: "A hundred and four chants, to hear and to learn",
-      body: [
-        "Each chant has its recording, its score and its words in Latin and English, timed line by line and kept on the phone. Find them by Today, Seasons, Occasions, Types, Learn and Saved.",
-        "Learn this chant teaches one in four steps: Listen, Read along, Sing along, On your own."
-      ],
-      screen: %{
-        name: "chants",
-        alt:
-          "The Chant Library's page for today: at evening, Mary's song, the Magnificat, on an arc of the day from the Angelus to the Salve Regina."
-      }
-    },
-    %{
-      id: "prayers",
-      kicker: "Prayers",
-      title: "A prayer book of more than 150 prayers",
-      body: [
-        "The Church's common prayers in English and, where the Church prays in Latin, in Latin too: the prayer for this time of day, prayers for Mass, Confession, home and need, and twelve chapters of all the rest.",
-        "Pray an order such as Morning Prayers, the Angelus or Night Prayers one prayer at a time, in silence or aloud, and learn a prayer by heart in four steps."
-      ],
-      screen: %{
-        name: "prayers",
-        alt:
-          "The Prayers tab in the evening, with the Angelus under a painting of the Annunciation and a button to pray it."
-      }
-    }
-  ]
-
-  @also [
-    %{
-      title: "The meditation as text",
-      body: "Read the meditation instead of hearing it, and tap on to the first Hail Mary.",
-      screen: %{
-        name: "reader",
-        alt:
-          "The text reader for the Resurrection, a meditation by Blessed Fulton J. Sheen set in large type."
-      }
-    },
-    %{
-      title: "Today's Mass",
-      body: "The Mass of the day from the 1962 Missal, the Latin and the English line by line.",
-      screen: %{
-        name: "mass",
-        alt:
-          "Today's Mass for the feast of Our Lady of the Rosary, open at the prayers at the foot of the altar."
-      }
-    },
-    %{
-      title: "Consecration to Mary",
-      body:
-        "The 33-day preparation of St. Louis de Montfort, counted back from a Marian feast you choose.",
-      screen: %{
-        name: "consecrate",
-        alt:
-          "The Consecrate tab's first page: Consecration to Mary, a 33-day preparation, under a painting of Our Lady crowned."
-      }
-    },
-    %{
-      title: "The Chapel",
-      body:
-        "A page you arrange: the next of your Daily Prayers, then tiles for today, your prayer streak, reading and chant.",
-      screen: %{
-        name: "chapel",
-        alt:
-          "The Chapel tab, offering the Rosary next with a Pray the Rosary button and a Today tile listing what is left to pray."
-      }
-    }
-  ]
-
-  @promises [
-    %{
-      title: "Heard from start to finish",
-      body:
-        "With the whole Rosary read to you, you hear every prayer in the voice you choose and the beads move with it, so you can pray with the phone in your pocket."
-    },
-    %{
-      title: "Without a connection",
-      body:
-        "Download meditation sets with their paintings and narration. With the prayers, verses, chants and books the app carries, the Rosary prays offline."
-    },
-    %{
-      title: "Kept on your phone",
-      body:
-        "No account to make. Your journal and your prayer record stay on the phone; the app sends only an anonymous note that a Rosary was finished."
-    },
-    %{
-      title: "Milestones, not scores",
-      body:
-        "The days you pray are marked by the Church's own numbers: a triduum, a novena, 33 days, a Rosary novena of 54. A missed day is never held against you."
-    }
-  ]
+  import LumenViaeWeb.Live.Home.App.Clip
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
+    lang = if params["lang"] == "es", do: :es, else: :en
+    counts = counts(socket.assigns[:current_admin])
+    t = Words.for(lang, counts)
+
     {:ok,
      socket
      |> PageMeta.put("/app",
-       title: "Lumen Viae for iPhone",
-       description:
-         "The Rosary on iPhone: meditations from the saints read to you, the Scriptural Rosary, the Audio Rosary, with chant, the Hours and the Mass of the day.",
+       title: t.title,
+       description: t.description,
        image: %{
-         url: PageMeta.absolute_url("/images/app/og-app.jpg"),
+         url: PageMeta.absolute_url("/images/app/og-app-midnight.jpg"),
          width: 1200,
          height: 630,
-         alt: "Three screens of the Lumen Viae iPhone app on a night-blue ground"
+         alt: t.og_alt
        },
-       json_ld: [PageMeta.mobile_app()]
+       json_ld: [PageMeta.mobile_app()],
+       noindex: lang == :es
      )
-     |> assign(
-       app_store_url: PageMeta.app_store_url(),
-       hero: @hero,
-       features: @features,
-       also: @also,
-       promises: @promises
-     )}
+     |> assign(app_store_url: PageMeta.app_store_url(), lang: lang, t: t)
+     # The root layout's <html lang>, so a reader and a search engine know
+     # the Spanish page is Spanish.
+     |> assign(:html_lang, Atom.to_string(lang))}
+  end
+
+  # The library's own counts: what the app carries, read from the documents
+  # it is served.
+  defp counts(actor) do
+    %{
+      chants: length(Rosary.get_chant_library!(actor: actor, load: [:chants]).chants),
+      prayers: length(Rosary.get_prayer_book!(actor: actor, load: [:prayers]).prayers)
+    }
   end
 
   # The download link: Apple's own "Download on the App Store" badge (black,
-  # US English, from developer.apple.com), kept as downloaded. Apple's rules:
+  # US English; Spanish (Mexico) on the Spanish page, "Descárgalo en el App
+  # Store"; from Apple's marketing tools), kept as downloaded. Apple's rules:
   # never recoloured, cropped or given effects, at least 40 px tall, with
-  # clear space of a quarter of its height around it (the gap-4 beside it).
+  # clear space of a quarter of its height around it.
   attr :href, :string, required: true
+  attr :free, :string, required: true
+
+  attr :badge, :map,
+    required: true,
+    doc: "the badge in the page's language: src, alt, width, height"
 
   defp app_store_button(assigns) do
     ~H"""
-    <a href={@href} class="inline-block shrink-0" rel="noopener">
-      <img
-        src={~p"/images/app/app-store-badge.svg"}
-        alt="Download on the App Store"
-        width="168"
-        height="56"
-        class="h-14 w-auto"
-      />
-    </a>
+    <div class="app-badge">
+      <a href={@href} class="inline-block shrink-0" rel="noopener">
+        <img
+          src={@badge.src}
+          alt={@badge.alt}
+          width={@badge.width}
+          height={@badge.height}
+          class="h-14 w-auto"
+        />
+      </a>
+      <span class="app-badge__free">{@free}</span>
+    </div>
     """
   end
 end

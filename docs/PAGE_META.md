@@ -49,7 +49,7 @@ crawler reads WebP.
 | Page | Image |
 | --- | --- |
 | Home, Scripture, privacy | the logo share image, `og-image.png`, 1200x630 |
-| The app page | three app screenshots, `images/app/og-app.jpg`, 1200x630 |
+| The app page | three app screens in Midnight, `images/app/og-app-midnight.jpg`, 1200x630 |
 | A category | the painting its header shows (`PageMeta.category_image/1`) |
 | A set's prayer page | the painting of the set's first mystery, else the category's |
 | A category's prayer page | the painting of the category's first mystery |
