@@ -2788,6 +2788,10 @@
                       "nullable": true,
                       "type": "boolean"
                     },
+                    "foot_credit": {
+                      "nullable": true,
+                      "type": "string"
+                    },
                     "id": {
                       "type": "string"
                     },

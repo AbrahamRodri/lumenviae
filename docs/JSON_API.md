@@ -658,7 +658,7 @@ chants.
   the prayer's page only when it is true; where it is false the origin
   is only a tradition and a century ("Western Church · 13th–16th
   century") and the page leaves it out (the Sources page still lists
-  it). A Spanish translation follows its English twin's `origin_credit`.
+  it). A Spanish translation carries its own `foot_credit` (below).
   Every prayer with a `short_credit` has `origin_credit` true.
 - **`chapters`**: the book's chapters in order: `id`, `numeral`, `title`,
   `latin_title`, `note` (the chapter's one italic line, or null), `topic`
@@ -786,7 +786,17 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   matching the English, since 16 Nov 2026), the Spanish short credit to
   show under the title, with `origin` at the foot, as the English
   `short_credit` does (a Rosary prayer's would come from the file's
-  `rosary_short_credits`, empty today); the key is absent otherwise. A client still shows the English for a prayer it does not
+  `rosary_short_credits`, empty today); the key is absent otherwise.
+  **`foot_credit`** (17 Nov 2026) is the exact line to show at the foot
+  of the Spanish page, in place of `origin` and the prayer's
+  `origin_credit`: the whole `origin` where the English twin's
+  `origin_credit` is true; else only the part naming the book, publisher
+  or shrine the wording comes from ("Según el Compendio del Catecismo de
+  la Iglesia Católica"), since the tradition and century alone show
+  nowhere; absent where the foot shows nothing (only a tradition, or
+  "traducción del equipo", the team's own translation). A Rosary
+  prayer's comes from the file's `rosary_foot_credits`. Lists of sources
+  keep `origin`. A client still shows the English for a prayer it does not
   find listed. Every other section is
   unchanged, English and Latin: a client lays the Spanish over the
   English by `id`.

@@ -41,6 +41,39 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
                end)
 
   @book_ids Enum.map(Library.served(:prayer_book, "prayers"), & &1.id)
+
+  # The English twins whose origin is a credit owed (BookPrayer.origin_credit):
+  # their Spanish foot credits someone too.
+  @credited_in_english for p <- Library.served(:prayer_book, "prayers"),
+                           p.origin_credit,
+                           into: MapSet.new(),
+                           do: p.id
+
+  # A foot credit is the exact line the page's foot shows: the whole origin
+  # where the English twin's origin is a credit, else only the part naming
+  # the book, publisher or shrine the Spanish is taken from ("Según el
+  # Compendio ..."), never the tradition and century; none for the team's
+  # own translation (design, 17 Nov 2026). So: the origin itself where the
+  # English twin is credited, else nothing or the origin's closing part.
+  foot_error = fn id, origin, foot ->
+    cond do
+      id in @credited_in_english and foot != origin ->
+        "its foot_credit must be its whole origin, as the English twin's origin is a credit"
+
+      is_nil(foot) ->
+        nil
+
+      not (is_binary(foot) and foot != "" and is_binary(origin)) ->
+        "its foot_credit is a line of text, and only where it has an origin"
+
+      not String.ends_with?(String.downcase(origin), String.downcase(foot)) ->
+        "its foot_credit is the closing part of its origin (\"Según ...\")"
+
+      true ->
+        nil
+    end
+  end
+
   @rosary_ids Content.prayer_ids()
 
   @file_prayers Map.fetch!(file, "prayers")
@@ -70,6 +103,16 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
           "priv/library/es/prayer_book.json: rosary_short_credits holds #{inspect(id)}; it holds only ids in rosary_origins, each with a line shorter than its origin"
   end
 
+  # The foot credit of a Rosary prayer, as `foot_credit` is for the file's
+  # own prayers.
+  @rosary_foot_credits Map.get(file, "rosary_foot_credits", %{})
+
+  for id <- Enum.uniq(Map.keys(@rosary_origins) ++ Map.keys(@rosary_foot_credits)),
+      error = foot_error.(id, @rosary_origins[id], @rosary_foot_credits[id]) do
+    raise CompileError,
+      description: "priv/library/es/prayer_book.json: rosary_foot_credits.#{id}: #{error}"
+  end
+
   for {id, prayer} <- @file_prayers do
     cond do
       id not in @book_ids ->
@@ -91,11 +134,15 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
           description:
             "priv/library/es/prayer_book.json: #{id} needs a title and a text, and \"ai_translated\" is either true or left out"
 
-      Map.keys(prayer) -- ["title", "text", "ai_translated", "origin", "short_credit"] != [] or
+      Map.keys(prayer) --
+        ["title", "text", "ai_translated", "origin", "foot_credit", "short_credit"] != [] or
           not match?(o when is_nil(o) or (is_binary(o) and o != ""), prayer["origin"]) ->
         raise CompileError,
           description:
-            "priv/library/es/prayer_book.json: #{id} holds a title, a text, \"ai_translated\", an \"origin\" (where it comes from, in Spanish) and a \"short_credit\" only"
+            "priv/library/es/prayer_book.json: #{id} holds a title, a text, \"ai_translated\", an \"origin\" (where it comes from, in Spanish), a \"foot_credit\" and a \"short_credit\" only"
+
+      error = foot_error.(id, prayer["origin"], prayer["foot_credit"]) ->
+        raise CompileError, description: "priv/library/es/prayer_book.json: #{id}: #{error}"
 
       # As in English: a short credit names the prayer's author, for under
       # the title, and is shorter than the origin it stands for.
@@ -266,7 +313,8 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
   Every prayer the book prints that has Spanish, in the book's order, each
   `%{id:, title:, text:}` plus `ai_translated: true` where part of it is
   the team's translation, `origin:` where the file says in Spanish
-  where it comes from, and `short_credit:` where the origin names an author.
+  where it comes from, `foot_credit:` the line the page's foot shows where
+  that origin credits someone, and `short_credit:` where the origin names an author.
   """
   @spec prayers() :: [map]
   def prayers do
@@ -281,6 +329,7 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
         id
         |> shape(prayer["title"], prayer["text"], prayer["ai_translated"])
         |> put_origin(prayer["origin"])
+        |> put_foot_credit(prayer["foot_credit"])
         |> put_short_credit(prayer["short_credit"])
 
       # A Rosary prayer whose Spanish is still its English fallback has no
@@ -293,6 +342,7 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
           prayer["ai_translated"]
         )
         |> put_origin(@rosary_origins[id])
+        |> put_foot_credit(@rosary_foot_credits[id])
         |> put_short_credit(@rosary_short_credits[id])
 
       true ->
@@ -310,6 +360,11 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
     do: Map.put(prayer, :short_credit, credit)
 
   defp put_short_credit(prayer, _none), do: prayer
+
+  defp put_foot_credit(prayer, credit) when is_binary(credit),
+    do: Map.put(prayer, :foot_credit, credit)
+
+  defp put_foot_credit(prayer, _none), do: prayer
 
   @doc "When the Spanish last changed: the later of this file's date and the Rosary's Spanish."
   @spec updated_at() :: DateTime.t()
@@ -329,6 +384,12 @@ defmodule LumenViae.Rosary.PrayerBook.Spanish do
         &if(@rosary_origins == %{}, do: &1, else: Map.put(&1, "rosary_origins", @rosary_origins))
       )
       |> then(&if(@file_chapters == %{}, do: &1, else: Map.put(&1, "chapters", @file_chapters)))
+      |> then(
+        &if(@rosary_foot_credits == %{},
+          do: &1,
+          else: Map.put(&1, "rosary_foot_credits", @rosary_foot_credits)
+        )
+      )
       |> then(
         &if(@rosary_short_credits == %{},
           do: &1,
