@@ -652,7 +652,14 @@ chants.
   author, and carries no short credit. App versions from before 16 Nov
   2026 show `short_credit ?? origin` under the title, so for the prayers
   whose credit was removed that day they show the full origin there
-  until they update.
+  until they update. **`origin_credit`** (added 17 Nov 2026, always true
+  or false): whether `origin` is a credit owed, naming an author, a book
+  the prayer is taken from or a publisher. Show `origin` at the foot of
+  the prayer's page only when it is true; where it is false the origin
+  is only a tradition and a century ("Western Church · 13th–16th
+  century") and the page leaves it out (the Sources page still lists
+  it). A Spanish translation follows its English twin's `origin_credit`.
+  Every prayer with a `short_credit` has `origin_credit` true.
 - **`chapters`**: the book's chapters in order: `id`, `numeral`, `title`,
   `latin_title`, `note` (the chapter's one italic line, or null), `topic`
   (or null), `search_words`, `sections` (its sub-headings in order, each

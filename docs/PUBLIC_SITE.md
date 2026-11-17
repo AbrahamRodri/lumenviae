@@ -219,8 +219,10 @@ stepped in, on a phone. A psalm verse breaks at its mediant (a red star,
 the second half hung in), and a long prose prayer opens on a gilt versal.
 Under the title stands only the prayer's short credit, where the book
 names its author (`short_credit`); where the prayer comes from (`origin`)
-stands once at the foot, with a Source link to `/credits#prayers`
-(`Book.origin_lines/1`; design, 16 Nov 2026). The "when it is said" note
+stands once at the foot, with a Source link to `/credits#prayers`, only
+where it is a credit owed (`origin_credit`: an author, a book, a
+publisher); a tradition and a century shows nowhere on the page
+(`Book.origin_lines/1`; design, 16 and 17 Nov 2026). The "when it is said" note
 is not shown, as the app no longer shows it. The words, the chapters and the songs to Mary are the
 domain's (`LumenViae.Rosary.get_prayer_book!/1`, from
 `priv/library/prayer_book.json`); how the pages arrange them (which

@@ -24,7 +24,7 @@ defmodule LumenViae.Rosary.PrayerBook.Translation do
 
     field :short_credit, :string,
       description:
-        "Where this language's `origin` is a long citation (over 100 characters): the short credit to show under the title, with `origin` in full at the foot, as the prayer's own `short_credit`. Absent otherwise."
+        "This language's short credit to show under the title, as the prayer's own `short_credit`: present only where the prayer's English carries one. Absent otherwise. `origin` shows at the foot where the prayer's `origin_credit` is true."
 
     field :ai_translated, :boolean,
       description:

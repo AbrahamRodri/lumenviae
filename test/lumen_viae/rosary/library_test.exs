@@ -50,7 +50,8 @@ defmodule LumenViae.Rosary.LibraryTest do
       {~U[2026-11-15 09:20:00Z], "a856da745858a069"},
       {~U[2026-11-15 10:35:00Z], "bfe79778ad224b24"},
       {~U[2026-11-16 15:35:00Z], "00d739bb7def1a57"},
-      {~U[2026-11-16 23:30:00Z], "19c53874cd87a74b"}
+      {~U[2026-11-16 23:30:00Z], "19c53874cd87a74b"},
+      {~U[2026-11-17 03:30:00Z], "c0c9676dbc1fe926"}
     ],
     "chant_library.json" => [
       {~U[2026-10-14 02:17:43Z], "46475d99fa86b019"},
@@ -308,6 +309,21 @@ defmodule LumenViae.Rosary.LibraryTest do
     test "refuses Latin that does not pair with the English line for line" do
       assert book_errors(update_prayer(book(), "latin", "One line only")) =~
                "sub_tuum has 2 English lines and 1 Latin"
+    end
+
+    test "needs origin_credit, true only where there is an origin to credit" do
+      assert Check.prayer_book_errors(update_prayer(book(), "origin_credit", nil)) ==
+               ["the prayer sub_tuum: origin_credit is true or false"]
+
+      assert Check.prayer_book_errors(update_prayer(book(), "origin_credit", true)) ==
+               ["the prayer sub_tuum: origin_credit is true, but there is no origin to credit"]
+
+      credited =
+        book()
+        |> update_prayer("origin", "Egyptian papyrus · 3rd century")
+        |> update_prayer("origin_credit", true)
+
+      assert Check.prayer_book_errors(credited) == []
     end
 
     test "allows a prayer with no Latin" do
@@ -1387,6 +1403,7 @@ defmodule LumenViae.Rosary.LibraryTest do
       "title" => id,
       "latin_title" => nil,
       "origin" => nil,
+      "origin_credit" => false,
       "note" => nil,
       "english" => english,
       "latin" => latin,

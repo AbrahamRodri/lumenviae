@@ -20,9 +20,15 @@ defmodule LumenViae.Rosary.Types.BookPrayer do
     field :origin, :string,
       description: "Who wrote it and when, as a prayer book's small print, or null."
 
+    field :origin_credit, :boolean,
+      allow_nil?: false,
+      default: false,
+      description:
+        "Whether `origin` is a credit owed (it names an author, a book the prayer is taken from or a publisher): show `origin` at the foot of the prayer's page only when true. False where it is only a tradition and a century (`Western Church · 13th–16th century`), which the page leaves out."
+
     field :short_credit, :string,
       description:
-        "Where `origin` is a long book citation: the short credit (author, then publisher) to show under the title, with `origin` in full at the foot of the page. Null where `origin` is short enough to stand under the title itself."
+        "The prayer's author, to show under the title, or null. Present only where it names the author (a person, an order, or a traditional attribution), never a publisher or a collection alone."
 
     field :note, :string, description: "When or how it is said, in one plain sentence, or null."
 

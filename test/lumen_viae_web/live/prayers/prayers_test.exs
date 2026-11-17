@@ -219,13 +219,24 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       refute has_element?(faith, "[data-role=second-title]")
     end
 
-    test "a prayer says where it comes from once, at its foot", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "/prayers/angelus")
+    # Abraham, 17 Nov 2026: "if no souce needed for credits leave it like 13
+    # centry church is odd". A tradition and a century show nowhere on the page.
+    test "an origin that is only a tradition and a century is not shown", %{conn: conn} do
+      for id <- ~w(angelus litany_loreto) do
+        {:ok, view, _html} = live(conn, "/prayers/#{id}")
+
+        refute has_element?(view, "header [data-role=origin]"), id
+        refute has_element?(view, "[data-role=source]"), id
+      end
+    end
+
+    test "an origin that credits an author or a book stays at the foot", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/prayers/memorare")
 
       refute has_element?(view, "header [data-role=origin]")
 
       assert view |> element("[data-role=source]") |> render() =~
-               "Western Church · 13th–16th century"
+               "Attributed to St Bernard of Clairvaux · 12th century"
     end
 
     test "a named author is credited under the title, the book at the foot",
@@ -251,6 +262,14 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
 
       refute has_element?(view, "header [data-role=origin]")
       assert view |> element("[data-role=source]") |> render() =~ "author unknown"
+    end
+
+    test "a prayer credited under its title is credited at its foot too" do
+      book = LumenViaeWeb.Live.Prayers.Book.load(nil)
+
+      for {_id, prayer} <- book.prayers, prayer.short_credit do
+        assert prayer.origin_credit, prayer.id
+      end
     end
 
     test "every short credit is shorter than the origin it stands for" do
