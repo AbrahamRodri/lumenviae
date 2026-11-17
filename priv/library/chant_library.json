@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-17T16:30:00Z",
+  "updated_at": "2026-11-17T18:30:00Z",
   "chants": [
     {
       "audio": {
@@ -26235,7 +26235,7 @@
     {
       "chant_id": "o_adonai_magnificat",
       "id": "o_adonai",
-      "name": "Advent's “O Lord and Ruler”",
+      "name": "Advent's “O Adonai”",
       "painting": "advent_isaiah",
       "rule": {
         "day": 18,
@@ -26271,7 +26271,7 @@
     {
       "chant_id": "o_oriens_magnificat",
       "id": "o_oriens",
-      "name": "Advent's “O Morning Star”",
+      "name": "Advent's “O Day-Spring”",
       "painting": "advent_isaiah",
       "rule": {
         "day": 21,
