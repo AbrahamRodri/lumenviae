@@ -642,10 +642,24 @@ chants.
   rubric in square brackets), and where there is Latin the two pair line
   for line, blank lines included. A prayer no chapter names is still
   kept: an order of prayer may name it. **`short_credit`** (added 15 Nov
-  2026): where `origin` is a long book citation (over 100 characters),
-  the short credit to show under the title (author, then publisher),
-  with `origin` in full at the foot of the page, as the website does;
-  null otherwise.
+  2026; since 16 Nov 2026 it means one thing): present only where it
+  names the prayer's author (a person, an order, or a traditional
+  attribution such as "Attributed to St Margaret Mary Alacoque"), the
+  credit to show under the title; null otherwise. `origin` is shown once,
+  at the foot of the page, for every prayer, as the website does. A
+  publisher, a collection such as the Raccolta, a pope who only approved
+  or indulgenced a prayer, or "author unknown" is a source, not an
+  author, and carries no short credit. App versions from before 16 Nov
+  2026 show `short_credit ?? origin` under the title, so for the prayers
+  whose credit was removed that day they show the full origin there
+  until they update. **`origin_credit`** (added 17 Nov 2026, always true
+  or false): whether `origin` is a credit owed, naming an author, a book
+  the prayer is taken from or a publisher. Show `origin` at the foot of
+  the prayer's page only when it is true; where it is false the origin
+  is only a tradition and a century ("Western Church · 13th–16th
+  century") and the page leaves it out (the Sources page still lists
+  it). A Spanish translation carries its own `foot_credit` (below).
+  Every prayer with a `short_credit` has `origin_credit` true.
 - **`chapters`**: the book's chapters in order: `id`, `numeral`, `title`,
   `latin_title`, `note` (the chapter's one italic line, or null), `topic`
   (or null), `search_words`, `sections` (its sub-headings in order, each
@@ -766,12 +780,23 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   it is absent, a Spanish client shows no origin rather than the English
   one (today every Spanish prayer has it; the Rosary's own prayers take
   theirs from the file's `rosary_origins`, their words staying
-  `priv/rosary_content/es/prayers.json`'s). Where that Spanish `origin`
-  runs over 100 characters the entry also carries **`short_credit`** (15
-  Nov 2026), the Spanish short credit to show under the title, with
-  `origin` in full at the foot, as the English `short_credit` does (a
-  Rosary prayer's from the file's `rosary_short_credits`); the key is
-  absent otherwise. A client still shows the English for a prayer it does not
+  `priv/rosary_content/es/prayers.json`'s). Where the prayer's
+  author is named and its English twin carries a `short_credit` too, the
+  entry also carries **`short_credit`** (15 Nov 2026; author only, and
+  matching the English, since 16 Nov 2026), the Spanish short credit to
+  show under the title, with `origin` at the foot, as the English
+  `short_credit` does (a Rosary prayer's would come from the file's
+  `rosary_short_credits`, empty today); the key is absent otherwise.
+  **`foot_credit`** (17 Nov 2026) is the exact line to show at the foot
+  of the Spanish page, in place of `origin` and the prayer's
+  `origin_credit`: the whole `origin` where the English twin's
+  `origin_credit` is true; else only the part naming the book, publisher
+  or shrine the wording comes from ("Según el Compendio del Catecismo de
+  la Iglesia Católica"), since the tradition and century alone show
+  nowhere; absent where the foot shows nothing (only a tradition, or
+  "traducción del equipo", the team's own translation). A Rosary
+  prayer's comes from the file's `rosary_foot_credits`. Lists of sources
+  keep `origin`. A client still shows the English for a prayer it does not
   find listed. Every other section is
   unchanged, English and Latin: a client lays the Spanish over the
   English by `id`.

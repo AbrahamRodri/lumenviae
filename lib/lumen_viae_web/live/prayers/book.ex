@@ -302,22 +302,17 @@ defmodule LumenViaeWeb.Live.Prayers.Book do
 
   def second_title(_prayer), do: nil
 
-  # A full book citation is too heavy under a title (design, 15 Nov 2026):
-  # an origin longer than this shows a short credit there, author then
-  # publisher, from the prayer's `short_credit`, and the whole citation at
-  # the foot of the page.
-  @short_origin_limit 100
-
   @doc """
   Where the prayer comes from, as the page shows it: `{under_title, at_foot}`.
-  A short origin stands under the title alone; a long one puts its short
-  credit there (or nothing) and the full citation at the foot.
+  Under the title only the prayer's `short_credit`, which the book carries
+  only when it names the author (design, 16 Nov 2026). At the foot the
+  origin, only where it is a credit owed (`origin_credit`: an author, a book,
+  a publisher); one that is only a tradition and a century ("Western Church
+  · 13th–16th century") shows nowhere on the page (Abraham, 17 Nov 2026).
+  The Sources page still lists every origin.
   """
-  def origin_lines(%{origin: origin} = prayer) when is_binary(origin) and origin != "" do
-    if String.length(origin) <= @short_origin_limit,
-      do: {origin, nil},
-      else: {Map.get(prayer, :short_credit), origin}
-  end
+  def origin_lines(%{origin: origin} = prayer) when is_binary(origin) and origin != "",
+    do: {Map.get(prayer, :short_credit), if(Map.get(prayer, :origin_credit) == true, do: origin)}
 
   def origin_lines(_prayer), do: {nil, nil}
 

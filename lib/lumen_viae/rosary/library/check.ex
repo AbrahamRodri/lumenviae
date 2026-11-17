@@ -541,12 +541,25 @@ defmodule LumenViae.Rosary.Library.Check do
       required(prayer, ~w(title english)) ++
         optional(prayer, ~w(latin_title origin note latin list_title english_name)) ++
         may_hold(prayer, ~w(short_credit)) ++
+        origin_credit_errors(prayer) ++
         words(prayer, "search_words")
 
     Enum.map(errors, &"the prayer #{id}: #{&1}") ++ pairing_errors(prayer)
   end
 
   defp prayer_errors(prayer), do: ["a prayer needs an id: #{inspect(prayer)}"]
+
+  # Whether the origin is a credit owed at the foot of the prayer's page (an
+  # author, a book, a publisher), not only a tradition and a century.
+  defp origin_credit_errors(%{"origin_credit" => true, "origin" => origin})
+       when is_binary(origin) and origin != "",
+       do: []
+
+  defp origin_credit_errors(%{"origin_credit" => true}),
+    do: ["origin_credit is true, but there is no origin to credit"]
+
+  defp origin_credit_errors(%{"origin_credit" => false}), do: []
+  defp origin_credit_errors(_prayer), do: ["origin_credit is true or false"]
 
   defp chapter_errors(%{"id" => id} = chapter, prayer_ids) when is_binary(id) do
     errors =

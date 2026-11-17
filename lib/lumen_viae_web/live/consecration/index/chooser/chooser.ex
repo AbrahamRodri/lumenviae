@@ -1,12 +1,15 @@
 defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
   @moduledoc """
-  The feast chooser, as the app's `ConsecrationDateSelectionView`: the
-  feast chosen in one card (the soonest until another is chosen) with its
-  Consecration Day and its Day 1, the other feasts as a short ruled list
-  (three, then Show more feasts), Start at any day for a reader praying
-  along with a book or a group, and one act, Begin, which the
-  `ConsecrationPlan` hook keeps in this browser. Only a preparation that
-  can still begin on its Day 1 is offered.
+  The feast chooser (Abraham's pick, 16 Nov 2026, revised 23:14Z). Every
+  feast's next preparation in one list in calendar order, which never
+  moves: a tap only lights the row in place, the soonest lit until another
+  is chosen. A row is the feast's name and the day it is kept this year,
+  the first marked Soonest under its date. Above Begin the 33 days' two
+  dates stand side by side, or stacked where they do not fit on one line
+  each (the `ConsecrationSpan` hook); only they and Begin change as you
+  tap. Start at any day serves a reader praying along with a book or a
+  group. Begin is kept in this browser by the `ConsecrationPlan` hook. Only
+  a preparation that can still begin on its Day 1 is offered.
   """
   use LumenViaeWeb, :html
 
@@ -14,12 +17,9 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
 
   import LumenViaeWeb.Live.Consecration.Parts
 
-  @others_shown 3
-
   attr :preparations, :list, required: true
   attr :selected, :map, default: nil
   attr :today, Date, required: true
-  attr :more?, :boolean, default: false
   attr :any?, :boolean, default: false
   attr :any_day, :integer, default: 1
   attr :any_phase, :map, default: nil
@@ -27,17 +27,14 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
   attr :completed_on, Date, default: nil
 
   def chooser(assigns) do
-    others =
-      if assigns.selected,
-        do: Enum.reject(assigns.preparations, &(&1.feast.id == assigns.selected.feast.id)),
-        else: []
-
     assigns =
       assign(assigns,
-        others: if(assigns.more?, do: others, else: Enum.take(others, @others_shown)),
-        hidden?: !assigns.more? and length(others) > @others_shown,
-        soonest?: assigns.selected && assigns.selected == List.first(assigns.preparations),
-        days: assigns.selected && Plan.days_until(assigns.selected.start, assigns.today)
+        soonest_id:
+          case assigns.preparations do
+            [first | _rest] -> first.feast.id
+            [] -> nil
+          end,
+        selected_id: assigns.selected && assigns.selected.feast.id
       )
 
     ~H"""
@@ -45,7 +42,7 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
       <div class="cons-intro__words">
         <.kicker>Your consecration day</.kicker>
         <h1 class="cons-intro__title">Choose your feast</h1>
-        <p class="cons-intro__lead">The 33 days end on a feast of Mary: your Consecration Day.</p>
+        <p class="cons-intro__lead">The 33 days end on a feast of Mary.</p>
       </div>
 
       <.completed_note :if={@completed?}>
@@ -56,67 +53,73 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
         <% end %>
       </.completed_note>
 
-      <div :if={@selected} class="cons-card cons-card--elevated cons-chosen" data-role="chosen">
-        <div class="cons-chosen__top">
-          <span :if={@soonest?} class="cons-soonest">Soonest</span>
-          <span class="cons-radio is-on" aria-hidden="true"></span>
-        </div>
-        <h2 class="cons-chosen__feast" data-role="chosen-feast">{@selected.feast.name}</h2>
-        <p class="cons-chosen__date">{Plan.long_date(@selected.feast_date, @today)}</p>
-        <.rule class="my-3.5" />
-        <p class="cons-chosen__day-one" data-role="day-one">
-          <span class="cons-chosen__label">Day 1</span>
-          <span class="cons-chosen__start">
-            {if @days == 0, do: "Today", else: Plan.long_date(@selected.start, @today)}
-          </span>
-          <span :if={@days > 0} class="cons-chosen__countdown">{Plan.countdown(@days)}</span>
-        </p>
-      </div>
-
-      <div :if={@others != []} class="cons-others">
-        <h2 class="cons-others__label">Other feasts</h2>
-        <ul class="cons-others__list">
-          <li :for={prep <- @others}>
-            <button
-              type="button"
-              class="cons-feast"
-              phx-click="select_feast"
-              phx-value-id={prep.feast.id}
-              data-role="feast-row"
-              aria-label={"#{prep.feast.name}, #{Plan.long_date(prep.feast_date, @today)}. Day 1 is #{Plan.long_date(prep.start, @today)}."}
-            >
-              <span class="cons-radio" aria-hidden="true"></span>
-              <span class="cons-feast__words">
-                <span class="cons-feast__name">{prep.feast.name}</span>
-                <span class="cons-feast__begins">
-                  Begins {Plan.long_date(prep.start, @today, false)}
-                </span>
+      <ul :if={@preparations != []} class="cons-feasts" data-role="feasts">
+        <li :for={prep <- @preparations}>
+          <button
+            type="button"
+            class={["cons-feast", prep.feast.id == @selected_id && "is-on"]}
+            phx-click="select_feast"
+            phx-value-id={prep.feast.id}
+            aria-pressed={to_string(prep.feast.id == @selected_id)}
+            data-role="feast-row"
+            aria-label={feast_label(prep)}
+          >
+            <span class={["cons-radio", prep.feast.id == @selected_id && "is-on"]} aria-hidden="true"></span>
+            <span class="cons-feast__name">{prep.feast.name}</span>
+            <span class="cons-feast__date">
+              {Plan.row_date(prep.feast_date)}
+              <span :if={prep.feast.id == @soonest_id} class="cons-soonest" data-role="soonest">
+                Soonest
               </span>
-              <span class="cons-feast__date">{Plan.short_date(prep.feast_date, @today)}</span>
-            </button>
-          </li>
-        </ul>
-        <button
-          :if={@hidden?}
-          type="button"
-          class="cons-more"
-          phx-click="more_feasts"
-          data-role="more-feasts"
+            </span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="cons-foot" data-role="foot">
+        <div
+          :if={@selected}
+          id="cons-span"
+          class="cons-span"
+          phx-hook="ConsecrationSpan"
+          data-role="span"
+          data-pairs={span_pairs(@preparations)}
         >
-          Show more feasts
+          <div class="cons-span__end">
+            <span class="cons-span__label">You begin</span>
+            <span class="cons-span__date">{Plan.day_date(@selected.start)}</span>
+          </div>
+          <span class="cons-span__arrow" aria-hidden="true"></span>
+          <div class="cons-span__end cons-span__end--to">
+            <span class="cons-span__label">You consecrate</span>
+            <span class="cons-span__date">
+              {Plan.day_date(Plan.consecration_date(@selected.start))}
+            </span>
+          </div>
+        </div>
+        <button
+          :if={@selected}
+          type="button"
+          class="btn-gold cons-foot__act"
+          data-consecration-begin
+          data-start={Date.to_iso8601(@selected.start)}
+          data-feast={@selected.feast.id}
+          data-role="begin"
+        >
+          {Plan.begin_title(@selected, @today)}
+          <span class="hero-chevron-right size-4" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="btn-text cons-any-link"
+          phx-click="any_start"
+          aria-expanded={to_string(@any?)}
+          aria-controls="cons-any"
+          data-role="any-start"
+        >
+          Start at any day instead <span class="hero-chevron-right size-3" aria-hidden="true" />
         </button>
       </div>
-
-      <button
-        type="button"
-        class="btn-text cons-any-link"
-        phx-click="any_start"
-        aria-expanded={to_string(@any?)}
-        aria-controls="cons-any"
-        data-role="any-start"
-      >
-        Start at any day instead <span class="hero-chevron-right size-3" aria-hidden="true" />
-      </button>
 
       <div
         :if={@any?}
@@ -150,26 +153,18 @@ defmodule LumenViaeWeb.Live.Consecration.Index.Chooser do
           Begin today at Day {@any_day} <span class="hero-chevron-right size-4" aria-hidden="true" />
         </button>
       </div>
-
-      <div :if={@selected} class="cons-foot">
-        <button
-          type="button"
-          class="btn-gold cons-foot__act"
-          data-consecration-begin
-          data-start={Date.to_iso8601(@selected.start)}
-          data-feast={@selected.feast.id}
-          data-role="begin"
-        >
-          {Plan.begin_title(@selected, @today)}
-          <span class="hero-chevron-right size-4" aria-hidden="true" />
-        </button>
-        <p class="cons-foot__note">
-          {if @days == 0,
-            do: "Your first day's prayers open right away.",
-            else: "You can choose another feast until Day 1 begins."}
-        </p>
-      </div>
     </section>
     """
   end
+
+  # Every feast's two dates, so the hook picks one layout for them all and
+  # the foot keeps its shape as the reader taps from feast to feast.
+  defp span_pairs(preparations) do
+    preparations
+    |> Enum.map(&[Plan.day_date(&1.start), Plan.day_date(Plan.consecration_date(&1.start))])
+    |> Jason.encode!()
+  end
+
+  # The row reads its name and the day the feast is kept, as it shows them.
+  defp feast_label(prep), do: "#{prep.feast.name}, #{Plan.full_date(prep.feast_date)}"
 end

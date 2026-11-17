@@ -44,7 +44,6 @@ defmodule LumenViaeWeb.Live.Consecration.Index do
      |> assign(:doc, doc)
      |> assign(:steps, @steps)
      |> assign(:selected_id, nil)
-     |> assign(:more?, false)
      |> assign(:any?, false)
      |> assign(:any_day, 1)
      |> State.init()}
@@ -73,9 +72,6 @@ defmodule LumenViaeWeb.Live.Consecration.Index do
 
   def handle_event("select_feast", %{"id" => id}, socket) when is_binary(id),
     do: {:noreply, assign(socket, :selected_id, id) |> assign_page()}
-
-  def handle_event("more_feasts", _params, socket),
-    do: {:noreply, assign(socket, :more?, true) |> assign_page()}
 
   def handle_event("any_start", _params, socket),
     do: {:noreply, assign(socket, :any?, !socket.assigns.any?) |> assign_page()}

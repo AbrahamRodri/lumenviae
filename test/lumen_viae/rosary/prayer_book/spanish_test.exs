@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 11:50:00Z], "55a5be343586fd5f"}
+  @pinned {~U[2026-11-17 04:00:00Z], "0871bdee6df3f9f3"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -68,11 +68,12 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
       assert is_binary(prayer.title) and prayer.title != "", prayer.id
       assert is_binary(prayer.text) and prayer.text != "", prayer.id
 
-      assert Enum.sort(Map.keys(prayer) -- [:ai_translated, :origin, :short_credit]) == [
-               :id,
-               :text,
-               :title
-             ]
+      assert Enum.sort(Map.keys(prayer) -- [:ai_translated, :origin, :foot_credit, :short_credit]) ==
+               [
+                 :id,
+                 :text,
+                 :title
+               ]
 
       assert Map.get(prayer, :ai_translated, true) == true
     end
@@ -208,13 +209,17 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
              Enum.find(spanish, &(&1.id == "our_lady"))
   end
 
-  test "a long Spanish origin has a shorter Spanish credit for under the title" do
-    for prayer <- Spanish.prayers(), Map.has_key?(prayer, :origin) do
-      if String.length(prayer.origin) > 100 do
-        assert String.length(prayer.short_credit) < String.length(prayer.origin), prayer.id
-      else
-        refute Map.has_key?(prayer, :short_credit), prayer.id
-      end
+  test "a Spanish short credit names the author, shorter than the origin" do
+    for prayer <- Spanish.prayers(), Map.has_key?(prayer, :short_credit) do
+      assert String.length(prayer.short_credit) < String.length(prayer.origin), prayer.id
+    end
+
+    spanish = Map.new(Spanish.prayers(), &{&1.id, &1})
+
+    assert spanish["undoer_of_knots_novena"].short_credit == "P. Juan Ramón Celeiro"
+
+    for id <- ~w(st_jude_novena st_andrew_novena peace_prayer immaculate_conception_novena) do
+      refute Map.has_key?(spanish[id], :short_credit), id
     end
 
     assert %{
@@ -223,10 +228,46 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
            } =
              Enum.find(Spanish.prayers(), &(&1.id == "st_joseph_novena"))
 
-    assert %{
-             short_credit:
-               "Atribuida a san Bernardo de Claraval · según el Compendio del Catecismo"
-           } =
-             Enum.find(Spanish.prayers(), &(&1.id == "memorare"))
+    refute Map.has_key?(spanish["memorare"], :short_credit)
+  end
+
+  # design, 17 Nov 2026: the foot credits whoever the Spanish wording comes
+  # from. The whole origin where the English one is a credit; else only the
+  # book, publisher or shrine ("Según ..."), never the tradition and
+  # century; nothing for the team's own translation.
+  test "a Spanish foot shows only a credit owed" do
+    english = Map.new(LumenViae.Rosary.Library.served(:prayer_book, "prayers"), &{&1.id, &1})
+    spanish = Map.new(Spanish.prayers(), &{&1.id, &1})
+
+    for {id, prayer} <- spanish, Map.has_key?(prayer, :origin) do
+      cond do
+        english[id].origin_credit -> assert prayer.foot_credit == prayer.origin, id
+        prayer.origin =~ " · según " -> assert prayer.foot_credit =~ ~r/^Según /, id
+        true -> refute Map.has_key?(prayer, :foot_credit), id
+      end
+    end
+
+    assert spanish["angelus"].foot_credit ==
+             "Según el Compendio del Catecismo de la Iglesia Católica"
+
+    assert spanish["confiteor"].foot_credit ==
+             "Según el Misal diario y vesperal de Lefebvre (1962)"
+
+    assert spanish["hail_mary"].foot_credit ==
+             "Según el Compendio del Catecismo de la Iglesia Católica"
+
+    assert spanish["memorare"].foot_credit == spanish["memorare"].origin
+    refute Map.has_key?(spanish["ave_maris_stella"], :foot_credit)
+  end
+
+  # design, 16 Nov 2026: the two languages of one prayer match. A Spanish
+  # credit stands under the title only where the English one does.
+  test "a Spanish short credit only where the English twin has one" do
+    english =
+      Map.new(LumenViae.Rosary.Library.sections(:prayer_book)["prayers"], &{&1["id"], &1})
+
+    for prayer <- Spanish.prayers(), Map.has_key?(prayer, :short_credit), english[prayer.id] do
+      assert english[prayer.id]["short_credit"], "#{prayer.id} is credited in Spanish only"
+    end
   end
 end

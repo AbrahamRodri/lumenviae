@@ -22,9 +22,13 @@ defmodule LumenViae.Rosary.PrayerBook.Translation do
       description:
         "Where it comes from, in this language, standing in place of the prayer's `origin`. Absent where there is none yet: a client then shows no origin rather than the English one."
 
+    field :foot_credit, :string,
+      description:
+        "The exact line to show at the foot in this language, in place of the prayer's `origin` and `origin_credit`: the whole `origin` where the English origin is a credit, else only the part naming the book, publisher or shrine this wording is taken from (\"Según el Compendio del Catecismo de la Iglesia Católica\"). Absent where the foot shows nothing: the origin is only a tradition and a century, or the team's own translation. Lists of sources keep `origin`."
+
     field :short_credit, :string,
       description:
-        "Where this language's `origin` is a long citation (over 100 characters): the short credit to show under the title, with `origin` in full at the foot, as the prayer's own `short_credit`. Absent otherwise."
+        "This language's short credit to show under the title, as the prayer's own `short_credit`: present only where the prayer's English carries one. Absent otherwise. `foot_credit` is what shows at the foot."
 
     field :ai_translated, :boolean,
       description:
