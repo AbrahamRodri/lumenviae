@@ -44,6 +44,7 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
 
     test "?lang=es is the page in Spanish, kept out of search engines", %{conn: conn} do
       html = conn |> get("/app?lang=es") |> html_response(200)
+      assert html =~ ~s(<html lang="es">)
       doc = Floki.parse_document!(html)
 
       assert doc |> Floki.find("h1") |> Floki.text() =~ "El Rosario, rezado dondequiera que estés"

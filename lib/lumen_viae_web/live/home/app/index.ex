@@ -41,7 +41,10 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
        json_ld: [PageMeta.mobile_app()],
        noindex: lang == :es
      )
-     |> assign(app_store_url: PageMeta.app_store_url(), lang: lang, t: t)}
+     |> assign(app_store_url: PageMeta.app_store_url(), lang: lang, t: t)
+     # The root layout's <html lang>, so a reader and a search engine know
+     # the Spanish page is Spanish.
+     |> assign(:html_lang, Atom.to_string(lang))}
   end
 
   # The library's own counts: what the app carries, read from the documents
