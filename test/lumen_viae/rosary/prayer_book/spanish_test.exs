@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-16 23:45:00Z], "d1ad621476235dd9"}
+  @pinned {~U[2026-11-17 04:00:00Z], "0871bdee6df3f9f3"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -68,11 +68,12 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
       assert is_binary(prayer.title) and prayer.title != "", prayer.id
       assert is_binary(prayer.text) and prayer.text != "", prayer.id
 
-      assert Enum.sort(Map.keys(prayer) -- [:ai_translated, :origin, :short_credit]) == [
-               :id,
-               :text,
-               :title
-             ]
+      assert Enum.sort(Map.keys(prayer) -- [:ai_translated, :origin, :foot_credit, :short_credit]) ==
+               [
+                 :id,
+                 :text,
+                 :title
+               ]
 
       assert Map.get(prayer, :ai_translated, true) == true
     end
@@ -228,6 +229,35 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
              Enum.find(Spanish.prayers(), &(&1.id == "st_joseph_novena"))
 
     refute Map.has_key?(spanish["memorare"], :short_credit)
+  end
+
+  # design, 17 Nov 2026: the foot credits whoever the Spanish wording comes
+  # from. The whole origin where the English one is a credit; else only the
+  # book, publisher or shrine ("Según ..."), never the tradition and
+  # century; nothing for the team's own translation.
+  test "a Spanish foot shows only a credit owed" do
+    english = Map.new(LumenViae.Rosary.Library.served(:prayer_book, "prayers"), &{&1.id, &1})
+    spanish = Map.new(Spanish.prayers(), &{&1.id, &1})
+
+    for {id, prayer} <- spanish, Map.has_key?(prayer, :origin) do
+      cond do
+        english[id].origin_credit -> assert prayer.foot_credit == prayer.origin, id
+        prayer.origin =~ " · según " -> assert prayer.foot_credit =~ ~r/^Según /, id
+        true -> refute Map.has_key?(prayer, :foot_credit), id
+      end
+    end
+
+    assert spanish["angelus"].foot_credit ==
+             "Según el Compendio del Catecismo de la Iglesia Católica"
+
+    assert spanish["confiteor"].foot_credit ==
+             "Según el Misal diario y vesperal de Lefebvre (1962)"
+
+    assert spanish["hail_mary"].foot_credit ==
+             "Según el Compendio del Catecismo de la Iglesia Católica"
+
+    assert spanish["memorare"].foot_credit == spanish["memorare"].origin
+    refute Map.has_key?(spanish["ave_maris_stella"], :foot_credit)
   end
 
   # design, 16 Nov 2026: the two languages of one prayer match. A Spanish
