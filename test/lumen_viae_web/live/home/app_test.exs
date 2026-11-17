@@ -52,6 +52,9 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
       html = conn |> get("/app?lang=es") |> html_response(200)
       assert html =~ ~s(<html lang="es">)
       assert html =~ ~s(data-html-lang="es")
+      # The clip button is a mark only; its name is for screen readers.
+      assert html =~ ~s(aria-label="Pausar")
+      refute html =~ ~r/>\s*(Reproducir|Pausar)\s*</
       doc = Floki.parse_document!(html)
 
       assert doc |> Floki.find("h1") |> Floki.text() =~ "El Rosario, rezado dondequiera que estés"
