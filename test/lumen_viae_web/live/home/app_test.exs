@@ -42,9 +42,16 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
       refute html =~ ~s(name="robots")
     end
 
+    test "plain /app is English, to the browser too", %{conn: conn} do
+      html = conn |> get("/app") |> html_response(200)
+      assert html =~ ~s(<html lang="en">)
+      assert html =~ ~s(data-html-lang="en")
+    end
+
     test "?lang=es is the page in Spanish, kept out of search engines", %{conn: conn} do
       html = conn |> get("/app?lang=es") |> html_response(200)
       assert html =~ ~s(<html lang="es">)
+      assert html =~ ~s(data-html-lang="es")
       doc = Floki.parse_document!(html)
 
       assert doc |> Floki.find("h1") |> Floki.text() =~ "El Rosario, rezado dondequiera que estés"
