@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-17T03:30:00Z",
+  "updated_at": "2026-11-17T03:45:00Z",
   "chapters": [
     {
       "id": "first",
@@ -2275,7 +2275,7 @@
       "list_title": null,
       "note": "Said slowly and often through the day, in the words of the publican who stood afar off in the Temple.",
       "origin": "The Desert Fathers · after Luke 18:13",
-      "origin_credit": true,
+      "origin_credit": false,
       "search_words": [],
       "short_credit": null,
       "title": "The Jesus Prayer"
