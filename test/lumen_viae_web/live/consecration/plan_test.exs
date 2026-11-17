@@ -142,5 +142,14 @@ defmodule LumenViaeWeb.Live.Consecration.PlanTest do
       assert Plan.countdown(1) == "tomorrow"
       assert Plan.countdown(12) == "in 12 days"
     end
+
+    test "the chooser's: the list, the one sentence and Begin, without a year" do
+      today = ~D[2026-11-16]
+
+      assert Plan.row_date(~D[2027-02-11]) == "Thu, Feb 11"
+      assert Plan.day_date(~D[2027-01-09]) == "Saturday, January 9"
+      assert Plan.begin_title(%{start: ~D[2027-01-09]}, today) == "Begin on January 9"
+      assert Plan.begin_title(%{start: today}, today) == "Begin today"
+    end
   end
 end

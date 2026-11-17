@@ -203,6 +203,12 @@ defmodule LumenViaeWeb.Live.Consecration.Plan do
       else: Calendar.strftime(date, "%b %-d, %Y")
   end
 
+  @doc "\"Thu, Feb 11\": a feast's date in the chooser's list."
+  def row_date(date), do: Calendar.strftime(date, "%a, %b %-d")
+
+  @doc "\"Saturday, January 9\": a date in the chooser's foot, above Begin."
+  def day_date(date), do: Calendar.strftime(date, "%A, %B %-d")
+
   @doc "\"November 21, 2026\", as the app's long date style."
   def full_date(date), do: Calendar.strftime(date, "%B %-d, %Y")
 
@@ -211,10 +217,10 @@ defmodule LumenViaeWeb.Live.Consecration.Plan do
   def countdown(1), do: "tomorrow"
   def countdown(days), do: "in #{days} days"
 
-  @doc "\"Begin today\", or \"Begin on October 19\"."
+  @doc "\"Begin today\", or \"Begin on October 19\" (no year: Day 1 is within the coming year)."
   def begin_title(%{start: start}, today) do
     if Date.compare(start, today) == :gt,
-      do: "Begin on #{long_date(start, today, false)}",
+      do: "Begin on #{Calendar.strftime(start, "%B %-d")}",
       else: "Begin today"
   end
 end
