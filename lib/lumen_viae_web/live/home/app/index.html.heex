@@ -13,7 +13,7 @@
         <p class="app-c__kicker">{@t.kicker}</p>
         <h1 id="app-title" class="app-c__h1">{@t.h1}</h1>
         <p class="app-c__lede">{@t.lede}</p>
-        <.app_store_button href={@app_store_url} free={@t.free} />
+        <.app_store_button href={@app_store_url} free={@t.free} badge={@t.badge} />
       </div>
       <.clip
         name={Map.get(@t.clip_names, "c1-player", "c1-player")}
@@ -117,6 +117,6 @@
     <p class="app-c__kicker">{@t.kicker}</p>
     <h2 id="app-close-title" class="app-c__h2">{@t.close_title}</h2>
     <p>{@t.close_body}</p>
-    <.app_store_button href={@app_store_url} free={@t.free} />
+    <.app_store_button href={@app_store_url} free={@t.free} badge={@t.badge} />
   </section>
 </div>

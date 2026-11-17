@@ -24,6 +24,13 @@ defmodule LumenViaeWeb.Live.Home.App.Words do
       lede:
         "Las meditaciones de los santos entre las decenas, el Rosario bíblico y el Rosario entero rezado contigo, cuenta por cuenta.",
       free: "Gratis, sin cuenta",
+      # Apple's own badge in Spanish (Mexico), kept as downloaded.
+      badge: %{
+        src: "/images/app/app-store-badge-es.svg",
+        alt: "Descárgalo en el App Store",
+        width: 168,
+        height: 56
+      },
       proof: [
         "#{chants} cantos",
         "#{prayers} oraciones",
@@ -73,6 +80,12 @@ defmodule LumenViaeWeb.Live.Home.App.Words do
       lede:
         "Meditations from the saints between the decades, the Scriptural Rosary, and the whole Rosary said with you, bead by bead.",
       free: "Free, no account",
+      badge: %{
+        src: "/images/app/app-store-badge.svg",
+        alt: "Download on the App Store",
+        width: 168,
+        height: 56
+      },
       proof: [
         "#{chants} chants",
         "#{prayers} prayers",

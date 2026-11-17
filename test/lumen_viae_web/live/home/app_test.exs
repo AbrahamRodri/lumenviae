@@ -105,6 +105,21 @@ defmodule LumenViaeWeb.Live.Home.AppTest do
                "Download_on_the_App_Store_Badge_US-UK_RGB_blk"
     end
 
+    test "the Spanish page's badge is Apple's own, in Spanish", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/app?lang=es")
+      badges = html |> Floki.parse_document!() |> Floki.find(~s(a[href="#{@app_store}"] img))
+
+      assert length(badges) >= 2
+
+      for badge <- badges do
+        assert Floki.attribute(badge, "alt") == ["Descárgalo en el App Store"]
+        assert Floki.attribute(badge, "src") == ["/images/app/app-store-badge-es.svg"]
+      end
+
+      assert File.read!("priv/static/images/app/app-store-badge-es.svg") =~
+               "Download_on_the_App_Store_Badge_ESMX_RGB_blk"
+    end
+
     # Each phone is its clip once recorded, else its still; either way it
     # says what it shows and its files exist.
     test "every phone says what it shows, and its files exist", %{conn: conn} do
