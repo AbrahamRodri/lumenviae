@@ -2312,7 +2312,8 @@ html:has(#prayer) {
     align-items: flex-end;
     gap: 3.125rem;
     width: 100%;
-    padding-bottom: 3.75rem;
+    /* Room under the phone for its Play/Pause button. */
+    padding-bottom: 4.75rem;
   }
 
   .app-c__hero-words {
@@ -2569,8 +2570,25 @@ html:has(#prayer) {
     cursor: pointer;
   }
 
+  /* On the hero phone the button stands under the phone, centred about
+     12px below the frame, so it never covers the app's own screen (whose
+     tab bar and gold play button sit at its foot): the phone lets it out
+     (the video keeps the rounded corners itself) and keeps room below. */
+  .app-phone--hero {
+    overflow: visible;
+  }
+
+  .app-phone--hero .app-phone__screen {
+    border-radius: inherit;
+  }
+
   .app-phone--hero .app-phone__toggle {
     --toggle-size: 2.25rem;
+    top: calc(100% + 8px + 0.75rem);
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .app-phone__toggle::before {
@@ -2660,6 +2678,11 @@ html:has(#prayer) {
     .app-phone--tile {
       width: 6.875rem;
       margin-right: 0.875rem;
+    }
+
+    /* Room under the stacked hero phone for its button. */
+    .app-phone--hero {
+      margin-bottom: 3.5rem;
     }
   }
 }
