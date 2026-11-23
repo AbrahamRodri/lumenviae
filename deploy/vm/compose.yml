@@ -26,6 +26,12 @@ services:
       # container id. Distribution refuses that as a long name, so the rpc
       # healthcheck below fails and `up --wait` never sees the app healthy.
       RELEASE_NODE: lumen_viae@127.0.0.1
+      # What the backup, restore-test and system-check timers last found
+      # (bin/write-status), for the System page. Read-only: the app can
+      # read the files and change nothing. The deploy makes ./status first.
+      OPS_STATUS_DIR: /srv/status
+    volumes:
+      - ./status:/srv/status:ro
     depends_on:
       db:
         condition: service_healthy

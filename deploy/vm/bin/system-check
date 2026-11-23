@@ -67,6 +67,16 @@ case "$health" in
 esac
 
 report="disk ${disk}%, memory and swap ${free_pct}% free, running: $(printf '%s' "$running" | tr '\n' ' ')"
+# The same result for the app's System page (bin/write-status).
+case "${disk:-}" in '' | *[!0-9]*) disk_json=null ;; *) disk_json=$disk ;; esac
+case "${free_pct:-}" in '' | *[!0-9]*) free_json=null ;; *) free_json=$free_pct ;; esac
+figures="\"disk_percent\":$disk_json,\"free_percent\":$free_json"
+if [ -z "$problems" ]; then
+  bin/write-status system-check true "running: $(printf '%s' "$running" | tr '\n' ' ')" "$figures"
+else
+  bin/write-status system-check false "$problems" "$figures"
+fi
+
 if [ -z "$problems" ]; then
   echo "system-check: ok ($report)"
   curl -fsS -m 10 --retry 3 --data-raw "$report" "$HC_SYSTEM_PING_URL" > /dev/null

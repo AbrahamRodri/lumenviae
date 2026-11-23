@@ -220,6 +220,7 @@ defmodule LumenViaeWeb.Components.Admin do
 
   `flush` drops the body padding, for a panel whose whole body is a table.
   """
+  attr :id, :string, default: nil
   attr :title, :string, default: nil
   attr :description, :string, default: nil
   attr :flush, :boolean, default: false
@@ -229,10 +230,13 @@ defmodule LumenViaeWeb.Components.Admin do
 
   def panel(assigns) do
     ~H"""
-    <section class={[
-      "bg-admin-surface border border-admin-hairline rounded-lg shadow-admin overflow-hidden",
-      @class
-    ]}>
+    <section
+      id={@id}
+      class={[
+        "bg-admin-surface border border-admin-hairline rounded-lg shadow-admin overflow-hidden",
+        @class
+      ]}
+    >
       <header
         :if={@title || @actions != []}
         class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-admin-hairline"
@@ -264,6 +268,7 @@ defmodule LumenViaeWeb.Components.Admin do
   attr :value, :any, required: true
   attr :hint, :string, default: nil
   attr :navigate, :string, default: nil
+  attr :href, :string, default: nil, doc: "an outside page, opened in a new tab"
   attr :tone, :string, default: "neutral"
   attr :delta, :integer, default: nil
   attr :delta_label, :string, default: nil
@@ -274,9 +279,11 @@ defmodule LumenViaeWeb.Components.Admin do
     ~H"""
     <.maybe_link
       navigate={@navigate}
+      href={@href}
       class={[
         "block bg-admin-surface border border-admin-hairline rounded-lg shadow-admin px-4 py-3.5",
-        @navigate && "hover:border-admin-hairline-strong hover:shadow-admin-raised transition-all"
+        (@navigate || @href) &&
+          "hover:border-admin-hairline-strong hover:shadow-admin-raised transition-all"
       ]}
     >
       <p class="admin-eyebrow">{@label}</p>
@@ -320,15 +327,21 @@ defmodule LumenViaeWeb.Components.Admin do
   end
 
   attr :navigate, :string, default: nil
+  attr :href, :string, default: nil
   attr :class, :any, default: nil
   slot :inner_block, required: true
 
   defp maybe_link(assigns) do
     ~H"""
-    <%= if @navigate do %>
-      <.link navigate={@navigate} class={@class}>{render_slot(@inner_block)}</.link>
-    <% else %>
-      <div class={@class}>{render_slot(@inner_block)}</div>
+    <%= cond do %>
+      <% @navigate -> %>
+        <.link navigate={@navigate} class={@class}>{render_slot(@inner_block)}</.link>
+      <% @href -> %>
+        <.link href={@href} target="_blank" rel="noopener" class={@class}>
+          {render_slot(@inner_block)}
+        </.link>
+      <% true -> %>
+        <div class={@class}>{render_slot(@inner_block)}</div>
     <% end %>
     """
   end

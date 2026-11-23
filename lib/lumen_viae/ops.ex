@@ -23,7 +23,7 @@ defmodule LumenViae.Ops do
   """
   use Ash.Domain, otp_app: :lumen_viae
 
-  alias LumenViae.Ops.{Database, Health, Jobs, Probes, Runtime, Status}
+  alias LumenViae.Ops.{Database, Health, HostStatus, Jobs, Probes, Runtime, Status}
 
   resources do
     resource LumenViae.Ops.Maintenance do
@@ -35,6 +35,7 @@ defmodule LumenViae.Ops do
   defdelegate health(opts \\ []), to: Health, as: :check
   defdelegate status, to: Status, as: :snapshot
   defdelegate runtime, to: Runtime, as: :snapshot
+  defdelegate host_status, to: HostStatus, as: :read
   defdelegate database(opts \\ []), to: Database, as: :snapshot
   defdelegate queues, to: Jobs
   defdelegate recent_failures(limit \\ 10), to: Jobs

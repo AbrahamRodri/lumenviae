@@ -38,7 +38,8 @@ endpoint=${BACKUP_ENDPOINT:-https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com}
 # (bin/restore-test relies on that).
 key="$BACKUP_PREFIX/$(date -u +%Y-%m-%dT%H%M%SZ).dump"
 dump=$(mktemp /var/tmp/backup.XXXXXX)
-trap 'rm -f "$dump"' EXIT
+# On any failure, say so on the app's System page too (bin/write-status).
+trap 'rc=$?; rm -f "$dump"; [ "$rc" -eq 0 ] || bin/write-status backup false "failed (exit $rc); the journal says why"' EXIT
 
 # Custom format, compressed; the database's own name and user, from inside
 # the container, so nothing here names them.
@@ -65,3 +66,4 @@ stored=$(aws s3api head-object --bucket "$R2_BUCKET" --key "$key" --query Conten
 
 echo "backup: $key, $size bytes"
 curl -fsS -m 10 --retry 3 "$BACKUP_PING_URL" > /dev/null
+bin/write-status backup true "$size bytes, stored and checked"
