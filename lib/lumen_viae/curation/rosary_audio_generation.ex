@@ -121,6 +121,53 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
     end
   end
 
+  @doc """
+  `coverage/1`, remembered for five minutes
+  (`config :lumen_viae, :rosary_audio_coverage_ttl`, in milliseconds; the
+  suite sets 0), so the dashboard and the Spoken Rosary page do not send a
+  HEAD per clip on every open and Refresh. Only a complete answer is
+  remembered: one with any `:unknown` clip is asked again next time.
+  `fresh: true` asks S3 now.
+  """
+  def cached_coverage(opts \\ []) do
+    with false <- Keyword.get(opts, :fresh, false),
+         {at, coverage} <- :persistent_term.get({__MODULE__, :coverage}, nil),
+         true <- System.monotonic_time(:millisecond) - at < coverage_ttl() do
+      coverage
+    else
+      _fresh_missing_or_stale -> remember_coverage(opts)
+    end
+  end
+
+  defp coverage_ttl,
+    do: Application.get_env(:lumen_viae, :rosary_audio_coverage_ttl, :timer.minutes(5))
+
+  @doc "Forgets the remembered coverage, after a clip is recorded."
+  def forget_coverage, do: :persistent_term.erase({__MODULE__, :coverage})
+
+  @doc """
+  Whether a coverage answer is complete: every clip in every voice was
+  asked and answered. `false` means the check could not run (no
+  credentials, S3 down, a timeout), which is not the same as nothing
+  missing.
+  """
+  def complete_coverage?(coverage) do
+    Enum.all?(coverage, fn {_voice, entries} -> Enum.all?(entries, &(&1.status != :unknown)) end)
+  end
+
+  defp remember_coverage(opts) do
+    coverage = coverage(Keyword.delete(opts, :fresh))
+
+    if complete_coverage?(coverage) do
+      :persistent_term.put(
+        {__MODULE__, :coverage},
+        {System.monotonic_time(:millisecond), coverage}
+      )
+    end
+
+    coverage
+  end
+
   defp all_unknown(voices, clips) do
     for voice <- voices do
       {voice, Enum.map(clips, &%{clip: &1, key: PrayerAudio.s3_key(voice, &1), status: :unknown})}
@@ -145,9 +192,18 @@ defmodule LumenViae.Curation.RosaryAudioGeneration do
         end,
         max_concurrency: Keyword.get(opts, :concurrency, 16),
         timeout: :timer.seconds(30),
+        # A HEAD that hangs is that clip unknown, not the whole check lost.
+        on_timeout: :kill_task,
         ordered: true
       )
-      |> Enum.map(fn {:ok, result} -> result end)
+      |> Enum.zip(work)
+      |> Enum.map(fn
+        {{:ok, result}, _work} ->
+          result
+
+        {{:exit, _timeout}, {voice, clip}} ->
+          {voice.slug, %{clip: clip, key: PrayerAudio.s3_key(voice, clip), status: :unknown}}
+      end)
       |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
 
     Enum.map(voices, &{&1, Map.get(results, &1.slug, [])})

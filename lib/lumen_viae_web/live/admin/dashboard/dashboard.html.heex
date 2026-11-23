@@ -96,7 +96,7 @@
                   "text-[0.8125rem] font-semibold",
                   health_tone_classes(item.tone)
                 ]}>
-                  {item.count}
+                  {Map.get(item, :display, item.count)}
                 </span>
                 <div class="min-w-0 flex-1">
                   <p class="font-medium text-admin-ink">{item.label}</p>

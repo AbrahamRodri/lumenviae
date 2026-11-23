@@ -60,6 +60,11 @@ config :lumen_viae, :completions_per_hour, 1_000_000
 config :lumen_viae, :sign_in_per_ip, 1_000_000
 config :lumen_viae, :sign_in_per_email, 1_000_000
 
+# The Spoken Rosary coverage is remembered between page opens in
+# :persistent_term, which every test shares: remembered for no time here,
+# so one test's fake bucket never answers for another's.
+config :lumen_viae, :rosary_audio_coverage_ttl, 0
+
 # Every Divine Office fetch in the suite goes through Req.Test. A test
 # that forgets to stub gets a loud "no stub" error instead of a quiet
 # request to the real Divinum Officium site.
