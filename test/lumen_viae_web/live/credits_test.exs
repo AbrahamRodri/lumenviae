@@ -88,11 +88,21 @@ defmodule LumenViaeWeb.Live.CreditsTest do
 
       assert has_element?(
                view,
-               ~s(#book-story-of-a-soul a[href="https://www.gutenberg.org/ebooks/16772"])
+               "#book-story-of-a-soul",
+               "Burns, Oates & Washbourne, London, 1912"
              )
+
+      refute has_element?(view, "#books", "Gutenberg")
+      refute has_element?(view, ~s(#books a[href*="gutenberg.org"]))
 
       assert has_element?(view, "#book-story-of-a-soul", "LibriVox volunteers, audiobook #8021")
       assert has_element?(view, "#book-true-devotion", "Faber")
+    end
+
+    test "every shelf book names the printed edition its text comes from" do
+      for book <- Sources.books(nil) do
+        assert Sources.printed_edition(book), "no printed edition for #{book.id}"
+      end
     end
   end
 
