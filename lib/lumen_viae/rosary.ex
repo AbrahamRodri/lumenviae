@@ -554,6 +554,17 @@ defmodule LumenViae.Rosary do
   @doc "A score page's name, from its URL in the Chant Library."
   def chant_score_page_name(url), do: LumenViae.Rosary.ChantScore.name(url)
 
+  @doc """
+  A Spiritual Reading book's text to store with the release, fetched from
+  Gutenberg (`mix lumen_viae.store_books`): `{:ok, body}` once the body cuts
+  into the same chapters as the whole download, or `{:error, reason}`.
+  """
+  def fetch_stored_book_body(info),
+    do: LumenViae.Rosary.SpiritualReading.Stored.fetch_body(info)
+
+  @doc "The stored text's file name for Gutenberg ebook `id`: `pg16772.txt`."
+  def stored_book_file(id), do: LumenViae.Rosary.SpiritualReading.Stored.file(id)
+
   ## Mysteries
   #
   # list_mysteries!/0, list_mysteries_by_category!/1, get_mystery!/1,

@@ -4,7 +4,7 @@ defmodule Mix.Tasks.LumenViae.StoreBooks do
   @moduledoc """
   Writes each Spiritual Reading book's text to
   `priv/library/books/pg<gutenberg_id>.txt`, the copy the website reads
-  (`LumenViae.Rosary.SpiritualReading.Stored`): the edition's body without
+  (`Rosary.fetch_stored_book_body/1`): the edition's body without
   Gutenberg's header and licence, written only when it cuts into the same
   chapters as the whole download.
 
@@ -21,8 +21,8 @@ defmodule Mix.Tasks.LumenViae.StoreBooks do
 
   use Mix.Task
 
+  alias LumenViae.Rosary
   alias LumenViae.Rosary.Library
-  alias LumenViae.Rosary.SpiritualReading.Stored
 
   @folder "priv/library/books"
 
@@ -51,9 +51,9 @@ defmodule Mix.Tasks.LumenViae.StoreBooks do
 
     failed =
       Enum.reject(books, fn info ->
-        case Stored.fetch_body(info) do
+        case Rosary.fetch_stored_book_body(info) do
           {:ok, body} ->
-            path = Path.join(@folder, Stored.file(info.gutenberg_id))
+            path = Path.join(@folder, Rosary.stored_book_file(info.gutenberg_id))
             File.write!(path, body)
             Mix.shell().info("#{info.id}: #{path}, #{byte_size(body)} bytes")
             true
