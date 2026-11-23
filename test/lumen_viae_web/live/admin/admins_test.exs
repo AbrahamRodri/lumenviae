@@ -24,6 +24,20 @@ defmodule LumenViaeWeb.Live.Admin.AdminsTest do
     assert html =~ "You"
   end
 
+  test "says when each admin last signed in, from their stored sessions", %{me: me} do
+    other = admin_fixture()
+
+    sign_ins = Accounts.last_sign_ins(actor: me)
+    assert %DateTime{} = sign_ins[to_string(me.id)]
+    refute Map.has_key?(sign_ins, to_string(other.id))
+
+    assert LumenViaeWeb.Live.Admin.Admins.last_signed_in(sign_ins, other) ==
+             "Not in the last week"
+
+    # Anyone but an admin sees no sign-ins at all.
+    assert Accounts.last_sign_ins([]) == %{}
+  end
+
   test "adds an admin with your password and shows theirs once", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/admin/admins")
     email = "added#{System.unique_integer([:positive])}@lumenviae.test"

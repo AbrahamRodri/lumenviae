@@ -73,6 +73,15 @@ defmodule LumenViae.Accounts.Token do
       change AshAuthentication.TokenResource.StoreTokenChange
     end
 
+    # The Admins screen's "Last signed in": a session token is stored at
+    # each sign-in and kept until it expires, so this reaches back as far
+    # as the token lifetime. Only the subject and the moment are selected.
+    read :sign_ins do
+      description "When each admin's stored sessions began, newest first: subject and time only."
+      filter expr(purpose == "user")
+      prepare build(select: [:subject, :created_at], sort: [created_at: :desc])
+    end
+
     destroy :expunge_expired do
       description "Deletes expired tokens."
       change filter(expr(expires_at < now()))
@@ -86,12 +95,17 @@ defmodule LumenViae.Accounts.Token do
     end
   end
 
-  # Only AshAuthentication reads and writes tokens. Nobody else - not even an
-  # admin - has a reason to, and a token is a credential.
+  # Only AshAuthentication reads and writes tokens, and a token is a
+  # credential. The one exception is :sign_ins, which an admin may read for
+  # the Admins screen: it selects who and when, never the token.
   policies do
     bypass AshAuthentication.Checks.AshAuthenticationInteraction do
       description "AshAuthentication can interact with the token resource"
       authorize_if always()
+    end
+
+    policy action(:sign_ins) do
+      authorize_if LumenViae.Accounts.Checks.ActorIsAdmin
     end
   end
 

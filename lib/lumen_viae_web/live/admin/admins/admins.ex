@@ -100,7 +100,9 @@ defmodule LumenViaeWeb.Live.Admin.Admins do
   end
 
   defp load(socket) do
-    assign(socket, :admins, Accounts.list_admins!(actor: me(socket)))
+    socket
+    |> assign(:admins, Accounts.list_admins!(actor: me(socket)))
+    |> assign(:sign_ins, Accounts.last_sign_ins(actor: me(socket)))
   end
 
   defp me(socket), do: socket.assigns.current_admin
@@ -111,6 +113,17 @@ defmodule LumenViaeWeb.Live.Admin.Admins do
 
   @doc "When an admin was added, in the reporting zone."
   def added(%{inserted_at: at}), do: CentralTime.format_short(at)
+
+  @doc """
+  When an admin last signed in, in the reporting zone, or that it was not
+  in the last week: sessions are kept only as long as they last.
+  """
+  def last_signed_in(sign_ins, admin) do
+    case Map.get(sign_ins, to_string(admin.id)) do
+      nil -> "Not in the last week"
+      at -> CentralTime.format_short(at)
+    end
+  end
 
   @doc "Whether `admin` is the one signed in."
   def me?(admin, me), do: admin.id == me.id
