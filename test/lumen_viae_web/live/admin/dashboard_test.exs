@@ -156,6 +156,18 @@ defmodule LumenViaeWeb.Live.Admin.DashboardTest do
     end
   end
 
+  describe "every count lands on its rows" do
+    test "mysteries without a meditation link to exactly those mysteries", %{conn: conn} do
+      bare = create_mystery()
+
+      {:ok, _view, html} = live(conn, "/admin")
+      assert html =~ ~s(href="/admin/mysteries?meditations=none")
+
+      {:ok, _view, list} = live(conn, "/admin/mysteries?meditations=none")
+      assert list =~ bare.name
+    end
+  end
+
   describe "an empty checklist" do
     test "says so rather than listing rows that read zero", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/admin")

@@ -182,7 +182,7 @@ defmodule LumenViaeWeb.Live.Meditations.List do
         category: filters.category,
         mystery_id: filters.mystery,
         author: filters.author,
-        audio: filters.audio,
+        audio: audio_filter(filters.audio, socket.assigns.current_admin),
         status: filters.status,
         set_id: filters.set
       })
@@ -191,13 +191,19 @@ defmodule LumenViaeWeb.Live.Meditations.List do
     assign(socket, :filtered_meditations, filtered)
   end
 
+  defp audio_filter("missing_voice", actor) do
+    {:missing_voice, MapSet.new(Rosary.meditation_ids_missing_a_voice(actor: actor))}
+  end
+
+  defp audio_filter(audio, _actor), do: audio
+
   defp parse_filters(params) do
     %{
       query: String.trim(params["q"] || ""),
       category: Filtering.blank_to_nil(params["category"]),
       mystery: parse_int(params["mystery"]),
       author: Filtering.blank_to_nil(params["author"]),
-      audio: allowed(params["audio"], ~w(with without)),
+      audio: allowed(params["audio"], ~w(with without missing_voice)),
       status: allowed(params["status"], @status_options) || @default_status,
       set: parse_set(params["set"]),
       sort: allowed(params["sort"], @sort_options) || @default_sort

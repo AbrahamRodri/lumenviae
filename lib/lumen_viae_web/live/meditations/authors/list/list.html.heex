@@ -23,6 +23,15 @@
     />
   </div>
 
+  <.panel :if={@portrait} class="mb-5">
+    <.filter_summary
+      shown={length(@shown_authors)}
+      total={length(@authors)}
+      noun="authors, those without a served portrait"
+      filtered
+    />
+  </.panel>
+
   <.panel flush>
     <%= if @authors == [] do %>
       <div class="p-4">
@@ -44,7 +53,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr :for={author <- @authors}>
+            <tr :for={author <- @shown_authors}>
               <td>
                 <img
                   :if={author.image_key}
