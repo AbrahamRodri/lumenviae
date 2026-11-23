@@ -36,7 +36,7 @@ What runs on Fly for Lumen Viae, as of October 2026:
 | Fly app | What runs | About USD a month |
 |---|---|---|
 | `lumenviae` | 1 x shared-cpu-1x, 1GB, always on | 5.70 |
-| `lumenviae-db` | 1 x shared-cpu-1x, 256MB, and a 1GB volume | 2.10 |
+| `lumenviae-db` | Destroyed 23 Nov 2026 (final dump in R2, `site-backups/fly-final/`) | 0 |
 | `lumenviae-office` | 1 x 1GB, suspended when idle (docs/OFFICE_API.md) | under 1 |
 
 The organisation also holds `carlosassist` and `weddpix`, which are not

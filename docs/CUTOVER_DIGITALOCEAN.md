@@ -150,6 +150,13 @@ Fly stays up for that week (about $2.50). After a quiet week, and only
 with Abraham's yes: scale `lumenviae` to zero, then destroy `lumenviae`,
 `lumenviae-db` (after a final dump kept in R2) and `lumenviae-office`.
 
+Done for the database: Fly became a proxy for installed apps on 5 Nov 2026
+(deploy/fly-proxy), and `lumenviae-db` was destroyed on 23 Nov 2026 at
+17:20:48Z, after the last rows written through Fly were caught up and a final
+dump, `site-backups/fly-final/lumenviae-20261123T171330Z.dump`, was read back
+and matched. The Fly steps above (step 7's `fly proxy`, the copy-back) can no
+longer be run; they are the record of how the move was made.
+
 ## What a seat would need on the Droplet
 
 None of this is needed for the move: every step above is Abraham's, typed
