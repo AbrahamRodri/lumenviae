@@ -143,6 +143,17 @@ defmodule LumenViaeWeb.API.MeditationSetControllerTest do
               assert_string_or_nil(attribution[key], "image_attribution.#{key}")
             end
         end
+
+        case summary["image_variants"] do
+          nil ->
+            :ok
+
+          variants when is_list(variants) ->
+            for variant <- variants do
+              assert is_integer(variant["width"]), "image_variants.width"
+              assert is_binary(variant["url"]), "image_variants.url"
+            end
+        end
       end
 
       assert Enum.any?(data, &is_map(&1["image_attribution"]))
