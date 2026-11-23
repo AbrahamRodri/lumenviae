@@ -28,7 +28,18 @@ defmodule LumenViaeWeb.Live.Prayers.NovenasTest do
       assert Enum.at(shelf, 1).note == "Now, to December 24"
       assert Enum.at(shelf, 2).prayer.id == "our_lady_of_guadalupe_novena"
       assert Enum.at(shelf, 2).note == "December 12"
-      assert List.last(shelf).note == "Any time"
+      assert List.last(shelf).note == "October 28"
+    end
+
+    # Every novena in the book has a feast now, so one of any time is made
+    # here from a twin the book prints without a novena.
+    test "a novena of any time comes last", %{book: book} do
+      any_time = %{book.novenas["st_joseph_novena"] | prayer_id: "efficacious_novena", feast: nil}
+      book = %{book | novenas: Map.put(book.novenas, "efficacious_novena", any_time)}
+
+      shelf = Book.novena_shelf(book, ~D[2026-11-30])
+
+      assert %{prayer: %{id: "efficacious_novena"}, note: "Any time"} = List.last(shelf)
     end
 
     test "on the feast itself the novena is over, and its feast is today", %{book: book} do

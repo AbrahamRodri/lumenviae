@@ -109,36 +109,6 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       end
     end
 
-    # Day shape A (Abraham, 14 Nov: "if we can do 1 without it being clunky
-    # then yes"): three decades, the day's meditation with its invocation
-    # (and saying) as Ascension prints them, the last two decades.
-    test "Undoer of Knots: nine days, the Rosary inside each", %{conn: conn} do
-      [novena | _] =
-        conn
-        |> get_v2("/prayer-book?fields[prayer_book]=novenas")
-        |> v2_response(200)
-        |> get_in(["data", "attributes", "novenas"])
-
-      assert %{"id" => "undoer_of_knots", "length" => 9, "prayer_id" => "undoer_of_knots_novena"} =
-               novena
-
-      assert Enum.map(novena["days"], & &1["number"]) == Enum.to_list(1..9)
-
-      for day <- novena["days"] do
-        kinds = Enum.map(day["parts"], & &1["kind"])
-        decades = for %{"kind" => "rosary", "decades" => d} <- day["parts"], do: d
-
-        assert Enum.take(kinds, 5) == ~w(opening opening rosary meditation invocation),
-               "day #{day["number"]}"
-
-        assert kinds |> Enum.drop(5) |> Enum.drop_while(&(&1 == "saying")) |> hd() == "rosary",
-               "day #{day["number"]}"
-
-        assert decades == [[1, 2, 3], [4, 5]], "day #{day["number"]}"
-        assert "closing" in kinds, "day #{day["number"]}"
-      end
-    end
-
     test "novena_translations: the Spanish by part id with lang=es, empty in English", %{
       conn: conn
     } do
@@ -150,18 +120,23 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       spanish =
         conn |> get_v2(path <> "&lang=es") |> v2_response(200) |> get_in(["data", "attributes"])
 
-      [novena | _] = spanish["novenas"]
-      [knots | _] = spanish["novena_translations"]
+      assert Enum.map(spanish["novena_translations"], & &1["id"]) ==
+               Enum.map(spanish["novenas"], & &1["id"])
 
-      assert %{"id" => "undoer_of_knots", "title" => "La Virgen Desatanudos"} = knots
-      assert knots["ai_translated"] == false
-      assert length(knots["day_titles"]) == novena["length"]
+      novena = Enum.find(spanish["novenas"], &(&1["id"] == "our_lady_of_guadalupe"))
+
+      guadalupe =
+        Enum.find(spanish["novena_translations"], &(&1["id"] == "our_lady_of_guadalupe"))
+
+      assert %{"title" => "La Virgen de Guadalupe"} = guadalupe
+      assert guadalupe["ai_translated"] == false
+      assert length(guadalupe["day_titles"]) == novena["length"]
 
       own =
         for day <- novena["days"], part <- day["parts"], part["id"], uniq: true, do: part["id"]
 
-      assert Enum.map(knots["parts"], & &1["id"]) == own
-      assert Enum.all?(knots["parts"], &(&1["ai_translated"] == false))
+      assert Enum.map(guadalupe["parts"], & &1["id"]) == own
+      assert Enum.all?(guadalupe["parts"], &(&1["ai_translated"] == false))
     end
 
     # novenas-api-nine (orch-lead, 14 Nov 2026).
@@ -290,7 +265,7 @@ defmodule LumenViaeWeb.JsonApi.LibraryTest do
       by_id = Map.new(spanish["novena_translations"], &{&1["id"], &1})
 
       assert Map.keys(by_id) |> Enum.sort() ==
-               ~w(holy_spirit immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas st_joseph st_jude st_therese undoer_of_knots)
+               ~w(holy_spirit immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas st_joseph st_jude st_therese)
 
       team_parts =
         ~w(immaculate_conception_tota_pulchra immaculate_conception_closing st_jude_novena_invocation)

@@ -40,7 +40,7 @@ here.
 | `sub_tuum` | [1] "Bajo tu protección" |
 | `te_deum` | [1] "Te Deum" |
 | `jesus_i_trust_in_thee` | [2] |
-| `my_lord_and_my_god` | [3] John 20:28 |
+| `my_lord_and_my_god` | [S1] Torres Amat, John 20:28 |
 | `pardon_prayer` | [4] |
 | `angels_prayer_fatima` | [5] |
 | `miraculous_medal` | [6], the opening invocation |
@@ -59,7 +59,11 @@ here.
    (St. Faustina's order), "La imagen", on
    [santafaustina.es](https://www.santafaustina.es/imagen/).
 3. *El Libro del Pueblo de Dios*, John 20, on
-   [vatican.va](https://www.vatican.va/archive/ESL0506/__PWQ.HTM).
+   [vatican.va](https://www.vatican.va/archive/ESL0506/__PWQ.HTM). No
+   longer used: the page carries a Libreria Editrice Vaticana copyright
+   notice, so its three texts were replaced with Torres Amat [S1] on
+   23 November 2026 (copyright take-off; the old texts are kept in
+   reports/rig/copyright-takeoff/removed/pueblo_de_dios.es.json).
 4. Santuario de Fátima, "Oraciones de Fátima", on
    [fatima.pt](https://www.fatima.pt/es/pages/oraciones-de-fatima).
 5. Santuario de Fátima, "Palabra clave: adoración", on
@@ -118,8 +122,8 @@ Prayer by prayer:
 - `magnificat`: a character-encoding error on the page
   ("Â–como lo había prometido...Â–") is written with the en dashes the
   source intends.
-- `my_lord_and_my_god`: "Tomás respondió:" and the opening « are removed;
-  the source's "!." is kept.
+- `my_lord_and_my_god`: Torres Amat's "¡Señor mio, y Dios mio!" (Juan
+  20, 28, es.wikisource), the accents modernised.
 - `miraculous_medal`: only the opening invocation, which is the whole of
   the English. The couplets and collect that follow on the page are left
   out.
@@ -192,8 +196,8 @@ form is used and the difference is listed.
 | `st_dominic_o_lumen` | [20] the antiphon, quoted in the homily of 8 August 2014 |
 | `requiem_aeternam` | [21] the rite of conclusion |
 | `come_holy_ghost` | [14] |
-| `miserere` | [3] Psalm 51 |
-| `beati_quorum` | [3] Psalm 32 |
+| `miserere` | [S1] Torres Amat, Psalm 50 (51) |
+| `beati_quorum` | [S1] Torres Amat, Psalm 31 (32) |
 | `infant_of_prague` | [22] the prayer of Ven. Fr. Cyril |
 | `litany_loreto` | [23] |
 | `divine_mercy_chaplet` | [24] |
@@ -302,11 +306,15 @@ Also:
 - `come_holy_ghost`: "Envía, Señor, tu Espíritu, y vivirán todas las
   cosas" for "Send forth Thy Spirit, and they shall be created"; the
   collect is headed "[Oración.]", as the source heads it.
-- `miserere`, `beati_quorum`: a modern Bible translation, numbered as in
-  the Hebrew (51 and 32). The Bible prints no Glory Be; the one at the end
-  is from [16], which closes every psalm with it, pointed with " * " like
-  the Benedictus. In `miserere` the comma after "Jerusalén" is a full
-  stop, as "Entonces" begins a new sentence.
+- `miserere`, `beati_quorum`: Torres Amat [S1], Psalms 50 and 31 (the
+  Vulgate's numbers; titled 51 and 32 as in the Hebrew), transcribed from
+  the scan of the 1836 printing (archive.org, part 4, pp. 65-66 and 40-41),
+  verses 3-21 and 1-11 without the superscriptions or footnote marks. The
+  spelling is modernised with no word changed, as for St Bridget's verses
+  (accents; "á" to "a"; the vocative "ó" to "oh"), and each verse is
+  pointed with " * " at its main pause, as the English twins are. The
+  Bible prints no Glory Be; the one at the end is from [16], which closes
+  every psalm with it.
 - `infant_of_prague`: a freer version of the same prayer.
 - `litany_loreto`: the current form, with the invocations added since
   (Madre de la Iglesia, de la misericordia, de la esperanza, Consuelo de
@@ -565,6 +573,12 @@ Added on 14 November 2026. This is slice st-bridget-es, brought forward for the 
 ## The novenas
 
 ### `undoer_of_knots_novena`: "Novena a la Virgen Desatanudos", and the novena `undoer_of_knots`
+
+**Removed on 23 November 2026** (copyright take-off, with the English): a
+1998 text by a living author whose publisher requires permission for whole
+works. The entries are kept in
+reports/rig/copyright-takeoff/removed/undoer_of_knots.es.json, to return if
+permission is granted. The notes below describe it as it was.
 
 Added on 14 November 2026. Publisher text, not `ai_translated`: Ascension Press's
 own Spanish of Fr. Juan Ramón Celeiro's novena,
