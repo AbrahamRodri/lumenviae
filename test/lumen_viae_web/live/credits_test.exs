@@ -27,7 +27,7 @@ defmodule LumenViaeWeb.Live.CreditsTest do
                ~s(a[data-role=contact][href="mailto:rodriguez.abrahamdev@gmail.com"])
              )
 
-      for anchor <- ~w(#prayers #paintings #chant #books) do
+      for anchor <- ~w(#prayers #paintings #chant #books #licences) do
         assert has_element?(view, ~s(a[data-role=jump][href="#{anchor}"]))
       end
 
@@ -97,6 +97,21 @@ defmodule LumenViaeWeb.Live.CreditsTest do
   end
 
   describe "the ways in" do
+    test "the licences that ask for their notice carry it in full", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/credits")
+      rows = view |> element("#licences") |> render()
+
+      for id <- ~w(divinum-officium missale-meum phosphor cinzel eb-garamond) do
+        assert has_element?(view, "#licence-#{id}")
+      end
+
+      assert rows =~ "Copyright (c) 2026 Divinum Officium"
+      assert rows =~ "Copyright (c) 2022 Marcin Molenda"
+      assert rows =~ "Permission is hereby granted, free of charge"
+      assert rows =~ "Copyright 2020 The Cinzel Project Authors"
+      assert rows =~ "SIL OPEN FONT LICENSE Version 1.1"
+    end
+
     test "the footer links to the credits", %{conn: conn} do
       link = conn |> page("/") |> Floki.find(~s(footer a[href="/credits"]))
 

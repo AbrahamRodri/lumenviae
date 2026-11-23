@@ -5,7 +5,8 @@ defmodule LumenViaeWeb.Live.Credits.Index do
   first open), each prayer linked to its page with its origin beneath;
   then the novenas' paintings and the mysteries' woodcuts with their
   credits and licences; the Chant Library's singers and every chant's
-  source; and the books with their editions and recordings. A section
+  source; the books with their editions and recordings; and the licences
+  of the software and fonts that ask for their notice to be shown. A section
   with nothing to credit is left out, and so is its jump pill.
   """
   use LumenViaeWeb, :live_view
@@ -34,7 +35,8 @@ defmodule LumenViaeWeb.Live.Credits.Index do
         {chapters != [], "prayers", "Prayers"},
         {paintings != [] or woodcuts != [] or site_paintings != [], "paintings", "Paintings"},
         {chant != nil, "chant", "Chant"},
-        {true, "books", "Books"}
+        {true, "books", "Books"},
+        {true, "licences", "Licences"}
       ]
       |> Enum.filter(&elem(&1, 0))
       |> Enum.map(fn {_shown, id, label} -> {id, label} end)
@@ -56,6 +58,7 @@ defmodule LumenViaeWeb.Live.Credits.Index do
      |> assign(:site_paintings, site_paintings)
      |> assign(:chant, chant)
      |> assign(:books, books)
+     |> assign(:licences, Sources.licences())
      |> assign(:true_devotion, Sources.true_devotion(actor))}
   end
 
