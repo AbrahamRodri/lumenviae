@@ -115,7 +115,8 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
       # The excerpt holds two of the four books: the index numbers them as
       # the page counts its parts, as the app's does.
       assert has_element?(view, ~s([data-role=part-index] a[href="#part-2"]), "II")
-      assert html =~ "Text: Project Gutenberg eBook #1653."
+      assert html =~ "Text: Harvard Classics, P. F. Collier &amp; Son, New York, 1909."
+      refute html =~ "Gutenberg"
       assert html =~ "Public domain."
       # The Imitation has no recording: no credit for one, no chips, no player.
       refute has_element?(view, "[data-role=recording-credit]")
