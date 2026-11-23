@@ -41,6 +41,15 @@ services:
     # narration request killed mid-flight may still be billed; Docker's
     # default is 10. Fly's kill_timeout was 150, kept here.
     stop_grace_period: 150s
+    # The log goes to the host's journal, tagged, so it outlives the
+    # container: a deploy or a restart recreates the container and its own
+    # log with it. `docker logs` still reads the current one; the journal
+    # (journalctl -t lv-app) reaches back across recreates, as far as the
+    # journal keeps (about 10% of the disk, the default).
+    logging:
+      driver: journald
+      options:
+        tag: lv-app
     # No published port: only Caddy reaches it, so X-Real-IP is always
     # Caddy's.
     # The release image has no curl: ask the running release whether its
@@ -100,6 +109,11 @@ services:
     depends_on:
       - app
     restart: unless-stopped
+    # Kept in the host's journal across recreates, as the app's is.
+    logging:
+      driver: journald
+      options:
+        tag: lv-caddy
 
 volumes:
   pgdata:
