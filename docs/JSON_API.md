@@ -793,8 +793,9 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   `origin_credit` is true; else only the part naming the book, publisher
   or shrine the wording comes from ("Según el Compendio del Catecismo de
   la Iglesia Católica"), since the tradition and century alone show
-  nowhere; absent where the foot shows nothing (only a tradition, or
-  "traducción del equipo", the team's own translation). A Rosary
+  nowhere; absent where the foot shows nothing (only a tradition). An
+  `ai_translated` text's credits name only its source, never the team as
+  translator: the app's AI notice says that. A Rosary
   prayer's comes from the file's `rosary_foot_credits`. Lists of sources
   keep `origin`. A client still shows the English for a prayer it does not
   find listed. Every other section is
