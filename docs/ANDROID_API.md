@@ -191,6 +191,14 @@ kept on the device and the network only refreshes it.
   `artwork` and every category's `card_artwork` is null. Keep the bundled
   paintings, show the served one once a field is not null, and fetch it
   from its `url`, which is public and never expires.
+- **Smaller copies of a painting.** Every artwork object (a set's
+  `artwork`, a mystery's `artwork`, a category's `card_artwork`) carries
+  `variants`: smaller WebP copies of the painting, `[{width, url}]`
+  narrowest first (480 and 960 wide where the original is wider), listing
+  only copies recorded as stored (`image_variant_widths`), so often `[]`.
+  Optional in the OpenAPI document; added 23 November 2026, so older builds
+  ignore it. Draw the smallest variant at least as wide as the image is
+  drawn (points times screen scale), else `url`. (shelf 480, set header 960).
 - **A reading door of kind `library`** names a reading the iPhone app
   holds and this document does not serve (the Marian Library's `montfort`
   and `cana`). A client that has no such reading leaves the door out.
