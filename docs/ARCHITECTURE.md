@@ -911,10 +911,11 @@ standing cost is set deliberately (`config/config.exs`):
 - **Pruner: a week, every five minutes.** Completed, cancelled and
   discarded jobs are deleted after seven days, which is the history Oban
   Web can show. The table stays at a few thousand rows.
-- **Shutdown: 140 seconds of grace, inside Fly's 150.** At SIGTERM Oban
+- **Shutdown: 140 seconds of grace, inside Docker's 150.** At SIGTERM Oban
   stops taking jobs and gives the running ones 140 seconds
-  (`shutdown_grace_period`), inside the 150 Fly waits before killing the
-  machine (`kill_timeout` in `fly.toml`). An ElevenLabs request takes 10
+  (`shutdown_grace_period`), inside the 150 Docker waits before killing the
+  app container (`stop_grace_period` in `deploy/vm/compose.yml`; Fly's
+  `kill_timeout` before the move). An ElevenLabs request takes 10
   to 120 seconds and may be billed even if the machine dies before the
   answer arrives, so a deploy has to let it finish. One that is killed
   anyway (an out-of-memory restart) is recognised on its next attempt and

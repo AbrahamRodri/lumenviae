@@ -7,7 +7,7 @@
 # commit, so the check fails while the old release is still the one serving.
 #
 # Plain curl, no secrets, read-only GETs. Exits non-zero on the first failure.
-# The CI deploy job runs it after `flyctl deploy`; anyone can run it by hand.
+# The CI deploy job runs it after the deploy; anyone can run it by hand.
 # What to do when it fails is in docs/DEPLOY_WATCH.md.
 set -euo pipefail
 

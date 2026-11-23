@@ -39,8 +39,8 @@ defmodule LumenViae.Audio.Recording do
       attempt count has run ahead of its errors. If nothing of ours is at
       the key by then, the killed request may still have been billed, so
       the job is cancelled with that reason instead of paying again.
-      Deploys avoid the kill in the first place: Fly waits 150 seconds
-      after SIGTERM (`kill_timeout` in `fly.toml`) and Oban gives running
+      Deploys avoid the kill in the first place: Docker waits 150 seconds
+      after SIGTERM (`stop_grace_period` in `deploy/vm/compose.yml`) and Oban gives running
       jobs 140 of them to finish (`shutdown_grace_period`).
 
   `:force` re-records an object that is already right - a deliberate

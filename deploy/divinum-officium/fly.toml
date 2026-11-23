@@ -7,7 +7,8 @@
 # docs/OFFICE_API.md always allowed for. The app is private: it has a
 # Flycast address only (`fly ips allocate-v6 --private`) and no public
 # IPs, and the Phoenix app reaches it as http://lumenviae-office.flycast
-# (DIVINUM_OFFICIUM_BASE_URL in the root fly.toml). Attribution in API
+# (DIVINUM_OFFICIUM_BASE_URL in the old root fly.toml, removed 23 Nov 2026;
+# the Droplet runs the engine itself, deploy/vm/compose.yml). Attribution in API
 # responses still names the public site, by design.
 #
 # Deploy from the repo root:
