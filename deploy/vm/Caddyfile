@@ -1,3 +1,24 @@
+# Caddy's own log (a failed proxy, say) carries the caller's network
+# address, and the host journal keeps it (compose.yml, logging). The privacy
+# policy says the logs hold no network address, so these fields are dropped
+# before anything is written. Checked under caddy:2.10: a 502's error line
+# keeps method, uri and status and loses remote_ip, client_ip and the
+# forwarding headers.
+{
+	log default {
+		format filter {
+			wrap json
+			fields {
+				request>remote_ip delete
+				request>client_ip delete
+				request>headers>X-Forwarded-For delete
+				request>headers>X-Real-Ip delete
+				request>headers>Cf-Connecting-Ip delete
+			}
+		}
+	}
+}
+
 # Replaced, never appended: a caller's own X-Real-IP is dropped, so
 # LumenViaeWeb.ClientIP (CLIENT_IP_HEADER=x-real-ip) reads the real peer.
 (real_ip) {
