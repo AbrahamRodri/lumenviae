@@ -1,11 +1,12 @@
-# Lumen Viae on one VM (not in use)
+# Lumen Viae on one VM
 
-Production runs on Fly (`fly.toml`). This folder is the prepared
-alternative from the hosting plan (a DigitalOcean Droplet, Abraham's
-choice on 2 November 2026), `reports/rig/hosting-migration.md` in
-the workspace: one small VM running the app, Postgres 17, the Divine
-Office engine and Caddy, about $6 a month. Nothing here runs until
-Abraham switches, and the switch is his to start.
+Production runs here: a DigitalOcean Droplet, `lumenviae-prod-2`
+(Abraham's choice on 2 November 2026; the plan is
+`reports/rig/hosting-migration.md` in the workspace), switched on in
+November 2026 with the repository variable `HOSTING=vm`. One small VM runs
+the app, Postgres 17, the Divine Office engine and Caddy, about $6 a month.
+Fly keeps only a proxy for installed apps (deploy/fly-proxy); its database
+was destroyed on 23 Nov 2026.
 
 ## What is here
 
@@ -37,7 +38,8 @@ change.
 The deploy lives in `.github/workflows/ci.yml`. The repository variable
 `HOSTING` picks the job:
 
-- unset (today): `deploy`, to Fly, exactly as before;
+- unset: `deploy`, to Fly, as before the move (it can no longer work:
+  Fly's database is gone);
 - `vm`: `deploy-vm`, which builds the release image from main's commit,
   pushes it to GHCR, copies the pinned Office engine image into our own
   GHCR copy if it is not there yet (docs/OFFICE_API.md, "Updating the
@@ -46,11 +48,13 @@ The deploy lives in `.github/workflows/ci.yml`. The repository variable
   `RELEASE_COMMIT` set, then runs `bin/post-deploy-check` and
   `bin/prod-feature-check` as Fly's job does.
 
-`deploy-vm` needs three repository secrets that do not exist yet:
+`HOSTING` is `vm` today. `deploy-vm` uses three repository secrets:
 `VM_HOST`, `VM_SSH_KEY` and `VM_SSH_KNOWN_HOSTS`. The order of the switch
 (rehearsal under the real name, the database copy, the DNS flip, setting
 `HOSTING=vm`, the watch and the rollback) is the runbook in the hosting
-plan. Unsetting `HOSTING` sends the next deploy back to Fly.
+plan. Unsetting `HOSTING` would send the next deploy back to Fly, which no
+longer has a database; whether to remove that path is on Desk card
+lv-fly-deploy-leftovers.
 
 ## The one code change it needed
 

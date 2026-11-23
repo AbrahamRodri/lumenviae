@@ -1840,9 +1840,10 @@ the route, by
 `Plugs.ThrottleSignIn`; see "Rate limits" for why that is a plug.
 
 In production the session cookie is `secure`, and the endpoint forces
-HTTPS with HSTS (`force_ssl` in config/prod.exs): a one-day max-age to
-begin with, since HSTS sticks in browsers; the proxy's `X-Forwarded-Proto`
-trusted, since Fly's proxy ends TLS; and `/healthz` excluded, so a check
+HTTPS with HSTS (`force_ssl` in config/prod.exs): a one-year max-age
+since 23 Nov 2026 (it began at one day, since HSTS sticks in browsers),
+without includeSubDomains; the proxy's `X-Forwarded-Proto` trusted, since
+the proxy (Caddy on the Droplet) ends TLS; and `/healthz` excluded, so a check
 over the private network gets its answer rather than a redirect.
 
 `:load_from_session` in the browser pipeline puts the signed-in admin in
