@@ -207,8 +207,32 @@ defmodule LumenViaeWeb.Live.Credits.Sources do
   def books(actor), do: Shelf.books(actor)
 
   defdelegate author_line(book), to: Shelf
-  defdelegate gutenberg_url(book), to: Shelf
-  defdelegate text_credit(book), to: Shelf, as: :credit
+
+  # The printed edition each shelf book's text was set from, by book id, so
+  # the credit names the real book rather than the website that carries it
+  # (reports/rig/copyright-review/inventory.md, "Item 19"). Imitation and
+  # Confessions are inferred there (a matching introduction; Pusey's own
+  # first edition); the others are stated in the transcribed text. A book
+  # added to the catalogue needs a line here: credits_test checks it.
+  @printed_editions %{
+    "imitation-of-christ" => "Harvard Classics, P. F. Collier & Son, New York, 1909",
+    "story-of-a-soul" => "Burns, Oates & Washbourne, London, 1912; 8th edition, 1922",
+    "confessions-of-st-augustine" => "first published by J. H. Parker, Oxford, 1838",
+    "glories-of-mary" => "second American edition, Edward Dunigan & Brother, New York, 1852",
+    "practice-of-the-presence-of-god" => "Fleming H. Revell Company, New York, about 1895"
+  }
+
+  @doc """
+  The printed edition a shelf book's text comes from, "Text: Burns, Oates &
+  Washbourne, London, 1912; 8th edition, 1922.", or nil for a book with none
+  recorded.
+  """
+  def printed_edition(%{id: id}) do
+    case Map.fetch(@printed_editions, id) do
+      {:ok, edition} -> "Text: #{edition}."
+      :error -> nil
+    end
+  end
 
   @doc "\"Recording: LibriVox volunteers, audiobook #8021.\", or nil for a book with none."
   def librivox_credit(%{librivox_id: id}) when is_integer(id),
