@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-23 21:30:00Z], "ebb9c83c9b509375"}
+  @pinned {~U[2026-11-23 22:30:00Z], "a0d0ac864630f951"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -194,6 +194,18 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
              Enum.find(spanish, &(&1.id == "our_lady"))
   end
 
+  # The app shows "Traducción hecha con inteligencia artificial." under an
+  # ai_translated text, so its source line names only the source (Abraham,
+  # 10 Nov, Action Desk "A"; product-pm, 23 Nov).
+  test "an ai_translated text's credits name its source, not the team as translator" do
+    for prayer <- Spanish.prayers(), Map.get(prayer, :ai_translated) do
+      for key <- [:origin, :foot_credit, :short_credit], text = Map.get(prayer, key), text do
+        refute text =~ ~r/traducci[oó]n del equipo|traducid[oa]s? del lat[ií]n por el equipo/u,
+               "#{prayer.id} #{key}: #{text}"
+      end
+    end
+  end
+
   test "a Spanish short credit names the author, shorter than the origin" do
     for prayer <- Spanish.prayers(), Map.has_key?(prayer, :short_credit) do
       assert String.length(prayer.short_credit) < String.length(prayer.origin), prayer.id
@@ -202,15 +214,14 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
     spanish = Map.new(Spanish.prayers(), &{&1.id, &1})
 
     assert spanish["holy_spirit_novena"].short_credit ==
-             "Los Padres del Espíritu Santo · 1947 · traducción del equipo"
+             "Los Padres del Espíritu Santo · 1947"
 
     for id <- ~w(st_jude_novena st_andrew_novena peace_prayer immaculate_conception_novena) do
       refute Map.has_key?(spanish[id], :short_credit), id
     end
 
     assert %{
-             short_credit:
-               "P. Lawrence G. Lovasik, S.V.D. · según la publica EWTN · traducción del equipo"
+             short_credit: "P. Lawrence G. Lovasik, S.V.D. · según la publica EWTN"
            } =
              Enum.find(Spanish.prayers(), &(&1.id == "st_joseph_novena"))
 
