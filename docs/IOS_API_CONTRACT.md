@@ -234,6 +234,15 @@ unsigned and immutable: ArtworkCache keys on the URL string and relies on
 S3's immutable header, so a signed or per-request URL would mean a
 download on every visit.
 
+In `/api/v2`, a set's `artwork`, a mystery's `artwork` and a category's
+`card_artwork` also carry `variants`: smaller WebP copies of the painting, `[{width, url}]`
+narrowest first (480 and 960 wide where the original is wider), listing
+only copies recorded as stored (`image_variant_widths`), so often `[]`.
+Optional in the OpenAPI document; added 23 November 2026, so older builds
+ignore it. Draw the smallest variant at least as wide as the image is
+drawn (points times screen scale), else `url`. Variant URLs are as unsigned and
+immutable as `url`.
+
 ### 2. GET /api/meditation-sets/:id
 
 Callers: MeditationSetResolver, MeditationCacheService,

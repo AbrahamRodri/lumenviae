@@ -26,7 +26,8 @@ defmodule LumenViae.Rosary.Artwork.Published do
     :image_artist,
     :image_year,
     :image_source_url,
-    :image_license
+    :image_license,
+    :image_variant_widths
   ]
 
   @doc "The artwork columns a published painting is read from."
@@ -62,7 +63,11 @@ defmodule LumenViae.Rosary.Artwork.Published do
         year: record.image_year,
         source_url: record.image_source_url,
         license: record.image_license
-      }
+      },
+      variants:
+        for {width, url} <- Rosary.artwork_variant_urls(record) do
+          %Types.ArtworkVariant{width: width, url: url}
+        end
     }
   end
 end
