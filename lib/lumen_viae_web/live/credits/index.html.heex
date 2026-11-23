@@ -281,12 +281,7 @@
           </.link>
           <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
             {Sources.author_line(book)}.
-            <a
-              href={Sources.gutenberg_url(book)}
-              rel="noopener"
-              target="_blank"
-              class="underline decoration-night-line underline-offset-4 hover:text-gilt"
-            >{Sources.text_credit(book)}</a>
+            <span :if={Sources.printed_edition(book)}>{Sources.printed_edition(book)}</span>
             <span :if={Sources.librivox_credit(book)}>{Sources.librivox_credit(book)}</span>
             <span :if={Sources.archive_recording(book)}>
               In the app: <a
