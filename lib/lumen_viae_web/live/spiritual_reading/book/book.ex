@@ -146,11 +146,11 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Book do
 
   attr :book, :map, required: true
 
-  # The app's credit: the text's (linked to Gutenberg's page for the
-  # book), the recording's where it has one, and the public domain.
+  # The credit: the printed edition the text comes from, the recording's
+  # where it has one, and the public domain.
   defp credit(assigns) do
     ~H"""
-    <a href={Shelf.gutenberg_url(@book)} class="sr-credit__link">{Shelf.credit(@book)}</a>
+    <span :if={Shelf.credit(@book)}>{Shelf.credit(@book)}</span>
     <span :if={Shelf.recording_credit(@book)} data-role="recording-credit">
       {Shelf.recording_credit(@book)}
     </span>

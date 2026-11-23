@@ -128,21 +128,39 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Shelf do
   def author_line(%{translator: nil} = book), do: book.author
   def author_line(book), do: "#{book.author} · translated by #{book.translator}"
 
+  # The printed edition each shelf book's text was set from, by book id, so
+  # the credit names the real book rather than the website that carries it
+  # (reports/rig/copyright-review/inventory.md, "Item 19"). Imitation and
+  # Confessions are inferred there (a matching introduction; Pusey's own
+  # first edition); the others are stated in the transcribed text. A book
+  # added to the catalogue needs a line here: credits_test checks it.
+  @printed_editions %{
+    "imitation-of-christ" => "Harvard Classics, P. F. Collier & Son, New York, 1909",
+    "story-of-a-soul" => "Burns, Oates & Washbourne, London, 1912; 8th edition, 1922",
+    "confessions-of-st-augustine" => "first published by J. H. Parker, Oxford, 1838",
+    "glories-of-mary" => "second American edition, Edward Dunigan & Brother, New York, 1852",
+    "practice-of-the-presence-of-god" => "Fleming H. Revell Company, New York, about 1895"
+  }
+
   @doc """
-  The book page's credit, as the app's: "Text: Project Gutenberg eBook
-  #16772." for the text (which links to Gutenberg's page), then
-  `recording_credit/1` and "Public domain."
+  A book's credit, on its page and on /credits: the printed edition its
+  text comes from, "Text: Burns, Oates & Washbourne, London, 1912; 8th
+  edition, 1922.", or nil for a book with none recorded. The text reaches
+  the site through Project Gutenberg, which is not named: the stored copies
+  carry no Gutenberg header or licence (copyright review, item 19).
   """
-  def credit(book), do: "Text: Project Gutenberg eBook ##{book.gutenberg_id}."
+  def credit(%{id: id}) do
+    case Map.fetch(@printed_editions, id) do
+      {:ok, edition} -> "Text: #{edition}."
+      :error -> nil
+    end
+  end
 
   @doc "\"Recording: LibriVox volunteers.\" for a book with a recording, else nil."
   def recording_credit(%{librivox_id: id}) when is_integer(id),
     do: "Recording: LibriVox volunteers."
 
   def recording_credit(_book), do: nil
-
-  @doc "Project Gutenberg's own page for the book, which the credit links to."
-  def gutenberg_url(book), do: "https://www.gutenberg.org/ebooks/#{book.gutenberg_id}"
 
   # -- The contents ---------------------------------------------------------
 

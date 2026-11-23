@@ -73,9 +73,11 @@ config :lumen_viae, :office, req_options: [plug: {Req.Test, LumenViae.Office.Div
 # The same for the Spiritual Reading books' text from Project Gutenberg.
 # The fixtures are excerpts, smaller than the 50,000 bytes a whole edition
 # must be, so the floor is lowered here (its own test sets it back).
+# The release's stored copies are off, so the stubs are what a test reads.
 config :lumen_viae, :spiritual_reading,
   req_options: [plug: {Req.Test, LumenViae.Rosary.SpiritualReading.Gutenberg}],
-  minimum_bytes: 20_000
+  minimum_bytes: 20_000,
+  stored: false
 
 # The same for the Spiritual Reading recordings' track lists from LibriVox.
 config :lumen_viae, :librivox,
