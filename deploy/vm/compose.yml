@@ -1,7 +1,6 @@
 # Lumen Viae on one VM: the app, Postgres, the Office engine and Caddy.
-# Not used while the repository variable HOSTING is unset: production is
-# Fly (fly.toml). The switch is reports/rig/hosting-migration.md's runbook
-# and deploy/vm/README.md.
+# Production since November 2026 (the repository variable HOSTING=vm);
+# deploy/vm/README.md says how it is switched on.
 #
 # On the VM this folder is /srv/lumenviae, beside its .env (mode 600; the
 # names are in env.example). The deploy sets IMAGE (the release image built

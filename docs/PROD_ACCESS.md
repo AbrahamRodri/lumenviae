@@ -1,6 +1,15 @@
 # Production Access
 
-How to inspect and edit production data for the `lumenviae` Fly app.
+How to inspect and edit production data. Since November 2026 production is
+one DigitalOcean Droplet, `lumenviae-prod-2`, running the Docker Compose
+stack `lumenviae` (services `app`, `db`, `office`, `caddy`) from
+`/srv/lumenviae` (deploy/vm). Fly keeps only the `lumenviae` app as a proxy
+that forwards `lumenviae.fly.dev` for installed apps (deploy/fly-proxy); the
+Fly database was destroyed on 23 Nov 2026.
+
+Some commands in the rules sections below ("Edits", "Console admins",
+"Seeding and imports") are still written for Fly; on the Droplet they run
+in the same form, inside the `app` service (see "Opening the shell").
 
 The standing default for both reports and edits is a **remote IEx shell
 against the running release**, using the app's own domain module. There is
@@ -16,59 +25,50 @@ that set.
 
 ## Prerequisite
 
-`flyctl` must be authenticated on the machine running the commands. This
-opens a browser, so it cannot be delegated:
+A shell on the Droplet as its owner, `abraham` (key login only; the user is
+set up in `deploy/vm/cloud-init.yaml`). CI deploys as `deploy`, which can
+run Docker and nothing else. Agent seats have neither: they read logs and
+status through the read-only `droplet-ro`, and the site's health through
+`/healthz`.
 
 ```
-flyctl auth login
+ssh abraham@<the Droplet's address>
+cd /srv/lumenviae
 ```
 
-Verify with `fly auth whoami`.
-
-The app runs one machine, and it does not auto-stop
-(`auto_stop_machines = 'off'`, `min_machines_running = 1` in fly.toml), so
-it is always available to ssh into.
+The stack always runs; `docker compose ps` shows it.
 
 ## Hosting cost
 
-What runs on Fly for Lumen Viae, as of October 2026:
+Since the hosting move (November 2026):
 
-| Fly app | What runs | About USD a month |
+| Where | What runs | About USD a month |
 |---|---|---|
-| `lumenviae` | 1 x shared-cpu-1x, 1GB, always on | 5.70 |
-| `lumenviae-db` | Destroyed 23 Nov 2026 (final dump in R2, `site-backups/fly-final/`) | 0 |
-| `lumenviae-office` | 1 x 1GB, suspended when idle (docs/OFFICE_API.md) | under 1 |
+| DigitalOcean Droplet `lumenviae-prod-2` | the app, Postgres 17, the Office engine and Caddy (deploy/vm) | 6 |
+| Fly app `lumenviae` | the proxy for installed apps (deploy/fly-proxy) | see Fly's bill |
+| Fly app `lumenviae-db` | destroyed 23 Nov 2026 (final dump in R2, `site-backups/fly-final/`) | 0 |
+| Fly app `lumenviae-office` | stopped since the move, not destroyed | under 1 |
+| Cloudflare R2 | artwork, chants, narration and the nightly backups | see Cloudflare's bill |
 
-The organisation also holds `carlosassist` and `weddpix`, which are not
+The Fly organisation also holds `carlosassist` and `weddpix`, which are not
 Lumen Viae: stopped, with a 1GB volume each (about 0.60 a month together).
 
-**One app machine.** The app ran two machines from 22 August to October
-2026, which doubled the largest line of the bill. Traffic is a few
-completions a day, which one machine carries easily, so it went back to
-one. It stays at 1GB (512MB ran out of memory in November 2025) and always
-on (`auto_stop_machines = 'off'`), because a cold start is slow for the
-app. Deploys are `bluegreen` in fly.toml: the new machine boots beside the
-old one and takes the traffic once it passes the service check, so one
-machine costs no downtime on a deploy. What one machine does give up: a
-crash or a host failure is downtime until Fly restarts it, rather than half
-the capacity.
-
-The machine count is not in fly.toml; it is set once with the CLI (it needs
-a token that can change the app, not the read-only one):
-
-```
-fly scale count 1 -a lumenviae
-```
-
-`fly machine list -a lumenviae` shows what is running. To go back to two,
-`fly scale count 2 -a lumenviae`; nothing in the code assumes either.
+**One machine.** Everything runs on the one Droplet. A deploy replaces the
+app container (`docker compose up -d --wait`, deploy/vm/compose.yml), and a
+crash or a host failure is downtime until Docker or the Droplet restarts it
+(docs/DEPLOY_WATCH.md has the recovery).
 
 ## Opening the shell
 
+On the Droplet, in `/srv/lumenviae`:
+
 ```
-fly ssh console --app lumenviae
-/app/bin/lumen_viae remote
+docker compose exec app /app/bin/lumen_viae remote
 ```
+
+On Fly, before the move, the same ran after `fly ssh console --app
+lumenviae`; the commands below that still start with it run unchanged
+after `docker compose exec app` instead.
 
 This attaches to the running node. `Ctrl+C Ctrl+C` detaches. Detaching does
 not stop the app, but do not run `System.halt/0` - that kills the node.
@@ -78,7 +78,7 @@ the expression on the running node with the application (and the Repo)
 already started:
 
 ```
-fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'IO.inspect(LumenViae.Rosary.count_meditations())'"
+docker compose exec app /app/bin/lumen_viae rpc 'IO.inspect(LumenViae.Rosary.count_meditations())'
 ```
 
 `eval` is different: it boots a separate node WITHOUT starting the
@@ -88,9 +88,7 @@ repo LumenViae.Repo because it was not started". Use `eval` only for the
 `Ecto.Migrator.with_repo`. For everything else: `rpc` for one-off reads,
 `remote` for exploration.
 
-If the app ever runs more than one machine, pin commands to a specific one
-with `--machine <id>` (`fly machine list` shows ids) - /tmp and shell state
-are per-machine.
+/tmp and shell state belong to the container: a deploy replaces it.
 
 ## Reports (read-only)
 
@@ -150,14 +148,15 @@ unrepeatable.
 
 The console's `/admin/system` shows the queues, recent failures and the
 crontab, and Oban Web at `/admin/jobs` every job. From a shell, the same
-through `LumenViae.Release`, with `rpc` so they run inside the app:
+through `LumenViae.Release`, with `rpc` so they run inside the app (on the
+Droplet, in `/srv/lumenviae`):
 
 ```
-fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.jobs_summary()'"
-fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.job_failures(20)'"
-fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.retry_jobs(queue: \"geolocation\")'"
-fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.cancel_job(42)'"
-fly ssh console --app lumenviae -C "/app/bin/lumen_viae rpc 'LumenViae.Release.run_scheduled_job(\"LumenViae.Office.Jobs.WarmCache\")'"
+docker compose exec app /app/bin/lumen_viae rpc 'LumenViae.Release.jobs_summary()'
+docker compose exec app /app/bin/lumen_viae rpc 'LumenViae.Release.job_failures(20)'
+docker compose exec app /app/bin/lumen_viae rpc 'LumenViae.Release.retry_jobs(queue: "geolocation")'
+docker compose exec app /app/bin/lumen_viae rpc 'LumenViae.Release.cancel_job(42)'
+docker compose exec app /app/bin/lumen_viae rpc 'LumenViae.Release.run_scheduled_job("LumenViae.Office.Jobs.WarmCache")'
 ```
 
 `retry_jobs/1` takes one of `id:`, `queue:` or `worker:`. Read
@@ -263,15 +262,17 @@ command.
 
 ## If you need psql anyway
 
-For heavy analytical queries where IEx is awkward, tunnel to the database
-and use a read-only role rather than the app's credentials:
+For heavy analytical queries where IEx is awkward, use a read-only role
+rather than the app's credentials. On the Droplet the database is the
+Compose service `db`, reachable only inside the stack; from
+`/srv/lumenviae`:
 
 ```
-fly proxy 15432:5432 --app <postgres-app-name>
+docker compose exec db psql -U lumen_viae lumen_viae
 ```
 
 First confirm the actual database and app-role names rather than assuming
-them (Fly Postgres may name the database after the app, e.g. `lumenviae`):
+them (the Droplet's are `lumen_viae`; Fly's old database was `lumenviae`):
 
 ```sql
 \l
