@@ -15,7 +15,8 @@
 #   SERVICES            optional; the Compose services that must be running
 #                       (default "app db office caddy")
 #
-# Reads only: it changes nothing on the server.
+# It changes nothing on the server beyond two files of its own:
+# ./status/system-check.json (bin/write-status) and ./counts.jsonl (below).
 set -u
 
 cd "$(dirname "$0")/.."
@@ -67,6 +68,33 @@ case "$health" in
 esac
 
 report="disk ${disk}%, memory and swap ${free_pct}% free, running: $(printf '%s' "$running" | tr '\n' ' ')"
+# The same result for the app's System page (bin/write-status).
+case "${disk:-}" in '' | *[!0-9]*) disk_json=null ;; *) disk_json=$disk ;; esac
+case "${free_pct:-}" in '' | *[!0-9]*) free_json=null ;; *) free_json=$free_pct ;; esac
+figures="\"disk_percent\":$disk_json,\"free_percent\":$free_json"
+if [ -z "$problems" ]; then
+  bin/write-status system-check true "running: $(printf '%s' "$running" | tr '\n' ' ')" "$figures"
+else
+  bin/write-status system-check false "$problems" "$figures"
+fi
+
+# The app's aggregate counts (LumenViae.Release.summary/0: completions by
+# period, source and country, library and queue sizes; no rows, no
+# addresses, no secrets) for the team's read-only `lv-ro counts`, which
+# prints this file. ./counts.jsonl, JSON lines, the first {"section":
+# "written","at":<UTC time>}; mode 600, so only this user and root read it.
+# Replaced whole, never half-written; a failure keeps the previous file and
+# does not fail the check.
+counts_tmp=$(mktemp ./counts.jsonl.XXXXXX) && {
+  printf '{"section":"written","at":"%s"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$counts_tmp"
+  if timeout 60 docker compose exec -T app /app/bin/lumen_viae rpc 'LumenViae.Release.summary()' \
+    >> "$counts_tmp" 2>/dev/null && [ "$(wc -l < "$counts_tmp")" -gt 1 ]; then
+    chmod 600 "$counts_tmp" && mv "$counts_tmp" ./counts.jsonl
+  else
+    rm -f "$counts_tmp"
+  fi
+}
+
 if [ -z "$problems" ]; then
   echo "system-check: ok ($report)"
   curl -fsS -m 10 --retry 3 --data-raw "$report" "$HC_SYSTEM_PING_URL" > /dev/null

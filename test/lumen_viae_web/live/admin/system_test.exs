@@ -53,6 +53,36 @@ defmodule LumenViaeWeb.Live.Admin.SystemTest do
     assert html =~ "provider timed out"
   end
 
+  test "the Release tile names the deployed commit and links to it" do
+    alias LumenViaeWeb.Live.Admin.System, as: Page
+
+    sha = "0099d73a1b2c3d4e5f60718293a4b5c6d7e8f901"
+    assert Page.short_commit(sha) == "0099d73"
+    assert Page.commit_url(sha) == "https://github.com/AbrahamRodri/lumenviae/commit/#{sha}"
+    assert Page.short_commit("unknown") == "-"
+    assert Page.commit_url("unknown") == nil
+    assert Page.commit_url("not a sha") == nil
+  end
+
+  test "the server's timers are Not reported when nothing was written", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/admin/system")
+
+    assert html =~ "Server"
+    assert html =~ "Backup"
+    assert html =~ "Restore test"
+    assert html =~ "Not reported"
+    refute html =~ "other machine(s) in the cluster"
+  end
+
+  test "Jobs failing lands on exactly its jobs" do
+    alias LumenViaeWeb.Live.Admin.System, as: Page
+
+    assert Page.failing_path(%{retrying: 2, discarded: 0}) == "/admin/jobs/jobs?state=retryable"
+    assert Page.failing_path(%{retrying: 0, discarded: 1}) == "/admin/jobs/jobs?state=discarded"
+    assert Page.failing_path(%{retrying: 1, discarded: 1}) == "/admin/system#failures"
+    assert Page.failing_path(%{retrying: 0, discarded: 0}) == nil
+  end
+
   test "Run now queues the scheduled job", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/admin/system")
 

@@ -28,6 +28,11 @@ was destroyed on 23 Nov 2026.
 - `bin/system-check`, `systemd/system-check@.*`, `system-check.env.example`:
   the server checked every 15 minutes (disk, memory, containers, `/healthz`),
   pinging healthchecks.io (docs/DEPLOY_WATCH.md, "Watch and rollback").
+- `bin/write-status`: each of those three timers writes what it found to
+  `status/<name>.json` (ok, when, a short detail; disk and memory for the
+  system check). compose.yml mounts `status/` read-only into the app as
+  `OPS_STATUS_DIR`, and the console's System page shows it under Server.
+  The deploy makes the folder as `deploy` before compose runs.
 
 This folder is also the shared recipe Tornado Diet and ClipperHandz copy:
 `docs/HOSTING_RECIPE.md` says how to set a server up and which names to

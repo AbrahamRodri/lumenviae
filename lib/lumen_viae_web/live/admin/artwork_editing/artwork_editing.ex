@@ -17,6 +17,8 @@ defmodule LumenViaeWeb.Live.Admin.ArtworkEditing do
   import Phoenix.Component, only: [assign: 3, to_form: 1, to_form: 2]
   import Phoenix.LiveView
 
+  require Logger
+
   alias LumenViae.Curation.ArtworkUpload
   alias LumenViae.Rosary
   alias LumenViae.Rosary.Artwork
@@ -104,8 +106,12 @@ defmodule LumenViaeWeb.Live.Admin.ArtworkEditing do
           {:error, message} when is_binary(message) ->
             {:noreply, put_flash(socket, :error, message)}
 
-          {:error, _error} ->
-            {:noreply, put_flash(socket, :error, "The painting uploaded but could not be saved")}
+          {:error, error} ->
+            detail = error_detail(error)
+            Logger.error("Artwork save failed (#{inspect(config.scope)}): #{detail}")
+
+            {:noreply,
+             put_flash(socket, :error, "The painting uploaded but could not be saved: #{detail}")}
         end
 
       _none ->
@@ -224,6 +230,15 @@ defmodule LumenViaeWeb.Live.Admin.ArtworkEditing do
   end
 
   defp opts(socket), do: [actor: socket.assigns.current_admin]
+
+  # A failed write in words, short enough for a flash: an Ash error's own
+  # messages, any other exception's, or the term itself.
+  defp error_detail(%{errors: [_ | _] = errors}) do
+    errors |> Enum.map_join("; ", &error_detail/1) |> String.slice(0, 300)
+  end
+
+  defp error_detail(error) when is_exception(error), do: Exception.message(error)
+  defp error_detail(error), do: inspect(error, limit: 5)
 
   defp clamp(value), do: value |> max(0.0) |> min(1.0) |> Float.round(3)
 end

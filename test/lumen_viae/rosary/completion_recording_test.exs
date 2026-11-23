@@ -103,7 +103,10 @@ defmodule LumenViae.Rosary.CompletionRecordingTest do
 
       {:ok, completion} =
         from_app(%{meditation_set_id: set.id, prayed_aloud: true},
-          context: %{client_ip: "203.0.113.7"}
+          context: %{
+            client_ip: "203.0.113.7",
+            user_agent: "app/5 CFNetwork/3826.500.111 Darwin/25.0.0"
+          }
         )
 
       assert completion.meditation_set_id == set.id

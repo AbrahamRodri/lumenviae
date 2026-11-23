@@ -37,7 +37,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     socket =
       socket
       |> assign(:page_title, "Dashboard")
-      |> assign(:rosary_audio_missing, 0)
+      |> assign(:rosary_audio, :checking)
       |> assign(:refreshed_at, DateTime.utc_now())
 
     if connected?(socket) do
@@ -51,20 +51,30 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     {:noreply, socket |> load() |> put_flash(:info, "Refreshed.")}
   end
 
-  # The spoken Rosary's coverage is one HEAD per clip against S3, far
-  # slower than every query above put together, so it lands after the page
-  # is up and adds its row to the health list when it does. A bucket that
-  # cannot be asked counts nothing: "unknown" is not "missing".
+  # The spoken Rosary's coverage is one HEAD per clip against S3 (remembered
+  # for a few minutes), far slower than every query above put together, so
+  # it lands after the page is up and adds its row to the health list when
+  # it does. A check that could not ask about every clip says so, rather
+  # than looking like nothing is missing.
   def handle_async(:rosary_audio, {:ok, coverage}, socket) do
-    missing =
-      coverage
-      |> Enum.flat_map(fn {_voice, entries} -> entries end)
-      |> Enum.count(&(&1.status == :missing))
+    status =
+      if RosaryAudioGeneration.complete_coverage?(coverage) do
+        missing =
+          coverage
+          |> Enum.flat_map(fn {_voice, entries} -> entries end)
+          |> Enum.count(&(&1.status == :missing))
 
-    {:noreply, socket |> assign(:rosary_audio_missing, missing) |> assign_health()}
+        {:missing, missing}
+      else
+        :unchecked
+      end
+
+    {:noreply, socket |> assign(:rosary_audio, status) |> assign_health()}
   end
 
-  def handle_async(:rosary_audio, {:exit, _reason}, socket), do: {:noreply, socket}
+  def handle_async(:rosary_audio, {:exit, _reason}, socket) do
+    {:noreply, socket |> assign(:rosary_audio, :unchecked) |> assign_health()}
+  end
 
   defp load(socket) do
     sets = Rosary.list_meditation_sets!(actor: socket.assigns.current_admin)
@@ -132,26 +142,16 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
 
   defp start_rosary_audio_check(socket) do
     if connected?(socket) do
-      start_async(socket, :rosary_audio, fn -> RosaryAudioGeneration.coverage() end)
+      start_async(socket, :rosary_audio, fn -> RosaryAudioGeneration.cached_coverage() end)
     else
       socket
     end
   end
 
   defp assign_health(socket) do
-    rosary_audio = %{
-      count: socket.assigns.rosary_audio_missing,
-      tone: "danger",
-      label: "Spoken Rosary clips missing",
-      description:
-        "Prayers, announcements or verses not recorded in a narration voice. " <>
-          "The app skips them, and will not pray aloud at all without a Hail Mary.",
-      link: ~p"/admin/rosary-audio?show=missing",
-      names: []
-    }
-
     health =
-      [rosary_audio | socket.assigns.job_health ++ socket.assigns.content_health]
+      (rosary_audio_health(socket.assigns.rosary_audio) ++
+         socket.assigns.job_health ++ socket.assigns.content_health)
       |> Enum.reject(&(&1.count == 0))
       |> Enum.sort_by(&{tone_rank(&1.tone), -&1.count})
 
@@ -159,6 +159,41 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
     |> assign(:health, health)
     |> assign(:open_issues, Enum.sum(Enum.map(health, & &1.count)))
   end
+
+  defp rosary_audio_health({:missing, count}) do
+    [
+      %{
+        count: count,
+        tone: "danger",
+        label: "Spoken Rosary clips missing",
+        description:
+          "Prayers, announcements or verses not recorded in a narration voice. " <>
+            "The app skips them, and will not pray aloud at all without a Hail Mary. " <>
+            "Ask the team to record them.",
+        link: ~p"/admin/rosary-audio?show=missing",
+        names: []
+      }
+    ]
+  end
+
+  # Counted as one issue, shown as "?": nobody knows how many are missing.
+  defp rosary_audio_health(:unchecked) do
+    [
+      %{
+        count: 1,
+        display: "?",
+        tone: "caution",
+        label: "Spoken Rosary clips: could not check",
+        description:
+          "The audio bucket did not answer for every clip, so missing clips cannot be counted. " <>
+            "System shows whether the bucket is reachable.",
+        link: ~p"/admin/rosary-audio",
+        names: []
+      }
+    ]
+  end
+
+  defp rosary_audio_health(:checking), do: []
 
   # The background jobs that need a person: one discarded has used every
   # attempt and will not run again on its own, so it is a danger row; one
@@ -213,8 +248,8 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
         label: "Meditations missing a voice",
         description:
           "Have an audio file but no recording in every narration voice. " <>
-            "Run regenerate_audio --all --only-missing to fill the gaps.",
-        link: ~p"/admin/meditations?audio=with&status=active",
+            "Ask the team to record the missing voices.",
+        link: ~p"/admin/meditations?audio=missing_voice&status=active",
         names: []
       },
       %{
@@ -279,7 +314,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
         tone: "caution",
         label: "Mysteries without a meditation",
         description: "Nothing has been written for these mysteries yet.",
-        link: ~p"/admin/mysteries",
+        link: ~p"/admin/mysteries?meditations=none",
         names: mysteries |> Enum.filter(&(Map.get(mystery_counts, &1.id, 0) == 0)) |> names()
       },
       %{
@@ -287,7 +322,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
         tone: "caution",
         label: "Authors without a served portrait",
         description: "Their sets cannot inherit a portrait until one is uploaded and described.",
-        link: ~p"/admin/authors",
+        link: ~p"/admin/authors?portrait=missing",
         names: authors |> Enum.filter(&(not Artwork.publishable?(&1))) |> names()
       }
     ]
@@ -382,6 +417,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
   def source_label("web"), do: "Website"
   def source_label("ios"), do: "iOS app"
   def source_label("android"), do: "Android app"
+  def source_label("other"), do: "Other client"
   def source_label(_unrecorded), do: "Not recorded"
 
   @doc """
@@ -455,6 +491,7 @@ defmodule LumenViaeWeb.Live.Admin.Dashboard do
       {"web", count} -> {"Website", count}
       {"ios", count} -> {"iOS app", count}
       {"android", count} -> {"Android app", count}
+      {"other", count} -> {"Other client", count}
       {_unrecorded, count} -> {"Unknown", count}
     end)
     |> Enum.reduce(%{}, fn {label, count}, acc -> Map.update(acc, label, count, &(&1 + count)) end)

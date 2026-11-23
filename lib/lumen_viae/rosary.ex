@@ -1332,6 +1332,30 @@ defmodule LumenViae.Rosary do
   def reporting_time_zone, do: CentralTime.zone_name()
 
   @doc """
+  The reporting period of the last `days` days: today and the `days - 1`
+  Central calendar days before it, from midnight Central on the first of
+  them until `now`. Every completion figure in the console counts its
+  period through this, so "Last 7 days" on the dashboard is the same count
+  as the Completions page's "7 days" it links to.
+
+  Returns `%{first:, last:, since:, until:, previous_since:}`: the first
+  and last dates, the UTC bounds, and where the period of the same length
+  just before it starts (it ends at `since`).
+  """
+  def period(days, now \\ DateTime.utc_now()) when is_integer(days) and days > 0 do
+    last = now |> CentralTime.to_local() |> DateTime.to_date()
+    first = Date.add(last, -(days - 1))
+
+    %{
+      first: first,
+      last: last,
+      since: CentralTime.day_start(first),
+      until: now,
+      previous_since: CentralTime.day_start(Date.add(first, -days))
+    }
+  end
+
+  @doc """
   Records that somebody finished praying a set.
 
   `context` describes where the completion came from and is entirely
@@ -1392,9 +1416,10 @@ defmodule LumenViae.Rosary do
 
   ## Options
 
-    * `:days` - only count completions from the trailing N days, so the
-      dashboard can show what is being prayed *now* rather than a ranking
-      dominated by whichever set has existed longest
+    * `:days` - only count completions from the last N days (`period/1`:
+      today and the N - 1 Central days before it), so the dashboard can
+      show what is being prayed *now* rather than a ranking dominated by
+      whichever set has existed longest
     * `:limit` - only the first N
     * `:actor` / `:authorize?` - as everywhere in this module
 
@@ -1404,7 +1429,7 @@ defmodule LumenViae.Rosary do
     range =
       case opts[:days] do
         nil -> %{since: nil, until: nil}
-        days -> %{since: days_ago(days), until: DateTime.utc_now()}
+        days -> Map.take(period(days), [:since, :until])
       end
 
     MeditationSet
@@ -1459,18 +1484,16 @@ defmodule LumenViae.Rosary do
   """
   def completion_locations(days, opts \\ []) when is_integer(days) and days > 0 do
     Completion
-    |> Ash.ActionInput.for_action(:place_counts, %{
-      since: days_ago(days),
-      until: DateTime.utc_now()
-    })
+    |> Ash.ActionInput.for_action(:place_counts, Map.take(period(days), [:since, :until]))
     |> Ash.run_action!(AshOpts.take(opts))
   end
 
   @doc """
-  Gets completion count for the trailing N days (including today).
+  Gets completion count for the last N days, today included (`period/1`).
   """
   def count_completions_last_days(days, opts \\ []) when is_integer(days) and days > 0 do
-    count_completions_in_range(days_ago(days), DateTime.utc_now(), opts)
+    %{since: since, until: until} = period(days)
+    count_completions_in_range(since, until, opts)
   end
 
   @doc """
@@ -1487,32 +1510,35 @@ defmodule LumenViae.Rosary do
   end
 
   @doc """
-  Headline completion figures, each trailing window paired with the window
-  immediately before it so the dashboard can show movement rather than a
-  number with nothing to compare it to.
+  Headline completion figures, each period (`period/1`) paired with the
+  period of the same length just before it, so the dashboard can show
+  movement rather than a number with nothing to compare it to.
 
   Returns `%{total:, today:, last_7:, previous_7:, last_30:, previous_30:,
   active_sets_30:}`, from one aggregate query with a filtered count each.
   """
   def completion_summary(opts \\ []) do
     now = DateTime.utc_now()
-    today = CentralTime.day_start(CentralTime.today())
-    [d7, d14, d30, d60] = Enum.map([7, 14, 30, 60], &days_ago/1)
+    [today, week, month] = Enum.map([1, 7, 30], &period(&1, now))
 
-    between = fn since, until ->
-      [query: [filter: Ash.Expr.expr(completed_at >= ^since and completed_at <= ^until)]]
+    current = fn %{since: since} ->
+      [query: [filter: Ash.Expr.expr(completed_at >= ^since and completed_at <= ^now)]]
+    end
+
+    previous = fn %{previous_since: since, since: until} ->
+      [query: [filter: Ash.Expr.expr(completed_at >= ^since and completed_at < ^until)]]
     end
 
     Completion
     |> Ash.aggregate!(
       [
         {:total, :count, []},
-        {:today, :count, between.(today, now)},
-        {:last_7, :count, between.(d7, now)},
-        {:previous_7, :count, between.(d14, d7)},
-        {:last_30, :count, between.(d30, now)},
-        {:previous_30, :count, between.(d60, d30)},
-        {:active_sets_30, :count, [field: :meditation_set_id, uniq?: true] ++ between.(d30, now)}
+        {:today, :count, current.(today)},
+        {:last_7, :count, current.(week)},
+        {:previous_7, :count, previous.(week)},
+        {:last_30, :count, current.(month)},
+        {:previous_30, :count, previous.(month)},
+        {:active_sets_30, :count, [field: :meditation_set_id, uniq?: true] ++ current.(month)}
       ],
       AshOpts.take(opts)
     )
@@ -1529,14 +1555,13 @@ defmodule LumenViae.Rosary do
   `:daily_counts`, bucketed as its `local_day` calculation is).
   """
   def completions_by_day(days, opts \\ []) when is_integer(days) and days > 0 do
-    today = CentralTime.today()
-    first = Date.add(today, -(days - 1))
+    %{first: first, since: since, until: until} = period(days)
 
     counted =
       Completion
       |> Ash.ActionInput.for_action(:daily_counts, %{
-        since: CentralTime.day_start(first),
-        until: DateTime.utc_now(),
+        since: since,
+        until: until,
         time_zone: reporting_time_zone()
       })
       |> Ash.run_action!(AshOpts.take(opts))
@@ -1548,125 +1573,101 @@ defmodule LumenViae.Rosary do
     end)
   end
 
-  defp days_ago(days), do: DateTime.add(DateTime.utc_now(), -days * 24 * 3600, :second)
-
   @doc """
-  The console's Completions screen: every completion in the trailing `days`
-  (or ever, for `nil`) that matches `filters`, folded every way the screen
-  breaks them down.
+  The console's Completions screen: every completion in the last `days`
+  (`period/1`; or ever, for `nil`) that matches `filters`, counted every way
+  the screen breaks them down.
 
   `filters` takes `:set_id`, `:source`, `:country_code` and `:prayed_aloud`;
   a missing or nil one does not narrow.
 
-  Returns `%{total, capped?, located, by_day, sets, sources, prayed_aloud,
-  countries, cities, hours, locales, recent}`:
+  Returns `%{total, period_total, located, elapsed_days, by_day, sets,
+  sources, prayed_aloud, countries, country_options, cities, hours,
+  recent}`:
 
+    * `period_total` - the period's completions with no other filter
+    * `elapsed_days` - how much of the period has passed, in days, today
+      counted only as far as it has gone; `nil` for all time
     * `by_day` - a dense daily series, as `completions_by_day/2`, for a
       period of a year or less; `nil` for all time
     * `sets` - `[%{set_id, set_name, category, count}]`, most prayed first
     * `sources`, `prayed_aloud` - frequencies, `nil` for not recorded
     * `countries`, `cities` - as `completion_locations/2`
+    * `country_options` - the countries with every filter but the country
     * `hours` - `%{0..23 => count}`, the hour of day in the reporting zone
-    * `locales` - `[{locale, count}]`, most first, unreported left out
     * `recent` - the newest 25 rows, each with its set's name and
       category
 
-  A period of `days` is today and the `days - 1` days before it, starting
-  at midnight in the reporting zone, so the figures and the daily series
-  cover the same days.
-
-  One read of the matching rows, folded here. (The dashboard's figures are
-  counted by Postgres instead, through `Completion`'s `:daily_counts` and
-  `:place_counts`.)
-  The read stops at the newest 20,000 rows, so a long period cannot pull
-  the whole table into memory on a small machine; `capped?` says when it
-  did, and the figures then cover those rows only.
+  Counted by Postgres in grouped queries (`Completion`'s `:report_counts`),
+  so a long period costs no more memory than a short one; only the newest
+  25 rows are read.
   """
-  @report_rows 20_000
-
   def completion_report(days, filters, opts \\ []) when is_nil(days) or days > 0 do
-    rows =
-      Completion
-      |> Ash.Query.for_read(:report, %{
-        since: days && CentralTime.day_start(Date.add(CentralTime.today(), -(days - 1))),
-        meditation_set_id: filters[:set_id],
-        source: filters[:source],
-        country_code: filters[:country_code],
-        prayed_aloud: filters[:prayed_aloud]
-      })
-      |> Ash.Query.select([
-        :completed_at,
-        :meditation_set_id,
-        :city,
-        :region,
-        :country,
-        :country_code,
-        :source,
-        :prayed_aloud,
-        :locale
-      ])
-      |> Ash.Query.load(
-        local_day: %{time_zone: reporting_time_zone()},
-        meditation_set: Ash.Query.select(MeditationSet, [:name, :category])
-      )
-      |> Ash.Query.limit(@report_rows)
-      |> Ash.read!(AshOpts.take(opts))
+    period = days && period(days)
+    ash_opts = AshOpts.take(opts)
 
-    %{
-      total: length(rows),
-      capped?: length(rows) == @report_rows,
-      located: Enum.count(rows, &(not is_nil(&1.country_code))),
-      by_day: days && days <= 366 && dense_days(rows, days),
-      sets:
-        rows
-        |> ranked(&{&1.meditation_set_id, &1.meditation_set.name, &1.meditation_set.category})
-        |> Enum.map(fn {{id, name, category}, count} ->
-          %{set_id: id, set_name: name, category: category, count: count}
-        end),
-      sources: Enum.frequencies_by(rows, & &1.source),
-      prayed_aloud: Enum.frequencies_by(rows, & &1.prayed_aloud),
-      countries:
-        rows
-        |> Enum.reject(&is_nil(&1.country))
-        |> ranked(&{&1.country, &1.country_code})
-        |> Enum.map(fn {{country, code}, count} ->
-          %{country: country, country_code: code, count: count}
-        end),
-      cities:
-        rows
-        |> Enum.reject(&is_nil(&1.city))
-        |> ranked(&{&1.city, &1.region, &1.country_code})
-        |> Enum.map(fn {{city, region, code}, count} ->
-          %{city: city, region: region, country_code: code, count: count}
-        end),
-      hours: Enum.frequencies_by(rows, &CentralTime.to_local(&1.completed_at).hour),
-      locales:
-        rows
-        |> Enum.reject(&(&1.locale in [nil, ""]))
-        |> ranked(&{&1.locale})
-        |> Enum.map(fn {{locale}, count} -> {locale, count} end),
-      recent: Enum.take(rows, 25)
+    narrowing = %{
+      meditation_set_id: filters[:set_id],
+      source: filters[:source],
+      country_code: filters[:country_code],
+      prayed_aloud: filters[:prayed_aloud]
     }
+
+    counts =
+      Completion
+      |> Ash.ActionInput.for_action(
+        :report_counts,
+        Map.merge(narrowing, %{
+          since: period && period.since,
+          time_zone: reporting_time_zone()
+        })
+      )
+      |> Ash.run_action!(ash_opts)
+
+    recent =
+      Completion
+      |> Ash.Query.for_read(:report, Map.put(narrowing, :since, period && period.since))
+      |> Ash.Query.load(meditation_set: Ash.Query.select(MeditationSet, [:name, :category]))
+      |> Ash.Query.limit(25)
+      |> Ash.read!(ash_opts)
+
+    Map.merge(counts, %{
+      sets: with_set_names(counts.sets, ash_opts),
+      elapsed_days: period && elapsed_days(period),
+      by_day: period && days <= 366 && dense_days(counts.by_day, period),
+      recent: recent
+    })
   end
 
-  # Most frequent first, then by name, so two groups counted equally often
-  # always come out in the same order.
-  defp ranked(rows, key) do
-    rows
-    |> Enum.frequencies_by(key)
-    |> Enum.sort_by(fn {group, count} -> {-count, elem(group, 0)} end)
-  end
+  # Each counted set with its name and category, in the counted order.
+  defp with_set_names([], _ash_opts), do: []
 
-  # The trailing `days` days, oldest first, with a zero for every day
-  # nothing was prayed, from rows that already carry their local day.
-  defp dense_days(rows, days) do
-    first = Date.add(CentralTime.today(), -(days - 1))
-    counted = Enum.frequencies_by(rows, & &1.local_day)
+  defp with_set_names(counted, ash_opts) do
+    ids = Enum.map(counted, & &1.set_id)
 
-    Enum.map(0..(days - 1), fn offset ->
-      date = Date.add(first, offset)
-      %{date: date, count: Map.get(counted, date, 0)}
+    names =
+      MeditationSet
+      |> Ash.Query.filter(id in ^ids)
+      |> Ash.Query.select([:id, :name, :category])
+      |> Ash.read!(ash_opts)
+      |> Map.new(&{&1.id, &1})
+
+    Enum.map(counted, fn %{set_id: id} = row ->
+      set = Map.fetch!(names, id)
+      Map.merge(row, %{set_name: set.name, category: set.category})
     end)
+  end
+
+  # The whole days before today, and today as far as it has gone.
+  defp elapsed_days(%{first: first, last: last, until: now}) do
+    today = DateTime.diff(now, CentralTime.day_start(last)) / 86_400
+    Date.diff(last, first) + Kernel.min(Kernel.max(today, 0.0), 1.0)
+  end
+
+  # The period's days, oldest first, with a zero for every day nothing was
+  # prayed.
+  defp dense_days(counted, %{first: first, last: last}) do
+    Enum.map(Date.range(first, last), &%{date: &1, count: Map.get(counted, &1, 0)})
   end
 
   ## History

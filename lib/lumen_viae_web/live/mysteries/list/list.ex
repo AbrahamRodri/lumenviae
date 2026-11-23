@@ -71,6 +71,7 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
     filtered =
       socket.assigns.mysteries
       |> filter_by_category(filters.category)
+      |> filter_by_meditations(filters.meditations, socket.assigns.active_counts)
       |> filter_by_query(filters.query)
 
     grouped =
@@ -91,6 +92,13 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
     Enum.filter(mysteries, &(&1.category == category))
   end
 
+  # "none": no active meditation, as the dashboard and the metric above count.
+  defp filter_by_meditations(mysteries, "none", active_counts) do
+    Enum.filter(mysteries, &(Map.get(active_counts, &1.id, 0) == 0))
+  end
+
+  defp filter_by_meditations(mysteries, _any, _active_counts), do: mysteries
+
   defp filter_by_query(mysteries, ""), do: mysteries
 
   defp filter_by_query(mysteries, query) do
@@ -109,16 +117,22 @@ defmodule LumenViaeWeb.Live.Mysteries.List do
   defp parse_filters(params) do
     %{
       query: String.trim(params["q"] || ""),
-      category: if(params["category"] in Categories.slugs(), do: params["category"])
+      category: if(params["category"] in Categories.slugs(), do: params["category"]),
+      meditations: if(params["meditations"] == "none", do: "none")
     }
   end
 
   defp filter_query_params(params) do
-    [q: String.trim(params["q"] || ""), category: params["category"]]
+    [
+      q: String.trim(params["q"] || ""),
+      category: params["category"],
+      meditations: params["meditations"]
+    ]
     |> Enum.reject(fn {_key, value} -> value in [nil, ""] end)
   end
 
   def meditation_count(counts, mystery_id), do: Map.get(counts, mystery_id, 0)
 
-  def filters_applied?(filters), do: filters.query != "" or filters.category != nil
+  def filters_applied?(filters),
+    do: filters.query != "" or filters.category != nil or filters.meditations != nil
 end

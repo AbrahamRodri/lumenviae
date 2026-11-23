@@ -13,7 +13,7 @@ dialog, no Core Location, and no tracking prompt, on any surface.
 | Column | Source | Example |
 | --- | --- | --- |
 | `meditation_set_id`, `completed_at` | The completion itself | `42`, `2026-08-22T19:11:00Z` |
-| `source` | The surface it was prayed on | `"web"`, `"ios"`, `"android"` |
+| `source` | The surface it was prayed on | `"web"`, `"ios"`, `"android"`, `"other"` |
 | `city`, `region`, `country`, `country_code` | Looked up from `ip_prefix` by a background job | `"Dallas"`, `"Texas"`, `"United States"`, `"US"` |
 | `ip_prefix` | The request's address, truncated | `"203.0.113.0"` |
 | `time_zone`, `locale` | Reported by a client that sends them; no build of the app does | `"America/Chicago"`, `"en-US"` |
@@ -156,10 +156,12 @@ LumenViae-Android/<versionName> (Android <release>; <model>)
 
 for example `LumenViae-Android/1.0.0 (Android 14; Pixel 8)`, and the
 server reads the surface from that (`LumenViae.Rosary.Completion.AppSource`):
-an agent containing `Android`, in any case, is recorded as `"android"`, and
-anything else, a missing agent included, as `"ios"`, because every app
-build before the Android one is an iOS build and the iOS app's CFNetwork
-agent names no platform.
+an agent containing `Android`, in any case, is recorded as `"android"`; the
+iOS app's agent, `<name>/<build> CFNetwork/<version> Darwin/<version>`
+(`app/5 CFNetwork/3826.500.111 Darwin/25.0.0`), as `"ios"`; and anything
+else, a missing agent included, as `"other"`, so a script or an unknown
+client is not counted as an iPhone. v1's `POST /api/completions` still
+records `"ios"`: only the iOS app calls it.
 
 **The app must set that agent, and never send its HTTP library's
 default.** OkHttp, which Retrofit, Coil and most Android HTTP stacks use,
@@ -207,12 +209,17 @@ actions. The dashboard reads them once, when its socket connects. An index
 on `(meditation_set_id, completed_at)` serves the most-prayed ranking,
 which counts each set's completions in the period.
 
+Every period is `Rosary.period/1`: today and the days before it, in
+Central calendar days from midnight, so "Last 7 days" on the dashboard and
+"7 days" on the Completions screen it links to are the same count.
+
 The dashboard's completion figures lead to the **Completions** screen
 (`/admin/completions`): a period, filters by set, surface, country and
-aloud in the query string, and the breakdowns by day, set, place, surface,
-language and hour. It reads the matching rows (`Completion`'s `:report`)
-and folds them, at most the newest 20,000, and says when a period was
-capped.
+aloud in the query string, and the breakdowns by day, set, place, surface
+and hour. It counts in Postgres too (`Completion`'s grouped
+`:report_counts`), when its socket connects, and reads only the newest 25
+rows (`:report`) for its table. Language is not shown: no client sends
+it.
 
 The location panel states how many completions in the period actually have a
 place attached. Read it: the lookup is best-effort, so a ranking may cover a

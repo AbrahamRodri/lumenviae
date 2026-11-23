@@ -15,13 +15,14 @@
   <div class="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-6">
     <.metric
       label="Release"
-      value={@runtime.version}
-      hint={Enum.join(Enum.reject([@runtime.region, to_string(@runtime.node)], &is_nil/1), " · ")}
+      value={short_commit(@runtime.commit)}
+      hint={"Deployed #{format_time(@runtime.started_at)} · #{@runtime.version}"}
+      href={commit_url(@runtime.commit)}
     />
     <.metric
       label="Up for"
       value={uptime(@runtime.uptime_seconds)}
-      hint={"#{length(@runtime.peers)} other machine(s) in the cluster"}
+      hint={"Since #{format_time(@runtime.started_at)}"}
     />
     <.metric
       label="Memory"
@@ -43,8 +44,8 @@
       label="Jobs failing"
       value={@totals.failing}
       tone="danger"
-      hint="Retrying or discarded"
-      navigate={jobs_path(state: "retryable")}
+      hint={"#{@totals.retrying} retrying, #{@totals.discarded} discarded"}
+      navigate={failing_path(@totals)}
     />
   </div>
 
@@ -93,6 +94,7 @@
       </.panel>
 
       <.panel
+        id="failures"
         title="Recent failures"
         description="Jobs waiting to retry, discarded after their last attempt, or cancelled. Newest first."
         flush
@@ -143,7 +145,7 @@
 
       <.panel
         title="Schedule"
-        description="The crontab, in UTC on the leader. Run now enqueues the job as the schedule would, earlier."
+        description={"When is the crontab, in UTC; Next run and Last run are in #{LumenViae.CentralTime.abbreviation(@refreshed_at)}. Run now enqueues the job as the schedule would, earlier."}
         flush
       >
         <div :if={Enum.any?(@schedule, &(not &1.running_here?))} class="px-4 pt-3">
@@ -217,6 +219,22 @@
     </div>
 
     <div class="space-y-5">
+      <.panel
+        title="Server"
+        description="What the server's own timers last reported: the nightly backup, the weekly restore test and the 15-minute check."
+      >
+        <ul class="divide-y divide-admin-hairline -my-2">
+          <li :for={name <- LumenViae.Ops.HostStatus.names()} class="py-2.5">
+            <% report = @host[name] %>
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-medium text-admin-ink">{host_label(name)}</span>
+              <.admin_badge tone={host_tone(report)}>{host_status(report)}</.admin_badge>
+            </div>
+            <p class="text-xs text-admin-ink-soft mt-0.5 break-words">{host_detail(report)}</p>
+          </li>
+        </ul>
+      </.panel>
+
       <.panel
         title="Third parties"
         description="Asked once when the page opens, with a timeout each."
@@ -332,9 +350,9 @@
             <dt class="text-admin-ink-soft">Peers</dt>
             <dd class="text-admin-ink truncate">{Enum.join(@runtime.peers, ", ")}</dd>
           </div>
-          <div :if={@runtime.machine} class="flex justify-between gap-2">
-            <dt class="text-admin-ink-soft">Machine</dt>
-            <dd class="text-admin-ink truncate">{@runtime.machine}</dd>
+          <div class="flex justify-between gap-2">
+            <dt class="text-admin-ink-soft">Node</dt>
+            <dd class="text-admin-ink truncate">{@runtime.node}</dd>
           </div>
         </dl>
       </.panel>

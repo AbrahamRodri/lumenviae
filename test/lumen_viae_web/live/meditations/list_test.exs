@@ -74,6 +74,24 @@ defmodule LumenViaeWeb.Live.Meditations.ListTest do
     refute html =~ "Title Voiced"
   end
 
+  test "audio filter narrows to meditations missing a narration voice", %{conn: conn} do
+    mystery = create_mystery()
+    partial = create_meditation(mystery, %{title: "Title Partial", audio_url: "partial.mp3"})
+    whole = create_meditation(mystery, %{title: "Title Whole", audio_url: "whole.mp3"})
+
+    for voice <- LumenViae.Rosary.Voices.list() do
+      {:ok, _} =
+        Rosary.record_narration(whole, voice.slug, "voices/#{voice.slug}/w.mp3", actor: admin())
+    end
+
+    assert partial.id in Rosary.meditation_ids_missing_a_voice(actor: admin())
+
+    {:ok, _view, html} = live(conn, "/admin/meditations?audio=missing_voice")
+
+    assert html =~ "Title Partial"
+    refute html =~ "Title Whole"
+  end
+
   test "set filter supports membership and none", %{conn: conn} do
     mystery = create_mystery()
     in_set = create_meditation(mystery, %{title: "Title Grouped"})

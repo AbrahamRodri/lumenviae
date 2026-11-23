@@ -490,15 +490,16 @@ arguments; the most-prayed ranking filters, sorts and limits on it in the
 query. The headline completion figures are one `Ash.aggregate` with a
 filtered count each. The per-day and per-place tallies need GROUP BY,
 which Ash does not have, so they are generic actions on `Completion`
-(`:daily_counts`, `:place_counts`) whose implementations
-(`completion/daily_counts.ex`, `completion/place_counts.ex`) run grouped
+(`:daily_counts`, `:place_counts`, and `:report_counts` for the
+Completions screen) whose implementations (`completion/daily_counts.ex`,
+`completion/place_counts.ex`, `completion/report_counts.ex`) run grouped
 Ecto queries over that one table. That is the one sanctioned Ecto use in
 the domain: single-table, behind an action and its policies, never a
-join, and the architecture test names both files. The completions table
-is the one that grows with traffic, so the dashboard reads none of its
-rows into Elixir to count them. The console's Completions screen does:
-`Rosary.completion_report/3` reads the matching rows, at most the newest
-20,000 (`capped?` says when it stopped), and folds them in Elixir.
+join, and the architecture test names the files. The completions table
+is the one that grows with traffic, so no console page reads its rows
+into Elixir to count them; `Rosary.completion_report/3` names the counted
+sets through the domain and reads only the newest 25 rows. Every period
+is `Rosary.period/1` (Central calendar days, today included).
 
 **Order is explicit.** Every read an API depends on declares its sort:
 sets by category and then creation order (the app builds its filter chips

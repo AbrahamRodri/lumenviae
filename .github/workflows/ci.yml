@@ -304,7 +304,10 @@ jobs:
           # not left in the VM user's Docker config.
           echo "$GHCR_TOKEN" | ssh -i ~/.ssh/vm "$VM" \
             "docker login ghcr.io -u '$GITHUB_ACTOR' --password-stdin"
-          ssh -i ~/.ssh/vm "$VM" "cd /srv/lumenviae && export IMAGE='$IMAGE' RELEASE_COMMIT='$GITHUB_SHA' \
+          # status/ (the timers' reports, mounted read-only into the app) is
+          # made here, as deploy, before compose: Docker would make a missing
+          # one as root, and the timers, which run as deploy, could not write.
+          ssh -i ~/.ssh/vm "$VM" "cd /srv/lumenviae && mkdir -p status && export IMAGE='$IMAGE' RELEASE_COMMIT='$GITHUB_SHA' \
             && docker compose pull app office; status=\$?; docker logout ghcr.io; [ \$status -eq 0 ] \
             && docker compose run --rm app /app/bin/migrate \
             && docker compose up -d --wait \

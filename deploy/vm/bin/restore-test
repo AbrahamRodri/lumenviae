@@ -47,7 +47,9 @@ case "$latest" in
 esac
 echo "restore-test: $latest"
 
-trap 'docker compose exec -T db sh -c "dropdb --if-exists -U \"\$POSTGRES_USER\" $scratch"' EXIT
+# Drops the scratch database whatever happens, and on a failure says so on
+# the app's System page too (bin/write-status).
+trap 'rc=$?; docker compose exec -T db sh -c "dropdb --if-exists -U \"\$POSTGRES_USER\" $scratch"; [ "$rc" -eq 0 ] || bin/write-status restore-test false "failed (exit $rc); the journal says why"' EXIT
 docker compose exec -T db sh -c "dropdb --if-exists -U \"\$POSTGRES_USER\" $scratch && createdb -U \"\$POSTGRES_USER\" $scratch"
 
 aws s3 cp --only-show-errors "s3://$R2_BUCKET/$latest" - \
@@ -76,3 +78,4 @@ printf '%s\n' "$counts" | sql "$scratch" | sed 's/^/restore-test:   /'
 }
 echo "restore-test: ok"
 [ -z "${RESTORE_TEST_PING_URL:-}" ] || curl -fsS -m 10 --retry 3 "$RESTORE_TEST_PING_URL" > /dev/null
+bin/write-status restore-test true "newest dump restored; $restored migrations, as live"

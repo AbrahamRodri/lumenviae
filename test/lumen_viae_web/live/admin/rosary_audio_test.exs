@@ -9,6 +9,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudioTest do
   import LumenViae.Test.EnvStub, only: [put_env: 3]
   import Phoenix.LiveViewTest
 
+  alias LumenViae.Curation.RosaryAudioGeneration, as: Coverage
   alias LumenViae.Rosary.PrayerAudio
 
   setup %{conn: conn} do
@@ -44,7 +45,37 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudioTest do
     html = render_async(view, 10_000)
 
     assert html =~ "could not be checked"
+    assert html =~ "Could not check"
     refute html =~ "not recorded in the"
+  end
+
+  test "the dashboard says the clips could not be checked, rather than nothing missing", %{
+    conn: conn
+  } do
+    put_env(:ex_aws, :access_key_id, nil)
+    put_env(:ex_aws, :secret_access_key, nil)
+
+    {:ok, view, _html} = live(conn, "/admin")
+    html = render_async(view, 10_000)
+
+    assert html =~ "Spoken Rosary clips: could not check"
+    refute html =~ "Spoken Rosary clips missing"
+  end
+
+  test "a complete answer is remembered until it is asked for fresh" do
+    with_bucket()
+    put_env(:lumen_viae, :rosary_audio_coverage_ttl, :timer.minutes(5))
+    Coverage.forget_coverage()
+    on_exit(&Coverage.forget_coverage/0)
+
+    first = Coverage.cached_coverage()
+    assert Coverage.complete_coverage?(first)
+
+    # The bucket goes away: the remembered answer stands, a fresh one does not.
+    put_env(:ex_aws, :access_key_id, nil)
+    put_env(:ex_aws, :secret_access_key, nil)
+    assert Coverage.cached_coverage() == first
+    refute Coverage.complete_coverage?(Coverage.cached_coverage(fresh: true))
   end
 
   test "follows a recording run live: Recording while queued, Recorded when it lands", %{
