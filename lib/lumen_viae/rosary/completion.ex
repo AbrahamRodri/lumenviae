@@ -59,7 +59,7 @@ defmodule LumenViae.Rosary.Completion do
   alias LumenViae.Rosary.Completion.SetIsVisible
   alias LumenViae.Rosary.Completion.Stamp
 
-  @sources ~w(web ios android)
+  @sources ~w(web ios android other)
 
   @doc """
   The surfaces a completion can be reported from.
@@ -220,6 +220,19 @@ defmodule LumenViae.Rosary.Completion do
       argument :until, :utc_datetime, allow_nil?: false
 
       run LumenViae.Rosary.Completion.PlaceCounts
+    end
+
+    action :report_counts, :map do
+      description "The console's Completions screen counted by Postgres: by day, hour, set, surface, aloud, country and city, since a moment (or ever) and narrowed by any of set, surface, country and prayed aloud. A nil argument does not narrow."
+
+      argument :since, :utc_datetime
+      argument :time_zone, :string, allow_nil?: false
+      argument :meditation_set_id, :integer
+      argument :source, :string
+      argument :country_code, :string
+      argument :prayed_aloud, :boolean
+
+      run LumenViae.Rosary.Completion.ReportCounts
     end
 
     read :report do

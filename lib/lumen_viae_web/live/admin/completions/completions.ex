@@ -1,7 +1,7 @@
 defmodule LumenViaeWeb.Live.Admin.Completions do
   @moduledoc """
   Completions, every way the console can break them down: by day, set,
-  surface, place, hour and language, over a period and narrowed by set,
+  surface, place and hour, over a period and narrowed by set,
   surface, country or whether the Rosary was prayed aloud.
 
   The dashboard shows the last 30 days at a glance; this is where its
@@ -40,27 +40,37 @@ defmodule LumenViaeWeb.Live.Admin.Completions do
   @default_period "30"
   @filter_keys ~w(days set source country aloud)
 
+  # Everything is read once the socket connects, not on the first (dead)
+  # render as well, which is shown for a moment and would cost every query
+  # twice.
   def mount(_params, _session, socket) do
     sets =
-      socket.assigns.current_admin
-      |> then(&Rosary.list_meditation_sets!(actor: &1))
-      |> Enum.sort_by(&String.downcase(&1.name))
-      |> Enum.map(&{&1.name, &1.id})
+      if connected?(socket) do
+        socket.assigns.current_admin
+        |> then(&Rosary.list_meditation_sets!(actor: &1))
+        |> Enum.sort_by(&String.downcase(&1.name))
+        |> Enum.map(&{&1.name, &1.id})
+      else
+        []
+      end
 
     {:ok,
      socket
      |> assign(:page_title, "Completions")
      |> assign(:set_options, sets)
-     |> assign(:period_options, @periods)}
+     |> assign(:period_options, @periods)
+     |> assign(:report, nil)}
   end
 
   def handle_params(params, _uri, socket) do
     params = clean(params)
+    socket = assign(socket, :params, params)
 
-    {:noreply,
-     socket
-     |> assign(:params, params)
-     |> assign(:report, report(params, socket.assigns.current_admin))}
+    if connected?(socket) do
+      {:noreply, assign(socket, :report, report(params, socket.assigns.current_admin))}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("filter", params, socket) do
@@ -91,7 +101,7 @@ defmodule LumenViaeWeb.Live.Admin.Completions do
     end
   end
 
-  @sources ~w(web ios android)
+  @sources ~w(web ios android other)
 
   @doc """
   The query string as the page will use it: only the filters it knows, each
@@ -145,8 +155,13 @@ defmodule LumenViaeWeb.Live.Admin.Completions do
     Enum.find_value(@periods, "30 days", fn {label, v} -> v == value && label end)
   end
 
-  @doc "Completions per day over the period, to one place."
-  def per_day(%{total: total, by_day: [_ | _] = days}), do: Float.round(total / length(days), 1)
+  @doc """
+  Completions per day over the period, to one place. Today counts only as
+  far as it has gone, so a morning does not drag the average down.
+  """
+  def per_day(%{total: total, elapsed_days: days}) when is_number(days) and days > 0,
+    do: Float.round(total / days, 1)
+
   def per_day(_report), do: nil
 
   @doc "`part` as a whole percentage of `whole`."
@@ -176,6 +191,7 @@ defmodule LumenViaeWeb.Live.Admin.Completions do
   def source_slug("Website"), do: "web"
   def source_slug("iOS app"), do: "ios"
   def source_slug("Android app"), do: "android"
+  def source_slug("Other client"), do: "other"
   def source_slug(_unknown), do: nil
 
   @doc "The `aloud` value a row of the aloud split narrows to."
