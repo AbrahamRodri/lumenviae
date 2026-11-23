@@ -76,7 +76,10 @@ defmodule LumenViae.MixProject do
       # EEF-CVE-2026-117656 is 0.3.2 (only ash_authentication 5.0, still a
       # release candidate, allows it). The app signs in by password only;
       # assent is the OAuth half. Overridden until 5.0 is out.
-      {:assent, "~> 0.3.2", override: true},
+      {:assent, "~> 0.4.0", override: true},
+      # swoosh 1.29 caps idna below 8 but only calls :idna.utf8_to_ascii, which idna 8 keeps;
+      # idna 8 fixes EEF-CVE-2026-117678 (slow rejection of over-long labels).
+      {:idna, "~> 8.0", override: true},
       {:ash_authentication_phoenix, "~> 2.17"},
       {:bcrypt_elixir, "~> 3.3"},
       # The SAT solver Ash's policy authorizer needs.
