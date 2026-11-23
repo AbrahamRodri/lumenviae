@@ -1,11 +1,12 @@
 defmodule LumenViae.Rosary.SpiritualReading.Text do
   @moduledoc """
   The Spiritual Reading shelf's books as the website reads them: each
-  book's Project Gutenberg text, fetched by the server
-  (`LumenViae.Rosary.SpiritualReading.Gutenberg`), cut into chapters by its
-  edition's rules (`LumenViae.Rosary.SpiritualReading.Parser`) and held in
-  this machine's memory, so each book is fetched once per machine per month
-  and a visitor's browser never calls Gutenberg.
+  book's Project Gutenberg text, read from the copy the release carries
+  (`LumenViae.Rosary.SpiritualReading.Stored`) or, for a book with none,
+  fetched by the server (`LumenViae.Rosary.SpiritualReading.Gutenberg`),
+  cut into chapters by its edition's rules
+  (`LumenViae.Rosary.SpiritualReading.Parser`) and held in this machine's
+  memory. A visitor's browser never calls Gutenberg.
 
   Kept as the Divine Office's cache keeps its answers
   (`LumenViae.Office.Cache`): a supervised owner of a public named ETS
@@ -46,6 +47,7 @@ defmodule LumenViae.Rosary.SpiritualReading.Text do
   alias LumenViae.Rosary.Library
   alias LumenViae.Rosary.SpiritualReading.Gutenberg
   alias LumenViae.Rosary.SpiritualReading.Parser
+  alias LumenViae.Rosary.SpiritualReading.Stored
 
   @table :lumen_viae_spiritual_reading_text
   @ttl_ms :timer.hours(24 * 30)
@@ -128,10 +130,14 @@ defmodule LumenViae.Rosary.SpiritualReading.Text do
     put({:contents, book_id, fingerprint}, {:error, reason}, ttl)
   end
 
+  # The release's own copy first (`Stored`), so a deploy never waits on
+  # Gutenberg; Gutenberg only for a book with no stored copy.
   defp fetch(info) do
-    case Gutenberg.fetch_text(info.gutenberg_id) do
-      {:ok, text} -> {:ok, text}
-      {:error, _reason} -> {:error, :unreachable}
+    with :none <- Stored.read(info.gutenberg_id) do
+      case Gutenberg.fetch_text(info.gutenberg_id) do
+        {:ok, text} -> {:ok, text}
+        {:error, _reason} -> {:error, :unreachable}
+      end
     end
   end
 
