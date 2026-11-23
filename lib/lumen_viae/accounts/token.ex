@@ -78,7 +78,10 @@ defmodule LumenViae.Accounts.Token do
     # as the token lifetime. Only the subject and the moment are selected.
     read :sign_ins do
       description "When each admin's stored sessions began, newest first: subject and time only."
-      filter expr(purpose == "user")
+      # Sign-out revokes a session by upserting its jti with purpose
+      # "revocation" and keeps created_at, so a signed-out session still
+      # says when it began.
+      filter expr(purpose in ["user", "revocation"])
       prepare build(select: [:subject, :created_at], sort: [created_at: :desc])
     end
 

@@ -38,6 +38,21 @@ defmodule LumenViaeWeb.Live.Admin.AdminsTest do
     assert Accounts.last_sign_ins([]) == %{}
   end
 
+  test "an admin who signed out still shows when they last signed in", %{me: me} do
+    other = admin_fixture()
+    signed_in = log_in_admin(build_conn(), other)
+    assert signed_in |> get("/admin") |> html_response(200)
+
+    signed_out = delete(signed_in, "/admin/session")
+    assert redirected_to(signed_out) == "/"
+
+    sign_ins = Accounts.last_sign_ins(actor: me)
+    assert %DateTime{} = sign_ins[to_string(other.id)]
+
+    refute LumenViaeWeb.Live.Admin.Admins.last_signed_in(sign_ins, other) ==
+             "Not in the last week"
+  end
+
   test "adds an admin with your password and shows theirs once", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/admin/admins")
     email = "added#{System.unique_integer([:positive])}@lumenviae.test"
