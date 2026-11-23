@@ -467,6 +467,63 @@ defmodule LumenViae.Release do
     end)
   end
 
+  @doc """
+  The console dashboard's headline numbers as JSON lines, one object per
+  line, for an agent checking a page's figure against production without
+  signing in:
+
+      /app/bin/lumen_viae rpc 'LumenViae.Release.summary()'
+
+  Counts only: completions by period (`Rosary.period/1`, as the dashboard
+  counts them) and by surface, aloud and country over the last 30 days,
+  the library's size, and the job queues by state. No row, address, city,
+  email or secret, and it writes nothing. Prints, and answers `:ok`.
+  """
+  def summary do
+    with_repo(fn ->
+      opts = [authorize?: false]
+      completions = LumenViae.Rosary.completion_summary(opts)
+      places = LumenViae.Rosary.completion_locations(30, opts)
+
+      lines = [
+        %{
+          section: "release",
+          commit: LumenViae.Ops.Health.commit(),
+          version: LumenViae.Ops.Health.version()
+        },
+        Map.put(completions, :section, "completions"),
+        %{
+          section: "completions_30_days",
+          total: places.total,
+          located: places.located,
+          sources: Map.new(places.sources, fn {source, n} -> {source || "unrecorded", n} end),
+          prayed_aloud:
+            Map.new(places.prayed_aloud, fn {aloud, n} ->
+              {if(is_nil(aloud), do: "unknown", else: to_string(aloud)), n}
+            end),
+          countries:
+            places.countries
+            |> Enum.take(10)
+            |> Map.new(&{&1.country_code || &1.country, &1.count})
+        },
+        %{
+          section: "library",
+          meditation_sets: length(LumenViae.Rosary.list_meditation_sets!(opts)),
+          hidden_sets: MapSet.size(LumenViae.Rosary.hidden_meditation_set_ids(opts)),
+          meditations: LumenViae.Rosary.count_meditations(opts),
+          archived_meditations: LumenViae.Rosary.count_archived_meditations(opts)
+        }
+        | Enum.map(
+            LumenViae.Ops.queues(),
+            &%{section: "queue", queue: &1.queue, counts: &1.counts}
+          )
+      ]
+
+      Enum.each(lines, &IO.puts(Jason.encode!(&1)))
+      :ok
+    end)
+  end
+
   # Inside the running app (rpc) the repo and Oban are already up; under
   # eval, the repo is started here and Oban as an inserter that runs no
   # queues (AudioJobs.start_inserter/0), so a job made available is run by
