@@ -75,7 +75,7 @@ defmodule LumenViaeWeb.Live.CreditsTest do
 
       assert has_element?(
                view,
-               "#painting-undoer_of_knots_novena [data-role=licence]",
+               "#painting-st_jude_novena [data-role=licence]",
                "Public domain"
              )
     end

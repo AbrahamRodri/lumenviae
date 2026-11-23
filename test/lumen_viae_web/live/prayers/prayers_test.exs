@@ -249,12 +249,13 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       assert view |> element("[data-role=source]") |> render() =~
                "Divine Word Publications, 1956"
 
-      {:ok, knots, _html} = live(conn, "/prayers/undoer_of_knots_novena")
+      {:ok, spirit, _html} = live(conn, "/prayers/holy_spirit_novena")
 
-      assert knots |> element("header [data-role=origin]") |> render() =~
-               "Fr. Juan Ramón Celeiro"
+      assert spirit |> element("header [data-role=origin]") |> render() =~
+               "The Holy Ghost Fathers · 1947"
 
-      assert knots |> element("[data-role=source]") |> render() =~ "as printed by Ascension Press"
+      assert spirit |> element("[data-role=source]") |> render() =~
+               "Holy Ghost Fathers, Washington, D.C., 1947"
     end
 
     test "an unknown author is not credited under the title", %{conn: conn} do
@@ -298,12 +299,12 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
     end
 
     test "a lone line and a rubric set flush; verse lines hang", %{conn: conn} do
-      {:ok, novena, _html} = live(conn, "/prayers/undoer_of_knots_novena")
+      {:ok, novena, _html} = live(conn, "/prayers/st_joseph_novena?day=5")
 
       assert has_element?(
                novena,
                ".book-line--flush",
-               "The one who seeks grace, finds it in Mary's hands."
+               "Guardian of the Word Incarnate, I feel confident"
              )
 
       assert has_element?(
