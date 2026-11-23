@@ -32,7 +32,7 @@ defmodule LumenViae.Ops.Health do
 
   @doc """
   The git commit this release was deployed from, or "unknown". The CI deploy
-  sets `RELEASE_COMMIT` (`flyctl deploy --env`), so `bin/post-deploy-check`
+  sets `RELEASE_COMMIT` (deploy/vm/compose.yml), so `bin/post-deploy-check`
   can tell the new release from the old one; `mix.exs`'s version never
   changes.
   """

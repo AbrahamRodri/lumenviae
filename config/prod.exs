@@ -7,8 +7,8 @@ import Config
 # before starting your production server.
 config :lumen_viae, LumenViaeWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
-  # Fly's proxy ends TLS and already redirects plain HTTP (`force_https` in
-  # fly.toml); this adds HSTS, so a browser never makes that first plain
+  # Caddy ends TLS and already redirects plain HTTP (deploy/vm/Caddyfile);
+  # this adds HSTS, so a browser never makes that first plain
   # request again. `rewrite_on` trusts the proxy's X-Forwarded-Proto, or
   # every request would look like HTTP and redirect to itself. `/healthz`
   # is excluded so a check over the private network gets its 200, not a

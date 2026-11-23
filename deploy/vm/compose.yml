@@ -30,6 +30,11 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
+    # How long a deploy waits after SIGTERM before killing the app. Oban
+    # gives running jobs 140 seconds (config/config.exs), because a
+    # narration request killed mid-flight may still be billed; Docker's
+    # default is 10. Fly's kill_timeout was 150, kept here.
+    stop_grace_period: 150s
     # No published port: only Caddy reaches it, so X-Real-IP is always
     # Caddy's.
     # The release image has no curl (the Dockerfile is Fly's too, left as

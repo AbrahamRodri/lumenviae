@@ -1,7 +1,7 @@
 # CI and the deploy gate
 
 Every push to `main` runs `.github/workflows/ci.yml`. A push that passes the
-blocking checks then deploys to Fly from the same run and checks production
+blocking checks then deploys to the Droplet from the same run and checks production
 with `bin/post-deploy-check`. Nothing else deploys: there is no second
 workflow to race it.
 
@@ -40,33 +40,32 @@ a separate workflow started by `workflow_run`, would work too but is worse
 here: the two runs are separate objects in the Actions tab, the deploy has to
 check out the right commit by hand, and two quick merges can finish their CI
 out of order and deploy the older commit last. In one workflow the graph shows
-the gate and a failing check leaves `deploy` skipped.
+the gate and a failing check leaves `deploy-vm` skipped.
 
 The audit is left out of `needs` on purpose. Advisory databases change daily,
 so that check can turn red with no change of ours, and an unrelated hotfix
 should not wait on it. To make it a condition, add `audit` to `needs` on the
-`deploy` job.
+`deploy-vm` job.
 
 ### The deploy only ever moves forward
 
-Every deploy runs `/app/bin/migrate` first (`release_command` in `fly.toml`).
+Every deploy runs `/app/bin/migrate` first (`docker compose run --rm app /app/bin/migrate`).
 Re-running an older run of `main` would therefore deploy its commit over a
 newer one, after the newer one's migrations had already run. So the deploy job
 starts with `.github/scripts/is-main-tip.sh`, which compares the run's commit
 with the tip of `main` on GitHub. If they differ it logs a notice, "Not
-deploying <sha>: main is now at <tip>", skips the Fly steps and the job still
+deploying <sha>: main is now at <tip>", skips the deploy steps and the job still
 shows green. If the tip cannot be read it fails and nothing deploys. The
 newer run owns the deploy.
 
-The job has a 20 minute timeout, and every action, including
-`setup-flyctl`, is pinned to a full commit SHA with its version in a comment.
+Every action is pinned to a full commit SHA with its version in a comment.
 
 ### Where it deploys: HOSTING
 
-The repository variable `HOSTING` picks the deploy job. Unset, as today,
-`Deploy to Fly` runs and `Deploy to the VM` is skipped. Set to `vm`, the
-reverse: the release image goes to GHCR and the VM in `deploy/vm/`
-restarts on it, with the same tip check and the same two production
+The repository variable `HOSTING` must be `vm` for `Deploy to the VM` to
+run; unset, nothing deploys. (The `Deploy to Fly` job was removed on 23 Nov
+2026, after Fly's database was destroyed.) The release image goes to GHCR
+and the VM in `deploy/vm/` restarts on it, with the same tip check and the same two production
 checks. Each VM deploy also copies `deploy/vm/bin/` and
 `deploy/vm/systemd/` (the nightly backup to R2 and its restore test) to
 the server. Setting it is part of the hosting switch (`deploy/vm/README.md`,
@@ -92,7 +91,7 @@ says which gate failed.
 | Resources, migrations and snapshots agree | A resource changed without `mix ash.codegen <name>`, or generated files were edited by hand | Run `mix ash.codegen <name>`, read the generated migration, commit it |
 | Test | A test failed; the failing test and its diff are in the log | Reproduce with the commands below |
 | Assets build | Tailwind or esbuild failed; its error is in the log | Run `mix assets.deploy` locally |
-| Build the image from the Dockerfile | The production build failed; the failing Dockerfile step is the last one in the log. CI pulls the base images from `mirror.gcr.io` (the `REGISTRY` build arg) and uses Docker Hub only if the step before warns that the mirror lacks them; a `429 Too Many Requests` then is Docker Hub's rate limit, so re-run the job | Run `docker build .` locally, then `docker rmi` the image. `MIX_ENV=prod` is blocked in this repo's tooling, so build through Docker rather than `mix`. CI and Fly build amd64 natively; on Apple Silicon `docker build .` builds arm64, and `--platform linux/amd64` builds under emulation, which the builder stage's `ERL_FLAGS="+JMsingle true"` makes work |
+| Build the image from the Dockerfile | The production build failed; the failing Dockerfile step is the last one in the log. CI pulls the base images from `mirror.gcr.io` (the `REGISTRY` build arg) and uses Docker Hub only if the step before warns that the mirror lacks them; a `429 Too Many Requests` then is Docker Hub's rate limit, so re-run the job | Run `docker build .` locally, then `docker rmi` the image. `MIX_ENV=prod` is blocked in this repo's tooling, so build through Docker rather than `mix`. CI and the Droplet run amd64; on Apple Silicon `docker build .` builds arm64, and `--platform linux/amd64` builds under emulation, which the builder stage's `ERL_FLAGS="+JMsingle true"` makes work |
 | Is this commit still the tip of main? | Not a failure: a notice that the run was skipped because `main` moved on. A real failure means GitHub could not be reached | Re-run the job, or see Re-running |
 | Dependency audit | A dependency is retired or has a published advisory; the log names it | Upgrade it; Dependabot usually has the PR open |
 | Format (changed files) | The log lists the files and prints the `mix format` command | Run that command and push |
@@ -125,7 +124,7 @@ log, `mix test --seed <n>`.
   and a retry that passes deploys without a new commit. If `main` has moved
   on, the re-run still passes its checks but `deploy` logs "Not deploying" and
   does nothing, by design: the newer commit's run owns the deploy.
-- A deploy that failed after the checks passed (a Fly outage, say): the same
+- A deploy that failed after the checks passed (a Droplet or GHCR outage, say): the same
   rule. While the commit is the tip, "Re-run failed jobs" re-runs only
   `deploy`. Once `main` has moved, merge or re-run the newer commit instead.
 - To redeploy an older commit on purpose, revert on `main`: the revert is the
@@ -174,31 +173,8 @@ for review, so their CI runs at once, as before. Merging one to `main` deploys i
 
 ## Not done yet
 
-- **A Fly HTTP health check.** Today `fly.toml` has none, so Fly keeps a
-  machine in rotation as long as it accepts connections. A wrong check can
-  take production down, so it needs its own PR and a deploy watched by a
-  person. `GET /healthz` exists (`LumenViaeWeb.HealthController`,
-  `LumenViae.Ops.Health`), but it is for an uptime monitor, not for this:
-  it asks the database `SELECT 1` and answers 503 when that fails, and the
-  database is one small machine, so a blip there would pull every app
-  machine out of rotation at once. Proposal: a second path that answers 200
-  and touches nothing else (no database), served before the router in the
-  endpoint and excluded from `force_ssl` as `/healthz` is (config/prod.exs),
-  so a check over the private network gets its answer rather than a
-  redirect, then in `fly.toml`:
-
-  ```
-  [[http_service.checks]]
-    grace_period = "30s"
-    interval = "15s"
-    method = "GET"
-    path = "<that path, not /healthz>"
-    timeout = "5s"
-  ```
-
-  `force_https` is set on the service, and how it interacts with a check is
-  not verified here: try it on a copy of the app before production.
-- **The deploy token in a protected environment.** The `FLY_API_TOKEN`
-  secret is readable by any workflow in the repository. Moving it to a
-  `production` environment limited to `main` needs the owner to create a
-  narrower token; the steps are in the pull request that added this section.
+- **The deploy key in a protected environment.** The VM's deploy secrets
+  (`VM_SSH_KEY` and its pair) are readable by any workflow in the
+  repository. Moving them to a `production` environment limited to `main`
+  is the owner's step. (The Fly deploy job and its `FLY_API_TOKEN` use were
+  removed on 23 Nov 2026; the secret itself is the owner's to delete.)

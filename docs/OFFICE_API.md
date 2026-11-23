@@ -33,7 +33,9 @@ private Fly app `lumenviae-office` - `deploy/divinum-officium/fly.toml`,
 deployed with `fly deploy -c deploy/divinum-officium/fly.toml`. It has a
 Flycast address and no public IPs, suspends when idle and wakes on the
 first request, and `DIVINUM_OFFICIUM_BASE_URL` in the root `fly.toml`
-points the API at it. Fly private names resolve to IPv6 only, which
+pointed the API at it. Since the hosting move the Droplet runs the same
+image as the `office` service (deploy/vm/compose.yml), and the Fly app is
+stopped; the root `fly.toml` was removed on 23 Nov 2026. Fly private names resolve to IPv6 only, which
 `LumenViae.Office.DivinumOfficium` allows for. Attribution in the
 responses still names the public site, where the same office can be
 read; keep it that way.
