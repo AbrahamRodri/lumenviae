@@ -32,8 +32,8 @@ services:
     restart: unless-stopped
     # No published port: only Caddy reaches it, so X-Real-IP is always
     # Caddy's.
-    # The release image has no curl (the Dockerfile is Fly's too, left as
-    # it is): ask the running release whether its endpoint is up. The
+    # The release image has no curl: ask the running release whether its
+    # endpoint is up. The
     # deploy's post-deploy checks then test it over HTTPS.
     healthcheck:
       test: ["CMD", "/app/bin/lumen_viae", "rpc", "LumenViaeWeb.Endpoint.url()"]

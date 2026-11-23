@@ -315,6 +315,31 @@
       </ul>
     </section>
 
+    <section id="licences" aria-labelledby="licences-heading" class="mt-12 scroll-mt-24">
+      <.section_heading id="licences">Licences</.section_heading>
+
+      <ul>
+        <li
+          :for={licence <- @licences}
+          id={"licence-#{licence.id}"}
+          class="border-t border-night-border py-4"
+          data-role="software-licence"
+        >
+          <p class="font-garamond text-lg text-ink-light">{licence.name}</p>
+          <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
+            {licence.use} {licence.copyright}.
+          </p>
+          <p class="mt-2"><span class="credits-licence">{licence.licence}</span></p>
+          <details class="mt-2">
+            <summary class="font-garamond text-base text-sky cursor-pointer min-h-11 flex items-center">
+              The licence
+            </summary>
+            <pre class="mt-2 whitespace-pre-wrap font-garamond text-sm text-ink-muted leading-relaxed">{licence.text}</pre>
+          </details>
+        </li>
+      </ul>
+    </section>
+
     <p
       class="font-garamond italic text-base text-ink-muted border-t border-night-border mt-10 pt-6"
       data-role="last-checked"
