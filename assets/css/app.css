@@ -7617,15 +7617,6 @@ html:has(#prayer) {
     margin-top: 2.5rem;
   }
 
-  .sr-credit__link {
-    display: inline-block;
-    padding: 0.75rem 0;
-  }
-
-  .sr-credit__link:hover {
-    color: var(--color-ink-light);
-  }
-
   /* A book's page: the cloth beside the title, the author and the act on
      a phone, as the app's head; from 1024px the head stands in a column
      beside the contents (td-book's grid). */

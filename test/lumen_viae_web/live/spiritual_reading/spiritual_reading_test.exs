@@ -76,7 +76,8 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
 
       assert html =~ "Spiritual Reading"
       assert html =~ "Take up and read"
-      assert html =~ "Texts from Project Gutenberg"
+      assert html =~ "Texts from their printed editions"
+      refute html =~ "Gutenberg"
       assert html =~ "Classic Catholic books to read, or to listen to"
       assert html =~ "Recordings by LibriVox volunteers."
 
@@ -96,7 +97,7 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
       stub_gutenberg()
       conn = get(conn, "/spiritual-reading/imitation-of-christ")
       # The first response does not wait on Gutenberg.
-      assert html_response(conn, 200) =~ "Fetching the text from Project Gutenberg"
+      assert html_response(conn, 200) =~ "Opening the book."
 
       {:ok, view, _html} = live(conn)
       html = render_async(view)
@@ -137,7 +138,7 @@ defmodule LumenViaeWeb.Live.SpiritualReading.SpiritualReadingTest do
 
       assert html =~ "Contents · 20 chapters"
       assert html =~ "First Conversation"
-      refute html =~ "Fetching the text"
+      refute html =~ "Opening the book."
     end
 
     test "Gutenberg out of reach says so with Try again", %{conn: conn} do

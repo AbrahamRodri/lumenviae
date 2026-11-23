@@ -794,8 +794,9 @@ tab closes; each track runs on into the next by itself.
   reached. Check your connection and try again."
 
 The shelf says "Classic Catholic books to read, or to listen to", and its
-credit "Texts from Project Gutenberg. Recordings by LibriVox volunteers.
-All in the public domain.", as the app's.
+credit "Texts from their printed editions. Recordings by LibriVox
+volunteers. All in the public domain." (the app's names Project Gutenberg;
+the site credits the printed editions, copyright review item 19).
 
 Left out, as the app has them: the sleep timer, the lock screen and the
 headphones' controls, Save for offline (the recordings are streamed, never
