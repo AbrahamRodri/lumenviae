@@ -112,6 +112,12 @@ defmodule LumenViaeWeb.API.OfficeControllerTest do
              )
 
       assert Enum.any?(cells, &is_nil(&1["marked_lines"]))
+
+      latin =
+        Enum.find(cells, &Enum.any?(&1["lines"], fn l -> l =~ "percutit sibi pectus" end))
+
+      assert Enum.any?(latin["marked_lines"], &(&1 =~ "ópere: {percutit sibi pectus} mea culpa"))
+      refute Enum.any?(latin["marked_lines"], &(&1 =~ "{(percutit"))
     end
 
     # O1: one null `lines` or one non-string line fails the whole hour for

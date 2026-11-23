@@ -254,7 +254,7 @@ defmodule LumenViae.Office.Parser do
           cond do
             mark? and begun? and small_red?(node) and String.trim(text) not in ["", "‡", "*", "+"] and
                 not String.starts_with?(String.trim(text), "{") ->
-              " {" <> String.trim(text) <> "} "
+              " {" <> rubric_note(text) <> "} "
 
             element?(node) and element?(previous) ->
               " " <> text
@@ -268,6 +268,18 @@ defmodule LumenViae.Office.Parser do
       end)
 
     parts |> Enum.reverse() |> Enum.join()
+  end
+
+  # The note inside the braces, without the engine's own parentheses: the
+  # Latin Confiteor's "(percutit sibi pectus)" reads as bare as the
+  # English "strikes his breast".
+  defp rubric_note(text) do
+    trimmed = String.trim(text)
+
+    case Regex.run(~r/\A\((.*)\)\z/su, trimmed) do
+      [_, inner] -> String.trim(inner)
+      nil -> trimmed
+    end
   end
 
   defp small_red?({"font", attrs, _children}),
