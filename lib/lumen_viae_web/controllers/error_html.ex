@@ -4,8 +4,13 @@ defmodule LumenViaeWeb.ErrorHTML do
 
   404 and 500 are whole documents in the site's style: errors render with
   no layout, and a 500 must not lean on anything that may be what failed -
-  no session, no CSRF token, no database, no LiveView. Every other status
-  falls back to its plain status message.
+  no session, no CSRF token, no database, no LiveView. A 404 carries the
+  site's own header and its script, so a lost reader has the whole menu;
+  a 500 keeps the bare lockup. Every other status falls back to its plain
+  status message.
+
+  A 404 raised with `removed: :novena` (`LumenViaeWeb.NotFoundError`) says
+  the novena is gone and leads to the others.
   """
   use LumenViaeWeb, :html
 
@@ -15,9 +20,17 @@ defmodule LumenViaeWeb.ErrorHTML do
     Phoenix.Controller.status_message_from_template(template)
   end
 
+  defp removed(%{reason: %LumenViaeWeb.NotFoundError{removed: removed}}), do: removed
+  defp removed(_assigns), do: nil
+
+  defp request_path(%{conn: %Plug.Conn{request_path: path}}), do: path
+  defp request_path(_assigns), do: nil
+
   attr :status, :integer, required: true
   attr :title, :string, required: true
+  attr :current_path, :string, default: nil
   slot :inner_block, required: true
+  slot :actions, doc: "where to go instead of Today's Rosary and The Mysteries"
 
   def error_page(assigns) do
     ~H"""
@@ -32,9 +45,15 @@ defmodule LumenViaeWeb.ErrorHTML do
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="stylesheet" href={~p"/assets/css/app.css"} />
+        <%= if @status == 404 do %>
+          <meta name="csrf-token" content={get_csrf_token()} />
+          <script defer type="text/javascript" src={~p"/assets/js/app.js"}>
+          </script>
+        <% end %>
       </head>
       <body class="site bg-night text-ink-light min-h-dvh flex flex-col">
-        <header class="site-header bg-night-deep border-b border-night-border">
+        <LumenViaeWeb.Components.Nav.header :if={@status == 404} current_path={@current_path} />
+        <header :if={@status != 404} class="site-header bg-night-deep border-b border-night-border">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 md:py-4">
             <a
               href="/"
@@ -60,8 +79,12 @@ defmodule LumenViaeWeb.ErrorHTML do
             </div>
 
             <nav class="mt-10 flex flex-wrap justify-center gap-3" aria-label="Where to go">
-              <a href="/" class="btn-gold">Today's Rosary</a>
-              <a href="/mysteries" class="btn-outline-gold">The Mysteries</a>
+              <%= if @actions == [] do %>
+                <a href="/" class="btn-gold">Today's Rosary</a>
+                <a href="/mysteries" class="btn-outline-gold">The Mysteries</a>
+              <% else %>
+                {render_slot(@actions)}
+              <% end %>
             </nav>
           </div>
         </main>

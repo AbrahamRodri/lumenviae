@@ -630,7 +630,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           class={[pill_class(), "border-night-line disabled:opacity-30 disabled:cursor-not-allowed"]}
           aria-label="Back a bead"
         >
-          <span aria-hidden="true">&lsaquo;</span> Back
+          <span aria-hidden="true">&lsaquo;</span> <span class="prayer-step-word">Back</span>
         </button>
 
         {render_slot(@play)}
@@ -653,7 +653,7 @@ defmodule LumenViaeWeb.Live.Pray.Controls do
           aria-label="Next bead"
           class={[pill_class(), "border-gilt"]}
         >
-          Next <span aria-hidden="true">&rsaquo;</span>
+          <span class="prayer-step-word">Next</span> <span aria-hidden="true">&rsaquo;</span>
         </button>
       </div>
       <.sheet_row sheet={@sheet} read={@read} />

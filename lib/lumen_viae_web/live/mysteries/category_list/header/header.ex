@@ -17,12 +17,13 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
   def category_hero(assigns) do
     ~H"""
     <section
-      class="border-b border-[rgba(227,188,91,0.15)]"
+      class="category-hero border-b border-[rgba(227,188,91,0.15)]"
       aria-labelledby="category-heading"
     >
       <%!-- As the app heads a pushed page: the picture beside the title in
-            Cinzel, the days in tracked gold capitals. --%>
-      <div class="max-w-5xl mx-auto px-4 sm:px-8 py-5 md:py-10 grid grid-cols-[min(4.5rem,22vw)_minmax(0,1fr)] sm:grid-cols-[7rem_minmax(0,1fr)] md:grid-cols-[10rem_minmax(0,1fr)] gap-4 sm:gap-6 md:gap-10 items-center">
+            Cinzel, the days in tracked gold capitals; above the title at a
+            large text size (see .category-hero in app.css). --%>
+      <div class="category-hero__head max-w-5xl mx-auto px-4 sm:px-8 py-5 md:py-10 grid gap-4 sm:gap-6 md:gap-10 items-center">
         <.arch_frame
           :if={@painting}
           src={@painting.src}
@@ -45,7 +46,7 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
           <p class="kicker hidden sm:block mb-1">The Holy Rosary</p>
           <h1
             id="category-heading"
-            class="font-display text-[1.5rem] sm:text-4xl md:text-5xl text-ink-light leading-[1.1] [overflow-wrap:anywhere] mb-1 sm:mb-2"
+            class="font-display text-[1.5rem] sm:text-4xl md:text-5xl text-ink-light leading-[1.1] break-words mb-1 sm:mb-2"
           >
             {@title}
           </h1>
@@ -70,11 +71,14 @@ defmodule LumenViaeWeb.Live.Mysteries.CategoryList.Header do
 
   def mysteries_list(assigns) do
     ~H"""
-    <section class="max-w-5xl mx-auto px-4 sm:px-8 pt-8 md:pt-12" aria-labelledby="mysteries-heading">
+    <section
+      class="mysteries-section max-w-5xl mx-auto px-4 sm:px-8 pt-8 md:pt-12"
+      aria-labelledby="mysteries-heading"
+    >
       <h2 id="mysteries-heading" class="section-label">
         {if @category == "seven_sorrows", do: "The Seven Sorrows", else: "The Mysteries"}
       </h2>
-      <ol class="mystery-ledger grid gap-x-10 sm:grid-cols-2">
+      <ol class="mystery-ledger mystery-ledger--paired">
         <li :for={mystery <- @mysteries}>
           <span class="mystery-ledger__numeral" aria-hidden="true">{roman(mystery.order)}</span>
           <span class="mystery-thumb" aria-hidden="true">

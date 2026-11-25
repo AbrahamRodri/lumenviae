@@ -17,7 +17,7 @@ defmodule LumenViaeWeb.Components.Footer do
       id="site-footer"
       class="site-footer bg-night-deep text-center border-t border-night-border"
     >
-      <div class="max-w-3xl mx-auto px-4 sm:px-8 py-8">
+      <div class="max-w-5xl mx-auto px-4 sm:px-8 py-8">
         <.logo class="h-12 w-auto mx-auto mb-4" />
 
         <nav aria-label="Footer">

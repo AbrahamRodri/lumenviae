@@ -21,8 +21,8 @@ defmodule LumenViaeWeb.Live.Prayers.Index.Shelves do
 
   @doc """
   The shortcuts at the head of the page (PrayersShortcutTile): the day's
-  three orders, then Before Mass and Before Confession, each its painting
-  at the leading edge and its name for the day.
+  three orders, then Before Mass, Before Confession and Grace at Meals,
+  each its painting at the leading edge and its name for the day.
   """
   def shortcuts(assigns) do
     ~H"""
