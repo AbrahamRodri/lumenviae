@@ -20,7 +20,7 @@ defmodule LumenViae.Rosary.RosaryContent.Categories do
   alias LumenViae.Rosary.RosaryContent.SpanishNames
   alias LumenViae.Rosary.Types
 
-  @updated_at ~U[2026-10-04 03:00:00Z]
+  @updated_at ~U[2026-11-25 15:56:00Z]
 
   # GraphQL selects only the fields a query names, so the language is
   # asked for here or it would arrive empty.
