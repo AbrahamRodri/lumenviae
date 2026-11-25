@@ -2096,9 +2096,13 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
     min-height: min(3.5rem, 64px);
   }
 
-  #bead-status,
+  /* Small labels keep growing to at least 16px (the step line to 18). */
+  #bead-status {
+    font-size: min(0.8rem, 18px);
+  }
+
   .prayer-where {
-    font-size: min(0.8rem, 15px);
+    font-size: min(0.8rem, 16px);
   }
 
   /* Voice, Text and More: marks and names at their default size. */
@@ -2109,7 +2113,7 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
   }
 
   #prayer-sheet-row button > span:last-child {
-    font-size: min(0.75rem, 13px);
+    font-size: min(0.75rem, 16px);
   }
 
   /* The close mark and the spacing around the title and the controls
