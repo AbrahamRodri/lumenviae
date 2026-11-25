@@ -1015,7 +1015,7 @@ reading.
 in the `translations` section of `GET /api/v2/chant-library?lang=es`
 (added 15 November 2026): each chant's `title` (in place of its
 `english_title`) and `setting`, and each group's `title`. These are the
-names the apps print on a chant's card and row ("Salve Regina · melodía
+names the apps print on a chant's card and row ("La Salve · melodía
 sencilla").
 
 ## The team's own Spanish for the names (not `ai_translated`)
@@ -1027,8 +1027,9 @@ ios-review. The rules followed:
 
 - A chant Spanish-speaking Catholics name in Latin keeps its Latin title
   exactly as `latin_title` spells it, so a client that hides a second name
-  equal to the first shows it once: Salve Regina, Ave Maris Stella, Tantum
-  Ergo, Te Deum.
+  equal to the first shows it once: Ave Maris Stella, Tantum Ergo, Te
+  Deum. The Salve Regina is the exception: it is "La Salve", as the
+  Rosary's Spanish closing prayers name it (25 November 2026).
 - A chant that is a prayer the Prayer Book or the Rosary prints takes that
   prayer's Spanish title where it reads as a name ("Madre del Redentor",
   "Toda hermosa eres", "Bajo tu protección", "Acordaos", "Señal de la

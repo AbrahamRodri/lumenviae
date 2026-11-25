@@ -1,7 +1,7 @@
 <div class="bg-night min-h-screen pb-16">
   <Layouts.flash_group flash={@flash} variant={:public} />
 
-  <article class="mx-auto max-w-3xl px-4 sm:px-8 pt-10 md:pt-16">
+  <article class="mx-auto max-w-3xl px-4 sm:px-8 pt-10 md:pt-16 break-words">
     <header>
       <p class="kicker">Lumen Viae</p>
       <h1 class="font-display text-[2rem] leading-tight md:text-5xl text-ink-light mt-2">
@@ -20,9 +20,10 @@
       </p>
 
       <%!-- Two by two on a phone, where four pills cannot share a row and
-           one would sit alone; one row from sm up --%>
+           one would sit alone (one by one when large text leaves no room
+           for two); one row from sm up --%>
       <nav aria-label="Sections" class="mt-6">
-        <ul class="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
+        <ul class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2.5 sm:flex sm:flex-wrap">
           <li :for={{id, label} <- @sections}>
             <a
               href={"##{id}"}

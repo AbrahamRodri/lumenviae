@@ -1,4 +1,20 @@
-<.error_page status={404} title="Page Not Found">
+<.error_page
+  :if={removed(assigns) == :novena}
+  status={404}
+  title="Page Not Found"
+  current_path={request_path(assigns)}
+>
+  <p>This novena is no longer on Lumen Viae.</p>
+  <:actions>
+    <.gold_cta href="/prayers/topics/novenas">See the novenas</.gold_cta>
+  </:actions>
+</.error_page>
+<.error_page
+  :if={removed(assigns) != :novena}
+  status={404}
+  title="Page Not Found"
+  current_path={request_path(assigns)}
+>
   <p>
     There is nothing at this address. The page may have moved, or the link
     may have a typing error in it.

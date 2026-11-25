@@ -4,12 +4,12 @@
     class="relative overflow-hidden bg-night-deep border-b border-night-border"
     aria-labelledby="app-hero-heading"
   >
-    <div class="relative max-w-6xl mx-auto px-4 sm:px-8 pt-12 pb-14 md:py-20 grid md:grid-cols-[1fr_auto] items-center gap-12 md:gap-16">
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-8 pt-12 pb-14 md:py-20 grid grid-cols-[minmax(0,1fr)] md:grid-cols-[1fr_auto] items-center gap-12 md:gap-16">
       <div class="text-center md:text-left">
         <p class="kicker mb-4">Lumen Viae for iPhone</p>
         <h1
           id="app-hero-heading"
-          class="font-display font-semibold text-ink-light text-[2.5rem] leading-[1.08] sm:text-6xl lg:text-7xl"
+          class="font-display font-semibold text-ink-light text-[min(2.5rem,11vw)] leading-[1.08] sm:text-6xl lg:text-7xl"
         >
           The Rosary, prayed wherever you are
         </h1>
@@ -46,7 +46,7 @@
         <p class="kicker mb-3">What is inside</p>
         <h2
           id="inside-heading"
-          class="font-display font-semibold text-ink-light text-4xl md:text-5xl leading-tight"
+          class="font-display font-semibold text-ink-light text-[min(2.25rem,10vw)] md:text-5xl leading-tight"
         >
           The Rosary first, and the Church's prayer around it
         </h2>
@@ -57,7 +57,7 @@
         <article
           :for={{feature, index} <- Enum.with_index(@features)}
           id={feature.id}
-          class="grid md:grid-cols-2 items-center gap-10 md:gap-16"
+          class="grid grid-cols-[minmax(0,1fr)] md:grid-cols-2 items-center gap-10 md:gap-16"
           aria-labelledby={"#{feature.id}-heading"}
         >
           <div class={[
@@ -67,7 +67,7 @@
             <p class="kicker mb-3">{feature.kicker}</p>
             <h3
               id={"#{feature.id}-heading"}
-              class="font-display font-semibold text-ink-light text-3xl md:text-4xl leading-tight"
+              class="font-display font-semibold text-ink-light text-[min(1.875rem,8.5vw)] md:text-4xl leading-tight"
             >
               {feature.title}
             </h3>
@@ -101,13 +101,13 @@
         <p class="kicker mb-3">And more</p>
         <h2
           id="also-heading"
-          class="font-display font-semibold text-ink-light text-4xl md:text-5xl leading-tight"
+          class="font-display font-semibold text-ink-light text-[min(2.25rem,10vw)] md:text-5xl leading-tight"
         >
           More in the app
         </h2>
       </div>
 
-      <ul class="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-12">
+      <ul class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] sm:grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-12">
         <li :for={item <- @also} class="text-center">
           <.phone_screen
             name={item.screen.name}
@@ -131,14 +131,14 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-8 py-16 md:py-20">
       <h2
         id="anywhere-heading"
-        class="text-center font-display font-semibold text-ink-light text-4xl md:text-5xl leading-tight mb-12"
+        class="text-center font-display font-semibold text-ink-light text-[min(2.25rem,10vw)] md:text-5xl leading-tight mb-12"
       >
         Pray anywhere, quietly
       </h2>
-      <ul class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <ul class="grid grid-cols-[minmax(0,1fr)] sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <li :for={promise <- @promises} class="hairline-card p-6">
           <span class="block w-1.5 h-1.5 rotate-45 bg-gilt mb-4" aria-hidden="true"></span>
-          <h3 class="font-display font-semibold text-ink-light text-2xl leading-tight">
+          <h3 class="font-display font-semibold text-ink-light text-[min(1.5rem,7vw)] leading-tight">
             {promise.title}
           </h3>
           <p class="mt-3 font-garamond text-ink-muted text-lg leading-relaxed">
@@ -155,7 +155,7 @@
       <p class="kicker">Lumen Viae for iPhone</p>
       <h2
         id="closing-heading"
-        class="mt-3 font-display font-semibold text-ink-light text-4xl md:text-5xl leading-tight"
+        class="mt-3 font-display font-semibold text-ink-light text-[min(2.25rem,10vw)] md:text-5xl leading-tight"
       >
         Begin today's Rosary
       </h2>

@@ -359,6 +359,27 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
 
       assert Plug.Exception.status(error) == 404
     end
+
+    test "a removed novena's old link is a 404 that says it is gone", %{conn: conn} do
+      error =
+        assert_raise LumenViaeWeb.NotFoundError, fn ->
+          live(conn, "/prayers/undoer_of_knots_novena")
+        end
+
+      assert Plug.Exception.status(error) == 404
+      assert error.removed == :novena
+
+      {404, _headers, body} =
+        assert_error_sent(404, fn -> get(conn, "/prayers/undoer_of_knots_novena") end)
+
+      assert body =~ "This novena is no longer on Lumen Viae."
+      assert body =~ ~s(href="/prayers/topics/novenas")
+
+      {404, _headers, unknown} =
+        assert_error_sent(404, fn -> get(conn, "/prayers/not_a_prayer") end)
+
+      refute unknown =~ "no longer on Lumen Viae"
+    end
   end
 
   describe "the sitemap" do

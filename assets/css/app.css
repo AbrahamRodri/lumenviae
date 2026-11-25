@@ -1127,13 +1127,18 @@
 
 /* A category's mysteries as a ruled ledger: a gilt Cinzel numeral, the
    name, its fruit in italic beneath. The home page and a category page. */
+.mystery-ledger {
+  container-type: inline-size;
+}
+
 .mystery-ledger > li {
   display: grid;
   /* The numeral and the painting grow with the text only so far, so a
-     large text size leaves the name room; a long name breaks. */
+     large text size leaves the name room. Names break at spaces. */
   grid-template-columns: min(1.75rem, 8vw) min(2.75rem, 12vw) minmax(0, 1fr);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   column-gap: 0.75rem;
+  row-gap: 0.375rem;
   align-items: center;
   padding: 0.625rem 0;
   border-bottom: 1px solid rgba(227, 188, 91, 0.15);
@@ -1143,6 +1148,71 @@
   font-family: var(--font-display);
   font-size: 0.875rem;
   color: var(--color-gilt);
+}
+
+/* A large text size (the ledger under 17rem, which no phone is at the
+   default size): the numeral and the painting stand above the name, and
+   the name has the whole width. */
+@container (max-width: 17rem) {
+  .mystery-ledger > li > p {
+    grid-column: 1 / -1;
+  }
+}
+
+/* A category page's ledger: two columns from 640px, one wherever the
+   text is too large for two to hold a name. */
+.mysteries-section {
+  container-type: inline-size;
+}
+
+.mystery-ledger--paired {
+  display: grid;
+  column-gap: 2.5rem;
+}
+
+@media (min-width: 640px) {
+  .mystery-ledger--paired {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 32rem) {
+  .mystery-ledger--paired {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A category page's head: the picture beside the title, as the app heads
+   a pushed page; at a large text size (the head under 18rem) the picture
+   stands above the title, which takes the whole width. */
+.category-hero {
+  container-type: inline-size;
+}
+
+.category-hero__head {
+  grid-template-columns: min(4.5rem, 22vw) minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .category-hero__head {
+    grid-template-columns: 7rem minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .category-hero__head {
+    grid-template-columns: 10rem minmax(0, 1fr);
+  }
+}
+
+@container (max-width: 18rem) {
+  .category-hero__head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .category-hero__head > :first-child {
+    width: min(4.5rem, 22vw);
+  }
 }
 
 /* A way of praying's icon, as the app's arched icon frame: a gold
@@ -1931,6 +2001,53 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
 @media (min-width: 640px) {
   .prayer-safe-area {
     padding-inline: 1.5rem;
+  }
+}
+
+/* The top bar: close, where you are in the middle column (so it stays
+   centred whatever the sides hold), and the speaker. */
+.prayer-safe-area {
+  container-type: inline-size;
+}
+
+.prayer-top-bar {
+  grid-template-columns: 1fr auto 1fr;
+}
+
+.prayer-where {
+  white-space: nowrap;
+}
+
+/* A large text size (the page under 17rem, which no phone is at the
+   default size): the pill takes its own line under close and the
+   speaker, and may wrap; Back and Next show their marks alone (their
+   names stay in their labels). */
+@container (max-width: 17rem) {
+  .prayer-top-bar {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .prayer-top-bar__where {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .prayer-top-bar__end {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .prayer-where {
+    white-space: normal;
+  }
+
+  .prayer-step-word {
+    display: none;
+  }
+
+  /* Amen keeps its word, on a row of its own. */
+  #prayer-next.btn-gold {
+    grid-column: 1 / -1;
   }
 }
 
@@ -2892,9 +3009,9 @@ html:has(#prayer) {
     }
   }
 
+  /* Six tiles: three by two from 640px. */
   @media (min-width: 1024px) {
     .prayers-shortcuts {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 0.875rem;
     }
   }
