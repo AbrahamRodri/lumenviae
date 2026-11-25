@@ -2139,6 +2139,25 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
   .prayer-bottom-nav {
     padding-top: min(0.75rem, 12px);
   }
+
+  /* Play and Pause at Back's and Next's 64px. */
+  .prayer-bottom-nav [data-play],
+  .prayer-bottom-nav [data-pause] {
+    width: min(3.5rem, 64px);
+    height: min(3.5rem, 64px);
+  }
+
+  /* Close, the pill and the sound mark share one row again, now that
+     the pill's label is capped: the pill's own row goes to the words. */
+  .prayer-top-bar__where {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  #prayer-mute button {
+    width: min(2.75rem, 44px);
+    height: min(2.75rem, 44px);
+  }
 }
 
 .prayer-hero picture,
