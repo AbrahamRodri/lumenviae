@@ -2072,6 +2072,75 @@ html[data-prayer-words="off"] #prayer:has([phx-hook="SpokenRosary"]) .prayer-wor
   height: clamp(5rem, calc(100svh - 668px), 300px);
 }
 
+/* At a large text size (the page under 17rem) the prayer's words are
+   what must grow, so the pieces around them stop growing: the painting
+   gives up a third of its box, the part's name and the place line keep
+   to about one line each, and Back, Play and Next stay a 64px touch
+   target, so at least three lines of the words show above the buttons.
+   min() leaves the default size untouched. After the rules above, which
+   it overrides. */
+@container (max-width: 17rem) {
+  .prayer-hero {
+    height: clamp(3rem, calc((100svh - 668px) * 2 / 3), 200px);
+  }
+
+  #bead-title > p:first-child {
+    font-size: min(1.75rem, 28px);
+  }
+
+  #bead-title > p:nth-child(2) {
+    font-size: min(1rem, 20px);
+  }
+
+  .prayer-bottom-nav button {
+    min-height: min(3.5rem, 64px);
+  }
+
+  /* Small labels keep growing to at least 16px (the step line to 18). */
+  #bead-status {
+    font-size: min(0.8rem, 18px);
+  }
+
+  .prayer-where {
+    font-size: min(0.8rem, 16px);
+  }
+
+  /* Voice, Text and More: marks and names at their default size. */
+  #prayer-sheet-row button > span:first-child {
+    width: min(1.25rem, 22px);
+    height: min(1.25rem, 22px);
+    font-size: min(1.125rem, 20px);
+  }
+
+  #prayer-sheet-row button > span:last-child {
+    font-size: min(0.75rem, 16px);
+  }
+
+  /* The close mark and the spacing around the title and the controls
+     at their default size, still 44px to touch. */
+  .prayer-top-bar > a {
+    width: min(2.75rem, 44px);
+    height: min(2.75rem, 44px);
+  }
+
+  .prayer-top-bar {
+    padding-top: min(0.75rem, 12px);
+    row-gap: min(0.5rem, 8px);
+  }
+
+  #bead-title {
+    margin-top: min(0.5rem, 8px);
+  }
+
+  #bead-title + div {
+    margin-top: min(0.75rem, 12px);
+  }
+
+  .prayer-bottom-nav {
+    padding-top: min(0.75rem, 12px);
+  }
+}
+
 .prayer-hero picture,
 .prayer-hero::after {
   position: absolute;
