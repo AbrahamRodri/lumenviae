@@ -7,7 +7,7 @@ defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
 
   import Phoenix.LiveViewTest
 
-  @contact "rodriguez.abrahamdev@gmail.com"
+  @contact "contact@lumenviae.org"
 
   describe "the footer" do
     # The footer is in the root layout, outside the LiveView, so it is read
