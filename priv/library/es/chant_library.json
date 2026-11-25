@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-15T08:15:00Z",
+  "updated_at": "2026-11-25T17:40:00Z",
   "groups": {
     "asperges": {
       "title": "Asperges me y Vidi aquam",
@@ -85,11 +85,11 @@
   },
   "chants": {
     "salve_regina_simple": {
-      "title": "Salve Regina",
+      "title": "La Salve",
       "setting": "Melodía sencilla"
     },
     "salve_regina_solemn": {
-      "title": "Salve Regina",
+      "title": "La Salve",
       "setting": "Melodía solemne"
     },
     "alma_redemptoris_simple": {
