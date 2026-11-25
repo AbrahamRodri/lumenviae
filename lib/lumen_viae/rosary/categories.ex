@@ -45,7 +45,7 @@ defmodule LumenViae.Rosary.Categories do
     },
     "glorious" => %{
       name: "Glorious",
-      subtitle: "The Resurrection",
+      subtitle: "Jesus risen, and Mary in glory",
       mysteries: 5,
       hail_marys: 10,
       fatima_prayer: true

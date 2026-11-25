@@ -24,7 +24,7 @@ defmodule LumenViaeWeb.Live.CreditsTest do
 
       assert has_element?(
                view,
-               ~s(a[data-role=contact][href="mailto:rodriguez.abrahamdev@gmail.com"])
+               ~s(a[data-role=contact][href="mailto:contact@lumenviae.org"])
              )
 
       for anchor <- ~w(#prayers #paintings #chant #books #licences) do

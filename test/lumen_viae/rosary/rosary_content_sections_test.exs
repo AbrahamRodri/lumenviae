@@ -45,7 +45,8 @@ defmodule LumenViae.Rosary.RosaryContentSectionsTest do
   @history %{
     categories: [
       {~U[2026-10-04 00:00:00Z], "d29c9a26a3a64014"},
-      {~U[2026-10-04 03:00:00Z], "bb54d4b8158c254d"}
+      {~U[2026-10-04 03:00:00Z], "bb54d4b8158c254d"},
+      {~U[2026-11-25 15:56:00Z], "86de5e7076656b6b"}
     ],
     verses: [{~U[2026-10-04 00:00:00Z], "9dc68b86b1bd0730"}]
   }

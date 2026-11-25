@@ -16,7 +16,7 @@ defmodule LumenViaeWeb.Live.Credits.Index do
   alias LumenViaeWeb.Live.Prayers.Book
   alias LumenViaeWeb.PageMeta
 
-  @contact "rodriguez.abrahamdev@gmail.com"
+  @contact "contact@lumenviae.org"
   @last_checked ~D[2026-11-15]
 
   @impl true
