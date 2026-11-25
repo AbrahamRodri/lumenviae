@@ -49,7 +49,7 @@ defmodule LumenViaeWeb.JsonApi.ChantLibrarySpanishTest do
 
     assert spanish["translations"] == Jason.decode!(Jason.encode!(Spanish.translation()))
 
-    assert %{"title" => "Salve Regina", "setting" => "Melodía sencilla"} =
+    assert %{"title" => "La Salve", "setting" => "Melodía sencilla"} =
              Enum.find(spanish["translations"]["chants"], &(&1["id"] == "salve_regina_simple"))
 
     assert %{"title" => "Ven, Espíritu Santo", "setting" => "Canto breve"} =
