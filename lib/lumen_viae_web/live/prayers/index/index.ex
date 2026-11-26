@@ -3,7 +3,8 @@ defmodule LumenViaeWeb.Live.Prayers.Index do
   `/prayers`: the Prayer Book, as the iOS app's Prayers tab opens it. The
   heading and the number of prayers, the search, and the page in the
   app's order: the shortcuts (the day's three orders of prayer, Before
-  Mass and Before Confession; the app's Saved is not on the website),
+  Mass, Before Confession and, in place of the app's Saved, Grace at
+  Meals),
   Now (the order for the hour it is), Everyday Prayers, Prayers to Mary
   (the season's song first) and All Topics under the book's five parts.
 

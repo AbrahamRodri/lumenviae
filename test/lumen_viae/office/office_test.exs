@@ -22,6 +22,13 @@ defmodule LumenViae.OfficeTest do
 
   defp fixture(name), do: File.read!(Path.join(@fixtures, name))
 
+  # Hammer's window is `div(now_ms, 60_000)`: wait until at least five
+  # seconds are left in the current one.
+  defp wait_clear_of_minute_edge do
+    left = 60_000 - rem(System.system_time(:millisecond), 60_000)
+    if left < 5_000, do: Process.sleep(left + 50)
+  end
+
   defp stub_hour_page do
     html = fixture("laudes_2026-08-24.html")
     test_pid = self()
@@ -192,6 +199,10 @@ defmodule LumenViae.OfficeTest do
     end
 
     test "cold loads past the budget a minute are refused, warm ones still answer" do
+      # The budget is a fixed 60-second window: two fetches either side of
+      # its edge land in different windows (23 Nov 2026, main's CI at
+      # 16:56:00.07). Start clear of the edge.
+      wait_clear_of_minute_edge()
       Process.put(:office_per_minute, 1)
       stub_hour_page()
 

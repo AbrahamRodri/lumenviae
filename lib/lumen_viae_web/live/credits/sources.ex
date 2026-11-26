@@ -207,8 +207,13 @@ defmodule LumenViaeWeb.Live.Credits.Sources do
   def books(actor), do: Shelf.books(actor)
 
   defdelegate author_line(book), to: Shelf
-  defdelegate gutenberg_url(book), to: Shelf
-  defdelegate text_credit(book), to: Shelf, as: :credit
+
+  @doc """
+  The printed edition a shelf book's text comes from, "Text: Burns, Oates &
+  Washbourne, London, 1912; 8th edition, 1922.", or nil for a book with none
+  recorded (`LumenViaeWeb.Live.SpiritualReading.Shelf.credit/1`).
+  """
+  defdelegate printed_edition(book), to: Shelf, as: :credit
 
   @doc "\"Recording: LibriVox volunteers, audiobook #8021.\", or nil for a book with none."
   def librivox_credit(%{librivox_id: id}) when is_integer(id),
@@ -222,6 +227,42 @@ defmodule LumenViaeWeb.Live.Credits.Sources do
       do: %{credit: credit, url: "https://archive.org/details/#{item}"}
 
   def archive_recording(_book), do: nil
+
+  @licences [
+    {"divinum-officium", "Divinum Officium", "The engine that assembles Hours of Prayer.", "MIT"},
+    {"missale-meum", "Missale Meum", "The Daily Missal's texts, read from its API.", "MIT"},
+    {"phosphor", "Phosphor Icons", "Icons in the iPhone and Android apps.", "MIT"},
+    {"cinzel", "Cinzel", "The headings' typeface.", "SIL Open Font License 1.1"},
+    {"eb-garamond", "EB Garamond", "The text typeface.", "SIL Open Font License 1.1"}
+  ]
+
+  for {file, _, _, _} <- @licences do
+    @external_resource Path.join([:code.priv_dir(:lumen_viae), "licences", file <> ".txt"])
+  end
+
+  @licence_texts Map.new(@licences, fn {file, _, _, _} ->
+                   {file,
+                    [:code.priv_dir(:lumen_viae), "licences", file <> ".txt"]
+                    |> Path.join()
+                    |> File.read!()}
+                 end)
+
+  @doc """
+  The software and fonts whose licences ask that their notice go with every
+  copy (MIT, SIL OFL 1.1), each `%{id:, name:, use:, licence:, copyright:,
+  text:}`: `copyright` is the notice's first line, `text` the whole licence
+  as its project publishes it (`priv/licences/`).
+  """
+  def licences do
+    Enum.map(@licences, fn {file, name, use, licence} ->
+      text = Map.fetch!(@licence_texts, file)
+
+      copyright =
+        text |> String.split("\n") |> Enum.find(&String.starts_with?(&1, "Copyright"))
+
+      %{id: file, name: name, use: use, licence: licence, copyright: copyright, text: text}
+    end)
+  end
 
   @doc "True Devotion's title, author, translator and edition."
   def true_devotion(actor), do: Rosary.get_true_devotion!(actor: actor, load: [:about]).about

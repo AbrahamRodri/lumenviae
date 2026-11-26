@@ -8,13 +8,12 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Book do
   numeral and title, and the parts' numerals down the edge to go to one.
   The list opens at the reader's place: the chapter being read is lit,
   the ones read are dimmed, and the chapters more than two before it fold
-  into "39 earlier chapters", Show. The credit names the Gutenberg
-  edition.
+  into "39 earlier chapters", Show. The credit names the printed edition.
 
-  The book's text is fetched from Project Gutenberg by the server
-  (`Shelf.read/3`). A book this machine already holds is drawn whole at
-  once, for a crawler too; one it has not fetched yet shows "Fetching the
-  text from Project Gutenberg" and, once the page connects, waits
+  The book's text is read by the server (`Shelf.read/3`), from the copy
+  the release carries or else from Project Gutenberg. A book this machine
+  already holds is drawn whole at once, for a crawler too; one it has not
+  cut yet shows "Opening the book" and, once the page connects, waits
   (`start_async`) on the download the server runs in a process of its own,
   so leaving the page never aborts it; a book that cannot be reached says so with Try again,
   and an edition that no longer cuts into chapters says so without one,
@@ -146,11 +145,11 @@ defmodule LumenViaeWeb.Live.SpiritualReading.Book do
 
   attr :book, :map, required: true
 
-  # The app's credit: the text's (linked to Gutenberg's page for the
-  # book), the recording's where it has one, and the public domain.
+  # The credit: the printed edition the text comes from, the recording's
+  # where it has one, and the public domain.
   defp credit(assigns) do
     ~H"""
-    <a href={Shelf.gutenberg_url(@book)} class="sr-credit__link">{Shelf.credit(@book)}</a>
+    <span :if={Shelf.credit(@book)}>{Shelf.credit(@book)}</span>
     <span :if={Shelf.recording_credit(@book)} data-role="recording-credit">
       {Shelf.recording_credit(@book)}
     </span>

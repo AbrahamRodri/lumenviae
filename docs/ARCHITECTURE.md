@@ -490,15 +490,16 @@ arguments; the most-prayed ranking filters, sorts and limits on it in the
 query. The headline completion figures are one `Ash.aggregate` with a
 filtered count each. The per-day and per-place tallies need GROUP BY,
 which Ash does not have, so they are generic actions on `Completion`
-(`:daily_counts`, `:place_counts`) whose implementations
-(`completion/daily_counts.ex`, `completion/place_counts.ex`) run grouped
+(`:daily_counts`, `:place_counts`, and `:report_counts` for the
+Completions screen) whose implementations (`completion/daily_counts.ex`,
+`completion/place_counts.ex`, `completion/report_counts.ex`) run grouped
 Ecto queries over that one table. That is the one sanctioned Ecto use in
 the domain: single-table, behind an action and its policies, never a
-join, and the architecture test names both files. The completions table
-is the one that grows with traffic, so the dashboard reads none of its
-rows into Elixir to count them. The console's Completions screen does:
-`Rosary.completion_report/3` reads the matching rows, at most the newest
-20,000 (`capped?` says when it stopped), and folds them in Elixir.
+join, and the architecture test names the files. The completions table
+is the one that grows with traffic, so no console page reads its rows
+into Elixir to count them; `Rosary.completion_report/3` names the counted
+sets through the domain and reads only the newest 25 rows. Every period
+is `Rosary.period/1` (Central calendar days, today included).
 
 **Order is explicit.** Every read an API depends on declares its sort:
 sets by category and then creation order (the app builds its filter chips
@@ -911,10 +912,11 @@ standing cost is set deliberately (`config/config.exs`):
 - **Pruner: a week, every five minutes.** Completed, cancelled and
   discarded jobs are deleted after seven days, which is the history Oban
   Web can show. The table stays at a few thousand rows.
-- **Shutdown: 140 seconds of grace, inside Fly's 150.** At SIGTERM Oban
+- **Shutdown: 140 seconds of grace, inside Docker's 150.** At SIGTERM Oban
   stops taking jobs and gives the running ones 140 seconds
-  (`shutdown_grace_period`), inside the 150 Fly waits before killing the
-  machine (`kill_timeout` in `fly.toml`). An ElevenLabs request takes 10
+  (`shutdown_grace_period`), inside the 150 Docker waits before killing the
+  app container (`stop_grace_period` in `deploy/vm/compose.yml`; Fly's
+  `kill_timeout` before the move). An ElevenLabs request takes 10
   to 120 seconds and may be billed even if the machine dies before the
   answer arrives, so a deploy has to let it finish. One that is killed
   anyway (an out-of-memory restart) is recognised on its next attempt and
@@ -1840,9 +1842,10 @@ the route, by
 `Plugs.ThrottleSignIn`; see "Rate limits" for why that is a plug.
 
 In production the session cookie is `secure`, and the endpoint forces
-HTTPS with HSTS (`force_ssl` in config/prod.exs): a one-day max-age to
-begin with, since HSTS sticks in browsers; the proxy's `X-Forwarded-Proto`
-trusted, since Fly's proxy ends TLS; and `/healthz` excluded, so a check
+HTTPS with HSTS (`force_ssl` in config/prod.exs): a one-year max-age
+since 23 Nov 2026 (it began at one day, since HSTS sticks in browsers),
+without includeSubDomains; the proxy's `X-Forwarded-Proto` trusted, since
+the proxy (Caddy on the Droplet) ends TLS; and `/healthz` excluded, so a check
 over the private network gets its answer rather than a redirect.
 
 `:load_from_session` in the browser pipeline puts the signed-in admin in

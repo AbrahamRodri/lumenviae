@@ -249,12 +249,13 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
       assert view |> element("[data-role=source]") |> render() =~
                "Divine Word Publications, 1956"
 
-      {:ok, knots, _html} = live(conn, "/prayers/undoer_of_knots_novena")
+      {:ok, spirit, _html} = live(conn, "/prayers/holy_spirit_novena")
 
-      assert knots |> element("header [data-role=origin]") |> render() =~
-               "Fr. Juan Ramón Celeiro"
+      assert spirit |> element("header [data-role=origin]") |> render() =~
+               "The Holy Ghost Fathers · 1947"
 
-      assert knots |> element("[data-role=source]") |> render() =~ "as printed by Ascension Press"
+      assert spirit |> element("[data-role=source]") |> render() =~
+               "Holy Ghost Fathers, Washington, D.C., 1947"
     end
 
     test "an unknown author is not credited under the title", %{conn: conn} do
@@ -298,12 +299,12 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
     end
 
     test "a lone line and a rubric set flush; verse lines hang", %{conn: conn} do
-      {:ok, novena, _html} = live(conn, "/prayers/undoer_of_knots_novena")
+      {:ok, novena, _html} = live(conn, "/prayers/st_joseph_novena?day=5")
 
       assert has_element?(
                novena,
                ".book-line--flush",
-               "The one who seeks grace, finds it in Mary's hands."
+               "Guardian of the Word Incarnate, I feel confident"
              )
 
       assert has_element?(
@@ -357,6 +358,27 @@ defmodule LumenViaeWeb.Live.Prayers.PrayersTest do
         assert_raise LumenViaeWeb.NotFoundError, fn -> live(conn, "/prayers/not_a_prayer") end
 
       assert Plug.Exception.status(error) == 404
+    end
+
+    test "a removed novena's old link is a 404 that says it is gone", %{conn: conn} do
+      error =
+        assert_raise LumenViaeWeb.NotFoundError, fn ->
+          live(conn, "/prayers/undoer_of_knots_novena")
+        end
+
+      assert Plug.Exception.status(error) == 404
+      assert error.removed == :novena
+
+      {404, _headers, body} =
+        assert_error_sent(404, fn -> get(conn, "/prayers/undoer_of_knots_novena") end)
+
+      assert body =~ "This novena is no longer on Lumen Viae."
+      assert body =~ ~s(href="/prayers/topics/novenas")
+
+      {404, _headers, unknown} =
+        assert_error_sent(404, fn -> get(conn, "/prayers/not_a_prayer") end)
+
+      refute unknown =~ "no longer on Lumen Viae"
     end
   end
 

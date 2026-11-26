@@ -11,7 +11,7 @@ defmodule LumenViae.Rosary.ChantLibrary.SpanishTest do
 
   # Change the file: bump its updated_at and set the new pair here. The
   # names are the team's own Spanish, listed in priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-15 08:15:00Z], "768df24326266b95"}
+  @pinned {~U[2026-11-25 17:40:00Z], "33df8fe8b74efa16"}
 
   defp english(section), do: Library.served(:chant_library, section)
 
@@ -46,7 +46,7 @@ defmodule LumenViae.Rosary.ChantLibrary.SpanishTest do
 
     assert chants["salve_regina_simple"] == %{
              id: "salve_regina_simple",
-             title: "Salve Regina",
+             title: "La Salve",
              setting: "Melodía sencilla"
            }
 
@@ -59,7 +59,7 @@ defmodule LumenViae.Rosary.ChantLibrary.SpanishTest do
   test "a name kept in Latin is the Latin title exactly, so a client shows it once" do
     latin = Map.new(english("chants"), &{&1.id, &1.latin_title})
 
-    for id <- ~w(salve_regina_simple ave_maris_stella tantum_ergo te_deum) do
+    for id <- ~w(ave_maris_stella tantum_ergo te_deum) do
       title = Enum.find(Spanish.translation().chants, &(&1.id == id)).title
       assert title == latin[id], id
     end

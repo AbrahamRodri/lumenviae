@@ -311,6 +311,7 @@ defmodule LumenViae.Rosary.ContextRulesTest do
   # generic actions and their policies. They may use Ecto, never a join.
   @grouped_queries [
     "#{@domain_root}/completion/daily_counts.ex",
+    "#{@domain_root}/completion/report_counts.ex",
     "#{@domain_root}/completion/place_counts.ex"
   ]
 

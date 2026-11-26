@@ -80,6 +80,7 @@ defmodule LumenViaeWeb.Live.Admin.System do
 
     socket
     |> assign(:runtime, Ops.runtime())
+    |> assign(:host, Ops.host_status())
     |> assign(:database, Ops.database())
     |> assign(:queues, queues)
     |> assign(:totals, totals(queues))
@@ -114,7 +115,9 @@ defmodule LumenViaeWeb.Live.Admin.System do
   defp totals(queues) do
     %{
       waiting: count_in(queues, ~w(available scheduled)),
-      failing: count_in(queues, ~w(retryable discarded))
+      failing: count_in(queues, ~w(retryable discarded)),
+      retrying: count_in(queues, ~w(retryable)),
+      discarded: count_in(queues, ~w(discarded))
     }
   end
 
@@ -152,6 +155,64 @@ defmodule LumenViaeWeb.Live.Admin.System do
   end
 
   def job_path(id), do: "/admin/jobs/jobs/#{id}"
+
+  @doc """
+  Where the "Jobs failing" figure lands: Oban Web on the one state that
+  holds them, or this page's failures list when both do (Oban Web filters
+  one state at a time).
+  """
+  def failing_path(%{retrying: retrying, discarded: 0}) when retrying > 0,
+    do: jobs_path(state: "retryable")
+
+  def failing_path(%{retrying: 0, discarded: discarded}) when discarded > 0,
+    do: jobs_path(state: "discarded")
+
+  def failing_path(%{retrying: 0, discarded: 0}), do: nil
+  def failing_path(_both), do: "/admin/system#failures"
+
+  @repository "https://github.com/AbrahamRodri/lumenviae"
+
+  @doc "The release's commit, shortened as git does, or a dash off the server."
+  def short_commit("unknown"), do: "-"
+  def short_commit(commit), do: String.slice(commit, 0, 7)
+
+  @doc "The commit on GitHub, or nil when the release does not know it."
+  def commit_url("unknown"), do: nil
+
+  def commit_url(commit) do
+    if commit =~ ~r/\A[0-9a-f]{7,40}\z/, do: "#{@repository}/commit/#{commit}"
+  end
+
+  def host_label(:backup), do: "Backup"
+  def host_label(:restore_test), do: "Restore test"
+  def host_label(:system), do: "System check"
+
+  def host_tone(:not_reported), do: "gray"
+  def host_tone(%{ok?: true}), do: "green"
+  def host_tone(%{ok?: false}), do: "red"
+
+  def host_status(:not_reported), do: "Not reported"
+  def host_status(%{ok?: true}), do: "OK"
+  def host_status(%{ok?: false}), do: "Failing"
+
+  @doc "When a timer last reported, how long ago, and what it said."
+  def host_detail(:not_reported), do: "Nothing written by the server's timer yet."
+
+  def host_detail(report) do
+    age = waited(report.at)
+
+    disk =
+      if report.disk_percent, do: ["disk #{report.disk_percent}% used"], else: []
+
+    memory =
+      if report.free_percent, do: ["memory and swap #{report.free_percent}% free"], else: []
+
+    Enum.join(
+      ["#{format_time(report.at)} (#{age} ago)"] ++
+        disk ++ memory ++ List.wrap(report.detail),
+      " · "
+    )
+  end
 
   @doc "A worker's module name without the app's namespace."
   def short(worker) when is_binary(worker), do: String.replace_prefix(worker, "LumenViae.", "")

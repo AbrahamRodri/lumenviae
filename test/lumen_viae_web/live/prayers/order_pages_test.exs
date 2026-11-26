@@ -284,7 +284,7 @@ defmodule LumenViaeWeb.Live.Prayers.OrderPagesTest do
   end
 
   describe "/prayers" do
-    test "opens on the shortcuts, the day's three orders and two for an occasion", %{conn: conn} do
+    test "opens on the shortcuts, the day's three orders and three for an occasion", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/prayers")
 
       hrefs =
@@ -295,7 +295,7 @@ defmodule LumenViaeWeb.Live.Prayers.OrderPagesTest do
 
       assert hrefs ==
                Enum.map(
-                 ~w(morning angelus night before_mass before_confession),
+                 ~w(morning angelus night before_mass before_confession table),
                  &"/prayers/orders/#{&1}"
                )
     end

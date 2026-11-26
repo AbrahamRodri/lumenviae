@@ -41,7 +41,6 @@ focal =
 # shape: checked by eye on the cards.
 overrides = %{
   "devotion_st_joseph" => {0.5, 0.42},
-  "undoer_of_knots_novena" => {0.5, 0.12},
   "our_lady_of_guadalupe_novena" => {0.5, 0.12}
 }
 
@@ -97,7 +96,6 @@ File.write!(
 
 # The novenas' own art, where it is none of the paintings above.
 novena_alts = %{
-  "undoer_of_knots_novena" => "Mary, Untier of Knots, by Johann Georg Melchior Schmidtner",
   "our_lady_of_guadalupe_novena" => "Our Lady of Guadalupe, the image on St Juan Diego's tilma",
   "our_mother_of_perpetual_help_novena" => "Our Mother of Perpetual Help, after the icon in Rome"
 }

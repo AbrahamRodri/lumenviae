@@ -7,17 +7,19 @@ import Config
 # before starting your production server.
 config :lumen_viae, LumenViaeWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
-  # Fly's proxy ends TLS and already redirects plain HTTP (`force_https` in
-  # fly.toml); this adds HSTS, so a browser never makes that first plain
+  # Caddy ends TLS and already redirects plain HTTP (deploy/vm/Caddyfile);
+  # this adds HSTS, so a browser never makes that first plain
   # request again. `rewrite_on` trusts the proxy's X-Forwarded-Proto, or
   # every request would look like HTTP and redirect to itself. `/healthz`
   # is excluded so a check over the private network gets its 200, not a
-  # redirect. The max-age starts at one day because HSTS is sticky in
-  # browsers; raise it once production has run with it.
+  # redirect. The max-age started at one day because HSTS is sticky in
+  # browsers; it is a year since 23 Nov 2026, once the Droplet had run
+  # with it and production alerts were live. No includeSubDomains: other
+  # names under lumenviae.org (media, the old Fly name) are not this app.
   force_ssl: [
     rewrite_on: [:x_forwarded_proto],
     hsts: true,
-    expires: 86_400,
+    expires: 31_536_000,
     exclude: [hosts: ["localhost", "127.0.0.1"], paths: ["/healthz"]]
   ]
 

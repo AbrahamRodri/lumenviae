@@ -179,7 +179,7 @@ config :lumen_viae, :geolocation,
 #     minutes, well past the longest job's own timeout, so it never
 #     rescues one that is still running.
 #   * On shutdown, running jobs get 140 seconds to finish, inside the 150
-#     Fly waits after SIGTERM (kill_timeout in fly.toml), because an
+#     Docker waits after SIGTERM (stop_grace_period in deploy/vm/compose.yml), because an
 #     ElevenLabs request killed mid-flight may still be billed.
 #   * `maintenance` is the queue for the app's own upkeep, one job at a
 #     time: nothing on it calls a paid service, and none of it is urgent.

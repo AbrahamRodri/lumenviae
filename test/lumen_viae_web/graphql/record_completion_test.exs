@@ -54,7 +54,11 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
   end
 
   test "records a completion from the app, and answers as REST does", %{conn: conn, set: set} do
-    body = record(conn, set.id, %{prayedAloud: true})
+    body =
+      conn
+      |> as("app/5 CFNetwork/3826.500.111 Darwin/25.0.0")
+      |> record(set.id, %{prayedAloud: true})
+
     refute Map.has_key?(body, "errors")
     %{"data" => %{"recordCompletion" => %{"result" => result, "errors" => []}}} = body
 
@@ -129,13 +133,18 @@ defmodule LumenViaeWeb.Graphql.RecordCompletionTest do
       end
     end
 
-    test "the iOS app's agents, and no agent at all, record an iOS completion", %{set: set} do
+    test "the iOS app's agents record an iOS completion", %{set: set} do
       for agent <- [
             "app/5 CFNetwork/3826.500.111 Darwin/25.0.0",
-            "app/4 CFNetwork/1568.100.1 Darwin/24.0.0",
-            nil
+            "app/4 CFNetwork/1568.100.1 Darwin/24.0.0"
           ] do
         assert source_as(agent, set) == "ios", inspect(agent)
+      end
+    end
+
+    test "any other agent, or none, records an other completion", %{set: set} do
+      for agent <- ["SomeClient/1.0", nil] do
+        assert source_as(agent, set) == "other", inspect(agent)
       end
     end
   end

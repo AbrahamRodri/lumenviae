@@ -158,6 +158,30 @@ defmodule LumenViaeWeb.Live.Meditations.AuthorsTest do
   end
 
   describe "list" do
+    test "?portrait=missing lists only the authors whose portrait is not served", %{
+      conn: conn
+    } do
+      create_author("Bare Author")
+
+      {:ok, served} =
+        "Served Author"
+        |> create_author()
+        |> give_portrait()
+        |> Rosary.update_author_artwork_metadata(
+          %{image_alt: "A portrait", image_license: hd(LumenViae.Rosary.Artwork.licenses())},
+          actor: admin()
+        )
+
+      assert LumenViae.Rosary.Artwork.publishable?(served)
+
+      {:ok, _view, html} = live(conn, "/admin/authors?portrait=missing")
+      assert html =~ "Bare Author"
+      refute html =~ "Served Author"
+
+      {:ok, _view, html} = live(conn, "/admin/authors")
+      assert html =~ "Served Author"
+    end
+
     test "deleting an author leaves their sets in place, unlinked", %{conn: conn} do
       author = create_author()
 

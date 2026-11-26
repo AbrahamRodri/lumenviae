@@ -74,6 +74,8 @@ no test pins.
   null; `image_attribution` null or a map whose `title`, `artist`, `year`,
   `source_url`, `license` are each a string or null. (`year` is `String?`
   on the device; an integer year fails the list for 2.0 and later.)
+  `image_variants` null or a list of maps whose `width` is `is_integer`
+  and `url` `is_binary`.
 - **S3.** Order within a category is ascending id, tested against heap
   order: create A, B, C; update A; assert `[A, B, C]`. The app builds its
   label chips and sections from the first time each label appears.
@@ -226,13 +228,27 @@ sets for this; the shape of each is unchanged.
 `author`, `source`, `image_url`, `image_alignment`, `image_focal_x`
 (Double), `image_focal_y` (Double), `image_width` (Int), `image_height`
 (Int), `image_alt`, `image_attribution` (`title`, `artist`, `year`,
-`source_url`, `license`, each String?).
+`source_url`, `license`, each String?), `image_variants` (`[{width,
+url}]`: smaller WebP copies of the painting, narrowest first, only those
+recorded as stored, so often `[]`; null when `image_url` is null; added 23
+November 2026, so older builds ignore it). Draw the smallest variant at
+least as wide as the image is drawn (points times screen scale), else
+`image_url`. The same key is on `GET /api/meditation-sets/:id`.
 
 Assumes `labels` is `[]` rather than null when empty, the first label is
 the group, and the list order is the display order. `image_url` must be
 unsigned and immutable: ArtworkCache keys on the URL string and relies on
 S3's immutable header, so a signed or per-request URL would mean a
 download on every visit.
+
+In `/api/v2`, a set's `artwork`, a mystery's `artwork` and a category's
+`card_artwork` also carry `variants`: smaller WebP copies of the painting, `[{width, url}]`
+narrowest first (480 and 960 wide where the original is wider), listing
+only copies recorded as stored (`image_variant_widths`), so often `[]`.
+Optional in the OpenAPI document; added 23 November 2026, so older builds
+ignore it. Draw the smallest variant at least as wide as the image is
+drawn (points times screen scale), else `url`. Variant URLs are as unsigned and
+immutable as `url`.
 
 ### 2. GET /api/meditation-sets/:id
 

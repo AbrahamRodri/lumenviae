@@ -45,6 +45,13 @@ curl -s https://lumenviae.fly.dev/healthz    # the Droplet's commit
 
 ## Undoing it
 
+**The Fly database is gone.** `lumenviae-db` was destroyed on 23 Nov 2026
+at 17:20:48Z, after a final dump kept in R2
+(`site-backups/fly-final/lumenviae-20261123T171330Z.dump`). The two commands
+below no longer work; they are kept as the record of what the switch's
+`UNDO.sh` did. A rollback to Fly is now docs/CUTOVER_DIGITALOCEAN.md's, as the
+last paragraph of this section says.
+
 `fly-proxy-switch.sh` writes the exact commands to
 `fly-state/<UTC time>/UNDO.sh`: start the database and Office machines again,
 then deploy the full app on the image Fly ran before the switch:

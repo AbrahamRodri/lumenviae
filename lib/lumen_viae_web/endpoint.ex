@@ -30,11 +30,17 @@ defmodule LumenViaeWeb.Endpoint do
   # `compress: true` negotiates permessage-deflate, so the join reply (all
   # of a page's markup, as JSON) and every diff cross the wire deflated. A
   # browser that does not offer it is unaffected.
+  #
+  # `longpoll` is the fallback app.js asks for (`longPollFallbackMs`) when
+  # the websocket does not connect: a network that blocks websockets, or a
+  # page left open across a deploy. Without it the fallback answered 404
+  # and the page stayed disconnected. It carries the same connect_info, so
+  # a page on it records the same place and surface.
+  @live_connect_info [:peer_data, :x_headers, :user_agent, session: @session_options]
+
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [
-      compress: true,
-      connect_info: [:peer_data, :x_headers, :user_agent, session: @session_options]
-    ]
+    websocket: [compress: true, connect_info: @live_connect_info],
+    longpoll: [connect_info: @live_connect_info]
 
   # Serve at "/" the static files from "priv/static" directory.
   #

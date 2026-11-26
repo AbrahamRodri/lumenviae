@@ -28,6 +28,7 @@
           <tr>
             <th>Email</th>
             <th>Added</th>
+            <th>Last signed in</th>
             <th class="text-right">Password</th>
           </tr>
         </thead>
@@ -38,6 +39,9 @@
               <.admin_badge :if={me?(admin, @current_admin)} tone="navy">You</.admin_badge>
             </td>
             <td class="text-admin-ink-soft whitespace-nowrap">{added(admin)}</td>
+            <td class="text-admin-ink-soft whitespace-nowrap">
+              {last_signed_in(@sign_ins, admin)}
+            </td>
             <td class="text-right">
               <button
                 :if={not me?(admin, @current_admin)}

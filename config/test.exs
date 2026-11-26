@@ -60,6 +60,11 @@ config :lumen_viae, :completions_per_hour, 1_000_000
 config :lumen_viae, :sign_in_per_ip, 1_000_000
 config :lumen_viae, :sign_in_per_email, 1_000_000
 
+# The Spoken Rosary coverage is remembered between page opens in
+# :persistent_term, which every test shares: remembered for no time here,
+# so one test's fake bucket never answers for another's.
+config :lumen_viae, :rosary_audio_coverage_ttl, 0
+
 # Every Divine Office fetch in the suite goes through Req.Test. A test
 # that forgets to stub gets a loud "no stub" error instead of a quiet
 # request to the real Divinum Officium site.
@@ -68,9 +73,11 @@ config :lumen_viae, :office, req_options: [plug: {Req.Test, LumenViae.Office.Div
 # The same for the Spiritual Reading books' text from Project Gutenberg.
 # The fixtures are excerpts, smaller than the 50,000 bytes a whole edition
 # must be, so the floor is lowered here (its own test sets it back).
+# The release's stored copies are off, so the stubs are what a test reads.
 config :lumen_viae, :spiritual_reading,
   req_options: [plug: {Req.Test, LumenViae.Rosary.SpiritualReading.Gutenberg}],
-  minimum_bytes: 20_000
+  minimum_bytes: 20_000,
+  stored: false
 
 # The same for the Spiritual Reading recordings' track lists from LibriVox.
 config :lumen_viae, :librivox,

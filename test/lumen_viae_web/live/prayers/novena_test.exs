@@ -8,7 +8,8 @@ defmodule LumenViaeWeb.Live.Prayers.NovenaTest do
 
   import Phoenix.LiveViewTest
 
-  alias LumenViaeWeb.Live.Prayers.Novena
+  alias LumenViaeWeb.Live.Prayers.{Book, Novena}
+  alias LumenViaeWeb.Live.Prayers.Prayer.Novena, as: NovenaDay
 
   describe "/prayers/:prayer_id for a novena's twin" do
     test "opens on day 1 with a chip a day, each a link", %{conn: conn} do
@@ -58,14 +59,14 @@ defmodule LumenViaeWeb.Live.Prayers.NovenaTest do
     end
 
     test "a chip patches the day into the link, day 1 left out", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "/prayers/undoer_of_knots_novena")
+      {:ok, view, _html} = live(conn, "/prayers/st_joseph_novena")
 
       view |> element("[data-role=day-chip]", "3") |> render_click()
-      assert_patched(view, "/prayers/undoer_of_knots_novena?day=3")
+      assert_patched(view, "/prayers/st_joseph_novena?day=3")
       assert view |> element("#novena-day-heading") |> render() =~ "The Third Day"
 
       view |> element("[data-role=day-chip]", "1") |> render_click()
-      assert_patched(view, "/prayers/undoer_of_knots_novena")
+      assert_patched(view, "/prayers/st_joseph_novena")
       assert view |> element("#novena-day-heading") |> render() =~ "The First Day"
     end
 
@@ -76,13 +77,53 @@ defmodule LumenViaeWeb.Live.Prayers.NovenaTest do
       end
     end
 
-    test "the Rosary and the everyday prayers are direction lines", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "/prayers/undoer_of_knots_novena?day=2")
+    # No novena in the book prays the Rosary inside its days now, so the
+    # day is built here and set with the page's own component.
+    test "the Rosary and the everyday prayers are direction lines" do
+      book = Book.load(nil)
+
+      part = fn fields ->
+        Map.merge(
+          %{
+            kind: "prayer",
+            prayer_id: nil,
+            or_prayer_id: nil,
+            times: nil,
+            id: nil,
+            title: nil,
+            text: nil,
+            source: nil,
+            decades: nil
+          },
+          fields
+        )
+      end
+
+      day = %{
+        number: 1,
+        title: "The First Day",
+        parts: [
+          part.(%{kind: "opening", prayer_id: "sign_of_cross"}),
+          part.(%{kind: "prayer", prayer_id: "act_of_contrition"}),
+          part.(%{kind: "rosary", decades: [1, 2, 3]}),
+          part.(%{kind: "meditation", id: "fixture_d1", title: "Meditation", text: "Words."}),
+          part.(%{kind: "rosary", decades: [4, 5]})
+        ]
+      }
+
+      novena = %{days: [day, %{day | number: 2, title: "The Second Day"}], note: nil}
+
+      doc =
+        render_component(&NovenaDay.novena_day/1,
+          novena: novena,
+          prayer_id: "fixture_novena",
+          day: 1,
+          blocks: Novena.blocks(day, book)
+        )
+        |> Floki.parse_document!()
 
       directions =
-        view
-        |> render()
-        |> Floki.parse_document!()
+        doc
         |> Floki.find("[data-role=novena-direction]")
         |> Enum.map(&(Floki.text(&1) |> String.trim()))
 
@@ -92,9 +133,14 @@ defmodule LumenViaeWeb.Live.Prayers.NovenaTest do
                "Pray the last two decades of the Rosary."
              ]
 
-      assert has_element?(view, ~s([data-role=novena-direction] a[href="/prayers/sign_of_cross"]))
-      assert has_element?(view, ~s([data-role=novena-direction] a[href="/"]), "the Rosary")
-      assert view |> render() =~ "The Act of Contrition"
+      assert [_] =
+               Floki.find(doc, ~s([data-role=novena-direction] a[href="/prayers/sign_of_cross"]))
+
+      assert doc
+             |> Floki.find(~s([data-role=novena-direction] a[href="/"]))
+             |> Enum.map(&Floki.text/1) == ["the Rosary", "the Rosary"]
+
+      assert Floki.raw_html(doc) =~ "The Act of Contrition"
     end
 
     test "a novena the same every day has no chips (St Andrew, 25 days)", %{conn: conn} do

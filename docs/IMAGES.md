@@ -92,7 +92,7 @@ Replace its `<img src="/images/ornate-blue-gold-bg-symbols.jpg" ...>` with:
 - `pngs/queen-of-heaven-white-bg.jpg`: named only in the `<.arch_frame>`
   example in `core_components.ex`. No page shows it; a candidate for deletion
   with that example.
-- `pngs/deo-gratias.png` and `carlo-acutis.jpg`: read as fixtures by
+- `pngs/deo-gratias.png` and `ornate-blue-gold-bg-symbols.jpg`: read as fixtures by
   `test/lumen_viae/images/inspector_test.exs`.
 - `pngs/holy-family.png`, `pngs/olive-branch-pax.png`: reached through
   `<.medallion>`, with no caller and no variants. The Saint Benedict symbol

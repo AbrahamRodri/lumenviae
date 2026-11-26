@@ -73,6 +73,28 @@ defmodule LumenViaeWeb.API.ArtworkJSONTest do
     end
   end
 
+  describe "the variants" do
+    test "list only the WebP copies recorded as stored, narrowest first" do
+      set = published()
+
+      {:ok, set} =
+        Rosary.record_meditation_set_artwork_variants(
+          set,
+          %{image_variant_widths: [960, 480], for_image_key: set.image_key},
+          actor: admin()
+        )
+
+      assert [%{width: 480, url: small}, %{width: 960, url: large}] =
+               ArtworkJSON.data(set).image_variants
+
+      assert [{480, ^small}, {960, ^large}] = Rosary.artwork_variant_urls(set)
+    end
+
+    test "are an empty list when none are stored, so the client draws image_url" do
+      assert ArtworkJSON.data(published()).image_variants == []
+    end
+  end
+
   describe "the attribution object" do
     test "carries every field, null where the curator left it blank" do
       set = published(%{"image_artist" => "El Greco"})

@@ -39,7 +39,11 @@ defmodule LumenViaeWeb.JsonApi.RecordCompletionTest do
     conn: conn,
     set: set
   } do
-    body = conn |> record(%{meditation_set_id: set.id, prayed_aloud: true}) |> v2_response(201)
+    body =
+      conn
+      |> put_req_header("user-agent", "app/5 CFNetwork/3826.500.111 Darwin/25.0.0")
+      |> record(%{meditation_set_id: set.id, prayed_aloud: true})
+      |> v2_response(201)
 
     assert %{"type" => "completion", "id" => id, "attributes" => attributes} = body["data"]
     assert id =~ ~r/^\d+$/
@@ -179,18 +183,18 @@ defmodule LumenViaeWeb.JsonApi.RecordCompletionTest do
       end
     end
 
-    test "the iOS app's agents, and no agent at all, record an iOS completion", %{
-      conn: conn,
-      set: set
-    } do
+    test "the iOS app's agents record an iOS completion", %{conn: conn, set: set} do
       for agent <- [
             "app/5 CFNetwork/3826.500.111 Darwin/25.0.0",
             "app/4 CFNetwork/1568.100.1 Darwin/24.0.0"
           ] do
         assert conn |> as(agent) |> source_of(set) == "ios", agent
       end
+    end
 
-      assert source_of(conn, set) == "ios"
+    test "any other agent, or none, records an other completion", %{conn: conn, set: set} do
+      assert conn |> as("SomeClient/1.0") |> source_of(set) == "other"
+      assert source_of(conn, set) == "other"
     end
 
     test "OkHttp's default agent is refused, which is why the app sends its own", %{

@@ -1834,6 +1834,25 @@
                   "url": {
                     "type": "string"
                   },
+                  "variants": {
+                    "items": {
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "width",
+                        "url"
+                      ],
+                      "type": "object"
+                    },
+                    "nullable": true,
+                    "type": "array"
+                  },
                   "width": {
                     "nullable": true,
                     "type": "integer"
@@ -2047,6 +2066,25 @@
                   },
                   "url": {
                     "type": "string"
+                  },
+                  "variants": {
+                    "items": {
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "width",
+                        "url"
+                      ],
+                      "type": "object"
+                    },
+                    "nullable": true,
+                    "type": "array"
                   },
                   "width": {
                     "nullable": true,
@@ -2912,6 +2950,25 @@
                         },
                         "url": {
                           "type": "string"
+                        },
+                        "variants": {
+                          "items": {
+                            "properties": {
+                              "url": {
+                                "type": "string"
+                              },
+                              "width": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "width",
+                              "url"
+                            ],
+                            "type": "object"
+                          },
+                          "nullable": true,
+                          "type": "array"
                         },
                         "width": {
                           "nullable": true,
@@ -3799,6 +3856,25 @@
                         },
                         "url": {
                           "type": "string"
+                        },
+                        "variants": {
+                          "items": {
+                            "properties": {
+                              "url": {
+                                "type": "string"
+                              },
+                              "width": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "width",
+                              "url"
+                            ],
+                            "type": "object"
+                          },
+                          "nullable": true,
+                          "type": "array"
                         },
                         "width": {
                           "nullable": true,

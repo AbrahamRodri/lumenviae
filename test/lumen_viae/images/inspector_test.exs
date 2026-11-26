@@ -7,7 +7,7 @@ defmodule LumenViae.Images.InspectorTest do
 
   # Two images already checked into the repo, so the parser is proved against
   # files a real encoder wrote and not only against ones this test builds.
-  @real_jpeg "priv/static/images/carlo-acutis.jpg"
+  @real_jpeg "priv/static/images/ornate-blue-gold-bg-symbols.jpg"
   @real_png "priv/static/images/pngs/deo-gratias.png"
 
   defp jpeg(segments), do: <<0xFF, 0xD8>> <> IO.iodata_to_binary(segments)
@@ -27,7 +27,7 @@ defmodule LumenViae.Images.InspectorTest do
   describe "inspect/1 on real files" do
     test "reads a JPEG written by a real encoder, walking past its EXIF segment" do
       assert {:ok, info} = Inspector.inspect(File.read!(@real_jpeg))
-      assert info == %{format: :jpeg, width: 390, height: 510, components: 3, orientation: 1}
+      assert info == %{format: :jpeg, width: 735, height: 489, components: 3, orientation: 1}
     end
 
     test "reads a PNG written by a real encoder" do

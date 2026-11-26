@@ -102,6 +102,12 @@ defmodule LumenViaeWeb.Live.Meditations.Filtering do
     Enum.reject(meditations, &has_audio?/1)
   end
 
+  # A recording in some narration voices but not all: the ids come from
+  # `Rosary.meditation_ids_missing_a_voice/1`, which asks the narrations.
+  defp filter_by_audio(meditations, {:missing_voice, ids}) do
+    Enum.filter(meditations, &MapSet.member?(ids, &1.id))
+  end
+
   defp filter_by_audio(meditations, _), do: meditations
 
   defp filter_by_status(meditations, "active") do

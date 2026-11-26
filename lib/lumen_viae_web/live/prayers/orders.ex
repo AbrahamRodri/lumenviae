@@ -29,8 +29,9 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
 
   # The orders kept for an occasion with a shortcut of their own, after
   # the day's three (PrayerBookView.shortcutOccasionIDs). Saved, the
-  # app's fourth tile, is not on the website.
-  @shortcut_occasion_ids ~w(before_mass before_confession)
+  # app's fourth tile, is not on the website; Grace at Meals takes its
+  # place as the sixth, so the tiles fill their rows.
+  @shortcut_occasion_ids ~w(before_mass before_confession table)
 
   # The hour the book's day begins (PrayerBook.dayBeginsAtHour).
   @day_begins 4
@@ -143,7 +144,8 @@ defmodule LumenViaeWeb.Live.Prayers.Orders do
 
   @doc """
   The shortcut tiles, as the app sets them two by two: the day's three,
-  then Before Mass and Before Confession (Saved is the app's alone).
+  then Before Mass and Before Confession, then Grace at Meals where the
+  app has Saved (which is the app's alone).
   """
   def shortcut_orders(book), do: day_orders(book) ++ orders(book, @shortcut_occasion_ids)
 

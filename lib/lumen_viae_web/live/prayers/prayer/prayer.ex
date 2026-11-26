@@ -27,13 +27,15 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
 
   @language_labels [{"english", "English"}, {"latin", "Latin"}, {"both", "Both"}]
 
+  # Novenas the Prayer Book once had. Their old links say the novena is
+  # gone and lead to the others, as the apps do, rather than a bare 404.
+  @removed_novenas ~w(undoer_of_knots_novena)
+
   @impl true
   def mount(%{"prayer_id" => id}, _session, socket) do
     book = Book.load(socket.assigns.current_admin, novenas: true)
 
-    prayer =
-      Book.prayer(book, id) ||
-        raise LumenViaeWeb.NotFoundError, message: "unknown prayer: #{id}"
+    prayer = Book.prayer(book, id) || not_found!(id)
 
     chapter = Book.home_chapter(book, id)
 
@@ -117,4 +119,9 @@ defmodule LumenViaeWeb.Live.Prayers.Prayer do
 
     "#{prayer.title}: #{words}"
   end
+
+  defp not_found!(id) when id in @removed_novenas,
+    do: raise(LumenViaeWeb.NotFoundError, message: "removed novena: #{id}", removed: :novena)
+
+  defp not_found!(id), do: raise(LumenViaeWeb.NotFoundError, message: "unknown prayer: #{id}")
 end

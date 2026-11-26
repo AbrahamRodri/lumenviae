@@ -2073,8 +2073,14 @@ type ArtworkAttribution {
   artist: String
 }
 
+type ArtworkVariant {
+  width: Int!
+  url: String!
+}
+
 type Artwork {
   width: Int
+  variants: [ArtworkVariant]
   url: String!
   height: Int
   focalY: Float!

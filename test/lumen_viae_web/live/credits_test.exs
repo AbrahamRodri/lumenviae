@@ -24,10 +24,10 @@ defmodule LumenViaeWeb.Live.CreditsTest do
 
       assert has_element?(
                view,
-               ~s(a[data-role=contact][href="mailto:rodriguez.abrahamdev@gmail.com"])
+               ~s(a[data-role=contact][href="mailto:contact@lumenviae.org"])
              )
 
-      for anchor <- ~w(#prayers #paintings #chant #books) do
+      for anchor <- ~w(#prayers #paintings #chant #books #licences) do
         assert has_element?(view, ~s(a[data-role=jump][href="#{anchor}"]))
       end
 
@@ -75,7 +75,7 @@ defmodule LumenViaeWeb.Live.CreditsTest do
 
       assert has_element?(
                view,
-               "#painting-undoer_of_knots_novena [data-role=licence]",
+               "#painting-st_jude_novena [data-role=licence]",
                "Public domain"
              )
     end
@@ -88,15 +88,40 @@ defmodule LumenViaeWeb.Live.CreditsTest do
 
       assert has_element?(
                view,
-               ~s(#book-story-of-a-soul a[href="https://www.gutenberg.org/ebooks/16772"])
+               "#book-story-of-a-soul",
+               "Burns, Oates & Washbourne, London, 1912"
              )
+
+      refute has_element?(view, "#books", "Gutenberg")
+      refute has_element?(view, ~s(#books a[href*="gutenberg.org"]))
 
       assert has_element?(view, "#book-story-of-a-soul", "LibriVox volunteers, audiobook #8021")
       assert has_element?(view, "#book-true-devotion", "Faber")
     end
+
+    test "every shelf book names the printed edition its text comes from" do
+      for book <- Sources.books(nil) do
+        assert Sources.printed_edition(book), "no printed edition for #{book.id}"
+      end
+    end
   end
 
   describe "the ways in" do
+    test "the licences that ask for their notice carry it in full", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/credits")
+      rows = view |> element("#licences") |> render()
+
+      for id <- ~w(divinum-officium missale-meum phosphor cinzel eb-garamond) do
+        assert has_element?(view, "#licence-#{id}")
+      end
+
+      assert rows =~ "Copyright (c) 2026 Divinum Officium"
+      assert rows =~ "Copyright (c) 2022 Marcin Molenda"
+      assert rows =~ "Permission is hereby granted, free of charge"
+      assert rows =~ "Copyright 2020 The Cinzel Project Authors"
+      assert rows =~ "SIL OPEN FONT LICENSE Version 1.1"
+    end
+
     test "the footer links to the credits", %{conn: conn} do
       link = conn |> page("/") |> Floki.find(~s(footer a[href="/credits"]))
 

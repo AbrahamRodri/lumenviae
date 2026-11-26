@@ -1,7 +1,7 @@
 # CI, and the deploy that waits for it. See docs/CI.md.
 #
 # A push to main runs every check and then, only if the blocking ones pass,
-# deploys to Fly and checks production (bin/post-deploy-check). A pull
+# deploys to the Droplet and checks production (bin/post-deploy-check). A pull
 # request runs them once it is ready for review, and again on each push
 # after that; while it is a draft every job is skipped, so a batch built up
 # as a draft costs one run, when it is marked ready. Branch protection reads
@@ -143,7 +143,7 @@ jobs:
             exit 1
           fi
 
-  # Blocking. The Dockerfile is what Fly builds (MIX_ENV=prod: production
+  # Blocking. The Dockerfile is the release image production runs (MIX_ENV=prod: production
   # compile, assets and release), and nothing above builds it. This fails the
   # PR for a prod-only break instead of the deploy.
   docker:
@@ -221,57 +221,21 @@ jobs:
 
   # Only a push to main deploys, and only after test, assets and the release
   # build pass. If any fails this job is skipped, so a red build cannot be
-  # deployed by this workflow. The Fly token is read here and nowhere else.
+  # deployed by this workflow. The VM's SSH secrets are read here and nowhere
+  # else.
   #
   # Re-running an older run of main must not put its commit over a newer one,
   # so the job deploys only if its commit is still the tip of main; otherwise
   # it logs why and does nothing (see .github/scripts/is-main-tip.sh).
   #
-  # HOSTING, a repository variable, says where production is: unset (today)
-  # is Fly, and this job runs exactly as it always has; `vm` hands the
-  # deploy to deploy-vm below instead (deploy/vm/README.md).
-  deploy:
-    name: Deploy to Fly
-    needs: [test, assets, docker]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.HOSTING != 'vm'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    concurrency: deploy-group # one deploy at a time; a queued one waits
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Is this commit still the tip of main?
-        id: tip
-        run: .github/scripts/is-main-tip.sh "$GITHUB_SHA"
-      - if: steps.tip.outputs.is_tip == 'true'
-        uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # 1.6
-      - if: steps.tip.outputs.is_tip == 'true'
-        run: flyctl deploy --remote-only --env RELEASE_COMMIT=$GITHUB_SHA
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      # Read-only GETs against www.lumenviae.org; no secret. A failure marks
-      # the run red; it does not roll back. docs/DEPLOY_WATCH.md says what next.
-      - name: Check production
-        if: steps.tip.outputs.is_tip == 'true'
-        run: bin/post-deploy-check
-        env:
-          EXPECT_COMMIT: ${{ github.sha }}
-      # Every feature the apps depend on, read-only (docs/DEPLOY_WATCH.md).
-      - name: Check every feature
-        if: steps.tip.outputs.is_tip == 'true'
-        run: bin/prod-feature-check
-        env:
-          EXPECT_COMMIT: ${{ github.sha }}
-          OPS_STATUS_TOKEN: ${{ secrets.OPS_STATUS_TOKEN }}
-          # Unset normally (R2); set on a rollback off R2 (docs/DEPLOY_WATCH.md).
-          ARTWORK_HOST: ${{ vars.ARTWORK_HOST }}
-          AUDIO_HOST_SUFFIX: ${{ vars.AUDIO_HOST_SUFFIX }}
-
-  # The same deploy on the VM in deploy/vm/, for after the switch
-  # (reports/rig/hosting-migration.md). Skipped unless HOSTING is `vm`, so
-  # until then it never runs and its secrets (VM_HOST, VM_SSH_KEY,
-  # VM_SSH_KNOWN_HOSTS) need not exist. Builds the release image from this
-  # commit, pushes it to GHCR, and on the VM migrates and restarts the
-  # stack with RELEASE_COMMIT set, then runs the same checks as Fly's.
+  # Production is the Droplet in deploy/vm/ (reports/rig/hosting-migration.md).
+  # The repository variable HOSTING must be `vm` for this job to run; with it
+  # unset nothing deploys. The Fly deploy job and the root fly.toml were
+  # removed on 23 Nov 2026 (Abraham: "Remove them"), after Fly's database was
+  # destroyed; Fly keeps only the proxy in deploy/fly-proxy, deployed by hand.
+  # Builds the release image from this commit, pushes it to GHCR, and on the
+  # VM migrates and restarts the stack with RELEASE_COMMIT set, then checks
+  # production.
   deploy-vm:
     name: Deploy to the VM
     needs: [test, assets, docker]
@@ -340,7 +304,10 @@ jobs:
           # not left in the VM user's Docker config.
           echo "$GHCR_TOKEN" | ssh -i ~/.ssh/vm "$VM" \
             "docker login ghcr.io -u '$GITHUB_ACTOR' --password-stdin"
-          ssh -i ~/.ssh/vm "$VM" "cd /srv/lumenviae && export IMAGE='$IMAGE' RELEASE_COMMIT='$GITHUB_SHA' \
+          # status/ (the timers' reports, mounted read-only into the app) is
+          # made here, as deploy, before compose: Docker would make a missing
+          # one as root, and the timers, which run as deploy, could not write.
+          ssh -i ~/.ssh/vm "$VM" "cd /srv/lumenviae && mkdir -p status && export IMAGE='$IMAGE' RELEASE_COMMIT='$GITHUB_SHA' \
             && docker compose pull app office; status=\$?; docker logout ghcr.io; [ \$status -eq 0 ] \
             && docker compose run --rm app /app/bin/migrate \
             && docker compose up -d --wait \

@@ -40,11 +40,16 @@ defmodule LumenViaeWeb.Live.Admin.CompletionsTest do
     assert [%{set_id: id, count: 2}, %{count: 1}] = report.sets
     assert id == joyful.id
     assert report.sources == %{"web" => 2, "ios" => 1}
-    assert report.locales == [{"en-US", 1}]
     assert length(report.by_day) == 7
     assert report.by_day |> Enum.map(& &1.count) |> Enum.sum() == 3
+    assert report.hours |> Map.values() |> Enum.sum() == 3
+    assert length(report.recent) == 3
+    # Today counts only as far as it has gone.
+    assert report.elapsed_days > 6 and report.elapsed_days <= 7
 
-    assert Rosary.completion_report(7, %{source: "web"}, actor: admin()).total == 2
+    narrowed = Rosary.completion_report(7, %{source: "web"}, actor: admin())
+    assert narrowed.total == 2
+    assert narrowed.period_total == 3
     assert Rosary.completion_report(7, %{set_id: other.id}, actor: admin()).total == 1
     assert Rosary.completion_report(nil, %{prayed_aloud: true}, actor: admin()).total == 1
     assert Rosary.completion_report(nil, %{}, actor: admin()).by_day == nil

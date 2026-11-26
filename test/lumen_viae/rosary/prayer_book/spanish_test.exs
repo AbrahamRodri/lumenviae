@@ -13,7 +13,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   # Change the file: bump its updated_at and set the new pair here. Every
   # text's source, or its marking as the team's translation, is listed in
   # priv/library/es/SOURCES.md.
-  @pinned {~U[2026-11-17 04:00:00Z], "0871bdee6df3f9f3"}
+  @pinned {~U[2026-11-23 22:45:00Z], "6cfa4b4dcfbfa5c7"}
 
   # The team's own translations, marked for the app's notice
   # (priv/library/es/SOURCES.md, the third list), plus the Seven Sorrows
@@ -103,30 +103,6 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
     refute DateTime.compare(Spanish.updated_at(), Content.updated_at("es")) == :lt
   end
 
-  # novenas-es: La Virgen Desatanudos, in Ascension Press's own Spanish
-  # (not ai_translated), with the names ios-review settled.
-  test "the Undoer of Knots novena has its Spanish, every part of its own words" do
-    assert [knots | _] = Spanish.novenas()
-    assert knots.id == "undoer_of_knots"
-    assert knots.title == "La Virgen Desatanudos"
-    assert knots.list_title == "Virgen Desatanudos"
-    assert length(knots.day_titles) == 9
-
-    [novena | _] = Library.served(:prayer_book, "novenas")
-    own = for day <- novena.days, part <- day.parts, is_binary(part.id), uniq: true, do: part.id
-    assert Enum.map(knots.parts, & &1.id) == own
-    refute knots.ai_translated
-    refute Enum.any?(knots.parts, & &1.ai_translated)
-
-    twin = Enum.find(Spanish.prayers(), &(&1.id == "undoer_of_knots_novena"))
-    assert twin.title == "Novena a la Virgen Desatanudos"
-    refute Map.has_key?(twin, :ai_translated)
-    assert Enum.all?(knots.parts, &String.contains?(twin.text, &1.text))
-
-    assert Enum.find(knots.parts, &(&1.id == "undoer_of_knots_invocation")).text ==
-             "María, Desatanudos, ruega por mí."
-  end
-
   # novenas-api-nine (orch-lead, 14 Nov 2026): each novena's Spanish is a
   # published text, and each part stands in its twin. The exceptions are
   # marked ai_translated: the Immaculate Conception's versicles and collects
@@ -137,7 +113,7 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
     by_id = Map.new(Spanish.novenas(), &{&1.id, &1})
 
     assert Map.keys(by_id) |> Enum.sort() ==
-             ~w(holy_spirit immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas st_joseph st_jude st_therese undoer_of_knots)
+             ~w(holy_spirit immaculate_conception our_lady_of_guadalupe our_mother_of_perpetual_help sacred_heart st_andrew_christmas st_joseph st_jude st_therese)
 
     novenas = Map.new(Library.served(:prayer_book, "novenas"), &{&1.id, &1})
     twins = Map.new(Spanish.prayers(), &{&1.id, &1})
@@ -154,6 +130,15 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
              id
 
       assert length(spanish.day_titles) == novenas[id].length, id
+
+      own =
+        for day <- novenas[id].days,
+            part <- day.parts,
+            is_binary(part.id),
+            uniq: true,
+            do: part.id
+
+      assert Enum.map(spanish.parts, & &1.id) == own, id
 
       twin = twins[novenas[id].prayer_id]
       assert Enum.all?(spanish.parts, &String.contains?(twin.text, &1.text)), id
@@ -177,8 +162,8 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
   test "a novena's prayer says where it comes from in Spanish, as its novena does" do
     prayers = Map.new(Spanish.prayers(), &{&1.id, &1})
 
-    assert prayers["undoer_of_knots_novena"].origin ==
-             "Novena del P. Juan Ramón Celeiro, según la publica Ascension Press"
+    assert prayers["our_lady_of_guadalupe_novena"].origin ==
+             "Novena del R. P. Fr. José Francisco Valdés, religioso de la Provincia de San Diego de México · según el Manualito de piadosas devociones (México, 1872) y EWTN Español"
 
     assert prayers["memorare"].origin ==
              "Atribuida a san Bernardo de Claraval, siglo XII · según el Compendio del Catecismo de la Iglesia Católica"
@@ -209,6 +194,18 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
              Enum.find(spanish, &(&1.id == "our_lady"))
   end
 
+  # The app shows "Traducción hecha con inteligencia artificial." under an
+  # ai_translated text, so its source line names only the source (Abraham,
+  # 10 Nov, Action Desk "A"; product-pm, 23 Nov).
+  test "an ai_translated text's credits name its source, not the team as translator" do
+    for prayer <- Spanish.prayers(), Map.get(prayer, :ai_translated) do
+      for key <- [:origin, :foot_credit, :short_credit], text = Map.get(prayer, key), text do
+        refute text =~ ~r/traducci[oó]n del equipo|traducid[oa]s? del lat[ií]n por el equipo/u,
+               "#{prayer.id} #{key}: #{text}"
+      end
+    end
+  end
+
   test "a Spanish short credit names the author, shorter than the origin" do
     for prayer <- Spanish.prayers(), Map.has_key?(prayer, :short_credit) do
       assert String.length(prayer.short_credit) < String.length(prayer.origin), prayer.id
@@ -216,15 +213,15 @@ defmodule LumenViae.Rosary.PrayerBook.SpanishTest do
 
     spanish = Map.new(Spanish.prayers(), &{&1.id, &1})
 
-    assert spanish["undoer_of_knots_novena"].short_credit == "P. Juan Ramón Celeiro"
+    assert spanish["holy_spirit_novena"].short_credit ==
+             "Los Padres del Espíritu Santo · 1947"
 
     for id <- ~w(st_jude_novena st_andrew_novena peace_prayer immaculate_conception_novena) do
       refute Map.has_key?(spanish[id], :short_credit), id
     end
 
     assert %{
-             short_credit:
-               "P. Lawrence G. Lovasik, S.V.D. · según la publica EWTN · traducción del equipo"
+             short_credit: "P. Lawrence G. Lovasik, S.V.D. · según la publica EWTN"
            } =
              Enum.find(Spanish.prayers(), &(&1.id == "st_joseph_novena"))
 

@@ -14,10 +14,8 @@
   <% total = length(LumenViae.Rosary.PrayerAudio.clips()) %>
 
   <.callout :if={counts && Map.get(counts, :missing, 0) > 0} tone="danger">
-    {Map.get(counts, :missing)} clip(s) are not recorded in the {@voice.name} voice. Run
-    <code>mix lumen_viae.generate_rosary_audio --dry-run</code>
-    and then without <code>--dry-run</code>
-    to record them. The app refuses to start a spoken Rosary without a Hail Mary and skips any other missing clip.
+    {Map.get(counts, :missing)} clip(s) are not recorded in the {@voice.name} voice. Ask the
+    team to record them. The app refuses to start a spoken Rosary without a Hail Mary and skips any other missing clip.
   </.callout>
 
   <.callout :if={recording_count(@recording) > 0} tone="notice">
@@ -39,7 +37,7 @@
     />
     <.metric
       label="Missing"
-      value={if counts, do: Map.get(counts, :missing, 0), else: "..."}
+      value={missing_value(counts)}
       tone={if counts, do: "danger", else: "neutral"}
       hint={
         case missing_total(@coverage) do

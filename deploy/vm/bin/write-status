@@ -1,0 +1,36 @@
+#!/bin/sh
+# Writes what a timer found into ./status/<name>.json, for the app's System
+# page: compose.yml mounts ./status read-only into the app as
+# OPS_STATUS_DIR, and LumenViae.Ops.HostStatus reads it. Called by
+# bin/backup, bin/restore-test and bin/system-check from the stack's folder.
+#
+#   bin/write-status NAME true|false DETAIL [EXTRA]
+#
+# NAME is backup, restore-test or system-check. DETAIL is a short sentence
+# with no secret, address or URL in it; quotes and backslashes are dropped
+# and it is cut to 200 characters. EXTRA is more JSON members, already
+# formatted, such as `"disk_percent":40,"free_percent":65`.
+#
+# Written to a temporary file and renamed, so the app never reads half a
+# file, and world-readable, because the app's container runs as another user.
+set -eu
+
+case "${1:-}" in
+  backup | restore-test | system-check) name=$1 ;;
+  *) echo "write-status: NAME is backup, restore-test or system-check" >&2; exit 64 ;;
+esac
+case "${2:-}" in
+  true | false) ok=$2 ;;
+  *) echo "write-status: the second argument is true or false" >&2; exit 64 ;;
+esac
+detail=$(printf '%s' "${3:-}" | tr -d '"\\' | tr '\n\t' '  ' | cut -c1-200)
+extra=${4:+,$4}
+
+cd "$(dirname "$0")/.."
+umask 022
+mkdir -p status
+tmp=$(mktemp "status/.$name.XXXXXX")
+printf '{"ok":%s,"at":"%s","detail":"%s"%s}\n' \
+  "$ok" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$detail" "$extra" > "$tmp"
+chmod 644 "$tmp"
+mv -f "$tmp" "status/$name.json"

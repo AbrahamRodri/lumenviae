@@ -404,13 +404,13 @@ defmodule LumenViaeWeb.PageMetaTest do
       assert content(doc, ~s(meta[property="og:image"])) =~
                "/images/paintings/saint_jude-share.jpg"
 
-      doc = page(conn, "/prayers/undoer_of_knots_novena")
+      doc = page(conn, "/prayers/our_lady_of_guadalupe_novena")
 
       assert content(doc, ~s(meta[property="og:image"])) ==
-               @site <> "/images/novenas/undoer_of_knots_novena-share.jpg"
+               @site <> "/images/novenas/our_lady_of_guadalupe_novena-share.jpg"
 
-      assert content(doc, ~s(meta[property="og:image:alt"])) =~ "Schmidtner"
-      assert File.exists?("priv/static/images/novenas/undoer_of_knots_novena-share.jpg")
+      assert content(doc, ~s(meta[property="og:image:alt"])) =~ "tilma"
+      assert File.exists?("priv/static/images/novenas/our_lady_of_guadalupe_novena-share.jpg")
     end
 
     test "a novena whose art is not public domain keeps the site's own image", %{conn: conn} do

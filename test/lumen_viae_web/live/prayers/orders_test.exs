@@ -123,10 +123,10 @@ defmodule LumenViaeWeb.Live.Prayers.OrdersTest do
   end
 
   describe "which orders" do
-    test "the shortcuts are the day's three, then Before Mass and Before Confession",
+    test "the shortcuts are the day's three, then Before Mass, Before Confession and Grace at Meals",
          %{book: book} do
       assert book |> Orders.shortcut_orders() |> Enum.map(& &1.id) ==
-               ~w(morning angelus night before_mass before_confession)
+               ~w(morning angelus night before_mass before_confession table)
     end
 
     test "a topic holds the orders the book puts under it", %{book: book} do

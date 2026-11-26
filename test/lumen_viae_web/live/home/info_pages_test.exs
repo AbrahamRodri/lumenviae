@@ -7,7 +7,7 @@ defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
 
   import Phoenix.LiveViewTest
 
-  @contact "rodriguez.abrahamdev@gmail.com"
+  @contact "contact@lumenviae.org"
 
   describe "the footer" do
     # The footer is in the root layout, outside the LiveView, so it is read
@@ -82,7 +82,7 @@ defmodule LumenViaeWeb.Live.Home.InfoPagesTest do
       {:ok, view, html} = live(conn, "/privacy-policy")
 
       assert page_title(view) =~ "Privacy Policy"
-      assert html =~ ~r/Last updated: \w+ \d{1,2}, \d{4}/
+      assert html =~ "Last updated: November 25, 2026"
 
       for heading <- [
             "Information We Collect",

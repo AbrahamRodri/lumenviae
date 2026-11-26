@@ -249,4 +249,57 @@ defmodule LumenViae.Rosary.CompletionTalliesTest do
       assert first == c.id
     end
   end
+
+  describe "period/2" do
+    test "is today and the days before it, from Central midnight" do
+      # 23 Nov 2026, 3am UTC: still 22 Nov in Chicago (CST, UTC-6).
+      now = ~U[2026-11-23 03:00:00Z]
+      period = Rosary.period(7, now)
+
+      assert period.last == ~D[2026-11-22]
+      assert period.first == ~D[2026-11-16]
+      assert period.since == ~U[2026-11-16 06:00:00Z]
+      assert period.until == now
+      assert period.previous_since == ~U[2026-11-09 06:00:00Z]
+    end
+
+    test "the dashboard's Last 7 days is the Completions page's 7 days" do
+      set = create_set()
+      today = CentralTime.today()
+      # Early on the first day of the period: a rolling 168 hours would miss it.
+      seed(set, DateTime.add(CentralTime.day_start(Date.add(today, -6)), 60, :second))
+      seed(set, DateTime.add(CentralTime.day_start(Date.add(today, -7)), 60, :second))
+
+      summary = Rosary.completion_summary(actor: admin())
+
+      assert summary.last_7 == 1
+      assert summary.previous_7 == 1
+      assert Rosary.completion_report(7, %{}, actor: admin()).total == 1
+      assert Rosary.count_completions_last_days(7, actor: admin()) == 1
+    end
+  end
+
+  describe "completion_report/3" do
+    test "the country menu keeps every country when one is chosen" do
+      set = create_set()
+      seed(set, ago(1), %{country: "Mexico", country_code: "MX", city: "Puebla"})
+      seed(set, ago(1), %{country: "Mexico", country_code: "MX"})
+      seed(set, ago(2), %{country: "Spain", country_code: "ES"})
+      seed(set, ago(3))
+
+      report = Rosary.completion_report(30, %{country_code: "ES"}, actor: admin())
+
+      assert report.total == 1
+      assert report.period_total == 4
+      assert [%{country_code: "ES", count: 1}] = report.countries
+      assert Enum.map(report.country_options, & &1.country_code) == ["MX", "ES"]
+      assert report.cities == []
+
+      all = Rosary.completion_report(nil, %{}, actor: admin())
+      assert all.by_day == nil
+      assert all.elapsed_days == nil
+      assert all.located == 3
+      assert [%{city: "Puebla", country_code: "MX", count: 1}] = all.cities
+    end
+  end
 end

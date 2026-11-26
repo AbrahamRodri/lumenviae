@@ -38,6 +38,9 @@ defmodule LumenViae.OpsTest do
     test "describe this machine and its database" do
       runtime = Ops.runtime()
       assert runtime.node == node()
+      assert runtime.commit == LumenViae.Ops.Health.commit()
+      assert DateTime.compare(runtime.started_at, DateTime.utc_now()) != :gt
+      refute Map.has_key?(runtime, :region)
       assert runtime.memory.total > 0
       assert runtime.processes > 0
 
@@ -81,6 +84,13 @@ defmodule LumenViae.OpsTest do
       assert failure.state == "discarded"
       assert failure.error == "boom"
     end
+
+    test "a job cancelled before it ever ran sorts after those that ran" do
+      ran = insert_job(%{state: "retryable", attempted_at: DateTime.utc_now()})
+      never_ran = insert_job(%{state: "cancelled", attempted_at: nil})
+
+      assert Enum.map(Ops.recent_failures(5), & &1.id) == [ran.id, never_ran.id]
+    end
   end
 
   describe "schedule/1" do
@@ -106,6 +116,16 @@ defmodule LumenViae.OpsTest do
       job = insert_job(%{worker: inspect(WarmCache), state: "completed"})
       assert %{id: id, state: "completed"} = Ops.last_run(WarmCache)
       assert id == job.id
+    end
+
+    test "gives each crontab row its worker's newest job" do
+      insert_job(%{worker: inspect(WarmCache), state: "completed"})
+      newest = insert_job(%{worker: inspect(WarmCache), state: "retryable"})
+
+      rows = Enum.filter(Ops.schedule(), &(&1.worker == inspect(WarmCache)))
+
+      assert rows != []
+      assert Enum.all?(rows, &(&1.last_run.id == newest.id))
     end
   end
 

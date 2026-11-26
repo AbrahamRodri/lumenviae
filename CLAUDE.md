@@ -128,9 +128,11 @@ This is a Phoenix LiveView application for **Lumen Viae** - a traditional Rosary
   Gutenberg and LibriVox numbers and the rules that cut and align each
   edition) as a library document, `GET /api/v2/spiritual-reading`, from
   `priv/library/spiritual_reading.json`; the apps fetch the books
-  themselves, and the website's server fetches them from Project
-  Gutenberg for its pages (`Rosary.read_spiritual_book!/2`, held in
-  memory per machine), and each recording's track list from LibriVox's
+  themselves, and the website reads them from the copies the release
+  carries, `priv/library/books/pg<id>.txt`, written by
+  `mix lumen_viae.store_books` (`SpiritualReading.Stored`; Project
+  Gutenberg only for a book with no copy), for its pages
+  (`Rosary.read_spiritual_book!/2`, held in memory per machine), and each recording's track list from LibriVox's
   API (`https://librivox.org/api/feed/audiobooks/`,
   `Rosary.read_spiritual_recording!/2`, `LumenViae.Rosary.SpiritualReading.Recording`:
   one fetch per book in a task no page owns, failures held, no redirects,

@@ -37,7 +37,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
      |> assign(:coverage, nil)
      |> assign(:recording, %{})
      |> assign(:clips_by_key, clips_by_key())
-     |> start_coverage()
+     |> start_coverage([])
      |> follow_recordings()}
   end
 
@@ -79,7 +79,7 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
   end
 
   def handle_event("refresh", _params, socket) do
-    {:noreply, socket |> assign(:coverage, nil) |> start_coverage()}
+    {:noreply, socket |> assign(:coverage, nil) |> start_coverage(fresh: true)}
   end
 
   def handle_info({:audio_job, %{worker: worker, key: key, status: status}}, socket) do
@@ -95,6 +95,8 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
        when status in [:recorded, :already_recorded] and is_map(socket.assigns.coverage) do
     case socket.assigns.clips_by_key do
       %{^key => {slug, id}} ->
+        # The remembered coverage no longer holds; the next open asks again.
+        RosaryAudioGeneration.forget_coverage()
         update(socket, :coverage, &put_in(&1, [Access.key(slug, %{}), id], :recorded))
 
       _unknown ->
@@ -116,9 +118,9 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
      |> put_flash(:error, "Could not check the bucket: #{inspect(reason)}")}
   end
 
-  defp start_coverage(socket) do
+  defp start_coverage(socket, opts) do
     if connected?(socket) do
-      start_async(socket, :coverage, fn -> RosaryAudioGeneration.coverage() end)
+      start_async(socket, :coverage, fn -> RosaryAudioGeneration.cached_coverage(opts) end)
     else
       socket
     end
@@ -166,6 +168,20 @@ defmodule LumenViaeWeb.Live.Admin.RosaryAudio do
 
   def counts(coverage, voice) do
     coverage |> Map.get(voice.slug, %{}) |> Map.values() |> Enum.frequencies()
+  end
+
+  @doc """
+  The Missing tile's figure: the count, or "Could not check" when the
+  bucket did not answer for every clip of the voice, which is not zero.
+  """
+  def missing_value(nil), do: "..."
+
+  def missing_value(counts) when counts == %{}, do: "Could not check"
+
+  def missing_value(counts) do
+    if Map.get(counts, :unknown, 0) > 0,
+      do: "Could not check",
+      else: Map.get(counts, :missing, 0)
   end
 
   def missing_total(nil), do: nil

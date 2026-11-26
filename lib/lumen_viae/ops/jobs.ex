@@ -73,13 +73,15 @@ defmodule LumenViae.Ops.Jobs do
 
   @doc """
   The most recent jobs that are waiting to retry, were discarded or were
-  cancelled, newest first, each with the first line of its last error.
+  cancelled, newest first, each with the first line of its last error. A
+  job cancelled before it ever ran has no attempt time and sorts after
+  those that did.
   """
   def recent_failures(limit \\ 10) do
     Repo.all(
       from j in Oban.Job,
         where: j.state in @failed,
-        order_by: [desc: j.attempted_at, desc: j.id],
+        order_by: [desc_nulls_last: j.attempted_at, desc: j.id],
         limit: ^limit
     )
     |> Enum.map(&summarize/1)
@@ -94,16 +96,29 @@ defmodule LumenViae.Ops.Jobs do
   """
   def schedule(now \\ DateTime.utc_now()) do
     running = running_crontab()
+    jobs = scheduled_jobs()
+    last_runs = last_runs(Enum.map(jobs, fn {_expression, worker} -> inspect(worker) end))
 
-    Enum.map(scheduled_jobs(), fn {expression, worker} ->
+    Enum.map(jobs, fn {expression, worker} ->
       %{
         expression: expression,
         worker: inspect(worker),
         next_at: next_at(expression, now),
-        last_run: last_run(worker),
+        last_run: Map.get(last_runs, inspect(worker)),
         running_here?: {expression, worker} in running
       }
     end)
+  end
+
+  # The newest job of each of `names`, in one query: `%{name => summary}`.
+  defp last_runs(names) do
+    from(j in Oban.Job,
+      where: j.worker in ^Enum.uniq(names),
+      distinct: j.worker,
+      order_by: [asc: j.worker, desc: j.id]
+    )
+    |> Repo.all()
+    |> Map.new(&{&1.worker, summarize(&1)})
   end
 
   @doc "The module names of the crontab's workers, the only ones `enqueue_scheduled/1` runs."

@@ -185,6 +185,47 @@ defmodule LumenViaeWeb.JsonApi.MeditationSetsTest do
       assert artwork["attribution"]["license"] == "public_domain"
 
       assert by_id[to_string(bare.id)]["artwork"] == nil
+      # No WebP copies recorded yet: none offered, the original is the one.
+      assert artwork["variants"] == []
+    end
+
+    test "lists only the WebP copies recorded as stored, narrowest first", %{conn: conn} do
+      set = create_set(%{name: "Variants", category: "joyful"})
+
+      {:ok, set} =
+        Rosary.update_meditation_set_artwork(
+          set,
+          %{
+            "image_key" => "sets/1/abc.jpg",
+            "image_alt" => "The Annunciation.",
+            "image_license" => "public_domain"
+          },
+          actor: admin()
+        )
+
+      {:ok, _} =
+        Rosary.record_meditation_set_artwork_variants(
+          set,
+          %{image_variant_widths: [960, 480], for_image_key: "sets/1/abc.jpg"},
+          actor: admin()
+        )
+
+      artwork =
+        conn
+        |> list("category=joyful")
+        |> Enum.find(&(&1["id"] == to_string(set.id)))
+        |> get_in(["attributes", "artwork"])
+
+      assert [%{"width" => 480, "url" => small}, %{"width" => 960, "url" => large}] =
+               artwork["variants"]
+
+      assert [{480, ^small}, {960, ^large}] =
+               Rosary.artwork_variant_urls(%{
+                 image_key: "sets/1/abc.jpg",
+                 image_variant_widths: [480, 960]
+               })
+
+      assert small =~ ~r/-480\.webp$/
     end
 
     test "signs nothing a request does not ask for", %{conn: conn} do

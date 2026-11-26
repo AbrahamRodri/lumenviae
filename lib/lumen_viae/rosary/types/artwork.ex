@@ -5,7 +5,9 @@ defmodule LumenViae.Rosary.Types.Artwork do
   and null when there is none, so a client branches on one field.
 
   `url` is the public, unsigned, cacheable address of the image; it never
-  expires. `alignment` is the coarse "top" | "center" | "bottom" derived
+  expires. `variants` are smaller WebP copies of it, narrowest first,
+  only those known to be stored (often none): draw the smallest at least as
+  wide as needed, else `url`. `alignment` is the coarse "top" | "center" | "bottom" derived
   from the focal point; `focal_x` and `focal_y` are the point itself, each
   between 0 and 1.
   """
@@ -20,6 +22,7 @@ defmodule LumenViae.Rosary.Types.Artwork do
     field :height, :integer
     field :alt, :string, allow_nil?: false
     field :attribution, LumenViae.Rosary.Types.ArtworkAttribution, allow_nil?: false
+    field :variants, {:array, LumenViae.Rosary.Types.ArtworkVariant}
   end
 
   use AshGraphql.Type

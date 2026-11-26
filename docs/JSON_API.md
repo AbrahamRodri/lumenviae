@@ -245,11 +245,18 @@ serves the same document, its sections chosen by the selection set.
   **`forms`**: what the app keeps around the Rosary, and the rules it
   chooses by (see "The companion sections", below).
 
+**A painting's smaller copies.** `variants`: smaller WebP copies of the painting, `[{width, url}]`
+narrowest first (480 and 960 wide where the original is wider), listing
+only copies recorded as stored (`image_variant_widths`), so often `[]`.
+Optional in the OpenAPI document; added 23 November 2026, so older builds
+ignore it. Draw the smallest variant at least as wide as the image is
+drawn (points times screen scale), else `url`.
+
 **A painting is null until it is published.** A mystery's `artwork` and a
 category's `card_artwork` are the object a set's `artwork` is (`url`,
 `alignment`, `focal_x`, `focal_y`, `width`, `height`, `alt`, and
-`attribution` with `title`, `artist`, `year`, `source_url` and `license`),
-and are null until a painting is uploaded with alt text and a licence. As
+`attribution` with `title`, `artist`, `year`, `source_url` and `license`,
+and `variants`, below), and are null until a painting is uploaded with alt text and a licence. As
 of 4 October 2026 none is (docs/MYSTERY_PAINTINGS.md), so every one is
 null: a client keeps its bundled painting while the field is null and
 shows the served one once it is not. Both are optional in the OpenAPI
@@ -793,8 +800,9 @@ GraphQL: `prayerBook(lang: "es") { translations { id title text aiTranslated } }
   `origin_credit` is true; else only the part naming the book, publisher
   or shrine the wording comes from ("Según el Compendio del Catecismo de
   la Iglesia Católica"), since the tradition and century alone show
-  nowhere; absent where the foot shows nothing (only a tradition, or
-  "traducción del equipo", the team's own translation). A Rosary
+  nowhere; absent where the foot shows nothing (only a tradition). An
+  `ai_translated` text's credits name only its source, never the team as
+  translator: the app's AI notice says that. A Rosary
   prayer's comes from the file's `rosary_foot_credits`. Lists of sources
   keep `origin`. A client still shows the English for a prayer it does not
   find listed. Every other section is

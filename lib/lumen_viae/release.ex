@@ -223,6 +223,52 @@ defmodule LumenViae.Release do
   end
 
   @doc """
+  Replaces the painting the sets in `set_ids` show with the JPEG at
+  `path`, a file on the machine the release runs in (see
+  `LumenViae.Curation.ArtworkReplacement`). A set whose painting comes
+  from its author replaces the author's portrait, once for every set
+  under that author. New key, new 480/960/1600 variants; the old objects
+  stay in the bucket. Takes `dry_run: true`, `focal: {x, y}` and
+  `attribution: [source_url: ..., ...]`. Always dry-run first:
+
+      /app/bin/lumen_viae eval 'LumenViae.Release.replace_artwork([59, 65], "/tmp/faber.jpg", dry_run: true)'
+      /app/bin/lumen_viae eval 'LumenViae.Release.replace_artwork([59, 65], "/tmp/faber.jpg")'
+
+  Prints and returns one `{:ok | :error, message}` per record, naming the
+  before and after URLs. To roll back, download the before URL and run
+  the task again with that file.
+  """
+  def replace_artwork(set_ids, path, opts \\ []) when is_list(set_ids) and is_binary(path) do
+    case File.read(path) do
+      {:ok, binary} ->
+        load_app()
+        start_audio_clients()
+
+        results =
+          Enum.flat_map(repos(), fn repo ->
+            {:ok, results, _} =
+              Ecto.Migrator.with_repo(repo, fn _repo ->
+                LumenViae.Curation.ArtworkReplacement.run(
+                  set_ids,
+                  binary,
+                  Keyword.take(opts, [:dry_run, :focal, :attribution]) ++ @operator
+                )
+              end)
+
+            results
+          end)
+
+        for {status, message} <- results, do: IO.puts("#{status}: #{message}")
+        results
+
+      {:error, reason} ->
+        message = "Could not read #{path}: #{:file.format_error(reason)}"
+        IO.puts("error: #{message}")
+        [{:error, message}]
+    end
+  end
+
+  @doc """
   Records the spoken Rosary's prayers, announcements and verses with
   ElevenLabs, skipping every clip already in the bucket. Takes the options
   of `LumenViae.Curation.RosaryAudioGeneration.run/1` (`voices:`, `kinds:`,
@@ -464,6 +510,63 @@ defmodule LumenViae.Release do
         {:error, %{errors: errors}} ->
           IO.puts("ERROR #{Enum.map_join(errors, "; ", & &1.message)}")
       end
+    end)
+  end
+
+  @doc """
+  The console dashboard's headline numbers as JSON lines, one object per
+  line, for an agent checking a page's figure against production without
+  signing in:
+
+      /app/bin/lumen_viae rpc 'LumenViae.Release.summary()'
+
+  Counts only: completions by period (`Rosary.period/1`, as the dashboard
+  counts them) and by surface, aloud and country over the last 30 days,
+  the library's size, and the job queues by state. No row, address, city,
+  email or secret, and it writes nothing. Prints, and answers `:ok`.
+  """
+  def summary do
+    with_repo(fn ->
+      opts = [authorize?: false]
+      completions = LumenViae.Rosary.completion_summary(opts)
+      places = LumenViae.Rosary.completion_locations(30, opts)
+
+      lines = [
+        %{
+          section: "release",
+          commit: LumenViae.Ops.Health.commit(),
+          version: LumenViae.Ops.Health.version()
+        },
+        Map.put(completions, :section, "completions"),
+        %{
+          section: "completions_30_days",
+          total: places.total,
+          located: places.located,
+          sources: Map.new(places.sources, fn {source, n} -> {source || "unrecorded", n} end),
+          prayed_aloud:
+            Map.new(places.prayed_aloud, fn {aloud, n} ->
+              {if(is_nil(aloud), do: "unknown", else: to_string(aloud)), n}
+            end),
+          countries:
+            places.countries
+            |> Enum.take(10)
+            |> Map.new(&{&1.country_code || &1.country, &1.count})
+        },
+        %{
+          section: "library",
+          meditation_sets: length(LumenViae.Rosary.list_meditation_sets!(opts)),
+          hidden_sets: MapSet.size(LumenViae.Rosary.hidden_meditation_set_ids(opts)),
+          meditations: LumenViae.Rosary.count_meditations(opts),
+          archived_meditations: LumenViae.Rosary.count_archived_meditations(opts)
+        }
+        | Enum.map(
+            LumenViae.Ops.queues(),
+            &%{section: "queue", queue: &1.queue, counts: &1.counts}
+          )
+      ]
+
+      Enum.each(lines, &IO.puts(Jason.encode!(&1)))
+      :ok
     end)
   end
 

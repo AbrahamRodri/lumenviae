@@ -11,7 +11,10 @@ defmodule LumenViae.Rosary.SpiritualReadingTextTest do
   @moduletag :capture_log
 
   alias LumenViae.Rosary
+  alias LumenViae.Rosary.Library
   alias LumenViae.Rosary.SpiritualReading.Gutenberg
+  alias LumenViae.Rosary.SpiritualReading.Parser
+  alias LumenViae.Rosary.SpiritualReading.Stored
   alias LumenViae.Rosary.SpiritualReading.Text
 
   @lawrence File.read!("test/support/fixtures/gutenberg/pg13871.txt")
@@ -59,6 +62,32 @@ defmodule LumenViae.Rosary.SpiritualReadingTextTest do
     assert chapter.paragraphs != []
 
     assert :counters.get(fetches, 1) == 1
+  end
+
+  describe "the release's stored copy" do
+    setup do
+      config = Application.get_env(:lumen_viae, :spiritual_reading)
+      Application.put_env(:lumen_viae, :spiritual_reading, Keyword.put(config, :stored, true))
+      on_exit(fn -> Application.put_env(:lumen_viae, :spiritual_reading, config) end)
+    end
+
+    test "a book is read from it while Gutenberg is down, and Gutenberg is not asked",
+         %{fetches: fetches} do
+      serve(fetches, :down)
+
+      book = Rosary.read_spiritual_book!("practice-of-the-presence-of-god")
+      assert book.status == :ok
+      assert length(book.contents) == 20
+      assert :counters.get(fetches, 1) == 0
+    end
+
+    test "every book on the shelf has one: the cut body, no Gutenberg header or licence" do
+      for info <- Library.served(:spiritual_reading, "books") do
+        assert {:ok, text} = Stored.read(info.gutenberg_id), "no stored copy of #{info.id}"
+        refute text =~ ~r/gutenberg/i, "#{info.id}'s stored copy names Gutenberg"
+        assert Parser.parse(text, info).chapters != [], "#{info.id} cuts into no chapters"
+      end
+    end
   end
 
   test "cached_only answers :cold for a book not yet fetched, and fetches nothing",

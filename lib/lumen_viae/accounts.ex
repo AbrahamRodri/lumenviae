@@ -44,7 +44,9 @@ defmodule LumenViae.Accounts do
         args: [:password, :password_confirmation, :current_password]
     end
 
-    resource LumenViae.Accounts.Token
+    resource LumenViae.Accounts.Token do
+      define :list_sign_ins, action: :sign_ins
+    end
   end
 
   @dev_admin_email "dev-admin@lumenviae.local"
@@ -82,6 +84,26 @@ defmodule LumenViae.Accounts do
       {:ok, admin, password}
     end
   end
+
+  @doc """
+  When each admin last signed in, as `%{admin_id => DateTime}`, from the
+  stored session tokens; an admin with none within the token lifetime
+  (a week) is absent. Admin only.
+  """
+  def last_sign_ins(opts) do
+    opts
+    |> list_sign_ins!()
+    |> Enum.reduce(%{}, fn token, acc ->
+      case subject_id(token.subject) do
+        nil -> acc
+        id -> Map.put_new(acc, id, token.created_at)
+      end
+    end)
+  end
+
+  # "admin?id=<uuid>", as AshAuthentication names a subject.
+  defp subject_id("admin?" <> query), do: URI.decode_query(query)["id"]
+  defp subject_id(_other), do: nil
 
   @doc """
   A password for a new admin or a reset: 24 random bytes, URL-safe Base64,

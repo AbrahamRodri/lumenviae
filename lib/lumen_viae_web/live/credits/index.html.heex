@@ -1,7 +1,7 @@
 <div class="bg-night min-h-screen pb-16">
   <Layouts.flash_group flash={@flash} variant={:public} />
 
-  <article class="mx-auto max-w-3xl px-4 sm:px-8 pt-10 md:pt-16">
+  <article class="mx-auto max-w-3xl px-4 sm:px-8 pt-10 md:pt-16 break-words">
     <header>
       <p class="kicker">Lumen Viae</p>
       <h1 class="font-display text-[2rem] leading-tight md:text-5xl text-ink-light mt-2">
@@ -20,9 +20,10 @@
       </p>
 
       <%!-- Two by two on a phone, where four pills cannot share a row and
-           one would sit alone; one row from sm up --%>
+           one would sit alone (one by one when large text leaves no room
+           for two); one row from sm up --%>
       <nav aria-label="Sections" class="mt-6">
-        <ul class="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
+        <ul class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2.5 sm:flex sm:flex-wrap">
           <li :for={{id, label} <- @sections}>
             <a
               href={"##{id}"}
@@ -281,12 +282,7 @@
           </.link>
           <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
             {Sources.author_line(book)}.
-            <a
-              href={Sources.gutenberg_url(book)}
-              rel="noopener"
-              target="_blank"
-              class="underline decoration-night-line underline-offset-4 hover:text-gilt"
-            >{Sources.text_credit(book)}</a>
+            <span :if={Sources.printed_edition(book)}>{Sources.printed_edition(book)}</span>
             <span :if={Sources.librivox_credit(book)}>{Sources.librivox_credit(book)}</span>
             <span :if={Sources.archive_recording(book)}>
               In the app: <a
@@ -311,6 +307,31 @@
             {@true_devotion.author}. {@true_devotion.translator}. {@true_devotion.source_note}
           </p>
           <p class="mt-2"><.licence_pill licence={Sources.licence("Public domain")} /></p>
+        </li>
+      </ul>
+    </section>
+
+    <section id="licences" aria-labelledby="licences-heading" class="mt-12 scroll-mt-24">
+      <.section_heading id="licences">Licences</.section_heading>
+
+      <ul>
+        <li
+          :for={licence <- @licences}
+          id={"licence-#{licence.id}"}
+          class="border-t border-night-border py-4"
+          data-role="software-licence"
+        >
+          <p class="font-garamond text-lg text-ink-light">{licence.name}</p>
+          <p class="font-garamond italic text-base text-ink-muted leading-snug mt-0.5">
+            {licence.use} {licence.copyright}.
+          </p>
+          <p class="mt-2"><span class="credits-licence">{licence.licence}</span></p>
+          <details class="mt-2">
+            <summary class="font-garamond text-base text-sky cursor-pointer min-h-11 flex items-center">
+              The licence
+            </summary>
+            <pre class="mt-2 whitespace-pre-wrap font-garamond text-sm text-ink-muted leading-relaxed">{licence.text}</pre>
+          </details>
         </li>
       </ul>
     </section>

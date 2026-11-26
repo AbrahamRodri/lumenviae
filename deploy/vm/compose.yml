@@ -1,7 +1,6 @@
 # Lumen Viae on one VM: the app, Postgres, the Office engine and Caddy.
-# Not used while the repository variable HOSTING is unset: production is
-# Fly (fly.toml). The switch is reports/rig/hosting-migration.md's runbook
-# and deploy/vm/README.md.
+# Production since November 2026 (the repository variable HOSTING=vm);
+# deploy/vm/README.md says how it is switched on.
 #
 # On the VM this folder is /srv/lumenviae, beside its .env (mode 600; the
 # names are in env.example). The deploy sets IMAGE (the release image built
@@ -27,14 +26,34 @@ services:
       # container id. Distribution refuses that as a long name, so the rpc
       # healthcheck below fails and `up --wait` never sees the app healthy.
       RELEASE_NODE: lumen_viae@127.0.0.1
+      # What the backup, restore-test and system-check timers last found
+      # (bin/write-status), for the System page. Read-only: the app can
+      # read the files and change nothing. The deploy makes ./status first.
+      OPS_STATUS_DIR: /srv/status
+    volumes:
+      - ./status:/srv/status:ro
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+    # How long a deploy waits after SIGTERM before killing the app. Oban
+    # gives running jobs 140 seconds (config/config.exs), because a
+    # narration request killed mid-flight may still be billed; Docker's
+    # default is 10. Fly's kill_timeout was 150, kept here.
+    stop_grace_period: 150s
+    # The log goes to the host's journal, tagged, so it outlives the
+    # container: a deploy or a restart recreates the container and its own
+    # log with it. `docker logs` still reads the current one; the journal
+    # (journalctl -t lv-app) reaches back across recreates, as far as the
+    # journal keeps (about 10% of the disk, the default).
+    logging:
+      driver: journald
+      options:
+        tag: lv-app
     # No published port: only Caddy reaches it, so X-Real-IP is always
     # Caddy's.
-    # The release image has no curl (the Dockerfile is Fly's too, left as
-    # it is): ask the running release whether its endpoint is up. The
+    # The release image has no curl: ask the running release whether its
+    # endpoint is up. The
     # deploy's post-deploy checks then test it over HTTPS.
     healthcheck:
       test: ["CMD", "/app/bin/lumen_viae", "rpc", "LumenViaeWeb.Endpoint.url()"]
@@ -90,6 +109,11 @@ services:
     depends_on:
       - app
     restart: unless-stopped
+    # Kept in the host's journal across recreates, as the app's is.
+    logging:
+      driver: journald
+      options:
+        tag: lv-caddy
 
 volumes:
   pgdata:

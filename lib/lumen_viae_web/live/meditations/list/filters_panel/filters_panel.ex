@@ -57,7 +57,11 @@ defmodule LumenViaeWeb.Live.Meditations.List.FiltersPanel do
             label="Narration"
             value={@filters.audio}
             prompt="Any"
-            options={[{"Has audio", "with"}, {"Missing audio", "without"}]}
+            options={[
+              {"Has audio", "with"},
+              {"Missing audio", "without"},
+              {"Missing a voice", "missing_voice"}
+            ]}
           />
 
           <.filter_select

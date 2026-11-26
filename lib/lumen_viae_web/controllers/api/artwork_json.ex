@@ -23,7 +23,8 @@ defmodule LumenViaeWeb.API.ArtworkJSON do
     image_width: nil,
     image_height: nil,
     image_alt: nil,
-    image_attribution: nil
+    image_attribution: nil,
+    image_variants: nil
   }
 
   @doc """
@@ -49,7 +50,8 @@ defmodule LumenViaeWeb.API.ArtworkJSON do
         image_width: record.image_width,
         image_height: record.image_height,
         image_alt: record.image_alt,
-        image_attribution: attribution(record)
+        image_attribution: attribution(record),
+        image_variants: variants(record)
       }
     else
       @absent
@@ -61,6 +63,12 @@ defmodule LumenViaeWeb.API.ArtworkJSON do
   record that carries no artwork columns at all.
   """
   def absent, do: @absent
+
+  # Smaller WebP copies, `[%{width, url}]` narrowest first, only those
+  # recorded as stored; `[]` means draw `image_url`.
+  defp variants(record) do
+    for {width, url} <- Rosary.artwork_variant_urls(record), do: %{width: width, url: url}
+  end
 
   defp attribution(record) do
     %{
