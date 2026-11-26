@@ -19,7 +19,7 @@ time, as its desktop version. The console
 | `/mysteries/:category` | `LumenViaeWeb.Live.Mysteries.CategoryList` | One category: `joyful`, `sorrowful`, `glorious`, `luminous` or `seven_sorrows`. Its mysteries, "Your Rosary Today" (the narration voice, the one choice left), the two ways to pray without a set (the Scriptural Rosary and "No meditation", the Rosary prayed aloud with none, `form=holy`), and the shelf of meditation sets. |
 | `/meditation-sets/:set_id/pray` | `LumenViaeWeb.Live.Pray.Index` | The prayer page, praying one set. |
 | `/mysteries/:category/pray` | `LumenViaeWeb.Live.Pray.Index` | The same page, praying a category without a set. |
-| `/app` | `LumenViaeWeb.Live.Home.App.Index` | The iPhone app's page: real screenshots of the app in CSS-drawn phones, what it holds in the app's own names, and the App Store link. |
+| `/app` | `LumenViaeWeb.Live.Home.App.Index` | The iPhone app's page in the Midnight colours: short silent loops of the app in CSS-drawn phones, what it holds in the app's own names and true counts, and the App Store link. `?lang=es` in Spanish (unlinked, noindex). |
 | `/privacy-policy` | `LumenViaeWeb.Live.PrivacyPolicy.Index` | The privacy policy the App Store listing links to. |
 | `/credits` | `LumenViaeWeb.Live.Credits.Index` | Sources & Credits, linked from the footer and from the Source line at the foot of a prayer's page (`#prayers`): the jump pills, the Prayer Book's chapters folding open (the first open), each prayer once, in its home chapter, linked with its origin; the novenas' paintings and the mysteries' woodcuts with their credits and licence pills; the Chant Library's credit and every chant's Verbum Gloriae page; the Spiritual Reading books (the printed edition each text comes from, `Sources.printed_edition/1`; LibriVox; the Internet Archive recording) and True Devotion's edition. Shaped by `LumenViaeWeb.Live.Credits.Sources`. |
 | `/consecration` | `LumenViaeWeb.Live.Consecration.Index` | The 33-day Consecration to Jesus through Mary, as the app's Consecration tab: with no plan in this browser, the introduction (`?step=devotion`, `day`, `journey`, the welcome never written) and the feast chooser (`?step=choose`; where a visitor who has reached it before opens); a plan before its Day 1, the waiting page; a plan under way goes on to today's day; a finished one offers the feasts again under a note that it was made. |
@@ -855,26 +855,37 @@ Details worth knowing:
 
 ## The app page
 
-`/app` describes the iPhone app as it is now, in the app's own names
-(Your Rosary Today, the Audio Rosary as the app named it then, Hours of Prayer, Today's Mass,
-the Chant Library, the Chapel). Describe nothing the app does not do, and
-no ratings, reviews or download counts.
+`/app` describes the iPhone app as it is now, in the app's own names.
+Describe nothing the app does not do, and no ratings, reviews or download
+counts. Its layout is design's direction C (Abraham, 16 Nov 2026: "i like
+c the best"), in the app's Midnight colours (`--color-midnight-*`, used
+only here): the Annunciation behind the head with one phone, two
+painting-and-words rows, six tiles (Hours of Prayer and No account with a
+phone each) and the closing call.
 
-- Every screen is a real screenshot from the iOS Simulator (iPhone 17 Pro,
-  the Marian Blue theme, status bar set to
-  9:41 and full), in `priv/static/images/app/`: `<name>-390.webp`,
-  `<name>-780.webp` (cwebp at quality 85) and a 390 pixel `<name>.jpg`.
-  The originals stay out of the repository.
-- `LumenViaeWeb.Live.Home.App.PhoneScreen` draws each one in a CSS phone
-  (`.phone-frame` in `app.css`), with `width` and `height` and alt text
-  saying what the screen shows.
-- `og-app.jpg` (1200x630) is three of the screenshots composed for link
-  previews.
-- The download button is the site's gilt button worded like Apple's badge,
-  not the badge itself, which is licensed artwork. Every download link is
-  the App Store listing, and `test/lumen_viae_web/live/home/app_test.exs`
-  and the smoke test check it.
-- When the app changes a screen the page shows, retake that screenshot.
+- Every phone is the app itself in its Midnight theme, never the Marian
+  Blue one: a short silent loop, `LumenViaeWeb.Live.Home.App.Clip`. A clip
+  is `<name>.mp4` (H.264, 600 px wide, no audio track, under 1 MB) and its
+  poster `<name>.jpg` and `.webp` in `priv/static/images/app/clips/`, from
+  design's shot list (`reports/design/app-page/SHOTS-C.md`). It loads
+  nothing until shown, plays only on screen, never by itself under reduced
+  motion, and has a Pause button (the `AppClip` hook).
+- Five clips: `c1-player` in the head, `c3-beads` and `c5-chant` at the
+  inner edge of the two painting rows (the `app-c__row--phone` class; take
+  it off to remove them), `c6-hours` and `c7-prayers` in tiles I and VI.
+  `?lang=es` uses `c1-player-es` and `c7-prayers-es`. Images are cached a
+  week under their names, so a clip recorded again takes a new name.
+- The counts (chants, prayers) are read from the library when the page
+  mounts, and spelled out where a heading says them
+  (`LumenViaeWeb.Live.Home.App.Words`), so they stay true.
+- `?lang=es` is the page in Spanish, linked from nowhere yet and marked
+  `noindex` until it is. Its words need a native reader's check before a
+  link to it ships.
+- `og-app-midnight.jpg` (1200x630) is the link preview: the player, Home and the prayer book in Midnight.
+- The download button is Apple's own badge, kept as downloaded. Every
+  download link is the App Store listing, and
+  `test/lumen_viae_web/live/home/app_test.exs` and the smoke test check it.
+- When the app changes a screen a clip shows, record that clip again.
 
 ## Completions
 

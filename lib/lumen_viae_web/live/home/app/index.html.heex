@@ -1,171 +1,122 @@
-<div id="app-page" class="bg-night">
-  <!-- Hero: the page's one deep band -->
-  <section
-    class="relative overflow-hidden bg-night-deep border-b border-night-border"
-    aria-labelledby="app-hero-heading"
-  >
-    <div class="relative max-w-6xl mx-auto px-4 sm:px-8 pt-12 pb-14 md:py-20 grid grid-cols-[minmax(0,1fr)] md:grid-cols-[1fr_auto] items-center gap-12 md:gap-16">
-      <div class="text-center md:text-left">
-        <p class="kicker mb-4">Lumen Viae for iPhone</p>
-        <h1
-          id="app-hero-heading"
-          class="font-display font-semibold text-ink-light text-[min(2.5rem,11vw)] leading-[1.08] sm:text-6xl lg:text-7xl"
-        >
-          The Rosary, prayed wherever you are
-        </h1>
-        <p class="mt-6 font-garamond text-ink-muted text-xl md:text-[1.375rem] leading-relaxed max-w-[34rem] mx-auto md:mx-0">
-          Meditations from the saints read to you between the decades, the Scriptural Rosary, and the whole Rosary said with you, bead by bead.
-        </p>
-
-        <div class="mt-9 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
-          <.app_store_button href={@app_store_url} />
-          <a href="#inside" class="btn-outline-gold">See what is inside</a>
-        </div>
-        <p class="mt-5 font-garamond text-ink-muted text-base">
-          For iPhone, on iOS 17 or later.
-        </p>
+<div id="app-page" class="app-c" lang={@lang} data-html-lang={@lang} phx-hook="AppRise">
+  <section class="app-c__hero" aria-labelledby="app-title">
+    <LumenViaeWeb.Components.MysteryPainting.picture
+      name="joyful_annunciation"
+      sizes="100vw"
+      class="app-c__hero-painting"
+      loading="eager"
+      fetchpriority="high"
+      alt=""
+    />
+    <div class="app-c__wrap app-c__hero-inner">
+      <div class="app-c__hero-words">
+        <p class="app-c__kicker">{@t.kicker}</p>
+        <h1 id="app-title" class="app-c__h1">{@t.h1}</h1>
+        <p class="app-c__lede">{@t.lede}</p>
+        <.app_store_button href={@app_store_url} free={@t.free} badge={@t.badge} />
       </div>
+      <.clip
+        name={Map.get(@t.clip_names, "c1-player", "c1-player")}
+        alt={@t.clips["c1-player"]}
+        pause={@t.pause}
+        play={@t.play}
+        class="app-phone--hero"
+      />
+    </div>
+  </section>
 
-      <div class="relative mx-auto">
-        <div class="bg-halo absolute -inset-16 rounded-full" aria-hidden="true"></div>
-        <.phone_screen
-          name={@hero.name}
-          alt={@hero.alt}
-          loading="eager"
-          sizes="(min-width: 768px) 320px, 270px"
-          class="relative w-[270px] md:w-[320px]"
+  <ul class="app-c__proof" data-role="proof">
+    <li :for={fact <- @t.proof}>{fact}</li>
+  </ul>
+
+  <section class="app-c__rows">
+    <div class="app-c__wrap">
+      <article class="app-c__row app-c__row--phone" data-rise>
+        <LumenViaeWeb.Components.MysteryPainting.picture
+          name="sorrowful_carrying"
+          sizes="(min-width: 768px) 560px, 100vw"
+          class="app-c__row-painting"
+          alt=""
         />
-      </div>
+        <.clip
+          name="c3-beads"
+          alt={@t.clips["c3-beads"]}
+          pause={@t.pause}
+          play={@t.play}
+          class="app-phone--tile app-phone--row"
+        />
+        <div class="app-c__row-words">
+          <p class="app-c__kicker">{@t.rosary_kicker}</p>
+          <h2 class="app-c__h2">{@t.rosary_title}</h2>
+          <p>{@t.rosary_body}</p>
+        </div>
+      </article>
+      <article class="app-c__row app-c__row--flip app-c__row--phone" data-rise>
+        <div class="app-c__row-words">
+          <p class="app-c__kicker">{@t.chant_kicker}</p>
+          <h2 class="app-c__h2">{@t.chant_title}</h2>
+          <p>{@t.chant_body}</p>
+        </div>
+        <.clip
+          name="c5-chant"
+          alt={@t.clips["c5-chant"]}
+          pause={@t.pause}
+          play={@t.play}
+          class="app-phone--tile app-phone--row"
+        />
+        <LumenViaeWeb.Components.MysteryPainting.picture
+          name="mary_sistine_madonna"
+          sizes="(min-width: 768px) 560px, 100vw"
+          class="app-c__row-painting"
+          alt=""
+        />
+      </article>
     </div>
   </section>
 
-  <!-- What is inside: one feature a row, the screenshot alternating sides -->
-  <section id="inside" class="scroll-mt-6" aria-labelledby="inside-heading">
-    <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-16 md:pt-24">
-      <div class="text-center max-w-2xl mx-auto">
-        <p class="kicker mb-3">What is inside</p>
-        <h2
-          id="inside-heading"
-          class="font-display font-semibold text-ink-light text-[min(2.25rem,10vw)] md:text-5xl leading-tight"
+  <section class="app-c__tiles" aria-labelledby="app-tiles-title">
+    <div class="app-c__wrap">
+      <p class="app-c__kicker">{@t.tiles_kicker}</p>
+      <h2 id="app-tiles-title" class="app-c__h2">{@t.tiles_title}</h2>
+      <ul class="app-c__grid">
+        <li
+          :for={{{title, body}, i} <- Enum.with_index(@t.tiles)}
+          class={["app-c__tile", i in [0, 5] && "app-c__tile--wide"]}
+          data-rise
+          style={"--rise-delay: #{i * 60}ms"}
         >
-          The Rosary first, and the Church's prayer around it
-        </h2>
-        <.sacred_divider class="max-w-xs mx-auto" />
-      </div>
-
-      <div class="space-y-20 md:space-y-28 pb-20 md:pb-28">
-        <article
-          :for={{feature, index} <- Enum.with_index(@features)}
-          id={feature.id}
-          class="grid grid-cols-[minmax(0,1fr)] md:grid-cols-2 items-center gap-10 md:gap-16"
-          aria-labelledby={"#{feature.id}-heading"}
-        >
-          <div class={[
-            "text-center md:text-left max-w-[34rem] mx-auto md:mx-0",
-            rem(index, 2) == 1 && "md:order-2"
-          ]}>
-            <p class="kicker mb-3">{feature.kicker}</p>
-            <h3
-              id={"#{feature.id}-heading"}
-              class="font-display font-semibold text-ink-light text-[min(1.875rem,8.5vw)] md:text-4xl leading-tight"
-            >
-              {feature.title}
-            </h3>
-            <p
-              :for={paragraph <- feature.body}
-              class="mt-4 font-garamond text-ink-muted text-lg md:text-xl leading-relaxed"
-            >
-              {paragraph}
-            </p>
+          <div class="app-c__tile-words">
+            <span class="app-c__numeral" aria-hidden="true">
+              {Enum.at(~w(I II III IV V VI), i)}
+            </span>
+            <h3 class="app-c__h3">{title}</h3>
+            <p>{body}</p>
           </div>
-
-          <div class={["flex justify-center", rem(index, 2) == 1 && "md:order-1"]}>
-            <.phone_screen
-              name={feature.screen.name}
-              alt={feature.screen.alt}
-              class="w-[250px] md:w-[300px]"
-            />
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Also inside: four smaller screens -->
-  <section
-    class="border-t border-night-border bg-night"
-    aria-labelledby="also-heading"
-  >
-    <div class="max-w-6xl mx-auto px-4 sm:px-8 py-16 md:py-24">
-      <div class="text-center max-w-2xl mx-auto mb-12">
-        <p class="kicker mb-3">And more</p>
-        <h2
-          id="also-heading"
-          class="font-display font-semibold text-ink-light text-[min(2.25rem,10vw)] md:text-5xl leading-tight"
-        >
-          More in the app
-        </h2>
-      </div>
-
-      <ul class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] sm:grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-12">
-        <li :for={item <- @also} class="text-center">
-          <.phone_screen
-            name={item.screen.name}
-            alt={item.screen.alt}
-            sizes="(min-width: 1024px) 220px, 45vw"
-            class="w-full max-w-[200px] lg:max-w-[220px] mx-auto"
+          <.clip
+            :if={i == 0}
+            name={Map.get(@t.clip_names, "c6-hours", "c6-hours")}
+            alt={@t.clips["c6-hours"]}
+            pause={@t.pause}
+            play={@t.play}
+            class="app-phone--tile"
           />
-          <h3 class="mt-5 font-display font-semibold text-ink-light text-xl sm:text-2xl leading-tight">
-            {item.title}
-          </h3>
-          <p class="mt-2 font-garamond text-ink-muted text-base sm:text-lg leading-relaxed max-w-[18rem] mx-auto">
-            {item.body}
-          </p>
+          <.clip
+            :if={i == 5}
+            name={Map.get(@t.clip_names, "c7-prayers", "c7-prayers")}
+            alt={@t.clips["c7-prayers"]}
+            pause={@t.pause}
+            play={@t.play}
+            class="app-phone--tile"
+          />
         </li>
       </ul>
     </div>
   </section>
 
-  <!-- How it keeps you company: no screenshots, four short promises -->
-  <section class="border-t border-night-border" aria-labelledby="anywhere-heading">
-    <div class="max-w-6xl mx-auto px-4 sm:px-8 py-16 md:py-20">
-      <h2
-        id="anywhere-heading"
-        class="text-center font-display font-semibold text-ink-light text-[min(2.25rem,10vw)] md:text-5xl leading-tight mb-12"
-      >
-        Pray anywhere, quietly
-      </h2>
-      <ul class="grid grid-cols-[minmax(0,1fr)] sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <li :for={promise <- @promises} class="hairline-card p-6">
-          <span class="block w-1.5 h-1.5 rotate-45 bg-gilt mb-4" aria-hidden="true"></span>
-          <h3 class="font-display font-semibold text-ink-light text-[min(1.5rem,7vw)] leading-tight">
-            {promise.title}
-          </h3>
-          <p class="mt-3 font-garamond text-ink-muted text-lg leading-relaxed">
-            {promise.body}
-          </p>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- Closing invitation -->
-  <section class="border-t border-night-border" aria-labelledby="closing-heading">
-    <div class="max-w-3xl mx-auto px-4 sm:px-8 py-16 md:py-24 text-center">
-      <p class="kicker">Lumen Viae for iPhone</p>
-      <h2
-        id="closing-heading"
-        class="mt-3 font-display font-semibold text-ink-light text-[min(2.25rem,10vw)] md:text-5xl leading-tight"
-      >
-        Begin today's Rosary
-      </h2>
-      <p class="mt-4 font-garamond text-ink-muted text-xl leading-relaxed">
-        The app opens on today's mysteries. One tap, and you are praying.
-      </p>
-      <div class="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <.app_store_button href={@app_store_url} />
-        <.link navigate="/" class="btn-outline-gold">Pray on the website</.link>
-      </div>
-    </div>
+  <section class="app-c__close" aria-labelledby="app-close-title">
+    <p class="app-c__kicker">{@t.kicker}</p>
+    <h2 id="app-close-title" class="app-c__h2">{@t.close_title}</h2>
+    <p>{@t.close_body}</p>
+    <.app_store_button href={@app_store_url} free={@t.free} badge={@t.badge} />
   </section>
 </div>

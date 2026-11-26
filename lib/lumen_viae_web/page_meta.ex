@@ -91,7 +91,8 @@ defmodule LumenViaeWeb.PageMeta do
       image: image,
       type: "website",
       card: card(image),
-      json_ld: breadcrumb(trail) ++ Keyword.get(opts, :json_ld, [])
+      json_ld: breadcrumb(trail) ++ Keyword.get(opts, :json_ld, []),
+      noindex: Keyword.get(opts, :noindex, false)
     }
   end
 
