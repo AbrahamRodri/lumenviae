@@ -77,7 +77,7 @@ defmodule LumenViaeWeb.Live.Home.App.Index do
           alt={@badge.alt}
           width={@badge.width}
           height={@badge.height}
-          class="h-14 w-auto"
+          class="h-[min(3.5rem,56px)] w-auto"
         />
       </a>
       <span class="app-badge__free">{@free}</span>
